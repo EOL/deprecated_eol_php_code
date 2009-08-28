@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root>
+<item id="node_1" state="open"><content><name icon="../images/globe.png"><![CDATA[Node 1 (root)]]></name></content>
+	<item id="node_2"><content><name><![CDATA[Child 1.1]]></name></content></item>
+	<item id="node_3"><content><name><![CDATA[Child 1.2]]></name></content>
+		<item id="node_4"><content><name><![CDATA[Child 1.2.1]]></name></content></item>
+		<item id="node_5"><content><name><![CDATA[Child 1.2.2]]></name></content></item>
+		<item id="node_6"><content><name><![CDATA[Child 1.2.3]]></name></content></item>
+	</item>
+	<item id="node_7"><content><name><![CDATA[Child 1.3]]></name></content></item>
+</item>
+</root>

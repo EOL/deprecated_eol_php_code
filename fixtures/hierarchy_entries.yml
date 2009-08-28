@@ -1,0 +1,155 @@
+node_1:
+		id: 1
+		identifier: node_1
+		name_id: 1
+		parent_id: 0
+		hierarchy_id: 2
+		rank_id: 1
+		ancestry: 
+		lft: 1
+		rgt: 24
+		depth: 0
+		taxon_concept_id: 1
+
+node_2:
+		id: 2
+		identifier: node_2
+		name_id: 2
+		parent_id: 1
+		hierarchy_id: 2
+		rank_id: 2
+		ancestry: 1
+		lft: 2
+		rgt: 7
+		depth: 1
+		taxon_concept_id: 2
+
+node_3:
+		id: 3
+		identifier: node_3
+		name_id: 3
+		parent_id: 1
+		hierarchy_id: 2
+		rank_id: 2
+		ancestry: 1
+		lft: 8
+		rgt: 17
+		depth: 1
+		taxon_concept_id: 3
+
+node_4:
+		id: 4
+		identifier: node_4
+		name_id: 4
+		parent_id: 1
+		hierarchy_id: 2
+		rank_id: 2
+		ancestry: 1
+		lft: 18
+		rgt: 23
+		depth: 1
+		taxon_concept_id: 4
+
+node_5:
+		id: 5
+		identifier: node_5
+		name_id: 5
+		parent_id: 2
+		hierarchy_id: 2
+		rank_id: 3
+		ancestry: 1|2
+		lft: 3
+		rgt: 4
+		depth: 2
+		taxon_concept_id: 5
+
+node_6:
+		id: 6
+		identifier: node_6
+		name_id: 6
+		parent_id: 2
+		hierarchy_id: 2
+		rank_id: 3
+		ancestry: 1|2
+		lft: 5
+		rgt: 6
+		depth: 2
+		taxon_concept_id: 6
+
+node_7:
+		id: 7
+		identifier: node_7
+		name_id: 7
+		parent_id: 3
+		hierarchy_id: 2
+		rank_id: 3
+		ancestry: 1|3
+		lft: 9
+		rgt: 10
+		depth: 2
+		taxon_concept_id: 7
+
+node_8:
+		id: 8
+		identifier: node_8
+		name_id: 8
+		parent_id: 3
+		hierarchy_id: 2
+		rank_id: 3
+		ancestry: 1|3
+		lft: 11
+		rgt: 16
+		depth: 2
+		taxon_concept_id: 8
+
+node_9:
+		id: 9
+		identifier: node_9
+		name_id: 9
+		parent_id: 4
+		hierarchy_id: 2
+		rank_id: 3
+		ancestry: 1|4
+		lft: 19
+		rgt: 20
+		depth: 2
+		taxon_concept_id: 9
+
+node_10:
+		id: 10
+		identifier: node_10
+		name_id: 10
+		parent_id: 4
+		hierarchy_id: 2
+		rank_id: 3
+		ancestry: 1|4
+		lft: 21
+		rgt: 22
+		depth: 2
+		taxon_concept_id: 10
+
+node_11:
+		id: 11
+		identifier: node_11
+		name_id: 11
+		parent_id: 8
+		hierarchy_id: 2
+		rank_id: 4
+		ancestry: 1|3|8
+		lft: 12
+		rgt: 13
+		depth: 3
+		taxon_concept_id: 11
+
+node_12:
+		id: 12
+		identifier: node_12
+		name_id: 12
+		parent_id: 8
+		hierarchy_id: 2
+		rank_id: 4
+		ancestry: 1|3|8
+		lft: 14
+		rgt: 15
+		depth: 3
+		taxon_concept_id: 12

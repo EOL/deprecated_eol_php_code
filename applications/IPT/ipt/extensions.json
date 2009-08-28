@@ -1,0 +1,13 @@
+{"extensions":
+	[
+	{"title":"Vernacular Name","url":"http://gbrds.gbif.org/resources/extensions/vernacularName.xml","id":1},
+	{"title":"Resources","url":"http://gbrds.gbif.org/resources/extensions/resources.xml","id":2},
+	{"title":"Event Attributes","url":"http://gbrds.gbif.org/resources/extensions/eventAttribute.xml","id":3},
+	{"title":"Identification History","url":"http://gbrds.gbif.org/resources/extensions/identificationHistory.xml","id":4},
+	{"title":"Identifier","url":"http://gbrds.gbif.org/resources/extensions/identifier.xml","id":5},
+	{"title":"Multimedia","url":"http://gbrds.gbif.org/resources/extensions/multimedia.xml","id":6},
+	{"title":"Resource Relationship","url":"http://gbrds.gbif.org/resources/extensions/resourceRelationship.xml","id":7},
+	{"title":"Sample Attribute","url":"http://gbrds.gbif.org/resources/extensions/sampleAttribute.xml","id":8},
+	{"title":"EOL dataobject","url":"http://services.eol.org/ipt/EOLdataobject.xml","id":9}
+	]
+}

@@ -1,0 +1,12 @@
+normalized_qualifiers_1:
+    id: 1
+    label: Name
+
+normalized_qualifiers_2:
+    id: 2
+    label: Author
+
+normalized_qualifiers_3:
+    id: 3
+    label: Year
+

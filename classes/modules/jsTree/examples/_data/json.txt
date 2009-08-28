@@ -1,0 +1,37 @@
+{ 
+	attributes: { id : "node_1" , rel : "drive" }, 
+	data: "C:", 
+	icons: "../images/hd.png",
+	state: "open",
+	children: [
+		{ 
+			attributes: { id : "node_2" , rel : "folder" }, 
+			data: "Documents and settings", 
+			children: [
+				{ 
+					attributes: { id : "node_6" , rel : "adm" }, 
+					data: "Administrator",
+					icons: "../images/locked.png"
+				},
+				{ 
+					attributes: { id : "node_3" , rel : "folder" }, 
+					data: "All Users"
+				},
+				{ 
+					attributes: { id : "node_7" , rel : "folder" }, 
+					data: "George"
+				}
+			] 
+		},
+		{ 
+			attributes: { id : "node_5" , rel : "adm" }, 
+			data: "Program files",
+			icons: "../images/locked.png"
+		},
+		{ 
+			attributes: { id : "node_4", rel : "adm" }, 
+			data: "Windows",
+			icons: "../images/locked.png"
+		}
+	] 
+}

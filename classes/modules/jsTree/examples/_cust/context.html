@@ -1,0 +1,63 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Customizations</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat.xml"
+    },
+    ui : {
+      animation : 500,
+      rtl : false,
+      dots : true,
+      context : false
+    }
+  });
+});
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Customizations</h1>
+<p>A of version 0.9.5 the native context menu is enabled by default. Here is how you disable it. For adding more items to the context menu - check the <a href="/documentation#configuration">documentation</a> (the context menu part in the config section).</p>
+<br /><br />
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat.xml"
+    },
+    ui : {
+      animation : 500,
+      rtl : false,
+      dots : true,
+      context : false
+    }
+  });
+});
+</code>
+</div>
+</body>

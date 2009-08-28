@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<response
+    xmlns="http://www.eol.org/transfer/content/0.1"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.eol.org/transfer/content/0.1 http://services.eol.org/schema/content_0_1.xsd">
+    
+    <taxon>
+        <dc:identifier>Ursus_maritimus</dc:identifier>
+        <dc:source>http://www.arkive.org/species/GES/mammals/Ursus_maritimus/</dc:source>
+        <dwc:Kingdom>Animalia</dwc:Kingdom>
+        <dwc:Phylum>Chordata</dwc:Phylum>
+        <dwc:Class>Mammalia</dwc:Class>
+        <dwc:Order>Carnivora</dwc:Order>
+        <dwc:Family>Ursidae</dwc:Family>
+        <dwc:ScientificName>Ursus maritimus</dwc:ScientificName>
+        <commonName xml:lang="en">Polar bear</commonName>
+        <dcterms:created>2000-01-01T00:00:00</dcterms:created>
+        <dcterms:modified>2000-01-01T00:00:00</dcterms:modified>
+        
+        <dataObject>
+            <dc:identifier>Ursus_maritimus/Description</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Description</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dc:rights>Copyright Wildscreen 2003-2008</dc:rights>
+            <dcterms:rightsHolder>Wildscreen</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <audience>Children</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>
+            <dc:description xml:lang="en">The polar bear is the largest living land carnivore in the world today with adult males growing up to 2.6 meters in length (2). The most well known of all bears, the polar bear is immediately recognisable from the distinctive white colour of its thick fur (2). The only unfurred parts of the body are the foot pads and the tip of its nose, which are black, revealing the dark colour of the skin underneath the pelt (3). The neck of the polar bear is longer than in other species of bears, and the elongated head has small ears. Polar bears have large strong limbs and huge forepaws which are used as paddles for swimming (3). The toes are not webbed, but are excellent for walking on snow as they bear non-retractable claws which dig into the snow like ice-picks (3). The soles of the feet also have small projections and indents which act like suction cups and help this bear to walk on ice without slipping (2). Females are about half the size of males, although a pregnant female with stored fat can exceed 500 kg in weight. Polar bear cubs weigh up to 0.7 kilograms at birth. They look similar in appearance to adults, though they have much thinner fur (2).</dc:description>
+            <reference url="http://bearbiology.com">International Association for Bear Research and Management (February, 2004)</reference>
+            <reference>Macdonald, D.W. (2001) The New Encyclopedia of Mammals. Oxford University Press, Oxford.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>Ursus_maritimus/Range</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Range</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dc:rights>Copyright Wildscreen 2003-2008</dc:rights>
+            <dcterms:rightsHolder>Wildscreen</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <audience>Children</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Dispersal</subject>
+            <dc:description xml:lang="en">This bear is found throughout the circumpolar Arctic on ice-covered waters, from Canada, to Norway, parts of the US, the former USSR and Greenland (Denmark). The furthest south the polar bears occur all year round is James Bay in Canada, which is about the same latitude as London (2). During the winter, when the ice extends further south, polar bears move as far south as Newfoundland and into the northern Bering Sea (2). They rarely enter the zone of the central polar basin as there is thick ice all year round and there is little to eat (2).</dc:description>
+            <reference url="http://bearbiology.com">International Association for Bear Research and Management (February, 2004)</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>Ursus_maritimus/Habitat</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Habitat</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dc:rights>© Wildscreen 2003-2008</dc:rights>
+            <dcterms:rightsHolder>Wildscreen</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <audience>Children</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+            <dc:description xml:lang="en">The preferred habitat is the annual ice near the coastlines of continents and islands, where there are large numbers of ringed seals (Phoca hispida), on which these bears feed (2).</dc:description>
+            <reference url="http://bearbiology.com">International Association for Bear Research and Management (February, 2004)</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>Ursus_maritimus/Biology</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Biology</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dc:rights>© Wildscreen 2003-2008</dc:rights>
+            <dcterms:rightsHolder>Wildscreen</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <audience>Children</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Behaviour</subject>
+            <dc:description xml:lang="en"><![CDATA[Polar bears are solitary mammals throughout most of the year, with the exception of breeding pairs and family groups (3). Populations, or stocks of polar bears are distributed throughout the Arctic and have overlapping home ranges which are not defended, and may vary in size from a few hundred to over 300,000 square kilometers (3) (4).
+
+The main food source is ringed seals P. hispida, and to a lesser degree, bearded seals (Erignathus barbatus). The polar bears capture seals when they surface to breathe, or hunt them in their lairs, where young seals are nurtured (3). Polar bears show some amazing adaptations to their Arctic life and are able to detect prey that are almost a kilometer away and up to a meter under the compacted snow using their heightened sense of smell (2). They also feed opportunistically on walruses, belugas, narwhals, waterfowl and seabirds (2).
+
+When food is available these bears have a remarkable ability to devour large amounts of food rapidly, and are also metabolically unique in their ability to switch from a normal state to a slowed-down, hibernation-like condition at any time of year when there is less food available (3). For example, in Hudsen Bay the ice melts completely by mid-July and, as it does not re-freeze until mid-November, pregnant females do not feed for 8 months. During this fasting time, they synthesise their fat and protein stores and recycle metabolic by-products. During periods of particularly cold weather polar bears may also fast, and are known to conserve energy by occupying temporary dens (3).
+
+Polar bears breed from late March to late May (2). Females nurse and care for their cubs for 2.5 years and are therefore only available for mating once the cubs are independent, every three years. As this means that only a third of females can breed each season there is intense competition by the males for females, which may explain why males are so large in size (3). Females must mate many times over a period of several weeks before ovulation and fertilisation are stimulated (induced ovulation), and breeding pairs remain together for one to two weeks to ensure successful mating. If the female's partner is displaced she may mate with more than one male at this time. Implantation of the fertilised egg is delayed until mid-September to mid-October and give birth to the young in snow dens some two to three months later (3). Two-thirds of litters are twins and single litters and triplets are also born (3). Though the polar bear has low reproductive potential, individuals do live for a long time, and have been known to live for up to 30 years (3).]]></dc:description>
+            <reference url="http://bearbiology.com">International Association for Bear Research and Management (February, 2004)</reference>
+            <reference>Macdonald, D.W. (2001) The New Encyclopedia of Mammals. Oxford University Press, Oxford.</reference>
+            <reference url="http://www.polarbearsinternational.org/bear-facts/">Polar Bears International (February, 2004)</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>Ursus_maritimus/Threats</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Threats</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dc:rights>© Wildscreen 2003-2008</dc:rights>
+            <dcterms:rightsHolder>Wildscreen</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats</subject>
+            <dc:description xml:lang="en"><![CDATA[Polar bears are not endangered, though if hunting was not regulated they would be, due to their slow rates of population growth. They do face threats however, that must be constantly monitored (4). The Polar Bear Specialist Group reported in their 2005 meeting that the greatest challenge to the conservation of polar bears may be large-scale ecological change resulting from climatic warming, if the trend documented in recent years continues (5). Other threats to this species include pollution, poaching and disturbances from industrial activities (4) (5).
+
+While the effects of climate change are not certain, it is recognised that even minor climate changes can have profound effects on polar bears and their sea-ice habitat (4). For example, if climate change results in increased snow in the Arctic, polar bears may be less able to hunt prey by entering seal birth lairs, which will affect the survival of both polar bear adults and cubs. On the other hand, if there is reduced snow and increased seasonal rain, seal productivity may be reduced as the lairs may not be thick enough to protect the pups as they develop, or lairs may collapse and kill the seals. In turn this would reduce prey for the polar bears. Unusual warm weather could also impact the polar bears' denning activity (6).
+
+Persistent organ pollutants (POP) also pose a threat to polar bears. Studies on the accumulation of organochlorines (caused by pollutants) through food chains have shown that polar bears, as typical predators, are at risk of accumulating elevated levels of these compounds. These levels are associated with a range of effects, including neurological, reproductive and immunological changes, which may, for example, reduce ability to fight diseases and reproduce (6).
+
+In the 1960s and 1970s, extensive hunting of polar bears had pushed them to the brink of extinction. This threat had a considerable impact on polar bear populations, and though hunting is now controlled, populations are still recovering (4).]]></dc:description>
+            <reference url="http://www.polarbearsinternational.org/bear-facts/">Polar Bears International (February, 2004)</reference>
+            <reference>Buchanan, R. (2006) Pers. Comm.</reference>
+            <reference>National Oceanic and Atmospheric Association (NOAA) Report (February, 2004)</reference>
+        </dataObject>
+        
+    </taxon>
+</response>

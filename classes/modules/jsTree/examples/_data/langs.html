@@ -1,0 +1,70 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>jsTree languages example</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+    $(function() {
+      tree1 = new tree_component();
+      tree1.init($("#demo"), { 
+        data  : {
+          type  : "json",
+          async : true,
+          url   : "ajson2.php"
+        },
+        languages : [ "en" , "bg" ]
+      });
+    });
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Language versions</h1>
+<p>You can read about the expected formats <a href="../../documentation/#data">here</a>.</p>
+<p>This example will use JSON as this seems to be the most common format. The async mode is not needed - it is used for the purpose of the example.</p>
+<input type="button" onclick="tree1.show_lang(0);" value="tree1.show_lang(0);" />
+<input type="button" onclick="tree1.show_lang(1);" value="tree1.show_lang(1);" />
+<input type="button" onclick="tree1.cycle_lang();" value="tree1.cycle_lang();" />
+<br /><br />
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "json",
+      async : true,
+      url   : "<span class="bubble" longdesc="A sample contents is below.">ajson2.php</span>"
+    },
+    languages : [ <span class="bubble" longdesc="This is the default language, that will be visible onload.">"en"</span>, "bg" ]
+  });
+});
+</code>
+<code class="source"><b>html</b>&lt;div id=&quot;demo&quot;&gt;&lt;/div&gt;
+</code>
+
+<code class="source"><b>json</b>[
+  {
+    attributes: { id : '0_1_1' },
+    state: 'closed',
+    data: { 'en' : 'Node 0_1_1', 'bg' : 'Клон 0_1_1' }
+  }
+]
+</code>
+</div>
+</body>

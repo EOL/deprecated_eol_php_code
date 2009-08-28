@@ -1,0 +1,79 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Creating nodes</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+    $(function() {
+      tree1 = new tree_component();
+      tree1.init($("#demo"), { 
+        data  : {
+          type  : "xml_flat",
+          url   : "flat.xml"
+        },
+        rules : {
+          clickable : [ "folder" , "file" ],
+          creatable : [ "folder" ]
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Creating nodes</h1>
+<p>This is the xml_flat example with the addition of rules for creating in nodes.</p>
+<p>The settings.rules.creatable object can either be set to "all", "none" or an array of string values. Each of the items of the array is compared against the settings.rules.type_attr attribute (which defaults to "rel").</p>
+<p>In this example the user can create only in nodes of type "folder".</p>
+<p><sup>*</sup>&nbsp;You could also check the <a href="../_extra/metadata.html">metadata examples</a> for inline declaration of createable.</p>
+<p>By default the create function creates a new node in the currently selected node, and the new node has the type of its parent. The node is inserted as the last child of its parent - you can change this by specifying settings.rules.createat to "top".</p>
+<p>The value of the node corresponds to settings.lang.new_node (which can be an array if needed for language versions). Right after the insert the rename() function is called on the new node.</p>
+<p>You can pass an arguments to override the type, parents, value and icon of the new node (the value and icon parameters can be arrays if needed for language versions). If the value param is passed then the rename() function is not called on the node.</p>
+<input type="button" value="tree1.create();" onclick="tree1.create();" />
+<input type="button" value="tree1.create('folder',$('#n6'));" onclick="tree1.create('folder',$('#n6'));" />
+<input type="button" value="tree1.create('folder',$('#n6'),'Test content');" onclick="tree1.create('folder',$('#n6'),'Test content');" />
+<input type="button" value="tree1.create('folder',$('#n6'),'Test content','../images/globe.png');" onclick="tree1.create('folder',$('#n6'),'Test content','../images/globe.png');" />
+<br /><br />
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "<span class="bubble" longdesc="File contents is below.">flat.xml</span>"
+    },
+    rules : {
+      clickable : [ "folder" , "file" ],
+      creatable : [ <span style="color:green">"folder"</span> ]
+    }
+  });
+});
+</code>
+<code class="source"><b>xml</b>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;root&gt;
+  &lt;item id=&quot;n1&quot; parent_id=&quot;0&quot; <span style="color:green">rel=&quot;root&quot;</span> state=&quot;open&quot;&gt;&lt;content&gt;&lt;name icon=&quot;../images/hd.png&quot;</span>&gt;Root node&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n2&quot; parent_id=&quot;1&quot; <span style="color:green">rel=&quot;folder&quot;</span>&gt;&lt;content&gt;&lt;name&gt;Child 1&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n6&quot; parent_id=&quot;1&quot; <span style="color:green">rel=&quot;locked&quot;</span>&gt;&lt;content&gt;&lt;name icon=&quot;../images/locked.png&quot;&gt;Child 1&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n3&quot; parent_id=&quot;1&quot; <span style="color:green">rel=&quot;folder&quot;</span> title=&quot;My name is child 2&quot;&gt;&lt;content&gt;&lt;name&gt;Child 2&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n4&quot; parent_id=&quot;2&quot; <span style="color:green">rel=&quot;file&quot;</span>&gt;&lt;content&gt;&lt;name icon=&quot;../images/file.png&quot;&gt;A sub child&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n5&quot; parent_id=&quot;2&quot; <span style="color:green">rel=&quot;file&quot;</span>&gt;&lt;content&gt;&lt;name icon=&quot;../images/file.png&quot;&gt;Sub-children ...&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+&lt;/root&gt;
+</code>
+</div>
+</body>

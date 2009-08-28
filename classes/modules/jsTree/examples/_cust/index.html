@@ -1,0 +1,65 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Customizations</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat.xml"
+    },
+    ui : {
+      animation : 500,
+      rtl : false,
+      dots : true,
+      theme_name : "classic"
+    }
+  });
+});
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Customizations</h1>
+<p>Here is how you use a certain theme. For further customization using classes and building your own themes - check the <a href="/documentation#output">customization documentation</a></p>
+<input type="button" value="$('#demo').toggleClass('rtl');" onclick="$('#demo').toggleClass('rtl');" />
+<input type="button" value="$('#demo').toggleClass('no_dots');" onclick="$('#demo').toggleClass('no_dots');" />
+<br /><br />
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat.xml"
+    },
+    ui : {
+      animation : 500,
+      rtl : false,
+      dots : true,
+      theme_name : "classic"
+    }
+  });
+});
+</code>
+</div>
+</body>

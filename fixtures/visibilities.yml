@@ -1,0 +1,15 @@
+visible:
+    id: 1
+    label: Visible
+
+preview:
+    id: 2
+    label: Preview
+
+inappropriate:
+    id: 3
+    label: Inappropriate
+
+invisible:
+    id: 10
+    label: Invisible

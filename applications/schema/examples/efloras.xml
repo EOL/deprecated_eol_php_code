@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<response
+    xmlns="http://www.eol.org/transfer/content/0.1"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.eol.org/transfer/content/0.1 http://services.eol.org/schema/content_0_1.xsd">
+    
+    <taxon>
+        <dc:identifier>25510055</dc:identifier>
+        <dc:source>http://www.tropicos.org/Name/25510055</dc:source>
+        <dwc:Kingdom>Plantae</dwc:Kingdom>
+        <dwc:Family>Poaceae</dwc:Family>
+        <dwc:ScientificName>Zea mays L.</dwc:ScientificName>
+        <dcterms:created>2000-01-01T00:00:00</dcterms:created>
+        <dcterms:modified>2000-01-01T00:00:00</dcterms:modified>
+        <reference url="http://www.tropicos.org/Publication/1071">Species Plantarum 2: 971-972. 1753.</reference>
+        
+        <dataObject>
+            <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+            <mimeType>image/jpeg</mimeType>
+            <agent role="photographer">Barry Hammel</agent>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dcterms:rightsHolder>Barry Hammel</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <dc:description xml:lang="en">Female infructescences.</dc:description>
+            <mediaURL>http://www.inbio.ac.cr/bims/Images/Poaceae.jpg</mediaURL>
+            <location>Costa Rica</location>
+        </dataObject>
+        
+        <dataObject>
+            <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+            <mimeType>image/jpeg</mimeType>
+            <agent role="photographer"><![CDATA[James Zarucchi, plate from Köhler's <i>Medizinal Pflanzen</i>]]></agent>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dcterms:rightsHolder>MBG</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <dc:description xml:lang="en">Colored lithograph of plant with adventitious prop roots, female infrutescence and fruits, male inflorescence and spikelets.</dc:description>
+            <mediaURL>http://www.mobot.org/MOBOT/research/library/kohler/1761_108.jpg</mediaURL>
+        </dataObject>
+        
+        <dataObject>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <agent role="source">Flora of China</agent>
+            <dc:title xml:lang="en">Description</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>
+            <dc:description xml:lang="en"><![CDATA[Culms erect, 1–4 m tall. Leaf sheaths with transverse veinlets; leaf blades 50–90 × 3–12 cm, glabrous or with tubercle-based hairs, margins scabrid, midvein stout; ligule ca. 2 mm. Female inflorescence a cylindrical "cob," with 16–30 rows of spikelets; glumes equal, veinless, margins ciliate; florets hyaline. Male inflorescence a "tassel" of many digitate racemes; spikelets 9–14 mm, unequally pedicellate, one pedicel 1–2 mm, the other 2–4 mm; glumes subequal, membranous, lower ca. 10-veined, margins ciliate, upper 7-veined; lower lemma and palea hyaline, subequal; upper lemma smaller than lower. Anthers orange, ca. 5 mm. Fl. and fr. summer–autumn. 2<i>n</i> = 20, 40, 80.]]></dc:description>
+        </dataObject>
+        
+        <dataObject>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <agent role="source">Flora of China</agent>
+            <dc:title xml:lang="en">Habitat, Elevation &amp; Distribution</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+            <dc:description xml:lang="en"><![CDATA[Widely cultivated in China [originating in America; widely cultivated elsewhere].]]></dc:description>
+        </dataObject>
+        
+    </taxon>
+</response>

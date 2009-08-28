@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<item id='1' parent_id='0' state="open"><content><name>Root node</name></content></item>
+<item id='2' parent_id='1'><content><name icon="../images/globe.png">Child 1</name></content></item>
+<item id='3' parent_id='1' title="My name is child 2"><content><name>Child 2</name></content></item>
+<item id='4' parent_id='2'><content><name>A sub child</name></content></item>
+<item id='5' parent_id='2'><content><name>Sub-children ...</name></content></item>
+</root>

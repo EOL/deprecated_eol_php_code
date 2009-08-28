@@ -1,0 +1,96 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Multitree</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo1, #demo2").height($(".sources").height() - 12);
+    });
+    $(function() {
+      var rl = [ "folder * folder", "file inside folder", "file after file", "file before file" ];
+      var dr = [ "folder", "file" ];
+      tree1 = new tree_component();
+      tree1.init($("#demo1"), { 
+        data  : {
+          type  : "xml_flat",
+          url   : "flat1.xml"
+        },
+        rules : {
+          multitree : true,
+          drag_copy : "ctrl",
+          draggable : dr,
+          dragrules : rl
+        }
+      });
+      tree2 = new tree_component();
+      tree2.init($("#demo2"), { 
+        data  : {
+          type  : "xml_flat",
+          url   : "flat2.xml"
+        },
+        rules : {
+          multitree : true,
+          drag_copy : "ctrl",
+          draggable : dr,
+          dragrules : rl
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Multitree</h1>
+<p>Just set to "true" on both trees. The receiving tree's rules are checked. Language cleanup is also performed if languages differ.</p>
+<p>Just as with regular drag operations you can use <strong>drag_copy</strong> to change the default behaviour from move to copy - just set to "on" if a copy will always be performed, or set to "ctrl" if a copy should only be performed if the ctrl key is down when the nodes are released.</p>
+<p>You can use the tree_component.focusInst() to get the currently focused instance. (useful for keyboard shortcuts)</p>
+<input type="button" value="alert(tree_component.focusInst().container.attr('id'));" onclick="alert(tree_component.focusInst().container.attr('id'));" /><br /><br />
+<div class="demo" id="demo1"></div>
+<div class="demo" id="demo2" style="float:right; margin:0 10px; display:inline;"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  var rl = [ "folder * folder", "file inside folder", "file after file", "file before file" ];
+  var dr = [ "folder", "file" ];
+  tree1 = new tree_component();
+  tree1.init($("#demo1"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat1.xml"
+    },
+    rules : {
+      multitree : true,
+      drag_copy : "ctrl",
+      draggable : dr,
+      dragrules : rl
+    }
+  });
+  tree2 = new tree_component();
+  tree2.init($("#demo2"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat2.xml"
+    },
+    rules : {
+      multitree : true,
+      drag_copy : "ctrl",
+      draggable : dr,
+      dragrules : rl
+    }
+  });
+});
+</code>
+</div>
+</body>

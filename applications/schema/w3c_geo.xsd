@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" elementFormDefault="qualified" version="1.0">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      W3C Basic Geo Vocabulary XML Schema.
+      Created by Markus Döring, m.doering@bgbm.org
+      This schema represents the Geo vocabulary for RDF in the XML schema language.
+      It was developed for the use in TAPIR.
+      More information: http://www.w3.org/2003/01/geo/
+    </xs:documentation>
+  </xs:annotation>
+  
+  <!-- ================================================= -->
+  
+    <xs:element name="Point">
+         <xs:complexType>
+        <xs:sequence>
+            <xs:element ref="geo:lat"/>
+          <xs:element ref="geo:long"/>
+          <xs:element ref="geo:alt" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    </xs:element>
+  <xs:element name="lat" type="geo:latitudeType"/>
+  <xs:element name="long" type="geo:longitudeType"/>
+  <xs:element name="alt" type="xs:float"/>
+  
+  <!-- ================================================= -->
+  
+  <xs:simpleType name="latitudeType">
+    <xs:annotation>
+      <xs:documentation>A simple type representing decimal latitude values from -90 to 90 degrees</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:float">
+      <xs:maxInclusive value="180"/>
+      <xs:minInclusive value="-180"/>
+    </xs:restriction>
+    
+  </xs:simpleType>
+
+  <xs:simpleType name="longitudeType">
+    <xs:annotation>
+      <xs:documentation>A simple type representing decimal longitude values from -180 to 180 degrees</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:float">
+      <xs:maxInclusive value="180"/>
+      <xs:minInclusive value="-180"/>
+    </xs:restriction>
+    
+  </xs:simpleType>
+  
+</xs:schema>

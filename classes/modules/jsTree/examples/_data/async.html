@@ -1,0 +1,82 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>jsTree async example</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+    $(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "json",
+      async : true,
+      url   : "ajson.php"
+    }
+  });
+    });
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Async data in XML or JSON</h1>
+<p>In this example a file is passed at initialization. Each time a new branch opens a GET request is made to that file, along with the ID of the node being opened. The result returned is parsed and used to populate the tree.</p>
+<p>This example uses JSON as data format. Just remember if you are using xml_flat - do not pass the parent_id attribute.</p>
+<p>You can override the "Loading ..." text by specifying the settings.lang.loading string.</p>
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "json",
+      async : true,
+      url   : "<span class="bubble" longdesc="File contents is below.">ajson.php</span>"
+    }
+  });
+});
+</code>
+<code class="source"><b>html</b>&lt;div id=&quot;demo&quot;&gt;&lt;/div&gt;
+</code>
+
+<code class="source"><b>ajson.php</b>&lt;?
+  // Make sure nothing is cached
+  header("Cache-Control: must-revalidate");
+  header("Cache-Control: post-check=0, pre-check=0", false);
+  header("Pragma: no-cache");
+  header("Expires: ".gmdate("D, d M Y H:i:s", mktime(date("H")-2, date("i"), date("s"), date("m"), date("d"), date("Y")))." GMT");
+  header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
+  // So that the loading indicator is visible
+  sleep(1);
+  // The id of the node being opened
+  $id = $_GET["id"];
+  echo "[\n";
+  $nodes = ($id == "0") ? 1 : rand(1,5);
+  for($i = 1; $i &lt;= $nodes; $i++) {
+    if($i > 1) echo ",\n";
+    echo "\t{\n";
+    echo "\t\tattributes: { id : '".$_GET["id"]."_".$i."' },\n";
+    echo "\t\tstate: '".( ($id == 0 || rand(0,100)%2 == 0) ? "closed" : "" )."',\n";
+    echo "\t\tdata: '".$_GET["id"]."_".$i."'\n";
+    echo "\t}";
+  }
+  echo "\n]";
+  exit();
+?&gt;
+</code>
+</div>
+</body>

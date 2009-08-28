@@ -1,0 +1,66 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Multiple selection</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+    $(function() {
+      tree1 = new tree_component();
+      tree1.init($("#demo"), { 
+        data  : {
+          type  : "xml_flat",
+          url   : "../_opers/flat.xml"
+        },
+        rules : {
+          multiple : "on"
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Multiple selection</h1>
+<p>The possbile values for rules.multiple are false, "ctrl" and "on".</p>
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "../_opers/flat.xml"
+    },
+    rules : {
+      <span style="color:green">multiple : "on"</span>
+    }
+  });
+});
+</code>
+<code class="source"><b>xml</b>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;root&gt;
+  &lt;item id=&quot;n1&quot; parent_id=&quot;0&quot; state=&quot;open&quot;&gt;&lt;content&gt;&lt;name icon=&quot;../images/hd.png&quot;&gt;Root node&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n2&quot; parent_id=&quot;1&quot; &gt;&lt;content&gt;&lt;name&gt;Child 1&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n6&quot; parent_id=&quot;1&quot; &gt;&lt;content&gt;&lt;name icon=&quot;../images/locked.png&quot;&gt;Child 1&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n3&quot; parent_id=&quot;1&quot; title=&quot;My name is child 2&quot;&gt;&lt;content&gt;&lt;name&gt;Child 2&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n4&quot; parent_id=&quot;2&quot; &gt;&lt;content&gt;&lt;name icon=&quot;../images/file.png&quot;&gt;A sub child&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id=&quot;n5&quot; parent_id=&quot;2&quot; &gt;&lt;content&gt;&lt;name icon=&quot;../images/file.png&quot;&gt;Sub-children ...&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+&lt;/root&gt;
+</code>
+</div>
+</body>

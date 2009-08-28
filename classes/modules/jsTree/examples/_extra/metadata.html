@@ -1,0 +1,80 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Metadata support</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat.xml"
+    },
+    dflt : "#n1",
+    rules : {
+      metadata : "data",
+      use_inline : true,
+      draggable : [ "file" ],
+      dragrules : [ "file inside folder", "file before file", "file after file" ]
+    }
+  });
+});
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Metadata support</h1>
+<p>You could enable the metadata extension - it gives you the ability to control a lot of features per-node (if combined with <strong>use_inline</strong>) and to set additional data you need to know. It uses the jquery <a href="http://plugins.jquery.com/project/metadata">metadata plugin</a>.</p>
+<p>Just pass a string for the settings.rules.metadata - that string will be the attribute on each node to store the data. If you need to pass some values as the tree loads - just populate that attribute in whatever source you use.</p>
+<p>If you set <strong>use_inline</strong> to true all rules can be set as metadata (draggable, clickable, renamable, etc). Additionally you can set <strong>valid_children</strong>, <strong>max_depth</strong> and <strong>max_children</strong>.</p>
+<p>The metadata rules combine with the settings.rules, but the metadata have advantage.</p>
+<p><sup>*</sup>&nbsp; NOTE: Check out the data source file below.</p>
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data  : {
+      type  : "xml_flat",
+      url   : "flat.xml"
+    },
+    dflt : "#n1",
+    rules : {
+      <span class="bubble" longdesc="Enable metadata and use the 'data' attribute as store.">metadata : "data"</span>,
+      <span class="bubble" longdesc="Check for inline rules.">use_inline : true</span>,
+      draggable : [ "file" ],
+      dragrules : [ "file inside folder", "file before file", "file after file" ]
+    }
+  });
+});
+</code>
+<code class="source"><b>xml</b>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;root&gt;
+  &lt;item id='n1' parent_id='0'  data=&quot;{ <span class="bubble" longdesc="This is how you specify the type of the node.">type: 'root'</span>, <span class="bubble" longdesc="This is why you cannot drag anything into 'Subfolder'.">max_depth : 2</span> }&quot; state=&quot;open&quot;&gt;&lt;content&gt;&lt;name icon=&quot;../images/hd.png&quot;&gt;Root node&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id='n6' parent_id='n1' data=&quot;{ type: 'folder', <span class="bubble" longdesc="This node will have 1 child tops.">max_children : 1</span> }&quot;&gt;&lt;content&gt;&lt;name&gt;Folder 1 (will accept only 1 file)&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id='n2' parent_id='n1' data=&quot;{ type: 'folder' }&quot; state=&quot;open&quot;&gt;&lt;content&gt;&lt;name&gt;Folder 2&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id='n3' parent_id='n1' data=&quot;{ type: 'folder', <span class="bubble" longdesc="This node will not accept any children.">valid_children : []</span> }&quot;&gt;&lt;content&gt;&lt;name&gt;Folder 3 (will not accept files)&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id='n4' parent_id='n2' data=&quot;{ type: 'file', <span class="bubble" longdesc="Although files are set to be draggable in the settings, this exact one is not.">draggable: false</span> }&quot;&gt;&lt;content&gt;&lt;name icon=&quot;../images/file.png&quot;&gt;File 1 (not draggable)&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id='n5' parent_id='n2' data=&quot;{ type: 'file' }&quot;&gt;&lt;content&gt;&lt;name icon=&quot;../images/file.png&quot;&gt;File 2&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id='n7' parent_id='n2' data=&quot;{ type: 'file' }&quot;&gt;&lt;content&gt;&lt;name icon=&quot;../images/file.png&quot;&gt;File 3&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+  &lt;item id='n8' parent_id='n2' data=&quot;{ type: 'folder' }&quot;&gt;&lt;content&gt;&lt;name&gt;Subfolder&lt;/name&gt;&lt;/content&gt;&lt;/item&gt;
+&lt;/root&gt;
+</code>
+</div>
+</body>

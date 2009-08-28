@@ -1,0 +1,32 @@
+development:
+  host:     localhost
+  username: test
+  password: test
+  database: eol_data_development
+  encoding: utf8
+  
+test:
+  host:     localhost
+  username: test
+  password: test
+  database: eol_data_test
+  encoding: latin1
+  
+integration:
+  host:     localhost
+  username: test
+  password: test
+  database: eol_data_integration
+  encoding: utf8
+  
+production:
+  host:            localhost
+  username:        test
+  password:        test
+  database:        eol_data
+  encoding:        latin1
+  master_host:     localhost
+  master_username: test
+  master_password: test
+  master_database: eol_data
+  master_encoding: latin1

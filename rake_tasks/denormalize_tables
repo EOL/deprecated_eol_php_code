@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "Begin Denormalizing"
+
+echo "Starting hierarchies_content"
+/data/www/eol_php_code/rake_tasks/hierarchies_content.php
+echo "Ended hierarchies_content"
+
+echo "Starting top_images"
+/data/www/eol_php_code/rake_tasks/top_images.php
+echo "Ended top_images"
+
+echo "Starting random_taxa"
+/data/www/eol_php_code/rake_tasks/random_taxa.php
+echo "Ended random_taxa"
+
+echo "Starting random_hierarchy_images"
+/data/www/eol_php_code/rake_tasks/random_hierarchy_images.php
+echo "Ended random_hierarchy_images"
+
+echo "Starting table_of_contents"
+/data/www/eol_php_code/rake_tasks/table_of_contents.php
+echo "Ended table_of_contents"
+
+echo "End"

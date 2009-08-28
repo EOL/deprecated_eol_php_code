@@ -1,0 +1,124 @@
+html, body {
+	margin:0;
+	padding:0;
+}
+body {
+	font-family:Verdana;
+	font-size:10px;
+	background:#ebebeb;
+}
+h1 {
+	font-size:1.4em;
+	font-weight:bold;
+	letter-spacing:0;
+	text-align:left;
+	padding:0.5em 0 0 0;
+	margin:0 0 0 0;
+	font-family:Georgia;
+	clear:both;
+}
+#container {
+	margin-left:10px;
+}
+.demo {
+	width:500px;
+	height:500px;
+	border:1px solid gray;
+	background:white;
+	float:left;
+	padding:5px 0;
+	overflow:auto;
+}
+.sources {
+	margin-left:290px;
+}
+.source {
+	height:auto;
+	border:1px solid gray;
+	background:white;
+	margin:0 10px 10px 0;
+	padding:5px 0;
+	overflow:auto;
+	display:block;
+	padding:5px 10px;
+	white-space:pre;
+	font-size:11px;
+	font-family:"Courier New";
+}
+.source b {
+	display:block;
+	border-bottom:1px solid;
+}
+p {
+	margin:0 10px 0 0;
+	padding:0.5em 0 1em 0;
+	font-size:11px;
+}
+
+/*
+.tree {
+	background:gray;
+}
+.tree li, 
+.tree li.last {
+	background-color:gray !important;
+}
+.tree li a {
+	color:white !important;
+}
+*/
+
+/*** DEFAULT ICON ***/
+
+#bubble {
+	position:absolute;
+	background:#FFFFDD;
+	color:black;
+	padding:0.2em 0.5em; 
+	border:1px solid gray;
+	display:none;
+	font-size:10px;
+	width:250px;
+}
+span.bubble {
+	color:#8b0000;
+	border-bottom:1px solid;
+	cursor:pointer;
+}
+
+dl {
+	margin:0 0 0 10px;
+	padding:0;
+}
+dt {
+	font-weight:bold;
+	font-family:Georgia;
+	font-size:1.1em;
+}
+dd {
+	margin:0 0 1em 0;
+	padding:0;
+	font-size:11px;
+}
+
+
+
+
+
+#node_title {
+    font-size: 16px;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+

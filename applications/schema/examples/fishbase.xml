@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<response
+  xmlns='http://www.eol.org/transfer/content/0.2'
+  xmlns:xsd='http://www.w3.org/2001/XMLSchema'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcterms='http://purl.org/dc/terms/'
+  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'
+  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xsi:schemaLocation='http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd'>
+    
+    <taxon>
+        <dc:identifier>69</dc:identifier>
+        <dc:source>http://www.fishbase.org/Summary/speciesSummary.php?ID=69&amp;genusname=Gadus&amp;speciesname=morhua</dc:source>
+        <dwc:Kingdom>Animalia</dwc:Kingdom>
+        <dwc:Phylum>Chordata</dwc:Phylum>
+        <dwc:Class>Actinopterygii</dwc:Class>
+        <dwc:Order>Gadiformes</dwc:Order>
+        <dwc:Family>Gadidae</dwc:Family>
+        <dwc:ScientificName>Gadus morhua</dwc:ScientificName>
+        <commonName xml:lang="en">Atlantic cod</commonName>
+        <commonName xml:lang="da">Almindelig torsk</commonName>
+        <commonName xml:lang="ga">An trosc</commonName>
+        <commonName xml:lang="es">Bacalao</commonName>
+        <dcterms:created>2000-01-01T00:00:00</dcterms:created>
+        <dcterms:modified>2000-01-01T00:00:00</dcterms:modified>
+        
+        <dataObject>
+            <dc:identifier>69/Gamor_u3.jpg</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+            <mimeType>image/jpeg</mimeType>
+            <agent role="photographer" homepage="http://www.fishbase.org/Collaborators/CollaboratorSummary.cfm?ID=40">Morris, P.</agent>
+            <dcterms:created>2002</dcterms:created>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dcterms:rightsHolder>Morris, P.</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <audience>Children</audience>
+            <dc:description xml:lang="en">Sept. 1989; photo provided by Dr. Moreau</dc:description>
+            <mediaURL>http://www.fishbase.org/images/species/Gamor_u3.jpg</mediaURL>
+            <thumbnailURL>http://www.fishbase.org/images/thumbnails/jpg/tn_Gamor_u3.jpg</thumbnailURL>
+            <location>North Sea</location>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Gamor_u7.jpg</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+            <mimeType>image/jpeg</mimeType>
+            <agent role="photographer">Craasmann, A.</agent>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <dcterms:rightsHolder>Craasmann, A.</dcterms:rightsHolder>
+            <audience>General public</audience>
+            <audience>Children</audience>
+            <dc:description xml:lang="en">size: approx. 90 cm TL; July 2000; Ålesund Aquarium, Norway</dc:description>
+            <mediaURL>http://www.fishbase.org/images/species/Gamor_u7.jpg</mediaURL>
+            <thumbnailURL>http://www.fishbase.org/images/thumbnails/jpg/tn_Gamor_u7.jpg</thumbnailURL>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Max_size</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Maximum Size</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size</subject>
+            <dc:description xml:lang="en">200 cm TL (male/unsexed; Ref. 1371); max. published weight: 96.0 kg (Ref. 9988); max. reported age: 25 years</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=9988">Frimodt, C., 1995. Multilingual illustrated guide to the world's commercial coldwater fish. Fishing News Books, Osney Mead, Oxford, England. 215 p.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Environment</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Environment</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+            <dc:description xml:lang="en">benthopelagic; oceanodromous (Ref. 51243); brackish; marine; depth range 0 – 2000 m</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Climate</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Climate</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+            <dc:description xml:lang="en">temperate; 0 – 20°C; 80°N - 35°N, 95°W - 61°E</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Importance</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Importance</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses</subject>
+            <dc:description xml:lang="en">fisheries: highly commercial; aquaculture: commercial; gamefish: yes; price category: medium; price reliability: reliable: based on ex-vessel price for this species</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Resilience</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Resilience</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Reproduction</subject>
+            <dc:description xml:lang="en">Medium, minimum population doubling time 1.4 - 4.4 years (rm=0.2-1.1; also Musick et al. 2000 (Ref. 36717))</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=36717">Musick, J.A., M.M. Harbin, S.A. Berkeley, G.H. Burgess, A.M. Eklund, L. Findley, R.G. Gilmore, J.T. Golden, D.S. Ha, G.R. Huntsman, J.C. McGovern, S.J. Parker, S.G. Poss, E. Sala, T.W. Schmidt, G.R. Sedberry, H. Weeks and S.G. Wright, 2000. Marine, estuarine, and diadromous fish stocks at risk of extinction in North America (exclusive of Pacific salmonids). Fisheries 25(11):6-30.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Vulnerability</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Vulnerability</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus</subject>
+            <dc:description xml:lang="en">High vulnerability (61.35), based on Lmax and K (Ref. 59153)</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=59153">Cheung, W.W.L., T.J. Pitcher and D.Pauly, 2005. A fuzzy logic expert system to estimate intrinsic extinction vulnerabilities of marine fishes to fishing Biol. Conserv. 124:97-111.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Distribution</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Distribution</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+            <dc:description xml:lang="en">Northwest to Northeast Atlantic: Cape Hatteras to Ungava Bay along the North American coast; east and west coast of Greenland; around Iceland; coasts of Europe from the Bay of Biscay to the Barents Sea, including the region around Bear Island.</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Morphology</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Morphology</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>Expert users</audience>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology</subject>
+            <dc:description xml:lang="en">Dorsal spines  (total): 0 - 0; Dorsal soft rays  (total): 44 - 55; Anal  spines: 0; Anal  soft rays: 33 – 45; Vertebrae: 51 – 55. Light lateral line, curved above pectorals. Predorsal distance less than 1/3 of TL. Color varies from brownish to greenish or gray dorsally and on upper sides, becoming pale ventrally. Peritoneum silvery.</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+        <dataObject>
+            <dc:identifier>69/Biology</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+            <mimeType>text/html</mimeType>
+            <dc:title xml:lang="en">Biology</dc:title>
+            <dc:language>en</dc:language>
+            <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+            <audience>General public</audience>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>
+            <dc:description xml:lang="en">Epibenthic-pelagic (Ref. 58426). This species is widely distributed in a variety of habitats, from the shoreline down to the continental shelf. Cod form schools during the day. Cod are omnivorous; they feed at dawn or dusk on invertebrates and fish, including young cod. Cod spawn once a year, in batches (Ref. 51846). They are marketed fresh, dried or salted, smoked and frozen; they are eaten steamed, fried, broiled, boiled, microwaved and baked (Ref. 9988). The most important stocks are the Norwegian Arctic stock in the Barents Sea and the Icelandic stock. The populations around Greenland and Newfoundland have declined dramatically (Ref. 35388). Over 12 nucleotide substitutions in the 307 base pair region of the mitochondrial cytochrome b gene differentiate this species from Gadus ogac (Ref. 40214).</dc:description>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=58426">Coad, B.W. and J.D. Reist, 2004. Annotated list of the arctic marine fishes of Canada. Can. MS Rep. Fish Aquat. Sci. 2674:iv:+112 p.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=51846">Murua, H. and F. Saborido-Rey, 2003. Female reproductive strategies of marine fish species of the North Atlantic. J. Northwest Atl. Fish. Sci. 33:23-31.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=9988">Frimodt, C., 1995. Multilingual illustrated guide to the world's commercial coldwater fish. Fishing News Books, Osney Mead, Oxford, England. 215 p.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=35388">Muus, B.J. and J.G. Nielsen, 1999. Sea fish. Scandinavian Fishing Year Book, Hedehusene, Denmark. 340 p.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.php?id=40214">Carr, S.M. and H.D. Marshall, 1991. A direct approach to the measurement of genetic variation in fish populations: applications of the polymerase chain reaction to studies of Atlantic cod, Gadus morhua L. J. Fish Biol. 39 (Suppl. A):101-107.</reference>
+            <reference url="http://www.fishbase.org/References/FBRefSummary.cfm?ID=1371&amp;speccode=69">Cohen, D.M., T. Inada, T. Iwamoto and N. Scialabba. 1990.</reference>
+        </dataObject>
+        
+    </taxon>
+</response>

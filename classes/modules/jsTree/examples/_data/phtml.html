@@ -1,0 +1,83 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>jsTree predefined HTML example</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../source/tree_component.css" />
+
+  <script type="text/javascript" src="../bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+    $(function() {
+      tree1 = new tree_component();
+      tree1.init($("#demo"));
+    });
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>Predefined HTML</h1>
+<p>In this example an ordinary nested &lt;ul&gt; is converted to a tree. <a href="../../documentation/#data_html">Read here</a> for the expected HTML format if examples is unclear.</p>
+<div class="demo" id="demo">
+	<ul>
+		<li id="predef_1" class="open">
+			<a href="#">Link 1</a>
+			<ul>
+				<li id="predef_2"><a href="#" style="background-image:url('../images/globe.png');">Link 2</a></li>
+				<li id="predef_3"><a href="#">Link 3</a></li>
+				<li id="predef_4"><a href="#">Link 4</a>
+					<ul>
+						<li id="predef_5"><a href="#">Link 5</a></li>
+						<li id="predef_6"><a href="#">Link 6</a></li>
+						<li id="predef_7"><a href="#">Link 7</a>
+					</ul>
+				</li>
+				<li id="predef_8"><a href="#">Link 5</a></li>
+				<li id="predef_9" class="closed"><a href="#">Link 6</a></li>
+			</ul>
+		</li>
+		<li id="pesho"><a href="#">Second root node</a></li>
+	</ul>
+</div>
+<div class="sources">
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"));
+});
+</code>
+<code class="source"><b>html</b>&lt;div id=&quot;demo&quot;&gt;
+  &lt;ul&gt;
+    &lt;li id=&quot;predef_1&quot; <span class='bubble' longdesc="This node is opened as the tree loads.">class=&quot;open&quot;</span>&gt;
+      &lt;a href=&quot;#&quot;&gt;Link 1&lt;/a&gt;
+      &lt;ul&gt;
+        &lt;li id=&quot;predef_2&quot;&gt;
+          &lt;a href=&quot;#&quot; <span class='bubble' longdesc="This node's icon is set to 'images/f.png'.">style=&quot;background-image:url('../images/globe.png');</span>&quot;&gt;Link 2&lt;/a&gt;
+        &lt;/li&gt;
+        &lt;li id=&quot;predef_3&quot;&gt;&lt;a href=&quot;#&quot;&gt;Link 3&lt;/a&gt;&lt;/li&gt;
+        &lt;li id=&quot;predef_4&quot;&gt;&lt;a href=&quot;#&quot;&gt;Link 4&lt;/a&gt;
+          &lt;ul&gt;
+            &lt;li id=&quot;predef_5&quot;&gt;&lt;a href=&quot;#&quot;&gt;Link 5&lt;/a&gt;&lt;/li&gt;
+            &lt;li id=&quot;predef_6&quot;&gt;&lt;a href=&quot;#&quot;&gt;Link 6&lt;/a&gt;&lt;/li&gt;
+            &lt;li id=&quot;predef_7&quot;&gt;&lt;a href=&quot;#&quot;&gt;Link 7&lt;/a&gt;
+          &lt;/ul&gt;
+        &lt;/li&gt;
+        &lt;li id=&quot;predef_8&quot;&gt;&lt;a href=&quot;#&quot;&gt;Link 5&lt;/a&gt;&lt;/li&gt;
+        &lt;li id=&quot;predef_9&quot; <span class='bubble' longdesc="This node is forced to look closed although it has no children.">class=&quot;closed&quot;</span>&gt;&lt;a href=&quot;#&quot;&gt;Link 6&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+</code>
+</div>
+</body>

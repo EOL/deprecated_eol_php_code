@@ -1,0 +1,38 @@
+image:
+    id: 1
+    schema_value: http://purl.org/dc/dcmitype/StillImage
+    label: Image
+    
+sound:
+    id: 2
+    schema_value: http://purl.org/dc/dcmitype/Sound
+    label: Sound
+
+text:
+    id: 3
+    schema_value: http://purl.org/dc/dcmitype/Text
+    label: Text
+
+video:
+    id: 4
+    schema_value: http://purl.org/dc/dcmitype/MovingImage
+    label: Video
+
+gbif_image:
+    id: 5
+    label: GBIF Image
+
+iucn:
+    id: 6
+    label: IUCN
+
+flash:
+    id: 7
+    schema_value: Flash
+    label: Flash
+
+youtube:
+    id: 8
+    schema_value: YouTube
+    label: YouTube
+    

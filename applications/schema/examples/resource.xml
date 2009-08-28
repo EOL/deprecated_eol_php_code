@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<response
+    xmlns="http://www.eol.org/transfer/resource/0.1"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:vcard="http://www.w3.org/2001/vcard-rdf/3.0#"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.eol.org/transfer/resource/0.1 http://services.eol.org/schema/resource_0_1.xsd">
+    
+    <metadata>
+        <dc:title xml:lang="en">Test Data Dump Provider</dc:title>
+        <dc:type>http://purl.org/dc/dcmitype/Service</dc:type>
+        <accesspoint>http://www.example.org/download/forEOL.tar.gz</accesspoint>
+        <dc:source>http://www.eol.org/</dc:source>
+        <dc:description xml:lang="en">Just testing</dc:description>
+        <logoURL>http://www.eol.org/images/logo.png</logoURL>
+        <dc:language>en</dc:language>
+        <dc:subject xml:lang="en">test data</dc:subject>
+        <dcterms:bibliographicCitation xml:lang="en">Copyright Patrick Leary</dcterms:bibliographicCitation>
+        <license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+        <dc:rights>Copyright Patrick Leary</dc:rights>
+        <dcterms:rightsHolder>Patrick Leary</dcterms:rightsHolder>
+        <dcterms:modified>2000-01-01T00:00:00</dcterms:modified>
+        <dcterms:created>2000-01-01T00:00:00</dcterms:created>
+        <refreshPeriodDays>7</refreshPeriodDays>
+        <relatedEntity>
+            <role>data supplier</role>
+            <role>technical host</role>
+            <entity>
+                <identifier>http://www.eol.org/</identifier>
+                <name xml:lang="en">Encyclopedia of Life</name>
+                <acronym>EOL</acronym>
+                <description>EOL serves species pages</description>
+                <address>7 MBL Street, Woods Hole, MA 02543</address>
+                <geo:Point>
+                    <geo:lat>60.171089</geo:lat>
+                    <geo:long>24.931412</geo:long>
+                </geo:Point>
+                <hasContact>
+                    <role>data administrator</role>
+                    <vcard:VCARD>
+                        <vcard:FN>Patrick Leary</vcard:FN>
+                        <vcard:TITLE xml:lang="en">Curator</vcard:TITLE>
+                        <vcard:TEL>(508) 289-7798</vcard:TEL>
+                        <vcard:EMAIL>pleary@mbl.edu</vcard:EMAIL>
+                    </vcard:VCARD>
+                </hasContact>
+                <hasContact>
+                    <role>system administrator</role>
+                    <vcard:VCARD>
+                        <vcard:FN>Pam Fournier</vcard:FN>
+                        <vcard:TITLE xml:lang="en">Systems Administrator</vcard:TITLE>
+                        <vcard:EMAIL>pfournier@mbl.edu</vcard:EMAIL>
+                    </vcard:VCARD>
+                </hasContact>
+            </entity>
+        </relatedEntity>
+    </metadata>
+</response>

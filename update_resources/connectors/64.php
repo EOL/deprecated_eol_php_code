@@ -1,0 +1,256 @@
+#!/usr/local/bin/php
+<?php
+//#!/usr/local/bin/php
+//connector for Radiolaria
+//exit;
+
+//define("ENVIRONMENT", "development");
+define("MYSQL_DEBUG", false);
+define("DEBUG", true);
+include_once(dirname(__FILE__) . "/../../config/start.php");
+    
+$mysqli =& $GLOBALS['mysqli_connection'];
+
+//only on local; to be deleted before going into production
+//$mysqli->truncate_tables("development");
+//Functions::load_fixtures("development");
+
+$resource = new Resource(64);
+$species_url = "http://www.radiolaria.org/species.htm?sp_id=";
+$providers = array( 0 => array( "url" => "http://radiolaria.org/xml/eol.php"            , "active" => 1),
+                    1 => array( "url" => dirname(__FILE__) . "/helpers/Radiolaria.xml"  , "active" => 0)
+                  );
+$schema_taxa = array();
+$used_taxa = array();
+
+foreach($providers as $provider)
+{
+    // start loop through
+    if($provider["active"])
+    {
+        $url = $provider["url"];
+        $xml = @simplexml_load_file($url);
+        $i=0;
+        $sciname = array();//just for debugging
+        $rightsHolder = "Radiolaria.org";        
+
+        foreach($xml->species_list->species as $main)
+        {                        
+            $taxon_identifier = $main->sp_id;                        
+            $dwc_ScientificName = $main->sp_name;            
+            $parenthesis_start = "";
+            $parenthesis_end = "";            
+            if($main->author_year_paranthesis == 1)
+            {
+                $parenthesis_start = "(";
+                $parenthesis_end = ")";            
+            }            
+            if($main->sp_author != "") $dwc_ScientificName .= " " . $parenthesis_start . $main->sp_author . " " . $main->sp_year . "$parenthesis_end";
+            
+            //$rank = $tt->TaxonHeading->RankDesignation;
+            
+            $i++;
+            $sciname["$dwc_ScientificName"] = $dwc_ScientificName;
+
+            $taxon = str_replace(" ", "_", $dwc_ScientificName);
+            
+            if(@$used_taxa[$taxon])
+            {
+                $taxon_parameters = $used_taxa[$taxon];
+            }else
+            {
+                $taxon_parameters = array();
+
+                $main_citation="";                
+
+                $taxon_parameters["identifier"]     = "radiolaria_" . $taxon_identifier;
+                $taxon_parameters["scientificName"] = $dwc_ScientificName;                
+                $taxon_parameters["modified"]       = $main->sp_date;            
+                $taxon_parameters["source"]         = $main->source;            
+                $taxon_parameters["order"]          = ucfirst(strtolower($main->type));                                                            
+                $taxon_parameters["family"]         = $main->family;            
+                
+                $taxon_parameters["dataObjects"]= array();
+
+                $used_taxa[$taxon] = $taxon_parameters;
+            }            
+            foreach($main->descriptions as $desc)
+            {   $j=0;
+                foreach($desc as $description)
+                {   
+                    $j++;                
+                    $object_id = "radiolaria_" . $taxon_identifier . "_desc_" . $j;
+                    $temp = process_dataobjects($description,1,$object_id);                  
+                }
+            }                            
+            foreach($main->images as $desc)
+            {   $j=0;
+                foreach($desc as $image)
+                {   
+                    $j++;                
+                    $object_id = "radiolaria_" . $taxon_identifier . "_img_" . $j;
+                    $temp = process_dataobjects($image,2,$object_id);                  
+                }
+            }
+            //print"<hr>";
+        }
+        // /*
+        print "<hr>
+        i = $i <br>
+        sciname = " . count($sciname);
+        print "<hr>";
+        print count(array_keys($sciname));
+        print "<hr>";
+        print count(array_keys($used_taxa));
+        // */
+        // end loop through
+        print "<hr>" . $provider["url"];
+    }//if($provider["active"])
+}//end main loop
+
+foreach($used_taxa as $taxon_parameters)
+{
+    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+}
+////////////////////// ---
+$new_resource_xml = SchemaConnection::get_taxon_xml($schema_taxa);
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$OUT = fopen($old_resource_path, "w+");
+fwrite($OUT, $new_resource_xml);
+fclose($OUT);
+print "<hr>$old_resource_path<hr>";
+////////////////////// ---
+print "<hr> Done processing.";
+function process_dataobjects($item,$type,$object_id)//$type 1 = text object; 2 = image object
+{
+    global $taxon_identifier;    
+    global $taxon_parameters;
+    global $used_taxa;
+    global $taxon;    
+    global $species_url;
+    global $main;    
+    $dc_identifier   = $object_id;
+    $dc_source       = $species_url . $taxon_identifier;
+    $dcterms_created = "";
+    $ref             = "";            
+    if($type == 1) //text
+    {            
+        $description    = trim($item->de_description);
+          
+        $description = str_ireplace("Dimensions.", "Dimensions. ", $description);
+        $description = str_ireplace("Habitat.", "Habitat. ", $description);                    
+          
+        $title          = "Description";
+        $subject        = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";                
+        $mediaURL       = "";
+        $dataType       = "http://purl.org/dc/dcmitype/Text";
+        $mimeType       = "text/html";                        
+        
+        $agentParameters = array();
+        $agentParameters["role"] = "author";
+        $agentParameters["fullName"] = $item->de_author . " " . $item->de_year;        
+        $agents[] = new SchemaAgent($agentParameters);
+
+        $license          = "http://creativecommons.org/licenses/" . $item->de_license;                                           
+        $dcterms_modified = $item->de_date;
+    }
+    else //image
+    {
+        $description    = trim($item->im_description);            
+        $title          = "";            
+        $subject        = "";                                  
+        $mediaURL       = $item->url;
+        $dataType       = "http://purl.org/dc/dcmitype/StillImage";
+        $mimeType       = "image/jpeg";        
+        
+        if($item->photo_by != "")
+        {
+            $agentParameters = array();
+            $agentParameters["role"] = "author";
+            $agentParameters["fullName"] = $item->photo_by;
+            $agents[] = new SchemaAgent($agentParameters);     
+        }        
+        $license          = "http://creativecommons.org/licenses/" . $item->im_license;                                           
+        $dcterms_modified = $item->im_date;
+    }            
+
+    if(isset($main->contributed_by))
+    {
+        $agentParameters["role"] = "source";
+        $agentParameters["fullName"] = $main->contributed_by;
+        $agents[] = new SchemaAgent($agentParameters);
+    }
+
+    $agentParameters["role"] = "project";
+    $agentParameters["fullName"] = "Radiolaria.org";
+    $agentParameters["homepage"] = "http://www.radiolaria.org/index.htm";
+    $agents[] = new SchemaAgent($agentParameters);
+    
+    $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
+    $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+    $used_taxa[$taxon] = $taxon_parameters;                            
+
+}//function process_dataobjects($arr)
+
+function get_data_object($id, $created, $modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents_arr)
+{
+    global $rightsHolder;
+    
+    $dataObjectParameters = array();
+    $dataObjectParameters["title"] = $title;
+    $dataObjectParameters["rightsHolder"] = $rightsHolder;
+    if($subject)
+    {
+        $dataObjectParameters["subjects"] = array();
+        $subjectParameters = array();
+        $subjectParameters["label"] = $subject;
+        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+    }
+
+    //$description = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $description);
+    $dataObjectParameters["description"] = trim($description);
+
+    $dataObjectParameters["identifier"] = $id;
+    $dataObjectParameters["created"] = $created;
+    $dataObjectParameters["modified"] = $modified;
+    $dataObjectParameters["rightsHolder"] = $rightsHolder;
+    $dataObjectParameters["dataType"] = $dataType;
+    $dataObjectParameters["mimeType"] = $mimeType;
+    $dataObjectParameters["language"] = "en";
+    $dataObjectParameters["license"] = $license;
+    $dataObjectParameters["mediaURL"] = $mediaURL;
+    $dataObjectParameters["source"] = $dc_source;
+
+    if($agents_arr)
+    {
+        $dataObjectParameters["agents"] = $agents_arr;
+    }
+
+    ///////////////////////////////////
+    $dataObjectParameters["audiences"] = array();
+    $audienceParameters = array();    
+
+    $audienceParameters["label"] = "Expert users";
+    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+
+    $audienceParameters["label"] = "General public";
+    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    ///////////////////////////////////
+
+    ///////////////////////////////////    
+    ///*working
+    if($ref != "")
+    {
+        $dataObjectParameters["references"] = array();
+        $referenceParameters = array();
+        $referenceParameters["fullReference"] = trim($ref);
+        $references[] = new SchemaReference($referenceParameters);
+        /*not working...
+        $referenceParam["referenceIdentifiers"][] = array("label" => "label" , "value" => "value");
+        */
+        $dataObjectParameters["references"] = $references;
+    }
+    ///////////////////////////////////
+    return $dataObjectParameters;
+}
+?>

@@ -1,0 +1,84 @@
+mime_types_1:
+    id: 1
+    label: audio/mpeg
+
+mime_types_2:
+    id: 2
+    label: audio/x-ms-wma
+
+mime_types_3:
+    id: 3
+    label: audio/x-pn-realaudio
+
+mime_types_4:
+    id: 4
+    label: audio/x-realaudio
+
+mime_types_5:
+    id: 5
+    label: audio/x-wav
+
+mime_types_6:
+    id: 6
+    label: image/bmp
+
+mime_types_7:
+    id: 7
+    label: image/gif
+
+mime_types_8:
+    id: 8
+    label: image/jpeg
+
+mime_types_9:
+    id: 9
+    label: image/png
+
+mime_types_10:
+    id: 10
+    label: image/svg+xml
+
+mime_types_11:
+    id: 11
+    label: image/tiff
+
+mime_types_12:
+    id: 12
+    label: text/html
+
+mime_types_13:
+    id: 13
+    label: text/plain
+
+mime_types_14:
+    id: 14
+    label: text/richtext
+
+mime_types_15:
+    id: 15
+    label: text/rtf
+
+mime_types_16:
+    id: 16
+    label: text/xml
+
+mime_types_17:
+    id: 17
+    label: video/mp4
+
+mime_types_18:
+    id: 18
+    label: video/mpeg
+
+mime_types_19:
+    id: 19
+    label: video/quicktime
+
+mime_types_20:
+    id: 20
+    label: video/x-flv
+
+mime_types_21:
+    id: 21
+    label: video/x-ms-wmv
+

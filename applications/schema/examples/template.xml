@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<response
+    xmlns="http://www.eol.org/transfer/content/0.1"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.eol.org/transfer/content/0.1 http://services.eol.org/schema/content_0_1.xsd">
+    
+    <taxon>
+        <dc:identifier>identifier1</dc:identifier>
+        <dc:source>source</dc:source>
+        <dwc:Kingdom>kingdom</dwc:Kingdom>
+        <dwc:Phylum>phylum</dwc:Phylum>
+        <dwc:Class>class</dwc:Class>
+        <dwc:Order>order</dwc:Order>
+        <dwc:Family>family</dwc:Family>
+        <dwc:ScientificName>scientificName</dwc:ScientificName>
+        <commonName xml:lang="lang">commonName</commonName>
+        <dcterms:created>created</dcterms:created>
+        <dcterms:modified>modified</dcterms:modified>
+        <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        <dataObject>
+            <dc:identifier>identifier11</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/MovingImage</dataType>
+            <mimeType>audio/mpeg</mimeType>
+            <agent role="animator">Animator Agent</agent>
+            <agent role="source">Source Agent</agent>
+            <dcterms:created>created</dcterms:created>
+            <dcterms:modified>modified</dcterms:modified>
+            <dc:title xml:lang="lang">title</dc:title>
+            <dc:language>language</dc:language>
+            <license>http://creativecommons.org/licenses/publicdomain/</license>
+            <dc:rights>rights</dc:rights>
+            <dcterms:rightsHolder>rightsHolder</dcterms:rightsHolder>
+            <dcterms:bibliographicCitation>bibliographicCitation</dcterms:bibliographicCitation>
+            <audience>Expert users</audience>
+            <dc:source>source</dc:source>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations</subject>
+            <dc:description xml:lang="lang">description</dc:description>
+            <mediaURL>mediaURL</mediaURL>
+            <thumbnailURL>thumbnailURL</thumbnailURL>
+            <location>location</location>
+            <geo:Point>
+                <geo:lat>1.1</geo:lat>
+                <geo:long>2.2</geo:long>
+            </geo:Point>
+            <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        </dataObject>
+        <dataObject>
+            <dc:identifier>identifier12</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/MovingImage</dataType>
+            <mimeType>audio/mpeg</mimeType>
+            <agent role="animator"></agent>
+            <dcterms:created>created</dcterms:created>
+            <dcterms:modified>modified</dcterms:modified>
+            <dc:title xml:lang="lang">title</dc:title>
+            <dc:language>language</dc:language>
+            <license>http://creativecommons.org/licenses/publicdomain/</license>
+            <dc:rights>rights</dc:rights>
+            <dcterms:rightsHolder>rightsHolder</dcterms:rightsHolder>
+            <dcterms:bibliographicCitation>bibliographicCitation</dcterms:bibliographicCitation>
+            <audience>Expert users</audience>
+            <dc:source>source</dc:source>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations</subject>
+            <dc:description xml:lang="lang">description</dc:description>
+            <mediaURL>mediaURL</mediaURL>
+            <thumbnailURL>thumbnailURL</thumbnailURL>
+            <location>location</location>
+            <geo:Point>
+                <geo:lat>1.1</geo:lat>
+                <geo:long>2.2</geo:long>
+            </geo:Point>
+            <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        </dataObject>
+    </taxon>
+    
+    <taxon>
+        <dc:identifier>identifier2</dc:identifier>
+        <dc:source>source</dc:source>
+        <dwc:Kingdom>kingdom</dwc:Kingdom>
+        <dwc:Phylum>phylum</dwc:Phylum>
+        <dwc:Class>class</dwc:Class>
+        <dwc:Order>order</dwc:Order>
+        <dwc:Family>family</dwc:Family>
+        <dwc:ScientificName>scientificName</dwc:ScientificName>
+        <commonName xml:lang="lang">commonName</commonName>
+        <dcterms:created>created</dcterms:created>
+        <dcterms:modified>modified</dcterms:modified>
+        <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        <dataObject>
+            <dc:identifier>identifier22</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/MovingImage</dataType>
+            <mimeType>audio/mpeg</mimeType>
+            <agent role="animator"></agent>
+            <dcterms:created>created</dcterms:created>
+            <dcterms:modified>modified</dcterms:modified>
+            <dc:title xml:lang="lang">title</dc:title>
+            <dc:language>language</dc:language>
+            <license>http://creativecommons.org/licenses/publicdomain/</license>
+            <dc:rights>rights</dc:rights>
+            <dcterms:rightsHolder>rightsHolder</dcterms:rightsHolder>
+            <dcterms:bibliographicCitation>bibliographicCitation</dcterms:bibliographicCitation>
+            <audience>Expert users</audience>
+            <dc:source>source</dc:source>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations</subject>
+            <dc:description xml:lang="lang">description</dc:description>
+            <mediaURL>mediaURL</mediaURL>
+            <thumbnailURL>thumbnailURL</thumbnailURL>
+            <location>location</location>
+            <geo:Point>
+                <geo:lat>1.1</geo:lat>
+                <geo:long>2.2</geo:long>
+            </geo:Point>
+            <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        </dataObject>
+    </taxon>
+    
+    <taxon>
+        <dc:identifier>identifier3</dc:identifier>
+        <dc:source>source</dc:source>
+        <dwc:Kingdom>kingdom</dwc:Kingdom>
+        <dwc:Phylum>phylum</dwc:Phylum>
+        <dwc:Class>class</dwc:Class>
+        <dwc:Order>order</dwc:Order>
+        <dwc:Family>family</dwc:Family>
+        <dwc:ScientificName>scientificName</dwc:ScientificName>
+        <commonName xml:lang="lang">commonName</commonName>
+        <dcterms:created>created</dcterms:created>
+        <dcterms:modified>modified</dcterms:modified>
+        <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        <dataObject>
+            <dc:identifier>identifier33</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/MovingImage</dataType>
+            <mimeType>audio/mpeg</mimeType>
+            <agent role="animator"></agent>
+            <dcterms:created>created</dcterms:created>
+            <dcterms:modified>modified</dcterms:modified>
+            <dc:title xml:lang="lang">title</dc:title>
+            <dc:language>language</dc:language>
+            <license>http://creativecommons.org/licenses/publicdomain/</license>
+            <dc:rights>rights</dc:rights>
+            <dcterms:rightsHolder>rightsHolder</dcterms:rightsHolder>
+            <dcterms:bibliographicCitation>bibliographicCitation</dcterms:bibliographicCitation>
+            <audience>Expert users</audience>
+            <dc:source>source</dc:source>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations</subject>
+            <dc:description xml:lang="lang">description</dc:description>
+            <mediaURL>mediaURL</mediaURL>
+            <thumbnailURL>thumbnailURL</thumbnailURL>
+            <location>location</location>
+            <geo:Point>
+                <geo:lat>1.1</geo:lat>
+                <geo:long>2.2</geo:long>
+            </geo:Point>
+            <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        </dataObject>
+    </taxon>
+    
+    <taxon>
+        <dc:identifier>identifier4</dc:identifier>
+        <dc:source>source</dc:source>
+        <dwc:Kingdom>kingdom</dwc:Kingdom>
+        <dwc:Phylum>phylum</dwc:Phylum>
+        <dwc:Class>class</dwc:Class>
+        <dwc:Order>order</dwc:Order>
+        <dwc:Family>family</dwc:Family>
+        <dwc:ScientificName>scientificName</dwc:ScientificName>
+        <commonName xml:lang="lang">commonName</commonName>
+        <dcterms:created>created</dcterms:created>
+        <dcterms:modified>modified</dcterms:modified>
+        <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        <dataObject>
+            <dc:identifier>identifier44</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/MovingImage</dataType>
+            <mimeType>audio/mpeg</mimeType>
+            <agent role="animator"></agent>
+            <dcterms:created>created</dcterms:created>
+            <dcterms:modified>modified</dcterms:modified>
+            <dc:title xml:lang="lang">title</dc:title>
+            <dc:language>language</dc:language>
+            <license>http://creativecommons.org/licenses/publicdomain/</license>
+            <dc:rights>rights</dc:rights>
+            <dcterms:rightsHolder>rightsHolder</dcterms:rightsHolder>
+            <dcterms:bibliographicCitation>bibliographicCitation</dcterms:bibliographicCitation>
+            <audience>Expert users</audience>
+            <dc:source>source</dc:source>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations</subject>
+            <dc:description xml:lang="lang">description</dc:description>
+            <mediaURL>mediaURL</mediaURL>
+            <thumbnailURL>thumbnailURL</thumbnailURL>
+            <location>location</location>
+            <geo:Point>
+                <geo:lat>1.1</geo:lat>
+                <geo:long>2.2</geo:long>
+            </geo:Point>
+            <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        </dataObject>
+    </taxon>
+    
+    <taxon>
+        <dc:identifier>identifier5</dc:identifier>
+        <dc:source>source</dc:source>
+        <dwc:Kingdom>kingdom</dwc:Kingdom>
+        <dwc:Phylum>phylum</dwc:Phylum>
+        <dwc:Class>class</dwc:Class>
+        <dwc:Order>order</dwc:Order>
+        <dwc:Family>family</dwc:Family>
+        <dwc:ScientificName>scientificName</dwc:ScientificName>
+        <commonName xml:lang="lang">commonName</commonName>
+        <dcterms:created>created</dcterms:created>
+        <dcterms:modified>modified</dcterms:modified>
+        <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        <dataObject>
+            <dc:identifier>identifier55</dc:identifier>
+            <dataType>http://purl.org/dc/dcmitype/MovingImage</dataType>
+            <mimeType>audio/mpeg</mimeType>
+            <agent role="animator"></agent>
+            <dcterms:created>created</dcterms:created>
+            <dcterms:modified>modified</dcterms:modified>
+            <dc:title xml:lang="lang">title</dc:title>
+            <dc:language>language</dc:language>
+            <license>http://creativecommons.org/licenses/publicdomain/</license>
+            <dc:rights>rights</dc:rights>
+            <dcterms:rightsHolder>rightsHolder</dcterms:rightsHolder>
+            <dcterms:bibliographicCitation>bibliographicCitation</dcterms:bibliographicCitation>
+            <audience>Expert users</audience>
+            <dc:source>source</dc:source>
+            <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations</subject>
+            <dc:description xml:lang="lang">description</dc:description>
+            <mediaURL>mediaURL</mediaURL>
+            <thumbnailURL>thumbnailURL</thumbnailURL>
+            <location>location</location>
+            <geo:Point>
+                <geo:lat>1.1</geo:lat>
+                <geo:long>2.2</geo:long>
+            </geo:Point>
+            <reference bici="bici" coden="coden" doi="doi" eissn="eissn" handle="handle" issn="issn" isbn="isbn" lsid="lsid" oclc="oclc" sici="sici" url="url" urn="urn">reference</reference>
+        </dataObject>
+    </taxon>
+    
+</response>

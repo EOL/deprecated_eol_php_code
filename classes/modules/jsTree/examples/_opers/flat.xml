@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<item id='n1' parent_id='0' rel="root" state="open"><content><name icon="../images/hd.png">Root node</name></content></item>
+<item id='n6' parent_id='n1' rel="folder"><content><name>Child 1</name></content></item>
+<item id='n2' parent_id='n1' rel="locked"><content><name icon="../images/locked.png">Child 1</name></content></item>
+<item id='n3' parent_id='n1' rel="folder" title="My name is child 2"><content><name>Child 2</name></content></item>
+<item id='n4' parent_id='n2' rel="file"><content><name icon="../images/file.png">A sub child</name></content></item>
+<item id='n5' parent_id='n2' rel="file"><content><name icon="../images/file.png">Sub-children ...</name></content></item>
+</root>

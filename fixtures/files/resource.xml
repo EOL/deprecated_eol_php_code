@@ -1,0 +1,1030 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response xmlns="http://www.eol.org/transfer/content/0.1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eol.org/transfer/content/0.1 http://services.eol.org/schema/content_0_1.xsd">
+<taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2050654</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/14193</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Tetragnathidae</dwc:Family>
+<dwc:ScientificName>Tetragnatha guatemalensis O. P.-Cambridge, 1889</dwc:ScientificName>
+<commonName xml:lang='en'>Some spider</commonName>
+<dcterms:modified>2007-09-05T19:21:13Z</dcterms:modified>
+<reference>
+<![CDATA[Banks, N. 1898 Arachnida from Baja California and other parts of Mexico.  <i>Proc. Californ. Acad. Sci.</i> (3) <b>1:</b> 205-308.]]>
+</reference>
+<reference>
+<![CDATA[Cambridge, F. O. P.-. 1903 Arachnida - Araneida and Opiliones. In <i>Biologia Centrali-Americana, Zoology</i>.  London, 2: 425-464.]]>
+</reference>
+<reference>
+<![CDATA[Cambridge, O. P.-. 1889 Arachnida. Araneida.  In <i>Biologia Centrali-Americana, Zoology</i>.  London, 1: 1-56.]]>
+</reference>
+<reference>
+<![CDATA[Chamberlin, R. V. & W. Ivie. 1942 A hundred new species of American spiders.  <i>Bull. Univ. Utah</i> <b>32</b>(13): 1-117.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1962 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in Jamaica, W. I.  <i>Bull. Mus. comp. Zool. Harv.</i> <b>127:</b> 423-450.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1959 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in Michigan.  <i>Bull. Mus. comp. Zool. Harv.</i> <b>119:</b> 475-499.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1957 Notes on certain species of <i>Tetragnatha</i> (Araneae, Argiopidae) in Central America and Mexico.  <i>Breviora</i> <b>67:</b> 1-4.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1957 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in Jamaica, B.W.I., and other neighboring islands.  <i>Breviora</i> <b>68:</b> 1-15.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1957 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in  Panama.  <i>Bull. Mus. comp. Zool. Harv.</i> <b>116:</b> 301-354.]]>
+</reference>
+<reference>
+<![CDATA[Dondale, C. D., J. H. Redner, P. Paquin & H. W. Levi. 2003 <i>The insects and arachnids of Canada. Part 23. The orb-weaving spiders of Canada and Alaska (Araneae:  Uloboridae, Tetragnathidae, Araneidae, Theridiosomatidae).</i>  NRC Research Press, Ottawa, 371 pp.]]>
+</reference>
+<reference>
+<![CDATA[Gertsch, W. J. & S. Mulaik. 1936 New spiders from Texas.  <i>Amer. Mus. Novit.</i> <b>863:</b> 1-22.]]>
+</reference>
+<reference>
+<![CDATA[Kaston, B. J. 1976 Supplement to the spiders of Connecticut. <i>J. Arachnol.</i> <b>4:</b> 1-72.]]>
+</reference>
+<reference>
+<![CDATA[Levi, H. W. 1981 The American orb-weaver genera <i>Dolichognatha</i> and <i>Tetragnatha</i> north of Mexico (Araneae: Araneidae, Tetragnathinae).  <i>Bull. Mus. comp. Zool. Harv.</i> <b>149:</b> 271-318.]]>
+</reference>
+<reference>
+<![CDATA[McCook, H. C. 1894 <i>American spiders and their spinningwork</i>.  Philadelphia, 3: 1-285.]]>
+</reference>
+<reference>
+<![CDATA[Okuma, C. 1992 Notes on the Neotropical and Mexican species of <i>Tetragnatha</i> (Araneae: Tetragnathidae) with descriptions of three new species. <i>J. Fac. Agr., Kyushu Univ.</i> <b>36:</b> 219-243.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2006 The spiders of Quebec: update, additions and corrections. <i>Zootaxa</i> <b>1133:</b> 1-37.]]>
+</reference>
+<reference>
+<![CDATA[Seeley, R. M. 1928 Revision of the spider genus <i>Tetragnatha</i>.  <i>New York St. Mus. Bull.</i> <b>278:</b> 99-150.]]>
+</reference>
+<reference>
+<![CDATA[Strand, E. 1908 Exotisch araneologisches.-I. Amerikanische hauptsächlich in Peru, Bolivien und Josemitetal in Californien gesammelte Spinnen. -II. Spinnen aus Kamerun. -III. Übersicht der bekanten Hysterocrates-Arten. -IV. Zur Kenntnis der Araneae rufipalpis (Luc).  <i>Jahrb. nassau. Ver. Naturk.</i> <b>61:</b> 223-295.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/14193-imagehabitus</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Hollenbeck, Jeff</agent>
+<dcterms:modified>2007-09-05T19:21:13Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Hollenbeck, Jeff</dcterms:rightsHolder>
+<audience>General public</audience>
+<dc:description xml:lang="en">TETRAGNATHIDAE: Tetragnatha guatemalensis O. P.-Cambridge, 1889 habitus</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/habitus/Tetragnatha_guatemalensis.jpg</mediaURL>
+<reference>
+<![CDATA[Banks, N. 1898 Arachnida from Baja California and other parts of Mexico.  <i>Proc. Californ. Acad. Sci.</i> (3) <b>1:</b> 205-308.]]>
+</reference>
+<reference>
+<![CDATA[Cambridge, F. O. P.-. 1903 Arachnida - Araneida and Opiliones. In <i>Biologia Centrali-Americana, Zoology</i>.  London, 2: 425-464.]]>
+</reference>
+<reference>
+<![CDATA[Cambridge, O. P.-. 1889 Arachnida. Araneida.  In <i>Biologia Centrali-Americana, Zoology</i>.  London, 1: 1-56.]]>
+</reference>
+<reference>
+<![CDATA[Chamberlin, R. V. & W. Ivie. 1942 A hundred new species of American spiders.  <i>Bull. Univ. Utah</i> <b>32</b>(13): 1-117.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1962 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in Jamaica, W. I.  <i>Bull. Mus. comp. Zool. Harv.</i> <b>127:</b> 423-450.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1959 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in Michigan.  <i>Bull. Mus. comp. Zool. Harv.</i> <b>119:</b> 475-499.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1957 Notes on certain species of <i>Tetragnatha</i> (Araneae, Argiopidae) in Central America and Mexico.  <i>Breviora</i> <b>67:</b> 1-4.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1957 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in Jamaica, B.W.I., and other neighboring islands.  <i>Breviora</i> <b>68:</b> 1-15.]]>
+</reference>
+<reference>
+<![CDATA[Chickering, A. M. 1957 The genus <i>Tetragnatha</i> (Araneae, Argiopidae) in  Panama.  <i>Bull. Mus. comp. Zool. Harv.</i> <b>116:</b> 301-354.]]>
+</reference>
+<reference>
+<![CDATA[Dondale, C. D., J. H. Redner, P. Paquin & H. W. Levi. 2003 <i>The insects and arachnids of Canada. Part 23. The orb-weaving spiders of Canada and Alaska (Araneae:  Uloboridae, Tetragnathidae, Araneidae, Theridiosomatidae).</i>  NRC Research Press, Ottawa, 371 pp.]]>
+</reference>
+<reference>
+<![CDATA[Gertsch, W. J. & S. Mulaik. 1936 New spiders from Texas.  <i>Amer. Mus. Novit.</i> <b>863:</b> 1-22.]]>
+</reference>
+<reference>
+<![CDATA[Kaston, B. J. 1976 Supplement to the spiders of Connecticut. <i>J. Arachnol.</i> <b>4:</b> 1-72.]]>
+</reference>
+<reference>
+<![CDATA[Levi, H. W. 1981 The American orb-weaver genera <i>Dolichognatha</i> and <i>Tetragnatha</i> north of Mexico (Araneae: Araneidae, Tetragnathinae).  <i>Bull. Mus. comp. Zool. Harv.</i> <b>149:</b> 271-318.]]>
+</reference>
+<reference>
+<![CDATA[McCook, H. C. 1894 <i>American spiders and their spinningwork</i>.  Philadelphia, 3: 1-285.]]>
+</reference>
+<reference>
+<![CDATA[Okuma, C. 1992 Notes on the Neotropical and Mexican species of <i>Tetragnatha</i> (Araneae: Tetragnathidae) with descriptions of three new species. <i>J. Fac. Agr., Kyushu Univ.</i> <b>36:</b> 219-243.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2006 The spiders of Quebec: update, additions and corrections. <i>Zootaxa</i> <b>1133:</b> 1-37.]]>
+</reference>
+<reference>
+<![CDATA[Seeley, R. M. 1928 Revision of the spider genus <i>Tetragnatha</i>.  <i>New York St. Mus. Bull.</i> <b>278:</b> 99-150.]]>
+</reference>
+<reference>
+<![CDATA[Strand, E. 1908 Exotisch araneologisches.-I. Amerikanische hauptsächlich in Peru, Bolivien und Josemitetal in Californien gesammelte Spinnen. -II. Spinnen aus Kamerun. -III. Übersicht der bekanten Hysterocrates-Arten. -IV. Zur Kenntnis der Araneae rufipalpis (Luc).  <i>Jahrb. nassau. Ver. Naturk.</i> <b>61:</b> 223-295.]]>
+</reference>
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/14193-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2007-09-05T19:21:13Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">North, Central America, Cuba, Jamaica</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/14193-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2007-09-05T19:21:13Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[Specimens have been collected from Wisconsin to Nova Scotia, south to Baja California, Florida, Panama, and the West Indies (Dondale<em> et al.</em>, 2003). The usual habitat is along streams or lakes in shrubs and tall herbs.]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/14193-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2007-09-05T19:21:13Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: Carapace is dark orange and sometimes has black markings. The lateral eyes on each side are closer together than the median eyes. Legs are dark yellow, though are occasionally darker. The abdomen is silvery and often has a dark dorsal pattern with scalloped edges and the venter is pale. The paracymbium of the palp is angled laterally at the tip. Female: The eye spacing and coloration is similar to that of the male. The epigynum is approximately as long as wide, though is partially concave along the posterior margin. The spermathecae are short, plump, and extend anteriorly parallel to the long axis of the body.]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2049293</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/13872</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Tetragnathidae</dwc:Family>
+<dwc:ScientificName>Meta dolloff Levi, 1980</dwc:ScientificName>
+<dcterms:modified>2007-07-31T23:05:42Z</dcterms:modified>
+<reference>
+<![CDATA[Levi, H. W. 1980 The orb-weaver genus <i>Mecynogea</i>, the subfamily Metinae and the genera <i>Pachygnatha</i>, <i>Glenognatha</i> and <i>Azilia</i> of the subfamily Tetragnathinae north of Mexico (Araneae: Araneidae).  <i>Bull. Mus. comp. Zool. Harv.</i> <b>149:</b> 1-7]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/13872-imagehabitus</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Ledford, Joel</agent>
+<dcterms:modified>2007-07-31T23:05:42Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Ledford, Joel</dcterms:rightsHolder>
+<audience>General public</audience>
+<dc:description xml:lang="en">TETRAGNATHIDAE: Meta dolloff Levi, 1980 habitus</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/habitus/Meta_dolloff.jpg</mediaURL>
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/13872-lifehistory</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Adams, Richard J.</agent>
+<dcterms:modified>2007-07-31T23:05:42Z</dcterms:modified> 
+<dc:title xml:lang="en">Taxon Biology</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>
+<dc:description xml:lang="en"><![CDATA[According to Graham (1967), both adult numbers and overall population density&nbsp;are greatest closer to the cave&rsquo;s mouth with juveniles predominating deeper in the caves. He also reported finding females guarding egg sacs in late summer. Their verticaly oriented&nbsp;webs are built in front of open walls and over niches and depressions in the rock&nbsp;while&nbsp;known prey items include the moth <em>Triphosa haesitata </em>and the harvestman <em>Leibunum exilipes </em>(D. Ubick, <em>pers. com</em>.).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/13872-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Adams, Richard J.</agent>
+<dcterms:modified>2007-07-31T23:05:42Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">USA</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/13872-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Adams, Richard J.</agent>
+<dcterms:modified>2007-07-31T23:05:42Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[<em>M. dolloff</em> builds its webs in the region extending from the cave&rsquo;s entrance deep into the recesses of its twilight zone. The caves are in a Coast Redwood forest.]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/13872-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Adams, Richard J.</agent>
+<dcterms:modified>2007-07-31T23:05:42Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: Carapace is glossy brown with lighter regions on thorax. Chelicera are dark brown with three teeth on the anterior margin and four on the posterior. Abdomen brown with a dorsal pair of dark anterior patches bordering two light triangular markings. Ventrally, the abdomen has two parallel light lines on a dark grey background. Legs are heavily spined and dark brown with lighter bands. The paracymbium of the male palpus is unique among the North American members of the genus in having both a large ventral finger and a smaller lateral one (<em>M. ovalis </em>(Gertsch) has only a ventral extension.) Female: Overall coloration similar to males but larger. Epigynum has&nbsp;a median notch in the anterior lip.]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:1990878</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/32009</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Thomisidae</dwc:Family>
+<dwc:ScientificName>Xysticus obscurus Collett, 1877</dwc:ScientificName>
+<commonName xml:lang='en'>Some spider</commonName>
+<dcterms:modified>2006-12-23T16:12:00Z</dcterms:modified>
+<reference>
+<![CDATA[Buchar, J. 1967 Die Spinnenfauna der Pancick  louka und der nahen Umgebung.  <i>Opera Corcontica</i> <b>4:</b> 79-93.]]>
+</reference>
+<reference>
+<![CDATA[Collett, R. 1877 Oversigt af Norges Araneider. II. Laterigradae, Orbitelariae.  <i>Förh. Vid. Selsk. Christiana</i> <b>1876</b>(2): 1-27.]]>
+</reference>
+<reference>
+<![CDATA[Dondale, C. D. & J. H. Redner. 1978 The insects and arachnids of Canada, Part 5. The crab spiders of Canada and Alaska, Araneae: Philodromidae and Thomisidae. <i>Research Branch, Agriculture Canada, Publ.</i> <b>1663:</b> 1-255.]]>
+</reference>
+<reference>
+<![CDATA[Holm, Å. 1973 On the spiders collected during the Swedish expeditions to Novaya Zemlya and Yenisey in 1875 and 1876.  <i>Zoologica Scr.</i> <b>2:</b> 71-110.]]>
+</reference>
+<reference>
+<![CDATA[Izmailova, M. V. 1989 [<i>Fauna of Spiders of South Part of Eastern Siberia</i>].  Irkutsk, State Univ. Publ., 184 pp.]]>
+</reference>
+<reference>
+<![CDATA[Koch, L. 1879 Arachniden aus Sibirien und Novaja Semlja, eingesammelt von der schwedischen Expedition im Jahre 1875.  <i>Kongl. Svenska. Vet.-Acad. Handl.</i> <b>16</b>(5): 1-136.]]>
+</reference>
+<reference>
+<![CDATA[Kulczynski, W. 1916 Araneae Sibiriae occidentalis arcticae.  <i>Mém. Ac. Imper. Sci. Petrograd</i> (8) <b>28</b>(11):1-44.]]>
+</reference>
+<reference>
+<![CDATA[Kulczynski, W. 1908 Araneae et Oribatidae. Expeditionum rossicarum in insulas Novo-Sibiricas annis 1885-1886 et 1900-1903 susceptarum.  <i>Zap. imp. Akad. naouk St. Petersb.</i> (8) <b>18</b>(7): 1-97.]]>
+</reference>
+<reference>
+<![CDATA[Logunov, D. V. & Y. M. Marusik. 1998 A new species of the genus <i>Xysticus</i> from the mountains of south Siberia and Mongolia (Araneae, Thomisidae).  <i>Bull. Br. arachnol. Soc.</i> <b>11:</b> 103-106.]]>
+</reference>
+<reference>
+<![CDATA[Miller, F. 1971 Pavouci-Araneida. <i>Klíc zvíreny CSSR</i> <b>4:</b> 51-306.]]>
+</reference>
+<reference>
+<![CDATA[Ono, H. 1981 The distribution and phylogeny of the Japanese crab-spider <i>Xysticus ephippiatus</i> Simon, 1880 (Araneae: Thomisidae).  <i>Kishidaia</i> <b>47:</b> 69-75.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2003 Guide d'identification des araignées de Québec.  <i>Fabreries, Suppl.</i> <b>11</b> 1-251.]]>
+</reference>
+<reference>
+<![CDATA[Thaler, K. & B. Knoflach. 1995 <i>Xysticus obscurus</i> Collett - eine arktoalpine Krabbenspinne neu für Österreich (Arachnida, Araneida: Thomisidae).  <i>Ber. naturw.-med. Ver. Innsbruck</i> <b>82:</b> 145-152.]]>
+</reference>
+<reference>
+<![CDATA[Tullgren, A. 1944 <i>Svensk Spindelfauna. 3. Araneae (Salticidae, Thomisidae, Philodromidae och Eusparassidae)</i>.  Stockholm, pp. 1-108.]]>
+</reference>
+<reference>
+<![CDATA[Turnbull, A. L., C. D. Dondale & J. H. Redner. 1965 The spider genus <i>Xysticus</i> C. L. Koch (Araneae: Thomisidae) in Canada.  <i>Can. Ent.</i> <b>97:</b> 1233-1280.]]>
+</reference>
+<reference>
+<![CDATA[Utochkin, A. S. 1968 <i>Pauki roda</i> <em>Xysticus</em> <i>faunii SSSR (Opredelitel').</i> Ed. Univ. Perm, pp. 1-73.]]>
+</reference>
+<reference>
+<![CDATA[Vilbaste, A. 1969 <i>Eesti Žmblikud I. Krabiämbliklased (Xysticidae), Jooksikämbliklased (Philodromidae) ja Hüpikämbliklased (Salticidae).</i>  Zooloogia ja Botaanika Instituut, Tallinn, pp. 1-224.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/32009-imagepalp</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Buckle, Don</agent>
+<dcterms:modified>2006-12-23T16:12:00Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Buckle, Don</dcterms:rightsHolder>
+<audience>Expert users</audience>
+<dc:description xml:lang="en">THOMISIDAE: Xysticus obscurus Collett, 1877 palp</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/palps/Xysticus_obscurus.jpg</mediaURL>
+</dataObject><dataObject>
+<dc:identifier>12.0001/32009-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-12-23T16:12:00Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">Holarctic</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/32009-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-12-23T16:12:00Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[Specimens have been collected in coniferous forest litter and from wasp nests (Dondale &amp; Redner, 1978).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/32009-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-12-23T16:12:00Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: Carapace is red brown with off-white flecks and a pale median area enclosing large, mottled area anterior to the dorsal groove. Legs are pale red brown and femora are mottled with white flecks. The dorsal surface of the abdomen has paired brown areas separated by whitish lines. Palp: The palpal tibia has a long, pointed retrolateral apophysis and with a rounded ventral apophysis. The embolus is long and&nbsp;slender. The tegulum has two large apohyses; the distal apophysis has a large, rounded heel and the long, broad basal apophysis extends to the margin of the cymbium. Female: General structure and colour much like the male except she is paler. Epigynum: atrium broader toward anterior region and has a small shelf. The copulatory tubes are joined at their midline and the spermathecae are not convoluted.]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2066160</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/17962</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Lycosidae</dwc:Family>
+<dwc:ScientificName>Hogna carolinensis (Walckenaer, 1805)</dwc:ScientificName>
+<dcterms:modified>2006-11-08T19:31:07Z</dcterms:modified>
+<reference>
+<![CDATA[Chamberlin, R. V. 1908 Revision of North American spiders of the family Lycosidae.  <i>Proc. Acad. nat. Sci. Philad.</i> <b>60:</b> 158-318.]]>
+</reference>
+<reference>
+<![CDATA[Chamberlin, R. V. & W. Ivie. 1944 Spiders of the Georgia region of North America.  <i>Bull. Univ. Utah</i> <b>35</b>(9): 1-267.]]>
+</reference>
+<reference>
+<![CDATA[Comstock, J. H. 1912 <i>The spider book; a manual for the study of the spiders and their near relatives, the scorpions, pseudoscorpions, whipscorpions, harvestmen and other members of the class Arachnida, found in America north of Mexico, with analytical keys for their classification and popular accounts of their habits.</i> Garden City, New York, pp. 1-721]]>
+</reference>
+<reference>
+<![CDATA[Dondale, C. D. & J. H. Redner. 1990 The insects and arachnids of Canada, Part 17. The wolf spiders, nurseryweb spiders, and lynx spiders of Canada and Alaska, Araneae: Lycosidae, Pisauridae, and Oxyopidae. <i>Research Branch, Agriculture Canada, Publ.</i> <b>1856:</b> 1-383.]]>
+</reference>
+<reference>
+<![CDATA[Emerton, J. H. 1902 <i>The common spiders of the United States</i>.  Boston, pp. 1-225.]]>
+</reference>
+<reference>
+<![CDATA[Emerton, J. H. 1885 New England Lycosidae.  <i>Trans. Conn. Acad. Arts Sci.</i> <b>6:</b> 481-505.]]>
+</reference>
+<reference>
+<![CDATA[Girard, C. 1852 Arachnidians.  In Marcy, R. (ed.), <i>Natural History of the Red River of Louisiana</i>.  Washington, Appendix F (Zoology): 262-271.]]>
+</reference>
+<reference>
+<![CDATA[Kaston, B. J. 1948 Spiders of Connecticut.  <i>Bull. Conn. St. geol. nat. Hist. Surv.</i> <b>70:</b> 1-874.]]>
+</reference>
+<reference>
+<![CDATA[Montgomery, T. H. 1904 Descriptions of North American Araneae of the families Lycosidae and Pisauridae.  <i>Proc. Acad. nat. Sci. Philad.</i> <b>56:</b> 261-325.]]>
+</reference>
+<reference>
+<![CDATA[Montgomery, T. H. 1902 Descriptions of Lycosidae and Oxyopidae of Philadelphia and its vicinity.  <i>Proc. Acad. nat. Sci. Philad.</i> <b>54:</b> 534-592.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2003 Guide d'identification des araignées de Québec.  <i>Fabreries, Suppl.</i> <b>11</b> 1-251.]]>
+</reference>
+<reference>
+<![CDATA[Roewer, C. F. 1955 <i>Katalog der Araneen von 1758 bis 1940, bzw. 1954</i>.  Bruxelles, <b>2:</b> 1-1751.]]>
+</reference>
+<reference>
+<![CDATA[Simon, E. 1864 <i>Histoire naturelle des araignées (aranéides)</i>.  Paris, pp. 1-540.]]>
+</reference>
+<reference>
+<![CDATA[Stone, W. S. 1890 Pennsylvania and New Jersey spiders of the family Lycosidae.  <i>Proc. Acad. nat. Sci. Philad.</i> <b>1890:</b> 420-434.]]>
+</reference>
+<reference>
+<![CDATA[Walckenaer, C. A. 1837 <i>Histoire naturelle des insectes. Aptères</i>.  Paris, 1: 1-682.]]>
+</reference>
+<reference>
+<![CDATA[Walckenaer, C. A. 1805 <i>Tableau des aranéides ou caractères essentiels des tribus, genres, familles et races que renferme le genre Aranea de Linné, avec la désignation des espèces comprises dans chacune de ces divisions</i>.  Paris, 88 pp.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/17962-imagehabitus</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Holmberg, Robert</agent>
+<dcterms:modified>2006-11-08T19:31:07Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Holmberg, Robert</dcterms:rightsHolder>
+<audience>General public</audience>
+<dc:description xml:lang="en">LYCOSIDAE: Hogna carolinensis (Walckenaer, 1805) habitus</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/habitus/Hogna_carolinensis.jpg</mediaURL>
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/17962-imageepigynum</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Oviedo, Jesus</agent>
+<dcterms:modified>2006-11-08T19:31:07Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Oviedo, Jesus</dcterms:rightsHolder>
+<audience>Expert users</audience>
+<dc:description xml:lang="en">LYCOSIDAE: Hogna carolinensis (Walckenaer, 1805) epigynum</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/epigyna/Hogna_carolinensis.jpg</mediaURL>
+</dataObject><dataObject>
+<dc:identifier>12.0001/17962-lifehistory</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-08T19:31:07Z</dcterms:modified> 
+<dc:title xml:lang="en">Taxon Biology</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>
+<dc:description xml:lang="en"><![CDATA[Males mature in August - September, and females from August to the next summer. Mating takes place in the autumn and the females oviposit the following May or June (Dondale &amp; Redner, 1990).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/17962-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-08T19:31:07Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">USA, Mexico</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/17962-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-08T19:31:07Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: The carapace is dark reddish or orange-brown to dark and has dark radiating lines. The median and submarginal bands are pale and weakly developed and the eye area is dark. The legs are dark reddish orange and darken toward the tips. The tips of femora III and IV and the bases and tips of tibiae III and IV are black as are the chelicerae. The abdomen is grayish and the heart mark is broad and indistinct. The venter of the abdomen is dull black. Palp: The terminal apophysis is stout and sickle-shaped. The median apophysis is short, thick, lacks a spur, and is raised at the distal end. The cymbium has 10+ macrosetae at the tip and the palea is prominent and rugose (Dondale &amp; Redner, 1990). Female: The coloration is much the same as the male. Epigynum: lacks a hood and the atrium is reduced to a narrow, deep groove along the sides of the median septum, which is slender, uniformly wide, and ridge-like (Dondale &amp; Redner, 1990).]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2102055</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/29998</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Philodromidae</dwc:Family>
+<dwc:ScientificName>Thanatus coloradensis Keyserling, 1880</dwc:ScientificName>
+<dcterms:modified>2006-11-07T14:18:51Z</dcterms:modified>
+<reference>
+<![CDATA[Dondale, C. D. & J. H. Redner. 1978 The insects and arachnids of Canada, Part 5. The crab spiders of Canada and Alaska, Araneae: Philodromidae and Thomisidae. <i>Research Branch, Agriculture Canada, Publ.</i> <b>1663:</b> 1-255.]]>
+</reference>
+<reference>
+<![CDATA[Dondale, C. D., A. L. Turnbull & J. H. Redner. 1964 Revision of the Nearctic species of <i>Thanatus</i> C. L. Koch (Araneae: Thomisidae).  <i>Can. Ent.</i> <b>96:</b> 636-656.]]>
+</reference>
+<reference>
+<![CDATA[Emerton, J. H. 1902 <i>The common spiders of the United States</i>.  Boston, pp. 1-225.]]>
+</reference>
+<reference>
+<![CDATA[Gertsch, W. J. 1933 New genera and species of North American spiders.  <i>Amer. Mus. Novit.</i> <b>636:</b> 1-28.]]>
+</reference>
+<reference>
+<![CDATA[Heimer, S. & W. Nentwig. 1991 <i>Spinnen Mitteleuropas: Ein Bestimmungsbuch</i>.  Verlag Paul Parey, Berlin, 543 pp.]]>
+</reference>
+<reference>
+<![CDATA[Hu, J. L. 2001 <i>Spiders in Qinghai-Tibet Plateau of China.</i>  Henan Science and Technology Publishing House, 658 pp.]]>
+</reference>
+<reference>
+<![CDATA[Keyserling, E. 1880 <i>Die Spinnen Amerikas, I. Laterigradae</i>.  Nürnberg, 1: 1-283.]]>
+</reference>
+<reference>
+<![CDATA[Kulczynski, W. 1908 Araneae et Oribatidae. Expeditionum rossicarum in insulas Novo-Sibiricas annis 1885-1886 et 1900-1903 susceptarum.  <i>Zap. imp. Akad. naouk St. Petersb.</i> (8) <b>18</b>(7): 1-97.]]>
+</reference>
+<reference>
+<![CDATA[Kulczynski, W. 1887 Przyczynek do tyrolskiej fauny pajeczakow.  <i>Rozprav. spraw. wydz. mat. przyrod. Akad. umiej. Krakowie</i> <b>16:</b> 245-356 (+ Anhang, pp. 1-12).]]>
+</reference>
+<reference>
+<![CDATA[Lessert, R. de. 1910 <i>Catalogue des invertebres de la Suisse. Fasc. 3, Araignées</i>.  Musée d'histoire naturelle de Genève, pp. 1-635.]]>
+</reference>
+<reference>
+<![CDATA[Logunov, D. V. 1996 A critical review of the spider genera <i>Apollophanes</i> O. P.-Cambridge, 1898 and <i>Thanatus</i> C. L. Koch, 1837 in North Asia (Araneae, Philodromidae).  <i>Rev. arachnol.</i> <b>11:</b> 133-202.]]>
+</reference>
+<reference>
+<![CDATA[Miller, F. 1971 Pavouci-Araneida. <i>Klíc zvíreny CSSR</i> <b>4:</b> 51-306.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2003 Guide d'identification des araignées de Québec.  <i>Fabreries, Suppl.</i> <b>11</b> 1-251.]]>
+</reference>
+<reference>
+<![CDATA[Schenkel, E. 1963 Ostasiatische Spinnen aus dem Muséum d'Histoire naturelle de Paris.  <i>Mém. Mus. natn. Hist. nat. Paris</i> (A, Zool.) <b>25:</b> 1-481.]]>
+</reference>
+<reference handle="2246/1114">
+<![CDATA[Schick, R. X. 1965 The crab spiders of California (Araneae, Thomisidae).  <i>Bull. Am. Mus. nat. Hist.</i> <b>129:</b> 1-180.]]>
+</reference>
+<reference>
+<![CDATA[Simon, E. 1932 <i>Les arachnides de France. Tome VI. Synopsis générale et catalogue des espèces françaises de l'ordre des Araneae; 4e partie</i>.  Paris, 6: 773-978.]]>
+</reference>
+<reference>
+<![CDATA[Song, D. X. & M. S. Zhu. 1997 <i>Fauna Sinica:  Arachnida: Araneae:  Thomisidae, Philodromidae.</i>  Science Press, Beijing, viii + 259 pp.]]>
+</reference>
+<reference>
+<![CDATA[Song, D. X., M. S. Zhu & J. Chen. 1999 <i>The Spiders of China</i>.  Hebei Sci. Technol. Publ. House, Shijiazhuang, 640 pp.]]>
+</reference>
+<reference>
+<![CDATA[Szita, É. & F. Samu. 2000 Taxonomical review of <i>Thanatus</i> species (Philodromidae, Araneae) of Hungary. <i>Acta Zool. Acad. Sci. Hung.</i> <b>46:</b> 155-179.]]>
+</reference>
+<reference>
+<![CDATA[Wu, L. T. & D. X. Song. 1987 Notes on Inner Mongolian spiders of the family Philodromidae. <i>J. Inner Mongolia Teacher's Univ.</i> <b>1987</b>(1): 28-37.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/29998-imagehabitus</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Buckle, Don</agent>
+<dcterms:modified>2006-11-07T14:18:51Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Buckle, Don</dcterms:rightsHolder>
+<audience>General public</audience>
+<dc:description xml:lang="en">PHILODROMIDAE: Thanatus coloradensis Keyserling, 1880 habitus</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/habitus/Thanatus_coloradensis.jpg</mediaURL>
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/29998-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:18:51Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">Holarctic</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/29998-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:18:51Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[Stones, grass in alpine meadows and forests, cultivated land (Dondale &amp; Redner, 1978).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/29998-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:18:51Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: Carapace spotted and streaked with brown. Median area is pale enclosing dark triangular spot toward posterior. There is usually a white &#39;V&#39; anterior to dorsal groove. Legs are uniformly brown to red-brown. Abdomen brown-yellow with distinct heart mark (Dondale &amp; Redner, 1978). Female: ]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2082118</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/22694</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Amaurobiidae</dwc:Family>
+<dwc:ScientificName>Callobius nomeus (Chamberlin, 1919)</dwc:ScientificName>
+<dcterms:modified>2006-11-07T14:16:50Z</dcterms:modified>
+<reference>
+<![CDATA[Chamberlin, R. V. 1947 A summary of the known North American Amaurobiidae.  <i>Bull. Univ. Utah</i> <b>38</b>(8): 1-31.]]>
+</reference>
+<reference>
+<![CDATA[Chamberlin, R. V. 1919 New western spiders.  <i>Ann. ent. Soc. Amer.</i> <b>12:</b> 239-260.]]>
+</reference>
+<reference>
+<![CDATA[Chamberlin, R. V. & W. Ivie. 1947 North American dictynid spiders.  <i>Ann. ent. Soc. Amer.</i> <b>40:</b> 29-55.]]>
+</reference>
+<reference>
+<![CDATA[Leech, R. E. 1972 A revision of the Nearctic Amaurobiidae (Arachnida: Araneida).  <i>Mem. ent. Soc. Can.</i> <b>84:</b> 1-182.]]>
+</reference>
+<reference>
+<![CDATA[Lehtinen, P. T. 1967 Classification of the cribellate spiders and some allied families, with notes on the evolution of the suborder Araneomorpha.  <i>Ann. Zool. Fenn.</i> <b>4:</b> 199-468.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2003 Guide d'identification des araignées de Québec.  <i>Fabreries, Suppl.</i> <b>11</b> 1-251.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/22694-lifehistory</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:16:50Z</dcterms:modified> 
+<dc:title xml:lang="en">Taxon Biology</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>
+<dc:description xml:lang="en"><![CDATA[Males have been collected in July and August&nbsp;and females from May to September, with August being the peak month for both genders. Egg sac examinations have shown variable numbers of fertilized and unfertilized eggs, ranging from 41 to 87 successful fertilizations (spiderlings) and 13 to 27 unfertilized eggs (total egg count in 5 egg sacs: 59, 114, 67, 64, and 73). Parasitism by what may have been a <em>Gelis</em> sp. ichneumonid has also been recorded (Leech, 1972).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22694-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:16:50Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">USA, Canada</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22694-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:16:50Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[in standing, rotting conifer stumps, under loose bark of large, rotten conifer logs, under stones and logs in damp spruce-fir forests (Aitchison-Benell &amp; Dondale, 1990; Leech, 1972).]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2010059</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/22940</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Amaurobiidae</dwc:Family>
+<dwc:ScientificName>Cybaeopsis euopla (Bishop &amp; Crosby, 1935)</dwc:ScientificName>
+<dcterms:modified>2006-11-07T14:06:14Z</dcterms:modified>
+<reference>
+<![CDATA[Bishop, S. C. & C. R. Crosby. 1935 A new genus and two new species of Dictynidae (Araneae).  <i>Proc. biol. Soc. Wash.</i> <b>48:</b> 45-48.]]>
+</reference>
+<reference>
+<![CDATA[Leech, R. E. 1972 A revision of the Nearctic Amaurobiidae (Arachnida: Araneida).  <i>Mem. ent. Soc. Can.</i> <b>84:</b> 1-182.]]>
+</reference>
+<reference>
+<![CDATA[Lehtinen, P. T. 1967 Classification of the cribellate spiders and some allied families, with notes on the evolution of the suborder Araneomorpha.  <i>Ann. Zool. Fenn.</i> <b>4:</b> 199-468.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2003 Guide d'identification des araignées de Québec.  <i>Fabreries, Suppl.</i> <b>11</b> 1-251.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/22940-imagehabitus</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Hancock, John</agent>
+<dcterms:modified>2006-11-07T14:06:14Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Hancock, John</dcterms:rightsHolder>
+<audience>General public</audience>
+<dc:description xml:lang="en">AMAUROBIIDAE: Cybaeopsis euopla (Bishop &amp; Crosby, 1935) habitus</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/habitus/Cybaeopsis_euopla.jpg</mediaURL>
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22940-lifehistory</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:06:14Z</dcterms:modified> 
+<dc:title xml:lang="en">Taxon Biology</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>
+<dc:description xml:lang="en"><![CDATA[Males of <em>Cybaeopsis euopla</em> (Bishop &amp; Crosby, 1935) have been collected from April to October, but peak numbers are usually in May and June. Females have been collected from April to November with peak numbers in May and June (Leech, 1972).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22940-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:06:14Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">USA, Canada</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22940-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:06:14Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[deep deciduous leaf litter, bogs (Aitchison-Benell &amp; Dondale, 1990; Leech, 1972).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22940-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-07T14:06:14Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: The carapace is uniformly pale orange-yellow as are the femora of the legs, though the legs may darken distally. The chelicerae are pale brown. The abdomen is brown-gray or dark gray and its dorsum may be unmarked in some specimens, but usually has two pairs of anterior spots and indistinct or incomplete posterior chevrons (Leech, 1972). Female: The carapace is yellow-orange and darkens toward the anterior end. Other characteristics are much the same as males.]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2082039</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/22679</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Amaurobiidae</dwc:Family>
+<dwc:ScientificName>Callobius bennetti (Blackwall, 1846)</dwc:ScientificName>
+<dcterms:modified>2006-11-06T18:52:37Z</dcterms:modified>
+<reference>
+<![CDATA[Banks, N. 1895 A list of the spiders of Long Island; with descriptions of new species.  <i>Jour. New York Ent. Soc.</i> <b>3:</b> 76-93.]]>
+</reference>
+<reference>
+<![CDATA[Blackwall, J. 1846 Notice of spiders captured by Professor Potter in Canada, with descriptions of such species as appear to be new to science.  <i>Ann. Mag. nat. Hist.</i> <b>17:</b> 30-44, 76-82.]]>
+</reference>
+<reference>
+<![CDATA[Chamberlin, R. V. 1947 A summary of the known North American Amaurobiidae.  <i>Bull. Univ. Utah</i> <b>38</b>(8): 1-31.]]>
+</reference>
+<reference>
+<![CDATA[Chamberlin, R. V. & W. Ivie. 1947 North American dictynid spiders.  <i>Ann. ent. Soc. Amer.</i> <b>40:</b> 29-55.]]>
+</reference>
+<reference>
+<![CDATA[Comstock, J. H. 1940 <i>The spider book, revised and edited by W. J. Gertsch</i>.  Cornell Univ. Press, Ithaca, xi + 727 pp.]]>
+</reference>
+<reference>
+<![CDATA[Comstock, J. H. 1912 <i>The spider book; a manual for the study of the spiders and their near relatives, the scorpions, pseudoscorpions, whipscorpions, harvestmen and other members of the class Arachnida, found in America north of Mexico, with analytical keys for their classification and popular accounts of their habits.</i> Garden City, New York, pp. 1-721]]>
+</reference>
+<reference>
+<![CDATA[Emerton, J. H. 1902 <i>The common spiders of the United States</i>.  Boston, pp. 1-225.]]>
+</reference>
+<reference>
+<![CDATA[Emerton, J. H. 1888 New England spiders of the family Ciniflonidae.  <i>Trans. Connect. Acad. Arts Sci.</i> <b>7:</b> 443-458.]]>
+</reference>
+<reference>
+<![CDATA[Griswold, C. E., M. J. Ramírez, J. A. Coddington & N. I. Platnick. 2005 Atlas of phylogenetic data for entelegyne spiders (Araneae: Araneomorphae: Entelegynae) with comments on their phylogeny. <i>Proc. Calif. Acad. Sci.</i> <b>56(Suppl. II):</b> 1-324.]]>
+</reference>
+<reference>
+<![CDATA[Kaston, B. J. 1948 Spiders of Connecticut.  <i>Bull. Conn. St. geol. nat. Hist. Surv.</i> <b>70:</b> 1-874.]]>
+</reference>
+<reference>
+<![CDATA[Leech, R. E. 1972 A revision of the Nearctic Amaurobiidae (Arachnida: Araneida).  <i>Mem. ent. Soc. Can.</i> <b>84:</b> 1-182.]]>
+</reference>
+<reference>
+<![CDATA[Muma, M. H. 1943 <i>Common spiders of Maryland</i>.  Natural History Society of Maryland, Baltimore, 179 pp.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2003 Guide d'identification des araignées de Québec.  <i>Fabreries, Suppl.</i> <b>11</b> 1-251.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/22679-imagehabitus</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Larrivée, Maxim</agent>
+<dcterms:modified>2006-11-06T18:52:37Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Larrivée, Maxim</dcterms:rightsHolder>
+<audience>General public</audience>
+<dc:description xml:lang="en">AMAUROBIIDAE: Callobius bennetti (Blackwall, 1846) habitus</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/habitus/Callobius_bennetti.jpg</mediaURL>
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22679-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-06T18:52:37Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">USA, Canada</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22679-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-06T18:52:37Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[under stones and loose bark of decaying logs, under leaves, coniferous woods (Aitchison-Benell &amp; Dondale,&nbsp;1990; Leech, 1972).]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/22679-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-06T18:52:37Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: The carapace is light golden yellow in colour and the cephalic region is usually dusky with with bands or with mottling. The legs are paler in colour than the carapace. The abdomen is pale tan to dark gray-black in colour. Anterior and&nbsp;middle of abdomen with a pale stripe flanked by two paler stripes and poterior with sometimes indistinct chevrons (Leech, 1972). Female: The carapace is light chestnut brown in color, though somewhat darker in the cephalic region. Unlike the male, this region lacks dusky bands or mottling. The legs are light golden yellow and can be darker in colour on the metatarsi and tarsi. Like the male, the abdomen is pale tan to dark gray-black. The dorsum however often lacks markings (Leech, 1972).]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:246714</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/26956</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Gnaphosidae</dwc:Family>
+<dwc:ScientificName>Drassodes neglectus (Keyserling, 1887)</dwc:ScientificName>
+<dcterms:modified>2006-11-02T19:08:28Z</dcterms:modified>
+<reference>
+<![CDATA[Banks, N. 1895 The Arachnida of Colorado.  <i>Ann. New York Acad. Sci.</i> <b>8:</b> 415-434.]]>
+</reference>
+<reference>
+<![CDATA[Banks, N. 1892 The spider fauna of the Upper Cayuga Lake Basin.  <i>Proc. Acad. nat. Sci. Philad.</i> <b>1892:</b> 11-81.]]>
+</reference>
+<reference>
+<![CDATA[Comstock, J. H. 1940 <i>The spider book, revised and edited by W. J. Gertsch</i>.  Cornell Univ. Press, Ithaca, xi + 727 pp.]]>
+</reference>
+<reference>
+<![CDATA[Comstock, J. H. 1912 <i>The spider book; a manual for the study of the spiders and their near relatives, the scorpions, pseudoscorpions, whipscorpions, harvestmen and other members of the class Arachnida, found in America north of Mexico, with analytical keys for their classification and popular accounts of their habits.</i> Garden City, New York, pp. 1-721]]>
+</reference>
+<reference>
+<![CDATA[Heiss, J. S. & R. T. Allen. 1986 The Gnaphosidae of Arkansas. <i>Bull. Ark. agric. Exp. Stn</i> <b>885:</b> 1-67.]]>
+</reference>
+<reference>
+<![CDATA[Kaston, B. J. 1948 Spiders of Connecticut.  <i>Bull. Conn. St. geol. nat. Hist. Surv.</i> <b>70:</b> 1-874.]]>
+</reference>
+<reference>
+<![CDATA[Keyserling, E. 1887 Neue Spinnen aus America. VII.  <i>Verh. zool.-bot. Ges. Wien</i> <b>37:</b> 421-490.]]>
+</reference>
+<reference>
+<![CDATA[Ovtsharenko, V. I. & Y. M. Marusik. 1996 Additional data on the spiders of the family Gnaphosidae (Aranei) of the north-east of Asia. In <i>ntomological Studies in the North-East of the USSR</i>.  USSR Academy of Sciences, Institute of Biological Problems of the North, Vladivostok, pp. 114-130 (]]>
+</reference>
+<reference>
+<![CDATA[Ovtsharenko, V. I. & Y. M. Marusik. 1988 Spiders of the family Gnaphosidae (Aranei) of the north-east of the USSR (the Magadan Province).  <i>Ent. Obozr.</i> <b>67:</b> 204-217.]]>
+</reference>
+<reference>
+<![CDATA[Paquin, P. & N. Dupérré. 2003 Guide d'identification des araignées de Québec.  <i>Fabreries, Suppl.</i> <b>11</b> 1-251.]]>
+</reference>
+<reference handle="2246/1135">
+<![CDATA[Petrunkevitch, A. 1911 A synonymic index-catalogue of spiders of North, Central and South America with all adjacent islands, Greeland, Bermuda, West Indies, Terra del Fuego, Galapagos, etc.  <i>Bull. Amer. Mus. Nat. Hist.</i> <b>29:</b> 1-791.]]>
+</reference>
+<reference>
+<![CDATA[Platnick, N. I. & C. D. Dondale. 1992 The insects and arachnids of Canada, Part 19. The ground spiders of Canada and Alaska (Araneae: Gnaphosidae).  <i>Research Branch, Agriculture Canada, Publ.</i> <b>1875:</b> 1-297.]]>
+</reference>
+<reference handle="2246/2976">
+<![CDATA[Platnick, N. I. & M. U. Shadab. 1976 A revision of the spider genera <i>Drassodes</i> and <i>Tivodrassus</i> (Araneae, Gnaphosidae) in North America. <i>Am. Mus. Novit.</i> <b>2593:</b> 1-29.]]>
+</reference>
+<reference>
+<![CDATA[Ubick, D. & V. D. Roth. 1973 Nearctic Gnaphosidae including species from adjacent Mexican states. <i>Am. Arachnol.</i> <b>9</b>(suppl. 2): 1-12.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/26956-lifehistory</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-02T19:08:28Z</dcterms:modified> 
+<dc:title xml:lang="en">Taxon Biology</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>
+<dc:description xml:lang="en"><![CDATA[Mature specimens of both genders have been collected from March to October. Males and females are often found sharing the same silken retreat (Kaston, 1948). Egg sacs (collected June - September) are carefully guarded by the female.]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/26956-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-02T19:08:28Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">Holarctic</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/26956-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-11-02T19:08:28Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[under stones and loose bark, pebbly beaches, fields, talus, association with lodgepole, ponderosa, and jack pine, spruce, fir, juniper, scrub oak, birch, sagebrush, sphagnum (Platnick &amp; Dondale, 1992)]]></dc:description>  
+</dataObject>
+</taxon><taxon>
+<dc:identifier>urn:lsid:ubio.org:namebank:2053149</dc:identifier>
+<dc:source>http://www.canadianarachnology.org/data/spiders/14895</dc:source>
+<dwc:Kingdom>Animalia</dwc:Kingdom>
+<dwc:Phylum>Arthropoda</dwc:Phylum>
+<dwc:Class>Arachnida</dwc:Class>
+<dwc:Order>Araneae</dwc:Order>
+<dwc:Family>Araneidae</dwc:Family>
+<dwc:ScientificName>Araneus gemmoides Chamberlin &amp; Ivie, 1935</dwc:ScientificName>
+<dcterms:modified>2006-09-01T16:00:38Z</dcterms:modified>
+<reference>
+<![CDATA[Chamberlin, R. V. & W. Ivie. 1935 Miscellaneous new American spiders.  <i>Bull. Univ. Utah.</i> <b>26</b>(4): 1-79.]]>
+</reference>
+<reference>
+<![CDATA[Dondale, C. D., J. H. Redner, P. Paquin & H. W. Levi. 2003 <i>The insects and arachnids of Canada. Part 23. The orb-weaving spiders of Canada and Alaska (Araneae:  Uloboridae, Tetragnathidae, Araneidae, Theridiosomatidae).</i>  NRC Research Press, Ottawa, 371 pp.]]>
+</reference>
+<reference url="http://psyche2.entclub.org/articles/82/82-265.pdf">
+<![CDATA[Levi, H. W. 1975 Additional notes on the orb-weaver genera <i>Araneus</i>, <i>Hypsosinga</i> and <i>Singa</i> north of Mexico (Araneae, Araneidae).  <i>Psyche, Camb.</i> <b>82:</b> 265-274.]]>
+</reference>
+<reference>
+<![CDATA[Levi, H. W. 1971 The <i>diadematus</i> group of the orb-weaver genus <i>Araneus</i> north of Mexico (Araneae: Araneidae).  <i>Bull. Mus. comp. Zool. Harv.</i> <b>141:</b> 131-179.]]>
+</reference>
+<reference handle="2246/3962">
+<![CDATA[Levi, H. W. 1951 New and rare spiders from Wisconsin and adjacent states.  <i>Am. Mus. Novit.</i> <b>1501:</b> 1-41.]]>
+</reference>
+<reference doi="10.2307/2422118">
+<![CDATA[Levi, H. W. & H. M. Field. 1954 The spiders of Wisconsin.  <i>Am. Midl. Nat.</i> <b>51:</b> 440-467.]]>
+</reference>
+<reference>
+<![CDATA[Schenkel, E. 1950 Spinnentiere aus dem westlichen Nordamerika, gesammelt von Dr. Hans Schenkel-Rudin.  <i>Verh. naturf. Ges. Basel</i> <b>61:</b> 28-92.]]>
+</reference>
+<dataObject>
+<dc:identifier>12.0001/14895-imagehabitus</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+<mimeType>image/jpeg</mimeType>
+<agent role="photographer">Buckle, Don</agent>
+<dcterms:modified>2006-09-01T16:00:38Z</dcterms:modified>
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>
+<dcterms:rightsHolder>Buckle, Don</dcterms:rightsHolder>
+<audience>General public</audience>
+<dc:description xml:lang="en">ARANEIDAE: Araneus gemmoides Chamberlin &amp; Ivie, 1935 habitus</dc:description>
+<mediaURL>http://www.canadianarachnology.org/data/canada_spiders/images/habitus/Araneus_gemmoides.jpg</mediaURL>
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/14895-distribution</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-09-01T16:00:38Z</dcterms:modified> 
+<dc:title xml:lang="en">Distribution</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>
+<dc:description xml:lang="en">USA, Canada</dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/14895-habitat</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-09-01T16:00:38Z</dcterms:modified> 
+<dc:title xml:lang="en">Habitat</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>General public</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat</subject>
+<dc:description xml:lang="en"><![CDATA[Individuals have been collected on barns and other outbuildings, under rock ledges, and lodgepole pine forests. They are also known to frequent well-lit human habitations under eaves, fencerows, and similar nooks, and are especially visible late summer to early autumn.]]></dc:description>  
+</dataObject>
+<dataObject>
+<dc:identifier>12.0001/14895-diagnostic</dc:identifier>
+<dataType>http://purl.org/dc/dcmitype/Text</dataType> 
+<mimeType>text/html</mimeType> 
+<agent role="author">Shorthouse, David P.</agent>
+<dcterms:modified>2006-09-01T16:00:38Z</dcterms:modified> 
+<dc:title xml:lang="en">Diagnostic Description</dc:title> 
+<dc:language>en</dc:language> 
+<license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license>  
+<audience>Expert users</audience>
+<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+<dc:description xml:lang="en"><![CDATA[Male: Carapace is pale brown. Legs are yellowish brown with indistinct annulations. Abdomen brownish, occasionally with indistinct paired oblique marks toward posterior end, and with distinct anterodorsal humps (Dondale <em>et al.</em>, 2003). Female: Coloration as in male (Dondale <em>et al.</em>, 2003).]]></dc:description>  
+</dataObject>
+</taxon>
+</response>

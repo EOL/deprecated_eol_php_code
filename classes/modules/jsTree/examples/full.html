@@ -1,0 +1,112 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>All in one place</title>
+  <!-- COMPONENTS -->
+  <script type="text/javascript" src="../../source/_lib.js"></script>
+  <script type="text/javascript" src="../source/tree_component.js"></script>
+  <link rel="stylesheet" type="text/css" href="../source/tree_component.css" />
+
+  <script type="text/javascript" src="bubble.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="style.css" />
+
+  <!-- INITIALIZE -->
+  <script type="text/javascript">
+    function l(t) {
+      $("#l").prepend(t + "<br />");
+    }
+    $(function() {
+      $("#demo").height($(".sources").height() - 12);
+    });
+    $(function() {
+      tree1 = new tree_component();
+      tree1.init($("#demo"), { 
+        data : {
+          type  : "xml_flat",
+          async : true,
+          url   : "json.php"
+        },
+        rules : {
+          draggable : [ "file" ],
+          dragrules : [ "file inside folder" , "file after file", "file before file" ],
+          deletable : [ "file" ]
+        },
+        callback : { 
+          beforechange: function(NODE,TREE_OBJ) { l("Changing focus."); return true },
+          beforemove  : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("About to move."); return true }, 
+          beforecreate: function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("About to create."); return true }, 
+          beforerename: function(NODE,LANG,TREE_OBJ) { l("About to rename."); return true }, 
+          beforedelete: function(NODE,TREE_OBJ) { l("About to delete."); return true }, 
+          onchange : function(NODE,TREE_OBJ) { l("Focus changed."); }, 
+          onrename : function(NODE,LANG,TREE_OBJ) { l("Node renamed."); }, 
+          onmove   : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("Node moved."); }, 
+          oncopy   : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("Node copied"); }, 
+          oncreate : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("Node created"); }, 
+          ondelete : function(NODE, TREE_OBJ) { l("Node deleted"); }, 
+          onopen   : function(NODE, TREE_OBJ) { l("Node opened"); }, 
+          onclose  : function(NODE, TREE_OBJ) { l("Node closed"); }, 
+          error    : function(TEXT, TREE_OBJ) { l("ERROR OCCURED: " + TEXT); }, 
+          ondblclk : function(NODE, TREE_OBJ) { l("Node double-clicked"); TREE_OBJ.toggle_branch.call(TREE_OBJ, NODE); TREE_OBJ.select_branch.call(TREE_OBJ, NODE); },
+          onrgtclk : function(NODE, TREE_OBJ, EV) { l("Node right-clicked"); },
+          onload   : function(TREE_OBJ) { l("Tree loaded"); },
+          onfocus  : function(TREE_OBJ) { l("Tree focused"); }
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+<div id="container">
+<h1>In this example you can see most of the functionality in action.</h1>
+<p>The data source is async JSON, with three languages</p>
+<p>Try playing around.</p>
+<input type="button" value="Clear" onclick="$('#l').html('');" style="float:right; margin-right:10px;" />
+<input type="button" value="tree1.create('folder',$('#n1'));" onclick="tree1.create('folder',$('#n1'));" />
+<input type="button" value="tree1.remove();" onclick="tree1.remove();" />
+<input type="button" value="tree1.rename();" onclick="tree1.rename();" />
+<input type="button" value="tree1.refresh();" onclick="tree1.refresh();" />
+<br /><br />
+<div class="demo" id="demo"></div>
+<div class="sources">
+<code class="source" id="l" style="height:150px;"></code>
+<code class="source"><b>javascript</b>$(function() {
+  tree1 = new tree_component();
+  tree1.init($("#demo"), { 
+    data : {
+      type  : "xml_flat",
+      url   : "../_opers/flat.xml"
+    },
+    rules : {
+      draggable : [ "file" ],
+      dragrules : [ "file inside folder" , "file after file", "file before file" ],
+      deletable : [ "file" ]
+    },
+    callback : { 
+      beforechange: function(NODE,TREE_OBJ) { l("Changing focus."); return true },
+      beforemove  : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("About to move."); return true }, 
+      beforecreate: function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("About to create."); return true }, 
+      beforerename: function(NODE,LANG,TREE_OBJ) { l("About to rename."); return true }, 
+      beforedelete: function(NODE,TREE_OBJ) { l("About to delete."); return true }, 
+      onchange : function(NODE,TREE_OBJ) { l("Focus changed."); }, 
+      onrename : function(NODE,LANG,TREE_OBJ) { l("Node renamed."); }, 
+      onmove   : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("Node moved."); }, 
+      oncopy   : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("Node copied"); }, 
+      oncreate : function(NODE,REF_NODE,TYPE,TREE_OBJ) { l("Node created"); }, 
+      ondelete : function(NODE, TREE_OBJ) { l("Node deleted"); }, 
+      onopen   : function(NODE, TREE_OBJ) { l("Node opened"); }, 
+      onclose  : function(NODE, TREE_OBJ) { l("Node closed"); }, 
+      error    : function(TEXT, TREE_OBJ) { l("ERROR OCCURED: " + TEXT); }, 
+      ondblclk : function(NODE, TREE_OBJ) { l("Node double-clicked"); TREE_OBJ.toggle_branch.call(TREE_OBJ, NODE); TREE_OBJ.select_branch.call(TREE_OBJ, NODE); },
+      onrgtclk : function(NODE, TREE_OBJ, EV) { l("Node right-clicked"); },
+      onload   : function(TREE_OBJ) { l("Tree loaded"); },
+      onfocus  : function(TREE_OBJ) { l("Tree focused"); }
+    }
+  });
+});
+</code>
+</div>
+</body>

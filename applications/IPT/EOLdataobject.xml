@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	This defines the extension for defining EOL data objects as extensions to a Taxon core object	
+-->
+<extension 	xmlns="http://ipt.gbif.org/extension/"
+    		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    		xsi:schemaLocation="http://ipt.gbif.org/extension/ http://gbrds.gbif.org/resources/schemas/extension.xsd" 
+    
+			title="EOL Data Object ver. 1" 			
+			name="EOL_DataObject" 			
+			namespace="http://www.eol.org/transfer/content/0.1/">
+			
+
+    <property 	name="ScientificName" 
+				namespace="http://rs.tdwg.org/dwc/dwcore/" 
+				qualName="http://rs.tdwg.org/dwc/dwcore/ScientificName"
+				required="true"/>
+
+    <property 	name="TaxonID" 
+				namespace="http://rs.tdwg.org/dwc/terms/" 
+				qualName="http://rs.tdwg.org/dwc/terms/TaxonID"				
+				required="true"/>
+
+    <property 	name="identifier" 
+				namespace="http://purl.org/dc/elements/1.1/" 
+				qualName="http://purl.org/dc/elements/1.1/identifier"
+				required="true"/>
+				
+    <property 	name="dataType" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/dataType"
+				required="true"/>
+
+    <property 	name="mimeType" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/mimeType"
+				required="true"/>
+
+    <property 	name="agent" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/agent"/>
+				
+		    <property 	name="agent_homepage" 
+						namespace="http://www.eol.org/transfer/content/0.1/" 
+						qualName="http://www.eol.org/transfer/content/0.1/agent_homepage"/>
+		    <property 	name="agent_logoURL" 
+						namespace="http://www.eol.org/transfer/content/0.1/" 
+						qualName="http://www.eol.org/transfer/content/0.1/agent_logoURL"/>
+		    <property 	name="agent_role" 
+						namespace="http://www.eol.org/transfer/content/0.1/" 
+						qualName="http://www.eol.org/transfer/content/0.1/agent_role"/>
+				
+
+    <property 	name="created" 
+				namespace="http://purl.org/dc/terms/" 
+				qualName ="http://purl.org/dc/terms/created"/>
+
+    <property 	name="modified" 
+				namespace="http://purl.org/dc/terms/" 
+				qualName ="http://purl.org/dc/terms/modified"/>
+
+    <property 	name="title" 
+				namespace="http://purl.org/dc/elements/1.1/" 
+				qualName="http://purl.org/dc/elements/1.1/title"/>
+
+    <property 	name="language" 
+				namespace="http://purl.org/dc/elements/1.1/" 
+				qualName="http://purl.org/dc/elements/1.1/language"/>
+
+    <property 	name="license" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/license"/>
+
+    <property 	name="rights" 
+				namespace="http://purl.org/dc/elements/1.1/" 
+				qualName="http://purl.org/dc/elements/1.1/rights"/>
+
+    <property 	name="rightsHolder" 
+				namespace="http://purl.org/dc/terms/" 
+				qualName ="http://purl.org/dc/terms/rightsHolder"/>
+
+    <property 	name="bibliographicCitation" 
+				namespace="http://purl.org/dc/terms/" 
+				qualName ="http://purl.org/dc/terms/bibliographicCitation"/>
+
+    <property 	name="audience" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/audience"/>
+
+    <property 	name="source" 
+				namespace="http://purl.org/dc/elements/1.1/" 
+				qualName="http://purl.org/dc/elements/1.1/source"/>
+
+    <property 	name="subject" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/subject"/>
+				
+    <property 	name="description" 
+				namespace="http://purl.org/dc/elements/1.1/" 
+				qualName="http://purl.org/dc/elements/1.1/description"
+				required="true"/>
+				
+    <property 	name="mediaURL" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/mediaURL"/>
+				
+    <property 	name="thumbnailURL" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/thumbnailURL"/>
+				
+    <property 	name="location" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/location"/>
+				
+
+    <property 	name="lat_long" 
+				namespace="http://www.w3.org/2003/01/geo/wgs84_pos#" 
+				qualName="http://www.w3.org/2003/01/geo/wgs84_pos#/lat_long"/>				
+
+
+    <property 	name="reference" 
+				namespace="http://www.eol.org/transfer/content/0.1/" 
+				qualName="http://www.eol.org/transfer/content/0.1/reference"/>
+				
+
+		    <property 	name="reference_doi" 
+						namespace="http://www.eol.org/transfer/content/0.1/" 
+						qualName="http://www.eol.org/transfer/content/0.1/reference_doi"/>
+		    <property 	name="reference_url" 
+						namespace="http://www.eol.org/transfer/content/0.1/" 
+						qualName="http://www.eol.org/transfer/content/0.1/reference_url"/>
+
+</extension>

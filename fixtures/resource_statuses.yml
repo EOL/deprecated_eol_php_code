@@ -1,0 +1,40 @@
+uploading:
+    id: 1
+    label: Uploading
+    
+uploaded:
+    id: 2
+    label: Uploaded
+    
+upload_failed:
+    id: 3
+    label: Upload Failed
+    
+moved_to_content_server:
+    id: 4
+    label: Moved to Content Server
+    
+validated:
+    id: 5
+    label: Validated
+    
+validation_failed:
+    id: 6
+    label: Validation Failed
+    
+being_processed:
+    id: 7
+    label: Being Processed
+    
+processed:
+    id: 8
+    label: Processed
+    
+processing_failed:
+    id: 9
+    label: Processing Failed
+    
+published:
+    id: 10
+    label: Published
+    
