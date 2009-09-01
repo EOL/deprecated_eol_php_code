@@ -25,7 +25,7 @@ class WikiParser
         }
         
         // [http://... The text to link to]
-        while(preg_match("/(\[\s*(http:\/\/[^ ]+) (.*?)\])(.*)$/ms", $string, $arr))
+        while(preg_match("/(\[\s*(https?:\/\/[^ ]+) (.*?)\])(.*)$/ms", $string, $arr))
         {
             $match = $arr[1];
             if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[3]</a>", $string);
@@ -33,7 +33,7 @@ class WikiParser
         }
         
         // [http://...]
-        while(preg_match("/(\[\s*(http:\/\/[^ ]+)\])(.*)$/ms", $string, $arr))
+        while(preg_match("/(\[\s*(https?:\/\/[^ ]+)\])(.*)$/ms", $string, $arr))
         {
             $match = $arr[1];
             if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[2]</a>", $string);
@@ -94,6 +94,7 @@ class WikiParser
         return htmlspecialchars_decode(trim($string));
     }
     
+    // [[ ... ]]
     public static function format_brackets($string, $format = false)
     {
         $string = substr($string, 2, -2);
@@ -101,6 +102,18 @@ class WikiParser
         {
             //$string = self::strip_syntax($arr[2]);
             $string = $arr[2];
+        }elseif(preg_match("/^\s*w:(.*)\|(.*?)$/ims", $string, $arr))
+        {
+            if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]'>$arr[2]</a>";
+            else $string = $arr[2];
+        }elseif(preg_match("/^\s*(:[a-z]{2}:|user:)([^\|]*)$/ims", $string, $arr))
+        {
+            if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]$arr[2]'>$arr[2]</a>";
+            else $string = $arr[2];
+        }elseif(preg_match("/^\s*user:(.*)\|(.*?)$/ims", $string, $arr))
+        {
+            if($format) $string = "<a href='".WIKI_USER_PREFIX."$arr[1]'>$arr[2]</a>";
+            else $string = $arr[2];
         }elseif(preg_match("/^\s*cite/ms", $string, $arr))
         {
             $string = "";
@@ -135,23 +148,25 @@ class WikiParser
         return $string;
     }
     
+    // {{ ... }}
     public static function format_curly_brackets($string, $format = false, $pagename = false)
     {
         $string = trim(substr($string, 2, -2));
         
-        // if(preg_match("/^(.*?)\|(.*)$/ms", $string, $arr))
-        // {
-        //     $string = $arr[2];
-        // }
-        
-        $return = "";
+        if(preg_match("/^\s*([a-z]{2})\s*\|\s*(.*)$/ims", $string, $arr))
+        {
+            if($l = &$GLOBALS['iso_639_2_codes'][$arr[1]]) $language = $l;
+            else $language = "Unknown language ($arr[1])";
+            if($format) $string = "<b>$language:</b> $arr[2] ";
+            else $string = "language: ".$arr[2]." ";
+        }
         
         if($string == "pagename" && $pagename)
         {
-            $return = $pagename;
+            $string = $pagename;
         }
         
-        return $return;
+        return $string;
     }
     
     public static function format_html_comment($string, $format = false)
