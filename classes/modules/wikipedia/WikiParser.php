@@ -106,6 +106,14 @@ class WikiParser
         {
             if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]'>$arr[2]</a>";
             else $string = $arr[2];
+        }elseif(preg_match("/^\s*(:category:)(.*)\|(.*?)$/ims", $string, $arr))
+        {
+            if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]$arr[2]'>$arr[3]</a>";
+            else $string = $arr[3];
+        }elseif(preg_match("/^\s*(:category:)(.*?)$/ims", $string, $arr))
+        {
+            if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]$arr[2]'>$arr[2]</a>";
+            else $string = $arr[2];
         }elseif(preg_match("/^\s*(:[a-z]{2}:|user:)([^\|]*)$/ims", $string, $arr))
         {
             if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]$arr[2]'>$arr[2]</a>";
@@ -172,6 +180,7 @@ class WikiParser
     public static function format_html_comment($string, $format = false)
     {
         if(!$format) $string = "";
+        else $string = "";
         
         return $string;
     }

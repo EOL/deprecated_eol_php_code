@@ -8,7 +8,7 @@ class WikimediaPage
     function __construct($xml)
     {
         $this->xml = $xml;
-        $this->simple_xml = simplexml_load_string($this->xml);
+        $this->simple_xml = @simplexml_load_string($this->xml);
         $this->text = (string) $this->simple_xml->revision->text;
         $this->title = (string) $this->simple_xml->title;
         $this->contributor = (string) $this->simple_xml->revision->contributor->username;
@@ -24,13 +24,13 @@ class WikimediaPage
             list($information_box, $junk) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
             
             $parts = preg_split("/(^|\n)\s*\|/", $information_box);
-            while($part = array_pop($parts))
+            while($part = array_shift($parts))
             {
                 // further split on |Attribute=
-                while(preg_match("/^(.*?)\|([A-Z][a-z]+=.*$)/ms", $part, $arr))
+                while(preg_match("/^(.+?)\|([A-Z][a-z]+=.*$)/ms", $part, $arr))
                 {
                     $part = $arr[1];
-                    array_push($parts, $arr[2]);
+                    array_unshift($parts, $arr[2]);
                 }
                 if(preg_match("/^\s*([^\s]*)\s*=(.*)$/ms", $part, $arr))
                 {
@@ -55,10 +55,12 @@ class WikimediaPage
             list($taxonomy_box, $junk) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
             
             $authority = "";
-            $parts = explode("\n", $taxonomy_box);
+            $parts = preg_split("/[\n\r]/", trim($taxonomy_box));
+            //echo "<hr>$taxonomy_box<br><br>";
+            //Functions::print_pre($parts);
             while($part = array_pop($parts))
             {
-                $part = trim($part);
+                //echo "PART:$part<br>";
                 if(preg_match("/^\s*([a-z]+)\s*\|\s*([^\|]+)\|?$/ims", $part, $arr))
                 {
                     $attribute = strtolower(trim($arr[1]));
@@ -70,10 +72,38 @@ class WikimediaPage
                 }
             }
             
+            // add the authority to the last entry
             if($authority)
             {
                 $value = current($taxonomy);
                 $taxonomy[key($taxonomy)] = $value .' '. $authority;
+            }
+            
+            // there are often some extra ranks under the Taxonnavigation box
+            if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->text, $arr))
+            {
+                $entries = explode("\n", $arr[2]);
+                foreach($entries as $entry)
+                {
+                    if(preg_match("/^\*?(genus|species):(.*)/ims", trim($entry), $arr))
+                    {
+                        $rank = strtolower($arr[1]);
+                        $name = preg_replace("/\s+/", " ", WikiParser::strip_syntax(trim($arr[2])));
+                        $taxonomy[$rank] = $name;
+                    }
+                }
+            }
+        }
+        
+        foreach($taxonomy as &$name)
+        {
+            $name = preg_replace("/\s*\|$/", "", trim($name));
+            $name = str_replace("<small>", "", $name);
+            $name = str_replace("</small>", "", $name);
+            if(!is_utf8($name))
+            {
+                $taxonomy = array();
+                break;
             }
         }
         
@@ -81,35 +111,113 @@ class WikimediaPage
         return $taxonomy;
     }
     
-    /*
-        Different licenses I found:
+    public function taxon_parameters()
+    {
+        if($this->taxon_parameters) return $this->taxon_parameters;
+        $taxonomy = $this->taxonomy();
         
-        PD-Art|PD-old-100
-        Cc-by
-        self|GFDL|cc-by-sa-2.5,2.0,1.0
-        PD-old
-        GFDL
-        cc-by-2.5
-        PD-user|Mtcv
-        PD-age
-        PD-Art
-        Pd/1923|1952
-        PD-self
-        GFDL-self
-        NIH
-        PD-PCL-portraits
-        GFDL-self
-        PD-USGov-FWS
-        PD-USGov-Interior-FWS
-        PD-USGov-NASA
-        self|cc-by|GFDL
-        PD-USGov-CIA-WF
-        PD-USGov-Congress
-        USAID
-        cc-by-2.5-pl
-        Creative Commons
-        Public Domain
-    */
+        $taxon_rank = key($taxonomy);
+        $taxon_name = current($taxonomy);
+        
+        $taxon_parameters = array();
+        if($taxon_rank!='regnum' && $v = @$taxonomy['regnum']) $taxon_parameters['kingdom'] = $v;
+        if($taxon_rank!='phylum' && $v = @$taxonomy['phylum']) $taxon_parameters['phylum'] = $v;
+        if($taxon_rank!='classis' && $v = @$taxonomy['classis']) $taxon_parameters['class'] = $v;
+        if($taxon_rank!='ordo' && $v = @$taxonomy['ordo']) $taxon_parameters['order'] = $v;
+        if($taxon_rank!='familia' && $v = @$taxonomy['familia']) $taxon_parameters['family'] = $v;
+        if($taxon_rank!='genus' && $v = @$taxonomy['genus']) $taxon_parameters['genus'] = $v;
+        $taxon_parameters['scientificName'] = $taxon_name;
+        $taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
+        $taxon_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
+        
+        
+        $taxon_parameters['dataObjects'] = array();
+        $this->taxon_parameters = $taxon_parameters;
+        return $taxon_parameters;
+    }
+    
+    public function data_object_parameters()
+    {
+        if($this->data_object_parameters) return $this->data_object_parameters;
+        
+        $data_object_parameters = array();
+        $licenses = $this->licenses();
+        foreach($licenses as $key => $val)
+        {
+            //PD-USGov-CIA-WF
+            if(preg_match("/^(pd|public domain|cc-pd|usaid|nih)($| |-)/i", $val))
+            {
+                $data_object_parameters["license"] = "http://creativecommons.org/licenses/publicdomain/";
+                break;
+            }
+            //Cc-by-sa-2.5,2.0,1.0-de
+            if(preg_match("/^cc-(by(-nc)?(-nd)?(-sa)?)(.*)$/i", $val, $arr))
+            {
+                $license = strtolower($arr[1]);
+                $rest = $arr[2];
+                
+                if(preg_match("/^-?([0-9]\.[0-9])/", $rest, $arr)) $version = $arr[1];
+                else $version = "3.0";
+                
+                $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
+                break;
+            }
+            //cc-sa-1.0
+            if(preg_match("/^(cc-sa)(.*)$/i", $val, $arr))
+            {
+                $license = "by-sa";
+                $rest = $arr[2];
+                
+                if(preg_match("/^-?([0-9]\.[0-9])/", $rest, $arr)) $version = $arr[1];
+                else $version = "3.0";
+                
+                $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
+                break;
+            }
+        }
+        if(!isset($data_object_parameters["license"])) return false;
+        
+        $data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
+        $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
+        $data_object_parameters["title"] = $this->title;
+        $data_object_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
+        $data_object_parameters["description"] = $this->description();
+        
+        //if($this->description() && preg_match("/([^".UPPER.LOWER."0-9\/,\.;:'\"\(\)\[\]\{\}\|\!\?~@#\$%+_\^&\*<>=\n\r -])/ims", $this->description(), $arr))
+        if($data_object_parameters["description"] && !is_utf8($data_object_parameters["description"]))
+        {
+            $data_object_parameters["description"] = "";
+            
+            //echo "THIS IS BAD:<br>\n";
+            //echo $this->description()."<br>\n";
+        }
+        
+        $data_object_parameters["agents"] = array();
+        if($this->agent_parameters())
+        {
+            $data_object_parameters["agents"][] = new SchemaAgent($this->agent_parameters());
+        }
+        
+        return $data_object_parameters;
+    }
+    
+    public function agent_parameters()
+    {
+        if($this->agent_parameters) return $this->agent_parameters;
+        $author = $this->author();
+        
+        $homepage = "";
+        if(preg_match("/<a href='(.*?)'>/", $author, $arr)) $homepage = $arr[1];
+        $author = preg_replace("/<a href='(.*?)'>/", "", $author);
+        $author = str_replace("</a>", "", $author);
+        
+        $agent_parameters = array();
+        $agent_parameters["fullName"] = htmlspecialchars($author);
+        if(is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+        
+        $this->agent_parameters = $agent_parameters;
+        return $agent_parameters;
+    }
     
     public function licenses()
     {
@@ -135,11 +243,6 @@ class WikimediaPage
             $licenses[] = trim($arr[1]);
         }
         
-        // foreach($licenses as $key => $license)
-        // {
-        //     if(!preg_match("/^(cc|pd|usaid|nih|creative commons|public domain)/i", $license)) unset($licenses[$key]);
-        // }
-        
         $this->licenses = $licenses;
         return $licenses;
     }
@@ -157,6 +260,7 @@ class WikimediaPage
                 if($attr == "author") $author = WikiParser::strip_syntax($val, true);
             }
         }
+        if((!$author || !is_utf8($author)) && $this->contributor) $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
         
         $this->author = $author;
         return $author;
@@ -172,7 +276,10 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "description") $description = WikiParser::strip_syntax($val, true);
+                if($attr == "description")
+                {
+                    $description = WikiParser::strip_syntax($val, true);
+                }
             }
         }
         
@@ -184,11 +291,11 @@ class WikimediaPage
     {
         $images = array();
         
-        $text = $this->text();
+        $text = $this->text;
         $lines = explode("\n", $text);
         foreach($lines as $line)
         {
-            if(preg_match("/^\[*(image|file)\s*:(.*)$/i", $line, $arr))
+            if(preg_match("/^\s*\[{0,2}\s*(image|file)\s*:(.*?)(\||$)/i", $line, $arr))
             {
                 $images[] = trim($arr[2]);
             }
@@ -196,6 +303,32 @@ class WikimediaPage
         
         return $images;
     }
+}
+
+
+
+
+// Returns true if $string is valid UTF-8 and false otherwise.
+function is_utf8($string)
+{
+    // From http://w3.org/International/questions/qa-forms-utf-8.html
+    return preg_match('%^(?:
+          [\x09\x0A\x0D\x20-\x7E]            # ASCII
+        | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+        |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
+        | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
+        |  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
+        |  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
+        | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
+        |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
+    )*$%xs', $string);
+}
+
+function is_ascii($string)
+{
+    return preg_match('%^(?:
+          [\x09\x0A\x0D\x20-\x7E]            # ASCII
+    )*$%xs', $string);
 }
 
 ?>

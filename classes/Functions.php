@@ -29,7 +29,7 @@ class Functions
         if(DEBUG_TO_FILE) fwrite($GLOBALS['debug_file'], str_pad(self::time_elapsed(), 12, " ", STR_PAD_LEFT)." -> ". $text."\n");
         else
         {
-            echo "<br>\n$text<br>\n";
+            echo "$text<br>\n";
             flush();
         }
     }

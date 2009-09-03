@@ -102,7 +102,7 @@ class SchemaDataObject
         if($this->mediaURL) $xml .= "  <mediaURL>".htmlspecialchars($this->mediaURL)."</mediaURL>\n";
         if($this->thumbnailURL) $xml .= "  <thumbnailURL>".htmlspecialchars($this->thumbnailURL)."</thumbnailURL>\n";
         if($this->location) $xml .= "  <location>".htmlspecialchars($this->location)."</location>\n";
-        if(get_class($this->point)=="SchemaPoint") $xml .= $this->point->__toXML();
+        if($this->point && get_class($this->point)=="SchemaPoint") $xml .= $this->point->__toXML();
         if(is_array($this->references)) foreach($this->references as $r) $xml .= $r->__toXML();
         $xml .= "</dataObject>\n";
         return $xml;
