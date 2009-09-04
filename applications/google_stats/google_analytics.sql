@@ -27,9 +27,6 @@ GROUP BY tcn.taxon_concept_id
 ORDER BY tcn.source_hierarchy_entry_id DESC;
 --LIMIT 0,10;
 
-
-
-
 #############################################################
 # 2. get the agent hierarchy data
 # -------------------------------------------##############
