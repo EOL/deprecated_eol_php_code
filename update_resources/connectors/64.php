@@ -1,6 +1,6 @@
-#!/usr/local/bin/php
 <?php
-//#!/usr/local/bin/php
+
+//#!/usr/local/bin/php  
 //connector for Radiolaria
 //exit;
 

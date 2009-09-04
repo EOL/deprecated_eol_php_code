@@ -1,6 +1,5 @@
-#!/usr/local/bin/php
 <?php
-//#!/usr/local/bin/php
+//#!/usr/local/bin/php  
 //connector for BOLD Systems
 
 /*
@@ -16,10 +15,11 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //only on local; to be deleted before going into production
-/*
+// /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
-*/
+// */
+
 $resource = new Resource(65);
 $schema_taxa = array();
 $used_taxa = array();
@@ -36,6 +36,9 @@ $result = $mysqli->query("Select distinct taxa.taxon_phylum From taxa Where taxa
 limit 10");    
 //");    
 //
+
+//print $result->num_rows; exit;
+
 $total_taxid_count = 0;
 $do_count = 0;//weird but needed here
 while($row=$result->fetch_assoc())     
