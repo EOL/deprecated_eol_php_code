@@ -1,6 +1,6 @@
 <?php
 
-//define("ENVIRONMENT", "slave2");
+define("ENVIRONMENT", "slave2");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -488,8 +488,6 @@ function get_month_year_from_path($path)
 
 function eol_month_report($arr)
 {
-   
-    
     $arr = explode(",",$arr);
     $path                           = $arr[0];
     $eol_CountOfTaxaPages           = $arr[1];
@@ -507,8 +505,6 @@ function eol_month_report($arr)
     $api = get_from_api($month,$year);    
     //end get stats from google api    
 
-
-
     $str="<table border='1' cellpadding=3 cellspacing=0>
     <tr align='center'>    
             <td bgcolor='aqua' colspan='3'><b>$title www.eol.org Statistics</b></td>
@@ -521,7 +517,7 @@ function eol_month_report($arr)
     ";    
     
 
-            $label_arr=array(
+    $label_arr=array(
             "Visits" => "",
             "Visitors" => "",
             "Pageviews" => "The total number of times the page was viewed across all visits.",
@@ -529,12 +525,10 @@ function eol_month_report($arr)
             "Average Pages/Visit" => "",
             "Average Time on Site" => "",
             "Average Time on Page" => "The average amount of time that visitors spent on (a) page.",
-			
 			"Percent New Visits" => "",			
-			
-            "Bounce Rate" => "The percentage of entrances on the page that result in the person immediately leaving the site.",
+	        "Bounce Rate" => "The percentage of entrances on the page that result in the person immediately leaving the site.",
             "Percent Exit" => "The percentage of visitors leaving your site immediately after viewing that page."
-                      );
+            );
 
     
     foreach($api[0] as $label => $value) 
@@ -599,8 +593,7 @@ function record_details_eol($path)
     $provider_cnt=0;
         
     $filename = $path . "/query10.csv";
-    $row = 0;
-    
+    $row = 0;    
     
     if(!($handle = fopen($filename, "r")))return;
     
@@ -613,17 +606,17 @@ function record_details_eol($path)
             for ($c=0; $c < $num; $c++) 
             {        
                 //echo $c+1 . "- [[" . $data[$c] . "]]<br />\n";                    
-                if($c==0)$id               =$data[$c];
-                if($c==1)$date_added       =$data[$c];
-                if($c==2)$taxon_id       =$data[$c];
+                if($c==0)$id                =$data[$c];
+                if($c==1)$date_added        =$data[$c];
+                if($c==2)$taxon_id          =$data[$c];
                 if($c==3)$url               =$data[$c];
-                if($c==4)$scientificName       =$data[$c];
-                if($c==5)$commonNameEN       =$data[$c];
-                if($c==6)$page_views           =$data[$c];
-                if($c==7)$unique_page_views =$data[$c];
+                if($c==4)$scientificName    =$data[$c];
+                if($c==5)$commonNameEN      =$data[$c];
+                if($c==6)$page_views        =$data[$c];
+                if($c==7)$unique_page_views     =$data[$c];
                 if($c==8)$time_on_page_seconds  =$data[$c];
                 if($c==9)$bounce_rate           =$data[$c];
-                if($c==10)$percent_exit           =$data[$c];
+                if($c==10)$percent_exit         =$data[$c];
             }            
             //if($row == 3)break;                            
 
@@ -653,7 +646,6 @@ function record_details_eol($path)
     $str .= '</table>';
     return $str;        
 }
-
 
 function get_from_api($month,$year)
 {
@@ -725,9 +717,9 @@ function get_from_api($month,$year)
             $final[0]["Average Pages/Visit"]    = number_format($val["ga:pageviews"]/$val["ga:visits"],2);        
             $final[0]["Average Time on Site"]   = $api->sec2hms($val["ga:timeOnSite"]/$val["ga:visits"] ,false);        
             
-			$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);
+						$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);
 			
-			$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
+						$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
             $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100,2);                        
             
 
