@@ -15,33 +15,6 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculation
 $month = '07'; $year = '2009';
 $api = get_from_api($month,$year);    
 
-        /*
-        print"<table cellpadding='4' cellspacing='0' border='1'>";
-        print"<tr bgcolor='aqua' align='center'>";
-        if($month == 1)
-        {
-            print"<td>$year</td>";
-            foreach($api[0] as $label => $value) 
-            {            
-                print"<td>$label</td>";
-            } 
-            
-        }
-        print"</tr>";                
-        print"<tr><td align='center'> " . date("F", mktime(0, 0, 0, $month, 1, $year)) . "</td>";
-        
-        foreach($api[0] as $label => $value) 
-        {            
-            $unit="";
-            if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits")))$unit="%";
-            if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews")))$value=number_format($value);
-            print"<td align='right'>$value$unit</td>";
-        } 
-        print"</tr></table>";
-        */
-
-
-
 function get_from_api($month,$year)
 {
     $start_date = "$year-$month-01";
@@ -72,7 +45,7 @@ function get_from_api($month,$year)
         $continue=true; 
         $start_count=1; 
         $range=10000;
-        $range=10;
+        //$range=10;
         //$start_count=30001;
         
         $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_statistics.txt", "w+");
@@ -91,7 +64,7 @@ function get_from_api($month,$year)
             print "no. of records = " . count($data) . "<br>";            
             
             if(count($data) == 0)$continue=false;
-            $continue=false;
+            //$continue=false;
             
             foreach($data as $metric => $count) 
             {
@@ -108,24 +81,23 @@ function get_from_api($month,$year)
                     if($count["ga:pageviews"] - $count["ga:exits"] > 0)  $averate_time_on_page = $api->sec2hms(number_format($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"]),2) ,false);        
                     else                                                 $averate_time_on_page = "";
                     
+                    /*
                     echo " -- " . $bounce_rate;
                     echo " -- " . $percent_exit;
-                    echo " -- " . $averate_time_on_page;
-                                    
-                    //echo "<br>";
-                    //echo "$metric: <hr> ";
-
+                    echo " -- " . $averate_time_on_page;                                    
                     print " | ga:entrances = " . $count["ga:entrances"];
                     print " | pageviews = " . $count["ga:pageviews"] ;
                     print " | uniquePageviews = " . $count["ga:uniquePageviews"] ;
                     print " | exits = " . $count["ga:exits"];
                     print " | url = " . $metric;
+                    */
+                    
                     $money_index = '';
                     
                     //print " | count = " . count($count) . "";
                     $url = "http://www.eol.org" . $metric;
                     $taxon_id = parse_url($url, PHP_URL_PATH);
-                    print "[$taxon_id]";
+                    //print "[$taxon_id]";
                     if(strval(stripos($taxon_id,"/pages/"))!= '')$taxon_id = str_ireplace("/pages/", "", $taxon_id);
                     else                                         $taxon_id = '';
                     //print "[$taxon_id]";
