@@ -58,7 +58,7 @@ $temp = save_to_txt($result,"agents_hierarchies_bhl",$fields,$path);
 $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.hierarchies_names");        
 $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.agents_hierarchies");        
 
-$pre_path = "C:/webroot/eol_php_code\applications\google_stats\data\2009_07";
+//$pre_path = "C:/webroot/eol_php_code/applications/google_stats/data/2009_07";
 $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/hierarchies_names.txt' INTO TABLE eol_statistics.hierarchies_names");        
 $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/agents_hierarchies.txt' INTO TABLE eol_statistics.agents_hierarchies");        
 $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies");        
