@@ -717,9 +717,9 @@ function get_from_api($month,$year)
             $final[0]["Average Pages/Visit"]    = number_format($val["ga:pageviews"]/$val["ga:visits"],2);        
             $final[0]["Average Time on Site"]   = $api->sec2hms($val["ga:timeOnSite"]/$val["ga:visits"] ,false);        
             
-						$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);
+			$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);
 			
-						$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
+			$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
             $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100,2);                        
             
 

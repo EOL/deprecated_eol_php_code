@@ -4,10 +4,15 @@ define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+/*
+http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html#d4Ecommerce
+http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
+http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
+*/
+
     $label_arr=array(
             "Visits" => "",
-            "Source" => "",
-            
+            "Source" => "",            
             "Visitors" => "",
             "Pageviews" => "The total number of times the page was viewed across all visits.",
             "Unique Pageviews" => "Unique Pageviews does not count repeat visits to a page.",
@@ -23,6 +28,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $month = '07'; $year = '2009';
 $api = get_from_api($month,$year);    
 
+        /*
         print"<table cellpadding='4' cellspacing='0' border='1'>";
         print"<tr bgcolor='aqua' align='center'>";
         if($month == 1)
@@ -34,8 +40,7 @@ $api = get_from_api($month,$year);
             } 
             
         }
-        print"</tr>";        
-        
+        print"</tr>";                
         print"<tr><td align='center'> " . date("F", mktime(0, 0, 0, $month, 1, $year)) . "</td>";
         
         foreach($api[0] as $label => $value) 
@@ -46,6 +51,7 @@ $api = get_from_api($month,$year);
             print"<td align='right'>$value$unit</td>";
         } 
         print"</tr></table>";
+        */
 
 
 
@@ -54,8 +60,8 @@ function get_from_api($month,$year)
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
     
-    $start_date = "2009-06-23";
-    $end_date   = "2009-07-23";
+    $start_date = "2009-07-01";
+    $end_date   = "2009-08-01";
 
 
     $final = array();
@@ -79,32 +85,58 @@ function get_from_api($month,$year)
     
         //print"<hr><hr>";
         // get some account summary information without a dimension
-        if(true) 
+        $i=0;
+        $continue=true; 
+        $start_count=1;
+        //$start_count=30001;
+        
+        while($continue == true)
         {
-            $data = $api->data($id, 'ga:pagePath'   , 'ga:pageviews',false ,$start_date ,$end_date ,10      ,1    ,false,false);
-            $val=array();
+            $data = $api->data($id, 'ga:pagePath' , 'ga:pageviews,ga:uniquePageviews,ga:bounces,ga:entrances,ga:exits,ga:timeOnPage'       
+                    ,false ,$start_date ,$end_date 
+                    ,10000 ,$start_count ,false ,false);//96480
+            $start_count += 10000;                    
+            $val=array();            
+            print "no. of records = " . count($data) . "<br>";            
+            if(count($data) == 0)$continue=false;
             foreach($data as $metric => $count) 
             {
-                echo "$metric: $count <br>";
-                $val[$metric]=$count;
-            }                        
-            exit;
-            $final[0]["Visits"]                 = $val["ga:visits"];        
-            $final[0]["Source"]                 = $val["ga:pagePath"];        
-            
-            /*
-            $final[0]["Visitors"]               = $val["ga:visitors"];        
-            $final[0]["Pageviews"]              = $val["ga:pageviews"];                             
-            $final[0]["Average Pages/Visit"]    = number_format($val["ga:pageviews"]/$val["ga:visits"],2);        
-            $final[0]["Average Time on Site"]   = $api->sec2hms($val["ga:timeOnSite"]/$val["ga:visits"] ,false);                    
-    		$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);			
-			$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
-            $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100,2);                        
-            */
-            
+                $i++; print "$i. ";
+                
+                /*                
+                if(true)
+                {
+                    if($count["ga:entrances"] > 0)  $bounce_rate = number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2);
+                    else                            $bounce_rate = "";
+                    
+                    if($count["ga:pageviews"] > 0)  $percent_exit = number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2);
+                                                    $percent_exit = "";
+                                                    
+                    if($count["ga:pageviews"] - $count["ga:exits"] > 0)  $averate_time_on_page = $api->sec2hms(number_format($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"]),2) ,false);        
+                                                                         $averate_time_on_page = "";
+                    echo " -- " . $bounce_rate;
+                    echo " -- " . $percent_exit;
+                    echo " -- " . $averate_time_on_page;
+                                    
+                    //echo "<br>";
+                    //echo "$metric: <hr> ";
 
-            
-        }
+                    print " | ga:entrances = " . $count["ga:entrances"];
+                    print " | pageviews = " . $count["ga:pageviews"] ;
+                    print " | uniquePageviews = " . $count["ga:uniquePageviews"] ;
+                    print " | exits = " . $count["ga:exits"];
+                    print " | url = " . $metric;
+                    
+                    //print " | count = " . count($count) . "";
+                }
+                print "<hr>";
+                */
+                
+            }//end for loop
+
+            //exit;
+                        
+        }//end while
         
         
     }
