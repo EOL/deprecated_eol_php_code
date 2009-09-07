@@ -14,9 +14,9 @@ set_time_limit(0);
 $path = "2009_07";
 //=================================================================
 $mysqli2 = load_mysql_environment('eol_statistics');
-/*
+// /*
 initialize_tables($mysqli2);exit;
-*/
+// */
 //=================================================================
 $query1 = "SELECT tcn.taxon_concept_id, n.string 
 FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id ORDER BY tcn.source_hierarchy_entry_id DESC 
@@ -59,27 +59,25 @@ $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.hierarchies_names");
 $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.agents_hierarchies");        
 
 //$pre_path = "C:/webroot/eol_php_code/applications/google_stats/data/2009_07";
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/hierarchies_names.txt' INTO TABLE eol_statistics.hierarchies_names");        
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/agents_hierarchies.txt' INTO TABLE eol_statistics.agents_hierarchies");        
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies");        
+$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/temp/hierarchies_names.txt' INTO TABLE eol_statistics.hierarchies_names");        
+$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/temp/agents_hierarchies.txt' INTO TABLE eol_statistics.agents_hierarchies");        
+$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $path . "/temp/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies");        
 
 //=================================================================
 //=================================================================
 function initialize_tables()
 {
 	global $mysqli2;
-	
-	$query="DROP TABLE IF EXISTS `eol_statistics`.`agents_hierarchies`;
-	CREATE TABLE  `eol_statistics`.`agents_hierarchies` (
+
+	$query="CREATE TABLE  `eol_statistics`.`agents_hierarchies` (
 	`agentName` varchar(64) NOT NULL,
 	`hierarchiesID` int(10) unsigned NOT NULL,
 	PRIMARY KEY  USING BTREE (`agentName`,`hierarchiesID`),
 	KEY `hierarchiesID` (`hierarchiesID`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 	$update = $mysqli2->query($query);
-	
-	$query="DROP TABLE IF EXISTS `eol_statistics`.`google_analytics_page_statistics`;
-	CREATE TABLE  `eol_statistics`.`google_analytics_page_statistics` (
+    
+	$query="CREATE TABLE  `eol_statistics`.`google_analytics_page_statistics` (
 	`id` int(10) unsigned NOT NULL auto_increment,
 	`taxon_id` int(10) unsigned default NULL,
 	`url` varchar(1000) NOT NULL,
@@ -94,8 +92,7 @@ function initialize_tables()
 	) ENGINE=InnoDB AUTO_INCREMENT=240640 DEFAULT CHARSET=utf8";
 	$update = $mysqli2->query($query);
 
-	$query="DROP TABLE IF EXISTS `eol_statistics`.`hierarchies_names`;
-	CREATE TABLE  `eol_statistics`.`hierarchies_names` (
+	$query="CREATE TABLE  `eol_statistics`.`hierarchies_names` (
 	`hierarchiesID` int(10) unsigned NOT NULL,
 	`scientificName` varchar(255) default NULL,
 	`commonNameEN` varchar(255) default NULL,
@@ -103,6 +100,11 @@ function initialize_tables()
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 	$update = $mysqli2->query($query);
 
+    //exit;
+	$query="DROP TABLE IF EXISTS `eol_statistics`.`agents_hierarchies`;";               $update = $mysqli2->query($query);    	
+	$query="DROP TABLE IF EXISTS `eol_statistics`.`google_analytics_page_statistics`;"; $update = $mysqli2->query($query);
+	$query="DROP TABLE IF EXISTS `eol_statistics`.`hierarchies_names`;";                $update = $mysqli2->query($query);
+    
 }
 
 function save_to_txt($result,$filename,$fields,$path)
@@ -117,7 +119,7 @@ function save_to_txt($result,$filename,$fields,$path)
 		}
 		$str .= "\n";
 	}
-	$filename = "data/" . $path . "/$filename" . ".txt";
+	$filename = "data/" . $path . "/temp/$filename" . ".txt";
 	if($fp = fopen($filename,"w")){fwrite($fp,$str);fclose($fp);}		
 }
 
