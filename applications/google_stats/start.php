@@ -37,8 +37,8 @@ JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
 WHERE a.full_name IN (
 	'AmphibiaWeb', 'BioLib.cz', 'Biolib.de', 'Biopix', 'Catalogue of Life', 'FishBase',
 	'Global Biodiversity Information Facility (GBIF)', 'IUCN', 'Micro*scope',
-	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive', 'The Nearctic Spider Database','Animal Diversity Web'
-) limit 10; ";
+	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive', 'The Nearctic Spider Database','Animal Diversity Web' ) 
+limit 10; ";
 $result = $mysqli->query($query1);    
 $fields=array();
 $fields[0]="full_name";
