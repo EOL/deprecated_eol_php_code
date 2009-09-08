@@ -44,11 +44,12 @@ function get_from_api($month,$year)
         $i=0;
         $continue=true; 
         $start_count=1; 
+        //$start_count=30001;
         $range=10000;
         //$range=10;
-        //$start_count=30001;
         
-        $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_statistics.txt", "w+");
+        
+        $OUT = fopen("data/" . $year . "_" . $month . "/temp/google_analytics_page_statistics.txt", "w+");
         $cr = "\n";
         $sep = ",";
         $sep = chr(9); //tab
@@ -63,8 +64,8 @@ function get_from_api($month,$year)
             $val=array();            
             print "no. of records = " . count($data) . "<br>";            
             
-            if(count($data) == 0)$continue=false;
-            //$continue=false;
+            if(count($data) == 0)$continue=false;        
+            /* for debugging */ //$continue=false;
             
             foreach($data as $metric => $count) 
             {
@@ -105,7 +106,7 @@ function get_from_api($month,$year)
                     $str .= $i . $sep . $taxon_id . $sep . $url . $sep . $count["ga:pageviews"] . $sep . $count["ga:uniquePageviews"] . $sep . 
                             $averate_time_on_page . $sep . $bounce_rate . $sep . $percent_exit . $sep . $money_index . $sep . date('Y-m-d H:i:s') . $cr;
                 }
-                print "<hr>";
+                //print "<hr>";
                 // */
                 
             }//end for loop
@@ -118,16 +119,16 @@ function get_from_api($month,$year)
         
         $mysqli2 = load_mysql_environment('eol_statistics');        
         $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.google_analytics_page_statistics");        
-        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_statistics.txt' INTO TABLE eol_statistics.google_analytics_page_statistics");        
+        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/temp/google_analytics_page_statistics.txt' INTO TABLE eol_statistics.google_analytics_page_statistics");        
         
     }
     else 
     {
         echo "login failed <br>";    
     }
-
     return $final;
-}//end function
+}//function get_from_api($month,$year)
+
 function getlastdayofmonth($month, $year) 
 {
     return idate('d', mktime(0, 0, 0, ($month + 1), 0, $year));

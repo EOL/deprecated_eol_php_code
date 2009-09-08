@@ -131,9 +131,6 @@ LINES TERMINATED BY '\n';
 #####DONE
 #############################################################
 # 8. load the BHL agents_hierarchies from the export to the local database
-# ---------------------------##################
-# run this query against the local mysql server where you are doing the eol_statistics processing
-# ---------------------------##################
 LOAD DATA LOCAL INFILE '/Users/peter/Documents/EOL/EOLStats2/july2009/agents_hierarchies_bhl.csv' 
 INTO TABLE eol_statistics.agents_hierarchies 
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' 
