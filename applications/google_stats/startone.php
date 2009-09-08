@@ -3,7 +3,7 @@ define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
+$mysqli2 = load_mysql_environment('eol_statistics');        
 set_time_limit(0);
 
 /*
@@ -13,10 +13,15 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculation
 */
 
 $month = '07'; $year = '2009';
+$google_analytics_page_statistics = "google_analytics_page_statistics_" . $year . "_" . $month;
 $api = get_from_api($month,$year);    
+
 
 function get_from_api($month,$year)
 {
+    global $google_analytics_page_statistics;
+    global $mysqli2;
+    
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
     
@@ -49,7 +54,7 @@ function get_from_api($month,$year)
         //$range=10;
         
         
-        $OUT = fopen("data/" . $year . "_" . $month . "/temp/google_analytics_page_statistics.txt", "w+");
+        $OUT = fopen("data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_statistics . ".txt", "w+");
         $cr = "\n";
         $sep = ",";
         $sep = chr(9); //tab
@@ -117,9 +122,9 @@ function get_from_api($month,$year)
         }//end while
         fclose($OUT);
         
-        $mysqli2 = load_mysql_environment('eol_statistics');        
-        $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.google_analytics_page_statistics");        
-        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/temp/google_analytics_page_statistics.txt' INTO TABLE eol_statistics.google_analytics_page_statistics");        
+        
+        $update = $mysqli2->query("TRUNCATE TABLE eol_statistics." . $google_analytics_page_statistics . "");        
+        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_statistics . ".txt' INTO TABLE eol_statistics." . $google_analytics_page_statistics . "");        
         
     }
     else 
@@ -132,6 +137,25 @@ function get_from_api($month,$year)
 function getlastdayofmonth($month, $year) 
 {
     return idate('d', mktime(0, 0, 0, ($month + 1), 0, $year));
+}
+
+function initialize_tables_4dmonth()
+{
+	global $mysqli2;
+    global $google_analytics_page_statistics;
+    
+    $query="DROP TABLE IF EXISTS `eol_statistics`.`" . $google_analytics_page_statistics . "`;"; 
+    $update = $mysqli2->query($query);
+	$query="CREATE TABLE  `eol_statistics`.`" . $google_analytics_page_statistics . "` ( `id` int(10) unsigned NOT NULL auto_increment, `taxon_id` int(10) unsigned default NULL, `url` varchar(1000) NOT NULL, `page_views` int(10) unsigned NOT NULL, `unique_page_views` int(10) unsigned NOT NULL, `time_on_page` time NOT NULL, `bounce_rate` float default NULL, `percent_exit` float default NULL, `money_index` float default NULL, `date_added` datetime NOT NULL, PRIMARY KEY  (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=240640 DEFAULT CHARSET=utf8";
+	$update = $mysqli2->query($query);
+
+}//function initialize_tables_4dmonth()
+function get_val_var($v)
+{
+    if     (isset($_GET["$v"])){$var=$_GET["$v"];}
+    elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
+    else   return NULL;                            
+    return $var;    
 }
 
 

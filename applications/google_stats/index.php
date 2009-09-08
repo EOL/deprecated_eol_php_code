@@ -37,9 +37,7 @@ for($month = 1; $month <= 12 ; $month++)
         if($csv_available == 0) print"<td>Providers</td>";
         else                    print"<td><a href='process.php?path=" . $path . "'>Providers</a>        </td>";
         
-        print"<td><a href='process.php?path=" . $path . "&report=eol'>www.eol.org</a>    </td>";
-        
-        
+        print"<td><a href='process.php?path=" . $path . "&report=eol'>www.eol.org</a>    </td>";        
         
         if($csv_available == 0)     $str="<font color='red'>CSV files are not available.</font>";
         elseif($csv_available < 4)  $str="Some CSV files are not available";
@@ -49,10 +47,7 @@ for($month = 1; $month <= 12 ; $month++)
         
         print"    
         </tr>
-        ";
-
-
-        
+        ";        
     }
     //print "$a $b <br>";
 }
@@ -61,10 +56,10 @@ print"<tr><td colspan='2'><a href='process.php?report=year2date&year=$year'>Year
 
 function get_val_var($v)
 {
-    if         (isset($_GET["$v"])){$var=$_GET["$v"];}
-    elseif     (isset($_POST["$v"])){$var=$_POST["$v"];}
-    if(isset($var)) return $var;
-    else            return NULL;
+    if     (isset($_GET["$v"])){$var=$_GET["$v"];}
+    elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
+    else   return NULL;                            
+    return $var;    
 }
 
 //print "<hr>";
