@@ -12,17 +12,22 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 set_time_limit(0);
 
-$year_month = "2009_04";
+$month = get_val_var("month");
+$year = get_val_var("year");
+
+//$year_month = "2009_04";
+
+$year_month = $year . "_" . $month;
 
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year_month;
 
 //=================================================================
 $mysqli2 = load_mysql_environment('eol_statistics');
-/* use to initialize 3 tables - run once */ //initialize_tables($mysqli2);exit;
+/* use to initialize 3 tables - run once */ //initialize_tables($mysqli2); exit;
 
 //=================================================================
 $query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id ORDER BY tcn.source_hierarchy_entry_id DESC "; 
-$query .= " limit 5 ";
+//$query .= " limit 5 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="taxon_concept_id";
@@ -40,7 +45,7 @@ WHERE a.full_name IN (
 	'AmphibiaWeb', 'BioLib.cz', 'Biolib.de', 'Biopix', 'Catalogue of Life', 'FishBase',
 	'Global Biodiversity Information Facility (GBIF)', 'IUCN', 'Micro*scope',
 	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive', 'The Nearctic Spider Database','Animal Diversity Web' ) ";
-$query .= " limit 5 ";
+//$query .= " limit 5 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="full_name";
@@ -48,7 +53,7 @@ $fields[1]="taxon_concept_id";
 $temp = save_to_txt($result,"agents_hierarchies",$fields,$year_month,chr(9),0,"txt");
 //=================================================================
 $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id) ";
-$query .= " LIMIT 5 ";
+//$query .= " LIMIT 5 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="full_name";
@@ -143,7 +148,9 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 		}
 		$str .= "\n";
 	}
-	$filename = "data/" . $year_month . "/temp/$filename" . "." . $file_extension;
+    if($file_extension == "txt")$temp = "temp/";
+    else                        $temp = "";
+	$filename = "data/" . $year_month . "/" . $temp . "$filename" . "." . $file_extension;
 	if($fp = fopen($filename,"w")){fwrite($fp,$str);fclose($fp);}		
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)

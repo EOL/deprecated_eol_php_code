@@ -12,8 +12,15 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
 
-$month = '07'; $year = '2009';
+$month = get_val_var("month");
+$year = get_val_var("year");
+$month = substr(strval($month/100),2,2); //print $month;exit;
+//$month = '07'; $year = '2009';
+
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year . "_" . $month;
+
+initialize_tables_4dmonth();
+
 $api = get_from_api($month,$year);    
 
 

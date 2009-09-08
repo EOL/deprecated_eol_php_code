@@ -43,6 +43,12 @@ for($month = 1; $month <= 12 ; $month++)
         elseif($csv_available < 4)  $str="Some CSV files are not available";
         else                        $str="All CSV files are available";
     
+        if($csv_available < 4) $str .= " 
+        Prepare files
+        <a href='start1.php?month=$month&year=$year'>Step 1</a>
+        <a href='start2.php?month=$month&year=$year'>Step 2</a>
+        ";
+        
         print"<td><i><font size='2'>$str</font></i></td>";    
         
         print"    
