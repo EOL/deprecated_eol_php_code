@@ -1,7 +1,5 @@
 <?php
 //#!/usr/local/bin/php
-//
-//exit;
 
 //define("ENVIRONMENT", "slave");
 define("MYSQL_DEBUG", false);
@@ -154,8 +152,6 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
 	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
-
-
 
 
 function getDays()
