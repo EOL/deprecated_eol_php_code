@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php
 
-//define("ENVIRONMENT", "slave");
+define("ENVIRONMENT", "slave");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -10,8 +10,9 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 set_time_limit(0);
 
 //=================================================================
-//query 1
-$days = getDays();
+$filename = "saved_stats";
+
+$days = getDays($filename);
 
 print $days . "<hr>";
 
@@ -79,13 +80,12 @@ $fields[]="pages_not_incol";
 $fields[]="timestamp";
 */
 
-$temp = save_to_txt($result,"saved_stats",",","csv");
+$temp = save_to_txt($result,$filename,",","csv");
 //=================================================================
 
 function save_to_txt($result,$filename,$field_separator,$file_extension)
 {
-	$str="";    
-    
+	$str="";        
 	while($result && $row=$result->fetch_assoc())	
 	{        
         $found = false;
@@ -96,10 +96,10 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
             $arr = array();
             $col_total        = $row["pages_incol"];
             $notcol_total     = $row["pages_not_incol"];
-            //$arr['Run date'] 
+            //date
                 $arr[]= "$row[date_created]";                
-                $arr[]= "$row[time_created]";                
-                
+            //time
+                $arr[]= "$row[time_created]";                                
             //$arr['Total number of pages']                        
                 $arr[]= $col_total + $notcol_total;
             //$arr['Total number of pages with names from CoL']    
@@ -145,19 +145,20 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
         }// not found
 
 	}
-    if($file_extension == "txt")$temp = "temp/";
-    else                        $temp = "";
     
     $filename = "$filename" . "." . $file_extension;
-	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
+	if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}		
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
 
 
-function getDays()
+function getDays($filename)
 {
-    $filename = "saved_stats.csv";
-    if(!($handle = fopen($filename, "r")))return;
+    
+    $filename = $filename . ".csv";
+    if(!($handle = fopen($filename, "a+")))return;
+    
+    
     
     $comma_separated='';
     while (($data = fgetcsv($handle)) !== FALSE) 
@@ -169,6 +170,49 @@ function getDays()
         }
     }//end while
     $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
+    
+    //start build up header if no entries yet
+    print "[$comma_separated]";
+    if($comma_separated == "")
+    {
+        $arr=array();
+        $arr[]='date';
+        $arr[]='time';
+        $arr[]='Total number of pages';                        
+        $arr[]='Total number of pages with names from CoL';    
+        $arr[]='Total number of pages with names not in CoL';  
+        $arr[]='Pages with content';              
+        $arr[]='Pages with text';                 
+        $arr[]='Pages with images';               
+        $arr[]='Pages with text and images';      
+        $arr[]='Pages with images and no text';   
+        $arr[]='Pages with text and no images';   
+        $arr[]='Number of pages with at least one vetted data object';                                        
+        $arr[]='Number of taxa with no data objects (in CoL), i.e. base pages';                               
+        $arr[]='Number of pages with a CoL name and a vetted data or Flickr object in one category';          
+        $arr[]='Number of non CoL pages with a vetted data object or an image from Flickr in one category';   
+        $arr[]='Number of pages with a CoL name with vetted data objects in more than one category';          
+        $arr[]='Number of non CoL pages taxa with vetted data objects in more than one category';             
+        $arr[]='Approved pages awaiting publication';                          
+        $arr[]='Pages with CoL names with content that requires curation';     
+        $arr[]='Pages NOT with CoL names with content that requires curation'; 
+        
+  		$str="";
+        for ($i = 0; $i < count($arr); $i++) 		
+       	{
+	       	$str .= $arr[$i] . ",";
+    	}
+    	$str .= "\n";            
+
+	    fwrite($handle,$str);
+        
+
+    }//if($comma_separated == "")    
+    //end
+    
+    fclose($handle);		            
+    
+    
     return trim($comma_separated);
 }
 
