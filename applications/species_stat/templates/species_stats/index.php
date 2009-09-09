@@ -66,11 +66,17 @@ function get_val_var($v)
         <hr>
         <a href="archive.php">Stats History >> </a>
         
+        
         <hr>
-        <a href="index.php?group=1&f=results">Link run -- Taxa stats</a>                         <br>
-        <a href="index.php?group=2&f=results">Link run -- Data object stats</a>             <br>
+        <a href="index.php?group=1&f=results">Link run -- Taxa stats</a>                <br>
+        <a href="index.php?group=2&f=results">Link run -- Data object stats</a>         <br>
         <a href="index.php?group=4&f=results">Link run -- Data object stats (more)</a>  <br>
-        <a href="index.php?group=3&f=results">Link run -- BHL and general outlinks</a>     <br>
+        <a href="index.php?group=3&f=results">Link run -- BHL and general outlinks</a>  <br>
+        <a href="save_stats.php">Save daily stats to a CSV file</a>  <br>
+        
+        
+        
+
                 
         
     </BODY>
