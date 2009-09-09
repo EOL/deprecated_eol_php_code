@@ -28,7 +28,7 @@ $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year_
 
 //=================================================================
 $mysqli2 = load_mysql_environment('eol_statistics');
-/* use to initialize 3 tables - run once */ //initialize_tables(); exit;
+/* use to initialize 3 tables - run once */ initialize_tables(); //exit;
 
 //=================================================================
 //query 1
@@ -51,7 +51,9 @@ JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
 WHERE a.full_name IN (
 	'AmphibiaWeb', 'BioLib.cz', 'Biolib.de', 'Biopix', 'Catalogue of Life', 'FishBase',
 	'Global Biodiversity Information Facility (GBIF)', 'IUCN', 'Micro*scope',
-	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive', 'The Nearctic Spider Database','Animal Diversity Web' ) ";
+	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive','Animal Diversity Web' ";
+if($year >= 2009 && intval($month) > 4) $query .= " , 'The Nearctic Spider Database' ";    
+$query .= " ) ";
 //$query .= " limit 5 ";
 $result = $mysqli->query($query);    
 $fields=array();

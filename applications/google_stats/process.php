@@ -285,8 +285,7 @@ function getCountOfTaxaPages($provider,$path,$for)
             }
             
             if($for == 'partner')if($provider == $agentName) return $agent_taxa_count;
-            if($for == 'eol')    return $all_taxa_count;
-            
+            if($for == 'eol')                                return $all_taxa_count;            
             
             //if($row == 10)break;    
         }

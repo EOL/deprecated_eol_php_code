@@ -91,8 +91,11 @@ function get_from_api($month,$year)
                     if($count["ga:pageviews"] > 0)  $percent_exit = number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2);
                     else                            $percent_exit = "";
                                                     
-                    if($count["ga:pageviews"] - $count["ga:exits"] > 0)  $averate_time_on_page = $api->sec2hms(number_format($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"]),2) ,false);        
-                    else                                                 $averate_time_on_page = "";
+                    if($count["ga:pageviews"] - $count["ga:exits"] > 0)  
+                    {
+                        $averate_time_on_page = $api->sec2hms(number_format($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"]),2) ,false);        
+                    }
+                    else                                                  $averate_time_on_page = "";
                     
                     /*
                     echo " -- " . $bounce_rate;

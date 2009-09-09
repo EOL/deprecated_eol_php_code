@@ -106,7 +106,12 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 		for ($i = 0; $i < count($fields); $i++) 		
 		{
 			$field = $fields[$i];
-			$str .= $row["$field"] . $field_separator;    //chr(9) is tab
+        
+            $row_field="";
+            if($file_extension == "csv") $row_field = str_ireplace(",", "&#44;", $row["$field"]);
+            else                         $row_field = $row["$field"];            
+            
+			$str .= $row_field . $field_separator;    //chr(9) is tab
 		}
 		$str .= "\n";
 	}
