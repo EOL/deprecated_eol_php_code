@@ -3,7 +3,7 @@
 //
 //exit;
 
-define("ENVIRONMENT", "slave");
+//define("ENVIRONMENT", "slave");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -42,13 +42,15 @@ page_stats_taxa.time_created,
 page_stats_taxa.pages_incol,
 page_stats_taxa.pages_not_incol,
 page_stats_taxa.`timestamp`
-From page_stats_taxa
-where concat(date_created,' ',time_created) not in($days)
-"; 
+From page_stats_taxa "; 
+
+if($days != "")$query .= " where date_created not in($days) ";
 
 print $query;
 
 $result = $mysqli->query($query);    
+
+print "<hr> num_rows = " . $result->num_rows;
 
 
 /*table fields
@@ -97,7 +99,8 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
             $col_total        = $row["pages_incol"];
             $notcol_total     = $row["pages_not_incol"];
             //$arr['Run date'] 
-                $arr[]= "$row[date_created] $row[time_created]";                
+                $arr[]= "$row[date_created]";                
+                $arr[]= "$row[time_created]";                
                 
             //$arr['Total number of pages']                        
                 $arr[]= $col_total + $notcol_total;
@@ -166,11 +169,11 @@ function getDays()
         $num = count($data);
         for ($c=0; $c < $num; $c++) 
         {        
-            if($c==0)$comma_separated .= "'$data[$c]'" . ",";
+            if($c==0)$comma_separated .= "'" . trim($data[$c]) . "'" . ",";
         }
     }//end while
     $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
-    return $comma_separated;
+    return trim($comma_separated);
 }
 
 

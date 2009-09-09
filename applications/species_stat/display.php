@@ -316,12 +316,12 @@ if($view == 3)
         $col_total         = $row["pages_incol"];
         $notcol_total     = $row["pages_not_incol"];
 
-        $arr['Run date'][$i] = "$row[date_created]<br>$row[time_created]";
+        $arr['Run date'][$i] = "$row[date_created]<br>$row[time_created]";        
         
         $arr['Total number of pages'][$i]                        = number_format($col_total + $notcol_total);
         $arr['Total number of pages with names from CoL'][$i]    = number_format($col_total);
         $arr['Total number of pages with names not in CoL'][$i]    = number_format($notcol_total);        
-
+        
         $arr['Pages with content'][$i]                 = number_format($row["taxa_count"]);
         $arr['Pages with text'][$i]                 = number_format($row["taxa_text"]);
         $arr['Pages with images'][$i]                 = number_format($row["taxa_images"]);
