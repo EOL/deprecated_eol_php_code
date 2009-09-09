@@ -77,53 +77,15 @@ $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp
 $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies");        
 //=================================================================
 //start query9
-$query="SELECT (SELECT COUNT(*) FROM eol_statistics.hierarchies_names) all_taxa_count, agentName, COUNT(*) agent_taxa_count FROM eol_statistics.agents_hierarchies GROUP BY agentName ORDER BY agentName;";
-$result = $mysqli2->query($query);    
-$fields=array();
-$fields[0]="all_taxa_count";
-$fields[1]="agentName";
-$fields[2]="agent_taxa_count";
-$temp = save_to_txt($result,"query9",$fields,$year_month,",",1,"csv");
 //end query9
 //=================================================================
 //start query10
-$query="SELECT g.id, g.date_added, g.taxon_id, g.url, hn.scientificName, hn.commonNameEN, g.page_views, g.unique_page_views, TIME_TO_SEC(g.time_on_page) time_on_page_seconds, g.bounce_rate, g.percent_exit FROM eol_statistics." . $google_analytics_page_statistics . " g LEFT OUTER JOIN eol_statistics.hierarchies_names hn ON hn.hierarchiesID = g.taxon_id WHERE g.date_added > ADDDATE(CURDATE(), -1) ORDER BY page_views DESC, unique_page_views DESC, time_on_page_seconds DESC; ";
-$result = $mysqli2->query($query);    
-$fields=array();
-$fields[]="id";
-$fields[]="date_added";
-$fields[]="taxon_id";
-$fields[]="url";
-$fields[]="scientificName";
-$fields[]="commonNameEN";
-$fields[]="page_views";
-$fields[]="unique_page_views";
-$fields[]="time_on_page_seconds";
-$fields[]="bounce_rate";
-$fields[]="percent_exit";
-$temp = save_to_txt($result,"query10",$fields,$year_month,",",1,"csv");
 //end query10
 //=================================================================
 //start query11 - site_statistics
-$query="SELECT ah.agentName,g.taxon_id, hn.scientificName, hn.commonNameEN,SUM(g.page_views) total_page_views,SUM(g.unique_page_views) total_unique_page_views,SUM(TIME_TO_SEC(g.time_on_page)) total_time_on_page_seconds FROM eol_statistics." . $google_analytics_page_statistics . " g INNER JOIN eol_statistics.agents_hierarchies ah	ON ah.hierarchiesID = g.taxon_id LEFT OUTER JOIN eol_statistics.hierarchies_names hn ON hn.hierarchiesID=g.taxon_id WHERE g.date_added > ADDDATE(CURDATE(), -1) GROUP BY ah.agentName, g.taxon_id ORDER BY ah.agentName, total_page_views DESC, total_unique_page_views DESC, total_time_on_page_seconds DESC;";
-$result = $mysqli2->query($query);    
-$fields=array();
-$fields[]="agentName";
-$fields[]="taxon_id";
-$fields[]="scientificName";
-$fields[]="commonNameEN";
-$fields[]="total_page_views";
-$fields[]="total_unique_page_views";
-$fields[]="total_time_on_page_seconds";
-$temp = save_to_txt($result,"site_statistics",$fields,$year_month,",",1,"csv");
 //end query11
 //=================================================================
 //start query12
-$query="SELECT distinct g.taxon_id FROM eol_statistics." . $google_analytics_page_statistics . " g WHERE g.date_added > ADDDATE(CURDATE(), -1) and g.taxon_id>0;";
-$result = $mysqli2->query($query);    
-$fields=array();
-$fields[]="taxon_id";
-$temp = save_to_txt ($result,"query12",$fields,$year_month,",",1,"csv");
 //end query12
 //=================================================================
 

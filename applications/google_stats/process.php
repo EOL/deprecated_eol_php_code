@@ -1,7 +1,7 @@
 <?php
 
-define("ENVIRONMENT", "slave2");
-define("MYSQL_DEBUG", false);
+//define("ENVIRONMENT", "slave2");
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
@@ -169,11 +169,7 @@ if($provider_to_process == "")print "Providers = " . sizeof($provider) . "<br>";
 
 $provider = array_keys($provider);
 for ($i = 0; $i < count($provider); $i++) 
-{    
-    
-    
-    
-    
+{       
     $total_page_views           = compute($provider[$i],$page_views,"sum");
     $total_unique_page_views    = compute($provider[$i],$unique_page_views,"sum");
     $total_time_on_page_seconds = compute($provider[$i],$time_on_page_seconds,"sum");

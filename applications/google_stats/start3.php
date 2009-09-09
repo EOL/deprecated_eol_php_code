@@ -5,7 +5,7 @@
 //exit;
 
 define("ENVIRONMENT", "slave");
-define("MYSQL_DEBUG", false);
+define("MYSQL_DEBUG", true);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -32,49 +32,10 @@ $mysqli2 = load_mysql_environment('eol_statistics');
 
 //=================================================================
 //query 1
-$query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id ORDER BY tcn.source_hierarchy_entry_id DESC "; 
-//$query .= " limit 5 ";
-$result = $mysqli->query($query);    
-$fields=array();
-$fields[0]="taxon_concept_id";
-$fields[1]="string";
-$temp = save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9),0,"txt");
-//=================================================================
 //query 2
-$query = "SELECT DISTINCT a.full_name, tcn.taxon_concept_id 
-FROM agents a
-JOIN agents_resources ar ON (a.id=ar.agent_id)
-JOIN harvest_events he ON (ar.resource_id=he.resource_id)
-JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id)
-JOIN taxa t ON (het.taxon_id=t.id)
-JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
-WHERE a.full_name IN (
-	'AmphibiaWeb', 'BioLib.cz', 'Biolib.de', 'Biopix', 'Catalogue of Life', 'FishBase',
-	'Global Biodiversity Information Facility (GBIF)', 'IUCN', 'Micro*scope',
-	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive', 'The Nearctic Spider Database','Animal Diversity Web' ) ";
-//$query .= " limit 5 ";
-$result = $mysqli->query($query);    
-$fields=array();
-$fields[0]="full_name";
-$fields[1]="taxon_concept_id";
-$temp = save_to_txt($result,"agents_hierarchies",$fields,$year_month,chr(9),0,"txt");
-//=================================================================
 //query 3
-$query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id) ";
-//$query .= " LIMIT 5 ";
-$result = $mysqli->query($query);    
-$fields=array();
-$fields[0]="full_name";
-$fields[1]="taxon_concept_id";
-$temp = save_to_txt($result,"agents_hierarchies_bhl",$fields,$year_month,chr(9),0,"txt");
-//=================================================================
 //query 4,5
-$update = $mysqli2->query("TRUNCATE TABLE eol_statistics.hierarchies_names");        
-$update = $mysqli2->query("TRUNCATE TABLE eol_statistics.agents_hierarchies");        
 //query 6,7,8
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/hierarchies_names.txt' INTO TABLE eol_statistics.hierarchies_names");        
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies.txt' INTO TABLE eol_statistics.agents_hierarchies");        
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies");        
 //=================================================================
 //start query9
 $query="SELECT (SELECT COUNT(*) FROM eol_statistics.hierarchies_names) all_taxa_count, agentName, COUNT(*) agent_taxa_count FROM eol_statistics.agents_hierarchies GROUP BY agentName ORDER BY agentName;";
