@@ -44,7 +44,7 @@ From page_stats_taxa ";
 
 if($days != "")$query .= " where date_created not in($days) ";
 
-print $query;
+//print $query;
 
 $result = $mysqli->query($query);    
 
