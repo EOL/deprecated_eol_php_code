@@ -31,7 +31,12 @@ if        ($view==1)    {print"View:&nbsp; Latest | <a href='display.php?view=2'
 elseif    ($view==2)    {print"View:&nbsp; <a href='display.php?view=1'>Latest</a> | With label | <a href='display.php?view=3'>History</a>";}
 elseif    ($view==3)    {print"View:&nbsp; <a href='display.php?view=1'>Latest</a> | <a href='display.php?view=2'>With label</a> | History";}
 
+
+
+
 print" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href='saved_stats.csv'>Download historial data as CSV</a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href='../species_stat_marine/display.php'>Marine Stats &gt;&gt;</a>";
 
 print"</font>
