@@ -384,7 +384,7 @@ function get_referece($code,$what_code)//dataobject id
                     {    
                         $temp_index = $arr[$j];
                         $temp = $sheet[3][$temp_index][$i];            
-                        if($temp != ''){$str .= trim(strtolower($temp_index)) . "='" . trim($temp) . "' ";}
+                        if($temp != ''){$str .= trim(strtolower($temp_index)) . "='" . htmlentities(trim($temp)) . "' ";}
                     }        
                     $str .= "><![CDATA[" . $sheet[3]['Bibliographic Citation'][$i] . "]]></reference>";                                        
                 }                
