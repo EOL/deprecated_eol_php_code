@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php
 
-define("ENVIRONMENT", "slave");
+//define("ENVIRONMENT", "slave");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -41,9 +41,12 @@ page_stats_taxa.time_created,
 page_stats_taxa.pages_incol,
 page_stats_taxa.pages_not_incol,
 page_stats_taxa.`timestamp`
-From page_stats_taxa "; 
-
-if($days != "")$query .= " where date_created not in($days) ";
+From page_stats_taxa 
+where   taxa_bhl_no_text <> 0 and
+        taxa_links_no_text <> 0 and
+        with_bhl <> 0
+"; 
+if($days != "")$query .= " and date_created not in($days) ";
 
 //print $query;
 
@@ -136,6 +139,17 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
                 $arr[]= $row["vetted_unknown_published_visible_inCol"];
             //$arr['Pages NOT with CoL names with content that requires curation'] 
                 $arr[]= $row["vetted_unknown_published_visible_notinCol"];            
+
+
+
+            //$s1="Pages with BHL links: ";
+                $arr[]= $row["with_BHL"];            
+            //$s2="Pages with BHL links with no text: ";
+                $arr[]= $row["taxa_BHL_no_text"];            
+            //$s3="Pages with links and no text: ";
+                $arr[]= $row["taxa_links_no_text"];            
+
+
             //==============================================================
     		for ($i = 0; $i < count($arr); $i++) 		
 	    	{
@@ -188,7 +202,7 @@ function getDays($filename)
         $arr[]='Pages with images and no text';   
         $arr[]='Pages with text and no images';   
         $arr[]='Number of pages with at least one vetted data object';                                        
-        $arr[]='Number of taxa with no data objects (in CoL), i.e. base pages';                               
+        $arr[]='Number of taxa with no data objects (in CoL)&#44; i.e. base pages';                               
         $arr[]='Number of pages with a CoL name and a vetted data or Flickr object in one category';          
         $arr[]='Number of non CoL pages with a vetted data object or an image from Flickr in one category';   
         $arr[]='Number of pages with a CoL name with vetted data objects in more than one category';          
@@ -196,6 +210,10 @@ function getDays($filename)
         $arr[]='Approved pages awaiting publication';                          
         $arr[]='Pages with CoL names with content that requires curation';     
         $arr[]='Pages NOT with CoL names with content that requires curation'; 
+        
+        $arr[]='Pages with BHL links'; 
+        $arr[]='Pages with BHL links with no text'; 
+        $arr[]='Pages with links and no text'; 
         
   		$str="";
         for ($i = 0; $i < count($arr); $i++) 		
