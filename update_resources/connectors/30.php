@@ -1,6 +1,7 @@
 #!/usr/local/bin/php
 <?php
 
+exit;
 define("USING_SPM", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 

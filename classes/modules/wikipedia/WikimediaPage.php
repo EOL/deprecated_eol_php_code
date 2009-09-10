@@ -16,7 +16,7 @@ class WikimediaPage
     
     public function information()
     {
-        if($this->information) return $this->information;
+        if(isset($this->information)) return $this->information;
         
         $information = array();
         if(preg_match("/(\{\{Information.*?\}\})(.*)/ms", $this->text, $arr))
@@ -47,7 +47,7 @@ class WikimediaPage
     
     public function taxonomy()
     {
-        if($this->taxonomy) return $this->taxonomy;
+        if(isset($this->taxonomy)) return $this->taxonomy;
         
         $taxonomy = array();
         if(preg_match("/(\{\{Taxonavigation.*?\}\})(.*)/ms", $this->text, $arr))
@@ -113,7 +113,7 @@ class WikimediaPage
     
     public function taxon_parameters()
     {
-        if($this->taxon_parameters) return $this->taxon_parameters;
+        if(isset($this->taxon_parameters)) return $this->taxon_parameters;
         $taxonomy = $this->taxonomy();
         
         $taxon_rank = key($taxonomy);
@@ -138,7 +138,7 @@ class WikimediaPage
     
     public function data_object_parameters()
     {
-        if($this->data_object_parameters) return $this->data_object_parameters;
+        if(isset($this->data_object_parameters)) return $this->data_object_parameters;
         
         $data_object_parameters = array();
         $licenses = $this->licenses();
@@ -203,7 +203,7 @@ class WikimediaPage
     
     public function agent_parameters()
     {
-        if($this->agent_parameters) return $this->agent_parameters;
+        if(isset($this->agent_parameters)) return $this->agent_parameters;
         $author = $this->author();
         
         $homepage = "";
@@ -221,7 +221,7 @@ class WikimediaPage
     
     public function licenses()
     {
-        if($this->licenses) return $this->licenses;
+        if(isset($this->licenses)) return $this->licenses;
         
         $licenses = array();
         
@@ -249,7 +249,7 @@ class WikimediaPage
     
     public function author()
     {
-        if($this->author) return $this->author;
+        if(isset($this->author)) return $this->author;
         
         $author = "";
         
@@ -268,10 +268,11 @@ class WikimediaPage
     
     public function description()
     {
-        if($this->description) return $this->description;
+        if(isset($this->description)) return $this->description;
         
         $authors = array();
         
+        $description = "";
         if($info = $this->information())
         {
             foreach($info as $attr => $val)

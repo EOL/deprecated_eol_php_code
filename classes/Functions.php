@@ -431,7 +431,7 @@ class Functions
                 if($file != "." && $file != "..")
                 {
                     if(preg_match("/\.php$/", trim($file))) require_once($dir . $file);
-                    elseif($recursize && !preg_match("/\./", $file) && $file != "modules" && $file != "TDWG") self::require_classes_from_dir($dir . $file . "/", true);
+                    elseif($recursive && !preg_match("/\./", $file) && $file != "modules" && $file != "TDWG") self::require_classes_from_dir($dir . $file . "/", true);
                 }
             }
             closedir($handle);

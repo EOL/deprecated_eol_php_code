@@ -3,7 +3,7 @@
 //#!/usr/local/bin/php
 //connector for WORMS
      
-//exit;
+exit;
 
 /* 
 get_hashed_response

@@ -11,7 +11,6 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 $lifedesks_to_ignore = array(
-    'indianadunes',
     'micronesianinsects',
     'bivalvia',
     'porifera',
@@ -27,7 +26,7 @@ $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
     if(preg_match("/(".implode('|', $lifedesks_to_ignore).")\.lifedesks\.org/", $resource->accesspoint_url)) continue;
-    //if($resource->id != 61) continue;
+    //if($resource->id != 71) continue;
     
     echo $resource->id."\n";
     $resource->harvest();

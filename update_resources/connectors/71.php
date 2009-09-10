@@ -1,33 +1,33 @@
 #!/usr/local/bin/php
 <?php
 
+exit;
+
 define('DEBUG', true);
-define('ENVIRONMENT', 'slave');
 include_once(dirname(__FILE__) . "/../../config/start.php");
-Functions::require_module("wikipedia");
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
+Functions::require_module("wikipedia");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 $resource = new Resource(71);
 
-// download latest Wikimedia Commons export
-shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
-// unzip the download
-shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
-// split the huge file into 300M chunks
-shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikimedia.xml ".dirname(__FILE__)."/files/wikimedia/part_");
+// // download latest Wikimedia Commons export
+// shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
+// // unzip the download
+// shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
+// // split the huge file into 300M chunks
+// shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikimedia.xml ".dirname(__FILE__)."/files/wikimedia/part_");
 
 // determine the filename of the last chunk
-$last_line = exec("ls -al ".dirname(__FILE__)."/files/wikimedia");
+$last_line = exec("ls -l ".dirname(__FILE__)."/files/wikimedia");
 if(preg_match("/part_a([a-z])$/", trim($last_line), $arr)) $final_part_suffix = $arr[1];
 else
 {
-    echo "\n\nCouldn't determine the last file to process\n\n";
+    echo "\n\nCouldn't determine the last file to process\n$last_line\n\n";
     exit;
 }
 
-$final_part_suffix = 'c';
 
 
 // preparing global variables
@@ -55,7 +55,6 @@ create_resource_file();
 // cleaning up downloaded files
 shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia/*");
 shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml");
-//shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
 
 
 
@@ -87,6 +86,7 @@ function process_file($part_suffix, $callback, $title = false)
     flush();
     $FILE = fopen(dirname(__FILE__)."/files/wikimedia/part_a".$part_suffix, "r");
     
+    $current_page = "";
     static $page_number = 0;
     while(!feof($FILE))
     {

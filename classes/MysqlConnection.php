@@ -45,7 +45,7 @@ class MysqlConnection
     
     function query($query)
     {
-        if(preg_match("/^(insert|update|delete|truncate)/i", trim($query), $arr))
+        if(preg_match("/^(insert|update|delete|truncate|load data)/i", trim($query), $arr))
         {
             switch(strtolower($arr[1]))
             {
@@ -75,6 +75,30 @@ class MysqlConnection
         
         $result = $this->master_mysqli->query($query);
         return $result;
+    }
+    
+    function load_data_infile($path, $table)
+    {
+        $insert_batch_size = 5000;
+        $this->begin_transaction();
+        $values = array();
+        $FILE = fopen($path, "r");
+        while(!feof($FILE))
+        {
+            if($line = fgets($FILE, 4096))
+            {
+                $line = rtrim($line, "\n\r");
+                $values[] = str_replace("\t", ",", $line);
+            }
+            if(count($values) > $insert_batch_size)
+            {
+                //echo "INSERT INTO `$table` VALUES (". implode("),(", $values) .")\n";
+                $this->insert("INSERT INTO `$table` VALUES (". implode("),(", $values) .")");
+                $values = array();
+            }
+        }
+        if(count($values)) $this->insert("INSERT INTO `$table` VALUES ". implode(",", $values));
+        $this->end_transaction();
     }
     
     function delete($query)

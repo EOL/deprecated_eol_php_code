@@ -2,7 +2,7 @@
 
 //#!/usr/local/bin/php  
 //connector for Radiolaria
-//exit;
+exit;
 
 //define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);

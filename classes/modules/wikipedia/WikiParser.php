@@ -200,6 +200,7 @@ class WikiParser
         $num_open = preg_match_all("/$open_tag/ms", $text, $arr);
         $num_close = preg_match_all("/$close_tag/ms", $text, $arr);
         
+        $balance = false;
         if($num_close < $num_open) $balance = true;
         while($balance)
         {
