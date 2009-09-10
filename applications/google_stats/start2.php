@@ -71,24 +71,17 @@ $fields[1]="taxon_concept_id";
 $temp = save_to_txt($result,"agents_hierarchies_bhl",$fields,$year_month,chr(9),0,"txt");
 //=================================================================
 //query 4,5
-$update = $mysqli2->query("TRUNCATE TABLE eol_statistics.hierarchies_names");        
-$update = $mysqli2->query("TRUNCATE TABLE eol_statistics.agents_hierarchies");        
+$update = $mysqli2->query("TRUNCATE TABLE eol_statistics.hierarchies_names_" . $year_month . "");        
+$update = $mysqli2->query("TRUNCATE TABLE eol_statistics.agents_hierarchies_" . $year_month . "");        
 //query 6,7,8
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/hierarchies_names.txt' INTO TABLE eol_statistics.hierarchies_names");        
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies.txt' INTO TABLE eol_statistics.agents_hierarchies");        
-$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies");        
+$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/hierarchies_names.txt' INTO TABLE eol_statistics.hierarchies_names_" . $year_month . "");        
+$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies.txt' INTO TABLE eol_statistics.agents_hierarchies_" . $year_month . "");        
+$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies_" . $year_month . "");        
 //=================================================================
 //start query9
-//end query9
-//=================================================================
 //start query10
-//end query10
-//=================================================================
 //start query11 - site_statistics
-//end query11
-//=================================================================
 //start query12
-//end query12
 //=================================================================
 
 function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
@@ -126,12 +119,13 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 function initialize_tables()
 {
 	global $mysqli2;
+    global $year_month;
 
-	$query="DROP TABLE IF EXISTS `eol_statistics`.`agents_hierarchies`;";                        $update = $mysqli2->query($query);    		
-	$query="DROP TABLE IF EXISTS `eol_statistics`.`hierarchies_names`;";                         $update = $mysqli2->query($query);
+	$query="DROP TABLE IF EXISTS `eol_statistics`.`agents_hierarchies_" . $year_month . "`;";   $update = $mysqli2->query($query);    		
+	$query="DROP TABLE IF EXISTS `eol_statistics`.`hierarchies_names_" . $year_month . "`;";    $update = $mysqli2->query($query);
 
-	$query="CREATE TABLE  `eol_statistics`.`agents_hierarchies` ( `agentName` varchar(64) NOT NULL, `hierarchiesID` int(10) unsigned NOT NULL, PRIMARY KEY  USING BTREE (`agentName`,`hierarchiesID`), KEY `hierarchiesID` (`hierarchiesID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8"; $update = $mysqli2->query($query);    
-	$query="CREATE TABLE  `eol_statistics`.`hierarchies_names` ( `hierarchiesID` int(10) unsigned NOT NULL, `scientificName` varchar(255) default NULL, `commonNameEN` varchar(255) default NULL, PRIMARY KEY  (`hierarchiesID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8"; $update = $mysqli2->query($query);
+	$query="CREATE TABLE  `eol_statistics`.`agents_hierarchies_" . $year_month . "` ( `agentName` varchar(64) NOT NULL, `hierarchiesID` int(10) unsigned NOT NULL, PRIMARY KEY  USING BTREE (`agentName`,`hierarchiesID`), KEY `hierarchiesID` (`hierarchiesID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8"; $update = $mysqli2->query($query);    
+	$query="CREATE TABLE  `eol_statistics`.`hierarchies_names_" . $year_month . "` ( `hierarchiesID` int(10) unsigned NOT NULL, `scientificName` varchar(255) default NULL, `commonNameEN` varchar(255) default NULL, PRIMARY KEY  (`hierarchiesID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8"; $update = $mysqli2->query($query);
     
 }//function initialize_tables()
 

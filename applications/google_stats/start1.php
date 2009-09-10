@@ -1,5 +1,5 @@
 <?php
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -60,6 +60,8 @@ function get_from_api($month,$year)
         $range=10000;
         //$range=10;
         
+        mkdir("data/" . $year . "_" . $month , 0700);        
+        mkdir("data/" . $year . "_" . $month . "/temp", 0700);        
         
         $OUT = fopen("data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_statistics . ".txt", "w+");
         $cr = "\n";
@@ -93,7 +95,8 @@ function get_from_api($month,$year)
                                                     
                     if($count["ga:pageviews"] - $count["ga:exits"] > 0)  
                     {
-                        $averate_time_on_page = $api->sec2hms(number_format($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"]),2) ,false);        
+                        $secs = round($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"]));
+                        $averate_time_on_page = $api->sec2hms($secs ,false);        
                     }
                     else                                                  $averate_time_on_page = "";
                     
