@@ -629,9 +629,9 @@ function record_details_eol($path)
                     <td>$commonNameEN &nbsp;</td>
                     <td align='right'>" . number_format($page_views) . "</td>
                     <td align='right'>" . number_format($unique_page_views) . "</td>
-                    <td align='right'>" . number_format($time_on_page_seconds) . "</td>
-                    <td align='right'>" . number_format($bounce_rate,4) . "</td>
-                    <td align='right'>" . number_format($percent_exit,4) . "</td>
+                    <td align='right'>" . sec2hms($time_on_page_seconds ,false) . "</td>
+                    <td align='right'>" . number_format($bounce_rate,2) . "</td>
+                    <td align='right'>" . number_format($percent_exit,2) . "</td>
                 </tr>");
             }
             if($provider_cnt == 100)break;                
@@ -858,5 +858,21 @@ function get_agentName($agentID)
     $row = $sql->fetch_row();            
     return $row[0];
 }
+
+
+function sec2hms($sec, $padHours = false) 
+{
+    $hms = "";
+	$hours = intval(intval($sec) / 3600); 
+	$hms .= ($padHours) 
+	      ? str_pad($hours, 2, "0", STR_PAD_LEFT). ':'
+	      : $hours. ':';
+	$minutes = intval(($sec / 60) % 60); 
+	$hms .= str_pad($minutes, 2, "0", STR_PAD_LEFT). ':';
+	$seconds = intval($sec % 60); 
+	$hms .= str_pad($seconds, 2, "0", STR_PAD_LEFT);
+	return $hms;
+}
+
 
 ?>
