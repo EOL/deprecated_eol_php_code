@@ -1,9 +1,7 @@
 #!/usr/local/bin/php
 <?php
 
-$path = "";
-if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."../config/start.php");
+include_once(dirname(__FILE__) . "/../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

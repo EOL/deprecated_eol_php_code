@@ -104,7 +104,7 @@ foreach($used_taxa as $taxon_parameters)
     $schema_taxa[] = new SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
-$new_resource_xml = SchemaConnection::get_taxon_xml($schema_taxa);
+$new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);

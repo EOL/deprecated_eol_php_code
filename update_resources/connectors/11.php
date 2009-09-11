@@ -86,7 +86,7 @@ foreach($xml->taxon as $t)
             $taxa = array();
             $taxa[] = new SchemaTaxon($taxonParameters);    
         
-            //$new_resource_xml = SchemaConnection::get_taxon_xml($taxa);
+            //$new_resource_xml = SchemaDocument::get_taxon_xml($taxa);
             $str='';
             foreach($taxa as $tax)
             {

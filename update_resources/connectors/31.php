@@ -94,11 +94,11 @@ foreach($urls as $key => $val)
     }
 }
 
-//echo SchemaConnection::get_taxon_xml($all_taxa);
+//echo SchemaDocument::get_taxon_xml($all_taxa);
 
 
 
-$new_resource_xml = utf8_encode(SchemaConnection::get_taxon_xml($all_taxa));
+$new_resource_xml = utf8_encode(SchemaDocument::get_taxon_xml($all_taxa));
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 

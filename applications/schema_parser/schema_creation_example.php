@@ -81,12 +81,12 @@ $taxon_params["dataObjects"][] = new SchemaDataObject($object_params);
 $taxa[] = new SchemaTaxon($taxon_params);
 
 
-// use the static function print_taxon_xml in the class SchemaConnection to ouput well-formed eol schema xml
+// use the static function print_taxon_xml in the class SchemaDocument to ouput well-formed eol schema xml
 // this will not necessarily be valid as there is no check of the enumerated values
-SchemaConnection::print_taxon_xml($taxa);
+SchemaDocument::print_taxon_xml($taxa);
 
 
 // For saving the file
-//echo SchemaConnection::get_taxon_xml($taxa);
+//echo SchemaDocument::get_taxon_xml($taxa);
 
 ?>

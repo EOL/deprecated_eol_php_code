@@ -24,7 +24,7 @@ animal_diversity_web:
     resource_agent_role_id: 3
 
 efloras:
-    agent_id: 7
+    agent_id: 6
     resource_id: 666
     resource_agent_role_id: 3
 

@@ -1,20 +1,18 @@
 #!/usr/local/bin/php
 <?php
 
-$path = "";
 //define('DEBUG', true);
 //define('MYSQL_DEBUG', true);
 //define('DEBUG_TO_FILE', true);
 //define('ENVIRONMENT', 'staging');
-if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."../config/start.php");
+include_once(dirname(__FILE__) . "/../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 $mysqli->begin_transaction();
 
-$result = $mysqli->query("SELECT distinct he.id, tcct.image_object_id, he.hierarchy_id, he.taxon_concept_id, n.italicized name FROM taxon_concepts tc JOIN taxon_concept_content_test tcct ON (tc.id=tcct.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcct.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND tcct.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
+$result = $mysqli->query("SELECT distinct he.id, tcc.image_object_id, he.hierarchy_id, he.taxon_concept_id, n.italicized name FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcc.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND tcc.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
 if(@!$result || @!$result->num_rows)
 {
     $mysqli->rollback();
@@ -40,7 +38,6 @@ while($result && $row=$result->fetch_assoc())
 shuffle($random_taxa);
 foreach($random_taxa as $random)
 {
-    //echo "$random\n";
     $mysqli->insert($random);
 }
 

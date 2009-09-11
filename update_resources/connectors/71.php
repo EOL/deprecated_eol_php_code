@@ -186,7 +186,7 @@ function create_resource_file()
     }
     
     $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", "w+");
-    fwrite($FILE, SchemaConnection::get_taxon_xml($all_taxa));
+    fwrite($FILE, SchemaDocument::get_taxon_xml($all_taxa));
     fclose($FILE);
 }
 

@@ -164,7 +164,7 @@ function get_data_object($title, $description, $subject)
 
 
 ////////////////////// ---
-$new_resource_xml = SchemaConnection::get_taxon_xml($taxa);
+$new_resource_xml = SchemaDocument::get_taxon_xml($taxa);
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 

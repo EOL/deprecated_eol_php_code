@@ -17,8 +17,7 @@ if(FlickrAPI::valid_auth_token(FLICKR_PLEARY_AUTH_TOKEN))
 }
 
 $taxa = FlickrAPI::get_all_eol_photos($auth_token);
-$connection = @new SchemaConnection();
-$xml = $connection->get_taxon_xml($taxa);
+$xml = SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "15.xml";
 
