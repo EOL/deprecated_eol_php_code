@@ -167,12 +167,9 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
 
 
 function getDays($filename)
-{
-    
+{    
     $filename = $filename . ".csv";
-    if(!($handle = fopen($filename, "a+")))return;
-    
-    
+    if(!($handle = fopen($filename, "a+")))return;    
     
     $comma_separated='';
     while (($data = fgetcsv($handle)) !== FALSE) 
