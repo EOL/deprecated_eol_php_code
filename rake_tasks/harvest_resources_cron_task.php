@@ -26,7 +26,7 @@ $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
     if(preg_match("/(".implode('|', $lifedesks_to_ignore).")\.lifedesks\.org/", $resource->accesspoint_url)) continue;
-    //if($resource->id != 71) continue;
+    //if($resource->id != 30) continue;
     
     echo $resource->id."\n";
     $resource->harvest();

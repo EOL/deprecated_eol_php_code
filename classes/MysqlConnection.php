@@ -97,7 +97,7 @@ class MysqlConnection
                 $values = array();
             }
         }
-        if(count($values)) $this->insert("INSERT INTO `$table` VALUES ". implode(",", $values));
+        if(count($values)) $this->insert("INSERT INTO `$table` VALUES (". implode("),(", $values) .")");
         $this->end_transaction();
     }
     

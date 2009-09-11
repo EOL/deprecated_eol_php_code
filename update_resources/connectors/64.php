@@ -1,9 +1,9 @@
+#!/usr/local/bin/php
 <?php
 
-//#!/usr/local/bin/php  
 //connector for Radiolaria
-exit;
 
+//exit;
 //define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
@@ -11,102 +11,93 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
     
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-//only on local; to be deleted before going into production
-//$mysqli->truncate_tables("development");
-//Functions::load_fixtures("development");
 
 $resource = new Resource(64);
 $species_url = "http://www.radiolaria.org/species.htm?sp_id=";
-$providers = array( 0 => array( "url" => "http://radiolaria.org/xml/eol.php"            , "active" => 1),
-                    1 => array( "url" => dirname(__FILE__) . "/helpers/Radiolaria.xml"  , "active" => 0)
-                  );
 $schema_taxa = array();
 $used_taxa = array();
 
-foreach($providers as $provider)
-{
-    // start loop through
-    if($provider["active"])
+
+$xml = @simplexml_load_file($resource->accesspoint_url);
+$i=0;
+$sciname = array();//just for debugging
+$rightsHolder = "Radiolaria.org";        
+
+foreach($xml->species_list->species as $main)
+{                        
+    $taxon_identifier = $main->sp_id;                        
+    $dwc_ScientificName = $main->sp_name;            
+    $parenthesis_start = "";
+    $parenthesis_end = "";            
+    if($main->author_year_paranthesis == 1)
     {
-        $url = $provider["url"];
-        $xml = @simplexml_load_file($url);
-        $i=0;
-        $sciname = array();//just for debugging
-        $rightsHolder = "Radiolaria.org";        
+        $parenthesis_start = "(";
+        $parenthesis_end = ")";            
+    }            
+    if($main->sp_author != "") $dwc_ScientificName .= " " . $parenthesis_start . $main->sp_author . " " . $main->sp_year . "$parenthesis_end";
+    
+    //$rank = $tt->TaxonHeading->RankDesignation;
+    
+    $i++;
+    $sciname["$dwc_ScientificName"] = $dwc_ScientificName;
 
-        foreach($xml->species_list->species as $main)
-        {                        
-            $taxon_identifier = $main->sp_id;                        
-            $dwc_ScientificName = $main->sp_name;            
-            $parenthesis_start = "";
-            $parenthesis_end = "";            
-            if($main->author_year_paranthesis == 1)
-            {
-                $parenthesis_start = "(";
-                $parenthesis_end = ")";            
-            }            
-            if($main->sp_author != "") $dwc_ScientificName .= " " . $parenthesis_start . $main->sp_author . " " . $main->sp_year . "$parenthesis_end";
-            
-            //$rank = $tt->TaxonHeading->RankDesignation;
-            
-            $i++;
-            $sciname["$dwc_ScientificName"] = $dwc_ScientificName;
+    $taxon = str_replace(" ", "_", $dwc_ScientificName);
+    
+    if(@$used_taxa[$taxon])
+    {
+        $taxon_parameters = $used_taxa[$taxon];
+    }else
+    {
+        $taxon_parameters = array();
 
-            $taxon = str_replace(" ", "_", $dwc_ScientificName);
-            
-            if(@$used_taxa[$taxon])
-            {
-                $taxon_parameters = $used_taxa[$taxon];
-            }else
-            {
-                $taxon_parameters = array();
+        $main_citation="";                
 
-                $main_citation="";                
+        $taxon_parameters["identifier"]     = "radiolaria_" . $taxon_identifier;
+        $taxon_parameters["scientificName"] = $dwc_ScientificName;                
+        $taxon_parameters["modified"]       = $main->sp_date;            
+        $taxon_parameters["source"]         = $main->source;            
+        $taxon_parameters["order"]          = ucfirst(strtolower($main->type));                                                            
+        $taxon_parameters["family"]         = $main->family;            
+        
+        $taxon_parameters["dataObjects"]= array();
 
-                $taxon_parameters["identifier"]     = "radiolaria_" . $taxon_identifier;
-                $taxon_parameters["scientificName"] = $dwc_ScientificName;                
-                $taxon_parameters["modified"]       = $main->sp_date;            
-                $taxon_parameters["source"]         = $main->source;            
-                $taxon_parameters["order"]          = ucfirst(strtolower($main->type));                                                            
-                $taxon_parameters["family"]         = $main->family;            
-                
-                $taxon_parameters["dataObjects"]= array();
-
-                $used_taxa[$taxon] = $taxon_parameters;
-            }            
-            foreach($main->descriptions as $desc)
-            {   $j=0;
-                foreach($desc as $description)
-                {   
-                    $j++;                
-                    $object_id = "radiolaria_" . $taxon_identifier . "_desc_" . $j;
-                    $temp = process_dataobjects($description,1,$object_id);                  
-                }
-            }                            
-            foreach($main->images as $desc)
-            {   $j=0;
-                foreach($desc as $image)
-                {   
-                    $j++;                
-                    $object_id = "radiolaria_" . $taxon_identifier . "_img_" . $j;
-                    $temp = process_dataobjects($image,2,$object_id);                  
-                }
-            }
-            //print"<hr>";
+        $used_taxa[$taxon] = $taxon_parameters;
+    }            
+    foreach($main->descriptions as $desc)
+    {   $j=0;
+        foreach($desc as $description)
+        {   
+            $j++;                
+            $object_id = "radiolaria_" . $taxon_identifier . "_desc_" . $j;
+            $temp = process_dataobjects($description,1,$object_id);                  
         }
-        // /*
-        print "<hr>
-        i = $i <br>
-        sciname = " . count($sciname);
-        print "<hr>";
-        print count(array_keys($sciname));
-        print "<hr>";
-        print count(array_keys($used_taxa));
-        // */
-        // end loop through
-        print "<hr>" . $provider["url"];
-    }//if($provider["active"])
-}//end main loop
+    }                            
+    foreach($main->images as $desc)
+    {   $j=0;
+        foreach($desc as $image)
+        {   
+            $j++;                
+            $object_id = "radiolaria_" . $taxon_identifier . "_img_" . $j;
+            $temp = process_dataobjects($image,2,$object_id);                  
+        }
+    }
+    //print"<hr>";
+}
+// /*
+print "<hr>
+i = $i <br>
+sciname = " . count($sciname);
+print "<hr>";
+print count(array_keys($sciname));
+print "<hr>";
+print count(array_keys($used_taxa));
+// */
+// end loop through
+        
+        
+        
+        
+        
 
 foreach($used_taxa as $taxon_parameters)
 {

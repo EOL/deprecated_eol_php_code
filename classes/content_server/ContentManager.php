@@ -107,7 +107,7 @@ class ContentManager
         elseif(preg_match("/^gzip compressed data/i",$file_type,$arr)) $new_suffix = "gz";
         elseif(preg_match("/^posix tar archive/i",$file_type,$arr)) $new_suffix = "tar ";
         elseif(preg_match("/^zip archive data/i",$file_type,$arr)) $new_suffix = "zip";
-        elseif(preg_match("/^xml( |$)/i",$file_type,$arr)) $new_suffix = "xml";
+        elseif(preg_match("/^xml( |$)/i",$file_type,$arr) || preg_match("/xml$/i",$file_type,$arr)) $new_suffix = "xml";
         elseif(preg_match("/^pdf( |$)/i",$file_type,$arr)) $new_suffix = "pdf";
         elseif(preg_match("/^html( |$)/i",$file_type,$arr)) $new_suffix = "html";
         elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i",$file_type,$arr)) $new_suffix = "xml";
