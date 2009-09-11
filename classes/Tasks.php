@@ -400,6 +400,39 @@ class Tasks extends MysqlBase
         unset($hierarchy_entry_ids);
     }
     
+    // public static function update_taxon_concept_names($taxon_concept_id)
+    //     {
+    //         if(!$taxon_concept_id) return false;
+    //         $mysqli =& $GLOBALS['mysqli_connection'];
+    //         
+    //         //$eol_curator_hierarchy_id = Hierarchy::find_by_label('Encyclopedia of Life Curators');
+    //         //$ubio_hierarchy_id = Hierarchy::find_by_label('uBio Namebank');
+    //         
+    //         $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id");
+    //         
+    //         $result = $mysqli->query("SELECT id, name_id FROM hierarchy_entries WHERE taxon_concept_id=$taxon_concept_id");
+    //         while($result && $row=$result->fetch_assoc())
+    //         {
+    //             $id = $row["id"];
+    //             $name_id = $row["name_id"];
+    //             $mysqli->insert("INSERT INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, $id, 0, 0, 1)");
+    //         }
+    //         
+    //         $result = $mysqli->query("SELECT he.id, s.name_id, s.language_id, s.preferred FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id");
+    //         while($result && $row=$result->fetch_assoc())
+    //         {
+    //             $id = $row["id"];
+    //             $name_id = $row["name_id"];
+    //             $language_id = $row["language_id"];
+    //             $preferred = $row["preferred"];
+    //             
+    //             $vern = 0;
+    //             if($language_id && $language_id != Language::insert("Scientific Name") && $language_id != Language::insert("Operational Taxonomic Unit")) $vern = 1;
+    //             
+    //             $mysqli->insert("INSERT INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, $id, $language_id, $vern, $preferred)");
+    //         }
+    //     }
+    
     
     
     public static function rebuild_nested_set($hierarchy_id)

@@ -5,6 +5,7 @@ require_once "Horde/Yaml/Loader.php";
 require_once "Horde/Yaml/Node.php";
 
 require_once(LOCAL_ROOT."classes/MysqlBase.php");
+require_module('eol_content_schema');
 
 if(defined("USING_SPM") && USING_SPM)
 {
