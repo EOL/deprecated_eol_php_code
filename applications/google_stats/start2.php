@@ -48,12 +48,21 @@ JOIN harvest_events he ON (ar.resource_id=he.resource_id)
 JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id)
 JOIN taxa t ON (het.taxon_id=t.id)
 JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
+WHERE a.id IN (Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id Where content_partners.vetted = '1' Order By agents.id Asc ";
+$query .= " ) ";
+    
+/*
 WHERE a.full_name IN (
 	'AmphibiaWeb', 'BioLib.cz', 'Biolib.de', 'Biopix', 'Catalogue of Life', 'FishBase',
 	'Global Biodiversity Information Facility (GBIF)', 'IUCN', 'Micro*scope',
 	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive','Animal Diversity Web' ";
 if($year >= 2009 && intval($month) > 4) $query .= " , 'The Nearctic Spider Database' ";    
-$query .= " ) ";
+*/    
+
+    
+    
+
+
 //$query .= " limit 5 ";
 $result = $mysqli->query($query);    
 $fields=array();

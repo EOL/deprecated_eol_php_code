@@ -37,29 +37,49 @@ if($report != "year2date")
 
 if($report == "eol")// www.eol.org monthly report
 {    
-    //start get stats from google api
-    /*
-    $arr = get_month_year_from_path($path);
-    $year = $arr[0];
-    $month = $arr[1];
-    $api = get_from_api($month,$year);    
-    foreach($api[0] as $label => $value) 
-    {
-        echo "$label: $value <br>";
-    } 
-    */  
-    //end get stats from google api    
-    
     $comma_separated = "$path,$eol_CountOfTaxaPages,$eol_total_taxon_id,$eol_total_unique_page_views,$eol_total_page_views,$eol_total_time_on_page_seconds";    
     print eol_month_report($comma_separated);
     exit;
 }
-
 if($report == "year2date")// monthly tabular report
 {
     $temp = monthly_tabular($year);
     exit;
 }
+if($report == "save_monthly")// save monthly
+{
+    $temp = save_monthly();
+    exit;
+}
+function save_monthly()
+{
+    /*
+$tomorrow  = mktime(0, 0, 0, date("m")  , date("d")+1, date("Y"));
+$lastmonth = mktime(0, 0, 0, date("m")-1, date("d"),   date("Y"));
+$nextyear  = mktime(0, 0, 0, date("m"),   date("d"),   date("Y")+1);    
+    */
+    
+    $temp = array("2008","2009");
+    for($i = 0; $i < count($temp) ; $i++) 
+    {
+        for($month = 1; $month <= 12 ; $month++) 
+        {
+            $a = date("Y m d", mktime(0, 0, 0, $month, 1, $temp[$i]));
+            //$b = date("Y m d");   //use this if you want current data; otherwise use previous month.                
+            $b = date("Y m d", mktime(0, 0, 0, date("m")-1, date("d"),   date("Y")));                            
+            if($a <= $b)
+            {                
+                //print "$temp[$i] " . substr(strval($month/100),2,2) . "<br>";
+            }
+        }        
+    }
+}//function save_monthly()
+
+function num2places($x)
+{
+    if(str_lenstrval($x))
+}
+
 
 function monthly_tabular($year)
 {
@@ -174,7 +194,16 @@ for ($i = 0; $i < count($provider); $i++)
     $total_unique_page_views    = compute($provider[$i],$unique_page_views,"sum");
     $total_time_on_page_seconds = compute($provider[$i],$time_on_page_seconds,"sum");
     
+    /*
     $total_taxon_id             = compute($provider[$i],$taxa_id,"count");
+    */
+    
+    ///*
+    $temp_arr = $taxa_id[$provider[$i]];
+    $temp_arr = array_unique($temp_arr);
+    $total_taxon_id             = count($temp_arr);
+    //*/
+    //print_r($temp_arr);
 
     //start get "Count of Taxa Pages"
     $CountOfTaxaPages = getCountOfTaxaPages($provider[$i],$path,"partner");
@@ -192,7 +221,8 @@ for ($i = 0; $i < count($provider); $i++)
             <td>EOL Site</td>
             <td>Provider <br> Percentage</td>
     </tr>
-    <tr>    <td>Count of Taxa Pages</td><td align='right'>" . number_format($CountOfTaxaPages) . "</td>
+    <tr>    <td>Count of Taxa Pages</td>
+            <td align='right'>" . number_format($CountOfTaxaPages) . "</td>
             <td align='right'>" . number_format($eol_CountOfTaxaPages) . "</td>                        
             <td align='right'>" . number_format($CountOfTaxaPages/$eol_CountOfTaxaPages*100,2) . "%</td>                        
             
@@ -490,8 +520,7 @@ function eol_month_report($arr)
     $eol_total_unique_page_views    = $arr[3];
     $eol_total_page_views           = $arr[4];
     $eol_total_time_on_page_seconds = $arr[5];
-    $title = build_title_from_path($path);
-    
+    $title = build_title_from_path($path);    
 
     //start get stats from google api
     $arr = get_month_year_from_path($path);
@@ -511,7 +540,6 @@ function eol_month_report($arr)
     </tr>
     ";    
     
-
     $label_arr=array(
             "Visits" => "",
             "Visitors" => "",
@@ -540,7 +568,6 @@ function eol_month_report($arr)
         ";
     } 
 
-
     if($eol_total_page_views > 0)
     {
         $str .= "
@@ -548,30 +575,26 @@ function eol_month_report($arr)
         <tr><td>Total Page Views</td><td align='right'>" . number_format($eol_total_page_views) . "</td></tr>
         <tr><td>Total Unique Page Views</td><td align='right'>" . number_format($eol_total_unique_page_views) . "</td></tr>
         <tr><td>Total Time on Pages (hours)</td><td align='right'>" . number_format($eol_total_time_on_page_seconds/60/60) . "</td></tr>
-        <tr><td>Total EOL Taxa Pages</td><td align='right'>" . number_format($eol_CountOfTaxaPages) . "</td></tr>
+        <tr><td>Total EOL Taxa Pages x</td><td align='right'>" . number_format($eol_CountOfTaxaPages) . "</td></tr>
         <tr>
             <td>Viewed Taxa Pages</td>
             <td align='right'>" . number_format($eol_total_taxon_id) . "</td>
-            <td align='left'>&nbsp;" . number_format($eol_total_taxon_id/$eol_CountOfTaxaPages*100,2) . "%</td>
-            
+            <td align='left'>&nbsp;" . number_format($eol_total_taxon_id/$eol_CountOfTaxaPages*100,2) . "%</td>            
         </tr>";
     }
     else
     {
         //$str .= "<tr align='center'><td colspan='2'><i></i></td></tr>";
-    }
-    
-    $str .= "</table>";
-    
-    $str .= "<br>" . record_details_eol($path) . "";    
-    
+    }    
+    $str .= "</table>";    
+    $str .= "<br>" . record_details_eol($path) . "";        
     return $str;
 }
 
 function record_details_eol($path)
 {   
     $str="<table style='font-size : small;' align='center' border='1' cellpadding='3' cellspacing='0'>
-    <tr><td colspan='10'><b>Top 100 Pages</b></td></tr>
+    <tr><td colspan='10'><b>Top 100 Pages xx</b></td></tr>
     <tr align='center'>        
     <td>Rank</td>
     <td>Taxon ID</td>
@@ -597,10 +620,8 @@ function record_details_eol($path)
         if($row > 0 )
         {    
             $num = count($data);
-            //echo "<p> $num fields in line $row: <br /></p>\n";        
             for ($c=0; $c < $num; $c++) 
             {        
-                //echo $c+1 . "- [[" . $data[$c] . "]]<br />\n";                    
                 if($c==0)$id                =$data[$c];
                 if($c==1)$date_added        =$data[$c];
                 if($c==2)$taxon_id          =$data[$c];
@@ -644,6 +665,7 @@ function record_details_eol($path)
 
 function get_from_api($month,$year)
 {
+    //exit(" -- stopx -- ");
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
     
@@ -681,12 +703,9 @@ function get_from_api($month,$year)
         //exit;//////////////////////////////////////////////////////////////////////////////////////////////
         
         
-        //print"<hr><hr>";
         // get some account summary information without a dimension
         if(true) 
         {
-            //==============================================================
-
             //==============================================================
             $data = $api->data($id, ''   , 'ga:uniquePageviews',false ,$start_date ,$end_date ,10      ,1    ,false,false);
             $val=array();
@@ -700,24 +719,18 @@ function get_from_api($month,$year)
             $val=array();
             foreach($data as $metric => $count) 
             {
-                //echo "$metric: $count <br>";
                 $val[$metric]=$count;
-            }                        
-            
+            }            
             
             $final[0]["Visits"]                 = $val["ga:visits"];        
             $final[0]["Visitors"]               = $val["ga:visitors"];        
             $final[0]["Pageviews"]              = $val["ga:pageviews"];                 
             $final[0]["Unique Pageviews"]       = $temp_uniquePageviews;                           
             $final[0]["Average Pages/Visit"]    = number_format($val["ga:pageviews"]/$val["ga:visits"],2);        
-            $final[0]["Average Time on Site"]   = $api->sec2hms($val["ga:timeOnSite"]/$val["ga:visits"] ,false);        
-            
-			$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);
-			
+            $final[0]["Average Time on Site"]   = $api->sec2hms($val["ga:timeOnSite"]/$val["ga:visits"] ,false);                    
+			$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);			
 			$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
-            $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100,2);                        
-            
-
+            $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100,2); 
             
             //==============================================================
             $data = $api->data($id, ''   , 'ga:timeOnPage,ga:pageviews,ga:exits',false ,$start_date ,$end_date ,10      ,1    ,false,false);
@@ -733,82 +746,12 @@ function get_from_api($month,$year)
             $final[0]["Bounce Rate"] = $temp_bounce_rate;
             //==============================================================
             $final[0]["Percent Exit"] = $temp_percent_exit;            
-            //==============================================================
+            //==============================================================                                    
             
             
             
-        }
-        
-        //print "<hr><hr>";
-        
-        // get the pagePath vs pageviews & unique pageviews
-        if(false) 
-        {        
-            //$data = $api->data($id, 'ga:pagePath','ga:pageviews,ga:uniquePageviews');                      
-            $data = $api->data($id, 'ga:pagePath','ga:uniquePageviews',false ,$start_date ,$end_date,1000000);                                  
             
-            // how to loop through the data
-			$sum=0;
-            foreach($data as $dimension => $metrics)         
-            {
-				 /*
-                echo "[[$dimension]]  <br>  pageviews:          {$metrics['ga:pageviews']}       <br>
-                                            unique pageviews:   {$metrics['ga:uniquePageviews']} <hr>";                                        
-				 */				
-				$sum += $metrics['ga:uniquePageviews'];
-            }   
-			print $sum . "<hr>";  
-			print sizeof($data);
-			
-        }
-    
-        // get the browser vs visits & pageviews    
-        //print "<hr><hr>";
-        if(false) {
-        
-            $data = $api->data($id, 'ga:browser,ga:browserVersion', 'ga:visits,ga:pageviews', false, false, false, 100);
-            //print_r($data);
-    
-            // you can then access the metrics for a specific dimension vs metric like e.g.
-            echo $data['Internet Explorer']['8.0']['ga:pageviews'], "\n";
-            // or loop through the data
-            foreach($data as $dimension1 => $array) {
-                foreach($array as $dimension2 => $metrics) {
-                    echo "$dimension1 $dimension2 visits: {$metrics['ga:visits']} pageviews: {$metrics['ga:pageviews']} <br>";
-                }
-            }
-            
-        }
-    
-        // get a summary for the selected profile just for yesterday
-        if(false) {
-            $data = $api->get_summary($id, 'yesterday');
-            print_r($data);
-        }    
-        // get a summary for all profiles just for yesterday
-        if(false) {
-            $data = $api->get_summaries('yesterday');
-            print_r($data);
         }        
-        if(false) {
-            // get data filtered by canada, using a string as the filters parameter
-            $data = $api->data($id, '', 'ga:visits,ga:pageviews', false, false, false, 10, 1, 'ga:country%3d%3dCanada');
-            print_r($data);
-            // get data filtered by canada and firefox browser, using a string as the filters parameter
-            $data = $api->data($id, '', 'ga:visits,ga:pageviews', false, false, false, 10, 1, 'ga:country%3d%3dCanada;ga:browser%3d@Firefox');
-            print_r($data);
-            // same as the second example above but using the filtering class
-            $filters = new analytics_filters('ga:country', '==', 'Canada');
-            $filters->add_and('ga:browser', '=@', 'Firefox');
-            $data = $api->data($id, '', 'ga:visits,ga:pageviews', false, false, false, 10, 1, $filters);
-            print_r($data);
-            // using the filtering class to filter where USA or Canada
-            $filters = new analytics_filters('ga:country', '==', 'Canada');
-            $filters->add_or('ga:country', '==', 'United States');
-            $data = $api->data($id, '', 'ga:visits,ga:pageviews', false, false, false, 10, 1, $filters);
-            print_r($data);
-        }
-        
     }
     else 
     {
