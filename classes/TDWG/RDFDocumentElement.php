@@ -16,7 +16,18 @@ class RDFDocumentElement
         $this->document = $document;
         $this->local_uri = $local_uri;
     }
-
+    
+    function get_resource_reference($predicate)
+    {
+        $querystring = "SELECT ?resource WHERE { <$this->local_uri> $predicate ?resource }";
+        
+        $results = $this->document->sparql_query($querystring);
+        
+        if(@$resource = $results[0]['?resource']) return $resource->getLabel();
+        
+        return false;
+    }
+    
     function get_resource($predicate, $object_type = "RDFDocumentElement")
     {
         $querystring = "SELECT ?resource WHERE { <$this->local_uri> $predicate ?resource }";
@@ -73,8 +84,8 @@ class RDFDocumentElement
     {
         if(!trim($uri)) return false;
         
-        Functions::debug("Creating $class -> document -> $uri");
-        if(preg_match("/^(#.*)/", $uri, $arr)) return new $class($document, $uri);
+        //Functions::debug("Creating $class -> document -> $uri");
+        if(preg_match("/^([#_\/].*)/", $uri, $arr)) return new $class($document, $uri);
         elseif(preg_match("/^".preg_quote($document->url,"/")."(#.*)$/", $uri, $arr)) return new $class($document, $uri);
         elseif(preg_match("/^urn:lsid:/", $uri))
         {
@@ -97,7 +108,7 @@ class RDFDocumentElement
                 $document->saveAs("cache/".$uri.".xml");
             }
             
-            Functions::debug($doc_uri);
+            //Functions::debug($doc_uri);
             
             return new $class($document, $uri);
         }

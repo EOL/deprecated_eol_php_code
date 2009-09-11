@@ -1,8 +1,8 @@
 #!/usr/local/bin/php
 <?php
 
-exit;
 define("USING_SPM", true);
+define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -23,7 +23,7 @@ unset($new_resource_xml);
 
 
 
-$prefix = "http://plazi.cs.umb.edu:8080/exist/rest/db/taxonx_docs/getSPM.xq?render=xhtml&description=narrow&doc=";
+$prefix = "http://plazi.cs.umb.edu:8080/exist/rest/db/taxonx_docs/getSPM.xq?render=xhtml&description=broad&associations=no&doc=";
 $all_taxa = array();
 $file_names = array();
 
@@ -43,32 +43,19 @@ foreach(@$xml_exist->collection as $collection)
 
 $start = false;
 $i = 0;
+krsort($file_names);
 foreach($file_names as $file_name => $v)
 {
     $i++;
-    //if($i>=20) continue;
+    
+    //if($file_name!="5959_tx.xml") continue;
+    //if($file_name!="2006_Huveneers_gg1_tx.xml") continue;
     
     echo "$file_name<br>\n";
     
-    // if($file_name == "21283_tx2.xml")
-    // {
-    //     $start = true;
-    // }
-    // 
-    // if(!$start) continue;
-    
-    //if($file_name!="21279_tx2.xml") continue;
-    //if($file_name!="10342_tx1.xml") continue;
-    //if($file_name!="2935_tx1.xml") continue;
-    // if($file_name=="2596_tx1.xml") continue;
-    // if($file_name=="2588_tx1.xml") continue;
-    // if($file_name=="10342_tx1.xml") continue;
-    // if($file_name=="21061_tx1.xml") continue;
-    // if($file_name=="11711_tx1.xml") continue;
-    // if($file_name=="2610_tx1.xml") continue;
-    
     $url = $prefix . $file_name;
     $file_contents = Functions::get_remote_file($url);
+    if(!$file_contents) echo "downloading failed\n";
     $file_contents = str_replace("<xhtml:p xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">", htmlspecialchars("<p>"), $file_contents);
     $file_contents = str_replace("</xhtml:p>", htmlspecialchars("</p>"), $file_contents);
     
@@ -82,8 +69,7 @@ foreach($file_names as $file_name => $v)
         echo "$file_name - ".filesize($download_cache_path)."<br>\n";
         echo "<hr>Parsing Document $file_name<hr>\n";
         
-        $taxa = process_file($download_cache_path, $url);
-        $all_taxa = $all_taxa + $taxa;
+        process_file($download_cache_path, $url);
         
         echo "Processed $file_name\n";
     }
@@ -95,10 +81,11 @@ $OUT = fopen($new_resource_path, "w+");
 fwrite($OUT, serialize($all_taxa));
 fclose($OUT);
 
-shell_exec("rm ".$download_cache_path);
+shell_exec(dirname(__FILE__)."/helpers/plazi_step_two.php");
 
-shell_exec($path."/helpers/plazi_step_two.php");
-
+shell_exec("rm -f ". LOCAL_ROOT . "temp/30.xml");
+shell_exec("rm -f ". LOCAL_ROOT . "temp/downloaded_rdf.rdf");
+shell_exec("rm -f ". LOCAL_ROOT . "temp/plazi.xml");
 
 
 
@@ -110,14 +97,13 @@ function process_file($path, $url)
         //Functions::catch_exception($e);
         return array();
     }
+    global $all_taxa;
     
-    
-    
-    
-    $all_taxa = array();
+    //$document->show();
     
     $authorship = "";
     $publication_citation = "";
+    $source_url = "";
     $actors = $document->get_resources("tbase:Actor");
     foreach($actors as $actor)
     {
@@ -134,6 +120,7 @@ function process_file($path, $url)
             if($field = @trim($citation->get_literal("tpcit:parentPublicationString"))) $publication_fields[] = $field;
             if($field = @trim($citation->get_literal("tpcit:pages"))) $publication_fields[] = "pp. " . $field;
             if($field = @trim($citation->get_literal("tpcit:volume"))) $publication_fields[] = "vol. " . $field;
+            if($field = @trim($citation->get_resource_reference("tpcit:url"))) $source_url = $field;
             
             $publication_citation = implode(", ", $publication_fields);
             break;
@@ -146,19 +133,23 @@ function process_file($path, $url)
         $rights = trim($profile->get_literal("dwc:rights"));
         if(!$rights || preg_match("/^public domain/i", $rights, $arr)) $rights = "http://creativecommons.org/licenses/publicdomain/";
         
-        $source_url = "";
         $taxon_parameters = array();
         $concepts = $profile->get_resources("spm:aboutTaxon", "TaxonConcept");
         foreach($concepts as $concept)
         {
             $taxon_name_string = trim($concept->get_literal("tc:nameString"));
             $taxon_title = trim($concept->get_literal("dc:title"));
+            if(!$taxon_title) $taxon_title = $taxon_name_string;
+            if(!$taxon_title) break;
+            
+            echo "$taxon_title\n";
             
             $taxon_parameters = array(
                                         "identifier"        => $concept->identifier(),
                                         "scientificName"    => htmlspecialchars_decode($taxon_title));
             if($publication_citation) $taxon_parameters["references"][] = array("fullReference" => $publication_citation);
-            if(preg_match("/^([".UPPER."][".LOWER."]+) ([".LOWER."]+)$/", $taxon_name_string, $arr)) $taxon_parameters["source"] = "http://plazi.org:8080/GgSRS/search?118273105.isNomenclature=1&118273105.exactMatch=1&118273105.genus=".$arr[1]."&118273105.species=".$arr[2];
+            if($source_url) $taxon_parameters["source"] = $source_url;
+            elseif(preg_match("/^([".UPPER."][".LOWER."]+) ([".LOWER."]+)$/", $taxon_name_string, $arr)) $taxon_parameters["source"] = "http://plazi.org:8080/GgSRS/search?118273105.isNomenclature=1&118273105.exactMatch=1&118273105.genus=".$arr[1]."&118273105.species=".$arr[2];
             break;
         }
         if(!$taxon_parameters) continue;
@@ -192,8 +183,6 @@ function process_file($path, $url)
         
         $all_taxa[] = $taxon_parameters;
     }
-    
-    return $all_taxa;
 }
 
 ?>
