@@ -1,6 +1,8 @@
 <?php
+
+
+define("ENVIRONMENT", "development");		//source of saved stats
 //define("ENVIRONMENT", "integration");		//source of saved stats
-//define("ENVIRONMENT", "development");		//source of saved stats
 //define("ENVIRONMENT", "data_main");		//source of saved stats
 
 
