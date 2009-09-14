@@ -4,7 +4,7 @@
 //
 //exit;
 
-define("ENVIRONMENT", "slave");
+define("ENVIRONMENT", "slave_215");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -33,7 +33,7 @@ $mysqli2 = load_mysql_environment('eol_statistics');
 //=================================================================
 //query 1
 $query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id ORDER BY tcn.source_hierarchy_entry_id DESC "; 
-//$query .= " limit 5 ";
+$query .= " limit 2 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="taxon_concept_id";
@@ -48,7 +48,8 @@ JOIN harvest_events he ON (ar.resource_id=he.resource_id)
 JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id)
 JOIN taxa t ON (het.taxon_id=t.id)
 JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
-WHERE a.id IN (Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id Where content_partners.vetted = '1' Order By agents.id Asc ";
+WHERE a.id IN (Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id 
+Where content_partners.vetted = '1' Order By agents.id Asc ";
 $query .= " ) ";
     
 /*
@@ -59,11 +60,8 @@ WHERE a.full_name IN (
 if($year >= 2009 && intval($month) > 4) $query .= " , 'The Nearctic Spider Database' ";    
 */    
 
-    
-    
+$query .= " limit 2 ";
 
-
-//$query .= " limit 5 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="full_name";
@@ -72,7 +70,7 @@ $temp = save_to_txt($result,"agents_hierarchies",$fields,$year_month,chr(9),0,"t
 //=================================================================
 //query 3
 $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id) ";
-//$query .= " LIMIT 5 ";
+$query .= " LIMIT 2 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="full_name";
