@@ -18,7 +18,7 @@ $year = get_val_var("year");
 
 //$month = "04"; $year = "2009";
 
-$month = substr(strval($month/100),2,2); //print $month;exit;
+$month = GetNumMonthAsString($month, $year);
 
 //$year_month = "2009_04";
 
@@ -146,6 +146,11 @@ function get_val_var($v)
     elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
     else   return NULL;                            
     return $var;    
+}
+function GetNumMonthAsString($m,$y)
+{
+    $timestamp = mktime(0, 0, 0, $m, 1, $y);    
+    return date("m", $timestamp);
 }
 
 

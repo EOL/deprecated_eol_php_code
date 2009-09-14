@@ -72,7 +72,13 @@ for($month = 1; $month <= 12 ; $month++)
     //print "$a $b <br>";
 }
 
-print"<tr><td colspan='2'><a href='process.php?report=year2date&year=$year'>Year Summary: $year</a></td></tr>";
+print"
+<tr><td colspan='2'><a href='process.php?report=year2date&year=$year'>Year Summary: $year</a></td></tr>
+<tr><td colspan='2'><a href='process.php?report=save_monthly&year=$year'>Save all</a></td></tr>
+";
+
+
+
 
 function get_val_var($v)
 {

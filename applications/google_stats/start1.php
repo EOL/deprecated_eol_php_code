@@ -14,8 +14,10 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculation
 
 $month = get_val_var("month");
 $year = get_val_var("year");
-$month = substr(strval($month/100),2,2); //print $month;exit;
-//$month = '07'; $year = '2009';
+$month = GetNumMonthAsString($month, $year);
+
+
+
 
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year . "_" . $month;
 
@@ -169,6 +171,11 @@ function get_val_var($v)
     elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
     else   return NULL;                            
     return $var;    
+}
+function GetNumMonthAsString($m,$y)
+{
+    $timestamp = mktime(0, 0, 0, $m, 1, $y);    
+    return date("m", $timestamp);
 }
 
 

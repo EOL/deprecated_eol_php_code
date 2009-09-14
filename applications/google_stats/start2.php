@@ -4,9 +4,9 @@
 //
 //exit;
 
-define("ENVIRONMENT", "slave_215");
-define("MYSQL_DEBUG", false);
-define("DEBUG", false);
+define("ENVIRONMENT", "slave_32");
+define("MYSQL_DEBUG", true);
+define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -18,7 +18,7 @@ $year = get_val_var("year");
 
 //$month = "04"; $year = "2009";
 
-$month = substr(strval($month/100),2,2); //print $month;exit;
+$month = GetNumMonthAsString($month, $year);
 
 //$year_month = "2009_04";
 
@@ -32,8 +32,9 @@ $mysqli2 = load_mysql_environment('eol_statistics');
 
 //=================================================================
 //query 1
-$query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id ORDER BY tcn.source_hierarchy_entry_id DESC "; 
-$query .= " limit 2 ";
+$query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id 
+ORDER BY tcn.source_hierarchy_entry_id DESC "; 
+//$query .= " limit 5 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="taxon_concept_id";
@@ -41,16 +42,30 @@ $fields[1]="string";
 $temp = save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9),0,"txt");
 //=================================================================
 //query 2
-$query = "SELECT DISTINCT a.full_name, tcn.taxon_concept_id 
-FROM agents a
-JOIN agents_resources ar ON (a.id=ar.agent_id)
-JOIN harvest_events he ON (ar.resource_id=he.resource_id)
-JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id)
-JOIN taxa t ON (het.taxon_id=t.id)
-JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
-WHERE a.id IN (Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id 
-Where content_partners.vetted = '1' Order By agents.id Asc ";
-$query .= " ) ";
+$query="Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id 
+Where content_partners.vetted = '1' Order By agents.full_name Asc ";
+//$query .= " limit 5 ";
+$result = $mysqli->query($query);    
+
+while($result && $row=$result->fetch_assoc())	
+{
+    $query = "SELECT DISTINCT a.full_name, tcn.taxon_concept_id 
+    FROM agents a
+    JOIN agents_resources ar ON (a.id=ar.agent_id)
+    JOIN harvest_events he ON (ar.resource_id=he.resource_id)
+    JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id)
+    JOIN taxa t ON (het.taxon_id=t.id)
+    JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
+    WHERE a.id = $row[id] ";
+    //$query .= " limit 5 ";
+
+    $result2 = $mysqli->query($query);    
+    $fields=array();
+    $fields[0]="full_name";
+    $fields[1]="taxon_concept_id";
+    $temp = save_to_txt($result2,"agents_hierarchies",$fields,$year_month,chr(9),0,"txt");
+}
+
     
 /*
 WHERE a.full_name IN (
@@ -60,17 +75,13 @@ WHERE a.full_name IN (
 if($year >= 2009 && intval($month) > 4) $query .= " , 'The Nearctic Spider Database' ";    
 */    
 
-$query .= " limit 2 ";
 
-$result = $mysqli->query($query);    
-$fields=array();
-$fields[0]="full_name";
-$fields[1]="taxon_concept_id";
-$temp = save_to_txt($result,"agents_hierarchies",$fields,$year_month,chr(9),0,"txt");
+
+
 //=================================================================
 //query 3
 $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id) ";
-$query .= " LIMIT 2 ";
+//$query .= " LIMIT 5 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="full_name";
@@ -117,7 +128,7 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
     else                        $temp = "";
     
 	$filename = "data/" . $year_month . "/" . $temp . "$filename" . "." . $file_extension;
-	if($fp = fopen($filename,"w")){fwrite($fp,$str);fclose($fp);}		
+	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
 
@@ -142,6 +153,11 @@ function get_val_var($v)
     elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
     else   return NULL;                            
     return $var;    
+}
+function GetNumMonthAsString($m,$y)
+{
+    $timestamp = mktime(0, 0, 0, $m, 1, $y);    
+    return date("m", $timestamp);
 }
 
 

@@ -53,27 +53,101 @@ if($report == "save_monthly")// save monthly
 }
 function save_monthly()
 {
-    /*
-$tomorrow  = mktime(0, 0, 0, date("m")  , date("d")+1, date("Y"));
-$lastmonth = mktime(0, 0, 0, date("m")-1, date("d"),   date("Y"));
-$nextyear  = mktime(0, 0, 0, date("m"),   date("d"),   date("Y")+1);    
-    */
+    $filename = "data/monthly.csv";    
+    //$temp = array("2008","2009","2010");    
+    $temp = array("2009");    
     
-    $temp = array("2008","2009");
     for($i = 0; $i < count($temp) ; $i++) 
     {
+        $year = $temp[$i];
         for($month = 1; $month <= 12 ; $month++) 
-        {
-            $a = date("Y m d", mktime(0, 0, 0, $month, 1, $temp[$i]));
-            //$b = date("Y m d");   //use this if you want current data; otherwise use previous month.                
+        {            
+            $mon = GetNumMonthAsString($month, $year);            
+            $a = date("Y m d", mktime(0, 0, 0, $mon, 1, $temp[$i]));
             $b = date("Y m d", mktime(0, 0, 0, date("m")-1, date("d"),   date("Y")));                            
             if($a <= $b)
-            {                
-                //print "$temp[$i] " . substr(strval($month/100),2,2) . "<br>";
+            {                                
+                $needle = "$year" . "_" . "$mon"; print "$year " . $mon . "<br>";
+                $haystack = getMonthYear();
+                print " <hr>
+                        haystack = [$haystack]  <br>
+                        needle = [$needle] <br> " . 
+                        strripos($haystack, $needle) . "
+                        <hr>"; //exit("<hr>");
+                if(strval(strripos($haystack, $needle)) == "")
+                {
+                    $api = get_from_api($mon,$year);                
+                    $str='';        
+                    $str .= "$year" . "_" . "$mon" . ",";
+                    foreach($api[0] as $label => $value) 
+                    {                                    
+                        $unit="";
+                        if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits")))$unit="%";
+                        //if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews")))$value=number_format($value);
+                        $str .= "$value$unit,";
+                    } 
+                    $str .= "\n";	                
+                	if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}
+                }
+                
             }
         }        
     }
 }//function save_monthly()
+function getMonthYear()
+{    
+    $filename = "data/monthly.csv";
+    //if(!($handle = fopen($filename, "a+")))return "";    
+    
+    $comma_separated='';
+    while (($data = fgetcsv($handle)) !== FALSE) 
+    {
+        $num = count($data);
+        for ($c=0; $c < $num; $c++) 
+        {        
+            if($c==0)$comma_separated .= trim($data[$c]) . " " ;
+        }
+    }//end while
+    
+    if(strlen($comma_separated) > 0) $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
+    
+    //start build up header if no entries yet
+    print "[$comma_separated]";
+    if($comma_separated == "")
+    {
+        $arr=array();
+        $arr[]='Visits'; 
+        $arr[]='Visitors'; 
+        $arr[]='Pageviews'; 
+        $arr[]='Unique Pageviews'; 
+        $arr[]='Average Pages/Visit';         
+        $arr[]='Average Time on Site'; 
+        $arr[]='Average Time on Page'; 
+        $arr[]='Percent New Visits'; 
+        $arr[]='Bounce Rate'; 
+        $arr[]='Percent Exit'; 
+        
+  		$str="";
+        for ($i = 0; $i < count($arr); $i++) 		
+       	{
+	       	$str .= $arr[$i] . ",";
+    	}
+    	$str .= "\n";            
+
+        if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}
+        
+
+    }//if($comma_separated == "")    
+    //end
+    
+    fclose($handle);		                
+    return trim($comma_separated);
+}
+
+
+
+
+
 
 function num2places($x)
 {
@@ -89,12 +163,8 @@ function monthly_tabular($year)
     else $month_limit = date("n");
     
     for ($month = 1; $month <= $month_limit; $month++) 
-    {
-        $temp = $month/10;
-        $temp = strval($temp);
-        $temp = str_ireplace(".", "", $temp);
-        
-        $api = get_from_api($temp,$year);    
+    {        
+        $api = get_from_api(GetNumMonthAsString($month, $year),$year);    
         
         print"<tr bgcolor='aqua' align='center'>";
         if($month == 1)
@@ -484,6 +554,13 @@ function GetMonthString($m,$y)
     return date("F Y", $timestamp);
 }
 
+function GetNumMonthAsString($m,$y)
+{
+    $timestamp = mktime(0, 0, 0, $m, 1, $y);    
+    return date("m", $timestamp);
+}
+
+
 
 
 
@@ -513,6 +590,8 @@ function get_month_year_from_path($path)
 
 function eol_month_report($arr)
 {
+
+
     $arr = explode(",",$arr);
     $path                           = $arr[0];
     $eol_CountOfTaxaPages           = $arr[1];
