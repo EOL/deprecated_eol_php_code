@@ -55,7 +55,7 @@ function save_monthly()
 {
     $filename = "data/monthly.csv";    
     //$temp = array("2008","2009","2010");    
-    $temp = array("2009");    
+    $temp = array("2008","2009");    
     
     for($i = 0; $i < count($temp) ; $i++) 
     {
@@ -83,7 +83,6 @@ function save_monthly()
                     {                                    
                         $unit="";
                         if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits")))$unit="%";
-                        //if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews")))$value=number_format($value);
                         $str .= "$value$unit,";
                     } 
                     $str .= "\n";	                
@@ -97,7 +96,7 @@ function save_monthly()
 function getMonthYear()
 {    
     $filename = "data/monthly.csv";
-    //if(!($handle = fopen($filename, "a+")))return "";    
+    if(!($handle = fopen($filename, "a+")))return "";    
     
     $comma_separated='';
     while (($data = fgetcsv($handle)) !== FALSE) 
@@ -111,11 +110,12 @@ function getMonthYear()
     
     if(strlen($comma_separated) > 0) $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
     
-    //start build up header if no entries yet
+    //start build up header if no entries yet, ONCE ONLY //==========================================
     print "[$comma_separated]";
     if($comma_separated == "")
     {
         $arr=array();
+        $arr[]='Year_Month'; 
         $arr[]='Visits'; 
         $arr[]='Visitors'; 
         $arr[]='Pageviews'; 
@@ -134,11 +134,11 @@ function getMonthYear()
     	}
     	$str .= "\n";            
 
-        if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}
+        fwrite($handle,$str);
         
 
     }//if($comma_separated == "")    
-    //end
+    //end build up header if no entries yet, ONCE ONLY //==========================================
     
     fclose($handle);		                
     return trim($comma_separated);
