@@ -9,10 +9,12 @@
 <?php
 /* has to be connected to the vpn */
 
-define("ENVIRONMENT", "slave");
+//define("ENVIRONMENT", "slave_215");
 define("MYSQL_DEBUG", false);
-require_once("../../config/start.php");
+define("DEBUG", true);
+include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+
 
 print"<table border='1' cellpadding='5' cellspacing='0'>";
 

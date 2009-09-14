@@ -21,7 +21,7 @@ $url  = 'http://10.19.19.57/~dimus/eol_tcs/';
 
 
 //start get first xmlns value
-$url = "http://10.19.19.226/resources/".$url.".xml";
+if(substr($url,0,4) != "http") $url = "http://10.19.19.226/resources/".$url.".xml";
 
 if($download)
 {
