@@ -21,7 +21,7 @@ if($agentID != "")
 {
     $provider_to_process = get_agentName($agentID);
     //print"[$provider_to_process]<br>";
-    if($provider_to_process == "")exit("<hr>Data is not available for this content partner.<hr>");
+    if($provider_to_process == "")exit("<hr><i>Data is not available for this content partner.</i><hr>");
 }
 
 
