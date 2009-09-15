@@ -3,8 +3,8 @@
 
 
 /* Set your working local paths */
-define("LOCAL_ROOT","/path/to/eol_php_code/");
-define("LOCAL_WEB_ROOT","http://localhost/eol_php_code/");
+define("LOCAL_ROOT", dirname(__FILE__) ."/../");
+define("DOC_ROOT", LOCAL_ROOT); // alias
 
 /* Set to true if using content server apps or creating thumbnails */
 define("USING_IMAGEMAGICK", true);
