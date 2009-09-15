@@ -39,28 +39,19 @@ for($month = 1; $month <= 12 ; $month++)
         
         print"<td><a href='process.php?path=" . $path . "&report=eol'>www.eol.org</a>    </td>";        
         
-        if($csv_available == 0)     $str="<font color='red'>CSV files are not available.</font>";
-        elseif($csv_available < 4)  $str="Some CSV files are not available";
-        else                        $str="All CSV files are available";
+        if($csv_available == 0)     $str="<font color='red'>Individual provider data not available.</font>";
+        elseif($csv_available < 4)  $str="Individual provider data (some) not available";
+        else                        $str="Individual provider data available";
     
         if($csv_available < 4) $str .= " 
         ";
-        
-      
-        
+     
         /*
         Prepare files
         <a href='start1.php?month=$month&year=$year'>Step 1 (google_analytics_page_statistics)</a>
         <a href='start2.php?month=$month&year=$year'>Step 2 (query 1-8)</a>
         <a href='start3.php?month=$month&year=$year'>Step 3 (query 9-12 CSV files)</a>                
-
-
-<hr> still
-        <a href='start1.php?month=$month&year=$year'>Step 1 (google_analytics_page_statistics)</a>
-        <a href='start2.php?month=$month&year=$year'>Step 2 (query 1-8)</a>
-        <a href='start3.php?month=$month&year=$year'>Step 3 (query 9-12 CSV files)</a>                        
         
-
         */
         
         print"<td><i><font size='2'>$str</font></i></td>";    

@@ -1,6 +1,6 @@
 <?php
 
-//define("ENVIRONMENT", "slave_215");
+define("ENVIRONMENT", "slave_215");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -17,7 +17,13 @@ $path = get_val_var('path');
 $provider_to_process = get_val_var('provider');
 
 $agentID = get_val_var('agentID');
-if($agentID != "")$provider_to_process = get_agentName($agentID);
+if($agentID != "")
+{
+    $provider_to_process = get_agentName($agentID);
+    //print"[$provider_to_process]<br>";
+    if($provider_to_process == "")exit("<hr>Data is not available for this content partner.<hr>");
+}
+
 
 $report = get_val_var('report');
 $year = get_val_var('year');
@@ -290,7 +296,7 @@ for ($i = 0; $i < count($provider); $i++)
     print "    
     <table border='1' cellpaddin=2 cellspacing=0>
     <tr align='center'>    
-            <td bgcolor='aqua'><b>$title $provider[$i] Statistics</b></td>
+            <td bgcolor='aqua'><b>$title <u>$provider[$i]</u> Statistics</b></td>
             <td>Taxa Pages with <br> Provider Content</td>
             <td>EOL Site</td>
             <td>Provider <br> Percentage</td>
@@ -344,10 +350,13 @@ for ($i = 0; $i < count($provider); $i++)
     
     if($provider_to_process == "")
     {
+        /* working as well
         print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&provider=$provider[$i]'> 1. See entire report &gt;&gt; </a></td></tr>";
+        */
         
         $agentID = get_agentID($provider[$i]);
-        print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&agentID=$agentID'> 2. See entire report &gt;&gt; </a></td></tr>";
+        print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
+        
     }
 
     if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path) . "</td></tr>";
