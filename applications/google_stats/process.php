@@ -69,11 +69,13 @@ function save_monthly()
             {                                
                 $needle = "$year" . "_" . "$mon"; print "$year " . $mon . "<br>";
                 $haystack = getMonthYear();
+                /*
                 print " <hr>
                         haystack = [$haystack]  <br>
                         needle = [$needle] <br> " . 
                         strripos($haystack, $needle) . "
                         <hr>"; //exit("<hr>");
+                */      
                 if(strval(strripos($haystack, $needle)) == "")
                 {
                     $api = get_from_api($mon,$year);                
@@ -111,7 +113,7 @@ function getMonthYear()
     if(strlen($comma_separated) > 0) $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
     
     //start build up header if no entries yet, ONCE ONLY //==========================================
-    print "[$comma_separated]";
+    //print "[$comma_separated]";
     if($comma_separated == "")
     {
         $arr=array();
@@ -754,7 +756,7 @@ function get_from_api($month,$year)
     
     $login = GOOGLE_ANALYTICS_API_USERNAME;
     $password = GOOGLE_ANALYTICS_API_PASSWORD;
-    $password .= "eli";
+    //$password .= "eli";
     $id = '';
     
     $api = new analytics_api();
