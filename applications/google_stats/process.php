@@ -754,6 +754,7 @@ function get_from_api($month,$year)
     
     $login = GOOGLE_ANALYTICS_API_USERNAME;
     $password = GOOGLE_ANALYTICS_API_PASSWORD;
+    $password .= "eli";
     $id = '';
     
     $api = new analytics_api();
