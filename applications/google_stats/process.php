@@ -654,7 +654,7 @@ function eol_month_report($arr)
         <tr><td>Total Page Views</td><td align='right'>" . number_format($eol_total_page_views) . "</td></tr>
         <tr><td>Total Unique Page Views</td><td align='right'>" . number_format($eol_total_unique_page_views) . "</td></tr>
         <tr><td>Total Time on Pages (hours)</td><td align='right'>" . number_format($eol_total_time_on_page_seconds/60/60) . "</td></tr>
-        <tr><td>Total EOL Taxa Pages x</td><td align='right'>" . number_format($eol_CountOfTaxaPages) . "</td></tr>
+        <tr><td>Total EOL Taxa Pages</td><td align='right'>" . number_format($eol_CountOfTaxaPages) . "</td></tr>
         <tr>
             <td>Viewed Taxa Pages</td>
             <td align='right'>" . number_format($eol_total_taxon_id) . "</td>
@@ -673,7 +673,7 @@ function eol_month_report($arr)
 function record_details_eol($path)
 {   
     $str="<table style='font-size : small;' align='center' border='1' cellpadding='3' cellspacing='0'>
-    <tr><td colspan='10'><b>Top 100 Pages xx</b></td></tr>
+    <tr><td colspan='10'><b>Top 100 Pages</b></td></tr>
     <tr align='center'>        
     <td>Rank</td>
     <td>Taxon ID</td>
