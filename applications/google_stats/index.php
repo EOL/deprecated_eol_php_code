@@ -73,8 +73,11 @@ for($month = 1; $month <= 12 ; $month++)
 }
 
 print"
-<tr><td colspan='2'><a href='process.php?report=year2date&year=$year'>Year Summary: $year</a></td></tr>
-<tr><td colspan='2'><a href='process.php?report=save_monthly&year=$year'>Save all</a></td></tr>
+<tr><td colspan='4'><a href='process.php?report=year2date&year=$year'>View $year summary <i>(from online www.google.com/analytics)</i></a></td></tr>
+<tr><td colspan='4'>
+<a href='process.php?report=save_monthly&year=$year'>Save monthly summaries</a> | 
+<a href='data/monthly.csv'>View</a>
+</td></tr>
 ";
 
 

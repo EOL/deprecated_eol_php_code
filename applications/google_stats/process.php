@@ -67,7 +67,7 @@ function save_monthly()
             $b = date("Y m d", mktime(0, 0, 0, date("m")-1, date("d"),   date("Y")));                            
             if($a <= $b)
             {                                
-                $needle = "$year" . "_" . "$mon"; print "$year " . $mon . "<br>";
+                $needle = "$year" . "_" . "$mon"; print "$year " . $mon . " -- ";
                 $haystack = getMonthYear();
                 /*
                 print " <hr>
@@ -90,6 +90,8 @@ function save_monthly()
                     $str .= "\n";	                
                 	if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}
                 }
+                else print " already saved ";
+                print "<br>";
                 
             }
         }        
