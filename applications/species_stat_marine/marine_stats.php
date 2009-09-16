@@ -5,9 +5,9 @@ define('MYSQL_DEBUG', false);
 define('DEBUG', false);
 //define('DEBUG_TO_FILE', false);
 
-//define("ENVIRONMENT", "slave_215");//source of saved stats
+
 //define("ENVIRONMENT", "development");//source of saved stats
-//define("ENVIRONMENT", "integration2");//source of saved stats
+//define("ENVIRONMENT", "integration");//source of saved stats
 //define("ENVIRONMENT", "data_main");//source of saved stats
 
 $path = "";
