@@ -34,7 +34,7 @@ print"
 <tr><td>
     <font size='2'><i>Or paste your own EOL resource URL</i></font><br>
     <input type='text' id='txt2' size='80' onClick='erase()' style='font-size : small; font-family : Arial; background-color : Aqua;'>
-    <br><a href='javascript:transform(1)' id='downl'>Download x</a>
+    <br><a href='javascript:transform(1)' id='downl'>Download</a>
 </td></tr>
 <tr><td>
     <input id='what_eval' type='radio' name='what' value='evaluate'>Statistics
