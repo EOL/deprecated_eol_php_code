@@ -20,40 +20,45 @@ $taxa = array();
 
 // create a container for this taxon's parameters
 $taxon_params = array();
-$taxon_params["scientificName"] = "Aus bus Linnaeus";
-$taxon_params["genus"] = "Aus";
-$taxon_params["family"] = "Ausidae";
-$taxon_params["order"] = "Ausoida";
+$taxon_params["identifier"] = "taxon_ursus_maritimus";
+$taxon_params["kingdom"] = "Animalia";
+$taxon_params["phylum"] = "Chordata";
+$taxon_params["class"] = "Mammalia";
+$taxon_params["order"] = "Carnivora";
+$taxon_params["family"] = "Ursidae";
+$taxon_params["genus"] = "Ursus";
+$taxon_params["scientificName"] = "Ursus maritimus Phipps, 1774";
 $taxon_params["source"] = "http://www.provider.org/id?12121";
-$taxon_params["identifier"] = "taxon_12121";
+
 
 // create a container for the taxon's synonyms
 $taxon_params["synonyms"] = array();
-
-// create a container for the taxon's data objects
-$taxon_param["dataObjects"] = array();
-
-
-
-
 
 // create the data object object with the above parameters and add it the taxon's container of data objects
 $taxon_params["synonyms"][] = new SchemaSynonym(array("synonym" => "Aus buus", "relationship" => "ambiguous synonym"));
 
 
 
-$agent_parameters = array(  "fullName"  => "Jane Smith",
-                            "homepage"  => "http://www.provider.org/employees/jsmith.html",
-                            "logoURL"   => "http://www.provider.org/employees/logos/jsmith.png",
-                            "role"      => "photographer");
 
+
+// create a container for the taxon's data objects
+$taxon_params["dataObjects"] = array();
+
+// create the agent object
+$agent = new SchemaAgent(array( "fullName"  => "Drew Avery",
+                                "homepage"  => "http://www.flickr.com/photos/33590535@N06/",
+                                "logoURL"   => "http://farm4.static.flickr.com/3256/buddyicons/33590535@N06.jpg?1229887124#33590535@N06",
+                                "role"      => "photographer"));
 
 // create a container for this data object's parameters
 $object_params = array();
-$object_params["identifier"] = "image_98989";
+$object_params["identifier"] = "3541747708";
+$object_params["title"] = "Polar Bear {Ursus maritimus}";
 $object_params["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
 $object_params["mimeType"] = "image/jpeg";
-$object_params["agents"] = array(new SchemaAgent($agent_parameters));
+$object_params["license"] = "http://creativecommons.org/licenses/by/3.0/";
+$object_params["mediaURL"] = "http://farm3.static.flickr.com/2479/3541747708_7f3973b7c7.jpg";
+$object_params["agents"] = array($agent);
 
 // create the data object object with the above parameters and add it the taxon's container of data objects
 $taxon_params["dataObjects"][] = new SchemaDataObject($object_params);
@@ -61,13 +66,18 @@ $taxon_params["dataObjects"][] = new SchemaDataObject($object_params);
 
 
 
+// a second agent for the text description
+$text_agent = new SchemaAgent(array( "fullName"  => "Leary, P",
+                                                "role"      => "author"));
 
 // create a container for this data object's parameters
 $object_params = array();
 $object_params["identifier"] = "text_1234";
 $object_params["dataType"] = "http://purl.org/dc/dcmitype/Text";
 $object_params["mimeType"] = "text/html";
-$object_params["agents"] = array(new SchemaAgent($agent_parameters));
+$object_params["agents"] = array($agent, $text_agent);
+$object_params["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+$object_params["title"] = "A Description of a Polar Bear (Ursus maritimus)";
 $object_params["description"] = "This is where the body of the text goes";
 $object_params["subjects"] = array(new SchemaSubject(array("label" => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description")));
 
@@ -82,7 +92,7 @@ $taxa[] = new SchemaTaxon($taxon_params);
 
 
 // use the static function print_taxon_xml in the class SchemaDocument to ouput well-formed eol schema xml
-// this will not necessarily be valid as there is no check of the enumerated values
+// this function will also include an XML header
 SchemaDocument::print_taxon_xml($taxa);
 
 
