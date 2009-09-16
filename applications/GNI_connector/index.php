@@ -9,7 +9,7 @@
 <?php
 /* has to be connected to the vpn */
 
-//define("ENVIRONMENT", "slave_215");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -34,7 +34,7 @@ print"
 <tr><td>
     <font size='2'><i>Or paste your own EOL resource URL</i></font><br>
     <input type='text' id='txt2' size='80' onClick='erase()' style='font-size : small; font-family : Arial; background-color : Aqua;'>
-    <br><a href='javascript:transform(1)' id='downl'>Download</a>
+    <br><a href='javascript:transform(1)' id='downl'>Download x</a>
 </td></tr>
 <tr><td>
     <input id='what_eval' type='radio' name='what' value='evaluate'>Statistics
@@ -42,6 +42,9 @@ print"
     <input id='what_tran' type='radio' name='what' value='transform' checked>Transform to GNI TCS
     &nbsp;&nbsp;&nbsp;
     <input type='button' value='Proceed &gt;&gt;' onClick='transform(0)'>
+    
+    
+    
 </td></tr>
 <tr><td>
     <input type='button' value='Validate EOL Resource' onClick='check_url()'> 
@@ -61,13 +64,13 @@ function proc()
     //document.getElementById('subscribe').href = document.getElementById('txt2').value;
     //document.getElementById('preview').href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;
     
-    document.getElementById('downl').href = document.getElementById('txt2').value;    
+    //document.getElementById('downl').href = document.getElementById('txt2').value;    
 }
 function transform(process)
 {
     var number = document.getElementById('resource_id').selectedIndex;    
     if(number == 0)
-    {    alert("Select EOL resource or paste URL to proceed.");
+    {   alert("Select EOL resource or paste URL to proceed.");
         return;
     }    
     //location.href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;
