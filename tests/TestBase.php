@@ -20,7 +20,7 @@ class TestBase extends UnitTestCase
         
         unset($this->fixtures);
         //shell_exec("rm -fdr ".LOCAL_ROOT."temp/*");
-        echo get_class($this)."...";
+        echo get_class($this)."...<br>\n";
         flush();
     }
 }

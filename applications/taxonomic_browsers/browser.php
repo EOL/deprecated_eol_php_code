@@ -8,7 +8,7 @@
 
 //define("DEBUG", true);
 //define("MYSQL_DEBUG", true);
-define("ENVIRONMENT", "integration");
+//define("ENVIRONMENT", "integration");
 include_once("../../config/start.php");
 include_once("functions.php");
 
