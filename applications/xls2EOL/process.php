@@ -288,9 +288,26 @@ function make_DO($taxon)
                     //$m .= "<dc:source></dc:source>";
 
 
+//$desc = utf8_encode($sheet[2][$str][$i]);
+$desc = $sheet[2][$str][$i];
+
+/*
+$desc = str_ireplace('“', '&#147;', $desc);
+$desc = str_ireplace('”', '&#148;', $desc);
+$desc = str_ireplace('’', '&#146;', $desc);
+*/
+//$desc = str_ireplace("â", "&#" . ord("â") . ";", $desc);
+/*
+$desc = str_ireplace('“', '&#116;', $desc);
+$desc = str_ireplace('”', '&#39;', $desc);
+$desc = str_ireplace('’', '&#39;', $desc);
+*/
+//$desc = utf8_decode($desc);
+
+
 
                     $m .= "<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $str . "</subject>
-                    <dc:description>" . utf8_encode($sheet[2][$str][$i]) . "</dc:description>
+                    <dc:description>" . $desc . "</dc:description>
                     ";        
                     
                     /* replaced by Reference Code                
