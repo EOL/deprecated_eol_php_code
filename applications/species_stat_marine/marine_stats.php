@@ -1,18 +1,21 @@
 <!--- #!/usr/local/bin/php --->
 <?php
+/* 
+    This code processes the latest WORMS resource XML and generates stats for it.
+    A successful run of this script will append a new record in this report:
+        http://services.eol.org/species_stat_marine/display.php
+*/
 
 define('MYSQL_DEBUG', false);
 define('DEBUG', false);
 //define('DEBUG_TO_FILE', false);
-
 
 //define("ENVIRONMENT", "development");//source of saved stats
 //define("ENVIRONMENT", "integration");//source of saved stats
 //define("ENVIRONMENT", "data_main");//source of saved stats
 
 $path = "";
-//if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."../../config/start.php");
+include_once($path . "../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $names = array();
@@ -60,7 +63,7 @@ function get_stats($names)
     //print "<hr> names = " . count($names) . "<hr><hr> ";
     if (mysqli_connect_errno()) 
     { 
-       printf("Can't connect to MySQL database ( slave machine ). Errorcode: %s\n", mysqli_connect_error()); 
+       printf("Can't connect to MySQL database (). Errorcode: %s\n", mysqli_connect_error()); 
        exit; 
     }     
     $ids = array();
@@ -73,7 +76,6 @@ function get_stats($names)
 
     while($result && $row=$result->fetch_assoc())
     {
-        //print "dumaan dito";
         $id = $row["id"];
         $names_in_eol[$row["string"]] = 1;
         $marine_pages[$id] = 1;
@@ -100,15 +102,12 @@ function get_stats($names)
     {
         $pages_with_objects[$row["id"]] = 1;
         if($row["vetted_id"] == 5) $pages_with_vetted_objects[$row["id"]] = 1;
-    }
-    
+    }    
     echo "names_in_eol: ".count($names_in_eol)."<br>\n";
     echo "marine_pages: ".count($marine_pages)."<br>\n";
     echo "pages_with_objects: ".count($pages_with_objects)."<br>\n";
-    echo "pages_with_vetted_objects: ".count($pages_with_vetted_objects)."<br>\n\n";
-        
+    echo "pages_with_vetted_objects: ".count($pages_with_vetted_objects)."<br>\n\n";        
 }
-
 
 $names_in_eol = count($names_in_eol);
 $marine_pages = count($marine_pages);
@@ -116,8 +115,8 @@ $pages_with_objects = count($pages_with_objects);
 $pages_with_vetted_objects = count($pages_with_vetted_objects);
 $names_from_xml = count($names);
 
-print"<hr>";
-
+//print"<hr>";
+echo "\n";
 echo "Names from XML: ". $names_from_xml ."<br>\n";
 echo "Names in EOL: ". $names_in_eol ."<br>\n";
 echo "Marine pages: ". $marine_pages ."<br>\n";
