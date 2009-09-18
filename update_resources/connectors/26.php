@@ -3,12 +3,10 @@
 //#!/usr/local/bin/php
 //connector for WORMS
      
-exit;
+//exit;
 
 /* 
-get_hashed_response
-started = 8:32am Aug27 Thurs
-ended = 
+22966. 22964 of 68984
 */
 
 set_time_limit(0);
@@ -86,8 +84,7 @@ function process($id)
     //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=395770
     
     //if(!($xml = simplexml_load_file($file)))return false;
-    if(!($xml = Functions::get_hashed_response($file)))return false;
-    
+    if(!($xml = Functions::get_hashed_response($file)))return false;    
           
     $i=0;
     foreach($xml->taxon as $t)
@@ -294,9 +291,9 @@ function get_main_id_list()
 {
 
 
-$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
+//$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
 $url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
-$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
+//$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
 //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
 
