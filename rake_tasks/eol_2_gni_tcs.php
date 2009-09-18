@@ -1,8 +1,12 @@
 #!/usr/local/bin/php
 <?php
 
+/*
+run date 2009 09 17: 8286031 | unique names 1535661
+*/
+
 //define("ENVIRONMENT", "integration");
-define("ENVIRONMENT", "slave");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../config/start.php");
