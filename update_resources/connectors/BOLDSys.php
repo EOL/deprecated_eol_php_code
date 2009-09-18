@@ -8,10 +8,13 @@ http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
 */
 
-define("ENVIRONMENT", "slave");
-define("MYSQL_DEBUG", false);
+//define("ENVIRONMENT", "development");
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
+
 include_once(dirname(__FILE__) . "/../../config/start.php");
+
+
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //only on local; to be deleted before going into production
@@ -21,6 +24,9 @@ Functions::load_fixtures("development");
 // */
 
 $resource = new Resource(65);
+print $resource->id;
+exit;
+
 $schema_taxa = array();
 $used_taxa = array();
 

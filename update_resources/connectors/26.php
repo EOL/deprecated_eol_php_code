@@ -25,6 +25,8 @@ Functions::load_fixtures("development");
 
 $resource = new Resource(26);//WORMS
 
+
+
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 //$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "eli" .".xml";
 
