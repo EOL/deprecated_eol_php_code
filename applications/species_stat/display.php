@@ -1,7 +1,7 @@
 <?php
 
 //define("ENVIRONMENT", "integration");        //where stats are stored
-//define("ENVIRONMENT", "slave_32");        //where stats are stored
+define("ENVIRONMENT", "slave_32");        //where stats are stored
 //define("ENVIRONMENT", "data_main");        //where stats are stored
 
 
@@ -336,6 +336,8 @@ if($view == 3)
         $arr['Pages with images and no text'][$i]     = number_format($row["taxa_images_no_text"]);
         $arr['Pages with text and no images'][$i]     = number_format($row["taxa_text_no_images"]);        
         
+        $arr['Pages with links (specialist projects) and no text'][$i]        = number_format($row["taxa_links_no_text"]);        
+        
         $arr['Number of pages with at least one vetted data object'][$i] = number_format($row["vet_obj"]);
         $arr['Number of taxa with no data objects (in CoL), i.e. base pages'][$i] = number_format($row["no_vet_obj2"]);
         $arr['Number of pages with a CoL name and a vetted data or Flickr object in one category'][$i] = number_format($row["vet_obj_only_1cat_inCOL"]);
@@ -345,7 +347,7 @@ if($view == 3)
 
         $arr['Pages with BHL links'][$i]                = number_format($row["with_BHL"]);        
         $arr['Pages with BHL links with no text'][$i]   = number_format($row["taxa_BHL_no_text"]);        
-        $arr['Pages with links and no text'][$i]        = number_format($row["taxa_links_no_text"]);        
+        
 
 
 
@@ -365,8 +367,8 @@ if($view == 3)
     for ($i = 0; $i < count($arr); $i++) 
     {    
         if($i==0)print"<tr><td><b>Overall Statistics</b></td></tr>";
-        if($i==10)print"<tr><td>&nbsp;</td></tr><tr><td><b>Vetted Content Statistics</b></td></tr>";
-        if($i==16)print"<tr><td>&nbsp;</td></tr><tr><td><b>BHL Statistics</b></td></tr>";
+        if($i==11)print"<tr><td>&nbsp;</td></tr><tr><td><b>Vetted Content Statistics</b></td></tr>";
+        if($i==17)print"<tr><td>&nbsp;</td></tr><tr><td><b>BHL Statistics</b></td></tr>";
         if($i==19)print"<tr><td>&nbsp;</td></tr><tr><td><b>Curatorial Statistics</b></td></tr>";
         
         if ($i % 2 == 0){$vcolor = 'white';}
