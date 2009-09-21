@@ -5,7 +5,7 @@
 //exit;
 
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
