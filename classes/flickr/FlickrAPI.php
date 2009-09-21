@@ -4,9 +4,8 @@ class FlickrAPI
 {
     public static function get_all_eol_photos($auth_token = "")
     {
-        //return self::get_eol_photos(100, 1);
-        
-        $taxa = array();
+        $all_taxa = array();
+        $used_image_ids = array();
         $per_page = 100;
         
         // Get metadata about the EOL Flickr pool
@@ -23,29 +22,42 @@ class FlickrAPI
             {
                 Functions::display("getting page $i");
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token);
-                $taxa = array_merge($taxa, $page_taxa);
+                
+                if($page_taxa)
+                {
+                    foreach($page_taxa as $t) $all_taxa[] = $t;
+                }
             }
         }
         
-        return $taxa;
+        return $all_taxa;
     }
     
     public static function get_eol_photos($per_page, $page, $auth_token = "")
     {
+        global $used_image_ids;
+        
         echo "GET_PHOTOS: $page, $per_page\n";
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token);
         
-        $taxa = array();
+        $page_taxa = array();
         foreach($response->photos->photo as $photo)
         {
-            $taxon = self::get_taxon_for_photo($photo["id"], $photo["secret"], $auth_token);
-            if($taxon) $taxa[(string) $photo["id"]] = $taxon;
+            if(@$used_image_ids[(string) $photo["id"]]) continue;
+            
+            $taxa = self::get_taxa_for_photo($photo["id"], $photo["secret"], $auth_token);
+            if($taxa)
+            {
+                foreach($taxa as $t) $page_taxa[] = $t;
+            }
+            
+            $used_image_ids[(string) $photo["id"]] = true;
         }
         
-        return $taxa;
+        return $page_taxa;
     }
     
-    public static function get_taxon_for_photo($photo_id, $secret, $auth_token = "")
+    public static function get_taxa_for_photo($photo_id, $secret, $auth_token = "")
     {
         echo "PHOTO_ID: $photo_id\n";
         $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
@@ -57,61 +69,95 @@ class FlickrAPI
         
         if(@!$GLOBALS["flickr_licenses"][(string) $photo["license"]]) return false;
         
-        $taxon_parameters = array();
-        $taxon_parameters["commonNames"] = array();
+        $parameters = array();
+        $parameters["subspecies"] = array();
+        $parameters["trinomial"] = array();
+        $parameters["species"] = array();
+        $parameters["scientificName"] = array();
+        $parameters["genus"] = array();
+        $parameters["family"] = array();
+        $parameters["order"] = array();
+        $parameters["class"] = array();
+        $parameters["phylum"] = array();
+        $parameters["kingdom"] = array();
         foreach($photo->tags->tag as $tag)
         {
             $string = trim((string) $tag["raw"]);
             
-            if(preg_match("/^taxonomy:subspecies=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["subspecies"]) return false;
-                $taxon_parameters["subspecies"] = strtolower(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["trinomial"]) return false;
-                $taxon_parameters["trinomial"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:species=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["species"]) return false;
-                $taxon_parameters["species"] = strtolower(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:binomial=(.*)$/i", $string, $arr)) 
-            {
-                if(@$taxon_parameters["scientificName"]) return false;
-                $taxon_parameters["scientificName"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:genus=(.*)$/i", $string, $arr)) 
-            {
-                if(@$taxon_parameters["genus"]) return false;
-                $taxon_parameters["genus"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:family=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["family"]) return false;
-                $taxon_parameters["family"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:order=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["order"]) return false;
-                $taxon_parameters["order"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:class=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["class"]) return false;
-                $taxon_parameters["class"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["phylum"]) return false;
-                $taxon_parameters["phylum"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $string, $arr))
-            {
-                if(@$taxon_parameters["kingdom"]) return false;
-                $taxon_parameters["kingdom"] = ucfirst(trim($arr[1]));
-            }elseif(preg_match("/^taxonomy:common=(.*)$/i", $string, $arr)) $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
+            if(preg_match("/^taxonomy:subspecies=(.*)$/i", $string, $arr)) $parameters["subspecies"][] = strtolower(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $string, $arr)) $parameters["trinomial"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:species=(.*)$/i", $string, $arr)) $parameters["species"][] = strtolower(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:binomial=(.*)$/i", $string, $arr)) $parameters["scientificName"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:genus=(.*)$/i", $string, $arr)) $parameters["genus"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:family=(.*)$/i", $string, $arr)) $parameters["family"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:order=(.*)$/i", $string, $arr)) $parameters["order"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:class=(.*)$/i", $string, $arr)) $parameters["class"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $string, $arr)) $parameters["phylum"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $string, $arr)) $parameters["kingdom"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:common=(.*)$/i", $string, $arr)) $parameters["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
         }
         
-        if(@$taxon_parameters["trinomial"]) $taxon_parameters["scientificName"] = $taxon_parameters["trinomial"];
-        if(@!$taxon_parameters["scientificName"] && @$taxon_parameters["genus"] && @$taxon_parameters["species"] && !preg_match("/ /", $taxon_parameters["genus"]) && !preg_match("/ /", $taxon_parameters["species"])) $taxon_parameters["scientificName"] = $taxon_parameters["genus"]." ".$taxon_parameters["species"];
-        if(@!$taxon_parameters["genus"] && @preg_match("/^([^ ]+) /", $taxon_parameters["scientificName"], $arr)) $taxon_parameters["genus"] = $arr[1];
-        if(@!$taxon_parameters["scientificName"] && @!$taxon_parameters["genus"] && @!$taxon_parameters["family"] && @!$taxon_parameters["order"] && @!$taxon_parameters["class"] && @!$taxon_parameters["phylum"] && @!$taxon_parameters["kingdom"]) return false;
+        $taxon_parameters = array();
+        $return_false = false;
+        foreach($parameters as $key => $value)
+        {
+            if(count($value) > 1)
+            {
+                // there can be more than one common name
+                if($key == "commonNames") continue;
+                // if there is more than one scientific name disregard all other parameters
+                elseif($key == "scientificName")
+                {
+                    foreach($value as $name)
+                    {
+                        $taxon_parameters[] = array("scientificName" => $name);
+                    }
+                }else $return_false = true;
+            }
+        }
+        // return false if there were multiple rank values, and not multiple scientificNames
+        if($return_false && !$taxon_parameters) return false;
         
+        // if there weren't two scientific names it will get here
+        if(!$taxon_parameters)
+        {
+            $temp_params = array();
+            foreach($parameters as $key => $value)
+            {
+                if($value) $temp_params[$key] = $value[0];
+            }
+            
+            if(@$temp_params["trinomial"]) $temp_params["scientificName"] = $temp_params["trinomial"];
+            if(@!$temp_params["scientificName"] && @$temp_params["genus"] && @$temp_params["species"] && !preg_match("/ /", $temp_params["genus"]) && !preg_match("/ /", $temp_params["species"])) $temp_params["scientificName"] = $temp_params["genus"]." ".$temp_params["species"];
+            if(@!$temp_params["genus"] && @preg_match("/^([^ ]+) /", $temp_params["scientificName"], $arr)) $temp_params["genus"] = $arr[1];
+            if(@!$temp_params["scientificName"] && @!$temp_params["genus"] && @!$temp_params["family"] && @!$temp_params["order"] && @!$temp_params["class"] && @!$temp_params["phylum"] && @!$temp_params["kingdom"]) return false;
+            
+            $taxon_parameters[] = $temp_params;
+        }
         
+        // get the data objects and add them to the parameter arrays
+        $data_objects = self::get_data_objects($photo);
+        if($data_objects)
+        {
+            foreach($taxon_parameters as &$p)
+            {
+                $p["dataObjects"] = $data_objects;
+            }
+        }else return false;
+        
+        // turn the parameter arrays into objects to return
+        $taxa = array();
+        foreach($taxon_parameters as &$p)
+        {
+            $taxa[] = new SchemaTaxon($p);
+        }
+        
+        return $taxa;
+    }
+    
+    public static function get_data_objects($photo)
+    {
+        $data_objects = array();
         
         $data_object_parameters = array();
         $data_object_parameters["identifier"] = (string) $photo["id"];
@@ -127,7 +173,6 @@ class FlickrAPI
         {
             if($url["type"]=="photopage") $data_object_parameters["source"] = (string) $url;
         }
-        
         
         $agent_parameters = array();
         if(trim($photo->owner["realname"]) != "") $agent_parameters["fullName"] = (string) $photo->owner["realname"];
@@ -153,11 +198,7 @@ class FlickrAPI
             if($locations) $data_object_parameters["location"] = implode(", ", $locations);
         }
         
-        $data_object = new SchemaDataObject($data_object_parameters);
-        
-        $taxon_parameters["dataObjects"] = array();
-        $taxon_parameters["dataObjects"][] = $data_object;
-        
+        $data_objects[] = new SchemaDataObject($data_object_parameters);
         
         
         // If the media type is video, there should be a Video Player type. Add that as a second data object
@@ -176,17 +217,13 @@ class FlickrAPI
                         $data_object_parameters["mimeType"] = "video/x-flv";
                         $data_object_parameters["mediaURL"] = $size["source"];
                         
-                        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+                        $data_objects[] = new SchemaDataObject($data_object_parameters);
                     }
                 }
             }
         }
         
-        
-        
-        $taxon = new SchemaTaxon($taxon_parameters);
-        
-        return $taxon;
+        return $data_objects;
     }
     
     public static function photos_get_sizes($photo_id, $auth_token = "")
