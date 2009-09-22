@@ -5,7 +5,7 @@
 //exit;
 
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -34,7 +34,7 @@ $mysqli2 = load_mysql_environment('eol_statistics');
 //query 1
 $query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id 
 ORDER BY tcn.source_hierarchy_entry_id DESC "; 
-//$query .= " limit 5 ";
+//$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 $fields=array();
 $fields[0]="taxon_concept_id";
@@ -44,7 +44,7 @@ $temp = save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9),0,"tx
 //query 2
 $query="Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id 
 Where content_partners.vetted = '1' Order By agents.full_name Asc ";
-//$query .= " limit 5 ";
+//$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 
 while($result && $row=$result->fetch_assoc())	
@@ -70,7 +70,7 @@ while($result && $row=$result->fetch_assoc())
     join taxon_concepts tc on he.taxon_concept_id = tc.id
     WHERE a.id = $row[id] and tc.published = 1 and tc.supercedure_id = 0 ";    
     
-    //$query .= " limit 5 ";
+    //$query .= " limit 1 ";
 
     $result2 = $mysqli->query($query);    
     $fields=array();
@@ -106,10 +106,12 @@ FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id)";
 
 //$query .= " LIMIT 5 ";
 $result = $mysqli->query($query);    
+
 $fields=array();
 $fields[0]="full_name";
 $fields[1]="taxon_concept_id";
-$temp = save_to_txt($result,"agents_hierarchies_bhl",$fields,$year_month,chr(9),0,"txt");
+$temp = save_to_txt($result, "agents_hierarchies_bhl",$fields,$year_month,chr(9),0,"txt");
+
 //=================================================================
 //query 4,5
 $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.hierarchies_names_" . $year_month . "");        
@@ -124,6 +126,8 @@ $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp
 //start query11 - site_statistics
 //start query12
 //=================================================================
+
+//print"<hr>xxx [$temp]<hr>"; exit($temp);
 
 function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
 {
@@ -152,6 +156,10 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
     
 	$filename = "data/" . $year_month . "/" . $temp . "$filename" . "." . $file_extension;
 	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
+    
+    print "<br>[$i]<br>";
+    
+    return $i;
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
 

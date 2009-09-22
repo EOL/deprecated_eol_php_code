@@ -1,6 +1,6 @@
 <?php
 
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -350,13 +350,12 @@ for ($i = 0; $i < count($provider); $i++)
     
     if($provider_to_process == "")
     {
-        /* working as well
-        
+        /* working as well         
         */
         
         $agentID = get_agentID($provider[$i]);
-        if($agentID != "") print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
-        else               print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&provider=$provider[$i]'> 1. See entire report &gt;&gt; </a></td></tr>"; 
+        if($agentID != "") print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
+        else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=$provider[$i]'> See entire report* &gt;&gt; </a></td></tr>"; 
         
     }
 
