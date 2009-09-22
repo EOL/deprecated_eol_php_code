@@ -351,11 +351,12 @@ for ($i = 0; $i < count($provider); $i++)
     if($provider_to_process == "")
     {
         /* working as well
-        print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&provider=$provider[$i]'> 1. See entire report &gt;&gt; </a></td></tr>";
+        
         */
         
         $agentID = get_agentID($provider[$i]);
-        print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
+        if($agentID != "") print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
+        else               print"<tr><td colspan=4><font size='2'><a href='process.php?path=" . $path . "&provider=$provider[$i]'> 1. See entire report &gt;&gt; </a></td></tr>"; 
         
     }
 
