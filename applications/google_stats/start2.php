@@ -93,7 +93,17 @@ if($year >= 2009 && intval($month) > 4) $query .= " , 'The Nearctic Spider Datab
 
 //=================================================================
 //query 3
-$query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id) ";
+/*legacy
+$query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id 
+FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id)";
+*/
+
+
+//either of these 2 queries will work
+//$query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> 4";
+  $query = "select distinct 'BHL' full_name, tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id) where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) ";
+
+
 //$query .= " LIMIT 5 ";
 $result = $mysqli->query($query);    
 $fields=array();
