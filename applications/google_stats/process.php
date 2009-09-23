@@ -553,7 +553,7 @@ function record_details($provider,$path)
                     <td align='right'>" . number_format($total_time_on_page_seconds) . "</td>
                 </tr>");
             }
-            if($provider_cnt == 100)break;                
+            if($provider_cnt == 100)break; //break 1                
         }                
         $row++;
     }//end while    
@@ -747,7 +747,7 @@ function record_details_eol($path)
                     <td align='right'>" . number_format($percent_exit,2) . "</td>
                 </tr>");
             }
-            if($provider_cnt == 100)break;                
+            if($provider_cnt == 100)break; //break 2
         }                
         $row++;
     }//end while    

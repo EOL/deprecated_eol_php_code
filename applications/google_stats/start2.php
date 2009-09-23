@@ -43,7 +43,8 @@ $temp = save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9),0,"tx
 //=================================================================
 //query 2
 $query="Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id 
-Where content_partners.vetted = '1' Order By agents.full_name Asc ";
+Where content_partners.eol_notified_of_acceptance Is Not Null
+Order By agents.full_name Asc ";
 //$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 
@@ -157,9 +158,9 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 	$filename = "data/" . $year_month . "/" . $temp . "$filename" . "." . $file_extension;
 	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
     
-    print "<br>[$i]<br>";
+    //print "<br>[$i]<br>";
     
-    return $i;
+    return "";
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
 
