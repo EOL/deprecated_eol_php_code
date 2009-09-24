@@ -3,6 +3,7 @@
 <head><title>Content Partner Stats</title></head>
 <body>
 <?php
+
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
@@ -170,8 +171,11 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
         $sum[$j]=0;
     }  
 
-    if($ctr==1) $color='aqua';
-    else        $color='white';
+
+    if ($ctr % 2 == 0)  {$color = '';}
+    else                {$color = 'aqua';}        
+
+    
     print"
     <table bgcolor='$color' cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Narrow;'>    
     
