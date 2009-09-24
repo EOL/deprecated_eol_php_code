@@ -28,7 +28,7 @@ while($result && $row=$result->fetch_assoc())
     //print"<option value=$row[accesspoint_url]>$row[title] [$row[id]]";
     print"<option value=$row[id]>$row[title] [$row[id]]";    
 }
-print"</select></td>";
+print"</select> n=" . $result->num_rows . "</td>";
 
 print"
 <tr><td>
