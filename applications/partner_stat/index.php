@@ -18,7 +18,8 @@ else                process_agent_id($agent_id);
 function process_agent_id($agent_id)
 {
     global $mysqli;
-    $qry = "Select harvest_events.id, harvest_events.published_at From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id Where agents_resources.agent_id = $agent_id ";
+    $qry = "Select harvest_events.id, harvest_events.published_at From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id Where agents_resources.agent_id = $agent_id 
+    order by harvest_events.id desc ";
     $result = $mysqli->query($qry);    
     /*
     $qry = "Select Max(harvest_events.id) AS harvest_event_id, Max(harvest_events.resource_id), agents_resources.agent_id From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id Where agents_resources.agent_id = $agent_id Group By agents_resources.agent_id";
@@ -27,14 +28,13 @@ function process_agent_id($agent_id)
     $harvest_event_id = $row[0];
     */
     
-    print "agent_id = $agent_id <br>";
+    //print "agent_id = $agent_id <br>";
     
-    
-    
+    $ctr=0;    
     while($result && $row=$result->fetch_assoc())	    
     {
-    
-        print "<hr>harvest_event_id = $row[id] $row[published_at] ";
+        $ctr++;
+        //print "<hr>harvest_event_id = $row[id] $row[published_at] ";
     
         $query = "SELECT DISTINCT a.full_name, he.taxon_concept_id 
         FROM agents a
@@ -47,9 +47,11 @@ function process_agent_id($agent_id)
         WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0 
         and hev.id = $row[id] ";    
         $result2 = $mysqli->query($query);    
-        print $result2->num_rows . "<hr>";
+        $row2 = $result2->fetch_row();            
+        $agent_name = $row2[0];
+        //print $result2->num_rows . "<hr>";
         
-        $data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"]);        
+        $data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
         
         
     }//end while
@@ -58,34 +60,69 @@ function process_agent_id($agent_id)
     
 }
 
-function process_do($harvest_event_id,$taxa_count,$published)
+function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_id,$ctr)
 {
     global $mysqli;
 
+
+    if($agent_id == 27)
+    {
+        $datatype = array(	
+		1 => array(	"label" => "IUCN"	    , "id" => "6")
+        );    
+    }
+    else
+    {
+        $datatype = array(	
+		1 => array(	"label" => "Image"	    , "id" => "1"),
+		2 => array(	"label" => "Sound"	    , "id" => "2"),
+		3 => array(	"label" => "Text"       , "id" => "3"),
+		4 => array(	"label" => "Video"	    , "id" => "4"),
+		5 => array(	"label" => "Flash"	    , "id" => "7"),
+        6 => array(	"label" => "YouTube"	, "id" => "8"));    
+    
+        /* orig
+        $datatype = array(	
+		1 => array(	"label" => "Image"	    , "id" => "1"),
+		2 => array(	"label" => "Sound"	    , "id" => "2"),
+		3 => array(	"label" => "Text"       , "id" => "3"),
+		4 => array(	"label" => "Video"	    , "id" => "4"),
+		5 => array(	"label" => "GBIF Image"	, "id" => "5"),
+		6 => array(	"label" => "IUCN"	    , "id" => "6"),
+		7 => array(	"label" => "Flash"	    , "id" => "7"),
+        8 => array(	"label" => "YouTube"	, "id" => "8"));    
+        */
+    }
+
     //start initialize
+        /*
         $data_type = array(
         1 => "Image"      , 
         2 => "Sound"      , 
         3 => "Text"       , 
         4 => "Video"      , 
-        5 => "Flash"      , 
-        6 => "YouTube"    
-        );
-        /*
         5 => "GBIF Image" , 
         6 => "IUCN"       ,         
-        */
+        7 => "Flash"      , 
+        8 => "YouTube"    ); */
+
+        
+        
+        
         $vetted_type = array( 
         1 => array( "id" => "0"   , "label" => "Unknown"),
         2 => array( "id" => "4"   , "label" => "Untrusted"),
         3 => array( "id" => "5"   , "label" => "Trusted")
         );                    
-        for ($i = 1; $i <= count($data_type); $i++) 
+        
+        //for ($i = 1; $i <= count($data_type); $i++) //Sep24
+        for ($i = 1; $i <= count($datatype); $i++) 
         {
             for ($j = 1; $j <= count($vetted_type); $j++) 
             {
                 $str1 = $vetted_type[$j]['id'];
-                $str2 = $i;
+                //$str2 = $i;   //Sep24
+                $str2 = $datatype[$i]["id"];
                 $do[$str1][$str2] = array();        
             }
         }           
@@ -111,51 +148,64 @@ function process_do($harvest_event_id,$taxa_count,$published)
     }
 
     $param = array();
-    for ($i = 1; $i <= count($data_type); $i++) 
+    //for ($i = 1; $i <= count($data_type); $i++) //Sep24
+    for ($i = 1; $i <= count($datatype); $i++)
     {
         for ($j = 1; $j <= count($vetted_type); $j++) 
         {
             $str1 = $vetted_type[$j]['id'];
-            $str2 = $i;
+            //$str2 = $i; //Sep24
+            $str2 = $datatype[$i]["id"];
             $param[] = count($do[$str1][$str2]);
         }
     }    
 
-    print "<br>";        
+    //print "<br>";        
 
     $arr=$param;
     
-    for ($j = 1; $j <= count($data_type); $j++) 
+    //for ($j = 1; $j <= count($data_type); $j++) //Sep24
+    for ($j = 1; $j <= count($datatype); $j++)
     {
         $sum[$j]=0;
     }  
 
+    if($ctr==1) $color='aqua';
+    else        $color='white';
     print"
-    <table cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Narrow;'>    
+    <table bgcolor='$color' cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Narrow;'>    
     
-    <tr><td colspan='18'>
+    <tr><td colspan='24'>
         <table>
-            <tr><td>Taxa count</td><td>$taxa_count</td></tr>
-            <tr><td>Published</td><td>$published &nbsp;&nbsp;&nbsp;<font size='2'>Harvest event id: $harvest_event_id</font></td></tr>
+            <tr><td>
+                Agent: <a href='http://www.eol.org/administrator/content_partner_report/show/$agent_id'>$agent_name</a>                
+                &nbsp;&nbsp;&nbsp;
+                <font size='2'>" . iif($published,"Published: $published","-not yet published-") . " &nbsp;&nbsp;&nbsp; Harvest event id: $harvest_event_id</font>
+            </td></tr>
         </table>
     </td></tr>
     
     <tr align='center'>";
-        for ($i = 1; $i <= count($data_type); $i++) 
+        //for ($i = 1; $i <= count($data_type); $i++) //Sep24
+        for ($i = 1; $i <= count($datatype); $i++)
         {
-            print"<td colspan='3'>" . $data_type[$i] . "</td>";
+            //print"<td colspan='3'>" . $data_type[$i] . "</td>"; Sep24
+            print"<td colspan='3'>" . $datatype[$i]["label"] . "</td>";
         }      
     print"</tr>";
     
     print"
     <tr align='center'>";
     $k=0;
-    for ($j = 1; $j <= count($data_type); $j++) 
+    //for ($j = 1; $j <= count($data_type); $j++) //Sep24
+    for ($j = 1; $j <= count($datatype); $j++)
     {
         for ($i = 1; $i <= count($vetted_type); $i++) 
         {
             print"<td>" . $vetted_type[$i]['label'] . "</td>";
-            $sum[$j] = $sum[$j] + $arr[$k];
+            //$sum[$j] = $sum[$j] + $arr[$k]; //Sep24
+            $index = $datatype[$j]["id"];            
+            @$sum[$index] = @$sum[$index] + $arr[$k]; 
             $k++;
         }      
     }  
@@ -172,17 +222,21 @@ function process_do($harvest_event_id,$taxa_count,$published)
     print"
     <tr align='center'>";
     $k=0;
-    for ($j = 1; $j <= count($data_type); $j++) 
+    //for ($j = 1; $j <= count($data_type); $j++) //Sep24
+    for ($j = 1; $j <= count($datatype); $j++) 
     {
-        print"<td colspan='3' align='right'>" . number_format($sum[$j]) . "</td>";            
+        //print"<td colspan='3' align='right'>" . number_format($sum[$j]) . "</td>"; //Sep24
+        print"<td colspan='3' align='right'>" . number_format($sum[$datatype[$j]["id"]]) . "</td>";            
     }  
     print"</tr>";
     print"    
-    <tr><td colspan='18'>
-        <table><tr><td>
-        Total published data objects = " . number_format(array_sum($sum)) . "
-        </td></tr></table>
+    <tr><td colspan='24'>
+        <table>        
+        <tr><td>Taxa count</td><td align='right'>" . number_format($taxa_count,0) . "</td></tr>        
+        <tr><td>Data objects</td><td align='right'>" . number_format(array_sum($sum)) . "</td></tr>
+        </table>
     </td></tr>
+    
     </table>";
     
 
@@ -217,6 +271,12 @@ function get_val_var($v)
     elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
     else   return NULL;                            
     return $var;    
+}
+
+function iif($expression,$true,$false)
+{
+    if($expression) return $true;
+    else            return $false;
 }
 
 ?>
