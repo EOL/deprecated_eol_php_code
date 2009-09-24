@@ -726,7 +726,9 @@ class SpeciesStats extends MysqlBase
                 $do[$str1][$str2] = array();        
             }
         }       
-        $query = "Select distinct do.id, do.data_type_id, do.vetted_id, dotoc.toc_id AS toc_id, do.visibility_id From (data_objects AS do) Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id) Where do.published = 1 "; 
+        $query = "Select distinct do.id, do.data_type_id, do.vetted_id, dotoc.toc_id AS toc_id, do.visibility_id 
+        From (data_objects AS do) Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id) 
+        Where do.published = 1 "; 
         //$query .= " limit 100,10";        
         $result = $this->mysqli->query($query);        
         while($result && $row=$result->fetch_assoc())
