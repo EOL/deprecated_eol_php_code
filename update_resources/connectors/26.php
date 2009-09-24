@@ -12,6 +12,7 @@
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -25,6 +26,7 @@ Functions::load_fixtures("development");
 
 $resource = new Resource(26);//WORMS
 
+exit;
 
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
