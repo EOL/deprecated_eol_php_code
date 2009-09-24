@@ -5,22 +5,18 @@
 
 //exit;
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("ENVIRONMENT", "integration");
-
 
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-
 $resource = new Resource(64);
 $species_url = "http://www.radiolaria.org/species.htm?sp_id=";
 $schema_taxa = array();
 $used_taxa = array();
-
-
 
 print "<hr>";
 
