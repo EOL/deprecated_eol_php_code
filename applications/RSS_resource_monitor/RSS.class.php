@@ -160,6 +160,11 @@ private function getItems($e,$id)
     
     $query = $this->feed_about($e,$id);
     $result = $conn->query($query);    
+
+    $row        = $result->fetch_row();            
+    $agent_id   = $row[6];
+
+
     $items = '';
         
     if($e < 5 or $e == 6 or $e == 7)
@@ -183,7 +188,10 @@ private function getItems($e,$id)
         //############################################################################
         $i=0;        
         $tmp="
+        <a href='http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=$agent_id'>See stats</a>
+        
         <table border='1' cellpadding='2' cellspacing='0'>
+        
         <tr align='center'>
             <td colspan='2'>Harvest</td>
             <td rowspan='2'>Published</td>
@@ -196,7 +204,8 @@ private function getItems($e,$id)
         {
             $i++;
             if($i==1)
-            {    $items .= '<item>
+            {    
+                $items .= '<item>
                 <title>' . $row["title"] .'</title>
                 <link>'. 'http://www.eol.org/administrator/content_partner_report/show/' . $row["agent_id"] .'</link>
                 <description><![CDATA['. '' .']]></description>
@@ -224,8 +233,9 @@ private function getItems($e,$id)
 
         //start taxa and do stats ===========================================================================
         //end taxa and do stats ===========================================================================
-
-
+       
+        
+        
         $items .= '<item>
         <title>' . 'Harvest History' .'</title>';
         if(isset($row_link))$items .= '<link>'. $row_link .'</link>';
