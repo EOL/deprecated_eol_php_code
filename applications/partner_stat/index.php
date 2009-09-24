@@ -3,7 +3,7 @@
 <head><title>Content Partner Stats</title></head>
 <body>
 <?php
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -258,9 +258,9 @@ function display_form()
     {
         print"<option value=$row[agent_id]>$row[agent_name] [$row[agent_id]]";    
     }
-    print"</select> n=" . $result->num_rows . "</td>
+    print"</select></td>
     <tr>
-    <td><input type='submit'></td>
+    <td><input type='submit' value='Taxa / Data object Stats'> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</td>
     </tr>
     </form></table>";
 }//end display_form();
