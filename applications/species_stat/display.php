@@ -366,7 +366,7 @@ if($view == 3)
         if($i==19)print"<tr><td>&nbsp;</td></tr><tr><td><b>Curatorial Statistics</b></td></tr>";
         
         if ($i % 2 == 0){$vcolor = 'white';}
-        else               {$vcolor = '#ccffff';}        
+        else            {$vcolor = '#ccffff';}        
         print "<tr bgcolor=$vcolor>";
 
         print "<td>$label[$i]</td>";
