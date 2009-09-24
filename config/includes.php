@@ -71,11 +71,13 @@ function load_mysql_environment($environment = ENVIRONMENT)
     $MYSQL_PASSWORD         = $environments[$environment]['password'];
     $MYSQL_DATABASE         = $environments[$environment]['database'];
     $MYSQL_ENCODING         = $environments[$environment]['encoding'];
+    $MYSQL_PORT         	= @$environments[$environment]['port']; 
     $MASTER_MYSQL_SERVER    = @$environments[$environment]['master_host'];
     $MASTER_MYSQL_USER      = @$environments[$environment]['master_username'];
     $MASTER_MYSQL_PASSWORD  = @$environments[$environment]['master_password'];
     $MASTER_MYSQL_DATABASE  = @$environments[$environment]['master_database'];
-    $MASTER_MYSQL_ENCODING  = @$environments[$environment]['master_encoding'];
+    $MASTER_MYSQL_ENCODING  = @$environments[$environment]['master_encoding'];   
+    $MASTER_MYSQL_PORT      = @$environments[$environment]['master_port']; 	
     
     if(MYSQL_READ_ONLY && !MYSQL_MASTER)
     {
@@ -83,7 +85,8 @@ function load_mysql_environment($environment = ENVIRONMENT)
         $MASTER_MYSQL_USER      = "";
         $MASTER_MYSQL_PASSWORD  = "";
         $MASTER_MYSQL_DATABASE  = "";
-        $MASTER_MYSQL_ENCODING  = "";
+        $MASTER_MYSQL_ENCODING  = "";      
+		$MASTER_MYSQL_PORT		= "";
     }
     
     if(MYSQL_MASTER && !MYSQL_READ_ONLY)
@@ -92,15 +95,16 @@ function load_mysql_environment($environment = ENVIRONMENT)
         $MYSQL_USER     = $MASTER_MYSQL_USER;
         $MYSQL_PASSWORD = $MASTER_MYSQL_PASSWORD;
         $MYSQL_DATABASE = $MASTER_MYSQL_DATABASE;
-        $MYSQL_ENCODING = $MASTER_MYSQL_ENCODING;
+        $MYSQL_ENCODING = $MASTER_MYSQL_ENCODING;   
+		$MYSQL_PORT		= $MASTER_MYSQL_PORT;
     }
     
-    return new MysqlConnection($MYSQL_SERVER, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DATABASE, $MYSQL_ENCODING, $MASTER_MYSQL_SERVER, $MASTER_MYSQL_USER, $MASTER_MYSQL_PASSWORD, $MASTER_MYSQL_DATABASE, $MASTER_MYSQL_ENCODING);
+    return new MysqlConnection($MYSQL_SERVER, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DATABASE, $MYSQL_ENCODING, $MYSQL_PORT, $MASTER_MYSQL_SERVER, $MASTER_MYSQL_USER, $MASTER_MYSQL_PASSWORD, $MASTER_MYSQL_DATABASE, $MASTER_MYSQL_ENCODING, $MASTER_MYSQL_PORT);
 }
 
 function shutdown_check()
 {
-    if($GLOBALS['mysqli_connection']->transaction_in_progress) $GLOBALS['mysqli_connection']->rollback();
+    if(@$GLOBALS['mysqli_connection']->transaction_in_progress) $GLOBALS['mysqli_connection']->rollback();
     if(MYSQL_DEBUG) Functions::debug("\n\n<hr>Shutting down<br>\n\n\n");
     
     if(DEBUG && DEBUG_TO_FILE && @$GLOBALS['debug_file'])

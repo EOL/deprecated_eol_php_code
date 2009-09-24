@@ -6,31 +6,36 @@ class MysqlConnection
     private $user;
     private $password;
     private $database;
-    private $encoding;
+    private $encoding;     
+	private $port;
     private $mysqli;
     private $master_server;
     private $master_user;
     private $master_password;
     private $master_database;
-    private $master_encoding;
+    private $master_encoding;    
+	private $master_port;
     private $master_mysqli;
     private $transaction_in_progres;
     
-    function __construct($server, $user, $password, $database, $encoding, $master_server, $master_user, $master_password, $master_database, $master_encoding)
+    function __construct($server, $user, $password, $database, $encoding, $port, $master_server, $master_user, $master_password, $master_database, $master_encoding, $master_port)
     {
         $this->server = $server;
         $this->user = $user;
         $this->password = $password;
         $this->database = $database;
         $this->encoding = $encoding;
+        $this->port = $port;
         $this->master_server = $master_server;
         $this->master_user = $master_user;
         $this->master_password = $master_password;
         $this->master_database = $master_database;
-        $this->master_encoding = $master_encoding;
+        $this->master_encoding = $master_encoding;             
+		$this->master_port = $master_port;  
         $this->transaction_in_progress = false;
         
-        if(!$this->encoding) $this->encoding = "utf8";
+        if(!$this->encoding) $this->encoding = "utf8";               
+		if(!$this->port) $this->port = 3306;              
         if(!$this->master_encoding) $this->master_encoding = $this->encoding;
     }
     
@@ -222,13 +227,13 @@ class MysqlConnection
     function initialize()
     {
         Functions::mysql_debug("Connecting to host:$this->server, database:$this->database");
-        $this->mysqli = new mysqli($this->server, $this->user, $this->password, $this->database);
+        $this->mysqli = new mysqli($this->server, $this->user, $this->password, $this->database, $this->port);
         $this->mysqli->set_charset($this->encoding);
         
         if($this->master_server)
         {
             Functions::mysql_debug("Connecting to host:$this->master_server, database:$this->master_database");
-            $this->master_mysqli = new mysqli($this->master_server, $this->master_user, $this->master_password, $this->master_database);
+            $this->master_mysqli = new mysqli($this->master_server, $this->master_user, $this->master_password, $this->master_database, $this->master_port);
             $this->master_mysqli->set_charset($this->master_encoding);
         }else
         {
@@ -236,7 +241,8 @@ class MysqlConnection
             $this->master_user = $this->user;
             $this->master_password = $this->password;
             $this->master_database = $this->database;
-            $this->master_encoding = $this->encoding;
+            $this->master_encoding = $this->encoding;       
+			$this->master_port = $this->port;
             
             $this->master_mysqli = @$this->mysqli;
         }
