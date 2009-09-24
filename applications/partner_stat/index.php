@@ -3,7 +3,7 @@
 <head><title>Content Partner Stats</title></head>
 <body>
 <?php
-define("ENVIRONMENT", "development");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -260,7 +260,7 @@ function display_form()
     }
     print"</select></td>
     <tr>
-    <td><input type='submit' value='Taxa / Data object Stats'> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</td>
+    <td><input type='submit' value='Taxa / Data object Stats &gt;&gt; '> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</td>
     </tr>
     </form></table>";
 }//end display_form();
