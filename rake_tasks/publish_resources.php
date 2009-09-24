@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 
-define("ENVIRONMENT", "integration");
+//define("ENVIRONMENT", "integration");
 define('DEBUG', true);
 define('MYSQL_DEBUG', true);
 define('DEBUG_TO_FILE', true);
