@@ -236,8 +236,8 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
     print"    
     <tr><td colspan='24'>
         <table>        
-        <tr><td>Taxa count</td><td align='right'>" . number_format($taxa_count,0) . "</td></tr>        
-        <tr><td>Data objects</td><td align='right'>" . number_format(array_sum($sum)) . "</td></tr>
+        <tr><td>Taxa count: </td><td align='right'>" . number_format($taxa_count,0) . "</td></tr>        
+        <tr><td>Data objects: </td><td align='right'>" . number_format(array_sum($sum)) . "</td></tr>
         </table>
     </td></tr>
     
@@ -256,7 +256,7 @@ function display_form()
     $qry = "Select distinct agents.full_name AS agent_name, agents.id AS agent_id From agents_resources Inner Join agents ON agents_resources.agent_id = agents.id Inner Join resources ON agents_resources.resource_id = resources.id Inner Join content_partners ON agents.id = content_partners.agent_id where resource_status_id not in (1,3,6,7,9) Order By agents.full_name Asc ";
     $result = $mysqli->query($qry);    
 
-    print"<td><font size='2'><i>Content partner</i></font>
+    print"<td><font size='2'><i>Content partner [Agent ID]</i> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</font><br>
     <select id='agent_id' name=agent_id onChange='proc()' style='font-size : small; font-family : Arial; background-color : Aqua;'><option>";
     while($result && $row=$result->fetch_assoc())
     {
@@ -264,7 +264,7 @@ function display_form()
     }
     print"</select></td>
     <tr>
-    <td><input type='submit' value='Taxa / Data object Stats &gt;&gt; '> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</td>
+    <td><input type='submit' value='Taxa & Data object Stats &gt;&gt; '> </td>
     </tr>
     </form></table>";
 }//end display_form();
