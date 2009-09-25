@@ -10,9 +10,7 @@ define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-
 $agent_id = get_val_var("agent_id");
-
 if($agent_id == "") display_form();
 else                process_agent_id($agent_id);
 
@@ -27,16 +25,13 @@ function process_agent_id($agent_id)
     $result = $mysqli->query($qry);    
     $row = $result->fetch_row();            
     $harvest_event_id = $row[0];
-    */
-    
-    //print "agent_id = $agent_id <br>";
-    
+    */    
+    //print "agent_id = $agent_id <br>";    
     $ctr=0;    
     while($result && $row=$result->fetch_assoc())	    
     {
         $ctr++;
-        //print "<hr>harvest_event_id = $row[id] $row[published_at] ";
-    
+        //print "<hr>harvest_event_id = $row[id] $row[published_at] ";    
         $query = "SELECT DISTINCT a.full_name, he.taxon_concept_id 
         FROM agents a
         JOIN agents_resources ar ON (a.id=ar.agent_id)
@@ -50,23 +45,15 @@ function process_agent_id($agent_id)
         $result2 = $mysqli->query($query);    
         $row2 = $result2->fetch_row();            
         $agent_name = $row2[0];
-        //print $result2->num_rows . "<hr>";
-        
+        //print $result2->num_rows . "<hr>";        
         $data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
-        
-        
     }//end while
-    
-    
-    
 }
 
 function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_id,$ctr)
 {
     global $mysqli;
-
-
-    if($agent_id == 27)
+    if($agent_id == 27)//IUCN
     {
         $datatype = array(	
 		1 => array(	"label" => "IUCN"	    , "id" => "6")
@@ -107,9 +94,6 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
         7 => "Flash"      , 
         8 => "YouTube"    ); */
 
-        
-        
-        
         $vetted_type = array( 
         1 => array( "id" => "0"   , "label" => "Unknown"),
         2 => array( "id" => "4"   , "label" => "Untrusted"),
@@ -128,7 +112,6 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
             }
         }           
     //end initialize
-
     
     $qry="Select 
     data_objects.id,
@@ -162,23 +145,18 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
     }    
 
     //print "<br>";        
-
-    $arr=$param;
-    
+    $arr=$param;    
     //for ($j = 1; $j <= count($data_type); $j++) //Sep24
     for ($j = 1; $j <= count($datatype); $j++)
     {
         $sum[$j]=0;
-    }  
-
+    }
 
     if ($ctr % 2 == 0)  {$color = '';}
     else                {$color = 'aqua';}        
-
     
     print"
-    <table bgcolor='$color' cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Narrow;'>    
-    
+    <table bgcolor='$color' cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Narrow;'>        
     <tr><td colspan='24'>
         <table>
             <tr><td>
@@ -187,17 +165,15 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
                 <font size='2'>" . iif($published,"Published: $published","-not yet published-") . " &nbsp;&nbsp;&nbsp; Harvest event id: $harvest_event_id</font>
             </td></tr>
         </table>
-    </td></tr>
-    
+    </td></tr>    
     <tr align='center'>";
-        //for ($i = 1; $i <= count($data_type); $i++) //Sep24
-        for ($i = 1; $i <= count($datatype); $i++)
-        {
-            //print"<td colspan='3'>" . $data_type[$i] . "</td>"; Sep24
-            print"<td colspan='3'>" . $datatype[$i]["label"] . "</td>";
-        }      
-    print"</tr>";
-    
+    //for ($i = 1; $i <= count($data_type); $i++) //Sep24
+    for ($i = 1; $i <= count($datatype); $i++)
+    {
+        //print"<td colspan='3'>" . $data_type[$i] . "</td>"; Sep24
+        print"<td colspan='3'>" . $datatype[$i]["label"] . "</td>";
+    }      
+    print"</tr>";    
     print"
     <tr align='center'>";
     $k=0;
@@ -214,7 +190,6 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
         }      
     }  
     print"</tr>";
-
     print"
     <tr align='center'>";
         for ($i = 0; $i < count($arr); $i++) 
@@ -222,7 +197,6 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
             print"<Td align='right'>" . $arr[$i] . "</td>";
         }
     print"</tr>";
-
     print"
     <tr align='center'>";
     $k=0;
@@ -239,15 +213,10 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
         <tr><td>Taxa count: </td><td align='right'>" . number_format($taxa_count,0) . "</td></tr>        
         <tr><td>Data objects: </td><td align='right'>" . number_format(array_sum($sum)) . "</td></tr>
         </table>
-    </td></tr>
-    
+    </td></tr>    
     </table>";
-    
-
-    return $param;    
-
+    return "";    
 }
-
 
 function display_form()
 {
@@ -266,9 +235,15 @@ function display_form()
     <tr>
     <td><input type='submit' value='Taxa & Data object Stats &gt;&gt; '> </td>
     </tr>
-    </form></table>";
+    </form>
+    <tr>
+    <td><font size='2'>Access report using URL and Agent ID:<br>
+    <i><a href='http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=2'>
+    http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=2</a></i></font>
+    </td>
+    </tr>
+    </table>";
 }//end display_form();
-
 function get_val_var($v)
 {
     if     (isset($_GET["$v"])){$var=$_GET["$v"];}
@@ -276,13 +251,11 @@ function get_val_var($v)
     else   return NULL;                            
     return $var;    
 }
-
 function iif($expression,$true,$false)
 {
     if($expression) return $true;
     else            return $false;
 }
-
 ?>
 
 </body>
