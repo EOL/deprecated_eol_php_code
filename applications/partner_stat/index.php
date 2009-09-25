@@ -17,7 +17,9 @@ else                process_agent_id($agent_id);
 function process_agent_id($agent_id)
 {
     global $mysqli;
-    $qry = "Select harvest_events.id, harvest_events.published_at From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id Where agents_resources.agent_id = $agent_id 
+    $qry = "Select harvest_events.id, harvest_events.published_at 
+    From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id 
+    Where agents_resources.agent_id = $agent_id 
     order by harvest_events.id desc ";
     $result = $mysqli->query($qry);    
     /*
@@ -222,7 +224,12 @@ function display_form()
 {
     global $mysqli;
     print"<table border='1' cellpadding='5' cellspacing='0'><form action='index.php' method='get'>";
-    $qry = "Select distinct agents.full_name AS agent_name, agents.id AS agent_id From agents_resources Inner Join agents ON agents_resources.agent_id = agents.id Inner Join resources ON agents_resources.resource_id = resources.id Inner Join content_partners ON agents.id = content_partners.agent_id where resource_status_id not in (1,3,6,7,9) Order By agents.full_name Asc ";
+    $qry = "Select distinct agents.full_name AS agent_name, agents.id AS agent_id 
+    From agents_resources 
+    Inner Join agents ON agents_resources.agent_id = agents.id 
+    Inner Join resources ON agents_resources.resource_id = resources.id 
+    Inner Join content_partners ON agents.id = content_partners.agent_id where resource_status_id not in (1,3,6,7,9) 
+    Order By agents.full_name Asc ";
     $result = $mysqli->query($qry);    
 
     print"<td><font size='2'><i>Content partner [Agent ID]</i> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</font><br>
