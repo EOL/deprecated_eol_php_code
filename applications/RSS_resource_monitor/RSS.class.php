@@ -69,13 +69,14 @@
             agents.id as agent_id
 
             From harvest_events 
-            right Join resources ON harvest_events.resource_id = resources.id
+            left Join resources ON harvest_events.resource_id = resources.id
             left Join agents_resources ON resources.id = agents_resources.resource_id 
             left Join agents ON agents_resources.agent_id = agents.id
             where resources.id = $id
             Order By harvest_events.began_at desc
             limit 20            
             ";
+            //print "[$id]";exit;
                      }                     
         return $qry;
     }
@@ -160,11 +161,14 @@ private function getItems($e,$id)
     
     $query = $this->feed_about($e,$id);
     $result = $conn->query($query);    
-
+    
+    //print $result->num_rows;
+    
     if($e == 5)
     {
         $row        = $result->fetch_row();            
         $agent_id   = $row[6];
+        $result = $conn->query($query); //so pointer goes back to first record of the recordset
     }
 
 
@@ -176,6 +180,7 @@ private function getItems($e,$id)
         elseif    ($e == 6 ){require('next_harvest_multiple.php');}
         else
         {
+            //while($row=$result->fetch_assoc())
             while($result && $row=$result->fetch_assoc())
             {
                 $items .= '<item>
@@ -203,13 +208,17 @@ private function getItems($e,$id)
             <td>Start</td>
             <td>Finish</td>
         </tr>";        
-        while($result && $row=$result->fetch_assoc())
+
+        while($row = $result->fetch_assoc())	
         {
             $i++;
+            
+            //print " <hr>$result->num_rows $i $row[published_at] <hr> ";
+                        
             if($i==1)
             {    
                 $items .= '<item>
-                <title>' . $row["title"] .'</title>
+                <title>'. $row["title"] .'</title>
                 <link>'. 'http://www.eol.org/administrator/content_partner_report/show/' . $row["agent_id"] .'</link>
                 <description><![CDATA['. '' .']]></description>
                 </item>';
@@ -219,7 +228,9 @@ private function getItems($e,$id)
                 <link>'. '' .'</link>
                 <description><![CDATA['. $row["description"] .']]></description>
                 </item>';
-            }            
+
+            }                        
+            
             $tmp .= "
             <tr>
                 <td>$row[began_at]</td>
@@ -227,7 +238,7 @@ private function getItems($e,$id)
                 <td>$row[published_at]</td>
             </tr>
             ";
-
+            
             $row_link = $row["link"];
             
         }//end while
