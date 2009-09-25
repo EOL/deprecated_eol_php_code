@@ -161,8 +161,11 @@ private function getItems($e,$id)
     $query = $this->feed_about($e,$id);
     $result = $conn->query($query);    
 
-    $row        = $result->fetch_row();            
-    $agent_id   = $row[6];
+    if($e == 5)
+    {
+        $row        = $result->fetch_row();            
+        $agent_id   = $row[6];
+    }
 
 
     $items = '';
