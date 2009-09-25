@@ -160,7 +160,7 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
     <tr><td colspan='24'>
         <table>
             <tr><td>
-                Agent: <a href='http://www.eol.org/administrator/content_partner_report/show/$agent_id'>$agent_name</a>                
+                Agent: <a target='eol' href='http://www.eol.org/administrator/content_partner_report/show/$agent_id'>$agent_name</a>                
                 &nbsp;&nbsp;&nbsp;
                 <font size='2'>" . iif($published,"Published: $published","-not yet published-") . " &nbsp;&nbsp;&nbsp; Harvest event id: $harvest_event_id</font>
             </td></tr>
