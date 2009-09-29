@@ -184,6 +184,9 @@ if($mysqli_maps)
     echo "skipping gbif maps\n";
 }
 
+$query = "update hierarchies_content hc join hierarchy_entries he on (hc.hierarchy_entry_id=he.id) join taxon_concept_content tcc on (he.taxon_concept_id=tcc.taxon_concept_id) set tcc.map=1 where hc.map=1";
+
+
 
 $mysqli->end_transaction();
 

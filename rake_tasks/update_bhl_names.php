@@ -13,9 +13,8 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
-//shell_exec("curl http://www.biodiversitylibrary.org/data/data.zip -o ". LOCAL_ROOT ."temp/data.zip");
-//shell_exec("unzip ". LOCAL_ROOT ."temp/data.zip -d ". LOCAL_ROOT ."temp/data");
-
+shell_exec("curl http://www.biodiversitylibrary.org/data/data.zip -o ". LOCAL_ROOT ."temp/data.zip");
+shell_exec("unzip ". LOCAL_ROOT ."temp/data.zip -d ". LOCAL_ROOT ."temp/data");
 
 
 $mysqli->begin_transaction();

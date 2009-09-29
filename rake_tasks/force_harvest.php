@@ -3,10 +3,11 @@
 system("clear");
 $attr = @$argv[1];
 $id = @$argv[2];
+$download = @$argv[3];
 
-if($attr != "-id" || !$id || !is_numeric($id))
+if($attr != "-id" || !$id || !is_numeric($id) || ($download && $download!="-download"))
 {
-    echo "\n\n\tforce_download.php -id [resource_id]\n\n";
+    echo "\n\n\tforce_download.php -id [resource_id] [-download]\n\n";
     exit;
 }
 
@@ -35,6 +36,23 @@ $lifedesks_to_ignore = array(
 $resource = new Resource($id);
 if($resource)
 {
+    if($download)
+    {
+        if($resource->accesspoint_url && $resource->service_type_id == ServiceType::insert('EOL Transfer Schema'))
+        {
+            echo "\nDownloading $resource->title ($id)\n";
+            $manager = new ContentManager();
+            $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource");
+            if(!$new_resource_path)
+            {
+                $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Upload Failed")." WHERE id=$resource->id");
+                echo "\n$resource->title ($id) resource download failed\n\n";
+                exit;
+            }
+        }
+    }
+    
+    
     if(isset($GLOBALS['lifedesks_to_ignore']) && preg_match("/(".implode('|', $lifedesks_to_ignore).")\.lifedesks\.org/", $resource->accesspoint_url))
     {
         echo "\n$resource->title ($id) is a LifeDesk that is being ignored\n\n";

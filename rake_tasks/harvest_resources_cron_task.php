@@ -10,23 +10,11 @@ include_once(dirname(__FILE__)."/../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
-$lifedesks_to_ignore = array(
-    'micronesianinsects',
-    'bivalvia',
-    'porifera',
-    'imanto',
-    'equisetum',
-    'menegazzia',
-    'cephalopods',
-    'taxacom'
-);
-
-
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    if(preg_match("/(".implode('|', $lifedesks_to_ignore).")\.lifedesks\.org/", $resource->accesspoint_url)) continue;
-    //if($resource->id != 30) continue;
+    if(isset($GLOBALS['lifedesks_to_ignore']) && preg_match("/(".implode('|', $lifedesks_to_ignore).")\.lifedesks\.org/", $resource->accesspoint_url)) continue;
+    //if($resource->id != 71) continue;
     
     echo $resource->id."\n";
     $resource->harvest();

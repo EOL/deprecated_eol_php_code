@@ -118,6 +118,8 @@ $mysqli->update("UPDATE hierarchies_content_test hct JOIN top_images ti USING (h
 echo "Update 4 of 4\n";
 $mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
 
+//another one for child_images?
+
 $mysqli->end_transaction();
 
 

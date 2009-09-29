@@ -100,7 +100,7 @@ class WikimediaPage
             $name = preg_replace("/\s*\|$/", "", trim($name));
             $name = str_replace("<small>", "", $name);
             $name = str_replace("</small>", "", $name);
-            if(!is_utf8($name))
+            if(!is_utf8($name) || preg_match("/\{/", $name))
             {
                 $taxonomy = array();
                 break;
@@ -173,6 +173,10 @@ class WikimediaPage
                 
                 $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
                 break;
+            }else
+            {
+                echo "LICENSE: $this->title\n";
+                print_r($licenses);
             }
         }
         if(!isset($data_object_parameters["license"])) return false;

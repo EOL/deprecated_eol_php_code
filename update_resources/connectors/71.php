@@ -1,7 +1,6 @@
 #!/usr/local/bin/php
 <?php
 
-exit;
 
 define('DEBUG', true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -16,8 +15,8 @@ $resource = new Resource(71);
 // shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
 // // unzip the download
 // shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
-// // split the huge file into 300M chunks
-// shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikimedia.xml ".dirname(__FILE__)."/files/wikimedia/part_");
+// split the huge file into 300M chunks
+shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikimedia.xml ".dirname(__FILE__)."/files/wikimedia/part_");
 
 // determine the filename of the last chunk
 $last_line = exec("ls -l ".dirname(__FILE__)."/files/wikimedia");
@@ -27,6 +26,7 @@ else
     echo "\n\nCouldn't determine the last file to process\n$last_line\n\n";
     exit;
 }
+
 
 
 
@@ -52,9 +52,17 @@ get_image_urls();
 create_resource_file();
 
 
-// cleaning up downloaded files
-shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia/*");
-shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml");
+// // cleaning up downloaded files
+// shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia/*");
+// shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml");
+
+echo "end";
+
+
+
+
+
+
 
 
 
@@ -221,7 +229,7 @@ function get_image_urls()
 
 function lookup_image_urls($titles)
 {
-    $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=";
+    $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiurlwidth=460&iiprop=url&titles=";
     $url .= implode("|", array_keys($titles));
     
     $result = Functions::get_remote_file($url);
@@ -245,7 +253,8 @@ function lookup_image_urls($titles)
             
             if(isset($GLOBALS['data_objects'][$title]))
             {
-                $GLOBALS['data_objects'][$title]['mediaURL'] = $obj->imageinfo[0]->url;
+                $url = $obj->imageinfo[0]->thumburl;
+                $GLOBALS['data_objects'][$title]['mediaURL'] = $url;
             }else Functions::debug("NOTHING FOR $title");
         }
     }
@@ -270,10 +279,5 @@ function print_page(&$page)
     echo "Description: ". $page->description() ."<br>";
     echo "<hr>";
 }
-
-
-
-echo "end";
-
 
 ?>
