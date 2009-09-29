@@ -81,7 +81,7 @@ class Resource extends MysqlBase
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        $result = $mysqli->query("SELECT id FROM resources WHERE id=$this->id AND (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published")."))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE id=$this->id AND (resource_status_id=".ResourceStatus::insert("Force Harvest")." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published").")))");
         
         if($result && $row=$result->fetch_assoc()) return true;
         return false;
@@ -93,12 +93,24 @@ class Resource extends MysqlBase
         
         $resources = array();
         
-        $result = $mysqli->query("SELECT id FROM resources WHERE (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published")."))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::insert("Force Harvest")." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published")."))");
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = new Resource($row["id"]);
         }
         
+        return $resources;
+    }
+    
+    public static function ready_for_publishing()
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $resources = array();
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=". ResourceStatus::insert("Publish Pending"));
+        while($result && $row=$result->fetch_assoc())
+        {
+            $resources[] = $resource = new Resource($row["id"]);
+        }
         return $resources;
     }
     
@@ -113,7 +125,7 @@ class Resource extends MysqlBase
     public function last_harvest_event_id()
     {
         if($this->harvest_event) $result = $this->mysqli->query("SELECT MAX(id) as id FROM harvest_events WHERE resource_id=$this->id AND id<".$this->harvest_event->id);
-        else $result = $this->mysqli->query("SELECT MAX(id) as id FROM harvest_events WHERE resource_id=$this->id");
+        else $result = $this->mysqli->query("SELECT SQL_NO_CACHE MAX(id) as id FROM harvest_events WHERE resource_id=$this->id");
         if($result && $row=$result->fetch_assoc())
         {
             return $row["id"];
@@ -121,6 +133,27 @@ class Resource extends MysqlBase
         
         return 0;
     }
+    
+    public function most_recent_harvest_event_id()
+    {
+        $result = $this->mysqli->query("SELECT SQL_NO_CACHE MAX(id) as id FROM harvest_events WHERE resource_id=$this->id");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return $row["id"];
+        }
+        return 0;
+    }
+    
+    public function most_recent_published_harvest_event_id()
+    {
+        $result = $this->mysqli->query("SELECT SQL_NO_CACHE MAX(id) as id FROM harvest_events WHERE resource_id=$this->id AND published_at IS NOT NULL");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return $row["id"];
+        }
+        return 0;
+    }
+    
     
     public function data_supplier()
     {
@@ -145,24 +178,62 @@ class Resource extends MysqlBase
         $this->mysqli->insert("INSERT INTO resources_taxa VALUES ($this->id, $taxon_id, '$identifier', '$source_url', '$created_at', '$modified_at')");
     }
     
-    public function delete_unpublished_harvests()
-    {
-        $last_harvest_event_id = $this->last_harvest_event_id();
-        while($last_harvest_event_id)
-        {
-            $event = new HarvestEvent($last_harvest_event_id);
-            if(!$event->published_at)
-            {
-                $event->delete();
-                $last_harvest_event_id = $this->last_harvest_event_id();
-            }else break;
-        }
-    }
-    
     public function unpublish_data_objects()
     {
-        //SELECT DISTINCT dohe.data_object_id FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) WHERE he.resource_id=666 AND dohe.data_object_id NOT IN (SELECT dohe2.data_object_id FROM data_objects_harvest_events dohe2 WHERE dohe2.harvest_event_id=2);
-        $this->mysqli->update("UPDATE harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE he.resource_id=$this->id");
+        $this->mysqli->update("UPDATE harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) STRAIGHT_JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.resource_id=$this->id");
+    }
+    
+    public function unpublish_taxon_concepts()
+    {
+        $this->mysqli->update("UPDATE hierarchies_resources hr JOIN hierarchies h ON (hr.hierarchy_id=h.id) JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=0 WHERE hr.resource_id=$this->id");
+    }
+    
+    
+    public function publish()
+    {
+        if($this->resource_status_id != ResourceStatus::insert("Publish Pending")) return false;
+        $this->mysqli->begin_transaction();
+        
+        if($harvest_event_id = $this->most_recent_harvest_event_id())
+        {
+            $harvest_event = new HarvestEvent($harvest_event_id);
+            if($harvest_event->published_at) return true;
+            if(!$harvest_event->completed_at) return false;
+            
+            // make all objects in last harvest visible if they were in preview mode
+            $harvest_event->make_objects_visible();
+            
+            // preserve visibilities from older versions of same objects
+            // if the older versions were curated they may be invible or inappropriate and we don't want to lose that info
+            if($last_id = $this->most_recent_published_harvest_event_id()) $harvest_event->inherit_visibilities_from($last_id);
+            
+            // set published=0 for ALL objects associated with this resource
+            $this->unpublish_data_objects();
+            
+            // now only set published=1 for the objects in the latest harvest
+            $harvest_event->publish_objects();
+            
+            // set the harvest published_at date
+            $harvest_event->published();
+            
+            
+            if($hierarchy_id = $this->hierarchy_id())
+            {
+                $catalogue_of_life_id = Hierarchy::find_by_agent_id(Agent::find("Catalogue of Life"));
+                
+                // unpublish all concepts associated with this resource
+                $this->unpublish_taxon_concepts();
+                
+                // make sure all COL concepts are published
+                $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE he.hierarchy_id=$catalogue_of_life_id AND tc.published=0 AND tc.supercedure_id=0");
+                
+                // now set published=1 for all concepts in the latest harvest
+                $harvest_event->publish_taxon_concepts();
+            }
+            
+            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
+        }
+        $this->mysqli->end_transaction();
     }
     
     public function harvest()
@@ -175,19 +246,7 @@ class Resource extends MysqlBase
         {
             $this->mysqli->begin_transaction();
             
-            $this->delete_unpublished_harvests();
-            
             $this->start_harvest();
-            
-            if($this->auto_publish())
-            {
-                // Set all exising data_objects from this resource to being unpublished
-                //      This assumes that we are harvesting a complete dataset -> that data
-                //      objects in prior harvest not in this harvest have been deleted.
-                // SchemaParser::parse will publish everything in the new dataset
-                Functions::debug("Unpublishing resource: $this->id");
-                $this->unpublish_data_objects();
-            }
             
             Functions::debug("Parsing resource: $this->id");
             $connection = new SchemaConnection($this);
@@ -195,7 +254,7 @@ class Resource extends MysqlBase
             unset($connection);
             Functions::debug("Parsed resource: $this->id");
             
-            $this->end_harvest($valid);
+            $this->end_harvest();
             
             if($hierarchy_id = $this->hierarchy_id())
             {
@@ -211,22 +270,20 @@ class Resource extends MysqlBase
                     // Vet all taxa associated with this resource
                     $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=".Vetted::insert("Trusted")." WHERE hierarchy_id=$hierarchy_id");
                 }
-                if($this->auto_publish())
-                {
-                    // This unpublishes all taxa associated with this resource, makes sure all COL taxa are published,
-                    // then publishes only the taxa from this harvest.
-                    $this->mysqli->update("UPDATE hierarchies_resources hr JOIN hierarchies h ON (hr.hierarchy_id=h.id) JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET published=0 WHERE hr.resource_id=$this->id");
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET published=1 WHERE he.hierarchy_id=$catalogue_of_life_id AND supercedure_id=0");
-                    $this->mysqli->update("UPDATE harvest_events hevt JOIN harvest_events_taxa het ON (hevt.id=het.harvest_event_id) JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET published=1 WHERE hevt.id=".$this->harvest_event->id." AND tc.supercedure_id=0");
-                    
-                    // This is old - we really only want to publish the current taxa
-                    //$this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE hierarchy_id=$hierarchy_id");
-                }
+            }
+            
+            if($this->vetted() && $this->harvest_event)
+            {
+                // set vetted=trusted for all objects in this harvest
+                $this->harvest_event->vet_objects();
             }
             
             $this->mysqli->end_transaction();
             
-            //if($this->harvest_event) $this->harvest_event->expire_taxa_cache();
+            if($this->auto_publish())
+            {
+                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
+            }
         }
     }
     
@@ -243,17 +300,12 @@ class Resource extends MysqlBase
         }
     }
     
-    public function end_harvest($valid)
+    public function end_harvest()
     {
         if($this->harvest_event)
         {
             $this->harvest_event->completed();
-            if($valid) $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Processed").", harvested_at=NOW(), notes='harvest ended' WHERE id=$this->id");
-            if($this->auto_publish())
-            {
-                $this->harvest_event->published();
-                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
-            }
+            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Processed").", harvested_at=NOW(), notes='harvest ended' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
             
             // Make sure we set a harvest start time

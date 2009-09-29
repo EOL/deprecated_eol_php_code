@@ -90,28 +90,28 @@ class DataObject extends MysqlBase
     
     public function references()
     {
-      $references = array();
-      
-      $result = $this->mysqli->query("SELECT ref_id FROM data_objects_refs WHERE data_object_id=$this->id");
-      while($result && $row=$result->fetch_assoc())
-      {
-        $references[] = new Reference($row["ref_id"]);
-      }
-      
-      return $references;
+        $references = array();
+        
+        $result = $this->mysqli->query("SELECT ref_id FROM data_objects_refs WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $references[] = new Reference($row["ref_id"]);
+        }
+        
+        return $references;
     }
     
     public function agents()
     {
-      $agents = array();
-      
-      $result = $this->mysqli->query("SELECT agent_id FROM agents_data_objects WHERE data_object_id=$this->id");
-      while($result && $row=$result->fetch_assoc())
-      {
-        $agents[] = new Agent($row["agent_id"]);
-      }
-      
-      return $agents;
+        $agents = array();
+        
+        $result = $this->mysqli->query("SELECT agent_id FROM agents_data_objects WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $agents[] = new Agent($row["agent_id"]);
+        }
+        
+        return $agents;
     }
     
     static function equivalent($data_object_1, $data_object_2)
@@ -152,6 +152,7 @@ class DataObject extends MysqlBase
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
+                // TODO - hardcoded exception to make the Biopix images smaller
                 if($resource->title == "Biopix") $large_thumbnail_dimensions = "300x300";
                 else $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE;
                 $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "content", $large_thumbnail_dimensions);
@@ -190,16 +191,7 @@ class DataObject extends MysqlBase
             // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
             if(!$data_object->cache_object($content_manager, $resource)) return false;
             
-            // cache the thumbnail if there is one
-            $data_object->cache_thumbnail($content_manager);
-            
             $data_object->visibility_id = Visibility::insert("Preview");
-            if($resource->auto_publish())
-            {
-                $data_object->published = 1;
-                $data_object->visibility_id = Visibility::insert("Visible");
-            }
-            if($resource->vetted()) $data_object->vetted_id = Vetted::insert("Trusted");
             
             return array(new DataObject(DataObject::insert($data_object)), "Inserted");
         }
@@ -221,14 +213,13 @@ class DataObject extends MysqlBase
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == $resource->harvest_event->id) $status = "Reused";
                     
-                    if($resource->auto_publish()) DataObject::publish($existing_data_object->id);
                     return array($existing_data_object, "Unchanged");
                 }else
                 {
                     // This data object has different metadata than the object in the last harvest with the same guid
                     // So we have to create a new one with the same guid to reference for this harvest.
                     // The new one will inherit the curated, vetted, visibility info from the last object
-                    $data_object->guid = $guid;
+                    $data_object->guid = $existing_data_object->guid;
                     $data_object->curated = $existing_data_object->curated;
                     $data_object->vetted_id = $existing_data_object->vetted_id;
                     $data_object->visibility_id = $existing_data_object->visibility_id;
@@ -237,19 +228,8 @@ class DataObject extends MysqlBase
                     if($data_object->object_url == $existing_data_object->object_url && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
                     elseif(!$data_object->cache_object($content_manager, $resource)) return false;
                     
-                    /* No more caching new thumbnails */
-                    // Check to see if we can reuse cached thumnbail or need to download it again
-                    if($data_object->thumbnail_url == $existing_data_object->thumbnail_url && $existing_data_object->thumbnail_cache_url) $data_object->thumbnail_cache_url = $existing_data_object->thumbnail_cache_url;
-                    // else$data_object->cache_thumbnail($content_manager);
-                    
-                    // publish the object if the resource or content partner have autopublish = true
-                    if($resource->auto_publish()) $data_object->published = 1;
-                    
-                    // If the object is text and the contents have changed - set this version to vetted = 0
+                    // If the object is text and the contents have changed - set this version to curated = 0
                     if($data_object->data_type_id == DataType::insert("http://purl.org/dc/dcmitype/Text") && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
-                    
-                    // set vetted = trusted if the resource or content partner have vetted = trusted
-                    if($resource->vetted()) $data_object->vetted_id = Vetted::insert("Trusted");
                     
                     return array(new DataObject(DataObject::insert($data_object)), "Updated");
                 }
@@ -267,7 +247,6 @@ class DataObject extends MysqlBase
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == $resource->harvest_event->id) $status = "Reused";
                     
-                    if($resource->auto_publish()) DataObject::publish($existing_data_object->id);
                     return array($existing_data_object, "Unchanged");
                 }
             }
@@ -279,8 +258,6 @@ class DataObject extends MysqlBase
         
         if(!$data_object->cache_object($content_manager, $resource)) return false;
         $data_object->cache_thumbnail($content_manager);
-        if($resource->auto_publish()) $data_object->published = 1;
-        if($resource->vetted()) $data_object->vetted_id = Vetted::insert("Trusted");
         
         return array(new DataObject(DataObject::insert($data_object)), "Inserted");
     }
