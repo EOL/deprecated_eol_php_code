@@ -24,6 +24,7 @@ if($agentID != "")
     //print"[$provider_to_process]<br>";
     if($provider_to_process == "")exit("<hr><i>Data is not available for this content partner.</i><hr>");
 }
+else exit("<hr><i>Data is not available for this content partner*.</i><hr>");
 
 
 
