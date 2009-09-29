@@ -12,6 +12,7 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $agent_id = get_val_var("agent_id");
+$agentID = get_val_var('agentID');if($agentID != "")$agent_id = $agentID;//new, to accommodate agentID, not just agent_id
 if($agent_id == "") display_form();
 else                process_agent_id($agent_id);
 
