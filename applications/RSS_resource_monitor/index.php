@@ -129,7 +129,7 @@ print"<td>" . $cnt . ". </td><td><select id='resource_id' name=resource_id onCha
 while($result && $row=$result->fetch_assoc())
 {
 	print"	
-	<option value=$row[id]>$row[title]	
+	<option value=$row[id]>$row[title] [$row[id]]
 	";
 }
 print"</select></td>";
