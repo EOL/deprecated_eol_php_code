@@ -17,16 +17,13 @@ $path = get_val_var('path');
 $provider_to_process = get_val_var('provider');
 
 $agentID = get_val_var('agentID');
-$agent_id = get_val_var('agent_id');if($agent_id != "")$agentID = $agent_id;
+$agent_id = get_val_var('agent_id');if($agent_id != "")$agentID = $agent_id;//new, to accommodate agent_id, not just agentID
 if($agentID != "")
 {
     $provider_to_process = get_agentName($agentID);
     //print"[$provider_to_process]<br>";
     if($provider_to_process == "")exit("<hr><i>Data is not available for this content partner.</i><hr>");
 }
-
-
-
 
 
 
