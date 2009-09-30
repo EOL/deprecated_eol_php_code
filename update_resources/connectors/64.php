@@ -3,10 +3,10 @@
 
 //connector for Radiolaria
 
-//exit;
+exit;
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
-define("ENVIRONMENT", "integration");
+//define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "integration");
 
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
@@ -20,8 +20,7 @@ $used_taxa = array();
 
 print "<hr>";
 
-print $resource->accesspoint_url;
-exit;
+print $resource->accesspoint_url; //exit;
 
 $xml = @simplexml_load_file($resource->accesspoint_url);
 $i=0;
