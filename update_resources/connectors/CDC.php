@@ -72,7 +72,7 @@ if(1==1)
     
     $tmp = str_ireplace('<!--<td>&nbsp;&nbsp;</td>-->', '', $tmp);    
     
-    //$tmp = strip_tags($tmp);
+    //$tmp = strip_tags($tmp,"<td><tr><table>");
     
 	$categories = $tmp;
 	print $categories;	print "<hr>"; exit;
