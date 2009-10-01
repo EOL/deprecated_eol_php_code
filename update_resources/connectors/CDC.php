@@ -385,12 +385,16 @@ function parse_contents($str)
     
     
     //========================================================================================	
-	$beg='Links:</b></td><td><table><tbody><tr valign="top"><td><li></li></td><td>'; 
-    $end1="</td></tr></tbody></table></td>"; $end2="173"; $end3="173";			
+	$beg='Links:</b></td><td><table><tr valign="top"><td><li></li></td><td>';           
+    $end1="</td></tr></table></td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$outlinks=$arx;    
-    $outlinks = str_ireplace('</td></tr></tbody></table><table><tbody><tr valign="top"><td><li></li></td><td>', '<br>', $outlinks);
-	//print $outlinks;	print "<hr>"; //exit;
+    
+    $outlinks = str_ireplace('</td></tr></table><table><tr valign="top"><td><li></li></td><td>', '<br>', $outlinks);
+    //$outlinks = strip_tags($outlinks,"<a>"); //not needed
+    
+	//print "<hr>$str";
+    //print "<hr>outlinks: " . $outlinks;	print "<hr>"; exit;
         
     
     //========================================================================================	
