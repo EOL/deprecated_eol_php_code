@@ -65,6 +65,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     */
     
     //$categories="xxx";
+    $outlinks = utf8_encode($outlinks);
     $desc_pic = utf8_encode($desc_pic);
     $desc_taxa = utf8_encode($desc_taxa);
     
