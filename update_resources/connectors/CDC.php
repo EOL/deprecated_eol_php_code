@@ -2,14 +2,89 @@
 /* http://phil.cdc.gov/phil/home.asp */
 
 $url = 'http://phil.cdc.gov/phil/details.asp';  
+
+$arr_id_list = get_id_list();
+
+//start to activate session
 $philid = 11705;
-$contents = cURL_it($philid,$url);
-if($contents) print "";
-else exit("bad post");
+list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
+//end
 
 
-$arr = parse_contents($contents);
-print $arr;
+    for ($i = 0; $i < count($arr_id_list); $i++) 
+    {
+        print "$i . " . $arr_id_list[$i] . "<br>";
+        $philid = $arr_id_list[$i];        
+        list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
+        print"$id<hr>$image_url<hr>
+        $description<hr>
+        $desc_pic<hr>
+        $desc_taxa<hr>
+        $categories<hr>
+        $taxa<hr>
+        $copyright<hr>
+        $providers<hr>
+        $creation_date<hr>
+        $photo_credit<hr>
+        $outlinks";
+        print"<hr><hr>";
+    }
+
+
+
+
+function get_id_list()
+{
+    $id_list = array();    
+    for ($i=1; $i <= 7; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
+    {
+        $url = "http://127.0.0.1/cdc/id_list_00" . $i . ".htm";
+        $handle = fopen($url, "r");	
+        if ($handle)
+        {
+            $contents = '';
+        	while (!feof($handle)){$contents .= fread($handle, 8192);}
+        	fclose($handle);	
+        	$str = $contents;
+        }
+    
+	    $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173"; $end3="173";			
+    	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all");	//str = the html block
+        
+        print count($arr) . "<br>";
+    
+        $id_list = array_merge($id_list, $arr);
+    
+        //print_r($id); print"<hr>";
+    }
+    
+    print "total = " . count($id_list) . "<hr>"; //exit;
+
+    return $id_list;
+}
+    
+
+
+function process($url,$philid)
+{
+    $contents = cURL_it($philid,$url);
+    if($contents) print "";
+    else exit("bad post");
+    
+    /*
+    list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) 
+    = parse_contents($contents);
+       
+    */
+    
+    $arr = parse_contents($contents);
+    return $arr;    
+    
+}
+
+
+
+
 
 exit("<hr>-done-");
 
@@ -31,19 +106,20 @@ function parse_contents($str)
     }
     */
 
-if(1==1)
-{			
     //========================================================================================
 	$beg="ID#:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$id=$arx;
 	//print "<hr>id = " . $id;	print "<hr>";
-    //print"<img src='http://phil.cdc.gov/PHIL_Images/" . $id . "/" . $id . "_lores.jpg'><hr>";
+    $image_url = "http://phil.cdc.gov/PHIL_Images/" . $id . "/" . $id . "_lores.jpg";
+    //print"<img src='http://phil.cdc.gov/PHIL_Images/" . $id . "/" . $id . "_lores.jpg'><hr>";    
+    
+    
 	//========================================================================================
 	$beg="<td><b>Description:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$description=trim($arx);    
-	//print $description;	print "<hr>"; //exit;
+	//print $description;	print "<hr>"; //exit;    
 
 	//========================================================================================
     $description = "xxx" . $description;
@@ -51,10 +127,15 @@ if(1==1)
 	$arx = parse_html($description,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$desc_pic=$arx;    
 	//print "desc_pic<br>" . $desc_pic;	print "<hr>"; //exit;
+    
+    
+    
 
     $description = str_ireplace('xxx', '', $description);        
     $desc_taxa = str_ireplace($desc_pic, '', $description);        
     //print "desc_taxa<br>" . $desc_taxa;	print "<hr>"; //exit;
+    
+        
     
     //========================================================================================
 	//$beg='<table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td>CDC Organization</td></tr></tbody></table>'; 
@@ -72,10 +153,13 @@ if(1==1)
     
     $tmp = str_ireplace('<!--<td>&nbsp;&nbsp;</td>-->', '', $tmp);    
     
-    //$tmp = strip_tags($tmp,"<td><tr><table>");
+    $tmp = strip_tags($tmp,"<td><tr><table><img>");
     
 	$categories = $tmp;
-	print $categories;	print "<hr>"; exit;
+	//print $categories;	print "<hr>"; //exit;
+    
+    
+    
     //========================================================================================	
 
 	/*
@@ -94,37 +178,57 @@ if(1==1)
 	$arx = parse_html($str_stripped,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$arx = trim($arx);
 	$arx = substr($arx,2,strlen($arx));
-	print "taxa = [$arx] <hr>";
+    $taxa = $arx;
+	//print "taxa = [$taxa] <hr>";
+    
+    
+    
 	//========================================================================================
 	$beg="Copyright Restrictions:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$copyright=$arx;
-	print $copyright;	print "<hr>"; //exit;
+	//print $copyright;	print "<hr>"; //exit;
+    
+    
+    
     //========================================================================================	
 	$beg="Content Providers(s):</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$providers=$arx;
-	print $providers;	print "<hr>"; //exit;
+	//print $providers;	print "<hr>"; //exit;
+    
+    
+    
     //========================================================================================	
 	$beg="Creation Date:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$creation_date=$arx;
-	print $creation_date;	print "<hr>"; //exit;
+	//print $creation_date;	print "<hr>"; //exit;
+    
+        
     //========================================================================================	
 	$beg="Photo Credit:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$photo_credit=$arx;
-	print $photo_credit;	print "<hr>"; //exit;
+	//print $photo_credit;	print "<hr>"; //exit;
+    
+    
+    
     //========================================================================================	
 	$beg='Links:</b></td><td><table><tbody><tr valign="top"><td><li></li></td><td>'; 
     $end1="</td></tr></tbody></table></td>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
-	$links=$arx;    
-    $links = str_ireplace('</td></tr></tbody></table><table><tbody><tr valign="top"><td><li></li></td><td>', '<br>', $links);
-	print $links;	print "<hr>"; //exit;
+	$outlinks=$arx;    
+    $outlinks = str_ireplace('</td></tr></tbody></table><table><tbody><tr valign="top"><td><li></li></td><td>', '<br>', $outlinks);
+	//print $outlinks;	print "<hr>"; //exit;
+        
+    
     //========================================================================================	
 	
-}
+    
+    
+    return array ($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks);
+    
 
 }//function parse_contents($contents)
 
@@ -164,8 +268,9 @@ function cURL_it($philid,$url)
 }//function cURL_it($philid)
 
 	
-function parse_html($str,$beg,$end1,$end2,$end3,$end4)	//str = the html block
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
 {
+    //PRINT "[$all]"; exit;
 
 	$beg_len = strlen(trim($beg));
 	$end1_len = strlen(trim($end1));
@@ -215,11 +320,15 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4)	//str = the html block
 		}
 		
 	}//end outer loop
-	
-    $id='';
-	for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}	
-	
-	return $id;
+
+
+    if($all == "")	
+    {
+        $id='';
+	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        return $id;
+    }
+    elseif($all == "all") return $arr;
 	
 }//end function
 	
