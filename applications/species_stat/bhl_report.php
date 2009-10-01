@@ -17,7 +17,6 @@ printf("Host information: %s\n", $mysqli->host_info);
 */
 
 
-
 list ($eol_pages_with_do, $taxa_count) = get_eol_pages_with_do(); //print "<hr> eol pages with do       = $eol_pages_with_do <br> eol pages with content  = $taxa_count ";
 $eol_pages_with_bhl_links              = get_eol_pages_with_bhl_links(); //print count($eol_pages_with_bhl_links);
 $all_pages                             = get_all_pages();
@@ -28,19 +27,17 @@ $eol_pages_without_do_with_bhl_links = array_intersect($eol_pages_without_do, $e
 $marine_pages_with_bhl_links         = array_intersect($marine_eol_pages,$eol_pages_with_bhl_links);
 
 
-
 print"
 <table>
 
-<tr><td>Total EOL pages</td><td align='right'>" . count($all_pages) . "</td></tr>
-<tr><td>Pages with data objects (text/image)</td><td align='right'>" . count($eol_pages_with_do) . "</td></tr>
-<tr><td>Pages without data objects (text/image)</td><td align='right'>" . count($eol_pages_without_do) . "</td></tr>
+<tr><td>Total EOL pages</td><td align='right'>" . number_format(count($all_pages),0) . "</td></tr>
+<tr><td>Pages with data objects (text/image)</td><td align='right'>" . number_format(count($eol_pages_with_do),0) . "</td></tr>
+<tr><td>Pages without data objects (text/image)</td><td align='right'>" . number_format(count($eol_pages_without_do),0) . "</td></tr>
 
-<tr><td>Pages with BHL links</td><td align='right'>" . count($eol_pages_with_bhl_links) . "</td></tr>
-<tr><td>Pages with no data objects except links to BHL pages</td><td align='right'>" . count($eol_pages_without_do_with_bhl_links) . "</td></tr>
-
-<tr><td>Marine pages</td><td align='right'>" . count($marine_eol_pages) . "</td></tr>
-<tr><td>Marine pages with BHL links</td><td align='right'>" . count($marine_pages_with_bhl_links) . "</td></tr>
+<tr bgcolor='aqua'><td>Pages with BHL links</td><td align='right'>" . number_format(count($eol_pages_with_bhl_links),0) . "</td></tr>
+<tr bgcolor='aqua'><td>Pages with no data objects except links to BHL pages</td><td align='right'>" . number_format(count($eol_pages_without_do_with_bhl_links),0) . "</td></tr>
+<tr><td>Marine pages</td><td align='right'>" . number_format(count($marine_eol_pages),0) . "</td></tr>
+<tr bgcolor='aqua'><td>Marine pages with BHL links</td><td align='right'>" . number_format(count($marine_pages_with_bhl_links),0) . "</td></tr>
 
 </table>";
 
@@ -52,8 +49,8 @@ function get_marine_eol_pages()
     
     $marine_pages = array();
     $batch_size = 10000;
-    //$xml = simplexml_load_file("http://services.eol.org/eol_php_code/applications/content_server/resources/26.xml", null, LIBXML_NOCDATA);
-    $xml = simplexml_load_file("http://128.128.175.77/mtce/WORMS/20090819/xml/127090.xml", null, LIBXML_NOCDATA);
+    $xml = simplexml_load_file("http://services.eol.org/eol_php_code/applications/content_server/resources/26.xml", null, LIBXML_NOCDATA);
+    //$xml = simplexml_load_file("http://128.128.175.77/mtce/WORMS/20090819/xml/127090.xml", null, LIBXML_NOCDATA);
     
     foreach($xml->taxon as $t)
     {
@@ -99,7 +96,7 @@ function get_eol_pages_with_bhl_links()
         $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
         STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id)
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) ";
-        $query .= " limit 1 ";    //for debug only
+        //$query .= " limit 1 ";    //for debug only
         
         $result = $mysqli->query($query);    
 		//$result = $mysqli->query($query);    
@@ -154,7 +151,7 @@ function get_eol_pages_with_do()
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=$trusted_id OR tc.vetted_id=0) 
         and dohe.harvest_event_id IN (".implode(",", $temp_arr).")";        
 		$query .= " and do.published=1 ";	//added only for this report
-        $query .= " limit 1 ";    //for debug only
+        //$query .= " limit 1 ";    //for debug only
 		
         $result = $mysqli->query($query); //1
 		//print "<br> recs " . $result->num_rows;
@@ -215,7 +212,7 @@ function get_all_pages()
         taxon_concepts  left join hierarchy_entries he on (taxon_concepts.id=he.taxon_concept_id and he.hierarchy_id=".Hierarchy::col_2009().")
         Where taxon_concepts.published = 1 AND
         taxon_concepts.supercedure_id = 0 ";
-        $query .= " limit 1 ";    //for debug only
+        //$query .= " limit 1 ";    //for debug only
 
         $result = $mysqli->query($query);                
 
