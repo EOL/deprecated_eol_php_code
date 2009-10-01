@@ -1,42 +1,220 @@
 <?php
-/* http://phil.cdc.gov/phil/home.asp */
+//#!/usr/local/bin/php  
+//connector for Public Health Image Library (CDC) http://phil.cdc.gov/phil/home.asp 
+
+define("ENVIRONMENT", "development");
+define("MYSQL_DEBUG", false);
+define("DEBUG", true);
+include_once(dirname(__FILE__) . "/../../config/start.php");
+$mysqli =& $GLOBALS['mysqli_connection'];
+
+//only on local; to be deleted before going into production
+ /*
+$mysqli->truncate_tables("development");
+Functions::load_fixtures("development");
+ */
+
+$resource = new Resource(64);
+print $resource->id;
+//exit;
+
+$schema_taxa = array();
+$used_taxa = array();
+
+$id_list=array();
+
+$wrap = "\n";
+//$wrap = "<br>";
+
+
+$total_taxid_count = 0;
+$do_count = 0;//weird but needed here
+
 
 $url = 'http://phil.cdc.gov/phil/details.asp';  
-
+$home_url = "http://phil.cdc.gov/phil/home.asp";
 $arr_id_list = get_id_list();
 
 //start to activate session
 $philid = 11705;
 list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
-//end
+//end to activate session
 
 
-    for ($i = 0; $i < count($arr_id_list); $i++) 
+for ($i = 0; $i < count($arr_id_list); $i++) 
+{
+    //main loop
+    
+    print "$i . " . $arr_id_list[$i] . "<br>";
+    $philid = $arr_id_list[$i];        
+    list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
+    /*
+    print"$id<hr> ---
+    $image_url<hr> ---
+    $description<hr> ---
+    $desc_pic<hr> ---
+    $desc_taxa<hr> ---
+    $categories<hr> ---
+    $taxa<hr> ---
+    $copyright<hr>
+    $providers<hr> ---
+    $creation_date<hr> ---
+    $photo_credit<hr> ---
+    $outlinks<hr> ---
+    ";
+    */
+    
+    //$categories="xxx";
+    $desc_pic = utf8_encode($desc_pic);
+    $desc_taxa = utf8_encode($desc_taxa);
+    
+    $desc_pic = $desc_pic . "<br>" . "Created: $creation_date";
+    $desc_taxa = "$desc_taxa <hr> $categories";
+    if($outlinks != "")$desc_taxa .= "<hr>Outlinks:<br>$outlinks";
+    
+    print"<hr><hr>";    
+    
+ 
+
+    $taxon = str_replace(" ", "_", $taxa);
+    if(@$used_taxa[$taxon])
     {
-        print "$i . " . $arr_id_list[$i] . "<br>";
-        $philid = $arr_id_list[$i];        
-        list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
-        print"$id<hr>$image_url<hr>
-        $description<hr>
-        $desc_pic<hr>
-        $desc_taxa<hr>
-        $categories<hr>
-        $taxa<hr>
-        $copyright<hr>
-        $providers<hr>
-        $creation_date<hr>
-        $photo_credit<hr>
-        $outlinks";
-        print"<hr><hr>";
+        $taxon_parameters = $used_taxa[$taxon];
+    }
+    else
+    {
+        $taxon_parameters = array();
+        $taxon_parameters["identifier"] = $taxa; //$main->taxid;
+        $taxon_parameters["scientificName"]= $taxa;
+        $taxon_parameters["source"] = $home_url;
+        $used_taxa[$taxon] = $taxon_parameters;            
     }
 
 
+    if(1==1)
+    {
+        if($do_count == 0)//echo "$wrap$wrap phylum = " . $taxa . "$wrap";
 
+        $dc_source = $home_url;       
+
+        $do_count++;        
+        $agent_name = $photo_credit;
+        $agent_role = "photographer";            
+        $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url);               
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                 
+        
+        $do_count++;
+        $agent_name = $providers;
+        $agent_role = "source";            
+        $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url);               
+            
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+        
+        $used_taxa[$taxon] = $taxon_parameters;
+
+    }//with photos
+    
+    
+    
+    
+    //end main loop   
+}
+
+foreach($used_taxa as $taxon_parameters)
+{
+    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+}
+////////////////////// ---
+$new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$OUT = fopen($old_resource_path, "w+");
+fwrite($OUT, $new_resource_xml);
+fclose($OUT);
+////////////////////// ---
+
+echo "$wrap$wrap Done processing.";
+
+function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url)   
+{
+        
+        //$description = "<![CDATA[ $description ]]>";
+
+        $dataObjectParameters = array();
+        
+        if($type == "text")
+        {            
+            //$dataObjectParameters["title"] = $title;
+            
+            //start subject        
+            $dataObjectParameters["subjects"] = array();
+            $subjectParameters = array();
+            $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+            $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+            //end subject
+            
+            
+            $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
+            $dataObjectParameters["mimeType"] = "text/html";
+            $dataObjectParameters["source"] = $dc_source;
+        }
+        elseif($type == "image")
+        {
+            $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
+            $dataObjectParameters["mimeType"] = "image/jpeg";            
+            $dataObjectParameters["mediaURL"] = $image_url;
+            $dataObjectParameters["rights"] = $copyright;
+            $dc_source ="";
+        }
+        
+        $dataObjectParameters["description"] = $description;
+        //$dataObjectParameters["created"] = $created;
+        //$dataObjectParameters["modified"] = $modified;            
+        $dataObjectParameters["identifier"] = $taxon . "_" . $do_count;        
+        $dataObjectParameters["rightsHolder"] = "Public Health Image Library";
+        $dataObjectParameters["language"] = "en";
+        $dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
+        
+        //==========================================================================================
+        /* working...
+        $agent = array(0 => array(     "role" => "photographer" , "homepage" => ""           , $photo_credit),
+                       1 => array(     "role" => "project"      , "homepage" => $home_url    , "Public Health Image Library")
+                      );    
+        */
+        
+        $agent = array(0 => array( "role" => $agent_role , "homepage" => $dc_source , $agent_name) );    
+
+        $agents = array();
+        foreach($agent as $agent)
+        {  
+            $agentParameters = array();
+            $agentParameters["role"]     = $agent["role"];
+            $agentParameters["homepage"] = $agent["homepage"];
+            $agentParameters["logoURL"]  = "";        
+            $agentParameters["fullName"] = $agent[0];
+            $agents[] = new SchemaAgent($agentParameters);
+        }
+        $dataObjectParameters["agents"] = $agents;    
+        //==========================================================================================
+        $audience = array(  0 => array(     "Expert users"),
+                            1 => array(     "General public")
+                         );        
+        $audiences = array();
+        foreach($audience as $audience)
+        {  
+            $audienceParameters = array();
+            $audienceParameters["label"]    = $audience[0];
+            $audiences[] = new SchemaAudience($audienceParameters);
+        }
+        $dataObjectParameters["audiences"] = $audiences;    
+        //==========================================================================================
+        
+        return $dataObjectParameters;
+}
 
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=1; $i <= 7; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=7; $i <= 7; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
     {
         $url = "http://127.0.0.1/cdc/id_list_00" . $i . ".htm";
         $handle = fopen($url, "r");	
@@ -46,24 +224,16 @@ function get_id_list()
         	while (!feof($handle)){$contents .= fread($handle, 8192);}
         	fclose($handle);	
         	$str = $contents;
-        }
-    
+        }    
 	    $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173"; $end3="173";			
-    	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all");	//str = the html block
-        
-        print count($arr) . "<br>";
-    
-        $id_list = array_merge($id_list, $arr);
-    
+    	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all");	//str = the html block        
+        print count($arr) . "<br>";    
+        $id_list = array_merge($id_list, $arr);    
         //print_r($id); print"<hr>";
-    }
-    
+    }    
     print "total = " . count($id_list) . "<hr>"; //exit;
-
     return $id_list;
 }
-    
-
 
 function process($url,$philid)
 {
