@@ -1,6 +1,6 @@
 <?php
 
-define("ENVIRONMENT", "slave_32");      
+//define("ENVIRONMENT", "slave_32");      
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
