@@ -12,6 +12,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
  /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
+exit;
  */
 
 $resource = new Resource(64);
@@ -48,6 +49,9 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     print "$i . " . $arr_id_list[$i] . "<br>";
     $philid = $arr_id_list[$i];        
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
+
+    if(trim($taxa) == "")exit("blank taxa exists");
+    
     /*
     print"$id<hr> ---
     $image_url<hr> ---
