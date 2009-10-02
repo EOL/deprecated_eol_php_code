@@ -1,6 +1,10 @@
 <?php
 //#!/usr/local/bin/php  
-//connector for Public Health Image Library (CDC) http://phil.cdc.gov/phil/home.asp 
+/*
+connector for Public Health Image Library (CDC) 
+http://phil.cdc.gov/phil/home.asp
+*/
+
 
 define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
@@ -219,7 +223,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=1; $i <= 7; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 1; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
     {
         $url = "http://127.0.0.1/cdc/id_list_00" . $i . ".htm";
         $handle = fopen($url, "r");	
@@ -244,7 +248,7 @@ function process($url,$philid)
 {
     $contents = cURL_it($philid,$url);
     if($contents) print "";
-    else exit("bad post");
+    else print exit("<hr>bad post [$philid]<hr>");
     
     /*
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) 
