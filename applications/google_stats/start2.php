@@ -42,9 +42,17 @@ $fields[1]="string";
 $temp = save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9),0,"txt");
 //=================================================================
 //query 2
+
+/*
 $query="Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id 
 Where content_partners.eol_notified_of_acceptance Is Not Null
-Order By agents.full_name Asc ";
+Order By agents.full_name Asc "; */ 
+$query="Select distinct agents.id From agents
+Inner Join agents_resources ON agents.id = agents_resources.agent_id
+Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
+Where harvest_events.published_at is not null order by agents.full_name "; 
+//this query now only gets partners with a published data on the time the report was run.
+
 //$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 
