@@ -108,9 +108,14 @@ if($what == 'transform')
     $filename = $res_id;
     $filename .= "_GNI";
     //$filename .= "_" . date("Ymd_His",time()) ;
-        
+    
+    /* for debug    
+    if(defined('CONTENT_GNI_RESOURCE_PATH')) exit("it is defined");
+    else exit("not defined");
+    */
+    
     if(defined('CONTENT_GNI_RESOURCE_PATH')) $write_path_prefix = CONTENT_GNI_RESOURCE_PATH;
-    else $write_path_prefix = "XML/";
+    else                                     $write_path_prefix = "XML/";
     
     $path = $write_path_prefix . $filename .".xml";
     
