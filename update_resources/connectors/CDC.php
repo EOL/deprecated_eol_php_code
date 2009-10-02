@@ -19,7 +19,7 @@ Functions::load_fixtures("development");
 exit;
  */
 
-$resource = new Resource(64);
+$resource = new Resource(79);
 print $resource->id;
 //exit;
 
@@ -223,7 +223,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=7; $i <= 7; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=2; $i <= 2; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
     {
         $url = "http://127.0.0.1/cdc/id_list_00" . $i . ".htm";
         $handle = fopen($url, "r");	
@@ -270,7 +270,9 @@ exit("<hr>-done-");
 
 function parse_contents($str)
 {
-
+    
+    
+    
     /*
     $url = "http://127.0.0.1/cdc/cdc1.htm";
     $url = "http://127.0.0.1/cdc/cdc2.htm";
@@ -298,21 +300,21 @@ function parse_contents($str)
 	$beg="<td><b>Description:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$description=trim($arx);    
-	//print $description;	print "<hr>"; //exit;    
+	print $description;	print "<hr>"; //exit;    
 
 	//========================================================================================
     $description = "xxx" . $description;
 	$beg="xxx<b>"; $end1="</b><p>"; $end2="173"; $end3="173";			
 	$arx = parse_html($description,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$desc_pic=$arx;    
-	//print "desc_pic<br>" . $desc_pic;	print "<hr>"; //exit;
+	print "desc_pic<br>" . $desc_pic;	print "<hr>"; //exit;
     
     
     
 
     $description = str_ireplace('xxx', '', $description);        
     $desc_taxa = str_ireplace($desc_pic, '', $description);        
-    //print "desc_taxa<br>" . $desc_taxa;	print "<hr>"; //exit;
+    print "desc_taxa<br>" . $desc_taxa;	print "<hr>"; //exit;
     
         
     
@@ -335,7 +337,7 @@ function parse_contents($str)
     $tmp = strip_tags($tmp,"<td><tr><table><img>");
     
 	$categories = $tmp;
-	//print $categories;	print "<hr>"; //exit;
+	print $categories;	print "<hr>"; //exit;
     
     
     
@@ -358,7 +360,7 @@ function parse_contents($str)
 	$arx = trim($arx);
 	$arx = substr($arx,2,strlen($arx));
     $taxa = $arx;
-	//print "taxa = [$taxa] <hr>";
+	print "taxa = [$taxa] <hr>";
     
     
     
@@ -366,7 +368,7 @@ function parse_contents($str)
 	$beg="Copyright Restrictions:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$copyright=$arx;
-	//print $copyright;	print "<hr>"; //exit;
+	print $copyright;	print "<hr>"; //exit;
     
     
     
@@ -374,7 +376,7 @@ function parse_contents($str)
 	$beg="Content Providers(s):</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$providers=$arx;
-	//print $providers;	print "<hr>"; //exit;
+	print $providers;	print "<hr>"; //exit;
     
     
     
@@ -382,14 +384,14 @@ function parse_contents($str)
 	$beg="Creation Date:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$creation_date=$arx;
-	//print $creation_date;	print "<hr>"; //exit;
+	print $creation_date;	print "<hr>"; //exit;
     
         
     //========================================================================================	
 	$beg="Photo Credit:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$photo_credit=$arx;
-	//print $photo_credit;	print "<hr>"; //exit;
+	print $photo_credit;	print "<hr>"; //exit;
     
     
     
@@ -403,7 +405,7 @@ function parse_contents($str)
     //$outlinks = strip_tags($outlinks,"<a>"); //not needed
     
 	//print "<hr>$str";
-    //print "<hr>outlinks: " . $outlinks;	print "<hr>"; exit;
+    print "<hr>outlinks: " . $outlinks;	print "<hr>"; //exit;
         
     
     //========================================================================================	
