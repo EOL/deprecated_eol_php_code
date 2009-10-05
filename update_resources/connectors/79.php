@@ -42,8 +42,7 @@ $arr_id_list = get_id_list();
 
 $arr_desc_taxa = array();
 $arr_categories = array();
-$arr_outlinks = array();
-                
+$arr_outlinks = array();              
 
 //start - test run just to activate session
 $philid = 11705;
@@ -101,7 +100,6 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         $used_taxa[$taxon] = $taxon_parameters;            
     }
 
-
     if(1==1)
     {
         if($do_count == 0)//echo "$wrap$wrap phylum = " . $taxa . "$wrap";
@@ -147,84 +145,82 @@ fclose($OUT);
 ////////////////////// ---
 
 echo "$wrap$wrap Done processing.";
+exit("<hr>-done-");
 
 function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url)   
-{
+{        
+    //$description = "<![CDATA[ $description ]]>";
+    $dataObjectParameters = array();
         
-        //$description = "<![CDATA[ $description ]]>";
+    if($type == "text")
+    {            
+        //$dataObjectParameters["title"] = $title;            
 
-        $dataObjectParameters = array();
-        
-        if($type == "text")
-        {            
-            //$dataObjectParameters["title"] = $title;
-            
-            //start subject        
-            $dataObjectParameters["subjects"] = array();
-            $subjectParameters = array();
-            $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-            $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
-            //end subject
+        //start subject        
+        $dataObjectParameters["subjects"] = array();
+        $subjectParameters = array();
+        $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        //end subject
             
             
-            $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
-            $dataObjectParameters["mimeType"] = "text/html";
-            $dataObjectParameters["source"] = $dc_source;
-        }
-        elseif($type == "image")
-        {
-            $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
-            $dataObjectParameters["mimeType"] = "image/jpeg";            
-            $dataObjectParameters["mediaURL"] = $image_url;
-            $dataObjectParameters["rights"] = $copyright;
-            $dc_source ="";
-        }
+        $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
+        $dataObjectParameters["mimeType"] = "text/html";
+        $dataObjectParameters["source"] = $dc_source;
+    }
+    elseif($type == "image")
+    {
+        $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
+        $dataObjectParameters["mimeType"] = "image/jpeg";            
+        $dataObjectParameters["mediaURL"] = $image_url;
+        $dataObjectParameters["rights"] = $copyright;
+        $dc_source ="";
+    }
         
-        $dataObjectParameters["description"] = $description;
-        //$dataObjectParameters["created"] = $created;
-        //$dataObjectParameters["modified"] = $modified;            
-        $dataObjectParameters["identifier"] = $taxon . "_" . $do_count;        
-        $dataObjectParameters["rightsHolder"] = "Public Health Image Library";
-        $dataObjectParameters["language"] = "en";
-        $dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
+    $dataObjectParameters["description"] = $description;
+    //$dataObjectParameters["created"] = $created;
+    //$dataObjectParameters["modified"] = $modified;            
+    $dataObjectParameters["identifier"] = $taxon . "_" . $do_count;        
+    $dataObjectParameters["rightsHolder"] = "Public Health Image Library";
+    $dataObjectParameters["language"] = "en";
+    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
         
-        //==========================================================================================
-        /* working...
-        $agent = array(0 => array(     "role" => "photographer" , "homepage" => ""           , $photo_credit),
-                       1 => array(     "role" => "project"      , "homepage" => $home_url    , "Public Health Image Library")
-                      );    
-        */
+    //==========================================================================================
+    /* working...
+    $agent = array(0 => array(     "role" => "photographer" , "homepage" => ""           , $photo_credit),
+                   1 => array(     "role" => "project"      , "homepage" => $home_url    , "Public Health Image Library")
+                  );    
+    */
         
-        if($agent_name != "")
-        {
-            $agent = array(0 => array( "role" => $agent_role , "homepage" => $dc_source , $agent_name) );    
-            $agents = array();
-            foreach($agent as $agent)
-            {  
-                $agentParameters = array();
-                $agentParameters["role"]     = $agent["role"];
-                $agentParameters["homepage"] = $agent["homepage"];
-                $agentParameters["logoURL"]  = "";        
-                $agentParameters["fullName"] = $agent[0];
-                $agents[] = new SchemaAgent($agentParameters);
-            }
-            $dataObjectParameters["agents"] = $agents;    
-        }
-        //==========================================================================================
-        $audience = array(  0 => array(     "Expert users"),
-                            1 => array(     "General public")
-                         );        
-        $audiences = array();
-        foreach($audience as $audience)
+    if($agent_name != "")
+    {
+        $agent = array(0 => array( "role" => $agent_role , "homepage" => $dc_source , $agent_name) );    
+        $agents = array();
+        foreach($agent as $agent)
         {  
-            $audienceParameters = array();
-            $audienceParameters["label"]    = $audience[0];
-            $audiences[] = new SchemaAudience($audienceParameters);
+            $agentParameters = array();
+            $agentParameters["role"]     = $agent["role"];
+            $agentParameters["homepage"] = $agent["homepage"];
+            $agentParameters["logoURL"]  = "";        
+            $agentParameters["fullName"] = $agent[0];
+            $agents[] = new SchemaAgent($agentParameters);
         }
-        $dataObjectParameters["audiences"] = $audiences;    
-        //==========================================================================================
-        
-        return $dataObjectParameters;
+        $dataObjectParameters["agents"] = $agents;    
+    }
+    //==========================================================================================
+    $audience = array(  0 => array(     "Expert users"),
+                        1 => array(     "General public")
+                     );        
+    $audiences = array();
+    foreach($audience as $audience)
+    {  
+        $audienceParameters = array();
+        $audienceParameters["label"]    = $audience[0];
+        $audiences[] = new SchemaAudience($audienceParameters);
+    }
+    $dataObjectParameters["audiences"] = $audiences;    
+    //==========================================================================================
+    return $dataObjectParameters;
 }
 
 function get_id_list()
@@ -266,8 +262,7 @@ function get_id_list()
     $id_list = array_trim($id_list,$count_bef_unset);
     print "<hr>final count = " . count($id_list) . "<br>";    
     //exit("<hr>stopx");    
-    return $id_list;
-    
+    return $id_list;    
 }
 
 function process($url,$philid)
@@ -275,28 +270,15 @@ function process($url,$philid)
     $contents = cURL_it($philid,$url);
     if($contents) print "";
     else print exit("<hr>bad post [$philid]<hr>");
-    
-    /*
-    list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) 
-    = parse_contents($contents);
-       
-    */
-    
     $arr = parse_contents($contents);
-    return $arr;    
-    
+    return $arr;        
 }
 
 
 
 
-
-exit("<hr>-done-");
-
-
 function parse_contents($str)
 {
-    //global $arr_desc_taxa;
     /*
     $url = "http://127.0.0.1/cdc/cdc1.htm";
     $url = "http://127.0.0.1/cdc/cdc2.htm";
@@ -310,7 +292,6 @@ function parse_contents($str)
     	$str = $contents;
     }
     */
-
     //========================================================================================
 	$beg="ID#:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
@@ -384,39 +365,26 @@ function parse_contents($str)
     $taxa = $arx;
 	print "taxa = [$taxa] <hr>";
     
-    
-    
 	//========================================================================================
 	$beg="Copyright Restrictions:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$copyright=$arx;
-	//print $copyright;	print "<hr>"; //exit;
-    
-    
-    
+	//print $copyright;	print "<hr>"; //exit;        
     //========================================================================================	
 	$beg="Content Providers(s):</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$providers=$arx;
-	//print $providers;	print "<hr>"; //exit;
-    
-    
-    
+	//print $providers;	print "<hr>"; //exit;    
     //========================================================================================	
 	$beg="Creation Date:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$creation_date=$arx;
-	//print $creation_date;	print "<hr>"; //exit;
-    
-        
+	//print $creation_date;	print "<hr>"; //exit;        
     //========================================================================================	
 	$beg="Photo Credit:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$photo_credit=$arx;
-	//print $photo_credit;	print "<hr>"; //exit;
-    
-    
-    
+	//print $photo_credit;	print "<hr>"; //exit;    
     //========================================================================================	
 	$beg='Links:</b></td><td><table><tr valign="top"><td><li></li></td><td>';           
     $end1="</td></tr></table></td></tr>"; $end2="173xxx"; $end3="173xxx";			
@@ -428,23 +396,13 @@ function parse_contents($str)
     
 	//print "<hr>$str";
     //print "<hr>outlinks: " . $outlinks;	print "<hr>"; //exit;
-        
-    
-    //========================================================================================	
-	
-    
-    
-    return array ($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks);
-    
-
+    //========================================================================================	       
+    return array ($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks);    
 }//function parse_contents($contents)
 
-
 function cURL_it($philid,$url)
-{
-    
-    $fields = 'philid=' . $philid;
-  
+{    
+    $fields = 'philid=' . $philid;  
     $ch = curl_init();  
     curl_setopt($ch,CURLOPT_URL,$url);  
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    // not to display the post submission
@@ -455,36 +413,27 @@ function cURL_it($philid,$url)
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION, true);  
     $output = curl_exec($ch);
     $info = curl_getinfo($ch); 
-
     /*
     src="images/    
     http://phil.cdc.gov/phil/images/nodedownline.gif
-    */
-    
-    $output = str_ireplace('src="images/', 'src="http://phil.cdc.gov/phil/images/', $output);
-    
-    //print $output; exit;
-    
+    */    
+    $output = str_ireplace('src="images/', 'src="http://phil.cdc.gov/phil/images/', $output);    
+    //print $output; exit;    
     curl_close($ch);
-
     $ans = stripos($output,"The page cannot be found");
     $ans = strval($ans);
     if($ans != "")  return false;
-    else            return $output;    
-    
+    else            return $output;        
 }//function cURL_it($philid)
-
 	
 function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
 {
     //PRINT "[$all]"; exit;
-
 	$beg_len = strlen(trim($beg));
 	$end1_len = strlen(trim($end1));
 	$end2_len = strlen(trim($end2));
 	$end3_len = strlen(trim($end3));	
-	$end4_len = strlen(trim($end4));	
-	
+	$end4_len = strlen(trim($end4));		
 	//print "[[$str]]";
 
 	$str = trim($str); 
@@ -528,7 +477,6 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 		
 	}//end outer loop
 
-
     if($all == "")	
     {
         $id='';
@@ -539,7 +487,6 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 	
 }//end function
 	
-
 function array_trim($a,$len) 
 { 	
 	$b=array();
@@ -558,4 +505,3 @@ function array_trim($a,$len)
 }
 
 ?>
-
