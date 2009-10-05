@@ -158,21 +158,45 @@ $mysqli->query("INSERT IGNORE INTO taxon_concept_content SELECT id, 0, 0, 0, 0, 
 
 echo "setting child_image\n";
 $i = 0;
-$used = array();
+$child_image_ids = array();
 $result = $mysqli->query("SELECT he.id,he.parent_id FROM hierarchies_content hc JOIN hierarchy_entries he ON (hc.hierarchy_entry_id=he.id) WHERE hc.image=1");
 while($result && $row=$result->fetch_assoc())
 {
     $i++;
     if($i%5000==0) echo "$i\n";
     
-    if(!@$used[$row["id"]])
+    if(!@$child_image_ids[$row["id"]])
     {
-        if($row["parent_id"]) update($row["id"],$row["parent_id"]);
+        if($row["parent_id"]) update($row["id"], $row["parent_id"]);
     }
 }
 
+$update_ids = array();
+$update_batch_size = 5000;
+foreach($child_image_ids as $id => $val)
+{
+    $update_ids[] = $id;
+    if(count($update_ids) > $update_batch_size)
+    {
+        $mysqli->update("UPDATE hierarchies_content SET child_image=1 WHERE hierarchy_entry_id IN (". implode(",", $update_ids) .")");
+        $mysqli->update("UPDATE hierarchies_content SET content_level=2 WHERE content_level=1 AND hierarchy_entry_id IN (". implode(",", $update_ids) .")");
+        
+        $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) SET tcc.child_image=1 WHERE he.id IN (". implode(",", $update_ids) .")");
+        $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) SET tcc.content_level=2 WHERE tcc.content_level=1 AND he.id IN (". implode(",", $update_ids) .")");
+        
+        $update_ids = array();
+    }
+}
+if(count($update_ids))
+{
+    $mysqli->update("UPDATE hierarchies_content SET child_image=1 WHERE hierarchy_entry_id IN (". implode(",", $update_ids) .")");
+    $mysqli->update("UPDATE hierarchies_content SET content_level=2 WHERE content_level=1 AND hierarchy_entry_id IN (". implode(",", $update_ids) .")");
+    
+    $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) SET tcc.child_image=1 WHERE he.id IN (". implode(",", $update_ids) .")");
+    $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) SET tcc.content_level=2 WHERE tcc.content_level=1 AND he.id IN (". implode(",", $update_ids) .")");
+}
 
-
+unset($child_image_ids);
 
 
 
@@ -239,30 +263,18 @@ $mysqli->end_transaction();
 function update($hierarchy_entry_id, $parent_hierarchy_entry_id)
 {
     global $mysqli;
-    global $used;
+    global $child_image_ids;
     
     if(!$hierarchy_entry_id) return;
     
-    $content_level = 1;
-    $result = $mysqli->query("SELECT content_level FROM hierarchies_content WHERE hierarchy_entry_id=$hierarchy_entry_id");
-    if($result && $row=$result->fetch_assoc())
+    $child_image_ids[$hierarchy_entry_id] = 1;
+    
+    if(!@$child_image_ids[$parent_hierarchy_entry_id])
     {
-        $content_level = $row["content_level"];
-        
-        if($content_level==1) $content_level = 2;
-        
-        $mysqli->update("UPDATE hierarchies_content SET child_image=1, content_level=$content_level WHERE hierarchy_entry_id=$hierarchy_entry_id");
-        $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) SET tcc.child_image=1, tcc.content_level=$content_level WHERE he.id=$hierarchy_entry_id");
-        
-        $used[$hierarchy_entry_id] = 1;
-        
-        if(!@$used[$parent_hierarchy_entry_id])
+        $result = $mysqli->query("SELECT parent_id FROM hierarchy_entries WHERE id=$parent_hierarchy_entry_id");
+        if($result && $row=$result->fetch_assoc())
         {
-            $result2 = $mysqli->query("SELECT parent_id FROM hierarchy_entries WHERE id=$parent_hierarchy_entry_id");
-            if($result2 && $row2=$result2->fetch_assoc())
-            {
-                update($parent_hierarchy_entry_id, $row2["parent_id"]);
-            }
+            update($parent_hierarchy_entry_id, $row["parent_id"]);
         }
     }
 }
