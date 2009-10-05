@@ -83,6 +83,12 @@
                 </xsd:annotation>
             </xsd:element>
             
+            <xsd:element name="rank" type="rankTypes" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>Strongly recommended. The rank of the ScientificName</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            
             <xsd:element name="commonName" type="languageAwareElementType" minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
                     <xsd:documentation>A common (or vernacular) name by which the taxon is known. Strongly recommended to include a language. Recommended to use ISO 639-2 or ISO 639-1 codes for languages. See http://www.loc.gov/standards/iso639-2/php/code_list.php for more information on these language standards.</xsd:documentation>
@@ -455,6 +461,37 @@
             <xsd:enumeration value="teleomorph"/>
             <xsd:enumeration value="unavailable name"/>
             <xsd:enumeration value="valid name"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="rankTypes">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="kingdom"/>
+            <xsd:enumeration value="subkingdom"/>
+            <xsd:enumeration value="division"/>
+            <xsd:enumeration value="phylum"/>
+            <xsd:enumeration value="subdivision"/>
+            <xsd:enumeration value="subphylum"/>
+            <xsd:enumeration value="class"/>
+            <xsd:enumeration value="subclass"/>
+            <xsd:enumeration value="order"/>
+            <xsd:enumeration value="suborder"/>
+            <xsd:enumeration value="family"/>
+            <xsd:enumeration value="subfamily"/>
+            <xsd:enumeration value="tribe"/>
+            <xsd:enumeration value="subtribe"/>
+            <xsd:enumeration value="genus"/>
+            <xsd:enumeration value="subgenus"/>
+            <xsd:enumeration value="section"/>
+            <xsd:enumeration value="subsection"/>
+            <xsd:enumeration value="series"/>
+            <xsd:enumeration value="subseries"/>
+            <xsd:enumeration value="species"/>
+            <xsd:enumeration value="subspecies"/>
+            <xsd:enumeration value="variety"/>
+            <xsd:enumeration value="subvariety"/>
+            <xsd:enumeration value="form"/>
+            <xsd:enumeration value="subform"/>
         </xsd:restriction>
     </xsd:simpleType>
     
