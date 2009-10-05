@@ -504,7 +504,7 @@ function process_all_eol($file)
 
 function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
 {   
-    $step=10;
+    $step=100;
     
     
     if($start_cnt == "all"){$start_cnt=1;$max_cnt=999999999;}
