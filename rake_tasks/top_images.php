@@ -10,7 +10,7 @@ include_once(dirname(__FILE__) . "/../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
-$result = $mysqli->query("SELECT he.id, he.lft, he.rgt, he.taxon_concept_id, he.hierarchy_id FROM hierarchies_content_test hc JOIN hierarchy_entries he ON (hc.hierarchy_entry_id=he.id) WHERE he.hierarchy_id!=105 AND he.hierarchy_id!=129 AND he.hierarchy_id!=399 AND (hc.image=1 OR hc.child_image=1 OR hc.image_unpublished=1 OR hc.child_image_unpublished=1)");
+$result = $mysqli->query("SELECT he.id, he.lft, he.rgt, he.taxon_concept_id, he.hierarchy_id FROM hierarchies_content hc JOIN hierarchy_entries he ON (hc.hierarchy_entry_id=he.id) WHERE he.hierarchy_id!=105 AND he.hierarchy_id!=129 AND he.hierarchy_id!=399 AND (hc.image=1 OR hc.child_image=1 OR hc.image_unpublished=1 OR hc.child_image_unpublished=1)");
 if(@!$result || @!$result->num_rows) exit;
 
 $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
@@ -107,21 +107,17 @@ echo "removing data files\n";
 // shell_exec("rm ". LOCAL_ROOT ."temp/top_unpublished_images.sql");
 
 
-echo "Update 1 of 4\n";
-$mysqli->update("UPDATE taxon_concept_content_test tcct JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) SET tcct.child_image=1, tcct.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-echo "Update 2 of 4\n";
+echo "Update 1 of 2\n";
 $mysqli->update("UPDATE taxon_concept_content tcc JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) SET tcc.child_image=1, tcc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
+//$mysqli->update("UPDATE taxon_concept_content tcc JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_unpublished_images ti ON (he.id=ti.hierarchy_entry_id) SET tcc.child_image_unpublished=1 WHERE ti.view_order=1");
 
 
-echo "Update 3 of 4\n";
-$mysqli->update("UPDATE hierarchies_content_test hct JOIN top_images ti USING (hierarchy_entry_id) SET hct.child_image=1, hct.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-echo "Update 4 of 4\n";
+echo "Update 2 of 2\n";
 $mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
+//$mysqli->update("UPDATE hierarchies_content hc JOIN top_unpublished_images ti USING (hierarchy_entry_id) SET hc.child_image_unpublished=1 WHERE ti.view_order=1");
 
-//another one for child_images?
 
 $mysqli->end_transaction();
-
 
 
 ?>
