@@ -33,7 +33,7 @@ $wrap = "\n";
 
 
 $total_taxid_count = 0;
-$do_count = 0;//weird but needed here
+$do_count = 0;
 
 
 $url = 'http://phil.cdc.gov/phil/details.asp';  
@@ -45,10 +45,10 @@ $arr_categories = array();
 $arr_outlinks = array();
                 
 
-//start to activate session
+//start - test run just to activate session
 $philid = 11705;
 list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
-//end to activate session
+//end - test run just to activate session
 
 
 for ($i = 0; $i < count($arr_id_list); $i++) 
@@ -60,26 +60,9 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
 
     if(trim($taxa) == "")exit(" $philid blank taxa exists");
-    
-    /*
-    print"$id<hr> ---
-    $image_url<hr> ---
-    $description<hr> ---
-    $desc_pic<hr> ---
-    $desc_taxa<hr> ---
-    $categories<hr> ---
-    $taxa<hr> ---
-    $copyright<hr>
-    $providers<hr> ---
-    $creation_date<hr> ---
-    $photo_credit<hr> ---
-    $outlinks<hr> ---
-    ";
-    */
+    //print"$id<hr> --- $image_url<hr> --- $description<hr> --- $desc_pic<hr> --- $desc_taxa<hr> --- $categories<hr> --- $taxa<hr> --- $copyright<hr> $providers<hr> --- $creation_date<hr> --- $photo_credit<hr> --- $outlinks<hr> --- ";
     
     $desc_taxa = str_ireplace("animals sre filtered", "animals are filtered", $desc_taxa);
-    
-    
     
     //$categories="xxx";
     $outlinks = utf8_encode($outlinks);
@@ -87,27 +70,22 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     $desc_taxa = utf8_encode($desc_taxa);
     
     $desc_pic = $desc_pic . "<br>" . "Created: $creation_date";
-    
-  
 
-    if(in_array($taxa . $desc_taxa, $arr_desc_taxa))   $desc_taxa="";
-    else                                       $arr_desc_taxa[] = $taxa . $desc_taxa;     
+    if(in_array($taxa . $desc_taxa, $arr_desc_taxa))$desc_taxa="";
+    else                                            $arr_desc_taxa[] = $taxa . $desc_taxa;     
 
-    if(in_array($taxa . $categories, $arr_categories)) $categories="";
-    else                                       $arr_categories[] = $taxa . $categories;     
+    if(in_array($taxa . $categories, $arr_categories))$categories="";
+    else                                              $arr_categories[] = $taxa . $categories;     
     
-    if(in_array($taxa . $outlinks, $arr_outlinks))     $outlinks="";
-    else                                       $arr_outlinks[] = $taxa . $outlinks;     
+    if(in_array($taxa . $outlinks, $arr_outlinks))$outlinks="";
+    else                                          $arr_outlinks[] = $taxa . $outlinks;     
 
 
     if($categories != "")$desc_taxa .= "<hr>Categories:<br>$categories";   
     if($outlinks != "")  $desc_taxa .= "<hr>Outlinks:<br>$outlinks";
-
     
     //print"<hr><hr>";    
-    print"<hr>";    
-    
- 
+    print"<hr>";     
 
     $taxon = str_replace(" ", "_", $taxa);
     if(@$used_taxa[$taxon])
