@@ -12,6 +12,9 @@ set_time_limit(0);
 
 error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
 
+$start_cnt = get_val_var('start_cnt');
+if(!$start_cnt)$start_cnt=1;
+
 $path = get_val_var('path');
 
 $provider_to_process = get_val_var('provider');
@@ -349,20 +352,15 @@ for ($i = 0; $i < count($provider); $i++)
         </font></i>
         </td>
     </tr>";
-
     
     if($provider_to_process == "")
     {
-        /* working as well         
-        */
-        
         $agentID = get_agentID($provider[$i]);
         if($agentID != "") print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
-        else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=$provider[$i]'> See entire report* &gt;&gt; </a></td></tr>"; 
-        
+        else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=$provider[$i]'> See entire report* &gt;&gt; </a></td></tr>";         
     }
 
-    if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path) . "</td></tr>";
+    if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path,$start_cnt,$total_taxon_id,$agentID) . "</td></tr>";
     
     print"</table>";
     
@@ -504,10 +502,31 @@ function process_all_eol($file)
     return "$unique_page_views,$page_views,$time_on_page_seconds";
 }
 
-function record_details($provider,$path)
+function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
 {   
+    $step=10;
+    
+    
+    if($start_cnt == "all"){$start_cnt=1;$max_cnt=999999999;}
+    else $max_cnt = $start_cnt+$step;
+    
+
+    //[$total_taxon_id][$path]
     $str="<table style='font-size : small;' align='center'>
-    <tr><td colspan='7'>Top 100 " . $provider . " Taxa Pages</td></tr>
+    <tr><td colspan='7'>" . $provider . " Taxa Pages "; 
+    //Top 100
+    
+    //start paging ==============================================================
+    if($max_cnt < $total_taxon_id)
+    {
+        $str .= " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=$max_cnt'>Next</a> &nbsp;|&nbsp; 
+        <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=all'>All</a> 
+        ";
+    }
+    //end paging ==============================================================
+    
+    $str .= "</td></tr>
     <tr align='center'>    
     <td>Rank</td>
     <td>Taxon ID</td>
@@ -519,6 +538,10 @@ function record_details($provider,$path)
     </tr>";
     
     $provider_cnt=0;
+    /*
+    $start_cnt=10;
+    $provider_cnt=$start_cnt;
+    */
         
     $filename = $path . "/site_statistics.csv";
     $row = 0;
@@ -544,19 +567,23 @@ function record_details($provider,$path)
             if(trim($agentName) == trim($provider))
             {
                 $provider_cnt++;                
-                if ($provider_cnt % 2 == 0){$vcolor = 'white';}
-                else                       {$vcolor = '#ccffff';}                        
-                $str .= utf8_encode("<tr bgcolor=$vcolor>
-                    <td align='right'>" . number_format($provider_cnt) . "</td>
-                    <td>$taxon_id</td>
-                    <td><i>$scientificName</i></td>
-                    <td>$commonNameEN</td>
-                    <td align='right'>" . number_format($total_page_views) . "</td>
-                    <td align='right'>" . number_format($total_unique_page_views) . "</td>
-                    <td align='right'>" . number_format($total_time_on_page_seconds) . "</td>
-                </tr>");
+                if($provider_cnt >= $start_cnt)
+                {
+                
+                    if ($provider_cnt % 2 == 0){$vcolor = 'white';}
+                    else                       {$vcolor = '#ccffff';}                        
+                    $str .= utf8_encode("<tr bgcolor=$vcolor>
+                        <td align='right'>" . number_format($provider_cnt) . "</td>
+                        <td>$taxon_id</td>
+                        <td><i>$scientificName</i></td>
+                        <td>$commonNameEN</td>
+                        <td align='right'>" . number_format($total_page_views) . "</td>
+                        <td align='right'>" . number_format($total_unique_page_views) . "</td>
+                        <td align='right'>" . number_format($total_time_on_page_seconds) . "</td>
+                    </tr>");
+                }
             }
-            if($provider_cnt == 100)break; //break 1                
+            if($provider_cnt == $max_cnt-1)break; //break 1                
         }                
         $row++;
     }//end while    
