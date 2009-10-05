@@ -5,7 +5,7 @@ connector for Public Health Image Library (CDC)
 http://phil.cdc.gov/phil/home.asp
 */
 
-
+exit;
 define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
@@ -20,7 +20,7 @@ exit;
  */
 
 $resource = new Resource(79);
-print $resource->id;
+print "resource id = " . $resource->id . "<hr>";
 //exit;
 
 $schema_taxa = array();
@@ -40,6 +40,11 @@ $url = 'http://phil.cdc.gov/phil/details.asp';
 $home_url = "http://phil.cdc.gov/phil/home.asp";
 $arr_id_list = get_id_list();
 
+$arr_desc_taxa = array();
+$arr_categories = array();
+$arr_outlinks = array();
+                
+
 //start to activate session
 $philid = 11705;
 list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
@@ -54,7 +59,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     $philid = $arr_id_list[$i];        
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
 
-    if(trim($taxa) == "")exit("blank taxa exists");
+    if(trim($taxa) == "")exit(" $philid blank taxa exists");
     
     /*
     print"$id<hr> ---
@@ -72,16 +77,35 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     ";
     */
     
+    $desc_taxa = str_ireplace("animals sre filtered", "animals are filtered", $desc_taxa);
+    
+    
+    
     //$categories="xxx";
     $outlinks = utf8_encode($outlinks);
     $desc_pic = utf8_encode($desc_pic);
     $desc_taxa = utf8_encode($desc_taxa);
     
     $desc_pic = $desc_pic . "<br>" . "Created: $creation_date";
-    $desc_taxa = "$desc_taxa <hr> $categories";
-    if($outlinks != "")$desc_taxa .= "<hr>Outlinks:<br>$outlinks";
     
-    print"<hr><hr>";    
+  
+
+    if(in_array($taxa . $desc_taxa, $arr_desc_taxa))   $desc_taxa="";
+    else                                       $arr_desc_taxa[] = $taxa . $desc_taxa;     
+
+    if(in_array($taxa . $categories, $arr_categories)) $categories="";
+    else                                       $arr_categories[] = $taxa . $categories;     
+    
+    if(in_array($taxa . $outlinks, $arr_outlinks))     $outlinks="";
+    else                                       $arr_outlinks[] = $taxa . $outlinks;     
+
+
+    if($categories != "")$desc_taxa .= "<hr>Categories:<br>$categories";   
+    if($outlinks != "")  $desc_taxa .= "<hr>Outlinks:<br>$outlinks";
+
+    
+    //print"<hr><hr>";    
+    print"<hr>";    
     
  
 
@@ -112,12 +136,15 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url);               
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                 
         
+        
+        if($desc_taxa != "")
+        {
         $do_count++;
         $agent_name = $providers;
         $agent_role = "source";            
-        $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url);               
-            
+        $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url);                           
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+        }
         
         $used_taxa[$taxon] = $taxon_parameters;
 
@@ -190,19 +217,21 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
                       );    
         */
         
-        $agent = array(0 => array( "role" => $agent_role , "homepage" => $dc_source , $agent_name) );    
-
-        $agents = array();
-        foreach($agent as $agent)
-        {  
-            $agentParameters = array();
-            $agentParameters["role"]     = $agent["role"];
-            $agentParameters["homepage"] = $agent["homepage"];
-            $agentParameters["logoURL"]  = "";        
-            $agentParameters["fullName"] = $agent[0];
-            $agents[] = new SchemaAgent($agentParameters);
+        if($agent_name != "")
+        {
+            $agent = array(0 => array( "role" => $agent_role , "homepage" => $dc_source , $agent_name) );    
+            $agents = array();
+            foreach($agent as $agent)
+            {  
+                $agentParameters = array();
+                $agentParameters["role"]     = $agent["role"];
+                $agentParameters["homepage"] = $agent["homepage"];
+                $agentParameters["logoURL"]  = "";        
+                $agentParameters["fullName"] = $agent[0];
+                $agents[] = new SchemaAgent($agentParameters);
+            }
+            $dataObjectParameters["agents"] = $agents;    
         }
-        $dataObjectParameters["agents"] = $agents;    
         //==========================================================================================
         $audience = array(  0 => array(     "Expert users"),
                             1 => array(     "General public")
@@ -223,9 +252,9 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=2; $i <= 2; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 7; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
     {
-        $url = "http://127.0.0.1/cdc/id_list_00" . $i . ".htm";
+        $url = "http://128.128.175.77/cdc/id_list_00" . $i . ".htm";
         $handle = fopen($url, "r");	
         if ($handle)
         {
@@ -234,14 +263,33 @@ function get_id_list()
         	fclose($handle);	
         	$str = $contents;
         }    
-	    $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173"; $end3="173";			
+	    $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173xxx"; $end3="173xxx";			
     	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all");	//str = the html block        
         print count($arr) . "<br>";    
         $id_list = array_merge($id_list, $arr);    
         //print_r($id); print"<hr>";
     }    
     print "total = " . count($id_list) . "<hr>"; //exit;
+    $count_bef_unset = count($id_list);
+    
+    //start exclude ids that are images of dogs and their masters
+    for ($i = 0; $i < count($id_list); $i++) 
+    {
+        if  (   $id_list[$i] == 11357   or
+                $id_list[$i] == 11329   or
+                $id_list[$i] == 10927   or
+                $id_list[$i] == 10926   or
+                $id_list[$i] == 10925                   
+            )unset($id_list[$i]);
+    }        
+    //end exclude ids    
+
+    print "<hr>count after unset = " . count($id_list);    
+    $id_list = array_trim($id_list,$count_bef_unset);
+    print "<hr>final count = " . count($id_list) . "<br>";    
+    //exit("<hr>stopx");    
     return $id_list;
+    
 }
 
 function process($url,$philid)
@@ -270,9 +318,7 @@ exit("<hr>-done-");
 
 function parse_contents($str)
 {
-    
-    
-    
+    //global $arr_desc_taxa;
     /*
     $url = "http://127.0.0.1/cdc/cdc1.htm";
     $url = "http://127.0.0.1/cdc/cdc2.htm";
@@ -288,7 +334,7 @@ function parse_contents($str)
     */
 
     //========================================================================================
-	$beg="ID#:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
+	$beg="ID#:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$id=$arx;
 	//print "<hr>id = " . $id;	print "<hr>";
@@ -297,33 +343,31 @@ function parse_contents($str)
     
     
 	//========================================================================================
-	$beg="<td><b>Description:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
+	$beg="<td><b>Description:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$description=trim($arx);    
-	print $description;	print "<hr>"; //exit;    
+	//print $description;	print "<hr>"; //exit;    
 
 	//========================================================================================
     $description = "xxx" . $description;
-	$beg="xxx<b>"; $end1="</b><p>"; $end2="173"; $end3="173";			
+	$beg="xxx<b>"; $end1="</b><p>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($description,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$desc_pic=$arx;    
-	print "desc_pic<br>" . $desc_pic;	print "<hr>"; //exit;
-    
-    
-    
+	//print "desc_pic<br>" . $desc_pic;	print "<hr>"; //exit;    
+      
 
     $description = str_ireplace('xxx', '', $description);        
     $desc_taxa = str_ireplace($desc_pic, '', $description);        
-    print "desc_taxa<br>" . $desc_taxa;	print "<hr>"; //exit;
-    
-        
+    //print "desc_taxa<br>" . $desc_taxa;	print "<hr>"; //exit;        
+
+          
     
     //========================================================================================
 	//$beg='<table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td>CDC Organization</td></tr></tbody></table>'; 
     $beg='<table border="0" cellpadding="0" cellspacing="0"><tr><td>CDC Organization</td></tr></table>';      
 
 	$end1='<tr bgcolor="white" valign="top"><td><b>Copyright Restrictions:</b>'; 
-	$end2="173"; $end3="173";			
+	$end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$categories=$arx;
 
@@ -337,7 +381,7 @@ function parse_contents($str)
     $tmp = strip_tags($tmp,"<td><tr><table><img>");
     
 	$categories = $tmp;
-	print $categories;	print "<hr>"; //exit;
+	//print $categories;	print "<hr>"; //exit;
     
     
     
@@ -347,7 +391,7 @@ function parse_contents($str)
 	$str = 'aaa 1 yy aaa 2 yy aaa 3 yy aaa 4 yy';
 	$beg='aaa'; 
 	$end1='yy'; 
-	$end2="173"; $end3="173";			
+	$end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	print $arx;
 	*/
@@ -365,39 +409,39 @@ function parse_contents($str)
     
     
 	//========================================================================================
-	$beg="Copyright Restrictions:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
+	$beg="Copyright Restrictions:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$copyright=$arx;
-	print $copyright;	print "<hr>"; //exit;
+	//print $copyright;	print "<hr>"; //exit;
     
     
     
     //========================================================================================	
-	$beg="Content Providers(s):</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
+	$beg="Content Providers(s):</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$providers=$arx;
-	print $providers;	print "<hr>"; //exit;
+	//print $providers;	print "<hr>"; //exit;
     
     
     
     //========================================================================================	
-	$beg="Creation Date:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
+	$beg="Creation Date:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$creation_date=$arx;
-	print $creation_date;	print "<hr>"; //exit;
+	//print $creation_date;	print "<hr>"; //exit;
     
         
     //========================================================================================	
-	$beg="Photo Credit:</b></td><td>"; $end1="</td></tr>"; $end2="173"; $end3="173";			
+	$beg="Photo Credit:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$photo_credit=$arx;
-	print $photo_credit;	print "<hr>"; //exit;
+	//print $photo_credit;	print "<hr>"; //exit;
     
     
     
     //========================================================================================	
 	$beg='Links:</b></td><td><table><tr valign="top"><td><li></li></td><td>';           
-    $end1="</td></tr></table></td></tr>"; $end2="173"; $end3="173";			
+    $end1="</td></tr></table></td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$outlinks=$arx;    
     
@@ -405,7 +449,7 @@ function parse_contents($str)
     //$outlinks = strip_tags($outlinks,"<a>"); //not needed
     
 	//print "<hr>$str";
-    print "<hr>outlinks: " . $outlinks;	print "<hr>"; //exit;
+    //print "<hr>outlinks: " . $outlinks;	print "<hr>"; //exit;
         
     
     //========================================================================================	
@@ -517,6 +561,23 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 	
 }//end function
 	
+
+function array_trim($a,$len) 
+{ 	
+	$b=array();
+	$j = 0; 
+	//print "<hr> -- "; print count($a); print "<hr> -- ";
+	for ($i = 0; $i < $len; $i++) 
+	{ 
+		//if (array_key_exists($i,$a))
+        if(isset($a[$i]))
+		{
+			if (trim($a[$i]) != "") { $b[$j++] = $a[$i]; } 		
+            else print "[walang laman]";
+		}
+	} 	
+	return $b; 
+}
 
 ?>
 
