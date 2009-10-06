@@ -194,6 +194,7 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
     $dataObjectParameters = array();
     $dataObjectParameters["title"] = $title;
     $dataObjectParameters["rightsHolder"] = $rightsHolder;
+    
     if($subject)
     {
         $dataObjectParameters["subjects"] = array();

@@ -6,26 +6,27 @@
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
+
+http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=26136
 */
 
 //define("ENVIRONMENT", "development");
-define("MYSQL_DEBUG", true);
-define("DEBUG", true);
+define("ENVIRONMENT", "slave_32");
+define("MYSQL_DEBUG", false);
+define("DEBUG", false);
 
 include_once(dirname(__FILE__) . "/../../config/start.php");
-
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //only on local; to be deleted before going into production
-// /*
+ /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
-// */
+ */
 
 $resource = new Resource(65);
-print $resource->id;
-exit;
+//print $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -38,10 +39,9 @@ $wrap = "\n";
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
-$result = $mysqli->query("Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' Order By taxa.taxon_phylum Asc 
-limit 10");    
-//");    
-//
+$query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' Order By taxa.taxon_phylum Asc ";
+//$query .= " limit 1 ";
+$result = $mysqli->query($query);    
 
 //print $result->num_rows; exit;
 
@@ -67,6 +67,7 @@ while($row=$result->fetch_assoc())
         //print $main->taxid . " - $do_count";    
         $taxid_count++;
         
+        
         //start #########################################################################  
         $taxon = str_replace(" ", "_", $main->name);
         if(@$used_taxa[$taxon])
@@ -89,7 +90,7 @@ while($row=$result->fetch_assoc())
             $do_count++;
 
             $dc_source = $species_service_url . urlencode($main->name);                            
-            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source);       
+            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->public_barcodes);       
             
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
     
@@ -123,26 +124,73 @@ fclose($OUT);
 
 echo "$wrap$wrap Done processing.";
 
-function get_data_object($taxid,$do_count,$dc_source)
+function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
 {
     /*            
     Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
     World Wide Web electronic publication. www.boldsystems.org, version (08/2009). 
     */
+
+
+    //start get text dna sequece
+    if($public_barcodes > 0)
+    {
+        $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+        $text_dna_sequence = get_text_dna_sequence($url);        
+                
+        $text_dna_sequence = str_ireplace(">", "<hr>", $text_dna_sequence);        
+        
+    }
+    else $text_dna_sequence = '';
+    
+    if($text_dna_sequence)
+    {
+        $description = "Public barcodes available = $public_barcodes <br>";
+        $description .= "<font size='2'>$text_dna_sequence</font>";
+    }
+    else                   $description="No public barcodes <br>"; 
+    
+    $description .= "<hr>";
+    $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
+    
+    $description .= "<a href='$src'><img src='$src' height=''></a>";        
+        
+    //end get text dna sequence
+    
     $dataObjectParameters = array();
-    //$dataObjectParameters["title"] = $title;
-    //$dataObjectParameters["description"] = $description;
+    
+    $dataObjectParameters["title"] = "Molecular and Genetics";
+    
+    $dataObjectParameters["description"] = $description;
+    
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;    
+    
     $dataObjectParameters["identifier"] = $taxid . "_" . $do_count;
     $dataObjectParameters["rights"] = "Copyright 2009 - Biodiversity Institute of Ontario";
-    $dataObjectParameters["rightsHolder"] = "Barcode of Life Data System";
-    $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
+    $dataObjectParameters["rightsHolder"] = "Barcode of Life Data Systems";
+
+    if(true)
+    {
+        $dataObjectParameters["subjects"] = array();
+        $subjectParameters = array();
+        $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology";
+        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+    }
+    
+    /*
+    $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";    
     $dataObjectParameters["mimeType"] = "image/png";
+    */
+    
+    $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
+    $dataObjectParameters["mimeType"] = "text/html";    
+   
+    
     $dataObjectParameters["language"] = "en";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by/3.0/";
     //$dataObjectParameters["thumbnailURL"] = "";
-    $dataObjectParameters["mediaURL"] = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=600";    
+    //$dataObjectParameters["mediaURL"] = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=600";    
     $dataObjectParameters["source"] = $dc_source;
     
     //==========================================================================================
@@ -177,6 +225,90 @@ function get_data_object($taxid,$do_count,$dc_source)
 
     return $dataObjectParameters;
 }
+
+
+
+function get_text_dna_sequence($url)
+{
+    $str = get_file_contents($url); //print $str;  
+    $beg='../temp/'; $end1='fasta.fas'; $end2="173xxx"; $end3="173xxx";			
+    $folder = parse_html($str,$beg,$end1,$end2,$end3,$end3,"");	        
+    $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
+    $str = get_file_contents($url);
+    return $str;
+}
+function get_file_contents($url)
+{
+    $handle = fopen($url, "r");	
+    if ($handle)
+    {
+        $contents = '';
+      	while (!feof($handle)){$contents .= fread($handle, 8192);}
+       	fclose($handle);	
+       	$str = $contents;
+    }     
+    return $str;
+}        
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
+{
+    //PRINT "[$all]"; exit;
+	$beg_len = strlen(trim($beg));
+	$end1_len = strlen(trim($end1));
+	$end2_len = strlen(trim($end2));
+	$end3_len = strlen(trim($end3));	
+	$end4_len = strlen(trim($end4));		
+	//print "[[$str]]";
+
+	$str = trim($str); 
+	
+	$str = $str . "|||";
+	
+	$len = strlen($str);
+	
+	$arr = array(); $k=0;
+	
+	for ($i = 0; $i < $len; $i++) 
+	{
+		if(substr($str,$i,$beg_len) == $beg)
+		{	
+			$i=$i+$beg_len;
+			$pos1 = $i;
+			
+			//print substr($str,$i,10) . "<br>";									
+
+			$cont = 'y';
+			while($cont == 'y')
+			{
+				if(	substr($str,$i,$end1_len) == $end1 or 
+					substr($str,$i,$end2_len) == $end2 or 
+					substr($str,$i,$end3_len) == $end3 or 
+					substr($str,$i,$end4_len) == $end4 or 
+					substr($str,$i,3) == '|||' )
+				{
+					$pos2 = $i - 1; 					
+					$cont = 'n';					
+					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);															
+					
+					//print "$arr[$k] <hr>";
+					
+					$k++;
+				}
+				$i++;
+			}//end while
+			$i--;			
+		}
+		
+	}//end outer loop
+
+    if($all == "")	
+    {
+        $id='';
+	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        return $id;
+    }
+    elseif($all == "all") return $arr;
+	
+}//end function
 
 
 /*
