@@ -2,7 +2,7 @@
 
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
-define("DEBUG", true);
+define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -519,8 +519,13 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
     //start paging ==============================================================
     if($max_cnt < $total_taxon_id)
     {
+        $next_step=$step;
+        if  (   $max_cnt >= $total_taxon_id-$step   and
+                $max_cnt <= $total_taxon_id
+            )$next_step = $total_taxon_id - $max_cnt + 1;
+        
         $str .= " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=$max_cnt'>Next</a> &nbsp;|&nbsp; 
+        <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=$max_cnt'>Next $next_step</a> &nbsp;|&nbsp; 
         <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=all'>All</a> 
         ";
     }
