@@ -11,7 +11,7 @@ http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=261
 
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
+define("MYSQL_DEBUG", true);
 define("DEBUG", false);
 
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -22,9 +22,10 @@ $mysqli =& $GLOBALS['mysqli_connection'];
  /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
+exit;
  */
-
-$resource = new Resource(65);
+set_time_limit(0);
+$resource = new Resource(81);
 //print $resource->id; exit;
 
 $schema_taxa = array();
@@ -32,30 +33,32 @@ $used_taxa = array();
 
 $id_list=array();
 
-$wrap = "\n";
-//$wrap = "<br>";
+//$wrap = "\n";
+$wrap = "<br>";
 
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' Order By taxa.taxon_phylum Asc ";
-//$query .= " limit 1 ";
+$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 
-//print $result->num_rows; exit;
+print "phylum count = " . $result->num_rows . "<hr>"; //exit;
 
 $total_taxid_count = 0;
 $do_count = 0;//weird but needed here
+$ctr=0;
 while($row=$result->fetch_assoc())     
 {
     $taxid_count=0;
+    $ctr++;   
+    print "<hr> $ctr. phylum = " . $row["taxon_phylum"] . "<br>";
         
     $url = $phylum_service_url . trim($row["taxon_phylum"]);
     //$xml = @simplexml_load_file($url);
     
     if(!($xml = @simplexml_load_file($url)))continue
     
-    //print "<hr>phylum = " . $row["taxon_phylum"] . "<br>";
     
     $do_count = 0;
     foreach($xml->taxon as $main)
@@ -85,7 +88,7 @@ while($row=$result->fetch_assoc())
 
         if(intval($main->public_barcodes > 0))
         {
-            if($do_count == 0)echo "$wrap$wrap phylum = " . $row["taxon_phylum"] . "$wrap";
+            if($do_count == 0)//echo "$wrap$wrap phylum = " . $row["taxon_phylum"] . "$wrap";
             $do_count++;
 
             $dc_source = $species_service_url . urlencode($main->name);                            
@@ -124,35 +127,57 @@ fclose($OUT);
 echo "$wrap$wrap Done processing.";
 
 function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
-{
+{    
     /*            
     Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
     World Wide Web electronic publication. www.boldsystems.org, version (08/2009). 
     */
 
-
     //start get text dna sequece
+
+    $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
+
     if($public_barcodes > 0)
     {
         $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-        $text_dna_sequence = get_text_dna_sequence($url);        
-                
-        $text_dna_sequence = str_ireplace(">", "<hr>", $text_dna_sequence);        
+        $text_dna_sequence = get_text_dna_sequence($url);                        
+        $text_dna_sequence = str_ireplace(">", "<br>&nbsp;<br>", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("----", "", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("---", "|||", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);        
         
+        $text_dna_sequence = "        
+        You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems." 
+        . $text_dna_sequence . "<br>&nbsp;<br>  ";
     }
     else $text_dna_sequence = '';
     
     if($text_dna_sequence)
     {
-        $description = "Public barcodes available = $public_barcodes <br>";
-        $description .= "<font size='2'>$text_dna_sequence</font>";
+        $temp = "<br>&nbsp;<br>Available Public Sequence(s) = $public_barcodes ";
+        $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
     }
-    else                   $description="No public barcodes <br>"; 
+    else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>"; 
     
-    $description .= "<hr>";
-    $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
+    $description = "<a href='$src'><img src='$src' height=''></a>" . $temp . " -- end -- <br>&nbsp;<br> ";
     
-    $description .= "<a href='$src'><img src='$src' height=''></a>";        
+    
+    ////////////
+    /*
+<a href='http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=79683&iwidth=400'><img src='http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=79683&iwidth=400' height=''></a>    
+<hr>
+     <div style=
+     "  font-size : x-small;
+	    overflow : scroll;
+        
+     ">
+        <!--- replace ---- with space --->    
+     Public barcodes available = 9 <br><hr>GBSP1293-06|DQ320493|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTATTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGCTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCCTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTCCTATCTGCT--</p><p><hr>GBSP1292-06|DQ320492|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGTTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCCTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTGTTTTTAACTGTACCTGTCCTAGCTGCA--</p><p><hr>GBSP1291-06|DQ320490|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGCTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCCTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTTCTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTCCTAGCTGCA--</p><p><hr>GBSP1290-06|DQ320489|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGTTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCTTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTCCTAGCTGCA--</p><p><hr>GBSP1289-06|DQ320488|Dollfusentis chandleri|</p><p>TTAAAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGTTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCCTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTCCTAGCTGCA--</p><p><hr>GBSP1288-06|DQ320487|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGTTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGGTGGACTATGTACCCACCCCTAATTTTAAGAAGGTACAGCCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCTTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTTCTAGCTGCA--</p><p><hr>GBSP1287-06|DQ320486|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGTTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCCTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGGCTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTCCTAGCTGCA--</p><p><hr>GBSP1286-06|DQ320485|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGTTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCCTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTCCTAGCTGCA--</p><p><hr>GBSP1285-06|DQ320484|Dollfusentis chandleri|</p><p>TTAGAACTAGGTAGTGGTGGGTTGTTAATTGGTGAT---GAGCATTTATATAATGTGTTAGTTACGAGTCATGCCATTATGATGGTCTTTTTCTTAGTAATACCTCTGTTTATAGGGGGTTTTGGTAATTGGATAATCCCTGTGATA---GTGGGGTGTAGGGATATGTTATTCCCTCGTTTAAATAATTTAAGGTTTTTACTAGTTCCTATAAGGTTGGTATTATTTTTAGTGTCTATATATTTAGAGGGGGGTGGTGGA---GGATGGACTATGTACCCACCCTTAATTTTAAGAAGGTACAGTCCTAGGATGTCTGTAGATATAATGGTG---TTAAGTCTTCATATAGCAGGCCTATCTTCATTGTTAGGGTCAATTAATATTATTTTGACAAGAGTTATAGTTAGAGTTCTTCATGGGTTGGGGGAGACTATCCCATTGTTGGTGTGGTCTTTACTAGTTACTGCTGGATTGGTTGTTTTAACTGTACCTGTCCTAGCTGCA--</p><p></p><p>
+
+     </div>    
+     */
+    ////////////
         
     //end get text dna sequence
     
@@ -166,7 +191,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     //$dataObjectParameters["modified"] = $modified;    
     
     $dataObjectParameters["identifier"] = $taxid . "_" . $do_count;
-    $dataObjectParameters["rights"] = "Copyright 2009 - Biodiversity Institute of Ontario";
+    //$dataObjectParameters["rights"] = "Copyright 2009 - partner name";
     $dataObjectParameters["rightsHolder"] = "Barcode of Life Data Systems";
 
     if(true)
