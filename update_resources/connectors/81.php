@@ -149,7 +149,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         
         $text_dna_sequence = "        
         You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems." 
-        . $text_dna_sequence . "<br>&nbsp;<br>  ";
+        . $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";
     }
     else $text_dna_sequence = '';
     
@@ -160,7 +160,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     }
     else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>"; 
     
-    $description = "<a href='$src'><img src='$src' height=''></a>" . $temp . " -- end -- <br>&nbsp;<br> ";
+    $description = "<a href='$src'><img src='$src' height=''></a>" . $temp;
     
     
     ////////////
