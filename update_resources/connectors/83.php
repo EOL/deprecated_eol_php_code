@@ -3,8 +3,9 @@
 
 //exit;
 
-define("ENVIRONMENT", "development");
-define("MYSQL_DEBUG", false);
+//define("ENVIRONMENT", "development");
+define("ENVIRONMENT", "slave_32");
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
@@ -15,7 +16,7 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
 
-$resource = new Resource(888);
+$resource = new Resource(83);
 
 $limit_of_inventory = 25; //300000
 $inventory_method_url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&keywords=&limit=$limit_of_inventory&format=id";
