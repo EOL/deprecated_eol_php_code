@@ -1,8 +1,7 @@
 <?php
 //#!/usr/local/bin/php
 
-exit;
-exit;
+//exit;
 
 define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
@@ -11,8 +10,10 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+/*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
+*/
 
 $resource = new Resource(888);
 
@@ -28,13 +29,22 @@ $used_taxa = array();
 
 
 //get all image ids
+/* working but not being used as advised by Greg from MorphBank
 $image_id_xml = simplexml_load_file($inventory_method_url);
 foreach($image_id_xml->id as $id)
 {
     $image_ids[] = $id;
 }
+*/
 
-
+$id_list_url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&limit=-1&keywords=baskauf&format=id";
+$image_id_xml = simplexml_load_file($id_list_url);
+foreach($image_id_xml->id as $id)
+{
+    $image_ids[] = $id;
+    print $id . " - ";
+}
+print "<hr>" . count($image_ids); //exit;
 
 // loop through image ids
 foreach($image_ids as $image_id)
@@ -66,7 +76,12 @@ foreach($image_ids as $image_id)
         $taxon_parameters["order"] = $dwc_Order;
         $taxon_parameters["family"] = $dwc_Family;
         $taxon_parameters["genus"] = $dwc_Genus;
-        $taxon_parameters["scientificName"]= $dwc_ScientificName;
+        $taxon_parameters["scientificName"]= $dwc_ScientificName;        
+        $taxon_parameters["source"] = "http://www.morphbank.net/Browse/ByImage/?tsnKeywords=" . urlencode($dwc_ScientificName) . "&spKeywords=&viewKeywords=&localityKeywords=&activeSubmit=2";
+        
+        
+        
+        
         $taxon_parameters["dataObjects"]= array();
         
         $used_taxa[$taxon_identifier] = $taxon_parameters;
