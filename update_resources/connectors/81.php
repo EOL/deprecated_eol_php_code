@@ -4,6 +4,10 @@
 
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
+
+http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=10325&iwidth=600
+http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=10325
+
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=26136
@@ -72,23 +76,27 @@ while($row=$result->fetch_assoc())
         
         
         //start #########################################################################  
-        $taxon = str_replace(" ", "_", $main->name);
-        if(@$used_taxa[$taxon])
-        {
-            $taxon_parameters = $used_taxa[$taxon];
-        }
-        else
-        {
-            $taxon_parameters = array();
-            $taxon_parameters["identifier"] = $main->taxid;
-            $taxon_parameters["scientificName"]= $main->name;
-            $taxon_parameters["source"] = $species_service_url . urlencode($main->name);
-            
-            $used_taxa[$taxon] = $taxon_parameters;            
-        }
 
         if(intval($main->public_barcodes > 0))
         {
+            //start taxon part
+            $taxon = str_replace(" ", "_", $main->name);
+            if(@$used_taxa[$taxon])
+            {
+                $taxon_parameters = $used_taxa[$taxon];
+            }
+            else
+            {
+                $taxon_parameters = array();
+                $taxon_parameters["identifier"] = $main->taxid;
+                $taxon_parameters["scientificName"]= $main->name;
+                $taxon_parameters["source"] = $species_service_url . urlencode($main->name);
+            
+                $used_taxa[$taxon] = $taxon_parameters;            
+            }            
+            //end taxon part            
+
+
             if($do_count == 0)//echo "$wrap$wrap phylum = " . $row["taxon_phylum"] . "$wrap";
             $do_count++;
 
@@ -242,8 +250,13 @@ function get_text_dna_sequence($url)
     $str = get_file_contents($url); //print $str;  
     $beg='../temp/'; $end1='fasta.fas'; $end2="173xxx"; $end3="173xxx";			
     $folder = parse_html($str,$beg,$end1,$end2,$end3,$end3,"");	        
-    $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
-    $str = get_file_contents($url);
+
+    $str="";    
+    if($folder != "")
+    {
+        $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
+        $str = get_file_contents($url);
+    }    
     return $str;
 }
 function get_file_contents($url)
