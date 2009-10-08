@@ -79,7 +79,7 @@ io	Ido
 ii	Sichuan Yi
 iu	Inuktitut
 ie	Interlingue
-ia	Interlingua (International Auxiliary Language Association)
+ia	Interlingua
 id	Indonesian
 ik	Inupiaq
 is	Icelandic

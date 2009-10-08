@@ -100,7 +100,7 @@ class WikimediaPage
             $name = preg_replace("/\s*\|$/", "", trim($name));
             $name = str_replace("<small>", "", $name);
             $name = str_replace("</small>", "", $name);
-            if(!is_utf8($name) || preg_match("/\{/", $name))
+            if(!Functions::is_utf8($name) || preg_match("/\{/", $name))
             {
                 $taxonomy = array();
                 break;
@@ -189,7 +189,7 @@ class WikimediaPage
         $data_object_parameters["description"] = $this->description();
         
         //if($this->description() && preg_match("/([^".UPPER.LOWER."0-9\/,\.;:'\"\(\)\[\]\{\}\|\!\?~@#\$%+_\^&\*<>=\n\r -])/ims", $this->description(), $arr))
-        if($data_object_parameters["description"] && !is_utf8($data_object_parameters["description"]))
+        if($data_object_parameters["description"] && !Functions::is_utf8($data_object_parameters["description"]))
         {
             $data_object_parameters["description"] = "";
             
@@ -218,7 +218,7 @@ class WikimediaPage
         
         $agent_parameters = array();
         $agent_parameters["fullName"] = htmlspecialchars($author);
-        if(is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+        if(Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
         
         $this->agent_parameters = $agent_parameters;
         return $agent_parameters;
@@ -265,7 +265,7 @@ class WikimediaPage
                 if($attr == "author") $author = WikiParser::strip_syntax($val, true);
             }
         }
-        if((!$author || !is_utf8($author)) && $this->contributor) $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
+        if((!$author || !Functions::is_utf8($author)) && $this->contributor) $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
         
         $this->author = $author;
         return $author;
@@ -314,27 +314,6 @@ class WikimediaPage
 
 
 
-// Returns true if $string is valid UTF-8 and false otherwise.
-function is_utf8($string)
-{
-    // From http://w3.org/International/questions/qa-forms-utf-8.html
-    return preg_match('%^(?:
-          [\x09\x0A\x0D\x20-\x7E]            # ASCII
-        | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
-        |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
-        | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
-        |  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
-        |  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
-        | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
-        |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
-    )*$%xs', $string);
-}
 
-function is_ascii($string)
-{
-    return preg_match('%^(?:
-          [\x09\x0A\x0D\x20-\x7E]            # ASCII
-    )*$%xs', $string);
-}
 
 ?>
