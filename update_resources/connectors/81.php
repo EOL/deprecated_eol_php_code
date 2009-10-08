@@ -14,7 +14,7 @@ http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=261
 */
 
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", false);
 
@@ -44,10 +44,10 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
-$query .= " and taxon_phylum = 'Chaetognatha' ";
+//$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum = 'Chordata' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
-//$query .= " limit 10 ";
+//$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 
 print "phylum count = " . $result->num_rows . "<hr>"; //exit;
@@ -154,9 +154,9 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                
         
-        if($text_dna_sequence != "")$text_dna_sequence = "You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems. "; 
-        else                        $text_dna_sequence = "You can <a target='BOLDSys' href='$dc_source'>download</a> public sequence from BOLD Systems. ";         
-        $text_dna_sequence .= $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";        
+        if($text_dna_sequence != "")$str = "You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems. "; 
+        else                        $str = "You can <a target='BOLDSys' href='$dc_source'>download</a> public sequence from BOLD Systems. ";         
+        $text_dna_sequence = $str . $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";        
         
     }
     else $text_dna_sequence = '';    
@@ -166,7 +166,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
     }
     else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>";     
-    $description = "<a href='$src'><img src='$src' height=''></a>" . $temp;        
+    $description = "Genetic Barcode<br><a href='$src'><img src='$src' height=''></a>" . $temp;        
     //end get text dna sequence
     
     $dataObjectParameters = array();    
@@ -244,7 +244,7 @@ function get_text_dna_sequence($url)
     }    
     return $str;
 }
-/*
+// /*
 function get_file_contents($url)
 {
     $handle = fopen($url, "r");	
@@ -255,7 +255,8 @@ function get_file_contents($url)
        	fclose($handle);	
     }     
     return $contents;
-}*/        
+}
+// */        
 function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
 {
     //PRINT "[$all]"; exit;
