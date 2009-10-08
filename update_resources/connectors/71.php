@@ -1,7 +1,6 @@
 #!/usr/local/bin/php
 <?php
 
-
 define('DEBUG', true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
@@ -9,12 +8,13 @@ Functions::require_module("wikipedia");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
+
 $resource = new Resource(71);
 
-// // download latest Wikimedia Commons export
-// shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
-// // unzip the download
-// shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
+// download latest Wikimedia Commons export
+shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
+// unzip the download
+shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
 // split the huge file into 300M chunks
 shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikimedia.xml ".dirname(__FILE__)."/files/wikimedia/part_");
 
@@ -52,9 +52,9 @@ get_image_urls();
 create_resource_file();
 
 
-// // cleaning up downloaded files
-// shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia/*");
-// shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml");
+// cleaning up downloaded files
+shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia/*");
+shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml");
 
 echo "end";
 
@@ -115,7 +115,13 @@ function process_file($part_suffix, $callback, $title = false)
                     Functions::debug("memory: ".memory_get_usage());
                     flush();
                 }
-
+                
+                if($title && !preg_match("/<title>". preg_quote($title, "/") ."<\/title>/ims", $current_page))
+                {
+                    echo "<title>". preg_quote($title, "/") ."<\/title>\n";
+                    continue;
+                }
+                
                 call_user_func($callback, $current_page);
                 $current_page = "";
             }

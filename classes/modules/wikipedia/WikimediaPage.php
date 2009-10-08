@@ -173,13 +173,14 @@ class WikimediaPage
                 
                 $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
                 break;
-            }else
-            {
-                echo "LICENSE: $this->title\n";
-                print_r($licenses);
             }
         }
-        if(!isset($data_object_parameters["license"])) return false;
+        if(!isset($data_object_parameters["license"]))
+        {
+            echo "LICENSE: $this->title\n";
+            print_r($licenses);
+            return false;
+        }
         
         $data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";

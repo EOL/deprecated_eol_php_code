@@ -80,7 +80,7 @@ foreach($urls as $key => $val)
                 $name = $arr[3];
                 while(preg_match("/^(.*)<\/a>/",$name,$arr2)) $name = $arr2[1];
                 
-                $url = "http://www.biopix.com/".rawurlencode($arr[1])."&ShowAll=1";
+                $url = "http://www.biopix.com/".$arr[1]."&ShowAll=1";
                 //echo "$url\n";
                 
                 if($taxon = grab_images($url, $name, $arr[2], @$kingdoms[$key]))
@@ -88,10 +88,11 @@ foreach($urls as $key => $val)
                     $all_taxa[] = $taxon;
                 }
                 
-                //if($taxa_for_this_page >= 3) break;
+                //if($taxa_for_this_page >= 6) break;
             }
         }
     }
+    //break;
 }
 
 //echo SchemaDocument::get_taxon_xml($all_taxa);
@@ -221,8 +222,8 @@ function image_detail($url, $photo_id)
 function get_data_object($image_url, $photo_id, $source_url, $description, $location, $file_extension)
 {
     $mime_type = "image/jpeg";
-    if($file_extension == ".jpeg") $mime_type = "image/png";
-    elseif($file_extension == ".jpg") $mime_type = "image/png";
+    if($file_extension == ".jpeg") $mime_type = "image/jpeg";
+    elseif($file_extension == ".jpg") $mime_type = "image/jpeg";
     elseif($file_extension == ".png") $mime_type = "image/png";
     elseif($file_extension == ".gif") $mime_type = "image/gif";
     else return false;
