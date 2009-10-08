@@ -23,11 +23,11 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //only on local; to be deleted before going into production
-// /*
+ /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
-//exit;
-// */
+exit;
+ */
 set_time_limit(0);
 $resource = new Resource(81);
 //print $resource->id; exit;
@@ -44,9 +44,10 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
-//$query .= " and taxon_phylum = 'Chaetognatha' ";
+$query .= " and taxon_phylum = 'Chaetognatha' ";
+//$query .= " and taxon_phylum = 'Chordata' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
-//$query .= " limit 1 ";
+//$query .= " limit 10 ";
 $result = $mysqli->query($query);    
 
 print "phylum count = " . $result->num_rows . "<hr>"; //exit;
@@ -141,11 +142,8 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
     World Wide Web electronic publication. www.boldsystems.org, version (08/2009). 
     */
-
     //start get text dna sequece
-
     $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
-
     if($public_barcodes > 0)
     {
         $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
@@ -154,56 +152,42 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $text_dna_sequence = str_ireplace("----", "", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("---", "|||", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);        
-        
-        $text_dna_sequence = "        
-        You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems." 
-        . $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";
+        $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                
+        if($text_dna_sequence != "")$text_dna_sequence = "You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems. "; 
+        else                        $text_dna_sequence = "You can <a target='BOLDSys' href='$dc_source'>download</a> public sequence from BOLD Systems. ";         
+        $text_dna_sequence .= $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";        
     }
-    else $text_dna_sequence = '';
-    
+    else $text_dna_sequence = '';    
     if($text_dna_sequence)
     {
         $temp = "<br>&nbsp;<br>Available Public Sequence(s) = $public_barcodes ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
     }
-    else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>"; 
-    
-    $description = "<a href='$src'><img src='$src' height=''></a>" . $temp;
-    
-        
+    else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>";     
+    $description = "<a href='$src'><img src='$src' height=''></a>" . $temp;        
     //end get text dna sequence
     
-    $dataObjectParameters = array();
-    
-    $dataObjectParameters["title"] = "Molecular and Genetics";
-    
-    $dataObjectParameters["description"] = $description;
-    
+    $dataObjectParameters = array();    
+    $dataObjectParameters["title"] = "Molecular and Genetics";    
+    $dataObjectParameters["description"] = $description;    
     //$dataObjectParameters["created"] = $created;
-    //$dataObjectParameters["modified"] = $modified;    
-    
+    //$dataObjectParameters["modified"] = $modified;        
     $dataObjectParameters["identifier"] = $taxid . "_" . $do_count;
     //$dataObjectParameters["rights"] = "Copyright 2009 - partner name";
     $dataObjectParameters["rightsHolder"] = "Barcode of Life Data Systems";
-
     if(true)
     {
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology";
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
-    }
-    
+    }    
     /*
     $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";    
     $dataObjectParameters["mimeType"] = "image/png";
-    */
-    
+    */    
     $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
-    $dataObjectParameters["mimeType"] = "text/html";    
-   
-    
+    $dataObjectParameters["mimeType"] = "text/html";        
     $dataObjectParameters["language"] = "en";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by/3.0/";
     //$dataObjectParameters["thumbnailURL"] = "";
@@ -239,15 +223,14 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     }
     $dataObjectParameters["audiences"] = $audiences;    
     //==========================================================================================
-
     return $dataObjectParameters;
 }
-
-
-
 function get_text_dna_sequence($url)
 {
-    $str = get_file_contents($url); //print $str;  
+    //$str = get_file_contents($url); //print $str;  
+    $str = Functions::get_remote_file($url);
+    
+    
     $beg='../temp/'; $end1='fasta.fas'; $end2="173xxx"; $end3="173xxx";			
     $folder = parse_html($str,$beg,$end1,$end2,$end3,$end3,"");	        
 
@@ -255,10 +238,12 @@ function get_text_dna_sequence($url)
     if($folder != "")
     {
         $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
-        $str = get_file_contents($url);
+        //$str = get_file_contents($url);
+        $str = Functions::get_remote_file($url);
     }    
     return $str;
 }
+/*
 function get_file_contents($url)
 {
     $handle = fopen($url, "r");	
@@ -269,7 +254,7 @@ function get_file_contents($url)
        	fclose($handle);	
     }     
     return $contents;
-}        
+}*/        
 function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
 {
     //PRINT "[$all]"; exit;
@@ -280,23 +265,17 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 	$end4_len = strlen(trim($end4));		
 	//print "[[$str]]";
 
-	$str = trim($str); 
-	
-	$str = $str . "|||";
-	
-	$len = strlen($str);
-	
-	$arr = array(); $k=0;
-	
+	$str = trim($str); 	
+	$str = $str . "|||";	
+	$len = strlen($str);	
+	$arr = array(); $k=0;	
 	for ($i = 0; $i < $len; $i++) 
 	{
 		if(substr($str,$i,$beg_len) == $beg)
 		{	
 			$i=$i+$beg_len;
-			$pos1 = $i;
-			
+			$pos1 = $i;			
 			//print substr($str,$i,10) . "<br>";									
-
 			$cont = 'y';
 			while($cont == 'y')
 			{
@@ -308,30 +287,23 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 				{
 					$pos2 = $i - 1; 					
 					$cont = 'n';					
-					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);															
-					
-					//print "$arr[$k] <hr>";
-					
+					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
+					//print "$arr[$k] <hr>";					
 					$k++;
 				}
 				$i++;
 			}//end while
 			$i--;			
-		}
-		
+		}		
 	}//end outer loop
-
     if($all == "")	
     {
         $id='';
 	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
         return $id;
     }
-    elseif($all == "all") return $arr;
-	
+    elseif($all == "all") return $arr;	
 }//end function
-
-
 /*
 <taxon>
      <Kingdom>Animalia</Kingdom>
@@ -340,10 +312,8 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
      <Order>Perciformes</Order>
      <Family>Cichlidae</Family>
      <Genus>Oreochromis</Genus>
-
      <name>Marenzelleria arctia</name>
      <taxid>78933</taxid>
-
      <dna_sequence>
           <record>
                GBAN0755-06|DQ309271|Marenzelleria arctia|---------------------------------------------------------------------GGACTTTTAGGAACATCTATA---AGGCTTCTAATTCGAGCAGAATTAGGCCAACCTGGCTCTTTGCTAGGTAGA---GACCAACTTTATAACACTATTGTTACCGCCCACGCCTTTCTAATAATTTTCTTTCTTGTAATGCCTGTATTTATTGGCGGCTTCGGAAACTGACTTCTTCCTTTAATA---CTTGGTGCTCCAGACATGGCATTCCCGCGTCTAAATAACATAAGATTCTGACTTCTTCCTCCCTCTTTAACACTTCTCGTCTCCTCTGCAGCCGTAGAAAAAGGAGTGGGAACAGGATGAACAGTCTACCCTCCTTTATCAGGCAATTTAGCCCACGCAGGACCTTCTGTAGATCTG---GCTATTTTCTCACTTCATTTAGCAGGGGTTTCTTCTATTTTAGGGGCTCTAAATTTTATTACAACAATTATTAACATACGATGAAAAGGACTACGTCTAGAGCGTATCCCATTATTCGTTTGATCTGTAGTTATTACAGCTGTTCTTCTTCTTCTATCACTTCCAGTTCTAGCAGGA---GCCATTACAATACTTCTAACTGATCGTAATCTTAACACATCTTTCTTTGACCCTGCAGGAGGAGGAGATCCTATTCTGTACCAACACTTATTTTGA-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -354,9 +324,7 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
           <record>
                GBAN0756-06|DQ309272|Marenzelleria arctia|---------------------------------------------------------------------GGACTTTTAGGAACATCTATA---AGGCTTCTAATTCGAGCAGAATTAGGCCAACCTGGCTCTTTGCTAGGTATA---GACCAACTTTATAACACTATTGTTACCGCCCACGCCTTTCTAATAATTTTCTTTCTTGTAATGCCTGTATTTATTGGCGGCTTCGGAAACTGACTTCTTCCTTTAATA---CTTGGTGCTCCAGACATGGCATTCCCGCGTCTAAATAACATAAGATTCTGACTTCTTCCTCCCTCTTTAACACTTCTCGTCTCCTCTGCAGCCGTAGAAAAAGGAGTGGGAACAGGATGAACAGTCTACCCTCCTTTATCAGGCAATTTAGCCCACGCAGGACCTTCTGTAGATCTG---GCTATTTTCTCACTTCATTTAGCAGGGGTTTCTTCTATTTTAGGGGCTCTAAATTTTATTACAACAATTATTAACATACGATGAAAAGGACTACGTCTAGAGCGTATCCCATTATTCGTTTGATCTGTAGTTATTACAGCTGTTCTTCTTCTTCTATCACTTCCAGTTCTAGCAGGA---GCCATTACAATACTTCTAACTGATCGTAATCTTAACACATCTTTCTTTGACCCTGCAGGAGGAGGAGATCCTATTCTGTACCAACACTTATTTTGA-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
           </record>          
-     </dna_sequence
-     
+     </dna_sequence     
 </taxon>
 */
-
 ?>
