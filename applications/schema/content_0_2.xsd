@@ -409,6 +409,7 @@
             <xsd:enumeration value="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Genetics"/>
             <xsd:enumeration value="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Growth"/>
             <xsd:enumeration value="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat"/>
+            <xsd:enumeration value="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Introduction"/>
             <xsd:enumeration value="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Key"/>
             <xsd:enumeration value="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Legislation"/>
             <xsd:enumeration value="http://rs.tdwg.org/ontology/voc/SPMInfoItems#LifeCycle"/>
