@@ -3,11 +3,14 @@
 system("clear");
 $attr = @$argv[1];
 $id = @$argv[2];
-$download = @$argv[3];
+$opt1 = @$argv[3];
+$opt2 = @$argv[4];
 
-if($attr != "-id" || !$id || !is_numeric($id) || ($download && $download!="-download"))
+$options = array("-download", "-now");
+
+if($attr != "-id" || !$id || !is_numeric($id) || ($opt1 && !in_array($opt1, $options)) || ($opt2 && !in_array($opt2, $options)))
 {
-    echo "\n\n\tforce_download.php -id [resource_id] [-download]\n\n";
+    echo "\n\n\tforce_download.php -id [resource_id] [-download] [-now]\n\n";
     exit;
 }
 
@@ -36,7 +39,7 @@ $lifedesks_to_ignore = array(
 $resource = new Resource($id);
 if($resource)
 {
-    if($download)
+    if($opt1 == "-download" || $opt2 == "-download")
     {
         if($resource->accesspoint_url && $resource->service_type_id == ServiceType::insert('EOL Transfer Schema'))
         {
@@ -64,8 +67,15 @@ if($resource)
         exit;
     }
     
-    echo "Harvesting $resource->title ($id)\n";
-    $resource->harvest();
+    if($opt1 == "-now" || $opt2 == "-now")
+    {
+        echo "Harvesting $resource->title ($id)\n";
+        $resource->harvest();
+    }else
+    {
+        echo "Setting status of $resource->title ($id) to force harvest\n";
+        $mysqli->update("UPDATE resources SET resource_status_id = ". ResourceStatus::insert("Force Harvest")." where id=$resource->id");
+    }
 }else echo "\nNo resource with id $id\n\n";
 
 

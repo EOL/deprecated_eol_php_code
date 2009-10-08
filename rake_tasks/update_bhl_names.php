@@ -31,8 +31,8 @@ insert_page_names();
 
 $mysqli->end_transaction();
 
-//shell_exec("rm -f ". LOCAL_ROOT ."temp/data/*");
-//shell_exec("rm -f ". LOCAL_ROOT ."temp/data.zip");
+shell_exec("rm -f ". LOCAL_ROOT ."temp/data/*");
+shell_exec("rm -f ". LOCAL_ROOT ."temp/data.zip");
 
 
 
@@ -65,11 +65,11 @@ function insert_titles()
             
             fwrite($OUT, "'". implode("'\t'", $data) ."'\n");
         }
-        if($i>50000) break;
+        //if($i>50000) break;
     }
     
     $mysqli->load_data_infile(LOCAL_ROOT."temp/titles.txt", "publication_titles");
-    shell_exec("rm ". LOCAL_ROOT."temp/titles.txt");
+    //shell_exec("rm ". LOCAL_ROOT."temp/titles.txt");
 }
 
 
@@ -99,11 +99,11 @@ function insert_items()
             
             fwrite($OUT, "'". implode("'\t'", $data) ."'\n");
         }
-        if($i>50000) break;
+        //if($i>50000) break;
     }
     
     $mysqli->load_data_infile(LOCAL_ROOT."temp/items.txt", "title_items");
-    shell_exec("rm ". LOCAL_ROOT."temp/items.txt");
+    //shell_exec("rm ". LOCAL_ROOT."temp/items.txt");
 }
 
 function insert_pages()
@@ -129,11 +129,11 @@ function insert_pages()
             
             fwrite($OUT, "'". implode("'\t'", $data) ."'\n");
         }
-        if($i>50000) break;
+        //if($i>50000) break;
     }
     
     $mysqli->load_data_infile(LOCAL_ROOT."temp/pages.txt", "item_pages");
-    shell_exec("rm ". LOCAL_ROOT."temp/pages.txt");
+    //shell_exec("rm ". LOCAL_ROOT."temp/pages.txt");
 }
 
 function insert_page_names()
@@ -158,11 +158,11 @@ function insert_page_names()
                 
             fwrite($OUT, "$page_id\t$name_id\n");
         }
-        if($i>50000) break;
+        //if($i>50000) break;
     }
     
     $mysqli->load_data_infile(LOCAL_ROOT."temp/page_names.txt", "page_names");
-    shell_exec("rm ". LOCAL_ROOT."temp/page_names.txt");
+    //shell_exec("rm ". LOCAL_ROOT."temp/page_names.txt");
 }
 
 ?>
