@@ -33,6 +33,7 @@ while($result && $row=$result->fetch_assoc())
     $top_images = array();
     $top_unpublished_images = array();
     
+    // left and right are the same (usually 0) meaning nested set values haven't been assigned
     if($lft == $rgt)
     {
         $query = "SELECT do.id, do.data_rating, do.visibility_id, do.published FROM hierarchy_entries he STRAIGHT_JOIN taxa t ON (he.id=t.hierarchy_entry_id) STRAIGHT_JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) STRAIGHT_JOIN data_objects do ON (dot.data_object_id=do.id) WHERE he.taxon_concept_id=$taxon_concept_id AND do.data_type_id=$image_type_id";
@@ -93,6 +94,8 @@ $mysqli->begin_transaction();
 echo "Deleting old data\n";
 $mysqli->delete("DELETE FROM top_images");
 $mysqli->delete("DELETE FROM top_unpublished_images");
+//$mysqli->delete("DELETE FROM top_species_images");
+//$mysqli->delete("DELETE FROM top_unpublished_species_images");
 
 
 echo "inserting new data\n";
@@ -109,12 +112,28 @@ shell_exec("rm ". LOCAL_ROOT ."temp/top_unpublished_images.sql");
 
 echo "Update 1 of 2\n";
 $mysqli->update("UPDATE taxon_concept_content tcc JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) SET tcc.child_image=1, tcc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-//$mysqli->update("UPDATE taxon_concept_content tcc JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_unpublished_images ti ON (he.id=ti.hierarchy_entry_id) SET tcc.child_image_unpublished=1 WHERE ti.view_order=1");
-
 
 echo "Update 2 of 2\n";
 $mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-//$mysqli->update("UPDATE hierarchies_content hc JOIN top_unpublished_images ti USING (hierarchy_entry_id) SET hc.child_image_unpublished=1 WHERE ti.view_order=1");
+
+// $species_rank_ids_array = array();
+// if($id = Rank::find('species')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('sp')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('sp.')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('subspecies')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('subsp')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('subsp.')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('variety')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('var')) $species_rank_ids_array[] = $id;
+// if($id = Rank::find('var.')) $species_rank_ids_array[] = $id;
+// $species_rank_ids = implode(",", $species_rank_ids_array);
+// 
+// 
+// echo "top_species_images\n";
+// $mysqli->update("INSERT INTO top_species_images (SELECT ti.* FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
+// 
+// echo "top_unpublished_species_images\n";
+// $mysqli->update("INSERT INTO top_unpublished_species_images (SELECT tui.* FROM hierarchy_entries he JOIN top_unpublished_images tui ON (he.id=tui.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
 
 
 $mysqli->end_transaction();
