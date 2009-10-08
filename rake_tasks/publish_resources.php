@@ -1,7 +1,5 @@
-#!/usr/local/bin/php
 <?php
 
-//define("ENVIRONMENT", "integration");
 define('DEBUG', true);
 define('MYSQL_DEBUG', true);
 define('DEBUG_TO_FILE', true);
@@ -14,7 +12,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $resources = Resource::ready_for_publishing();
 foreach($resources as $resource)
 {
-    echo "\nPublishing $resource->title ($id)\n\n";
+    echo "\nPublishing $resource->title ($resource->id)\n\n";
     $resource->publish();
 }
 
