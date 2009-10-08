@@ -279,19 +279,6 @@ function process($url,$philid)
 
 function parse_contents($str)
 {
-    /*
-    $url = "http://127.0.0.1/cdc/cdc1.htm";
-    $url = "http://127.0.0.1/cdc/cdc2.htm";
-    $url = "http://127.0.0.1/cdc/cdc3.htm";
-    $handle = fopen($url, "r");	
-    if ($handle)
-    {
-        $contents = '';
-    	while (!feof($handle)){$contents .= fread($handle, 8192);}
-    	fclose($handle);	
-    	$str = $contents;
-    }
-    */
     //========================================================================================
 	$beg="ID#:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block

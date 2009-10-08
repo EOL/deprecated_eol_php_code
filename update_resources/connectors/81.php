@@ -153,9 +153,11 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $text_dna_sequence = str_ireplace("---", "|||", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                
+        
         if($text_dna_sequence != "")$text_dna_sequence = "You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems. "; 
         else                        $text_dna_sequence = "You can <a target='BOLDSys' href='$dc_source'>download</a> public sequence from BOLD Systems. ";         
         $text_dna_sequence .= $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";        
+        
     }
     else $text_dna_sequence = '';    
     if($text_dna_sequence)
@@ -228,8 +230,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
 function get_text_dna_sequence($url)
 {
     //$str = get_file_contents($url); //print $str;  
-    $str = Functions::get_remote_file($url);
-    
+    $str = Functions::get_remote_file($url);    
     
     $beg='../temp/'; $end1='fasta.fas'; $end2="173xxx"; $end3="173xxx";			
     $folder = parse_html($str,$beg,$end1,$end2,$end3,$end3,"");	        
