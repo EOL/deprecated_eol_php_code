@@ -60,9 +60,9 @@ while($result && $row=$result->fetch_assoc())
         {
             fwrite($top_images_data, $v2 . "\t$view_order\n");
             $view_order++;
-            if($view_order > 500) break;
+            //if($view_order > 500) break;
         }
-        if($view_order > 500) break;
+        //if($view_order > 500) break;
     }
     
     
@@ -75,9 +75,9 @@ while($result && $row=$result->fetch_assoc())
         {
             fwrite($top_unpublished_images_data, $v2 . "\t$view_order\n");
             $view_order++;
-            if($view_order > 500) break;
+            //if($view_order > 500) break;
         }
-        if($view_order > 500) break;
+        //if($view_order > 500) break;
     }
 }
 
@@ -103,8 +103,8 @@ $mysqli->load_data_infile(LOCAL_ROOT ."temp/top_unpublished_images.sql", "top_un
 
 
 echo "removing data files\n";
-// shell_exec("rm ". LOCAL_ROOT ."temp/top_images.sql");
-// shell_exec("rm ". LOCAL_ROOT ."temp/top_unpublished_images.sql");
+shell_exec("rm ". LOCAL_ROOT ."temp/top_images.sql");
+shell_exec("rm ". LOCAL_ROOT ."temp/top_unpublished_images.sql");
 
 
 echo "Update 1 of 2\n";
