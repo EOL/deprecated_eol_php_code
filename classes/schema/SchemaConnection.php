@@ -26,6 +26,7 @@ class SchemaConnection extends MysqlBase
         {
             if(@$t->agents && $he = $taxon->hierarchy_entry())
             {
+                $he->delete_agents();
                 $i = 0;
                 foreach($t->agents as &$a)
                 {

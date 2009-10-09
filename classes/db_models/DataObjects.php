@@ -223,6 +223,7 @@ class DataObject extends MysqlBase
                     $data_object->curated = $existing_data_object->curated;
                     $data_object->vetted_id = $existing_data_object->vetted_id;
                     $data_object->visibility_id = $existing_data_object->visibility_id;
+                    $data_object->data_rating = $existing_data_object->data_rating;
                     
                     // Check to see if we can reuse cached object or need to download it again
                     if($data_object->object_url == $existing_data_object->object_url && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
@@ -268,12 +269,10 @@ class DataObject extends MysqlBase
         {
             $data_object = $parameters;
             if(@!$data_object->guid) $data_object->guid = Functions::generate_guid();
-            //if(@!$data_object->data_rating) $data_object->data_rating = 0;
             return parent::insert_object_into($data_object, Functions::class_name(__FILE__));
         }
         
         if(@!$parameters["guid"]) $parameters["guid"] = Functions::generate_guid();
-        //if(@!$parameters["data_rating"]) $parameters["data_rating"] = 0;
         return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
     }
     

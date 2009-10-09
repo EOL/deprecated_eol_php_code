@@ -187,6 +187,11 @@ class HierarchyEntry extends MysqlBase
         return false;
     }
     
+    public function delete_agents()
+    {
+        $this->mysqli->insert("DELETE FROM agents_hierarchy_entries WHERE hierarchy_entry_id=$this->id");
+    }
+       
     public function add_agent($agent_id, $agent_role_id, $view_order)
     {
         if(!$agent_id) return false;
