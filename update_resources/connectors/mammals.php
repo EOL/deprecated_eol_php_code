@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php
 /* North American Mammals connector */
-//exit;
+exit;
 
 define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", true);
@@ -46,25 +46,10 @@ inner Join nam_genus ON nam_species.genus_id = nam_genus.genus_id
 left Join nam_family ON nam_genus.family_id = nam_family.Family_ID
 left Join nam_orders ON nam_family.order_id = nam_orders.order_id
 left Join nam_conservation_status ON nam_species.conservation_status_id = nam_conservation_status.id ";
-$query .= " limit 3 ";
+//$query .= " limit 200 ";
 
 $result = $mysqli->query($query);    
 
-
-/*
-if(nam_species.avg_length   is not null ,concat('Average length: ' ,nam_species.avg_length),'') AS a_length,
-if(nam_species.range_length is not null ,concat('Length range: '   ,nam_species.range_length),'') AS r_length,
-if(nam_species.avg_weight   is not null ,concat('Average weight: ' ,nam_species.avg_weight),'') AS a_weight,
-if(nam_species.range_weight is not null ,concat('Weight range: '   ,nam_species.range_weight),'') AS r_weight,
-
-Also known as: Hog-nosed Bat
-Sexual Dimorphism: None
-Length: Range: 81-103 mm
-Weight: Range: 10-25 g 
-*/
-
-
-// loop through image ids
 $ctr=0;
 $do_cnt=0;
 while($row=$result->fetch_assoc())     
@@ -110,21 +95,20 @@ while($row=$result->fetch_assoc())
     //$license_text = trim($xml->image->creativeCommons);
     //$license = null;
     
-    $description = $row["legend"];        
-    
-    if($row["dimorphism"] != "")$description .= "<br><br>Sexual Dimorphism: $row[dimorphism]";
-    
+    $description = $row["legend"];            
+    if($row["dimorphism"] != "")$description .= "<br><br>Sexual Dimorphism: $row[dimorphism]";    
     if($row["avg_length"] != "")$description .= "<br><br>Length: <br>Average: $row[avg_length]";
     if($row["range_length"] != "")$description .= "<br>Range: $row[range_length]";
-
     if($row["avg_weight"] != "")$description .= "<br><br>Weight: <br>Average: $row[avg_weight]";
-    if($row["range_weight"] != "")$description .= "<br>Range: $row[range_weight]";
-
-    
+    if($row["range_weight"] != "")$description .= "<br>Range: $row[range_weight]";    
     if($row["links"] != "")$description .= "<br><br>Links:<br>" . str_ireplace("<br><br>", "<br>", $row["links"]);
-
     
-    $reference = $row["refs"];        
+    $description = str_ireplace(".", "", $description);
+    $description = str_ireplace(".", "", $description);
+    
+    $reference = $row["refs"];            
+    $reference = str_ireplace(".", "", $reference);
+    $reference = str_ireplace(".", "", $reference);    
     
     $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference);       
     $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
@@ -187,7 +171,6 @@ function get_data_object($id, $agent_name, $dc_source, $description, $reference)
     //$dataObjectParameters["mediaURL"] = "";    
     
     $dataObjectParameters["source"] = $dc_source;
-
     
     if($agent_name != "")
     {

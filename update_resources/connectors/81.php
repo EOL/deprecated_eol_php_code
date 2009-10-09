@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php  
 //connector for BOLD Systems
-exit;
+//exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
@@ -14,7 +14,7 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annel
 */
 
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -45,7 +45,7 @@ $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is N
 //$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum <> 'Annelida' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
-//$query .= " limit 5 ";
+//$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
