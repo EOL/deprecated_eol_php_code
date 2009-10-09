@@ -1,10 +1,9 @@
 <?php
 //#!/usr/local/bin/php
-/* MorphBank connector */
+/* North American Mammals connector */
 //exit;
 
-//define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -16,53 +15,69 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
 
-$resource = new Resource(83);
-
-$limit_of_inventory = 25; //300000
-$inventory_method_url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&keywords=&limit=$limit_of_inventory&format=id";
-$inventory_method_url .= "&firstResult=100000";
-$details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";
-$image_ids = array();
+$resource = new Resource(888);
+//print $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
 
 
+$query="
+Select
+nam_species.species_id,
+nam_genus.genus_name,
+concat(nam_genus.genus_name,' ',nam_species.species_name) AS `sci_name`,
+nam_family.family_name,
+nam_orders.order_name,
 
-//get all image ids
-/* working but not being used as advised by Greg from MorphBank
-$image_id_xml = simplexml_load_file($inventory_method_url);
-foreach($image_id_xml->id as $id)
-{
-    $image_ids[] = $id;
-}
+nam_species.avg_length,
+nam_species.range_length,
+nam_species.avg_weight,
+nam_species.range_weight,
+
+nam_species.conservation_status_notes,
+nam_species.common_name,
+nam_species.other_names,
+nam_species.refs, nam_species.links, nam_species.dimorphism,
+nam_species.legend,nam_species.refs
+
+From nam_species 
+inner Join nam_genus ON nam_species.genus_id = nam_genus.genus_id
+left Join nam_family ON nam_genus.family_id = nam_family.Family_ID
+left Join nam_orders ON nam_family.order_id = nam_orders.order_id
+left Join nam_conservation_status ON nam_species.conservation_status_id = nam_conservation_status.id ";
+$query .= " limit 3 ";
+
+$result = $mysqli->query($query);    
+
+
+/*
+if(nam_species.avg_length   is not null ,concat('Average length: ' ,nam_species.avg_length),'') AS a_length,
+if(nam_species.range_length is not null ,concat('Length range: '   ,nam_species.range_length),'') AS r_length,
+if(nam_species.avg_weight   is not null ,concat('Average weight: ' ,nam_species.avg_weight),'') AS a_weight,
+if(nam_species.range_weight is not null ,concat('Weight range: '   ,nam_species.range_weight),'') AS r_weight,
+
+Also known as: Hog-nosed Bat
+Sexual Dimorphism: None
+Length: Range: 81-103 mm
+Weight: Range: 10-25 g 
 */
 
-$id_list_url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&limit=-1&keywords=baskauf&format=id";
-$image_id_xml = simplexml_load_file($id_list_url);
-foreach($image_id_xml->id as $id)
-{
-    $image_ids[] = $id;
-    print $id . " - ";
-}
-print "<hr>" . count($image_ids); //exit;
 
 // loop through image ids
-foreach($image_ids as $image_id)
-{
-    $image_details_url = $details_method_prefix . $image_id;
-    $xml = simplexml_load_file($image_details_url);
-    
-    $dwc = $xml->specimen->children("http://rs.tdwg.org/dwc/dwcore/");
-    
-    $dwc_Kingdom = trim($dwc->Kingdom);
-    $dwc_Phylum = trim($dwc->Phylum);
-    $dwc_Class = trim($dwc->Class);
-    $dwc_Order = trim($dwc->Order);
-    $dwc_Family = trim($dwc->Family);
-    $dwc_Genus = trim($dwc->Genus);
-    $dwc_ScientificName = trim($dwc->ScientificName);
-    $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);
+$ctr=0;
+$do_cnt=0;
+while($row=$result->fetch_assoc())     
+
+{    
+    $ctr++;
+    $dwc_Kingdom        = "Animalia";
+    $dwc_Order          = trim($row["order_name"]);
+    $dwc_Family         = trim($row["family_name"]);
+    $dwc_Genus          = trim($row["genus_name"]);
+    $dwc_ScientificName = trim($row["sci_name"]);
+    //$taxon_identifier   = str_replace(" ", "_", $dwc_ScientificName) . "_$ctr";
+    $taxon_identifier   = $row["species_id"];
     
     if(@$used_taxa[$taxon_identifier])
     {
@@ -70,40 +85,48 @@ foreach($image_ids as $image_id)
     }else
     {
         $taxon_parameters = array();
-        $taxon_parameters["identifier"] = $taxon_identifier;
-        $taxon_parameters["kingdom"] = $dwc_Kingdom;
-        $taxon_parameters["phylum"] = $dwc_Phylum;
-        $taxon_parameters["class"] = $dwc_Class;
-        $taxon_parameters["order"] = $dwc_Order;
-        $taxon_parameters["family"] = $dwc_Family;
-        $taxon_parameters["genus"] = $dwc_Genus;
-        $taxon_parameters["scientificName"]= $dwc_ScientificName;        
-        $taxon_parameters["source"] = "http://www.morphbank.net/Browse/ByImage/?tsnKeywords=" . urlencode($dwc_ScientificName) . "&spKeywords=&viewKeywords=&localityKeywords=&activeSubmit=2";
+        $taxon_parameters["identifier"]     = $taxon_identifier;
+        $taxon_parameters["kingdom"]        = $dwc_Kingdom;
+        $taxon_parameters["order"]          = $dwc_Order;
+        $taxon_parameters["family"]         = $dwc_Family;
+        $taxon_parameters["genus"]          = $dwc_Genus;
+        $taxon_parameters["scientificName"] = $dwc_ScientificName;        
+        $taxon_parameters["source"]         = "http://www.mnh.si.edu/mna/image_info.cfm?species_id=" . $row["species_id"];
         
-        
-        
-        
-        $taxon_parameters["dataObjects"]= array();
-        
+        $taxon_parameters["dataObjects"]= array();        
         $used_taxa[$taxon_identifier] = $taxon_parameters;
     }    
     
-    $dc_identifier = trim($xml->image->sourceId->morphbank);            
-    $dcterms_created = trim($xml->image->dateCreated);  
-    $dcterms_modified = trim($xml->image->dateLastModified);
-    $thumbnailURL = trim($xml->image->thumbUrl);
-    $dc_source = trim($xml->image->detailPageUrl);
-    $agent_name = trim($xml->image->submittedBy);       
-    $image_type = trim($xml->image->imageType);  
-    $copyright_text = trim($xml->image->copyrightText);
+    $do_cnt++;
+    $dc_identifier = "$taxon_identifier" . "_" . $do_cnt;
+    //$dcterms_created = trim($xml->image->dateCreated);  
+    //$dcterms_modified = trim($xml->image->dateLastModified);
+    //$thumbnailURL = trim($xml->image->thumbUrl);
+    $dc_source = "http://www.mnh.si.edu/mna/image_info.cfm?species_id=" . $row["species_id"];
+    $agent_name = "Smithsonian Institution - North American Mammals";
+    //$image_type = trim($xml->image->imageType);  
+    //$copyright_text = trim($xml->image->copyrightText);
     
-    $license_text = trim($xml->image->creativeCommons);
-    $license = null;
+    //$license_text = trim($xml->image->creativeCommons);
+    //$license = null;
+    
+    $description = $row["legend"];        
+    
+    if($row["dimorphism"] != "")$description .= "<br><br>Sexual Dimorphism: $row[dimorphism]";
+    
+    if($row["avg_length"] != "")$description .= "<br><br>Length: <br>Average: $row[avg_length]";
+    if($row["range_length"] != "")$description .= "<br>Range: $row[range_length]";
 
-    if(preg_match("/(http:\/\/creativecommons\.org\/licenses\/[^\/]+\/[^\/]+\/)/", $license_text, $arr)){$license = $arr[1];}
-    if(!$license) continue;
+    if($row["avg_weight"] != "")$description .= "<br><br>Weight: <br>Average: $row[avg_weight]";
+    if($row["range_weight"] != "")$description .= "<br>Range: $row[range_weight]";
+
     
-    $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name);       
+    if($row["links"] != "")$description .= "<br><br>Links:<br>" . str_ireplace("<br><br>", "<br>", $row["links"]);
+
+    
+    $reference = $row["refs"];        
+    
+    $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference);       
     $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
      
     /* a second dataobject     
@@ -134,38 +157,54 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-
-
-
-function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent_name)
+function get_data_object($id, $agent_name, $dc_source, $description, $reference)
 {
     $dataObjectParameters = array();
     //$dataObjectParameters["title"] = $title;
-    //$dataObjectParameters["description"] = $description;
+    $dataObjectParameters["description"] = $description;
     
     $dataObjectParameters["identifier"] = $id;
     
-    $dataObjectParameters["created"] = $created;
-    $dataObjectParameters["modified"] = $modified;
+    //$dataObjectParameters["created"] = $created;
+    //$dataObjectParameters["modified"] = $modified;
     
-    $dataObjectParameters["rightsHolder"] = $rightsHolder;    
+    $dataObjectParameters["rightsHolder"] = "Smithsonian Institution";    
     
-    $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
-    $dataObjectParameters["mimeType"] = "image/jpeg";
+    ///////////////////////////////////    
+    $dataObjectParameters["subjects"] = array();
+    $subjectParameters = array();
+    $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+    $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+    ///////////////////////////////////
+    
+    $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
+    $dataObjectParameters["mimeType"] = "text/html";        
     $dataObjectParameters["language"] = "en";
+
+    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by/3.0/";
     
-    $dataObjectParameters["license"] = $license;    
+    //$dataObjectParameters["thumbnailURL"] = "";
+    //$dataObjectParameters["mediaURL"] = "";    
     
-    $dataObjectParameters["thumbnailURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=thumb";
-    $dataObjectParameters["mediaURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=jpg";    
+    $dataObjectParameters["source"] = $dc_source;
+
     
-    $dataObjectParameters["source"] = "http://www.morphbank.net/?id=" . $id;
-    
-    $agentParameters = array();
-    $agentParameters["role"] = "photographer";
-    $agentParameters["fullName"] = $agent_name;
-    $agents[] = new SchemaAgent($agentParameters);
-    $dataObjectParameters["agents"] = $agents;
+    if($agent_name != "")
+    {
+        $agent = array(0 => array( "role" => "project" , "homepage" => "http://www.mnh.si.edu/mna/main.cfm" , $agent_name) );    
+        $agents = array();
+        foreach($agent as $agent)
+        {  
+            $agentParameters = array();
+            $agentParameters["role"]     = $agent["role"];
+            $agentParameters["homepage"] = $agent["homepage"];
+            $agentParameters["logoURL"]  = "";        
+            $agentParameters["fullName"] = $agent[0];
+            $agents[] = new SchemaAgent($agentParameters);
+        }
+        $dataObjectParameters["agents"] = $agents;    
+    }
+
     
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();    
@@ -177,6 +216,18 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
     $audienceParameters["label"] = "General public";
     $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
     
+    ///////////////////////////////////////////////////////////////////
+
+    $references = array();
+
+    $referenceParameters = array();
+    $referenceParameters["fullReference"] = $reference;
+    $references[] = new SchemaReference($referenceParameters);    
+    
+    $dataObjectParameters["references"] = $references;         
+
+    ///////////////////////////////////////////////////////////////////
+
     return $dataObjectParameters;
 }
 

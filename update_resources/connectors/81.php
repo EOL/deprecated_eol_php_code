@@ -1,36 +1,34 @@
 <?php
 //#!/usr/local/bin/php  
 //connector for BOLD Systems
-
+exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
+http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
 
-http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=10325&iwidth=600
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=10325
+http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=26136
 
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
-http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=26136
 */
 
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", false);
-
 include_once(dirname(__FILE__) . "/../../config/start.php");
-
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //only on local; to be deleted before going into production
- /*
+/*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 exit;
- */
+*/
+
 set_time_limit(0);
-$resource = new Resource(81);
-//print $resource->id; exit;
+$resource = new Resource(81); //print $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -45,26 +43,28 @@ $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=
 
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
 //$query .= " and taxon_phylum = 'Chaetognatha' ";
-//$query .= " and taxon_phylum = 'Chordata' ";
+//$query .= " and taxon_phylum <> 'Annelida' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
-//$query .= " limit 1 ";
+//$query .= " limit 5 ";
 $result = $mysqli->query($query);    
 
-print "phylum count = " . $result->num_rows . "<hr>"; //exit;
+print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 
 $total_taxid_count = 0;
 $do_count = 0;//weird but needed here
 $ctr=0;
+$id_with_public_barcode=array();
 while($row=$result->fetch_assoc())     
 {
     $taxid_count=0;
+    $taxid_count_with_barcode=0;
+    
     $ctr++;   
-    print "<hr> $ctr. phylum = " . $row["taxon_phylum"] . "$wrap";
+    print "$wrap $ctr. phylum = " . $row["taxon_phylum"] . "$wrap";
         
     $url = $phylum_service_url . trim($row["taxon_phylum"]);
-    //$xml = @simplexml_load_file($url);
     
-    if(!($xml = @simplexml_load_file($url)))continue    
+    if(!($xml = @simplexml_load_file($url)))continue;    
     
     $do_count = 0;
     foreach($xml->taxon as $main)
@@ -72,14 +72,16 @@ while($row=$result->fetch_assoc())
         if(in_array("$main->taxid", $id_list)) continue;
         else $id_list[]=$main->taxid;
     
-        //print $main->taxid . " - $do_count";    
-        $taxid_count++;
-        
+        $taxid_count++;        
         
         //start #########################################################################  
 
         if(intval($main->public_barcodes > 0))
         {
+            $id_with_public_barcode[]=$main->taxid;
+            $taxid_count_with_barcode++;
+            
+            // start comment here to just see count  /*            
             //start taxon part
             $taxon = str_replace(" ", "_", $main->name);
             if(@$used_taxa[$taxon])
@@ -97,17 +99,14 @@ while($row=$result->fetch_assoc())
             }            
             //end taxon part            
 
-
-            if($do_count == 0)//echo "$wrap$wrap phylum = " . $row["taxon_phylum"] . "$wrap";
             $do_count++;
 
             $dc_source = $species_service_url . urlencode($main->name);                            
-            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->public_barcodes);       
-            
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-    
+            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->public_barcodes);                   
+            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             $used_taxa[$taxon] = $taxon_parameters;
-
+            // end comment here to just see count */
+            
         }//with public barcodes
         
         //end #########################################################################
@@ -115,12 +114,14 @@ while($row=$result->fetch_assoc())
     }
     if($taxid_count != 0)
     {
-        echo "total=" . $taxid_count;
+        echo "$wrap total=" . $taxid_count;
+        echo "$wrap with barcode=" . $taxid_count_with_barcode;
         $total_taxid_count += $taxid_count;
     }
 }//end main loop
 
-echo "$wrap$wrap total taxid = " . $total_taxid_count;
+echo "$wrap$wrap total taxid = " . $total_taxid_count . " = " . count($id_list);
+echo "$wrap$wrap total ids with public barcode = " . count($id_with_public_barcode);
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -166,7 +167,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
     }
     else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>";     
-    $description = "Genetic Barcode<br><a href='$src'><img src='$src' height=''></a>" . $temp;        
+    $description = "Genetic Barcode<br><a target='barcode' href='$src'><img src='$src' height=''></a>" . $temp;        
     //end get text dna sequence
     
     $dataObjectParameters = array();    
@@ -290,7 +291,7 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 					$pos2 = $i - 1; 					
 					$cont = 'n';					
 					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
-					//print "$arr[$k] <hr>";					
+					//print "$arr[$k] $wrap";					
 					$k++;
 				}
 				$i++;
