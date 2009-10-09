@@ -276,7 +276,7 @@ function insert_this($node, $parent_id, $ancestry, $hierarchy_id)
     $agent_id = Agent::insert($node->source, "", "");
     if($agent_id)
     {
-        $hierarchy_entry->add_agent($agent_id, "Source database", 1);
+        $hierarchy_entry->add_agent($agent_id, AgentRole::insert("Source database"), 1);
     }
     
     if($ancestry) $ancestry .= "|".$hierarchy_entry->id;

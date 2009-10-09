@@ -337,7 +337,7 @@ function add_col_agents(&$hierarchy_entry, $database_id)
     {
         foreach(@$GLOBALS['agent_ids'][$database_id] as $role => $agent_id)
         {
-            $hierarchy_entry->add_agent($agent_id, $role, 0);
+            $hierarchy_entry->add_agent($agent_id, AgentRole::insert($role), 0);
         }
     }
 }

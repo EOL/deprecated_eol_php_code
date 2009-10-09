@@ -110,6 +110,7 @@ class ContentManager
         elseif(preg_match("/^xml( |$)/i",$file_type,$arr) || preg_match("/xml$/i",$file_type,$arr)) $new_suffix = "xml";
         elseif(preg_match("/^pdf( |$)/i",$file_type,$arr)) $new_suffix = "pdf";
         elseif(preg_match("/^html( |$)/i",$file_type,$arr)) $new_suffix = "html";
+        elseif(preg_match("/PNG image/i",$file_type,$arr)) $new_suffix = "png";
         elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i",$file_type,$arr)) $new_suffix = "xml";
         elseif($suffix=="xml" && preg_match("/^ascii text/i",$file_type,$arr)) $new_suffix = "xml";
         

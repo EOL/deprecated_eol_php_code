@@ -79,6 +79,22 @@ class SchemaParser
                 $taxon_parameters["common_names"][] = Functions::mock_object("CommonName", $params);
             }
             
+            $taxon_parameters["agents"] = array();
+            foreach($t->agent as $a)
+            {
+                $agent_name = Functions::import_decode((string) $a);
+                if(!$agent_name) continue;
+                
+                $attr = $a->attributes();
+                
+                $params = array(    "full_name"     => Functions::import_decode((string) $a, 0, 0),
+                                    "homepage"      => @Functions::import_decode($attr["homepage"]),
+                                    "logo_url"      => @Functions::import_decode($attr["logoURL"]),
+                                    "agent_role_id" => AgentRole::insert(@trim($attr["role"])));
+                $taxon_parameters["agents"][] = Functions::mock_object("Agent", $params);
+                unset($params);
+            }
+            
             $taxon_parameters["refs"] = array();
             foreach($t->reference as $r)
             {

@@ -187,10 +187,10 @@ class HierarchyEntry extends MysqlBase
         return false;
     }
     
-    public function add_agent($agent_id, $role, $view_order)
+    public function add_agent($agent_id, $agent_role_id, $view_order)
     {
-        if(!$agent_id) return 0;
-        $this->mysqli->insert("INSERT INTO agents_hierarchy_entries VALUES ($this->id, $agent_id, ".AgentRole::insert($role).", $view_order)");
+        if(!$agent_id) return false;
+        $this->mysqli->insert("INSERT INTO agents_hierarchy_entries VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
     }
     
     public function add_synonym($name_id, $relation_id, $language_id, $preferred)
