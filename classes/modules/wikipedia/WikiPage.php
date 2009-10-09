@@ -315,26 +315,11 @@ class WikiPage
         $html = preg_replace("/src=\"\//", "src=\"http://en.wikipedia.org/", $html);
         $html = preg_replace("/href=\"\//", "target=\"wikipedia\" href=\"http://en.wikipedia.org/", $html);
         
-        $html = '   <script type="text/javascript" src="http://en.wikipedia.org/w/extensions/OggHandler/OggPlayer.js?10"></script>                                <script type="text/javascript">
-                wgOggPlayer.msg = {"ogg-play": "Play", "ogg-pause": "Pause", "ogg-stop": "Stop", "ogg-no-player": "Sorry, your system does not appear to have any supported player software.\nPlease \x3ca href=\"http://www.mediawiki.org/wiki/Extension:OggHandler/Client_download\"\x3edownload a player\x3c/a\x3e.", "ogg-player-videoElement": "Native browser support", "ogg-player-oggPlugin": "Browser plugin", "ogg-player-cortado": "Cortado (Java)", "ogg-player-vlc-mozilla": "VLC", "ogg-player-vlc-activex": "VLC (ActiveX)", "ogg-player-quicktime-mozilla": "QuickTime", "ogg-player-quicktime-activex": "QuickTime (ActiveX)", "ogg-player-totem": "Totem", "ogg-player-kaffeine": "Kaffeine", "ogg-player-kmplayer": "KMPlayer", "ogg-player-mplayerplug-in": "mplayerplug-in", "ogg-player-thumbnail": "Still image only", "ogg-player-selected": "(selected)", "ogg-use-player": "Use player:", "ogg-more": "More…", "ogg-download": "Download file", "ogg-desc-link": "About this file", "ogg-dismiss": "Close", "ogg-player-soundthumb": "No player", "ogg-no-xiphqt": "You do not appear to have the XiphQT component for QuickTime.\nQuickTime cannot play Ogg files without this component.\nPlease \x3ca href=\"http://www.mediawiki.org/wiki/Extension:OggHandler/Client_download\"\x3edownload XiphQT\x3c/a\x3e or choose another player."};
-                wgOggPlayer.cortadoUrl = "http://upload.wikimedia.org/jars/cortado.jar";
-                wgOggPlayer.extPathUrl = "http://en.wikipedia.org/w/extensions/OggHandler";
-                </script>
-                <style type="text/css">
-                .ogg-player-options {
-                	border: solid 1px #ccc;
-                	padding: 2pt;
-                	text-align: left;
-                	font-size: 10pt;
-                }
-                </style><link rel="stylesheet" href="http://services.eol.org/wikipedia.css" type="text/css" media="screen" />
-                    <div id="globalWrapper">
-                    <div id="column-content">
-                    <div id="content">
-                    <div id="bodyContent">' . $html . '
-                    </div></div></div></div>';
-                    
-        $html = preg_replace("/[\r\n]/", "", $html);
+        $html = '<div id="globalWrapper"><div id="column-content"><div id="content"><div id="bodyContent">' . $html . '</div></div></div></div>';
+        
+        // remove unnecessary newlines
+        $html = str_replace("\r", "", $html);
+        $html = str_replace("\n", "", $html);
         return $html;
     }
     
