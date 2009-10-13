@@ -137,8 +137,9 @@ function grab_images($url, $name, $searchText, $kingdom)
         $family = $arr[1];
     }
     
-    
-    $taxon_parameters = get_taxon($searchText, $kingdom, $family, $url);
+    // fix becuase names were showing up as Abies-alba
+    $name = str_replace("-", " ", $searchText);
+    $taxon_parameters = get_taxon($name, $kingdom, $family, $url);
     if(!$taxon_parameters) return false;
     
     

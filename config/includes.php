@@ -22,7 +22,7 @@ if(defined("USING_SPM") && USING_SPM)
 
 Functions::require_module('eol_content_schema');
 
-
+date_default_timezone_set('America/New_York');
 
 
 

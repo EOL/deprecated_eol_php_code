@@ -24,7 +24,7 @@ class MysqlBase
             
             if(!$row)
             {
-                $result = $this->mysqli->query("SELECT * FROM ".$this->table_name." WHERE id=$param");
+                $result = $this->mysqli->query("SELECT SQL_NO_CACHE * FROM ".$this->table_name." WHERE id=$param");
                 if($result && $result->num_rows)
                 {
                     $row=$result->fetch_assoc();
@@ -141,7 +141,7 @@ class MysqlBase
         
         $id = 0;
         $string = $mysqli->escape($string);
-        $result = $mysqli->query("SELECT id FROM $table WHERE $field='$string'");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM $table WHERE $field='$string'");
         if($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];
@@ -164,7 +164,7 @@ class MysqlBase
         
         if(isset($GLOBALS['tables_find_by_id'][$table][$field][$id])) return $GLOBALS['tables_find_by_id'][$table][$field][$id];
         
-        $result = $mysqli->query("SELECT $field FROM $table WHERE id=$id");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE $field FROM $table WHERE id=$id");
         if($result && $row=$result->fetch_assoc())
         {
             $field = $row[$field];
@@ -193,7 +193,7 @@ class MysqlBase
         }
         if(!$query_parameters) return 0;
         
-        $query = "SELECT id FROM $table WHERE ";
+        $query = "SELECT SQL_NO_CACHE id FROM $table WHERE ";
         $query .= implode(" AND ", $query_parameters);
         
         $id = 0;
@@ -213,7 +213,7 @@ class MysqlBase
         
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        $result = $mysqli->query("SELECT id FROM $table WHERE $field = $value ORDER BY $order");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM $table WHERE $field = $value ORDER BY $order");
         while($result && $row = $result->fetch_assoc())
         {
             $ids[] = $row["id"];
