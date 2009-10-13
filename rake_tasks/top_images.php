@@ -15,25 +15,25 @@ if(@!$result || @!$result->num_rows) {}
 else
 {
     $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
-
+    
     $top_images_data = fopen(LOCAL_ROOT . "temp/top_images.sql", "w+");
     $top_unpublished_images_data = fopen(LOCAL_ROOT . "temp/top_unpublished_images.sql", "w+");
-
+    
     $i = 0;
     while($result && $row=$result->fetch_assoc())
     {
         if($i%100 == 0) echo "$i\n";
         $i++;
-    
+        
         $id = $row["id"];
         $lft = $row["lft"];
         $rgt = $row["rgt"];
         $taxon_concept_id = $row["taxon_concept_id"];
         $hierarchy_id = $row["hierarchy_id"];
-    
+        
         $top_images = array();
         $top_unpublished_images = array();
-    
+        
         // left and right are the same (usually 0) meaning nested set values haven't been assigned
         if($lft == $rgt)
         {
@@ -52,7 +52,7 @@ else
             if($visibility_id==Visibility::find("visible") && $published==1) $top_images[$data_rating][$data_object_id] = "$id\t$data_object_id";
             else $top_unpublished_images[$data_rating][$data_object_id] = "$id\t$data_object_id";
         }
-    
+        
         $view_order = 1;
         krsort($top_images);
         foreach($top_images as $k => $v)
@@ -62,12 +62,12 @@ else
             {
                 fwrite($top_images_data, $v2 . "\t$view_order\n");
                 $view_order++;
-                //if($view_order > 500) break;
+                if($view_order > 500) break;
             }
-            //if($view_order > 500) break;
+            if($view_order > 500) break;
         }
-    
-    
+        
+        
         $view_order = 1;
         ksort($top_unpublished_images);
         foreach($top_unpublished_images as $k => $v)
@@ -77,45 +77,45 @@ else
             {
                 fwrite($top_unpublished_images_data, $v2 . "\t$view_order\n");
                 $view_order++;
-                //if($view_order > 500) break;
+                if($view_order > 500) break;
             }
-            //if($view_order > 500) break;
+            if($view_order > 500) break;
         }
     }
-
+    
     fclose($top_images_data);
     fclose($top_unpublished_images_data);
-
+    
     // exit if there is no new data
     if(filesize(LOCAL_ROOT ."temp/top_images.sql"))
     {
         $mysqli->begin_transaction();
-
+        
         echo "Deleting old data\n";
         $mysqli->delete("DELETE FROM top_images");
         $mysqli->delete("DELETE FROM top_unpublished_images");
         //$mysqli->delete("DELETE FROM top_species_images");
         //$mysqli->delete("DELETE FROM top_unpublished_species_images");
-
-
+        
+        
         echo "inserting new data\n";
         echo "1 of 2\n";
         $mysqli->load_data_infile(LOCAL_ROOT ."temp/top_images.sql", "top_images");
         echo "2 of 2\n";
         $mysqli->load_data_infile(LOCAL_ROOT ."temp/top_unpublished_images.sql", "top_unpublished_images");
-
-
+        
+        
         echo "removing data files\n";
         shell_exec("rm ". LOCAL_ROOT ."temp/top_images.sql");
         shell_exec("rm ". LOCAL_ROOT ."temp/top_unpublished_images.sql");
-
-
+        
+        
         echo "Update 1 of 2\n";
         $mysqli->update("UPDATE taxon_concept_content tcc JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) SET tcc.child_image=1, tcc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
 
         echo "Update 2 of 2\n";
         $mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-
+        
         // $species_rank_ids_array = array();
         // if($id = Rank::find('species')) $species_rank_ids_array[] = $id;
         // if($id = Rank::find('sp')) $species_rank_ids_array[] = $id;
@@ -128,7 +128,7 @@ else
         // if($id = Rank::find('var.')) $species_rank_ids_array[] = $id;
         // $species_rank_ids = implode(",", $species_rank_ids_array);
         // 
-        // 
+        // // maybe also add where lft=rgt-1??
         // echo "top_species_images\n";
         // $mysqli->update("INSERT INTO top_species_images (SELECT ti.* FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
         // 
