@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php
 /* North American Mammals connector */
-exit;
+//exit;
 
 define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", true);
