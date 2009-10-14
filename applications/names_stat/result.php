@@ -4,6 +4,7 @@
 
 
 //define("ENVIRONMENT", "development");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
