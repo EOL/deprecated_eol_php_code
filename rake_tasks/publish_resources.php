@@ -18,7 +18,4 @@ foreach($resources as $resource)
 }
 Functions::log("Ended publishing");
 
-// shell_exec(dirname(__FILE__)."/denormalize_tables");
-// shell_exec(dirname(__FILE__)."/clear_eol_cache.php");
-
 ?>
