@@ -11,6 +11,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
+Functions::log("Starting hierarchies_content");
 
 // Running this query first in case there is a problem and we need to quit
 echo "starting query\n";
@@ -248,6 +249,7 @@ if(@!$result || @!$result->num_rows) {}
         $mysqli->end_transaction();
     }
 }
+Functions::log("Ended hierarchies_content");
 
 
 

@@ -10,6 +10,8 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
+Functions::log("Starting random_hierarchy_images");
+
 $result = $mysqli->query("SELECT distinct he.id, tcc.image_object_id, he.hierarchy_id, he.taxon_concept_id, n.italicized name FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcc.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND tcc.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
 if(@!$result || @!$result->num_rows) {}
 {
@@ -39,5 +41,7 @@ if(@!$result || @!$result->num_rows) {}
 
     $mysqli->end_transaction();
 }
+Functions::log("Ended random_hierarchy_images");
+
 
 ?>

@@ -76,6 +76,14 @@ class Functions
         }
     }
     
+    public static function log($string)
+    {
+        if(isset($GLOBALS['log_file']))
+        {
+            fwrite($GLOBALS['log_file'], date('H:i:s m.d.Y').": $string\n");
+        }
+    }
+    
     public static function file_hours_since_modified($path)
     {
         if(!file_exists($path)) return false;

@@ -6,6 +6,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
+Functions::log("Starting table_of_contents");
 
 $mysqli->begin_transaction();
 
@@ -16,15 +17,8 @@ while($result && $row=$result->fetch_assoc())
     $mysqli->insert("INSERT INTO data_objects_table_of_contents VALUES (".$row["data_object_id"].", ".$row["toc_id"].")");
 }
 
-
-// $mysqli_wattle = load_mysql_environment("wattle");
-// // Temporary fix for those DOs without info items (legacy data)
-// $result = $mysqli_wattle->query("select distinct dataObjectID, tocNodeID from eolData_demo.eolText");
-// while($result && $row=$result->fetch_assoc())
-// {
-//     $mysqli->insert("INSERT INTO data_objects_table_of_contents VALUES (".$row["dataObjectID"].", ".$row["tocNodeID"].")");
-// }
-
 $mysqli->end_transaction();
+
+Functions::log("Ended table_of_contents");
 
 ?>

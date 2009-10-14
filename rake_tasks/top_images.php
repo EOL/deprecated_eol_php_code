@@ -9,6 +9,7 @@ include_once(dirname(__FILE__) . "/../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+Functions::log("Starting top_images");
 
 $result = $mysqli->query("SELECT he.id, he.lft, he.rgt, he.taxon_concept_id, he.hierarchy_id FROM hierarchies_content hc JOIN hierarchy_entries he ON (hc.hierarchy_entry_id=he.id) WHERE he.hierarchy_id!=105 AND he.hierarchy_id!=129 AND he.hierarchy_id!=399 AND (hc.image=1 OR hc.child_image=1 OR hc.image_unpublished=1 OR hc.child_image_unpublished=1)");
 if(@!$result || @!$result->num_rows) {}
@@ -139,5 +140,7 @@ else
         $mysqli->end_transaction();
     }
 }
+Functions::log("Ended top_images");
+
 
 ?>
