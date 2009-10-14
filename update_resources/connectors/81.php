@@ -163,7 +163,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     else $text_dna_sequence = '';    
     if($text_dna_sequence)
     {
-        $temp = "<br>&nbsp;<br>Available Public Sequence(s) = $public_barcodes ";
+        $temp = "<br>&nbsp;<br>Available Public Sequence(s) ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
     }
     else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>";     
