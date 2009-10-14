@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php
 /* MorphBank connector */
-//exit;
+exit;
 
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
