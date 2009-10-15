@@ -71,8 +71,24 @@ if($title)
     }
 }else
 {
+    $$xml = "<?xml version='1.0' encoding='utf-8' ?>\n";
+    $xml .= "<response\n";
+    $xml .= "  xmlns='http://www.eol.org/transfer/content/0.2'\n";
+    $xml .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
+    $xml .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
+    $xml .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
+    $xml .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
+    $xml .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
+    $xml .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
+    $xml .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd'>\n";
+    
+    $GLOBALS['resource_file'] = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", "w+");
+    fwrite($GLOBALS['resource_file'], $xml);
+    
     iterate_files($last_part, "get_scientific_pages");
-    create_resource_file();
+    
+    fwrite($GLOBALS['resource_file'], "</response>");
+    fclose($GLOBALS['resource_file']);
 }
 
 
@@ -139,7 +155,7 @@ function process_file($part_suffix, $callback, $title = false)
             }
             if(trim($line) == "</page>")
             {
-                if($page_number % 100000 == 0)
+                if($page_number % 50000 == 0)
                 {
                     echo("page: $page_number\n");
                     echo("memory: ".memory_get_usage()."\n");
@@ -151,8 +167,7 @@ function process_file($part_suffix, $callback, $title = false)
                 call_user_func($callback, $current_page, $OUT, $title);
                 $current_page = "";
                 
-                $count = count($GLOBALS['taxa_pages']);
-                if($count && $count%1000==0) echo "taxon: $count\n";
+                //$count = count($GLOBALS['taxa_pages']);
                 // if($count>=20)
                 // {
                 //     break;
@@ -166,6 +181,10 @@ function get_scientific_pages($xml, $OUT, $title = false)
 {
     if(preg_match("/\{\{Taxobox/ims", $xml, $arr))
     {
+        $count = count($GLOBALS['taxa_pages']);
+        if($count && $count%1000==0) echo "taxon: $count\n";
+        
+        
         $page = new WikiPage($xml);
         if(preg_match("/wikipedia/ims", $page->title)) return false;
         if(preg_match("/taxobox/ims", $page->title)) return false;
@@ -178,7 +197,14 @@ function get_scientific_pages($xml, $OUT, $title = false)
         // this is an exception for the API that feeds out the HTML
         if($title && @$_GET['title'])
         {
+            echo '  <script type="text/javascript" src="http://services.eol.org/wiki_ogg_player.js"></script>
+                    <link rel="stylesheet" href="http://services.eol.org/wikipedia.css" type="text/css" media="screen" />
+                        <div id="globalWrapper">
+                        <div id="column-content">
+                        <div id="content">
+                        <div id="bodyContent">';
             echo $page->get_page_html();
+            echo '</div></div></div></div>';
             exit;
         }
         
@@ -189,22 +215,13 @@ function get_scientific_pages($xml, $OUT, $title = false)
                 $taxon_params['dataObjects'][] = new SchemaDataObject($data_object_params);
             }
             
-            $GLOBALS['all_taxa'][] = new SchemaTaxon($taxon_params);
+            $taxon = new SchemaTaxon($taxon_params);
+            
+            fwrite($GLOBALS['resource_file'], $taxon->__toXML());
         }
         else return false;
     }
 }
-
-function create_resource_file()
-{
-    global $resource;
-    
-    $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", "w+");
-    fwrite($FILE, SchemaDocument::get_taxon_xml($GLOBALS['all_taxa']));
-    fclose($FILE);
-}
-
-
 
 
 

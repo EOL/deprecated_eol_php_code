@@ -147,6 +147,7 @@ class WikiPage
                     if(preg_match("/(^| |\()disputed/ims", $value)) continue;
                     if(preg_match("/ or /ims", $value)) continue;
                     if(!$value) continue;
+                    if(!Functions::is_utf8($value)) 
                     
                     $taxonomy[$attribute] = $value;
                 }
@@ -267,8 +268,11 @@ class WikiPage
             $data_object_parameters["bibliographicCitation"] = "\"$this->title.\" <i>Wikipedia, The Free Encyclopedia</i>. ". date_format($revision_date, 'j M Y, H:i') ." UTC. ". date('j M Y') ." &lt;<a href=\"". $data_object_parameters["source"] ."\">". $data_object_parameters["source"] ."</a>&gt;.";
         }
         
-        if($download_text && $description = $this->get_page_html()) $data_object_parameters["description"] = $description;
-        else $data_object_parameters = array();
+        if($download_text && $description = $this->get_page_html())
+        {
+            if(Functions::is_utf8($name)) $data_object_parameters["description"] = $description;
+        }
+        if(@!$data_object_parameters["description"]) $data_object_parameters = array();
         
         return $data_object_parameters;
     }
