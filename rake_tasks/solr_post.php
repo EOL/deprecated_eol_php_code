@@ -20,7 +20,7 @@ $attributes = array();
 
 $count = 0;
 $limit = 100000;
-$result = $mysqli->query("SELECT tc.id, tc.published, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) STRAIGHT_JOIN names n ON (tcn.name_id=n.id) WHERE tc.id<1000 ORDER BY tc.id");
+$result = $mysqli->query("SELECT tc.id, tc.published, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) STRAIGHT_JOIN names n ON (tcn.name_id=n.id) WHERE tc.id<10000 ORDER BY tc.id");
 while($result && $row=$result->fetch_assoc())
 {
     $id = $row['id'];
@@ -28,11 +28,11 @@ while($result && $row=$result->fetch_assoc())
     
     if($row['vern'])
     {
-        // if($row['preferred']) $attr = 'pref_vern_name';
-        // else $attr = 'vern_name';
-        // 
-        // $GLOBALS['fields'][$attr] = 1;
-        // $GLOBALS['objects'][$id][$attr][$string] = 1;
+        if($row['preferred']) $attr = 'pref_vern_name';
+        else $attr = 'vern_name';
+        
+        $GLOBALS['fields'][$attr] = 1;
+        $GLOBALS['objects'][$id][$attr][$string] = 1;
         
     }else
     {
@@ -124,7 +124,7 @@ function send_attributes()
     
     echo "calling: $curl\n";
     exec($curl);
-    exec("curl ". SOLR_SERVER ."/update -F stream.file=". LOCAL_ROOT ."temp/commit.xml");
+    exec("curl ". SOLR_SERVER ."/update -F stream.url=".LOCAL_WEB_ROOT ."temp/commit.xml");
 }
 
 

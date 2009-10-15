@@ -19,6 +19,7 @@ $query = "SELECT tc.id, do.data_type_id, do.visibility_id, do.published FROM tax
 $result = $mysqli->query($query);
 echo "ended query\n";
 if(@!$result || @!$result->num_rows) {}
+else
 {
     $visible_id = Visibility::find("visible");
 

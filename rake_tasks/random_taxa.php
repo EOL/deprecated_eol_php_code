@@ -13,6 +13,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 $result = $mysqli->query("SELECT distinct tc.id, tcct.image_object_id, tcct.content_level, he.rank_id, he.lft, he.rgt, he.id, he.taxon_concept_id, he.name_id, do.object_cache_url, n.italicized FROM taxon_concepts tc JOIN taxon_concept_content_test tcct ON (tc.id=tcct.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcct.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND tcct.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
 if(@!$result || @!$result->num_rows) {}
+else
 {
     $mysqli->begin_transaction();
 
