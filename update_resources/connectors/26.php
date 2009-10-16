@@ -14,7 +14,7 @@ ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
-define("DEBUG", false);
+define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -26,8 +26,7 @@ Functions::load_fixtures("development");
 
 $resource = new Resource(26);//WORMS
 
-exit;
-
+//exit("[$resource->id]");
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 //$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "eli" .".xml";
@@ -35,14 +34,14 @@ $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
 $str .= "<response\n";
-$str .= "  xmlns='http://www.eol.org/transfer/content/0.2'\n";           
+$str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";           
 $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
 $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";           
 $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";           
 $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";           
 $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";           
 $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";                      
-$str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd'>\n";
+$str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
 fwrite($OUT, $str);
 
 $main_count=0;
@@ -65,8 +64,7 @@ while( count($id_processed) != count($main_id_list) )
             if(process($taxid)) $id_processed[] = $taxid;
             echo $i+1 . ". ";            
             echo count($id_processed) . " of " . count($main_id_list) . "\n";
-        }        
-        
+        }                
     }    
 }
 //print_r($main_id_list);print_r($id_processed);
@@ -295,117 +293,43 @@ function get_main_id_list()
 {
 
 
-//$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
-$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
-//$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
+    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
+    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
+    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
-//$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
 
-/*
-$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
-$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
-$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";
-*/
-/*
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=19961231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19970101&enddate=19971231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19980101&enddate=19981231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19990101&enddate=19991231";    
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20000101&enddate=20001231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20010101&enddate=20011231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20020101&enddate=20021231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20030101&enddate=20031231";
-    //=========================================================================================================
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040101&enddate=20041231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040101&enddate=20040331";
-    
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040401&enddate=20040401";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040402&enddate=20040402";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040403&enddate=20040403";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040404&enddate=20040404";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040405&enddate=20040405";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040406&enddate=20040406";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040407&enddate=20040407";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040408&enddate=20040408";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040409&enddate=20040409";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040410&enddate=20040410";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040411&enddate=20040411";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040412&enddate=20040412";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040413&enddate=20040413";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040414&enddate=20040414";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040415&enddate=20040415";
-    
-    
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040416&enddate=20040431";
-    
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040501&enddate=20040531";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040601&enddate=20040631";
-    
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040701&enddate=20040731";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040801&enddate=20040831";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20040901&enddate=20040931";
-    
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20041001&enddate=20041231";
-    
-    //=========================================================================================================
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20050101&enddate=20051231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20050101&enddate=20050331";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20050401&enddate=20050631";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20050701&enddate=20050931";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20051001&enddate=20051231";
-    //=========================================================================================================
- 
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20060101&enddate=20061231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20070101&enddate=20071231";
-    
-    //=========================================================================================================
+
+    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20080331";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080401&enddate=20080631";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080701&enddate=20080931";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20081001&enddate=20081231";
-    //=========================================================================================================
-        
-    
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20090331";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090401&enddate=20090631";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090701&enddate=20090931";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20091001&enddate=20091231";
-    //=========================================================================================================
-    
-*/ 
-
-    /*     
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=19961231";     
-//    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19980101&enddate=19981231";
-    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19990101&enddate=19991231";
-    */
-
-    
+    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";    
+ 
     echo "\n URLs = " . sizeof($url) . "\n";
-    $no_of_urls = sizeof($url);
+    $no_of_urls = sizeof($url);    
     
     $arr = array(); 
+    $jj=0;
     for ($i = 0; $i < count($url); $i++) 
     {
         //echo $url[$i] . "\n";
         $j=0;
         
-        if($xml = @simplexml_load_file($url[$i]))        
-        //if($xml = Functions::get_hashed_response($url[$i]))
-        
+        //if($xml = @simplexml_load_file($url[$i]))        
+        if($xml = Functions::get_hashed_response($url[$i]))        
         {   
             $no_of_taxdetail = count($xml->taxdetail);
             foreach($xml->taxdetail as $taxdetail)
             {
                 $temp = @$taxdetail["id"];
                 $arr["$temp"]=true;
-                $j++;
+                $j++; $jj++;
             }    
         }
         echo "\n " . $i+1 . " of " . $no_of_urls . " URLs | taxid count = " . $j . "\n";     
     }
+    //exit("total = $jj");
     
     $arr = array_keys($arr);
     return $arr;
