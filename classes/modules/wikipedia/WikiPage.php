@@ -146,6 +146,7 @@ class WikiPage
                     if(preg_match("/^[a-z]/", $value)) continue;
                     if(preg_match("/(^| |\()disputed/ims", $value)) continue;
                     if(preg_match("/ or /ims", $value)) continue;
+                    if(preg_match("/(taxobox|uncertain|\[\[|\]\]|possibly)/ims", $value)) continue;
                     if(!$value) continue;
                     if(!Functions::is_utf8($value)) 
                     
