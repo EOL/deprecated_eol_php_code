@@ -30,12 +30,15 @@ for($start=0 ; $start<$max_id ; $start+=$limit)
     
     lookup_names($start, $limit);
     lookup_ranks($start, $limit);
+    lookup_top_images($start, $limit);
     
     if(isset($GLOBALS['objects'])) send_attributes();
 }
 
 
+if(isset($GLOBALS['objects'])) send_attributes();
 exec("curl ". SOLR_SERVER ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml");
+exec("curl ". SOLR_SERVER ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml");
 
 
 
@@ -51,17 +54,18 @@ function lookup_names($start, $limit)
     
     echo "\nquerying names\n";
     $result = $mysqli->query("SELECT tc.id, tc.published, tc.vetted_id, tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id)  WHERE tc.id>$start AND tc.id<=".($start+$limit));
+    echo "done querying names\n";
     while($result && $row=$result->fetch_assoc())
     {
         $id = $row['id'];
         $string = $row['string'];
         
-        if($row['vern'])
+        if($row['vern'] && $string)
         {
             $attr = 'common_name';
             $GLOBALS['fields'][$attr] = 1;
             $GLOBALS['objects'][$id][$attr][$string] = 1;
-        }else
+        }elseif($string)
         {
             if($row['preferred']) $attr = 'preferred_scientific_name';
             else $attr = 'scientific_name';
@@ -87,6 +91,7 @@ function lookup_ranks($start, $limit)
     
     echo "\nquerying ranks\n";
     $result = $mysqli->query("SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries WHERE taxon_concept_id>$start AND taxon_concept_id<=".($start+$limit));
+    echo "done querying ranks\n";
     while($result && $row=$result->fetch_assoc())
     {
         $id = $row['taxon_concept_id'];
@@ -103,6 +108,27 @@ function lookup_ranks($start, $limit)
         }
     }
 }
+
+function lookup_top_images($start, $limit)
+{
+    global $mysqli;
+    
+    echo "\nquerying top_images\n";
+    $result = $mysqli->query("SELECT he.taxon_concept_id id, ti.data_object_id FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.taxon_concept_id>$start AND he.taxon_concept_id<=".($start+$limit)." AND view_order=1");
+    echo "done querying top_images\n";
+    while($result && $row=$result->fetch_assoc())
+    {
+        $id = $row['id'];
+        $data_object_id = $row['data_object_id'];
+        
+        if(@!$GLOBALS['objects'][$id]['top_image_id'])
+        {
+            $GLOBALS['fields']['top_image_id'] = 1;
+            $GLOBALS['objects'][$id]['top_image_id'][$hierarchy_id] = 1;
+        }
+    }
+}
+
 
 
 
