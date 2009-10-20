@@ -3,9 +3,9 @@
 
 //connector for Radiolaria
 
-exit;
+//exit;
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 //define("ENVIRONMENT", "integration");
 
 define("MYSQL_DEBUG", true);

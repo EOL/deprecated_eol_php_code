@@ -5,7 +5,7 @@
 
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
@@ -16,8 +16,7 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
 
-$resource = new Resource(83); 
-//exit($resource->id);
+$resource = new Resource(83); //exit($resource->id);
 
 $details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";
 $image_ids = array();
