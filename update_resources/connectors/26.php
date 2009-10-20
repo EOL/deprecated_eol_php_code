@@ -13,7 +13,7 @@ set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -53,8 +53,9 @@ echo "\n total taxid count = " . count($main_id_list) . "\n\n";;
 //exit;
 //====================================================================================
 $i=1;
-while( count($id_processed) != count($main_id_list) )
-{
+
+//while( count($id_processed) != count($main_id_list) )
+//{
     echo "-x- \n";    
     for ($i = 0; $i < count($main_id_list); $i++)     
     {
@@ -66,7 +67,7 @@ while( count($id_processed) != count($main_id_list) )
             echo count($id_processed) . " of " . count($main_id_list) . "\n";
         }                
     }    
-}
+//}
 //print_r($main_id_list);print_r($id_processed);
 //====================================================================================
 $str = "</response>";
@@ -74,10 +75,7 @@ fwrite($OUT, $str);
 fclose($OUT);
 //====================================================================================
         
-
-
 //start functions #################################################################################################
-
 function process($id)
 {
     global $OUT;
@@ -112,9 +110,9 @@ function process($id)
                 $family     = Functions::import_decode($t_dwc->Family);    
                 $sciname    = Functions::import_decode($t_dwc->ScientificName);               
         
-                $genus         = Functions::import_decode($t_dwc->Genus);                       
+                $genus        = Functions::import_decode($t_dwc->Genus);                       
                 $created      = Functions::import_decode($t_dcterms->created);    
-                $modified      = Functions::import_decode($t_dcterms->modified);            
+                $modified     = Functions::import_decode($t_dcterms->modified);            
            
                 $taxonParameters = array();
                 $taxonParameters["identifier"]      = $identifier;
