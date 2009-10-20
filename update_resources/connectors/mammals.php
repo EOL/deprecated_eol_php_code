@@ -14,8 +14,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
-
-$resource = new Resource(888);
+$resource = new Resource(888); 
 //print $resource->id; exit;
 
 $schema_taxa = array();
@@ -95,7 +94,11 @@ while($row=$result->fetch_assoc())
     //$license_text = trim($xml->image->creativeCommons);
     //$license = null;
     
+    
+    
+    
     $description = $row["legend"];            
+    $description = str_ireplace("", "", $description);
     if($row["dimorphism"] != "")$description .= "<br><br>Sexual Dimorphism: $row[dimorphism]";    
     if($row["avg_length"] != "")$description .= "<br><br>Length: <br>Average: $row[avg_length]";
     if($row["range_length"] != "")$description .= "<br>Range: $row[range_length]";
@@ -106,7 +109,14 @@ while($row=$result->fetch_assoc())
     $description = str_ireplace(".", "", $description);
     $description = str_ireplace(".", "", $description);
     
+    
     $reference = $row["refs"];            
+    $reference = str_ireplace("", "", $reference);
+    $reference = str_ireplace("", "", $reference);
+    
+    
+    
+    //$reference = "<![CDATA[" . $row["refs"] . "]]>";
     $reference = str_ireplace(".", "", $reference);
     $reference = str_ireplace(".", "", $reference);    
     
@@ -204,7 +214,15 @@ function get_data_object($id, $agent_name, $dc_source, $description, $reference)
     $references = array();
 
     $referenceParameters = array();
+    
+    $reference = utf8_encode($reference);
+    //$reference = "<![CDATA[" . $reference . "]]>";
+    
     $referenceParameters["fullReference"] = $reference;
+    
+    
+    
+    
     $references[] = new SchemaReference($referenceParameters);    
     
     $dataObjectParameters["references"] = $references;         

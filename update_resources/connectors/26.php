@@ -13,7 +13,7 @@ set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
