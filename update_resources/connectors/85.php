@@ -10,12 +10,14 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-/*
+ /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
-*/
-$resource = new Resource(888); 
+ */
+$resource = new Resource(85); 
 //print $resource->id; exit;
+
+$bad_char='';
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -98,7 +100,7 @@ while($row=$result->fetch_assoc())
     
     
     $description = $row["legend"];            
-    $description = str_ireplace("", "", $description);
+    
     if($row["dimorphism"] != "")$description .= "<br><br>Sexual Dimorphism: $row[dimorphism]";    
     if($row["avg_length"] != "")$description .= "<br><br>Length: <br>Average: $row[avg_length]";
     if($row["range_length"] != "")$description .= "<br>Range: $row[range_length]";
@@ -106,19 +108,10 @@ while($row=$result->fetch_assoc())
     if($row["range_weight"] != "")$description .= "<br>Range: $row[range_weight]";    
     if($row["links"] != "")$description .= "<br><br>Links:<br>" . str_ireplace("<br><br>", "<br>", $row["links"]);
     
-    $description = str_ireplace(".", "", $description);
-    $description = str_ireplace(".", "", $description);
-    
     
     $reference = $row["refs"];            
-    $reference = str_ireplace("", "", $reference);
-    $reference = str_ireplace("", "", $reference);
+        
     
-    
-    
-    //$reference = "<![CDATA[" . $row["refs"] . "]]>";
-    $reference = str_ireplace(".", "", $reference);
-    $reference = str_ireplace(".", "", $reference);    
     
     $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference);       
     $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
