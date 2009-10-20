@@ -230,8 +230,9 @@ function display_form()
     From agents_resources 
     Inner Join agents ON agents_resources.agent_id = agents.id 
     Inner Join resources ON agents_resources.resource_id = resources.id 
-    Inner Join content_partners ON agents.id = content_partners.agent_id where resource_status_id not in (1,3,6,7,9) 
+    Inner Join content_partners ON agents.id = content_partners.agent_id where resource_status_id not in (1,6,7,9) 
     Order By agents.full_name Asc ";
+    //(1,3,6,7,9) 
     $result = $mysqli->query($qry);    
 
     print"<td><font size='2'><i>Content partner [Agent ID]</i> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</font><br>
