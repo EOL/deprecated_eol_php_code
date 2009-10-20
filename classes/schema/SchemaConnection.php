@@ -24,26 +24,47 @@ class SchemaConnection extends MysqlBase
         
         if($status!="Reused")
         {
-            if(@$t->agents && $he = $taxon->hierarchy_entry())
+            if($he = $taxon->hierarchy_entry())
             {
-                $he->delete_agents();
-                $i = 0;
-                foreach($t->agents as &$a)
+                if(@$t->common_names)
                 {
-                    $agent_id = Agent::insert($a);
-                    
-                    $agent = new Agent($agent_id);
-                    if($agent->logo_url && !$agent->logo_cache_url)
+                    $he->delete_common_names();
+                    foreach($t->common_names as &$c)
                     {
-                        if($logo_cache_url = $this->content_manager->grab_file($agent->logo_url, 0, "partner"))
-                        {
-                            $agent->update_cache_url($logo_cache_url);
-                        }
+                        $name_id = Name::insert($c->common_name);
+                        $he->add_synonym($name_id, SynonymRelation::insert('common name'), $c->language_id, 0);
                     }
-                    
-                    $he->add_agent($agent_id, $a->agent_role_id, $i);
-                    unset($a);
-                    $i++;
+                }
+                if(@$t->synonyms)
+                {
+                    $he->delete_synonyms();
+                    foreach($t->synonyms as &$s)
+                    {
+                        $he->add_synonym($s->name_id, $s->synonym_relation_id, 0, 0);
+                    }
+                }
+                
+                if(@$t->agents)
+                {
+                    $he->delete_agents();
+                    $i = 0;
+                    foreach($t->agents as &$a)
+                    {
+                        $agent_id = Agent::insert($a);
+                        
+                        $agent = new Agent($agent_id);
+                        if($agent->logo_url && !$agent->logo_cache_url)
+                        {
+                            if($logo_cache_url = $this->content_manager->grab_file($agent->logo_url, 0, "partner"))
+                            {
+                                $agent->update_cache_url($logo_cache_url);
+                            }
+                        }
+                        
+                        $he->add_agent($agent_id, $a->agent_role_id, $i);
+                        unset($a);
+                        $i++;
+                    }
                 }
             }
         }

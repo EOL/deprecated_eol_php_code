@@ -18,7 +18,7 @@ There are a few things you must do before using this code:
 3. Install the PHP PEAR package Horde/YAML
     first install PEAR if not aleardy installed
         http://pear.php.net/manual/en/installation.introduction.php
-    with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for mor details):
+    with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
         pear channel-discover pear.horde.org
         pear install horde/yaml
 

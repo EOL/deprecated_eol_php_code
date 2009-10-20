@@ -79,6 +79,19 @@ class SchemaParser
                 $taxon_parameters["common_names"][] = Functions::mock_object("CommonName", $params);
             }
             
+            $taxon_parameters["synonyms"] = array();
+            foreach($t->synonym as $s)
+            {
+                $synonym = Functions::import_decode((string) $s);
+                if(!$synonym) continue;
+                
+                $attr = $s->attributes();
+                if(!@$attr["relationship"]) $attr["relationship"] = 'synonym';
+                $params = array(    "name_id"               => Name::insert($synonym),
+                                    "synonym_relation_id"   => SynonymRelation::insert(trim($attr["relationship"])));
+                $taxon_parameters["synonyms"][] = Functions::mock_object("Synonym", $params);
+            }
+            
             $taxon_parameters["agents"] = array();
             foreach($t->agent as $a)
             {
@@ -86,7 +99,6 @@ class SchemaParser
                 if(!$agent_name) continue;
                 
                 $attr = $a->attributes();
-                
                 $params = array(    "full_name"     => Functions::import_decode((string) $a, 0, 0),
                                     "homepage"      => @Functions::import_decode($attr["homepage"]),
                                     "logo_url"      => @Functions::import_decode($attr["logoURL"]),
@@ -113,7 +125,7 @@ class SchemaParser
                     if($id = @Functions::import_decode($attr[$label], 0, 0))
                     {
                         $id_params = array( "ref_identifier_type_id" => RefIdentifierType::insert($label),
-                                        "identifier"             => $id);
+                                            "identifier"             => $id);
                         $ids[] = (object) $id_params;
                     }
                 }

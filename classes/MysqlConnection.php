@@ -6,19 +6,21 @@ class MysqlConnection
     private $user;
     private $password;
     private $database;
-    private $encoding;     
-	private $port;
+    private $encoding;
+    private $port;
+    private $socket;
     private $mysqli;
     private $master_server;
     private $master_user;
     private $master_password;
     private $master_database;
-    private $master_encoding;    
-	private $master_port;
+    private $master_encoding;
+    private $master_port;
+    private $master_socket;
     private $master_mysqli;
     private $transaction_in_progres;
     
-    function __construct($server, $user, $password, $database, $encoding, $port, $master_server, $master_user, $master_password, $master_database, $master_encoding, $master_port)
+    function __construct($server, $user, $password, $database, $encoding, $port, $socket, $master_server, $master_user, $master_password, $master_database, $master_encoding, $master_port, $master_socket)
     {
         $this->server = $server;
         $this->user = $user;
@@ -26,16 +28,21 @@ class MysqlConnection
         $this->database = $database;
         $this->encoding = $encoding;
         $this->port = $port;
+        $this->socket = $socket;
         $this->master_server = $master_server;
         $this->master_user = $master_user;
         $this->master_password = $master_password;
         $this->master_database = $master_database;
         $this->master_encoding = $master_encoding;             
-		$this->master_port = $master_port;  
+        $this->master_port = $master_port;  
+        $this->master_socket = $master_socket;  
         $this->transaction_in_progress = false;
         
         if(!$this->encoding) $this->encoding = "utf8";               
-		if(!$this->port) $this->port = 3306;              
+        if(!$this->port) $this->port = NULL;              
+        if(!$this->socket) $this->socket = NULL;              
+        if(!$this->master_port) $this->master_port = NULL;              
+        if(!$this->master_socket) $this->master_socket = NULL;              
         if(!$this->master_encoding) $this->master_encoding = $this->encoding;
     }
     
@@ -227,13 +234,13 @@ class MysqlConnection
     function initialize()
     {
         Functions::mysql_debug("Connecting to host:$this->server, database:$this->database");
-        $this->mysqli = new mysqli($this->server, $this->user, $this->password, $this->database, $this->port);
+        $this->mysqli = new mysqli($this->server, $this->user, $this->password, $this->database, $this->port, $this->socket);
         $this->mysqli->set_charset($this->encoding);
         
         if($this->master_server)
         {
             Functions::mysql_debug("Connecting to host:$this->master_server, database:$this->master_database");
-            $this->master_mysqli = new mysqli($this->master_server, $this->master_user, $this->master_password, $this->master_database, $this->master_port);
+            $this->master_mysqli = new mysqli($this->master_server, $this->master_user, $this->master_password, $this->master_database, $this->master_port, $this->master_socket);
             $this->master_mysqli->set_charset($this->master_encoding);
         }else
         {
@@ -242,7 +249,8 @@ class MysqlConnection
             $this->master_password = $this->password;
             $this->master_database = $this->database;
             $this->master_encoding = $this->encoding;       
-			$this->master_port = $this->port;
+            $this->master_port = $this->port;
+            $this->master_socket = $this->socket;
             
             $this->master_mysqli = @$this->mysqli;
         }

@@ -191,6 +191,15 @@ class HierarchyEntry extends MysqlBase
     {
         $this->mysqli->insert("DELETE FROM agents_hierarchy_entries WHERE hierarchy_entry_id=$this->id");
     }
+    public function delete_common_names()
+    {
+        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND language_id!=0 AND language_id!=". Language::insert('scientific name'));
+    }
+    public function delete_synonyms()
+    {
+        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR  language_id!=". Language::insert('scientific name').")");
+    }
+    
        
     public function add_agent($agent_id, $agent_role_id, $view_order)
     {
@@ -198,13 +207,13 @@ class HierarchyEntry extends MysqlBase
         $this->mysqli->insert("INSERT INTO agents_hierarchy_entries VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
     }
     
-    public function add_synonym($name_id, $relation_id, $language_id, $preferred)
+    public function add_synonym($name_id, $relation_id, $language_id, $preferred, $vetted_id = 0, $published = 0)
     {
         if(!$name_id) return 0;
         if(!$relation_id) $relation_id = 0;
         if(!$language_id) $language_id = 0;
         if(!$preferred) $preferred = 0;
-        $this->mysqli->insert("INSERT INTO synonyms VALUES (NULL, $name_id, $relation_id, $language_id, $this->id, $preferred, $this->hierarchy_id)");
+        $this->mysqli->insert("INSERT INTO synonyms VALUES (NULL, $name_id, $relation_id, $language_id, $this->id, $preferred, $this->hierarchy_id, $vetted_id, $published)");
     }
     
     public static function add_child_to($node_id)
