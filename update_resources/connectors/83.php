@@ -1,5 +1,5 @@
+#!/usr/local/bin/php
 <?php
-//#!/usr/local/bin/php
 /* MorphBank connector */
 //exit;
 
