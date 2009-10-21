@@ -3,8 +3,7 @@
     public function GetFeed($e,$id,$f_list)
     {
         return $this->getDetails($e,$id,$f_list) . $this->getItems($e,$id);
-    }    
-    
+    }        
     
     function feed_about($e,$id)
     {
@@ -39,7 +38,8 @@
             concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link        
             From harvest_events Inner Join resources ON harvest_events.resource_id = resources.id
             Inner Join agents_resources ON resources.id = agents_resources.resource_id Inner Join agents ON agents_resources.agent_id = agents.id
-            where harvest_events.published_at is null
+            where harvest_events.published_at is null 
+            and harvest_events.id in (Select Max(harvest_events.id) From harvest_events Group By harvest_events.resource_id)
             Order By harvest_events.completed_at Desc ";
                      }
         elseif($e==4){    //  resources with errors during harvest
