@@ -42,12 +42,11 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
-$query .= " and taxon_phylum = 'Chaetognatha' ";
+//$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum <> 'Annelida' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
 //$query .= " limit 1 ";
 $result = $mysqli->query($query);    
-
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 
 $total_taxid_count = 0;
