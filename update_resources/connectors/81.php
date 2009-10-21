@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php  
 //connector for BOLD Systems
-exit;
+//exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
@@ -42,7 +42,7 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
-//$query .= " and taxon_phylum = 'Chaetognatha' ";
+$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum <> 'Annelida' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
 //$query .= " limit 1 ";
@@ -155,8 +155,11 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                
         
-        if($text_dna_sequence != "")$str = "You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems. "; 
-        else                        $str = "You can <a target='BOLDSys' href='$dc_source'>download</a> public sequence from BOLD Systems. ";         
+        if($text_dna_sequence != "")
+        //$str = "You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems. "; 
+        $str = "Click <a target='BOLDSys' href='$dc_source'>here</a> to see all available DNA sequence in BOLD Systems. "; 
+        else                        
+        $str = "You can <a target='BOLDSys' href='$dc_source'>check</a> BOLD Systems for more information. ";         
         $text_dna_sequence = $str . $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";        
         
     }
@@ -166,12 +169,16 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $temp = "<br>&nbsp;<br>Available Public Sequence(s) ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
     }
-    else $temp = "<br>&nbsp;<br>No Available Public Sequences <br>";     
-    $description = "Genetic Barcode<br><a target='barcode' href='$src'><img src='$src' height=''></a>" . $temp;        
+    else $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     
+    //Genetic Barcode
+    $description = "
+    The following is a representative barcode sequence, the centroid of all available sequences for this species.    
+    <br><a target='barcode' href='$src'><img src='$src' height=''></a>" . $temp;        
     //end get text dna sequence
     
     $dataObjectParameters = array();    
-    $dataObjectParameters["title"] = "Molecular and Genetics";    
+    //$dataObjectParameters["title"] = "Molecular and Genetics";    
+    $dataObjectParameters["title"] = "Barcode data";        
     $dataObjectParameters["description"] = $description;    
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;        
@@ -243,6 +250,21 @@ function get_text_dna_sequence($url)
         //$str = get_file_contents($url);
         $str = Functions::get_remote_file($url);
     }    
+    
+    //start get only 2 sequence
+    if($str)
+    {
+        $found=0;
+        $str=trim($str);
+        for ($i = 0; $i < strlen($str); $i++) 
+        {
+            if(substr($str,$i,1) == ">")$found++;
+            if($found == 3)break;
+        }
+        $str = substr($str,0,$i-1);    
+    }
+    //end get only 2 sequence
+    
     return $str;
 }
 // /*

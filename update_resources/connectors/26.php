@@ -15,6 +15,8 @@ define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+$file_number=1;
+
 //only on local; to be deleted before going into production
 /*
 $mysqli->truncate_tables("development");
@@ -23,8 +25,48 @@ Functions::load_fixtures("development");
 $resource = new Resource(26);//WORMS
 //exit("[$resource->id]");
 
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 
+//$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "bold_" . $file_number .".xml";
+//$OUT = fopen($old_resource_path, "w+");
+
+$main_count=0;
+//====================================================================================
+$main_id_list = array();
+$id_processed = array();
+$main_id_list = get_main_id_list();
+echo "\n total taxid count = " . count($main_id_list) . "\n\n";;
+//exit;
+//====================================================================================
+$i=1;
+//while( count($id_processed) != count($main_id_list) )
+//{
+    echo "-x- \n";    
+    for ($i = 0; $i < count($main_id_list); $i++)     
+    {
+        $taxid = $main_id_list[$i];
+        if(!in_array("$taxid", $id_processed))        
+        {                        
+            if(count($id_processed) % 10000 == 0)
+            {   //start new file                
+                if(isset($OUT))fclose($OUT);
+                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "worms_" . $file_number .".xml";
+                $OUT = fopen($old_resource_path, "w+");            
+                $file_number++;
+            }
+            if(process($taxid)) $id_processed[] = $taxid;
+            echo $i+1 . ". ";            
+            echo count($id_processed) . " of " . count($main_id_list) . "\n";                        
+        }                
+    }    
+    $main_id_list = get_main_id_list();
+//}//end while
+
+//print_r($main_id_list);print_r($id_processed);
+//====================================================================================
+$str = "</response>";fwrite($OUT, $str);fclose($OUT);
+//====================================================================================
+//start compiling all worms_?.xml 
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
 $str .= "<response\n";
@@ -37,44 +79,28 @@ $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
 $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";                      
 $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
 fwrite($OUT, $str);
-
-$main_count=0;
-//====================================================================================
-$main_id_list = array();
-$id_processed = array();
-$main_id_list = get_main_id_list();
-echo "\n total taxid count = " . count($main_id_list) . "\n\n";;
-//exit;
-//====================================================================================
-$i=1;
-while( count($id_processed) != count($main_id_list) )
+$i=0;
+while(true)
 {
-    echo "-x- \n";    
-    for ($i = 0; $i < count($main_id_list); $i++)     
+    print "$i "; $i++;
+    $file = CONTENT_RESOURCE_LOCAL_PATH . "worms_" . $i .".xml";
+    $str = Functions::get_remote_file($file);
+    if($str)
     {
-        $taxid = $main_id_list[$i];
-        if(!in_array("$taxid", $id_processed))        
-        {                        
-            if(process($taxid)) $id_processed[] = $taxid;
-            echo $i+1 . ". ";            
-            echo count($id_processed) . " of " . count($main_id_list) . "\n";
-        }                
-    }    
-    $main_id_list = get_main_id_list();
+        fwrite($OUT, $str);
+        unlink($file);
+    }        
+    else break;
 }
-//print_r($main_id_list);print_r($id_processed);
-//====================================================================================
-$str = "</response>";
-fwrite($OUT, $str);
+print "\n --end-- ";
 fclose($OUT);
+//end
 //====================================================================================
 //start functions #################################################################################################
 function process($id)
-{
-    global $OUT;    
+{   global $OUT;        
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
-    //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=395770
-    
+    //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255127    
     $contents = Functions::get_remote_file($file);
     if($contents)
     {
@@ -89,7 +115,6 @@ function process($id)
     }    
     return false;
 }//end process() 
-
 function get_main_id_list()
 {
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
@@ -100,18 +125,20 @@ function get_main_id_list()
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
 
+    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
+    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
+    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
+
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";    
  
     echo "\n URLs = " . sizeof($url) . "\n";
-    $no_of_urls = sizeof($url);    
-    
+    $no_of_urls = sizeof($url);        
     $arr = array(); 
     $jj=0;
     for ($i = 0; $i < count($url); $i++) 
     {
-        //echo $url[$i] . "\n";
         $j=0;        
         //if($xml = @simplexml_load_file($url[$i]))        
         if($xml = Functions::get_hashed_response($url[$i]))        
@@ -124,9 +151,8 @@ function get_main_id_list()
                 $j++; $jj++;
             }    
         }
-        echo "\n " . $i+1 . " of " . $no_of_urls . " URLs | taxid count = " . $j . "\n";     
+        echo "\n" . $i+1 . " of " . $no_of_urls . " URLs | taxid count = " . $j . "\n";     
     }
-    //exit("total = $jj");    
     $arr = array_keys($arr);
     return $arr;
 }//get_main_id_list()
