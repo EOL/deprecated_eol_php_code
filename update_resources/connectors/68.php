@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 //#!/usr/local/bin/php
-//connector for WORMS
+//connector for Dutch Species Catalog
 //exit;
 /* 
 22966. 22964 of 68984
@@ -22,7 +22,7 @@ $file_number=1;
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
-$resource = new Resource(26);//WORMS
+$resource = new Resource(68);//Duth Species Catalog
 //exit("[$resource->id]");
 
 

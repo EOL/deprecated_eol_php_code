@@ -34,7 +34,8 @@ $main_count=0;
 $main_id_list = array();
 $id_processed = array();
 $main_id_list = get_main_id_list();
-echo "\n total taxid count = " . count($main_id_list) . "\n\n";;
+$total_taxid_count = count($main_id_list);
+echo "\n total taxid count = " . $total_taxid_count . "\n\n";;
 //exit;
 //====================================================================================
 $i=1;
@@ -44,21 +45,29 @@ $i=1;
     for ($i = 0; $i < count($main_id_list); $i++)     
     {
         $taxid = $main_id_list[$i];
-        if(!in_array("$taxid", $id_processed))        
-        {                        
-            if(count($id_processed) % 10000 == 0)
+        //if(!in_array("$taxid", $id_processed))        
+        //{                        
+            //if(count($id_processed) % 5000 == 0)
+            if($i % 5000 == 0)
             {   //start new file                
                 if(isset($OUT))fclose($OUT);
                 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
             }
-            if(process($taxid)) $id_processed[] = $taxid;
-            echo $i+1 . ". ";            
-            echo count($id_processed) . " of " . count($main_id_list) . "\n";                        
-        }                
+            if(process($taxid))
+            {
+                //$id_processed[] = $taxid;
+                echo " -ok- ";
+            }
+            else echo " -bad- ";
+            
+            echo $i+1 . ". of $total_taxid_count \n";            
+            //echo count($id_processed) . " of " . $total_taxid_count . "\n";                        
+        //}                
     }    
     $main_id_list = get_main_id_list();
+
 //}//end while
 
 //print_r($main_id_list);print_r($id_processed);
@@ -121,13 +130,17 @@ function get_main_id_list()
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
+    // /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
+    // */
 
-    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
+    /*
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
+    */
 
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";

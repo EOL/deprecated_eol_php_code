@@ -5,11 +5,17 @@
 //exit;
 
 //define("ENVIRONMENT", "development");
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
+
+ /*
+$mysqli->truncate_tables("development");
+Functions::load_fixtures("development");
+ */
+
 
 $resource = new Resource(63);
 
@@ -154,12 +160,43 @@ foreach($providers as $provider)
                         $used_taxa[$taxon] = $taxon_parameters;
                     }
 
-
+/*
+<Descriptions>
+    <SameLanguageDiagnosis>
+        <SameLanguageDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-4435">
+            Convex, black; variegated above with a dense clothing of light and dark brown scales, the dark brown scales on the elytra condensed into a transverse or curved mark below the base, extending forward along the third interstice to the anterior margin, an angulate median fascia (not reaching the suture), and a small triangular patch on the disc towards the apex, the scales along the exposed basal margin of the head, at the base of the femora above, and on the under surface paler or whitish; the elytra also thickly set with long, stiff, erect setæ, and the rest of the surface with short setiform scales. Head and rostrum finely canaliculate, the rostrum hollowed towards the apex; joint 2 of the funiculus nearly twice as long as 1. Prothorax much broader than long, rounded at the sides, in the ? not narrower at the apex than at the base, densely, finely punctate. Elytra oval, convex, rather short, constricted immediately below the base, 
+            <pb id="BCA-coleoptv4p3-p339" Explicit="true"/>
+            the base itself not or very little wider than that of the prothorax; coarsely punctate-striate (when seen abraded), the interstices feebly convex.
+        </SameLanguageDiagnosisParagraph>
+        <SameLanguageDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-4436">
+            Length 4½—5½, breadth 2 1/10—2½ millim. (? ?.)
+        </SameLanguageDiagnosisParagraph>
+    </SameLanguageDiagnosis>
+</Descriptions>
+<Discussions>
+    <DiscussionBody Display="true">
+        <DiscussionParagraph KindOfDiscussion="general" Explicit="true" ElementID="BCA-coleoptv4p3-4438">Five specimens.
+        </DiscussionParagraph>
+    </DiscussionBody>
+</Discussions>                    
+*/
                     if(isset($tt->Descriptions->SameLanguageDescription->SameLanguageDescriptionBody->SameLanguageDescriptionParagraph))
                     {
                         $arr = $tt->Descriptions->SameLanguageDescription->SameLanguageDescriptionBody->SameLanguageDescriptionParagraph;
                         $temp = process_dataobjects($arr,1,$ref);
                     }
+
+// /*
+if(isset($tt->Descriptions->SameLanguageDiagnosis))
+{
+    foreach($tt->Descriptions->SameLanguageDiagnosis as $sld)                    
+    {
+        $arr = $sld->SameLanguageDiagnosisParagraph;
+        print "<hr>$sld->SameLanguageDiagnosisParagraph<hr>";
+    }    
+    $temp = process_dataobjects($arr,1,$ref);    
+}
+// */
 
                     if(isset($tt->Discussions->DiscussionBody->DiscussionParagraph))
                     {
@@ -208,7 +245,7 @@ foreach($used_taxa as $taxon_parameters)
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id . ".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
