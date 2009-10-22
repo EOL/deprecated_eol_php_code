@@ -67,10 +67,7 @@ class SchemaConnection extends MysqlBase
                     }
                 }
             }
-        }
-        
-        if($status!="Unchanged")
-        {
+            
             foreach($t->common_names as &$c)
             {
                 $taxon->add_common_name($c);

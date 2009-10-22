@@ -42,6 +42,21 @@ class HarvestEvent extends MysqlBase
     public function publish_taxon_concepts()
     {
         $this->mysqli->update("UPDATE harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE het.harvest_event_id=$this->id AND tc.supercedure_id=0");
+        $result = $this->mysqli->query("SELECT he.id FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->publish_taxon_concept_parents($row['id']);
+        }
+    }
+    
+    private function publish_taxon_concept_parents($id)
+    {
+        $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE he.id=$id AND tc.supercedure_id=0");
+        $result = $this->mysqli->query("SELECT parent_id id FROM hierarchy_entries WHERE id=$id AND parent_id!=0");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $this->publish_taxon_concept_parents($row['id']);
+        }
     }
     
     public function vet_objects()

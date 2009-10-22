@@ -197,7 +197,7 @@ class HierarchyEntry extends MysqlBase
     }
     public function delete_synonyms()
     {
-        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR  language_id!=". Language::insert('scientific name').")");
+        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR language_id=". Language::insert('scientific name').")");
     }
     
        

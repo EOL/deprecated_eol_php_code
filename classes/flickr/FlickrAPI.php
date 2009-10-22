@@ -16,6 +16,7 @@ class FlickrAPI
             
             // number of API calls to be made
             $total_pages = ceil($total / 100);
+            $total_pages = 1;
             
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++)
@@ -124,7 +125,8 @@ class FlickrAPI
             $temp_params = array();
             foreach($parameters as $key => $value)
             {
-                if($value) $temp_params[$key] = $value[0];
+                if($key == "commonNames") $temp_params[$key] = $value;
+                elseif($value) $temp_params[$key] = $value[0];
             }
             
             if(@$temp_params["trinomial"]) $temp_params["scientificName"] = $temp_params["trinomial"];
@@ -186,9 +188,9 @@ class FlickrAPI
         if($photo->geoperms["ispublic"] = 1)
         {
             $geo_point_parameters = array();
-            $geo_point_parameters["latitude"] = (string) $photo->location["latitude"];
-            $geo_point_parameters["longitude"] = (string) $photo->location["longitude"];
-            $data_object_parameters["point"][] = new SchemaPoint($geo_point_parameters);
+            if((string) $photo->location["latitude"]) $geo_point_parameters["latitude"] = (string) $photo->location["latitude"];
+            if((string) $photo->location["longitude"]) $geo_point_parameters["longitude"] = (string) $photo->location["longitude"];
+            if($geo_point_parameters) $data_object_parameters["point"] = new SchemaPoint($geo_point_parameters);
             
             $locations = array();
             if($photo->location->locality) $locations[0] = (string) $photo->location->locality;
