@@ -15,7 +15,7 @@ define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$query="update resources set accesspoint_url = 'http://pandanus.eol.org/public/EOL_resource/35.xml' where id = 3";
+$query="update resources set accesspoint_url = 'http://pandanus.eol.org/public/EOL_resource/35.xml' where id = 35";
 $result = $mysqli->query($query);    
 
 ?>
