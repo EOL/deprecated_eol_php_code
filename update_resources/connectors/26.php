@@ -42,16 +42,16 @@ $i=1;
 //while( count($id_processed) != count($main_id_list) )
 //{
     echo "-x- \n";    
-    for ($i = 0; $i < count($main_id_list); $i++)     
+    for ($i = 0; $i < $total_taxid_count; $i++)     
     {
         $taxid = $main_id_list[$i];
         //if(!in_array("$taxid", $id_processed))        
         //{                        
             //if(count($id_processed) % 5000 == 0)
-            if($i % 5000 == 0)
+            if($i % 100 == 0)
             {   //start new file                
                 if(isset($OUT))fclose($OUT);
-                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "worms_" . $file_number .".xml";
+                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
             }
@@ -92,7 +92,7 @@ $i=0;
 while(true)
 {
     print "$i "; $i++;
-    $file = CONTENT_RESOURCE_LOCAL_PATH . "worms_" . $i .".xml";
+    $file = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $i .".xml";
     $str = Functions::get_remote_file($file);
     if($str)
     {
@@ -130,17 +130,17 @@ function get_main_id_list()
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
-    // /*
+//     /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
-    // */
+//     */
 
-    /*
+     /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
-    */
+     */
 
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";

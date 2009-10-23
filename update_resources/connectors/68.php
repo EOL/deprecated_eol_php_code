@@ -2,7 +2,8 @@
 <?php
 //#!/usr/local/bin/php
 //connector for Dutch Species Catalog
-//exit;
+exit; not yet fixed
+
 /* 
 22966. 22964 of 68984
 */

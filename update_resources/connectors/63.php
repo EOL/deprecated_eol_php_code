@@ -2,20 +2,26 @@
 <?php
 //#!/usr/local/bin/php
 //connector for INOTAXA
+
+//http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=BCA-coleoptv4p3s-t82
+//http://www.inotaxa.org/jsp/display.jsp?context=ElementID&taxmlitid=BCA-coleoptv4p3-3313
+
+//http://127.127.175.77/eol_php_code/applications/content_server/resources/63.xml
+
 //exit;
 
 //define("ENVIRONMENT", "development");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
- /*
+/*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
- */
-
+*/
 
 $resource = new Resource(63);
 
@@ -23,7 +29,7 @@ $subject_arr = array("Associations","Behaviour","Biology","Conservation","Conser
 
 $providers = array( 0 => array( "url" => dirname(__FILE__) . "/files/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"      , "active" => 0),
                     1 => array( "url" => dirname(__FILE__) . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml" , "active" => 0),
-                    2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"    , "active" => 1)                    
+                    2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"  , "active" => 1)                    
                   );
 
 /*
@@ -182,35 +188,110 @@ foreach($providers as $provider)
 */
                     if(isset($tt->Descriptions->SameLanguageDescription->SameLanguageDescriptionBody->SameLanguageDescriptionParagraph))
                     {
+                        /* this is for Hamilton XML */
+                        $title="Description";
                         $arr = $tt->Descriptions->SameLanguageDescription->SameLanguageDescriptionBody->SameLanguageDescriptionParagraph;
-                        $temp = process_dataobjects($arr,1,$ref);
+                        $temp = process_dataobjects($arr,1,$ref,$title);
                     }
 
-// /*
-if(isset($tt->Descriptions->SameLanguageDiagnosis))
-{
-    foreach($tt->Descriptions->SameLanguageDiagnosis as $sld)                    
-    {
-        $arr = $sld->SameLanguageDiagnosisParagraph;
-        print "<hr>$sld->SameLanguageDiagnosisParagraph<hr>";
-    }    
-    $temp = process_dataobjects($arr,1,$ref);    
-}
-// */
+
+/*
+<Descriptions>
+    <LatinDiagnosis>
+        <LatinDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-2374">
+            Sat robustus, piceus, parce setoso-squamosus, setis crassiusculis brevibus vestitus; antennis tarsisque rufis; prothorace rugoso, elytris fortiter seriatim punctatis.
+        </LatinDiagnosisParagraph>
+        <LatinDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-2375">
+            Long. 5½ millim.
+        </LatinDiagnosisParagraph>
+    </LatinDiagnosis>
+</Descriptions>                    
+
+<DistributionAndOrSpecimenCitations>
+    <DistributionAndOrSpecimenParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-62">
+        <hi rend="italic">Hab.</hi>
+        MEXICO, Omilteme in Guerrero 8000 feet (
+        <hi rend="italic">H. H. Smith</hi>
+        ).
+    </DistributionAndOrSpecimenParagraph>
+
+*/                    
+
+                    //start the new one                    
+
+                    if(isset($tt->Descriptions->LatinDiagnosis->LatinDiagnosisParagraph))
+                    {
+                        $title="Latin Diagnosis";
+                        $arr = $tt->Descriptions->LatinDiagnosis->LatinDiagnosisParagraph;
+                        $temp = process_dataobjects($arr,1,$ref,$title);    
+                    }
+                    
+                    if(isset($tt->Descriptions->SameLanguageDiagnosis->SameLanguageDiagnosisParagraph))
+                    {
+                        $title = "Description";
+                        $arr = $tt->Descriptions->SameLanguageDiagnosis->SameLanguageDiagnosisParagraph;
+                        $temp = process_dataobjects($arr,1,$ref,$title);    
+                    }
+                    //print_r($arr);
+                    //end the new one
+
+                    
+                    if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
+                    {
+                        $title = "Nomenclature";
+                        $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                        
+
+                        
+                        $temp = process_dataobjects($arr,1,$ref,$title);
+                    }                                        
+
+                    if(isset($tt->DistributionAndOrSpecimenCitations->DistributionAndOrSpecimenParagraph))
+                    {
+                        $arr = $tt->DistributionAndOrSpecimenCitations->DistributionAndOrSpecimenParagraph;
+                        //---------------------------------------------------------
+                        $str = $arr->asXML();
+                        $str = trim(strip_tags($str));
+                        if(substr($str,0,4)=="Hab.")$title = "Distribution";
+                        else                        $title = "Specimen Citations";
+                        //---------------------------------------------------------
+                        $temp = process_dataobjects($arr,1,$ref,$title);    
+
+
+                    }                    
 
                     if(isset($tt->Discussions->DiscussionBody->DiscussionParagraph))
                     {
+                        $title="Discussion";
                         $arr = $tt->Discussions->DiscussionBody->DiscussionParagraph;
-                        $temp = process_dataobjects($arr,1,$ref);
-                    }
+                        $temp = process_dataobjects($arr,1,$ref,$title);
+                    }                    
+                    //exit;
+
+/*
+<NomenclaturalType>
+    <NameTypified Explicit="false" NameID="BCA-coleoptv4p3-t687"/>
+    <NomenclaturalTypeParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-3746">
+        <hi rend="italic">Hab.</hi>
+        MEXICO
+        <ref target="BCA-coleoptv4p3-t687-x1">¹</ref>
+         (
+        <hi rend="italic">coll. Solari, ex Jekel</hi>
+        ), Panistlahuaca in Oaxaca (
+        <hi rend="italic">Sallé</hi>
+        ).
+    </NomenclaturalTypeParagraph>
+*/
+                    
 
 
                     //start image dataobject
+                    /*
                     if(isset($tt->TaxonHeading->TaxonHeadingParagraph->ref))
                     {
                         $arr = $tt->TaxonHeading->TaxonHeadingParagraph->ref;
-                        $temp = process_dataobjects($arr,2,"");
+                        $temp = process_dataobjects($arr,2,"","");
                     }
+                    */
                     //end image dataobject
 
                     //print"<br>";
@@ -264,7 +345,7 @@ function get_agents($agents_arr)
     return $agents;
 }
 
-function process_dataobjects($arr,$type,$ref)//$type 1 = text object; 2 = image object
+function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 = image object
 {
     global $taxon_identifier;
     global $tt;
@@ -273,12 +354,15 @@ function process_dataobjects($arr,$type,$ref)//$type 1 = text object; 2 = image 
     global $taxon;
     global $subject_arr;
 
-    foreach($arr as $item)
+    //if(is_array($arr))
+    //{
+    $description="";
+    foreach(@$arr as $item)
     {   
         if($type == 1)//text
         {
             $temp = $item->asXML();
-            $description = trim(strip_tags($temp));
+            $description .= " " . trim(strip_tags($temp));
         }
         else //image
         {
@@ -287,7 +371,6 @@ function process_dataobjects($arr,$type,$ref)//$type 1 = text object; 2 = image 
             $description = $ans;
         }
 
-
         if($description != "")
         {
             if($type == 1)
@@ -295,21 +378,21 @@ function process_dataobjects($arr,$type,$ref)//$type 1 = text object; 2 = image 
                 $dc_identifier = $item["ElementID"];
                 if($dc_identifier == "")$dc_identifier = "object_" . $taxon_identifier;
             }
-            else $dc_identifier = $image_id;                                
-                        
-
+            else $dc_identifier = $image_id;                                                        
+            
+            /*
             if(isset($item["KindOfDiscussion"]))  $title = trim($item["KindOfDiscussion"]);
             else                                  $title = "Body Description";
             $title = ucfirst(strtolower($title));            
+            */
+            //$title = "Description";            
+            
             if($type == 2)$title = "";
 
             if(in_array($title, $subject_arr))$subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $title;
             else                              $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
             if($type == 2)$subject = "";
-            
-            
-            
-
+         
             if($type == 1)
             {
                 $dc_source = "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=" . $taxon_identifier;
@@ -348,12 +431,26 @@ function process_dataobjects($arr,$type,$ref)//$type 1 = text object; 2 = image 
             $dcterms_modified = "";            
             $license = "http://creativecommons.org/licenses/by/3.0/";                                           
             
+            if($type == 2)
+            {
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
             $used_taxa[$taxon] = $taxon_parameters;                    
+            }
             
         }
     }    
+    //}
+    
+    if($type == 1)
+    {
+        $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+        $used_taxa[$taxon] = $taxon_parameters;                    
+    }
+    
+    
+    //else{exit("not an array");}
 }//function process_dataobjects($arr)
 
 function get_data_object($id, $created, $modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents_arr)
