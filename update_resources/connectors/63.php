@@ -239,9 +239,7 @@ foreach($providers as $provider)
                     if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
                     {
                         $title = "Nomenclature";
-                        $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                        
-
-                        
+                        $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                           
                         $temp = process_dataobjects($arr,1,$ref,$title);
                     }                                        
 
@@ -255,8 +253,6 @@ foreach($providers as $provider)
                         else                        $title = "Specimen Citations";
                         //---------------------------------------------------------
                         $temp = process_dataobjects($arr,1,$ref,$title);    
-
-
                     }                    
 
                     if(isset($tt->Discussions->DiscussionBody->DiscussionParagraph))
@@ -285,14 +281,17 @@ foreach($providers as $provider)
 
 
                     //start image dataobject
-                    /*
+                    // /*
                     if(isset($tt->TaxonHeading->TaxonHeadingParagraph->ref))
                     {
                         $arr = $tt->TaxonHeading->TaxonHeadingParagraph->ref;
                         $temp = process_dataobjects($arr,2,"","");
                     }
-                    */
+                    // */
                     //end image dataobject
+                    
+                    
+                    
 
                     //print"<br>";
                 }
