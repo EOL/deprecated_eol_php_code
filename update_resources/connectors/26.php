@@ -48,13 +48,14 @@ $i=1;
         //if(!in_array("$taxid", $id_processed))        
         //{                        
             //if(count($id_processed) % 5000 == 0)
-            if($i % 100 == 0)
-            {   //start new file                
+            //if($i % 100 == 0)
+            //{   
+                //start new file                
                 if(isset($OUT))fclose($OUT);
                 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
-            }
+            //}
             if(process($taxid))
             {
                 //$id_processed[] = $taxid;
