@@ -49,8 +49,7 @@ foreach($image_ids as $image_id)
     $xml = simplexml_load_file($image_details_url);    
     $dwc = $xml->specimen->children("http://rs.tdwg.org/dwc/dwcore/");    
     $dwcc = $xml->specimen->children("http://rs.tdwg.org/dwc/curatorial/");        
-    $dwcg = $xml->specimen->children("http://rs.tdwg.org/dwc/geospatial/");    
-    
+    $dwcg = $xml->specimen->children("http://rs.tdwg.org/dwc/geospatial/");        
     
     $dwc_Kingdom = trim($dwc->Kingdom);
     $dwc_Phylum = trim($dwc->Phylum);
@@ -97,16 +96,16 @@ foreach($image_ids as $image_id)
     
             $desc = null;
             if($dwc->Sex)$desc .= "<br>Sex: " . $dwc->Sex;
-            if($dwc->LifeStage)$desc .= "<br>LifeStage: " . $dwc->LifeStage;    
+            if($dwc->LifeStage)$desc .= "<br>Life stage: " . $dwc->LifeStage;    
             if($dwc->Collector)$desc .= "<br>Collector: " . $dwc->Collector;
-            if($dwc->CatalogNumber)$desc .= "<br>CatalogNumber: " . $dwc->CatalogNumber;
-            if($dwc->EarliestDateCollected)$desc .= "<br>EarliestDateCollected: " . $dwc->EarliestDateCollected;
-            if($dwc->BasisOfRecord)$desc .= "<br>BasisOfRecord: " . $dwc->BasisOfRecord;    
-            if($dwc->InstitutionCode)$desc .= "<br>InstitutionCode: " . $dwc->InstitutionCode;
-            //if($dwcc->TypeStatus)$desc .= "<br>TypeStatus: " . $dwcc->TypeStatus;
-            if($dwc->DateIdentified)$desc .= "<br>: " . $dwc->DateIdentified;
+            if($dwc->CatalogNumber)$desc .= "<br>Catalog number: " . $dwc->CatalogNumber;
+            if($dwc->EarliestDateCollected)$desc .= "<br>Earliest date collected: " . $dwc->EarliestDateCollected;
+            if($dwc->BasisOfRecord)$desc .= "<br>Basis of record: " . $dwc->BasisOfRecord;    
+            if($dwc->InstitutionCode)$desc .= "<br>Institution code: " . $dwc->InstitutionCode;
+            if($dwcc->TypeStatus)$desc .= "<br>Type status: " . $dwcc->TypeStatus;
+            if($dwc->DateIdentified)$desc .= "<br>:Date identified " . $dwc->DateIdentified;
             if($dwc->Country)$desc .= "<br>Country: " . $dwc->Country;
-            //if($dwcg->CoordinateUncertaintyInMeters)$desc .= "<br>CoordinateUncertaintyInMeters: " . $dwcg->CoordinateUncertaintyInMeters;
+            if($dwcg->CoordinateUncertaintyInMeters)$desc .= "<br>Coordinate uncertainty in meters: " . $dwcg->CoordinateUncertaintyInMeters;
             if($dwc->Locality)$desc .= "<br>Locality: " . $dwc->Locality;
             if($desc)$desc = substr($desc,4,strlen($desc));
     
@@ -118,10 +117,11 @@ foreach($image_ids as $image_id)
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text");       
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
         }
-        /* end first dataobject - text */     
+        /* end first dataobject - text */             
         
-        
-    }        
+    }
+
+    /* start 2nd dataobject - image */         
     $dc_identifier = trim($xml->image->sourceId->morphbank);            
     $dcterms_created = trim($xml->image->dateCreated);  
     $dcterms_modified = trim($xml->image->dateLastModified);
@@ -155,11 +155,12 @@ foreach($image_ids as $image_id)
         
     $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "image");       
     $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+    /* end second dataobject - image */     
  
     
     $used_taxa[$taxon_identifier] = $taxon_parameters;            
     
-    $k++;if($k == 6)break;
+    //$k++;if($k == 3)break;    //debug; to limit no. of records
 }
 
 /*

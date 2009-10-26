@@ -18,8 +18,6 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 if(isset($argv[1]))$start=$argv[1]);        else $start=0;
 if(isset($argv[2]))$file_number=$argv[2]);  else $file_number=1;
 
-
-
 //only on local; to be deleted before going into production
 /*
 $mysqli->truncate_tables("development");
