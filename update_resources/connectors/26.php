@@ -15,8 +15,12 @@ define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-if(isset($argv[1]))$start=$argv[1]);        else $start=0;
-if(isset($argv[2]))$file_number=$argv[2]);  else $file_number=1;
+// /*
+//if(isset($argv[1]))$start=$argv[1]);        
+$start=0;
+//if(isset($argv[2]))$file_number=$argv[2]);  
+$file_number=1;
+// */
 
 //only on local; to be deleted before going into production
 /*
@@ -48,18 +52,14 @@ $i=1;
         $taxid = $main_id_list[$i];
         //if(!in_array("$taxid", $id_processed))        
         //{                        
-            //if(count($id_processed) % 5000 == 0)
-            if($i % 2 == 0)
+            //if($i % 2 == 0)
+            if(count($id_processed) % 10000 == 0)
             {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
                 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
-                
-                shell
-                exit;
-                
             }
             if(process($taxid))
             {
