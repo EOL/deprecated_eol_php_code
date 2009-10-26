@@ -151,18 +151,46 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     if($public_barcodes > 0)
     {
         $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-        $text_dna_sequence = get_text_dna_sequence($url);                        
+        $arr = get_text_dna_sequence($url);                                
+        $count_sequence     = $arr[0];
+        $text_dna_sequence = $arr[1];
+        
+        $count_sequence_now = substr_count($text_dna_sequence, '>');    
+        
         $text_dna_sequence = str_ireplace(">", "<br>&nbsp;<br>", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("----", "", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("---", "|||", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
         $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                
         
+              
+        
         if($text_dna_sequence != "")
-        //$str = "You can copy-paste sequence below or <a target='BOLDSys' href='$dc_source'>download</a> it from BOLD Systems. "; 
-        $str = "Click <a target='BOLDSys' href='$dc_source'>here</a> to see all available DNA sequence in BOLD Systems. "; 
+        {
+            $str="";
+            if($count_sequence > 2)
+            {
+                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
+                $str .= "Below are first of the two sequences available from BOLD. ";
+                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see all available DNA sequences and more information about them."; 
+            }
+        
+            if($count_sequence == 2)
+            {
+                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
+                $str .= "Below are the two sequences available from BOLD. ";
+                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about them."; 
+            }
+
+            if($count_sequence_now == 1)
+            {
+                $str .= "Below is the available sequence from BOLD.";
+                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about it. "; 
+            }                
+        }
         else                        
         $str = "You can <a target='BOLDSys' href='$dc_source'>check</a> BOLD Systems for more information. ";         
+        
         $text_dna_sequence = $str . $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";        
         
     }
@@ -254,6 +282,8 @@ function get_text_dna_sequence($url)
         $str = Functions::get_remote_file($url);
     }    
     
+    $count_sequence = substr_count($str, '>');    
+    
     //start get only 2 sequence
     if($str)
     {
@@ -267,8 +297,11 @@ function get_text_dna_sequence($url)
         $str = substr($str,0,$i-1);    
     }
     //end get only 2 sequence
-    
-    return $str;
+ 
+    $arr=array();
+    $arr[]=$count_sequence;
+    $arr[]=$str;   
+    return $arr;
 }
 // /*
 function get_file_contents($url)
