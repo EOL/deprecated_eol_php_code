@@ -6,8 +6,6 @@
 //http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=BCA-coleoptv4p3s-t82
 //http://www.inotaxa.org/jsp/display.jsp?context=ElementID&taxmlitid=BCA-coleoptv4p3-3313
 
-//http://127.127.175.77/eol_php_code/applications/content_server/resources/63.xml
-
 exit;
 
 /* good sample for preview
