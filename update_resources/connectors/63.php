@@ -8,10 +8,18 @@
 
 //http://127.127.175.77/eol_php_code/applications/content_server/resources/63.xml
 
-//exit;
+exit;
+
+/* good sample for preview
+next 9
+http://128.128.175.77:3000/harvest_events/8/taxa/732
+http://128.128.175.77:3000/harvest_events/8/taxa/620
+http://128.128.175.77:3000/harvest_events/8/taxa/515
+*/
+
 
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -226,22 +234,21 @@ foreach($providers as $provider)
                         $temp = process_dataobjects($arr,1,$ref,$title);    
                     }
                     
+                    if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
+                    {
+                        $title = "Habitat";
+                        $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                           
+                        $temp = process_dataobjects($arr,1,$ref,$title);
+                    }                                        
+
                     if(isset($tt->Descriptions->SameLanguageDiagnosis->SameLanguageDiagnosisParagraph))
                     {
                         $title = "Description";
                         $arr = $tt->Descriptions->SameLanguageDiagnosis->SameLanguageDiagnosisParagraph;
                         $temp = process_dataobjects($arr,1,$ref,$title);    
                     }
-                    //print_r($arr);
-                    //end the new one
-
                     
-                    if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
-                    {
-                        $title = "Nomenclature";
-                        $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                           
-                        $temp = process_dataobjects($arr,1,$ref,$title);
-                    }                                        
+                    //end the new one                                        
 
                     if(isset($tt->DistributionAndOrSpecimenCitations->DistributionAndOrSpecimenParagraph))
                     {
@@ -250,7 +257,8 @@ foreach($providers as $provider)
                         $str = $arr->asXML();
                         $str = trim(strip_tags($str));
                         if(substr($str,0,4)=="Hab.")$title = "Distribution";
-                        else                        $title = "Specimen Citations";
+                        else                        $title = "Distribution";
+                        //$title = "Specimen Citations";
                         //---------------------------------------------------------
                         $temp = process_dataobjects($arr,1,$ref,$title);    
                     }                    
@@ -261,7 +269,6 @@ foreach($providers as $provider)
                         $arr = $tt->Discussions->DiscussionBody->DiscussionParagraph;
                         $temp = process_dataobjects($arr,1,$ref,$title);
                     }                    
-                    //exit;
 
 /*
 <NomenclaturalType>
@@ -277,8 +284,6 @@ foreach($providers as $provider)
         ).
     </NomenclaturalTypeParagraph>
 */
-                    
-
 
                     //start image dataobject
                     // /*
@@ -289,8 +294,6 @@ foreach($providers as $provider)
                     }
                     // */
                     //end image dataobject
-                    
-                    
                     
 
                     //print"<br>";
@@ -360,8 +363,8 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
     {   
         if($type == 1)//text
         {
-            $temp = $item->asXML();
-            $description .= " " . trim(strip_tags($temp));
+            $temp = @$item->asXML();
+            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp));
         }
         else //image
         {
@@ -435,12 +438,13 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
             $used_taxa[$taxon] = $taxon_parameters;                    
-            }
-            
+            }            
         }
     }    
     //}
-    
+
+    //<br>&nbsp;<br>
+    $description = trim(substr($description,14,strlen($description)));
     if($type == 1)
     {
         $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);

@@ -15,7 +15,10 @@ define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$file_number=1;
+if(isset($argv[1]))$start=$argv[1]);        else $start=0;
+if(isset($argv[2]))$file_number=$argv[2]);  else $file_number=1;
+
+
 
 //only on local; to be deleted before going into production
 /*
@@ -42,20 +45,24 @@ $i=1;
 //while( count($id_processed) != count($main_id_list) )
 //{
     echo "-x- \n";    
-    for ($i = 0; $i < $total_taxid_count; $i++)     
+    for ($i = $start; $i < $total_taxid_count; $i++)     
     {
         $taxid = $main_id_list[$i];
         //if(!in_array("$taxid", $id_processed))        
         //{                        
             //if(count($id_processed) % 5000 == 0)
-            //if($i % 100 == 0)
-            //{   
+            if($i % 2 == 0)
+            {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
                 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
-            //}
+                
+                shell
+                exit;
+                
+            }
             if(process($taxid))
             {
                 //$id_processed[] = $taxid;
@@ -131,17 +138,17 @@ function get_main_id_list()
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
-//     /*
+     /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
-//     */
+     */
 
-     /*
+//     /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
-     */
+//     */
 
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
