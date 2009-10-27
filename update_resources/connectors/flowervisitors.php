@@ -50,16 +50,17 @@ $str = str_ireplace('<br>' , "&arr[]=", $str);
 //$str = str_ireplace('.htm"'  , "&", $str);
 $arr=array();	
 parse_str($str);	
-print "after parse_str recs = " . count($arr) . "<hr>";	
+print "after parse_str recs = " . count($arr) . "\n\n";	
 //print_r($arr);
 
 //print $str;
 $i=0;
 foreach($arr as $species)
 {
+    if($i >= 5)break;
     $i++;
     //$species = clean_str($species);
-    print "{$species}";       
+    print "{$species} ";       
     /* <A HREF="plants/velvetleaf.htm" NAME="velvetleaf">Abutilon theophrastii (Velvet Leaf)</A> */
     $sciname="";$commonname="";$url="";    
     $beg='HREF="'; $end1='" NAME'; $end2="173xxx";    $url = "http://flowervisitors.info/" . trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));    
@@ -103,7 +104,7 @@ foreach($arr as $species)
     $title = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
     $title = str_ireplace('<BR>' , " ", $title);        
     $title = trim(strip_tags($title)) . " (<i>$dwc_ScientificName</i>)";
-    print "[$title]"; //exit;
+    print "[$title] \n"; //exit;
     //end get title
 
     $str = clean_str($str);        
@@ -183,7 +184,7 @@ function get_data_object($id, $description, $title, $url)
     $dataObjectParameters["source"] = $url;
     
 
-    $dataObjectParameters["rights"] = "Copyright © 2002-2009 by Dr. John Hilty";
+    $dataObjectParameters["rights"] = "Copyright &#169; 2002-2009 by Dr. John Hilty";
     $dataObjectParameters["rightsHolder"] = "John Hilty";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
 
