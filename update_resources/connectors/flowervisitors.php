@@ -8,7 +8,7 @@ $providers = array( 0 => array( "url" => dirname(__FILE__) . "/files/BCA_coleopt
 
 /* flowervisitors connector */
 
-//exit;
+exit;
 define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
