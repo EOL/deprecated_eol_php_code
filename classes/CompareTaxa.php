@@ -10,12 +10,9 @@ class CompareHierarchies
                             'phylum'    => .4,
                             'kingdom'   => .2);
     
-    public static function compare_hierarchies($hierarchy_id, $compare_to_hierarchy_id, $match_within_same_hierarchy = false)
-    {
-        Functions::print_pre(SolrAPI::query($query));
-    }
     
-    public static function process_hierarchy($id, $compare_to_hierarchy_id = 0, $compare_synonyms = false, $search_within_itself = false)
+    
+    public static function process_hierarchy($id, $compare_to_hierarchy_id = 0, $search_within_itself = false)
     {
         $page_size = 10000;
         $query = "{!lucene df=hierarchy_id}$id&rows=1";
@@ -29,13 +26,13 @@ class CompareHierarchies
             foreach($result->doc as $d)
             {
                 $entry = self::doc_to_object($d);
-                self::compare_entry($entry, $compare_to_hierarchy_id, $compare_synonyms, $search_within_itself);
+                self::compare_entry($entry, $compare_to_hierarchy_id, $search_within_itself);
             }
             //if($i/$page_size>2) exit;
         }
     }
     
-    public static function compare_entry($entry, $compare_to_hierarchy_id = 0, $compare_synonyms = false, $search_within_itself = false)
+    public static function compare_entry($entry, $compare_to_hierarchy_id = 0, $search_within_itself = false)
     {
         if($entry->name)
         {
@@ -64,7 +61,7 @@ class CompareHierarchies
             static $total_searches = 0;
             $total_searches++;
             
-            if($total_searches % 500 == 0) echo "TIME $total_searches :: ".Functions::time_elapsed()."<br>\n";
+            if($total_searches % 500 == 0) echo "<hr>TIME $total_searches :: ".Functions::time_elapsed()."<hr><hr><br>\n";
         }
     }
     
@@ -79,20 +76,17 @@ class CompareHierarchies
         if(strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses') return 0;
         
         $name_match = self::compare_names($entry1, $entry2);
-        // // synonym matching
-        // if(!$name_match) $name_match = self::compare_synonyms($entry1, $entry2);
+        
+        // synonym matching - cut the score in half and make it negative to show it was a synonym match
+        if(!$name_match) $name_match = self::compare_synonyms($entry1, $entry2) * -1;
+        
         $ancestry_match = self::compare_ancestries($entry1, $entry2);
         
         // an ancestry was empty to use name match only
         if(is_null($ancestry_match)) $total_score = $name_match;
         
         // ancestry match was at a resonable rank, weight scores
-        elseif($ancestry_match > .2) $total_score = $name_match * $ancestry_match;
-        
-        // ancestry match was at kingdom level, succeed if either rank is kingdom but nothing else
-        elseif($ancestry_match == .2 &&
-            (($entry1->rank_id == Rank::insert('kingdom') && ($entry1->rank_id == $entry2->rank_id || !$entry2->rank_id)) ||
-            ($entry2->rank_id == Rank::insert('kingdom') && ($entry2->rank_id == $entry1->rank_id || !$entry1->rank_id)))) $total_score = $name_match * $ancestry_match;
+        elseif($ancestry_match) $total_score = $name_match * $ancestry_match;
         
         // ancestries did not match at all therefore the match fails
         else $total_score = 0;
@@ -107,7 +101,7 @@ class CompareHierarchies
             static $number_of_matches = 0;
             $number_of_matches++;
             
-            if($number_of_matches % 100 == 0)
+            if($number_of_matches % 500 == 0 || $total_score < 0)
             {
                 echo "  # $count<br>
                         GOOD Match $number_of_matches<br>
@@ -122,12 +116,15 @@ class CompareHierarchies
             static $bad_matches = 0;
             $bad_matches++;
             
-            echo "  # $count<br>
+            if($bad_matches % 20 == 0)
+            {
+                echo "  # $count<br>
                     BAD Match $bad_matches<br>
                     <table border><tr>
                         <td>".Functions::print_pre($entry1, 1)."</td>
                         <td>".Functions::print_pre($entry2, 1)."</td>
                         </tr></table><hr>";
+            }
         }
     }
     
@@ -169,12 +166,27 @@ class CompareHierarchies
         if(!$entry2->kingdom && !$entry2->phylum && !$entry2->class && !$entry2->order && !$entry2->family) return null;
         
         // check each rank in order of priority and return the respective weight on match
+        $score = 0;
         foreach(self::$rank_priority as $rank => $weight)
         {
-            if($entry1->$rank && $entry2->$rank && $entry1->$rank == $entry2->$rank && !preg_match("/^unassigned/i", $entry1->$rank)) return $weight;
+            if($entry1->$rank && $entry2->$rank && $entry1->$rank == $entry2->$rank && !preg_match("/^(unassigned|not assigned)/i", $entry1->$rank))
+            {
+                $score = $weight;
+                break;
+            }
         }
         
-        return 0;
+        // matched at kingdom level. Make sure a few criteria are met before succeeding
+        if($score == .2)
+        {
+            $ranks_matched_at_kingdom = array(Rank::insert('kingdom'), Rank::insert('phylum'), Rank::insert('class'), Rank::insert('order'));
+            
+            // fail if the match is kingdom and we have something at a lower rank
+            if(!(in_array($entry1->rank_id, $ranks_matched_at_kingdom) || in_array($entry2->rank_id, $ranks_matched_at_kingdom)) &&
+                ($entry1->rank_id == $entry2->rank_id || !$entry1->rank_id || !$entry2->rank_id)) $score = 0;
+        }
+        
+        return $score;
     }
     
     private static function doc_to_object($doc)

@@ -24,7 +24,7 @@ $start = 0;
 $max_id = 0;
 $limit = 30000;
 $filter = "1=1";
-$filter = "hierarchy_id IN (431)";
+$filter = "he.hierarchy_id IN (129)";
 
 $result = $mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM hierarchy_entries he WHERE $filter");
 if($result && $row=$result->fetch_assoc())
@@ -67,7 +67,7 @@ function lookup_names($start, $limit)
     global $mysqli;
     global $filter;
     
-    echo "\nquerying names\n";
+    echo "\nquerying names ($start, $limit)\n";
     $result = $mysqli->query("SELECT he.*, n.string, cf.string canonical_form FROM hierarchy_entries he LEFT JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (he.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
     echo "done querying names\n";
     while($result && $row=$result->fetch_assoc())
@@ -191,7 +191,7 @@ function lookup_synonyms($start, $limit)
     
     $sci = Language::find('scientific name');
     echo "\nquerying synonyms\n";
-    $result = $mysqli->query("SELECT s.*, n.string, cf.string canonical_form FROM synonyms s JOIN names n ON (s.name_id=n.id) LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id) WHERE s.hierarchy_entry_id BETWEEN $start AND ".($start+$limit)." AND $filter");
+    $result = $mysqli->query("SELECT s.*, n.string, cf.string canonical_form FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (s.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
     echo "done querying synonyms\n";
     while($result && $row=$result->fetch_assoc())
     {
