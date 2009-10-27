@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 /* MorphBank connector */
-//exit;
+exit;
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
@@ -78,7 +78,7 @@ foreach($image_ids as $image_id)
         $used_taxa[$taxon_identifier] = $taxon_parameters;
         
 
-        /* start first dataobject - text */     
+        /* start first dataobject - text 
         if(isset($xml->specimen->sourceId->morphbank))
         {    
             $dc_identifier = trim($xml->specimen->sourceId->morphbank);            
@@ -87,13 +87,9 @@ foreach($image_ids as $image_id)
             $thumbnailURL = trim($xml->specimen->thumbUrl);
             $dc_source = trim($xml->specimen->detailPageUrl);
             $agent_name = trim($xml->specimen->submittedBy);       
-            $image_type = trim($xml->specimen->imageType);  
-    
+            $image_type = trim($xml->specimen->imageType);      
             $copyright_text = "";    
-            $license = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        
-            // /*
-    
+            $license = "http://creativecommons.org/licenses/by-nc-sa/3.0/";    
             $desc = null;
             if($dwc->Sex)$desc .= "<br>Sex: " . $dwc->Sex;
             if($dwc->LifeStage)$desc .= "<br>Life stage: " . $dwc->LifeStage;    
@@ -108,16 +104,10 @@ foreach($image_ids as $image_id)
             if($dwcg->CoordinateUncertaintyInMeters)$desc .= "<br>Coordinate uncertainty in meters: " . $dwcg->CoordinateUncertaintyInMeters;
             if($dwc->Locality)$desc .= "<br>Locality: " . $dwc->Locality;
             if($desc)$desc = substr($desc,4,strlen($desc));
-    
-            //<dwcg:DecimalLatitude>41.7944</dwcg:DecimalLatitude>
-            //<dwcg:DecimalLongitude>-124.0883</dwcg:DecimalLongitude>
-        
-            // */
-        
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text");       
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
         }
-        /* end first dataobject - text */             
+        end first dataobject - text */             
         
     }
 

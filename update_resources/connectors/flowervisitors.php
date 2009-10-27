@@ -1,323 +1,136 @@
-#!/usr/local/bin/php
 <?php
 //#!/usr/local/bin/php
-//connector for INOTAXA
-
-//http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=BCA-coleoptv4p3s-t82
-//http://www.inotaxa.org/jsp/display.jsp?context=ElementID&taxmlitid=BCA-coleoptv4p3-3313
-
-exit;
-
-/* good sample for preview
-next 9
-http://128.128.175.77:3000/harvest_events/8/taxa/732
-http://128.128.175.77:3000/harvest_events/8/taxa/620
-http://128.128.175.77:3000/harvest_events/8/taxa/515
-*/
-
-
-//define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
-define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
-
-$mysqli =& $GLOBALS['mysqli_connection'];
-
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-*/
-
-$resource = new Resource(63);
-
-$subject_arr = array("Associations","Behaviour","Biology","Conservation","ConservationStatus","Cyclicity","Cytology","Description","DiagnosticDescription","Diseases","Dispersal","Distribution","Ecology","Evolution","GeneralDescription","Genetics","Growth","Habitat","Key","Legislation","LifeCycle","LifeExpectancy","Management","Migration","MolecularBiology","Morphology","Physiology","PopulationBiology","Procedures","Reproduction","RiskStatement","Size","TaxonBiology","Threats","Trends","TrophicStrategy","Uses");
 
 $providers = array( 0 => array( "url" => dirname(__FILE__) . "/files/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"      , "active" => 0),
                     1 => array( "url" => dirname(__FILE__) . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml" , "active" => 0),
                     2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"  , "active" => 1)                    
                   );
 
-/*
-TaxonomicPublication
-    IndividualPublication
-        Metadata
-        PublicationFrontMatter
-        PublicationTaxonomicMatter  Heading="none"
-            TaxonTreatment
-                TreatmentAuthors
-                    TreatmentAuthorAtomised
-                TreatmentDate
-                TaxonHeading
-                    RankDesignation
-                    TaxonHeadingName
-                        AlternateUsedInWork
-                            TaxonName
-                            GenusName
-                TaxonCitationGroup
-                Descriptions
-                DistributionAndOrSpecimenCitations
-                Discussions
-        PublicationTaxonomicMatter  Heading="Supplement"
-        PublicationBackMatter
-        OtherNamesIndex
-*/
+/* flowervisitors connector */
+
+//exit;
+define("ENVIRONMENT", "development");
+//define("ENVIRONMENT", "slave_32");
+define("MYSQL_DEBUG", false);
+define("DEBUG", false);
+include_once(dirname(__FILE__) . "/../../config/start.php");
+
+$mysqli =& $GLOBALS['mysqli_connection'];
+
+ /*
+$mysqli->truncate_tables("development");
+Functions::load_fixtures("development");
+ */
+
+$resource = new Resource(1); //exit($resource->id);
+
 
 $schema_taxa = array();
-
-///////////////////////////////
 $used_taxa = array();
-/*  if this is outside the main loop then, data objects from a single species
-    coming from 2 INOTAXA providers will be placed in 1 <taxon> element.
 
-    if this is outside the loop then, there will be 2 <taxon> elements for 2 same species from 2 BCA providers.
-*/
-///////////////////////////////
 
-foreach($providers as $provider)
+$file = "http://flowervisitors.info/index.htm";
+$str = Functions::get_remote_file($file);
+$str = clean_str($str);
+
+//$str = str_ireplace('×' , "", $str);    //for Vernonia × illinoensis (Illinois Ironweed)
+$str = str_ireplace('&times;' , "", $str);    //for Vernonia × illinoensis (Illinois Ironweed)
+
+
+$pos = stripos($str,"<!-- Google CSE Search Box Ends -->");
+$str = trim(substr($str,$pos+35,strlen($str)));
+
+$str = str_ireplace('<BR>' , "<br>", $str);	
+
+$str = strip_tags($str, '<br><a>');
+$str = "<br>" . $str;
+
+$str = str_ireplace('<br><br>' , "&arr[]=", $str);	
+$str = str_ireplace('<br>' , "&arr[]=", $str);	
+//$str = str_ireplace('.htm"'  , "&", $str);
+$arr=array();	
+parse_str($str);	
+print "after parse_str recs = " . count($arr) . "<hr>";	
+//print_r($arr);
+
+//print $str;
+$i=0;
+foreach($arr as $species)
 {
-    // start loop through
-    if($provider["active"])
+    $i++;
+    //$species = clean_str($species);
+    print "{$species}";       
+    /* <A HREF="plants/velvetleaf.htm" NAME="velvetleaf">Abutilon theophrastii (Velvet Leaf)</A> */
+    $sciname="";$commonname="";$url="";    
+    $beg='HREF="'; $end1='" NAME'; $end2="173xxx";    $url = "http://flowervisitors.info/" . trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));    
+
+    $species = strip_tags($species);            
+    $species = "xxx" . $species;    
+    
+    $beg='('; $end1=')'; $end2="173xxx";    $commonname = parse_html($species,$beg,$end1,$end2,$end2,$end2,"");
+    $beg='xxx'; $end1='('; $end2="173xxx";    $sciname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));
+    
+    //print "[$sciname][$commonname][$url]";
+    //print "<br>";     
+    //===========================================================    
+    $dwc_Genus = substr($sciname,0,stripos($sciname," "));
+    $dwc_ScientificName = $sciname;
+    $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);        
+    
+    if(@$used_taxa[$taxon_identifier])
     {
-        $url = $provider["url"];
-        $xml = @simplexml_load_file($url);        
-        if(!($xml = @simplexml_load_file($url)))
-        {
-            print "<br> <a href='$url'>$url</a> not accessible";
-            continue;
-        }
+        $taxon_parameters = $used_taxa[$taxon_identifier];
+    }
+    else
+    {
+        $taxon_parameters = array();
+        $taxon_parameters["identifier"] = $taxon_identifier;
+        $taxon_parameters["genus"] = $dwc_Genus;
+        $taxon_parameters["scientificName"]= $dwc_ScientificName;        
+        $taxon_parameters["source"] = $url;        
+        $taxon_parameters["commonNames"] = array();
+        $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+        $taxon_parameters["dataObjects"]= array();        
+        $used_taxa[$taxon_identifier] = $taxon_parameters;
+    }     
+    
+    //start text dataobject
+    $str = Functions::get_remote_file($url);
+    
+    //start get title
+    $title="";
+    $beg='</TITLE>'; $end1='<HR'; $end2="173xxx";    
+    $title = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+    $title = str_ireplace('<BR>' , " ", $title);        
+    $title = trim(strip_tags($title)) . " (<i>$dwc_ScientificName</i>)";
+    print "[$title]"; //exit;
+    //end get title
 
-        $i=0;
-        $sciname = array();//just for debugging
+    $str = clean_str($str);        
 
-        $hierarchy = array();
+    //start get desc            
+    $desc="";
+    $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
+    $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+    $desc = strip_tags($desc,"<br><p><b><i>");            
+    //print "<hr>$desc";exit;
+    //end get desc
+    
+    $dc_identifier = "txt_" . $taxon_identifier;
+    /*
+       
+    */
 
-        //start get rights holder
-        $rightsHolder = trim(strip_tags($xml->IndividualPublication->PublicationFrontMatter->SeriesTitle->Title->asXML()));
-        //end get rights holder
-
-        foreach($xml->IndividualPublication as $main)
-        {
-            foreach($main->PublicationTaxonomicMatter as $ptm)
-            {
-                foreach($ptm->TaxonTreatment as $tt)
-                {
-                    $taxon_identifier = @$tt["TaxonID"];
-                    $dwc_ScientificName = $tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName;
-                    $rank = $tt->TaxonHeading->RankDesignation;
-                    //print $dwc_ScientificName . "($taxon_identifier)($rank) | ";
-                    $i++;
-                    $sciname["$dwc_ScientificName"] = $dwc_ScientificName;
-
-                    $taxon = str_replace(" ", "_", $dwc_ScientificName);
-                    if(@$used_taxa[$taxon])
-                    {
-                        $taxon_parameters = $used_taxa[$taxon];
-                    }
-                    else
-                    {
-                        $taxon_parameters = array();
-
-                        //start get hierarchy
-                        foreach($tt->TaxonHierarchyAbove as $tha)
-                        {
-                            //print " | "; print $tha->RankDesignation . " ";
-                            $ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
-                            $rank = $tha->RankDesignation;
-                            if(in_array($rank, $ranks))
-                            {
-                                $taxon_parameters["$rank"] = $tha->TaxonHeadingName->AlternateUsedInWork->TaxonName;
-                                $hierarchy["$rank"] = $tha->TaxonHeadingName->AlternateUsedInWork->TaxonName;
-                            }
-                            //print "[" . utf8_decode($tha->TaxonHeadingName->AlternateUsedInWork->TaxonName) . "] ";
-                        }
-                        if($hierarchy)//if with taxon hierarcy
-                        {
-                            $arr = array_keys($hierarchy);
-                            foreach($arr as $rank)
-                            {
-                                $taxon_parameters["$rank"] = $hierarchy["$rank"];
-                            }
-                        }
-                        //end get hierarchy
-
-                        $main_citation="";
-                        if(isset($xml->IndividualPublication->Metadata->FullBibliographicCitation))$main_citation = $xml->IndividualPublication->Metadata->FullBibliographicCitation;
-
-                        $taxon_parameters["identifier"] = $taxon_identifier;
-                        $taxon_parameters["scientificName"]= $dwc_ScientificName;
-                        $taxon_parameters["source"] = "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=" . $taxon_identifier;
-
-                        if($main_citation)
-                        {
-                            $taxon_parameters["references"] = array();
-                            $referenceParameters = array();
-                            $referenceParameters["fullReference"] = trim($main_citation);
-                            $references = array();
-                            $references[] = new SchemaReference($referenceParameters);
-                            $taxon_parameters["references"] = $references;
-                        }
-
-                        $taxon_parameters["dataObjects"]= array();
-
-                        $ref="";
-                        if(isset($tt->TaxonCitationGroup->AcceptedOrValidTaxonName->AcceptedOrValidTaxonNameParagraph))
-                        {
-                            foreach($tt->TaxonCitationGroup->AcceptedOrValidTaxonName->AcceptedOrValidTaxonNameParagraph as $aovtp)
-                            {
-                                $ref = strip_tags($aovtp->asXML());
-                            }
-                        }
-
-                        $used_taxa[$taxon] = $taxon_parameters;
-                    }
-
-/*
-<Descriptions>
-    <SameLanguageDiagnosis>
-        <SameLanguageDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-4435">
-            Convex, black; variegated above with a dense clothing of light and dark brown scales, the dark brown scales on the elytra condensed into a transverse or curved mark below the base, extending forward along the third interstice to the anterior margin, an angulate median fascia (not reaching the suture), and a small triangular patch on the disc towards the apex, the scales along the exposed basal margin of the head, at the base of the femora above, and on the under surface paler or whitish; the elytra also thickly set with long, stiff, erect setæ, and the rest of the surface with short setiform scales. Head and rostrum finely canaliculate, the rostrum hollowed towards the apex; joint 2 of the funiculus nearly twice as long as 1. Prothorax much broader than long, rounded at the sides, in the ? not narrower at the apex than at the base, densely, finely punctate. Elytra oval, convex, rather short, constricted immediately below the base, 
-            <pb id="BCA-coleoptv4p3-p339" Explicit="true"/>
-            the base itself not or very little wider than that of the prothorax; coarsely punctate-striate (when seen abraded), the interstices feebly convex.
-        </SameLanguageDiagnosisParagraph>
-        <SameLanguageDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-4436">
-            Length 4½—5½, breadth 2 1/10—2½ millim. (? ?.)
-        </SameLanguageDiagnosisParagraph>
-    </SameLanguageDiagnosis>
-</Descriptions>
-<Discussions>
-    <DiscussionBody Display="true">
-        <DiscussionParagraph KindOfDiscussion="general" Explicit="true" ElementID="BCA-coleoptv4p3-4438">Five specimens.
-        </DiscussionParagraph>
-    </DiscussionBody>
-</Discussions>                    
-*/
-                    if(isset($tt->Descriptions->SameLanguageDescription->SameLanguageDescriptionBody->SameLanguageDescriptionParagraph))
-                    {
-                        /* this is for Hamilton XML */
-                        $title="Description";
-                        $arr = $tt->Descriptions->SameLanguageDescription->SameLanguageDescriptionBody->SameLanguageDescriptionParagraph;
-                        $temp = process_dataobjects($arr,1,$ref,$title);
-                    }
+    $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url);       
+    $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
 
 
-/*
-<Descriptions>
-    <LatinDiagnosis>
-        <LatinDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-2374">
-            Sat robustus, piceus, parce setoso-squamosus, setis crassiusculis brevibus vestitus; antennis tarsisque rufis; prothorace rugoso, elytris fortiter seriatim punctatis.
-        </LatinDiagnosisParagraph>
-        <LatinDiagnosisParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-2375">
-            Long. 5½ millim.
-        </LatinDiagnosisParagraph>
-    </LatinDiagnosis>
-</Descriptions>                    
-
-<DistributionAndOrSpecimenCitations>
-    <DistributionAndOrSpecimenParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-62">
-        <hi rend="italic">Hab.</hi>
-        MEXICO, Omilteme in Guerrero 8000 feet (
-        <hi rend="italic">H. H. Smith</hi>
-        ).
-    </DistributionAndOrSpecimenParagraph>
-
-*/                    
-
-                    //start the new one                    
-
-                    if(isset($tt->Descriptions->LatinDiagnosis->LatinDiagnosisParagraph))
-                    {
-                        $title="Latin Diagnosis";
-                        $arr = $tt->Descriptions->LatinDiagnosis->LatinDiagnosisParagraph;
-                        $temp = process_dataobjects($arr,1,$ref,$title);    
-                    }
-                    
-                    if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
-                    {
-                        $title = "Habitat";
-                        $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                           
-                        $temp = process_dataobjects($arr,1,$ref,$title);
-                    }                                        
-
-                    if(isset($tt->Descriptions->SameLanguageDiagnosis->SameLanguageDiagnosisParagraph))
-                    {
-                        $title = "Description";
-                        $arr = $tt->Descriptions->SameLanguageDiagnosis->SameLanguageDiagnosisParagraph;
-                        $temp = process_dataobjects($arr,1,$ref,$title);    
-                    }
-                    
-                    //end the new one                                        
-
-                    if(isset($tt->DistributionAndOrSpecimenCitations->DistributionAndOrSpecimenParagraph))
-                    {
-                        $arr = $tt->DistributionAndOrSpecimenCitations->DistributionAndOrSpecimenParagraph;
-                        //---------------------------------------------------------
-                        $str = $arr->asXML();
-                        $str = trim(strip_tags($str));
-                        if(substr($str,0,4)=="Hab.")$title = "Distribution";
-                        else                        $title = "Distribution";
-                        //$title = "Specimen Citations";
-                        //---------------------------------------------------------
-                        $temp = process_dataobjects($arr,1,$ref,$title);    
-                    }                    
-
-                    if(isset($tt->Discussions->DiscussionBody->DiscussionParagraph))
-                    {
-                        $title="Discussion";
-                        $arr = $tt->Discussions->DiscussionBody->DiscussionParagraph;
-                        $temp = process_dataobjects($arr,1,$ref,$title);
-                    }                    
-
-/*
-<NomenclaturalType>
-    <NameTypified Explicit="false" NameID="BCA-coleoptv4p3-t687"/>
-    <NomenclaturalTypeParagraph Display="true" Explicit="true" ElementID="BCA-coleoptv4p3-3746">
-        <hi rend="italic">Hab.</hi>
-        MEXICO
-        <ref target="BCA-coleoptv4p3-t687-x1">¹</ref>
-         (
-        <hi rend="italic">coll. Solari, ex Jekel</hi>
-        ), Panistlahuaca in Oaxaca (
-        <hi rend="italic">Sallé</hi>
-        ).
-    </NomenclaturalTypeParagraph>
-*/
-
-                    //start image dataobject
-                    // /*
-                    if(isset($tt->TaxonHeading->TaxonHeadingParagraph->ref))
-                    {
-                        $arr = $tt->TaxonHeading->TaxonHeadingParagraph->ref;
-                        $temp = process_dataobjects($arr,2,"","");
-                    }
-                    // */
-                    //end image dataobject
-                    
-
-                    //print"<br>";
-                }
-                //print"<hr>";
-            }
-        }
-
-
-        /*
-        print "<hr>
-        i = $i <br>
-        sciname = " . count($sciname);
-        print "<hr>";
-        print count(array_keys($sciname));
-        print "<hr>";
-        print count(array_keys($used_taxa));
-        */
-
-        // end loop through
-
-        print "<hr>" . $provider["url"];
-
-    }//if($provider["active"])
-
-}//end main loop
+    //end text dataobject            
+    
+    $used_taxa[$taxon_identifier] = $taxon_parameters;            
+        
+    
+}//main loop
 
 
 foreach($used_taxa as $taxon_parameters)
@@ -326,203 +139,126 @@ foreach($used_taxa as $taxon_parameters)
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id . ".xml";
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-print "<hr> Done processing.";
-
-
-function get_agents($agents_arr)
+function get_data_object($id, $description, $title, $url)
 {
-    $agents=array();
-    foreach($agents_arr as $agent)
-    {
-        $agents[] = $agent->TreatmentAuthorAtomised;
-    }
-    return $agents;
-}
-
-function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 = image object
-{
-    global $taxon_identifier;
-    global $tt;
-    global $taxon_parameters;
-    global $used_taxa;
-    global $taxon;
-    global $subject_arr;
-
-    //if(is_array($arr))
-    //{
-    $description="";
-    foreach(@$arr as $item)
-    {   
-        if($type == 1)//text
-        {
-            $temp = @$item->asXML();
-            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp));
-        }
-        else //image
-        {
-            $image_id = trim($item["target"]);
-            $ans = strval(stripos($image_id,"pfig"));            
-            $description = $ans;
-        }
-
-        if($description != "")
-        {
-            if($type == 1)
-            {
-                $dc_identifier = $item["ElementID"];
-                if($dc_identifier == "")$dc_identifier = "object_" . $taxon_identifier;
-            }
-            else $dc_identifier = $image_id;                                                        
-            
-            /*
-            if(isset($item["KindOfDiscussion"]))  $title = trim($item["KindOfDiscussion"]);
-            else                                  $title = "Body Description";
-            $title = ucfirst(strtolower($title));            
-            */
-            //$title = "Description";            
-            
-            if($type == 2)$title = "";
-
-            if(in_array($title, $subject_arr))$subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $title;
-            else                              $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-            if($type == 2)$subject = "";
-         
-            if($type == 1)
-            {
-                $dc_source = "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=" . $taxon_identifier;
-                $mediaURL="";
-                $dataType = "http://purl.org/dc/dcmitype/Text";
-                $mimeType = "text/html";
-                $agents = get_agents($tt->TreatmentAuthors);
-            }
-            else
-            {             
-                $dc_source = "http://www.inotaxa.org/jsp/display.jsp?context=Figure&taxmlitid=" . $image_id;
-                $mediaURL = "http://www.nhm.ac.uk/hosted-sites/inotaxa/images/img/" . $image_id . ".jpg";
-                $dataType = "http://purl.org/dc/dcmitype/StillImage";
-                $mimeType = "image/jpeg";
-                $agents = array();
-                                
-                $description = "";
-                //start get caption
-                if(isset($xml->IndividualPublication->PublicationTaxonomicMatter->PlateOrTable->ImageCaption->SubCaptionComponents))
-                {
-                    foreach($xml->IndividualPublication->PublicationTaxonomicMatter->PlateOrTable as $pot)
-                    {
-                        foreach($pot->ImageCaption as $ic)
-                        {
-                            foreach($ic->SubCaptionComponents as $scc)
-                            {
-                                if($scc["ImageOrTableID"] == "$image_id") $description = trim(strip_tags($scc->SubCaptionText->asXML())); //print("<hr>11<hr>image id = $image_id<hr>" . $description);
-                            }
-                        }
-                    }
-                }
-                //end get caption                
-            }
-                        
-            $dcterms_created = "";
-            $dcterms_modified = "";            
-            $license = "http://creativecommons.org/licenses/by/3.0/";                                           
-            
-            if($type == 2)
-            {
-            $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
-            $used_taxa[$taxon] = $taxon_parameters;                    
-            }            
-        }
-    }    
-    //}
-
-    //<br>&nbsp;<br>
-    $description = trim(substr($description,14,strlen($description)));
-    if($type == 1)
-    {
-        $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
-        $used_taxa[$taxon] = $taxon_parameters;                    
-    }
+    $type="text";
     
-    
-    //else{exit("not an array");}
-}//function process_dataobjects($arr)
-
-function get_data_object($id, $created, $modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents_arr)
-{
-    global $rightsHolder;
-
     $dataObjectParameters = array();
-    $dataObjectParameters["title"] = $title;
-    $dataObjectParameters["rightsHolder"] = $rightsHolder;
-    if($subject)
-    {
+    
+    if($type == "text")
+    {   
+        $dataObjectParameters["identifier"] = $id;    
+        $dataObjectParameters["title"] = $title;
+        ///////////////////////////////////    
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
-        $subjectParameters["label"] = $subject;
+        $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        ///////////////////////////////////        
+        $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
+        $dataObjectParameters["mimeType"] = "text/html";        
     }
-
-    $description = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $description);
-    $dataObjectParameters["description"] = trim($description);
-
-    $dataObjectParameters["identifier"] = $id;
-    $dataObjectParameters["created"] = $created;
-    $dataObjectParameters["modified"] = $modified;
-    $dataObjectParameters["rightsHolder"] = $rightsHolder;
-    $dataObjectParameters["dataType"] = $dataType;
-    $dataObjectParameters["mimeType"] = $mimeType;
-    $dataObjectParameters["language"] = "en";
-    $dataObjectParameters["license"] = $license;
-    $dataObjectParameters["mediaURL"] = $mediaURL;
-    $dataObjectParameters["source"] = $dc_source;
-
-    if($agents_arr)
+    else
     {
-        $agentParameters = array();
-        foreach($agents_arr as $agent)
-        {
-            $agentParameters["role"] = "author";
-            $agentParameters["fullName"] = $agent;
-            $agents[] = new SchemaAgent($agentParameters);
-        }
-        $dataObjectParameters["agents"] = $agents;
+        $dataObjectParameters["identifier"] = "img_" . $id;    
+        $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
+        $dataObjectParameters["mimeType"] = "image/jpeg";
+        $dataObjectParameters["thumbnailURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=thumb";
+        $dataObjectParameters["mediaURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=jpg";        
     }
 
+
+    $dataObjectParameters["description"] = $description;        
+    //$dataObjectParameters["created"] = $created;
+    //$dataObjectParameters["modified"] = $modified;    
+    
+    $dataObjectParameters["language"] = "en";    
+    
+    $dataObjectParameters["source"] = $url;
+    
+
+    $dataObjectParameters["rights"] = "Copyright © 2002-2009 by Dr. John Hilty";
+    $dataObjectParameters["rightsHolder"] = "John Hilty";
+    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
+
+    
     ///////////////////////////////////
-    $dataObjectParameters["audiences"] = array();
-    $audienceParameters = array();
-
-    $audienceParameters["label"] = "Expert users";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
-
-    $audienceParameters["label"] = "General public";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $agentParameters = array();
+    $agentParameters["homepage"] = "http://flowervisitors.info/";
+    $agentParameters["role"] = "source";
+    $agentParameters["fullName"] = "John Hilty";
+    $agents[] = new SchemaAgent($agentParameters);
+    $dataObjectParameters["agents"] = $agents;    
     ///////////////////////////////////
-
-    ///////////////////////////////////
-    ///*working
-    $dataObjectParameters["references"] = array();
-
-    $referenceParameters = array();
-    $referenceParameters["fullReference"] = trim($ref);
-    $references[] = new SchemaReference($referenceParameters);
-
-    /*not working...
-    $referenceParam["referenceIdentifiers"][] = array("label" => "label" , "value" => "value");
-    */
-
-    $dataObjectParameters["references"] = $references;
-    ///////////////////////////////////
-
+    $dataObjectParameters["audiences"] = array();        
+    $audienceParameters = array();      
+    $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+    $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
     return $dataObjectParameters;
 }
 
+function clean_str($str)
+{    
+    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+    //$str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '#', $str);			
+    // this line counts how many # as num, and repeats this char in num times, then replaces these chars with just 1 space ' ' 
+    //$str = str_replace(str_repeat("#", substr_count($str, '#')), ' ', $str);
+    return $str;
+}
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
+{
+    //PRINT "[$all]"; exit;
+	$beg_len = strlen(trim($beg));
+	$end1_len = strlen(trim($end1));
+	$end2_len = strlen(trim($end2));
+	$end3_len = strlen(trim($end3));	
+	$end4_len = strlen(trim($end4));		
+	//print "[[$str]]";
+
+	$str = trim($str); 	
+	$str = $str . "|||";	
+	$len = strlen($str);	
+	$arr = array(); $k=0;	
+	for ($i = 0; $i < $len; $i++) 
+	{
+		if(substr($str,$i,$beg_len) == $beg)
+		{	
+			$i=$i+$beg_len;
+			$pos1 = $i;			
+			//print substr($str,$i,10) . "<br>";									
+			$cont = 'y';
+			while($cont == 'y')
+			{
+				if(	substr($str,$i,$end1_len) == $end1 or 
+					substr($str,$i,$end2_len) == $end2 or 
+					substr($str,$i,$end3_len) == $end3 or 
+					substr($str,$i,$end4_len) == $end4 or 
+					substr($str,$i,3) == '|||' )
+				{
+					$pos2 = $i - 1; 					
+					$cont = 'n';					
+					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
+					//print "$arr[$k] $wrap";					                    
+					$k++;
+				}
+				$i++;
+			}//end while
+			$i--;			
+		}		
+	}//end outer loop
+    if($all == "")	
+    {
+        $id='';
+	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        return $id;
+    }
+    elseif($all == "all") return $arr;	
+}//end function
 
 ?>
