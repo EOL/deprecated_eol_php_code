@@ -507,38 +507,55 @@ class Functions
     
     public static function utf8_to_ascii($nameString)
     {
-        $nameString = preg_replace("/[ÀÂÅÃÄÁẤẠ]/u", "A", $nameString);
-        $nameString = preg_replace("/[ÉÈÊË]/u", "E", $nameString);
-        $nameString = preg_replace("/[ÍÌÎÏ]/u", "I", $nameString);
-        $nameString = preg_replace("/[ÓÒÔØÕÖỚỔ]/u", "O", $nameString);
-        $nameString = preg_replace("/[ÚÙÛÜ]/u", "U", $nameString);
-        $nameString = preg_replace("/[Ý]/u", "Y", $nameString);
-        $nameString = preg_replace("/Æ/u", "AE", $nameString);
-        $nameString = preg_replace("/[ČÇ]/u", "C", $nameString);
-        $nameString = preg_replace("/[ŠŞ]/u", "S", $nameString);
-        $nameString = preg_replace("/[Đ]/u", "D", $nameString);
-        $nameString = preg_replace("/Ž/u", "Z", $nameString);
-        $nameString = preg_replace("/Ñ/u", "N", $nameString);
-        $nameString = preg_replace("/Œ/u", "OE", $nameString);
-        $nameString = preg_replace("/ß/u", "B", $nameString);
-        $nameString = preg_replace("/Ķ/u", "K", $nameString);
-        $nameString = preg_replace("/[áàâåãäăãắảạậầằ]/u", "a", $nameString);
-        $nameString = preg_replace("/[éèêëĕěếệểễềẻ]/u", "e", $nameString);
-        $nameString = preg_replace("/[íìîïǐĭīĩỉï]/u", "i", $nameString);
-        $nameString = preg_replace("/[óòôøõöŏỏỗộơọỡốơồờớổ]/u", "o", $nameString);
-        $nameString = preg_replace("/[úùûüůưừựủứụ]/u", "u", $nameString);
-        $nameString = preg_replace("/[žź]/u", "z", $nameString);
-        $nameString = preg_replace("/[ýÿỹ]/u", "y", $nameString);
-        $nameString = preg_replace("/[đ]/u", "d", $nameString);
-        $nameString = preg_replace("/æ/u", "ae", $nameString);
-        $nameString = preg_replace("/[čćç]/u", "c", $nameString);
-        $nameString = preg_replace("/[ñńň]/u", "n", $nameString);
-        $nameString = preg_replace("/œ/u", "oe", $nameString);
-        $nameString = preg_replace("/[śšş]/u", "s", $nameString);
-        $nameString = preg_replace("/ř/u", "r", $nameString);
-        $nameString = preg_replace("/ğ/u", "g", $nameString);
-        $nameString = preg_replace("/Ř/u", "R", $nameString);
-        return $nameString;
+        $r = '';
+        $s1 = @iconv('UTF-8', 'ASCII//TRANSLIT', $s);
+        $j = 0;
+        for ($i = 0; $i < strlen($s1); $i++) {
+            $ch1 = $s1[$i];
+            $ch2 = @mb_substr($s, $j++, 1, 'UTF-8');
+            if (strstr('`^~\'"', $ch1) !== false) {
+                if ($ch1 <> $ch2) {
+                    --$j;
+                    continue;
+                }
+            }
+            $r .= ($ch1=='?') ? $ch2 : $ch1;
+        }
+        return $r;
+        
+        
+        // $nameString = preg_replace("/[ÀÂÅÃÄÁẤẠ]/u", "A", $nameString);
+        // $nameString = preg_replace("/[ÉÈÊË]/u", "E", $nameString);
+        // $nameString = preg_replace("/[ÍÌÎÏ]/u", "I", $nameString);
+        // $nameString = preg_replace("/[ÓÒÔØÕÖỚỔ]/u", "O", $nameString);
+        // $nameString = preg_replace("/[ÚÙÛÜ]/u", "U", $nameString);
+        // $nameString = preg_replace("/[Ý]/u", "Y", $nameString);
+        // $nameString = preg_replace("/Æ/u", "AE", $nameString);
+        // $nameString = preg_replace("/[ČÇ]/u", "C", $nameString);
+        // $nameString = preg_replace("/[ŠŞ]/u", "S", $nameString);
+        // $nameString = preg_replace("/[Đ]/u", "D", $nameString);
+        // $nameString = preg_replace("/Ž/u", "Z", $nameString);
+        // $nameString = preg_replace("/Ñ/u", "N", $nameString);
+        // $nameString = preg_replace("/Œ/u", "OE", $nameString);
+        // $nameString = preg_replace("/ß/u", "B", $nameString);
+        // $nameString = preg_replace("/Ķ/u", "K", $nameString);
+        // $nameString = preg_replace("/[áàâåãäăãắảạậầằ]/u", "a", $nameString);
+        // $nameString = preg_replace("/[éèêëĕěếệểễềẻ]/u", "e", $nameString);
+        // $nameString = preg_replace("/[íìîïǐĭīĩỉï]/u", "i", $nameString);
+        // $nameString = preg_replace("/[óòôøõöŏỏỗộơọỡốơồờớổ]/u", "o", $nameString);
+        // $nameString = preg_replace("/[úùûüůưừựủứụ]/u", "u", $nameString);
+        // $nameString = preg_replace("/[žź]/u", "z", $nameString);
+        // $nameString = preg_replace("/[ýÿỹ]/u", "y", $nameString);
+        // $nameString = preg_replace("/[đ]/u", "d", $nameString);
+        // $nameString = preg_replace("/æ/u", "ae", $nameString);
+        // $nameString = preg_replace("/[čćç]/u", "c", $nameString);
+        // $nameString = preg_replace("/[ñńň]/u", "n", $nameString);
+        // $nameString = preg_replace("/œ/u", "oe", $nameString);
+        // $nameString = preg_replace("/[śšş]/u", "s", $nameString);
+        // $nameString = preg_replace("/ř/u", "r", $nameString);
+        // $nameString = preg_replace("/ğ/u", "g", $nameString);
+        // $nameString = preg_replace("/Ř/u", "R", $nameString);
+        // return $nameString;
     }
     
     public static function clean_name($name)
