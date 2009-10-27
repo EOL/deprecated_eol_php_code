@@ -33,16 +33,16 @@ class MysqlConnection
         $this->master_user = $master_user;
         $this->master_password = $master_password;
         $this->master_database = $master_database;
-        $this->master_encoding = $master_encoding;             
-        $this->master_port = $master_port;  
+        $this->master_encoding = $master_encoding;
+        $this->master_port = $master_port;
         $this->master_socket = $master_socket;  
         $this->transaction_in_progress = false;
         
-        if(!$this->encoding) $this->encoding = "utf8";               
-        if(!$this->port) $this->port = NULL;              
-        if(!$this->socket) $this->socket = NULL;              
-        if(!$this->master_port) $this->master_port = NULL;              
-        if(!$this->master_socket) $this->master_socket = NULL;              
+        if(!$this->encoding) $this->encoding = "utf8";
+        if(!$this->port) $this->port = NULL;
+        if(!$this->socket) $this->socket = NULL;
+        if(!$this->master_port) $this->master_port = NULL;
+        if(!$this->master_socket) $this->master_socket = NULL;
         if(!$this->master_encoding) $this->master_encoding = $this->encoding;
     }
     

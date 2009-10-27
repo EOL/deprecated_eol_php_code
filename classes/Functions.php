@@ -96,14 +96,14 @@ class Functions
         return $hours;
     }
     
-    public static function get_remote_file($remote_url)
+    public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
         self::debug("Grabbing $remote_url: attempt 1");
         
         $context = stream_context_create(array('http' => array('timeout' => DOWNLOAD_TIMEOUT_SECONDS)));
         
         $file = @file_get_contents($remote_url, 0, $context);
-        usleep(DOWNLOAD_WAIT_TIME);
+        usleep($download_wait_time);
         
         $attempts = 1;
         while(!$file && $attempts < DOWNLOAD_ATTEMPTS)
@@ -111,16 +111,16 @@ class Functions
             self::debug("Grabbing $remote_url: attempt ".($attempts+1));
             
             $file = @file_get_contents($remote_url, 0, $context);
-            usleep(DOWNLOAD_WAIT_TIME);
+            usleep($download_wait_time);
             $attempts++;
         }
         
         return $file;
     }
     
-    public static function get_hashed_response($url)
+    public static function get_hashed_response($url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
-        $response = self::get_remote_file($url);
+        $response = self::get_remote_file($url, $download_wait_time);
         
         $hash = simplexml_load_string($response);
         

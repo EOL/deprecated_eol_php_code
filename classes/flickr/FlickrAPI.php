@@ -16,7 +16,6 @@ class FlickrAPI
             
             // number of API calls to be made
             $total_pages = ceil($total / 100);
-            $total_pages = 1;
             
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++)
