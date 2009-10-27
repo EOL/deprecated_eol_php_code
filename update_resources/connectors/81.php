@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php  
 //connector for BOLD Systems
-//exit;
+exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600

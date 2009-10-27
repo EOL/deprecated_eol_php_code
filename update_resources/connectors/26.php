@@ -16,9 +16,7 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 // /*
-//if(isset($argv[1]))$start=$argv[1]);        
 $start=0;
-//if(isset($argv[2]))$file_number=$argv[2]);  
 $file_number=1;
 // */
 
@@ -52,8 +50,9 @@ $i=1;
         $taxid = $main_id_list[$i];
         //if(!in_array("$taxid", $id_processed))        
         //{                        
-            //if($i % 2 == 0)
-            if(count($id_processed) % 10000 == 0)
+            //
+            //if(count($id_processed) % 10000 == 0)
+            if($i % 10000 == 0)
             {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
@@ -136,17 +135,17 @@ function get_main_id_list()
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
-     /*
+//     /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
-     */
+//     */
 
-//     /*
+     /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
-//     */
+     */
 
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
     //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
