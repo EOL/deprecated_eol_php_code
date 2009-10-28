@@ -105,11 +105,11 @@ class MysqlConnection
             if(count($values) > $insert_batch_size)
             {
                 //echo "INSERT INTO `$table` VALUES (". implode("),(", $values) .")\n";
-                $this->insert("INSERT INTO `$table` VALUES (". implode("),(", $values) .")");
+                $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
                 $values = array();
             }
         }
-        if(count($values)) $this->insert("INSERT INTO `$table` VALUES (". implode("),(", $values) .")");
+        if(count($values)) $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
         $this->end_transaction();
     }
     

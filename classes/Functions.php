@@ -127,6 +127,25 @@ class Functions
         return $hash;
     }
     
+    public static function temp_filepath()
+    {
+        $filepath = LOCAL_ROOT . "/temp/tmp_". self::random_digits(5) .".file";
+        while(glob($filepath))
+        {
+            $filepath = LOCAL_ROOT . "/temp/tmp_". self::random_digits(5) .".file";
+        }
+        
+        return $filepath;
+    }
+    
+    public function random_digits($number, $start = 0)
+    {
+        $start = "1".str_repeat($start, $number);
+        $end = "1".str_repeat(9, $number);
+        $random = rand($start,$end);
+        return substr($random, 1);
+    }
+    
     public static function curl_post_request($url, $parameters_array)
     {
         $ch = curl_init();

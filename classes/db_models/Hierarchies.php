@@ -11,7 +11,8 @@ class Hierarchy extends MysqlBase
         parent::initialize($param);
         if(@!$this->id) return;
     }
-
+    
+    
     public function latest_group_version()
     {
         $result = $this->mysqli->query("SELECT max(hierarchy_group_version) as max FROM hierarchies WHERE hierarchy_group_id=$this->hierarchy_group_id");
@@ -31,6 +32,11 @@ class Hierarchy extends MysqlBase
     }
     
     static function find_by_label($string)
+    {
+        return parent::find_by("label", $string, Functions::class_name(__FILE__));
+    }
+    
+    static function find($string)
     {
         return parent::find_by("label", $string, Functions::class_name(__FILE__));
     }

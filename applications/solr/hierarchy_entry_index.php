@@ -6,9 +6,20 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
-define('PRIMARY_KEY', 'id');
-//define('SOLR_SERVER', 'http://localhost:8983/solr');
-
+$schema = array(
+        'name'              => '',
+        'canonical_form'    => '',
+        'kingdom'           => '',
+        'phylum'            => '',
+        'class'             => '',
+        'order'             => '',
+        'family'            => '',
+        'genus'             => '',
+        'synonym'           => array(),
+        'synonym_canonical' => array(),
+        'common_name'       => array());
+        
+$solr = new SolrAPI(SOLR_SERVER, 'id', $schema);
 
 $GLOBALS['ancestries'] = array();
 $GLOBALS['rank_labels'] = array();
@@ -24,7 +35,7 @@ $start = 0;
 $max_id = 0;
 $limit = 30000;
 $filter = "1=1";
-$filter = "he.hierarchy_id IN (129)";
+$filter = "he.hierarchy_id IN (113)";
 
 $result = $mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM hierarchy_entries he WHERE $filter");
 if($result && $row=$result->fetch_assoc())
@@ -46,13 +57,13 @@ for($i=$start ; $i<$max_id ; $i+=$limit)
     lookup_ancestries($i, $limit);
     lookup_synonyms($i, $limit);
     
-    if(isset($GLOBALS['objects'])) send_attributes();
+    if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects'], $GLOBALS['fields']);
 }
 
 
-if(isset($GLOBALS['objects'])) send_attributes();
-exec("curl ". SOLR_SERVER ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml");
-exec("curl ". SOLR_SERVER ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml");
+if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects'], $GLOBALS['fields']);
+$solr->commit();
+$solr->optimize();
 
 
 
@@ -101,15 +112,6 @@ function lookup_names($start, $limit)
         $GLOBALS['fields']['canonical_form_string'] = 1;
         $GLOBALS['objects'][$id]['canonical_form'] = $row['canonical_form'];
         $GLOBALS['objects'][$id]['canonical_form_string'] = $row['canonical_form'];
-        
-        // if($ancestry = get_ancestry($id, $rank_id, $row['string'], $parent_id))
-        // {
-        //     foreach($ancestry as $rank => $name)
-        //     {
-        //         $GLOBALS['fields'][$rank] = 1;
-        //         $GLOBALS['objects'][$id][$rank] = $name;
-        //     }
-        // }
     }
 }
 
@@ -212,77 +214,5 @@ function lookup_synonyms($start, $limit)
     }
 }
 
-
-
-
-function send_attributes()
-{
-    $OUT = fopen(LOCAL_ROOT . "temp/data.csv", "w+");
-    
-    $fields = array_keys($GLOBALS['fields']);
-    fwrite($OUT, PRIMARY_KEY . SOLR_FILE_DELIMITER . implode(SOLR_FILE_DELIMITER, $fields) . "\n");
-    
-    $multi_values = array();
-    
-    foreach($GLOBALS['objects'] as $primary_key => $attributes)
-    {
-        $this_attr = array();
-        $this_attr[] = $primary_key;
-        foreach($fields as $attr)
-        {
-            // this object has this attribute
-            if(isset($attributes[$attr]))
-            {
-                // the attribute is multi-valued
-                if(is_array($attributes[$attr]))
-                {
-                    $multi_values[$attr] = 1;
-                    $values = array_map("clean_text", array_keys($attributes[$attr]));
-                    $this_attr[] = implode(SOLR_MULTI_VALUE_DELIMETER, $values);
-                }else
-                {
-                    $this_attr[] = clean_text($attributes[$attr]);
-                }
-            }
-            // default value is empty string
-            else $this_attr[] = "";
-        }
-        fwrite($OUT, implode(SOLR_FILE_DELIMITER, $this_attr) . "\n");
-    }
-    fclose($OUT);
-    
-    unset($GLOBALS['fields']);
-    unset($GLOBALS['objects']);
-    
-    
-    
-    
-    $curl = "curl ". SOLR_SERVER ."/update/csv -F separator='". SOLR_FILE_DELIMITER ."'";
-    foreach($multi_values as $field => $bool)
-    {
-        $curl .= " -F f.$field.split=true -F f.$field.separator='". SOLR_MULTI_VALUE_DELIMETER ."'";
-    }
-    $curl .= " -F stream.url=".LOCAL_WEB_ROOT."temp/data.csv -F stream.contentType=text/plain;charset=utf-8 -F overwrite=true";
-    
-    echo "calling: $curl\n";
-    exec($curl);
-    exec("curl ". SOLR_SERVER ."/update -F stream.url=". LOCAL_WEB_ROOT ."applications/solr/commit.xml");
-}
-
-function clean_text($text)
-{
-    if(!Functions::is_utf8($text)) return "";
-    $text = str_replace(";", " ", $text);
-    $text = str_replace("×", " ", $text);
-    $text = str_replace("\"", " ", $text);
-    $text = str_replace("'", " ", $text);
-    $text = str_replace("|", "", $text);
-    $text = str_replace("\n", "", $text);
-    $text = str_replace("\r", "", $text);
-    $text = str_replace("\t", "", $text);
-    $text = Functions::utf8_to_ascii($text);
-    while(preg_match("/  /", $text)) $text = str_replace("  ", " ", $text);
-    return trim($text);
-}
 
 ?>

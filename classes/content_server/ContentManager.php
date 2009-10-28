@@ -137,20 +137,12 @@ class ContentManager
         echo shell_exec("convert $file -resize ".PARTNER_LOGO_SMALL."\">\" ".$prefix."_small.png");
     }
     
-    function random_digits($number, $start)
-    {
-        $start = "1".str_repeat($start, $number);
-        $end = "1".str_repeat(9, $number);
-        $random = rand($start,$end);
-        return substr($random, 1);
-    }
-    
     function new_partner_file_name()
     {
-        $file = $this->random_digits(4, 1);
+        $file = Functions::random_digits(4, 1);
         while(glob(CONTENT_PARTNER_LOCAL_PATH."/$file"."*"))
         {
-            $file = $this->random_digits(4, 1);
+            $file = Functions::random_digits(4, 1);
         }
         
         return CONTENT_PARTNER_LOCAL_PATH.$file;
@@ -173,10 +165,10 @@ class ContentManager
         
         // Generate a random identifier for the data object
         // loop until we have a unique random identifier
-        $file = $this->random_digits(5, 0);    
+        $file = Functions::random_digits(5);
         while(glob(CONTENT_LOCAL_PATH."$year/$month/$day/$hour/$file"."*"))
         {
-            $file = $this->random_digits(5, 0);
+            $file = Functions::random_digits(5);
         }
         
         return CONTENT_LOCAL_PATH."$year/$month/$day/$hour/$file";
