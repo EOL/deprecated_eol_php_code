@@ -109,17 +109,16 @@ function process_file2($file)
         $pos = stripos($species,")");
         $desc = trim(substr($species,$pos+1,strlen($species))); print "[[$desc]]";
         //end                
-        print "<hr>";
-       
+        print "<hr>";       
         
         $kingdom="";
         $url=$file;
         $title="Description";
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+        
         assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
-
     }        
-}
+}//end function process_file2($file)
 
 function process_file1($file)
 {    
@@ -184,40 +183,10 @@ function process_file1($file)
         $desc = strip_tags($desc,"<br><p><b><i>");            
         //end get desc    
         
-        
-        //===========================================================    
-        /*
-        $dwc_Genus = substr($sciname,0,stripos($sciname," "));
-        $dwc_ScientificName = $sciname;
-        $dwc_Kingdom = "Plantae";
-        $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);                
-        if(@$used_taxa[$taxon_identifier])
-        {
-            $taxon_parameters = $used_taxa[$taxon_identifier];
-        }
-        else
-        {
-            $taxon_parameters = array();
-            $taxon_parameters["identifier"] = $taxon_identifier;
-            $taxon_parameters["kingdom"] = $dwc_Kingdom;
-            $taxon_parameters["genus"] = $dwc_Genus;
-            $taxon_parameters["scientificName"]= $dwc_ScientificName;        
-            $taxon_parameters["source"] = $url;        
-            $taxon_parameters["commonNames"] = array();
-            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
-            $taxon_parameters["dataObjects"]= array();        
-            $used_taxa[$taxon_identifier] = $taxon_parameters;
-        }        
-        //start text dataobject        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-        //end text dataobject                    
-        $used_taxa[$taxon_identifier] = $taxon_parameters;                        
-        */
         $kingdom="Plantae";
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
         
+        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
     }//main loop
 }//end function process_file1($file)
 
