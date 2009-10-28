@@ -60,12 +60,17 @@ $i=1;
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
             }
-            if(process($taxid))
+            
+            
+            // /*
+            if(process($taxid,$OUT))
             {
                 //$id_processed[] = $taxid;
                 echo " -ok- ";
             }
             else echo " -bad- ";
+            // */
+            
             
             echo $i+1 . ". of $total_taxid_count \n";            
             //echo count($id_processed) . " of " . $total_taxid_count . "\n";                        
@@ -111,9 +116,11 @@ fclose($OUT);
 //end
 //====================================================================================
 //start functions #################################################################################################
-function process($id)
-{   global $OUT;        
-    $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
+function process($id,$OUT)
+{   
+    //global $OUT;        
+    //$file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
+    $file = "http://128.128.175.77/worms.xml";
     //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255127    
     $contents = Functions::get_remote_file($file);
     if($contents)
