@@ -52,6 +52,7 @@ class CompareHierarchies
         $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=1";
         $response = $solr->query($query);
         $total_results = $response['numFound'];
+        $total_searches = 0;
         
         for($i=0 ; $i<$total_results ; $i += self::$iteration_size)
         {
@@ -64,11 +65,10 @@ class CompareHierarchies
             foreach($entries as $entry)
             {
                 //echo "$i  $entry->id $entry->name<br>";
-                self::compare_entry($solr, $hierarchy, $entry, $compare_to_hierarchy);
+                self::compare_entry($solr, $hierarchy, $entry, $compare_to_hierarchy, $match_synonyms);
                 
-                static $total_searches = 0;
                 $total_searches++;
-                if($total_searches % 200 == 0) echo "<hr>Records: $total_searches<br>Time: ".Functions::time_elapsed()."<hr><hr><br>\n";
+                if($total_searches % 200 == 0) { echo "<hr>Records: $total_searches<br>Time: ".Functions::time_elapsed()."<hr><hr><br>\n"; flush(); ob_flush(); }
             }
             
             

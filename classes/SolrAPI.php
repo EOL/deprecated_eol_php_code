@@ -70,7 +70,7 @@ class SolrAPI
                     if(is_array($attributes[$attr]))
                     {
                         $multi_values[$attr] = 1;
-                        $values = array_map("SolrAPI::text_filter", array_keys($attributes[$attr]));
+                        $values = array_map(array('SolrAPI','text_filter'), array_keys($attributes[$attr]));
                         $this_attr[] = implode($this->multi_value_delimiter, $values);
                     }else
                     {
