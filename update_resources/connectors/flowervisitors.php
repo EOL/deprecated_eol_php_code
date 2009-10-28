@@ -35,9 +35,9 @@ $used_taxa = array();
 
 //$file = "";
 
-$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 0),
-               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 0),
-               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 1),
+$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 1),
+               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 1),
+               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 0),
                3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 0),
                4 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 0),
                5 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 0),
@@ -107,22 +107,25 @@ function process_file2($file)
         //end
         //start get desc
         $pos = stripos($species,")");
-        $description = trim(substr($species,$pos+1,strlen($species))); print "[[$description]]";
+        $desc = trim(substr($species,$pos+1,strlen($species))); print "[[$desc]]";
         //end                
         print "<hr>";
+       
         
-        
-        
-        
-    }    
-    
-    exit;
+        $kingdom="";
+        $url=$file;
+        $title="Description";
+        $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
+
+    }        
 }
 
 function process_file1($file)
 {    
     global $wrap;
     global $used_taxa;
+    
     $str = Functions::get_remote_file($file);
     $str = clean_str($str);
 
@@ -162,12 +165,32 @@ function process_file1($file)
         $beg='xxx'; $end1='('; $end2="173xxx";    $sciname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));
     
         //print "[$sciname][$commonname][$url]<br>";
+
+
+        $str = Functions::get_remote_file($url);    
+        //start get title
+        $title="";
+        $beg='</TITLE>'; $end1='<HR'; $end2="173xxx";    
+        $title = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+        $title = str_ireplace('<BR>' , " ", $title);        
+        $title = trim(strip_tags($title)) . " (<i>$sciname</i>)";
+        print "[$title] $wrap"; //exit;
+        //end get title
+        $str = clean_str($str);        
+        //start get desc            
+        $desc="";
+        $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
+        $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
+        $desc = strip_tags($desc,"<br><p><b><i>");            
+        //end get desc    
+        
+        
         //===========================================================    
+        /*
         $dwc_Genus = substr($sciname,0,stripos($sciname," "));
         $dwc_ScientificName = $sciname;
         $dwc_Kingdom = "Plantae";
-        $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);        
-        
+        $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);                
         if(@$used_taxa[$taxon_identifier])
         {
             $taxon_parameters = $used_taxa[$taxon_identifier];
@@ -184,34 +207,53 @@ function process_file1($file)
             $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
             $taxon_parameters["dataObjects"]= array();        
             $used_taxa[$taxon_identifier] = $taxon_parameters;
-        }     
-        
-        //start text dataobject
-        $str = Functions::get_remote_file($url);    
-        //start get title
-        $title="";
-        $beg='</TITLE>'; $end1='<HR'; $end2="173xxx";    
-        $title = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
-        $title = str_ireplace('<BR>' , " ", $title);        
-        $title = trim(strip_tags($title)) . " (<i>$dwc_ScientificName</i>)";
-        print "[$title] $wrap"; //exit;
-        //end get title
-        $str = clean_str($str);        
-        //start get desc            
-        $desc="";
-        $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
-        $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
-        $desc = strip_tags($desc,"<br><p><b><i>");            
-        //end get desc    
-        $dc_identifier = "txt_" . $taxon_identifier;    
-        
+        }        
+        //start text dataobject        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url);       
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-        //end text dataobject            
-        
+        //end text dataobject                    
         $used_taxa[$taxon_identifier] = $taxon_parameters;                        
+        */
+        $kingdom="Plantae";
+        $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
+        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
+        
     }//main loop
-}//end function
+}//end function process_file1($file)
+
+function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject)
+{
+    global $used_taxa;
+    
+        $genus = substr($sciname,0,stripos($sciname," "));
+        $taxon_identifier = str_replace(" ", "_", $sciname);                
+        $dc_identifier = "txt_" . $taxon_identifier;    
+        if(@$used_taxa[$taxon_identifier])
+        {
+            $taxon_parameters = $used_taxa[$taxon_identifier];
+        }
+        else
+        {
+            $taxon_parameters = array();
+            $taxon_parameters["identifier"] = $taxon_identifier;
+            $taxon_parameters["kingdom"] = $kingdom;
+            $taxon_parameters["genus"] = $genus;
+            $taxon_parameters["scientificName"]= $sciname;        
+            $taxon_parameters["source"] = $url;        
+            $taxon_parameters["commonNames"] = array();
+            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            $taxon_parameters["dataObjects"]= array();        
+            $used_taxa[$taxon_identifier] = $taxon_parameters;
+        }        
+        //start text dataobject        
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject);       
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        //end text dataobject                    
+        $used_taxa[$taxon_identifier] = $taxon_parameters;                                
+        
+    return "";        
+}
+
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -225,7 +267,7 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-function get_data_object($id, $description, $title, $url)
+function get_data_object($id, $description, $title, $url, $subject)
 {
     $type="text";
     
@@ -238,7 +280,7 @@ function get_data_object($id, $description, $title, $url)
         ///////////////////////////////////    
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
-        $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
+        $subjectParameters["label"] = $subject;
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
         ///////////////////////////////////        
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
