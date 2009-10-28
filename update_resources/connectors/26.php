@@ -48,36 +48,32 @@ $i=1;
     for ($i = $start; $i < $total_taxid_count; $i++)     
     {
         $taxid = $main_id_list[$i];
-        //if(!in_array("$taxid", $id_processed))        
-        //{                        
-            //
-            //if(count($id_processed) % 10000 == 0)
-            if($i % 10000 == 0)
+        if(!in_array("$taxid", $id_processed))        
+        {                        
+            //if($i % 10000 == 0) //working
+            if(count($id_processed) % 10000 == 0)
             {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
                 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
-            }
-            
+            }            
             
             // /*
             if(process($taxid,$OUT))
             {
-                //$id_processed[] = $taxid;
+                $id_processed[] = $taxid;
                 echo " -ok- ";
             }
             else echo " -bad- ";
-            // */
+            // */            
             
-            
-            echo $i+1 . ". of $total_taxid_count \n";            
-            //echo count($id_processed) . " of " . $total_taxid_count . "\n";                        
-        //}                
+            //echo $i+1 . ". of $total_taxid_count \n";            
+            echo $i+1 . ". " . count($id_processed) . " of " . $total_taxid_count . "\n";                        
+        }                
     }    
     $main_id_list = get_main_id_list();
-
 //}//end while
 
 //print_r($main_id_list);print_r($id_processed);
@@ -119,8 +115,8 @@ fclose($OUT);
 function process($id,$OUT)
 {   
     //global $OUT;        
-    //$file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
-    $file = "http://128.128.175.77/worms.xml";
+    $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
+    //$file = "http://128.128.175.77/worms.xml";
     //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255127    
     $contents = Functions::get_remote_file($file);
     if($contents)

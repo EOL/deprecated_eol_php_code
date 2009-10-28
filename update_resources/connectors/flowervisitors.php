@@ -1,14 +1,15 @@
 <?php
 //#!/usr/local/bin/php
 
-$providers = array( 0 => array( "url" => dirname(__FILE__) . "/files/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"      , "active" => 0),
-                    1 => array( "url" => dirname(__FILE__) . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml" , "active" => 0),
-                    2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"  , "active" => 1)                    
-                  );
+
+ /*
+ */
+
 
 /* flowervisitors connector */
 
-exit;
+//exit;
+
 define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
@@ -22,6 +23,9 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
  */
 
+$wrap = "\n"; 
+$wrap = "<br>"; 
+ 
 $resource = new Resource(1); //exit($resource->id);
 
 
@@ -29,110 +33,185 @@ $schema_taxa = array();
 $used_taxa = array();
 
 
-$file = "http://flowervisitors.info/index.htm";
-$str = Functions::get_remote_file($file);
-$str = clean_str($str);
+//$file = "";
 
-//$str = str_ireplace('×' , "", $str);    //for Vernonia × illinoensis (Illinois Ironweed)
-$str = str_ireplace('&times;' , "", $str);    //for Vernonia × illinoensis (Illinois Ironweed)
+$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 0),
+               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 0),
+               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 1),
+               3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 0),
+               4 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 0),
+               5 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 0),
+               6 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 0)
 
+             );
 
-$pos = stripos($str,"<!-- Google CSE Search Box Ends -->");
-$str = trim(substr($str,$pos+35,strlen($str)));
-
-$str = str_ireplace('<BR>' , "<br>", $str);	
-
-$str = strip_tags($str, '<br><a>');
-$str = "<br>" . $str;
-
-$str = str_ireplace('<br><br>' , "&arr[]=", $str);	
-$str = str_ireplace('<br>' , "&arr[]=", $str);	
-//$str = str_ireplace('.htm"'  , "&", $str);
-$arr=array();	
-parse_str($str);	
-print "after parse_str recs = " . count($arr) . "\n\n";	
-//print_r($arr);
-
-//print $str;
 $i=0;
-foreach($arr as $species)
-{
-    if($i >= 5)break;
-    $i++;
-    //$species = clean_str($species);
-    print "{$species} ";       
-    /* <A HREF="plants/velvetleaf.htm" NAME="velvetleaf">Abutilon theophrastii (Velvet Leaf)</A> */
-    $sciname="";$commonname="";$url="";    
-    $beg='HREF="'; $end1='" NAME'; $end2="173xxx";    $url = "http://flowervisitors.info/" . trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));    
-
-    $species = strip_tags($species);            
-    $species = "xxx" . $species;    
-    
-    $beg='('; $end1=')'; $end2="173xxx";    $commonname = parse_html($species,$beg,$end1,$end2,$end2,$end2,"");
-    $beg='xxx'; $end1='('; $end2="173xxx";    $sciname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));
-    
-    //print "[$sciname][$commonname][$url]";
-    //print "<br>";     
-    //===========================================================    
-    $dwc_Genus = substr($sciname,0,stripos($sciname," "));
-    $dwc_ScientificName = $sciname;
-    $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);        
-    
-    if(@$used_taxa[$taxon_identifier])
+foreach($urls as $path)
+{    
+    if($path["active"])
     {
-        $taxon_parameters = $used_taxa[$taxon_identifier];
-    }
-    else
-    {
-        $taxon_parameters = array();
-        $taxon_parameters["identifier"] = $taxon_identifier;
-        $taxon_parameters["genus"] = $dwc_Genus;
-        $taxon_parameters["scientificName"]= $dwc_ScientificName;        
-        $taxon_parameters["source"] = $url;        
-        $taxon_parameters["commonNames"] = array();
-        $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
-        $taxon_parameters["dataObjects"]= array();        
-        $used_taxa[$taxon_identifier] = $taxon_parameters;
-    }     
-    
-    //start text dataobject
-    $str = Functions::get_remote_file($url);
-    
-    //start get title
-    $title="";
-    $beg='</TITLE>'; $end1='<HR'; $end2="173xxx";    
-    $title = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
-    $title = str_ireplace('<BR>' , " ", $title);        
-    $title = trim(strip_tags($title)) . " (<i>$dwc_ScientificName</i>)";
-    print "[$title] \n"; //exit;
-    //end get title
-
-    $str = clean_str($str);        
-
-    //start get desc            
-    $desc="";
-    $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
-    $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
-    $desc = strip_tags($desc,"<br><p><b><i>");            
-    //print "<hr>$desc";exit;
-    //end get desc
-    
-    $dc_identifier = "txt_" . $taxon_identifier;
-    /*
-       
-    */
-
-    $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url);       
-    $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-
-
-    //end text dataobject            
-    
-    $used_taxa[$taxon_identifier] = $taxon_parameters;            
+        print $i . " " . $path["url"] . "<br>";        
         
-    
-}//main loop
+        //if(in_array($i, array(0,1)))process_file1($path["url"]);        
+        if($i==0)process_file1($path["url"]);        
+        else     process_file2($path["url"]);           
+        
+    }
+    $i++;
+}    
+//exit;
+function process_file2($file)
+{
+    global $wrap;
+    global $used_taxa;
+    $str = Functions::get_remote_file($file);
+    $str = clean_str($str);
 
+    
+    $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
+    $str = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
+    $str = strip_tags($str,"<i><b><font>");            
+    $str = str_ireplace('<FONT  COLOR="#3333FF">' , '<FONT COLOR="#3333FF">', $str);	
+    
+    
+    $str = str_ireplace('&amp;' , '###', $str);	
+    
+    //print "<hr>$str<str>";        exit;
+    
+    $str = str_ireplace('<B><FONT COLOR="#3333FF">' , '&arr[]=', $str);	
+    //$str = str_ireplace('###' , '&amp;', $str);	
+    //print "<hr>$str<str>";
+    $arr=array();	
+    parse_str($str);	
+    print "after parse_str recs = " . count($arr) . "$wrap$wrap";	//print_r($arr);
+    
+    print"<hr><hr>";
+    $i=0;
+    foreach($arr as $species)
+    {
+        if($i >= 100000)break;
+        $i++;
+        $species = str_ireplace('###' , '&amp;', $species);	        
+        //print "$species <hr><hr>";
+        //start get name
+        $species = "***" . $species;
+        $beg='***'; $end1=')'; $end2="173xxx";    
+        $name = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true)).")"; //print "[$name]";        
+        //end
+        //start get sciname, commonname
+        $name = "***" . $name;
+        $beg='***'; $end1='('; $end2="173xxx";    
+        $sciname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$sciname]";        
+        $beg='('; $end1=')'; $end2="173xxx";    
+        $commonname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$commonname]";        
+        //end
+        //start get desc
+        $pos = stripos($species,")");
+        $description = trim(substr($species,$pos+1,strlen($species))); print "[[$description]]";
+        //end                
+        print "<hr>";
+        
+        
+        
+        
+    }    
+    
+    exit;
+}
+
+function process_file1($file)
+{    
+    global $wrap;
+    global $used_taxa;
+    $str = Functions::get_remote_file($file);
+    $str = clean_str($str);
+
+    $str = str_ireplace('&times;' , "", $str);    //for Vernonia × illinoensis (Illinois Ironweed)
+
+    $pos = stripos($str,"<!-- Google CSE Search Box Ends -->");
+    $str = trim(substr($str,$pos+35,strlen($str)));
+
+    $str = str_ireplace('<BR>' , "<br>", $str);	
+
+    $str = strip_tags($str, '<br><a>');
+    $str = "<br>" . $str;
+
+    $str = str_ireplace('<br><br>' , "&arr[]=", $str);	
+    $str = str_ireplace('<br>' , "&arr[]=", $str);	
+
+    $arr=array();	
+    parse_str($str);	
+    print "after parse_str recs = " . count($arr) . "$wrap$wrap";	//print_r($arr);
+
+    //print $str;
+    $i=0;
+    foreach($arr as $species)
+    {
+        if($i >= 5)break;
+        $i++;
+
+        print "{$species}";       
+        /* <A HREF="plants/velvetleaf.htm" NAME="velvetleaf">Abutilon theophrastii (Velvet Leaf)</A> */
+        $sciname="";$commonname="";$url="";    
+        $beg='HREF="'; $end1='" NAME'; $end2="173xxx";    $url = "http://flowervisitors.info/" . trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));    
+
+        $species = strip_tags($species);            
+        $species = "xxx" . $species;    
+    
+        $beg='('; $end1=')'; $end2="173xxx";    $commonname = parse_html($species,$beg,$end1,$end2,$end2,$end2,"");
+        $beg='xxx'; $end1='('; $end2="173xxx";    $sciname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));
+    
+        //print "[$sciname][$commonname][$url]<br>";
+        //===========================================================    
+        $dwc_Genus = substr($sciname,0,stripos($sciname," "));
+        $dwc_ScientificName = $sciname;
+        $dwc_Kingdom = "Plantae";
+        $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);        
+        
+        if(@$used_taxa[$taxon_identifier])
+        {
+            $taxon_parameters = $used_taxa[$taxon_identifier];
+        }
+        else
+        {
+            $taxon_parameters = array();
+            $taxon_parameters["identifier"] = $taxon_identifier;
+            $taxon_parameters["kingdom"] = $dwc_Kingdom;
+            $taxon_parameters["genus"] = $dwc_Genus;
+            $taxon_parameters["scientificName"]= $dwc_ScientificName;        
+            $taxon_parameters["source"] = $url;        
+            $taxon_parameters["commonNames"] = array();
+            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            $taxon_parameters["dataObjects"]= array();        
+            $used_taxa[$taxon_identifier] = $taxon_parameters;
+        }     
+        
+        //start text dataobject
+        $str = Functions::get_remote_file($url);    
+        //start get title
+        $title="";
+        $beg='</TITLE>'; $end1='<HR'; $end2="173xxx";    
+        $title = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+        $title = str_ireplace('<BR>' , " ", $title);        
+        $title = trim(strip_tags($title)) . " (<i>$dwc_ScientificName</i>)";
+        print "[$title] $wrap"; //exit;
+        //end get title
+        $str = clean_str($str);        
+        //start get desc            
+        $desc="";
+        $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
+        $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
+        $desc = strip_tags($desc,"<br><p><b><i>");            
+        //end get desc    
+        $dc_identifier = "txt_" . $taxon_identifier;    
+        
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url);       
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        //end text dataobject            
+        
+        $used_taxa[$taxon_identifier] = $taxon_parameters;                        
+    }//main loop
+}//end function
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -212,7 +291,7 @@ function clean_str($str)
     //$str = str_replace(str_repeat("#", substr_count($str, '#')), ' ', $str);
     return $str;
 }
-function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
 {
     //PRINT "[$all]"; exit;
 	$beg_len = strlen(trim($beg));
@@ -251,6 +330,11 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 				$i++;
 			}//end while
 			$i--;			
+            
+            //start exit on first occurrence of $beg
+            if($exit_on_first_match)break;
+            //end exit on first occurrence of $beg
+            
 		}		
 	}//end outer loop
     if($all == "")	

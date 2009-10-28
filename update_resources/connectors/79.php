@@ -5,8 +5,9 @@ connector for Public Health Image Library (CDC)
 http://phil.cdc.gov/phil/home.asp
 */
 
-exit;
-define("ENVIRONMENT", "development");
+//exit;
+//define("ENVIRONMENT", "development");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -19,8 +20,12 @@ Functions::load_fixtures("development");
 exit;
  */
 
+$wrap = "\n";
+//$wrap = "<br>";
+ 
+ 
 $resource = new Resource(79);
-print "resource id = " . $resource->id . "<hr>";
+print "resource id = " . $resource->id . "$wrap";
 //exit;
 
 $schema_taxa = array();
@@ -28,8 +33,6 @@ $used_taxa = array();
 
 $id_list=array();
 
-$wrap = "\n";
-//$wrap = "<br>";
 
 
 $total_taxid_count = 0;
@@ -44,17 +47,17 @@ $arr_desc_taxa = array();
 $arr_categories = array();
 $arr_outlinks = array();              
 
-//start - test run just to activate session
+//start - initial run just to activate session
 $philid = 11705;
 list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
-//end - test run just to activate session
+//end - initial run just to activate session
 
 
 for ($i = 0; $i < count($arr_id_list); $i++) 
 {
     //main loop
     
-    print "$i . " . $arr_id_list[$i] . "<br>";
+    print "$i . " . $arr_id_list[$i] . "$wrap";
     $philid = $arr_id_list[$i];        
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
 
@@ -84,7 +87,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     if($outlinks != "")  $desc_taxa .= "<hr>Outlinks:<br>$outlinks";
     
     //print"<hr><hr>";    
-    print"<hr>";     
+    //print"<hr>";     
 
     $taxon = str_replace(" ", "_", $taxa);
     if(@$used_taxa[$taxon])
@@ -109,25 +112,34 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         $do_count++;        
         $agent_name = $photo_credit;
         $agent_role = "photographer";            
-        $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url);               
+        $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"");               
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                 
         
         
         if($desc_taxa != "")
         {
-        $do_count++;
-        $agent_name = $providers;
-        $agent_role = "source";            
-        $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url);                           
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+            $temp = trim(strip_tags($desc_taxa));
+            if  (   substr($desc_taxa,0,9) != "Outlinks:"  and                                            
+                    substr($desc_taxa,0,11) != "Categories:"
+                )   
+            {
+                //if($desc_taxa == "<hr>Outlinks:<br>")$title="Outlinks:";
+                //else                                 $title="Description";
+            
+                $title="Description";
+                $desc_taxa="<b>Discussion on disease(s) caused by this organism:</b>" . $desc_taxa;
+                        
+                $do_count++;
+                $agent_name = $providers;
+                $agent_role = "source";            
+                $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url,$title);                           
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+            }
         }
         
         $used_taxa[$taxon] = $taxon_parameters;
 
     }//with photos
-    
-    
-    
     
     //end main loop   
 }
@@ -147,19 +159,22 @@ fclose($OUT);
 echo "$wrap$wrap Done processing.";
 exit("<hr>-done-");
 
-function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url)   
+function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title)   
 {        
     //$description = "<![CDATA[ $description ]]>";
     $dataObjectParameters = array();
         
     if($type == "text")
     {            
-        //$dataObjectParameters["title"] = $title;            
+        $dataObjectParameters["title"] = $title;            
 
         //start subject        
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
-        $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+        
+        $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";        
+        //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Diseases";
+        
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
         //end subject
             
@@ -239,11 +254,11 @@ function get_id_list()
         }    
 	    $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173xxx"; $end3="173xxx";			
     	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all");	//str = the html block        
-        print count($arr) . "<br>";    
+        print count($arr) . "\n";    
         $id_list = array_merge($id_list, $arr);    
         //print_r($id); print"<hr>";
     }    
-    print "total = " . count($id_list) . "<hr>"; //exit;
+    print "total = " . count($id_list) . "\n"; //exit;
     $count_bef_unset = count($id_list);
     
     //start exclude ids that are images of dogs and their masters
@@ -258,9 +273,9 @@ function get_id_list()
     }        
     //end exclude ids    
 
-    print "<hr>count after unset = " . count($id_list);    
+    print "\n count after unset = " . count($id_list);    
     $id_list = array_trim($id_list,$count_bef_unset);
-    print "<hr>final count = " . count($id_list) . "<br>";    
+    print "\n final count = " . count($id_list) . "\n";    
     //exit("<hr>stopx");    
     return $id_list;    
 }
@@ -269,7 +284,7 @@ function process($url,$philid)
 {
     $contents = cURL_it($philid,$url);
     if($contents) print "";
-    else print exit("<hr>bad post [$philid]<hr>");
+    else print exit("\n bad post [$philid] \n ");
     $arr = parse_contents($contents);
     return $arr;        
 }
@@ -299,12 +314,12 @@ function parse_contents($str)
 	$beg="xxx<b>"; $end1="</b><p>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($description,$beg,$end1,$end2,$end3,$end3);	//str = the html block
 	$desc_pic=$arx;    
-	//print "desc_pic<br>" . $desc_pic;	print "<hr>"; //exit;    
+	//print "desc_pic $wrap" . $desc_pic;	print "<hr>"; //exit;    
       
 
     $description = str_ireplace('xxx', '', $description);        
     $desc_taxa = str_ireplace($desc_pic, '', $description);        
-    //print "desc_taxa<br>" . $desc_taxa;	print "<hr>"; //exit;        
+    //print "desc_taxa $wrap" . $desc_taxa;	print "<hr>"; //exit;        
 
           
     
@@ -350,7 +365,7 @@ function parse_contents($str)
 	$arx = trim($arx);
 	$arx = substr($arx,2,strlen($arx));
     $taxa = $arx;
-	print "taxa = [$taxa] <hr>";
+	print "taxa = [$taxa] ";
     
 	//========================================================================================
 	$beg="Copyright Restrictions:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
@@ -438,7 +453,7 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 			$i=$i+$beg_len;
 			$pos1 = $i;
 			
-			//print substr($str,$i,10) . "<br>";									
+			//print substr($str,$i,10) . "$wrap";									
 
 			$cont = 'y';
 			while($cont == 'y')
