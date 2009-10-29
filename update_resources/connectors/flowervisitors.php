@@ -37,11 +37,11 @@ $used_taxa = array();
 
 $urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 1),
                1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 1),
-               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 0),
-               3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 0),
-               4 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 0),
-               5 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 0),
-               6 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 0)
+               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 1),
+               3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 1),
+               4 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 1),
+               5 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 1),
+               6 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 1)
 
              );
 
@@ -149,7 +149,7 @@ function process_file1($file)
     $i=0;
     foreach($arr as $species)
     {
-        if($i >= 5)break;
+        //if($i >= 5)break;
         $i++;
 
         print "{$species}";       

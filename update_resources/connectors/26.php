@@ -35,45 +35,54 @@ $resource = new Resource(26);//WORMS
 $main_count=0;
 //====================================================================================
 $main_id_list = array();
-$id_processed = array();
+//$id_processed = array();
 $main_id_list = get_main_id_list();
 $total_taxid_count = count($main_id_list);
 echo "\n total taxid count = " . $total_taxid_count . "\n\n";;
 //exit;
 //====================================================================================
 $i=1;
+$bad=0;
 //while( count($id_processed) != count($main_id_list) )
 //{
     echo "-x- \n";    
     for ($i = $start; $i < $total_taxid_count; $i++)     
     {
         $taxid = $main_id_list[$i];
-        if(!in_array("$taxid", $id_processed))        
-        {                        
+        //if(!in_array("$taxid", $id_processed))        
+        //{                        
             //if($i % 10000 == 0) //working
-            if(count($id_processed) % 10000 == 0)
-            {   
+            //if(count($id_processed) % 10000 == 0)
+            //{   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
                 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
-            }            
+            //}            
             
             // /*
-            if(process($taxid,$OUT))
+            //if(process($taxid,$OUT))
+            if($contents=process($taxid))            
             {
-                $id_processed[] = $taxid;
+                //$id_processed[] = $taxid;
                 echo " -ok- ";
+                //new
+                fwrite($OUT, $contents);
+                //new
             }
-            else echo " -bad- ";
-            // */            
-            
-            //echo $i+1 . ". of $total_taxid_count \n";            
-            echo $i+1 . ". " . count($id_processed) . " of " . $total_taxid_count . "\n";                        
-        }                
+            else
+            {
+                echo " -bad- "; $bad++;
+            }
+            // */                        
+            echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
+            //echo $i+1 . ". " . count($id_processed) . " of " . $total_taxid_count . "\n";                        
+        //}                
     }    
+    /* working; only needed with while()
     $main_id_list = get_main_id_list();
+    */
 //}//end while
 
 //print_r($main_id_list);print_r($id_processed);
@@ -95,24 +104,30 @@ $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
 $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
 fwrite($OUT, $str);
 $i=0;
-while(true)
+//while(true)
+while($i <= $total_taxid_count)
 {
-    print "$i "; $i++;
+    $i++; print "$i ";
     $file = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $i .".xml";
     $str = Functions::get_remote_file($file);
     if($str)
     {
         fwrite($OUT, $str);
-        unlink($file);
-    }        
-    else break;
+        //unlink($file);
+    }            
+    //else break;
+    
+    //new
+    if($i <= $total_taxid_count)unlink($file);
+    
 }
 print "\n --end-- ";
 fclose($OUT);
+
 //end
 //====================================================================================
 //start functions #################################################################################################
-function process($id,$OUT)
+function process($id)
 {   
     //global $OUT;        
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
@@ -126,8 +141,9 @@ function process($id,$OUT)
     	if($pos1 != "" and $pos2 != "")
     	{
     		$contents = trim(substr($contents,$pos1,$pos2-$pos1+8));
-            fwrite($OUT, $contents);
-            return true;
+            //fwrite($OUT, $contents);
+            return $contents;
+            //return true;
     	}
     }    
     return false;

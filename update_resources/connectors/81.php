@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php  
 //connector for BOLD Systems
-exit;
+//exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
@@ -19,7 +19,7 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annel
 
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -30,6 +30,11 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 exit;
 */
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
 set_time_limit(0);
 $resource = new Resource(81); //print $resource->id; exit;
@@ -142,6 +147,7 @@ echo "$wrap$wrap Done processing.";
 
 function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
 {    
+    global $wrap;
     /*            
     Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
     World Wide Web electronic publication. www.boldsystems.org, version (08/2009). 
@@ -155,49 +161,22 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $count_sequence     = $arr[0];
         $text_dna_sequence = $arr[1];
         
-        $count_sequence_now = substr_count($text_dna_sequence, '>');    
+        print "$wrap [$public_barcodes]=[$count_sequence] $wrap ";
         
-        $text_dna_sequence = str_ireplace(">", "<br>&nbsp;<br>", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("----", "", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("---", "|||", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                
-        
-              
-        
-        if($text_dna_sequence != "")
+        if($count_sequence > 0)
         {
-            $str="";
-            if($count_sequence > 2)
-            {
-                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
-                $str .= "Below are first of the two sequences available from BOLD. ";
-                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see all available DNA sequences and more information about them."; 
-            }
-        
-            if($count_sequence == 2)
-            {
-                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
-                $str .= "Below are the two sequences available from BOLD. ";
-                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about them."; 
-            }
-
-            if($count_sequence_now == 1)
-            {
-                $str .= "Below is the available sequence from BOLD.";
-                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about it. "; 
-            }                
+            if($public_barcodes == 1)$str="There is 1 barcode sequence available from BOLD and GenBank. Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen. Other sequences that do not yet meet barcode criteria may also be available.";
+            else $str="There are $count_sequence barcode sequences available from BOLD and GenBank. Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
+            $str .= "<br>&nbsp;<br>";                
+            $text_dna_sequence .= "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";                
         }
-        else                        
-        $str = "You can <a target='BOLDSys' href='$dc_source'>check</a> BOLD Systems for more information. ";         
-        
-        $text_dna_sequence = $str . $text_dna_sequence . "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";        
-        
+        else $str="";
     }
     else $text_dna_sequence = '';    
+
     if($text_dna_sequence)
     {
-        $temp = "<br>&nbsp;<br>Available Public Sequence(s) ";
+        $temp = "<br>&nbsp;<br>$str ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
     }
     else $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     
@@ -284,10 +263,10 @@ function get_text_dna_sequence($url)
     
     $count_sequence = substr_count($str, '>');    
     
-    //start get only 2 sequence
+    //start get only 2 sequence 
+    /* working but we will not get the first 2 sequence anymore
     if($str)
-    {
-        $found=0;
+    {   $found=0;
         $str=trim($str);
         for ($i = 0; $i < strlen($str); $i++) 
         {
@@ -296,11 +275,17 @@ function get_text_dna_sequence($url)
         }
         $str = substr($str,0,$i-1);    
     }
+    */
     //end get only 2 sequence
+    
+    //start get the single sequence = longest, with least N char
+    $best_sequence = get_best_sequence($str);    
+    //end    
  
     $arr=array();
     $arr[]=$count_sequence;
-    $arr[]=$str;   
+    //$arr[]=$str;   
+    $arr[]=$best_sequence;   
     return $arr;
 }
 // /*
@@ -366,6 +351,58 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
     elseif($all == "all") return $arr;	
 }//end function
 /*
+$taxid="26136";
+$taxid="24493";
+$taxid="32306"; //just 1 sequence
+$url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+$str = Functions::get_remote_file($url);     
+$beg='../temp/'; $end1='fasta.fas'; $end2="173xxx"; $end3="173xxx";			
+$folder = parse_html($str,$beg,$end1,$end2,$end3,$end3,"");	        
+$str="";    
+if($folder != "")
+{
+    $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
+    //$str = get_file_contents($url);
+    $str = Functions::get_remote_file($url);    
+    $best_sequence = get_best_sequence($str);
+}    
+exit("<hr>$best_sequence<hr>");
+*/
+function get_best_sequence($str)
+{
+    $str = str_ireplace('>' , '&arr[]=', $str);	
+    $arr=array();	
+    parse_str($str);	
+    //print "after parse_str recs = " . count($arr) . "<br>";	//print_r($arr);
+    
+    if(count($arr)>0)
+    {
+        $biggest=0;
+        $index_with_longest_txt=0;
+        for ($i = 0; $i < count($arr); $i++) 
+        {
+            //$dna=trim($dna);
+            $dna = trim($arr[$i]);
+            //print "$dna ";
+            $pos = strrpos($dna,"|");
+            //print "[$pos]<br>" ;
+            $new_dna = trim(substr($dna,$pos+1,strlen($dna)));        
+            $new_dna = str_ireplace(array("-", " "), "", $new_dna);                
+            $len_new_dna = strlen($new_dna);
+            //print "[$new_dna]<br>[" . $len_new_dna . "]" ;
+            //print "<hr>";       
+            if($biggest < $len_new_dna)
+            {
+                $biggest = $len_new_dna;
+                $index_with_longest_txt=$i;
+            }
+        }    
+        //print"<hr><hr>biggest = $biggest [$arr[$index_with_longest_txt]]";
+        return $arr[$index_with_longest_txt];    
+    }    
+    else return "";
+}
+/*
 <taxon>
      <Kingdom>Animalia</Kingdom>
      <Phylum>Chordata</Phylum>
@@ -388,4 +425,36 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
      </dna_sequence     
 </taxon>
 */
+        /*   
+        $count_sequence_now = substr_count($text_dna_sequence, '>');            
+        $text_dna_sequence = str_ireplace(">", "<br>&nbsp;<br>", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("----", "", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("---", "|||", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
+        $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                                
+        if($text_dna_sequence != "")
+        {
+            $str="";
+            if($count_sequence > 2)
+            {
+                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
+                $str .= "Below are first of the two sequences available from BOLD. ";
+                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see all available DNA sequences and more information about them."; 
+            }        
+            if($count_sequence == 2)
+            {
+                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
+                $str .= "Below are the two sequences available from BOLD. ";
+                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about them."; 
+            }
+            if($count_sequence_now == 1)
+            {
+                $str .= "Below is the available sequence from BOLD.";
+                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about it. "; 
+            }                
+        }
+        else                        
+        $str = "You can <a target='BOLDSys' href='$dc_source'>check</a> BOLD Systems for more information. ";         
+        */        
+
 ?>

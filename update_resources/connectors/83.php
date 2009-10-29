@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 /* MorphBank connector */
-exit;
+//exit;
 //define("ENVIRONMENT", "development");
 define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
@@ -62,7 +62,8 @@ foreach($image_ids as $image_id)
     if(@$used_taxa[$taxon_identifier])
     {
         $taxon_parameters = $used_taxa[$taxon_identifier];
-    }else
+    }
+    else
     {
         $taxon_parameters = array();
         $taxon_parameters["identifier"] = $taxon_identifier;
