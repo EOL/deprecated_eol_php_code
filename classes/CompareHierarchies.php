@@ -221,20 +221,24 @@ class CompareHierarchies
     
     public static function compare_ancestries(&$entry1, &$entry2)
     {
-        // one entry has none if its ancestry listed so disregard ancestry from comparison
-        if(!$entry1->kingdom && !$entry1->phylum && !$entry1->class && !$entry1->order && !$entry1->family) return null;
-        if(!$entry2->kingdom && !$entry2->phylum && !$entry2->class && !$entry2->order && !$entry2->family) return null;
-        
         // check each rank in order of priority and return the respective weight on match
         $score = 0;
+        $entry1_without_hierarchy = true;
+        $entry2_without_hierarchy = true;
         foreach(self::$rank_priority as $rank => $weight)
         {
+            if($entry1->$rank) $entry1_without_hierarchy = false;
+            if($entry2->$rank) $entry2_without_hierarchy = false;
+            
             if($entry1->$rank && $entry2->$rank && $entry1->$rank == $entry2->$rank && !preg_match("/^(unassigned|not assigned)/i", $entry1->$rank))
             {
                 $score = $weight;
                 break;
             }
         }
+        
+        // one entry has none if its ancestry filled out so disregard ancestry from comparison
+        if($entry1_without_hierarchy || $entry1_without_hierarchy) return null;
         
         // matched at kingdom level. Make sure a few criteria are met before succeeding
         if($score == .2)
