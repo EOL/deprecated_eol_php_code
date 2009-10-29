@@ -52,23 +52,33 @@ class CompareHierarchies
         $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=1";
         $response = $solr->query($query);
         $total_results = $response['numFound'];
-        $total_searches = 0;
+        $searches_this_round = 0;
+        static $total_searches = 0;
         
         for($i=0 ; $i<$total_results ; $i += self::$iteration_size)
         {
             $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=".self::$iteration_size."&start=$i";
             
             // the global variable which will hold all mathces for this iteration
+            unset($GLOBALS['hierarchy_entry_matches']);
             $GLOBALS['hierarchy_entry_matches'] = array();
             
             $entries = $solr->get_results($query);
             foreach($entries as $entry)
             {
-                //echo "$i  $entry->id $entry->name<br>";
                 self::compare_entry($solr, $hierarchy, $entry, $compare_to_hierarchy, $match_synonyms);
                 
+                $searches_this_round++;
                 $total_searches++;
-                if($total_searches % 200 == 0) { echo "<hr>Records: $total_searches<br>Time: ".Functions::time_elapsed()."<hr><hr><br>\n"; flush(); ob_flush(); }
+                if($searches_this_round % 200 == 0)
+                {
+                    echo "Records: $searches_this_round ($total_searches)<br>\n";
+                    echo "Memory:  ".memory_get_usage()."<br>\n";
+                    echo "Time:    ".Functions::time_elapsed()."<br>\n<br>\n";
+                    flush();
+                    ob_flush();
+                    
+                }
             }
             
             
@@ -95,7 +105,7 @@ class CompareHierarchies
         $mysqli->load_data_infile($sql_filepath, "new_hierarchy_entry_relationships");
         
         // remove the tmp file
-        if(file_exists($sql_filepath)) unlink($sql_filepath);
+        @unlink($sql_filepath);
         
         $mysqli->end_transaction();
     }
@@ -109,8 +119,8 @@ class CompareHierarchies
             if($match_synonyms) $query .= " OR synonym_canonical:\"". $search_name ."\"";
             $query .= ")";
             if($compare_to_hierarchy) $query .= " AND hierarchy_id:$compare_to_hierarchy->id";
+            $query .= "&rows=200";
             
-            $scores = array();
             $matching_entries = $solr->get_results($query);
             foreach($matching_entries as $matching_entry)
             {
@@ -122,39 +132,7 @@ class CompareHierarchies
                 $score = self::compare_hierarchy_entries($entry, $matching_entry);
                 if($score)
                 {
-                    $scores[$matching_entry->id] = $score;
                     $GLOBALS['hierarchy_entry_matches'][$entry->id][$matching_entry->id] = $score;
-                    
-                    // if($score)
-                    // {
-                    //     static $number_of_matches = 0;
-                    //     $number_of_matches++;
-                    //     
-                    //     if($number_of_matches % 10 == 0 || $score < 0)
-                    //     {
-                    //         echo "  # $total_comparisons<br>
-                    //                 GOOD Match $number_of_matches<br>
-                    //                 Score $score<br>
-                    //                 <table border><tr>
-                    //                     <td>".Functions::print_pre($entry, 1)."</td>
-                    //                     <td>".Functions::print_pre($matching_entry, 1)."</td>
-                    //                     </tr></table><hr>";
-                    //     }
-                    // }else
-                    // {
-                    //     static $bad_matches = 0;
-                    //     $bad_matches++;
-                    //     
-                    //     if($bad_matches % 1 == 0)
-                    //     {
-                    //         echo "  # $total_comparisons<br>
-                    //             BAD Match $bad_matches<br>
-                    //             <table border><tr>
-                    //                 <td>".Functions::print_pre($entry, 1)."</td>
-                    //                 <td>".Functions::print_pre($matching_entry, 1)."</td>
-                    //                 </tr></table><hr>";
-                    //     }
-                    // }
                 }
             }
         }
@@ -238,7 +216,7 @@ class CompareHierarchies
         }
         
         // one entry has none if its ancestry filled out so disregard ancestry from comparison
-        if($entry1_without_hierarchy || $entry1_without_hierarchy) return null;
+        if($entry1_without_hierarchy || $entry2_without_hierarchy) return null;
         
         // matched at kingdom level. Make sure a few criteria are met before succeeding
         if($score == .2)

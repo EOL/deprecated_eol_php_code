@@ -15,6 +15,12 @@ class SolrAPI
         $this->schema = $schema;
         $this->file_delimiter = $d;
         $this->multi_value_delimiter = $mv;
+        
+        $this->schema_object = new stdClass();
+        foreach($this->schema as $attr => $val)
+        {
+            $this->schema_object->$attr = $val;
+        }
     }
     
     public function query($query)
@@ -23,12 +29,11 @@ class SolrAPI
         return @$response->result;
     }
     
-    public function get_results($query)
+    public function get_results(&$query)
     {
         $objects = array();
         
         $result = $this->query($query);
-        
         $docs = $result->xpath('doc');
         foreach($docs as $d)
         {
@@ -99,20 +104,20 @@ class SolrAPI
         $this->commit();
     }
     
-    private function doc_to_object($doc)
+    private function doc_to_object(&$doc)
     {
-        $attributes = $this->schema;
+        $object = clone $this->schema_object;
         foreach($doc->arr as $attr)
         {
             if(isset($attr->str)) $value = (string) $attr->str;
             else $value = (int) $attr->int;
             $name = (string) $attr['name'];
             
-            if(isset($this->schema[$name]) && is_array($this->schema[$name])) $attributes[$name][] = $value;
-            else $attributes[$name] = $value;
+            if(isset($this->schema[$name]) && is_array($this->schema[$name])) array_push($object->$name, $value);
+            else $object->$name = $value;
         }
         
-        return (object) $attributes;
+        return $object;
     }
     
     

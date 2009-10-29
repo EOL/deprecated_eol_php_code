@@ -35,7 +35,7 @@ $start = 0;
 $max_id = 0;
 $limit = 30000;
 $filter = "1=1";
-$filter = "he.hierarchy_id IN (113)";
+//$filter = "he.hierarchy_id IN (113)";
 
 $result = $mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM hierarchy_entries he WHERE $filter");
 if($result && $row=$result->fetch_assoc())
