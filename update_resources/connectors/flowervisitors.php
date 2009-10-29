@@ -1,11 +1,5 @@
 <?php
 //#!/usr/local/bin/php
-
-
- /*
- */
-
-
 /* flowervisitors connector */
 
 //exit;
@@ -35,14 +29,22 @@ $used_taxa = array();
 
 //$file = "";
 
-$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 1),
-               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 1),
-               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 1),
-               3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 1),
-               4 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 1),
-               5 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 1),
-               6 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 1)
+$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 0),
 
+               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 0),
+               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 0),
+               3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 0),
+               4 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 0),
+               5 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 0),
+               6 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 0),
+               
+               7  => array( "url" => "http://flowervisitors.info/insects/birds.htm"         , "active" => 1),
+               8  => array( "url" => "http://flowervisitors.info/insects/bees.htm"          , "active" => 1),
+               9  => array( "url" => "http://flowervisitors.info/insects/wasps.htm"         , "active" => 1),
+               10 => array( "url" => "http://flowervisitors.info/insects/flies.htm"         , "active" => 1),               
+               11 => array( "url" => "http://flowervisitors.info/insects/moths.htm"         , "active" => 1),
+               12 => array( "url" => "http://flowervisitors.info/insects/beetles.htm"       , "active" => 1),
+               13 => array( "url" => "http://flowervisitors.info/insects/bugs.htm"          , "active" => 1)               
              );
 
 $i=0;
@@ -50,75 +52,52 @@ foreach($urls as $path)
 {    
     if($path["active"])
     {
-        print $i . " " . $path["url"] . "<br>";        
-        
-        //if(in_array($i, array(0,1)))process_file1($path["url"]);        
-        if($i==0)process_file1($path["url"]);        
-        else     process_file2($path["url"]);           
-        
+        print $i . " " . $path["url"] . "$wrap $wrap";        
+        if      ($i == 0)               process_file1($path["url"]);        
+        elseif  ($i >= 1 and $i <= 6)   process_file2($path["url"]);           
+        elseif  ($i >= 7 and $i <= 13)  process_file3($path["url"]);           
     }
     $i++;
 }    
-//exit;
-function process_file2($file)
-{
+
+print "$wrap -- Done processing -- ";
+exit;
+function process_file3($file)
+{       
     global $wrap;
     global $used_taxa;
+    
     $str = Functions::get_remote_file($file);
     $str = clean_str($str);
 
+    //special case, html error
+    $str = str_ireplace('<TD ALIGN="CENTER"><A HREF="bees/agapostemon_virescens.htm"></A><B><FONT FACE="Times New Roman"><A HREF="bees/agapostemon_virescens.htm" NAME="agapostemon_virescens">Agapostemon virescens</A></FONT></B><FONT COLOR="#0000FF"><B><FONT FACE="Times New Roman"></FONT></B></FONT></TD>' , '<TD ALIGN="CENTER"><FONT COLOR="#0000FF"><B><FONT FACE="Times New Roman"><A HREF="bees/agapostemon_virescens.htm" NAME="agapostemon_texanus">Agapostemon virescens</A></FONT></B></FONT></TD>', $str);	    
+      
     
-    $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
-    $str = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
-    $str = strip_tags($str,"<i><b><font>");            
-    $str = str_ireplace('<FONT  COLOR="#3333FF">' , '<FONT COLOR="#3333FF">', $str);	
+  	$pos1 = stripos($str,"<TABLE");     
+   	//$pos2 = stripos($str,"</TABLE>");	
+    $pos2 = stripos($str,"Return to:");	
     
+   	//if($pos1 != "" and $pos2 != "") $str = trim(substr($str,$pos1,$pos2-$pos1+8));
+    if($pos1 != "" and $pos2 != "") $str = trim(substr($str,$pos1,$pos2-$pos1));
+    $str=strip_tags($str,'<TR><A>');
+    //print "<hr>$str"; exit;
     
-    $str = str_ireplace('&amp;' , '###', $str);	
+    $str = str_ireplace('</TR>' , "&arr[]=", $str);	
+    $str=strip_tags($str,'<A>');
     
-    //print "<hr>$str<str>";        exit;
-    
-    $str = str_ireplace('<B><FONT COLOR="#3333FF">' , '&arr[]=', $str);	
-    //$str = str_ireplace('###' , '&amp;', $str);	
-    //print "<hr>$str<str>";
+    $str=trim($str);
+    $str=substr($str,0,strlen($str)-7);   //to remove last part of string "&arr[]="
+
+    //print "<hr>$str"; exit;
+
     $arr=array();	
     parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap$wrap";	//print_r($arr);
-    
-    print"<hr><hr>";
-    $i=0;
-    foreach($arr as $species)
-    {
-        if($i >= 100000)break;
-        $i++;
-        $species = str_ireplace('###' , '&amp;', $species);	        
-        //print "$species <hr><hr>";
-        //start get name
-        $species = "***" . $species;
-        $beg='***'; $end1=')'; $end2="173xxx";    
-        $name = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true)).")"; //print "[$name]";        
-        //end
-        //start get sciname, commonname
-        $name = "***" . $name;
-        $beg='***'; $end1='('; $end2="173xxx";    
-        $sciname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$sciname]";        
-        $beg='('; $end1=')'; $end2="173xxx";    
-        $commonname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$commonname]";        
-        //end
-        //start get desc
-        $pos = stripos($species,")");
-        $desc = trim(substr($species,$pos+1,strlen($species))); print "[[$desc]]";
-        //end                
-        print "<hr>";       
-        
-        $kingdom="";
-        $url=$file;
-        $title="Description";
-        $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-        
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
-    }        
-}//end function process_file2($file)
+    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
+
+    process_loop($arr,"http://flowervisitors.info/insects/","Animalia");
+
+}//end function process_file3($file)
 
 function process_file1($file)
 {    
@@ -143,19 +122,29 @@ function process_file1($file)
 
     $arr=array();	
     parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap$wrap";	//print_r($arr);
+    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
 
     //print $str;
+    
+    process_loop($arr,"http://flowervisitors.info/","Plantae");
+    
+}//end function process_file1($file)
+
+function process_loop($arr,$path,$kingdom)
+{
+    global $wrap;
+    
     $i=0;
     foreach($arr as $species)
     {
-        //if($i >= 5)break;
+        //if($i >= 8)break;
         $i++;
 
-        print "{$species}";       
+        $species = clean_str($species);
+        //print "{$species}";       
         /* <A HREF="plants/velvetleaf.htm" NAME="velvetleaf">Abutilon theophrastii (Velvet Leaf)</A> */
         $sciname="";$commonname="";$url="";    
-        $beg='HREF="'; $end1='" NAME'; $end2="173xxx";    $url = "http://flowervisitors.info/" . trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));    
+        $beg='HREF="'; $end1='" NAME'; $end2="173xxx";    $url = $path . trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true));    
 
         $species = strip_tags($species);            
         $species = "xxx" . $species;    
@@ -163,8 +152,7 @@ function process_file1($file)
         $beg='('; $end1=')'; $end2="173xxx";    $commonname = parse_html($species,$beg,$end1,$end2,$end2,$end2,"");
         $beg='xxx'; $end1='('; $end2="173xxx";    $sciname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));
     
-        //print "[$sciname][$commonname][$url]<br>";
-
+        print "[$sciname][$commonname][$url]";
 
         $str = Functions::get_remote_file($url);    
         //start get title
@@ -180,15 +168,81 @@ function process_file1($file)
         $desc="";
         $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
         $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
-        $desc = strip_tags($desc,"<br><p><b><i>");            
+        $desc = strip_tags($desc,"<br><b><i>");            
+        //print "[$desc]";
+        print"<hr>";
         //end get desc    
         
-        $kingdom="Plantae";
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
         
         assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
+        
     }//main loop
-}//end function process_file1($file)
+
+}//end process_loop()
+
+
+function process_file2($file)
+{
+    global $wrap;
+    global $used_taxa;
+    $str = Functions::get_remote_file($file);
+    $str = clean_str($str);
+
+    
+    $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
+    $str = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
+    $str = strip_tags($str,"<i><b><font>");            
+    $str = str_ireplace('<FONT  COLOR="#3333FF">' , '<FONT COLOR="#3333FF">', $str);	
+    
+    
+    $str = str_ireplace('&amp;' , '###', $str);	
+    
+    //print "<hr>$str<str>";        exit;
+    
+    $str = str_ireplace('<B><FONT COLOR="#3333FF">' , '&arr[]=', $str);	
+    //$str = str_ireplace('###' , '&amp;', $str);	
+    //print "<hr>$str<str>";
+    $arr=array();	
+    parse_str($str);	
+    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
+    
+    $i=0;
+    foreach($arr as $species)
+    {
+        if($i >= 100000)break;
+        $i++;
+        $species = str_ireplace('###' , '&amp;', $species);	        
+        //print "$species <hr><hr>";
+        //start get name
+        $species = "***" . $species;
+        $beg='***'; $end1=')'; $end2="173xxx";    
+        $name = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true)).")"; //print "[$name]";        
+        //end
+        //start get sciname, commonname
+        $name = "***" . $name;
+        $beg='***'; $end1='('; $end2="173xxx";    
+        $sciname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$sciname]";        
+        $beg='('; $end1=')'; $end2="173xxx";    
+        $commonname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$commonname]";        
+        //end
+        //start get desc
+        $pos = stripos($species,")");
+        $desc = trim(substr($species,$pos+1,strlen($species))); 
+        $desc = strip_tags($desc, '<i>');
+        //print "[[$desc]]";
+        //end                
+        print "<hr>";       
+        
+        $kingdom="";
+        $url=$file;
+        $title="Description";
+        $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+        
+        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
+    }        
+}//end function process_file2($file)
+
 
 function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject)
 {
