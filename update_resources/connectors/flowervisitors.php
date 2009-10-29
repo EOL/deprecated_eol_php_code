@@ -38,13 +38,13 @@ $urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"      
                5 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 0),
                6 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 0),
                
-               7  => array( "url" => "http://flowervisitors.info/insects/birds.htm"         , "active" => 1),
-               8  => array( "url" => "http://flowervisitors.info/insects/bees.htm"          , "active" => 1),
-               9  => array( "url" => "http://flowervisitors.info/insects/wasps.htm"         , "active" => 1),
-               10 => array( "url" => "http://flowervisitors.info/insects/flies.htm"         , "active" => 1),               
-               11 => array( "url" => "http://flowervisitors.info/insects/moths.htm"         , "active" => 1),
-               12 => array( "url" => "http://flowervisitors.info/insects/beetles.htm"       , "active" => 1),
-               13 => array( "url" => "http://flowervisitors.info/insects/bugs.htm"          , "active" => 1)               
+               7  => array( "url" => "http://flowervisitors.info/insects/birds.htm"         , "active" => 0),
+               8  => array( "url" => "http://flowervisitors.info/insects/bees.htm"          , "active" => 0),
+               9  => array( "url" => "http://flowervisitors.info/insects/wasps.htm"         , "active" => 0),
+               10 => array( "url" => "http://flowervisitors.info/insects/flies.htm"         , "active" => 1),   //dd              
+               11 => array( "url" => "http://flowervisitors.info/insects/moths.htm"         , "active" => 0),
+               12 => array( "url" => "http://flowervisitors.info/insects/beetles.htm"       , "active" => 0),
+               13 => array( "url" => "http://flowervisitors.info/insects/bugs.htm"          , "active" => 0)               
              );
 
 $i=0;
@@ -60,8 +60,21 @@ foreach($urls as $path)
     $i++;
 }    
 
-print "$wrap -- Done processing -- ";
-exit;
+foreach($used_taxa as $taxon_parameters)
+{
+    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+}
+////////////////////// ---
+$new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$OUT = fopen($old_resource_path, "w+");
+fwrite($OUT, $new_resource_xml);
+fclose($OUT);
+////////////////////// ---
+print "$wrap -- Done processing -- "; exit;
+
+
+
 function process_file3($file)
 {       
     global $wrap;
@@ -137,7 +150,7 @@ function process_loop($arr,$path,$kingdom)
     $i=0;
     foreach($arr as $species)
     {
-        //if($i >= 8)break;
+        //if($i >= 3)break;
         $i++;
 
         $species = clean_str($species);
@@ -169,12 +182,13 @@ function process_loop($arr,$path,$kingdom)
         $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
         $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
         $desc = strip_tags($desc,"<br><b><i>");            
-        //print "[$desc]";
+        print "[$desc]";
         print"<hr>";
         //end get desc    
         
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
         
+        //if($desc != "") 
         assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
         
     }//main loop
@@ -210,7 +224,7 @@ function process_file2($file)
     $i=0;
     foreach($arr as $species)
     {
-        if($i >= 100000)break;
+        if($i >= 3)break;
         $i++;
         $species = str_ireplace('###' , '&amp;', $species);	        
         //print "$species <hr><hr>";
@@ -239,6 +253,7 @@ function process_file2($file)
         $title="Description";
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
         
+        //if($desc != "") 
         assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
     }        
 }//end function process_file2($file)
@@ -277,18 +292,6 @@ function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subje
     return "";        
 }
 
-
-foreach($used_taxa as $taxon_parameters)
-{
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
-}
-////////////////////// ---
-$new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
-$OUT = fopen($old_resource_path, "w+");
-fwrite($OUT, $new_resource_xml);
-fclose($OUT);
-////////////////////// ---
 
 function get_data_object($id, $description, $title, $url, $subject)
 {
