@@ -19,7 +19,7 @@ $schema = array(
         'synonym_canonical' => array(),
         'common_name'       => array());
         
-$solr = new SolrAPI(SOLR_SERVER, 'id', $schema);
+$solr = new SolrAPI('http://10.19.19.219:8080/solr/hierarchy_entries', 'id', $schema);
 
 $GLOBALS['ancestries'] = array();
 $GLOBALS['rank_labels'] = array();
@@ -35,7 +35,7 @@ $start = 0;
 $max_id = 0;
 $limit = 30000;
 $filter = "1=1";
-//$filter = "he.hierarchy_id IN (113)";
+//$filter = "he.hierarchy_id > 107";
 
 $result = $mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM hierarchy_entries he WHERE $filter");
 if($result && $row=$result->fetch_assoc())
@@ -79,7 +79,7 @@ function lookup_names($start, $limit)
     global $filter;
     
     echo "\nquerying names ($start, $limit)\n";
-    $result = $mysqli->query("SELECT he.*, n.string, cf.string canonical_form FROM hierarchy_entries he LEFT JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (he.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
+    $result = $mysqli->query("SELECT he.*, n.string, cf.string canonical_form FROM hierarchy_entries he LEFT JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (he.name_id=n.id) WHERE he.id  BETWEEN $start AND ".($start+$limit)." AND $filter");
     echo "done querying names\n";
     while($result && $row=$result->fetch_assoc())
     {
@@ -144,7 +144,7 @@ function lookup_ancestries()
         }
     }
     
-    echo "\ndone looking up ancestries\n";
+    echo "done looking up ancestries\n";
 
     if(@$GLOBALS['objects'])
     {

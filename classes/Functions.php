@@ -114,6 +114,7 @@ class Functions
             usleep($download_wait_time);
             $attempts++;
         }
+        unset($context);
         
         return $file;
     }
@@ -127,12 +128,15 @@ class Functions
         return $hash;
     }
     
-    public static function temp_filepath()
+    public static function temp_filepath($relative_from_root = false)
     {
-        $filepath = LOCAL_ROOT . "/temp/tmp_". self::random_digits(5) .".file";
+        if($relative_from_root) $prefix = "";
+        else $prefix = LOCAL_ROOT;
+        
+        $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".file";
         while(glob($filepath))
         {
-            $filepath = LOCAL_ROOT . "/temp/tmp_". self::random_digits(5) .".file";
+            $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".file";
         }
         
         return $filepath;

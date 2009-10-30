@@ -1,6 +1,6 @@
 <?php
 
-define('ENVIRONMENT', 'integration');
+define('ENVIRONMENT', 'slave');
 //define('MYSQL_DEBUG', true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -17,7 +17,7 @@ $schema = array(
     'published'                 => '',
     'supercedure_id'            => '');
         
-$solr = new SolrAPI(SOLR_SERVER, 'taxon_concept_id', $schema);
+$solr = new SolrAPI('http://10.19.19.219:8080/solr/taxon_concepts', 'taxon_concept_id', $schema);
 
 
 
@@ -31,7 +31,7 @@ $limit = 100000;
 $filter = "1=1";
 //$filter = "he.hierarchy_id IN (113)";
 
-$result = $mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc WHERE $filter");
+$result = $mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc  WHERE $filter");
 if($result && $row=$result->fetch_assoc())
 {
     $start = $row["min"];
@@ -69,7 +69,7 @@ function lookup_names($start, $limit)
     global $mysqli;
     
     echo "\nquerying names\n";
-    $result = $mysqli->query("SELECT tc.id, tc.published, tc.vetted_id, tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.id BETWEEN $start AND ".($start+$limit));
+    $result = $mysqli->query("SELECT tc.id, tc.published, tc.vetted_id, tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id)  WHERE tc.id BETWEEN $start AND ".($start+$limit));
     echo "done querying names\n";
     while($result && $row=$result->fetch_assoc())
     {
@@ -106,7 +106,7 @@ function lookup_ranks($start, $limit)
     global $mysqli;
     
     echo "\nquerying ranks\n";
-    $result = $mysqli->query("SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries WHERE taxon_concept_id BETWEEN $start AND ".($start+$limit));
+    $result = $mysqli->query("SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries  WHERE taxon_concept_id BETWEEN $start AND ".($start+$limit));
     echo "done querying ranks\n";
     while($result && $row=$result->fetch_assoc())
     {
@@ -130,7 +130,7 @@ function lookup_top_images($start, $limit)
     global $mysqli;
     
     echo "\nquerying top_images\n";
-    $result = $mysqli->query("SELECT he.taxon_concept_id id, ti.data_object_id FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND view_order=1");
+    $result = $mysqli->query("SELECT he.taxon_concept_id id, ti.data_object_id FROM hierarchy_entries he JOIN top_images ti  ON (he.id=ti.hierarchy_entry_id) WHERE he.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND view_order=1");
     echo "done querying top_images\n";
     while($result && $row=$result->fetch_assoc())
     {

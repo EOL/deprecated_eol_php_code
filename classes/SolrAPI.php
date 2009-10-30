@@ -15,6 +15,7 @@ class SolrAPI
         $this->schema = $schema;
         $this->file_delimiter = $d;
         $this->multi_value_delimiter = $mv;
+        $this->csv_path = Functions::temp_filepath(true);
         
         $this->schema_object = new stdClass();
         foreach($this->schema as $attr => $val)
@@ -25,7 +26,7 @@ class SolrAPI
     
     public function query($query)
     {
-        $response = Functions::get_hashed_response($this->server . "/select/?q=". str_replace(" ", "%20", $query), 0);
+        $response = simplexml_load_string(file_get_contents($this->server . "/select/?q=". str_replace(" ", "%20", $query)));
         return @$response->result;
     }
     
@@ -33,11 +34,11 @@ class SolrAPI
     {
         $objects = array();
         
-        $result = $this->query($query);
-        $docs = $result->xpath('doc');
-        foreach($docs as $d)
+        $response = simplexml_load_string(file_get_contents($this->server . "/select/?q=". str_replace(" ", "%20", $query)));
+        $count = count($response->result->doc);
+        for($i=0 ; $i<$count ; $i++)
         {
-            $objects[] = $this->doc_to_object($d);
+            $objects[] = $this->doc_to_object($response->result->doc[$i]);
         }
         
         return $objects;
@@ -55,7 +56,8 @@ class SolrAPI
     
     public function send_attributes($objects, $object_fields)
     {
-        $OUT = fopen(LOCAL_ROOT . "temp/data.csv", "w+");
+        @unlink(LOCAL_ROOT . $this->csv_path);
+        $OUT = fopen(LOCAL_ROOT . $this->csv_path, "w+");
         
         $fields = array_keys($object_fields);
         fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");
@@ -97,18 +99,20 @@ class SolrAPI
         {
             $curl .= " -F f.$field.split=true -F f.$field.separator='". $this->multi_value_delimiter ."'";
         }
-        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."temp/data.csv -F stream.contentType=text/plain;charset=utf-8 -F overwrite=true";
+        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType=text/plain;charset=utf-8 -F overwrite=true";
         
         echo "calling: $curl\n";
         exec($curl);
         $this->commit();
     }
     
-    private function doc_to_object(&$doc)
+    private function doc_to_object($doc)
     {
         $object = clone $this->schema_object;
-        foreach($doc->arr as $attr)
+        $count = count($doc->arr);
+        for($i=0 ; $i<$count ; $i++)
         {
+            $attr = $doc->arr[$i];
             if(isset($attr->str)) $value = (string) $attr->str;
             else $value = (int) $attr->int;
             $name = (string) $attr['name'];

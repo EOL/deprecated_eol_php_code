@@ -29,10 +29,10 @@ class CompareHierarchies
         // delete all records which will conflict with this comparison session
         if($compare_to_hierarchy)
         {
-            $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE he1.hierarchy_id=$hierarchy->id AND he2.hierarchy_id=$compare_to_hierarchy->id");
+            $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE (he1.hierarchy_id=$hierarchy->id AND he2.hierarchy_id=$compare_to_hierarchy->id) OR (he2.hierarchy_id=$hierarchy->id AND he1.hierarchy_id=$compare_to_hierarchy->id)");
         }else
         {
-            $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he ON (r.hierarchy_entry_id_1=he.id) WHERE he.hierarchy_id=$hierarchy->id");
+            $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE he1.hierarchy_id=$hierarchy->id OR he2.hierarchy_id=$hierarchy->id");
         }
         
         $schema = array(
@@ -52,6 +52,8 @@ class CompareHierarchies
         $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=1";
         $response = $solr->query($query);
         $total_results = $response['numFound'];
+        unset($response);
+        
         $searches_this_round = 0;
         static $total_searches = 0;
         
@@ -60,7 +62,6 @@ class CompareHierarchies
             $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=".self::$iteration_size."&start=$i";
             
             // the global variable which will hold all mathces for this iteration
-            unset($GLOBALS['hierarchy_entry_matches']);
             $GLOBALS['hierarchy_entry_matches'] = array();
             
             $entries = $solr->get_results($query);
@@ -70,16 +71,18 @@ class CompareHierarchies
                 
                 $searches_this_round++;
                 $total_searches++;
-                if($searches_this_round % 200 == 0)
+                if($searches_this_round % 500 == 0)
                 {
-                    echo "Records: $searches_this_round ($total_searches)<br>\n";
+                    $time = Functions::time_elapsed();
+                    echo "Records: $searches_this_round of $total_results ($total_searches total)<br>\n";
+                    echo "Speed:   ".round($total_searches/$time, 2)." r/s<br>\n";
                     echo "Memory:  ".memory_get_usage()."<br>\n";
-                    echo "Time:    ".Functions::time_elapsed()."<br>\n<br>\n";
+                    echo "Time:    $time<br>\n<br>\n";
                     flush();
                     ob_flush();
-                    
                 }
             }
+            unset($entries);
             
             
             // the iteration produced matches
@@ -98,6 +101,7 @@ class CompareHierarchies
                         fwrite($SQL_FILE, "$id1\t$id2\t'$type'\t$score\t''\n");
                     }
                 }
+                unset($GLOBALS['hierarchy_entry_matches']);
             }
         }
         
@@ -119,7 +123,7 @@ class CompareHierarchies
             if($match_synonyms) $query .= " OR synonym_canonical:\"". $search_name ."\"";
             $query .= ")";
             if($compare_to_hierarchy) $query .= " AND hierarchy_id:$compare_to_hierarchy->id";
-            $query .= "&rows=200";
+            $query .= "&rows=500";
             
             $matching_entries = $solr->get_results($query);
             foreach($matching_entries as $matching_entry)
@@ -130,15 +134,15 @@ class CompareHierarchies
                 $total_comparisons++;
                 
                 $score = self::compare_hierarchy_entries($entry, $matching_entry);
-                if($score)
-                {
-                    $GLOBALS['hierarchy_entry_matches'][$entry->id][$matching_entry->id] = $score;
-                }
+                if($score) $GLOBALS['hierarchy_entry_matches'][$entry->id][$matching_entry->id] = $score;
+                
+                $score2 = self::compare_hierarchy_entries($matching_entry, $entry);
+                if($score2) $GLOBALS['hierarchy_entry_matches'][$matching_entry->id][$entry->id] = $score2;
             }
         }
     }
     
-    public static function compare_hierarchy_entries(&$entry1, &$entry2)
+    public static function compare_hierarchy_entries($entry1, $entry2)
     {
         if($entry1->id == $entry2->id) return 0;
         if(self::rank_conflict($entry1, $entry2)) return 0;
