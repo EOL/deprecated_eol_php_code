@@ -100,7 +100,7 @@ function save_monthly()
                         $str .= "$value$unit,";
                     } 
                     $str .= "\n";	                
-                	if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}
+                	if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);print " Successfully saved ";}
                 }
                 else print " already saved ";
                 print "<br>";
