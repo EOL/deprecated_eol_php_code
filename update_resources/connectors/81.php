@@ -157,9 +157,10 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     if($public_barcodes > 0)
     {
         $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-        $arr = get_text_dna_sequence($url);                                
+        $arr = get_text_dna_sequence($url);
         $count_sequence     = $arr[0];
-        $text_dna_sequence = $arr[1];
+        $text_dna_sequence  = $arr[1];
+        $url_fasta_file     = $arr[2];
         
         print "$wrap [$public_barcodes]=[$count_sequence] $wrap ";
         
@@ -178,6 +179,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     {
         $temp = "<br>&nbsp;<br>$str ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
+        $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download Fasta File</a>";
     }
     else $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     
     //Genetic Barcode
@@ -260,8 +262,7 @@ function get_text_dna_sequence($url)
         //$str = get_file_contents($url);
         $str = Functions::get_remote_file($url);
     }    
-    
-    $count_sequence = substr_count($str, '>');    
+        
     
     //start get only 2 sequence 
     /* working but we will not get the first 2 sequence anymore
@@ -278,14 +279,15 @@ function get_text_dna_sequence($url)
     */
     //end get only 2 sequence
     
+    $count_sequence = substr_count($str, '>');    
     //start get the single sequence = longest, with least N char
     $best_sequence = get_best_sequence($str);    
     //end    
  
     $arr=array();
     $arr[]=$count_sequence;
-    //$arr[]=$str;   
     $arr[]=$best_sequence;   
+    $arr[]=$url;
     return $arr;
 }
 // /*
