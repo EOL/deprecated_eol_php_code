@@ -34,7 +34,6 @@ $used_taxa = array();
 $id_list=array();
 
 
-
 $total_taxid_count = 0;
 $do_count = 0;
 
@@ -71,6 +70,10 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     $desc_pic = utf8_encode($desc_pic);
     $desc_taxa = utf8_encode($desc_taxa);
     
+    /* desc_taxa is no longer included    
+    if($desc_taxa != "")$desc_pic .= "<br><br>$desc_taxa";   
+    */
+    
     $desc_pic = $desc_pic . "<br>" . "Created: $creation_date";
 
     if(in_array($taxa . $desc_taxa, $arr_desc_taxa))$desc_taxa="";
@@ -82,7 +85,9 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     if(in_array($taxa . $outlinks, $arr_outlinks))$outlinks="";
     else                                          $arr_outlinks[] = $taxa . $outlinks;     
 
-
+    //new
+    $desc_taxa="";
+    
     if($categories != "")$desc_taxa .= "<hr>Categories:<br>$categories";   
     if($outlinks != "")  $desc_taxa .= "<hr>Outlinks:<br>$outlinks";
     
@@ -112,29 +117,25 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         $do_count++;        
         $agent_name = $photo_credit;
         $agent_role = "photographer";            
+               
+        // /* just debug; no images for now
         $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"");               
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                 
-        
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
+        // */
         
         if($desc_taxa != "")
         {
-            $temp = trim(strip_tags($desc_taxa));
-            if  (   substr($desc_taxa,0,9) != "Outlinks:"  and                                            
-                    substr($desc_taxa,0,11) != "Categories:"
-                )   
+            $temp = trim(strip_tags($desc_taxa));                        
+            if(substr($temp,0,9)  != "Outlinks:")
             {
-                //if($desc_taxa == "<hr>Outlinks:<br>")$title="Outlinks:";
-                //else                                 $title="Description";
-            
-                $title="Description";
-                $desc_taxa="<b>Discussion on disease(s) caused by this organism:</b>" . $desc_taxa;
-                        
+                if(substr($temp,0,11) == "Categories:") $title="Categories";
+                //$desc_taxa="<b>Discussion on disease(s) caused by this organism:</b>" . $desc_taxa;                        
                 $do_count++;
                 $agent_name = $providers;
                 $agent_role = "source";            
                 $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url,$title);                           
-                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
-            }
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+            }            
         }
         
         $used_taxa[$taxon] = $taxon_parameters;
@@ -173,11 +174,11 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         $subjectParameters = array();
         
         $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";        
+        //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement";        
         //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Diseases";
         
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
-        //end subject
-            
+        //end subject            
             
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
         $dataObjectParameters["mimeType"] = "text/html";
@@ -241,7 +242,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=1; $i <= 7; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=3; $i <= 3; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
     {
         $url = "http://128.128.175.77/cdc/id_list_00" . $i . ".htm";
         $handle = fopen($url, "r");	
@@ -319,9 +320,7 @@ function parse_contents($str)
 
     $description = str_ireplace('xxx', '', $description);        
     $desc_taxa = str_ireplace($desc_pic, '', $description);        
-    //print "desc_taxa $wrap" . $desc_taxa;	print "<hr>"; //exit;        
-
-          
+    //print "desc_taxa $wrap" . $desc_taxa;	print "<hr>"; //exit;                  
     
     //========================================================================================
 	//$beg='<table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td>CDC Organization</td></tr></tbody></table>'; 
