@@ -10,6 +10,8 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $resource = new Resource(64);
+//exit($resource->id);
+
 $species_url = "http://www.radiolaria.org/species.htm?sp_id=";
 $schema_taxa = array();
 $used_taxa = array();

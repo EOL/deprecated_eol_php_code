@@ -278,8 +278,10 @@ function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subje
             $taxon_parameters["genus"] = $genus;
             $taxon_parameters["scientificName"]= $sciname;        
             $taxon_parameters["source"] = $url;        
+            
             $taxon_parameters["commonNames"] = array();
             $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            
             $taxon_parameters["dataObjects"]= array();        
             $used_taxa[$taxon_identifier] = $taxon_parameters;
         }        

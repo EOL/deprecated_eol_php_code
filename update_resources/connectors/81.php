@@ -179,6 +179,8 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     {
         $temp = "<br>&nbsp;<br>$str ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
+        
+        $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
         $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download Fasta File</a>";
     }
     else $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     

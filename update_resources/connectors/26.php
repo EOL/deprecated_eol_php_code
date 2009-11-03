@@ -51,16 +51,17 @@ $bad=0;
         $taxid = $main_id_list[$i];
         //if(!in_array("$taxid", $id_processed))        
         //{                        
-            //if($i % 10000 == 0) //working
+            
             //if(count($id_processed) % 10000 == 0)
-            //{   
+            if($i % 10000 == 0) //working
+            {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
                 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
-            //}            
-            
+            }            
+                        
             // /*
             //if(process($taxid,$OUT))
             if($contents=process($taxid))            
@@ -104,8 +105,9 @@ $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
 $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
 fwrite($OUT, $str);
 $i=0;
-//while(true)
-while($i <= $total_taxid_count)
+
+//while($i <= $total_taxid_count)
+while(true)
 {
     $i++; print "$i ";
     $file = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $i .".xml";
@@ -113,12 +115,12 @@ while($i <= $total_taxid_count)
     if($str)
     {
         fwrite($OUT, $str);
-        //unlink($file);
+        unlink($file);
     }            
-    //else break;
+    else break;
     
     //new
-    if($i <= $total_taxid_count)unlink($file);
+    //if($i <= $total_taxid_count)unlink($file);
     
 }
 print "\n --end-- ";
@@ -133,7 +135,9 @@ function process($id)
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
     //$file = "http://128.128.175.77/worms.xml";
     //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255127    
-    $contents = Functions::get_remote_file($file);
+    
+    //$contents = Functions::get_remote_file($file);
+    $contents = get_file_contents($file);
     if($contents)
     {
     	$pos1 = stripos($contents,"<taxon>");
@@ -193,4 +197,20 @@ function get_main_id_list()
     $arr = array_keys($arr);
     return $arr;
 }//get_main_id_list()
+
+
+function get_file_contents($url)
+{
+    $contents = "";
+    set_time_limit(0);
+ 	$handle = fopen($url, "r");	
+	if ($handle)
+	{	
+		while (!feof($handle)){$contents .= fread($handle, 8192);}
+		fclose($handle);				
+    }
+    else print "[error fopen] \n ";
+    return $contents;
+}
+
 ?>
