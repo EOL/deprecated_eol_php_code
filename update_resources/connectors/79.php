@@ -244,7 +244,7 @@ function get_id_list()
     $id_list = array();    
     for ($i=3; $i <= 3; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
     {
-        $url = "http://128.128.175.77/cdc/id_list_00" . $i . ".htm";
+        $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";
         $handle = fopen($url, "r");	
         if ($handle)
         {

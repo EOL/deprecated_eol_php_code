@@ -1,18 +1,20 @@
 #!/usr/local/bin/php
 <?php
 set_time_limit(0);
-//define("MYSQL_DEBUG", true);
+
+//define("ENVIRONMENT", "slave_32");
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
+
+/*
 $path = "";
 if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
 include_once($path."../../config/start.php");
+*/
 
+include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-
-
 $resource = new Resource(21);
-
 $new_resource_path = LOCAL_ROOT . "temp/".$resource->id.".xml";
 
 $new_resource_xml = Functions::get_remote_file($resource->accesspoint_url);
@@ -22,9 +24,11 @@ $new_resource_xml = utf8_encode($new_resource_xml);
 $new_resource_xml = str_replace("", "\"", $new_resource_xml);
 $new_resource_xml = str_replace("", "\"", $new_resource_xml);
 $new_resource_xml = str_replace("", "-", $new_resource_xml);
+/*
 $new_resource_xml = str_replace(".", "", $new_resource_xml);
 $new_resource_xml = str_replace(".", "", $new_resource_xml);
 $new_resource_xml = str_replace(".", "", $new_resource_xml);
+*/
 
 $OUT = fopen($new_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
@@ -32,7 +36,9 @@ fclose($OUT);
 
 unset($new_resource_xml);
 
+print"<hr>$new_resource_path<hr>"; //exit;
 
+$do_count=0;
 
 $taxa = array();
 $xml = simplexml_load_file($new_resource_path);
@@ -118,8 +124,21 @@ foreach(@$xml->species as $species)
     if($distribution) 		$dataObjects[] = get_data_object("Distribution and Habitat", $distribution, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution");
     if($life_history) 		$dataObjects[] = get_data_object("Life History, Abundance, Activity, and Special Behaviors", $life_history, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends");
     if($trends_and_threats) $dataObjects[] = get_data_object("Life History, Abundance, Activity, and Special Behaviors", $trends_and_threats, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats");
-    if($relation_to_humans) $dataObjects[] = get_data_object("Relation to Humans", $relation_to_humans, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement");
-    if($comments) 			$dataObjects[] = get_data_object("Comments", $comments, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
+    if($relation_to_humans) $dataObjects[] = get_data_object("Relation to Humans", $relation_to_humans, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement");    
+
+    if(trim($description)!="")
+    {
+        if(trim($comments)!="")$description .= "<br>&nbsp;<br>" . $comments;
+    }
+    else
+    {
+        if(trim($comments)!="")$description = $comments;    
+    }    
+    if($description) 		$dataObjects[] = get_data_object("Description", $description, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
+    
+    //if($comments) 			$dataObjects[] = get_data_object("Comments", $comments, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
+    
+    
     
     foreach($dataObjects as $k => $v)
     {
@@ -136,14 +155,18 @@ function get_data_object($title, $description, $subject)
     global $resource;
     global $pageURL;
     global $agents;
+    global $do_count;
+    
+    $do_count++;
     
     $dataObjectParameters = array();
+    $dataObjectParameters["identifier"] = "do_" . $do_count;        
     $dataObjectParameters["title"] = $title;
     $dataObjectParameters["description"] = $description;
     $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
     $dataObjectParameters["mimeType"] = "text/plain";
     $dataObjectParameters["language"] = "en";
-    $dataObjectParameters["license"] = "";
+    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by/3.0/";
     $dataObjectParameters["source"] = $pageURL;
     $dataObjectParameters["agents"] = $agents;
     $dataObjectParameters["audiences"] = array();
@@ -173,8 +196,8 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
+//print "<hr>removed: $new_resource_path";
 
 shell_exec("rm ".$new_resource_path);
-
 
 ?>
