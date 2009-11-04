@@ -1,5 +1,6 @@
 #!/usr/local/bin/php
 <?php
+/* connector for AmphibiaWeb */
 set_time_limit(0);
 
 //define("ENVIRONMENT", "slave_32");

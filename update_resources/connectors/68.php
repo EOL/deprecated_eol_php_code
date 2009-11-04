@@ -1,12 +1,9 @@
 #!/usr/local/bin/php
 <?php
-//#!/usr/local/bin/php
-//connector for Dutch Species Catalog
-exit; not yet fixed
+/* connector for Dutch Species Catalog */
+exit; //not yet fixed
 
-/* 
-22966. 22964 of 68984
-*/
+
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");

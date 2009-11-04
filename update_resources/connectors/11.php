@@ -4,6 +4,7 @@
 
 exit;
 
+set_time_limit(0);
 ini_set('memory_limit','3000M');
 define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", true);

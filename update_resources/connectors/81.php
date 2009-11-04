@@ -1,6 +1,7 @@
+#!/usr/local/bin/php  
 <?php
-//#!/usr/local/bin/php  
-//connector for BOLD Systems
+//
+/* connector for BOLD Systems */
 //exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
@@ -18,7 +19,7 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annel
 */
 
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");

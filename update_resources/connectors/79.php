@@ -1,5 +1,5 @@
+#!/usr/local/bin/php  
 <?php
-//#!/usr/local/bin/php  
 /*
 connector for Public Health Image Library (CDC) 
 http://phil.cdc.gov/phil/home.asp
@@ -7,7 +7,7 @@ http://phil.cdc.gov/phil/home.asp
 
 //exit;
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -56,7 +56,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
 {
     //main loop
     
-    print "$i . " . $arr_id_list[$i] . "$wrap";
+    print $i+1 . " of " . count($arr_id_list) . " id=" . $arr_id_list[$i] . "$wrap";
     $philid = $arr_id_list[$i];        
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
 
@@ -110,7 +110,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
 
     if(1==1)
     {
-        if($do_count == 0)//echo "$wrap$wrap phylum = " . $taxa . "$wrap";
+        //if($do_count == 0)//echo "$wrap$wrap phylum = " . $taxa . "$wrap";
 
         $dc_source = $home_url;       
 
@@ -242,9 +242,11 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=3; $i <= 3; $i++)//we only have 7 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 21; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
     {
         $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";
+        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";
+        
         $handle = fopen($url, "r");	
         if ($handle)
         {
@@ -262,15 +264,23 @@ function get_id_list()
     print "total = " . count($id_list) . "\n"; //exit;
     $count_bef_unset = count($id_list);
     
-    //start exclude ids that are images of dogs and their masters
+    //start exclude ids that are images of dogs and their masters, non-organisms
     for ($i = 0; $i < count($id_list); $i++) 
     {
+    
+        $not_organism = array(11357,11329,10927,10926,10925,10141,10134,10425,10507,26,107,93,110,111,1500,10507);
+        if (in_array($id_list[$i], $not_organism)) unset($id_list[$i]);        
+        /*
         if  (   $id_list[$i] == 11357   or
                 $id_list[$i] == 11329   or
                 $id_list[$i] == 10927   or
                 $id_list[$i] == 10926   or
-                $id_list[$i] == 10925                   
+                $id_list[$i] == 10925   or                
+                $id_list[$i] == 10141   or
+                $id_list[$i] == 10134   
             )unset($id_list[$i]);
+        */
+        
     }        
     //end exclude ids    
 
