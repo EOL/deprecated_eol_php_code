@@ -12,6 +12,10 @@ function get_text_dna_sequence($url)
     $beg='../temp/'; $end1='fasta.fas'; $end2="173xxx"; $end3="173xxx";			
     $folder = parse_html($str,$beg,$end1,$end2,$end3,$end3,"");	        
     $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
+    
+    print"<META HTTP-EQUIV='Refresh' Content='0; URL=$url'>";        
+    exit;
+    
     $str = get_file_contents($url);
     return $str;
 }
