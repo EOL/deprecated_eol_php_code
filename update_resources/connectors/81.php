@@ -56,7 +56,7 @@ $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is N
 //$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum <> 'Annelida' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
-$query .= " limit 1 ";
+//$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 
@@ -74,7 +74,9 @@ while($row=$result->fetch_assoc())
         
     $url = $phylum_service_url . trim($row["taxon_phylum"]);
     
+    /* for debug - to limit no. of record to process
     $url = "http://128.128.175.77/bold.xml";
+    */
     
     if(!($xml = @simplexml_load_file($url)))continue;    
     
@@ -187,8 +189,12 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     {
         $temp = "<br>&nbsp;<br>$str ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
-        
+        /* one-click         
         $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
+        */
+        
+        /* 2-click per PL advice */
+        $url_fasta_file = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";        
         $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
     }
     else $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     

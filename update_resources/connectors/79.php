@@ -11,7 +11,7 @@ Amoeba - Acanthamoeba polyphaga
 Bedbugs - Cimex lectularius
 Candida
 Colorado tick fever virus - Coltivirus
-Pollen - Ambrosia trifida
+
 Poultry - Ochroconis gallopavum
 Spiders - Loxosceles reclusa
 Wasps - Insecta
@@ -20,6 +20,10 @@ Ticks - Dermacentor variabilis
 
 REMOVE:
 Science
+
+================================
+Pollen - Ambrosia trifida
+
 */
 
 
@@ -260,7 +264,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=20; $i <= 20; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 21; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
     {
         $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";
         $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";
@@ -325,9 +329,9 @@ function parse_contents($str)
 {
     //========================================================================================
     $image_url="";
-
-    //<img border="0" src="http://phil.cdc.gov/phil_images/20040219/3/PHIL_5485_lores.jpg" alt="PHIL Image 5485" />
-    //<img border="0" src="http://phil.cdc.gov/PHIL_Images/20031202/e51cc8a13dec4028b5b65478bc22647a/5223_lores.jpg" alt
+    /*
+    <img border="0" src="http://phil.cdc.gov/phil_images/20040219/3/PHIL_5485_lores.jpg" alt="PHIL Image 5485" />
+    <img border="0" src="http://phil.cdc.gov/PHIL_Images/20031202/e51cc8a13dec4028b5b65478bc22647a/5223_lores.jpg" alt */
    	$beg='http://phil.cdc.gov/PHIL_Images/'; $end1='_lores.jpg'; $end2="173xxx"; $end3="173xxx";			
     $arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
   	$id=$arx;
@@ -393,7 +397,7 @@ function parse_contents($str)
 
     $taxa="";
 	$beg="<i>"; $end1="</i>"; $end2="173xxx"; $end3="173xxx";			
-	$arx = parse_html($desc_pic,$beg,$end1,$end2,$end3,$end3);	//str = the html block
+	$arx = parse_html($desc_pic,$beg,$end1,$end2,$end3,$end3,NULL,true);	//str = the html block
 	$taxa=$arx;    
     
     if($taxa == "")    
@@ -469,7 +473,8 @@ function cURL_it($philid,$url)
     if($ans != "")  return false;
     else            return $output;        
 }//function cURL_it($philid)
-	
+
+/*
 function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
 {
     //PRINT "[$all]"; exit;
@@ -530,6 +535,65 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
     elseif($all == "all") return $arr;
 	
 }//end function
+*/
+
+// /*
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
+{
+    //PRINT "[$all]"; exit;
+	$beg_len = strlen(trim($beg));
+	$end1_len = strlen(trim($end1));
+	$end2_len = strlen(trim($end2));
+	$end3_len = strlen(trim($end3));	
+	$end4_len = strlen(trim($end4));		
+	//print "[[$str]]";
+
+	$str = trim($str); 	
+	$str = $str . "|||";	
+	$len = strlen($str);	
+	$arr = array(); $k=0;	
+	for ($i = 0; $i < $len; $i++) 
+	{
+        if(strtolower(substr($str,$i,$beg_len)) == strtolower($beg))
+		{	
+			$i=$i+$beg_len;
+			$pos1 = $i;			
+			//print substr($str,$i,10) . "<br>";									
+			$cont = 'y';
+			while($cont == 'y')
+			{
+				if(	substr($str,$i,$end1_len) == $end1 or 
+					substr($str,$i,$end2_len) == $end2 or 
+					substr($str,$i,$end3_len) == $end3 or 
+					substr($str,$i,$end4_len) == $end4 or 
+					substr($str,$i,3) == '|||' )
+				{
+					$pos2 = $i - 1; 					
+					$cont = 'n';					
+					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
+					//print "$arr[$k] $wrap";					                    
+					$k++;
+				}
+				$i++;
+			}//end while
+			$i--;			
+            
+            //start exit on first occurrence of $beg
+            if($exit_on_first_match)break;
+            //end exit on first occurrence of $beg
+            
+		}		
+	}//end outer loop
+    if($all == "")	
+    {
+        $id='';
+	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        return $id;
+    }
+    elseif($all == "all") return $arr;	
+}//end function
+// */
+
 	
 function array_trim($a,$len) 
 { 	
