@@ -135,11 +135,9 @@ foreach(@$xml->species as $species)
     {
         if(trim($comments)!="")$description = $comments;    
     }    
-    if($description) 		$dataObjects[] = get_data_object("Description", $description, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
+    if($description)$dataObjects[] = get_data_object("Description", $description, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
     
-    //if($comments) 			$dataObjects[] = get_data_object("Comments", $comments, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
-    
-    
+    //if($comments) 			$dataObjects[] = get_data_object("Comments", $comments, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");        
     
     foreach($dataObjects as $k => $v)
     {

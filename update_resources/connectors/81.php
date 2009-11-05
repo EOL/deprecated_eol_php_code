@@ -19,7 +19,7 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annel
 */
 
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -52,10 +52,11 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
+//$query .= " and taxon_phylum = 'Chordata' ";
 //$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum <> 'Annelida' ";
 $query .= " Order By taxa.taxon_phylum Asc ";
-//$query .= " limit 1 ";
+$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 
@@ -72,6 +73,8 @@ while($row=$result->fetch_assoc())
     print "$wrap $ctr. phylum = " . $row["taxon_phylum"] . "$wrap";
         
     $url = $phylum_service_url . trim($row["taxon_phylum"]);
+    
+    $url = "http://128.128.175.77/bold.xml";
     
     if(!($xml = @simplexml_load_file($url)))continue;    
     
@@ -176,13 +179,17 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     }
     else $text_dna_sequence = '';    
 
-    if($text_dna_sequence)
+    //
+    //
+    //
+    //if($text_dna_sequence)
+    if(trim($text_dna_sequence) != "")
     {
         $temp = "<br>&nbsp;<br>$str ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
         
         $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
-        $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download Fasta File</a>";
+        $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
     }
     else $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     
     //Genetic Barcode

@@ -5,7 +5,7 @@ exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -132,8 +132,9 @@ function process($id)
     //$file = "http://128.128.175.77/worms.xml";
     //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255127    
     
-    //$contents = Functions::get_remote_file($file);
-    $contents = get_file_contents($file);
+    set_time_limit(0);
+    $contents = Functions::get_remote_file($file);
+    //$contents = get_file_contents($file);
     if($contents)
     {
     	$pos1 = stripos($contents,"<taxon>");
