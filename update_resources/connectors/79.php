@@ -5,9 +5,27 @@ connector for Public Health Image Library (CDC)
 http://phil.cdc.gov/phil/home.asp
 */
 
+/*
+REPLACE:
+Amoeba - Acanthamoeba polyphaga
+Bedbugs - Cimex lectularius
+Candida
+Colorado tick fever virus - Coltivirus
+Pollen - Ambrosia trifida
+Poultry - Ochroconis gallopavum
+Spiders - Loxosceles reclusa
+Wasps - Insecta
+Mites - Acari
+Ticks - Dermacentor variabilis
+
+REMOVE:
+Science
+*/
+
+
 //exit;
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -242,7 +260,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 function get_id_list()
 {
     $id_list = array();    
-    for ($i=1; $i <= 21; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=20; $i <= 20; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
     {
         $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";
         $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";
@@ -306,12 +324,28 @@ function process($url,$philid)
 function parse_contents($str)
 {
     //========================================================================================
-	$beg="ID#:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
-	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
-	$id=$arx;
-	//print "<hr>id = " . $id;	print "<hr>";
-    $image_url = "http://phil.cdc.gov/PHIL_Images/" . $id . "/" . $id . "_lores.jpg";
-    //print"<img src='http://phil.cdc.gov/PHIL_Images/" . $id . "/" . $id . "_lores.jpg'><hr>";    
+    $image_url="";
+
+    //<img border="0" src="http://phil.cdc.gov/phil_images/20040219/3/PHIL_5485_lores.jpg" alt="PHIL Image 5485" />
+    //<img border="0" src="http://phil.cdc.gov/PHIL_Images/20031202/e51cc8a13dec4028b5b65478bc22647a/5223_lores.jpg" alt
+   	$beg='http://phil.cdc.gov/PHIL_Images/'; $end1='_lores.jpg'; $end2="173xxx"; $end3="173xxx";			
+    $arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
+  	$id=$arx;
+    $image_url = "http://phil.cdc.gov/PHIL_Images/" . $id . "_lores.jpg";            
+    
+    ini_set('display_errors', '0'); 
+    $handle = fopen($image_url, "r");	
+    ini_set('display_errors', '1'); 
+    if($handle)fclose($handle);	
+    else
+    {
+    	$beg="ID#:</b></td><td>"; $end1="</td></tr>"; $end2="173xxx"; $end3="173xxx";			
+	    $arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
+    	$id=$arx;
+    	//print "<hr>id = " . $id;	print "<hr>";
+        $image_url = "http://phil.cdc.gov/PHIL_Images/" . $id . "/" . $id . "_lores.jpg";
+        //print"<img src='http://phil.cdc.gov/PHIL_Images/" . $id . "/" . $id . "_lores.jpg'><hr>";        
+    }    
     
     
 	//========================================================================================
@@ -357,23 +391,22 @@ function parse_contents($str)
     
     //========================================================================================	
 
-	/*
-	$str = 'aaa 1 yy aaa 2 yy aaa 3 yy aaa 4 yy';
-	$beg='aaa'; 
-	$end1='yy'; 
-	$end2="173xxx"; $end3="173xxx";			
-	$arx = parse_html($str,$beg,$end1,$end2,$end3,$end3);	//str = the html block
-	print $arx;
-	*/
-	
-	$str_stripped = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);	
-	$beg="document.form2.creationdate.value = '1';"; 
-	$end1='</a></b></td>'; 
-	$end2="</a></td>"; $end3="173";			
-	$arx = parse_html($str_stripped,$beg,$end1,$end2,$end3,$end3);	//str = the html block
-	$arx = trim($arx);
-	$arx = substr($arx,2,strlen($arx));
-    $taxa = $arx;
+    $taxa="";
+	$beg="<i>"; $end1="</i>"; $end2="173xxx"; $end3="173xxx";			
+	$arx = parse_html($desc_pic,$beg,$end1,$end2,$end3,$end3);	//str = the html block
+	$taxa=$arx;    
+    
+    if($taxa == "")    
+    {
+    	$str_stripped = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);	
+    	$beg="document.form2.creationdate.value = '1';"; 
+    	$end1='</a></b></td>'; 
+    	$end2="</a></td>"; $end3="173";			
+    	$arx = parse_html($str_stripped,$beg,$end1,$end2,$end3,$end3);	//str = the html block
+    	$arx = trim($arx);
+    	$arx = substr($arx,2,strlen($arx));
+        $taxa = $arx;
+    }
 	print "taxa = [$taxa] ";
     
 	//========================================================================================
@@ -457,7 +490,7 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 	
 	for ($i = 0; $i < $len; $i++) 
 	{
-		if(substr($str,$i,$beg_len) == $beg)
+		if(strtolower(substr($str,$i,$beg_len)) == strtolower($beg))
 		{	
 			$i=$i+$beg_len;
 			$pos1 = $i;

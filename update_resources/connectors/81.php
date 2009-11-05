@@ -329,7 +329,8 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
 	$arr = array(); $k=0;	
 	for ($i = 0; $i < $len; $i++) 
 	{
-		if(substr($str,$i,$beg_len) == $beg)
+		//if(substr($str,$i,$beg_len) == $beg)
+        if(strtolower(substr($str,$i,$beg_len)) == strtolower($beg))
 		{	
 			$i=$i+$beg_len;
 			$pos1 = $i;			
