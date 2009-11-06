@@ -42,8 +42,8 @@ Functions::load_fixtures("development");
 exit;
  */
 
-$wrap = "\n";
-//$wrap = "<br>";
+//$wrap = "\n";
+$wrap = "<br>";
  
  
 $resource = new Resource(79);
@@ -263,9 +263,12 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
 
 function get_id_list()
 {
+    global $wrap;
+    
     $id_list = array();    
     for ($i=1; $i <= 21; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
     {
+        print "$wrap [[$i]] -- ";
         $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";
         $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";
         
@@ -277,6 +280,7 @@ function get_id_list()
         	fclose($handle);	
         	$str = $contents;
         }    
+        $str = utf8_encode($str);
 	    $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173xxx"; $end3="173xxx";			
     	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all");	//str = the html block        
         print count($arr) . "\n";    
@@ -306,9 +310,9 @@ function get_id_list()
     }        
     //end exclude ids    
 
-    print "\n count after unset = " . count($id_list);    
+    print "$wrap count after unset = " . count($id_list);    
     $id_list = array_trim($id_list,$count_bef_unset);
-    print "\n final count = " . count($id_list) . "\n";    
+    print "$wrap final count = " . count($id_list) . "$wrap";    
     //exit("<hr>stopx");    
     return $id_list;    
 }
