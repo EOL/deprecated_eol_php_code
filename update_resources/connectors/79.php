@@ -6,23 +6,25 @@ http://phil.cdc.gov/phil/home.asp
 */
 
 /*
+Manual hard-coded changes:
+
+REMOVE: Science,Spiders,Poultry
+
 REPLACE:
-Amoeba - Acanthamoeba polyphaga
-Bedbugs - Cimex lectularius
-Candida
-Colorado tick fever virus - Coltivirus
-
-Poultry - Ochroconis gallopavum
-Spiders - Loxosceles reclusa
-Wasps - Insecta
-Mites - Acari
-Ticks - Dermacentor variabilis
-
-REMOVE:
-Science
-
-================================
 Pollen - Ambrosia trifida
+siphon,siphon tuft,Siphona irritans,siphonal hairs,siphonal tufts - Culex pipiens
+Ticks - CLASS Arachnida, ORDER Acarina
+saddle - Psorophora
+palmate hairs - Anopheles (mosquito)
+pecten,dorsal plate - Aedes (mosquito)
+lateral plate - Toxorhynchites mosquito 
+lateral pouches - Deinocerites mosquito
+head spines - Uranotaenia mosquito
+HIV - human immunodeficiency virus
+Insects - Insecta
+Insect Viruses - Insecta
+Fleas - Siphonaptera
+Dane particles - Hepadnaviridae
 
 */
 
@@ -269,8 +271,9 @@ function get_id_list()
     for ($i=1; $i <= 21; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
     {
         print "$wrap [[$i]] -- ";
-        $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";
-        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";
+        $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";        
+        $url = "http://128.128.175.77/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/hiv.htm";
+        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";        
         
         $handle = fopen($url, "r");	
         if ($handle)
@@ -332,6 +335,9 @@ function process($url,$philid)
 function parse_contents($str)
 {
     //========================================================================================
+    
+    $str = str_ireplace('”', '', $str);
+    
     $image_url="";
     /*
     <img border="0" src="http://phil.cdc.gov/phil_images/20040219/3/PHIL_5485_lores.jpg" alt="PHIL Image 5485" />
@@ -393,12 +399,12 @@ function parse_contents($str)
     $tmp = strip_tags($tmp,"<td><tr><table><img>");
     
 	$categories = $tmp;
-	//print $categories;	print "<hr>"; //exit;
-    
-    
+	//print $categories;	print "<hr>"; //exit;    
     
     //========================================================================================	
-
+    
+    
+    
     $taxa="";
 	$beg="<i>"; $end1="</i>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($desc_pic,$beg,$end1,$end2,$end3,$end3,NULL,true);	//str = the html block
@@ -415,6 +421,27 @@ function parse_contents($str)
     	$arx = substr($arx,2,strlen($arx));
         $taxa = $arx;
     }
+
+    //manual edits
+    if($taxa == "Pollen")$taxa = "Ambrosia trifida";
+    if($taxa == "Ticks")$taxa = "Acarina";
+    if($taxa == "saddle")$taxa = "Psorophora";
+    if($taxa == "palmate hairs")$taxa = "Anopheles";    
+    if($taxa == "lateral plate")$taxa = "Toxorhynchites mosquito";
+    if($taxa == "lateral pouches")$taxa = "Deinocerites mosquito";
+    if($taxa == "head spines")$taxa = "Uranotaenia mosquito";
+    if($taxa == "human immunodeficiency virus")$taxa = "HIV";    
+    if($taxa == "Fleas")$taxa = "Siphonaptera";
+    if($taxa == "Dane particles")$taxa = "Hepadnaviridae";    
+    if (in_array($taxa, array("siphon","siphon tuft","Siphona irritans","siphonal hairs","siphonal tufts")))$taxa="Culex pipiens";    
+    if (in_array($taxa, array("pecten","dorsal plate")))$taxa="Aedes";
+    if (in_array($taxa, array("Insects","Insect Viruses")))$taxa="Insecta";
+
+    if (in_array($taxa, array("Science","Spiders","Poultry")))$taxa="";
+    
+    //end
+
+    
 	print "taxa = [$taxa] ";
     
 	//========================================================================================
