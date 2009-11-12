@@ -29,9 +29,9 @@ $used_taxa = array();
 
 //$file = "";
 
-$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 1),
+$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 1),   //associations
 
-               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 1),
+               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 1),   //gen desc
                2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 1),
                3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 1),
                4 => array( "url" => "http://www.flowervisitors.info/files/flies.htm"        , "active" => 1),
@@ -39,7 +39,7 @@ $urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"      
                6 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 1),
                7 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 1),
                
-               8  => array( "url" => "http://flowervisitors.info/insects/birds.htm"         , "active" => 1),   //testing
+               8  => array( "url" => "http://flowervisitors.info/insects/birds.htm"         , "active" => 1),   //associations
                9  => array( "url" => "http://flowervisitors.info/insects/bees.htm"          , "active" => 1),
                10 => array( "url" => "http://flowervisitors.info/insects/wasps.htm"         , "active" => 1),
                11 => array( "url" => "http://flowervisitors.info/insects/flies.htm"         , "active" => 1),   
@@ -157,7 +157,7 @@ function process_loop($arr,$path,$kingdom)
     $i=0;
     foreach($arr as $species)
     {
-        //if($i >= 3)break;
+        if($i >= 3)break; //debug
         $i++;
 
         $species = clean_str($species);
@@ -248,7 +248,7 @@ function process_file2($file)
     $i=0;
     foreach($arr as $species)
     {
-        //if($i >= 3)break;
+        if($i >= 3)break; //debug
         $i++;
         $species = str_ireplace('###' , '&amp;', $species);	        
         //print "$species <hr><hr>";
@@ -313,7 +313,7 @@ function process_file4($file,$type)
         
         if(stripos($species," = ") != "")
         {
-            //if($i >= 3)break;
+
             
             //print "$i. [$species]";
             $species = "xxx" . $species . "yyy";
@@ -335,6 +335,9 @@ function process_file4($file,$type)
             for ($ctr = 0; $ctr <= sizeof($r) - 1; $ctr++) 
             {
                 $temp = trim(str_ireplace('  ', ' ', $r[$ctr]));
+                
+                if(trim($temp)=="etc.")continue;
+                
                 if($tribe != "")$temp .= " ($tribe)";
                 //$name[$sciname][] = $temp;
                 $arr_name[$sciname][$temp] = 1;

@@ -84,7 +84,12 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     $philid = $arr_id_list[$i];        
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
 
-    if(trim($taxa) == "")exit(" $philid blank taxa exists");
+    if(trim($taxa) == "")
+    {   
+        print " --blank taxa--";
+        continue; 
+        //exit(" $philid blank taxa exists");
+    }
     //print"$id<hr> --- $image_url<hr> --- $description<hr> --- $desc_pic<hr> --- $desc_taxa<hr> --- $categories<hr> --- $taxa<hr> --- $copyright<hr> $providers<hr> --- $creation_date<hr> --- $photo_credit<hr> --- $outlinks<hr> --- ";
     
     $desc_taxa = str_ireplace("animals sre filtered", "animals are filtered", $desc_taxa);
@@ -423,6 +428,7 @@ function parse_contents($str)
     }
 
     //manual edits
+    $taxa = trim($taxa);
     if($taxa == "Pollen")$taxa = "Ambrosia trifida";
     if($taxa == "Ticks")$taxa = "Acarina";
     if($taxa == "saddle")$taxa = "Psorophora";
@@ -432,12 +438,17 @@ function parse_contents($str)
     if($taxa == "head spines")$taxa = "Uranotaenia mosquito";
     if($taxa == "human immunodeficiency virus")$taxa = "HIV";    
     if($taxa == "Fleas")$taxa = "Siphonaptera";
-    if($taxa == "Dane particles")$taxa = "Hepadnaviridae";    
+    if($taxa == "Dane particles")$taxa = "Hepadnaviridae";        
+    
+    if($taxa == "Plasmodium spp. life cycle.")$taxa = "Plasmodium spp";
+    if($taxa == "Giardia lamblia (intestinalis)")$taxa = "Giardia lamblia";    
+    
+    
+    if (in_array($taxa, array("wasps","Wasps")))$taxa="Hymenoptera";    
     if (in_array($taxa, array("siphon","siphon tuft","Siphona irritans","siphonal hairs","siphonal tufts")))$taxa="Culex pipiens";    
     if (in_array($taxa, array("pecten","dorsal plate")))$taxa="Aedes";
     if (in_array($taxa, array("Insects","Insect Viruses")))$taxa="Insecta";
-
-    if (in_array($taxa, array("Science","Spiders","Poultry")))$taxa="";
+    if (in_array($taxa, array("Bacteria","Science","Spiders","Poultry")))$taxa="";
     
     //end
 
