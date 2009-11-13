@@ -25,6 +25,10 @@
 	</td></tr>		
 
 	<tr><td>
+	common name = <xsl:value-of select="count(//eol:commonName)"/>
+	</td></tr>		
+
+	<tr><td>
 	dwc:ScientificName = <xsl:value-of select="count(//dwc:ScientificName)"/>
 	</td></tr>		
 
