@@ -79,8 +79,8 @@ list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyrig
 for ($i = 0; $i < count($arr_id_list); $i++) 
 {
     //main loop
-    
-    print $i+1 . " of " . count($arr_id_list) . " id=" . $arr_id_list[$i] . "$wrap";
+    print $wrap;
+    print $i+1 . " of " . count($arr_id_list) . " id=" . $arr_id_list[$i] . " ";
     $philid = $arr_id_list[$i];        
     list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($url,$philid);
 
@@ -273,12 +273,15 @@ function get_id_list()
     global $wrap;
     
     $id_list = array();    
-    for ($i=1; $i <= 21; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 1; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
     {
         print "$wrap [[$i]] -- ";
         $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";        
         $url = "http://128.128.175.77/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/hiv.htm";
         $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";        
+        
+        $url = "http://128.128.175.77/cdc/test.htm";        
+        
         
         $handle = fopen($url, "r");	
         if ($handle)
@@ -290,7 +293,7 @@ function get_id_list()
         }    
         $str = utf8_encode($str);
 	    $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173xxx"; $end3="173xxx";			
-    	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all");	//str = the html block        
+    	$arr = parse_html($str,$beg,$end1,$end2,$end3,$end3,"all",false);	//str = the html block        
         print count($arr) . "\n";    
         $id_list = array_merge($id_list, $arr);    
         //print_r($id); print"<hr>";
@@ -304,6 +307,14 @@ function get_id_list()
     
         $not_organism = array(11357,11329,10927,10926,10925,10141,10134,10425,10507,26,107,93,110,111,1500,10507);
         if (in_array($id_list[$i], $not_organism)) unset($id_list[$i]);        
+        
+        if($id_list[$i] >= 10679 and $id_list[$i] <= 10690) unset($id_list[$i]);        
+        10694 - 10699
+        10710 - 10715
+        10756 - 10759
+        
+          
+        
         /*
         if  (   $id_list[$i] == 11357   or
                 $id_list[$i] == 11329   or
@@ -407,14 +418,13 @@ function parse_contents($str)
 	//print $categories;	print "<hr>"; //exit;    
     
     //========================================================================================	
-    
-    
-    
+  
     $taxa="";
 	$beg="<i>"; $end1="</i>"; $end2="173xxx"; $end3="173xxx";			
 	$arx = parse_html($desc_pic,$beg,$end1,$end2,$end3,$end3,NULL,true);	//str = the html block
 	$taxa=$arx;    
     
+    /* will no longer get taxa outside the <i></i> */
     if($taxa == "")    
     {
     	$str_stripped = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);	
@@ -426,6 +436,8 @@ function parse_contents($str)
     	$arx = substr($arx,2,strlen($arx));
         $taxa = $arx;
     }
+    
+    
 
     //manual edits
     $taxa = trim($taxa);

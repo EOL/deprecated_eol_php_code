@@ -157,7 +157,7 @@ function process_loop($arr,$path,$kingdom)
     $i=0;
     foreach($arr as $species)
     {
-        if($i >= 3)break; //debug
+        //if($i >= 3)break; //debug
         $i++;
 
         $species = clean_str($species);
@@ -248,7 +248,7 @@ function process_file2($file)
     $i=0;
     foreach($arr as $species)
     {
-        if($i >= 3)break; //debug
+        //if($i >= 3)break; //debug
         $i++;
         $species = str_ireplace('###' , '&amp;', $species);	        
         //print "$species <hr><hr>";

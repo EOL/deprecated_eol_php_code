@@ -1,11 +1,11 @@
 #!/usr/local/bin/php
 <?php
 //connector for WORMS
-exit;
+//exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -130,7 +130,7 @@ function process($id)
     //global $OUT;        
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
     //$file = "http://128.128.175.77/worms.xml";
-    //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255127    
+    //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972
     
     set_time_limit(0);
     $contents = Functions::get_remote_file($file);
@@ -156,9 +156,9 @@ function get_main_id_list()
     //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
 //     /*
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2009.xml";
 //     */
 
      /*
@@ -195,7 +195,7 @@ function get_main_id_list()
     return $arr;
 }//get_main_id_list()
 
-
+/*
 function get_file_contents($url)
 {
     $contents = "";
@@ -209,5 +209,6 @@ function get_file_contents($url)
     else print "[error fopen] \n ";
     return $contents;
 }
+*/
 
 ?>
