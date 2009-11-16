@@ -104,6 +104,15 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     */
     
     $desc_pic = $desc_pic . "<br>" . "Created: $creation_date";
+    
+    $desc_pic = str_ireplace("<i>comb scales</i>", "comb scales", $desc_pic);
+    $desc_pic = str_ireplace("<i>lateral plate</i>", "lateral plate", $desc_pic);
+    $desc_pic = str_ireplace("<i>spinulose hairs</i>", "spinulose hairs", $desc_pic);
+    $desc_pic = str_ireplace("<i>median ventral brush</i>", "median ventral brush", $desc_pic);
+    
+     
+    
+    
 
     if(in_array($taxa . $desc_taxa, $arr_desc_taxa))$desc_taxa="";
     else                                            $arr_desc_taxa[] = $taxa . $desc_taxa;     
@@ -131,7 +140,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     else
     {
         $taxon_parameters = array();
-        $taxon_parameters["identifier"] = $taxa; //$main->taxid;
+        $taxon_parameters["identifier"] = "CDC_" . $taxon; //$main->taxid;
         $taxon_parameters["scientificName"]= $taxa;
         $taxon_parameters["source"] = $home_url;
         $used_taxa[$taxon] = $taxon_parameters;            
@@ -273,15 +282,13 @@ function get_id_list()
     global $wrap;
     
     $id_list = array();    
-    for ($i=1; $i <= 1; $i++)//we only have 21 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 64; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
     {
-        print "$wrap [[$i]] -- ";
-        $url = "http://128.128.175.77/cdc/id_list%20(" . $i . ").htm";        
+        print "$wrap [[$i]] -- ";        
         $url = "http://128.128.175.77/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/hiv.htm";
-        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";        
-        
-        $url = "http://128.128.175.77/cdc/test.htm";        
-        
+        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";                                
+        $url = "http://128.128.175.77/cdc/test.htm";                
+        $url = "http://128.128.175.77/cdc/final/id_list%20(" . $i . ").htm";        
         
         $handle = fopen($url, "r");	
         if ($handle)
@@ -304,27 +311,30 @@ function get_id_list()
     //start exclude ids that are images of dogs and their masters, non-organisms
     for ($i = 0; $i < count($id_list); $i++) 
     {
-    
-        $not_organism = array(11357,11329,10927,10926,10925,10141,10134,10425,10507,26,107,93,110,111,1500,10507);
+        $not_organism = array(11357,11329,10927,10926,10925,10141,10134,10425,10507,26,107,93,110,111,1500,10507,3,10187,7906,4484,4483
+        ,10145,10146,9312,9313,9315,9339,9354,8675,8362,8085,8097,8111,8112,4664,4665,4670,4676,6116,6723,6724,6725,6968,6969,6970
+        ,6990,6991,7185,7186,7188,7189,7272,7884,7885,7890,10425,10444,10507,7733,7735,7737,7739,7741
+        ,1988,1989,1991,2003,2010,2318,2402,2639,4682,4683,4685,4698,4721,4727,4728,7079,7729,7730,7732,10925,10926,10927);                
         if (in_array($id_list[$i], $not_organism)) unset($id_list[$i]);        
         
-        if($id_list[$i] >= 10679 and $id_list[$i] <= 10690) unset($id_list[$i]);        
-        10694 - 10699
-        10710 - 10715
-        10756 - 10759
+        if(@$id_list[$i] >= 10679 and @$id_list[$i] <= 10690) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 10694 and @$id_list[$i] <= 10699) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 10710 and @$id_list[$i] <= 10715) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 10756 and @$id_list[$i] <= 10759) unset($id_list[$i]);                
+        if(@$id_list[$i] >= 10365 and @$id_list[$i] <= 10373) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 8079 and @$id_list[$i] <= 8082) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 8091 and @$id_list[$i] <= 8095) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 8099 and @$id_list[$i] <= 8103) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 8105 and @$id_list[$i] <= 8108) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 4655 and @$id_list[$i] <= 4658) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 7986 and @$id_list[$i] <= 7989) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 8006 and @$id_list[$i] <= 8014) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 4649 and @$id_list[$i] <= 4654) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 7744 and @$id_list[$i] <= 7753) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 7762 and @$id_list[$i] <= 7773) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 7721 and @$id_list[$i] <= 7725) unset($id_list[$i]);                      
         
-          
         
-        /*
-        if  (   $id_list[$i] == 11357   or
-                $id_list[$i] == 11329   or
-                $id_list[$i] == 10927   or
-                $id_list[$i] == 10926   or
-                $id_list[$i] == 10925   or                
-                $id_list[$i] == 10141   or
-                $id_list[$i] == 10134   
-            )unset($id_list[$i]);
-        */
         
     }        
     //end exclude ids    
@@ -353,6 +363,8 @@ function parse_contents($str)
     //========================================================================================
     
     $str = str_ireplace('”', '', $str);
+    $str = str_ireplace('“', '', $str);
+    
     
     $image_url="";
     /*
@@ -424,7 +436,12 @@ function parse_contents($str)
 	$arx = parse_html($desc_pic,$beg,$end1,$end2,$end3,$end3,NULL,true);	//str = the html block
 	$taxa=$arx;    
     
-    /* will no longer get taxa outside the <i></i> */
+    if (in_array($taxa, array("Plants, Edible","Plants, Toxic","Pandemic Flu Preparedness: What Every Community Should Know","Global Program for Avian and Human Influenza: Communications Planning Asia Regional Inter-Agency Knowledge Sharing","Revised Recommendations for HIV Screening of Adults, Adolescents, and Pregnant Women in Health Care Settings","HPV and Cervical Cancer: An Update on Prevention Strategies","Keeping the 'Genome' in the Bottle: Reinforcing Biosafety Level 3 Procedures")))$taxa="";    
+    if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio","Child")))$taxa="";
+    
+    
+    /* will no longer get taxa outside the <i></i> */ 
+    $taxa = trim($taxa);
     if($taxa == "")    
     {
     	$str_stripped = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);	
@@ -435,12 +452,12 @@ function parse_contents($str)
     	$arx = trim($arx);
     	$arx = substr($arx,2,strlen($arx));
         $taxa = $arx;
-    }
-    
-    
+    }         
+        
 
     //manual edits
     $taxa = trim($taxa);
+              
     if($taxa == "Pollen")$taxa = "Ambrosia trifida";
     if($taxa == "Ticks")$taxa = "Acarina";
     if($taxa == "saddle")$taxa = "Psorophora";
@@ -450,20 +467,30 @@ function parse_contents($str)
     if($taxa == "head spines")$taxa = "Uranotaenia mosquito";
     if($taxa == "human immunodeficiency virus")$taxa = "HIV";    
     if($taxa == "Fleas")$taxa = "Siphonaptera";
-    if($taxa == "Dane particles")$taxa = "Hepadnaviridae";        
-    
+    if($taxa == "Dane particles")$taxa = "Hepadnaviridae";            
     if($taxa == "Plasmodium spp. life cycle.")$taxa = "Plasmodium spp";
-    if($taxa == "Giardia lamblia (intestinalis)")$taxa = "Giardia lamblia";    
-    
+    if($taxa == "Giardia lamblia (intestinalis)")$taxa = "Giardia lamblia";        
+    if($taxa == "sclerotium")$taxa = "Penicillium sclerotiorum";        
+    if($taxa == "cleistothecia")$taxa = "Talaromyces flavus var. flavus";            
+    if($taxa == "Plants")$taxa = "Plantae";            
     
     if (in_array($taxa, array("wasps","Wasps")))$taxa="Hymenoptera";    
     if (in_array($taxa, array("siphon","siphon tuft","Siphona irritans","siphonal hairs","siphonal tufts")))$taxa="Culex pipiens";    
     if (in_array($taxa, array("pecten","dorsal plate")))$taxa="Aedes";
     if (in_array($taxa, array("Insects","Insect Viruses")))$taxa="Insecta";
-    if (in_array($taxa, array("Bacteria","Science","Spiders","Poultry")))$taxa="";
+
+
+    if (in_array($taxa, array("Plants, Edible","Plants, Toxic","Pandemic Flu Preparedness: What Every Community Should Know","Global Program for Avian and Human Influenza: Communications Planning Asia Regional Inter-Agency Knowledge Sharing","Revised Recommendations for HIV Screening of Adults, Adolescents, and Pregnant Women in Health Care Settings","HPV and Cervical Cancer: An Update on Prevention Strategies","Keeping the 'Genome' in the Bottle: Reinforcing Biosafety Level 3 Procedures")))$taxa="";    
+    if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio","Child")))$taxa="";
+    
+
+    
     
     //end
 
+    $taxa = trim(strip_tags($taxa));                        
+    if (in_array($taxa, array("Plasmodium spp. life cycle.")))$taxa="Plasmodium spp.";    
+         
     
 	print "taxa = [$taxa] ";
     
