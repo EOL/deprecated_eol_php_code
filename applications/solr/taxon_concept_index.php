@@ -17,7 +17,7 @@ $schema = array(
     'published'                 => '',
     'supercedure_id'            => '');
         
-$solr = new SolrAPI('http://10.19.19.219:8080/solr/taxon_concepts', 'taxon_concept_id', $schema);
+$solr = new SolrAPI('http://10.19.19.219:8080/solr/', 'taxon_concepts', 'taxon_concept_id', $schema);
 
 
 

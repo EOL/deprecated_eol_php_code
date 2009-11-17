@@ -3,19 +3,27 @@
 class SolrAPI
 {
     private $server;
+    private $core;
     private $primary_key;
     private $schema;
     private $file_delimiter;
     private $multi_value_delimiter;
+    private $csv_path;
+    private $action_url;
     
-    public function __construct($s = SOLR_SERVER, $pk = PRIMARY_KEY, $schema = array(), $d = SOLR_FILE_DELIMITER, $mv = SOLR_MULTI_VALUE_DELIMETER)
+    public function __construct($s = SOLR_SERVER, $c = '', $pk = PRIMARY_KEY, $schema = array(), $d = SOLR_FILE_DELIMITER, $mv = SOLR_MULTI_VALUE_DELIMETER)
     {
-        $this->server = $s;
+        $this->server = trim($s);
+        if(!preg_match("/\/$/", $this->server)) $this->server .= "/";
+        $this->core = $c;
+        if(preg_match("/^(.*)\/$/", $this->core)) $this->core = $arr[1];
         $this->primary_key = $pk;
         $this->schema = $schema;
         $this->file_delimiter = $d;
         $this->multi_value_delimiter = $mv;
+        
         $this->csv_path = Functions::temp_filepath(true);
+        $this->action_url = $this->server . $this->core;
         
         $this->schema_object = new stdClass();
         foreach($this->schema as $attr => $val)
@@ -26,7 +34,7 @@ class SolrAPI
     
     public function query($query)
     {
-        $response = simplexml_load_string(file_get_contents($this->server . "/select/?q=". str_replace(" ", "%20", $query)));
+        $response = simplexml_load_string(file_get_contents($this->action_url . "/select/?q=". str_replace(" ", "%20", $query)));
         return @$response->result;
     }
     
@@ -34,7 +42,7 @@ class SolrAPI
     {
         $objects = array();
         
-        $response = simplexml_load_string(file_get_contents($this->server . "/select/?q=". str_replace(" ", "%20", $query)));
+        $response = simplexml_load_string(file_get_contents($this->action_url . "/select/?q=". str_replace(" ", "%20", $query)));
         $count = count($response->result->doc);
         for($i=0 ; $i<$count ; $i++)
         {
@@ -46,12 +54,36 @@ class SolrAPI
     
     public function commit()
     {
-        exec("curl ". $this->server ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml");
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml");
     }
     
     public function optimize()
     {
-        exec("curl ". $this->server ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml");
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml");
+    }
+    
+    public function delete_all_documents()
+    {
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/delete.xml");
+        $this->commit();
+        $this->optimize();
+    }
+    
+    public function swap($from_core, $to_core)
+    {
+        exec("curl ". $this->server ."/admin/cores?action=SWAP&core=$from_core&other=$to_core");
+    }
+    
+    public function delete($query)
+    {
+        @unlink(LOCAL_ROOT . $this->csv_path);
+        $OUT = fopen(LOCAL_ROOT . $this->csv_path, "w+");
+        fwrite($OUT, "<delete><query>$query</query></delete>");
+        fclose($OUT);
+        
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path");
+        $this->commit();
+        $this->optimize();
     }
     
     public function send_attributes($objects, $object_fields)
@@ -94,7 +126,7 @@ class SolrAPI
         
         
         
-        $curl = "curl ". $this->server ."/update/csv -F separator='". $this->file_delimiter ."'";
+        $curl = "curl ". $this->action_url ."/update/csv -F separator='". $this->file_delimiter ."'";
         foreach($multi_values as $field => $bool)
         {
             $curl .= " -F f.$field.split=true -F f.$field.separator='". $this->multi_value_delimiter ."'";
