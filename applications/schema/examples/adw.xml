@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <response
-    xmlns="http://www.eol.org/transfer/content/0.2"
+    xmlns="http://www.eol.org/transfer/content/0.3"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
     xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"
+    xmlns:adw="http://animaldiversity.ummz.umich.edu/morphology/"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd">
+    xsi:schemaLocation="http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd">
     
     <taxon>
         <dc:identifier>Ursus_maritimus</dc:identifier>
@@ -34,6 +35,7 @@
         <reference>Talbot, S., G. Shields. 1996. Phylogeography of Brown Bears (Ursus arctos) of Alaska and Paraphyly within the Ursidae. Molecular Phylogenetics and Evolution, 5: 477-494.</reference>
         <additionalInformation>
             <does_not_matter>Anything can go here</does_not_matter>
+            <adw:size>123</adw:size>
         </additionalInformation>
         
         <dataObject>
