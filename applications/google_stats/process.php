@@ -504,12 +504,10 @@ function process_all_eol($file)
 
 function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
 {   
-    $step=100;
-    
+    $step=100;    
     
     if($start_cnt == "all"){$start_cnt=1;$max_cnt=999999999;}
-    else $max_cnt = $start_cnt+$step;
-    
+    else $max_cnt = $start_cnt+$step;    
 
     //[$total_taxon_id][$path]
     $str="<table style='font-size : small;' align='center'>
@@ -524,10 +522,20 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
                 $max_cnt <= $total_taxon_id
             )$next_step = $total_taxon_id - $max_cnt + 1;
         
-        $str .= " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=$max_cnt'>Next $next_step</a> &nbsp;|&nbsp; 
-        <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=all'>All</a> 
-        ";
+
+        $str .= " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";    
+        if($agentID != "") 
+        {
+            $str .= "<a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=$max_cnt'>Next $next_step</a> &nbsp;|&nbsp; 
+                     <a href='process.php?path=" . $path . "&agentID=" . $agentID . "&start_cnt=all'>All</a> ";
+        }    
+        else
+        {
+            $str .= "<a href='process.php?path=" . $path . "&provider=" . $provider . "&start_cnt=$max_cnt'>Next $next_step</a> &nbsp;|&nbsp; 
+                     <a href='process.php?path=" . $path . "&provider=" . $provider . "&start_cnt=all'>All</a> ";
+        }
+     
+        
     }
     //end paging ==============================================================
     
@@ -608,12 +616,6 @@ function GetNumMonthAsString($m,$y)
     return date("m", $timestamp);
 }
 
-
-
-
-
-
-
 function build_title_from_path($path)
 {
     $arr = explode("/",$path);
@@ -638,8 +640,6 @@ function get_month_year_from_path($path)
 
 function eol_month_report($arr)
 {
-
-
     $arr = explode(",",$arr);
     $path                           = $arr[0];
     $eol_CountOfTaxaPages           = $arr[1];
@@ -874,11 +874,7 @@ function get_from_api($month,$year)
             $final[0]["Bounce Rate"] = $temp_bounce_rate;
             //==============================================================
             $final[0]["Percent Exit"] = $temp_percent_exit;            
-            //==============================================================                                    
-            
-            
-            
-            
+            //==============================================================                                                
         }        
     }
     else 
@@ -919,11 +915,10 @@ function get_agentName($agentID)
     
     $query="Select agents.full_name,agents.display_name,agents.updated_at,
     agents.created_at,agents.agent_status_id,harvest_events.id From
-    agents
+    agents 
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
-    Where
-    agents.id = '$agentID'
+    Where agents.id = '$agentID'
     Order By harvest_events.id Desc";
     $sql = $mysqli->query($query);
     $row = $sql->fetch_row();            
