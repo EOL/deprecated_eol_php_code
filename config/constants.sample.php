@@ -4,6 +4,12 @@
 
 
 
+
+
+define('SOLR_SERVER', 'http://localhost:8983/solr');
+define('SOLR_FILE_DELIMITER', '|');
+define('SOLR_MULTI_VALUE_DELIMETER', ';');
+
 ########################################
 /* Content Server */
 
