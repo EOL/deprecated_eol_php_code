@@ -5,29 +5,6 @@ connector for Public Health Image Library (CDC)
 http://phil.cdc.gov/phil/home.asp
 */
 
-/*
-Manual hard-coded changes:
-
-REMOVE: Science,Spiders,Poultry
-
-REPLACE:
-Pollen - Ambrosia trifida
-siphon,siphon tuft,Siphona irritans,siphonal hairs,siphonal tufts - Culex pipiens
-Ticks - CLASS Arachnida, ORDER Acarina
-saddle - Psorophora
-palmate hairs - Anopheles (mosquito)
-pecten,dorsal plate - Aedes (mosquito)
-lateral plate - Toxorhynchites mosquito 
-lateral pouches - Deinocerites mosquito
-head spines - Uranotaenia mosquito
-HIV - human immunodeficiency virus
-Insects - Insecta
-Insect Viruses - Insecta
-Fleas - Siphonaptera
-Dane particles - Hepadnaviridae
-
-*/
-
 
 //exit;
 //define("ENVIRONMENT", "development");
@@ -44,6 +21,7 @@ Functions::load_fixtures("development");
 exit;
  */
 
+ 
 //$wrap = "\n";
 $wrap = "<br>";
  
@@ -111,9 +89,6 @@ for ($i = 0; $i < count($arr_id_list); $i++)
     $desc_pic = str_ireplace("<i>median ventral brush</i>", "median ventral brush", $desc_pic);
     
      
-    
-    
-
     if(in_array($taxa . $desc_taxa, $arr_desc_taxa))$desc_taxa="";
     else                                            $arr_desc_taxa[] = $taxa . $desc_taxa;     
 
@@ -155,7 +130,13 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         $do_count++;        
         $agent_name = $photo_credit;
         $agent_role = "photographer";            
-               
+        
+        
+        /* for debugging
+        $image_url = "http://128.128.175.77/test.tif";
+        $image_url = "http://www.findingspecies.org/indu/images/YIH_13569_MED_EOL.TIFF";
+        */
+        
         // /* just debug; no images for now
         $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"");               
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
@@ -286,7 +267,7 @@ function get_id_list()
     {
         print "$wrap [[$i]] -- ";        
         $url = "http://128.128.175.77/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/hiv.htm";
-        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";                                
+        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";                                                
         $url = "http://128.128.175.77/cdc/test.htm";                
         $url = "http://128.128.175.77/cdc/final/id_list%20(" . $i . ").htm";        
         
@@ -314,7 +295,7 @@ function get_id_list()
         $not_organism = array(11357,11329,10927,10926,10925,10141,10134,10425,10507,26,107,93,110,111,1500,10507,3,10187,7906,4484,4483
         ,10145,10146,9312,9313,9315,9339,9354,8675,8362,8085,8097,8111,8112,4664,4665,4670,4676,6116,6723,6724,6725,6968,6969,6970
         ,6990,6991,7185,7186,7188,7189,7272,7884,7885,7890,10425,10444,10507,7733,7735,7737,7739,7741
-        ,1988,1989,1991,2003,2010,2318,2402,2639,4682,4683,4685,4698,4721,4727,4728,7079,7729,7730,7732,10925,10926,10927);                
+        ,1988,1989,1991,2003,2010,2318,2402,2639,4682,4683,4685,4698,4721,4727,4728,7079,7729,7730,7732,10925,10926,10927,3);                
         if (in_array($id_list[$i], $not_organism)) unset($id_list[$i]);        
         
         if(@$id_list[$i] >= 10679 and @$id_list[$i] <= 10690) unset($id_list[$i]);    
@@ -363,8 +344,8 @@ function parse_contents($str)
     //========================================================================================
     
     $str = str_ireplace('”', '', $str);
-    $str = str_ireplace('“', '', $str);
-    
+    $str = str_ireplace('“', '', $str);    
+        
     
     $image_url="";
     /*
@@ -436,12 +417,20 @@ function parse_contents($str)
 	$arx = parse_html($desc_pic,$beg,$end1,$end2,$end3,$end3,NULL,true);	//str = the html block
 	$taxa=$arx;    
     
+    if($taxa == "")    
+    {
+    	$beg="<i>"; $end1="</i>"; $end2="173xxx"; $end3="173xxx";			
+	    $arx = parse_html($desc_taxa,$beg,$end1,$end2,$end3,$end3,NULL,true);	//str = the html block
+    	$taxa=$arx;    
+    }
+    
     if (in_array($taxa, array("Plants, Edible","Plants, Toxic","Pandemic Flu Preparedness: What Every Community Should Know","Global Program for Avian and Human Influenza: Communications Planning Asia Regional Inter-Agency Knowledge Sharing","Revised Recommendations for HIV Screening of Adults, Adolescents, and Pregnant Women in Health Care Settings","HPV and Cervical Cancer: An Update on Prevention Strategies","Keeping the 'Genome' in the Bottle: Reinforcing Biosafety Level 3 Procedures")))$taxa="";    
     if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio","Child")))$taxa="";
     
     
     /* will no longer get taxa outside the <i></i> */ 
     $taxa = trim($taxa);
+    $taxa = str_ireplace('"', '', $taxa);   
     if($taxa == "")    
     {
     	$str_stripped = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);	
@@ -481,7 +470,12 @@ function parse_contents($str)
 
 
     if (in_array($taxa, array("Plants, Edible","Plants, Toxic","Pandemic Flu Preparedness: What Every Community Should Know","Global Program for Avian and Human Influenza: Communications Planning Asia Regional Inter-Agency Knowledge Sharing","Revised Recommendations for HIV Screening of Adults, Adolescents, and Pregnant Women in Health Care Settings","HPV and Cervical Cancer: An Update on Prevention Strategies","Keeping the 'Genome' in the Bottle: Reinforcing Biosafety Level 3 Procedures")))$taxa="";    
-    if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio","Child")))$taxa="";
+    if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio"
+    ,"Child","Moths","Industrial Bulletin, New York, Pg. 3","AIDS-Related Complex","median ventral brush","comb scales","Chickens","Dogs","Cats"
+    ,"Advanced Topics on Medical Defense Against Biological Agents - Botulinum Toxin"
+    ,"Gram-Negative Bacteria","American Dog Tick","Gram-Positive Bacteria","asci","Ebola-like Viruses","ghats","Ghats")))$taxa="";
+    
+
     
 
     

@@ -16,6 +16,14 @@ http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Bimastos+welchi
 
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
+
+http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Basidiomycota
+http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
+http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&iwidth=600
+http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
+
+
+
 */
 
 //define("ENVIRONMENT", "development");
