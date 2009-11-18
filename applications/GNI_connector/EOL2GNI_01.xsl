@@ -90,8 +90,10 @@ node.setAttribute("xmlns:eol","http://www.w3.org/2001/XMLSchema-instance")
 	-->
 
 	
-
+        <!-- replaced bec some EOL XML like Flickr doesn't have taxon dc:identifier
 		<TaxonName id="{dc:identifier}">						
+        -->
+        <TaxonName id="{concat($dc_identifier,'_',position())}">
 
 			<Simple>
 			

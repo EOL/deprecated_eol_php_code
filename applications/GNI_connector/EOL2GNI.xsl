@@ -6,12 +6,10 @@
 	xmlns:eol="http://www.eol.org/transfer/content/0.2">
 	
 	
-	
 <!--
 	xmlns:eol="http://www.eol.org/transfer/content/0.2"
 	xmlns:eol="http://www.eol.org/transfer/content/0.1"
 	
-
 <response 	
 		xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 		xmlns:dcterms="http://purl.org/dc/terms/" 
@@ -49,7 +47,9 @@ fn:namespace-uri-for-prefix()
 
 
 
+
 <xsl:for-each select="eol:response/eol:taxon">
+
 		
 	<xsl:variable name="dwc_ScientificName"> <xsl:value-of select="dwc:ScientificName"/> 	
 	</xsl:variable>	
@@ -89,9 +89,10 @@ fn:namespace-uri-for-prefix()
 node.setAttribute("xmlns:eol","http://www.w3.org/2001/XMLSchema-instance")			
 	-->
 
-	
-
+        <!-- replaced bec some EOL XML like Flickr doesn't have taxon dc:identifier
 		<TaxonName id="{dc:identifier}">						
+        -->
+        <TaxonName id="{concat($dc_identifier,'_',position())}">
 
 			<Simple>
 			

@@ -202,7 +202,6 @@ function check_url()
 </form>
 
 <?php
-
 /*
 print"<hr>";
 print "

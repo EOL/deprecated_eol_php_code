@@ -19,10 +19,15 @@ $url  = 'http://10.19.19.57/~dimus/eol_tcs/';
 // =========================================
 //print "$what<hr>"; exit;
 
+$domain = "10.19.19.226";
+$path2XMLresource = "resources";
+
+$domain = "128.128.175.77";
+$path2XMLresource = "eol_php_code/applications/content_server/resources";
+
 
 //start get first xmlns value
-if(substr($url,0,4) != "http") $url = "http://10.19.19.226/resources/".$url.".xml";
-
+if(substr($url,0,4) != "http") $url = "http://$domain/$path2XMLresource/".$url.".xml";
 if($download)
 {
 	//print"<META HTTP-EQUIV='Refresh' Content='0; URL=$url'>";	
@@ -46,7 +51,6 @@ $namespaces = $xml->getNamespaces(true);    //var_dump($namespaces);
 //end
 
 
-
 $xml = new DOMDocument;        
 if($xml->load($url))
 {
@@ -63,8 +67,7 @@ if($xml->load($url))
     echo "<BR>Attribute Value is :".$attribNode->value;
     echo "</B></body></HTML>";
     exit;
-    */
-    
+    */    
     
     /*
     $node1 = $xml->createElementNS("http://www.eol.org/transfer/content/0.2", "xmlns"); 
@@ -78,7 +81,6 @@ else
 }
 
 $xsl = new DOMDocument;        
-
 if($what == 'transform')
 {    
     if($namespaces[''] == "http://www.eol.org/transfer/content/0.1")$xsl->load('EOL2GNI_01.xsl');
@@ -137,12 +139,12 @@ if($what == 'transform')
     $source_path = str_ireplace("//", "/", $source_path);
     $source_path .= "$filename.xml";
     $source_path = str_ireplace("http:/", "", $source_path);
-    //exit("<hr>$source_path");
-    
+    $source_path = str_ireplace("\\", "/", $source_path);
+    //exit("<hr>$source_path");    
     
     print"
-    <a href='http://10.19.19.226/gni_resources/$filename.xml'>Download GNI-TCS XML</a><hr>    
-    <a href=http://$source_path>Download GNI-TCS XML*</a><hr>           
+    Beast: <a href='http://$domain/gni_resources/$filename.xml'>Download GNI-TCS XML</a><hr>    
+    Local: <a href=http://$source_path>Download GNI-TCS XML*</a><hr>           
     <a href='javascript:self.close()'>&lt;&lt; Back to menu</a>
     ";    
     
