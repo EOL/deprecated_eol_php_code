@@ -22,9 +22,10 @@ $url  = 'http://10.19.19.57/~dimus/eol_tcs/';
 $domain = "10.19.19.226";
 $path2XMLresource = "resources";
 
+/*
 $domain = "128.128.175.77";
 $path2XMLresource = "eol_php_code/applications/content_server/resources";
-
+*/
 
 //start get first xmlns value
 if(substr($url,0,4) != "http") $url = "http://$domain/$path2XMLresource/".$url.".xml";
