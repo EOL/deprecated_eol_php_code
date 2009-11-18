@@ -3,6 +3,9 @@
 /*
 connector for Public Health Image Library (CDC) 
 http://phil.cdc.gov/phil/home.asp
+CDC_CAPILLUS
+™
+&#153;
 */
 
 
@@ -267,10 +270,10 @@ function get_id_list()
     {
         print "$wrap [[$i]] -- ";        
         $url = "http://128.128.175.77/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/hiv.htm";
-        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";                                                
+        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";                                                                
         $url = "http://128.128.175.77/cdc/test.htm";                
         $url = "http://128.128.175.77/cdc/final/id_list%20(" . $i . ").htm";        
-        
+                
         $handle = fopen($url, "r");	
         if ($handle)
         {
@@ -295,7 +298,10 @@ function get_id_list()
         $not_organism = array(11357,11329,10927,10926,10925,10141,10134,10425,10507,26,107,93,110,111,1500,10507,3,10187,7906,4484,4483
         ,10145,10146,9312,9313,9315,9339,9354,8675,8362,8085,8097,8111,8112,4664,4665,4670,4676,6116,6723,6724,6725,6968,6969,6970
         ,6990,6991,7185,7186,7188,7189,7272,7884,7885,7890,10425,10444,10507,7733,7735,7737,7739,7741
-        ,1988,1989,1991,2003,2010,2318,2402,2639,4682,4683,4685,4698,4721,4727,4728,7079,7729,7730,7732,10925,10926,10927,3);                
+        ,1988,1989,1991,2003,2010,2318,2402,2639,4682,4683,4685,4698,4721,4727,4728,7079,7729,7730,7732,10925,10926,10927,3
+        ,9566,9565,90,692,693,1403,10683,10684,10677,10678,10173,8276,8277,7414,7274,7209,7208,7199,7028,7029,7020,7027
+        ,6713,6714,6715,6951,6954,10804,7824,7825,7826,7776,26,93,107,110,111,1403,1500,10134,10141,8474,8475,5146,4135
+        );
         if (in_array($id_list[$i], $not_organism)) unset($id_list[$i]);        
         
         if(@$id_list[$i] >= 10679 and @$id_list[$i] <= 10690) unset($id_list[$i]);    
@@ -313,9 +319,14 @@ function get_id_list()
         if(@$id_list[$i] >= 4649 and @$id_list[$i] <= 4654) unset($id_list[$i]);    
         if(@$id_list[$i] >= 7744 and @$id_list[$i] <= 7753) unset($id_list[$i]);    
         if(@$id_list[$i] >= 7762 and @$id_list[$i] <= 7773) unset($id_list[$i]);    
-        if(@$id_list[$i] >= 7721 and @$id_list[$i] <= 7725) unset($id_list[$i]);                      
-        
-        
+        if(@$id_list[$i] >= 7721 and @$id_list[$i] <= 7725) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 7910 and @$id_list[$i] <= 7914) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 6963 and @$id_list[$i] <= 7020) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 6955 and @$id_list[$i] <= 6962) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 10188 and @$id_list[$i] <= 10190) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 10033 and @$id_list[$i] <= 10035) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 9864 and @$id_list[$i] <= 9868) unset($id_list[$i]);        
+        if(@$id_list[$i] >= 9872 and @$id_list[$i] <= 9875) unset($id_list[$i]);
         
     }        
     //end exclude ids    
@@ -345,7 +356,8 @@ function parse_contents($str)
     
     $str = str_ireplace('”', '', $str);
     $str = str_ireplace('“', '', $str);    
-        
+    $str = str_ireplace('™', '&#153;', $str);
+    
     
     $image_url="";
     /*
@@ -462,6 +474,8 @@ function parse_contents($str)
     if($taxa == "sclerotium")$taxa = "Penicillium sclerotiorum";        
     if($taxa == "cleistothecia")$taxa = "Talaromyces flavus var. flavus";            
     if($taxa == "Plants")$taxa = "Plantae";            
+    if($taxa == "Argas")$taxa = "Acari";            
+    if($taxa == "basal tuft")$taxa = "Culiseta";            
     
     if (in_array($taxa, array("wasps","Wasps")))$taxa="Hymenoptera";    
     if (in_array($taxa, array("siphon","siphon tuft","Siphona irritans","siphonal hairs","siphonal tufts")))$taxa="Culex pipiens";    
@@ -473,13 +487,18 @@ function parse_contents($str)
     if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio"
     ,"Child","Moths","Industrial Bulletin, New York, Pg. 3","AIDS-Related Complex","median ventral brush","comb scales","Chickens","Dogs","Cats"
     ,"Advanced Topics on Medical Defense Against Biological Agents - Botulinum Toxin"
-    ,"Gram-Negative Bacteria","American Dog Tick","Gram-Positive Bacteria","asci","Ebola-like Viruses","ghats","Ghats")))$taxa="";
+    ,"Gram-Negative Bacteria","American Dog Tick","Gram-Positive Bacteria","asci","Ebola-like Viruses","ghats","Ghats"
+    ,"acute flaccid paralysis","arthr","Coronavirus, Canine","DNA Viruses","HIV","Plantae","SARS Virus"
+    ,"((Without a written record of prior polio vaccination) at increased risk of exposure to poliomyelitis, primary immunization with IPV is recommended.)"
+    ,"(Without a written record of prior polio vaccination) at increased risk of exposure to poliomyelitis, primary immunization with IPV is recommended.)"
+    )))$taxa="";
     
-
-    
-
+    /*
     
     
+    */
+    
+        
     //end
 
     $taxa = trim(strip_tags($taxa));                        
