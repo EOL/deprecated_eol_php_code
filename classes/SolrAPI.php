@@ -11,24 +11,38 @@ class SolrAPI
     private $csv_path;
     private $action_url;
     
-    public function __construct($s = SOLR_SERVER, $c = '', $pk = PRIMARY_KEY, $schema = array(), $d = SOLR_FILE_DELIMITER, $mv = SOLR_MULTI_VALUE_DELIMETER)
+    public function __construct($s = SOLR_SERVER, $core = '', $d = SOLR_FILE_DELIMITER, $mv = SOLR_MULTI_VALUE_DELIMETER)
     {
         $this->server = trim($s);
         if(!preg_match("/\/$/", $this->server)) $this->server .= "/";
-        $this->core = $c;
+        $this->core = $core;
         if(preg_match("/^(.*)\/$/", $this->core)) $this->core = $arr[1];
-        $this->primary_key = $pk;
-        $this->schema = $schema;
         $this->file_delimiter = $d;
         $this->multi_value_delimiter = $mv;
         
         $this->csv_path = Functions::temp_filepath(true);
         $this->action_url = $this->server . $this->core;
         
+        $this->load_schema();
+    }
+    
+    private function load_schema()
+    {
+        // load schema XML
+        $response = simplexml_load_string(file_get_contents($this->action_url . "/admin/file/?file=schema.xml"));
+        
+        // set primary key field name
+        $this->primary_key = (string) $response->uniqueKey;
+        
+        // create empty object that maps to each field name; will be array if multivalued
         $this->schema_object = new stdClass();
-        foreach($this->schema as $attr => $val)
+        foreach($response->fields->field as $field)
         {
-            $this->schema_object->$attr = $val;
+            $field_name = (string) $field['name'];
+            $multi_value = (string) @$field['multiValued'];
+            
+            if($multi_value == 'true') $this->schema_object->$field_name = array();
+            else $this->schema_object->$field_name = '';
         }
     }
     
