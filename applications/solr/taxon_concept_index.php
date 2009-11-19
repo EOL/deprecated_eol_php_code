@@ -17,13 +17,11 @@ $schema = array(
     'published'                 => '',
     'supercedure_id'            => '');
         
-$solr = new SolrAPI('http://10.19.19.219:8080/solr/', 'taxon_concepts', 'taxon_concept_id', $schema);
+$solr = new SolrAPI('http://10.19.19.219:8080/solr/', 'taxon_concepts_swap', 'taxon_concept_id', $schema);
 
-
+$solr->delete_all_documents();
 
 echo "starting\n";
-
-
 
 $start = 0;
 $max_id = 0;
@@ -56,7 +54,7 @@ if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects'], $GLOB
 $solr->commit();
 $solr->optimize();
 
-
+$solr->swap('taxon_concepts_swap', 'taxon_concepts');
 
 
 
@@ -69,7 +67,7 @@ function lookup_names($start, $limit)
     global $mysqli;
     
     echo "\nquerying names\n";
-    $result = $mysqli->query("SELECT tc.id, tc.published, tc.vetted_id, tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id)  WHERE tc.id BETWEEN $start AND ".($start+$limit));
+    $result = $mysqli->query("SELECT tc.id,  tc.published, tc.vetted_id, tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id)  WHERE tc.id BETWEEN $start AND ".($start+$limit));
     echo "done querying names\n";
     while($result && $row=$result->fetch_assoc())
     {

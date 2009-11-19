@@ -21,6 +21,10 @@ $schema = array(
         
 $solr = new SolrAPI('http://10.19.19.219:8080/solr/', 'hierarchy_entries_swap', 'id', $schema);
 
+
+$solr->delete_all_documents();
+
+
 $GLOBALS['ancestries'] = array();
 $GLOBALS['rank_labels'] = array();
 if($r = Rank::find('kingdom')) $GLOBALS['rank_labels'][$r] = 'kingdom';
@@ -35,7 +39,7 @@ $start = 0;
 $max_id = 0;
 $limit = 30000;
 $filter = "1=1";
-$filter = "he.hierarchy_id = 114";
+//$filter = "he.hierarchy_id IN (119, 120)";
 
 $result = $mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM hierarchy_entries he WHERE $filter");
 if($result && $row=$result->fetch_assoc())
@@ -64,8 +68,7 @@ for($i=$start ; $i<$max_id ; $i+=$limit)
 if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects'], $GLOBALS['fields']);
 $solr->commit();
 $solr->optimize();
-
-
+//$solr->swap('hierarchy_entries_swap', 'hierarchy_entries');
 
 
 

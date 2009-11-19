@@ -131,6 +131,8 @@ class CompareHierarchies
                 if($hierarchy->complete && $entry->hierarchy_id == $matching_entry->hierarchy_id) continue;
                 
                 static $total_comparisons = 0;
+                static $total_matches = 0;
+                static $total_bad_matches = 0;
                 $total_comparisons++;
                 
                 $score = self::compare_hierarchy_entries($entry, $matching_entry);
@@ -138,18 +140,35 @@ class CompareHierarchies
                 
                 $score2 = self::compare_hierarchy_entries($matching_entry, $entry);
                 if($score2) $GLOBALS['hierarchy_entry_matches'][$matching_entry->id][$entry->id] = $score2;
+                
+                // if($score)
+                // {
+                //     $total_matches++;
+                //     if($total_matches % 2000 == 0)
+                //     {
+                //         echo "Good Match $total_matches of $total_comparisons (".round(($total_matches/$total_comparisons)*100, 2)."%)<table border><tr><td valign=top>". Functions::print_pre($entry, 1) ."</td><td valign=top>". Functions::print_pre($matching_entry, 1) ."</td></tr></table><hr>\n";
+                //     }
+                // }elseif(!is_null($score))
+                // {
+                //     $total_bad_matches++;
+                //     if($total_bad_matches % 200 == 0)
+                //     {
+                //         echo "Non-Match $total_bad_matches of $total_comparisons (".round(($total_bad_matches/$total_comparisons)*100, 2)."%)<table border><tr><td valign=top>". Functions::print_pre($entry, 1) ."</td><td valign=top>". Functions::print_pre($matching_entry, 1) ."</td></tr></table><hr>\n";
+                //     }
+                //     
+                // }
             }
         }
     }
     
     public static function compare_hierarchy_entries($entry1, $entry2)
     {
-        if($entry1->id == $entry2->id) return 0;
-        if(self::rank_conflict($entry1, $entry2)) return 0;
+        if($entry1->id == $entry2->id) return null;
+        if(self::rank_conflict($entry1, $entry2)) return null;
         
         // viruses are a pain and will not match properly right now
-        if(strtolower($entry1->kingdom) == 'virus' || strtolower($entry1->kingdom) == 'viruses') return 0;
-        if(strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses') return 0;
+        if(strtolower($entry1->kingdom) == 'virus' || strtolower($entry1->kingdom) == 'viruses') return null;
+        if(strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses') return null;
         
         $name_match = self::compare_names($entry1, $entry2);
         
@@ -234,16 +253,6 @@ class CompareHierarchies
         
         return $score;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
 
 ?>
