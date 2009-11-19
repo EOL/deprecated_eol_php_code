@@ -139,10 +139,10 @@ class ContentManager
     
     function new_partner_file_name()
     {
-        $file = Functions::random_digits(4, 1);
+        $file = Functions::random_digits(6, 1);
         while(glob(CONTENT_PARTNER_LOCAL_PATH."/$file"."*"))
         {
-            $file = Functions::random_digits(4, 1);
+            $file = Functions::random_digits(6, 1);
         }
         
         return CONTENT_PARTNER_LOCAL_PATH.$file;

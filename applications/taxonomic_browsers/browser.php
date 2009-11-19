@@ -25,6 +25,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 if($id)
 {
     $hierarchy_entry = new HierarchyEntry($id);
+    echo "<h2>".$hierarchy_entry->hierarchy()->label."</h2>";
     
     show_kingdoms_he($hierarchy_entry->hierarchy_id);
     
@@ -39,6 +40,9 @@ if($id)
     show_synonyms_he($hierarchy_entry);
 }elseif($hierarchy_id)
 {
+    $hierarchy = new Hierarchy($hierarchy_id);
+    echo "<h2>".$hierarchy->label."</h2>";
+    
     show_kingdoms_he($hierarchy_id);
 }else
 {
