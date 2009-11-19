@@ -71,7 +71,7 @@ class SolrAPI
     
     public function swap($from_core, $to_core)
     {
-        exec("curl ". $this->server ."/admin/cores?action=SWAP&core=$from_core&other=$to_core");
+        exec("curl ". $this->server ."admin/cores -F action=SWAP -F core=$from_core -F other=$to_core");
     }
     
     public function delete($query)
