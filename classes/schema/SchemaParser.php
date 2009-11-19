@@ -232,6 +232,20 @@ class SchemaParser
                     $data_object_parameters["info_items_ids"][] = InfoItem::insert(trim((string) $s));
                 }
                 
+                
+                // EXCEPTION - overriding the subject for text descriptions from certain resources (BOLD, Wikipedia)
+                if($data_object_parameters["data_type_id"] == DataType::insert("http://purl.org/dc/dcmitype/Text"))
+                {
+                    if($connection->get_resource()->title == "BOLD Systems Resource")
+                    {
+                        $data_object_parameters["info_items_ids"] = array(InfoItem::insert('http://www.eol.org/voc/table_of_contents#Barcode'));
+                    }elseif($connection->get_resource()->title == "Wikipedia")
+                    {
+                        $data_object_parameters["info_items_ids"] = array(InfoItem::insert('http://www.eol.org/voc/table_of_contents#Wikipedia'));
+                    }
+                }
+                
+                
                 $data_object_parameters["refs"] = array();
                 foreach($d->reference as $r)
                 {

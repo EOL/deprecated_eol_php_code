@@ -25,7 +25,8 @@ Functions::log("Ended harvesting");
 
 
 // sleep for 20 minutes to allow changes from transactions to propegate
-sleep(1200);
+if(defined('ENVIRONMENT') && ENVIRONMENT =='development') sleep(1);
+else sleep(1200);
 
 
 // publish all pending resources

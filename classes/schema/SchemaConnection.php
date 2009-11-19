@@ -14,6 +14,11 @@ class SchemaConnection extends MysqlBase
         $this->resource =& $resource;
     }
     
+    function get_resource()
+    {
+        return $this->resource;
+    }
+    
     function add_taxon($t)
     {
         list($taxon, $status) = Taxon::find_and_compare($this->resource, $t);
