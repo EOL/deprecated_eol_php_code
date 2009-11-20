@@ -86,7 +86,7 @@ while($row=$result->fetch_assoc())
     $url = $phylum_service_url . trim($row["taxon_phylum"]);
     
     /* for debug - to limit no. of record to process
-    $url = "http://128.128.175.77/bold.xml";
+    $url = "http://127.0.0.1/bold.xml";
     */
     
     if(!($xml = @simplexml_load_file($url)))continue;    

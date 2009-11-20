@@ -1,11 +1,11 @@
 #!/usr/local/bin/php
 <?php
 //connector for WORMS
-//exit;
+exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -113,11 +113,9 @@ while(true)
         fwrite($OUT, $str);
         unlink($file);
     }            
-    else break;
-    
+    else break;    
     //new
-    //if($i <= $total_taxid_count)unlink($file);
-    
+    //if($i <= $total_taxid_count)unlink($file);    
 }
 print "\n --end-- ";
 fclose($OUT);
@@ -129,7 +127,7 @@ function process($id)
 {   
     //global $OUT;        
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
-    //$file = "http://128.128.175.77/worms.xml";
+    //$file = "http://127.0.0.1/worms.xml";
     //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972
     //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255100
     
@@ -153,25 +151,22 @@ function process($id)
 }//end process() 
 function get_main_id_list()
 {
-    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
 
-//     /*
+    /*
     $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2009.xml";
-//     */
+    */
 
-     /*
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
-     */
-
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";    
+    /*
+    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
+    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
+    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";
+    */
+    
+    $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2007.xml";
+    $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2008.xml";
+    $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2009.xml";
  
     echo "\n URLs = " . sizeof($url) . "\n";
     $no_of_urls = sizeof($url);        

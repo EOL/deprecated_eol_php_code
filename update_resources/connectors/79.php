@@ -131,7 +131,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         
         
         /* for debugging
-        $image_url = "http://128.128.175.77/test.tif";
+        $image_url = "http://127.0.0.1/test.tif";
         $image_url = "http://www.findingspecies.org/indu/images/YIH_13569_MED_EOL.TIFF";
         */
         
@@ -265,8 +265,8 @@ function get_id_list()
     {
         print "$wrap [[$i]] -- ";        
         /*
-        $url = "http://128.128.175.77/cdc/test.htm";                
-        $url = "http://128.128.175.77/cdc/final/id_list%20(" . $i . ").htm";        
+        $url = "http://127.0.0.1/cdc/test.htm";                
+        $url = "http://127.0.0.1/cdc/final/id_list%20(" . $i . ").htm";        
         */
         $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";
                 
