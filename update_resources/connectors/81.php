@@ -8,7 +8,6 @@ http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=127144&iwidth=600
 
-
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=10325
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=26136
 
@@ -21,13 +20,11 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Basid
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&iwidth=600
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
-
-
-
 */
 
+
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -383,6 +380,7 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the htm
     }
     elseif($all == "all") return $arr;	
 }//end function
+
 /*
 $taxid="26136";
 $taxid="24493";
@@ -401,6 +399,7 @@ if($folder != "")
 }    
 exit("<hr>$best_sequence<hr>");
 */
+
 function get_best_sequence($str)
 {
     $str = str_ireplace('>' , '&arr[]=', $str);	
@@ -458,36 +457,4 @@ function get_best_sequence($str)
      </dna_sequence     
 </taxon>
 */
-        /*   
-        $count_sequence_now = substr_count($text_dna_sequence, '>');            
-        $text_dna_sequence = str_ireplace(">", "<br>&nbsp;<br>", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("----", "", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("---", "|||", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("-", "", $text_dna_sequence);        
-        $text_dna_sequence = str_ireplace("|||", "---", $text_dna_sequence);                                
-        if($text_dna_sequence != "")
-        {
-            $str="";
-            if($count_sequence > 2)
-            {
-                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
-                $str .= "Below are first of the two sequences available from BOLD. ";
-                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see all available DNA sequences and more information about them."; 
-            }        
-            if($count_sequence == 2)
-            {
-                $str .= "There are at least $count_sequence barcode sequences available from BOLD and GenBank. ";          
-                $str .= "Below are the two sequences available from BOLD. ";
-                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about them."; 
-            }
-            if($count_sequence_now == 1)
-            {
-                $str .= "Below is the available sequence from BOLD.";
-                $str .= "Click <a target='BOLDSys' href='$dc_source'>here</a> to see more information about it. "; 
-            }                
-        }
-        else                        
-        $str = "You can <a target='BOLDSys' href='$dc_source'>check</a> BOLD Systems for more information. ";         
-        */        
-
 ?>
