@@ -6,7 +6,7 @@ http://phil.cdc.gov/phil/home.asp
 */
 
 
-exit;
+//exit;
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
@@ -261,7 +261,7 @@ function get_id_list()
     global $wrap;
     
     $id_list = array();    
-    for ($i=1; $i <= 59; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 1; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
     {
         print "$wrap [[$i]] -- ";        
         /*
@@ -506,8 +506,8 @@ function parse_contents($str)
 
     $taxa = trim(strip_tags($taxa));                        
     if (in_array($taxa, array("Plasmodium spp. life cycle.")))$taxa="Plasmodium spp.";    
-         
     
+    $taxa = str_ireplace('”', '', $taxa);    
 	print "taxa = [$taxa] ";
     
 	//========================================================================================
