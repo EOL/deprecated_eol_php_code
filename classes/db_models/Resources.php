@@ -256,6 +256,10 @@ class Resource extends MysqlBase
             
             $this->end_harvest();
             
+            // if there are things in preview mode in old harvest which are not in this harvest
+            // then set them to be invisible
+            $this->make_old_preview_objects_invisible();
+            
             if($hierarchy_id = $this->hierarchy_id())
             {
                 $catalogue_of_life_id = Hierarchy::find_by_agent_id(Agent::find("Catalogue of Life"));
@@ -283,6 +287,18 @@ class Resource extends MysqlBase
             if($this->auto_publish())
             {
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
+            }
+        }
+    }
+    
+    public function make_old_preview_objects_invisible()
+    {
+        if($this->harvest_event)
+        {
+            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::find('preview') ." AND dohe2.data_object_id IS NULL");
+            if($result && $row=$result->fetch_assoc())
+            {
+                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=0 WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::find('preview') ." AND dohe2.data_object_id IS NULL");
             }
         }
     }
