@@ -13,9 +13,7 @@ if($attr != "-id" || !$id || !is_numeric($id) || ($self && $self!="-self"))
 
 
 define("ENVIRONMENT", "integration");
-// define('DEBUG', true);
-// define('MYSQL_DEBUG', true);
-//define('DEBUG_TO_FILE', true);
+define("DEBUG", true);
 include_once(dirname(__FILE__)."/../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];

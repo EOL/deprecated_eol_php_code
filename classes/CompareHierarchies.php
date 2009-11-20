@@ -20,6 +20,8 @@ class CompareHierarchies
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
+        $start_time = microtime(true);
+        
         $mysqli->begin_transaction();
         
         // get a path to a tmp file which doesn't exist yet
@@ -29,25 +31,23 @@ class CompareHierarchies
         // delete all records which will conflict with this comparison session
         if($compare_to_hierarchy)
         {
-            $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE (he1.hierarchy_id=$hierarchy->id AND he2.hierarchy_id=$compare_to_hierarchy->id) OR (he2.hierarchy_id=$hierarchy->id AND he1.hierarchy_id=$compare_to_hierarchy->id)");
+            $result = $mysqli->query("SELECT 1 FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE (he1.hierarchy_id=$hierarchy->id AND he2.hierarchy_id=$compare_to_hierarchy->id) OR (he2.hierarchy_id=$hierarchy->id AND he1.hierarchy_id=$compare_to_hierarchy->id) LIMIT 1");
+            if($result && $row=$result->fetch_assoc())
+            {
+                $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE (he1.hierarchy_id=$hierarchy->id AND he2.hierarchy_id=$compare_to_hierarchy->id) OR (he2.hierarchy_id=$hierarchy->id AND he1.hierarchy_id=$compare_to_hierarchy->id)");
+            }
         }else
         {
-            $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE he1.hierarchy_id=$hierarchy->id OR he2.hierarchy_id=$hierarchy->id");
+            $result = $mysqli->query("SELECT 1 FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE he1.hierarchy_id=$hierarchy->id OR he2.hierarchy_id=$hierarchy->id LIMIT 1");
+            if($result && $row=$result->fetch_assoc())
+            {
+                $mysqli->query("DELETE r FROM new_hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE he1.hierarchy_id=$hierarchy->id OR he2.hierarchy_id=$hierarchy->id");
+            }
         }
         
-        $schema = array(
-                'name'              => '',
-                'canonical_form'    => '',
-                'kingdom'           => '',
-                'phylum'            => '',
-                'class'             => '',
-                'order'             => '',
-                'family'            => '',
-                'genus'             => '',
-                'synonym'           => array(),
-                'synonym_canonical' => array(),
-                'common_name'       => array());
-        $solr = new SolrAPI(SOLR_SERVER, 'id', $schema);
+        
+        $solr = new SolrAPI('http://10.19.19.43:8080/solr/', 'hierarchy_entries');
+        //$solr->optimize();
         
         $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=1";
         $response = $solr->query($query);
@@ -74,10 +74,12 @@ class CompareHierarchies
                 if($searches_this_round % 500 == 0)
                 {
                     $time = Functions::time_elapsed();
+                    $compare_time = microtime(true) - $start_time;
                     echo "Records: $searches_this_round of $total_results ($total_searches total)<br>\n";
-                    echo "Speed:   ".round($total_searches/$time, 2)." r/s<br>\n";
-                    echo "Memory:  ".memory_get_usage()."<br>\n";
-                    echo "Time:    $time<br>\n<br>\n";
+                    echo "Speed:   ". round($total_searches/$time, 2) ." r/s<br>\n";
+                    echo "Memory:  ". memory_get_usage() ."<br>\n";
+                    echo "Time:    $time s<br>\n";
+                    echo "Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s<br><br>\n\n";
                     flush();
                     ob_flush();
                 }
@@ -144,14 +146,14 @@ class CompareHierarchies
                 // if($score)
                 // {
                 //     $total_matches++;
-                //     if($total_matches % 2000 == 0)
+                //     if($total_matches % 100 == 0)
                 //     {
                 //         echo "Good Match $total_matches of $total_comparisons (".round(($total_matches/$total_comparisons)*100, 2)."%)<table border><tr><td valign=top>". Functions::print_pre($entry, 1) ."</td><td valign=top>". Functions::print_pre($matching_entry, 1) ."</td></tr></table><hr>\n";
                 //     }
                 // }elseif(!is_null($score))
                 // {
                 //     $total_bad_matches++;
-                //     if($total_bad_matches % 200 == 0)
+                //     if($total_bad_matches % 10 == 0)
                 //     {
                 //         echo "Non-Match $total_bad_matches of $total_comparisons (".round(($total_bad_matches/$total_comparisons)*100, 2)."%)<table border><tr><td valign=top>". Functions::print_pre($entry, 1) ."</td><td valign=top>". Functions::print_pre($matching_entry, 1) ."</td></tr></table><hr>\n";
                 //     }
