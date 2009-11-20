@@ -18,7 +18,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 print"<table border='1' cellpadding='5' cellspacing='0'>";
 
-$qry = "select title, id, accesspoint_url from resources order by title";
+$qry = "select title, id, accesspoint_url, service_type_id from resources order by title";
 $result = $mysqli->query($qry);    
 
 print"<td><font size='2'><i>Select an EOL resource</i></font>
@@ -26,7 +26,8 @@ print"<td><font size='2'><i>Select an EOL resource</i></font>
 while($result && $row=$result->fetch_assoc())
 {
     //print"<option value=$row[accesspoint_url]>$row[title] [$row[id]]";
-    print"<option value=$row[id]>$row[title] [$row[id]]";    
+    print"<option value=$row[id]>$row[title] [$row[id]] ";    
+    if($row["service_type_id"]==2)print"[**has connector]";
 }
 print"</select> n=" . $result->num_rows . "</td>";
 
