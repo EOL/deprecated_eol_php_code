@@ -6,7 +6,7 @@ http://phil.cdc.gov/phil/home.asp
 */
 
 
-//exit;
+exit;
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
@@ -21,8 +21,8 @@ Functions::load_fixtures("development");
 exit;
 */
 
-//$wrap = "\n";
-$wrap = "<br>";
+$wrap = "\n";
+//$wrap = "<br>";
  
 $resource = new Resource(79);
 print "resource id = " . $resource->id . "$wrap";

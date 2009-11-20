@@ -22,7 +22,6 @@ http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
 */
 
-
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
