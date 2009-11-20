@@ -1,27 +1,13 @@
 <?php
 
-define('ENVIRONMENT', 'integration');
+define('ENVIRONMENT', 'slave');
 //define('MYSQL_DEBUG', true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
-$schema = array(
-        'name'              => '',
-        'canonical_form'    => '',
-        'kingdom'           => '',
-        'phylum'            => '',
-        'class'             => '',
-        'order'             => '',
-        'family'            => '',
-        'genus'             => '',
-        'synonym'           => array(),
-        'synonym_canonical' => array(),
-        'common_name'       => array());
         
-$solr = new SolrAPI('http://10.19.19.219:8080/solr/', 'hierarchy_entries_swap', 'id', $schema);
-
-
+$solr = new SolrAPI('http://10.19.19.43:8080/solr/', 'hierarchy_entries_swap');
 $solr->delete_all_documents();
 
 
@@ -52,7 +38,6 @@ if($result && $row=$result->fetch_assoc())
 
 for($i=$start ; $i<$max_id ; $i+=$limit)
 {
-    unset($GLOBALS['fields']);
     unset($GLOBALS['objects']);
     unset($GLOBALS['ancestries']);
     unset($GLOBALS['node_metadata']);
@@ -61,14 +46,14 @@ for($i=$start ; $i<$max_id ; $i+=$limit)
     lookup_ancestries($i, $limit);
     lookup_synonyms($i, $limit);
     
-    if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects'], $GLOBALS['fields']);
+    if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects']);
 }
 
 
-if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects'], $GLOBALS['fields']);
+if(isset($GLOBALS['objects'])) $solr->send_attributes($GLOBALS['objects']);
 $solr->commit();
 $solr->optimize();
-//$solr->swap('hierarchy_entries_swap', 'hierarchy_entries');
+$solr->swap('hierarchy_entries_swap', 'hierarchy_entries');
 
 
 
@@ -90,29 +75,13 @@ function lookup_names($start, $limit)
         $rank_id = $row['rank_id'];
         $parent_id = $row['parent_id'];
         
-        $GLOBALS['fields']['parent_id'] = 1;
         $GLOBALS['objects'][$id]['parent_id'] = $row['parent_id'];
-        
-        $GLOBALS['fields']['taxon_concept_id'] = 1;
         $GLOBALS['objects'][$id]['taxon_concept_id'] = $row['taxon_concept_id'];
-        
-        $GLOBALS['fields']['hierarchy_id'] = 1;
         $GLOBALS['objects'][$id]['hierarchy_id'] = $row['hierarchy_id'];
-        
-        $GLOBALS['fields']['rank_id'] = 1;
         $GLOBALS['objects'][$id]['rank_id'] = $row['rank_id'];
-        
-        $GLOBALS['fields']['vetted_id'] = 1;
         $GLOBALS['objects'][$id]['vetted_id'] = $row['vetted_id'];
-        
-        $GLOBALS['fields']['published'] = 1;
         $GLOBALS['objects'][$id]['published'] = $row['published'];
-        
-        $GLOBALS['fields']['name'] = 1;
         $GLOBALS['objects'][$id]['name'] = $row['string'];
-        
-        $GLOBALS['fields']['canonical_form'] = 1;
-        $GLOBALS['fields']['canonical_form_string'] = 1;
         $GLOBALS['objects'][$id]['canonical_form'] = $row['canonical_form'];
         $GLOBALS['objects'][$id]['canonical_form_string'] = $row['canonical_form'];
     }
@@ -157,7 +126,6 @@ function lookup_ancestries()
             {
                 foreach($ancestry as $rank => $name)
                 {
-                    $GLOBALS['fields'][$rank] = 1;
                     $GLOBALS['objects'][$id][$rank] = $name;
                 }
             }
@@ -206,12 +174,10 @@ function lookup_synonyms($start, $limit)
         if(($row['language_id'] && $row['language_id'] != $sci) || $relation_id == SynonymRelation::insert('common name')) $field = 'common_name';
         else $field = 'synonym';
         
-        $GLOBALS['fields'][$field] = 1;
         $GLOBALS['objects'][$id][$field][$row['string']] = 1;
         
         if($field == 'synonym' && $row['canonical_form'])
         {
-            $GLOBALS['fields']['synonym_canonical'] = 1;
             $GLOBALS['objects'][$id]['synonym_canonical'][$row['canonical_form']] = 1;
         }
     }

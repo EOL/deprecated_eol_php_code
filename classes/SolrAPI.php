@@ -5,7 +5,7 @@ class SolrAPI
     private $server;
     private $core;
     private $primary_key;
-    private $schema;
+    private $schema_object;
     private $file_delimiter;
     private $multi_value_delimiter;
     private $csv_path;
@@ -26,6 +26,11 @@ class SolrAPI
         $this->load_schema();
     }
     
+    function __destruct()
+    {
+        @unlink(LOCAL_ROOT . $this->csv_path);
+    }
+    
     private function load_schema()
     {
         // load schema XML
@@ -41,7 +46,7 @@ class SolrAPI
             $field_name = (string) $field['name'];
             $multi_value = (string) @$field['multiValued'];
             
-            if($multi_value == 'true') $this->schema_object->$field_name = array();
+            if($multi_value) $this->schema_object->$field_name = array();
             else $this->schema_object->$field_name = '';
         }
     }
@@ -56,7 +61,19 @@ class SolrAPI
     {
         $objects = array();
         
+        // echo($this->action_url . "/select/?q=". str_replace(" ", "%20", $query)."\n");
+        // flush();
+        // ob_flush();
+        
         $response = simplexml_load_string(file_get_contents($this->action_url . "/select/?q=". str_replace(" ", "%20", $query)));
+        // foreach($response->lst->int as $int)
+        // {
+        //     if($int['name'] == "QTime")
+        //     {
+        //         $qtime = (string) $int;
+        //         echo "$qtime\n";
+        //     }
+        // }
         $count = count($response->result->doc);
         for($i=0 ; $i<$count ; $i++)
         {
@@ -100,12 +117,12 @@ class SolrAPI
         $this->optimize();
     }
     
-    public function send_attributes($objects, $object_fields)
+    public function send_attributes($objects)
     {
         @unlink(LOCAL_ROOT . $this->csv_path);
         $OUT = fopen(LOCAL_ROOT . $this->csv_path, "w+");
         
-        $fields = array_keys($object_fields);
+        $fields = array_keys(get_object_vars($this->schema_object));
         fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");
         
         $multi_values = array();
@@ -163,7 +180,7 @@ class SolrAPI
             else $value = (int) $attr->int;
             $name = (string) $attr['name'];
             
-            if(isset($this->schema[$name]) && is_array($this->schema[$name])) array_push($object->$name, $value);
+            if(isset($object->$name) && is_array($object->$name)) array_push($object->$name, $value);
             else $object->$name = $value;
         }
         
