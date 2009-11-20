@@ -261,7 +261,7 @@ function get_id_list()
     global $wrap;
     
     $id_list = array();    
-    for ($i=1; $i <= 1; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=2; $i <= 2; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
     {
         print "$wrap [[$i]] -- ";        
         /*
