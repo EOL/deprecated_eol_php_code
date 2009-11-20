@@ -3,31 +3,26 @@
 /*
 connector for Public Health Image Library (CDC) 
 http://phil.cdc.gov/phil/home.asp
-CDC_CAPILLUS
-™
-&#153;
 */
 
 
 //exit;
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //only on local; to be deleted before going into production
- /*
+/*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 exit;
- */
+*/
 
- 
 //$wrap = "\n";
 $wrap = "<br>";
- 
  
 $resource = new Resource(79);
 print "resource id = " . $resource->id . "$wrap";
@@ -266,13 +261,14 @@ function get_id_list()
     global $wrap;
     
     $id_list = array();    
-    for ($i=1; $i <= 64; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 59; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
     {
         print "$wrap [[$i]] -- ";        
-        $url = "http://128.128.175.77/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/hiv.htm";
-        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";                                                                
+        /*
         $url = "http://128.128.175.77/cdc/test.htm";                
         $url = "http://128.128.175.77/cdc/final/id_list%20(" . $i . ").htm";        
+        */
+        $url = "http://services.eol.org/eol_php_code/update_resources/connectors/files/PublicHealthImageLibrary/id_list%20(" . $i . ").htm";
                 
         $handle = fopen($url, "r");	
         if ($handle)
@@ -295,15 +291,28 @@ function get_id_list()
     //start exclude ids that are images of dogs and their masters, non-organisms
     for ($i = 0; $i < count($id_list); $i++) 
     {
+    
         $not_organism = array(11357,11329,10927,10926,10925,10141,10134,10425,10507,26,107,93,110,111,1500,10507,3,10187,7906,4484,4483
         ,10145,10146,9312,9313,9315,9339,9354,8675,8362,8085,8097,8111,8112,4664,4665,4670,4676,6116,6723,6724,6725,6968,6969,6970
         ,6990,6991,7185,7186,7188,7189,7272,7884,7885,7890,10425,10444,10507,7733,7735,7737,7739,7741
         ,1988,1989,1991,2003,2010,2318,2402,2639,4682,4683,4685,4698,4721,4727,4728,7079,7729,7730,7732,10925,10926,10927,3
         ,9566,9565,90,692,693,1403,10683,10684,10677,10678,10173,8276,8277,7414,7274,7209,7208,7199,7028,7029,7020,7027
         ,6713,6714,6715,6951,6954,10804,7824,7825,7826,7776,26,93,107,110,111,1403,1500,10134,10141,8474,8475,5146,4135
+        ,9566,9565,6116,7272,10818,8960,8961,8962
         );
         if (in_array($id_list[$i], $not_organism)) unset($id_list[$i]);        
         
+        
+        if(@$id_list[$i] >= 4649 and @$id_list[$i] <= 4654) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 4655 and @$id_list[$i] <= 4658) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 4664 and @$id_list[$i] <= 4676) unset($id_list[$i]);            
+        if(@$id_list[$i] >= 6723 and @$id_list[$i] <= 6725) unset($id_list[$i]);            
+        if(@$id_list[$i] >= 6968 and @$id_list[$i] <= 6970) unset($id_list[$i]);            
+        if(@$id_list[$i] >= 6990 and @$id_list[$i] <= 6991) unset($id_list[$i]);            
+        if(@$id_list[$i] >= 7185 and @$id_list[$i] <= 7189) unset($id_list[$i]);            
+        if(@$id_list[$i] >= 7884 and @$id_list[$i] <= 7890) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 7986 and @$id_list[$i] <= 7989) unset($id_list[$i]);    
+        if(@$id_list[$i] >= 8006 and @$id_list[$i] <= 8014) unset($id_list[$i]);            
         if(@$id_list[$i] >= 10679 and @$id_list[$i] <= 10690) unset($id_list[$i]);    
         if(@$id_list[$i] >= 10694 and @$id_list[$i] <= 10699) unset($id_list[$i]);        
         if(@$id_list[$i] >= 10710 and @$id_list[$i] <= 10715) unset($id_list[$i]);        
@@ -340,9 +349,11 @@ function get_id_list()
 
 function process($url,$philid)
 {
+    global $wrap;
+    
     $contents = cURL_it($philid,$url);
     if($contents) print "";
-    else print exit("\n bad post [$philid] \n ");
+    else print "$wrap bad post [$philid] $wrap ";
     $arr = parse_contents($contents);
     return $arr;        
 }
@@ -412,8 +423,7 @@ function parse_contents($str)
 
 	$tmp=trim($categories);
 	$tmp = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $tmp);	
-	$tmp = substr($tmp,0,strlen($tmp)-10);
-    
+	$tmp = substr($tmp,0,strlen($tmp)-10);    
     
     $tmp = str_ireplace('<!--<td>&nbsp;&nbsp;</td>-->', '', $tmp);    
     
@@ -440,7 +450,7 @@ function parse_contents($str)
     if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio","Child")))$taxa="";
     
     
-    /* will no longer get taxa outside the <i></i> */ 
+    /* will no longer get taxa outside the <i></i> 
     $taxa = trim($taxa);
     $taxa = str_ireplace('"', '', $taxa);   
     if($taxa == "")    
@@ -453,8 +463,8 @@ function parse_contents($str)
     	$arx = trim($arx);
     	$arx = substr($arx,2,strlen($arx));
         $taxa = $arx;
-    }         
-        
+    }   
+    */         
 
     //manual edits
     $taxa = trim($taxa);
@@ -482,7 +492,6 @@ function parse_contents($str)
     if (in_array($taxa, array("pecten","dorsal plate")))$taxa="Aedes";
     if (in_array($taxa, array("Insects","Insect Viruses")))$taxa="Insecta";
 
-
     if (in_array($taxa, array("Plants, Edible","Plants, Toxic","Pandemic Flu Preparedness: What Every Community Should Know","Global Program for Avian and Human Influenza: Communications Planning Asia Regional Inter-Agency Knowledge Sharing","Revised Recommendations for HIV Screening of Adults, Adolescents, and Pregnant Women in Health Care Settings","HPV and Cervical Cancer: An Update on Prevention Strategies","Keeping the 'Genome' in the Bottle: Reinforcing Biosafety Level 3 Procedures")))$taxa="";    
     if (in_array($taxa, array("Science","Spiders","Poultry","Food","Men","Motor Vehicles","Child","Child, Preschool","Child, Preschool","Stop Transmission of Polio"
     ,"Child","Moths","Industrial Bulletin, New York, Pg. 3","AIDS-Related Complex","median ventral brush","comb scales","Chickens","Dogs","Cats"
@@ -491,13 +500,7 @@ function parse_contents($str)
     ,"acute flaccid paralysis","arthr","Coronavirus, Canine","DNA Viruses","HIV","Plantae","SARS Virus"
     ,"((Without a written record of prior polio vaccination) at increased risk of exposure to poliomyelitis, primary immunization with IPV is recommended.)"
     ,"(Without a written record of prior polio vaccination) at increased risk of exposure to poliomyelitis, primary immunization with IPV is recommended.)"
-    )))$taxa="";
-    
-    /*
-    
-    
-    */
-    
+    )))$taxa="";  
         
     //end
 

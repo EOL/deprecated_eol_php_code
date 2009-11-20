@@ -40,8 +40,6 @@ Functions::load_fixtures("development");
 exit;
 */
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,11 +57,19 @@ $wrap = "\n";
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 $species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
 
+/*
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
+$query .= " Order By taxa.taxon_phylum Asc ";
+*/
+
+$query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
+Inner Join names ON hierarchy_entries.name_id = names.id Where
+ranks.id = 280 Order By names.`string` Asc ";
+
 //$query .= " and taxon_phylum = 'Chordata' ";
 //$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum <> 'Annelida' ";
-$query .= " Order By taxa.taxon_phylum Asc ";
+
 //$query .= " limit 1 ";
 $result = $mysqli->query($query);    
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
