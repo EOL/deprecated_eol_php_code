@@ -10,9 +10,9 @@ exit;
 
 /* good sample for preview
 next 9
-http://128.128.175.77:3000/harvest_events/8/taxa/732
-http://128.128.175.77:3000/harvest_events/8/taxa/620
-http://128.128.175.77:3000/harvest_events/8/taxa/515
+http://127.0.0.1:3000/harvest_events/8/taxa/732
+http://127.0.0.1:3000/harvest_events/8/taxa/620
+http://127.0.0.1:3000/harvest_events/8/taxa/515
 */
 
 

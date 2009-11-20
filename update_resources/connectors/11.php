@@ -11,7 +11,7 @@ define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
-//$file = "http://mydomain.org/mtce/biolib_cz/txt/eoldata.xml";
+//$file = "http://127.0.0.1/mtce/biolib_cz/txt/eoldata.xml";
 $file = "http://www.biolib.cz/DWN/eoldata.xml";
 $xml = simplexml_load_file($file);
 
