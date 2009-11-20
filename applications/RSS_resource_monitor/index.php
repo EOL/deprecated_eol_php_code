@@ -121,16 +121,15 @@ print"
 
 
 
-$qry = "select title, id from resources order by title";
+$qry = "select title, id, service_type_id from resources order by title";
 $result = $mysqli->query($qry);	
 
 $cnt++;
 print"<td>" . $cnt . ". </td><td><select id='resource_id' name=resource_id onChange='proc()'><option>";
 while($result && $row=$result->fetch_assoc())
 {
-	print"	
-	<option value=$row[id]>$row[title] [$row[id]]
-	";
+	print"<option value=$row[id]>$row[title] [$row[id]] ";
+    if($row["service_type_id"]==2)print"[**has connector]";
 }
 print"</select></td>";
 
