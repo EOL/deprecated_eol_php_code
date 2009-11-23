@@ -20,6 +20,7 @@ class License extends MysqlBase
     
     static function find($string)
     {
+        if($string == "not applicable" && $license = parent::find_by("title", $string, Functions::class_name(__FILE__))) return $license;
         return parent::find_by("source_url", $string, Functions::class_name(__FILE__));
     }
 }

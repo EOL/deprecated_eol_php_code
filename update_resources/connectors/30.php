@@ -130,8 +130,9 @@ function process_file($path, $url)
     $species_profiles = $document->get_resources("spm:SpeciesProfileModel");
     foreach($species_profiles as $profile)
     {
-        $rights = trim($profile->get_literal("dwc:rights"));
-        if(!$rights || preg_match("/^public domain/i", $rights, $arr)) $rights = "http://creativecommons.org/licenses/publicdomain/";
+        //$rights = trim($profile->get_literal("dwc:rights"));
+        //if(!$rights || preg_match("/^public domain/i", $rights, $arr)) $rights = "http://creativecommons.org/licenses/publicdomain/";
+        $rights = "not applicable";
         
         $taxon_parameters = array();
         $concepts = $profile->get_resources("spm:aboutTaxon", "TaxonConcept");
