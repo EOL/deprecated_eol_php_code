@@ -84,22 +84,37 @@ class SpeciesStats extends MysqlBase
         $opposite_taxa_only_vetted_unknown_published_visible_not_inCol         = array();
 
         $taxa_vetted_not_published=array();
-
+        
+        // this block checks the latest PUBLISHED harvest events for each resource
+        $latest_published = array();
+        $result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events WHERE published_at IS NOT NULL GROUP BY resource_id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $latest_published[$row['resource_id']] = $row['max_published'];
+        }
+        
         //start new
-        $query=" Select Max(harvest_events.id) as max
+        // this query will only grab the LATEST harvest event, which may be in preview mode
+        $query=" Select resources.id resource_id, Max(harvest_events.id) as max
         From resources Inner Join harvest_events ON resources.id = harvest_events.resource_id
         Group By resources.id Order By max ";
         $result = $this->mysqli->query($query);    
         $temp_arr=array();
         while($result && $row=$result->fetch_assoc())
         {
-            $temp_arr[$row["max"]]=1;
+            // if the event is in preview mode, and there is a different PUBLISHED event, then used the published one
+            if(@$latest_published[$row['resource_id']])
+            {
+                $id = $latest_published[$row['resource_id']];
+                $temp_arr[$id] = 1;
+            }
+            else $temp_arr[$row["max"]] = 1;
         }
         $temp_arr = array_keys($temp_arr);
         $result->close();
         //end new
-
-        $query = "select distinct tc.id taxon_concept_id, he.id in_col, do.data_type_id, do.vetted_id, dotoc.toc_id toc_id,
+        
+        $query = "select distinct tc.id  taxon_concept_id, he.id in_col, do.data_type_id, do.vetted_id, dotoc.toc_id toc_id,
         do.visibility_id , do.published, tc.vetted_id as tc_vetted_id,
         dohe.harvest_event_id,
         do.id as data_object_id from 
