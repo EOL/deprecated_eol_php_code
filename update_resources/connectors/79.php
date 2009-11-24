@@ -140,6 +140,8 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
         // */
         
+
+        /* no text descriptions per Katja
         if($desc_taxa != "")
         {
             $temp = trim(strip_tags($desc_taxa));                        
@@ -154,6 +156,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
             }            
         }
+        */
         
         $used_taxa[$taxon] = $taxon_parameters;
 
@@ -261,7 +264,7 @@ function get_id_list()
     global $wrap;
     
     $id_list = array();    
-    for ($i=1; $i <= 59; $i++)//we only have 21,64 html pages with the ids, the rest of the pages is not server accessible.
+    for ($i=1; $i <= 59; $i++)//we only have 21,64,59 html pages with the ids, the rest of the pages is not server accessible.
     {
         print "$wrap [[$i]] -- ";        
         /*
@@ -486,6 +489,34 @@ function parse_contents($str)
     if($taxa == "Plants")$taxa = "Plantae";            
     if($taxa == "Argas")$taxa = "Acari";            
     if($taxa == "basal tuft")$taxa = "Culiseta";            
+
+    if($taxa == "A. fumigatus")$taxa  = "Aspergillus fumigatus";
+    if($taxa == "A. boydii")$taxa  = "Pseudallescheria boydii";
+    if($taxa == "A. contortrix contortrix")$taxa  = "Agkistrodon contortrix contortrix";
+    if($taxa == "A. grubyi")$taxa  = "Arthroderma grubyi";
+    if($taxa == "A. simplex")$taxa  = "Anisakis simplex";    
+    if($taxa == "Emmonsia sp. or Chrysosporium sp.")$taxa  = "Chrysosporium";    
+
+    if($taxa == "C. difficile")$taxa = "Clostridium difficile";
+    if($taxa == "C. geniculata")$taxa = "Curvularia geniculata";
+    if($taxa == "C. immitis")$taxa = "Coccidioides immitis";
+    if($taxa == "C. jejuni")$taxa = "Campylobacter jejuni";
+    if($taxa == "D. gallopavum")$taxa = "Ochroconis gallopavum";
+    if($taxa == "E. coli")$taxa = "Escherichia coli";
+    if($taxa == "E. pisciphilus")$taxa = "Exophiala pisciphilus";
+    if($taxa == "E.coli")$taxa = "Escherichia coli";
+    if($taxa == "F. hepatica")$taxa = "Fasciola hepatica";
+    if($taxa == "I. pacificus")$taxa = "Ixodes pacificus";
+    if($taxa == "M. furfur")$taxa = "Malassezia furfur";
+    if($taxa == "O. gallopavum")$taxa = "Ochroconis gallopavum";
+
+    if($taxa == "P. brasiliensis")$taxa = "Paracoccidioides brasiliensis";
+    if($taxa == "P. mirabilis")$taxa = "Proteus mirabilis";
+    if($taxa == "P. parasitica")$taxa = "Phialophora parasitica";
+    if($taxa == "P. wickerhamii")$taxa = "Prototheca wickerhamii";
+    if($taxa == "S. pyogenes")$taxa = "Streptococcus pyogenes";
+    if($taxa == "T. rubrum var. rodhaini")$taxa = "Trichophyton rubrum var. rodhaini";
+    if($taxa == "T. terrestre")$taxa = "Trichophyton terrestre";
     
     if (in_array($taxa, array("wasps","Wasps")))$taxa="Hymenoptera";    
     if (in_array($taxa, array("siphon","siphon tuft","Siphona irritans","siphonal hairs","siphonal tufts")))$taxa="Culex pipiens";    
@@ -500,14 +531,20 @@ function parse_contents($str)
     ,"acute flaccid paralysis","arthr","Coronavirus, Canine","DNA Viruses","HIV","Plantae","SARS Virus"
     ,"((Without a written record of prior polio vaccination) at increased risk of exposure to poliomyelitis, primary immunization with IPV is recommended.)"
     ,"(Without a written record of prior polio vaccination) at increased risk of exposure to poliomyelitis, primary immunization with IPV is recommended.)"
-    )))$taxa="";  
+    )))$taxa="";      
+    
+    $taxa = str_ireplace(" spp.", "", $taxa);
+    $taxa = str_ireplace(" sp.", "", $taxa);    
         
     //end
+        
+    
 
     $taxa = trim(strip_tags($taxa));                        
     if (in_array($taxa, array("Plasmodium spp. life cycle.")))$taxa="Plasmodium spp.";    
     
     $taxa = str_ireplace('”', '', $taxa);    
+    $taxa = str_ireplace('"', '', $taxa);        
 	print "taxa = [$taxa] ";
     
 	//========================================================================================
@@ -690,7 +727,6 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
     elseif($all == "all") return $arr;	
 }//end function
 // */
-
 	
 function array_trim($a,$len) 
 { 	
