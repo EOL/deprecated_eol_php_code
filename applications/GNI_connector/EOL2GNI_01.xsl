@@ -197,10 +197,8 @@ node.setAttribute("xmlns:eol","http://www.w3.org/2001/XMLSchema-instance")
 			<Rank><xsl:value-of select="$rank_element" /></Rank>		
 		
 				
-        <xsl:if test="dwc:Kingdom != ''"    or
-                test="dc:source != ''"      or
-                test="dc:identifier != ''"                
-        >
+        
+        <xsl:if test="dwc:Kingdom != '' or dc:source != '' or dc:identifier != ''">
     		<ProviderSpecificData>
 	    		<xsl:if test="dwc:Kingdom != ''"><dwc:Kingdom><xsl:value-of select="dwc:Kingdom"/></dwc:Kingdom></xsl:if>				
 		    	<xsl:if test="dc:source != ''"><dc:source><xsl:value-of select="dc:source"/></dc:source></xsl:if>				
@@ -288,13 +286,9 @@ node.setAttribute("xmlns:eol","http://www.w3.org/2001/XMLSchema-instance")
 				<xsl:value-of select="."/>
 			</Simple>			
 			
-			<Rank><xsl:value-of select="$rank_element2" /></Rank>
-			
+			<Rank><xsl:value-of select="$rank_element2" /></Rank>			
 
-            <xsl:if test="$dwc_Kingdom != ''"    or
-                    test="$dc_source != ''"      or
-                    test="$dc_identifier != ''"                
-            >
+            <xsl:if test="$dwc_Kingdom != '' or $dc_source != '' or $dc_identifier != ''">
     			<ProviderSpecificData>
 	    			<xsl:if test="$dwc_Kingdom != ''"><dwc:Kingdom><xsl:copy-of select="$dwc_Kingdom" /></dwc:Kingdom></xsl:if>				
 		    		<xsl:if test="$dc_source != ''"><dc:source><xsl:copy-of select="$dc_source" /></dc:source></xsl:if>				
