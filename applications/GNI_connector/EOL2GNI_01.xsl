@@ -197,11 +197,17 @@ node.setAttribute("xmlns:eol","http://www.w3.org/2001/XMLSchema-instance")
 			<Rank><xsl:value-of select="$rank_element" /></Rank>		
 		
 				
-		<ProviderSpecificData>
-			<xsl:if test="dwc:Kingdom != ''"><dwc:Kingdom><xsl:value-of select="dwc:Kingdom"/></dwc:Kingdom></xsl:if>				
-			<xsl:if test="dc:source != ''"><dc:source><xsl:value-of select="dc:source"/></dc:source></xsl:if>				
-			<xsl:if test="dc:identifier != ''"><dc:identifier><xsl:value-of select="dc:identifier"/></dc:identifier></xsl:if>							
-		</ProviderSpecificData>								
+        <xsl:if test="dwc:Kingdom != ''"    or
+                test="dc:source != ''"      or
+                test="dc:identifier != ''"                
+        >
+    		<ProviderSpecificData>
+	    		<xsl:if test="dwc:Kingdom != ''"><dwc:Kingdom><xsl:value-of select="dwc:Kingdom"/></dwc:Kingdom></xsl:if>				
+		    	<xsl:if test="dc:source != ''"><dc:source><xsl:value-of select="dc:source"/></dc:source></xsl:if>				
+			    <xsl:if test="dc:identifier != ''"><dc:identifier><xsl:value-of select="dc:identifier"/></dc:identifier></xsl:if>							
+    		</ProviderSpecificData>								
+        </xsl:if>
+
 		
 		</TaxonName>			
 	
@@ -285,15 +291,21 @@ node.setAttribute("xmlns:eol","http://www.w3.org/2001/XMLSchema-instance")
 			<Rank><xsl:value-of select="$rank_element2" /></Rank>
 			
 
-			<ProviderSpecificData>
-				<xsl:if test="$dwc_Kingdom != ''"><dwc:Kingdom><xsl:copy-of select="$dwc_Kingdom" /></dwc:Kingdom></xsl:if>				
-				<xsl:if test="$dc_source != ''"><dc:source><xsl:copy-of select="$dc_source" /></dc:source></xsl:if>				
-				<xsl:if test="$dc_identifier != ''">
-					<dc:identifier>
-						<xsl:copy-of select="concat($dc_identifier,'_syn_',string(position()))" />						
-					</dc:identifier>
-				</xsl:if>							
-			</ProviderSpecificData>								
+            <xsl:if test="$dwc_Kingdom != ''"    or
+                    test="$dc_source != ''"      or
+                    test="$dc_identifier != ''"                
+            >
+    			<ProviderSpecificData>
+	    			<xsl:if test="$dwc_Kingdom != ''"><dwc:Kingdom><xsl:copy-of select="$dwc_Kingdom" /></dwc:Kingdom></xsl:if>				
+		    		<xsl:if test="$dc_source != ''"><dc:source><xsl:copy-of select="$dc_source" /></dc:source></xsl:if>				
+			    	<xsl:if test="$dc_identifier != ''">
+    					<dc:identifier>
+    						<xsl:copy-of select="concat($dc_identifier,'_syn_',string(position()))" />						
+    					</dc:identifier>
+    				</xsl:if>							
+    			</ProviderSpecificData>								
+            </xsl:if>
+            
 
 		</TaxonName>			
 
