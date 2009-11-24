@@ -7,6 +7,7 @@ $mysqli2 = load_mysql_environment('eol_statistics');
 set_time_limit(0);
 
 /*
+http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html#d4Ecommerce
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
@@ -15,9 +16,6 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculation
 $month = get_val_var("month");
 $year = get_val_var("year");
 $month = GetNumMonthAsString($month, $year);
-
-
-
 
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year . "_" . $month;
 
@@ -161,7 +159,11 @@ function initialize_tables_4dmonth()
     
     $query="DROP TABLE IF EXISTS `eol_statistics`.`" . $google_analytics_page_statistics . "`;"; 
     $update = $mysqli2->query($query);
-	$query="CREATE TABLE  `eol_statistics`.`" . $google_analytics_page_statistics . "` ( `id` int(10) unsigned NOT NULL auto_increment, `taxon_id` int(10) unsigned default NULL, `url` varchar(1000) NOT NULL, `page_views` int(10) unsigned NOT NULL, `unique_page_views` int(10) unsigned NOT NULL, `time_on_page` time NOT NULL, `bounce_rate` float default NULL, `percent_exit` float default NULL, `money_index` float default NULL, `date_added` datetime NOT NULL, PRIMARY KEY  (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=240640 DEFAULT CHARSET=utf8";
+	$query="CREATE TABLE  `eol_statistics`.`" . $google_analytics_page_statistics . "` ( `id` int(10) unsigned NOT NULL auto_increment, `taxon_id` int(10) unsigned default NULL, `url` varchar(1000) NOT NULL, 
+    `page_views` int(10) unsigned NOT NULL, 
+    `unique_page_views` int(10) unsigned NOT NULL, 
+    `time_on_page` time NOT NULL, 
+    `bounce_rate` float default NULL, `percent_exit` float default NULL, `money_index` float default NULL, `date_added` datetime NOT NULL, PRIMARY KEY  (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=240640 DEFAULT CHARSET=utf8";
 	$update = $mysqli2->query($query);
 
 }//function initialize_tables_4dmonth()

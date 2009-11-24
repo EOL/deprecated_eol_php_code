@@ -341,11 +341,17 @@ for ($i = 0; $i < count($provider); $i++)
         " . number_format($CountOfTaxaPages) . " or " . number_format($CountOfTaxaPages/$eol_CountOfTaxaPages*100,2) . "% had content provided by " . $provider[$i] . ".
         <br>
         Of the " . number_format($eol_total_taxon_id) . " species pages viewed during the month, 
-        " . number_format($total_taxon_id) . " or " . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "% had content provided by " . $provider[$i] . ".
+        " . number_format($total_taxon_id) . " or " . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "% had content provided by " . $provider[$i];
+        
+        /*
+        print"
         <br>
         Those " . number_format($total_taxon_id) . " species pages were viewed by 
         " . number_format($total_unique_page_views) . " distinct visitors for a total of 
-        " . number_format($total_page_views) . " page viewings during the month.
+        " . number_format($total_page_views) . " page viewings during the month.";
+        */
+        
+        print"
         <br>
         Visitors spent a total of " . number_format($total_time_on_page_seconds/60/60,1) . " hours on species pages with " . $provider[$i] . " content, representing 
         " . number_format(($total_time_on_page_seconds/60/60)/($eol_total_time_on_page_seconds/60/60)*100,2) . "% of the total time spent on the EOL site.

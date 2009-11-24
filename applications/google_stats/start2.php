@@ -1,7 +1,5 @@
-#!/usr/local/bin/php
 <?php
 //#!/usr/local/bin/php
-//
 //exit;
 
 define("ENVIRONMENT", "slave_32");

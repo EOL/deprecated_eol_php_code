@@ -1,7 +1,5 @@
-#!/usr/local/bin/php
 <?php
 //#!/usr/local/bin/php
-//
 //exit;
 
 define("ENVIRONMENT", "slave_32");
@@ -16,16 +14,10 @@ set_time_limit(0);
 
 $month = get_val_var("month");
 $year = get_val_var("year");
-
-
-//$month = "04"; $year = "2009";
-
+/* $month = "04"; $year = "2009"; */
 $month = GetNumMonthAsString($month, $year);
-
-//$year_month = "2009_04";
-
+/* $year_month = "2009_04"; */
 $year_month = $year . "_" . $month;
-
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year_month;
 
 //=================================================================
