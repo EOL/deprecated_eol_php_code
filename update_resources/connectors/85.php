@@ -1,9 +1,9 @@
 <?php
 //#!/usr/local/bin/php
-/* North American Mammals connector */
+/* North American Mammals connector - this will not be ran from BEAST because data is coming from provider's MDB */
 exit;
 
-//define("ENVIRONMENT", "development");
+define("ENVIRONMENT", "development"); //always to run locally
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -15,7 +15,7 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
  */
 
-$resource = new Resource(85); //orig is 85 for North American Mammals
+$resource = new Resource(1); //orig is 85 for North American Mammals
 //print $resource->id; exit;
 
 $bad_char='';
@@ -47,7 +47,7 @@ inner Join nam_genus ON nam_species.genus_id = nam_genus.genus_id
 left Join nam_family ON nam_genus.family_id = nam_family.Family_ID
 left Join nam_orders ON nam_family.order_id = nam_orders.order_id
 left Join nam_conservation_status ON nam_species.conservation_status_id = nam_conservation_status.id ";
-//$query .= " limit 10 ";
+$query .= " limit 10 ";   //for debug only
 
 $result = $mysqli->query($query);    
 
@@ -115,23 +115,46 @@ while($row=$result->fetch_assoc())
     //$license_text = trim($xml->image->creativeCommons);
     //$license = null;    
     $description = $row["legend"];                
+    
     if($row["adaptation"] != "")$description .= "<br><br>Adaptation: $row[adaptation]";        
-    if($row["dimorphism"] != "")$description .= "<br><br>Sexual Dimorphism: $row[dimorphism]";    
-
-    if($row["avg_length"] != "" or $row["range_length"] != "")$description .= "<br><br>Length:";
-    if($row["avg_length"] != "")$description .= "<br>Average: $row[avg_length]";
-    if($row["range_length"] != "")$description .= "<br>Range: $row[range_length]";
-
-    if($row["avg_weight"] != "" or $row["range_weight"] != "")$description .= "<br><br>Weight:";
-    if($row["avg_weight"] != "")$description .= "<br>Average: $row[avg_weight]";
-    if($row["range_weight"] != "")$description .= "<br>Range: $row[range_weight]";    
 
     if($row["links"] != "")$description .= "<br><br>Links:<br>" . str_ireplace("<br><br>", "<br>", $row["links"]);
     $reference = $row["refs"];                    
+    
     $title="Description";
     $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
     $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference, $subject, $title);       
     $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+    
+    //start another dataobject
+    $description="";
+    if($row["dimorphism"] != "")$description .= "Sexual Dimorphism: $row[dimorphism]";    
+    
+    if($description != "")$description .= "<br><br>";
+
+    if($row["avg_length"] != "" or $row["range_length"] != "")$description .= "Length:";
+    if($row["avg_length"] != "")$description .= "<br>Average: $row[avg_length]";
+    if($row["range_length"] != "")$description .= "<br>Range: $row[range_length]";
+    
+    if($description != "")$description .= "<br><br>";
+
+    if($row["avg_weight"] != "" or $row["range_weight"] != "")$description .= "Weight:";
+    if($row["avg_weight"] != "")$description .= "<br>Average: $row[avg_weight]";
+    if($row["range_weight"] != "")$description .= "<br>Range: $row[range_weight]";    
+
+    if($description != "")
+    {
+        $do_cnt++;
+        $dc_identifier = "$taxon_identifier" . "_" . $do_cnt;
+
+        $title="Size in North America";
+        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size";                
+        $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference, $subject, $title);       
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+    }
+    
+    //end another dataobject
+    
      
     // /* a second dataobject     
     if($row["conservation_status_notes"] != "")

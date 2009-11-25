@@ -516,7 +516,8 @@ function parse_contents($str)
     if($taxa == "P. wickerhamii")$taxa = "Prototheca wickerhamii";
     if($taxa == "S. pyogenes")$taxa = "Streptococcus pyogenes";
     if($taxa == "T. rubrum var. rodhaini")$taxa = "Trichophyton rubrum var. rodhaini";
-    if($taxa == "T. terrestre")$taxa = "Trichophyton terrestre";
+    if($taxa == "T. terrestre")$taxa = "Trichophyton terrestre";    
+    if($taxa == "H. capsulatum")$taxa = "Histoplasma capsulatum";
     
     if (in_array($taxa, array("wasps","Wasps")))$taxa="Hymenoptera";    
     if (in_array($taxa, array("siphon","siphon tuft","Siphona irritans","siphonal hairs","siphonal tufts")))$taxa="Culex pipiens";    
