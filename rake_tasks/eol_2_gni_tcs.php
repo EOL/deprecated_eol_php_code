@@ -17,7 +17,16 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 /* EOL to GNI-TCS */
 
 $used = array();
+
+
+/* local
 $resource_path = "..\applications\content_server\gni_tcs_files\eol_names.xml";
+*/
+
+// /* beast and local
+$resource_path = LOCAL_ROOT."\\applications\\content_server\\gni_tcs_files\\eol_names.xml";
+// */
+
 $FILE = fopen($resource_path, 'w+');
 
 $header="<?xml version=\"1.0\" encoding=\"utf-8\"?>
@@ -77,6 +86,7 @@ $qry="SELECT tc.id, n.string, ranks.label, he.hierarchy_id, he.lft, he.rgt FROM 
 ON (tc.id=tcn.taxon_concept_id) JOIN names n ON (tcn.name_id=n.id) JOIN hierarchy_entries he 
 ON (tcn.source_hierarchy_entry_id=he.id) left Join ranks ON he.rank_id = ranks.id WHERE tc.published=1 
 AND tc.vetted_id IN (0, ".Vetted::find('Trusted').") AND vern=0 "; 
+$qry .= " limit 10";
 //$qry .= " limit 10000,20";
 //AND preferred=1
 
