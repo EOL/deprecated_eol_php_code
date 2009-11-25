@@ -24,7 +24,7 @@ $resource_path = "..\applications\content_server\gni_tcs_files\eol_names.xml";
 */
 
 // /* beast and local
-$resource_path = LOCAL_ROOT."/applications/content_server/gni_tcs_files/eol_names.xml";
+$resource_path = LOCAL_ROOT."applications/content_server/gni_tcs_files/eol_names.xml";
 // */
 
 $FILE = fopen($resource_path, 'w+');
