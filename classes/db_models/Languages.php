@@ -16,11 +16,18 @@ class Language extends MysqlBase
         $string = trim($string);
         if(!$string) return 0;
         
-        if($result = self::find_by_iso_639_1($string)) return $result;
-        if($result = self::find_by_iso_639_2($string)) return $result;
-        if($result = self::find_by_iso_639_3($string)) return $result;
-        if($result = self::find($string)) return $result;
-        return parent::insert_fields_into(array('label' => $string), Functions::class_name(__FILE__));
+        if(isset($GLOBALS['find_by_ids'][Functions::class_name(__FILE__)]['insert_lookup'][$string])) return $GLOBALS['find_by_ids'][Functions::class_name(__FILE__)]['insert_lookup'][$string];
+        $id = 0;
+        
+        if($result = self::find_by_iso_639_1($string)) $id = $result;
+        elseif($result = self::find_by_iso_639_2($string)) $id = $result;
+        elseif($result = self::find_by_iso_639_3($string)) $id = $result;
+        elseif($result = self::find($string)) $id = $result;
+        else $id = parent::insert_fields_into(array('label' => $string), Functions::class_name(__FILE__));
+        
+        if(@!$GLOBALS['no_cache'][Functions::class_name(__FILE__)]) $GLOBALS['find_by_ids'][Functions::class_name(__FILE__)]['insert_lookup'][$string] = $id;
+        
+        return $id;
     }
     
     static function find_by_iso_639_1($string)
