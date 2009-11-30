@@ -1,7 +1,7 @@
 <?php
 
 //define("ENVIRONMENT", "integration");		//where stats are stored
-//define("ENVIRONMENT", "development");		//where stats are stored
+//define("ENVIRONMENT", "development");        //where stats are stored
 //define("ENVIRONMENT", "data_main");		//where stats are stored
 
 print"<table style='font-family : Arial; font-size : x-small;'><tr><td>";
@@ -11,19 +11,31 @@ define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-
-
 $step=50;
+
+
+// this block checks the latest PUBLISHED harvest events for each resource - from PL
+$latest_published = array();
+$result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events WHERE published_at IS NOT NULL GROUP BY resource_id");
+while($result && $row=$result->fetch_assoc())
+{
+    $latest_published[$row['resource_id']] = $row['max_published'];
+}
+
    
 //start new
-$query=" Select Max(harvest_events.id) as max From resources Inner Join harvest_events ON resources.id = harvest_events.resource_id 
-Group By resources.id Order By max ";
+$query=" Select Max(harvest_events.id) as max From resources Inner Join harvest_events ON resources.id = harvest_events.resource_id Group By resources.id Order By max ";
 $result = $mysqli->query($query);	
 $temp_arr=array();
 while($result && $row=$result->fetch_assoc())
 {
-	$temp_arr[$row["max"]]=1;
-	//print $row["max"] . " , ";	
+    // if the event is in preview mode, and there is a different PUBLISHED event, then used the published one
+    if(@$latest_published[$row['resource_id']])
+    {
+        $id = $latest_published[$row['resource_id']];
+        $temp_arr[$id] = 1;
+    }
+    else $temp_arr[$row["max"]] = 1;       
 }
 $temp_arr = array_keys($temp_arr);
 //end new

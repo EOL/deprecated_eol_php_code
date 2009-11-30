@@ -435,6 +435,8 @@ if($view == 3)
         $arr['Number of hidden and unvetted data objects'][$i]                     = number_format($row["vetted_unknown_published_notVisible_uniqueGuid"]);
         $arr['Number of hidden and unreliable data objects'][$i]                 = number_format($row["vetted_untrusted_published_notVisible_uniqueGuid"]);
         
+        $arr['Number of user submitted text data objects (published)'][$i]           = number_format($row["user_submitted_text"]);
+        
         $arr2['id'][$i] = $row["id"];    // this is the page_stats!id which is an autoctr
         $i++;
     }    
