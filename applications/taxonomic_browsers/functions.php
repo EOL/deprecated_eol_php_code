@@ -243,10 +243,10 @@ function show_name_he($hierarchy_entry, $indent, $expand)
         $arr = array();
         foreach($agents as $agent)
         {
-            $arr[] = $agent->agent->display_name;
+            $arr[] = @$agent->agent->display_name;
         }
         
-        $display .= " <small>(".implode(", ", $arr)."</small>";
+        $display .= " <small>(".implode(", ", $arr).")</small>";
     }
     
     $display .= " <small>tc_id:".$hierarchy_entry->taxon_concept_id."</small>";

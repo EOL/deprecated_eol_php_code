@@ -27,7 +27,6 @@ if($id)
     $hierarchy_entry = new HierarchyEntry($id);
     echo "<h2>".$hierarchy_entry->hierarchy()->label."</h2>";
     
-    show_kingdoms_he($hierarchy_entry->hierarchy_id);
     
     $indent = show_ancestry_he($hierarchy_entry);
     
@@ -38,6 +37,10 @@ if($id)
     else show_children_he($hierarchy_entry, $indent);
     
     show_synonyms_he($hierarchy_entry);
+    
+    echo "<hr>";
+    show_kingdoms_he($hierarchy_entry->hierarchy_id);
+    
 }elseif($hierarchy_id)
 {
     $hierarchy = new Hierarchy($hierarchy_id);
