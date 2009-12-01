@@ -37,8 +37,34 @@ function get_graph($title)
     $arr = get_values_fromCSV("date");
     $date_comma_separated = get_comma_separated($arr,"|");
 
-    return "$comma_separated <hr> $date_comma_separated <hr>
-    <img src='http://chart.apis.google.com/chart?chs=700x300&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt='Sample chartx' /><hr>";    
+    //print "$comma_separated <hr> $date_comma_separated <hr>";
+    //return "<img src='http://chart.apis.google.com/chart?chs=700x300&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt=''/>";    
+    return "<img src='http://chart.apis.google.com/chart?chs=700x300&amp;chxt=y&amp;chxr=0,$range1,$range2&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt=''/>";    
+
+    /*
+chxt=x,y,r
+chxr=0,100,500|
+     1,0,200|
+     2,1000,0    
+    
+    range for y axis: 
+    chxt=y&amp;chxr=0,$range1,$range2&amp;
+    
+    background color:
+    chf=bg,s,EFEFEF&amp;
+    chf=bg,s,EFEFEF&amp;
+    
+    fill color:
+    chm=B,76A4FB,0,0,0&amp;
+    chm=B,76A4FB,0,0,0&amp;
+    chd=s:ATSTaVd21981uocA
+    
+    solid fill:
+    chf=bg,s,EFEFEF&amp;
+    chf=bg,s,EFEFEF&amp;
+    
+    */
+    
 }
 
 function get_comma_separated($arr,$sep)
@@ -96,7 +122,7 @@ function get_values_fromCSV($title)
     {
         $total = count($arr["$title"]);
         $div = intval($total/7);
-        print "<hr>$total<hr>";
+        //print "<hr>$total<hr>";
         $arr_new = array();
         $arr_new[] = $arr[$title][0];
         for ($i = 1; $i < $total-1; $i++) //not use $i = 0 and $i < $total so that u wont get the 1st and last date

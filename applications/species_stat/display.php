@@ -369,7 +369,7 @@ if($view == 3)
         else            {$vcolor = '#ccffff';}        
         print "<tr bgcolor=$vcolor>";
 
-        print "<td>$label[$i]</td>";
+        print "<td><a href='graph.php?title=$label[$i]'>$label[$i]</a></td>";
         for ($k = 0; $k < $sql->num_rows; $k++) 
         {
 
