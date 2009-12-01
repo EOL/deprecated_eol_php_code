@@ -363,7 +363,7 @@ for ($i = 0; $i < count($provider); $i++)
     {
         $agentID = get_agentID($provider[$i]);
         if($agentID != "") print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
-        else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=$provider[$i]'> See entire report* &gt;&gt; </a></td></tr>";         
+        else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=" . urlencode($provider[$i]) . "'> See entire report* &gt;&gt; </a></td></tr>";         
     }
 
     if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path,$start_cnt,$total_taxon_id,$agentID) . "</td></tr>";
@@ -537,8 +537,8 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
         }    
         else
         {
-            $str .= "<a href='process.php?path=" . $path . "&provider=" . $provider . "&start_cnt=$max_cnt'>Next $next_step</a> &nbsp;|&nbsp; 
-                     <a href='process.php?path=" . $path . "&provider=" . $provider . "&start_cnt=all'>All</a> ";
+            $str .= "<a href='process.php?path=" . $path . "&provider=" . urlencode($provider) . "&start_cnt=$max_cnt'>Next $next_step</a> &nbsp;|&nbsp; 
+                     <a href='process.php?path=" . $path . "&provider=" . urlencode($provider) . "&start_cnt=all'>All</a> ";
         }
      
         
@@ -901,6 +901,8 @@ function getlastdayofmonth($month, $year)
 function get_agentID($agentName)
 {
     global $mysqli;
+    
+    $agentName = str_ireplace("'" , "''", $agentName);	
     
     $query="Select agents.id,agents.full_name,agents.display_name,agents.updated_at,
     agents.created_at,agents.agent_status_id,harvest_events.id From
