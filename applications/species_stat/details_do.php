@@ -16,7 +16,8 @@ $step=50;
 
 // this block checks the latest PUBLISHED harvest events for each resource - from PL
 $latest_published = array();
-$result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events WHERE published_at IS NOT NULL GROUP BY resource_id");
+//$result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events WHERE published_at IS NOT NULL GROUP BY resource_id");
+$result = $mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events WHERE published_at IS NOT NULL GROUP BY resource_id");
 while($result && $row=$result->fetch_assoc())
 {
     $latest_published[$row['resource_id']] = $row['max_published'];
