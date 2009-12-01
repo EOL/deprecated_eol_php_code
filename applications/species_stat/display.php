@@ -369,7 +369,8 @@ if($view == 3)
         else            {$vcolor = '#ccffff';}        
         print "<tr bgcolor=$vcolor>";
 
-        print "<td><a href='graph.php?title=$label[$i]'>$label[$i]</a></td>";
+        if($label[$i] != 'Run date')print "<td><a href='graph.php?title=$label[$i]'>$label[$i]</a></td>";
+        else                        print "<td>$label[$i]</td>";
         for ($k = 0; $k < $sql->num_rows; $k++) 
         {
 
