@@ -1,11 +1,13 @@
 <?php
 
+/*
 define("ENVIRONMENT", "slave_32");        //where stats are stored
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
-
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+*/
+
 
 set_time_limit(0);
 
@@ -20,8 +22,8 @@ chs=250x100
 
 
 //exit;
-
-$arr = get_values_fromCSV("Total number of pages");
+$title = "Total number of pages with names not in CoL";
+$arr = get_values_fromCSV($title);
 $comma_separated = get_comma_separated($arr,",");
 
 $arr = get_values_fromCSV("date");
@@ -30,11 +32,12 @@ $date_comma_separated = get_comma_separated($arr,"|");
 
 print"$comma_separated <hr>
 <img src='http://chart.apis.google.com/chart?
-chs=500x200
+chs=1000x300
+&amp;chtt=$title
 &amp;cht=lc
-&amp;chd=t:1476043,1476079,1476081,1476086,1476121,1476149,1478513,1478598
-&amp;chds=0,10
-&amp;chl=1|2|3'
+&amp;chd=t:$comma_separated
+&amp;chds=151000,200000
+&amp;chl=$date_comma_separated'
 alt='Sample chart' /><hr>";
 
 function get_comma_separated($arr,$sep)
@@ -71,7 +74,8 @@ function get_values_fromCSV($title)
             for ($c=0; $c < $num; $c++) 
             {        
                 if($row==0) $label[]=$data[$c];
-                else        $arr["$label[$c]"][]=log10($data[$c]/10);                
+				else        $arr["$label[$c]"][]=$data[$c];
+                //else        $arr["$label[$c]"][]=log10($data[$c])/10;                
                 /*
                 if($c==0)$arr["date"]                   =$data[$c];
                 if($c==1)$arr["time"]                   =$data[$c];
