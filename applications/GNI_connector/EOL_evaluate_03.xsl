@@ -2,7 +2,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
-	xmlns:eol="http://www.eol.org/transfer/content/0.2">
+	xmlns:eol="http://www.eol.org/transfer/content/0.3">
 
 	
 <!--
