@@ -108,6 +108,7 @@ class CompareHierarchies
         }
         
         fclose($SQL_FILE);
+        echo 'loading data\n';
         $mysqli->load_data_infile($sql_filepath, "new_hierarchy_entry_relationships");
         
         // remove the tmp file
@@ -157,7 +158,6 @@ class CompareHierarchies
                 //     {
                 //         echo "Non-Match $total_bad_matches of $total_comparisons (".round(($total_bad_matches/$total_comparisons)*100, 2)."%)<table border><tr><td valign=top>". Functions::print_pre($entry, 1) ."</td><td valign=top>". Functions::print_pre($matching_entry, 1) ."</td></tr></table><hr>\n";
                 //     }
-                //     
                 // }
             }
         }

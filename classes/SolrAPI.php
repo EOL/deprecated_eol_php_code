@@ -140,11 +140,11 @@ class SolrAPI
                     if(is_array($attributes[$attr]))
                     {
                         $multi_values[$attr] = 1;
-                        $values = array_map(array('SolrAPI','text_filter'), array_keys($attributes[$attr]));
+                        $values = array_keys($attributes[$attr]);
                         $this_attr[] = implode($this->multi_value_delimiter, $values);
                     }else
                     {
-                        $this_attr[] = SolrAPI::text_filter($attributes[$attr]);
+                        $this_attr[] = $attributes[$attr];
                     }
                 }
                 // default value is empty string
@@ -188,7 +188,7 @@ class SolrAPI
     }
     
     
-    private function text_filter($text)
+    public static function text_filter($text, $convert_to_ascii = true)
     {
         if(!Functions::is_utf8($text)) return "";
         $text = str_replace(";", " ", $text);
@@ -199,7 +199,7 @@ class SolrAPI
         $text = str_replace("\n", "", $text);
         $text = str_replace("\r", "", $text);
         $text = str_replace("\t", "", $text);
-        $text = Functions::utf8_to_ascii($text);
+        if($convert_to_ascii) $text = Functions::utf8_to_ascii($text);
         while(preg_match("/  /", $text)) $text = str_replace("  ", " ", $text);
         return trim($text);
     }

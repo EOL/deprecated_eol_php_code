@@ -65,13 +65,15 @@ function lookup_names($start, $limit)
         if($row['vern'] && $string)
         {
             $attr = 'common_name';
-            $GLOBALS['objects'][$id][$attr][$string] = 1;
+            $GLOBALS['objects'][$id][$attr][SolrApi::text_filter($string, false)] = 1;
+            $GLOBALS['objects'][$id][$attr][SolrApi::text_filter($string)] = 1;
         }elseif($string)
         {
             if($row['preferred']) $attr = 'preferred_scientific_name';
             else $attr = 'scientific_name';
             
-            $GLOBALS['objects'][$id][$attr][$string] = 1;
+            $GLOBALS['objects'][$id][$attr][SolrApi::text_filter($string, false)] = 1;
+            $GLOBALS['objects'][$id][$attr][SolrApi::text_filter($string)] = 1;
         }
         
         $GLOBALS['objects'][$id]['vetted_id'] = $row['vetted_id'];

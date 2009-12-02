@@ -81,9 +81,9 @@ function lookup_names($start, $limit)
         $GLOBALS['objects'][$id]['rank_id'] = $row['rank_id'];
         $GLOBALS['objects'][$id]['vetted_id'] = $row['vetted_id'];
         $GLOBALS['objects'][$id]['published'] = $row['published'];
-        $GLOBALS['objects'][$id]['name'] = $row['string'];
-        $GLOBALS['objects'][$id]['canonical_form'] = $row['canonical_form'];
-        $GLOBALS['objects'][$id]['canonical_form_string'] = $row['canonical_form'];
+        $GLOBALS['objects'][$id]['name'] = SolrApi::text_filter($row['string']);
+        $GLOBALS['objects'][$id]['canonical_form'] = SolrApi::text_filter($row['canonical_form']);
+        $GLOBALS['objects'][$id]['canonical_form_string'] = SolrApi::text_filter($row['canonical_form']);
     }
 }
 
@@ -117,7 +117,7 @@ function lookup_ancestries()
     }
     
     echo "done looking up ancestries\n";
-
+    
     if(@$GLOBALS['objects'])
     {
         foreach(@$GLOBALS['objects'] as $id => $junk)
@@ -126,7 +126,7 @@ function lookup_ancestries()
             {
                 foreach($ancestry as $rank => $name)
                 {
-                    $GLOBALS['objects'][$id][$rank] = $name;
+                    $GLOBALS['objects'][$id][$rank] = SolrApi::text_filter($name);
                 }
             }
         }
@@ -174,11 +174,11 @@ function lookup_synonyms($start, $limit)
         if(($row['language_id'] && $row['language_id'] != $sci) || $relation_id == SynonymRelation::insert('common name')) $field = 'common_name';
         else $field = 'synonym';
         
-        $GLOBALS['objects'][$id][$field][$row['string']] = 1;
+        $GLOBALS['objects'][$id][$field][SolrApi::text_filter($row['string'])] = 1;
         
         if($field == 'synonym' && $row['canonical_form'])
         {
-            $GLOBALS['objects'][$id]['synonym_canonical'][$row['canonical_form']] = 1;
+            $GLOBALS['objects'][$id]['synonym_canonical'][SolrApi::text_filter($row['canonical_form'])] = 1;
         }
     }
 }
