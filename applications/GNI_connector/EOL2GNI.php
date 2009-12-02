@@ -86,13 +86,15 @@ else
 $xsl = new DOMDocument;        
 if($what == 'transform')
 {    
-    if($namespaces[''] == "http://www.eol.org/transfer/content/0.1")$xsl->load('EOL2GNI_01.xsl');
-    else                                                            $xsl->load('EOL2GNI.xsl');
+    if($namespaces[''] == "http://www.eol.org/transfer/content/0.1")    $xsl->load('EOL2GNI_01.xsl');
+    elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.2")$xsl->load('EOL2GNI_02.xsl');
+    elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.3")$xsl->load('EOL2GNI_03.xsl');
 }
 elseif($what == 'evaluate')
 {    
-    if($namespaces[''] == "http://www.eol.org/transfer/content/0.1")$xsl->load('EOL_evaluate_01.xsl');
-    else                                                            $xsl->load('EOL_evaluate.xsl');
+    if($namespaces[''] == "http://www.eol.org/transfer/content/0.1")    $xsl->load('EOL_evaluate_01.xsl');
+    elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.2")$xsl->load('EOL_evaluate_02.xsl');
+    elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.3")$xsl->load('EOL_evaluate_03.xsl');
 }
 $proc = new XSLTProcessor;    
 /* //######################################################################################################
