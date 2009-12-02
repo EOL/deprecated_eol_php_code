@@ -5,7 +5,6 @@ connector for Public Health Image Library (CDC)
 http://phil.cdc.gov/phil/home.asp
 */
 
-
 //exit;
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");

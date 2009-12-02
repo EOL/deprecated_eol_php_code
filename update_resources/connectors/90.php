@@ -41,7 +41,7 @@ foreach($urls as $path)
     if($path["active"])
     {
         print $i . " " . $path["url"] . "$wrap $wrap";        
-        if      ($i == 0)               process_file1($path["url"]); 
+        if      ($i == 0)               process_file1($path["url"]); //get the URLs
         elseif  ($i >= 1 and $i <= 7)   process_file2($path["url"]);           
         elseif  ($i >= 8 and $i <= 14)  process_file3($path["url"]);    
         elseif  ($i >= 15 and $i <= 16) process_file4($path["url"],$i); 
@@ -101,126 +101,125 @@ function process_file3($file)
 }//end function process_file3($file)
 
 function process_file1($file)
-{    
-    
+{        
     global $wrap;
     global $used_taxa;
     
-    print "$wrap $wrap";
+    print "$wrap";
     
-    $str = Functions::get_remote_file($file);
-    $str = clean_str($str);
+    $str = Functions::get_remote_file($file);    
     
-    
-    $str = str_ireplace('<a href="http://blog.jakerocheleau.com/?drag_me_to_hell">Drag Me to Hell movie</a>' , "", $str);	
-    
-
-    /*
-    $str = str_ireplace('&times;' , "", $str);    //for Vernonia × illinoensis (Illinois Ironweed)
-    $str = str_ireplace('<BR>' , "<br>", $str);	
-    $str = strip_tags($str, '<br><a>');
-    $str = "<br>" . $str;
-    $str = str_ireplace('<br><br>' , "&arr[]=", $str);	
-    $str = str_ireplace('<br>' , "&arr[]=", $str);	
+    //cleaning bad html code
+    $str = str_ireplace('<a href="http://blog.jakerocheleau.com/?drag_me_to_hell">Drag Me to Hell movie</a>' , '', $str);	    
+    $str = str_ireplace('<strong>005<em>.</em></strong></span><strong><em> </em></strong> </a>' , '<strong>005<em>.</em></strong></span><strong><em> </em></strong>', $str);	
+    /*    
+    $str = str_ireplace('Black-Knobbed Map Turtle, Black-Knobbed Sawback.' , 'Black-Knobbed Map Turtle, Black-Knobbed Sawback.</a>', $str);	
+    $str = str_ireplace('<div style="display:none"><a href="http://www.baserinstincts.com/?finding_neverland">Finding Neverland buy</a></div>' , '', $str);	
+    $str = str_ireplace('<p> </span><a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc/cuora-flavomarginata-035/">' , '</span><a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc/cuora-flavomarginata-035/">', $str);	
+    $str = str_ireplace('<p> <u style="display:none"><a href="http://www.iucn-tftsg.org/?mad_max_beyond_thunderdome">Mad Max Beyond Thunderdome buy</a></u> </p>' , '', $str);	
+    $str = str_ireplace('<strong style="display: none;"><a href="http://satellitephonesinfo.com/?next_friday">Next Friday buy</a></strong>' , '', $str);
+    $str = str_ireplace('<form style="display:none"><a href="http://onepercentpress.com/?drumline">Drumline buy</a></form>' , '', $str);
+    $str = str_ireplace('<p> <u style="display:none"><a href="http://satellitephonesinfo.com/?wall_e">WALL-E release</a></u> </p>' , '', $str);
+    $str = str_ireplace('<div style="display:none"><a href="http://www.bcen.net/?tenacious_d_in_the_pick_of_destiny">Tenacious D in The Pick of Destiny release</a></div>' , '', $str);
+    $str = str_ireplace('<em style="display:none"><a href="http://royalstreetinn.com/?cold_mountain">Cold Mountain full</a></em>' , '', $str);
+    $str = str_ireplace('<div style="display:none"><a href="http://satellitephonesinfo.com/?boat_trip">Boat Trip trailer</a></div>' , '', $str);
+    $str = str_ireplace('<em style="display:none"><a href="http://isighttech.com/?kevin_perry_go_large">Kevin &#038; Perry Go Large movie full</a></em>' , '', $str);
+    $str = str_ireplace('<span><span style="font-style: italic;">Chelodina</span></span></a><a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc/chelodina-longicollis-031/"><em> longicollis</em> (Shaw 1794) &ndash; Eastern Long-Necked Turtle, Common Long-Necked Turtle,</a>' , 'Chelodina longicollis (Shaw 1794) &ndash; Eastern Long-Necked Turtle, Common Long-Necked Turtle,</a>', $str);
     */
+    //$str = str_ireplace('</a><a href="javascript:void(0)/*306*/">' , '', $str);
     
-    $pos = stripos($str,'href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc');
-    $pos = $pos-3;
-    $str = substr($str,$pos, strlen($str));
-    $pos = stripos($str,'<div id="footer" class="titletxt">');
-    $str = substr($str,0, $pos);
+    $bad_url = array("http://blog.jakerocheleau.com/?drag_me_to_hell",
+                     "http://royalstreetinn.com/?cold_mountain",
+                     "http://onepercentpress.com/?drumline",
+                     "javascript:void(0)/*306*/",
+                     "http://www.baserinstincts.com/?finding_neverland",
+                     "http://isighttech.com/?kevin_perry_go_large",
+                     "http://www.iucn-tftsg.org/cbftt/toc-ind/toc/checklist/"
+                    );    
     
-    $str = trim($str);
-    print $str; exit;
-    $str = str_ireplace('<a href=' , "&arr[]=<a href=", $str);	
-        
-    //exit;
-
+    $str = str_ireplace('<a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc' , '&arr[]=<a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc', $str);	  
     $arr=array();	
     parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
+    print "after parse_str recs = " . count($arr) . "$wrap";	//print_r($arr);
     
+    $arr2=array();
     for ($i = 0; $i < count($arr); $i++) 
     {
-        print "$arr[$i] <br>";
-    }
-    
-    
-    
-
-    //print $str;
-    exit;
-    
-    process_loop($arr,"http://flowervisitors.info/","Plantae");
-    
+        $temp = $arr[$i];                
+        $beg='<a href="'; $end1='">'; $end2="173xxx";            
+        $url = trim(parse_html($temp,$beg,$end1,$end2,$end2,$end2,""));            
+        if(!in_array($url,$bad_url))$arr2["$url"]=1;
+    }    
+    $arr2 = array_keys($arr2);    
+    process_loop($arr2);
 }//end function process_file1($file)
 
-function process_loop($arr,$path,$kingdom)
+function process_loop($arr) //run each URL and extract data
 {
     global $wrap;
     
     $i=0;
-    foreach($arr as $species)
+    foreach($arr as $url)
     {
-        //if($i >= 3)break; //debug
+        if($i >= 1)break; //debug
         $i++;
 
-        $species = clean_str($species);
-        //print "{$species}";       
-        /* <A HREF="plants/velvetleaf.htm" NAME="velvetleaf">Abutilon theophrastii (Velvet Leaf)</A> */
-        $sciname="";$commonname="";$url="";    
-        $beg='HREF="'; $end1='" NAME'; $end2="173xxx";    $url = $path . trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true));    
-
-        $species = strip_tags($species);            
-        $species = "xxx" . $species;    
-    
-        $beg='('; $end1=')'; $end2="173xxx";    $commonname = parse_html($species,$beg,$end1,$end2,$end2,$end2,"");
-        $beg='xxx'; $end1='('; $end2="173xxx";    $sciname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,""));
-    
-        print "[$sciname][$commonname][$url]";
-
         $str = Functions::get_remote_file($url);    
-        //$str = clean_str($str);
+        $str = clean_str($str);
         
-        //start get title
-        $title="";
-        $beg='</TITLE>'; $end1='<HR'; $end2="173xxx";    
-        $title = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
-        $title = str_ireplace('<BR>' , " ", $title);        
+        //clean html
+        $str = str_ireplace('<span style="color: rgb(0, 0, 0);">' , '', $str);	    
+        $str = str_ireplace('<span style="color: rgb(255, 0, 0);">' , '', $str);	    
+        $str = str_ireplace('</span>' , '', $str);	    
         
-        //start check if (xxx) is same as sciname
-        /*
-        $beg='by'; $end1='('; $end2="173xxx";    
-        $temp = trim(parse_html($title,$beg,$end1,$end2,$end2,$end2,""));            
-        $temp = trim(clean_str($temp));
-        print "[[($temp) -- ($sciname)]]";
-        $title = trim(strip_tags($title));
-        if($temp != $sciname) $title .= " (<i>$sciname</i>)";
-        */
-        $title = trim(strip_tags($title));
-        //$pos = stripos($title,substr($sciname,0,stripos($sciname," ")));
-        $pos = strripos($title,trim(substr($sciname,strripos($sciname," ")+1,strlen($sciname))));
-        print "((" . $pos . "))";
-        if($pos == "")$title .= " (<i>$sciname</i>)";
-        //end
+       
+        //get sciname                
+        $beg='<p style="text-align: center;"><i><b>'; $end1='<br />'; $end2="173xxx";            
+        $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+        if(!$sciname)
+        {
+            $beg='<p style="text-align: center;"><b><i>'; $end1='<br />'; $end2="173xxx";            
+            $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+        }
+        if(!$sciname)
+        {
+            $beg='<p style="text-align: center;"><strong><em>'; $end1='<br />'; $end2="173xxx";            
+            $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+        }
+        if(!$sciname)
+        {
+            $beg='<p style="text-align: center;"><em><strong>'; $end1='<br />'; $end2="173xxx";            
+            $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
+        }
+        //$sciname = strip_tags($sciname);            
+        //end get sciname
         
-        print "$wrap $wrap x[$title][$sciname] " . " " . " $wrap"; //exit;
-        //end get title
         
-        $str = clean_str($str);        
-        //start get desc            
-        $desc="";
-        $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
-        $desc = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
-        $desc = strip_tags($desc,"<br><b><i>");            
-        //print "[$desc]";
-        print"$wrap $wrap";
-        //end get desc    
+        //get common name
+        $tmp_str = $str;
+        $pos = stripos($tmp_str,$sciname);     
+        print "pos = [$pos] <hr>";
+        $tmp_str=trim(substr($tmp_str,$pos+strlen($sciname),strlen($tmp_str)));
+              
+
+        $tmp_str = "xxx" . $tmp_str;
+        $beg='xxx'; $end1='<br />'; $end2="173xxx";            
+        $comname = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,""));            
+
+        //print "$str<hr>";
         
-        $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
+        //end get common name
+
+
+
         
-        //if($desc != "") 
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
+                
+        $sciname = str_ireplace('<p>' , '', $sciname);	    
+        print "$i. $sciname {$comname}<br>";
+        
+        
+        //$subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";        
+        //assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
         
     }//main loop
 
