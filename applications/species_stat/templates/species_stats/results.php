@@ -38,7 +38,6 @@ print "Number of params returned: " . count($arr) . "<br>";
 
 if(count($arr)==26)//group 4 //if(count($arr)==37)//group 4
 {      
-
     print"Published Data Objects: <br/>";
     $flickr_count = $arr[24];
     $user_do_count = $arr[25];

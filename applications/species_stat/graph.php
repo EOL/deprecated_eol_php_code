@@ -32,13 +32,9 @@ function get_graph($title)
     */
     $range1 = min($arr)-1000;
     $range2 = max($arr)+1000;
-    
-
     $arr = get_values_fromCSV("date");
     $date_comma_separated = get_comma_separated($arr,"|");
-
     //print "$comma_separated <hr> $date_comma_separated <hr>";
-    //return "<img src='http://chart.apis.google.com/chart?chs=700x300&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt=''/>";    
     return "<img src='http://chart.apis.google.com/chart?chs=700x300&amp;chxt=y&amp;chxr=0,$range1,$range2&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt=''/>
     <p><a style='font-size : x-small; font-family : Arial;' href='javascript:history.go(-1)'>&lt;&lt; Back</a>";    
 
@@ -63,6 +59,10 @@ chxr=0,100,500|
     solid fill:
     chf=bg,s,EFEFEF&amp;
     chf=bg,s,EFEFEF&amp;
+    
+    background and fill:    
+    chf=bg,s,EFEFEF20|c,s,00000080&amp;
+    chf=bg,s,EFEFEF20|c,s,00000080&amp;
     
     */
     
@@ -101,11 +101,6 @@ function get_values_fromCSV($title)
             {        
                 if($row==0) $label[]=$data[$c];
 				else        $arr["$label[$c]"][]=$data[$c];
-                //else        $arr["$label[$c]"][]=log10($data[$c])/10;                
-                /*
-                if($c==0)$arr["date"]                   =$data[$c];
-                if($c==1)$arr["time"]                   =$data[$c];
-                */
             }                        
             //if($row == 10)break;    
         }

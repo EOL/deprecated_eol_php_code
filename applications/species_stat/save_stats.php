@@ -1,7 +1,7 @@
 <?php
 //#!/usr/local/bin/php
 
-//define("ENVIRONMENT", "slave");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
