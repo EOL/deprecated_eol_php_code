@@ -21,6 +21,7 @@ if(defined("USING_SPM") && USING_SPM)
 }else require_all_classes(LOCAL_ROOT . "classes/");
 
 Functions::require_module('eol_content_schema');
+Functions::require_module('solr');
 
 date_default_timezone_set('America/New_York');
 setlocale(LC_ALL, 'en_US.ASCII');

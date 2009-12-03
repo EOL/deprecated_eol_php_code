@@ -114,7 +114,6 @@ class SolrAPI
         
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path");
         $this->commit();
-        $this->optimize();
     }
     
     public function send_attributes($objects)
