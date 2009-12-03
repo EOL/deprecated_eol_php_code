@@ -1,8 +1,25 @@
 <?php
 //#!/usr/local/bin/php
-/* turtles website */
+/*  turtles website 
+http://www.iucn-tftsg.org/pub-chron/
+*/
 
 //exit;
+
+ /*
+$str='  abc
+        <p style="dxisplay:none"><a href="http://www.barryshamis.com/?evening">Evening divx</a></p>
+        def
+        <div style="dxisplay:none"><a href="http://isighttech.com/?grizzly_park">Grizzly Park film</a></div>
+        ghi
+        ';
+$str = remove_tag_with_this_needle($str,"display:none");
+print "$str";    
+exit;
+ */
+
+
+
 
 define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
@@ -161,16 +178,78 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-        if($i >= 3)break; //debug
+        //if($i >= 3)break; //debug        //ditox
         $i++;
+//        if($i >= 33){
+        if(1==1){
 
-        $str = Functions::get_remote_file($url);    
-        $str = clean_str($str);
+        $str = Functions::get_remote_file($url);            
         
+        //$str = strip_tags($str,'<a><A><p><b><span><br><hr>');
+        $str = clean_str($str);
         //clean html
         $str = str_ireplace('<span style="color: rgb(0, 0, 0);">' , '', $str);	    
         $str = str_ireplace('<span style="color: rgb(255, 0, 0);">' , '', $str);	    
         $str = str_ireplace('</span>' , '', $str);	    
+        $str = str_ireplace('display: none' , 'display:none', $str);	                    
+      
+        
+
+        //28
+        $str = str_ireplace('<ul style="display:none"><li><a href="http://onepercentpress.com/?torn_curtain">Torn Curtain</a></li></ul>' , '</p>', $str);	    
+
+        $str = remove_tag_with_this_needle($str,"display:none");        
+        
+        /*        
+        $str = str_ireplace('<em style="display:none"><a href="http://www.bcen.net/?the_trial_of_billy_jack">The Trial of Billy Jack video</a></em>' , '', $str);	    
+        //7
+        $str = str_ireplace('<div style="display:none"><a href="http://www.baserinstincts.com/?zombieland">Zombieland hd</a></div>' , '', $str);	    
+        //11
+        $str = str_ireplace('<u style="display:none"><a href="http://johnquiggin.com/?appleseed">Appleseed dvdrip</a></u>' , '', $str);	    
+        //16
+        $str = str_ireplace('<p style="display:none"><a href="http://www.barryshamis.com/?gundam_wing_endless_waltz">Gundam Wing: Endless Waltz hd</a></p>' , '', $str);	    
+        //18
+        $str = str_ireplace('<div style="display:none"><a href="http://www.baserinstincts.com/?clubland">Clubland trailer</a></div>' , '', $str);	    
+        $str = str_ireplace('<p style="display:none"><a href="http://www.chainreaction-community.net/?the_lord_of_the_rings_the_return_of_the_king">The Lord of the Rings: The Return of the King movie download</a></p>' , '', $str);	    
+        //5
+        $str = str_ireplace('<form style="display:none"><a href="http://royalstreetinn.com/?kiss_me_deadly">Kiss Me Deadly the movie</a></form>' , '', $str);	    
+        $str = str_ireplace('<em style="display:none"><a href="http://satellitephonesinfo.com/?traffic">Traffic download</a></em>' , '', $str);	    
+        $str = str_ireplace('<u style="display:none"><a href="http://onepercentpress.com/?powder">Powder release</a></u>' , '', $str);	    
+        $str = str_ireplace('<form style="display:none"><a href="http://chessasia.net/?monsters_inc_">Monsters, Inc. download</a></form>' , '', $str);	    
+        //9
+        $str = str_ireplace('<u style="display:none"><a href="http://onepercentpress.com/?1492_conquest_of_paradise">1492: Conquest of Paradise ipod</a></u>' , '', $str);	    
+        $str = str_ireplace('<u style="display:none"><a href="http://www.chainreaction-community.net/?borderland">Borderland dvd</a></u>' , '', $str);	    
+        //10
+        $str = str_ireplace('<form style="display:none"><a href="http://www.barryshamis.com/?ben_hur">Ben-Hur video</a></form>' , '', $str);	    
+        //21
+        $str = str_ireplace('<u style="display:none"><a href="http://www.womeningreen.org/?old_school">Old School hd</a></u>' , '', $str);	    
+        //22
+        $str = str_ireplace('<div style="display:none"><a href="http://www.bcen.net/?tenacious_d_in_the_pick_of_destiny">Tenacious D in The Pick of Destiny rip</a></div>' , '', $str);	    
+        //23
+        $str = str_ireplace('<em style="display:none"><a href="http://royalstreetinn.com/?braveheart">Braveheart download</a></em>' , '', $str);	    
+        //31
+        $str = str_ireplace('<p style="display:none"><a href="http://satellitephonesinfo.com/?sorority_row">Sorority Row psp</a></p>' , '', $str);	    
+        //26
+        <form style="display:none"><a href="http://chessasia.net/?demon_seed">Demon Seed divx</a></form>
+        <p style="display:none"><a href="http://www.barryshamis.com/?evening">Evening divx</a></p>
+        <div style="display:none"><a href="http://isighttech.com/?grizzly_park">Grizzly Park film</a></div>
+        */      
+
+
+
+        
+        
+        $str = str_ireplace('<sup>1</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>2</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>3</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>4</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>5</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>6</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>7</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>1,2</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>2,3</sup>' , '', $str);	    
+        $str = str_ireplace('<sup>2,4</sup>' , '', $str);	    
+                      
         
        
         //get sciname                
@@ -198,31 +277,193 @@ function process_loop($arr) //run each URL and extract data
         //get common name
         $tmp_str = $str;
         $pos = stripos($tmp_str,$sciname);     
-        print "pos = [$pos] <hr>";
-        $tmp_str=trim(substr($tmp_str,$pos+strlen($sciname),strlen($tmp_str)));
-        
-		//print "[$tmp_str]";      
+        $tmp_str=trim(substr($tmp_str,$pos+strlen($sciname),strlen($tmp_str)));        
 		
+        //6 for
         $tmp_str = "xxx" . substr($tmp_str,6,strlen($tmp_str));
         $beg='xxx'; $end1='&ndash;'; $end2="173xxx";            
         $comname = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));            
-
-        //print "$str<hr>";
-        
+            
+        $comname = "xxx" . $comname;
+        $beg='xxx'; $end1='</p>'; $end2="173xxx";            
+        $comname = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                        
         //end get common name
+        
+        //get agent
+        $tmp_str = $str;
+        $pos = stripos($tmp_str,$comname);     
+        $tmp_str=trim(substr($tmp_str,$pos+strlen($comname),strlen($tmp_str)));                
+        //print "<hr><hr>$tmp_str"; exit;		
+        //4 for </p>
+        $tmp_str = "xxx" . substr($tmp_str,4,strlen($tmp_str));
+        $beg='xxx'; $end1='&ndash;'; $end2="173xxx";            
+        $agent = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));            
+            
+        $agent = "xxx" . $agent;
+        $beg='xxx'; $end1='</p>'; $end2="173xxx";            
+        $agent = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                
+        //end get agent
+        
+        $tmp_str =strip_tags($tmp_str,"<p><b>");
+        $tmp_str =clean_str($tmp_str);
+        
+        //bad html        
+        $tmp_str = str_ireplace('&nbsp;&nbsp;&nbsp; IUCN 2007 Red List:' , 'IUCN 2007 Red List:', $tmp_str);
+        $tmp_str = str_ireplace('&mdash;' , '&ndash;', $tmp_str);
+
+        /*
+        $tmp_str = str_ireplace('Podocnemis lewyana<p>  is primarily' , 'Podocnemis lewyana is primarily', $tmp_str);
+        $tmp_str = str_ireplace('(assessed 2000)<p> <p> ; CITES:' , '(assessed 2000); CITES:', $tmp_str);
+        */
+        
+        
+        
+        
+//        print $tmp_str; exit; //ditox
+
+        //get summary        
+        $beg='Summary</b>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+        $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        if($summary=="")
+        {   $beg='Summary</b><p> . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($summary=="")
+        {   $beg='Summary</b>  . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($summary=="")
+        {   $beg='Summary</b></p><p>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($summary=="")
+        {   $beg='Summary</b>. &mdash;'; $end1='</p>'; $end2="173xxx";            
+            $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($summary=="")
+        {   $beg='Summary. &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($summary=="")
+        {   $beg='Summary. &mdash;'; $end1='</p>'; $end2="173xxx";            
+            $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        //end get summary
+        
+        //get distribution
+        $beg='Distribution</b>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+        $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                                
+        if($distribution == "")
+        {   $beg='Distribution</b></p>&nbsp;<p>. &ndash;'; $end1='</p>'; $end2="173xxx";
+            $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($distribution == "")
+        {   $beg='Distribution</b></p><p>. &ndash;'; $end1='</p>'; $end2="173xxx";
+            $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($distribution == "")
+        {   $beg='Distribution</b><p> . &ndash;'; $end1='</p>'; $end2="173xxx";
+            $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($distribution == "")
+        {   $beg='Distribution</b>  . &ndash;'; $end1='</p>'; $end2="173xxx";
+            $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($distribution == "")
+        {   $beg='Distribution. &ndash;'; $end1='</p>'; $end2="173xxx";
+            $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($distribution == "")
+        {   $beg='Distribution<p> . &ndash;'; $end1='</p>'; $end2="173xxx";
+            $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($distribution == "")
+        {   $beg='Distribution. &mdash;'; $end1='</p>'; $end2="173xxx";
+            $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        //end get distribution
+        
+
+        //get synonymy
+        $beg='Synonymy</b>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+        $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                                
+        if($synonymy == "")
+        {   $beg='Synonymy. &mdash;'; $end1='</p>'; $end2="173xxx";            
+            $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($synonymy == "")
+        {   $beg='Synonymy. &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($synonymy == "")
+        {   $beg='Synonymy</b><p>   </p><p>  </p><p>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($synonymy == "")
+        {   $beg='Synonymy</b><p> . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($synonymy == "")
+        {   $beg='Synonymy</b>  . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($synonymy == "")
+        {   $beg='Synonymy<p> . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        if($synonymy == "")
+        {   $beg='Synonymy  . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+            
+            
+            
+            
+            
+            
+            
+        //end get synonymy            
+
+        //get status
+        $beg='Status</b>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+        $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        if($status=="")
+        {   $beg='Status</b>  . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($status=="")
+        {   $beg='Status</b><p> . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($status=="")
+        {   $beg='Status</b></p><p>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($status=="")
+        {   $beg='Status. &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($status=="")
+        {   $beg='Status<p> . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+            
 
 
-       
+            
+            
+            
+            
+
+                    
+
+        //end get status
+
+/*                
+//Subspecies</big>  </b><big>. &ndash;        
+*/      
                 
         //$sciname = str_ireplace('<p>' , '', $sciname);	    
 		$sciname = strip_tags($sciname);            
-		//$comname = strip_tags($comname);            
-        print "$i. $sciname [$comname]<br>";
+		$comname = strip_tags($comname);            
+        $agent = strip_tags($agent);            
+        
+        $synonymy = strip_tags($synonymy);            
+        $status = strip_tags($status);            
+        
+        
+        print "$i. $sciname [$comname] [$agent] 
+        <br>summary:<br> [$summary]
+        <br>distribution:<br> [$distribution]        
+        <br>synonymy:<br> [$synonymy]
+        <br>status:<br> [$status]        
+        ";
+        /*
+        print"        
+        
+        "; */
+        print "<hr>";
         
         
         //$subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";        
         //assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
-        
+    
+        }        
     }//main loop
 
 }//end process_loop()
@@ -563,5 +804,64 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
     }
     elseif($all == "all") return $arr;	
 }//end function
+function remove_tag_with_this_needle($str,$needle)
+{
+    $pos = stripos($str,$needle); //get pos of needle   
+    if($pos != ""){
+    
+    
+    $char="";
+    $accumulate=""; $start_get=false;
+    while ($char != "<") //get pos of < start tag
+    {
+        $pos--;
+        $char = substr($str,$pos,1);
+        
+        if($char == " ")$start_get = true;
+        if($start_get)$accumulate .= $char;                
+    }
+    //print "pos_of_start_tag [$pos]<br>";
+    $pos_of_start_tag = $pos;
+    
+    //now determine what type of tag it is
+    $accumulate = substr($accumulate,0,strlen($accumulate)-1);
+    $accumulate = reverse_str($accumulate);
+    //print "<hr>$str<hr>$accumulate";               
+    
+    //now find the pos of the end tag e.g. </div
+    $char="";
+    $pos = $pos_of_start_tag;
+    $end_tag = "</" . $accumulate . ">";
+    //print "<br>end tag is " . $end_tag;
+    while ($char != $end_tag )
+    {   
+        $pos++;  
+        $char = substr($str,$pos,strlen($end_tag));                
+    }    
+    //print"<hr>pos of end tag [$pos]<hr>";       
+    $pos_of_end_tag = $pos;
+    $str = remove_substr_from_this_positions($str,$pos_of_start_tag,$pos_of_end_tag,strlen($end_tag));    
+    if(stripos($str,$needle) != "")$str = remove_tag_with_this_needle($str,$needle);    
+    
+    }
+    
+    return trim(clean_str($str));
+}
+function remove_substr_from_this_positions($str,$startpos,$endpos,$len_of_end_tag)
+{
+    $str1 = substr($str,0,$startpos);
+    $str2 = substr($str,$endpos+$len_of_end_tag,strlen($str));
+    return $str1 . $str2;
+}
+function reverse_str($str)
+{
+    $accumulate="";
+    $length = strlen($str)-1;
+    for ($i = $length; $i >= 0; $i--) 
+    {
+        $accumulate .= substr($str,$i,1);
+    }    
+    return trim($accumulate);
+}
 
 ?>
