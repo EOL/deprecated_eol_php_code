@@ -1,6 +1,6 @@
 <?php
 //#!/usr/local/bin/php
-/* flowervisitors connector */
+/* turtles website */
 
 //exit;
 
@@ -20,7 +20,7 @@ Functions::load_fixtures("development");
 $wrap = "\n"; 
 $wrap = "<br>"; 
  
-$resource = new Resource(1); //exit($resource->id);
+$resource = new Resource(4); //exit($resource->id);
 
 
 $schema_taxa = array();
@@ -49,7 +49,7 @@ foreach($urls as $path)
     $i++;
 }    
 
-
+exit;
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -161,7 +161,7 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-        if($i >= 1)break; //debug
+        if($i >= 3)break; //debug
         $i++;
 
         $str = Functions::get_remote_file($url);    
@@ -200,22 +200,24 @@ function process_loop($arr) //run each URL and extract data
         $pos = stripos($tmp_str,$sciname);     
         print "pos = [$pos] <hr>";
         $tmp_str=trim(substr($tmp_str,$pos+strlen($sciname),strlen($tmp_str)));
-              
-
-        $tmp_str = "xxx" . $tmp_str;
-        $beg='xxx'; $end1='<br />'; $end2="173xxx";            
-        $comname = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,""));            
+        
+		//print "[$tmp_str]";      
+		
+        $tmp_str = "xxx" . substr($tmp_str,6,strlen($tmp_str));
+        $beg='xxx'; $end1='&ndash;'; $end2="173xxx";            
+        $comname = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));            
 
         //print "$str<hr>";
         
         //end get common name
 
 
-
-        
+       
                 
-        $sciname = str_ireplace('<p>' , '', $sciname);	    
-        print "$i. $sciname {$comname}<br>";
+        //$sciname = str_ireplace('<p>' , '', $sciname);	    
+		$sciname = strip_tags($sciname);            
+		//$comname = strip_tags($comname);            
+        print "$i. $sciname [$comname]<br>";
         
         
         //$subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";        
@@ -507,7 +509,7 @@ function clean_str($str)
     //$str = str_replace(str_repeat("#", substr_count($str, '#')), ' ', $str);
     return $str;
 }
-function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=NULL)	//str = the html block
 {
     //PRINT "[$all]"; exit;
 	$beg_len = strlen(trim($beg));
