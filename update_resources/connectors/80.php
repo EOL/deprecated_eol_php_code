@@ -188,6 +188,7 @@ function get_scientific_pages($xml, $OUT, $title = false)
         $page = new WikiPage($xml);
         if(preg_match("/wikipedia/ims", $page->title)) return false;
         if(preg_match("/taxobox/ims", $page->title)) return false;
+        if(preg_match("/template/ims", $page->title)) return false;
         
         // break if this is not the desired page
         if($title && strtolower($page->title) != $title) return false;

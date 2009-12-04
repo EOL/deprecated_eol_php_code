@@ -46,7 +46,7 @@ class CompareHierarchies
         }
         
         
-        $solr = new SolrAPI('http://10.19.19.43:8080/solr/', 'hierarchy_entries');
+        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
         //$solr->optimize();
         
         $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=1";
