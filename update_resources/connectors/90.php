@@ -129,20 +129,6 @@ function process_file1($file)
     //cleaning bad html code
     $str = str_ireplace('<a href="http://blog.jakerocheleau.com/?drag_me_to_hell">Drag Me to Hell movie</a>' , '', $str);	    
     $str = str_ireplace('<strong>005<em>.</em></strong></span><strong><em> </em></strong> </a>' , '<strong>005<em>.</em></strong></span><strong><em> </em></strong>', $str);	
-    /*    
-    $str = str_ireplace('Black-Knobbed Map Turtle, Black-Knobbed Sawback.' , 'Black-Knobbed Map Turtle, Black-Knobbed Sawback.</a>', $str);	
-    $str = str_ireplace('<div style="display:none"><a href="http://www.baserinstincts.com/?finding_neverland">Finding Neverland buy</a></div>' , '', $str);	
-    $str = str_ireplace('<p> </span><a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc/cuora-flavomarginata-035/">' , '</span><a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc/cuora-flavomarginata-035/">', $str);	
-    $str = str_ireplace('<p> <u style="display:none"><a href="http://www.iucn-tftsg.org/?mad_max_beyond_thunderdome">Mad Max Beyond Thunderdome buy</a></u> </p>' , '', $str);	
-    $str = str_ireplace('<strong style="display: none;"><a href="http://satellitephonesinfo.com/?next_friday">Next Friday buy</a></strong>' , '', $str);
-    $str = str_ireplace('<form style="display:none"><a href="http://onepercentpress.com/?drumline">Drumline buy</a></form>' , '', $str);
-    $str = str_ireplace('<p> <u style="display:none"><a href="http://satellitephonesinfo.com/?wall_e">WALL-E release</a></u> </p>' , '', $str);
-    $str = str_ireplace('<div style="display:none"><a href="http://www.bcen.net/?tenacious_d_in_the_pick_of_destiny">Tenacious D in The Pick of Destiny release</a></div>' , '', $str);
-    $str = str_ireplace('<em style="display:none"><a href="http://royalstreetinn.com/?cold_mountain">Cold Mountain full</a></em>' , '', $str);
-    $str = str_ireplace('<div style="display:none"><a href="http://satellitephonesinfo.com/?boat_trip">Boat Trip trailer</a></div>' , '', $str);
-    $str = str_ireplace('<em style="display:none"><a href="http://isighttech.com/?kevin_perry_go_large">Kevin &#038; Perry Go Large movie full</a></em>' , '', $str);
-    $str = str_ireplace('<span><span style="font-style: italic;">Chelodina</span></span></a><a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc/chelodina-longicollis-031/"><em> longicollis</em> (Shaw 1794) &ndash; Eastern Long-Necked Turtle, Common Long-Necked Turtle,</a>' , 'Chelodina longicollis (Shaw 1794) &ndash; Eastern Long-Necked Turtle, Common Long-Necked Turtle,</a>', $str);
-    */
     //$str = str_ireplace('</a><a href="javascript:void(0)/*306*/">' , '', $str);
     
     $bad_url = array("http://blog.jakerocheleau.com/?drag_me_to_hell",
@@ -180,8 +166,8 @@ function process_loop($arr) //run each URL and extract data
     {
         //if($i >= 3)break; //debug        //ditox
         $i++;
-//        if($i >= 33){
-        if(1==1){
+        if($i >= 20){
+//        if(1==1){
 
         $str = Functions::get_remote_file($url);            
         
@@ -192,52 +178,10 @@ function process_loop($arr) //run each URL and extract data
         $str = str_ireplace('<span style="color: rgb(255, 0, 0);">' , '', $str);	    
         $str = str_ireplace('</span>' , '', $str);	    
         $str = str_ireplace('display: none' , 'display:none', $str);	                    
-      
-        
-
         //28
         $str = str_ireplace('<ul style="display:none"><li><a href="http://onepercentpress.com/?torn_curtain">Torn Curtain</a></li></ul>' , '</p>', $str);	    
 
-        $str = remove_tag_with_this_needle($str,"display:none");        
-        
-        /*        
-        $str = str_ireplace('<em style="display:none"><a href="http://www.bcen.net/?the_trial_of_billy_jack">The Trial of Billy Jack video</a></em>' , '', $str);	    
-        //7
-        $str = str_ireplace('<div style="display:none"><a href="http://www.baserinstincts.com/?zombieland">Zombieland hd</a></div>' , '', $str);	    
-        //11
-        $str = str_ireplace('<u style="display:none"><a href="http://johnquiggin.com/?appleseed">Appleseed dvdrip</a></u>' , '', $str);	    
-        //16
-        $str = str_ireplace('<p style="display:none"><a href="http://www.barryshamis.com/?gundam_wing_endless_waltz">Gundam Wing: Endless Waltz hd</a></p>' , '', $str);	    
-        //18
-        $str = str_ireplace('<div style="display:none"><a href="http://www.baserinstincts.com/?clubland">Clubland trailer</a></div>' , '', $str);	    
-        $str = str_ireplace('<p style="display:none"><a href="http://www.chainreaction-community.net/?the_lord_of_the_rings_the_return_of_the_king">The Lord of the Rings: The Return of the King movie download</a></p>' , '', $str);	    
-        //5
-        $str = str_ireplace('<form style="display:none"><a href="http://royalstreetinn.com/?kiss_me_deadly">Kiss Me Deadly the movie</a></form>' , '', $str);	    
-        $str = str_ireplace('<em style="display:none"><a href="http://satellitephonesinfo.com/?traffic">Traffic download</a></em>' , '', $str);	    
-        $str = str_ireplace('<u style="display:none"><a href="http://onepercentpress.com/?powder">Powder release</a></u>' , '', $str);	    
-        $str = str_ireplace('<form style="display:none"><a href="http://chessasia.net/?monsters_inc_">Monsters, Inc. download</a></form>' , '', $str);	    
-        //9
-        $str = str_ireplace('<u style="display:none"><a href="http://onepercentpress.com/?1492_conquest_of_paradise">1492: Conquest of Paradise ipod</a></u>' , '', $str);	    
-        $str = str_ireplace('<u style="display:none"><a href="http://www.chainreaction-community.net/?borderland">Borderland dvd</a></u>' , '', $str);	    
-        //10
-        $str = str_ireplace('<form style="display:none"><a href="http://www.barryshamis.com/?ben_hur">Ben-Hur video</a></form>' , '', $str);	    
-        //21
-        $str = str_ireplace('<u style="display:none"><a href="http://www.womeningreen.org/?old_school">Old School hd</a></u>' , '', $str);	    
-        //22
-        $str = str_ireplace('<div style="display:none"><a href="http://www.bcen.net/?tenacious_d_in_the_pick_of_destiny">Tenacious D in The Pick of Destiny rip</a></div>' , '', $str);	    
-        //23
-        $str = str_ireplace('<em style="display:none"><a href="http://royalstreetinn.com/?braveheart">Braveheart download</a></em>' , '', $str);	    
-        //31
-        $str = str_ireplace('<p style="display:none"><a href="http://satellitephonesinfo.com/?sorority_row">Sorority Row psp</a></p>' , '', $str);	    
-        //26
-        <form style="display:none"><a href="http://chessasia.net/?demon_seed">Demon Seed divx</a></form>
-        <p style="display:none"><a href="http://www.barryshamis.com/?evening">Evening divx</a></p>
-        <div style="display:none"><a href="http://isighttech.com/?grizzly_park">Grizzly Park film</a></div>
-        */      
-
-
-
-        
+        $str = remove_tag_with_this_needle($str,"display:none");                
         
         $str = str_ireplace('<sup>1</sup>' , '', $str);	    
         $str = str_ireplace('<sup>2</sup>' , '', $str);	    
@@ -315,11 +259,58 @@ function process_loop($arr) //run each URL and extract data
         $tmp_str = str_ireplace('Podocnemis lewyana<p>  is primarily' , 'Podocnemis lewyana is primarily', $tmp_str);
         $tmp_str = str_ireplace('(assessed 2000)<p> <p> ; CITES:' , '(assessed 2000); CITES:', $tmp_str);
         */
-        
-        
-        
-        
+     
 //        print $tmp_str; exit; //ditox
+//        print $str; exit; //ditox //for images and maps
+
+        //get distribution2
+        $beg='Distribution:'; $end1='</div>'; $end2="173xxx";            
+        $caption = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));                                                
+        $temp = $caption;
+        $caption = trim(strip_tags($caption));                
+        //-----------------------------------------------
+        $map_url = "http://www.iucn-tftsg.org/wp-content/uploads/image/Maps/";
+        $beg=$map_url; $end1='.jpg'; $end2='.bmp'; $end3='.png';            
+        $map = trim(parse_html($str,$beg,$end1,$end2,$end3,$end2,"",true));                                        
+        if($map=="")
+        {   $map_url = "http://www.iucn-tftsg.org/wp-content/uploads/2009/02/";
+            $beg=$map_url; $end1='.jpg'; $end2='.bmp'; $end3='.png';            
+            $map = trim(parse_html($temp,$beg,$end1,$end2,$end3,$end2,"",true));                                        
+        }        
+        $map = $map_url . $map . ".jpg";        
+        $handle = @fopen($map,'r');
+        if(!$handle)
+        {
+            $map = str_ireplace('.jpg' , '.bmp', $map);	            
+            $handle = @fopen($map,'r');
+            if(!$handle)$map = str_ireplace('.bmp' , '.png', $map);	            
+        }                
+        //-----------------------------------------------
+        $map_caption = "
+        <table align='center' border='1'>
+        <tr><td align='center'><img height='410' width='500' src='$map'></td></tr>
+        <tr><td>$caption</td></tr>
+        </table>
+        ";        
+        //end get distribution2        
+
+        //get image
+        $image_url = "http://www.iucn-tftsg.org/wp-content/uploads/image/Photos/";                
+        $beg=$image_url; $end1='.jpg'; $end2="173xxx";            
+        $image = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        if($image=="")
+        {   $image_url = "http://www.iucn-tftsg.org/wp-content/uploads/2009/02/";
+            $beg=$image_url; $end1='.jpg'; $end2="173xxx";            
+            $image = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        $image = $image_url . $image . ".jpg";
+        //end get image
+        
+        //get image caption                
+        $beg='(Adobe Acrobat 6.0 or later required)'; $end1='Distribution:'; $end2="173xxx";            
+        $img_caption = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        $img_caption = strip_tags($img_caption);        
+        //end get image caption
+    
 
         //get summary        
         $beg='Summary</b>. &ndash;'; $end1='</p>'; $end2="173xxx";            
@@ -368,8 +359,7 @@ function process_loop($arr) //run each URL and extract data
         if($distribution == "")
         {   $beg='Distribution. &mdash;'; $end1='</p>'; $end2="173xxx";
             $distribution = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
-        //end get distribution
-        
+        //end get distribution        
 
         //get synonymy
         $beg='Synonymy</b>. &ndash;'; $end1='</p>'; $end2="173xxx";            
@@ -395,13 +385,6 @@ function process_loop($arr) //run each URL and extract data
         if($synonymy == "")
         {   $beg='Synonymy  . &ndash;'; $end1='</p>'; $end2="173xxx";            
             $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
-            
-            
-            
-            
-            
-            
-            
         //end get synonymy            
 
         //get status
@@ -422,17 +405,21 @@ function process_loop($arr) //run each URL and extract data
         if($status=="")
         {   $beg='Status<p> . &ndash;'; $end1='</p>'; $end2="173xxx";            
             $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
-            
-
-
-            
-            
-            
-            
-
-                    
-
         //end get status
+        
+        //get citation
+        $beg='Citation:</b>'; $end1='</p>'; $end2="173xxx";            
+        $citation = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        if($citation == "")
+        {   $beg='Citation:</b></p>'; $end1='</p>'; $end2="173xxx";            
+            $citation = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($citation == "")
+        {   $beg='Citation:</b>  </p>'; $end1='</p>'; $end2="173xxx";            
+            $citation = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($citation == "")
+        {   $beg='Citation:</p>'; $end1='</p>'; $end2="173xxx";            
+            $citation = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        //end get citation
 
 /*                
 //Subspecies</big>  </b><big>. &ndash;        
@@ -443,19 +430,27 @@ function process_loop($arr) //run each URL and extract data
 		$comname = strip_tags($comname);            
         $agent = strip_tags($agent);            
         
+        $summary = strip_tags($summary);            
+        $distribution = strip_tags($distribution);            
         $synonymy = strip_tags($synonymy);            
         $status = strip_tags($status);            
         
+        $citation = strip_tags($citation);                    
+        
         
         print "$i. $sciname [$comname] [$agent] 
+        <br>map + caption:<br> [$map_caption]        
+        
+        ";
+        /*
+        print"              
         <br>summary:<br> [$summary]
         <br>distribution:<br> [$distribution]        
         <br>synonymy:<br> [$synonymy]
         <br>status:<br> [$status]        
-        ";
-        /*
-        print"        
-        
+        <br>citation:<br> [$citation]
+        <br><img height='400' width='600' src='$image'><br>$image
+        <br>image caption:<br> [$img_caption]
         "; */
         print "<hr>";
         
