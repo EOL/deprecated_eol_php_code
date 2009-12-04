@@ -124,7 +124,7 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-        //if($i >= 1)break; //debug        //ditox
+        if($i >= 4)break; //debug        //ditox
         $i++;
 //        if($i == 18){
         if(1==1){
@@ -300,6 +300,10 @@ function process_loop($arr) //run each URL and extract data
         if($summary=="")
         {   $beg='Summary. &mdash;'; $end1='</p>'; $end2="173xxx";            
             $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+
+        
+        
+            
         //end get summary
         
         //get distribution
@@ -390,6 +394,15 @@ function process_loop($arr) //run each URL and extract data
             $citation = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
         //end get citation
         
+        //get pdf url
+        $beg='http://www.iucn-tftsg.org/wp-content/uploads/file/Accounts/'; $end1='.pdf'; $end2="173xxx";            
+        $pdf_url = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        $pdf_url = $beg . $pdf_url . $end1;        
+        if(!($handle = @fopen($pdf_url,'r')))$pdf_url = "";    
+        
+        if($pdf_url != "")$summary .= "<p><a href='$pdf_url'>Download the full article on the IUCN Tortoise and Freshwater Turtle Specialist Group site</a>";
+        //end get pdf url
+        
                 
         //$sciname = str_ireplace('<p>' , '', $sciname);	    
 		$sciname = strip_tags($sciname);            
@@ -402,8 +415,10 @@ function process_loop($arr) //run each URL and extract data
         $citation = strip_tags($citation);                            
         
         print "$i. $sciname [$comname] [$agent]         
-        <br><u>image agent:</u><br> [$img_agent]
+        <br><u>PDF url:</u><br> [$pdf_url] 
         ";
+        
+        
         /*
         print"              
         <br><u>summary:</u><br> [$summary]
@@ -414,6 +429,7 @@ function process_loop($arr) //run each URL and extract data
         <br><img height='400' width='600' src='$image'><br>$image
         <br><u>image caption:</u><br> [$img_caption]
         <br><u>map + caption:</u><br> [$map_caption]                
+        <br><u>image agent:</u><br> [$img_agent]
         "; */
         print "<hr>";        
                         
