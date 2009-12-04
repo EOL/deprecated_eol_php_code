@@ -6,7 +6,6 @@ define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-
 ini_set('memory_limit','1000M');
 set_time_limit(0);
 
@@ -17,29 +16,51 @@ printf("Host information: %s\n", $mysqli->host_info);
 */
 
 
-list ($eol_pages_with_do, $taxa_count) = get_eol_pages_with_do(); //print "<hr> eol pages with do       = $eol_pages_with_do <br> eol pages with content  = $taxa_count ";
-$eol_pages_with_bhl_links              = get_eol_pages_with_bhl_links(); //print count($eol_pages_with_bhl_links);
-$all_pages                             = get_all_pages();
-$marine_eol_pages                      = get_marine_eol_pages();
+//list ($eol_pages_with_do, $taxa_count) = get_eol_pages_with_do(); //print "<hr> eol pages with do       = $eol_pages_with_do <br> eol pages with content  = $taxa_count ";
 
+//$eol_pages_with_bhl_links              = get_eol_pages_with_bhl_links(); //print count($eol_pages_with_bhl_links);
+//$all_pages                             = get_all_pages();
+
+$marine_pages_xml                      = get_marine_eol_pages();
+$marine_pages_harvest                  = get_taxon_concept_ids_from_harvest_event(1028);
+
+$barcoded_pages                        = get_taxon_concept_ids_from_harvest_event(949);
+
+/* working
 $eol_pages_without_do                = array_diff($all_pages , $eol_pages_with_do);
 $eol_pages_without_do_with_bhl_links = array_intersect($eol_pages_without_do, $eol_pages_with_bhl_links);
 $marine_pages_with_bhl_links         = array_intersect($marine_eol_pages,$eol_pages_with_bhl_links);
+*/
 
+$marine_pages_with_barcode_xml           = array_intersect($marine_pages_xml,$barcoded_pages);
+$marine_pages_with_barcode_harvest       = array_intersect($marine_pages_harvest,$barcoded_pages);
 
+/*
 print"
 <table>
-
 <tr><td>Total EOL pages</td><td align='right'>" . number_format(count($all_pages),0) . "</td></tr>
 <tr><td>Pages with data objects (text/image)</td><td align='right'>" . number_format(count($eol_pages_with_do),0) . "</td></tr>
 <tr><td>Pages without data objects (text/image)</td><td align='right'>" . number_format(count($eol_pages_without_do),0) . "</td></tr>
-
 <tr bgcolor='aqua'><td>Pages with BHL links</td><td align='right'>" . number_format(count($eol_pages_with_bhl_links),0) . "</td></tr>
 <tr bgcolor='aqua'><td>Pages with no data objects except links to BHL pages</td><td align='right'>" . number_format(count($eol_pages_without_do_with_bhl_links),0) . "</td></tr>
 <tr><td>Marine pages</td><td align='right'>" . number_format(count($marine_eol_pages),0) . "</td></tr>
 <tr bgcolor='aqua'><td>Marine pages with BHL links</td><td align='right'>" . number_format(count($marine_pages_with_bhl_links),0) . "</td></tr>
-
 </table>";
+*/
+
+/*
+*/
+print"
+<table>
+<tr><td><hr></td></tr>
+<tr bgcolor='aqua'><td>Pages with Barcode</td><td align='right'>" . number_format(count($barcoded_pages),0) . "</td></tr>
+<tr bgcolor='aqua'><td>Marine pages (from harvest_event)</td><td align='right'>" . number_format(count($marine_pages_harvest),0) . "</td></tr>
+<tr bgcolor='aqua'><td>Marine pages with Barcode (from harvest)</td><td align='right'>" . number_format(count($marine_pages_with_barcode_harvest),0) . "</td></tr>
+<tr><td><hr></td></tr>
+<tr bgcolor='aqua'><td>Marine pages (from XML)</td><td align='right'>" . number_format(count($marine_pages_xml),0) . "</td></tr>
+<tr bgcolor='aqua'><td>Marine pages with Barcode (from XML)</td><td align='right'>" . number_format(count($marine_pages_with_barcode_xml),0) . "</td></tr>
+</table>
+";
 
 exit; 
 
@@ -49,8 +70,9 @@ function get_marine_eol_pages()
     
     $marine_pages = array();
     $batch_size = 10000;
-    $xml = simplexml_load_file("http://services.eol.org/eol_php_code/applications/content_server/resources/26.xml", null, LIBXML_NOCDATA);
-    //$xml = simplexml_load_file("http://128.128.175.77/mtce/WORMS/20090819/xml/127090.xml", null, LIBXML_NOCDATA);
+    //$xml = simplexml_load_file("http://services.eol.org/eol_php_code/applications/content_server/resources/26.xml", null, LIBXML_NOCDATA);
+    $xml = simplexml_load_file("http://10.19.19.226/resources/26.xml", null, LIBXML_NOCDATA);
+        
     
     foreach($xml->taxon as $t)
     {
@@ -191,6 +213,61 @@ function get_eol_pages_with_do()
 	
 	return array ($taxa_with_do,$taxa_count);   //both returns have same value
 	
+}
+
+function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
+{
+    global $mysqli;
+    
+    $query = "
+    Select distinct hierarchy_entries.taxon_concept_id as id
+    From harvest_events_taxa
+    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
+    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
+    Where harvest_events_taxa.harvest_event_id = $harvest_event_id
+    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and (taxon_concepts.vetted_id=5 OR taxon_concepts.vetted_id=0)    
+    ";
+    //$query .= " limit 10"; for debug
+    
+    $result = $mysqli->query($query);                
+
+    while($result && $row=$result->fetch_assoc())
+    {
+        $all_pages[$row["id"]]=true;    
+    }
+    $result->close();
+        
+    $all_pages     = array_keys($all_pages);
+    return $all_pages;
+}
+
+
+function get_barcoded_pages()
+{
+    global $mysqli;
+    
+    $query = "
+    Select distinct hierarchy_entries.taxon_concept_id
+    From harvest_events_taxa
+    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
+    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
+    Where harvest_events_taxa.harvest_event_id = '949'
+    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and (taxon_concepts.vetted_id=5 OR taxon_concepts.vetted_id=0)    
+    ";
+    
+    $result = $mysqli->query($query);                
+
+    while($result && $row=$result->fetch_assoc())
+    {
+        $all_pages[$id]=true;    
+    }
+    $result->close();
+        
+    $all_pages     = array_keys($all_pages);
+    return $all_pages;
+    
 }
 
 function get_all_pages()
