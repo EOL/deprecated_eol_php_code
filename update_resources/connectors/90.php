@@ -18,11 +18,8 @@ print "$str";
 exit;
  */
 
-
-
-
-define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "development");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -37,7 +34,7 @@ Functions::load_fixtures("development");
 $wrap = "\n"; 
 $wrap = "<br>"; 
  
-$resource = new Resource(4); //exit($resource->id);
+$resource = new Resource(90); //exit($resource->id);
 
 
 $schema_taxa = array();
@@ -56,17 +53,12 @@ $i=0;
 foreach($urls as $path)
 {    
     if($path["active"])
-    {
-        print $i . " " . $path["url"] . "$wrap $wrap";        
-        if      ($i == 0)               process_file1($path["url"]); //get the URLs
-        elseif  ($i >= 1 and $i <= 7)   process_file2($path["url"]);           
-        elseif  ($i >= 8 and $i <= 14)  process_file3($path["url"]);    
-        elseif  ($i >= 15 and $i <= 16) process_file4($path["url"],$i); 
+    {        
+        print $i+1 . ". " . $path["url"] . "$wrap";        
+        if($i == 0) process_file1($path["url"]); //get the species page URLs to an array
     }
     $i++;
 }    
-
-exit;
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -81,41 +73,7 @@ fclose($OUT);
 ////////////////////// ---
 print "$wrap -- Done processing -- "; exit;
 
-function process_file3($file)
-{       
-    global $wrap;
-    global $used_taxa;
-    
-    $str = Functions::get_remote_file($file);
-    $str = clean_str($str);
 
-    //special case, html error
-    $str = str_ireplace('<TD ALIGN="CENTER"><A HREF="bees/agapostemon_virescens.htm"></A><B><FONT FACE="Times New Roman"><A HREF="bees/agapostemon_virescens.htm" NAME="agapostemon_virescens">Agapostemon virescens</A></FONT></B><FONT COLOR="#0000FF"><B><FONT FACE="Times New Roman"></FONT></B></FONT></TD>' , '<TD ALIGN="CENTER"><FONT COLOR="#0000FF"><B><FONT FACE="Times New Roman"><A HREF="bees/agapostemon_virescens.htm" NAME="agapostemon_texanus">Agapostemon virescens</A></FONT></B></FONT></TD>', $str);	          
-    
-  	$pos1 = stripos($str,"<TABLE");     
-   	//$pos2 = stripos($str,"</TABLE>");	
-    $pos2 = stripos($str,"Return to:");	
-    
-   	//if($pos1 != "" and $pos2 != "") $str = trim(substr($str,$pos1,$pos2-$pos1+8));
-    if($pos1 != "" and $pos2 != "") $str = trim(substr($str,$pos1,$pos2-$pos1));
-    $str=strip_tags($str,'<TR><A>');
-    //print "<hr>$str"; exit;
-    
-    $str = str_ireplace('</TR>' , "&arr[]=", $str);	
-    $str=strip_tags($str,'<A>');
-    
-    $str=trim($str);
-    $str=substr($str,0,strlen($str)-7);   //to remove last part of string "&arr[]="
-
-    //print "<hr>$str"; exit;
-
-    $arr=array();	
-    parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
-
-    process_loop($arr,"http://flowervisitors.info/insects/","Animalia");
-
-}//end function process_file3($file)
 
 function process_file1($file)
 {        
@@ -139,7 +97,7 @@ function process_file1($file)
                      "http://isighttech.com/?kevin_perry_go_large",
                      "http://www.iucn-tftsg.org/cbftt/toc-ind/toc/checklist/"
                     );    
-    
+                        
     $str = str_ireplace('<a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc' , '&arr[]=<a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc', $str);	  
     $arr=array();	
     parse_str($str);	
@@ -154,7 +112,9 @@ function process_file1($file)
         if(!in_array($url,$bad_url))$arr2["$url"]=1;
     }    
     $arr2 = array_keys($arr2);    
+    
     process_loop($arr2);
+    
 }//end function process_file1($file)
 
 function process_loop($arr) //run each URL and extract data
@@ -164,10 +124,10 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-        //if($i >= 3)break; //debug        //ditox
+        //if($i >= 1)break; //debug        //ditox
         $i++;
-        if($i >= 20){
-//        if(1==1){
+//        if($i == 18){
+        if(1==1){
 
         $str = Functions::get_remote_file($url);            
         
@@ -192,32 +152,26 @@ function process_loop($arr) //run each URL and extract data
         $str = str_ireplace('<sup>7</sup>' , '', $str);	    
         $str = str_ireplace('<sup>1,2</sup>' , '', $str);	    
         $str = str_ireplace('<sup>2,3</sup>' , '', $str);	    
-        $str = str_ireplace('<sup>2,4</sup>' , '', $str);	    
-                      
-        
+        $str = str_ireplace('<sup>2,4</sup>' , '', $str);	            
        
         //get sciname                
         $beg='<p style="text-align: center;"><i><b>'; $end1='<br />'; $end2="173xxx";            
         $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
         if(!$sciname)
-        {
-            $beg='<p style="text-align: center;"><b><i>'; $end1='<br />'; $end2="173xxx";            
+        {   $beg='<p style="text-align: center;"><b><i>'; $end1='<br />'; $end2="173xxx";            
             $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
         }
         if(!$sciname)
-        {
-            $beg='<p style="text-align: center;"><strong><em>'; $end1='<br />'; $end2="173xxx";            
+        {   $beg='<p style="text-align: center;"><strong><em>'; $end1='<br />'; $end2="173xxx";            
             $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
         }
         if(!$sciname)
-        {
-            $beg='<p style="text-align: center;"><em><strong>'; $end1='<br />'; $end2="173xxx";            
+        {   $beg='<p style="text-align: center;"><em><strong>'; $end1='<br />'; $end2="173xxx";            
             $sciname = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,""));            
-        }
-        //$sciname = strip_tags($sciname);            
+        }        
+        $sciname = str_ireplace('&ndash;' , '', $sciname);
         //end get sciname
-        
-        
+                
         //get common name
         $tmp_str = $str;
         $pos = stripos($tmp_str,$sciname);     
@@ -231,13 +185,15 @@ function process_loop($arr) //run each URL and extract data
         $comname = "xxx" . $comname;
         $beg='xxx'; $end1='</p>'; $end2="173xxx";            
         $comname = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                        
+        
+        //$comname = str_ireplace(';' , '', $comname);  //not here but put below
         //end get common name
         
         //get agent
         $tmp_str = $str;
         $pos = stripos($tmp_str,$comname);     
         $tmp_str=trim(substr($tmp_str,$pos+strlen($comname),strlen($tmp_str)));                
-        //print "<hr><hr>$tmp_str"; exit;		
+        //print "<hr>pos is [[$pos]]<hr>$tmp_str"; exit;		
         //4 for </p>
         $tmp_str = "xxx" . substr($tmp_str,4,strlen($tmp_str));
         $beg='xxx'; $end1='&ndash;'; $end2="173xxx";            
@@ -254,14 +210,9 @@ function process_loop($arr) //run each URL and extract data
         //bad html        
         $tmp_str = str_ireplace('&nbsp;&nbsp;&nbsp; IUCN 2007 Red List:' , 'IUCN 2007 Red List:', $tmp_str);
         $tmp_str = str_ireplace('&mdash;' , '&ndash;', $tmp_str);
-
-        /*
-        $tmp_str = str_ireplace('Podocnemis lewyana<p>  is primarily' , 'Podocnemis lewyana is primarily', $tmp_str);
-        $tmp_str = str_ireplace('(assessed 2000)<p> <p> ; CITES:' , '(assessed 2000); CITES:', $tmp_str);
-        */
      
-//        print $tmp_str; exit; //ditox
-//        print $str; exit; //ditox //for images and maps
+//      print $tmp_str; exit; //ditox
+//      print $str; exit; //ditox //for images and maps
 
         //get distribution2
         $beg='Distribution:'; $end1='</div>'; $end2="173xxx";            
@@ -288,7 +239,12 @@ function process_loop($arr) //run each URL and extract data
         //-----------------------------------------------
         $map_caption = "
         <table align='center' border='1'>
-        <tr><td align='center'><img height='410' width='500' src='$map'></td></tr>
+        <tr><td align='center'>";
+        
+        if($i == 1)$map_caption .= "<img height='650' width='350'";
+        else       $map_caption .= "<img height='410' width='500'";          
+        
+        $map_caption .= " src='$map'></td></tr>
         <tr><td>$caption</td></tr>
         </table>
         ";        
@@ -309,8 +265,19 @@ function process_loop($arr) //run each URL and extract data
         $beg='(Adobe Acrobat 6.0 or later required)'; $end1='Distribution:'; $end2="173xxx";            
         $img_caption = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
         $img_caption = strip_tags($img_caption);        
-        //end get image caption
-    
+        $img_caption = str_ireplace('&nbsp;' , '', $img_caption);        
+
+        $beg='Photo by'; $end1='<b>'; $end2='<br />';            
+        $img_agent = trim(parse_html($img_caption,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        if($img_agent=="")
+        {   $beg='Photos by'; $end1='<b>'; $end2='<br />';            
+            $img_agent = trim(parse_html($img_caption,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+        }        
+        $img_agent = trim(strip_tags($img_agent));
+        $img_agent = str_ireplace('&nbsp;' , '', $img_agent);
+        
+        
+        //end get image caption    
 
         //get summary        
         $beg='Summary</b>. &ndash;'; $end1='</p>'; $end2="173xxx";            
@@ -385,6 +352,8 @@ function process_loop($arr) //run each URL and extract data
         if($synonymy == "")
         {   $beg='Synonymy  . &ndash;'; $end1='</p>'; $end2="173xxx";            
             $synonymy = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}        
+        
+        $synonymy = str_ireplace('and' , '&', $synonymy);
         //end get synonymy            
 
         //get status
@@ -420,236 +389,47 @@ function process_loop($arr) //run each URL and extract data
         {   $beg='Citation:</p>'; $end1='</p>'; $end2="173xxx";            
             $citation = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
         //end get citation
-
-/*                
-//Subspecies</big>  </b><big>. &ndash;        
-*/      
+        
                 
         //$sciname = str_ireplace('<p>' , '', $sciname);	    
 		$sciname = strip_tags($sciname);            
 		$comname = strip_tags($comname);            
-        $agent = strip_tags($agent);            
-        
+        $agent = strip_tags($agent);                    
         $summary = strip_tags($summary);            
         $distribution = strip_tags($distribution);            
         $synonymy = strip_tags($synonymy);            
-        $status = strip_tags($status);            
+        $status = strip_tags($status);                    
+        $citation = strip_tags($citation);                            
         
-        $citation = strip_tags($citation);                    
-        
-        
-        print "$i. $sciname [$comname] [$agent] 
-        <br>map + caption:<br> [$map_caption]        
-        
+        print "$i. $sciname [$comname] [$agent]         
+        <br><u>image agent:</u><br> [$img_agent]
         ";
         /*
         print"              
-        <br>summary:<br> [$summary]
-        <br>distribution:<br> [$distribution]        
-        <br>synonymy:<br> [$synonymy]
-        <br>status:<br> [$status]        
-        <br>citation:<br> [$citation]
+        <br><u>summary:</u><br> [$summary]
+        <br><u>distribution:</u><br> [$distribution]        
+        <br><u>synonymy:</u><br> [$synonymy]
+        <br><u>status:</u><br> [$status]        
+        <br><u>citation:</u><br> [$citation]
         <br><img height='400' width='600' src='$image'><br>$image
-        <br>image caption:<br> [$img_caption]
+        <br><u>image caption:</u><br> [$img_caption]
+        <br><u>map + caption:</u><br> [$map_caption]                
         "; */
-        print "<hr>";
-        
-        
-        //$subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";        
-        //assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
-    
+        print "<hr>";        
+                        
+        assign_variables($sciname,$comname,$agent,$summary,$distribution,$synonymy,$status,$citation,$image,$img_caption,$img_agent,$map_caption,$url,$i);                            
         }        
     }//main loop
-
 }//end process_loop()
 
-
-function process_file2($file)
-{
-    global $wrap;
-    global $used_taxa;
-    $str = Functions::get_remote_file($file);
-    $str = clean_str($str);
-    
-    $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
-    $str = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
-    $str = strip_tags($str,"<i><b><font>");            
-    $str = str_ireplace('<FONT  COLOR="#3333FF">' , '<FONT COLOR="#3333FF">', $str);	    
-    
-    $str = str_ireplace('&amp;' , '###', $str);	
-    
-    //print "<hr>$str<str>";        exit;
-    
-    $str = str_ireplace('<B><FONT COLOR="#3333FF">' , '&arr[]=', $str);	
-    //$str = str_ireplace('###' , '&amp;', $str);	
-    //print "<hr>$str<str>";
-    $arr=array();	
-    parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
-    
-    $i=0;
-    foreach($arr as $species)
-    {
-        //if($i >= 3)break; //debug
-        $i++;
-        $species = str_ireplace('###' , '&amp;', $species);	        
-        //print "$species <hr><hr>";
-        //start get name
-        $species = "***" . $species;
-        $beg='***'; $end1=')'; $end2="173xxx";    
-        $name = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true)).")"; //print "[$name]";        
-        //end
-        //start get sciname, commonname
-        $name = "***" . $name;
-        $beg='***'; $end1='('; $end2="173xxx";    
-        $sciname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$sciname]";        
-        $beg='('; $end1=')'; $end2="173xxx";    
-        $commonname = trim(parse_html($name,$beg,$end1,$end2,$end2,$end2,"",true)); print "[$commonname]";        
-        //end
-        //start get desc
-        $pos = stripos($species,")");
-        $desc = trim(substr($species,$pos+1,strlen($species))); 
-        $desc = strip_tags($desc, '<i>');
-        //print "[[$desc]]";
-        //end                
-        print "$wrap $wrap";       
-        
-        $kingdom="";
-        $url=$file;
-        $title="Description";
-        $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-        
-        //if($desc != "") 
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
-    }        
-}//end function process_file2($file)
-
-function process_file4($file,$type)
-{
-    global $wrap;
-    global $used_taxa;
-    //global $arr_name;
-    
-    $str = Functions::get_remote_file($file);
-    $str = clean_str($str);
-    
-    //print "<hr>$str<str>"; exit;
-    
-    $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
-    $str = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
-    $str = strip_tags($str,"<BR>");            
-    
-    $str = str_ireplace('<BR>' , '&arr[]=', $str);	
-    //print "<hr>$str<str>";
-    $arr=array();	
-    parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
-    
-    $arr_sciname = array();
-    $arr_name = array();    
-    $i=0;
-    foreach($arr as $species)
-    {
-        $i++;
-        //no break (debug) for this process
-        
-        if(stripos($species," = ") != "")
-        {
-
-            
-            //print "$i. [$species]";
-            $species = "xxx" . $species . "yyy";
-            
-            $beg='xxx'; $end1='('; $end2="=";    
-            $sciname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true));            
-            
-            $tribe="";
-            $beg='('; $end1=')'; $end2="173xxx";    
-            $tribe = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true));            
-            
-            $beg='='; $end1='yyy'; $end2="173xxx";    
-            $commonname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true));            
-            
-            //print "--- $sciname --- $commonname $wrap";
-            //Anthophoridae (Anthophorini) = Anthophorine Bees 
-            
-            $r = explode(",",$commonname);
-            for ($ctr = 0; $ctr <= sizeof($r) - 1; $ctr++) 
-            {
-                $temp = trim(str_ireplace('  ', ' ', $r[$ctr]));
-                
-                if(trim($temp)=="etc.")continue;
-                
-                if($tribe != "")$temp .= " ($tribe)";
-                //$name[$sciname][] = $temp;
-                $arr_name[$sciname][$temp] = 1;
-                $arr_sciname[$sciname] = 1;
-            }                    
-            
-            $kingdom = "";            
-            $url = $file;
-            $desc = "";
-            $title = "";
-            $subject = "";
-            //======================================
-            //assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);              
-            //start assign_variables
-            
-            //end
-            
-        }
-        
-    }   
-
-
-    $arr_sciname = array_keys($arr_sciname);
-    
-    $i=0;
-    foreach($arr_sciname as $sciname)
-    {
-        $i++; print "$i. "; print "$sciname $wrap";                       
-
-        $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = str_replace(" ", "_", $sciname);                
-        $dc_identifier = "txt_" . $taxon_identifier;    
-            
-        $taxon_parameters = array();
-        $taxon_parameters["identifier"] = $taxon_identifier;
-        $taxon_parameters["kingdom"] = $kingdom;
-        if($type==15)$taxon_parameters["family"] = $sciname;
-        $taxon_parameters["genus"] = $genus;
-        $taxon_parameters["scientificName"]= $sciname;        
-        $taxon_parameters["source"] = $url;                                
-        
-        $arr_comname = array_keys($arr_name["$sciname"]);        
-        $taxon_parameters["commonNames"] = array();
-        foreach($arr_comname as $commonname)
-        {            
-            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
-        }                
-        
-        $used_taxa[$taxon_identifier] = $taxon_parameters;            
-        
-        
-
-    }
-
-    print "$wrap $wrap" . count($arr_name);
-    print "<pre>";print_r($arr_name);print "</pre>";
-    
-    //exit;
-    
-}//end function process_file4($file)
-
-
-
-function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject)
+function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synonymy,$status,$citation,$image,$img_caption,$img_agent,$map_caption,$url,$k)
 {
     global $used_taxa;
+    
+    $kingdom="Animalia";
     
         $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = str_replace(" ", "_", $sciname);                
-        $dc_identifier = "txt_" . $taxon_identifier;    
+        $taxon_identifier = "iucn_ssc_" . $k;
         if(@$used_taxa[$taxon_identifier])
         {
             $taxon_parameters = $used_taxa[$taxon_identifier];
@@ -661,28 +441,100 @@ function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subje
             $taxon_parameters["kingdom"] = $kingdom;
             $taxon_parameters["genus"] = $genus;
             $taxon_parameters["scientificName"]= $sciname;        
-            $taxon_parameters["source"] = $url;        
-            
+            $taxon_parameters["source"] = $url;                    
+
+            /////////////////////////////////////////////////////////////
             $taxon_parameters["commonNames"] = array();
-            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            $arr_comname=conv_2array($comname);
+            //for ($i = 0; $i < count($arr_comname); $i++) 
+            foreach ($arr_comname as $commonname) 
+            {
+                $commonname = str_ireplace(';' , '', $commonname);
+                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            }
+            /////////////////////////////////////////////////////////////
+            $taxon_params["synonyms"] = array();
+            $arr_synonym=conv_2array($synonymy);
+            foreach ($arr_synonym as $synonym) 
+            {
+                $taxon_parameters["synonyms"][] = new SchemaSynonym(array("synonym" => $synonym, "relationship" => "synonym"));
+            }
+            /////////////////////////////////////////////////////////////
             
             $taxon_parameters["dataObjects"]= array();        
             $used_taxa[$taxon_identifier] = $taxon_parameters;
         }        
-        //start text dataobject        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject);       
+        
+        //start text dataobject                
+        $dc_identifier = "GenDesc_" . $taxon_identifier;    
+        $desc = $summary;
+        $title = "Summary";
+        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+        $type = "text";
+        $reference = $citation;        
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
+        
+        //start text dataobject                
+        $dc_identifier = "Distribution_" . $taxon_identifier;    
+        $desc = $distribution . "<br>" . $map_caption;
+        $title = "Distribution";
+        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
+        $type = "text";
+        $reference = $citation;        
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        //end text dataobject                    
+        
+        //start text dataobject                
+        $dc_identifier = "Status_" . $taxon_identifier;    
+        $desc = $status;
+        $title = "Status";
+        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus";
+        $type = "text";
+        $reference = $citation;        
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        //end text dataobject                    
+        
+
+        //start img dataobject                
+        $dc_identifier = "Image_" . $taxon_identifier;    
+        $desc = $img_caption;
+        $title = "";
+        $subject = "";
+        $type = "image";
+        $reference = "";        
+        
+        $mediaurl = $image;
+        $agent=$img_agent;
+
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent, $mediaurl);       
+        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        //end img dataobject                    
+
+        
+        
         $used_taxa[$taxon_identifier] = $taxon_parameters;                                
         
     return "";        
 }
 
+function conv_2array($list)
+{    
+    $list = str_ireplace('and', ',', $list);	    
+    $arr = explode(",",$list);        
+    for ($i = 0; $i < count($arr); $i++) 
+    {
+        $arr[$i]=trim($arr[$i]);
+    }
+    return $arr;
+}
 
-function get_data_object($id, $description, $title, $url, $subject)
+function get_data_object($id, $description, $title, $url, $subject, $type, $reference, $agent, $mediaurl=NULL)
 {
-    $type="text";
-    
+     
     $dataObjectParameters = array();
     
     if($type == "text")
@@ -697,43 +549,60 @@ function get_data_object($id, $description, $title, $url, $subject)
         ///////////////////////////////////        
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
         $dataObjectParameters["mimeType"] = "text/html";        
+
+
+
+
     }
     else
     {
-        $dataObjectParameters["identifier"] = "img_" . $id;    
+        $dataObjectParameters["identifier"] = $id;    
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
+        
         $dataObjectParameters["mimeType"] = "image/jpeg";
-        $dataObjectParameters["thumbnailURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=thumb";
-        $dataObjectParameters["mediaURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=jpg";        
+        //$dataObjectParameters["thumbnailURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=thumb";
+        $dataObjectParameters["mediaURL"] = $mediaurl;
     }
 
 
+    ///////////////////////////////////
+    $agent = conv_2array($agent);
+    foreach ($agent as $agent) 
+    {
+        $agentParameters = array();        
+        $agentParameters["homepage"] = "http://www.iucn-tftsg.org/";
+        $agentParameters["role"] = "author";
+        $agentParameters["fullName"] = $agent;
+        $agents[] = new SchemaAgent($agentParameters);
+    }        
+    $dataObjectParameters["agents"] = $agents;    
+    ///////////////////////////////////
+    
     $dataObjectParameters["description"] = $description;        
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;    
     
-    $dataObjectParameters["language"] = "en";    
-    
-    $dataObjectParameters["source"] = $url;
-    
+    $dataObjectParameters["language"] = "en";        
+    $dataObjectParameters["source"] = $url;    
 
-    $dataObjectParameters["rights"] = "Copyright &#169; 2002-2009 by Dr. John Hilty";
-    $dataObjectParameters["rightsHolder"] = "John Hilty";
+    $dataObjectParameters["rights"] = "Copyright 2009 IUCN Tortoise and Freshwater Turtle Specialist Group";
+    $dataObjectParameters["rightsHolder"] = "IUCN/SSC Tortoise and Freshwater Turtle Specialist Group";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
-
-    
     ///////////////////////////////////
-    $agentParameters = array();
-    $agentParameters["homepage"] = "http://flowervisitors.info/";
-    $agentParameters["role"] = "source";
-    $agentParameters["fullName"] = "John Hilty";
-    $agents[] = new SchemaAgent($agentParameters);
-    $dataObjectParameters["agents"] = $agents;    
+    if($reference != "")
+    {
+        $dataObjectParameters["references"] = array();
+        $referenceParameters = array();
+        $referenceParameters["fullReference"] = trim($reference);
+        $references[] = new SchemaReference($referenceParameters);
+        $dataObjectParameters["references"] = $references;
+    }    
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();        
     $audienceParameters = array();      
     $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
     $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+    ///////////////////////////////////
     return $dataObjectParameters;
 }
 
