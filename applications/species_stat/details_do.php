@@ -1,8 +1,10 @@
 <?php
 
 //define("ENVIRONMENT", "integration");		//where stats are stored
-//define("ENVIRONMENT", "development");        //where stats are stored
+//define("ENVIRONMENT", "development");     //where stats are stored
 //define("ENVIRONMENT", "data_main");		//where stats are stored
+
+//exit("stops...");
 
 print"<table style='font-family : Arial; font-size : x-small;'><tr><td>";
 
@@ -194,8 +196,7 @@ while( $row = $sql->fetch_assoc() )
 	print "n = $totrec &nbsp;&nbsp;&nbsp;";
 	if($batch > 0 and $batch != $totrec){print"<a href='javascript:history.go(-1)'>Prev</a> &nbsp;&nbsp;";}
 	if($batch + $step <= $totrec)
-	{print"<a href='details_do.php?autoctr=$autoctr&label=$label&batch=$batch&what=$what&show_do=$show_do'>Next</a>";}
-		
+	{print"<a href='details_do.php?autoctr=$autoctr&label=$label&batch=$batch&what=$what&show_do=$show_do'>Next</a>";}		
 
 	if($id_type == "taxa")	
 	{
@@ -250,9 +251,7 @@ while( $row = $sql->fetch_assoc() )
 				Where taxon_concepts.id = $arr[$i] and taxon_concept_names.vern = 0
 				and taxon_concept_names.preferred = 1 ";
 				$sql2 = $mysqli->query($qry);	
-				//print"<hr>$qry<hr>";
-				
-				
+				//print"<hr>$qry<hr>";				
 
 				if	(	$label == "Pages with CoL names with content that requires curation"		or
 						$label == "Pages NOT with CoL names with content that requires curation"
@@ -521,9 +520,7 @@ function does_url_exist($url)
 
 
 function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- using query and XML webservice
-{
-	//print "X";
-	
+{	
 	global $mysqli;
 	$qry="Select distinct taxon_concept_names.taxon_concept_id,
 	data_objects.id, data_objects.vetted_id, data_types.label
@@ -541,8 +538,7 @@ function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- u
 	
 	$url = "http://www.eol.org/pages/$tc_id/images/1.xml";	
 	
-	//print "<hr>" . does_url_exist($url) . "<hr>";
-		
+	//print "<hr>" . does_url_exist($url) . "<hr>";		
 	
     //if(@parse_url($url))
 	if(does_url_exist($url))
@@ -578,7 +574,6 @@ function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- u
 	
 }//end func
 
-
 /*
 for the list of resources names
 Select distinct resources.title , resources.id
@@ -592,8 +587,6 @@ Inner Join resources ON harvest_events.resource_id = resources.id
 Where data_objects.published = 0 and data_objects.vetted_id = 5 and 
 harvest_events.id IN (1,2,3,4,6,8,9,11,12,13,21,44,74,75,200,211,212,215,226,234,235,244,247,248,250,252,253,254,255) 
 */
-
-
 
 ?>
 
