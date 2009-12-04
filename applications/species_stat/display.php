@@ -35,7 +35,7 @@ elseif    ($view==3)    {print"View:&nbsp; <a href='display.php?view=1'>Latest</
 
 
 print" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href='saved_stats.csv'>Download historial data as CSV</a>
+<a href='saved_stats.csv'>Download historical data as CSV</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href='../species_stat_marine/display.php'>Marine Stats &gt;&gt;</a>";
 
