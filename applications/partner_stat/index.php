@@ -4,7 +4,7 @@
 <body>
 <?php
 
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 //define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
@@ -36,6 +36,7 @@ function process_agent_id($agent_id)
     {
         $ctr++;
         //print "<hr>harvest_event_id = $row[id] $row[published_at] ";    
+		/*
         $query = "SELECT DISTINCT a.full_name, he.taxon_concept_id 
         FROM agents a
         JOIN agents_resources ar ON (a.id=ar.agent_id)
@@ -46,9 +47,25 @@ function process_agent_id($agent_id)
         join taxon_concepts tc on he.taxon_concept_id = tc.id
         WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0 
         and hev.id = $row[id] ";    
+		*/
+		
+        $query = "SELECT a.full_name FROM agents a WHERE a.id = $agent_id";    		
         $result2 = $mysqli->query($query);    
         $row2 = $result2->fetch_row();            
         $agent_name = $row2[0];
+		
+    	$query = "
+	    Select distinct hierarchy_entries.taxon_concept_id as id
+	    From harvest_events_taxa
+	    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
+	    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+	    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
+	    Where harvest_events_taxa.harvest_event_id = $row[id]
+	    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and (taxon_concepts.vetted_id=5 OR taxon_concepts.vetted_id=0)    
+	    ";
+
+        $result2 = $mysqli->query($query);    
+		
         //print $result2->num_rows . "<hr>";        
         $data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
     }//end while
