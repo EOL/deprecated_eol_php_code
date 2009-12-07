@@ -123,7 +123,7 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-        if($i >= 5)break; //debug        //ditox
+        //if($i >= 5)break; //debug        //ditox
         $i++;
 //        if($i == 18){
         if(1==1){
