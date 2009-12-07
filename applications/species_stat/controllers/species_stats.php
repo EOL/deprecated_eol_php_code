@@ -59,6 +59,14 @@ class species_stats_controller extends ControllerBase
             $stats = $model->dataobject_stat_more($group);
             render_template("species_stats/results", array("stats" => $stats));        
         }                
+        elseif($group==5)
+        {
+            $model = new SpeciesStats();
+            $stats = $model->lifedesk_stat($group);
+            render_template("species_stats/results", array("stats" => $stats));        
+        }                
+        
+        
 
     }    
 }

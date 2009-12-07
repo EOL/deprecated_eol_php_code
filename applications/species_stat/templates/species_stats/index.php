@@ -55,7 +55,7 @@ function get_val_var($v)
         <input type="radio" name="group" value="2"                >Data object stats
         <input type="radio" name="group" value="4"                >Data object stats (more)
         <input type="radio" name="group" value="3"                >BHL and general outlinks
-                
+        <input type="radio" name="group" value="5"                >LifeDesk stats                
         
         <br>
         <input type="submit" value="Submit">
@@ -73,11 +73,7 @@ function get_val_var($v)
         <a href="index.php?group=4&f=results">Link run -- Data object stats (more)</a>  <br>
         <a href="index.php?group=3&f=results">Link run -- BHL and general outlinks</a>  <br>
         <a href="save_stats.php">Save daily stats to a CSV file</a>  <br>
-        
-        
-        
-
-                
+        <a href="index.php?group=5&f=results">Link run -- LifeDesk stats</a>  <br>
         
     </BODY>
 </HTML>
