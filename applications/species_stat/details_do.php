@@ -1,7 +1,7 @@
 <?php
 
 //define("ENVIRONMENT", "integration");		//where stats are stored
-//define("ENVIRONMENT", "development");     //where stats are stored
+//define("ENVIRONMENT", "slave_32");     //where stats are stored
 //define("ENVIRONMENT", "data_main");		//where stats are stored
 
 //exit("stops...");
@@ -285,6 +285,7 @@ while( $row = $sql->fetch_assoc() )
 			{	$str = @$arr[$i];
 				print"<td>"; print $i+1 . ". </td><td>" . $str . ""; print"</td>";
 
+				/* dec 6 commented
 				$qry="
 				Select distinct taxon_concept_names.taxon_concept_id as tc_id,
 				names.`string` as sn From data_objects
@@ -293,11 +294,20 @@ while( $row = $sql->fetch_assoc() )
 				Inner Join names ON taxa.name_id = names.id
 				Inner Join taxon_concept_names ON taxon_concept_names.name_id = names.id
 				Inner Join taxon_concepts ON taxon_concept_names.taxon_concept_id = taxon_concepts.id
-				Where data_objects.id = $arr[$i] and taxon_concept_names.vern = 0 and taxon_concepts.supercedure_id = 0 ";				
-				
-				
-				
-				
+				Where data_objects.id = $arr[$i] and taxon_concept_names.vern = 0 and taxon_concepts.supercedure_id = 0 ";
+				*/
+				$qry="
+				Select distinct taxon_concepts.id as tc_id,
+				names.`string` as sn 
+				From data_objects_taxa
+				Inner Join taxa ON data_objects_taxa.taxon_id = taxa.id
+				Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+				Inner Join names ON taxa.name_id = names.id
+				Where data_objects_taxa.data_object_id = $arr[$i]
+				and taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id IN (5,0)				
+				";
+								
 				//print "<hr>$qry<hr>";		
 				$sql2 = $mysqli->query($qry);	
 				print"<td>";				
@@ -353,6 +363,7 @@ while( $row = $sql->fetch_assoc() )
 	    	{		
 		        if($id_type == "taxa")
         		{
+					/*
 		        	$qry="
         			Select distinct
         			taxon_concept_names.taxon_concept_id AS tc_id,
@@ -393,6 +404,52 @@ while( $row = $sql->fetch_assoc() )
         			Where taxon_concept_names.taxon_concept_id = $arr[$i] 
         			and harvest_events.id IN (".implode(",", $temp_arr).") 						
         			";
+					*/
+					
+					$qry="
+					Select distinct
+        			taxon_concept_names.taxon_concept_id AS tc_id,
+        			data_objects_taxa.data_object_id,
+        			data_objects.published,
+        			data_objects.object_title,
+		        	data_objects.source_url,
+        			data_objects.description,
+        			data_objects.object_url,
+        			data_objects.thumbnail_url,
+        			data_types.label AS dtype_label,
+        			mime_types.label AS mtype_label,
+        			vetted.label AS vetted_label,
+        			visibilities.label AS visib_label,
+        			data_objects.license_id,
+        			data_objects.rights_statement,
+        			data_objects.rights_holder,
+        			data_objects.bibliographic_citation,
+        			data_objects.location,
+        			data_objects.object_created_at,
+        			data_objects.object_modified_at,
+        			data_objects.data_rating,
+        			data_objects.curated,
+        			harvest_events.resource_id,
+        			resources.title
+					From
+					data_objects_taxa
+					Inner Join taxa ON data_objects_taxa.taxon_id = taxa.id
+					Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+					Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+					Inner Join names ON taxa.name_id = names.id
+					Inner Join data_objects ON data_objects.id = data_objects_taxa.data_object_id
+					Inner Join data_types ON data_objects.data_type_id = data_types.id
+					Inner Join mime_types ON data_objects.mime_type_id = mime_types.id
+					Inner Join vetted ON data_objects.vetted_id = vetted.id
+					Inner Join visibilities ON data_objects.visibility_id = visibilities.id
+					Inner Join data_objects_harvest_events ON data_objects.id = data_objects_harvest_events.data_object_id
+					Inner Join harvest_events ON data_objects_harvest_events.harvest_event_id = harvest_events.id
+					Inner Join resources ON harvest_events.resource_id = resources.id
+					Where
+					and taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id IN (5,0)
+					taxon_concept_names.taxon_concept_id = $arr[$i] 
+        			and harvest_events.id IN (".implode(",", $temp_arr).") 						
+					";
 
 /*				
 0 Invisible
