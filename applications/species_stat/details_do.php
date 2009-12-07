@@ -71,11 +71,29 @@ if($what == 'resources')
 	Where harvest_events.id IN (".implode(",", $temp_arr).") 
 	";
 	*/	
+    
+    /*
 	$qry="
-	Select distinct resources.title, resources.id From
-	harvest_events Inner Join resources ON harvest_events.resource_id = resources.id
-	Where harvest_events.id (".implode(",", $temp_arr).") 
-	"
+    Select distinct resources.title, resources.id 
+    From
+    data_objects_taxa
+    Inner Join taxa ON data_objects_taxa.taxon_id = taxa.id
+    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+    Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+    Inner Join data_objects ON data_objects.id = data_objects_taxa.data_object_id
+    Inner Join data_objects_harvest_events ON data_objects.id = data_objects_harvest_events.data_object_id
+    Inner Join harvest_events ON data_objects_harvest_events.harvest_event_id = harvest_events.id
+    Inner Join resources ON harvest_events.resource_id = resources.id
+    Where harvest_events.id in (".implode(",", $temp_arr).")    ";
+    */
+    $qry="
+    Select distinct resources.title, resources.id     
+    From
+    data_objects
+    Inner Join data_objects_harvest_events ON data_objects.id = data_objects_harvest_events.data_object_id
+    Inner Join harvest_events ON data_objects_harvest_events.harvest_event_id = harvest_events.id
+    Inner Join resources ON harvest_events.resource_id = resources.id
+    Where harvest_events.id in (".implode(",", $temp_arr).")    ";   
 	
 	if($label == "Approved pages awaiting publication")
 	{
@@ -99,7 +117,6 @@ if($what == 'resources')
 		if	  ($label == "Pages with CoL names with content that requires curation")		print "Resources with content that requires curation with Col names <br> <br>";		
 		elseif($label == "Pages NOT with CoL names with content that requires curation")	print "Resources with content that requires curation NOT with Col names <br> <br>";		
 	}
-
 	
 	$sql2 = $mysqli->query($qry);	
 	//print "<hr>$qry<hr>";
@@ -305,8 +322,13 @@ while( $row = $sql->fetch_assoc() )
 				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 				Inner Join names ON taxa.name_id = names.id
 				Where data_objects_taxa.data_object_id = $arr[$i]
-				and taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id IN (5,0)				
+				AND taxon_concepts.supercedure_id = 0 
 				";
+                /*
+                and taxon_concepts.published = 1 
+                and taxon_concepts.vetted_id IN (5,0)				
+                */
+                
 								
 				//print "<hr>$qry<hr>";		
 				$sql2 = $mysqli->query($qry);	
@@ -402,13 +424,12 @@ while( $row = $sql->fetch_assoc() )
         			inner Join harvest_events ON data_objects_harvest_events.harvest_event_id = harvest_events.id
         			inner Join resources ON harvest_events.resource_id = resources.id
         			Where taxon_concept_names.taxon_concept_id = $arr[$i] 
-        			and harvest_events.id IN (".implode(",", $temp_arr).") 						
-        			";
+        			and harvest_events.id IN (".implode(",", $temp_arr).") ";
 					*/
 					
 					$qry="
 					Select distinct
-        			taxon_concept_names.taxon_concept_id AS tc_id,
+        			taxon_concepts.id AS tc_id,
         			data_objects_taxa.data_object_id,
         			data_objects.published,
         			data_objects.object_title,
@@ -445,11 +466,15 @@ while( $row = $sql->fetch_assoc() )
 					Inner Join data_objects_harvest_events ON data_objects.id = data_objects_harvest_events.data_object_id
 					Inner Join harvest_events ON data_objects_harvest_events.harvest_event_id = harvest_events.id
 					Inner Join resources ON harvest_events.resource_id = resources.id
-					Where
-					and taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id IN (5,0)
-					taxon_concept_names.taxon_concept_id = $arr[$i] 
-        			and harvest_events.id IN (".implode(",", $temp_arr).") 						
-					";
+
+        			Where 
+                    taxon_concepts.id = $arr[$i] 
+        			and harvest_events.id IN (".implode(",", $temp_arr).") ";
+                    
+                    /*
+                    and taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id IN (5,0)
+                    */
+                    
 
 /*				
 0 Invisible

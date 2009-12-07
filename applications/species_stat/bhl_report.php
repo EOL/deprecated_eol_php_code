@@ -1,6 +1,6 @@
 <?php
 
-//define("ENVIRONMENT", "slave_32");      
+define("ENVIRONMENT", "slave_32");      
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
@@ -101,9 +101,13 @@ function get_stats($names,$marine_pages)
 {
     global $mysqli; 
     if(mysqli_connect_errno()){printf("Can't connect to MySQL database (). Errorcode: %s\n", mysqli_connect_error());exit;}     
-    $result = $mysqli->query("SELECT taxon_concept_id id, n.string FROM names n JOIN taxon_concept_names tcn ON (n.id=tcn.name_id) JOIN 
-    taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE n.string IN ('".implode("','", $names)."') 
-    AND tc.published=1 AND tc.supercedure_id=0 AND tc.vetted_id IN (5,0);
+    $result = $mysqli->query("SELECT taxon_concept_id id, n.string 
+    FROM names n 
+    JOIN taxon_concept_names tcn ON (n.id=tcn.name_id) 
+    JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE n.string     
+    IN ('".implode("','", $names)."')     
+    AND tc.published=1 AND tc.supercedure_id=0 AND tc.vetted_id IN (5)");
+    /* in (5,0) */
     while($result && $row=$result->fetch_assoc())
     {
         $id = $row["id"];

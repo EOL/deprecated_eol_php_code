@@ -6,7 +6,7 @@
 
 
 define("DEBUG", false);
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
