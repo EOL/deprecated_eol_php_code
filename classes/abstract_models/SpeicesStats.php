@@ -87,7 +87,8 @@ class SpeciesStats extends MysqlBase
         
         // this block checks the latest PUBLISHED harvest events for each resource
         $latest_published = array();
-        $result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events WHERE published_at IS NOT NULL GROUP BY resource_id");
+        $result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events 
+        WHERE published_at IS NOT NULL GROUP BY resource_id");
         while($result && $row=$result->fetch_assoc())
         {
             $latest_published[$row['resource_id']] = $row['max_published'];
@@ -795,7 +796,111 @@ class SpeciesStats extends MysqlBase
                 
         return "$comma_separated";        
 
-    }//end function dataobject_stat
+    }//end function dataobject_stat_more($group)
+
+
+    public function lifedesk_stat($group)
+    {   
+        $latest_published = array();
+        $result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events 
+        WHERE published_at IS NOT NULL GROUP BY resource_id");
+        while($result && $row=$result->fetch_assoc())
+        {$latest_published[$row['resource_id']] = $row['max_published'];}
+
+         
+        /* query to get all latest harvest_events for all LifeDesk providers */
+        $query = "Select Max(harvest_events.id) as harvest_event_id, harvest_events.resource_id, resources.title
+        From resources
+        Inner Join harvest_events ON resources.id = harvest_events.resource_id
+        Inner Join resource_statuses ON resources.resource_status_id = resource_statuses.id
+        Where resources.accesspoint_url Like '%lifedesks.org%'
+        Group By harvest_events.resource_id ";
+        $result = $this->mysqli->query($query);        
+        
+        $tc_id_published = array();
+        $tc_id_unpublished = array();
+        
+        $do_id_published = array();
+        $do_id_unpublished = array();        
+        while($result && $row=$result->fetch_assoc())        
+        {
+            if(@$latest_published[$row['resource_id']]) $harvest_event_id = $latest_published[$row['resource_id']];
+            else                                        $harvest_event_id = $row["harvest_event_id"];        
+            
+            $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
+            print $row["harvest_event_id"] . " $row[title] taxa pages published = " . count(@$arr["published"]) . "<br>";
+            print $row["harvest_event_id"] . "             taxa pages unpublished = " . count(@$arr["unpublished"]) . "<br>";            
+            if(@$arr["published"])  $tc_id_published   = array_merge(@$arr["published"],$tc_id_published);
+            if(@$arr["unpublished"])$tc_id_unpublished = array_merge(@$arr["unpublished"],$tc_id_unpublished);                        
+                    
+            $arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
+            print $row["harvest_event_id"] . " data objects published = " . count(@$arr["published"]) . "<br>";
+            print $row["harvest_event_id"] . " data objects unpublished = " . count(@$arr["unpublished"]) . "<hr>";            
+            if(@$arr["published"])  $do_id_published   = array_merge(@$arr["published"],$do_id_published);
+            if(@$arr["unpublished"])$do_id_unpublished = array_merge(@$arr["unpublished"],$do_id_unpublished);            
+            
+        }
+        
+        //$tc_id = array_unique($tc_id);        
+        /* not used bec dataobject comes from diff providers
+        $do_id = array_unique($do_id);
+        */
+        
+        print "<hr>taxa pages published = " . count(@$tc_id_published);                
+        print "<hr>taxa pages unpublished = " . count(@$tc_id_unpublished);                
+
+        print "<hr>data objects published = " . count(@$do_id_published);                
+        print "<hr>data objects unpublished = " . count(@$do_id_unpublished);                
+        print "<hr>";
+        
+        
+    }//end function dataobject_stat_more($group)    
+    
+    function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
+    {   
+        $query = "Select distinct hierarchy_entries.taxon_concept_id as id, taxon_concepts.published
+        From harvest_events_taxa
+        Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
+        Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+        Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
+        Where harvest_events_taxa.harvest_event_id = $harvest_event_id
+        and taxon_concepts.supercedure_id=0 and taxon_concepts.vetted_id in(5,0)";    
+        //and taxon_concepts.published=1
+        $result = $this->mysqli->query($query);                
+        
+        $all_ids=array();
+        while($result && $row=$result->fetch_assoc())
+        {
+            if($row["published"])$all_ids["published"][]=$row["id"];
+            else                 $all_ids["unpublished"][]=$row["id"];
+        }
+        $result->close();            
+        //$all_ids = array_keys($all_ids);
+        return $all_ids;
+    }//end get_taxon_concept_ids_from_harvest_event($harvest_event_id)    
+
+    function get_data_object_ids_from_harvest_event($harvest_event_id)
+    {   
+        $query = "Select distinct data_objects_harvest_events.data_object_id as id, data_objects.published
+        From data_objects_harvest_events
+        Inner Join data_objects ON data_objects_harvest_events.data_object_id = data_objects.id
+        Where
+        data_objects_harvest_events.harvest_event_id = $harvest_event_id ";    
+        //AND data_objects.published = '1' 
+        $result = $this->mysqli->query($query);                
+        
+        $all_ids=array();
+        while($result && $row=$result->fetch_assoc())
+        {
+            if($row["published"])$all_ids["published"][]=$row["id"];
+            else                 $all_ids["unpublished"][]=$row["id"];
+        }
+        $result->close();            
+        //$all_ids = array_keys($all_ids);
+        return $all_ids;
+    }//end get_data_object_ids_from_harvest_event($harvest_event_id)
+    
+    
 
 }//end class
 
