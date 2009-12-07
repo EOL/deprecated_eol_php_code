@@ -4,7 +4,7 @@
 <body>
 <?php
 
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 //define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
