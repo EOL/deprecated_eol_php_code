@@ -1,6 +1,6 @@
 <?php
 
-define("ENVIRONMENT", "slave_32");      
+//define("ENVIRONMENT", "slave_32");      
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
@@ -73,8 +73,8 @@ function get_marine_eol_pages()
     //$xml = simplexml_load_file("http://services.eol.org/eol_php_code/applications/content_server/resources/26.xml", null, LIBXML_NOCDATA);
     //$xml = simplexml_load_file("http://10.19.19.226/resources/26.xml", null, LIBXML_NOCDATA);
 	
-	$xml = simplexml_load_file("http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972", null, LIBXML_NOCDATA);
-        
+	//$xml = simplexml_load_file("http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972", null, LIBXML_NOCDATA);
+	$xml = simplexml_load_file("http://127.0.0.1/26.xml", null, LIBXML_NOCDATA);        
     
     foreach($xml->taxon as $t)
     {

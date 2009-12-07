@@ -57,9 +57,11 @@ if($what==''){$what='list';}
 
 if($what == 'resources')
 {
+	/* dec 6 commented
 	$qry="
 	Select distinct resources.title , resources.id
-	From taxon_concept_names Left Join names ON taxon_concept_names.name_id = names.id Left Join taxa ON names.id = taxa.name_id 
+	From taxon_concept_names 
+	Left Join names ON taxon_concept_names.name_id = names.id Left Join taxa ON names.id = taxa.name_id 
 	Left Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id Left Join data_objects ON data_objects_taxa.data_object_id = data_objects.id 
 	Left Join data_types ON data_objects.data_type_id = data_types.id Left Join mime_types ON data_objects.mime_type_id = mime_types.id 
 	Left Join vetted ON data_objects.vetted_id = vetted.id Left Join visibilities ON data_objects.visibility_id = visibilities.id 
@@ -68,7 +70,13 @@ if($what == 'resources')
 	Inner Join resources ON harvest_events.resource_id = resources.id 
 	Where harvest_events.id IN (".implode(",", $temp_arr).") 
 	";
-    
+	*/	
+	$qry="
+	Select distinct resources.title, resources.id From
+	harvest_events Inner Join resources ON harvest_events.resource_id = resources.id
+	Where harvest_events.id (".implode(",", $temp_arr).") 
+	"
+	
 	if($label == "Approved pages awaiting publication")
 	{
 		$qry .= "		
@@ -245,11 +253,18 @@ while( $row = $sql->fetch_assoc() )
 			if($id_type == "taxa")	
 			{	
 				$str = "<a target='eol' href='http://$eol_site/pages/$arr[$i]'>$arr[$i]</a>";
+				/* dec 6 commented
 				$qry="Select distinct clean_names.clean_name From taxon_concepts
 				Inner Join taxon_concept_names ON taxon_concepts.id = taxon_concept_names.taxon_concept_id
 				Inner Join clean_names ON taxon_concept_names.name_id = clean_names.name_id
 				Where taxon_concepts.id = $arr[$i] and taxon_concept_names.vern = 0
 				and taxon_concept_names.preferred = 1 ";
+				*/
+				$qry="Select distinct clean_names.clean_name
+				From clean_names
+				Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+				Where taxon_concepts.id = $arr[$i] ";
 				$sql2 = $mysqli->query($qry);	
 				//print"<hr>$qry<hr>";				
 
@@ -279,6 +294,10 @@ while( $row = $sql->fetch_assoc() )
 				Inner Join taxon_concept_names ON taxon_concept_names.name_id = names.id
 				Inner Join taxon_concepts ON taxon_concept_names.taxon_concept_id = taxon_concepts.id
 				Where data_objects.id = $arr[$i] and taxon_concept_names.vern = 0 and taxon_concepts.supercedure_id = 0 ";				
+				
+				
+				
+				
 				//print "<hr>$qry<hr>";		
 				$sql2 = $mysqli->query($qry);	
 				print"<td>";				
@@ -518,10 +537,10 @@ function does_url_exist($url)
 	return $status;
 }//end func
 
-
 function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- using query and XML webservice
 {	
 	global $mysqli;
+	/* Dec 6 commented
 	$qry="Select distinct taxon_concept_names.taxon_concept_id,
 	data_objects.id, data_objects.vetted_id, data_types.label
 	From taxon_concept_names
@@ -532,6 +551,18 @@ function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- u
 	Inner Join data_types ON data_objects.data_type_id = data_types.id
 	Where taxon_concept_names.taxon_concept_id = $tc_id and
 	data_objects.data_type_id not in (5,6) and data_objects.vetted_id <> 0 ";			
+	*/	
+	$qry="Select distinct taxon_concepts.id as taxon_concept_id,
+	data_objects.id, data_objects.vetted_id, data_types.label
+	From taxon_concepts
+	Inner Join hierarchy_entries ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
+	Inner Join taxa ON hierarchy_entries.id = taxa.hierarchy_entry_id
+	Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
+	Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
+	Inner Join data_types ON data_objects.data_type_id = data_types.id
+	Where taxon_concepts.id = $tc_id and
+	data_objects.data_type_id not in (5,6) and data_objects.vetted_id <> 0 ";
+	
 	$sql = $mysqli->query($qry);	
 	$first = $sql->num_rows;	//if > 0 then it has vetted records
 	$sql->close();
