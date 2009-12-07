@@ -6,20 +6,8 @@ http://www.iucn-tftsg.org/pub-chron/
 
 //exit;
 
- /*
-$str='  abc
-        <p style="dxisplay:none"><a href="http://www.barryshamis.com/?evening">Evening divx</a></p>
-        def
-        <div style="dxisplay:none"><a href="http://isighttech.com/?grizzly_park">Grizzly Park film</a></div>
-        ghi
-        ';
-$str = remove_tag_with_this_needle($str,"display:none");
-print "$str";    
-exit;
- */
-
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -32,7 +20,7 @@ Functions::load_fixtures("development");
 */
 
 $wrap = "\n"; 
-$wrap = "<br>"; 
+//$wrap = "<br>"; 
  
 $resource = new Resource(90); //exit($resource->id);
 
@@ -74,6 +62,17 @@ fclose($OUT);
 print "$wrap -- Done processing -- "; exit;
 
 
+/*
+$str='  abc
+        <p style="dxisplay:none"><a href="http://www.barryshamis.com/?evening">Evening divx</a></p>
+        def
+        <div style="dxisplay:none"><a href="http://isighttech.com/?grizzly_park">Grizzly Park film</a></div>
+        ghi
+        ';
+$str = remove_tag_with_this_needle($str,"display:none");
+print "$str";    
+exit;
+*/
 
 function process_file1($file)
 {        
@@ -124,7 +123,7 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-        if($i >= 4)break; //debug        //ditox
+        if($i >= 5)break; //debug        //ditox
         $i++;
 //        if($i == 18){
         if(1==1){
@@ -237,7 +236,11 @@ function process_loop($arr) //run each URL and extract data
             if(!$handle)$map = str_ireplace('.bmp' , '.png', $map);	            
         }                
         //-----------------------------------------------
+        
+        
+        
         $map_caption = "
+        <div style='font-size : x-small;overflow : scroll;'>
         <table align='center' border='1'>
         <tr><td align='center'>";
         
@@ -245,9 +248,15 @@ function process_loop($arr) //run each URL and extract data
         else       $map_caption .= "<img height='410' width='500'";          
         
         $map_caption .= " src='$map'></td></tr>
-        <tr><td>$caption</td></tr>
-        </table>
+        </table></div>
         ";        
+        
+        $map_caption .= "
+        <table align='center' border='1'>
+        <tr><td>$caption</td></tr>
+        </table>        
+        ";
+        
         //end get distribution2        
 
         //get image
@@ -400,7 +409,7 @@ function process_loop($arr) //run each URL and extract data
         $pdf_url = $beg . $pdf_url . $end1;        
         if(!($handle = @fopen($pdf_url,'r')))$pdf_url = "";    
         
-        if($pdf_url != "")$summary .= "<p><a href='$pdf_url'>Download the full article on the IUCN Tortoise and Freshwater Turtle Specialist Group site</a>";
+        
         //end get pdf url
         
                 
@@ -409,6 +418,9 @@ function process_loop($arr) //run each URL and extract data
 		$comname = strip_tags($comname);            
         $agent = strip_tags($agent);                    
         $summary = strip_tags($summary);            
+        if($pdf_url != "")$summary .= "<p><a href='$pdf_url'>Download the full article on the IUCN Tortoise and Freshwater Turtle Specialist Group site</a>";
+        
+        
         $distribution = strip_tags($distribution);            
         $synonymy = strip_tags($synonymy);            
         $status = strip_tags($status);                    
@@ -416,12 +428,14 @@ function process_loop($arr) //run each URL and extract data
         
         print "$i. $sciname [$comname] [$agent]         
         <br><u>PDF url:</u><br> [$pdf_url] 
+        <br><u>summary:</u><br> [$summary]
         ";
+        
         
         
         /*
         print"              
-        <br><u>summary:</u><br> [$summary]
+        
         <br><u>distribution:</u><br> [$distribution]        
         <br><u>synonymy:</u><br> [$synonymy]
         <br><u>status:</u><br> [$status]        
