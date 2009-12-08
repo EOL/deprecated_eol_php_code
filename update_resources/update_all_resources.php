@@ -19,7 +19,9 @@ while($result && $row=$result->fetch_assoc())
     echo $row["id"]."...\n\n\n";
     $resource = new Resource($row["id"]);
     if(!$resource->id) continue;
-    if(!$resource->ready_to_update() && !$resource->ready_to_harvest()) continue;
+    
+    // check the file's modified date and when it was last harvested
+    if(!$resource->ready_to_update() && !$resource->ready_to_harvest(10)) continue;
     
     if($resource->id==11) continue; //biolib.cz
     if($resource->id==42) continue; //fishbase

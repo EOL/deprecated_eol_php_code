@@ -949,7 +949,7 @@ class Functions
             $array["subsect"]=true;
             $array["series"]=true;
             $array["ser"]=true;
-            $array["typus"]=true;
+            //$array["typus"]=true;
             $array["dos"]=true;
             $array["rn"]=true;
             $array["editor"]=true;
@@ -1159,7 +1159,7 @@ class Functions
             $array["nothogen"]=true;
             $array["nothosubgen"]=true;
             $array["individual"]=true;
-            $array["index"]=true;
+            //$array["index"]=true;
             $array["supsp"]=true;
             $array["attr"]=true;
             $array["incorrectly"]=true;
