@@ -16,6 +16,7 @@ class TaxonConcept extends MysqlBase
     
     public static function supercede_by_ids($id1, $id2)
     {
+        if($id1 == $id2) return true;
         if($id2 < $id1) list($id1, $id2) = array($id2, $id1);
         
         if(!$id1 || !$id2) return false;
@@ -23,19 +24,6 @@ class TaxonConcept extends MysqlBase
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
-        
-        // $result = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$id2");
-        // while($result && $row=$result->fetch_assoc())
-        // {
-        //     $a = $row["name_id"];
-        //     $b = $row["source_hierarchy_entry_id"];
-        //     $c = $row["language_id"];
-        //     $d = $row["vern"];
-        //     $e = $row["preferred"];
-        //     $mysqli->insert("INSERT INTO taxon_concept_names VALUES ($id1, $a, $b, $c, $d, $e)");
-        // }
-        // 
-        // $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$id2");
         $mysqli->update("UPDATE taxon_concepts SET supercedure_id=$id1 WHERE id=$id2");
         
         Tasks::update_taxon_concept_names($id1);

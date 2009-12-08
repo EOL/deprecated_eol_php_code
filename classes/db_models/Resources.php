@@ -270,7 +270,17 @@ class Resource extends MysqlBase
                 Functions::debug("Assigning nested set values resource: $this->id");
                 Tasks::rebuild_nested_set($hierarchy_id);
                 Functions::debug("Finished assigning: $this->id");
-                Tasks::compare_hierarchies($hierarchy_id, $catalogue_of_life_id, false);
+                
+                // Rebuild the Solr index for this hierarchy
+                $indexer = new HierarchyEntryIndexer();
+                $indexer->index($hierarchy_id);
+                
+                // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+                $hierarchy = new Hierarchy($hierarchy_id);
+                CompareHierarchies::process_hierarchy($hierarchy, null, true);
+                
+                //Tasks::compare_hierarchies($hierarchy_id, $catalogue_of_life_id, false);
+                
                 
                 if($this->vetted())
                 {
