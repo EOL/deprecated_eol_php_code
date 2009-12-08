@@ -4,8 +4,8 @@
 
 
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
+define("ENVIRONMENT", "slave_32");
+define("MYSQL_DEBUG", true);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -184,23 +184,29 @@ for ($i = 0; $i < count($arr); $i++)
 	
 	
 	$string = $canonical_form;
-	/*
-	$qry = "select distinct tcn.taxon_concept_id as id from $tbl n join taxon_concept_names tcn 
-	on (n.$fld_id=tcn.name_id) where n.$fld='$string' Order By id Asc ";
-	*/
 	
-	$qry="
-select distinct tcn.taxon_concept_id as id
-From
-clean_names AS n
-Inner Join taxon_concept_names AS tcn ON (n.name_id = tcn.name_id)
-Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id
-where n.$fld='$string'
-and taxon_concepts.published = 1
-and taxon_concepts.vetted_id = 5	
-and taxon_concepts.supercedure_id = 0
-Order By id Asc	
-	";
+	/* dec 7 commented
+	$qry="select distinct tcn.taxon_concept_id as id
+	From clean_names AS n
+	Inner Join taxon_concept_names AS tcn ON (n.name_id = tcn.name_id)
+	Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id
+	where n.$fld='$string'
+	and taxon_concepts.published = 1
+	and taxon_concepts.vetted_id = 5	
+	and taxon_concepts.supercedure_id = 0
+	Order By id Asc	";
+	*/
+	$qry="select distinct tc.id
+	From taxon_concepts tc
+	Inner Join hierarchy_entries ON tc.id = hierarchy_entries.taxon_concept_id
+	Inner Join clean_names n ON hierarchy_entries.name_id = n.name_id	
+	where n.$fld='$string'
+	and tc.published = 1
+	and tc.vetted_id = 5	
+	and tc.supercedure_id = 0
+	Order By id Asc	";
+	
+	
 //0-Unknown , 4-Untrusted , 5-Trusted	
 	
 	$sql = $mysqli->query($qry);
@@ -362,57 +368,26 @@ function proc_tc_id($id)
 {
 	global $mysqli;
 
-	/*
 	$qry="
-	Select distinct
-	data_objects_info_items.info_item_id,
-	taxon_concepts.id,
-	data_types.label,
-	data_objects.published,
-	data_objects.vetted_id,
-	data_objects.visibility_id,
-	data_objects.id
-	From taxon_concepts
-	Inner Join taxon_concept_names ON taxon_concepts.id = taxon_concept_names.taxon_concept_id
-	Inner Join taxa ON taxon_concept_names.name_id = taxa.name_id
-	Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
-	Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
-	Left Join data_objects_info_items ON data_objects.id = data_objects_info_items.data_object_id
-	Inner Join data_types ON data_objects.data_type_id = data_types.id
-	Where taxon_concepts.id = $id
-	and data_objects.published = 1
-	and data_types.label NOT IN ('GBIF Image','IUCN')
-	order by data_types.label, data_objects_info_items.info_item_id	
-	";
-	*/
-	
-	
-	/*
-	
-	*/
-	
-$qry="
-select  distinct
-toc.id toc_id,
-do.data_type_id,
-do.published,
-do.vetted_id,
-do.visibility_id,
-do.id
-from
-taxon_concept_names tcn
-join taxa t on (tcn.name_id=t.name_id)
-join data_objects_taxa dot on (t.id=dot.taxon_id)
-join data_objects do on (dot.data_object_id=do.id)
-left join
-	(data_objects_table_of_contents dotoc join table_of_contents toc on (dotoc.toc_id=toc.id)) on (do.id=dotoc.data_object_id)
-where
-tcn.taxon_concept_id=$id
-and visibility_id	= 1	
-and published 		= 1
-and data_type_id in (1,3)
-order by do.data_type_id, toc.id 
-		";
+	select distinct toc.id toc_id,
+	do.data_type_id,
+	do.published,
+	do.vetted_id,
+	do.visibility_id,
+	do.id
+	From taxon_concepts tc 
+	Inner Join hierarchy_entries he ON tc.id = he.taxon_concept_id
+	inner join taxa t on (he.name_id=t.name_id)
+	inner join data_objects_taxa dot on (t.id=dot.taxon_id)
+	inner join data_objects do on (dot.data_object_id=do.id)
+	left join (data_objects_table_of_contents dotoc join table_of_contents toc on (dotoc.toc_id=toc.id)) on (do.id=dotoc.data_object_id)
+	where
+	tc.id=$id
+	and do.visibility_id	= 1	
+	and tc.published 		= 1
+	and do.data_type_id in (1,3)
+	order by do.data_type_id, toc.id 
+	";		
 
 	$sql3 = $mysqli->query($qry);
 	//print "$sql3->num_rows<hr>";
@@ -562,8 +537,19 @@ function get_sn_list($sn)
 	//echo "Orignal: $string<br>";
 	//echo "Canonical: $canonical_form<br>";
 
-	$query = "select distinct tcn.taxon_concept_id from $tbl n join taxon_concept_names tcn 
-	on (n.$fld_id=tcn.name_id) where n.$fld='$string'";
+	/* dec7 commented
+	$query = "select distinct tcn.taxon_concept_id 
+	from $tbl n join taxon_concept_names tcn 
+	on (n.$fld_id=tcn.name_id) 
+	where n.$fld='$string'";
+	*/
+	$query = "
+	Select distinct taxon_concepts.id as taxon_concept_id
+	From clean_names 
+	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+	where clean_names.clean_name='$string'
+	";
 	
 	$sql = $mysqli->query($query);
 	$row = $sql->fetch_row();			
@@ -571,14 +557,24 @@ function get_sn_list($sn)
 	$sql->close();
 
 	//echo "id = $id";
-
+	/*dec 7 commented
 	$query="
 	Select distinct $tbl.$fld as string
 	From $tbl Inner Join taxon_concept_names ON taxon_concept_names.name_id = $tbl.$fld_id
-	Where taxon_concept_names.taxon_concept_id = '$id' AND
-	taxon_concept_names.vern = '0'
+	Where taxon_concept_names.taxon_concept_id = '$id' 
+	AND taxon_concept_names.vern = '0'
+	Order By $tbl.$fld Asc ";
+	*/
+	$query = "
+	Select distinct $tbl.$fld as string
+	From clean_names 
+	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+	Where taxon_concept_names.taxon_concept_id = '$id' 
 	Order By $tbl.$fld Asc
 	";
+
+	
 	$sql = $mysqli->query($query);
 	$str_list="";
 	while( $row = $sql->fetch_assoc() )
