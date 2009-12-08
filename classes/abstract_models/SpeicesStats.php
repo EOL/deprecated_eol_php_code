@@ -815,10 +815,23 @@ class SpeciesStats extends MysqlBase
         Inner Join resource_statuses ON resources.resource_status_id = resource_statuses.id
         Where resources.accesspoint_url Like '%lifedesks.org%'
         Group By harvest_events.resource_id ";
+                
+        $query = "Select Max(harvest_events.id) AS harvest_event_id,
+        harvest_events.resource_id,
+        resources.title,
+        agents_resources.agent_id
+        From resources
+        Inner Join harvest_events ON resources.id = harvest_events.resource_id
+        Inner Join resource_statuses ON resources.resource_status_id = resource_statuses.id
+        Inner Join agents_resources ON resources.id = agents_resources.resource_id
+        Where resources.accesspoint_url Like '%lifedesks.org%'
+        Group By harvest_events.resource_id ";
+        
         $result = $this->mysqli->query($query);        
         
         $tc_id_published = array();
         $tc_id_unpublished = array();
+        $tc_id_all = array();
         
         $do_id_published = array();
         $do_id_unpublished = array();        
@@ -828,14 +841,20 @@ class SpeciesStats extends MysqlBase
             else                                        $harvest_event_id = $row["harvest_event_id"];        
             
             $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
-            print $row["harvest_event_id"] . " $row[title] taxa pages published = " . count(@$arr["published"]) . "<br>";
+            
+            $title = "<a target='$row[resource_id]' href='http://www.eol.org/content_partner/resources/$row[resource_id]/harvest_events?content_partner_id=$row[agent_id]'>$row[title]</a>";
+            
+            print $row["harvest_event_id"] . " $title taxa pages published = " . count(@$arr["published"]) . "<br>";
             print $row["harvest_event_id"] . "             taxa pages unpublished = " . count(@$arr["unpublished"]) . "<br>";            
+            print $row["harvest_event_id"] . "             taxa pages all = " . count(@$arr["all"]) . "<br>";            
             if(@$arr["published"])  $tc_id_published   = array_merge(@$arr["published"],$tc_id_published);
             if(@$arr["unpublished"])$tc_id_unpublished = array_merge(@$arr["unpublished"],$tc_id_unpublished);                        
+            if(@$arr["all"])$tc_id_all = array_merge(@$arr["all"],$tc_id_all);                        
                     
             $arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
             print $row["harvest_event_id"] . " data objects published = " . count(@$arr["published"]) . "<br>";
-            print $row["harvest_event_id"] . " data objects unpublished = " . count(@$arr["unpublished"]) . "<hr>";            
+            print $row["harvest_event_id"] . " data objects unpublished = " . count(@$arr["unpublished"]) ;
+            print "<hr>";            
             if(@$arr["published"])  $do_id_published   = array_merge(@$arr["published"],$do_id_published);
             if(@$arr["unpublished"])$do_id_unpublished = array_merge(@$arr["unpublished"],$do_id_unpublished);            
             
@@ -847,10 +866,10 @@ class SpeciesStats extends MysqlBase
         */
         
         print "<hr>taxa pages published = " . count(@$tc_id_published);                
-        print "<hr>taxa pages unpublished = " . count(@$tc_id_unpublished);                
+        //print "<hr>taxa pages unpublished = " . count(@$tc_id_unpublished);                
 
         print "<hr>data objects published = " . count(@$do_id_published);                
-        print "<hr>data objects unpublished = " . count(@$do_id_unpublished);                
+        //print "<hr>data objects unpublished = " . count(@$do_id_unpublished);                
         print "<hr>";
         
         
@@ -873,6 +892,7 @@ class SpeciesStats extends MysqlBase
         {
             if($row["published"])$all_ids["published"][]=$row["id"];
             else                 $all_ids["unpublished"][]=$row["id"];
+            $all_ids["all"][]=$row["id"];
         }
         $result->close();            
         //$all_ids = array_keys($all_ids);
