@@ -241,7 +241,7 @@ function process_loop($arr) //run each URL and extract data
         
         $map_caption = "
         <div style='font-size : x-small;overflow : scroll;'>
-        <table align='center' border='1'>
+        <table align='center' border='0'>
         <tr><td align='center'>";
         
         if($i == 1)$map_caption .= "<img height='650' width='350'";
@@ -252,11 +252,10 @@ function process_loop($arr) //run each URL and extract data
         ";        
         
         $map_caption .= "
-        <table align='center' border='1'>
+        <table align='center' border='0'>
         <tr><td>$caption</td></tr>
         </table>        
-        ";
-        
+        ";        
         //end get distribution2        
 
         //get image
