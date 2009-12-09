@@ -499,6 +499,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         $desc = $summary;
         $title = "Summary";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology";
         $type = "text";
         $reference = $citation;        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
