@@ -23,7 +23,7 @@ class HierarchyEntryIndexer
         if($r = Rank::find('species')) $this->rank_labels[$r] = 'species';
     }
     
-    public function index($hierarchy_id = NULL)
+    public function index($hierarchy_id = NULL, $optimize = true)
     {
         $filter = "1=1";
         
@@ -65,7 +65,7 @@ class HierarchyEntryIndexer
         
         if(isset($this->objects)) $this->solr->send_attributes($this->objects);
         $this->solr->commit();
-        $this->solr->optimize();
+        if($optimize) $this->solr->optimize();
         
         if(!$hierarchy_id)
         {

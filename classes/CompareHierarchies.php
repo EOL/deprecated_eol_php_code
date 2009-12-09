@@ -81,7 +81,7 @@ class CompareHierarchies
                     echo "Time:    $time s<br>\n";
                     echo "Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s<br><br>\n\n";
                     flush();
-                    ob_flush();
+                    @ob_flush();
                 }
             }
             unset($entries);

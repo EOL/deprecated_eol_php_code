@@ -11,7 +11,7 @@ class TaxonConceptIndexer
         $this->mysqli =& $GLOBALS['mysqli_connection'];
     }
     
-    public function index($hierarchy_id = NULL)
+    public function index($hierarchy_id = NULL, $optimize = true)
     {
         $this->hierarchy_id = $hierarchy_id;
         $filter = "1=1";
@@ -52,7 +52,7 @@ class TaxonConceptIndexer
         
         if(isset($this->objects)) $solr->send_attributes($this->objects);
         $this->solr->commit();
-        $this->solr->optimize();
+        if($optimize) $this->solr->optimize();
         
         if(!$hierarchy_id)
         {

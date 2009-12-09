@@ -233,71 +233,6 @@ class Tasks extends MysqlBase
         if($result && $result->num_rows) $result->free();
         $mysqli->end_transaction();
     }
-
-    public static function compare_hierarchies_old($hierarchy_id)
-    {
-        if(!$hierarchy_id) return false;
-        $mysqli =& $GLOBALS['mysqli_connection'];
-
-        $mysqli->begin_transaction();
-        
-        $result = $mysqli->query("SELECT id, hierarchy_id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $id = $row["id"];
-            $mysqli->delete("DELETE FROM hierarchy_entry_relationships WHERE hierarchy_entry_id_1=$id OR hierarchy_entry_id_2=$id");
-            $entry1 = new HierarchyEntry($id);
-
-            if($canonical_form_id = $entry1->name()->canonical_form_id) $result2 = $mysqli->query("SELECT he.id, he.hierarchy_id FROM names n JOIN hierarchy_entries he ON n.id=he.name_id WHERE n.canonical_form_id=$canonical_form_id AND he.id!=$entry1->id");
-            else $result2 = $mysqli->query("SELECT he.id, he.hierarchy_id FROM hierarchy_entries he WHERE he.name_id=$entry1->name_id AND he.id!=$entry1->id");
-
-            while($result2 && $row2=$result2->fetch_assoc())
-            {
-                $entry2 = new HierarchyEntry($row2["id"]);
-
-                $score = NamesFunctions::compare_hierarchy_entries($entry1, $entry2);
-
-                if($score)
-                {
-                    $mysqli->insert("INSERT INTO hierarchy_entry_relationships VALUES ($entry1->id, $entry2->id, '', $score, '')");
-                    $mysqli->insert("INSERT INTO hierarchy_entry_relationships VALUES ($entry2->id, $entry1->id, '', $score, '')");
-                }
-            }
-            $result2->free();
-        }
-
-        $mysqli->end_transaction();
-
-        self::merge_related_taxa($hierarchy_id);
-    }
-    
-    public static function merge_related_taxa($hierarchy_id)
-    {
-        if(!$hierarchy_id) return false;
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $mysqli->begin_transaction();
-        
-        $query1 = "SELECT her.* FROM hierarchy_entries he JOIN hierarchy_entry_relationships her ON (he.id=her.hierarchy_entry_id_1) WHERE score>=".MATCH_SCORE_THRESHOLD;
-        $query2 = "SELECT her.* FROM hierarchy_entries he JOIN hierarchy_entry_relationships her ON (he.id=her.hierarchy_entry_id_2) WHERE score>=".MATCH_SCORE_THRESHOLD;
-        $result = $mysqli->query("($query1) UNION ($query2)");
-        
-        while($result && $row=$result->fetch_assoc())
-        {
-            $taxon_1 = new HierarchyEntry($row["hierarchy_entry_id_1"]);
-            $taxon_2 = new HierarchyEntry($row["hierarchy_entry_id_2"]);
-            
-            
-            if($taxon_1->taxon_concept_id != $taxon_2->taxon_concept_id)
-            {
-                $taxon_2->set_taxon_concept_id($taxon_1->taxon_concept_id);
-                
-                self::update_taxon_concept_names($taxon_1->taxon_concept_id);
-            }
-        }
-        
-        $mysqli->end_transaction();
-    }
     
     public static function update_taxon_concept_names($taxon_concept_id)
     {
@@ -474,6 +409,77 @@ class Tasks extends MysqlBase
         
         return $current_value;
     }
+    
+    
+    
+    
+    
+    /*
+    public static function compare_hierarchies_old($hierarchy_id)
+    {
+        if(!$hierarchy_id) return false;
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $mysqli->begin_transaction();
+        
+        $result = $mysqli->query("SELECT id, hierarchy_id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $id = $row["id"];
+            $mysqli->delete("DELETE FROM hierarchy_entry_relationships WHERE hierarchy_entry_id_1=$id OR hierarchy_entry_id_2=$id");
+            $entry1 = new HierarchyEntry($id);
+            
+            if($canonical_form_id = $entry1->name()->canonical_form_id) $result2 = $mysqli->query("SELECT he.id, he.hierarchy_id FROM names n JOIN hierarchy_entries he ON n.id=he.name_id WHERE n.canonical_form_id=$canonical_form_id AND he.id!=$entry1->id");
+            else $result2 = $mysqli->query("SELECT he.id, he.hierarchy_id FROM hierarchy_entries he WHERE he.name_id=$entry1->name_id AND he.id!=$entry1->id");
+            
+            while($result2 && $row2=$result2->fetch_assoc())
+            {
+                $entry2 = new HierarchyEntry($row2["id"]);
+                
+                $score = NamesFunctions::compare_hierarchy_entries($entry1, $entry2);
+                
+                if($score)
+                {
+                    $mysqli->insert("INSERT INTO hierarchy_entry_relationships VALUES ($entry1->id, $entry2->id, '', $score, '')");
+                    $mysqli->insert("INSERT INTO hierarchy_entry_relationships VALUES ($entry2->id, $entry1->id, '', $score, '')");
+                }
+            }
+            $result2->free();
+        }
+        
+        $mysqli->end_transaction();
+        
+        self::merge_related_taxa($hierarchy_id);
+    }
+    
+    public static function merge_related_taxa($hierarchy_id)
+    {
+        if(!$hierarchy_id) return false;
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $mysqli->begin_transaction();
+        
+        $query1 = "SELECT her.* FROM hierarchy_entries he JOIN hierarchy_entry_relationships her ON (he.id=her.hierarchy_entry_id_1) WHERE score>=".MATCH_SCORE_THRESHOLD;
+        $query2 = "SELECT her.* FROM hierarchy_entries he JOIN hierarchy_entry_relationships her ON (he.id=her.hierarchy_entry_id_2) WHERE score>=".MATCH_SCORE_THRESHOLD;
+        $result = $mysqli->query("($query1) UNION ($query2)");
+        
+        while($result && $row=$result->fetch_assoc())
+        {
+            $taxon_1 = new HierarchyEntry($row["hierarchy_entry_id_1"]);
+            $taxon_2 = new HierarchyEntry($row["hierarchy_entry_id_2"]);
+            
+            
+            if($taxon_1->taxon_concept_id != $taxon_2->taxon_concept_id)
+            {
+                $taxon_2->set_taxon_concept_id($taxon_1->taxon_concept_id);
+                
+                self::update_taxon_concept_names($taxon_1->taxon_concept_id);
+            }
+        }
+        
+        $mysqli->end_transaction();
+    }
+    */
 }
 
 ?>
