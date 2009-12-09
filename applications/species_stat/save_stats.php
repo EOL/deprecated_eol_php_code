@@ -40,7 +40,9 @@ page_stats_taxa.date_created,
 page_stats_taxa.time_created,
 page_stats_taxa.pages_incol,
 page_stats_taxa.pages_not_incol,
-page_stats_taxa.`timestamp`
+page_stats_taxa.`timestamp`,
+page_stats_taxa.lifedesk_taxa,
+page_stats_taxa.lifedesk_dataobject
 From page_stats_taxa 
 where   taxa_bhl_no_text <> 0 and
         taxa_links_no_text <> 0 and
@@ -148,6 +150,11 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
                 $arr[]= $row["taxa_BHL_no_text"];            
             //$s3="Pages with links and no text: ";
                 $arr[]= $row["taxa_links_no_text"];            
+                
+                
+                $arr[]= $row["lifedesk_taxa"];            
+                $arr[]= $row["lifedesk_dataobject"];            
+                                
 
 
             //==============================================================
@@ -211,6 +218,9 @@ function getDays($filename)
         $arr[]='Pages with BHL links'; 
         $arr[]='Pages with BHL links with no text'; 
         $arr[]='Pages with links and no text'; 
+        
+        $arr[]='Taxa pages'; 
+        $arr[]='Data objects'; 
         
   		$str="";
         for ($i = 0; $i < count($arr); $i++) 		

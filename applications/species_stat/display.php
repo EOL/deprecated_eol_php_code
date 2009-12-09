@@ -314,7 +314,7 @@ if($view == 3)
     $i=0;
     while( $row = $sql->fetch_assoc() )
     {
-        $col_total         = $row["pages_incol"];
+        $col_total        = $row["pages_incol"];
         $notcol_total     = $row["pages_not_incol"];
 
         $arr['Run date'][$i] = "$row[date_created]<br>$row[time_created]";        
@@ -343,11 +343,13 @@ if($view == 3)
         $arr['Pages with BHL links with no text'][$i]   = number_format($row["taxa_BHL_no_text"]);        
         
 
-
-
         $arr['Approved pages awaiting publication'][$i] = number_format($row["vetted_not_published"]);
         $arr['Pages with CoL names with content that requires curation'][$i]     = number_format($row["vetted_unknown_published_visible_inCol"]);
         $arr['Pages NOT with CoL names with content that requires curation'][$i] = number_format($row["vetted_unknown_published_visible_notinCol"]);
+        
+        $arr['Taxa pages'][$i] = number_format($row["lifedesk_taxa"]);
+        $arr['Data objects'][$i] = number_format($row["lifedesk_dataobject"]);        
+       
 
         $arr2['id'][$i] = $row["id"];    // this is the page_stats!id which is an autoctr
         $i++;
@@ -364,6 +366,9 @@ if($view == 3)
         if($i==11)print"<tr><td>&nbsp;</td></tr><tr><td><b>Vetted Content Statistics</b></td></tr>";
         if($i==17)print"<tr><td>&nbsp;</td></tr><tr><td><b>BHL Statistics</b></td></tr>";
         if($i==19)print"<tr><td>&nbsp;</td></tr><tr><td><b>Curatorial Statistics</b></td></tr>";
+        
+        if($i==22)print"<tr><td>&nbsp;</td></tr><tr><td><b>LifeDesk Stats <a href='index.php?group=5&f=results'>More info</a></b></td></tr>";
+        
         
         if ($i % 2 == 0){$vcolor = 'white';}
         else            {$vcolor = '#ccffff';}        
@@ -398,11 +403,7 @@ if($view == 3)
             //print "<td align='right'>" . @$arr[$label[$i]][$k] . "</td><td width='10'>&nbsp;</td>";
     
             if(@$arr[$label[$i]][$k] == 0)@$arr[$label[$i]][$k]=" -- ";
-            /*
-            'Pages with BHL links'
-            'Pages with BHL links with no text'
-            'Pages with links and no text'
-            */                        
+            
             print "<td align='right'>$href1";
             print @$arr[$label[$i]][$k];
             print "$href2</td><td width='10'>&nbsp;</td>";

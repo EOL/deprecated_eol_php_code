@@ -15,9 +15,10 @@
 
 <?php
 
-$group=1;
+//$group=1;
 $sep = chr(9);
 $rd = "";        
+
 
 /* working well
 foreach($stats as $taxon_concept_id => $stat)
@@ -31,13 +32,83 @@ foreach($stats as $taxon_concept_id => $stat)
 }
 */
 
-$comma_separated = $stats;
-$arr = explode(",",$comma_separated);
+if(is_array($stats))
+{
+    print "yes an array";
+    $arr = $stats;
+}    
+else
+{
+    print "not an array";
+    $comma_separated = $stats;
+    $arr = explode(",",$comma_separated);
+}
+
 
 print "Number of params returned: " . count($arr) . "<br>"; 
 
-if(count($arr)==26)//group 4 //if(count($arr)==37)//group 4
-{      
+if(count($arr)==26) published_data_objects(); //group 4
+if(count($arr)==14) lifedesk_stat($stats); //group 5
+
+
+exit("<p><font size='2'>{as of " . date('Y-m-d H:i:s') . "}<br> --- end ---</font>");
+
+
+function lifedesk_stat($stats)
+{
+                
+        $total_published_taxa=$stats["totals"][0];
+        $total_published_do=$stats["totals"][1];
+        $provider=$stats;
+    
+        //start display
+        $arr = array_keys($provider["published"]);
+        print"<table cellpadding='3' cellspacing='0' border='1'>
+        <tr><td colspan='3'>LifeDesks that were entered in the EOL Content Partner Registry</td></tr>
+        <tr align='center'>
+            <td>Published (n=" . count($arr) . ")</td>
+            <td>Taxa pages</td>
+            <td>Data objects</td>
+        </tr>
+        ";
+        for ($i = 0; $i < count($arr); $i++) 
+        {
+            print " <tr>
+                        <td>$arr[$i]</td>
+                        <td align='right'>" . $provider["published"][$arr[$i]][0] . "</td>
+                        <td align='right'>" . $provider["published"][$arr[$i]][1] . "</td>
+                    </tr>
+                  ";
+        }
+        print"  <tr align='right'>
+                    <td>Total:</td>
+                    <td>$total_published_taxa</td>
+                    <td>$total_published_do</td>
+                </tr>";
+        //print"</table>";
+        
+
+        $arr = array_keys($provider["unpublished"]);
+        print"
+        <tr align='center'>
+            <td>Unpublished (n=" . count($arr) . ")</td><td colspan='2'>&nbsp;</td>
+        </tr>
+        ";
+        for ($i = 0; $i < count($arr); $i++) 
+        {
+            print " <tr>
+                        <td>$arr[$i]</td><td colspan='2'>&nbsp;</td>
+                    </tr>
+                  ";
+        }
+        print"</table>";        
+        
+        //end display
+
+}
+
+function published_data_objects()
+{
     print"Published Data Objects: <br/>";
     $flickr_count = $arr[24];
     $user_do_count = $arr[25];
@@ -110,10 +181,9 @@ if(count($arr)==26)//group 4 //if(count($arr)==37)//group 4
     <br> Latest Flickr harvest count = " . number_format($flickr_count) . "    
     <br> User-submitted data objects = " . number_format($user_do_count) . "    
     <font size='2'><br> <a href='javascript:self.close()'>Exit</a></font>";
-    
-}//if(count($arr)==24)//group 4
 
-exit("<p><font size='2'>{as of " . date('Y-m-d H:i:s') . "}<br> --- end ---</font>");
+}//end func
+
         
 ?>
         
@@ -141,7 +211,6 @@ if($group != 3)
     {
         echo "Error saving file!";
     }
-
 }
 ?>
 <?php

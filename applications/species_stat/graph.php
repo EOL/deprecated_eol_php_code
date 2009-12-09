@@ -30,11 +30,23 @@ function get_graph($title)
     $range1 = $arr[0]-1000;
     $range2 = $arr[count($arr)-1]+1000;
     */
-    $range1 = min($arr)-1000;
-    $range2 = max($arr)+1000;
+    
+    $step=5;
+    if(max($arr) - min($arr) > 10)$step=10;
+    if(max($arr) - min($arr) > 100)$step=100;
+    if(max($arr) - min($arr) > 1000)$step=1000;
+    
+    
+    $range1 = min($arr)-$step;
+    $range2 = max($arr)+$step;
     $arr = get_values_fromCSV("date");
     $date_comma_separated = get_comma_separated($arr,"|");
     //print "$comma_separated <hr> $date_comma_separated <hr>";
+    
+        
+    if($title=="Taxa pages")$title = "LifeDesk Stats: " . $title;
+    if($title=="Data objects")$title = "LifeDesk Stats: " . $title;
+    
     return "<img src='http://chart.apis.google.com/chart?chs=700x300&amp;chxt=y&amp;chxr=0,$range1,$range2&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt=''/>
     <p><a style='font-size : x-small; font-family : Arial;' href='javascript:history.go(-1)'>&lt;&lt; Back</a>";    
 
