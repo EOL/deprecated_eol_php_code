@@ -38,18 +38,4 @@ while($result && $row=$result->fetch_assoc())
 }
 
 
-$connectors = Functions::get_files_in_dir(dirname(__FILE__) . "/connectors");
-foreach($connectors as $file)
-{
-    if(!preg_match("/^(.*)\.php$/", $file, $arr)) continue;
-    echo "$file...\n\n\n";
-    
-    $resource = new Resource($arr[1]);
-    if(!$resource->id) continue;
-    if(!$resource->ready_to_update()) continue;
-    //if($resource->id!=15) continue;
-    
-    shell_exec(dirname(__FILE__) . "/connectors/". $file);
-}
-
 ?>
