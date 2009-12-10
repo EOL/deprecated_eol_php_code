@@ -32,39 +32,34 @@ foreach($stats as $taxon_concept_id => $stat)
 }
 */
 
-if(is_array($stats))
-{
-    print "yes an array";
-    $arr = $stats;
-}    
+if(is_array($stats)) $arr = $stats;
 else
 {
-    print "not an array";
     $comma_separated = $stats;
     $arr = explode(",",$comma_separated);
 }
-
-
+/*
 print "Number of params returned: " . count($arr) . "<br>"; 
-
+*/
 if(count($arr)==26) published_data_objects(); //group 4
 if(count($arr)==14) lifedesk_stat($stats); //group 5
-
-
 exit("<p><font size='2'>{as of " . date('Y-m-d H:i:s') . "}<br> --- end ---</font>");
 
 
 function lifedesk_stat($stats)
-{
-                
+{                
         $total_published_taxa=$stats["totals"][0];
         $total_published_do=$stats["totals"][1];
         $provider=$stats;
     
         //start display
         $arr = array_keys($provider["published"]);
-        print"<table cellpadding='3' cellspacing='0' border='1'>
-        <tr><td colspan='3'>LifeDesks that were entered in the EOL Content Partner Registry</td></tr>
+        print"<p style='font-family : Arial;'>
+        These are LifeDesk providers who have registered in the <a target='eol_registry' href='http://www.eol.org/administrator/content_partner_report'>EOL Content Partner Registry</a>.<br>
+        </p>
+        
+        <table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Narrow;'>
+        <tr align='center'><td colspan='3'>LifeDesks</td></tr>
         <tr align='center'>
             <td>Published (n=" . count($arr) . ")</td>
             <td>Taxa pages</td>
@@ -105,7 +100,74 @@ function lifedesk_stat($stats)
         
         //end display
 
+    print"
+    <p style='font-family : Arial;'>
+    This is the current list of available LifeDesks. <a href='http://www.lifedesks.org/sites/'>More info</a>
+    </p>";
+    get_values_fromCSV();
+
 }
+
+function get_values_fromCSV()
+{
+    //convert to csv    
+    $filename="http://admin.lifedesks.org/files/lifedesk_admin/lifedesk_stats/lifedesk_stats.txt";
+    $filename="http://128.128.175.77/lifedesk_stats.txt";
+    
+    $OUT = fopen("temp.csv", "w+");            
+    $str = Functions::get_remote_file($filename);    
+    if($str)
+    {
+        $str = str_ireplace(',', '&#044;', $str);
+        $str = str_ireplace(chr(9), ',', $str);
+        fwrite($OUT, $str);        
+        fclose($OUT);
+    }
+    $filename = "temp.csv";
+    //end convert to csv    
+    
+    //start reads csv    
+    $row = 0;
+    if(!($handle = fopen($filename, "r")))return;
+    
+    $label=array();
+    $arr = array();
+    
+    print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Narrow;'>
+    ";
+    while (($data = fgetcsv($handle)) !== FALSE) 
+    {
+        //if($row > 0) //to bypass first row, which is the row for the labels
+        print"<tr>";                
+        if($row > -1)
+        {                
+            $num = count($data);
+            //print $num;
+            //echo "<p> $num fields in line $row: <br /></p>\n";        
+            if($row)print"<td align='right'>$row</td>";
+            else print"<td align='center'>#</td>";
+            //for ($c=0; $c < $num; $c++) 
+            for ($c=0; $c < 10; $c++) 
+            {        
+                $align='center';
+                if($row > 0)if(in_array($c, array(3,6,7,8,9)))$align='right';                
+                
+                print"<td align='$align'>";
+                if($c == 1 and $row !=0) print"<a href='$data[$c]'>$data[$c]</a>";
+                else        print $data[$c];
+                print"</td>";                
+            }                        
+            //if($row == 10)break;    
+        }
+        $row++;
+        print"</tr>";
+    }//end while
+    print"</table>";
+    
+    return "";
+
+}//end function
+
 
 function published_data_objects()
 {
@@ -181,9 +243,7 @@ function published_data_objects()
     <br> Latest Flickr harvest count = " . number_format($flickr_count) . "    
     <br> User-submitted data objects = " . number_format($user_do_count) . "    
     <font size='2'><br> <a href='javascript:self.close()'>Exit</a></font>";
-
 }//end func
-
         
 ?>
         
@@ -191,7 +251,6 @@ function published_data_objects()
 <?php
 if($group != 3)
 {
-
     $fileidx = time();
     $filename ="temp/" . $fileidx . ".txt"; 
     $fp = fopen($filename,"a"); // $fp is now the file pointer to file $filename
