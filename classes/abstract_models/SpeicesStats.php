@@ -128,7 +128,7 @@ class SpeciesStats extends MysqlBase
         left join data_objects_table_of_contents dotoc on (do.id=dotoc.data_object_id) 
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=$trusted_id OR tc.vetted_id=0) 
         and dohe.harvest_event_id IN (".implode(",", $temp_arr).")";        
-        //$query .= " limit 1 ";    //for debug only
+        $query .= " limit 1 ";    //for debug only
         
 
         $taxa_published['vetted']    =array();    //PL added item
@@ -305,7 +305,7 @@ class SpeciesStats extends MysqlBase
         taxon_concepts  left join hierarchy_entries he on (taxon_concepts.id=he.taxon_concept_id and he.hierarchy_id=".Hierarchy::col_2009().")
         Where taxon_concepts.published = 1 AND
         taxon_concepts.supercedure_id = 0 ";
-        //$query .= " limit 1 ";    //for debug only
+        $query .= " limit 1 ";    //for debug only
 
         $result = $this->mysqli->query($query);
 
@@ -483,7 +483,7 @@ class SpeciesStats extends MysqlBase
         $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
         STRAIGHT_JOIN mappings m on (tcn.name_id=m.name_id)
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find('Trusted')." OR tc.vetted_id=0) ";
-        //$query .= " limit 1 ";    //for debug only
+        $query .= " limit 1 ";    //for debug only
         
         $result2 = $this->mysqli->query($query);    //4
         while($result2 && $row2=$result2->fetch_assoc())
@@ -497,7 +497,7 @@ class SpeciesStats extends MysqlBase
         $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
         STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id)
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find('Trusted')." OR tc.vetted_id=0) ";
-        //$query .= " limit 1 ";    //for debug only
+        $query .= " limit 1 ";    //for debug only
         
         $result = $this->mysqli->query($query);    //3
         while($result && $row=$result->fetch_assoc())
@@ -525,12 +525,27 @@ class SpeciesStats extends MysqlBase
         $update = $this->mysqli->query($query);
         
         //#####################################################################################################
+        //new start save lifedesk stats
+        $arr = $this->lifedesk_stat();
+        
+        
+        $query = "update page_stats_taxa set 
+                            lifedesk_taxa         = ". $arr["totals"][0] . ", 
+                            lifedesk_dataobject   = ". $arr["totals"][1] . "
+                            where id = $rec_id";
+                        
+        $update = $this->mysqli->query($query);
+        //new end save lifedesk stats
+        //#####################################################################################################
+        
+                
+        //#####################################################################################################
         //new start delete recs, maintain only 8 days of history
         print"<hr>Maintaining 8 records in history...<br>";
         for ($i = 1; $i <= 2; $i++) 
         {
             if($i==1) $tbl='page_stats_taxa';
-            else $tbl='page_stats_dataobjects';
+            else      $tbl='page_stats_dataobjects';
             
             $query="select id from $tbl order by date_created desc, time_created desc limit 8";
             $result = $this->mysqli->query($query);    //1
@@ -538,8 +553,7 @@ class SpeciesStats extends MysqlBase
             $query = "delete  from $tbl where id < $first_of_eight";    //print "<hr>$query";
             $update = $this->mysqli->query($query);
             echo "all recs with id < $first_of_eight from $tbl were deleted <br>"; //n=" . $this->mysqli->affected_rows;    
-        }
-        
+        }        
         //new end delete recs, maintain only 8 days of history
         //#####################################################################################################
         
@@ -558,7 +572,7 @@ class SpeciesStats extends MysqlBase
         $query=" Select Max(harvest_events.id) as max
         From resources Inner Join harvest_events ON resources.id = harvest_events.resource_id
         Group By resources.id Order By max ";
-        //$query .= " limit 1";//debug
+        $query .= " limit 1";//debug
         
         $result = $this->mysqli->query($query);    
         $temp_arr=array();
@@ -602,7 +616,7 @@ class SpeciesStats extends MysqlBase
         From (data_objects AS do)
         Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id)
         Where do.published = 1 ";        
-        //$query .= " limit 1";//debug
+        $query .= " limit 1";//debug
         
         $result = $this->mysqli->query($query);
 
@@ -799,14 +813,13 @@ class SpeciesStats extends MysqlBase
     }//end function dataobject_stat_more($group)
 
 
-    public function lifedesk_stat($group)
+    public function lifedesk_stat()
     {   
         $latest_published = array();
         $result = $this->mysqli->query("SELECT resource_id, max(id) max_published FROM harvest_events 
         WHERE published_at IS NOT NULL GROUP BY resource_id");
         while($result && $row=$result->fetch_assoc())
         {$latest_published[$row['resource_id']] = $row['max_published'];}
-
          
         /* query to get all latest harvest_events for all LifeDesk providers */
         $query = "Select Max(harvest_events.id) as harvest_event_id, harvest_events.resource_id, resources.title
@@ -829,48 +842,88 @@ class SpeciesStats extends MysqlBase
         
         $result = $this->mysqli->query($query);        
         
-        $tc_id_published = array();
-        $tc_id_unpublished = array();
-        $tc_id_all = array();
+  
+        $total_published_taxa=0;
+        $total_published_do=0;
         
-        $do_id_published = array();
-        $do_id_unpublished = array();        
+        $total_unpublished_taxa=0;
+        $total_unpublished_do=0;
+        
+
+        $provider=array();        
+        
         while($result && $row=$result->fetch_assoc())        
         {
+            $title = "<a target='resource' href='http://www.eol.org/content_partner/resources/$row[resource_id]/harvest_events?content_partner_id=$row[agent_id]'>$row[title]</a>";
+            $provider["$title"]=true;
+        
             if(@$latest_published[$row['resource_id']]) $harvest_event_id = $latest_published[$row['resource_id']];
-            else                                        $harvest_event_id = $row["harvest_event_id"];        
+            else                                        $harvest_event_id = $row["harvest_event_id"];                    
             
             $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
-            
-            $title = "<a target='$row[resource_id]' href='http://www.eol.org/content_partner/resources/$row[resource_id]/harvest_events?content_partner_id=$row[agent_id]'>$row[title]</a>";
-            
-            print $row["harvest_event_id"] . " $title taxa pages published = " . count(@$arr["published"]) . "<br>";
-            print $row["harvest_event_id"] . "             taxa pages unpublished = " . count(@$arr["unpublished"]) . "<br>";            
-            print $row["harvest_event_id"] . "             taxa pages all = " . count(@$arr["all"]) . "<br>";            
-            if(@$arr["published"])  $tc_id_published   = array_merge(@$arr["published"],$tc_id_published);
-            if(@$arr["unpublished"])$tc_id_unpublished = array_merge(@$arr["unpublished"],$tc_id_unpublished);                        
-            if(@$arr["all"])$tc_id_all = array_merge(@$arr["all"],$tc_id_all);                        
+            $published_taxa = count(@$arr["published"]);
+            $unpublished_taxa = count(@$arr["unpublished"]);
+            $all_taxa = count(@$arr["all"]);                                    
+            /*            
+            print $row["harvest_event_id"] . " $title taxa pages published      = " . $published_taxa . "<br>";
+            print $row["harvest_event_id"] . "        taxa pages unpublished    = " . $unpublished_taxa . "<br>";            
+            print $row["harvest_event_id"] . "        taxa pages all            = " . $all_taxa . "<br>";            
+            */
                     
             $arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
-            print $row["harvest_event_id"] . " data objects published = " . count(@$arr["published"]) . "<br>";
-            print $row["harvest_event_id"] . " data objects unpublished = " . count(@$arr["unpublished"]) ;
+            $published_do = count(@$arr["published"]);
+            $unpublished_do = count(@$arr["unpublished"]);            
+            /*
+            print $row["harvest_event_id"] . " data objects published   = " . $published_do . "<br>";
+            print $row["harvest_event_id"] . " data objects unpublished = " . $unpublished_do ;
             print "<hr>";            
-            if(@$arr["published"])  $do_id_published   = array_merge(@$arr["published"],$do_id_published);
-            if(@$arr["unpublished"])$do_id_unpublished = array_merge(@$arr["unpublished"],$do_id_unpublished);            
+            */
             
-        }
+
+            //print "<hr>";
+            if($published_do > 0)
+            {
+                /*
+                print "Published <br>";
+                print $row["harvest_event_id"] . " <u>taxa pages published     = " . $published_taxa . "</u><br>";
+                print $row["harvest_event_id"] . " data objects published   = " . $published_do . "<br>";                
+                */
+                $total_published_taxa += $published_taxa;
+                $total_published_do += $published_do;                
+                
+                $provider["published"]["$title"][0]=$published_taxa;
+                $provider["published"]["$title"][1]=$published_do;
+            }            
+            else
+            {
+                if($unpublished_do > 0)
+                {
+                    /*
+                    print "With unpublished data objects <br>";
+                    print $row["harvest_event_id"] . " taxa pages unpublished   = " . $all_taxa . "<br>";            
+                    print $row["harvest_event_id"] . " data objects unpublished = " . $unpublished_do ;                    
+                    */
+                    $total_unpublished_taxa += $all_taxa;
+                    $total_unpublished_do += $unpublished_do;            
+                    
+                    $provider["unpublished"][$title]=true;                    
+                }
+                
+            }
+            //print "<hr><hr><hr>";            
+        }        
         
-        //$tc_id = array_unique($tc_id);        
-        /* not used bec dataobject comes from diff providers
-        $do_id = array_unique($do_id);
+        /*       
+        print "<hr>";        
+        print "<hr>taxa pages published = " . $total_published_taxa;                
+        print "<hr>data objects published = " . $total_published_do;                
+        print "<hr>";        
         */
         
-        print "<hr>taxa pages published = " . count(@$tc_id_published);                
-        //print "<hr>taxa pages unpublished = " . count(@$tc_id_unpublished);                
-
-        print "<hr>data objects published = " . count(@$do_id_published);                
-        //print "<hr>data objects unpublished = " . count(@$do_id_unpublished);                
-        print "<hr>";
+        $provider["totals"][0]=$total_published_taxa;
+        $provider["totals"][1]=$total_published_do;        
+        
+        return $provider;
         
         
     }//end function dataobject_stat_more($group)    
@@ -883,11 +936,16 @@ class SpeciesStats extends MysqlBase
         Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
         Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
         Where harvest_events_taxa.harvest_event_id = $harvest_event_id
-        and taxon_concepts.supercedure_id=0 and taxon_concepts.vetted_id in(5,0)";    
-        //and taxon_concepts.published=1
+        and taxon_concepts.vetted_id in(5) and taxon_concepts.supercedure_id=0          
+        ";    
+        //and taxon_concepts.published=1 
+        //hpogymnia needs in(5,0)
+        //odonata needs in(5)
         $result = $this->mysqli->query($query);                
         
         $all_ids=array();
+        $all_ids["published"]=array();
+        $all_ids["unpublished"]=array();
         while($result && $row=$result->fetch_assoc())
         {
             if($row["published"])$all_ids["published"][]=$row["id"];
