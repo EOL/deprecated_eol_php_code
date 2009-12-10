@@ -421,7 +421,10 @@ function process_loop($arr) //run each URL and extract data
 		$comname = strip_tags($comname);            
         $agent = strip_tags($agent);                    
         $summary = strip_tags($summary);            
+        /*working, commented to use the source_url instead of pdf_url
         if($pdf_url != "")$summary .= "<p><a href='$pdf_url'>Download the full article on the IUCN Tortoise and Freshwater Turtle Specialist Group site</a>";
+        */
+        if($pdf_url != "")$summary .= "<p><a href='$url'>Download the full article on the IUCN Tortoise and Freshwater Turtle Specialist Group site</a>";
         
         
         $distribution = strip_tags($distribution);            
@@ -535,6 +538,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         
 
         //start img dataobject                
+        /*working, temporarily commented until we get the permission
         $dc_identifier = "Image_" . $taxon_identifier;    
         $desc = $img_caption;
         $title = "";
@@ -547,6 +551,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
 
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent, $mediaurl);       
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        */
         //end img dataobject                    
 
         
@@ -622,7 +627,9 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
 
     $dataObjectParameters["rights"] = "Copyright 2009 IUCN Tortoise and Freshwater Turtle Specialist Group";
     $dataObjectParameters["rightsHolder"] = "IUCN/SSC Tortoise and Freshwater Turtle Specialist Group";
-    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
+    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+
+    
     ///////////////////////////////////
     if($reference != "")
     {
