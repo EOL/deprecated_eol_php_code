@@ -123,9 +123,9 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-        //if($i >= 5)break; //debug        //ditox
+//        if($i >= 5)break; //debug        //ditox
         $i++;
-//        if($i == 18){
+//        if($i == 26){
         if(1==1){
 
         $str = Functions::get_remote_file($url);            
@@ -386,6 +386,10 @@ function process_loop($arr) //run each URL and extract data
         if($status=="")
         {   $beg='Status<p> . &ndash;'; $end1='</p>'; $end2="173xxx";            
             $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+        if($status=="")
+        {   $beg='Status</p><p>. &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}            
+            
         //end get status
         
         //get citation
@@ -428,6 +432,7 @@ function process_loop($arr) //run each URL and extract data
         print "$i. $sciname [$comname] [$agent]         
         <br><u>PDF url:</u><br> [$pdf_url] 
         <br><u>summary:</u><br> [$summary]
+        <br><u>status:</u><br> [$status]        
         ";
         
         
@@ -437,7 +442,7 @@ function process_loop($arr) //run each URL and extract data
         
         <br><u>distribution:</u><br> [$distribution]        
         <br><u>synonymy:</u><br> [$synonymy]
-        <br><u>status:</u><br> [$status]        
+        
         <br><u>citation:</u><br> [$citation]
         <br><img height='400' width='600' src='$image'><br>$image
         <br><u>image caption:</u><br> [$img_caption]
