@@ -38,16 +38,18 @@ else
     $comma_separated = $stats;
     $arr = explode(",",$comma_separated);
 }
-/*
+// /*
 print "Number of params returned: " . count($arr) . "<br>"; 
-*/
+// */
 if(count($arr)==26) published_data_objects(); //group 4
 if(count($arr)==14) lifedesk_stat($stats); //group 5
 exit("<p><font size='2'>{as of " . date('Y-m-d H:i:s') . "}<br> --- end ---</font>");
 
 
 function lifedesk_stat($stats)
-{                
+{            
+        print_r($stats);    
+        exit;
         $total_published_taxa=$stats["totals"][0];
         $total_published_do=$stats["totals"][1];
         $provider=$stats;
