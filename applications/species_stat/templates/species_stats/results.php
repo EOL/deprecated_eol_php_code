@@ -48,8 +48,7 @@ exit("<p><font size='2'>{as of " . date('Y-m-d H:i:s') . "}<br> --- end ---</fon
 
 function lifedesk_stat($stats)
 {            
-        print_r($stats);    
-        exit;
+        //print_r($stats);    exit;
         $total_published_taxa=$stats["totals"][0];
         $total_published_do=$stats["totals"][1];
         $provider=$stats;
@@ -114,7 +113,7 @@ function get_values_fromCSV()
 {
     //convert to csv    
     $filename="http://admin.lifedesks.org/files/lifedesk_admin/lifedesk_stats/lifedesk_stats.txt";
-    $filename="http://128.128.175.77/lifedesk_stats.txt";
+    //$filename="http://128.128.175.77/lifedesk_stats.txt";
     
     $OUT = fopen("temp.csv", "w+");            
     $str = Functions::get_remote_file($filename);    
@@ -135,19 +134,24 @@ function get_values_fromCSV()
     $label=array();
     $arr = array();
     
-    print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Narrow;'>
-    ";
+    print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Narrow;'>";
     while (($data = fgetcsv($handle)) !== FALSE) 
     {
-        //if($row > 0) //to bypass first row, which is the row for the labels
+        if($row == 0) //to get first row, first cell
+        {
+            print $data[0];    
+        }
+               
         print"<tr>";                
-        if($row > -1)
+        //if($row > -1)   //not to bypass first row
+        if($row > 0) //to bypass first row, which is the row for the labels
         {                
             $num = count($data);
             //print $num;
             //echo "<p> $num fields in line $row: <br /></p>\n";        
-            if($row)print"<td align='right'>$row</td>";
-            else print"<td align='center'>#</td>";
+            $num = $row-1;
+            if($row == 1)   print"<td align='center'>#</td>";            
+            else            print"<td align='right'>" . $num . "</td>";
             //for ($c=0; $c < $num; $c++) 
             for ($c=0; $c < 10; $c++) 
             {        
@@ -155,8 +159,8 @@ function get_values_fromCSV()
                 if($row > 0)if(in_array($c, array(3,6,7,8,9)))$align='right';                
                 
                 print"<td align='$align'>";
-                if($c == 1 and $row !=0) print"<a href='$data[$c]'>$data[$c]</a>";
-                else        print $data[$c];
+                if($c == 1 and $row > 1) print"<a href='$data[$c]'>$data[$c]</a>";
+                else                     print $data[$c];
                 print"</td>";                
             }                        
             //if($row == 10)break;    
