@@ -18,6 +18,14 @@ class HarvestEvent extends MysqlBase
         $this->mysqli->delete("DELETE FROM harvest_events WHERE id=$this->id");
     }
     
+    function resource()
+    {
+        if(@$this->resource) return $this->resource;
+        
+        $this->resource = new Resource($this->resource_id);
+        return $this->resource;
+    }
+    
     public function completed()
     {
         //$this->expire_taxa_cache();
@@ -58,6 +66,42 @@ class HarvestEvent extends MysqlBase
             $this->publish_taxon_concept_parents($row['id']);
         }
     }
+    
+    public function publish_hierarchy_entries()
+    {
+        $this->mysqli->update("UPDATE harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) SET he.published=1, he.visibility_id=". Visibility::insert('visible') ." WHERE het.harvest_event_id=$this->id");
+        $this->publish_hierarchy_entry_parents();
+        $this->make_hierarchy_entry_parents_visible();
+    }
+    
+    public function publish_hierarchy_entry_parents()
+    {
+        if($hierarchy_id = $this->resource()->hierarchy_id())
+        {
+            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0 LIMIT 1");
+            while($result && $row=$result->fetch_assoc())
+            {
+                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.published=1 WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0");
+
+                $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0 LIMIT 1");
+            }
+        }
+    }
+    
+    function make_hierarchy_entry_parents_visible()
+    {
+        if($hierarchy_id = $this->resource()->hierarchy_id())
+        {
+            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible') ." LIMIT 1");
+            while($result && $row=$result->fetch_assoc())
+            {
+                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('visible') ." WHERE he.hierarchy_id=$hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible'));
+
+                $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible') ." LIMIT 1");
+            }
+        }
+    }
+    
     
     public function vet_objects()
     {

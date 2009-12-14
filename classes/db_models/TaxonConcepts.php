@@ -23,8 +23,7 @@ class TaxonConcept extends MysqlBase
         
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
-        $mysqli->update("UPDATE taxon_concepts SET supercedure_id=$id1 WHERE id=$id2");
+        $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.taxon_concept_id=$id1, tc.supercedure_id=$id1 WHERE taxon_concept_id=$id2");
         
         Tasks::update_taxon_concept_names($id1);
     }

@@ -186,6 +186,11 @@ class Resource extends MysqlBase
         $this->mysqli->update("UPDATE harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) STRAIGHT_JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.resource_id=$this->id");
     }
     
+    public function unpublish_hierarchy_entries()
+    {
+        $this->mysqli->update("UPDATE hierarchies_resources hr JOIN hierarchy_entries he ON (hr.hierarchy_id=he.hierarchy_id)  SET he.published=0, he.visibility_id=0 WHERE he.published=1 AND hr.resource_id=$this->id");
+    }
+    
     public function unpublish_taxon_concepts()
     {
         $this->mysqli->update("UPDATE hierarchies_resources hr JOIN hierarchies h ON (hr.hierarchy_id=h.id) JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=0 WHERE hr.resource_id=$this->id");
@@ -226,12 +231,14 @@ class Resource extends MysqlBase
                 
                 // unpublish all concepts associated with this resource
                 $this->unpublish_taxon_concepts();
+                $this->unpublish_hierarchy_entries();
                 
                 // make sure all COL concepts are published
                 $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE he.hierarchy_id=$catalogue_of_life_id AND tc.published=0 AND tc.supercedure_id=0");
                 
                 // now set published=1 for all concepts in the latest harvest
                 $harvest_event->publish_taxon_concepts();
+                $harvest_event->publish_hierarchy_entries();
             }
             
             $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
@@ -281,11 +288,12 @@ class Resource extends MysqlBase
                 
                 //Tasks::compare_hierarchies($hierarchy_id, $catalogue_of_life_id, false);
                 
+                $this->make_new_hierarchy_entries_preview($hierarchy);
                 
                 if($this->vetted())
                 {
                     // Vet all taxa associated with this resource
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=".Vetted::insert("Trusted")." WHERE hierarchy_id=$hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=".Vetted::insert("Trusted").", tc.vetted_id=".Vetted::insert("Trusted")." WHERE hierarchy_id=$hierarchy_id");
                 }
             }
             
@@ -301,6 +309,26 @@ class Resource extends MysqlBase
             {
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
             }
+        }
+    }
+    
+    public function make_new_hierarchy_entries_preview($hierarchy)
+    {
+        if($this->harvest_event)
+        {
+            $this->mysqli->update("UPDATE harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::insert('preview') ." WHERE het.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=0");
+            $this->make_new_hierarchy_entries_parents_preview($hierarchy);
+        }
+    }
+    
+    public function make_new_hierarchy_entries_parents_preview($hierarchy)
+    {
+        $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=0 LIMIT 1");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('preview') ." WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=0");
+            
+            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=0 LIMIT 1");
         }
     }
     

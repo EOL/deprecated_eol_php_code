@@ -16,12 +16,13 @@ class SolrAPI
         $this->server = trim($s);
         if(!preg_match("/\/$/", $this->server)) $this->server .= "/";
         $this->core = $core;
-        if(preg_match("/^(.*)\/$/", $this->core)) $this->core = $arr[1];
+        if(preg_match("/^(.*)\/$/", $this->core, $arr)) $this->core = $arr[1];
         $this->file_delimiter = $d;
         $this->multi_value_delimiter = $mv;
         
         $this->csv_path = Functions::temp_filepath(true);
         $this->action_url = $this->server . $this->core;
+        if(preg_match("/^(.*)\/$/", $this->action_url, $arr)) $this->action_url = $arr[1];
         
         $this->load_schema();
     }
