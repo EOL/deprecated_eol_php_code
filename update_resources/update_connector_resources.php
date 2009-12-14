@@ -21,7 +21,7 @@ foreach($connectors as $file)
     $resource = new Resource($arr[1]);
     if(!$resource->id) continue;
     if(!$resource->ready_to_update()) continue;
-    //if($resource->id!=15) continue;
+    //if($resource->id==31) continue;
     
     shell_exec(dirname(__FILE__) . "/connectors/". $file);
 }

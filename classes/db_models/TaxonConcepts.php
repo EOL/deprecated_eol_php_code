@@ -246,11 +246,12 @@ class TaxonConcept extends MysqlBase
         return $hierarchy_entries;
     }
     
-    static function insert()
+    static function insert($split_from = null)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        return $mysqli->insert("INSERT INTO taxon_concepts (id) VALUES (NULL)");
+        if($split_from) return $mysqli->insert("INSERT INTO taxon_concepts (id, split_from) VALUES (NULL, $split_from)");
+        else return $mysqli->insert("INSERT INTO taxon_concepts (id) VALUES (NULL)");
     }
 }
 
