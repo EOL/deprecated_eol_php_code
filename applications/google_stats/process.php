@@ -279,8 +279,7 @@ function get_month_list()
     while ($date_start != $date_end)
     {
         $var_time += 86400;
-        $date_start = date("Y-m-d", $var_time);
-        //print "$date_start<br>";        
+        $date_start = date("Y-m-d", $var_time); //print "$date_start<br>";        
         $temp = date("Y_m", $var_time);
         $arr["$temp"]=1;
     }
