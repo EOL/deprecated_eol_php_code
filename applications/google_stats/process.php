@@ -63,6 +63,233 @@ if($report == "save_monthly")// save monthly
     $temp = save_monthly();
     exit;
 }
+
+
+
+
+
+
+$filename = $path . "/site_statistics.csv";
+$provider               = array();
+$page_views             = array();
+$unique_page_views      = array();
+$time_on_page_seconds   = array();
+$taxa_id                = array();
+
+/*
+$t_page_views           =0;
+$t_unique_page_views    =0;
+$t_time_on_page_seconds =0;
+$t_taxa_id =0;
+*/
+
+$row = 0;
+if(!($handle = fopen($filename, "r")))exit;
+while (($data = fgetcsv($handle)) !== FALSE) 
+{
+    if($row > 0)
+    {    
+        $num = count($data);
+        //echo "<p> $num fields in line $row: <br /></p>\n";        
+        for ($c=0; $c < $num; $c++) 
+        {        
+            //echo $c+1 . "- [[" . $data[$c] . "]]<br />\n";        
+            
+            if($c==0)$agentName                     =$data[$c];
+            if($c==1)$taxon_id                      =$data[$c];
+            if($c==2)$scientificName                =$data[$c];
+            if($c==3)$commonNameEN                  =$data[$c];
+            if($c==4)$total_page_views              =$data[$c];
+            if($c==5)$total_unique_page_views       =$data[$c];
+            if($c==6)$total_time_on_page_seconds    =$data[$c];                                
+        }
+        
+        
+        if($provider_to_process != "")
+        {
+            if($provider_to_process == trim($agentName))$continue=1;
+            else                                        $continue=0;    
+        }
+        else $continue=1;
+        
+        if($continue)
+        {
+            $provider[$agentName]=true;    
+            
+            $page_views["$agentName"][]           =$total_page_views;
+            $unique_page_views["$agentName"][]    =$total_unique_page_views;
+            $time_on_page_seconds["$agentName"][] =$total_time_on_page_seconds;        
+            $taxa_id["$agentName"][]              =$taxon_id;
+        }        
+        //if($row == 10)break;    
+    }
+    $row++;
+}
+fclose($handle);
+
+
+if($provider_to_process == "")print "Providers = " . sizeof($provider) . "<br>";
+
+//print_r($provider);
+
+$provider = array_keys($provider);
+for ($i = 0; $i < count($provider); $i++) 
+{       
+    $total_page_views           = compute($provider[$i],$page_views,"sum");
+    $total_unique_page_views    = compute($provider[$i],$unique_page_views,"sum");
+    $total_time_on_page_seconds = compute($provider[$i],$time_on_page_seconds,"sum");
+    
+    /*
+    $total_taxon_id             = compute($provider[$i],$taxa_id,"count");
+    */
+    
+    ///*
+    $temp_arr = $taxa_id[$provider[$i]];
+    $temp_arr = array_unique($temp_arr);
+    $total_taxon_id             = count($temp_arr);
+    //*/
+    //print_r($temp_arr);
+
+    //start get "Count of Taxa Pages"
+    $CountOfTaxaPages = getCountOfTaxaPages($provider[$i],$path,"partner");
+    //end get "Count of Taxa Pages"
+    
+    //start title    
+    $title = build_title_from_path($path);
+    //end title
+    
+    print "    
+    <table border='1' cellpaddin=2 cellspacing=0>
+    <tr align='center'>    
+            <td bgcolor='aqua'><b>$title <u>$provider[$i]</u> Statistics</b>
+            <br>";
+            show_dropdown();
+            print"
+            </td>
+            <td>Taxa Pages with <br> Provider Content</td>
+            <td>EOL Site</td>
+            <td>Provider <br> Percentage</td>
+    </tr>
+    <tr>    <td>Count of Taxa Pages</td>
+            <td align='right'>" . number_format($CountOfTaxaPages) . "</td>
+            <td align='right'>" . number_format($eol_CountOfTaxaPages) . "</td>                        
+            <td align='right'>" . number_format($CountOfTaxaPages/$eol_CountOfTaxaPages*100,2) . "%</td>                        
+            
+    </tr>
+    <tr>    <td>Count of Taxa Pages that were viewed during the month</td><td align='right'>" . number_format($total_taxon_id) . "</td>
+            <td align='right'>" . number_format($eol_total_taxon_id) . "</td>            
+            <td align='right'>" . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "%</td>            
+    </tr>
+
+    <tr>    <td>Total Unique Page Views for the Month</td>
+            <td align='right'>" . number_format($total_unique_page_views) . "</td>
+            <td align='right'>" . number_format($eol_total_unique_page_views) . "</td>
+            <td align='right'>" . number_format($total_unique_page_views/$eol_total_unique_page_views*100,2) . "%</td>
+    </tr>
+    <tr>    <td>Total Page Views for the Month</td>
+            <td align='right'>" . number_format($total_page_views) . "</td>
+            <td align='right'>" . number_format($eol_total_page_views) . "</td>
+            <td align='right'>" . number_format($total_page_views/$eol_total_page_views*100,2) . "%</td>
+            
+    </tr>
+    <tr>    <td>Total Time on Pages for the Month (hours)</td>
+            <td align='right'>" . number_format($total_time_on_page_seconds/60/60,2) . "</td>
+            <td align='right'>" . number_format($eol_total_time_on_page_seconds/60/60) . "</td>
+            <td align='right'>" . number_format(($total_time_on_page_seconds/60/60)/($eol_total_time_on_page_seconds/60/60)*100,2) . "%</td>
+    </tr>
+
+    <tr>
+        <td colspan=4><i><font size='2'>
+        Of the " . number_format($eol_CountOfTaxaPages) . " species pages on the EOL site, 
+        " . number_format($CountOfTaxaPages) . " or " . number_format($CountOfTaxaPages/$eol_CountOfTaxaPages*100,2) . "% had content provided by " . $provider[$i] . ".
+        <br>
+        Of the " . number_format($eol_total_taxon_id) . " species pages viewed during the month, 
+        " . number_format($total_taxon_id) . " or " . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "% had content provided by " . $provider[$i];
+        
+        /*
+        print"
+        <br>
+        Those " . number_format($total_taxon_id) . " species pages were viewed by 
+        " . number_format($total_unique_page_views) . " distinct visitors for a total of 
+        " . number_format($total_page_views) . " page viewings during the month.";
+        */
+        
+        print"
+        <br>
+        Visitors spent a total of " . number_format($total_time_on_page_seconds/60/60,1) . " hours on species pages with " . $provider[$i] . " content, representing 
+        " . number_format(($total_time_on_page_seconds/60/60)/($eol_total_time_on_page_seconds/60/60)*100,2) . "% of the total time spent on the EOL site.
+        </font></i>
+        </td>
+    </tr>";
+    
+    if($provider_to_process == "")
+    {
+        $agentID = get_agentID($provider[$i]);
+        if($agentID != "") print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
+        else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=" . urlencode($provider[$i]) . "'> See entire report* &gt;&gt; </a></td></tr>";         
+    }
+
+    if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path,$start_cnt,$total_taxon_id,$agentID) . "</td></tr>";
+    
+    print"</table>";
+    
+    if($provider_to_process == "")print "<hr>";
+}
+
+/*
+print"    t_page_views           =  $t_page_views           <br>
+          t_unique_page_views    =  $t_unique_page_views    <br>
+          t_time_on_page_seconds =  " . $t_time_on_page_seconds/60/60 . " <br>
+          t_taxa_id =  $t_taxa_id <br> ";
+*/        
+
+
+
+function show_dropdown()
+{
+    global $provider_to_process;
+    global $path;
+    global $agentID;
+    
+    $arr = get_month_list();
+    print"<form action='process.php' method='get'>
+    <input type='hidden' name='provider' value='$provider_to_process'>
+    <input type='hidden' name='agentID' value='$agentID'>
+    <select name='path' onchange='submit()'>";
+    foreach ($arr as $year_month)
+    {
+        print"<option value='data/$year_month'"; 
+        if($path == "data/$year_month")print"selected";
+        print">$year_month";   
+    }
+    print"</select></form>";
+}
+
+function get_month_list()
+{
+    $year_now = date("Y");
+    $month_now = date("m") - 1;
+    $date_end = date("Y-m-d", mktime(0, 0, 0, $month_now, 1, $year_now));
+
+    $date_start = "2009-07-01"; 
+    $var_time = strtotime($date_start);
+    
+    $arr=array();    
+    //print "$date_start - $date_end<hr>";
+    while ($date_start != $date_end)
+    {
+        $var_time += 86400;
+        $date_start = date("Y-m-d", $var_time);
+        //print "$date_start<br>";        
+        $temp = date("Y_m", $var_time);
+        $arr["$temp"]=1;
+    }
+    $arr=array_keys($arr);
+    return $arr;    
+}
+
+
+
 function save_monthly()
 {
     $filename = "data/monthly.csv";    
@@ -161,10 +388,6 @@ function getMonthYear()
 }
 
 
-
-
-
-
 function num2places($x)
 {
     //if(str_lenstrval($x))
@@ -210,181 +433,8 @@ function monthly_tabular($year)
 }
 
 
-$filename = $path . "/site_statistics.csv";
-$provider               = array();
-$page_views             = array();
-$unique_page_views      = array();
-$time_on_page_seconds   = array();
-$taxa_id                = array();
-
-/*
-$t_page_views           =0;
-$t_unique_page_views    =0;
-$t_time_on_page_seconds =0;
-$t_taxa_id =0;
-*/
-
-$row = 0;
-if(!($handle = fopen($filename, "r")))exit;
-while (($data = fgetcsv($handle)) !== FALSE) 
-{
-    if($row > 0)
-    {    
-        $num = count($data);
-        //echo "<p> $num fields in line $row: <br /></p>\n";        
-        for ($c=0; $c < $num; $c++) 
-        {        
-            //echo $c+1 . "- [[" . $data[$c] . "]]<br />\n";        
-            
-            if($c==0)$agentName                     =$data[$c];
-            if($c==1)$taxon_id                      =$data[$c];
-            if($c==2)$scientificName                =$data[$c];
-            if($c==3)$commonNameEN                  =$data[$c];
-            if($c==4)$total_page_views              =$data[$c];
-            if($c==5)$total_unique_page_views       =$data[$c];
-            if($c==6)$total_time_on_page_seconds    =$data[$c];                                
-        }
-        
-        
-        if($provider_to_process != "")
-        {
-            if($provider_to_process == trim($agentName))$continue=1;
-            else                                        $continue=0;    
-        }
-        else $continue=1;
-        
-        if($continue)
-        {
-            $provider[$agentName]=true;    
-            
-            $page_views["$agentName"][]           =$total_page_views;
-            $unique_page_views["$agentName"][]    =$total_unique_page_views;
-            $time_on_page_seconds["$agentName"][] =$total_time_on_page_seconds;        
-            $taxa_id["$agentName"][]              =$taxon_id;
-        }        
-        //if($row == 10)break;    
-    }
-    $row++;
-}
-fclose($handle);
-
-
-if($provider_to_process == "")print "Providers = " . sizeof($provider) . "<br>";
-
-//print_r($provider);
-
-$provider = array_keys($provider);
-for ($i = 0; $i < count($provider); $i++) 
-{       
-    $total_page_views           = compute($provider[$i],$page_views,"sum");
-    $total_unique_page_views    = compute($provider[$i],$unique_page_views,"sum");
-    $total_time_on_page_seconds = compute($provider[$i],$time_on_page_seconds,"sum");
-    
-    /*
-    $total_taxon_id             = compute($provider[$i],$taxa_id,"count");
-    */
-    
-    ///*
-    $temp_arr = $taxa_id[$provider[$i]];
-    $temp_arr = array_unique($temp_arr);
-    $total_taxon_id             = count($temp_arr);
-    //*/
-    //print_r($temp_arr);
-
-    //start get "Count of Taxa Pages"
-    $CountOfTaxaPages = getCountOfTaxaPages($provider[$i],$path,"partner");
-    //end get "Count of Taxa Pages"
-    
-    //start title    
-    $title = build_title_from_path($path);
-    //end title
-    
-    print "    
-    <table border='1' cellpaddin=2 cellspacing=0>
-    <tr align='center'>    
-            <td bgcolor='aqua'><b>$title <u>$provider[$i]</u> Statistics</b></td>
-            <td>Taxa Pages with <br> Provider Content</td>
-            <td>EOL Site</td>
-            <td>Provider <br> Percentage</td>
-    </tr>
-    <tr>    <td>Count of Taxa Pages</td>
-            <td align='right'>" . number_format($CountOfTaxaPages) . "</td>
-            <td align='right'>" . number_format($eol_CountOfTaxaPages) . "</td>                        
-            <td align='right'>" . number_format($CountOfTaxaPages/$eol_CountOfTaxaPages*100,2) . "%</td>                        
-            
-    </tr>
-    <tr>    <td>Count of Taxa Pages that were viewed during the month</td><td align='right'>" . number_format($total_taxon_id) . "</td>
-            <td align='right'>" . number_format($eol_total_taxon_id) . "</td>            
-            <td align='right'>" . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "%</td>            
-    </tr>
-
-    <tr>    <td>Total Unique Page Views for the Month</td>
-            <td align='right'>" . number_format($total_unique_page_views) . "</td>
-            <td align='right'>" . number_format($eol_total_unique_page_views) . "</td>
-            <td align='right'>" . number_format($total_unique_page_views/$eol_total_unique_page_views*100,2) . "%</td>
-    </tr>
-    <tr>    <td>Total Page Views for the Month</td>
-            <td align='right'>" . number_format($total_page_views) . "</td>
-            <td align='right'>" . number_format($eol_total_page_views) . "</td>
-            <td align='right'>" . number_format($total_page_views/$eol_total_page_views*100,2) . "%</td>
-            
-    </tr>
-    <tr>    <td>Total Time on Pages for the Month (hours)</td>
-            <td align='right'>" . number_format($total_time_on_page_seconds/60/60,2) . "</td>
-            <td align='right'>" . number_format($eol_total_time_on_page_seconds/60/60) . "</td>
-            <td align='right'>" . number_format(($total_time_on_page_seconds/60/60)/($eol_total_time_on_page_seconds/60/60)*100,2) . "%</td>
-    </tr>
-
-    <tr>
-        <td colspan=4><i><font size='2'>
-        Of the " . number_format($eol_CountOfTaxaPages) . " species pages on the EOL site, 
-        " . number_format($CountOfTaxaPages) . " or " . number_format($CountOfTaxaPages/$eol_CountOfTaxaPages*100,2) . "% had content provided by " . $provider[$i] . ".
-        <br>
-        Of the " . number_format($eol_total_taxon_id) . " species pages viewed during the month, 
-        " . number_format($total_taxon_id) . " or " . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "% had content provided by " . $provider[$i];
-        
-        /*
-        print"
-        <br>
-        Those " . number_format($total_taxon_id) . " species pages were viewed by 
-        " . number_format($total_unique_page_views) . " distinct visitors for a total of 
-        " . number_format($total_page_views) . " page viewings during the month.";
-        */
-        
-        print"
-        <br>
-        Visitors spent a total of " . number_format($total_time_on_page_seconds/60/60,1) . " hours on species pages with " . $provider[$i] . " content, representing 
-        " . number_format(($total_time_on_page_seconds/60/60)/($eol_total_time_on_page_seconds/60/60)*100,2) . "% of the total time spent on the EOL site.
-        </font></i>
-        </td>
-    </tr>";
-    
-    if($provider_to_process == "")
-    {
-        $agentID = get_agentID($provider[$i]);
-        if($agentID != "") print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&agentID=$agentID'> See entire report &gt;&gt; </a></td></tr>";
-        else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=" . urlencode($provider[$i]) . "'> See entire report* &gt;&gt; </a></td></tr>";         
-    }
-
-    if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path,$start_cnt,$total_taxon_id,$agentID) . "</td></tr>";
-    
-    print"</table>";
-    
-    if($provider_to_process == "")print "<hr>";
-}
-
-
-/*
-print"    t_page_views           =  $t_page_views           <br>
-          t_unique_page_views    =  $t_unique_page_views    <br>
-          t_time_on_page_seconds =  " . $t_time_on_page_seconds/60/60 . " <br>
-          t_taxa_id =  $t_taxa_id <br> ";
-*/        
-
-
-
-
 ////////////////////////////////////////////////////////////////////////
+
 function getCountOfTaxaPages($provider,$path,$for)
 {
     $filename = $path . "/query9.csv";

@@ -23,6 +23,8 @@ for($month = 1; $month <= 12 ; $month++)
     if($a <= $b)
     {
         $path = "data/" . date("Y_m", mktime(0, 0, 0, $month, 1, $year));
+        
+        //print "<hr>$path<hr>";
 
         $csv_available=0;
         for($j = 0; $j < count($csv); $j++) 
