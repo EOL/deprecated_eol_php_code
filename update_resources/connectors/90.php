@@ -100,7 +100,7 @@ function process_file1($file)
     $str = str_ireplace('<a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc' , '&arr[]=<a href="http://www.iucn-tftsg.org/cbftt/toc-ind/toc', $str);	  
     $arr=array();	
     parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap";	//print_r($arr);
+    //print "after parse_str recs = " . count($arr) . "$wrap";	//print_r($arr);
     
     $arr2=array();
     for ($i = 0; $i < count($arr); $i++) 
@@ -125,7 +125,7 @@ function process_loop($arr) //run each URL and extract data
     {
 //        if($i >= 5)break; //debug        //ditox
         $i++;
-//        if($i == 26){
+//        if($i == 13){
         if(1==1){
 
         $str = Functions::get_remote_file($url);            
@@ -152,6 +152,10 @@ function process_loop($arr) //run each URL and extract data
         $str = str_ireplace('<sup>1,2</sup>' , '', $str);	    
         $str = str_ireplace('<sup>2,3</sup>' , '', $str);	    
         $str = str_ireplace('<sup>2,4</sup>' , '', $str);	            
+        $str = str_ireplace('C. Kenneth Dodd, Jr.' , 'C. Kenneth Dodd Jr.', $str);	            
+        
+        
+        
        
         //get sciname                
         $beg='<p style="text-align: center;"><i><b>'; $end1='<br />'; $end2="173xxx";            
@@ -190,6 +194,9 @@ function process_loop($arr) //run each URL and extract data
         
         //get agent
         $tmp_str = $str;
+        
+        $tmp_str =clean_str($tmp_str); //new 
+        
         $pos = stripos($tmp_str,$comname);     
         $tmp_str=trim(substr($tmp_str,$pos+strlen($comname),strlen($tmp_str)));                
         //print "<hr>pos is [[$pos]]<hr>$tmp_str"; exit;		
@@ -200,17 +207,32 @@ function process_loop($arr) //run each URL and extract data
             
         $agent = "xxx" . $agent;
         $beg='xxx'; $end1='</p>'; $end2="173xxx";            
-        $agent = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                
-        //end get agent
+        $agent = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                                      
+        
+        $agent = strip_tags($agent);    
+        $agent = clean_str($agent);
+        //print"<hr>[$agent]<hr>";
+        
+        if  (trim($agent) == "" or trim($agent) == "&nbsp;" or trim($agent) == " &nbsp;"
+            )         
+        {
+            $tmp_str =clean_str($tmp_str);
+            $beg='xxx'; $end1='</strong></p>'; $end2="</strong></p><p>";            
+            $agent = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+            //print $tmp_str; exit("<hr>agent");
+        }
+        //end get agent        
+        
+        
         
         $tmp_str =strip_tags($tmp_str,"<p><b>");
-        $tmp_str =clean_str($tmp_str);
+        //$tmp_str =clean_str($tmp_str); //moved up
         
         //bad html        
         $tmp_str = str_ireplace('&nbsp;&nbsp;&nbsp; IUCN 2007 Red List:' , 'IUCN 2007 Red List:', $tmp_str);
         $tmp_str = str_ireplace('&mdash;' , '&ndash;', $tmp_str);
      
-//      print $tmp_str; exit; //ditox
+     // print $tmp_str; exit; //ditox
 //      print $str; exit; //ditox //for images and maps
 
         //get distribution2
@@ -411,8 +433,6 @@ function process_loop($arr) //run each URL and extract data
         $pdf_url = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
         $pdf_url = $beg . $pdf_url . $end1;        
         if(!($handle = @fopen($pdf_url,'r')))$pdf_url = "";    
-        
-        
         //end get pdf url
         
                 
@@ -433,16 +453,12 @@ function process_loop($arr) //run each URL and extract data
         $citation = strip_tags($citation);                            
         
         print "$i. $sciname [$comname] [$agent]         
-        <br><u>PDF url:</u><br> [$pdf_url] 
-        <br><u>summary:</u><br> [$summary]
+        <br><u>PDF url:</u><br> [$pdf_url]         
         <br><u>status:</u><br> [$status]        
         ";
-        
-        
-        
         /*
-        print"              
-        
+        print"                      
+        <br><u>summary:</u><br> [$summary]
         <br><u>distribution:</u><br> [$distribution]        
         <br><u>synonymy:</u><br> [$synonymy]
         
@@ -698,8 +714,7 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
             
             //start exit on first occurrence of $beg
             if($exit_on_first_match)break;
-            //end exit on first occurrence of $beg
-            
+            //end exit on first occurrence of $beg            
 		}		
 	}//end outer loop
     if($all == "")	
@@ -713,47 +728,45 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
 function remove_tag_with_this_needle($str,$needle)
 {
     $pos = stripos($str,$needle); //get pos of needle   
-    if($pos != ""){
-    
-    
-    $char="";
-    $accumulate=""; $start_get=false;
-    while ($char != "<") //get pos of < start tag
-    {
-        $pos--;
-        $char = substr($str,$pos,1);
+    if($pos != "")
+    {        
+        $char="";
+        $accumulate=""; $start_get=false;
+        while ($char != "<") //get pos of < start tag
+        {
+            $pos--;
+            $char = substr($str,$pos,1);
         
-        if($char == " ")$start_get = true;
-        if($start_get)$accumulate .= $char;                
-    }
-    //print "pos_of_start_tag [$pos]<br>";
-    $pos_of_start_tag = $pos;
+            if($char == " ")$start_get = true;
+            if($start_get)$accumulate .= $char;                
+        }
+        //print "pos_of_start_tag [$pos]<br>";
+        $pos_of_start_tag = $pos;
     
-    //now determine what type of tag it is
-    $accumulate = substr($accumulate,0,strlen($accumulate)-1);
-    $accumulate = reverse_str($accumulate);
-    //print "<hr>$str<hr>$accumulate";               
+        //now determine what type of tag it is
+        $accumulate = substr($accumulate,0,strlen($accumulate)-1);
+        $accumulate = reverse_str($accumulate);
+        //print "<hr>$str<hr>$accumulate";               
     
-    //now find the pos of the end tag e.g. </div
-    $char="";
-    $pos = $pos_of_start_tag;
-    $end_tag = "</" . $accumulate . ">";
-    //print "<br>end tag is " . $end_tag;
-    while ($char != $end_tag )
-    {   
-        $pos++;  
-        $char = substr($str,$pos,strlen($end_tag));                
+        //now find the pos of the end tag e.g. </div
+        $char="";
+        $pos = $pos_of_start_tag;
+        $end_tag = "</" . $accumulate . ">";
+        //print "<br>end tag is " . $end_tag;
+        while ($char != $end_tag )
+        {   
+            $pos++;  
+            $char = substr($str,$pos,strlen($end_tag));                
+        }    
+        //print"<hr>pos of end tag [$pos]<hr>";       
+        $pos_of_end_tag = $pos;
+        $str = remove_substr_from_this_position($str,$pos_of_start_tag,$pos_of_end_tag,strlen($end_tag));    
+        if(stripos($str,$needle) != "")$str = remove_tag_with_this_needle($str,$needle);    
+    
     }    
-    //print"<hr>pos of end tag [$pos]<hr>";       
-    $pos_of_end_tag = $pos;
-    $str = remove_substr_from_this_positions($str,$pos_of_start_tag,$pos_of_end_tag,strlen($end_tag));    
-    if(stripos($str,$needle) != "")$str = remove_tag_with_this_needle($str,$needle);    
-    
-    }
-    
     return trim(clean_str($str));
 }
-function remove_substr_from_this_positions($str,$startpos,$endpos,$len_of_end_tag)
+function remove_substr_from_this_position($str,$startpos,$endpos,$len_of_end_tag)
 {
     $str1 = substr($str,0,$startpos);
     $str2 = substr($str,$endpos+$len_of_end_tag,strlen($str));
