@@ -613,11 +613,14 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
     //exit("<hr>");
     foreach ($agent as $agent) 
     {
-        $agentParameters = array();        
-        $agentParameters["homepage"] = "http://www.iucn-tftsg.org/";
-        $agentParameters["role"] = "author";
-        $agentParameters["fullName"] = $agent;
-        $agents[] = new SchemaAgent($agentParameters);
+        if(trim($agent)!="")
+        {
+            $agentParameters = array();        
+            $agentParameters["homepage"] = "http://www.iucn-tftsg.org/";
+            $agentParameters["role"] = "author";
+            $agentParameters["fullName"] = $agent;
+            $agents[] = new SchemaAgent($agentParameters);
+        }
     }        
     $dataObjectParameters["agents"] = $agents;    
     ///////////////////////////////////
