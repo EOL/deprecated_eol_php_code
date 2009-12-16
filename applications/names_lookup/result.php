@@ -260,12 +260,7 @@ while( $row = $sql->fetch_assoc() )
 		$oldLabel = $row["label"];
 		$oldSN = $row["sn"];
 	}
-	$sql->close();
-	
-	
-	
-	
-	
+	$sql->close();	
 	
 	/*
 	$us = "&#153;";	//unique separator
@@ -278,10 +273,10 @@ while( $row = $sql->fetch_assoc() )
 
 	if($choice2==3 or $choice2==1)
 	{
-	print"
-	<script language='javascript1.2'>
-	document.forms.fn.cnt.value = " . "n=" . count($arr) . "
-	</script>";
+    	print"
+    	<script language='javascript1.2'>
+    	document.forms.fn.cnt.value = " . "n=" . count($arr) . "
+    	</script>";
 	}
 
 	$value_list_y = implode("$us", $arr);
@@ -306,9 +301,7 @@ while( $row = $sql->fetch_assoc() )
 	<tr><td>$value_list_final</td></tr>
 	<tr><td><hr></td></tr>
 	";
-	*/
-	
-	
+	*/	
 
 	$RNWDO=array();	//related names with data objects
 	$RNWDO_i=0;
@@ -587,13 +580,12 @@ function sql_do($val,$i,$us)
 				Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id 
 				Inner Join taxon_concept_names ON taxon_concept_names.name_id = taxa.name_id 
 				Inner Join $tbl ON $tbl.$fld_id = taxon_concept_names.name_id 
-				Inner Join data_types ON data_objects.data_type_id = data_types.id
-				
+				Inner Join data_types ON data_objects.data_type_id = data_types.id				
 				Where $tbl.$fld In ($val)
 				AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0 
 				";
 				*/
-				ditox
+
 				$qry="Select $addstr $tbl.$fld AS sn, taxon_concepts.id as tc_id,
 				if(data_objects.object_title='',data_types.label,data_objects.object_title) AS label			
 				From data_objects_taxa 
@@ -601,13 +593,16 @@ function sql_do($val,$i,$us)
 				Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id 
 				Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
 				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-				Inner Join $tbl ON $tbl.$fld_id = taxon_concept_names.name_id 
+				Inner Join $tbl ON $tbl.$fld_id = hierarchy_entries.name_id 
 				Inner Join data_types ON data_objects.data_type_id = data_types.id				
 				Where $tbl.$fld In ($val)
 				AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0 
 				";				
 				if($report == 'list'){$qry .= " and data_types.id in (3,6) ";}
 				$qry .= " Order By $tbl.$fld , label ";	
+                
+                print "[$qry]";
+                
 			}
 			//print $qry;					
 		
