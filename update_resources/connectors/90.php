@@ -4,7 +4,6 @@
 http://www.iucn-tftsg.org/pub-chron/
 */
 
-//exit;
 
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
@@ -24,10 +23,8 @@ $wrap = "\n";
  
 $resource = new Resource(90); //exit($resource->id);
 
-
 $schema_taxa = array();
 $used_taxa = array();
-
 
 //$file = "";
 
@@ -61,18 +58,6 @@ fclose($OUT);
 ////////////////////// ---
 print "$wrap -- Done processing -- "; exit;
 
-
-/*
-$str='  abc
-        <p style="dxisplay:none"><a href="http://www.barryshamis.com/?evening">Evening divx</a></p>
-        def
-        <div style="dxisplay:none"><a href="http://isighttech.com/?grizzly_park">Grizzly Park film</a></div>
-        ghi
-        ';
-$str = remove_tag_with_this_needle($str,"display:none");
-print "$str";    
-exit;
-*/
 
 function process_file1($file)
 {        
@@ -125,7 +110,7 @@ function process_loop($arr) //run each URL and extract data
     {
 //        if($i >= 5)break; //debug        //ditox
         $i++;
-//        if($i == 13){
+//        if(in_array($i,array(8,26))){
         if(1==1){
 
         $str = Functions::get_remote_file($url);            
@@ -232,7 +217,7 @@ function process_loop($arr) //run each URL and extract data
         $tmp_str = str_ireplace('&nbsp;&nbsp;&nbsp; IUCN 2007 Red List:' , 'IUCN 2007 Red List:', $tmp_str);
         $tmp_str = str_ireplace('&mdash;' , '&ndash;', $tmp_str);
      
-     // print $tmp_str; exit; //ditox
+//      print $tmp_str; exit; //ditox
 //      print $str; exit; //ditox //for images and maps
 
         //get distribution2
@@ -579,12 +564,13 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
 
 function conv_2array($list)
 {    
-    $list = str_ireplace('and', ',', $list);	    
+    $list = str_ireplace('and ', ',', $list);	    
     $arr = explode(",",$list);        
     for ($i = 0; $i < count($arr); $i++) 
     {
         $arr[$i]=trim($arr[$i]);
     }
+    //print_r($arr);
     return $arr;
 }
 
@@ -622,7 +608,9 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
 
 
     ///////////////////////////////////
+    //print "<hr>[[$agent]]";
     $agent = conv_2array($agent);
+    //exit("<hr>");
     foreach ($agent as $agent) 
     {
         $agentParameters = array();        

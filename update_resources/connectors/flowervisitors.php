@@ -478,7 +478,6 @@ function get_data_object($id, $description, $title, $url, $subject)
     $dataObjectParameters["rights"] = "Copyright &#169; 2002-2009 by Dr. John Hilty";
     $dataObjectParameters["rightsHolder"] = "John Hilty";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
-
     
     ///////////////////////////////////
     $agentParameters = array();
