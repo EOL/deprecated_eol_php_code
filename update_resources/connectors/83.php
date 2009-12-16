@@ -77,8 +77,7 @@ foreach($image_ids as $image_id)
         $taxon_parameters["scientificName"]= $dwc_ScientificName;        
         $taxon_parameters["source"] = "http://www.morphbank.net/Browse/ByImage/?tsnKeywords=" . urlencode($dwc_ScientificName) . "&spKeywords=&viewKeywords=&localityKeywords=&activeSubmit=2";        
         $taxon_parameters["dataObjects"]= array();        
-        $used_taxa[$taxon_identifier] = $taxon_parameters;
-        
+        $used_taxa[$taxon_identifier] = $taxon_parameters;        
 
         /* start first dataobject - text 
         if(isset($xml->specimen->sourceId->morphbank))

@@ -6,7 +6,7 @@ http://www.iucn-tftsg.org/pub-chron/
 
 
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -110,8 +110,8 @@ function process_loop($arr) //run each URL and extract data
     {
 //        if($i >= 5)break; //debug        //ditox
         $i++;
-//        if(in_array($i,array(8,26))){
-        if(1==1){
+        if(in_array($i,array(8,26))){
+//        if(1==1){
 
         $str = Functions::get_remote_file($url);            
         
