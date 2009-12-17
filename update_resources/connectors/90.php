@@ -4,9 +4,9 @@
 http://www.iucn-tftsg.org/pub-chron/
 */
 
-
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
+
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -18,8 +18,8 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
 
-$wrap = "\n"; 
-//$wrap = "<br>"; 
+//$wrap = "\n"; 
+$wrap = "<br>"; 
  
 $resource = new Resource(90); //exit($resource->id);
 
@@ -28,9 +28,9 @@ $used_taxa = array();
 
 //$file = "";
 
-$urls = array( 0 => array( "url" => "http://www.iucn-tftsg.org/pub-chron/"                  , "active" => 1),   //
-               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 0),   //
-               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 0)
+$urls = array( 0 => array( "url" => "http://www.iucn-tftsg.org/pub-chron/"  , "active" => 1),   //
+               1 => array( "url" => "http://www."                           , "active" => 0),   //
+               2 => array( "url" => "http://www."                           , "active" => 0)
              );
 
 //$arr_name = array();
@@ -108,10 +108,10 @@ function process_loop($arr) //run each URL and extract data
     $i=0;
     foreach($arr as $url)
     {
-//        if($i >= 5)break; //debug        //ditox
+//      if($i >= 5)break; //debug        //ditox
         $i++;
-        if(in_array($i,array(8,26))){
-//        if(1==1){
+//      if(in_array($i,array(16))){
+        if(1==1){
 
         $str = Functions::get_remote_file($url);            
         
@@ -202,8 +202,8 @@ function process_loop($arr) //run each URL and extract data
             )         
         {
             $tmp_str =clean_str($tmp_str);
-            $beg='xxx'; $end1='</strong></p>'; $end2="</strong></p><p>";            
-            $agent = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));                                        
+            $beg='xxx'; $end1='</strong></p>'; $end2="</strong></p><p>"; $end3="</b></p>";
+            $agent = trim(parse_html($tmp_str,$beg,$end1,$end2,$end3,$end2,"",true));                                        
             //print $tmp_str; exit("<hr>agent");
         }
         //end get agent        
@@ -396,7 +396,9 @@ function process_loop($arr) //run each URL and extract data
         if($status=="")
         {   $beg='Status</p><p>. &ndash;'; $end1='</p>'; $end2="173xxx";            
             $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}            
-            
+        if($status=="")
+        {   $beg='Status</b> . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $status = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}            
         //end get status
         
         //get citation
@@ -438,8 +440,8 @@ function process_loop($arr) //run each URL and extract data
         $citation = strip_tags($citation);                            
         
         print "$i. $sciname [$comname] [$agent]         
-        <br><u>PDF url:</u><br> [$pdf_url]         
-        <br><u>status:</u><br> [$status]        
+        $wrap <u>PDF url:</u> $wrap [$pdf_url]         
+        $wrap <u>status:</u> $wrap [$status]        
         ";
         /*
         print"                      
@@ -463,6 +465,7 @@ function process_loop($arr) //run each URL and extract data
 function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synonymy,$status,$citation,$image,$img_caption,$img_agent,$map_caption,$url,$k)
 {
     global $used_taxa;
+    global $wrap;
     
     $kingdom="Animalia";
     
@@ -517,7 +520,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         
         //start text dataobject                
         $dc_identifier = "Distribution_" . $taxon_identifier;    
-        $desc = $distribution . "<br>" . $map_caption;
+        $desc = $distribution . "$wrap" . $map_caption;
         $title = "Distribution";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
         $type = "text";
