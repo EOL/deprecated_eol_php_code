@@ -99,7 +99,7 @@ foreach($xml->taxon as $rec)
             $dc_identifier = $taxon_identifier . "_GenDesc";
             $dc_source = $source_url;
             $agent_name = $agent;
-            $license = "http://creativecommons.org/licenses/publicdomain/";    
+            $license = "http://creativecommons.org/licenses/by-nc/3.0/";    
             $desc = $rec->original_description;
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text", $source_url);       
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
