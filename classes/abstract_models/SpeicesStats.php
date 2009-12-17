@@ -1,27 +1,18 @@
 <?php
-
-/*
-the MODEL
-*/
-
-
+/* the MODEL */
 class SpeciesStats extends MysqlBase
 {
-
     function __construct()
     {
         parent::initialize();
-    }
-    
+    }    
     public function taxa_stat($taxon_concept_ids,$limit,$group)    //group 1=taxa stat; 2=data object stat
-    {
-        /*
+    {   /*
         Number of taxa with at least one vetted data object in only one category (in COL):      33228
         Number of taxa with at least one vetted data object in only one category (not in COL, i.e. includes Flickr):     44635
         Number of taxa with at least one vetted data object in more than one category (in COL):     59274
         Number of taxa with at least one vetted data object in more than one category (not in COL, i.e. includes Flickr):     41464
-        */
-        
+        */        
         //initialize group 1
         $taxa_text=0;
         $taxa_images=0;
@@ -526,8 +517,7 @@ class SpeciesStats extends MysqlBase
         
         //#####################################################################################################
         //new start save lifedesk stats
-        $arr = $this->lifedesk_stat();
-        
+        $arr = $this->lifedesk_stat();        
         
         $query = "update page_stats_taxa set 
                             lifedesk_taxa         = ". $arr["totals"][0] . ", 
@@ -674,6 +664,15 @@ class SpeciesStats extends MysqlBase
         $a_vetted_untrusted_published_notVisible_uniqueGuid = implode("_",$a_vetted_untrusted_published_notVisible_uniqueGuid);
         //end tc_id list
         
+        //start user submitted do    ; per Peter M.
+        $mysqli2 = load_mysql_environment('slave_eol');
+        $query = "select count(udo.id) as 'total_user_text_objects' from eol_production.users_data_objects as udo join eol_data_production.data_objects as do on do.id=udo.data_object_id WHERE do.published=1;";
+        $result = $mysqli2->query($query);        
+        $row = $result->fetch_row();			
+        $user_submitted_text = $row[0];                
+        $result->close();
+        //end user submitted do                
+        
         
         //return -------------------------------------------------------------------------------------    
         if($group==1){}
@@ -695,7 +694,8 @@ class SpeciesStats extends MysqlBase
         a_vetted_unknown_published_visible_uniqueGuid        ,
         a_vetted_untrusted_published_visible_uniqueGuid     ,
         a_vetted_unknown_published_notVisible_uniqueGuid     ,
-        a_vetted_untrusted_published_notVisible_uniqueGuid     
+        a_vetted_untrusted_published_notVisible_uniqueGuid     ,
+        user_submitted_text     
         )
     
         select     
@@ -710,7 +710,8 @@ class SpeciesStats extends MysqlBase
         '$a_vetted_unknown_published_visible_uniqueGuid'        ,
         '$a_vetted_untrusted_published_visible_uniqueGuid'         ,
         '$a_vetted_unknown_published_notVisible_uniqueGuid'     ,
-        '$a_vetted_untrusted_published_notVisible_uniqueGuid'             
+        '$a_vetted_untrusted_published_notVisible_uniqueGuid'   ,
+        $user_submitted_text                       
         ";        
     
         $update = $this->mysqli->query($qry);    //1
@@ -759,7 +760,7 @@ class SpeciesStats extends MysqlBase
         $query = "Select distinct do.id, do.data_type_id, do.vetted_id, dotoc.toc_id AS toc_id, do.visibility_id 
         From (data_objects AS do) Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id) 
         Where do.published = 1 "; 
-        //$query .= " limit 100,10"; //debug only
+        //$query .= " limit 100,10 "; //debug only
         $result = $this->mysqli->query($query);        
         while($result && $row=$result->fetch_assoc())
         {
@@ -796,7 +797,7 @@ class SpeciesStats extends MysqlBase
         $result->close();        
         //end Flickr count                      
         
-        //start user submited do
+        //start user submitted do
         //$mysqli2 = load_mysql_environment('eol_production');
         $mysqli2 = load_mysql_environment('slave_eol');
         $query = "Select Count(users_data_objects.id) From users_data_objects";
@@ -831,28 +832,23 @@ class SpeciesStats extends MysqlBase
         Inner Join resource_statuses ON resources.resource_status_id = resource_statuses.id
         Inner Join agents_resources ON resources.id = agents_resources.resource_id
         Where resources.accesspoint_url Like '%lifedesks.org%'
-        Group By harvest_events.resource_id ";
-        
-        $result = $this->mysqli->query($query);        
-        
+        Group By harvest_events.resource_id ";        
+        $result = $this->mysqli->query($query);                
   
         $total_published_taxa=0;
         $total_published_do=0;
         
         $total_unpublished_taxa=0;
-        $total_unpublished_do=0;
-        
+        $total_unpublished_do=0;        
 
         $provider=array();        
         
         while($result && $row=$result->fetch_assoc())        
         {
             $title = "<a target='resource' href='http://www.eol.org/content_partner/resources/$row[resource_id]/harvest_events?content_partner_id=$row[agent_id]'>$row[title]</a>";
-            $provider["$title"]=true;
-        
+            $provider["$title"]=true;        
             if(@$latest_published[$row['resource_id']]) $harvest_event_id = $latest_published[$row['resource_id']];
-            else                                        $harvest_event_id = $row["harvest_event_id"];                    
-            
+            else                                        $harvest_event_id = $row["harvest_event_id"];                                
             $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
             $published_taxa = count(@$arr["published"]);
             $unpublished_taxa = count(@$arr["unpublished"]);
@@ -861,8 +857,7 @@ class SpeciesStats extends MysqlBase
             print $row["harvest_event_id"] . " $title taxa pages published      = " . $published_taxa . "<br>";
             print $row["harvest_event_id"] . "        taxa pages unpublished    = " . $unpublished_taxa . "<br>";            
             print $row["harvest_event_id"] . "        taxa pages all            = " . $all_taxa . "<br>";            
-            */
-                    
+            */                    
             $arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
             $published_do = count(@$arr["published"]);
             $unpublished_do = count(@$arr["unpublished"]);            
@@ -871,66 +866,52 @@ class SpeciesStats extends MysqlBase
             print $row["harvest_event_id"] . " data objects unpublished = " . $unpublished_do ;
             print "<hr>";            
             */
-            
-
             //print "<hr>";
             if($published_do > 0)
-            {
-                /*
+            {   /*
                 print "Published <br>";
                 print $row["harvest_event_id"] . " <u>taxa pages published     = " . $published_taxa . "</u><br>";
                 print $row["harvest_event_id"] . " data objects published   = " . $published_do . "<br>";                
                 */
                 $total_published_taxa += $published_taxa;
-                $total_published_do += $published_do;                
-                
+                $total_published_do += $published_do;                                
                 $provider["published"]["$title"][0]=$published_taxa;
                 $provider["published"]["$title"][1]=$published_do;
             }            
             else
             {
                 if($unpublished_do > 0)
-                {
-                    /*
+                {   /*
                     print "With unpublished data objects <br>";
                     print $row["harvest_event_id"] . " taxa pages unpublished   = " . $all_taxa . "<br>";            
                     print $row["harvest_event_id"] . " data objects unpublished = " . $unpublished_do ;                    
                     */
                     $total_unpublished_taxa += $all_taxa;
-                    $total_unpublished_do += $unpublished_do;            
-                    
+                    $total_unpublished_do += $unpublished_do;                                
                     $provider["unpublished"][$title]=true;                    
-                }
-                
+                }                
             }
             //print "<hr><hr><hr>";            
-        }        
-        
+        }                
         /*       
         print "<hr>";        
         print "<hr>taxa pages published = " . $total_published_taxa;                
         print "<hr>data objects published = " . $total_published_do;                
         print "<hr>";        
-        */
-        
+        */        
         $provider["totals"][0]=$total_published_taxa;
-        $provider["totals"][1]=$total_published_do;        
-        
-        return $provider;
-        
-        
+        $provider["totals"][1]=$total_published_do;                
+        return $provider;        
     }//end function dataobject_stat_more($group)    
     
     function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
-    {   
-        $query = "Select distinct hierarchy_entries.taxon_concept_id as id, taxon_concepts.published
+    {   $query = "Select distinct hierarchy_entries.taxon_concept_id as id, taxon_concepts.published
         From harvest_events_taxa
         Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
         Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
         Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
         Where harvest_events_taxa.harvest_event_id = $harvest_event_id
-        and taxon_concepts.vetted_id in(5) and taxon_concepts.supercedure_id=0          
-        ";    
+        and taxon_concepts.vetted_id in(5) and taxon_concepts.supercedure_id=0";    
         //and taxon_concepts.published=1 
         //hpogymnia needs in(5,0)
         //odonata needs in(5)
@@ -951,8 +932,7 @@ class SpeciesStats extends MysqlBase
     }//end get_taxon_concept_ids_from_harvest_event($harvest_event_id)    
 
     function get_data_object_ids_from_harvest_event($harvest_event_id)
-    {   
-        $query = "Select distinct data_objects_harvest_events.data_object_id as id, data_objects.published
+    {   $query = "Select distinct data_objects_harvest_events.data_object_id as id, data_objects.published
         From data_objects_harvest_events
         Inner Join data_objects ON data_objects_harvest_events.data_object_id = data_objects.id
         Where
