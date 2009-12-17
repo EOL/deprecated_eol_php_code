@@ -39,7 +39,7 @@ else
     $arr = explode(",",$comma_separated);
 }
 // /*
-print "Number of params returned: " . count($arr) . "<br>"; 
+//print "Number of params returned: " . count($arr) . "<br>"; 
 // */
 if(count($arr)==26) published_data_objects(); //group 4
 if(count($arr)==14) lifedesk_stat($stats); //group 5
