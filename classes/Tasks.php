@@ -222,7 +222,7 @@ class Tasks extends MysqlBase
             if($max_score >= MATCH_SCORE_THRESHOLD)
             {
                 TaxonConcept::supercede_by_ids($concept1->id, $max_score_id);
-                //self::update_taxon_concept_names(min($concept1->id, $concept2->id));
+                self::update_taxon_concept_names(min($concept1->id, $concept2->id));
             }
             
             unset($entry1);

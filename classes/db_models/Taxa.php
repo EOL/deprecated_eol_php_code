@@ -314,7 +314,7 @@ class Taxon extends MysqlBase
             $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
             
             $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($mock_hierarchy_entry));
-            //Tasks::update_taxon_concept_names($hierarchy_entry->taxon_concept_id);
+            Tasks::update_taxon_concept_names($hierarchy_entry->taxon_concept_id);
             $parent_hierarchy_entry = $hierarchy_entry;
         }
         
