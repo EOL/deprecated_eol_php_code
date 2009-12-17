@@ -21,6 +21,13 @@ class Hierarchy extends MysqlBase
         return 0;
     }
     
+    public function count_entries()
+    {
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM hierarchy_entries WHERE hierarchy_id=$this->id");
+        if($result && $row=$result->fetch_assoc()) return $row['count'];
+        return 0;
+    }
+    
     static function find_by_agent_id($agent_id)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
