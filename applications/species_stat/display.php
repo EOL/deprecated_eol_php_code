@@ -4,7 +4,6 @@
 //define("ENVIRONMENT", "slave_32");        //where stats are stored
 //define("ENVIRONMENT", "data_main");        //where stats are stored
 
-
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
 
@@ -31,9 +30,6 @@ if        ($view==1)    {print"View:&nbsp; Latest | <a href='display.php?view=2'
 elseif    ($view==2)    {print"View:&nbsp; <a href='display.php?view=1'>Latest</a> | With label | <a href='display.php?view=3'>History</a>";}
 elseif    ($view==3)    {print"View:&nbsp; <a href='display.php?view=1'>Latest</a> | <a href='display.php?view=2'>With label</a> | History";}
 
-
-
-
 print" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href='saved_stats.csv'>Download historical data as CSV</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -45,8 +41,8 @@ print"</font>
 <hr>";
 
 //$qry="select * from page_stats_taxa where active = 'y' ";
-//$qry="select * from page_stats_taxa where taxa_BHL_no_text > 0 order by date_created desc, time_created desc ";
-$qry="select * from page_stats_taxa order by date_created desc, time_created desc ";
+  $qry="select * from page_stats_taxa where taxa_BHL_no_text > 0 order by date_created desc, time_created desc ";
+//$qry="select * from page_stats_taxa                            order by date_created desc, time_created desc ";
 if($view != 3)  $qry .= "  limit 1";
 else            $qry .= "  limit 8";
 $sql = $mysqli->query($qry);
@@ -414,9 +410,7 @@ if($view == 3)
         print "</tr>";
     }    
     print"</table>";
-    //exit;    
-    
-    
+    //exit;        
     
     //=================================================================================================
     //start data objects
