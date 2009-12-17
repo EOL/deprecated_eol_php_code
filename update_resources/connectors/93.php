@@ -15,24 +15,31 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
 
-$resource = new Resource(1); //exit($resource->id);
+$resource = new Resource(93); //93 exit($resource->id);
 
+$wrap="\n";
+//$wrap="<br>";
 
 $schema_taxa = array();
 $used_taxa = array();
 
+/*
 $xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm?rows=5";
+$xml_url = "http://127.0.0.1/ai.xml";
+*/
+$xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm";
+
 if(!($xml = @simplexml_load_file($xml_url)))
 {
-    print "<br> <a href='$url'>$url</a> not accessible"; exit;
+    print "$wrap <a href='$url'>$url</a> not accessible"; exit;
 }
 
 // loop
 $k=0;
 foreach($xml->taxon as $rec)
 {
-    print "<br>" . $rec["name"];
-    //print "<br>" . $rec->original_description;
+    print "$wrap" . $rec["name"];
+    //print "$wrap" . $rec->original_description;
     
     /*
     $dwc_Kingdom = trim($dwc->Kingdom);
@@ -52,14 +59,13 @@ foreach($xml->taxon as $rec)
     }    
     
     $taxon_identifier = "AI_" . $rec["ID"];
-    $agent = get_agent($rec->original_description);    
+    $agent = get_agent($rec->original_description);        
     
-    
-    print "<br> agent = [$agent]";
+    print "$wrap agent = [$agent]";
     $source_url = "http://antiz.redmon.com/taxon_view.cfm?mode=advancedSearch&name=" . urlencode($dwc_ScientificName) . "&rank=&phylum=&match=substring&Submit=Search";
     
-    print "<a href='$source_url'>url</a>";    
-    print "<hr>";    
+    //print " -- <a href='$source_url'>url</a>";    
+    print "$wrap";    
     
     if(@$used_taxa[$taxon_identifier])
     {
@@ -90,12 +96,12 @@ foreach($xml->taxon as $rec)
             $dcterms_modified="";
             $copyright_text="";
         
-            $dc_identifier = $taxon_identifier . "GenDesc";
+            $dc_identifier = $taxon_identifier . "_GenDesc";
             $dc_source = $source_url;
             $agent_name = $agent;
             $license = "http://creativecommons.org/licenses/publicdomain/";    
             $desc = $rec->original_description;
-            $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text");       
+            $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text", $source_url);       
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
         }
         // end first dataobject - text */             
@@ -128,7 +134,7 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent_name ,$description, $type)
+function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent_name ,$description, $type, $source_url)
 {
     $dataObjectParameters = array();
     
@@ -147,11 +153,13 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
     }
     else
     {
+        /* not used for this provider
         $dataObjectParameters["identifier"] = "img_" . $id;    
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
         $dataObjectParameters["mimeType"] = "image/jpeg";
         $dataObjectParameters["thumbnailURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=thumb";
         $dataObjectParameters["mediaURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=jpg";        
+        */
     }
     
     $dataObjectParameters["description"] = $description;        
@@ -160,13 +168,28 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
     $dataObjectParameters["rightsHolder"] = $rightsHolder;            
     $dataObjectParameters["language"] = "en";    
     $dataObjectParameters["license"] = $license;        
-    $dataObjectParameters["source"] = "http://www.morphbank.net/?id=" . $id;
+    $dataObjectParameters["source"] = $source_url;
     ///////////////////////////////////
-    $agentParameters = array();
-    $agentParameters["role"] = "source";
-    $agentParameters["fullName"] = $agent_name;
-    $agents[] = new SchemaAgent($agentParameters);
-    $dataObjectParameters["agents"] = $agents;    
+    if($agent_name)    
+    {
+        $agentParameters = array();
+        $agentParameters["role"] = "author";
+        $agentParameters["fullName"] = $agent_name;
+        $agents[] = new SchemaAgent($agentParameters);
+        $dataObjectParameters["agents"] = $agents;    
+    }
+     
+        $agent_name = "Smithsonian National Museum of Natural History - Antarctic Invertebrates";    
+        $agentParameters = array();
+        $agentParameters["role"] = "project";
+        $agentParameters["fullName"] = $agent_name;
+        $agentParameters["homepage"] = "http://antiz.redmon.com/index.cfm";
+        
+        
+        $agents[] = new SchemaAgent($agentParameters);
+        $dataObjectParameters["agents"] = $agents;    
+
+    
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();    
     $audienceParameters = array();    
@@ -180,14 +203,34 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
 function get_agent($str)
 {   $str = trim(clean_str($str));
     $str = strip_tags($str);    
+    
+    $agent="";
+    if(substr($str,strlen($str)-1) != ")") return "";
+    
+    
+    //get start pos of agent    
     $pos = find_pos_of_this_char_by_moving_backwards($str,"(");
-    $agent = substr($str,$pos,strlen($str)-$pos);    
+    if($pos != "")
+    {
+        //$agent = substr($str,$pos,strlen($str)-$pos);    
+        $agent = trim(substr($str,$pos,strlen($str)));    
+        
+        
+        //get end pos of agent
+        //$pos = find_pos_of_this_char_by_moving_backwards($agent,",");
+        $pos = find_pos_of_this_char_by_moving_backwards($agent,")");
+        if($pos != "")$agent = substr($agent,0,$pos+1);                
+
+        $agent = str_replace("e.g.,", '', $agent);    
     
-    $agent = trim(remove_numbers($agent));    
+        //remove 1st char if ';' or '"' or '('
+        if(in_array(substr($agent,0,1),array(';' , '"'))) $agent = trim(substr($agent,1,strlen($agent)));
+    
+    }
+    else $agent = "";      
     
     
-    //$count = substr_count($agent, ',');
-    
+    $agent = trim(remove_chars($agent));        
     return $agent;
 }
 function find_pos_of_this_char_by_moving_backwards($str,$char)
@@ -202,17 +245,14 @@ function find_pos_of_this_char_by_moving_backwards($str,$char)
     return $pos;
 }
 function clean_str($str)
-{    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+{   $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
     return $str;
 }
-function remove_numbers($str) 
+function remove_chars($str) 
 {   
-
     //$arr = array("1", "2", "3", "4", "5", "6", "7", "8", "9", "0" , ":" , "(" , ")");
-    $arr = array(";");
-  	$str = str_replace($arr, '', $str);
-   
-    
+    $arr = array("(" , ")");
+  	$str = str_replace($arr, '', $str);    
   	return $str;
 }
 
