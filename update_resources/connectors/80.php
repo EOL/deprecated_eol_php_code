@@ -14,13 +14,14 @@ date_default_timezone_set('America/New_York');
 
 $resource = new Resource(80);
 
-// // download latest Wikimedia Commons export
-// shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
-// // unzip the download
-// shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
-// // split the huge file into 300M chunks
-// shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikipedia.xml ".dirname(__FILE__)."/files/wikipedia/part_");
+// download latest Wikipedia export
+shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
+// unzip the download
+shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
+// split the huge file into 300M chunks
+shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikipedia.xml ".dirname(__FILE__)."/files/wikipedia/part_");
 
+exit;
 // determine the filename of the last chunk
 $last_line = exec("ls -l ".dirname(__FILE__)."/files/wikipedia");
 if(preg_match("/part_([a-z]{2})$/", trim($last_line), $arr)) $last_part = $arr[1];
@@ -198,8 +199,8 @@ function get_scientific_pages($xml, $OUT, $title = false)
         // this is an exception for the API that feeds out the HTML
         if($title && @$_GET['title'])
         {
-            echo '  <script type="text/javascript" src="http://services.eol.org/wiki_ogg_player.js"></script>
-                    <link rel="stylesheet" href="http://services.eol.org/wikipedia.css" type="text/css" media="screen" />
+            echo '  <script type="text/javascript" src="http://static1.eol.org/javascripts/wiki_ogg_player.js"></script>
+                    <link rel="stylesheet" href="http://static6.eol.org/stylesheets/wikipedia.css" type="text/css" media="screen" />
                         <div id="globalWrapper">
                         <div id="column-content">
                         <div id="content">

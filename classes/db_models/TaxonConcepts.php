@@ -27,7 +27,7 @@ class TaxonConcept extends MysqlBase
         
         Tasks::update_taxon_concept_names($id1);
     }
-
+    
     function rank()
     {
         $string = "";
