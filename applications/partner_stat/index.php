@@ -77,7 +77,7 @@ function process_agent_id($agent_id)
 		
         //print $result2->num_rows . "<hr>";        
         $data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
->>>>>>> .r429
+
     }//end while
 }
 
