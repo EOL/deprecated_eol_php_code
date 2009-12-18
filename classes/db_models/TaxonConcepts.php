@@ -14,18 +14,26 @@ class TaxonConcept extends MysqlBase
         self::supercede_by_ids($taxon_concept_id, $this->id);
     }
     
-    public static function supercede_by_ids($id1, $id2)
+    public static function supercede_by_ids($id1, $id2, $update_taxon_concept_names = true)
     {
         if($id1 == $id2) return true;
-        if($id2 < $id1) list($id1, $id2) = array($id2, $id1);
-        
         if(!$id1 || !$id2) return false;
+        
+        // always replace the larger ID with the smaller one
+        if($id2 < $id1) list($id1, $id2) = array($id2, $id1);
         
         $mysqli =& $GLOBALS['mysqli_connection'];
         
+        // at this point ID2 is the one going away
+        // ID2 is being superceded by ID1
         $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.taxon_concept_id=$id1, tc.supercedure_id=$id1 WHERE taxon_concept_id=$id2");
         
-        Tasks::update_taxon_concept_names($id1);
+        if($update_taxon_concept_names)
+        {
+            // updating TCN => all names linked to ID2 are getting linked to ID1
+            $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
+            $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$id2");
+        }
     }
     
     function rank()

@@ -16,56 +16,61 @@ class CompareHierarchies
     
     
     
-    public static function begin_concept_assignment($hierarchy_id)
+    public static function begin_concept_assignment($hierarchy_id = null)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         // looking up which hierarchies might have nodes in preview mode
         // this will save time later on when we need to check published vs preview taxa
-        $GLOBALS['hierarchy_preview_harvest_event'] = array();
-        $result = $mysqli->query("SELECT hr.hierarchy_id, max(he.id) as max FROM hierarchies_resources hr JOIN harvest_events he ON (hr.resource_id=he.resource_id) GROUP BY hr.hierarchy_id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $harvest_event = new HarvestEvent($row['max']);
-            if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
-        }
+        self::lookup_preview_harvests();
         
         $hierarchies_compared = array();
-        $hierarchy_lookup_ids = array(Hierarchy::col_2009() => 1347615);
+        $hierarchy_lookup_ids2 = array(Hierarchy::col_2009() => 1347615);
         
-        $result = $mysqli->query("SELECT h.id, count(*) as count FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count(*) ASC");
+        $result = $mysqli->query("SELECT h.id, count(*) as count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count(*) ASC");
         while($result && $row=$result->fetch_assoc())
         {
-            $hierarchy_lookup_ids[$row['id']] = $row['count'];
+            $hierarchy_lookup_ids2[$row['id']] = $row['count'];
         }
         
-        $hierarchy1 = new Hierarchy($hierarchy_id);
-        $count1 = $hierarchy1->count_entries();
-        
-        foreach($hierarchy_lookup_ids as $id2 => $count2)
+        // if the function is passed a hierarchy_id then make the first loop just that hierarchy
+        // otherwise make the first loop the same as the inner loop - compare everything with everything else
+        if($hierarchy_id)
         {
-            $hierarchy2 = new Hierarchy($id2);
-            if($hierarchy1->id == $hierarchy2->id) continue;
+            $hierarchy1 = new Hierarchy($hierarchy_id);
+            $count1 = $hierarchy1->count_entries();
+            $hierarchy_lookup_ids1[$hierarchy_id] = $count1;
+        }else $hierarchy_lookup_ids1 = $hierarchy_lookup_ids2;
+        
+        foreach($hierarchy_lookup_ids1 as $id1 => $count1)
+        {
+            $hierarchy1 = new Hierarchy($id1);
             
-            if(isset($hierarchies_compared[$hierarchy1->id][$hierarchy2->id])) continue;
-            
-            // have the smaller hierarchy as the first parameter so the comparison will be quicker
-            if($count1 < $count2)
+            foreach($hierarchy_lookup_ids2 as $id2 => $count2)
             {
-                echo "Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n";
-                self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2);
-            }else
-            {
-                echo "Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n";
-                self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1);
+                $hierarchy2 = new Hierarchy($id2);
+                //if(!in_array($hierarchy2->id, array(147))) continue;
+                
+                if(isset($hierarchies_compared[$hierarchy1->id][$hierarchy2->id])) continue;
+                
+                // have the smaller hierarchy as the first parameter so the comparison will be quicker
+                if($count1 < $count2)
+                {
+                    echo "Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n";
+                    self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2);
+                }else
+                {
+                    echo "Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n";
+                    self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1);
+                }
+                
+                $hierarchies_compared[$hierarchy1->id][$hierarchy2->id] = 1;
+                $hierarchies_compared[$hierarchy2->id][$hierarchy1->id] = 1;
             }
-            
-            $hierarchies_compared[$hierarchy1->id][$hierarchy2->id] = 1;
-            $hierarchies_compared[$hierarchy2->id][$hierarchy1->id] = 1;
         }
     }
     
-    private static public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2)
+    private static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
@@ -84,7 +89,7 @@ class CompareHierarchies
         
         $mysqli->begin_transaction();
         
-        $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!-he2.id ORDER BY he1.visibility_id ASC, he2.visibility_id ASC, score DESC, id1 ASC, id2 ASC");
+        $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!=he2.id ORDER BY he1.visibility_id ASC, he2.visibility_id ASC, score DESC, id1 ASC, id2 ASC");
         
         $rows = $result->num_rows;
         $row_num = 0;
@@ -132,12 +137,41 @@ class CompareHierarchies
                     continue;
                 }
                 $i++;
-                if($i%500==0) echo "supercede_concepts($tc_id1, $tc_id2): $score. $row_num of $rows. mem: ".memory_get_usage()."\n";
-                //TaxonConcept::supercede_concepts($tc_id1, $tc_id2);
+                //if($i%1==0) echo "supercede_by_ids($tc_id1, $tc_id2): $score. $row_num of $rows. mem: ".memory_get_usage()."\n";
+                TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
                 $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
             }
         }
         $mysqli->end_transaction();
+    }
+    
+    private static function lookup_preview_harvests()
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $GLOBALS['hierarchy_preview_harvest_event'] = array();
+        $result = $mysqli->query("SELECT hr.hierarchy_id, max(he.id) as max FROM hierarchies_resources hr JOIN harvest_events he ON (hr.resource_id=he.resource_id) GROUP BY hr.hierarchy_id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $harvest_event = new HarvestEvent($row['max']);
+            if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
+        }
+    }
+    
+    private static function merger_effects_other_hierarchies($tc_id1, $tc_id2)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $counts = array();
+        $result = $mysqli->query("SELECT he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id IN ($tc_id1, $tc_id2) AND h.complete=1");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $hierarchy_id = $row['hierarchy_id'];
+            if(isset($counts[$hierarchy_id])) return true;
+            $counts[$hierarchy_id] = 1;
+        }
+        
+        return false;
     }
     
     private static function concept_published_in_hierarchy($taxon_concept_id, $hierarchy_id)

@@ -239,6 +239,8 @@ class Resource extends MysqlBase
                 // now set published=1 for all concepts in the latest harvest
                 $harvest_event->publish_taxon_concepts();
                 $harvest_event->publish_hierarchy_entries();
+                
+                CompareHierarchies::begin_concept_assignment($hierarchy_id);
             }
             
             $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
@@ -285,10 +287,9 @@ class Resource extends MysqlBase
                 // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
                 $hierarchy = new Hierarchy($hierarchy_id);
                 CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                
-                //Tasks::compare_hierarchies($hierarchy_id, $catalogue_of_life_id, false);
-                
                 $this->make_new_hierarchy_entries_preview($hierarchy);
+                
+                CompareHierarchies::begin_concept_assignment($hierarchy_id);
                 
                 if($this->vetted())
                 {
