@@ -97,7 +97,7 @@ function lifedesk_stat($stats)
                   ";
         }
         print"</table>";        
-        print("<br><font size='2'>{as of " . date('Y-m-d H:i:s') . "}</font>");
+        print("<font size='2'>{as of " . date('Y-m-d H:i:s') . "}</font>");
         
         //end display
 
