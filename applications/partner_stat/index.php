@@ -5,6 +5,7 @@
 <?php
 
 //define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_215");
 //define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
@@ -36,6 +37,9 @@ function process_agent_id($agent_id)
     {
         $ctr++;
         //print "<hr>harvest_event_id = $row[id] $row[published_at] ";    
+        
+        $query = "SELECT a.full_name FROM agents a WHERE a.id = $agent_id";                            
+
 		/*
         $query = "SELECT DISTINCT a.full_name, he.taxon_concept_id 
         FROM agents a
@@ -53,6 +57,11 @@ function process_agent_id($agent_id)
         $result2 = $mysqli->query($query);    
         $row2 = $result2->fetch_row();            
         $agent_name = $row2[0];
+        
+        $taxa_count = get_taxon_concept_ids_from_harvest_event($row["id"]);
+        
+        //$data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
+          $data_object_stats = process_do($row["id"],$taxa_count,$row["published_at"],$agent_name,$agent_id,$ctr);        
 		
     	$query = "
 	    Select distinct hierarchy_entries.taxon_concept_id as id
@@ -68,8 +77,39 @@ function process_agent_id($agent_id)
 		
         //print $result2->num_rows . "<hr>";        
         $data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
+>>>>>>> .r429
     }//end while
 }
+
+
+function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
+{   
+    global $mysqli;
+    
+    $query = "Select distinct hierarchy_entries.taxon_concept_id as id
+    From harvest_events_taxa
+    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
+    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
+    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
+    Where harvest_events_taxa.harvest_event_id = $harvest_event_id    
+    and taxon_concepts.supercedure_id=0 and taxon_concepts.vetted_id in(5,0) and taxon_concepts.published=1 ";        
+    $result = $mysqli->query($query);        
+    //print "<hr>$result->num_rows $query<hr>";
+    $all_ids = $result->num_rows;
+    
+    /* not needed anymore, coz we only need the total count        
+    $all_ids=array();
+    while($result && $row=$result->fetch_assoc())
+    {$all_ids[$row["id"]]=true;}    
+    $result->close();                
+    $all_ids = array_keys($all_ids);    
+    $all_ids = count($all_ids);
+    */    
+    
+    return $all_ids;
+}//end get_taxon_concept_ids_from_harvest_event($harvest_event_id)    
+
+
 
 function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_id,$ctr)
 {
