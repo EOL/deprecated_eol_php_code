@@ -21,38 +21,31 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $variable = "taxon_concept_id";
 
 
-show_kingdoms($variable);
-
-
-echo "<hr>";
-
-
-
 
 if($taxon_concept_id) $node = new TaxonConcept($taxon_concept_id);
 elseif($hierarchy_entry_id) $node = new HierarchyEntry($hierarchy_entry_id);
 else exit;
 
 
-$indent = show_ancestries($node, $variable);
-
-echo show_node($node, $indent, $variable);
-
-if($expand) show_all_children($node, $indent+1, array(), $variable);
-else show_children($node, $indent+1, $variable);
-
-echo "<hr>";
-echo "<hr>";
-echo "<hr>";
-echo "<hr>";
-echo "<hr>";
+// $indent = show_ancestries($node, $variable);
+// 
+// echo show_node($node, $indent, $variable);
+// 
+// if($expand) show_all_children($node, $indent+1, array(), $variable);
+// else show_children($node, $indent+1, $variable);
+// 
+// echo "<hr>";
+// echo "<hr>";
+// echo "<hr>";
+// echo "<hr>";
+// echo "<hr>";
 
 $hierarchy_entry_ids = $node->hierarchy_entry_ids();
 foreach($hierarchy_entry_ids as $id)
 {
     $hierarchy_entry = new HierarchyEntry($id);
     
-    echo "<b>".$hierarchy_entry->hierarchy()->label."</b><br>";
+    echo "<b>".$hierarchy_entry->hierarchy()->label."</b><br>hierarchy_entry_id: $hierarchy_entry->id<br>";
     
     $indent = show_ancestry_he($hierarchy_entry);
     echo show_name_he($hierarchy_entry, $indent, 0);

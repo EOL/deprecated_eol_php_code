@@ -9,11 +9,15 @@ class HierarchyEntry extends MysqlBase
         if(@!$this->id) return;
     }
     
-    public function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id)
+    public function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        if(self::entry_move_effects_other_hierarchies($hierarchy_entry_id, $taxon_concept_id)) return false;
+        if(!$force_move && self::entry_move_effects_other_hierarchies($hierarchy_entry_id, $taxon_concept_id))
+        {
+            echo "can't make this move\n";
+            return false;
+        }
         
         $result = $mysqli->query("SELECT he2.id, he2.taxon_concept_id FROM hierarchy_entries he JOIN hierarchy_entries he2 USING (taxon_concept_id) WHERE he.id=$hierarchy_entry_id");
         if($result && $row=$result->fetch_assoc())
@@ -24,7 +28,7 @@ class HierarchyEntry extends MysqlBase
             $count = $result->num_rows;
             if($count == 1)
             {
-                // if there is just one member of the group, then supercede the group with the new one
+                //// if there is just one member of the group, then supercede the group with the new one
                 TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id']);
             }else
             {
