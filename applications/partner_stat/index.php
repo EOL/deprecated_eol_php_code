@@ -20,17 +20,10 @@ else                process_agent_id($agent_id);
 function process_agent_id($agent_id)
 {
     global $mysqli;
-    $qry = "Select harvest_events.id, harvest_events.published_at 
-    From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id 
+    $qry = "Select harvest_events.id, harvest_events.published_at From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id 
     Where agents_resources.agent_id = $agent_id 
     order by harvest_events.id desc ";
     $result = $mysqli->query($qry);    
-    /*
-    $qry = "Select Max(harvest_events.id) AS harvest_event_id, Max(harvest_events.resource_id), agents_resources.agent_id From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id Where agents_resources.agent_id = $agent_id Group By agents_resources.agent_id";
-    $result = $mysqli->query($qry);    
-    $row = $result->fetch_row();            
-    $harvest_event_id = $row[0];
-    */    
     //print "agent_id = $agent_id <br>";    
     $ctr=0;    
     while($result && $row=$result->fetch_assoc())	    
@@ -38,22 +31,7 @@ function process_agent_id($agent_id)
         $ctr++;
         //print "<hr>harvest_event_id = $row[id] $row[published_at] ";    
         
-        $query = "SELECT a.full_name FROM agents a WHERE a.id = $agent_id";                            
-
-		/*
-        $query = "SELECT DISTINCT a.full_name, he.taxon_concept_id 
-        FROM agents a
-        JOIN agents_resources ar ON (a.id=ar.agent_id)
-        JOIN harvest_events hev ON (ar.resource_id=hev.resource_id)
-        JOIN harvest_events_taxa het ON (hev.id=het.harvest_event_id)
-        JOIN taxa t ON (het.taxon_id=t.id)
-        join hierarchy_entries he on t.hierarchy_entry_id = he.id
-        join taxon_concepts tc on he.taxon_concept_id = tc.id
-        WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0 
-        and hev.id = $row[id] ";    
-		*/
-		
-        $query = "SELECT a.full_name FROM agents a WHERE a.id = $agent_id";    		
+        $query = "SELECT a.full_name FROM agents a WHERE a.id = $agent_id";                            		
         $result2 = $mysqli->query($query);    
         $row2 = $result2->fetch_row();            
         $agent_name = $row2[0];
@@ -61,26 +39,10 @@ function process_agent_id($agent_id)
         $taxa_count = get_taxon_concept_ids_from_harvest_event($row["id"]);
         
         //$data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
-          $data_object_stats = process_do($row["id"],$taxa_count,$row["published_at"],$agent_name,$agent_id,$ctr);        
-		
-    	$query = "
-	    Select distinct hierarchy_entries.taxon_concept_id as id
-	    From harvest_events_taxa
-	    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
-	    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
-	    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
-	    Where harvest_events_taxa.harvest_event_id = $row[id]
-	    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and (taxon_concepts.vetted_id=5 OR taxon_concepts.vetted_id=0)    
-	    ";
-
-        $result2 = $mysqli->query($query);    
-		
-        //print $result2->num_rows . "<hr>";        
-        $data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
+          $data_object_stats = process_do($row["id"],$taxa_count,$row["published_at"],$agent_name,$agent_id,$ctr);        		
 
     }//end while
 }
-
 
 function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
 {   
