@@ -9,6 +9,50 @@ class HierarchyEntry extends MysqlBase
         if(@!$this->id) return;
     }
     
+    public function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        if(self::entry_move_effects_other_hierarchies($hierarchy_entry_id, $taxon_concept_id)) return false;
+        
+        $result = $mysqli->query("SELECT he2.id, he2.taxon_concept_id FROM hierarchy_entries he JOIN hierarchy_entries he2 USING (taxon_concept_id) WHERE he.id=$hierarchy_entry_id");
+        if($result && $row=$result->fetch_assoc())
+        {
+            // the entry is already in the new concept so return
+            if($row['taxon_concept_id'] == $taxon_concept_id) return true;
+            
+            $count = $result->num_rows;
+            if($count == 1)
+            {
+                // if there is just one member of the group, then supercede the group with the new one
+                TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id']);
+            }else
+            {
+                // if there is more than one member, just update the one entry
+                $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
+                $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
+                $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
+            }
+        }
+    }
+    
+    private static function entry_move_effects_other_hierarchies($hierarchy_entry_id, $new_taxon_concept_id)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $counts = array();
+        $result = $mysqli->query("SELECT he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE (he.id=$hierarchy_entry_id OR he.taxon_concept_id=$new_taxon_concept_id) AND h.complete=1");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $hierarchy_id = $row['hierarchy_id'];
+            if(isset($counts[$hierarchy_id])) return true;
+            $counts[$hierarchy_id] = 1;
+        }
+        
+        return false;
+    }
+    
+    
     function name()
     {
         if(@$this->name) return $this->name;

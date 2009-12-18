@@ -131,7 +131,7 @@ class CompareHierarchies
                 if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
                 if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
                 
-                if(self::merger_effects_other_hierarchies($tc_id1, $tc_id2))
+                if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                 {
                     echo "The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop\n";
                     continue;
@@ -158,7 +158,7 @@ class CompareHierarchies
         }
     }
     
-    private static function merger_effects_other_hierarchies($tc_id1, $tc_id2)
+    private static function concept_merger_effects_other_hierarchies($tc_id1, $tc_id2)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
