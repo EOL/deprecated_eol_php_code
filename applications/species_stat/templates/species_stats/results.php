@@ -43,7 +43,6 @@ else
 // */
 if(count($arr)==26) published_data_objects(); //group 4
 if(count($arr)==14) lifedesk_stat($stats); //group 5
-exit("<p><font size='2'>{as of " . date('Y-m-d H:i:s') . "}<br> --- end ---</font>");
 
 
 function lifedesk_stat($stats)
@@ -98,6 +97,7 @@ function lifedesk_stat($stats)
                   ";
         }
         print"</table>";        
+        print("<br><font size='2'>{as of " . date('Y-m-d H:i:s') . "}</font>");
         
         //end display
 
