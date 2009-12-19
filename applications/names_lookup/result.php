@@ -1,10 +1,10 @@
 <?php
 
-//uses NAMES table
+//uses clean_NAMES table
 
-
-define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+//define("ENVIRONMENT", "slave_215");
+//define("MYSQL_DEBUG", true);
+//define("DEBUG", true);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -491,6 +491,7 @@ print "</table>";
 <?php
 function sql_do($val,$i,$us)	
 {
+	//print"<hr>[$val][$us][$i]<hr>";
 	/*
 		$val = comma separated scientific names
 		$i 	 = 1 or 2 -- exist in eol
@@ -511,6 +512,7 @@ function sql_do($val,$i,$us)
 
 	if($i == 5)	//family search
 	{
+		//print"<hr>111<hr>";
 		/* dec13 not use taxon_concept_names
 		$qry = "Select distinct $tbl.$fld as sn,
 		taxon_concept_names.taxon_concept_id as tc_id
@@ -535,6 +537,7 @@ function sql_do($val,$i,$us)
 		{
 			if($format==1)
 			{
+				//print"<hr>222<hr>";
 				// /*	// working well for specific info_items label (main topics)
 				/* Dec13 not use taxon_concept_names
 				$qry = "Select distinct info_items.label, $tbl.$fld as sn, taxon_concept_names.taxon_concept_id as tc_id
@@ -569,6 +572,7 @@ function sql_do($val,$i,$us)
 		
 			if($format==2)		
 			{
+				//print"<hr>333<hr>";				
 				//working for specific data_objects title
 				$addstr = '';
 				if($report == 'list'){$addstr = ' distinct ';}		
@@ -588,20 +592,22 @@ function sql_do($val,$i,$us)
 
 				$qry="Select $addstr $tbl.$fld AS sn, taxon_concepts.id as tc_id,
 				if(data_objects.object_title='',data_types.label,data_objects.object_title) AS label			
-				From data_objects_taxa 
-				Inner Join taxa ON data_objects_taxa.taxon_id = taxa.id 
-				Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id 
-				Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
-				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-				Inner Join $tbl ON $tbl.$fld_id = hierarchy_entries.name_id 
-				Inner Join data_types ON data_objects.data_type_id = data_types.id				
+
+			From taxa
+			Inner Join clean_names ON taxa.name_id = clean_names.name_id
+			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+			Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
+			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
+			Inner Join data_types ON data_objects.data_type_id = data_types.id
+
 				Where $tbl.$fld In ($val)
 				AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0 
 				";				
 				if($report == 'list'){$qry .= " and data_types.id in (3,6) ";}
 				$qry .= " Order By $tbl.$fld , label ";	
                 
-                print "[$qry]";
+                //print "[$qry]";
                 
 			}
 			//print $qry;					
@@ -609,39 +615,42 @@ function sql_do($val,$i,$us)
 		}
 		elseif($data_kind==2)	//image
 		{
-			///*Dec13 not to use taxon_concept_names
+			//print"<hr>444<hr>";
+			/*Dec13 not to use taxon_concept_names
 			$qry = "Select distinct $tbl.$fld AS sn, taxon_concept_names.taxon_concept_id as tc_id, data_types.label
-			From data_objects_taxa Inner Join taxa ON data_objects_taxa.taxon_id = taxa.id Inner Join data_objects ON 
-			data_objects_taxa.data_object_id = data_objects.id 
-			Inner Join taxon_concept_names ON taxon_concept_names.name_id = taxa.name_id Inner Join $tbl ON 
-			$tbl.$fld_id = taxon_concept_names.name_id Inner Join data_types ON data_objects.data_type_id = data_types.id
-			Where $tbl.$fld In ($val)
-			AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0
+			From data_objects_taxa 
+			Inner Join taxa ON data_objects_taxa.taxon_id = taxa.id 
+			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id 
+			Inner Join taxon_concept_names ON taxon_concept_names.name_id = taxa.name_id 
+			Inner Join $tbl ON $tbl.$fld_id = taxon_concept_names.name_id 
+			Inner Join data_types ON data_objects.data_type_id = data_types.id
+			Where $tbl.$fld In ($val) AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0
 			and data_types.id not in (3,6)
 			Order By $tbl.$fld, label ";	
-			//*/
-			/*Dec13
+			*/
+			///*Dec13
 			$qry="Select distinct $tbl.$fld AS sn, taxon_concepts.id as tc_id, data_types.label
 			From taxa
 			Inner Join clean_names ON taxa.name_id = clean_names.name_id
 			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
 			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 			Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
-			Inner Join data_objects_info_items ON data_objects_taxa.data_object_id = data_objects_info_items.data_object_id
-			Inner Join info_items ON data_objects_info_items.info_item_id = info_items.id
+			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
 			Inner Join data_types ON data_objects.data_type_id = data_types.id
 			Where $tbl.$fld In ($val)
 			AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0
 			and data_types.id not in (3,6)
 			Order By $tbl.$fld, label			
 			";
-			*/
+			//clean
+			//*/
 		}
 	}
 	
 	if($i == 1 or $i == 2)	//exist in eol
 	{	
-		///*Dec13 not to use taxon_concept_names
+		//print"<hr>555 [$val]<hr>";
+		/*Dec13 not to use taxon_concept_names
 		$qry = "
 		Select distinct hierarchies.label, $tbl.$fld AS sn, taxon_concepts.id as tc_id
 		From $tbl
@@ -654,9 +663,9 @@ function sql_do($val,$i,$us)
 		hierarchy_entries.hierarchy_id = 147
 		Order By $tbl.$fld Asc, hierarchies.label Asc
 		";
-		//*/
+		*/
 		
-		/*Dec13
+		///*Dec13
 		$qry="Select distinct hierarchies.label, $tbl.$fld AS sn, taxon_concepts.id as tc_id
 		From taxa
 		Inner Join clean_names ON taxa.name_id = clean_names.name_id
@@ -664,14 +673,16 @@ function sql_do($val,$i,$us)
 		Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
 		Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id		
 		Where $tbl.$fld In ($val) AND
-		taxon_concepts.vetted_id <> 4 AND
-		hierarchy_entries.hierarchy_id = 147	Order By $tbl.$fld Asc, hierarchies.label Asc		
+		taxon_concepts.vetted_id <> 4
+		Order By $tbl.$fld Asc, hierarchies.label Asc		
 		";	
-		*/
+		//*/
+		//and hierarchy_entries.hierarchy_id = 147
 		
 		if($with_name_source == "")	
 		{
-			/*Dec13 not to use taxon_concept_names
+			//print"<hr>777<hr>";
+			 /*Dec13 not to use taxon_concept_names
 			$qry = "Select distinct $tbl.$fld AS sn, '' as label , taxon_concepts.id as tc_id
 			From $tbl
 			Inner Join taxon_concept_names ON taxon_concept_names.name_id = $tbl.$fld_id
@@ -682,17 +693,21 @@ function sql_do($val,$i,$us)
 			AND hierarchy_entries.hierarchy_id = 147
 			Order By sn Asc
 			";
-			*/
+			 */
+			
+			// /*
 			$qry="Select distinct $tbl.$fld AS sn, '' as label , taxon_concepts.id as tc_id
 			From taxa
 			Inner Join clean_names ON taxa.name_id = clean_names.name_id
 			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+			Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
 			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id		
-			Where $tbl.$fld In ($val)
-			AND taxon_concepts.vetted_id <> 4 
-			AND hierarchy_entries.hierarchy_id = 147
+			Where $tbl.$fld In ($val)			
+			AND taxon_concepts.vetted_id <> 4 						
 			Order By sn Asc			
-			";			
+			";
+			// */			
+			//AND hierarchy_entries.hierarchy_id = 147
 		}
 	}	
 	return $qry;
@@ -793,7 +808,7 @@ function get_sn_list($sn)
 	Inner Join clean_names ON taxa.name_id = clean_names.name_id
 	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
 	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id			
-	where n.$fld='$string'
+	where clean_names.$fld='$string'
 	";
 	
 	$sql = $mysqli->query($query);
