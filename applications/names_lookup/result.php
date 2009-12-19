@@ -667,17 +667,21 @@ function sql_do($val,$i,$us)
 		
 		///*Dec13
 		$qry="Select distinct hierarchies.label, $tbl.$fld AS sn, taxon_concepts.id as tc_id
-		From taxa
-		Inner Join clean_names ON taxa.name_id = clean_names.name_id
-		Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
-		Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
-		Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id		
-		Where $tbl.$fld In ($val) AND
-		taxon_concepts.vetted_id <> 4
+
+From
+hierarchy_entries
+Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
+Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
+Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+and taxon_concepts.vetted_id <> 4
+
+		Where $tbl.$fld In ($val)
+		
 		Order By $tbl.$fld Asc, hierarchies.label Asc		
 		";	
 		//*/
 		//and hierarchy_entries.hierarchy_id = 147
+		//
 		
 		if($with_name_source == "")	
 		{
@@ -697,11 +701,12 @@ function sql_do($val,$i,$us)
 			
 			// /*
 			$qry="Select distinct $tbl.$fld AS sn, '' as label , taxon_concepts.id as tc_id
-			From taxa
-			Inner Join clean_names ON taxa.name_id = clean_names.name_id
-			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
-			Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
-			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id		
+From
+hierarchy_entries
+Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
+Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
+Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+
 			Where $tbl.$fld In ($val)			
 			AND taxon_concepts.vetted_id <> 4 						
 			Order By sn Asc			
