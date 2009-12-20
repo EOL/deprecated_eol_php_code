@@ -35,13 +35,14 @@ foreach($stats as $taxon_concept_id => $stat)
 if(is_array($stats)) $arr = $stats;
 else
 {
+	//print "<hr>not an array";
     $comma_separated = $stats;
     $arr = explode(",",$comma_separated);
 }
 // /*
-//print "Number of params returned: " . count($arr) . "<br>"; 
+//print "<br>Number of params returned: " . count($arr) . "<br>"; 
 // */
-if(count($arr)==26) published_data_objects(); //group 4
+if(count($arr)==26) published_data_objects($arr); //group 4
 if(count($arr)==14) lifedesk_stat($stats); //group 5
 
 
@@ -175,13 +176,22 @@ function get_values_fromCSV()
 }//end function
 
 
-function published_data_objects()
+function published_data_objects($arr)
 {
-	global $arr;
+	//global $arr;
 	
     print"Published Data Objects: <br/>";
     $flickr_count = $arr[24];
     $user_do_count = $arr[25];
+	/* debug
+	print "<hr>
+    $flickr_count <br>
+    $user_do_count <br>		
+	<hr>";
+	print_r($arr);
+	*/
+	//exit;
+	
     array_pop($arr);    
     array_pop($arr);        
     
