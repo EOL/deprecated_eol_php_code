@@ -177,6 +177,8 @@ function get_values_fromCSV()
 
 function published_data_objects()
 {
+	global $arr;
+	
     print"Published Data Objects: <br/>";
     $flickr_count = $arr[24];
     $user_do_count = $arr[25];
