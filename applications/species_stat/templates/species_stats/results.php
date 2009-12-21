@@ -81,8 +81,7 @@ function lifedesk_stat($stats)
                     <td>$total_published_taxa</td>
                     <td>$total_published_do</td>
                 </tr>";
-        //print"</table>";
-        
+        //print"</table>";        
 
         $arr = array_keys($provider["unpublished"]);
         print"
@@ -114,7 +113,7 @@ function get_values_fromCSV()
 {
     //convert to csv    
     $filename="http://admin.lifedesks.org/files/lifedesk_admin/lifedesk_stats/lifedesk_stats.txt";
-    //$filename="http://128.128.175.77/lifedesk_stats.txt";
+    //$filename="http://127.0.0.1/lifedesk_stats.txt";
     
     $OUT = fopen("temp.csv", "w+");            
     $str = Functions::get_remote_file($filename);    
