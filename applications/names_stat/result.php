@@ -4,8 +4,8 @@
 
 
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+//define("ENVIRONMENT", "slave_32");
+//define("MYSQL_DEBUG", true);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -184,8 +184,8 @@ for ($i = 0; $i < count($arr); $i++)
 	
 	
 	$string = $canonical_form;
-	
-	/* dec 7 commented
+	//print"<hr>111<hr>";
+	// /* //dec 7 commented
 	$qry="select distinct tcn.taxon_concept_id as id
 	From clean_names AS n
 	Inner Join taxon_concept_names AS tcn ON (n.name_id = tcn.name_id)
@@ -195,16 +195,21 @@ for ($i = 0; $i < count($arr); $i++)
 	and taxon_concepts.vetted_id = 5	
 	and taxon_concepts.supercedure_id = 0
 	Order By id Asc	";
-	*/
-	$qry="select distinct tc.id
-	From taxon_concepts tc
-	Inner Join hierarchy_entries ON tc.id = hierarchy_entries.taxon_concept_id
-	Inner Join clean_names n ON hierarchy_entries.name_id = n.name_id	
-	where n.$fld='$string'
-	and tc.published = 1
-	and tc.vetted_id = 5	
-	and tc.supercedure_id = 0
+	// */
+	
+	/* doesn't work if u will not use taxon_concept_names
+	$qry="select distinct taxon_concepts.id
+	From
+	hierarchy_entries
+	Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
+	Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
+	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+	where clean_names.clean_name ='$string'			
 	Order By id Asc	";
+	//and tc.published = 1
+	//and tc.vetted_id = 5	
+	//and taxon_concepts.supercedure_id = 0
+	*/
 	
 	
 //0-Unknown , 4-Untrusted , 5-Trusted	
@@ -325,10 +330,22 @@ function found_in_COL($id)	//id = taxon_concepts!id
 	
 	//start check if in COL	
 	//PL's
+	//print"<hr>222<hr>";
+	
+	/*
 	$qry="Select hierarchy_entries.hierarchy_id,
 	hierarchy_entries.id as in_col, taxon_concepts.id
 	From taxon_concepts Inner Join hierarchy_entries ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
-	Where taxon_concepts.id = $id AND hierarchy_entries.hierarchy_id = 106	";			
+	Where taxon_concepts.id = $id AND hierarchy_entries.hierarchy_id = " . Hierarchy::col_2009();
+	*/	
+	$qry="Select hierarchies.id as in_col 
+	From
+	hierarchy_entries
+	Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
+	Where
+	hierarchy_entries.taxon_concept_id = $id
+	and hierarchy_entries.hierarchy_id = 147";
+	
 	$sql2 = $mysqli->query($qry);
 	
 	$found_in_col='N';
@@ -367,9 +384,9 @@ exit;
 function proc_tc_id($id)
 {
 	global $mysqli;
-
+	//print"<hr>333<hr>";
 	$qry="
-	select distinct toc.id toc_id,
+	select distinct 
 	do.data_type_id,
 	do.published,
 	do.vetted_id,
@@ -380,13 +397,13 @@ function proc_tc_id($id)
 	inner join taxa t on (he.name_id=t.name_id)
 	inner join data_objects_taxa dot on (t.id=dot.taxon_id)
 	inner join data_objects do on (dot.data_object_id=do.id)
-	left join (data_objects_table_of_contents dotoc join table_of_contents toc on (dotoc.toc_id=toc.id)) on (do.id=dotoc.data_object_id)
 	where
 	tc.id=$id
 	and do.visibility_id	= 1	
 	and tc.published 		= 1
+	and do.published	= 1	
 	and do.data_type_id in (1,3)
-	order by do.data_type_id, toc.id 
+	order by do.data_type_id
 	";		
 
 	$sql3 = $mysqli->query($qry);
@@ -425,7 +442,7 @@ Number of trusted text objects
 		if($label=='Text') {$text_cnt++;}
 		*/
 
-		if($data_type_id==3 and $row3["toc_id"] != $old_toc_id )	{$text_cnt++;}
+		if($data_type_id==3 )	{$text_cnt++;}
 		if($data_type_id==1 ) 	{$images_cnt++;}
 		
 
@@ -436,12 +453,11 @@ Number of trusted text objects
 				$row3["vetted_id"] 		== 5 
 			)	
 		{	
-			if($data_type_id==3 and $row3["toc_id"] != $old_toc_id )	{$text_trusted_cnt++;}
-			if($data_type_id==1  )	{$images_trusted_cnt++;}					
-			
+			if($data_type_id==3 )	{$text_trusted_cnt++;}
+			if($data_type_id==1 )	{$images_trusted_cnt++;}								
 		}		
 		
-		$old_toc_id = $row3["toc_id"];
+		//$old_toc_id = $row3["toc_id"];
 	}//end while
 	$sql3->close();
 	
@@ -536,7 +552,7 @@ function get_sn_list($sn)
 
 	//echo "Orignal: $string<br>";
 	//echo "Canonical: $canonical_form<br>";
-
+	//print"<hr>444<hr>";
 	/* dec7 commented
 	$query = "select distinct tcn.taxon_concept_id 
 	from $tbl n join taxon_concept_names tcn 
@@ -570,7 +586,7 @@ function get_sn_list($sn)
 	From clean_names 
 	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
 	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-	Where taxon_concept_names.taxon_concept_id = '$id' 
+	Where taxon_concepts.id = '$id' 
 	Order By $tbl.$fld Asc
 	";
 
