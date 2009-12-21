@@ -35,6 +35,7 @@ class LifeDeskAPI extends MysqlBase
             $thisResult["id"] = $v->id;
             $thisResult["hierarchy_id"] = $v->hierarchy_id;
             $thisResult["ancestry"] = $v->ancestry_names();
+            $thisResult["ranked_ancestry"] = $v->ranked_ancestry();
             $thisResult["rank"] = @$v->rank()->label;
             $thisResult["number_of_children"] = $v->number_of_children();
             $thisResult["number_of_children_synonyms"] = $v->number_of_children_synonyms();

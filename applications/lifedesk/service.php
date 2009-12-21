@@ -3,7 +3,7 @@
 define('MYSQL_DEBUG', 1);
 define('DEBUG', 1);
 define('DEBUG_TO_FILE', 1);
-define("ENVIRONMENT", "production");
+define("ENVIRONMENT", "slave");
 
 include_once("../../config/start.php");
 

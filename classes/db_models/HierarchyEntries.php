@@ -100,6 +100,23 @@ class HierarchyEntry extends MysqlBase
         }
     }
     
+    function ranked_ancestry()
+    {
+        $ancestry = "";
+        
+        if($this->parent_id)
+        {
+            $parent = $this->parent();
+            $parent_ranked_ancestry = $parent->ranked_ancestry();
+            
+            if($parent_ranked_ancestry) $ancestry = $parent_ranked_ancestry."|";
+            if(@$parent->rank()->id) $ancestry .= $parent->rank()->label;
+            $ancestry .= ":".$parent->name()->string;
+        }
+        
+        return $ancestry;
+    }
+    
     function ancestry_names()
     {
         $ancestry = "";
