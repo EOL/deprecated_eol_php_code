@@ -118,27 +118,18 @@ for ($i = 0; $i < count($arr); $i++)
 	
 	$tempx = $arr[$i];
 	$arr[$i] = Functions::clean_name($arr[$i]);
+	//print "<br>clean name = " . $arr[$i];	
+	if($i==0)	$value_list .= "'" 		. Functions::canonical_form($arr[$i]) . "'";
+	else		$value_list .= "$us'" 	. Functions::canonical_form($arr[$i]) . "'";
 	
-	if($i==0)
-	{
-		//$value_list .= "'" . trim($arr[$i]) . "'";
-		$value_list .= "'" . Functions::canonical_form($arr[$i]) . "'";
-	}
-	else
-	{
-		//$value_list .= "$us'" . trim($arr[$i]) . "'";
-		$value_list .= "$us'" . Functions::canonical_form($arr[$i]) . "'";
-	}	
-	
-	$arr[$i] = $tempx;	
-	
+	$arr[$i] = $tempx;		
+	 /*
+	$canonical_form = Functions::canonical_form($arr[$i]);
+	print "<br>canonical form = " . $canonical_form . "<br>";
+	 */
+
 }
 
-/*
-$canonical_form = Functions::canonical_form($arr[0]);
-print $canonical_form;
-exit;
-*/
 
 $qry = sql_do($value_list,$choice2,$us);
 $sql = $mysqli->query($qry);	
@@ -539,7 +530,7 @@ function sql_do($val,$i,$us)
 			{
 				//print"<hr>222<hr>";
 				// /*	// working well for specific info_items label (main topics)
-				/* Dec13 not use taxon_concept_names
+				 /* Dec13 not use taxon_concept_names
 				$qry = "Select distinct info_items.label, $tbl.$fld as sn, taxon_concept_names.taxon_concept_id as tc_id
 				From data_objects_taxa
 				Inner Join taxa ON data_objects_taxa.taxon_id = taxa.id
@@ -551,7 +542,9 @@ function sql_do($val,$i,$us)
 				Where $tbl.$fld In ($val)
 				Order By $tbl.$fld Asc, info_items.label Asc
 				"; 
-				*/
+				 */
+				
+				// /*				
 				$qry="
 				Select distinct info_items.label, $tbl.$fld as sn, taxon_concepts.id as tc_id
 				From taxa
@@ -649,8 +642,14 @@ function sql_do($val,$i,$us)
 	
 	if($i == 1 or $i == 2)	//exist in eol
 	{	
-		//print"<hr>555 [$val]<hr>";
-		/*Dec13 not to use taxon_concept_names
+		//print"<hr>555<hr>";
+		//print"[$val]";
+		/*
+		aeshna umbrosa umbrosa
+		aeshna umbrosa umbrosa walker 1908		
+		*/	
+		
+		// /*Dec13 not to use taxon_concept_names
 		$qry = "
 		Select distinct hierarchies.label, $tbl.$fld AS sn, taxon_concepts.id as tc_id
 		From $tbl
@@ -658,60 +657,55 @@ function sql_do($val,$i,$us)
 		Inner Join hierarchy_entries ON taxon_concept_names.taxon_concept_id = hierarchy_entries.taxon_concept_id
 		Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
 		Inner Join taxon_concepts ON taxon_concepts.id = taxon_concept_names.taxon_concept_id
-		Where $tbl.$fld In ($val) AND
-		taxon_concepts.vetted_id <> 4 AND
-		hierarchy_entries.hierarchy_id = 147
+		Where $tbl.$fld In ($val) 
+		AND taxon_concepts.vetted_id <> 4 		
 		Order By $tbl.$fld Asc, hierarchies.label Asc
 		";
-		*/
+		// */
+		//AND hierarchy_entries.hierarchy_id = 147
 		
-		///*Dec13
+		 /*Dec13
 		$qry="Select distinct hierarchies.label, $tbl.$fld AS sn, taxon_concepts.id as tc_id
-
-From
-hierarchy_entries
-Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
-Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
-Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-and taxon_concepts.vetted_id <> 4
-
-		Where $tbl.$fld In ($val)
-		
+		From hierarchy_entries
+		Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
+		Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
+		Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+		and taxon_concepts.vetted_id <> 4
+		Where $tbl.$fld In ($val)		
 		Order By $tbl.$fld Asc, hierarchies.label Asc		
 		";	
-		//*/
+		 */
 		//and hierarchy_entries.hierarchy_id = 147
 		//
 		
 		if($with_name_source == "")	
 		{
 			//print"<hr>777<hr>";
-			 /*Dec13 not to use taxon_concept_names
+			// /*Dec13 not to use taxon_concept_names
 			$qry = "Select distinct $tbl.$fld AS sn, '' as label , taxon_concepts.id as tc_id
 			From $tbl
 			Inner Join taxon_concept_names ON taxon_concept_names.name_id = $tbl.$fld_id
 			Inner Join hierarchy_entries ON taxon_concept_names.taxon_concept_id = hierarchy_entries.taxon_concept_id
 			Inner Join taxon_concepts ON taxon_concepts.id = taxon_concept_names.taxon_concept_id
 			Where $tbl.$fld In ($val)
-			AND taxon_concepts.vetted_id <> 4 
-			AND hierarchy_entries.hierarchy_id = 147
+			AND taxon_concepts.vetted_id <> 4 			
 			Order By sn Asc
 			";
-			 */
+			// */
+			 //AND hierarchy_entries.hierarchy_id = 147
 			
-			// /*
+			 /*
 			$qry="Select distinct $tbl.$fld AS sn, '' as label , taxon_concepts.id as tc_id
-From
-hierarchy_entries
-Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
-Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
-Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-
+			From
+			hierarchy_entries
+			Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
+			Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
+			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 			Where $tbl.$fld In ($val)			
 			AND taxon_concepts.vetted_id <> 4 						
 			Order By sn Asc			
 			";
-			// */			
+			 */			
 			//AND hierarchy_entries.hierarchy_id = 147
 		}
 	}	
