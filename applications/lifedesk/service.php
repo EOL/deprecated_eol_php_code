@@ -17,6 +17,7 @@ $sid = @$_GET["sid"];
 $format = @$_GET["format"];
 $callback = @$_GET["callback"];
 $ancestry = @$_GET["ancestry"];
+$hierarchy_id = @$_GET["hierarchy_id"];
 
 
 if(!$function) $function = @$_POST["function"];
@@ -26,6 +27,7 @@ if(!$sid) $sid = @$_POST["sid"];
 if(!$format) $format = @$_POST["format"];
 if(!$callback) $callback = @$_POST["callback"];
 if(!$ancestry) $ancestry = @$_POST["ancestry"];
+if(!$hierarchy_id) $hierarchy_id = @$_POST["hierarchy_id"];
 
 
 $connection = new LifeDeskAPI();
@@ -36,7 +38,7 @@ switch($function)
 {
     case "search":
         //if($mysqli) printf("Host info: %s\n", $mysqli->host_info);
-        $results = $connection->search($search);
+        $results = $connection->search($search, $hierarchy_id);
         break;
     case "details":
         $results = $connection->details($id,$ancestry);

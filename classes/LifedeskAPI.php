@@ -10,13 +10,14 @@ class LifeDeskAPI extends MysqlBase
         $this->api_url = "http://". $_SERVER["HTTP_HOST"] . $_SERVER["PHP_SELF"];
     }
     
-    function search($term)
+    function search($term, $hierarchy_id=null)
     {
         $term = trim($term);
         if(!$term) return array();
         
         $hierarchy_entries = array();
         $query = "SELECT DISTINCT h.id FROM canonical_forms c JOIN names n ON (c.id=n.canonical_form_id) JOIN hierarchy_entries h ON (n.id=h.name_id) WHERE c.string='".$this->mysqli->real_escape_string($term)."'";
+        if($hierarchy_id) $query .= " AND h.hierarchy_id=$hierarchy_id";
         
         $result = $this->mysqli->query($query);
         while($result && $row=$result->fetch_assoc())
