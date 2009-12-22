@@ -258,8 +258,11 @@ function published_data_objects($arr)
     </table>       
     <br> Total published data objects = " . number_format(array_sum($sum)) . "    
     <br> Latest Flickr harvest count = " . number_format($flickr_count) . "    
-    <br> User-submitted data objects = " . number_format($user_do_count) . "    
-    <font size='2'><br> <a href='javascript:self.close()'>Exit</a></font>";
+    <br> User-submitted data objects = " . number_format($user_do_count) . "<br>";    
+    
+    print("<font size='2'>{as of " . date('Y-m-d H:i:s') . "}</font>");
+    
+    print"<br><font size='2'><br> <a href='javascript:self.close()'>Exit</a></font>";
 }//end func
         
 ?>
