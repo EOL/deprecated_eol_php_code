@@ -39,8 +39,7 @@ $k=0;
 foreach($xml->taxon as $rec)
 {
     print "$wrap" . $rec["name"];
-    //print "$wrap" . $rec->original_description;
-    
+    //print "$wrap" . $rec->original_description;    
     /*
     $dwc_Kingdom = trim($dwc->Kingdom);
     $dwc_Phylum = trim($dwc->Phylum);
@@ -49,14 +48,20 @@ foreach($xml->taxon as $rec)
     $dwc_Family = trim($dwc->Family);
     */
     
-    if(@$rec["rank"]=="Genus")      
+    if  (@$rec["rank"]=="Genus")//or @$rec["rank"]=="Subgenus"   
     {   $dwc_Genus = trim($rec["name"]);
         $dwc_ScientificName = trim($rec["name"]);
     }
-    if(@$rec["rank"]=="Species")
+    if  (@$rec["rank"]=="Species")//or @$rec["rank"]=="Subspecies"
     {   $dwc_ScientificName = trim($rec["name"]);
         $dwc_Genus = substr($rec["name"],0,stripos($rec["name"]," "));
     }    
+    if  (@$rec["rank"]=="Family")//or @$rec["rank"]=="Subfamily"
+    {   $dwc_ScientificName = trim($rec["name"]);
+        $dwc_Family = trim($rec["name"]);
+    }    
+    
+    
     
     $taxon_identifier = "AI_" . $rec["ID"];
     $agent = get_agent($rec->original_description);        
