@@ -24,9 +24,9 @@ $schema_taxa = array();
 $used_taxa = array();
 
 /*
+*/
 $xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm?rows=5";
 $xml_url = "http://127.0.0.1/ai.xml";
-*/
 $xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm";
 
 if(!($xml = @simplexml_load_file($xml_url)))
@@ -47,20 +47,27 @@ foreach($xml->taxon as $rec)
     $dwc_Order = trim($dwc->Order);
     $dwc_Family = trim($dwc->Family);
     */
+
+
+    $dwc_ScientificName = "";
+    $dwc_Genus = "";
+    $dwc_Family = "";
+
     
     if  (@$rec["rank"]=="Genus")//or @$rec["rank"]=="Subgenus"   
     {   $dwc_Genus = trim($rec["name"]);
         $dwc_ScientificName = trim($rec["name"]);
     }
-    if  (@$rec["rank"]=="Species")//or @$rec["rank"]=="Subspecies"
+    elseif  (@$rec["rank"]=="Species")//or @$rec["rank"]=="Subspecies"
     {   $dwc_ScientificName = trim($rec["name"]);
         $dwc_Genus = substr($rec["name"],0,stripos($rec["name"]," "));
     }    
-    if  (@$rec["rank"]=="Family")//or @$rec["rank"]=="Subfamily"
+    elseif  (@$rec["rank"]=="Family")//or @$rec["rank"]=="Subfamily"
     {   $dwc_ScientificName = trim($rec["name"]);
         $dwc_Family = trim($rec["name"]);
-    }    
-    
+    }   
+    else continue; 
+
     
     
     $taxon_identifier = "AI_" . $rec["ID"];
