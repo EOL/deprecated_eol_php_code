@@ -635,7 +635,9 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
     $dataObjectParameters["language"] = "en";        
     $dataObjectParameters["source"] = $url;    
 
-    $dataObjectParameters["rights"] = "Copyright 2009 IUCN Tortoise and Freshwater Turtle Specialist Group";
+    //$dataObjectParameters["rights"] = "Copyright 2009 IUCN Tortoise and Freshwater Turtle Specialist Group";
+	$dataObjectParameters["rights"] = "Copyright 2009 Chelonian Research Foundation";
+	
     $dataObjectParameters["rightsHolder"] = "IUCN/SSC Tortoise and Freshwater Turtle Specialist Group";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
 
