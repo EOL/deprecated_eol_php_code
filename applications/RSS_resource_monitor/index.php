@@ -177,8 +177,9 @@ function proc()
 	
 ?>
 
-</body>
-</html>
 
 <br>
 <i><font size="2">Login to www.eol.org to see onward links.</font></i>
+
+</body>
+</html>
