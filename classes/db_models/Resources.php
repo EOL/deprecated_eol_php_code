@@ -399,9 +399,7 @@ class Resource extends MysqlBase
     
     public function validate()
     {
-        $validator = new SchemaValidator();
-        
-        $validation_result = $validator->validate($this->resource_path);
+        $validation_result = SchemaValidator::validate($this->resource_path);
         if($validation_result!="true")
         {
             $error_string = $this->mysqli->escape(implode("<br>", $validation_result));

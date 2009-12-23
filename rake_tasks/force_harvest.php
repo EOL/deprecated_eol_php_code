@@ -15,7 +15,6 @@ if($attr != "-id" || !$id || !is_numeric($id) || ($opt1 && !in_array($opt1, $opt
 }
 
 
-
 define('DEBUG', true);
 define('MYSQL_DEBUG', true);
 define('DEBUG_TO_FILE', true);
@@ -23,18 +22,6 @@ define('DEBUG_TO_FILE', true);
 include_once(dirname(__FILE__)."/../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-
-$lifedesks_to_ignore = array(
-    'micronesianinsects',
-    'bivalvia',
-    'porifera',
-    'imanto',
-    'equisetum',
-    'menegazzia',
-    'cephalopods',
-    'taxacom'
-);
 
 $resource = new Resource($id);
 if($resource)
@@ -56,7 +43,7 @@ if($resource)
     }
     
     
-    if(isset($GLOBALS['lifedesks_to_ignore']) && preg_match("/(".implode('|', $lifedesks_to_ignore).")\.lifedesks\.org/", $resource->accesspoint_url))
+    if(isset($GLOBALS['lifedesks_to_ignore']) && preg_match("/(".implode('|', $GLOBALS['lifedesks_to_ignore']).")\.lifedesks\.org/", $resource->accesspoint_url))
     {
         echo "\n$resource->title ($id) is a LifeDesk that is being ignored\n\n";
         exit;

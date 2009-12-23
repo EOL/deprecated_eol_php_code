@@ -16,14 +16,12 @@ class validator_controller extends ControllerBase
         
         if($xml_file)
         {
-            $validator = new SchemaValidator();
-            
             // determine the xsd, and whether this is an EOL resource file
-            $xsd = $validator->get_schema_location($xml_file);
+            $xsd = SchemaValidator::get_schema_location($xml_file);
             if(preg_match("/^http:\/\/services\.eol\.org\/schema\/content_/", $xsd)) $is_eol_schema = true;
             else $is_eol_schema = false;
             
-            $valid = $validator->validate($xml_file);
+            $valid = SchemaValidator::validate($xml_file);
             
             if($valid !== true)
             {

@@ -14,7 +14,7 @@ Functions::log("Starting harvesting");
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    if(isset($GLOBALS['lifedesks_to_ignore']) && preg_match("/(".implode('|', $lifedesks_to_ignore).")\.lifedesks\.org/", $resource->accesspoint_url)) continue;
+    if(isset($GLOBALS['lifedesks_to_ignore']) && preg_match("/(".implode('|', $GLOBALS['lifedesks_to_ignore']).")\.lifedesks\.org/", $resource->accesspoint_url)) continue;
     //if($resource->id != 71) continue;
     
     echo $resource->id."\n";
