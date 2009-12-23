@@ -128,6 +128,27 @@ class Functions
         return $hash;
     }
     
+    // see http://www.php.net/manual/en/function.filesize.php#92462
+    public static function remote_file_size($uri)
+    {
+        $ch = curl_init($uri);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        if ($data === false) return null;
+        
+        $content_length = null;
+        if(preg_match('/Content-Length: (\d+)/', $data, $matches))
+        {
+            $content_length = ((int) $matches[1]) / 1024;
+        }
+        
+        return $content_length;
+    }
+    
     public static function temp_filepath($relative_from_root = false)
     {
         if($relative_from_root) $prefix = "";

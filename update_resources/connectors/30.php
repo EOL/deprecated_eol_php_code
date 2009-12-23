@@ -13,7 +13,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $download_cache_path = LOCAL_ROOT . "temp/plazi.xml";
 $new_resource_path = LOCAL_ROOT . "temp/30.xml";
 
-$new_resource_xml = Functions::get_remote_file("http://plazi.cs.umb.edu:8080/exist/rest/db/taxonx_docs");
+$new_resource_xml = Functions::get_remote_file("http://plazi.cs.umb.edu/exist/rest/db/taxonx_docs");
 
 $OUT = fopen($new_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
@@ -23,7 +23,7 @@ unset($new_resource_xml);
 
 
 
-$prefix = "http://plazi.cs.umb.edu:8080/exist/rest/db/taxonx_docs/getSPM.xq?render=xhtml&description=broad&associations=no&doc=";
+$prefix = "http://plazi.cs.umb.edu/exist/rest/db/taxonx_docs/getSPM.xq?render=xhtml&description=broad&associations=no&doc=";
 $all_taxa = array();
 $file_names = array();
 

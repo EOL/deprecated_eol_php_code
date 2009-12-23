@@ -1,56 +1,60 @@
 <?php
 
 class SchemaValidator
-{
-    public $lines;
-    public $doc;
-    public $schema_location;
-    
-    public function validate($xml_file, $is_eol_schema = true)
+{ 
+    public static function validate($uri, $is_eol_schema = true)
     {
+        if(!$uri) return false;
+        // try to find the XSD and fail if it cannot
+        if($xsd = self::get_schema_location($uri)) $schema_location = $xsd;
+        else return array("There was no XSD defined in this XML file");
+        
         libxml_use_internal_errors(true);
+        libxml_clear_errors();
         
-        $this->doc = new DOMDocument('1.0', 'utf-8');
-        $this->doc->load($xml_file);
+        $reader = new XMLReader();
+        $reader->open($uri, 'utf-8');
+        $reader->setSchema($schema_location);
+        libxml_clear_errors();
         
-        if($is_eol_schema) $this->schema_location = LOCAL_ROOT."applications/schema/content_0_2.xsd";
-        if($xsd = $this->get_schema_location($xml_file)) $this->schema_location = $xsd;
-        if(@!$this->schema_location)
+        while(@$reader->read())
         {
-            return array("There was no XSD defined in this XML file");
+            // empty loop to load errors into libxml error cache
         }
         
-        //$file_contents = @file_get_contents($xml_file);
-        //if(!$file_contents) return array("Error: Upload Failed");
-        //$this->lines = @explode("\n", $file_contents);
-        
-        if(@!$this->doc->schemaValidate($this->schema_location))
-        {
-            unset($this->doc);
-            return $this->get_errors();
-        }
-        
-        unset($this->doc);
+        if($errors = self::get_errors()) return $errors;
         return true;
     }
     
-    public function get_schema_location($xml_file)
+    public static function get_schema_location($uri)
     {
-        $schema_location = "";
+        $FILE = fopen($uri, "r");
         
-        if(@!$this->doc)
+        // number of lines of the XML file to look for xsi:schemaLocation in
+        $n = 30;
+        $first_n_lines = "";
+        
+        $i = 0;
+        while($FILE && !feof($FILE))
         {
-            $this->doc = new DOMDocument();
-            $this->doc->load($xml_file);
+            if($line = fgets($FILE, 4096))
+            {
+                $first_n_lines .= " ".trim($line)." ";
+                $i++;
+                if($i>=$n) break;
+            }
         }
         
-        if($root = $this->doc->documentElement) $schema_location = $root->getAttribute("xsi:schemaLocation");
-        if(preg_match("/ (http:\/\/[^ ]+\.xsd)$/", $schema_location, $arr)) $schema_location = $arr[1];
-        
-        return $schema_location;
+        if(preg_match("/xsi:schemaLocation=('|\")(.*?)\\1/i", $first_n_lines, $arr))
+        {
+            $schema_location = trim($arr[2]);
+            if(preg_match("/^(.*?) (.*)$/", $schema_location, $arr)) return trim($arr[2]);
+            return $schema_location;
+        }
+        return false;
     }
     
-    public function libxml_error_array($error)
+    private static function libxml_error_array($error)
     {
         if($error->code=="1") return "";
         
@@ -73,28 +77,27 @@ class SchemaValidator
         $error_array["message"] = trim($error->message);
         $error_array["line_number"] = trim($error->line);
         $error_array["line"] = "";
-        //if($error_array["line_number"] != 65535 && @$line_number = $error_array["line_number"]) $error_array["line"] = @$this->lines[$line_number-1];
-
+        
         return $error_array;
     }
     
-    public function get_errors_array()
+    private static function get_errors_array()
     {
         $return = array();
         
         $errors = libxml_get_errors();
-        foreach ($errors as $error)
+        foreach($errors as $error)
         {
-            if($array = $this->libxml_error_array($error)) $return[] = $array;
+            if($array = self::libxml_error_array($error)) $return[] = $array;
         }
         libxml_clear_errors();
         
         return $return;
     }
     
-    public function get_errors()
+    private static function get_errors()
     {
-        $validation_result = $this->get_errors_array();
+        $validation_result = self::get_errors_array();
         $errors = array();
         foreach($validation_result as $k => $v)
         {
@@ -103,11 +106,8 @@ class SchemaValidator
             $errors[] = $error_string;
         }
         
-        //print_r($errors);
-        
         return $errors;
     }
-    
 }
 
 ?>

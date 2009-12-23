@@ -23,15 +23,17 @@ class validator_controller extends ControllerBase
             if(preg_match("/^http:\/\/services\.eol\.org\/schema\/content_/", $xsd)) $is_eol_schema = true;
             else $is_eol_schema = false;
             
-            $valid = $validator->validate($xml_file, $is_eol_schema);
-            
+            $valid = $validator->validate($xml_file);
             
             if($valid !== true)
             {
                 $errors = $valid;
             }elseif(@$is_eol_schema)
             {
-                list($eol_errors, $eol_warnings) = SchemaParser::eol_schema_validate($xml_file);
+                // only do this extra processing on files of 40000KB (~39MB) and less
+                $file_size = Functions::remote_file_size($xml_file);
+                if($file_size && $file_size<40000) list($eol_errors, $eol_warnings) = SchemaParser::eol_schema_validate($xml_file);
+                else $is_eol_schema = false;
             }
         }
         

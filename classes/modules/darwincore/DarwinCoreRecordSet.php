@@ -1,6 +1,6 @@
 <?php
 
-class SchemaDocument extends MysqlBase
+class DarwinCoreRecordSet extends MysqlBase
 {
     public static function print_taxon_xml($taxa)
     {
@@ -12,21 +12,18 @@ class SchemaDocument extends MysqlBase
     public static function xml_header()
     {
         $xml = "<?xml version='1.0' encoding='utf-8' ?>\n";
-        $xml .= "<response\n";
-        $xml .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
-        $xml .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
-        $xml .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
-        $xml .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
-        $xml .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
-        $xml .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
+        $xml .= "<dwr:DarwinRecordSet\n";
         $xml .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
-        $xml .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
+        $xml .= "  xsi:schemaLocation='http://rs.tdwg.org/dwc/dwcrecord/  http://rs.tdwg.org/dwc/xsd/tdwg_dwc_classes.xsd'\n";
+        $xml .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
+        $xml .= "  xmlns:dwc='http://rs.tdwg.org/dwc/terms/'\n";
+        $xml .= "  xmlns:dwr='http://rs.tdwg.org/dwc/dwcrecord/'>\n";
         return $xml;
     }
     
     public static function xml_footer()
     {
-        $xml = "</response>\n";
+        $xml = "</dwr:DarwinRecordSet>\n";
         return $xml;
     }
     
