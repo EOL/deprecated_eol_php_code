@@ -20,9 +20,11 @@ else                process_agent_id($agent_id);
 function process_agent_id($agent_id)
 {
     global $mysqli;
-    $qry = "Select harvest_events.id, harvest_events.published_at From agents_resources Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id 
+    $qry = "Select harvest_events.id, harvest_events.published_at 
+    From agents_resources 
+    Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id 
     Where agents_resources.agent_id = $agent_id 
-    order by harvest_events.id desc ";
+    order by harvest_events.id desc limit 5 ";
     $result = $mysqli->query($qry);    
     //print "agent_id = $agent_id <br>";    
     $ctr=0;    
