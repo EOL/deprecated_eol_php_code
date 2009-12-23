@@ -94,6 +94,8 @@ foreach($xml->taxon as $rec)
         $taxon_parameters["order"] = $dwc_Order;
         $taxon_parameters["family"] = $dwc_Family;
         */
+        
+        $taxon_parameters["family"] = $dwc_Family;
         $taxon_parameters["genus"] = $dwc_Genus;
         $taxon_parameters["scientificName"]= $dwc_ScientificName;        
         $taxon_parameters["source"] = $source_url;
