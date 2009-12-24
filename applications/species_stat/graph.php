@@ -141,7 +141,12 @@ function get_values_fromCSV($title)
         for ($i = 1; $i < $total-1; $i++) //not use $i = 0 and $i < $total so that u wont get the 1st and last date
         {	
             //if($i % $div == 0)$arr_new[] = $arr[$title][$i]; //with year
-            if($i % $div == 0)$arr_new[] = substr($arr[$title][$i],5,5); //no year
+            //if($i % $div == 0)$arr_new[] = substr($arr[$title][$i],5,5); //no year
+            if($i % $div == 0)$arr_new[] = substr($arr[$title][$i],0,strripos($arr[$title][$i],"/")); //no year
+            
+
+            
+            
         }
         $arr_new[] = $arr[$title][$total-1];
         return $arr_new;
