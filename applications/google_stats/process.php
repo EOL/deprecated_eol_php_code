@@ -997,5 +997,13 @@ function sec2hms($sec, $padHours = false)
 	return $hms;
 }
 
+function hms2sec ($hms) 
+{     list($h, $m, $s) = explode (":", $hms);
+      $seconds = 0;
+      $seconds += (intval($h) * 3600);
+      $seconds += (intval($m) * 60);
+      $seconds += (intval($s));
+      return $seconds;
+}
 
 ?>

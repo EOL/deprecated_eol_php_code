@@ -122,7 +122,8 @@ function get_from_api($month,$year)
                     //print "[$taxon_id]";
                     
                     $str .= $i . $sep . $taxon_id . $sep . $url . $sep . $count["ga:pageviews"] . $sep . $count["ga:uniquePageviews"] . $sep . 
-                            $averate_time_on_page . $sep . $bounce_rate . $sep . $percent_exit . $sep . $money_index . $sep . date('Y-m-d H:i:s') . $cr;
+                            $averate_time_on_page . $sep . 
+                            $bounce_rate . $sep . $percent_exit . $sep . $money_index . $sep . date('Y-m-d H:i:s') . $cr;
                 }
                 //print "<hr>";
                 // */

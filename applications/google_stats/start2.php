@@ -190,8 +190,6 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
 
-
-
 function initialize_tables()
 {
 	global $mysqli2;
