@@ -25,6 +25,11 @@ print $img;
 function get_graph($title)
 {   
     $arr = get_values_fromCSV($title);
+    $arr = delete_null_in_array($arr);
+    $arr = re_sort_array($arr);
+    
+    //print_r($arr);
+    
     $comma_separated = get_comma_separated($arr,",");
     /*
     $range1 = $arr[0]-1000;
@@ -154,6 +159,19 @@ function delete_null_in_array($arr)
     {if (is_null($value) or trim($value)=='')unset($arr[$key]);}
     return $arr;
 }
+
+function re_sort_array($a) 
+{ 	
+	$b=array();
+	$j = 0; 
+    foreach ($a as &$value) 
+    {
+        if (trim($value) != "") { $b[] = $value; } 		
+    }    
+	return $b; 
+}
+
+
 
 function get_val_var($v)
 {
