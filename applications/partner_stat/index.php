@@ -2,6 +2,14 @@
 <html>
 <head><title>Content Partner Stats</title></head>
 <body>
+    <script language="javascript1.2">
+    function proc()
+    {
+        document.forms.fn.agent_id.options.selectedIndex=0
+        document.forms.fn.submit();
+    }
+    </script>
+
 <?php
 
 //define("ENVIRONMENT", "slave_32");
@@ -284,7 +292,7 @@ function display_form()
     print"<td><font size='2'><i>Content partner [Agent ID]</i> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</font><br>
     With published data only: <input type='checkbox' name='with_published_content' $checked > <input type='button' value='Refresh list' onclick='proc()'>
     <br>
-    <select id='agent_id' name=agent_id onChange='proc()' style='font-size : small; font-family : Arial; background-color : Aqua;'><option>";
+    <select id='agent_id' name=agent_id style='font-size : small; font-family : Arial; background-color : Aqua;'><option>";
     while($result && $row=$result->fetch_assoc())
     {
         print"<option value=$row[agent_id]>$row[agent_name] [$row[agent_id]]";    
@@ -294,13 +302,6 @@ function display_form()
     
     ?>
     
-    <script language="javascript1.2">
-    function proc()
-    {
-        document.forms.fn.agent_id.options.selectedIndex=0
-        document.forms.fn.submit();
-    }
-    </script>
     
     <?php
     
