@@ -119,7 +119,8 @@ function get_values_fromCSV($title)
                 if($row==0) $label[]=$data[$c];
                 else        
                 {
-                    $arr["$label[$c]"][]=$data[$c];
+                    //print"[$c]";
+                    $arr["$label[$c]"][]=&$data[$c];
                 }
             }                        
             //if($row == 10)break;    
