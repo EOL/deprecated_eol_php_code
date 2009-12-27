@@ -13,7 +13,10 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $agent_id = get_val_var("agent_id");
-$agentID = get_val_var('agentID');if($agentID != "")$agent_id = $agentID;//new, to accommodate agentID, not just agent_id
+$agentID = get_val_var('agentID');
+if($agentID != "")$agent_id = $agentID;//new, to accommodate agentID, not just agent_id
+
+$with_published_content = get_val_var("with_published_content");
 if($agent_id == "") display_form();
 else                process_agent_id($agent_id);
 
@@ -246,15 +249,34 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
 function display_form()
 {
     global $mysqli;
+    global $with_published_content;
+    
     print"<table border='1' cellpadding='5' cellspacing='0'><form action='index.php' method='get'>";
     $qry = "Select distinct agents.full_name AS agent_name, agents.id AS agent_id 
-    From agents_resources 
-    Inner Join agents ON agents_resources.agent_id = agents.id 
-    Inner Join resources ON agents_resources.resource_id = resources.id 
-    Inner Join content_partners ON agents.id = content_partners.agent_id where resource_status_id not in (1,6,7,9) 
-    Order By agents.full_name Asc ";
-    //(1,3,6,7,9) 
+    From agents
+    Inner Join agents_resources ON agents.id = agents_resources.agent_id
+    Inner Join content_partners ON agents_resources.agent_id = content_partners.agent_id
+    Inner Join resources ON agents_resources.resource_id = resources.id
+    Inner Join harvest_events ON resources.id = harvest_events.resource_id ";
+    if($with_published_content == 'on')$qry .= " where harvest_events.published_at is not null ";
+    $qry .= " Order By agents.full_name Asc ";
     $result = $mysqli->query($qry);    
+    /*
+    resource_status_id not in (1,6,7,9)
+    1	Uploading	
+    2	Uploaded	
+    3	Upload Failed	
+    4	Moved to Content Server	
+    5	Validated	
+    6	Validation Failed	
+    7	Being Processed	
+    8	Processed	
+    9	Processing Failed	
+    10	Published	
+    11	Publish Pending	
+    12	Unpublish Pending	
+    13	Force Harvest	
+    */
 
     print"<td><font size='2'><i>Content partner [Agent ID]</i> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</font><br>
     <select id='agent_id' name=agent_id onChange='proc()' style='font-size : small; font-family : Arial; background-color : Aqua;'><option>";
@@ -262,9 +284,17 @@ function display_form()
     {
         print"<option value=$row[agent_id]>$row[agent_name] [$row[agent_id]]";    
     }
-    print"</select></td>
+    print"</select></td>";
+    
+    $checked='';
+    if($with_published_content == 'on')$checked='checked';    
+    
+    print"
     <tr>
-    <td><input type='submit' value='Taxa & Data object Stats &gt;&gt; '> </td>
+        <td>
+            With published data: <input type='checkbox' name='with_published_content' $checked >
+            <input type='submit' value='Taxa & Data object Stats &gt;&gt; '> 
+        </td>
     </tr>
     </form>
     <tr>
