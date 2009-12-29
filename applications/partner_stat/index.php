@@ -259,7 +259,9 @@ function display_form()
     global $mysqli;
     global $with_published_content;
     
-    print"<table border='1' cellpadding='5' cellspacing='0'><form name='fn' action='index.php' method='get'>";
+    print"<table border='1' cellpadding='5' cellspacing='0'>
+    <tr><td align='center'><b>Content Partner Stats</b></td></tr>
+    <form name='fn' action='index.php' method='get'>";
     $qry = "Select distinct agents.full_name AS agent_name, agents.id AS agent_id 
     From agents
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
@@ -289,15 +291,18 @@ function display_form()
     $checked='';
     if($with_published_content == 'on')$checked='checked';    
 
-    print"<td><font size='2'><i>Content partner [Agent ID]</i> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</font><br>
-    With published data only: <input type='checkbox' name='with_published_content' $checked > <input type='button' value='Refresh list' onclick='proc()'>
+    print"<td align='center'>
+    <font size='2'>With published data only:</font> <input type='checkbox' name='with_published_content' $checked > <input type='button' value='Refresh list' onclick='proc()'>
     <br>
     <select id='agent_id' name=agent_id style='font-size : small; font-family : Arial; background-color : Aqua;'><option>";
     while($result && $row=$result->fetch_assoc())
     {
         print"<option value=$row[agent_id]>$row[agent_name] [$row[agent_id]]";    
     }
-    print"</select></td>";
+    print"</select>
+    <br>
+    <font size='2'><i>Content partner [Agent ID]</i> &nbsp;&nbsp;&nbsp; n=" . $result->num_rows . "</font>
+    </td>";
     
     
     ?>
@@ -307,7 +312,7 @@ function display_form()
     
     print"
     <tr>
-        <td>            
+        <td align='center'>            
             <input type='submit' value='Taxa & Data object Stats &gt;&gt; '> 
         </td>
     </tr>
@@ -315,7 +320,10 @@ function display_form()
     <tr>
     <td><font size='2'>Access report using URL and Agent ID:<br>
     <i><a href='http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=2'>
-    http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=2</a></i></font>
+    http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=2</a></i>
+    <br>
+    <a href='javascript:self.close()'>Exit</a>
+    </font>
     </td>
     </tr>
     </table>";
