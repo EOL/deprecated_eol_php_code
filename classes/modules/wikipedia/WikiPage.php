@@ -102,8 +102,7 @@ class WikiPage
         if(isset($this->taxonomy)) return $this->taxonomy;
         
         $taxonomy = array();
-        //if(preg_match("/\{\{Taxobox(.*?)\}\}/ms", $this->xml, $arr))
-        if(preg_match("/(\{\{Taxobox.*?\}\})(.*)/ms", $this->text, $arr))
+        if(preg_match("/(\{\{Taxobox.*?\}\})(.*)/msi", $this->text, $arr))
         {
             // this is a work around to make sure entire taxobox contents are retrieved
             list($taxobox, $junk) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
@@ -123,13 +122,13 @@ class WikiPage
                     if(preg_match("/^(.*?)</ims", $value, $arr)) $value = $arr[1];
                     while(preg_match("/^(.*)\(or .*?\)\s*$/ims", $value, $arr)) $value = $arr[1];
                     
-                    $value = str_replace("&dagger;", " ", $value);
-                    $value = str_replace("&mdash;", " ", $value);
+                    $value = str_ireplace("&dagger;", " ", $value);
+                    $value = str_ireplace("&mdash;", " ", $value);
                     $value = str_replace("†", " ", $value);
                     $value = str_replace("*", "", $value);
                     $value = str_replace("?", "", $value);
                     $value = str_replace("'", "", $value);
-                    $value = str_replace("(unplaced)", "", $value);
+                    $value = str_ireplace("(unplaced)", "", $value);
                     
                     $value = preg_replace("/verify source/ims", "", $value);
                     $value = preg_replace("/incertae sedis/ims", "", $value);
@@ -148,7 +147,7 @@ class WikiPage
                     if(preg_match("/ or /ims", $value)) continue;
                     if(preg_match("/(taxobox|uncertain|\[\[|\]\]|possibly)/ims", $value)) continue;
                     if(!$value) continue;
-                    if(!Functions::is_utf8($value)) 
+                    if(!Functions::is_utf8($value)) continue;
                     
                     $taxonomy[$attribute] = $value;
                 }
@@ -156,24 +155,24 @@ class WikiPage
         }
         
         // expanding abbreviated species (P. saltator) with genus value
-        if($taxonomy["species"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["species"], $arr))
+        if(@$taxonomy["species"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["species"], $arr))
         {
-            if($taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["species"] = $taxonomy["genus"] . $arr[1];
+            if(@$taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["species"] = $taxonomy["genus"] . $arr[1];
         }
         
-        if($taxonomy["binomial"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["binomial"], $arr))
+        if(@$taxonomy["binomial"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["binomial"], $arr))
         {
-            if($taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["binomial"] = $taxonomy["genus"] . $arr[1];
+            if(@$taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["binomial"] = $taxonomy["genus"] . $arr[1];
         }
         
-        if($taxonomy["subspecies"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["subspecies"], $arr))
+        if(@$taxonomy["subspecies"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["subspecies"], $arr))
         {
-            if($taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["subspecies"] = $taxonomy["genus"] . $arr[1];
+            if(@$taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["subspecies"] = $taxonomy["genus"] . $arr[1];
         }
         
-        if($taxonomy["trinomial"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["trinomial"], $arr))
+        if(@$taxonomy["trinomial"] && preg_match("/^[A-Z][a-z]{0,2}\.( .*)$/", $taxonomy["trinomial"], $arr))
         {
-            if($taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["trinomial"] = $taxonomy["genus"] . $arr[1];
+            if(@$taxonomy["genus"] && preg_match("/^[^ ]*$/", $taxonomy["genus"])) $taxonomy["trinomial"] = $taxonomy["genus"] . $arr[1];
         }
         
         
@@ -187,7 +186,7 @@ class WikiPage
         return $taxonomy;
     }
     
-    public function common_names()
+    public function common_names($taxon_name)
     {
         if(isset($this->common_names)) return $this->common_names;
         
@@ -198,6 +197,7 @@ class WikiPage
             {
                 $lang = $match[1];
                 $name = $match[2];
+                if($name == $taxon_name || $name == Functions::canonical_form($taxon_name)) continue;
                 if(!Functions::is_utf8($name)) continue;
                 //if(isset($GLOBALS['iso_639_2_codes'][$lang])) $lang = $GLOBALS['iso_639_2_codes'][$lang];
                 
@@ -243,7 +243,14 @@ class WikiPage
         if($taxon_rank!='genus' && $v = @$taxonomy['genus']) $taxon_parameters['genus'] = $v;
         $taxon_parameters['scientificName'] = $taxon_name;
         $taxon_parameters["source"] = "http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $this->title) ."&oldid=". $this->revision;
-        $taxon_parameters['commonNames'] = $this->common_names();
+        $taxon_parameters['commonNames'] = $this->common_names($taxon_name);
+        
+        if(!($taxon_rank == 'familia' || @$taxon_parameters['family']))
+        {
+            echo "   not a family or below\n";
+            $this->taxon_parameters = array();
+            return $this->taxon_parameters;
+        }
         
         $taxon_parameters['dataObjects'] = array();
         $this->taxon_parameters = $taxon_parameters;
@@ -271,7 +278,7 @@ class WikiPage
         
         if($download_text && $description = $this->get_page_html())
         {
-            if(Functions::is_utf8($name)) $data_object_parameters["description"] = $description;
+            $data_object_parameters["description"] = $description;
         }
         if(@!$data_object_parameters["description"]) $data_object_parameters = array();
         

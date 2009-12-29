@@ -174,6 +174,12 @@ class WikimediaPage
                 $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
                 break;
             }
+            //can be relicensed as cc-by-sa-3.0
+            if(preg_match("/migration=relicense/i", $val))
+            {
+                $data_object_parameters["license"] = "http://creativecommons.org/licenses/by-sa/3.0/";
+                break;
+            }
         }
         if(!isset($data_object_parameters["license"]))
         {
@@ -235,7 +241,7 @@ class WikimediaPage
             foreach($matches as $match)
             {
                 //echo "$match[1]<br>";
-                while(preg_match("/(\{|\|)(cc-.*?|pd|pd-.*?|gfdl|gfdl-.*?|usaid|nih|copyrighted free use|creative commons.*?)(\}|\|)(.*)/msi", $match[1], $arr))
+                while(preg_match("/(\{|\|)(cc-.*?|pd|pd-.*?|gfdl|gfdl-.*?|usaid|nih|copyrighted free use|creative commons.*?|migration=.*?)(\}|\|)(.*)/msi", $match[1], $arr))
                 {
                     $licenses[] = trim($arr[2]);
                     $match[1] = $arr[3].$arr[4];

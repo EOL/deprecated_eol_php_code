@@ -400,7 +400,7 @@ class Resource extends MysqlBase
     public function validate()
     {
         $validation_result = SchemaValidator::validate($this->resource_path);
-        if($validation_result!="true")
+        if($validation_result!==true)
         {
             $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
             $this->mysqli->update("UPDATE resources SET notes='$error_string', resource_status_id=".ResourceStatus::insert("Processing Failed")." WHERE id=$this->id");

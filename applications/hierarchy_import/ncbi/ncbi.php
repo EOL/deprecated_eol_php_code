@@ -59,7 +59,8 @@ function get_names()
             }
             while(preg_match("/  /", $name)) $name = str_replace("  ", " ", $name);
             
-            $GLOBALS['names'][$tax_id][] = array('name' => $name, 'name_class' => $name_class);
+            //$GLOBALS['names'][$tax_id][] = array('name' => $name, 'name_class' => $name_class);
+            $GLOBALS['names'][$tax_id][$name_class][] = $name;
         }
     }
     fclose($FILE);
@@ -94,38 +95,39 @@ function get_nodes()
             // tax_id 1 is the node 'root`'. I think it make more sense to have several superkingdoms
             if($parent_tax_id == 1) $parent_tax_id = 0;
             
-            if(isset($GLOBALS['names'][$tax_id]))
+            if(isset($GLOBALS['names'][$tax_id]['valid']))
             {
                 // first loop and find all vernacular names
                 $vernacular_names = array();
-                foreach($GLOBALS['names'][$tax_id] as $name)
+                foreach($GLOBALS['names'][$tax_id] as $name_class => $array)
                 {
-                    if(in_array($name["name_class"], array("genbank common name", "common name")))
+                    if(in_array($name_class, array("genbank common name", "common name")))
                     {
-                        $vernacular_names['en'] = $name["name"];
+                        foreach($array as $name) $vernacular_names[] = $name;
                     }
                 }
                 
-                // loop again to write out all scientific names and synonyms
-                foreach($GLOBALS['names'][$tax_id] as $name)
+                $dwc_taxon = new DarwinCoreTaxon(array(
+                        "taxonID"           => $tax_id,
+                        "scientificName"    => $GLOBALS['names'][$tax_id]['valid'][0],
+                        "parentNameUsageID" => $parent_tax_id,
+                        "taxonRank"         => $rank,
+                        "taxonomicStatus"   => "valid",
+                        "vernacularNames"   => $vernacular_names));
+                fwrite($OUT, $dwc_taxon->__toXML());
+                
+                foreach($GLOBALS['names'][$tax_id] as $name_class => $array)
                 {
-                    if($name["name_class"] == "valid")
+                    if(!in_array($name_class, array("genbank common name", "common name", "valid")))
                     {
-                        $dwc_taxon = new DarwinCoreTaxon(array(
-                                "taxonID"           => $tax_id,
-                                "scientificName"    => $name["name"],
-                                "parentNameUsageID" => $parent_tax_id,
-                                "taxonRank"         => $rank,
-                                "taxonomicStatus"   => "valid",
-                                "vernacularNames"   => $vernacular_names));
-                        fwrite($OUT, $dwc_taxon->__toXML());
-                    }elseif(!in_array($name["name_class"], array("genbank common name", "common name")))
-                    {
-                        $dwc_taxon = new DarwinCoreTaxon(array(
-                                "scientificName"    => $name["name"],
-                                "parentNameUsageID" => $tax_id,
-                                "taxonomicStatus"   => $name["name_class"]));
-                        fwrite($OUT, $dwc_taxon->__toXML());
+                        foreach($array as $name)
+                        {
+                            $dwc_taxon = new DarwinCoreTaxon(array(
+                                    "scientificName"    => $name,
+                                    "parentNameUsageID" => $tax_id,
+                                    "taxonomicStatus"   => $name_class));
+                            fwrite($OUT, $dwc_taxon->__toXML());
+                        }
                     }
                 }
             }

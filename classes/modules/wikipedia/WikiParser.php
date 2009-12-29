@@ -49,6 +49,13 @@ class WikiParser
             $string = preg_replace("/".preg_quote($match, "/")."/", $replacement, $string);
         }
         
+        // <ref... />
+        while(preg_match("/(<ref[^>]*\/>)(.*)/ms", $string, $arr))
+        {
+            $match = $arr[1];
+            $string = preg_replace("/".preg_quote($match, "/")."/", "", $string);
+        }
+        
         // <ref...> ... </ref>
         while(preg_match("/(<ref[^>]*>.*?<\/ref>)(.*)/ms", $string, $arr))
         {
@@ -56,13 +63,6 @@ class WikiParser
             list($match, $junk) = self::balance_tags("<ref", "</ref>", $match, $arr[2]);
             $replacement = self::format_reference($match, $format);
             $string = preg_replace("/".preg_quote($match, "/")."/", $replacement, $string);
-        }
-        
-        // <ref... />
-        while(preg_match("/(<ref[^>]*\/>)(.*)/ms", $string, $arr))
-        {
-            $match = $arr[1];
-            $string = preg_replace("/".preg_quote($match, "/")."/", "", $string);
         }
         
         // <!-- ... -->

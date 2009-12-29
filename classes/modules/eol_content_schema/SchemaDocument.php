@@ -30,14 +30,21 @@ class SchemaDocument extends MysqlBase
         return $xml;
     }
     
-    public static function get_taxon_xml($taxa)
+    public static function get_taxon_xml($taxa, $FILE = null)
     {
-        $xml = self::xml_header();
+        if($FILE) fwrite($FILE, self::xml_header());
+        else $xml = self::xml_header();
+        
         foreach($taxa as $t)
         {
-            $xml .= $t->__toXML();
+            if($FILE) fwrite($FILE, $t->__toXML());
+            else $xml .= $t->__toXML();
         }
-        $xml .= self::xml_footer();
+        
+        if($FILE) fwrite($FILE, self::xml_footer());
+        else $xml .= self::xml_footer();
+        
+        if($FILE) return true;
         return $xml;
     }
 }

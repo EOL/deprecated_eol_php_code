@@ -2,7 +2,7 @@
 
 class SchemaValidator
 { 
-    public static function validate($uri, $is_eol_schema = true)
+    public static function validate($uri, $only_well_formedness = false)
     {
         if(!$uri) return false;
         // try to find the XSD and fail if it cannot
@@ -13,8 +13,11 @@ class SchemaValidator
         libxml_clear_errors();
         
         $reader = new XMLReader();
-        $reader->open($uri, 'utf-8');
-        $reader->setSchema($schema_location);
+        $reader->open($uri, 'utf8');
+        if(!$only_well_formedness)
+        {
+            if(@!$reader->setSchema($schema_location)) return array("The specified schema could not be loaded or contained errors");
+        }
         libxml_clear_errors();
         
         while(@$reader->read())

@@ -55,6 +55,7 @@ create_resource_file();
 // cleaning up downloaded files
 shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia/*");
 shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml");
+shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
 
 echo "end";
 
@@ -200,7 +201,7 @@ function create_resource_file()
     }
     
     $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", "w+");
-    fwrite($FILE, SchemaDocument::get_taxon_xml($all_taxa));
+    SchemaDocument::get_taxon_xml($all_taxa, $FILE);
     fclose($FILE);
 }
 
