@@ -6,7 +6,7 @@ rundate 2009 09 17: 8286031 | unique names 1535661
 rundate 2009 11 25: 8667699 | unique names 1572382
 */
 
-//define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32"); //comment if to put in BEAST
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../config/start.php");
