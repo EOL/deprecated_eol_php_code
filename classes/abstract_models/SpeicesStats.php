@@ -132,7 +132,7 @@ class SpeciesStats extends MysqlBase
         left join data_objects_table_of_contents dotoc on (do.id=dotoc.data_object_id) 
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=" . Vetted::find("trusted") . " OR tc.vetted_id=" . Vetted::find("unknown") . ") 
         and dohe.harvest_event_id IN (".implode(",", $temp_arr).")";        
-        $query .= " limit 100 ";    //for debug only
+        //$query .= " limit 100 ";    //for debug only
         
 
         $taxa_published['vetted']    =array();    //PL added item
@@ -308,7 +308,7 @@ class SpeciesStats extends MysqlBase
         taxon_concepts  left join hierarchy_entries he on (taxon_concepts.id=he.taxon_concept_id and he.hierarchy_id=".Hierarchy::col_2009().")
         Where taxon_concepts.published = 1 AND
         taxon_concepts.supercedure_id = 0 ";
-        $query .= " limit 100 ";    //for debug only
+        //$query .= " limit 100 ";    //for debug only
 
         $result = $this->mysqli->query($query);
 
@@ -485,7 +485,7 @@ class SpeciesStats extends MysqlBase
         $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
         STRAIGHT_JOIN mappings m on (tcn.name_id=m.name_id)
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find("trusted")." OR tc.vetted_id=" . Vetted::find("unknown") . ") ";
-        $query .= " limit 100 ";    //for debug only
+        //$query .= " limit 100 ";    //for debug only
         
         $result2 = $this->mysqli->query($query);    //4
         while($result2 && $row2=$result2->fetch_assoc())
@@ -499,7 +499,7 @@ class SpeciesStats extends MysqlBase
         $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
         STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id)
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find("trusted")." OR tc.vetted_id=" . Vetted::find("unknown") . ") ";
-        $query .= " limit 100 ";    //for debug only
+        //$query .= " limit 100 ";    //for debug only
         
         $result = $this->mysqli->query($query);    //3
         while($result && $row=$result->fetch_assoc())
@@ -573,7 +573,7 @@ class SpeciesStats extends MysqlBase
         $query=" Select Max(harvest_events.id) as max
         From resources Inner Join harvest_events ON resources.id = harvest_events.resource_id
         Group By resources.id Order By max ";
-        $query .= " limit 100 ";//debug
+        //$query .= " limit 100 ";//debug
         
         $result = $this->mysqli->query($query);    
         $temp_arr=array();
@@ -616,7 +616,7 @@ class SpeciesStats extends MysqlBase
         From (data_objects AS do)
         Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id)
         Where do.published = 1 ";        
-        $query .= " limit 100 ";//debug
+        //$query .= " limit 100 ";//debug
         
         $result = $this->mysqli->query($query);
 
@@ -766,7 +766,7 @@ class SpeciesStats extends MysqlBase
         $query = "Select distinct do.id, do.data_type_id, do.vetted_id, dotoc.toc_id AS toc_id, do.visibility_id 
         From (data_objects AS do) Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id) 
         Where do.published = 1 "; 
-        $query .= " limit 100,100 "; //debug only
+        //$query .= " limit 100,100 "; //debug only
         $result = $this->mysqli->query($query);        
         while($result && $row=$result->fetch_assoc())
         {
