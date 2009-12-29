@@ -8,11 +8,18 @@ class SpeciesStats extends MysqlBase
     }    
     public function taxa_stat($taxon_concept_ids,$limit,$group)    //group 1=taxa stat; 2=data object stat
     {   /*
-        Number of taxa with at least one vetted data object in only one category (in COL):      33228
-        Number of taxa with at least one vetted data object in only one category (not in COL, i.e. includes Flickr):     44635
-        Number of taxa with at least one vetted data object in more than one category (in COL):     59274
-        Number of taxa with at least one vetted data object in more than one category (not in COL, i.e. includes Flickr):     41464
+        Number of taxa with at least one vetted data object in only one category (in COL):      
+        Number of taxa with at least one vetted data object in only one category (not in COL, i.e. includes Flickr):     
+        Number of taxa with at least one vetted data object in more than one category (in COL):     
+        Number of taxa with at least one vetted data object in more than one category (not in COL, i.e. includes Flickr):    
         */        
+        
+        /*
+        $test = DataType::find("http://purl.org/dc/dcmitype/StillImage"); print"[$test]";
+        $test = DataType::insert("http://purl.org/dc/dcmitype/StillImage"); print"[$test]";
+        exit;        
+        */
+        
         //initialize group 1
         $taxa_text=0;
         $taxa_images=0;
@@ -40,10 +47,16 @@ class SpeciesStats extends MysqlBase
         $a_taxa_with_text="";
 
     
+    
+   
+    
         //start main body ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $image_type_id = DataType::insert("http://purl.org/dc/dcmitype/StillImage");
         $text_type_id  = DataType::insert("http://purl.org/dc/dcmitype/Text");
-        $trusted_id  = Vetted::find("trusted");
+        //$trusted_id  = Vetted::find("trusted"); //5
+        //$unknown_id  = Vetted::find("unknown"); //0
+        //$untrusted_id  = Vetted::find("untrusted"); //4
+        
 
 
         $in_col = array();
@@ -117,9 +130,9 @@ class SpeciesStats extends MysqlBase
         join data_objects do on (dot.data_object_id=do.id)
         join data_objects_harvest_events dohe on (do.id=dohe.data_object_id)) 
         left join data_objects_table_of_contents dotoc on (do.id=dotoc.data_object_id) 
-        where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=$trusted_id OR tc.vetted_id=0) 
+        where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=" . Vetted::find("trusted") . " OR tc.vetted_id=" . Vetted::find("unknown") . ") 
         and dohe.harvest_event_id IN (".implode(",", $temp_arr).")";        
-        //$query .= " limit 1 ";    //for debug only
+        $query .= " limit 100 ";    //for debug only
         
 
         $taxa_published['vetted']    =array();    //PL added item
@@ -136,7 +149,7 @@ class SpeciesStats extends MysqlBase
             $toc_id = $row["toc_id"];
 
             //PL request start
-            if($row["tc_vetted_id"] == $trusted_id)    { $taxa_published['vetted'][$id] = true; }
+            if($row["tc_vetted_id"] == Vetted::find("trusted")) { $taxa_published['vetted'][$id] = true; }
             else                                    { $taxa_published['unvetted'][$id] = true; }
             //PL request end
 
@@ -145,7 +158,7 @@ class SpeciesStats extends MysqlBase
             if($row["in_col"])     
             {
                 if    (    ($row["data_type_id"] == $text_type_id && $toc_id or $row["data_type_id"] == $image_type_id)    and
-                        $row["vetted_id"] != Vetted::find('Untrusted')
+                        $row["vetted_id"] != Vetted::find("untrusted")
                     )
                         {$total_taxa['in col']['with object'][$id]=true;}
                 else    {$total_taxa['in col']['without object'][$id]=true;}
@@ -153,7 +166,7 @@ class SpeciesStats extends MysqlBase
                else                 
             {
                 if    (    ($row["data_type_id"] == $text_type_id && $toc_id or $row["data_type_id"] == $image_type_id)    and
-                        $row["vetted_id"] != Vetted::find('Untrusted')
+                        $row["vetted_id"] != Vetted::find("untrusted")
                     )
                         {$total_taxa['not in col']['with object'][$id]=true;}
                 else    {$total_taxa['not in col']['without object'][$id]=true;}
@@ -169,8 +182,8 @@ class SpeciesStats extends MysqlBase
                     else                 {$in_col[$id] = false;}
             
                     $taxa_with_text[$id] = true;
-                       if($row["vetted_id"] == $trusted_id){$number_of_data_objects['vetted']['text'][$id][$toc_id] = true;}
-                    else                                {$number_of_data_objects['unvetted']['text'][$id][$toc_id] = true;}
+                       if($row["vetted_id"] == Vetted::find("trusted")){$number_of_data_objects['vetted']['text'][$id][$toc_id] = true;}
+                    else                                   {$number_of_data_objects['unvetted']['text'][$id][$toc_id] = true;}
                 }
                 elseif($row["data_type_id"] == $image_type_id) 
                 {
@@ -179,7 +192,7 @@ class SpeciesStats extends MysqlBase
                     else                 {$in_col[$id] = false;}
         
                     $taxa_with_images[$id] = true;
-                       if($row["vetted_id"] == $trusted_id)    {$number_of_data_objects['vetted']['image'][$id] = true;}
+                       if($row["vetted_id"] == Vetted::find("trusted")) {$number_of_data_objects['vetted']['image'][$id] = true;}
                     else                                    {$number_of_data_objects['unvetted']['image'][$id] = true;}
             
                 }
@@ -198,11 +211,10 @@ class SpeciesStats extends MysqlBase
                         $row["data_type_id"] == $image_type_id        
                     )
                 {
-                    //print" [$id] $row[data_type_id] $row[vetted_id] $row[visibility_id] <br> ";
-                    if( $row["vetted_id"] == 0 and $row["visibility_id"] == 1)     
+                    if( $row["vetted_id"] == Vetted::find("unknown") and $row["visibility_id"] == Visibility::find("visible"))     
                     {        
-                        if($row["in_col"])    {$taxa_only_vetted_unknown_published_visible_inCol[$id]=true;}
-                        else                {$taxa_only_vetted_unknown_published_visible_not_inCol[$id]=true;}
+                        if($row["in_col"]) {$taxa_only_vetted_unknown_published_visible_inCol[$id]=true;}
+                        else               {$taxa_only_vetted_unknown_published_visible_not_inCol[$id]=true;}
                     }
                     else
                     {
@@ -219,10 +231,10 @@ class SpeciesStats extends MysqlBase
                         $row["data_type_id"] == $image_type_id        
                     )
                 {
-                    if($row["vetted_id"] == $trusted_id)
+                    if($row["vetted_id"] == Vetted::find("trusted"))
                     {
                         //start new - to check if data_object is in the latest harvest
-                        if($row["visibility_id"] == 2)    // anomaly: there are objects with published=0 even when the rest of the objects for that resource is already published
+                        if($row["visibility_id"] == Visibility::find("preview"))    // anomaly: there are objects with published=0 even when the rest of the objects for that resource is already published
                         {
                             $taxa_vetted_not_published[$id] = 1;    //Approved pages awaiting publication    //taxa with at least one 'vetted=trusted' 'published=false' 
                         }
@@ -296,7 +308,7 @@ class SpeciesStats extends MysqlBase
         taxon_concepts  left join hierarchy_entries he on (taxon_concepts.id=he.taxon_concept_id and he.hierarchy_id=".Hierarchy::col_2009().")
         Where taxon_concepts.published = 1 AND
         taxon_concepts.supercedure_id = 0 ";
-        //$query .= " limit 1 ";    //for debug only
+        $query .= " limit 100 ";    //for debug only
 
         $result = $this->mysqli->query($query);
 
@@ -381,11 +393,11 @@ class SpeciesStats extends MysqlBase
         $date_created = date('Y-m-d');
         $time_created = date('H:i:s');
 
-            $qry = " insert into page_stats_taxa(    
-           taxa_count
+         $qry = " insert into page_stats_taxa(    
+            taxa_count
          ,  taxa_text 
          ,  taxa_images 
-        ,  taxa_text_images 
+         ,  taxa_text_images 
          ,  taxa_BHL_no_text 
          ,  taxa_links_no_text 
          ,  taxa_images_no_text 
@@ -402,18 +414,17 @@ class SpeciesStats extends MysqlBase
          ,  vetted_unknown_published_visible_inCol 
          ,  vetted_unknown_published_visible_notinCol 
     
-        , pages_incol
-        , pages_not_incol
+         , pages_incol
+         , pages_not_incol
 
          ,  no_vet_obj2 
-        ,  a_taxa_with_text
+         ,  a_taxa_with_text
 
-        , date_created,time_created,active
+         , date_created,time_created,active
 
-        , a_vetted_not_published
-        , a_vetted_unknown_published_visible_inCol     
-        , a_vetted_unknown_published_visible_notinCol
-
+         , a_vetted_not_published
+         , a_vetted_unknown_published_visible_inCol     
+         , a_vetted_unknown_published_visible_notinCol
         )
 
         select     
@@ -473,8 +484,8 @@ class SpeciesStats extends MysqlBase
         $taxa_with_links = array();
         $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
         STRAIGHT_JOIN mappings m on (tcn.name_id=m.name_id)
-        where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find('Trusted')." OR tc.vetted_id=0) ";
-        //$query .= " limit 1 ";    //for debug only
+        where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find("trusted")." OR tc.vetted_id=" . Vetted::find("unknown") . ") ";
+        $query .= " limit 100 ";    //for debug only
         
         $result2 = $this->mysqli->query($query);    //4
         while($result2 && $row2=$result2->fetch_assoc())
@@ -487,8 +498,8 @@ class SpeciesStats extends MysqlBase
         $taxa_in_bhl = array();
         $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
         STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id)
-        where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find('Trusted')." OR tc.vetted_id=0) ";
-        //$query .= " limit 1 ";    //for debug only
+        where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=".Vetted::find("trusted")." OR tc.vetted_id=" . Vetted::find("unknown") . ") ";
+        $query .= " limit 100 ";    //for debug only
         
         $result = $this->mysqli->query($query);    //3
         while($result && $row=$result->fetch_assoc())
@@ -562,7 +573,7 @@ class SpeciesStats extends MysqlBase
         $query=" Select Max(harvest_events.id) as max
         From resources Inner Join harvest_events ON resources.id = harvest_events.resource_id
         Group By resources.id Order By max ";
-        //$query .= " limit 1";//debug
+        $query .= " limit 100 ";//debug
         
         $result = $this->mysqli->query($query);    
         $temp_arr=array();
@@ -583,7 +594,6 @@ class SpeciesStats extends MysqlBase
         //start main body ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $image_type_id = DataType::insert("http://purl.org/dc/dcmitype/StillImage");
         $text_type_id  = DataType::insert("http://purl.org/dc/dcmitype/Text");
-        $trusted_id  = Vetted::find('Trusted');
         
         $number_of_data_objects = array();
         $number_of_data_objects['vetted']['image'] = array();
@@ -606,7 +616,7 @@ class SpeciesStats extends MysqlBase
         From (data_objects AS do)
         Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id)
         Where do.published = 1 ";        
-        //$query .= " limit 1";//debug
+        $query .= " limit 100 ";//debug
         
         $result = $this->mysqli->query($query);
 
@@ -615,27 +625,25 @@ class SpeciesStats extends MysqlBase
         while($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];    
-            $toc_id = $row["toc_id"];    
-            
+            $toc_id = $row["toc_id"];                
             
             if  (   in_array($row["data_type_id"], array(1,2,3,4,5,6,7,8))  and
-                    in_array($row["vetted_id"], array(0,4,5))  
+                    in_array($row["vetted_id"], array(Vetted::find("unknown"),Vetted::find("untrusted"),Vetted::find("trusted")))  
                 )   $do_count[$id] = 1;
-                                
             
             if($row["data_type_id"] == $text_type_id && $toc_id ||
                $row["data_type_id"] == $image_type_id)
             {
                 //start for do stat    
-                if($row["vetted_id"] == 0)    //unknown
+                if($row["vetted_id"] == Vetted::find("unknown"))    //unknown
                 {
-                    if        ($row["visibility_id"] == 1) $number_of_data_objects['unknown']['visib1'][$id] = true;
-                    elseif    ($row["visibility_id"] == '0') $number_of_data_objects['unknown']['visib0'][$id] = true;
+                    if        ($row["visibility_id"] == Visibility::find("visible"))   $number_of_data_objects['unknown']['visib1'][$id] = true;
+                    elseif    ($row["visibility_id"] == Visibility::find("invisible")) $number_of_data_objects['unknown']['visib0'][$id] = true;
                 }
-                elseif($row["vetted_id"] == 4)    //untrusted
+                elseif($row["vetted_id"] == Vetted::find("untrusted"))    //untrusted
                 {
-                    if        ($row["visibility_id"] == 1) $number_of_data_objects['untrusted']['visib1'][$id] = true;
-                    elseif    ($row["visibility_id"] == '0') $number_of_data_objects['untrusted']['visib0'][$id] = true;
+                    if        ($row["visibility_id"] == Visibility::find("visible")) $number_of_data_objects['untrusted']['visib1'][$id] = true;
+                    elseif    ($row["visibility_id"] == Visibility::find("invisible")) $number_of_data_objects['untrusted']['visib0'][$id] = true;
                 }//end for do stat
             }
         }//end while
@@ -682,8 +690,7 @@ class SpeciesStats extends MysqlBase
         $date_created = date('Y-m-d');
         $time_created = date('H:i:s');
         
-        $qry = " insert into page_stats_dataobjects(    
-    
+        $qry = " insert into page_stats_dataobjects(        
         taxa_count,
         vetted_unknown_published_visible_uniqueGuid         ,
         vetted_untrusted_published_visible_uniqueGuid         ,
@@ -713,8 +720,7 @@ class SpeciesStats extends MysqlBase
         '$a_vetted_unknown_published_notVisible_uniqueGuid'     ,
         '$a_vetted_untrusted_published_notVisible_uniqueGuid'   ,
         $user_submitted_text                       
-        ";        
-    
+        ";            
         $update = $this->mysqli->query($qry);    //1
             //end save
     
@@ -741,12 +747,11 @@ class SpeciesStats extends MysqlBase
         5 => "GBIF Image" , 
         6 => "IUCN"       , 
         7 => "Flash"      , 
-        8 => "YouTube"    
-        );
+        8 => "YouTube"    );
         $vetted_type = array( 
-        1 => array( "id" => "0"   , "label" => "Unknown"),
-        2 => array( "id" => "4"   , "label" => "Untrusted"),
-        3 => array( "id" => "5"   , "label" => "Trusted")
+        1 => array( "id" => Vetted::find("unknown")   , "label" => "Unknown"),      
+        2 => array( "id" => Vetted::find("untrusted") , "label" => "Untrusted"),    
+        3 => array( "id" => Vetted::find("trusted")   , "label" => "Trusted")       
         );                    
         //initialize
         for ($i = 1; $i <= count($data_type); $i++) 
@@ -761,7 +766,7 @@ class SpeciesStats extends MysqlBase
         $query = "Select distinct do.id, do.data_type_id, do.vetted_id, dotoc.toc_id AS toc_id, do.visibility_id 
         From (data_objects AS do) Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id) 
         Where do.published = 1 "; 
-        //$query .= " limit 100,10 "; //debug only
+        $query .= " limit 100,100 "; //debug only
         $result = $this->mysqli->query($query);        
         while($result && $row=$result->fetch_assoc())
         {
@@ -790,12 +795,18 @@ class SpeciesStats extends MysqlBase
         $result = $this->mysqli->query($query);
         $row = $result->fetch_row();			
         $latest_event_id   = $row[0];                
-        $result->close();        
-        $query = "Select Count(data_objects_harvest_events.data_object_id) From data_objects_harvest_events Where data_objects_harvest_events.harvest_event_id = $latest_event_id";
-        $result = $this->mysqli->query($query);
-        $row = $result->fetch_row();			
-        $param[] = $row[0];                
-        $result->close();        
+        $result->close();                
+
+        if($latest_event_id)        
+        {
+            $query = "Select Count(data_objects_harvest_events.data_object_id) From data_objects_harvest_events Where data_objects_harvest_events.harvest_event_id = $latest_event_id";
+            print"<hr>[$query]<hr>";
+            $result = $this->mysqli->query($query);
+            $row = $result->fetch_row();			
+            $param[] = $row[0];                
+            $result->close();        
+        }
+        else $param[] = '';
         //end Flickr count                      
         
         //start user submitted do
@@ -915,7 +926,7 @@ class SpeciesStats extends MysqlBase
         Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
         Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
         Where harvest_events_taxa.harvest_event_id = $harvest_event_id
-        and taxon_concepts.vetted_id in(5) and taxon_concepts.supercedure_id=0
+        and taxon_concepts.vetted_id = " . Vetted::find("trusted") . " and taxon_concepts.supercedure_id=0
         ";    
         //and taxon_concepts.published=1 
         //hpogymnia needs in(5,0)
