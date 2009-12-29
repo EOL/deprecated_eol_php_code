@@ -800,7 +800,7 @@ class SpeciesStats extends MysqlBase
         if($latest_event_id)        
         {
             $query = "Select Count(data_objects_harvest_events.data_object_id) From data_objects_harvest_events Where data_objects_harvest_events.harvest_event_id = $latest_event_id";
-            print"<hr>[$query]<hr>";
+            //print"<hr>[$query]<hr>";
             $result = $this->mysqli->query($query);
             $row = $result->fetch_row();			
             $param[] = $row[0];                
