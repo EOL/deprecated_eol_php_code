@@ -1,10 +1,8 @@
 <?php
 
-//define("ENVIRONMENT", "integration");		//where stats are stored
-//define("ENVIRONMENT", "slave_32");     //where stats are stored
-//define("ENVIRONMENT", "data_main");		//where stats are stored
-
-//exit("stops...");
+//define("ENVIRONMENT", "integration");	//where stats are stored
+//define("ENVIRONMENT", "slave_32");    //where stats are stored
+//define("ENVIRONMENT", "data_main");	//where stats are stored
 
 print"<table style='font-family : Arial; font-size : x-small;'><tr><td>";
 
@@ -99,8 +97,8 @@ if($what == 'resources')
 	{
 		$qry .= "		
 		and data_objects.published = 0					
-		and data_objects.vetted_id = 5					    		
-		and data_objects.visibility_id = 2 				
+		and data_objects.vetted_id = " . Vetted::find("trusted") . "
+		and data_objects.visibility_id = " . Visibility::find('preview') . " 				
 		";							
 		print "Resources with un-published but vetted data objects <br> <br>";		
 	}
@@ -109,9 +107,9 @@ if($what == 'resources')
 			)
 	{
 		$qry .= "
-		and data_objects.vetted_id = 0			
+		and data_objects.vetted_id = " . Vetted::find("unknown") . "			
 		and data_objects.published = 1			
-		and data_objects.visibility_id = 1 		
+		and data_objects.visibility_id = " . Visibility::find('visible') . "
 		";	
 				
 		if	  ($label == "Pages with CoL names with content that requires curation")		print "Resources with content that requires curation with Col names <br> <br>";		
@@ -324,10 +322,6 @@ while( $row = $sql->fetch_assoc() )
 				Where data_objects_taxa.data_object_id = $arr[$i]
 				AND taxon_concepts.supercedure_id = 0 
 				";
-                /*
-                and taxon_concepts.published = 1 
-                and taxon_concepts.vetted_id IN (5,0)				
-                */
                 
 								
 				//print "<hr>$qry<hr>";		
@@ -469,11 +463,7 @@ while( $row = $sql->fetch_assoc() )
 
         			Where 
                     taxon_concepts.id = $arr[$i] 
-        			and harvest_events.id IN (".implode(",", $temp_arr).") ";
-                    
-                    /*
-                    and taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id IN (5,0)
-                    */
+        			and harvest_events.id IN (".implode(",", $temp_arr).") ";                    
                     
 
 /*				
@@ -490,9 +480,9 @@ while( $row = $sql->fetch_assoc() )
 	        		if($label == "Approved pages awaiting publication")
 			        {
         				$qry .= "
-        				and data_objects.vetted_id = 5			
+        				and data_objects.vetted_id = " . Vetted::find("trusted") . "			
         				and data_objects.published = 0							
-        				and data_objects.visibility_id = 2 		
+        				and data_objects.visibility_id = " . Visibility::find('preview') . "
         				";											
 		        	}
         			elseif	(	$label == "Pages with CoL names with content that requires curation" 		or 
@@ -500,9 +490,9 @@ while( $row = $sql->fetch_assoc() )
         					)
         			{
         				$qry .= "
-        				and data_objects.vetted_id = 0			
+        				and data_objects.vetted_id = " . Vetted::find("unknown") . "
         				and data_objects.published = 1			
-        				and data_objects.visibility_id = 1 		
+        				and data_objects.visibility_id = " . Visibility::find('visible') . "
         				";	
         			}
 
@@ -643,7 +633,7 @@ function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- u
 	Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
 	Inner Join data_types ON data_objects.data_type_id = data_types.id
 	Where taxon_concepts.id = $tc_id and
-	data_objects.data_type_id not in (5,6) and data_objects.vetted_id <> 0 ";
+	data_objects.data_type_id not in (5,6) and data_objects.vetted_id <> " . Vetted::find("unknown");
 	
 	$sql = $mysqli->query($qry);	
 	$first = $sql->num_rows;	//if > 0 then it has vetted records
@@ -687,19 +677,6 @@ function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- u
 	
 }//end func
 
-/*
-for the list of resources names
-Select distinct resources.title , resources.id
-From taxon_concept_names Left Join names ON taxon_concept_names.name_id = names.id Left Join taxa ON names.id = taxa.name_id 
-Left Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id Left Join data_objects ON data_objects_taxa.data_object_id = data_objects.id 
-Left Join data_types ON data_objects.data_type_id = data_types.id Left Join mime_types ON data_objects.mime_type_id = mime_types.id 
-Left Join vetted ON data_objects.vetted_id = vetted.id Left Join visibilities ON data_objects.visibility_id = visibilities.id 
-Inner Join data_objects_harvest_events ON data_objects_harvest_events.data_object_id = data_objects.id 
-Inner Join harvest_events ON data_objects_harvest_events.harvest_event_id = harvest_events.id 
-Inner Join resources ON harvest_events.resource_id = resources.id 
-Where data_objects.published = 0 and data_objects.vetted_id = 5 and 
-harvest_events.id IN (1,2,3,4,6,8,9,11,12,13,21,44,74,75,200,211,212,215,226,234,235,244,247,248,250,252,253,254,255) 
-*/
 
 ?>
 

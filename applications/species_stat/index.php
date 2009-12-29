@@ -5,7 +5,7 @@
 //define("ENVIRONMENT", "development");				//where stats are stored
 //define("ENVIRONMENT", "data_main");				//where stats are stored
 
-define("DEBUG", false);
+define("DEBUG", true);
 define("MYSQL_DEBUG", false);
 define("DEBUG_TO_FILE", false);
 
