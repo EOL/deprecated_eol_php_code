@@ -33,7 +33,11 @@ elseif    ($view==3)    {print"View:&nbsp; <a href='display.php?view=1'>Latest</
 print" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href='saved_stats.csv'>Download historical data as CSV</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href='../species_stat_marine/display.php'>Marine Stats &gt;&gt;</a>";
+<a href='../species_stat_marine/display.php'>Marine Stats &gt;&gt;</a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a target='cps' href='../partner_stat/index.php'>Content Partner Stats &gt;&gt;</a>";
+
 
 print"</font>
 </td></tr>
