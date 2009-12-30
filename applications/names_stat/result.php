@@ -4,7 +4,7 @@
 
 
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 //define("MYSQL_DEBUG", true);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -192,7 +192,7 @@ for ($i = 0; $i < count($arr); $i++)
 	Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id
 	where n.$fld='$string'
 	and taxon_concepts.published = 1
-	and taxon_concepts.vetted_id = 5	
+	and taxon_concepts.vetted_id = " . Vetted::find("trusted") . "
 	and taxon_concepts.supercedure_id = 0
 	Order By id Asc	";
 	// */
@@ -207,7 +207,7 @@ for ($i = 0; $i < count($arr); $i++)
 	where clean_names.clean_name ='$string'			
 	Order By id Asc	";
 	//and tc.published = 1
-	//and tc.vetted_id = 5	
+	//and tc.vetted_id = " . Vetted::find("trusted") . "
 	//and taxon_concepts.supercedure_id = 0
 	*/
 	
@@ -344,7 +344,7 @@ function found_in_COL($id)	//id = taxon_concepts!id
 	Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
 	Where
 	hierarchy_entries.taxon_concept_id = $id
-	and hierarchy_entries.hierarchy_id = 147";
+	and hierarchy_entries.hierarchy_id = " . Hierarchy::col_2009() . "";
 	
 	$sql2 = $mysqli->query($qry);
 	
@@ -399,10 +399,10 @@ function proc_tc_id($id)
 	inner join data_objects do on (dot.data_object_id=do.id)
 	where
 	tc.id=$id
-	and do.visibility_id	= 1	
+	and do.visibility_id	= " . Visibility::find("visible") . "
 	and tc.published 		= 1
 	and do.published	= 1	
-	and do.data_type_id in (1,3)
+	and do.data_type_id in (" . DataType::find("http://purl.org/dc/dcmitype/Text") . "," . DataType::find("http://purl.org/dc/dcmitype/StillImage") . "," . DataType::find("http://purl.org/dc/dcmitype/MovingImage") . ")
 	order by do.data_type_id
 	";		
 
