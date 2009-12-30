@@ -39,7 +39,7 @@ if($month == "")
 
 }
 
-if($month == "" or $year == "" or $year < 1998 or $month < 1)
+if($month == "" or $year == "" or $year < 2008 or $year > date('Y') or $month < 1 or $month > 12)
 {
     print"\n Invalid parameters  \n
     e.g. for July 2009 enter: \n
@@ -49,16 +49,16 @@ if($month == "" or $year == "" or $year < 1998 or $month < 1)
 
 $month = GetNumMonthAsString($month, $year);
 $year_month = $year . "_" . $month; //$year_month = "2009_04";
-//exit("\n $year_month");
-//$google_analytics_page_stat = "google_analytics_page_stat_" . $year . "_" . $month;
 $google_analytics_page_stat = "google_analytics_page_stat";
 
-//initialize_tables_4dmonth($year_month); 
+
 initialize_tables_4dmonth($year,$month); 
-exit(); //debug - uncomment to see if current month entries are deleted from the tables
+//exit(); //debug - uncomment to see if current month entries are deleted from the tables
 
 $temp = get_from_api($month,$year); //start1
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
+//$temp = monthly_summary($year_month); //start3
+
 
 echo"\n\n Processing done. --end-- ";    
 exit;
@@ -75,7 +75,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     $query="Select distinct agents.id From agents
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
-    Where harvest_events.published_at is not null order by agents.full_name "; 
+    Where harvest_events.published_at is not null "; 
+    $query .= " and agents.id = 2 "; //debug
+    $query .= " order by agents.full_name ";
     //this query now only gets partners with a published data on the time the report was run.
     $query .= " limit 5 "; //debug
     $result = $mysqli->query($query);    
@@ -92,25 +94,15 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     {
         $i++;
         echo"agent id = $row[id] $i of $num_rows \n";
-        /* legacy version
-        $query = "SELECT DISTINCT a.full_name, tcn.taxon_concept_id 
-        FROM agents a
-        JOIN agents_resources ar ON (a.id=ar.agent_id)
-        JOIN harvest_events he ON (ar.resource_id=he.resource_id)
-        JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id)
-        JOIN taxa t ON (het.taxon_id=t.id)
-        JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
-        WHERE a.id = $row[id] ";
-        */
-        /* new Sep21, as suggested by PL */
         $query = "SELECT DISTINCT a.id, a.full_name, he.taxon_concept_id 
-        FROM agents a
-        JOIN agents_resources ar ON (a.id=ar.agent_id)
-        JOIN harvest_events hev ON (ar.resource_id=hev.resource_id)
-        JOIN harvest_events_taxa het ON (hev.id=het.harvest_event_id)
-        JOIN taxa t ON (het.taxon_id=t.id)
-        join hierarchy_entries he on t.hierarchy_entry_id = he.id
-        join taxon_concepts tc on he.taxon_concept_id = tc.id
+        FROM agents a 
+        JOIN agents_resources ar ON (a.id=ar.agent_id) 
+        JOIN harvest_events hev ON (ar.resource_id=hev.resource_id) 
+        JOIN harvest_events_taxa het ON (hev.id=het.harvest_event_id) 
+        JOIN taxa t ON (het.taxon_id=t.id) 
+        join hierarchy_entries he on t.hierarchy_entry_id = he.id 
+        join taxon_concepts tc on he.taxon_concept_id = tc.id         
+        Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id
         WHERE a.id = $row[id] and tc.published = 1 and tc.supercedure_id = 0 ";        
         $query .= " limit 50 "; //debug 
 
@@ -145,9 +137,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     
     echo"\n start BHL stats...\n";    
     //before 'BHL'
-    $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id from taxon_concepts tc 
-    STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-    STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id) 
+    $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
+    from taxon_concepts tc inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
+    Inner Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id        
     where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");
     $query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
@@ -169,8 +161,10 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     
     echo"\n start COL stats...\n";    
     //before 'COL 2009'
-    $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id from 
-    taxon_concepts tc STRAIGHT_JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
+    $query = "
+    select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id     
+    from taxon_concepts tc inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
+    Inner Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id
     where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
     and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
     where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
@@ -184,8 +178,6 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
     //end COL 2009
     //==============================================================================================
-
-
     //=================================================================
     //query 4,5
     /* not needed anymore
@@ -245,6 +237,9 @@ function get_from_api($month,$year)
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
     
+    print"\n start day = $start_date \n end day = $end_date \n";
+    
+    
     $final = array();
     
     require_once(LOCAL_ROOT . '/classes/modules/Google_Analytics_API_PHP/analytics_api.php');
@@ -271,7 +266,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=100; //debug
+        //$range=100; //debug
         
         mkdir("data/" . $year . "_" . $month , 0700);        
         mkdir("data/" . $year . "_" . $month . "/temp", 0700);        
@@ -293,7 +288,7 @@ function get_from_api($month,$year)
             print "no. of records = " . count($data) . "\n";            
             
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ $continue=false;
+            //$continue=false; //debug - use to force-stop loop
             
             foreach($data as $metric => $count) 
             {
@@ -459,9 +454,7 @@ function initialize_tables_4dmonth($year,$month)
 {	global $mysqli2;    
     //$month=intval($month);
     $query="delete from `google_analytics_page_stat`       where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
-    print"<hr>$query<hr>";
     $query="delete from `google_analytics_agent_page_stat` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		    
-    print"<hr>$query<hr>";
 }//function initialize_tables_4dmonth()
 
 function get_val_var($v)
