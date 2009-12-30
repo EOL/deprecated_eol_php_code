@@ -106,7 +106,7 @@ function get_stats($names,$marine_pages)
     JOIN taxon_concept_names tcn ON (n.id=tcn.name_id) 
     JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE n.string     
     IN ('".implode("','", $names)."')     
-    AND tc.published=1 AND tc.supercedure_id=0 AND tc.vetted_id IN (5)");
+    AND tc.published=1 AND tc.supercedure_id=0 AND tc.vetted_id IN (" . Vetted::find("trusted") . ")");
     /* in (5,0) */
     while($result && $row=$result->fetch_assoc())
     {
@@ -123,7 +123,7 @@ function get_eol_pages_with_bhl_links()
     $taxa_in_bhl = array();
     $query = "select distinct tc.id taxon_concept_id from taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
     STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id)
-    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id IN (5,0) 
+    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
 	";
     //$query .= " limit 1 ";    //for debug only
         
@@ -175,7 +175,7 @@ function get_eol_pages_with_do()
     join data_objects do on (dot.data_object_id=do.id)
     join data_objects_harvest_events dohe on (do.id=dohe.data_object_id)) 
     left join data_objects_table_of_contents dotoc on (do.id=dotoc.data_object_id) 
-    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id in(5,0)
+    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
 	
 	
     and dohe.harvest_event_id IN (".implode(",", $temp_arr).")";        
@@ -235,7 +235,7 @@ function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
     Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
     Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
     Where harvest_events_taxa.harvest_event_id = $harvest_event_id
-    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and taxon_concepts.vetted_id in(5,0)    
+    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
     ";
     //$query .= " limit 10"; for debug
     
@@ -263,7 +263,7 @@ function get_barcoded_pages()
     Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
     Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
     Where harvest_events_taxa.harvest_event_id = '949'
-    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and taxon_concepts.vetted_id in(5,0)    
+    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
     ";
     
     $result = $mysqli->query($query);                
@@ -290,7 +290,7 @@ function get_all_pages()
     $all_pages          = array();
     $query = "Select taxon_concepts.id, he.id as in_col From 
     taxon_concepts  left join hierarchy_entries he on (taxon_concepts.id=he.taxon_concept_id and he.hierarchy_id=".Hierarchy::col_2009().")
-    Where taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id IN (5,0)
+    Where taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
 	";
     //$query .= " limit 1 ";    //for debug only
 
