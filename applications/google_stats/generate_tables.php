@@ -7,7 +7,7 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $mysqli2 = load_mysql_environment('eol_statistics');        
-$mysqli2 = load_mysql_environment('development'); //to be used when developing
+$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
         
 set_time_limit(0);
 
@@ -17,7 +17,6 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
-
 
 $month = get_val_var("month");
 $year = get_val_var("year");
@@ -36,36 +35,33 @@ if($month == "")
     year = $year    \n
     ";
 
-    if($month != "" and $year != "")
-    {
-        print"Processing, please wait...  \n\n ";
-    }
+    if($month != "" and $year != "") print"Processing, please wait...  \n\n ";
+
 }
 
-if($month == "" or $year == "")
+if($month == "" or $year == "" or $year < 1998 or $month < 1)
 {
-    print"\n\n
-    Invalid parameters  \n
+    print"\n Invalid parameters  \n
     e.g. for July 2009 enter: \n
-    \t php generate_tables.php 7 2009  
-    ";
+    \t php generate_tables.php 7 2009 \n\n ";
     exit();
 }
 
-//exit("finish test");
-
 $month = GetNumMonthAsString($month, $year);
-
-$year_month = $year . "_" . $month;
-//$year_month = "2009_04";
+$year_month = $year . "_" . $month; //$year_month = "2009_04";
+//exit("\n $year_month");
 //$google_analytics_page_stat = "google_analytics_page_stat_" . $year . "_" . $month;
 $google_analytics_page_stat = "google_analytics_page_stat";
 
-initialize_tables_4dmonth($year_month); 
-//exit(); //debug - uncomment to see if current month entries are deleted from the tables
+//initialize_tables_4dmonth($year_month); 
+initialize_tables_4dmonth($year,$month); 
+exit(); //debug - uncomment to see if current month entries are deleted from the tables
 
 $temp = get_from_api($month,$year); //start1
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
+
+echo"\n\n Processing done. --end-- ";    
+exit;
 
 function prepare_agentHierarchies_hierarchiesNames($year_month)
 {
@@ -81,10 +77,21 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
     Where harvest_events.published_at is not null order by agents.full_name "; 
     //this query now only gets partners with a published data on the time the report was run.
-    $query .= " limit 10 "; //debug
+    $query .= " limit 5 "; //debug
     $result = $mysqli->query($query);    
+    
+    //initialize txt file        
+	$filename = "data/" . $year_month . "/temp/google_analytics_agent_page_stat.txt";    $fp = fopen($filename,"w");fclose($fp);		    
+    $filename = "data/" . $year_month . "/temp/google_analytics_agent_page_stat_bhl.txt";$fp = fopen($filename,"w");fclose($fp);		    
+    $filename = "data/" . $year_month . "/temp/google_analytics_agent_page_stat_col.txt";$fp = fopen($filename,"w");fclose($fp);		    	
+    //initialize end
+    
+    echo"\n start agent stats...\n";    
+    $num_rows = $result->num_rows; $i=0;
     while($result && $row=$result->fetch_assoc())	
     {
+        $i++;
+        echo"agent id = $row[id] $i of $num_rows \n";
         /* legacy version
         $query = "SELECT DISTINCT a.full_name, tcn.taxon_concept_id 
         FROM agents a
@@ -109,9 +116,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
         $result2 = $mysqli->query($query);    
         $fields=array();
-        $fields[0]="id";
-        $fields[1]="full_name";
-        $fields[2]="taxon_concept_id";
+        $fields[0]="taxon_concept_id";
+        $fields[1]="id";
+        //$fields[1]="full_name";        
         $temp = save_to_txt($result2,"google_analytics_agent_page_stat",$fields,$year_month,chr(9),0,"txt");
     }
     
@@ -135,7 +142,8 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     */
     //either of these 2 queries will work
     /* $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted"); */
-
+    
+    echo"\n start BHL stats...\n";    
     //before 'BHL'
     $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id from taxon_concepts tc 
     STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
@@ -144,9 +152,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     $query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
     $fields=array();
-    $fields[0]="agent_id";
-    $fields[1]="full_name";
-    $fields[2]="taxon_concept_id";
+    $fields[0]="taxon_concept_id";
+    $fields[1]="agent_id";
+    //$fields[1]="full_name";    
     $temp = save_to_txt($result, "google_analytics_agent_page_stat_bhl",$fields,$year_month,chr(9),0,"txt");
 
     //==============================================================================================
@@ -158,7 +166,8 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
     and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
     where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")"; */
-
+    
+    echo"\n start COL stats...\n";    
     //before 'COL 2009'
     $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id from 
     taxon_concepts tc STRAIGHT_JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
@@ -168,9 +177,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     $query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
     $fields=array();
-    $fields[0]="agent_id";
-    $fields[1]="full_name";
-    $fields[2]="taxon_concept_id";
+    $fields[0]="taxon_concept_id";
+    $fields[1]="agent_id";
+    //$fields[1]="full_name";    
     $temp = save_to_txt($result, "google_analytics_agent_page_stat_col",$fields,$year_month,chr(9),0,"txt");
 
     //end COL 2009
@@ -218,6 +227,7 @@ function get_sciname_from_tc_id($tc_id)
     $result = $mysqli->query($query);
     $row = $result->fetch_row();            
     $sciname = $row[0];
+    //print"[[$sciname -- $tc_id]]";
     return $sciname;        
 }
 
@@ -261,7 +271,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        //$range=100; //debug
+        $range=100; //debug
         
         mkdir("data/" . $year . "_" . $month , 0700);        
         mkdir("data/" . $year . "_" . $month . "/temp", 0700);        
@@ -287,7 +297,7 @@ function get_from_api($month,$year)
             
             foreach($data as $metric => $count) 
             {
-                $i++; print "$i. ";                
+                $i++; print "$i. \n";                
                 // /*                
                 if(true)
                 {
@@ -330,23 +340,29 @@ function get_from_api($month,$year)
                     //print "[$taxon_id]";
                     if(strval(stripos($taxon_id,"/pages/"))!= '')$taxon_id = str_ireplace("/pages/", "", $taxon_id);
                     else                                         $taxon_id = '';
-                    print "[$taxon_id]";
+                    //print "[$taxon_id]";
                     
+                    /* not used anymore
                     $sciname="";                    
                     if(is_numeric($taxon_id))$sciname = get_sciname_from_tc_id($taxon_id);                                        
-                    //else echo"\n not numeric \n";
+                    //else echo" not numeric ";
+                    */                    
                     
-                    $str .= $i . $sep . $taxon_id . $sep . 
-                            $year_month . $sep .
-                            $sciname . $sep .
-                            $url . $sep . $count["ga:pageviews"] . $sep . 
-                            $count["ga:uniquePageviews"] . $sep . 
-                            $averate_time_on_page . $sep . 
-                            $bounce_rate . $sep . 
-                            $percent_exit . $sep . 
-                            $money_index . $sep . 
-                            date('Y-m-d H:i:s') . $cr;
-                            //$visits . $sep . $visitors 
+                    if($taxon_id > 0)
+                    {
+                        $str .= $taxon_id . $sep . 
+                                intval(substr($year_month,0,4)) . $sep .
+                                intval(substr($year_month,5,2)) . $sep .
+                                $count["ga:pageviews"] . $sep . 
+                                $count["ga:uniquePageviews"] . $sep . 
+                                $averate_time_on_page . $cr;
+                                /* 
+                                $bounce_rate . $sep . 
+                                $percent_exit . $sep . 
+                                $money_index . $sep . 
+                                date('Y-m-d H:i:s') . 
+                                */
+                    }
                 }
                 //print "<hr>";
                 // */
@@ -379,6 +395,30 @@ function getlastdayofmonth($month, $year)
 
 function create_tables()
 {   /* to be run as migrations */   
+    $query="CREATE TABLE `google_analytics_agent_page_stat` (
+    `taxon_concept_id` int(10) unsigned NOT NULL,
+    `agent_id` int(10) unsigned NOT NULL,
+    `year` smallint(4) NOT NULL,
+    `month` tinyint(2) NOT NULL,
+    KEY `taxon_concept_id` (`taxon_concept_id`),
+    KEY `agent_id` (`agent_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+    $update = $mysqli->query($query);    
+
+    $query="CREATE TABLE `google_analytics_page_stat` (
+    `taxon_concept_id` int(10) unsigned NOT NULL default '0',
+    `year` smallint(4) NOT NULL,
+    `month` tinyint(2) NOT NULL,
+    `page_views` int(10) unsigned NOT NULL,
+    `unique_page_views` int(10) unsigned NOT NULL,
+    `time_on_page` time NOT NULL,
+    PRIMARY KEY  (`taxon_concept_id`),
+    KEY `taxon_concept_id` (`taxon_concept_id`),
+    KEY `page_views` (`page_views`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+    $update = $mysqli->query($query);    
+
+    /*
 	$query="CREATE TABLE  `google_analytics_agent_page_stat` ( 
     `agent_id` int(10) unsigned NOT NULL,
     `agentName` varchar(64) NOT NULL,
@@ -411,14 +451,19 @@ function create_tables()
 	$update = $mysqli->query($query);    
     //`visits` int(10) unsigned NOT NULL, 
     //`visitors` int(10) unsigned NOT NULL,     
+    */
 
 }
 
-function initialize_tables_4dmonth($year_month)
+function initialize_tables_4dmonth($year,$month)
 {	global $mysqli2;    
-    $query="delete from `google_analytics_page_stat`       where `year_month` = '$year_month'";  $update = $mysqli2->query($query);        
-    $query="delete from `google_analytics_agent_page_stat` where `year_month` = '$year_month'";  $update = $mysqli2->query($query);    		    
+    //$month=intval($month);
+    $query="delete from `google_analytics_page_stat`       where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
+    print"<hr>$query<hr>";
+    $query="delete from `google_analytics_agent_page_stat` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		    
+    print"<hr>$query<hr>";
 }//function initialize_tables_4dmonth()
+
 function get_val_var($v)
 {
     if     (isset($_GET["$v"])){$var=$_GET["$v"];}
@@ -456,7 +501,8 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 			$field = $fields[$i];
 			$str .= $row["$field"] . $field_separator;    //chr(9) is tab
 		}
-        $str .= $year_month . $field_separator;
+        $str .= intval(substr($year_month,0,4)) . $field_separator;
+        $str .= intval(substr($year_month,5,2)) . $field_separator;
 		$str .= "\n";
 	}
     if($file_extension == "txt")$temp = "temp/";
@@ -470,8 +516,4 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
     return "";
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
-
-
-
-
 ?>
