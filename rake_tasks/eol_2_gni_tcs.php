@@ -46,7 +46,7 @@ From hierarchy_entries he
 Inner Join names n ON n.id = he.name_id
 Inner Join taxon_concepts tc ON he.taxon_concept_id = tc.id
 Inner Join ranks ON he.rank_id = ranks.id
-WHERE tc.published=1 AND tc.vetted_id IN (0,5) "; 
+WHERE tc.published=1 AND tc.vetted_id <> " . Vetted::find("untrusted"); 
 //$qry .= " limit 10";
 //$qry .= " limit 10000,20";
 //AND preferred=1
