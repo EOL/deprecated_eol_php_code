@@ -4,8 +4,6 @@
     This code processes the latest WORMS resource XML and generates stats for it.
     A successful run of this script will append a new record in this report:
         http://services.eol.org/species_stat_marine/display.php
-        
-                
 */
 
 define('MYSQL_DEBUG', false);
@@ -75,7 +73,7 @@ function get_stats($names)
     JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE n.string IN ('".implode("','", $names)."') 
     AND tc.published=1 
     AND tc.supercedure_id=0 
-    AND tc.vetted_id IN (5) ");
+    AND tc.vetted_id IN (" . Vetted::find("trusted") . ") ");
 
     while($result && $row=$result->fetch_assoc())
     {
@@ -98,8 +96,9 @@ function get_stats($names)
     JOIN data_objects do ON (dot.data_object_id=do.id) 
     WHERE tcn.taxon_concept_id IN (".implode(",", $ids).") 
     AND do.published=1 
-    AND do.vetted_id IN (0,5) 
-    AND do.visibility_id=1;");
+    AND do.vetted_id <> " . Vetted::find("untrusted") . "
+    AND do.visibility_id=" . Visibility::find("visible") . "
+    ;");
 
     while($result && $row=$result->fetch_assoc())
     {
