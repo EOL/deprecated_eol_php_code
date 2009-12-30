@@ -622,7 +622,7 @@ function check_proc($tc_id)	//checks if tc_id only has unvetted dataobjects -- u
 	Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
 	Inner Join data_types ON data_objects.data_type_id = data_types.id
 	Where taxon_concept_names.taxon_concept_id = $tc_id and
-	data_objects.data_type_id not in (5,6) and data_objects.vetted_id <> 0 ";			
+	data_objects.data_type_id not in (5,6) and data_objects.vetted_id <> " . Vetted::find("unknown") . " ";			
 	*/	
 	$qry="Select distinct taxon_concepts.id as taxon_concept_id,
 	data_objects.id, data_objects.vetted_id, data_types.label
