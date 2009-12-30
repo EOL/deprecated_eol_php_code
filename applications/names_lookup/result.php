@@ -1,7 +1,5 @@
 <?php
 
-//uses clean_NAMES table
-
 //define("ENVIRONMENT", "slave_215");
 //define("MYSQL_DEBUG", true);
 //define("DEBUG", true);
@@ -23,17 +21,11 @@ $tbl = "clean_names";	//instead of 'names'
 $fld = "clean_name";	//instead of 'string'
 $fld_id = "name_id";	//instead of 'id'
 
-
-
 /*
 Acarospora immersa
 Accipiter cooperii
 Accipiter gentilis
 */
-
-//require_once '../../mtce/db.connect.php';
-//require_once '../../mtce/db.config.php';		replaced by patrick's code base
-
 
 $list 			= get_val_var('list');
 
@@ -175,8 +167,7 @@ while( $row = $sql->fetch_assoc() )
 			if($vsn != $row["sn"])
 			{				
 				//$tmp = "<a target='_blank' href='http://$eol_site/search?q=" . urlencode($row["sn"]) . "&search_image=&search_type=text'>$row[sn]</a>";
-				$tmp = "<a target='_blank' href='http://$eol_site/pages/$row[tc_id]'>$row[sn]</a>";
-			
+				$tmp = "<a target='_blank' href='http://$eol_site/pages/$row[tc_id]'>$row[sn]</a>";			
 				if	(
 						($data_kind == 1 and $choice2 == 3)	or
 						($choice2 == 1 and $with_name_source == '')	or
@@ -325,17 +316,17 @@ while( $row = $sql->fetch_assoc() )
 			*/
 			
 			$tmp = "<a target='_blank' href='http://$eol_site/search?q=" . urlencode($tmp) . "&search_image=&search_type=text'>$tmp</a>";
-			
-//			if($choice2 == 4)
-//			{
-//				print"<tr><td> j <i>$tmp</i></td></tr>";		
-//			}
-			
+            
+            /*			
+			if($choice2 == 4)
+			{
+				print"<tr><td> j <i>$tmp</i></td></tr>";		
+			}
+            */			
 			
 			//exit("<hr>[$tmp_sn] - $tmp - " . count($arr3));
 			
 			//start cyndy request
-
 			$sn_list = get_sn_list("$tmp_sn");
 			$qry = sql_do($sn_list,$choice2,$us);
 
@@ -402,12 +393,12 @@ while( $row = $sql->fetch_assoc() )
 				
 				//print " -- $sql2->num_rows ";
 				
-				///*
-//				if($choice2 == 4)//without data objects
-//				{
-//					if($sql2->num_rows == 0){print"<tr><td> jjj <i>$tmp</i></td></tr>";}
-//				}
-				//*/
+				/*
+				if($choice2 == 4)//without data objects
+				{
+					if($sql2->num_rows == 0){print"<tr><td> jjj <i>$tmp</i></td></tr>";}
+				}
+				*/
 				//print"<tr><td> jjjj <i>$tmp</i></td></tr>";
 				
 				$sql2->close();
@@ -579,25 +570,32 @@ function sql_do($val,$i,$us)
 				Inner Join $tbl ON $tbl.$fld_id = taxon_concept_names.name_id 
 				Inner Join data_types ON data_objects.data_type_id = data_types.id				
 				Where $tbl.$fld In ($val)
-				AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0 
+				AND data_objects.published = 1 AND data_objects.visibility_id = " . Visibility::find("visible") . " 
+                AND data_objects.vetted_id != " . Vetted::find("unknown") . " 
 				";
+                
+                Vetted::find("trusted")
+                Visibility::find("visible")
+                DataType::find("http://purl.org/dc/dcmitype/Text")
+                
 				*/
 
 				$qry="Select $addstr $tbl.$fld AS sn, taxon_concepts.id as tc_id,
 				if(data_objects.object_title='',data_types.label,data_objects.object_title) AS label			
 
-			From taxa
-			Inner Join clean_names ON taxa.name_id = clean_names.name_id
-			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
-			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-			Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
-			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
-			Inner Join data_types ON data_objects.data_type_id = data_types.id
+    			From taxa
+	        	Inner Join clean_names ON taxa.name_id = clean_names.name_id
+    			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+    			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+    			Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
+    			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
+    			Inner Join data_types ON data_objects.data_type_id = data_types.id
 
 				Where $tbl.$fld In ($val)
-				AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0 
+				AND data_objects.published = 1 AND data_objects.visibility_id = " . Visibility::find("visible") . " 
+                AND data_objects.vetted_id != " . Vetted::find("unknown") . " 
 				";				
-				if($report == 'list'){$qry .= " and data_types.id in (3,6) ";}
+				if($report == 'list'){$qry .= " and data_types.id in (" . DataType::find("http://purl.org/dc/dcmitype/Text") . ") ";}
 				$qry .= " Order By $tbl.$fld , label ";	
                 
                 //print "[$qry]";
@@ -617,8 +615,9 @@ function sql_do($val,$i,$us)
 			Inner Join taxon_concept_names ON taxon_concept_names.name_id = taxa.name_id 
 			Inner Join $tbl ON $tbl.$fld_id = taxon_concept_names.name_id 
 			Inner Join data_types ON data_objects.data_type_id = data_types.id
-			Where $tbl.$fld In ($val) AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0
-			and data_types.id not in (3,6)
+			Where $tbl.$fld In ($val) AND data_objects.published = 1 AND data_objects.visibility_id = " . Visibility::find("visible") . " 
+            AND data_objects.vetted_id != " . Vetted::find("unknown") . "
+			and data_types.id in (" . DataType::find("http://purl.org/dc/dcmitype/StillImage") . "," . DataType::find("http://purl.org/dc/dcmitype/MovingImage") . ")
 			Order By $tbl.$fld, label ";	
 			*/
 			///*Dec13
@@ -631,8 +630,9 @@ function sql_do($val,$i,$us)
 			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
 			Inner Join data_types ON data_objects.data_type_id = data_types.id
 			Where $tbl.$fld In ($val)
-			AND data_objects.published = 1 AND data_objects.visibility_id = 1 AND data_objects.vetted_id != 0
-			and data_types.id not in (3,6)
+			AND data_objects.published = 1 AND data_objects.visibility_id = " . Visibility::find("visible") . " 
+            AND data_objects.vetted_id != " . Vetted::find("unknown") . "
+			and data_types.id in (" . DataType::find("http://purl.org/dc/dcmitype/StillImage") . "," . DataType::find("http://purl.org/dc/dcmitype/MovingImage") . ")
 			Order By $tbl.$fld, label			
 			";
 			//clean
@@ -658,7 +658,7 @@ function sql_do($val,$i,$us)
 		Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
 		Inner Join taxon_concepts ON taxon_concepts.id = taxon_concept_names.taxon_concept_id
 		Where $tbl.$fld In ($val) 
-		AND taxon_concepts.vetted_id <> 4 		
+		AND taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . " 		
 		Order By $tbl.$fld Asc, hierarchies.label Asc
 		";
 		// */
@@ -670,7 +670,7 @@ function sql_do($val,$i,$us)
 		Inner Join clean_names ON hierarchy_entries.name_id = clean_names.name_id
 		Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
 		Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-		and taxon_concepts.vetted_id <> 4
+		and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
 		Where $tbl.$fld In ($val)		
 		Order By $tbl.$fld Asc, hierarchies.label Asc		
 		";	
@@ -688,7 +688,7 @@ function sql_do($val,$i,$us)
 			Inner Join hierarchy_entries ON taxon_concept_names.taxon_concept_id = hierarchy_entries.taxon_concept_id
 			Inner Join taxon_concepts ON taxon_concepts.id = taxon_concept_names.taxon_concept_id
 			Where $tbl.$fld In ($val)
-			AND taxon_concepts.vetted_id <> 4 			
+			AND taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
 			Order By sn Asc
 			";
 			// */
@@ -702,7 +702,7 @@ function sql_do($val,$i,$us)
 			Inner Join hierarchies ON hierarchy_entries.hierarchy_id = hierarchies.id
 			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 			Where $tbl.$fld In ($val)			
-			AND taxon_concepts.vetted_id <> 4 						
+			AND taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
 			Order By sn Asc			
 			";
 			 */			
