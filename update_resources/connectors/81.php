@@ -61,6 +61,7 @@ $query .= " Order By taxa.taxon_phylum Asc ";
 $query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
 Inner Join names ON hierarchy_entries.name_id = names.id Where
 ranks.id = 280 Order By names.`string` Asc ";
+//rank.id 280 = phylum
 
 //$query .= " and taxon_phylum = 'Chordata' ";
 //$query .= " and taxon_phylum = 'Chaetognatha' ";
