@@ -578,8 +578,7 @@ function sql_do($val,$i,$us)
                 Visibility::find("visible")
                 DataType::find("http://purl.org/dc/dcmitype/Text")
                 DataType::find("http://purl.org/dc/dcmitype/StillImage")
-                DataType::find("http://purl.org/dc/dcmitype/MovingImage")
-                
+                DataType::find("http://purl.org/dc/dcmitype/MovingImage")                
                 
 				*/
 
