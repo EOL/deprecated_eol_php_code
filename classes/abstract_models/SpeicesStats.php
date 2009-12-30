@@ -12,8 +12,7 @@ class SpeciesStats extends MysqlBase
         Number of taxa with at least one vetted data object in only one category (not in COL, i.e. includes Flickr):     
         Number of taxa with at least one vetted data object in more than one category (in COL):     
         Number of taxa with at least one vetted data object in more than one category (not in COL, i.e. includes Flickr):    
-        */        
-        
+        */                
         /*
         $test = DataType::find("http://purl.org/dc/dcmitype/StillImage"); print"[$test]";
         $test = DataType::insert("http://purl.org/dc/dcmitype/StillImage"); print"[$test]";
@@ -47,17 +46,12 @@ class SpeciesStats extends MysqlBase
         $a_taxa_with_text="";
 
     
-    
-   
-    
         //start main body ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $image_type_id = DataType::insert("http://purl.org/dc/dcmitype/StillImage");
         $text_type_id  = DataType::insert("http://purl.org/dc/dcmitype/Text");
         //$trusted_id  = Vetted::find("trusted"); //5
         //$unknown_id  = Vetted::find("unknown"); //0
         //$untrusted_id  = Vetted::find("untrusted"); //4
-        
-
 
         $in_col = array();
         $number_of_data_objects = array();
@@ -132,15 +126,13 @@ class SpeciesStats extends MysqlBase
         left join data_objects_table_of_contents dotoc on (do.id=dotoc.data_object_id) 
         where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=" . Vetted::find("trusted") . " OR tc.vetted_id=" . Vetted::find("unknown") . ") 
         and dohe.harvest_event_id IN (".implode(",", $temp_arr).")";        
-        //$query .= " limit 100 ";    //for debug only
-        
+        //$query .= " limit 100 ";    //for debug only        
 
         $taxa_published['vetted']    =array();    //PL added item
         $taxa_published['unvetted']    =array();    //PL added item
 
         $taxa_without_object_inCol = array();
-        $taxa_without_object_notinCol = array();
-        
+        $taxa_without_object_notinCol = array();        
         
         $result = $this->mysqli->query($query); //1
         while($result && $row=$result->fetch_assoc())
@@ -150,9 +142,8 @@ class SpeciesStats extends MysqlBase
 
             //PL request start
             if($row["tc_vetted_id"] == Vetted::find("trusted")) { $taxa_published['vetted'][$id] = true; }
-            else                                    { $taxa_published['unvetted'][$id] = true; }
+            else                                                { $taxa_published['unvetted'][$id] = true; }
             //PL request end
-
 
             //DP request start
             if($row["in_col"])     
@@ -178,23 +169,21 @@ class SpeciesStats extends MysqlBase
                 /* transferred inside text and image */
                 if($row["data_type_id"] == $text_type_id && $toc_id)
                 {        
-                    if($row["in_col"])     {$in_col[$id] = true;}
-                    else                 {$in_col[$id] = false;}
+                    if($row["in_col"])  {$in_col[$id] = true;}
+                    else                {$in_col[$id] = false;}
             
                     $taxa_with_text[$id] = true;
-                       if($row["vetted_id"] == Vetted::find("trusted")){$number_of_data_objects['vetted']['text'][$id][$toc_id] = true;}
-                    else                                   {$number_of_data_objects['unvetted']['text'][$id][$toc_id] = true;}
+                    if($row["vetted_id"] == Vetted::find("trusted")){$number_of_data_objects['vetted']['text'][$id][$toc_id] = true;}
+                    else                                            {$number_of_data_objects['unvetted']['text'][$id][$toc_id] = true;}
                 }
                 elseif($row["data_type_id"] == $image_type_id) 
                 {
-
-                    if($row["in_col"])     {$in_col[$id] = true;}
-                    else                 {$in_col[$id] = false;}
+                    if($row["in_col"])  {$in_col[$id] = true;}
+                    else                {$in_col[$id] = false;}
         
                     $taxa_with_images[$id] = true;
-                       if($row["vetted_id"] == Vetted::find("trusted")) {$number_of_data_objects['vetted']['image'][$id] = true;}
-                    else                                    {$number_of_data_objects['unvetted']['image'][$id] = true;}
-            
+                    if($row["vetted_id"] == Vetted::find("trusted")){$number_of_data_objects['vetted']['image'][$id] = true;}
+                    else                                            {$number_of_data_objects['unvetted']['image'][$id] = true;}            
                 }
                 else{}
     
@@ -207,7 +196,7 @@ class SpeciesStats extends MysqlBase
                 Number of taxa NOT in CoL which have *only* 'vetted=unknown' and 'published=true' and 'visibilty=visible' data objects (taxa can be either trusted or not):     0
                 */
         
-                   if    (    $row["data_type_id"] == $text_type_id && $toc_id    or
+                if  (   $row["data_type_id"] == $text_type_id && $toc_id    or
                         $row["data_type_id"] == $image_type_id        
                     )
                 {
@@ -218,7 +207,7 @@ class SpeciesStats extends MysqlBase
                     }
                     else
                     {
-                        if($row["in_col"])    {$opposite_taxa_only_vetted_unknown_published_visible_inCol[$id]=true;}
+                        if($row["in_col"])  {$opposite_taxa_only_vetted_unknown_published_visible_inCol[$id]=true;}
                         else                {$opposite_taxa_only_vetted_unknown_published_visible_not_inCol[$id]=true;}        
                     }
                 }
@@ -241,32 +230,31 @@ class SpeciesStats extends MysqlBase
                         //end new
                     }
                 }    
-            }    
-    
+            }        
 
             //start stub page    
-            if    (    $row["data_type_id"] == $text_type_id && $toc_id    or
+            if  (   $row["data_type_id"] == $text_type_id && $toc_id    or
                     $row["data_type_id"] == $image_type_id        
                 )
             {}
             else
             {
-                if($row["in_col"])     {$taxa_without_object_inCol[$id]=true;    }
-                else                 {$taxa_without_object_notinCol[$id]=true;    }
+                if($row["in_col"])  {$taxa_without_object_inCol[$id]=true;    }
+                else                {$taxa_without_object_notinCol[$id]=true; }
             }//end stub page
         }//end while
         $result->close();
 
-        $taxa_published_vetted      = count($taxa_published['vetted']);
+        $taxa_published_vetted   = count($taxa_published['vetted']);
         $taxa_published_unvetted = count($taxa_published['unvetted']);
 
         $taxa_count = count($in_col);
 
         //start DP
-        $total_taxa_inCol_withObject         = count($total_taxa['in col']['with object']);
+        $total_taxa_inCol_withObject        = count($total_taxa['in col']['with object']);
         $total_taxa_inCol_withoutObject     = count($total_taxa['in col']['without object']);
         $total_taxa_notinCol_withObject     = count($total_taxa['not in col']['with object']);
-        $total_taxa_notinCol_withoutObject    = count($total_taxa['not in col']['without object']);
+        $total_taxa_notinCol_withoutObject  = count($total_taxa['not in col']['without object']);
 
         $stats = array();
         $stats["in col one category"] = 0;
@@ -281,21 +269,19 @@ class SpeciesStats extends MysqlBase
             if(@$number_of_data_objects['vetted']['text'][$id])     $number_of_categories += count($number_of_data_objects['vetted']['text'][$id]);
     
             if($is_in_col)
-            {
-                if        ($number_of_categories == 1)     {$stats["in col one category"]++;                }
+            {   if        ($number_of_categories == 1)     {$stats["in col one category"]++;                }
                 elseif    ($number_of_categories > 1)     {$stats["in col more than one category"]++;        }
             }
             else
-            {
-                if        ($number_of_categories == 1)     $stats["not in col one category"]++;
+            {   if        ($number_of_categories == 1)     $stats["not in col one category"]++;
                 elseif    ($number_of_categories > 1)     $stats["not in col more than one category"]++;
             }
         }// end for loop
 
-        $vet_obj_only_1cat_inCOL =             $stats["in col one category"];
-        $vet_obj_morethan_1cat_inCOL =         $stats["in col more than one category"];
-        $vet_obj_only_1cat_notinCOL =         $stats["not in col one category"];
-        $vet_obj_morethan_1cat_notinCOL =     $stats["not in col more than one category"];
+        $vet_obj_only_1cat_inCOL =         $stats["in col one category"];
+        $vet_obj_morethan_1cat_inCOL =     $stats["in col more than one category"];
+        $vet_obj_only_1cat_notinCOL =      $stats["not in col one category"];
+        $vet_obj_morethan_1cat_notinCOL =  $stats["not in col more than one category"];
 
 
         //end main body ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -327,16 +313,14 @@ class SpeciesStats extends MysqlBase
         //$pages_incol = 1299534;
 
         $pages_not_incol     = count($pages_not_incol);
-
         // */
         //end 1st part /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
         //start 2nd part /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        $taxa_BHL_no_text     = 0;
+        $taxa_BHL_no_text   = 0;
         $taxa_links_no_text = 0;
-        $with_BHL            = 0;
-
+        $with_BHL           = 0;
         //end 2nd part ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         $taxa_with_text = array_keys($taxa_with_text);        //converts the keys to values - in an array
@@ -352,9 +336,9 @@ class SpeciesStats extends MysqlBase
         $taxa_images_no_text = count(array_diff($taxa_with_images     , $taxa_with_text));    //Taxa with images and no text:
         $taxa_text_no_images = count(array_diff($taxa_with_text     , $taxa_with_images));    //Taxa with text and no images:
         
-        $vet_obj    =     $vet_obj_only_1cat_inCOL         + 
+        $vet_obj    =   $vet_obj_only_1cat_inCOL         + 
                         $vet_obj_morethan_1cat_inCOL     + 
-                        $vet_obj_only_1cat_notinCOL     + 
+                        $vet_obj_only_1cat_notinCOL      + 
                         $vet_obj_morethan_1cat_notinCOL;
         
         $no_vet_obj    = count($taxa_without_object);
@@ -687,44 +671,46 @@ class SpeciesStats extends MysqlBase
         if($group==1){}
         elseif($group==2)        
         {
-        $date_created = date('Y-m-d');
-        $time_created = date('H:i:s');
+            $date_created = date('Y-m-d');
+            $time_created = date('H:i:s');
         
-        $qry = " insert into page_stats_dataobjects(        
-        taxa_count,
-        vetted_unknown_published_visible_uniqueGuid         ,
-        vetted_untrusted_published_visible_uniqueGuid         ,
-        vetted_unknown_published_notVisible_uniqueGuid         ,
-        vetted_untrusted_published_notVisible_uniqueGuid     ,
-        date_created,
-        time_created,
-        active,
-        a_vetted_unknown_published_visible_uniqueGuid        ,
-        a_vetted_untrusted_published_visible_uniqueGuid     ,
-        a_vetted_unknown_published_notVisible_uniqueGuid     ,
-        a_vetted_untrusted_published_notVisible_uniqueGuid     ,
-        user_submitted_text     
-        )
-    
-        select     
-        $taxa_count,
-        $vetted_unknown_published_visible_uniqueGuid         ,
-        $vetted_untrusted_published_visible_uniqueGuid         ,
-        $vetted_unknown_published_notVisible_uniqueGuid     ,
-        $vetted_untrusted_published_notVisible_uniqueGuid     ,
-        '$date_created',
-        '$time_created',
-        'n',
-        '$a_vetted_unknown_published_visible_uniqueGuid'        ,
-        '$a_vetted_untrusted_published_visible_uniqueGuid'         ,
-        '$a_vetted_unknown_published_notVisible_uniqueGuid'     ,
-        '$a_vetted_untrusted_published_notVisible_uniqueGuid'   ,
-        $user_submitted_text                       
-        ";            
-        $update = $this->mysqli->query($qry);    //1
+            $qry = " insert into page_stats_dataobjects(        
+            taxa_count,
+            vetted_unknown_published_visible_uniqueGuid         ,
+            vetted_untrusted_published_visible_uniqueGuid         ,
+            vetted_unknown_published_notVisible_uniqueGuid         ,
+            vetted_untrusted_published_notVisible_uniqueGuid     ,
+            date_created,
+            time_created,
+            active,
+            a_vetted_unknown_published_visible_uniqueGuid        ,
+            a_vetted_untrusted_published_visible_uniqueGuid     ,
+            a_vetted_unknown_published_notVisible_uniqueGuid     ,
+            a_vetted_untrusted_published_notVisible_uniqueGuid     ,
+            user_submitted_text     
+            )    
+            select     
+            $taxa_count,
+            $vetted_unknown_published_visible_uniqueGuid         ,
+            $vetted_untrusted_published_visible_uniqueGuid         ,
+            $vetted_unknown_published_notVisible_uniqueGuid     ,
+            $vetted_untrusted_published_notVisible_uniqueGuid     ,
+            '$date_created',
+            '$time_created',
+            'n',
+            '$a_vetted_unknown_published_visible_uniqueGuid'        ,
+            '$a_vetted_untrusted_published_visible_uniqueGuid'         ,
+            '$a_vetted_unknown_published_notVisible_uniqueGuid'     ,
+            '$a_vetted_untrusted_published_notVisible_uniqueGuid'   ,
+            $user_submitted_text                       
+            ";            
+            $update = $this->mysqli->query($qry);    //1
             //end save
     
-        return "
+            return "";
+        
+            /* no need to return anything anymore
+            return "
             $vetted_unknown_published_visible_uniqueGuid,
             $vetted_untrusted_published_visible_uniqueGuid,
             $vetted_unknown_published_notVisible_uniqueGuid,
@@ -732,10 +718,9 @@ class SpeciesStats extends MysqlBase
             $group,
             $taxa_count
             ";        
+            */
         }
     }//end function dataobject_stat
-
-
 
     public function dataobject_stat_more($group)    //group 1=taxa stat; 2=data object stat
     {        
@@ -794,13 +779,11 @@ class SpeciesStats extends MysqlBase
         $query = "Select Max(harvest_events.id) From harvest_events Where harvest_events.resource_id = '15' Group By harvest_events.resource_id ";
         $result = $this->mysqli->query($query);
         $row = $result->fetch_row();			
-        $latest_event_id   = $row[0];                
+        $latest_event_id = $row[0];                
         $result->close();                
-
         if($latest_event_id)        
         {
             $query = "Select Count(data_objects_harvest_events.data_object_id) From data_objects_harvest_events Where data_objects_harvest_events.harvest_event_id = $latest_event_id";
-            //print"<hr>[$query]<hr>";
             $result = $this->mysqli->query($query);
             $row = $result->fetch_row();			
             $param[] = $row[0];                
@@ -951,9 +934,7 @@ class SpeciesStats extends MysqlBase
     {   $query = "Select distinct data_objects_harvest_events.data_object_id as id, data_objects.published
         From data_objects_harvest_events
         Inner Join data_objects ON data_objects_harvest_events.data_object_id = data_objects.id
-        Where
-        data_objects_harvest_events.harvest_event_id = $harvest_event_id 
-        ";    
+        Where data_objects_harvest_events.harvest_event_id = $harvest_event_id ";    
         //AND data_objects.published = '1' 
         $result = $this->mysqli->query($query);                
         
@@ -966,9 +947,7 @@ class SpeciesStats extends MysqlBase
         $result->close();            
         //$all_ids = array_keys($all_ids);
         return $all_ids;
-    }//end get_data_object_ids_from_harvest_event($harvest_event_id)
-    
-    
+    }//end get_data_object_ids_from_harvest_event($harvest_event_id)    
 
 }//end class
 
