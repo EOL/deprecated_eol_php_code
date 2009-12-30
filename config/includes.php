@@ -22,6 +22,7 @@ if(defined("USING_SPM") && USING_SPM)
 
 Functions::require_module('eol_content_schema');
 Functions::require_module('solr');
+Functions::require_module('darwincore');
 
 date_default_timezone_set('America/New_York');
 setlocale(LC_ALL, 'en_US.ASCII');

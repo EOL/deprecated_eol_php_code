@@ -9,9 +9,6 @@ class SchemaParser
         $errors = SchemaValidator::validate($uri);
         if($errors !== true) return false;
         
-        $errors = array();
-        $warnings = array();
-        
         $reader = new XMLReader();
         $reader->open($uri);
         

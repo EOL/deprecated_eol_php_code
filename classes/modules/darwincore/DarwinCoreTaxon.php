@@ -20,20 +20,19 @@ class DarwinCoreTaxon
         $this->taxonomicStatus = @$parameters["taxonomicStatus"];
         $this->nomenclaturalCode = @$parameters["nomenclaturalCode"];
         $this->nomenclaturalStatus = @$parameters["nomenclaturalStatus"];
-        
         $this->vernacularNames = @$parameters["vernacularNames"];
     }
     
     public function __toXML()
     {
         $xml =  "<dwc:Taxon>\n";
-        if($this->taxonID) $xml .= "  <dwc:taxonID>".htmlspecialchars($this->taxonID)."</dwc:taxonID>\n";
-        if($this->parentNameUsageID) $xml .= "  <dwc:parentNameUsageID>".htmlspecialchars($this->parentNameUsageID)."</dwc:parentNameUsageID>\n";
-        if($this->scientificName) $xml .= "  <dwc:scientificName>".htmlspecialchars($this->scientificName)."</dwc:scientificName>\n";
-        if($this->taxonRank) $xml .= "  <dwc:taxonRank>".htmlspecialchars($this->taxonRank)."</dwc:taxonRank>\n";
-        if($this->taxonomicStatus) $xml .= "  <dwc:taxonomicStatus>".htmlspecialchars($this->taxonomicStatus)."</dwc:taxonomicStatus>\n";
-        if($this->nomenclaturalCode) $xml .= "  <dwc:nomenclaturalCode>".htmlspecialchars($this->nomenclaturalCode)."</dwc:nomenclaturalCode>\n";
-        if($this->nomenclaturalStatus) $xml .= "  <dwc:nomenclaturalStatus>".htmlspecialchars($this->nomenclaturalStatus)."</dwc:nomenclaturalStatus>\n";
+        if(isset($this->taxonID)) $xml .= "  <dwc:taxonID>".htmlspecialchars($this->taxonID)."</dwc:taxonID>\n";
+        if(isset($this->parentNameUsageID)) $xml .= "  <dwc:parentNameUsageID>".htmlspecialchars($this->parentNameUsageID)."</dwc:parentNameUsageID>\n";
+        if(isset($this->scientificName)) $xml .= "  <dwc:scientificName>".htmlspecialchars($this->scientificName)."</dwc:scientificName>\n";
+        if(isset($this->taxonRank)) $xml .= "  <dwc:taxonRank>".htmlspecialchars($this->taxonRank)."</dwc:taxonRank>\n";
+        if(isset($this->taxonomicStatus)) $xml .= "  <dwc:taxonomicStatus>".htmlspecialchars($this->taxonomicStatus)."</dwc:taxonomicStatus>\n";
+        if(isset($this->nomenclaturalCode)) $xml .= "  <dwc:nomenclaturalCode>".htmlspecialchars($this->nomenclaturalCode)."</dwc:nomenclaturalCode>\n";
+        if(isset($this->nomenclaturalStatus)) $xml .= "  <dwc:nomenclaturalStatus>".htmlspecialchars($this->nomenclaturalStatus)."</dwc:nomenclaturalStatus>\n";
         
         // vernacular names can be
         // array("name1", "name2")

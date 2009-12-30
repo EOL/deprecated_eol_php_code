@@ -2,13 +2,11 @@
 
 include_once(dirname(__FILE__) . "/../../../config/start.php");
 
-Functions::require_module("darwincore");
 
-
-// shell_exec("curl ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz -o ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
-// // unzip the download
-// shell_exec("tar -zxf ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
-// shell_exec("rm -f ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
+shell_exec("curl ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz -o ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
+// unzip the download
+shell_exec("tar -zxf ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
+shell_exec("rm -f ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
 
 
 
@@ -22,14 +20,9 @@ get_nodes();
 echo "Memory: ".memory_get_usage()."\n";
 
 
-// shell_exec("rm -f ".dirname(__FILE__)."/*.dmp");
-// shell_exec("rm -f ".dirname(__FILE__)."/*.prt");
-// shell_exec("rm -f ".dirname(__FILE__)."/*.txt");
-
-
-
-
-
+shell_exec("rm -f ".dirname(__FILE__)."/*.dmp");
+shell_exec("rm -f ".dirname(__FILE__)."/*.prt");
+shell_exec("rm -f ".dirname(__FILE__)."/*.txt");
 
 
 
@@ -79,7 +72,7 @@ function get_nodes()
         if($line = fgets($FILE, 4096))
         {
             $i++;
-            //if($i>100) break;
+            //if($i>500) break;
             
             $line = rtrim($line, "\r\n");
             $parts = explode("\t|", $line);
@@ -139,18 +132,6 @@ function get_nodes()
     fclose($OUT);
     fclose($FILE);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ?>
