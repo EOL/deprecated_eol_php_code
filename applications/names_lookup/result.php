@@ -574,7 +574,7 @@ function sql_do($val,$i,$us)
                 AND data_objects.vetted_id != " . Vetted::find("unknown") . " 
 				";
                 
-                Vetted::find("trusted")
+                Vetted::find("untrusted")
                 Visibility::find("visible")
                 DataType::find("http://purl.org/dc/dcmitype/Text")
                 DataType::find("http://purl.org/dc/dcmitype/StillImage")
