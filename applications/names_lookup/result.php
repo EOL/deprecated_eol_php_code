@@ -577,6 +577,9 @@ function sql_do($val,$i,$us)
                 Vetted::find("trusted")
                 Visibility::find("visible")
                 DataType::find("http://purl.org/dc/dcmitype/Text")
+                DataType::find("http://purl.org/dc/dcmitype/StillImage")
+                DataType::find("http://purl.org/dc/dcmitype/MovingImage")
+                
                 
 				*/
 
