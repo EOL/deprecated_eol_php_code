@@ -29,7 +29,8 @@ $mysqli2 = load_mysql_environment('eol_statistics');
 
 //=================================================================
 //query 1
-$query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id 
+$query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) 
+WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id 
 ORDER BY tcn.source_hierarchy_entry_id DESC "; 
 //$query .= " limit 1 "; //debug ??? maybe can't be limited, even on when debugging
 $result = $mysqli->query($query);    
@@ -103,10 +104,13 @@ if($year >= 2009 && intval($month) > 4) $query .= " , 'The Nearctic Spider Datab
 $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id)";
 */
 //either of these 2 queries will work
-//$query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> 4";
+/* $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id 
+WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted");
+*/
 $query = "select distinct 'BHL' full_name, tc.id taxon_concept_id from taxon_concepts tc 
 STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id) where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) ";
+STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id) where tc.supercedure_id=0 and tc.published=1 
+and tc.vetted_id <> " . Vetted::find("untrusted");
 //$query .= " LIMIT 1 "; //debug
 $result = $mysqli->query($query);    
 $fields=array();
@@ -120,13 +124,15 @@ $temp = save_to_txt($result, "agents_hierarchies_bhl",$fields,$year_month,chr(9)
 /* working but don't go through taxon_concept_names
 $query = "select distinct 'COL 2009' full_name, tc.id taxon_concept_id from 
 taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) 
-and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")"; */
+where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
+and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
+where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")"; */
 
 $query = "select distinct 'COL 2009' full_name, tc.id taxon_concept_id from 
 taxon_concepts tc STRAIGHT_JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) 
-and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
+where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
+and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
+where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
 
 //$query .= " LIMIT 1 "; //debug
 $result = $mysqli->query($query);    
