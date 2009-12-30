@@ -73,36 +73,16 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     global $mysqli2;    
 
     //=================================================================
-    //query 1
-    /* not needed anymore
-    $query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn 
-    JOIN names n ON (tcn.name_id=n.id) 
-    JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) 
-    WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id 
-    ORDER BY tcn.source_hierarchy_entry_id DESC "; 
-    //$query .= " limit 1 "; //debug ??? maybe can't be limited, even on when debugging
-    $result = $mysqli->query($query);    
-    $fields=array();
-    $fields[0]="taxon_concept_id";
-    $fields[1]="string";
-    $temp = save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9),0,"txt");
-    */
+    //query 1 /* not needed anymore */
     //=================================================================
-    //query 2
-    
-    /*
-    $query="Select agents.id From agents Inner Join content_partners ON agents.id = content_partners.agent_id 
-    Where content_partners.eol_notified_of_acceptance Is Not Null
-    Order By agents.full_name Asc "; */ 
+    //query 2    
     $query="Select distinct agents.id From agents
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
     Where harvest_events.published_at is not null order by agents.full_name "; 
     //this query now only gets partners with a published data on the time the report was run.
-
-    //$query .= " limit 10 "; //debug
+    $query .= " limit 10 "; //debug
     $result = $mysqli->query($query);    
-
     while($result && $row=$result->fetch_assoc())	
     {
         /* legacy version
@@ -124,9 +104,8 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
         JOIN taxa t ON (het.taxon_id=t.id)
         join hierarchy_entries he on t.hierarchy_entry_id = he.id
         join taxon_concepts tc on he.taxon_concept_id = tc.id
-        WHERE a.id = $row[id] and tc.published = 1 and tc.supercedure_id = 0 ";    
-    
-        //$query .= " limit 50 "; //debug 
+        WHERE a.id = $row[id] and tc.published = 1 and tc.supercedure_id = 0 ";        
+        $query .= " limit 50 "; //debug 
 
         $result2 = $mysqli->query($query);    
         $fields=array();
@@ -155,14 +134,14 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id)";
     */
     //either of these 2 queries will work
-    //$query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> 4";
+    /* $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted"); */
 
     //before 'BHL'
     $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id from taxon_concepts tc 
     STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
     STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id) 
-    where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) ";
-    //$query .= " LIMIT 1 "; //debug
+    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");
+    $query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="agent_id";
@@ -176,16 +155,17 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     /* working but don't go through taxon_concept_names
     $query = "select distinct 'COL 2009' full_name, tc.id taxon_concept_id from 
     taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-    where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) 
-    and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")"; */
+    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
+    and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
+    where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")"; */
 
     //before 'COL 2009'
     $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id from 
     taxon_concepts tc STRAIGHT_JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-    where tc.supercedure_id=0 and tc.published=1 and (tc.vetted_id=5 OR tc.vetted_id=0) 
-    and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
-
-    //$query .= " LIMIT 1 "; //debug
+    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
+    and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
+    where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
+    $query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="agent_id";
@@ -430,8 +410,7 @@ function create_tables()
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ";
 	$update = $mysqli->query($query);    
     //`visits` int(10) unsigned NOT NULL, 
-    //`visitors` int(10) unsigned NOT NULL, 
-    
+    //`visitors` int(10) unsigned NOT NULL,     
 
 }
 
