@@ -1,7 +1,7 @@
 <?php
 
 define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+//define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -14,8 +14,6 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
-
-
 
 $month = get_val_var("month");
 $year = get_val_var("year");
@@ -51,7 +49,7 @@ if($month == "" or $year == "")
 }
 
 
-exit("finish test");
+//exit("finish test");
 
 $month = GetNumMonthAsString($month, $year);
 
@@ -59,13 +57,90 @@ $year_month = $year . "_" . $month;
 //$year_month = "2009_04";
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year . "_" . $month;
 
-/* //start1
+// /* //start1
 initialize_tables_4dmonth();
 $api = get_from_api($month,$year);    
 //end
-*/
+// */
 
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start start2
+$temp = create_csv_files($year_month); //start start3
+
+function create_csv_files($year_month)
+{
+    global $mysqli2;
+    global $google_analytics_page_statistics;
+    //=================================================================
+    //query 1
+    //query 2
+    //query 3
+    //query 4,5
+    //query 6,7,8
+        //=================================================================
+    //start query9
+    $query="SELECT (SELECT COUNT(*) FROM eol_statistics.hierarchies_names_" . $year_month . ") all_taxa_count, 
+    agentName, COUNT(*) agent_taxa_count FROM eol_statistics.agents_hierarchies_" . $year_month . " 
+    GROUP BY agentName ORDER BY agentName;";
+    $result = $mysqli2->query($query);    
+    $fields=array();
+    $fields[0]="all_taxa_count";
+    $fields[1]="agentName";
+    $fields[2]="agent_taxa_count";
+    $temp = save_to_txt($result,"query9",$fields,$year_month,",",1,"csv");
+    //end query9
+    //=================================================================
+    //start query10
+    $query="SELECT g.id, g.date_added, g.taxon_id, g.url, hn.scientificName, hn.commonNameEN, g.page_views, g.unique_page_views, TIME_TO_SEC(g.time_on_page) time_on_page_seconds, g.bounce_rate, g.percent_exit FROM eol_statistics." . $google_analytics_page_statistics . " g LEFT OUTER JOIN eol_statistics.hierarchies_names_" . $year_month . " hn ON hn.hierarchiesID = g.taxon_id ";
+    //$query .= " WHERE g.date_added > ADDDATE(CURDATE(), -1) ";
+    $query .= " ORDER BY page_views DESC, unique_page_views DESC, time_on_page_seconds DESC; ";
+    $result = $mysqli2->query($query);    
+    $fields=array();
+    $fields[]="id";
+    $fields[]="date_added";
+    $fields[]="taxon_id";
+    $fields[]="url";
+    $fields[]="scientificName";
+    $fields[]="commonNameEN";
+    $fields[]="page_views";
+    $fields[]="unique_page_views";
+    $fields[]="time_on_page_seconds";
+    $fields[]="bounce_rate";
+    $fields[]="percent_exit";
+    $temp = save_to_txt($result,"query10",$fields,$year_month,",",1,"csv");
+    //end query10
+    //=================================================================
+    //start query11 - site_statistics
+    $query="SELECT ah.agentName,g.taxon_id, hn.scientificName, hn.commonNameEN,SUM(g.page_views) total_page_views,SUM(g.unique_page_views) total_unique_page_views,SUM(TIME_TO_SEC(g.time_on_page)) total_time_on_page_seconds FROM eol_statistics." . $google_analytics_page_statistics . " g INNER JOIN eol_statistics.agents_hierarchies_" . $year_month . " ah	ON ah.hierarchiesID = g.taxon_id LEFT OUTER JOIN eol_statistics.hierarchies_names_" . $year_month . " hn ON hn.hierarchiesID=g.taxon_id ";
+    //$query .= " WHERE g.date_added > ADDDATE(CURDATE(), -1) ";
+    $query .= " GROUP BY ah.agentName, g.taxon_id ORDER BY ah.agentName, total_page_views DESC, total_unique_page_views DESC, total_time_on_page_seconds DESC ";
+    $result = $mysqli2->query($query);    
+    $fields=array();
+    $fields[]="agentName";
+    $fields[]="taxon_id";
+    $fields[]="scientificName";
+    $fields[]="commonNameEN";
+    $fields[]="total_page_views";
+    $fields[]="total_unique_page_views";
+    $fields[]="total_time_on_page_seconds";
+    $temp = save_to_txt($result,"site_statistics",$fields,$year_month,",",1,"csv");
+    //end query11
+    //=================================================================
+    //start query12
+    $query="SELECT distinct g.taxon_id FROM eol_statistics." . $google_analytics_page_statistics . " g 
+    WHERE g.taxon_id>0 ";
+    //$query .= " and g.date_added > ADDDATE(CURDATE(), -1) ";
+    
+    $result = $mysqli2->query($query);    
+    $fields=array();
+    $fields[]="taxon_id";
+    $temp = save_to_txt ($result,"query12",$fields,$year_month,",",1,"csv");
+    //end query12
+    //=================================================================
+    
+}//create_csv_files
+
+
+
 function prepare_agentHierarchies_hierarchiesNames($year_month)
 {
     global $mysqli;
@@ -321,7 +396,8 @@ function get_from_api($month,$year)
                     
                     $str .= $i . $sep . $taxon_id . $sep . $url . $sep . $count["ga:pageviews"] . $sep . $count["ga:uniquePageviews"] . $sep . 
                             $averate_time_on_page . $sep . 
-                            $bounce_rate . $sep . $percent_exit . $sep . $money_index . $sep . date('Y-m-d H:i:s') . $cr;
+                            $bounce_rate . $sep . $percent_exit . $sep . $money_index . $sep . date('Y-m-d H:i:s') 
+                            . $cr;
                 }
                 //print "<hr>";
                 // */
@@ -330,8 +406,9 @@ function get_from_api($month,$year)
 
             //exit;
                         
-            fwrite($OUT, $str);
+            //fwrite($OUT, $str); // transferred out of the while
         }//end while
+        fwrite($OUT, $str);
         fclose($OUT);
         
         

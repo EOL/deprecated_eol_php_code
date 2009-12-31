@@ -2,8 +2,8 @@
 
 $csv = array("site_statistics.csv","query9.csv","query10.csv","query12.csv");
 
-//$temp = array("2008","2009","2010");
-$temp = array("2008","2009");
+$temp = array("2008","2009","2010");
+//$temp = array("2008","2009");
 for($i = 0; $i < count($temp) ; $i++) 
 {
     print"<a href='index.php?year=" . $temp[$i] . "'>$temp[$i]</a> | ";
@@ -47,13 +47,13 @@ for($month = 1; $month <= 12 ; $month++)
         else                        $str="Individual provider data available";
     
         if($csv_available < 4) $str .= " 
-        
-        <a href='generate_monthly_stats.php?month=$month&year=$year'>Generate monthly stats</a>
-        
         ";     
         /*     
+        
+        <a href='generate.php?month=$month&year=$year'>Generate (1-2-3)</a> |         
+        <a href='generate_monthly_stats.php?month=$month&year=$year'>Generate monthly stats</a>        
+        
         Prepare files
-        <a href='generate.php?month=$month&year=$year'>Generate (1-2)</a>        
         <a href='start1.php?month=$month&year=$year'>Step 1 (gaps)</a>
         <a href='start2.php?month=$month&year=$year'>Step 2 (qry 1-8)</a>
         <a href='start3.php?month=$month&year=$year'>Step 3 (qry 9-12 CSV files)</a>                          

@@ -400,10 +400,12 @@ function monthly_tabular($year)
     if($year < date("Y"))$month_limit=12;
     else $month_limit = date("n");
     
+    $tab_delim = "";    
     for ($month = 1; $month <= $month_limit; $month++) 
     {        
-        $api = get_from_api(GetNumMonthAsString($month, $year),$year);    
+        $tab_delim .= $year . chr(9) . $month . chr(9);        
         
+        $api = get_from_api(GetNumMonthAsString($month, $year),$year);            
         print"<tr bgcolor='aqua' align='center'>";
         if($month == 1)
         {
@@ -411,24 +413,41 @@ function monthly_tabular($year)
             foreach($api[0] as $label => $value) 
             {            
                 print"<td>$label</td>";
-            } 
-            
+            }             
         }
-        print"</tr>";        
-        
-        print"<tr><td align='center'> " . date("F", mktime(0, 0, 0, $month, 1, $year)) . "</td>";
-        
+        print"</tr>";                
+        print"<tr><td align='center'> " . date("F", mktime(0, 0, 0, $month, 1, $year)) . "</td>";        
+
+
+    
         foreach($api[0] as $label => $value) 
         {            
+
+            $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
+            //$a = "$year $month " . getlastdayofmonth(intval($month), $year) . " 23:59:59";           
+            $b = date("Y m d H:i:s");                        
+            //print "<br>$a -- $b<br>";            
+            if($a <= $b) $tab_delim .= $value . chr(9); //tab
+            
             $unit="";
             if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits")))$unit="%";
             if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews")))$value=number_format($value);
             print"<td align='right'>$value$unit</td>";
         } 
-        print"</tr>";
-        // */        
-    }
+        $tab_delim .= "\n"; //tab
+        print"</tr>";                
+    
+    }//loop month
+    
     print"</table>";
+
+    /* working ...    
+    global $mysqli;
+    $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
+    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'temp.txt' INTO TABLE google_analytics_summaries");        
+    $update = $mysqli->query("delete from google_analytics_summaries where (year = " . date("Y") . " and month = " . date("n") . ") or visits = 0 ");            
+    */
+    
 }
 
 

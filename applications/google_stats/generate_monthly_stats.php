@@ -43,21 +43,19 @@ if($month == "" or $year == "" or $year < 2008 or $year > date('Y') or $month < 
 {
     print"\n Invalid parameters  \n
     e.g. for July 2009 enter: \n
-    \t php generate_tables.php 7 2009 \n\n ";
+    \t php generate_monthly_stats.php 7 2009 \n\n ";
     exit();
 }
 
 $month = GetNumMonthAsString($month, $year);
 $year_month = $year . "_" . $month; //$year_month = "2009_04";
-$google_analytics_page_stat = "google_analytics_page_stat";
-
 
 initialize_tables_4dmonth($year,$month); 
 //exit(); //debug - uncomment to see if current month entries are deleted from the tables
 
-//$temp = get_from_api($month,$year); //start1
-//$temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
-$temp = monthly_summary($year_month); //start3
+$temp = get_from_api($month,$year);                             //start1
+$temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
+$temp = monthly_summary($year_month);                           //
 
 echo"\n\n Processing done. --end-- "; exit;
 
@@ -70,11 +68,8 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
 		$str .= $field . $field_separator;    //chr(9) is tab
 	}
 	$str .= "\n";
-
-    if($file_extension == "txt")$temp = "temp/";
-    else                        $temp = "";
-    
-	$filename = "data/" . $year_month . "/" . $temp . "$filename" . "." . $file_extension;
+  
+	$filename = "data/" . $year_month . "/" . "$filename" . "." . $file_extension;
 	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
     
     return "";
@@ -86,16 +81,16 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     global $mysqli2;
     //start get count_of_taxa_pages viewed during the month, etc.
     $query = "Select distinct
-    Count(google_analytics_agent_page_stat.taxon_concept_id) AS taxa_pages_viewed,
+    Count(google_analytics_partner_taxa.taxon_concept_id) AS taxa_pages_viewed,
     Sum(google_analytics_page_stat.page_views) AS page_views,
     Sum(google_analytics_page_stat.unique_page_views) AS unique_page_views,
     Sum(time_to_sec(google_analytics_page_stat.time_on_page)) /60/60 AS time_on_page
-    From google_analytics_agent_page_stat
-    Inner Join google_analytics_page_stat ON google_analytics_agent_page_stat.taxon_concept_id = google_analytics_page_stat.taxon_concept_id AND google_analytics_agent_page_stat.`year` = google_analytics_page_stat.`year` AND google_analytics_agent_page_stat.`month` = google_analytics_page_stat.`month`
+    From google_analytics_partner_taxa
+    Inner Join google_analytics_page_stat ON google_analytics_partner_taxa.taxon_concept_id = google_analytics_page_stat.taxon_concept_id AND google_analytics_partner_taxa.`year` = google_analytics_page_stat.`year` AND google_analytics_partner_taxa.`month` = google_analytics_page_stat.`month`
     Where
-    google_analytics_agent_page_stat.agent_id = $agent_id AND
-    google_analytics_agent_page_stat.`year` = $year AND
-    google_analytics_agent_page_stat.`month` = $month ";        
+    google_analytics_partner_taxa.agent_id = $agent_id AND
+    google_analytics_partner_taxa.`year` = $year AND
+    google_analytics_partner_taxa.`month` = $month ";        
     $result2 = $mysqli2->query($query);    
     $row2 = $result2->fetch_row();            
         
@@ -173,13 +168,11 @@ function monthly_summary($year_month)
     $month=intval(substr($year_month,5,2));
     
     //=================================================================
-    //=================================================================
     $query = get_sql_for_partners_with_published_data();
     $result = $mysqli->query($query);    
     
     //initialize txt file        
-	$filename = "data/" . $year_month . "/temp/google_analytics_monthly_summaries.txt";    $fp = fopen($filename,"w");fclose($fp);		    
-    //initialize end
+	$filename = "data/" . $year_month . "/google_analytics_partner_summaries.txt";    $fp = fopen($filename,"w");fclose($fp);		    
     
     echo"\n start agent stat summaries...\n";    
     $num_rows = $result->num_rows; $i=0;
@@ -190,25 +183,21 @@ function monthly_summary($year_month)
         
         $count_of_taxa_pages = get_count_of_taxa_pages_per_partner($row["id"]);        
         $arr = get_monthly_summaries_per_partner($row["id"],$year,$month,$count_of_taxa_pages);
-        $temp = save_to_txt2($arr, "google_analytics_monthly_summaries",$year_month,chr(9),"txt");                
-        
+        $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                        
     }//end while
-
-    //=================================================================
-    
-    echo"\n start BHL stats...\n";    
+    //=================================================================    
+    echo"\n start BHL stats summaries...\n";    
     $count_of_taxa_pages = get_count_of_taxa_pages_per_partner(38205);        
     $arr = get_monthly_summaries_per_partner(38205,$year,$month,$count_of_taxa_pages);
-    $temp = save_to_txt2($arr, "google_analytics_monthly_summaries",$year_month,chr(9),"txt");                
+    $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                
     
-    echo"\n start COL stats...\n";    
+    echo"\n start COL stats summaries...\n";    
     $count_of_taxa_pages = get_count_of_taxa_pages_per_partner(11);        
     $arr = get_monthly_summaries_per_partner(11,$year,$month,$count_of_taxa_pages);
-    $temp = save_to_txt2($arr, "google_analytics_monthly_summaries",$year_month,chr(9),"txt");                
-
+    $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                
     //=================================================================
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_monthly_summaries.txt' 
-    INTO TABLE google_analytics_monthly_summaries");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' 
+    INTO TABLE google_analytics_partner_summaries");        
     //=================================================================
 
 }//end func //end start3
@@ -273,9 +262,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     $result = $mysqli->query($query);    
     
     //initialize txt file        
-	$filename = "data/" . $year_month . "/temp/google_analytics_agent_page_stat.txt";    $fp = fopen($filename,"w");fclose($fp);		    
-    $filename = "data/" . $year_month . "/temp/google_analytics_agent_page_stat_bhl.txt";$fp = fopen($filename,"w");fclose($fp);		    
-    $filename = "data/" . $year_month . "/temp/google_analytics_agent_page_stat_col.txt";$fp = fopen($filename,"w");fclose($fp);		    	
+	$filename = "data/" . $year_month . "/google_analytics_partner_taxa.txt";    $fp = fopen($filename,"w");fclose($fp);		    
+    $filename = "data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt";$fp = fopen($filename,"w");fclose($fp);		    
+    $filename = "data/" . $year_month . "/google_analytics_partner_taxa_col.txt";$fp = fopen($filename,"w");fclose($fp);		    	
     //initialize end
     
     echo"\n start agent stats...\n";    
@@ -289,8 +278,7 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
         $fields=array();
         $fields[0]="taxon_concept_id";
         $fields[1]="id";
-        //$fields[1]="full_name";        
-        $temp = save_to_txt($result2,"google_analytics_agent_page_stat",$fields,$year_month,chr(9),0,"txt");
+        $temp = save_to_txt($result2,"google_analytics_partner_taxa",$fields,$year_month,chr(9),0,"txt");
     }
     
 
@@ -303,7 +291,7 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     $fields=array();
     $fields[0]="taxon_concept_id";
     $fields[1]="agent_id";
-    $temp = save_to_txt($result, "google_analytics_agent_page_stat_bhl",$fields,$year_month,chr(9),0,"txt");
+    $temp = save_to_txt($result, "google_analytics_partner_taxa_bhl",$fields,$year_month,chr(9),0,"txt");
     
     echo"\n start COL stats...\n";    
     $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(11);
@@ -311,14 +299,14 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     $fields=array();
     $fields[0]="taxon_concept_id";
     $fields[1]="agent_id";
-    $temp = save_to_txt($result, "google_analytics_agent_page_stat_col",$fields,$year_month,chr(9),0,"txt");
+    $temp = save_to_txt($result, "google_analytics_partner_taxa_col",$fields,$year_month,chr(9),0,"txt");
 
     //=================================================================
     //query 4,5 /* not needed anymore */
     //query 6,7,8
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat.txt'     INTO TABLE google_analytics_agent_page_stat");        
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat_bhl.txt' INTO TABLE google_analytics_agent_page_stat");        
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat_col.txt' INTO TABLE google_analytics_agent_page_stat");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa.txt'     INTO TABLE google_analytics_partner_taxa");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt' INTO TABLE google_analytics_partner_taxa");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_col.txt' INTO TABLE google_analytics_partner_taxa");        
     //=================================================================
 
     //start query9,10,11,12 => start3.php
@@ -348,7 +336,6 @@ function get_sciname_from_tc_id($tc_id)
 
 function get_from_api($month,$year)
 {
-    global $google_analytics_page_stat;
     global $mysqli2;
     
     $year_month = $year . "_" . $month;
@@ -387,14 +374,14 @@ function get_from_api($month,$year)
         //$range=100; //debug
         
         mkdir("data/" . $year . "_" . $month , 0700);        
-        mkdir("data/" . $year . "_" . $month . "/temp", 0700);        
         
-        $OUT = fopen("data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_stat . ".txt", "w+");
+        $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stat.txt", "w+");
         $cr = "\n";
         $sep = ",";
         $sep = chr(9); //tab
         $str = "";
         
+        $cnt = 0;
         while($continue == true)
         {
             $data = $api->data($id, 'ga:pagePath' , 'ga:pageviews,ga:uniquePageviews,ga:bounces,ga:entrances,ga:exits,ga:timeOnPage'       
@@ -403,10 +390,11 @@ function get_from_api($month,$year)
                     /* doesn't work with ,ga:visitors,ga:visits - these 2 work if there is no dimension, this one has a dimension 'ga:pagePath' */
             $start_count += $range;                    
             $val=array();            
-            print "no. of records = " . count($data) . "\n";            
-            
+            print "Process batch of = " . count($data) . "\n";            
+         
+            $cnt++;   
             if(count($data) == 0)$continue=false;        
-            //$continue=false; //debug - use to force-stop loop
+            //if($cnt == 3)$continue=false; //debug - use to force-stop loop     
             
             foreach($data as $metric => $count) 
             {
@@ -461,21 +449,22 @@ function get_from_api($month,$year)
                     //else echo" not numeric ";
                     */                    
                     
-                    if($taxon_id > 0)
-                    {
+                    //if($taxon_id > 0)
+                    //{
                         $str .= $taxon_id . $sep . 
                                 intval(substr($year_month,0,4)) . $sep .
                                 intval(substr($year_month,5,2)) . $sep .
                                 $count["ga:pageviews"] . $sep . 
                                 $count["ga:uniquePageviews"] . $sep . 
-                                $averate_time_on_page . $cr;
+                                $averate_time_on_page 
+                                . $cr;
                                 /* 
                                 $bounce_rate . $sep . 
                                 $percent_exit . $sep . 
                                 $money_index . $sep . 
                                 date('Y-m-d H:i:s') . 
                                 */
-                    }
+                    //}
                 }
                 //print "<hr>";
                 // */
@@ -485,13 +474,13 @@ function get_from_api($month,$year)
 
             //exit;
                         
-            fwrite($OUT, $str);
+            //fwrite($OUT, $str); // transferred out of the while
         }//end while
-        fclose($OUT);
-        
-        
-        //$update = $mysqli2->query("TRUNCATE TABLE " . $google_analytics_page_stat . "");        
-        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_stat . ".txt' INTO TABLE " . $google_analytics_page_stat . "");        
+        fwrite($OUT, $str);
+        fclose($OUT);        
+
+        print"ditox";        
+        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stat.txt' INTO TABLE google_analytics_page_stat");      
         
     }
     else 
@@ -508,7 +497,7 @@ function getlastdayofmonth($month, $year)
 
 function create_tables()
 {   /* to be run as migrations */   
-    $query="CREATE TABLE `google_analytics_agent_page_stat` (
+    $query="CREATE TABLE `google_analytics_partner_taxa` (
     `taxon_concept_id` int(10) unsigned NOT NULL,
     `agent_id` int(10) unsigned NOT NULL,
     `year` smallint(4) NOT NULL,
@@ -532,7 +521,7 @@ function create_tables()
     $update = $mysqli->query($query);    
 
     /*
-	$query="CREATE TABLE  `google_analytics_agent_page_stat` ( 
+	$query="CREATE TABLE  `google_analytics_partner_taxa` ( 
     `agent_id` int(10) unsigned NOT NULL,
     `agentName` varchar(64) NOT NULL,
     `taxon_concept_id` int(10) unsigned NOT NULL,
@@ -572,8 +561,8 @@ function initialize_tables_4dmonth($year,$month)
 {	global $mysqli2;    
     //$month=intval($month);
     $query="delete from `google_analytics_page_stat`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
-    $query="delete from `google_analytics_agent_page_stat`   where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
-    $query="delete from `google_analytics_monthly_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
+    $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
+    $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
 }//function initialize_tables_4dmonth()
 
 function get_val_var($v)
@@ -617,10 +606,8 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
         $str .= intval(substr($year_month,5,2)) . $field_separator;
 		$str .= "\n";
 	}
-    if($file_extension == "txt")$temp = "temp/";
-    else                        $temp = "";
     
-	$filename = "data/" . $year_month . "/" . $temp . "$filename" . "." . $file_extension;
+	$filename = "data/" . $year_month . "/" . "$filename" . "." . $file_extension;
 	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
     
     //print "\n[$i]\n";
