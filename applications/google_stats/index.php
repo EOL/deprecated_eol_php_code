@@ -55,7 +55,6 @@ for($month = 1; $month <= 12 ; $month++)
         <a href='start1.php?month=$month&year=$year'>Step 1 (gaps)</a>
         <a href='start2.php?month=$month&year=$year'>Step 2 (qry 1-8)</a>
         <a href='start3.php?month=$month&year=$year'>Step 3 (qry 9-12 CSV files)</a>                          
-
         */
         
         print"<td><i><font size='2'>$str</font></i></td>";    

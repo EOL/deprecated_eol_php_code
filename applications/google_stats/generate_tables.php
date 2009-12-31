@@ -1,6 +1,6 @@
 <?php
 
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 //define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -63,6 +63,151 @@ $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
 echo"\n\n Processing done. --end-- ";    
 exit;
 
+function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extension)
+{
+	$str="";        
+	for ($i = 0; $i < count($arr); $i++) 		
+	{
+		$field = $arr[$i];
+		$str .= $field . $field_separator;    //chr(9) is tab
+	}
+	$str .= "\n";
+
+    if($file_extension == "txt")$temp = "temp/";
+    else                        $temp = "";
+    
+	$filename = "data/" . $year_month . "/" . $temp . "$filename" . "." . $file_extension;
+	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
+    
+    return "";
+    
+}//function save_to_txt2
+
+
+
+function monthly_summary($year_month)
+{
+    global $mysqli;
+    global $mysqli2;    
+
+    //=================================================================
+    //=================================================================
+    $query="Select distinct agents.id From agents
+    Inner Join agents_resources ON agents.id = agents_resources.agent_id
+    Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
+    Where harvest_events.published_at is not null "; 
+    //$query .= " and agents.id = 2 "; //debug FishBase
+    $query .= " order by agents.full_name ";
+    //this query now only gets partners with a published data on the time the report was run.
+    //$query .= " limit 5 "; //debug
+    $result = $mysqli->query($query);    
+    
+    //initialize txt file        
+	$filename = "data/" . $year_month . "/temp/google_analytics_monthly_summaries.txt";    $fp = fopen($filename,"w");fclose($fp);		    
+    $filename = "data/" . $year_month . "/temp/google_analytics_monthly_summaries_bhl.txt";$fp = fopen($filename,"w");fclose($fp);		    
+    $filename = "data/" . $year_month . "/temp/google_analytics_monthly_summaries_col.txt";$fp = fopen($filename,"w");fclose($fp);		    	
+    //initialize end
+    
+    echo"\n start agent stats...\n";    
+    $num_rows = $result->num_rows; $i=0;
+    while($result && $row=$result->fetch_assoc())	
+    {
+        $i++;
+        echo"agent id = $row[id] $i of $num_rows \n";
+        
+        //start get count_of_taxa_pages
+        $query = "Select distinct Count(he.taxon_concept_id) FROM agents a JOIN agents_resources ar ON (a.id=ar.agent_id) JOIN harvest_events hev ON (ar.resource_id=hev.resource_id) JOIN harvest_events_taxa het ON (hev.id=het.harvest_event_id) JOIN taxa t ON (het.taxon_id=t.id) join hierarchy_entries he on t.hierarchy_entry_id = he.id join taxon_concepts tc on he.taxon_concept_id = tc.id WHERE a.id = $row[id] and tc.published = 1 and tc.supercedure_id = 0 ";        
+        $result2 = $mysqli->query($query);        
+        $row2 = $result2->fetch_row();            
+        $count_of_taxa_pages = $row2[0];
+        //end get count_of_taxa_pages
+        
+        //start get count_of_taxa_pages viewed during the month, etc.
+        $query = "Select distinct
+        Count(google_analytics_agent_page_stat.taxon_concept_id) AS taxa_pages_viewed,
+        Sum(google_analytics_page_stat.page_views) AS page_views,
+        Sum(google_analytics_page_stat.unique_page_views) AS unique_page_views,
+        Sum(time_to_sec(google_analytics_page_stat.time_on_page)) /60/60 AS time_on_page
+        From
+        google_analytics_agent_page_stat
+        Inner Join google_analytics_page_stat ON google_analytics_agent_page_stat.taxon_concept_id = google_analytics_page_stat.taxon_concept_id AND google_analytics_agent_page_stat.`year` = google_analytics_page_stat.`year` AND google_analytics_agent_page_stat.`month` = google_analytics_page_stat.`month`
+        Where
+        google_analytics_agent_page_stat.agent_id = $row[id] AND
+        google_analytics_agent_page_stat.`year` = $year AND
+        google_analytics_agent_page_stat.`month` = $month
+        ";        
+        $result2 = $mysqli2->query($query);    
+        $row2 = $result2->fetch_row();            
+        
+        $taxa_pages_viewed  = $row2[0];
+        $page_views         = $row2[1];
+        $unique_page_views  = $row2[2];
+        $time_on_page       = $row2[3];        
+        
+        $arr=array();
+        $arr[]=$row[id];
+        $arr[]=intval(substr($year_month,0,4));
+        $arr[]=intval(substr($year_month,5,2));
+        $arr[]=$count_of_taxa_pages;
+        $arr[]=$taxa_pages_viewed;
+        $arr[]=$unique_page_views;
+        $arr[]=$page_views;
+        $arr[]=$time_on_page;
+        
+        start here...
+        
+        //end get count_of_taxa_pages viewed during the month, etc.
+        $temp = save_to_txt2($arr, "google_analytics_monthly_summaries",$year_month,chr(9),"txt");        
+        
+                
+    }//end while
+    
+
+    //=================================================================
+    //query 3
+    
+    echo"\n start BHL stats...\n";    
+    //before 'BHL'
+    $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
+    from taxon_concepts tc inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
+    Inner Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id        
+    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");
+    //$query .= " LIMIT 1 "; //debug
+    $result = $mysqli->query($query);    
+    $fields=array();
+    $fields[0]="taxon_concept_id";
+    $fields[1]="agent_id";
+    $temp = save_to_txt($result, "google_analytics_agent_page_stat_bhl",$fields,$year_month,chr(9),0,"txt");
+
+    //==============================================================================================
+    //start COL 2009    
+    echo"\n start COL stats...\n";    
+    $query = "
+    select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id     
+    from taxon_concepts tc inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
+    Inner Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id
+    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
+    and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
+    where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
+    //$query .= " LIMIT 1 "; //debug
+    $result = $mysqli->query($query);    
+    $fields=array();
+    $fields[0]="taxon_concept_id";
+    $fields[1]="agent_id";
+    $temp = save_to_txt($result, "google_analytics_agent_page_stat_col",$fields,$year_month,chr(9),0,"txt");
+    //end COL 2009
+    //==============================================================================================
+
+    //=================================================================
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat.txt'     INTO TABLE google_analytics_agent_page_stat");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat_bhl.txt' INTO TABLE google_analytics_agent_page_stat");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat_col.txt' INTO TABLE google_analytics_agent_page_stat");        
+    //=================================================================
+
+
+}//end func //end start3
+
+
 function prepare_agentHierarchies_hierarchiesNames($year_month)
 {
     global $mysqli;
@@ -76,10 +221,10 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
     Where harvest_events.published_at is not null "; 
-    $query .= " and agents.id = 2 "; //debug
+    $query .= " and agents.id = 2 "; //debug FishBase
     $query .= " order by agents.full_name ";
     //this query now only gets partners with a published data on the time the report was run.
-    $query .= " limit 5 "; //debug
+    //$query .= " limit 5 "; //debug
     $result = $mysqli->query($query);    
     
     //initialize txt file        
@@ -94,7 +239,7 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     {
         $i++;
         echo"agent id = $row[id] $i of $num_rows \n";
-        $query = "SELECT DISTINCT a.id, a.full_name, he.taxon_concept_id 
+        $query = "SELECT DISTINCT a.id, he.taxon_concept_id 
         FROM agents a 
         JOIN agents_resources ar ON (a.id=ar.agent_id) 
         JOIN harvest_events hev ON (ar.resource_id=hev.resource_id) 
@@ -104,8 +249,7 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
         join taxon_concepts tc on he.taxon_concept_id = tc.id         
         Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id
         WHERE a.id = $row[id] and tc.published = 1 and tc.supercedure_id = 0 ";        
-        $query .= " limit 50 "; //debug 
-
+        //$query .= " limit 50 "; //debug 
         $result2 = $mysqli->query($query);    
         $fields=array();
         $fields[0]="taxon_concept_id";
@@ -114,26 +258,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
         $temp = save_to_txt($result2,"google_analytics_agent_page_stat",$fields,$year_month,chr(9),0,"txt");
     }
     
-    //exit("<hr>stopx");
-    
-    /*
-    WHERE a.full_name IN (
-    	'AmphibiaWeb', 'BioLib.cz', 'Biolib.de', 'Biopix', 'Catalogue of Life', 'FishBase',
-    	'Global Biodiversity Information Facility (GBIF)', 'IUCN', 'Micro*scope',
-    	'Solanaceae Source', 'Tree of Life web project', 'uBio','AntWeb','ARKive','Animal Diversity Web' ";
-    if($year >= 2009 && intval($month) > 4) $query .= " , 'The Nearctic Spider Database' ";    
-    */    
-
-
-
 
     //=================================================================
     //query 3
-    /*legacy
-    $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id FROM page_names pn JOIN taxon_concept_names tcn ON (pn.name_id=tcn.name_id)";
-    */
-    //either of these 2 queries will work
-    /* $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted"); */
     
     echo"\n start BHL stats...\n";    
     //before 'BHL'
@@ -141,7 +268,7 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     from taxon_concepts tc inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
     Inner Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id        
     where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");
-    $query .= " LIMIT 1 "; //debug
+    //$query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="taxon_concept_id";
@@ -151,7 +278,6 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
     //==============================================================================================
     //start COL 2009
-
     /* working but don't go through taxon_concept_names
     $query = "select distinct 'COL 2009' full_name, tc.id taxon_concept_id from 
     taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
@@ -168,7 +294,7 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
     and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
     where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
-    $query .= " LIMIT 1 "; //debug
+    //$query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="taxon_concept_id";
@@ -179,18 +305,8 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     //end COL 2009
     //==============================================================================================
     //=================================================================
-    //query 4,5
-    /* not needed anymore
-    $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.hierarchies_names_" . $year_month . "");        
-    $update = $mysqli2->query("TRUNCATE TABLE eol_statistics.agents_hierarchies_" . $year_month . "");        
-    */
+    //query 4,5 /* not needed anymore */
     //query 6,7,8
-    /* changed to without year_month
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/hierarchies_names.txt'      INTO TABLE eol_statistics.hierarchies_names_" . $year_month . "");        
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies.txt'     INTO TABLE eol_statistics.agents_hierarchies_" . $year_month . "");        
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies_bhl.txt' INTO TABLE eol_statistics.agents_hierarchies_" . $year_month . "");        
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/agents_hierarchies_col.txt' INTO TABLE eol_statistics.agents_hierarchies_" . $year_month . "");        
-    */
     $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat.txt'     INTO TABLE google_analytics_agent_page_stat");        
     $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat_bhl.txt' INTO TABLE google_analytics_agent_page_stat");        
     $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/temp/google_analytics_agent_page_stat_col.txt' INTO TABLE google_analytics_agent_page_stat");        
@@ -237,8 +353,7 @@ function get_from_api($month,$year)
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
     
-    print"\n start day = $start_date \n end day = $end_date \n";
-    
+    print"\n start day = $start_date \n end day = $end_date \n";    
     
     $final = array();
     
