@@ -1,10 +1,13 @@
 <?php
 
-define("ENVIRONMENT", "slave_32");
-//define("MYSQL_DEBUG", true);
+define("ENVIRONMENT", "slave_215");
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+exit;
+
+
 $mysqli2 = load_mysql_environment('eol_statistics');        
 set_time_limit(0);
 
