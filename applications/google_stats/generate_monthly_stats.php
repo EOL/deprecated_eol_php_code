@@ -54,6 +54,8 @@ initialize_tables_4dmonth($year,$month);
 //exit(); //debug - uncomment to see if current month entries are deleted from the tables
 
 $temp = get_from_api($month,$year);                             //start1
+exit("<hr>finished start1 only");
+
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
 $temp = monthly_summary($year_month);                           //
 
@@ -379,8 +381,7 @@ function get_from_api($month,$year)
         $cr = "\n";
         $sep = ",";
         $sep = chr(9); //tab
-        $str = "";
-        
+                
         $cnt = 0;
         while($continue == true)
         {
@@ -395,7 +396,8 @@ function get_from_api($month,$year)
             $cnt++;   
             if(count($data) == 0)$continue=false;        
             //if($cnt == 3)$continue=false; //debug - use to force-stop loop     
-            
+        
+            $str = "";    
             foreach($data as $metric => $count) 
             {
                 $i++; print "$i. \n";                
@@ -474,9 +476,8 @@ function get_from_api($month,$year)
 
             //exit;
                         
-            //fwrite($OUT, $str); // transferred out of the while
+            fwrite($OUT, $str); // transferred out of the while
         }//end while
-        fwrite($OUT, $str);
         fclose($OUT);        
 
         print"ditox";        
@@ -519,41 +520,6 @@ function create_tables()
     KEY `page_views` (`page_views`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
     $update = $mysqli->query($query);    
-
-    /*
-	$query="CREATE TABLE  `google_analytics_partner_taxa` ( 
-    `agent_id` int(10) unsigned NOT NULL,
-    `agentName` varchar(64) NOT NULL,
-    `taxon_concept_id` int(10) unsigned NOT NULL,
-    `year_month` varchar(8) NOT NULL default '',
-    PRIMARY KEY  (`agent_id`,`taxon_concept_id`,`year_month`),
-    KEY `taxon_concept_id` (`taxon_concept_id`),
-    KEY `agent_id` (`agent_id`),
-    KEY `year_month` (`year_month`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ";     
-    $update = $mysqli->query($query);    
-
-	$query="CREATE TABLE `google_analytics_page_stat` ( 
-    `id` int(10) unsigned NOT NULL auto_increment,
-    `taxon_concept_id` int(10) unsigned default NULL,
-    `year_month` varchar(8) default NULL,
-    `sciname` varchar(100) default NULL,
-    `url` varchar(1000) NOT NULL,
-    `page_views` int(10) unsigned NOT NULL,
-    `unique_page_views` int(10) unsigned NOT NULL,
-    `time_on_page` time NOT NULL,
-    `bounce_rate` float default NULL,
-    `percent_exit` float default NULL,
-    `money_index` float default NULL,
-    `date_added` datetime NOT NULL,
-    PRIMARY KEY  (`id`),
-    KEY `year_month` (`year_month`),
-    KEY `taxon_concept_id` (`taxon_concept_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ";
-	$update = $mysqli->query($query);    
-    //`visits` int(10) unsigned NOT NULL, 
-    //`visitors` int(10) unsigned NOT NULL,     
-    */
 
 }
 

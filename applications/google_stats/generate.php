@@ -1,11 +1,11 @@
 <?php
 
-define("ENVIRONMENT", "slave_215");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-exit;
+//exit;
 
 
 $mysqli2 = load_mysql_environment('eol_statistics');        
@@ -63,11 +63,12 @@ $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year 
 // /* //start1
 initialize_tables_4dmonth();
 $api = get_from_api($month,$year);    
+exit("<hr>finished start1 only");
 //end
 // */
 
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start start2
-$temp = create_csv_files($year_month); //start start3
+$temp = create_csv_files($year_month);                          //start start3
 
 function create_csv_files($year_month)
 {
@@ -308,6 +309,11 @@ function get_from_api($month,$year)
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
     
+    print"<hr>
+    start = $start_date <br>
+    end = $end_date   <hr>    
+    ";
+    
     $final = array();
     
     require_once(LOCAL_ROOT . '/classes/modules/Google_Analytics_API_PHP/analytics_api.php');
@@ -343,8 +349,7 @@ function get_from_api($month,$year)
         $cr = "\n";
         $sep = ",";
         $sep = chr(9); //tab
-        $str = "";
-        
+                
         while($continue == true)
         {
             $data = $api->data($id, 'ga:pagePath' , 'ga:pageviews,ga:uniquePageviews,ga:bounces,ga:entrances,ga:exits,ga:timeOnPage'       
@@ -356,7 +361,8 @@ function get_from_api($month,$year)
             
             if(count($data) == 0)$continue=false;        
             /* for debugging */ //$continue=false;
-            
+        
+            $str = "";    
             foreach($data as $metric => $count) 
             {
                 $i++; print "$i. ";                
@@ -409,11 +415,9 @@ function get_from_api($month,$year)
 
             //exit;
                         
-            //fwrite($OUT, $str); // transferred out of the while
+            fwrite($OUT, $str); // transferred out of the while
         }//end while
-        fwrite($OUT, $str);
-        fclose($OUT);
-        
+        fclose($OUT);        
         
         $update = $mysqli2->query("TRUNCATE TABLE eol_statistics." . $google_analytics_page_statistics . "");        
         $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_statistics . ".txt' INTO TABLE eol_statistics." . $google_analytics_page_statistics . "");        

@@ -80,7 +80,8 @@ function get_from_api($month,$year)
             
             if(count($data) == 0)$continue=false;        
             /* for debugging */ //$continue=false;
-            
+        
+            $str = "";    
             foreach($data as $metric => $count) 
             {
                 $i++; print "$i. ";                
@@ -134,8 +135,7 @@ function get_from_api($month,$year)
                         
             fwrite($OUT, $str);
         }//end while
-        fclose($OUT);
-        
+        fclose($OUT);        
         
         $update = $mysqli2->query("TRUNCATE TABLE eol_statistics." . $google_analytics_page_statistics . "");        
         $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_statistics . ".txt' INTO TABLE eol_statistics." . $google_analytics_page_statistics . "");        
