@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 //connector for WORMS
-exit;
+//exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
@@ -158,15 +158,17 @@ function get_main_id_list()
     $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2009.xml";
     */
 
-    /*
+    /* WORMS server can't render such requests online
     $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
     $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
     $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";
+    $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20100101&enddate=20101231";
     */
     
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2007.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2008.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2009.xml";
+    $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2010.xml";
  
     echo "\n URLs = " . sizeof($url) . "\n";
     $no_of_urls = sizeof($url);        
