@@ -32,9 +32,15 @@ $mysqli2 = load_mysql_environment('eol_statistics');
 //query 6,7,8
 //=================================================================
 //start query9
+/*
 $query="SELECT (SELECT COUNT(*) FROM eol_statistics.hierarchies_names_" . $year_month . ") all_taxa_count, 
 agentName, COUNT(*) agent_taxa_count FROM eol_statistics.agents_hierarchies_" . $year_month . " 
 GROUP BY agentName ORDER BY agentName;";
+*/
+$query="SELECT (SELECT COUNT(*) FROM eol_statistics.hierarchies_names_" . $year_month . ") all_taxa_count, 
+agentName, COUNT(*) agent_taxa_count FROM eol_statistics.agents_hierarchies_" . $year_month . " 
+GROUP BY agent_id ORDER BY agentName;";
+
 $result = $mysqli2->query($query);    
 $fields=array();
 $fields[0]="all_taxa_count";
@@ -64,9 +70,11 @@ $temp = save_to_txt($result,"query10",$fields,$year_month,",",1,"csv");
 //end query10
 //=================================================================
 //start query11 - site_statistics
-$query="SELECT ah.agentName,g.taxon_id, hn.scientificName, hn.commonNameEN,SUM(g.page_views) total_page_views,SUM(g.unique_page_views) total_unique_page_views,SUM(TIME_TO_SEC(g.time_on_page)) total_time_on_page_seconds FROM eol_statistics." . $google_analytics_page_statistics . " g INNER JOIN eol_statistics.agents_hierarchies_" . $year_month . " ah	ON ah.hierarchiesID = g.taxon_id LEFT OUTER JOIN eol_statistics.hierarchies_names_" . $year_month . " hn ON hn.hierarchiesID=g.taxon_id ";
+$query="SELECT ah.agentName,g.taxon_id, hn.scientificName, hn.commonNameEN,SUM(g.page_views) total_page_views,SUM(g.unique_page_views) total_unique_page_views,SUM(TIME_TO_SEC(g.time_on_page)) total_time_on_page_seconds 
+FROM eol_statistics." . $google_analytics_page_statistics . " g INNER JOIN eol_statistics.agents_hierarchies_" . $year_month . " ah	ON ah.hierarchiesID = g.taxon_id LEFT OUTER JOIN eol_statistics.hierarchies_names_" . $year_month . " hn ON hn.hierarchiesID=g.taxon_id ";
 //$query .= " WHERE g.date_added > ADDDATE(CURDATE(), -1) ";
-$query .= " GROUP BY ah.agentName, g.taxon_id ORDER BY ah.agentName, total_page_views DESC, total_unique_page_views DESC, total_time_on_page_seconds DESC ";
+$query .= " GROUP BY ah.agent_id, g.taxon_id ORDER BY ah.agentName, total_page_views DESC, total_unique_page_views DESC, total_time_on_page_seconds DESC ";
+//GROUP BY ah.agentName,
 $result = $mysqli2->query($query);    
 $fields=array();
 $fields[]="agentName";

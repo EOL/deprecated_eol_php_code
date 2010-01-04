@@ -18,49 +18,50 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
 
-$month = get_val_var("month");
-$year = get_val_var("year");
-
-if($month == "")
-{
-    $arg1='';   
-    $arg2='';
-
-    if(isset($argv[0])) $arg0=$argv[0]; //this is the filename xxx.php
-    if(isset($argv[1])) $month=$argv[1];        
-    if(isset($argv[2])) $year=$argv[2];        
-
-    print"
-    month = $month  \n
-    year = $year    \n
-    ";
-    
-    if($month != "" and $year != "") print"Processing, please wait...  \n\n ";
-
-}
-
-if($month == "" or $year == "" or $year < 2008 or $year > date('Y') or $month < 1 or $month > 12)
-{
-    print"\n Invalid parameters  \n
-    e.g. for July 2009 enter: \n
-    \t php generate_monthly_stats.php 7 2009 \n\n ";
-    exit();
-}
-
-$month = GetNumMonthAsString($month, $year);
+$arr = process_parameters();//month and year parameters
+$month = $arr[0];
+$year = $arr[1];
 $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
-initialize_tables_4dmonth($year,$month); 
-//exit(); //debug - uncomment to see if current month entries are deleted from the tables
-$temp = get_from_api($month,$year);                             //start1
-//exit("<hr>finished start1 only");
-$temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
-$temp = monthly_summary($year_month);                           //
+initialize_tables_4dmonth($year,$month); //exit(); //debug - uncomment to see if current month entries are deleted from the tables
+$temp = save_eol_taxa_google_stats($month,$year); //start1 //exit("<hr>finished start1 only");
+$temp = save_agent_taxa($year_month); //start2
+$temp = save_agent_monthly_summary($year_month);                           //
 
 echo"\n\n Processing done. --end-- "; exit;
 
 //####################################################################################################################################
 //####################################################################################################################################
+function process_parameters()
+{
+    $month = get_val_var("month");
+    $year = get_val_var("year");
+    if($month == "")
+    {
+        $arg1='';   
+        $arg2='';
+        if(isset($argv[0])) $arg0=$argv[0]; //this is the filename xxx.php
+        if(isset($argv[1])) $month=$argv[1];        
+        if(isset($argv[2])) $year=$argv[2];        
+        print"
+        month = $month  \n
+        year = $year    \n
+        ";    
+        if($month != "" and $year != "") print"Processing, please wait...  \n\n ";
+    }
+    if($month == "" or $year == "" or $year < 2008 or $year > date('Y') or $month < 1 or $month > 12)
+    {
+        print"\n Invalid parameters!\n
+        e.g. for July 2009 enter: \n
+        \t php generate_monthly_stats.php 7 2009 \n\n ";
+        exit();
+    }
+    $month = GetNumMonthAsString($month, $year);
+    $arr = array();
+    $arr[]=$month;
+    $arr[]=$year;
+    return $arr;
+}//function process_parameters()
 
 function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extension)
 {
@@ -176,7 +177,7 @@ function get_sql_for_partners_with_published_data()
     return $query;
 }
 
-function monthly_summary($year_month)
+function save_agent_monthly_summary($year_month)
 {
     global $mysqli;
     global $mysqli2;    
@@ -271,7 +272,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id)
 }
 
 
-function prepare_agentHierarchies_hierarchiesNames($year_month)
+function save_agent_taxa($year_month)
 {
     global $mysqli;
     global $mysqli2;    
@@ -356,7 +357,7 @@ function get_sciname_from_tc_id($tc_id)
 }
 //############################################################################ start functions
 
-function get_from_api($month,$year)
+function save_eol_taxa_google_stats($month,$year)
 {
     global $mysqli2;
     
@@ -393,7 +394,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=1000; //debug
+        $range=10000; //debug
         
         mkdir("data/" . $year . "_" . $month , 0700);        
         
@@ -415,7 +416,7 @@ function get_from_api($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            if($cnt == 1)$continue=false; //debug - use to force-stop loop     
+            //if($cnt == 1)$continue=false; //debug - use to force-stop loop     
         
             $str = "";    
             foreach($data as $metric => $count) 

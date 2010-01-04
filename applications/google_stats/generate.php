@@ -84,7 +84,9 @@ function create_csv_files($year_month)
     //start query9
     $query="SELECT (SELECT COUNT(*) FROM eol_statistics.hierarchies_names_" . $year_month . ") all_taxa_count, 
     agentName, COUNT(*) agent_taxa_count FROM eol_statistics.agents_hierarchies_" . $year_month . " 
-    GROUP BY agentName ORDER BY agentName;";
+    GROUP BY agent_id ORDER BY agentName;
+    ";
+    //GROUP BY agentName ORDER BY agentName;
     $result = $mysqli2->query($query);    
     $fields=array();
     $fields[0]="all_taxa_count";
@@ -116,7 +118,8 @@ function create_csv_files($year_month)
     //start query11 - site_statistics
     $query="SELECT ah.agentName,g.taxon_id, hn.scientificName, hn.commonNameEN,SUM(g.page_views) total_page_views,SUM(g.unique_page_views) total_unique_page_views,SUM(TIME_TO_SEC(g.time_on_page)) total_time_on_page_seconds FROM eol_statistics." . $google_analytics_page_statistics . " g INNER JOIN eol_statistics.agents_hierarchies_" . $year_month . " ah	ON ah.hierarchiesID = g.taxon_id LEFT OUTER JOIN eol_statistics.hierarchies_names_" . $year_month . " hn ON hn.hierarchiesID=g.taxon_id ";
     //$query .= " WHERE g.date_added > ADDDATE(CURDATE(), -1) ";
-    $query .= " GROUP BY ah.agentName, g.taxon_id ORDER BY ah.agentName, total_page_views DESC, total_unique_page_views DESC, total_time_on_page_seconds DESC ";
+    $query .= " GROUP BY ah.agent_id, g.taxon_id ORDER BY ah.agentName, total_page_views DESC, total_unique_page_views DESC, total_time_on_page_seconds DESC ";
+    //GROUP BY ah.agentName,
     $result = $mysqli2->query($query);    
     $fields=array();
     $fields[]="agentName";
@@ -340,7 +343,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=1000;
+        $range=10000;
         
         mkdir("data/" . $year . "_" . $month , 0700);        
         mkdir("data/" . $year . "_" . $month . "/temp", 0700);        
@@ -360,7 +363,7 @@ function get_from_api($month,$year)
             print "no. of records = " . count($data) . "<br>";            
             
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ $continue=false;
+            /* for debugging */ //$continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 
