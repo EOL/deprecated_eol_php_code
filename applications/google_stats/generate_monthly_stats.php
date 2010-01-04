@@ -1,7 +1,7 @@
 <?php
 
 //define("ENVIRONMENT", "slave_32");
-//define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -34,7 +34,7 @@ if($month == "")
     month = $month  \n
     year = $year    \n
     ";
-
+    
     if($month != "" and $year != "") print"Processing, please wait...  \n\n ";
 
 }
@@ -52,14 +52,15 @@ $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
 initialize_tables_4dmonth($year,$month); 
 //exit(); //debug - uncomment to see if current month entries are deleted from the tables
-
 $temp = get_from_api($month,$year);                             //start1
-exit("<hr>finished start1 only");
-
+//exit("<hr>finished start1 only");
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start2
 $temp = monthly_summary($year_month);                           //
 
 echo"\n\n Processing done. --end-- "; exit;
+
+//####################################################################################################################################
+//####################################################################################################################################
 
 function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extension)
 {
@@ -78,13 +79,12 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
     
 }//function save_to_txt2
 
-function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa_pages)
+function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed)
 {
     global $mysqli2;
     //start get count_of_taxa_pages viewed during the month, etc.
     $query = "Select distinct
-    Count(google_analytics_partner_taxa.taxon_concept_id) AS taxa_pages_viewed,
-    Sum(google_analytics_page_stat.page_views) AS page_views,
+     Sum(google_analytics_page_stat.page_views) AS page_views,
     Sum(google_analytics_page_stat.unique_page_views) AS unique_page_views,
     Sum(time_to_sec(google_analytics_page_stat.time_on_page)) /60/60 AS time_on_page
     From google_analytics_partner_taxa
@@ -96,17 +96,16 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     $result2 = $mysqli2->query($query);    
     $row2 = $result2->fetch_row();            
         
-    $taxa_pages_viewed  = $row2[0];
-    $page_views         = $row2[1];
-    $unique_page_views  = $row2[2];
-    $time_on_page       = $row2[3];        
+    $page_views         = $row2[0];
+    $unique_page_views  = $row2[1];
+    $time_on_page       = $row2[2];        
         
     $arr=array();
     $arr[]=$agent_id;
     $arr[]=$year;
     $arr[]=$month;
     $arr[]=$count_of_taxa_pages;
-    $arr[]=$taxa_pages_viewed;
+    $arr[]=$count_of_taxa_pages_viewed;
     $arr[]=$unique_page_views;
     $arr[]=$page_views;
     $arr[]=$time_on_page;
@@ -114,15 +113,18 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     return $arr;
 }
 
-function get_count_of_taxa_pages_per_partner($agent_id)
+function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
 {
     global $mysqli;
+    $arr=array();
+    
     if($agent_id == 38205)//BHL
-    {   $query = "Select distinct Count(tc.id) 
+    {           
+        $query = "Select distinct tc.id
         from taxon_concepts tc 
         inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-        inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
-        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");
+        inner JOIN page_names pn on (tcn.name_id=pn.name_id)
+        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");                 
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   $query = "Select distinct Count(tc.id)     
@@ -145,7 +147,20 @@ function get_count_of_taxa_pages_per_partner($agent_id)
     }
     $result2 = $mysqli->query($query);            
     $row2 = $result2->fetch_row();                
-    return $row2[0];
+    
+    if($agent_id == 38205)  $arr[] = $result2->num_rows; //count of taxa pages
+    else                    $arr[] = $row2[0]; //count of taxa pages
+
+    $query="Select Count(google_analytics_partner_taxa.taxon_concept_id)
+    From google_analytics_partner_taxa Where
+    google_analytics_partner_taxa.agent_id = $agent_id AND
+    google_analytics_partner_taxa.`year` = $year AND
+    google_analytics_partner_taxa.`month` = $month ";
+    $result2 = $mysqli->query($query);            
+    $row2 = $result2->fetch_row();                
+    $arr[] = $row2[0]; //count of taxa pages viewed during the month
+
+    return $arr;
 }
 
 function get_sql_for_partners_with_published_data()
@@ -181,21 +196,26 @@ function monthly_summary($year_month)
     while($result && $row=$result->fetch_assoc())	
     {
         $i++;
-        echo"agent id = $row[id] $i of $num_rows \n";
-        
-        $count_of_taxa_pages = get_count_of_taxa_pages_per_partner($row["id"]);        
-        $arr = get_monthly_summaries_per_partner($row["id"],$year,$month,$count_of_taxa_pages);
+        echo"agent id = $row[id] $i of $num_rows \n";        
+        $arr = get_count_of_taxa_pages_per_partner($row["id"],$year,$month);
+            $count_of_taxa_pages = $arr[0];
+            $count_of_taxa_pages_viewed = $arr[1];        
+        $arr = get_monthly_summaries_per_partner($row["id"],$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
         $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                        
     }//end while
     //=================================================================    
     echo"\n start BHL stats summaries...\n";    
-    $count_of_taxa_pages = get_count_of_taxa_pages_per_partner(38205);        
-    $arr = get_monthly_summaries_per_partner(38205,$year,$month,$count_of_taxa_pages);
+    $arr = get_count_of_taxa_pages_per_partner(38205,$year,$month);
+        $count_of_taxa_pages = $arr[0];
+        $count_of_taxa_pages_viewed = $arr[1];    
+    $arr = get_monthly_summaries_per_partner(38205,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                
     
     echo"\n start COL stats summaries...\n";    
-    $count_of_taxa_pages = get_count_of_taxa_pages_per_partner(11);        
-    $arr = get_monthly_summaries_per_partner(11,$year,$month,$count_of_taxa_pages);
+    $arr = get_count_of_taxa_pages_per_partner(11,$year,$month);
+        $count_of_taxa_pages = $arr[0];
+        $count_of_taxa_pages_viewed = $arr[1];
+    $arr = get_monthly_summaries_per_partner(11,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                
     //=================================================================
     $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' 
@@ -373,7 +393,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        //$range=100; //debug
+        $range=1000; //debug
         
         mkdir("data/" . $year . "_" . $month , 0700);        
         
@@ -395,7 +415,7 @@ function get_from_api($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            //if($cnt == 3)$continue=false; //debug - use to force-stop loop     
+            if($cnt == 1)$continue=false; //debug - use to force-stop loop     
         
             $str = "";    
             foreach($data as $metric => $count) 
@@ -451,8 +471,8 @@ function get_from_api($month,$year)
                     //else echo" not numeric ";
                     */                    
                     
-                    //if($taxon_id > 0)
-                    //{
+                    if($taxon_id > 0)
+                    {
                         $str .= $taxon_id . $sep . 
                                 intval(substr($year_month,0,4)) . $sep .
                                 intval(substr($year_month,5,2)) . $sep .
@@ -466,7 +486,7 @@ function get_from_api($month,$year)
                                 $money_index . $sep . 
                                 date('Y-m-d H:i:s') . 
                                 */
-                    //}
+                    }
                 }
                 //print "<hr>";
                 // */

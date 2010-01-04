@@ -1,6 +1,6 @@
 <?php
 
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -63,7 +63,7 @@ $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year 
 // /* //start1
 initialize_tables_4dmonth();
 $api = get_from_api($month,$year);    
-exit("<hr>finished start1 only");
+//exit("<hr>finished start1 only");
 //end
 // */
 
@@ -340,7 +340,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        //$range=10;
+        $range=1000;
         
         mkdir("data/" . $year . "_" . $month , 0700);        
         mkdir("data/" . $year . "_" . $month . "/temp", 0700);        
@@ -360,7 +360,7 @@ function get_from_api($month,$year)
             print "no. of records = " . count($data) . "<br>";            
             
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ //$continue=false;
+            /* for debugging */ $continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 

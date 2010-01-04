@@ -441,12 +441,12 @@ function monthly_tabular($year)
     
     print"</table>";
 
-    /* working ...    
+    // /* working ...    
     global $mysqli;
     $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
     $update = $mysqli->query("LOAD DATA LOCAL INFILE 'temp.txt' INTO TABLE google_analytics_summaries");        
     $update = $mysqli->query("delete from google_analytics_summaries where (year = " . date("Y") . " and month = " . date("n") . ") or visits = 0 ");            
-    */
+    // */
     
 }
 
