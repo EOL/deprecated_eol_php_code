@@ -1,5 +1,6 @@
 <?php
 
+//define("ENVIRONMENT", "staging");
 include_once(dirname(__FILE__) . "/../../../config/start.php");
 
 
@@ -18,6 +19,33 @@ get_names();
 echo "Memory: ".memory_get_usage()."\n";
 get_nodes();
 echo "Memory: ".memory_get_usage()."\n";
+
+
+$agent_params = array(  "full_name"     => "National Center for Biotechnology Information",
+                        "acronym"       => "NCBI");
+                            
+$agent_id = Agent::insert(Functions::mock_object("Agent", $agent_params));
+$agent_hierarchy_id = Hierarchy::find_by_agent_id($agent_id);
+if($agent_hierarchy_id)
+{
+    $agent_hierarchy = new Hierarchy($agent_hierarchy_id);
+    $hierarchy_group_id = $agent_hierarchy->hierarchy_group_id;
+    $hierarchy_group_version = $agent_hierarchy->latest_group_version()+1;
+}else
+{
+    $hierarchy_group_id = Hierarchy::next_group_id();
+    $hierarchy_group_version = 1;
+}
+$hierarchy_params = array(  "label"                     => "NCBI Taxonomy",
+                            "description"               => "latest export",
+                            "agent_id"                  => $agent_id,
+                            "hierarchy_group_id"        => $hierarchy_group_id,
+                            "hierarchy_group_version"   => $hierarchy_group_version);
+$hierarchy = new Hierarchy(Hierarchy::insert(Functions::mock_object("Hierarchy", $hierarchy_params)));
+
+
+$uri = dirname(__FILE__) . "/out.xml";
+DarwinCoreHarvester::harvest($uri, $hierarchy);
 
 
 shell_exec("rm -f ".dirname(__FILE__)."/*.dmp");

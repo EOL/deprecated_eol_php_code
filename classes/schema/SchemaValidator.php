@@ -23,6 +23,13 @@ class SchemaValidator
         while(@$reader->read())
         {
             // empty loop to load errors into libxml error cache
+            
+            //if($reader->name == "#text") echo $reader->name .":". $reader->value."\n";
+            // if(libxml_get_errors())
+            // {
+            //     echo libxml_get_last_error()->message."\n";
+            //     libxml_clear_errors();
+            // }
         }
         
         if($errors = self::get_errors()) return $errors;

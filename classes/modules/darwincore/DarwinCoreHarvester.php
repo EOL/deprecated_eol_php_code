@@ -68,10 +68,22 @@ class DarwinCoreHarvester
             }
         }
         
+        // this will take the information in memory and add it to the database as hierarchy entries and synonyms
         self::begin_adding_nodes($hierarchy);
+        $mysqli->end_transaction();
+        
+        // set the nested set values
         Tasks::rebuild_nested_set($hierarchy->id);
         
-        $mysqli->end_transaction();
+        // Rebuild the Solr index for this hierarchy
+        $indexer = new HierarchyEntryIndexer();
+        $indexer->index($hierarchy->id);
+        
+        // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+        CompareHierarchies::process_hierarchy($hierarchy, null, true);
+        
+        // Use the entry relationships to assign the proper concept IDs
+        CompareHierarchies::begin_concept_assignment($hierarchy->id);
     }
     
     private static function begin_adding_nodes(&$hierarchy, $vetted_id = 0, $published = 0)
