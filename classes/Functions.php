@@ -517,7 +517,17 @@ class Functions
     public static function import_decode($string, $remove_shitespace = false, $decode = true)
     {
         if($decode) $string = htmlspecialchars_decode(html_entity_decode($string));
+        
+        //utf-8 0x0A (nobreak space) does not get inserted into mysql properly, we change it back to &nbsp; 
+        $str_nbsp = html_entity_decode("&nbsp;");
+        
+        $string = str_replace($str_nbsp, "&nbsp;", $string);
+        
         if($remove_shitespace) $string = self::remove_whitespace($string);
+        echo 'and here';
+        echo "\n";
+        echo $string;
+        echo "\n";
         return trim($string);
     }
     
@@ -591,7 +601,7 @@ class Functions
         $nameString = preg_replace("/[óòôøõöŏỏỗộơọỡốơồờớổ]/u", "o", $nameString);
         $nameString = preg_replace("/[úùûüůưừựủứụ]/u", "u", $nameString);
         $nameString = preg_replace("/[žź]/u", "z", $nameString);
-        $nameString = preg_replace("/[ýÿỹ]/u", "y", $nameString);
+        
         $nameString = preg_replace("/[đ]/u", "d", $nameString);
         $nameString = preg_replace("/æ/u", "ae", $nameString);
         $nameString = preg_replace("/[čćç]/u", "c", $nameString);
