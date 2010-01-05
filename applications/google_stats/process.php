@@ -1,10 +1,9 @@
 <?php
-
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
-
+require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 ini_set('memory_limit','1000M');
@@ -39,6 +38,7 @@ if($report != "year2date")
     //start - stats for entire eol
     $eol_CountOfTaxaPages = getCountOfTaxaPages('',$path,"eol");
     $eol_total_taxon_id   = count_rec($path . "/query12.csv");    
+    $eol_total_taxon_id--; //subtract 1 so not to count the column title
     $arr = process_all_eol($path . "/query10.csv");    
     $arr = explode(",",$arr);
     $eol_total_unique_page_views    = @$arr[0];
@@ -63,10 +63,6 @@ if($report == "save_monthly")// save monthly
     $temp = save_monthly();
     exit;
 }
-
-
-
-
 
 
 $filename = $path . "/site_statistics.csv";
@@ -243,8 +239,6 @@ print"    t_page_views           =  $t_page_views           <br>
           t_taxa_id =  $t_taxa_id <br> ";
 */        
 
-
-
 function show_dropdown()
 {
     global $provider_to_process;
@@ -286,8 +280,6 @@ function get_month_list()
     $arr=array_keys($arr);
     return $arr;    
 }
-
-
 
 function save_monthly()
 {
@@ -387,11 +379,6 @@ function getMonthYear()
 }
 
 
-function num2places($x)
-{
-    //if(str_lenstrval($x))
-}
-
 
 function monthly_tabular($year)
 {
@@ -417,12 +404,9 @@ function monthly_tabular($year)
         }
         print"</tr>";                
         print"<tr><td align='center'> " . date("F", mktime(0, 0, 0, $month, 1, $year)) . "</td>";        
-
-
     
         foreach($api[0] as $label => $value) 
         {            
-
             $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
             //$a = "$year $month " . getlastdayofmonth(intval($month), $year) . " 23:59:59";           
             $b = date("Y m d H:i:s");                        
@@ -437,8 +421,7 @@ function monthly_tabular($year)
         $tab_delim .= "\n"; //tab
         print"</tr>";                
     
-    }//loop month
-    
+    }//loop month    
     print"</table>";
 
     // /* working ...    
@@ -446,9 +429,8 @@ function monthly_tabular($year)
     $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
     $update = $mysqli->query("LOAD DATA LOCAL INFILE 'temp.txt' INTO TABLE google_analytics_summaries");        
     $update = $mysqli->query("delete from google_analytics_summaries where (year = " . date("Y") . " and month = " . date("n") . ") or visits = 0 ");            
-    // */
-    
-}
+    // */    
+}//function monthly_tabular($year)
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -494,21 +476,12 @@ function iif($condition, $true, $false)
     else return $false;
 }
 
-function get_val_var($v)
-{
-    if         (isset($_GET["$v"])){$var=$_GET["$v"];}
-    elseif     (isset($_POST["$v"])){$var=$_POST["$v"];}    
-    if(isset($var))    return $var;
-    else            return NULL;    
-}
+
 
 function count_rec($file)
 {
-    $row = 0;
-    
-    
-    if(!($handle = fopen($file, "r")))return;
-    
+    $row = 0;    
+    if(!($handle = fopen($file, "r")))return;    
     while (($data = fgetcsv($handle)) !== FALSE) 
     {
         if($row > 0)
@@ -684,11 +657,7 @@ function GetMonthString($m,$y)
     return date("F Y", $timestamp);
 }
 
-function GetNumMonthAsString($m,$y)
-{
-    $timestamp = mktime(0, 0, 0, $m, 1, $y);    
-    return date("m", $timestamp);
-}
+
 
 function build_title_from_path($path)
 {
@@ -864,106 +833,9 @@ function record_details_eol($path)
     return $str;        
 }
 
-function get_from_api($month,$year)
-{
-    //exit(" -- stopx -- ");
-    $start_date = "$year-$month-01";
-    $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
-    
-    $final = array();
-    
-    require_once(LOCAL_ROOT . '/classes/modules/Google_Analytics_API_PHP/analytics_api.php');
-    
-    $login = GOOGLE_ANALYTICS_API_USERNAME;
-    $password = GOOGLE_ANALYTICS_API_PASSWORD;
-    //$password .= "eli";
-    $id = '';
-    
-    $api = new analytics_api();
-    if($api->login($login, $password)) 
-    {
-        //echo "login success <br>";
-        if(true) 
-        {
-            $api->load_accounts();
-            $arr=$api->accounts;
-        }
-        $id=$arr["www.eol.org"]["tableId"];
-    
-        //exit;//////////////////////////////////////////////////////////////////////////////////////////////        
-         /*
-        print"<pre>";
-        //print_r ($api->get_summaries($start_date, $end_date, false, true));
-        print"</pre>";
-            
-        $arr = $api->get_summaries($start_date, $end_date, false, false);
-        foreach($arr["www.eol.org"] as $metric => $count) 
-        {
-            echo "$metric: $count <br>";
-        } 
-         */   
-        //exit;//////////////////////////////////////////////////////////////////////////////////////////////
-        
-        
-        // get some account summary information without a dimension
-        if(true) 
-        {
-            //==============================================================
-            $data = $api->data($id, ''   , 'ga:uniquePageviews',false ,$start_date ,$end_date ,10      ,1    ,false,false);
-            $val=array();
-            foreach($data as $metric => $count) 
-            {
-                $val[$metric]=$count;
-            }                                    
-            $temp_uniquePageviews   = $val["ga:uniquePageviews"];            
-            //==============================================================
-            $data = $api->data($id, ''   , 'ga:bounces,ga:entrances,ga:exits,ga:newVisits,ga:pageviews,ga:timeOnPage,ga:timeOnSite,ga:visitors,ga:visits',false ,$start_date ,$end_date ,10      ,1    ,false,false);
-            $val=array();
-            foreach($data as $metric => $count) 
-            {
-                $val[$metric]=$count;
-            }            
-            
-            $final[0]["Visits"]                 = $val["ga:visits"];        
-            $final[0]["Visitors"]               = $val["ga:visitors"];        
-            $final[0]["Pageviews"]              = $val["ga:pageviews"];                 
-            $final[0]["Unique Pageviews"]       = $temp_uniquePageviews;                           
-            $final[0]["Average Pages/Visit"]    = number_format($val["ga:pageviews"]/$val["ga:visits"],2);        
-            $final[0]["Average Time on Site"]   = $api->sec2hms($val["ga:timeOnSite"]/$val["ga:visits"] ,false);                    
-			$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);			
-			$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
-            $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100,2); 
-            
-            //==============================================================
-            $data = $api->data($id, ''   , 'ga:timeOnPage,ga:pageviews,ga:exits',false ,$start_date ,$end_date ,10      ,1    ,false,false);
-            $val=array();
-            foreach($data as $metric => $count) 
-            {
-                $val[$metric]=$count;
-            }                                    
-            $final[0]["Average Time on Page"]   = $api->sec2hms($val["ga:timeOnPage"]/($val["ga:pageviews"] - $val["ga:exits"]) ,false);        
-            //==============================================================
-            $final[0]["Percent New Visits"] = $temp_percent_new_visits;
-            //==============================================================			
-            $final[0]["Bounce Rate"] = $temp_bounce_rate;
-            //==============================================================
-            $final[0]["Percent Exit"] = $temp_percent_exit;            
-            //==============================================================                                                
-        }        
-    }
-    else 
-    {
-        echo "login failed <br>";    
-    }
-
-    return $final;
-}//end function
 
 
-function getlastdayofmonth($month, $year) 
-{
-    return idate('d', mktime(0, 0, 0, ($month + 1), 0, $year));
-}
+
 
 
 function get_agentID($agentName)

@@ -1,11 +1,10 @@
 <?php
-
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
+require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 $mysqli2 = load_mysql_environment('eol_statistics');        
 $mysqli2 = load_mysql_environment('development'); //to be used when developing locally
         
@@ -23,10 +22,13 @@ $month = $arr[0];
 $year = $arr[1];
 $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
+/*
 initialize_tables_4dmonth($year,$month); //exit(); //debug - uncomment to see if current month entries are deleted from the tables
 $temp = save_eol_taxa_google_stats($month,$year); //start1 //exit("<hr>finished start1 only");
 $temp = save_agent_taxa($year_month); //start2
 $temp = save_agent_monthly_summary($year_month);                           //
+*/
+$temp = save_eol_monthly_summary($year,$month);
 
 echo"\n\n Processing done. --end-- "; exit;
 
@@ -512,10 +514,6 @@ function save_eol_taxa_google_stats($month,$year)
     return $final;
 }//function get_from_api($month,$year)
 
-function getlastdayofmonth($month, $year) 
-{
-    return idate('d', mktime(0, 0, 0, ($month + 1), 0, $year));
-}
 
 function create_tables()
 {   /* to be run as migrations */   
@@ -552,19 +550,9 @@ function initialize_tables_4dmonth($year,$month)
     $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
 }//function initialize_tables_4dmonth()
 
-function get_val_var($v)
-{
-    if     (isset($_GET["$v"])){$var=$_GET["$v"];}
-    elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
-    else   return NULL;                            
-    return $var;    
-}
 
-function GetNumMonthAsString($m,$y)
-{
-    $timestamp = mktime(0, 0, 0, $m, 1, $y);    
-    return date("m", $timestamp);
-}
+
+
 
 //#############################################################################################################
 /* functions of start2 */
@@ -602,4 +590,43 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
     return "";
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
+
+
+function save_eol_monthly_summary($year,$month)
+{
+    $tab_delim = "";    
+    $tab_delim .= $year . chr(9) . $month . chr(9);        
+    
+    $api = get_from_api(GetNumMonthAsString($month, $year),$year);             
+    foreach($api[0] as $label => $value) 
+    {            
+        $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
+        $b = date("Y m d H:i:s");                        
+        //print "<br>$a -- $b<br>";            
+        if($a <= $b) $tab_delim .= $value . chr(9); //tab            
+    } 
+    
+    global $mysqli;    
+
+    $query="Select distinct tcn.taxon_concept_id
+    FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id)
+    WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1";    
+    $result = $mysqli->query($query);           
+    $taxa_pages = $result->num_rows;    
+    
+    $query="Select distinct google_analytics_page_stat.taxon_concept_id
+    From google_analytics_page_stat where year = $year and month = $month ";    
+    $result = $mysqli->query($query);           
+    $taxa_pages_viewed = $result->num_rows;
+    
+    $tab_delim .= $taxa_pages . chr(9) . $taxa_pages_viewed;
+ 
+    //start saving...    
+    $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
+    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'temp.txt' INTO TABLE google_analytics_summaries");        
+    //
+}//function save_eol_monthly_summary($year)
+
+
+
 ?>

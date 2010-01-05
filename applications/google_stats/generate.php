@@ -60,14 +60,17 @@ $year_month = $year . "_" . $month;
 //$year_month = "2009_04";
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year . "_" . $month;
 
-// /* //start1
+ /* //start1
 initialize_tables_4dmonth();
 $api = get_from_api($month,$year);    
 //exit("<hr>finished start1 only");
 //end
-// */
+ */
 
+/*
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start start2
+*/
+
 $temp = create_csv_files($year_month);                          //start start3
 
 function create_csv_files($year_month)
@@ -140,7 +143,7 @@ function create_csv_files($year_month)
     $result = $mysqli2->query($query);    
     $fields=array();
     $fields[]="taxon_id";
-    $temp = save_to_txt ($result,"query12",$fields,$year_month,",",1,"csv");
+    $temp = save_to_txt($result,"query12",$fields,$year_month,",",1,"csv");
     //end query12
     //=================================================================
     
@@ -488,7 +491,12 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 		for ($i = 0; $i < count($fields); $i++) 		
 		{
 			$field = $fields[$i];
-			$str .= $row["$field"] . $field_separator;    //chr(9) is tab
+            
+            $row_field="";
+            if($file_extension == "csv") $row_field = str_ireplace(",", "&#44;", $row["$field"]);
+            else                         $row_field = $row["$field"];                                    
+			$str .= $row_field . $field_separator;    //chr(9) is tab
+            
 		}
 		$str .= "\n";
 	}

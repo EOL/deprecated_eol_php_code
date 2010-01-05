@@ -95,7 +95,7 @@ WHERE g.taxon_id>0 ";
 $result = $mysqli2->query($query);    
 $fields=array();
 $fields[]="taxon_id";
-$temp = save_to_txt ($result,"query12",$fields,$year_month,",",1,"csv");
+$temp = save_to_txt($result,"query12",$fields,$year_month,",",1,"csv");
 //end query12
 //=================================================================
 
@@ -120,9 +120,9 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
         
             $row_field="";
             if($file_extension == "csv") $row_field = str_ireplace(",", "&#44;", $row["$field"]);
-            else                         $row_field = $row["$field"];            
-            
+            else                         $row_field = $row["$field"];                        
 			$str .= $row_field . $field_separator;    //chr(9) is tab
+            
 		}
 		$str .= "\n";
 	}
