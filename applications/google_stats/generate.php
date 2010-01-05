@@ -60,16 +60,16 @@ $year_month = $year . "_" . $month;
 //$year_month = "2009_04";
 $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year . "_" . $month;
 
- /* //start1
+// /* //start1
 initialize_tables_4dmonth();
 $api = get_from_api($month,$year);    
 //exit("<hr>finished start1 only");
 //end
- */
+// */
 
-/*
+// /*
 $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start start2
-*/
+// */
 
 $temp = create_csv_files($year_month);                          //start start3
 

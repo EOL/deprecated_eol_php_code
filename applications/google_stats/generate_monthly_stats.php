@@ -22,12 +22,14 @@ $month = $arr[0];
 $year = $arr[1];
 $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
-/*
-initialize_tables_4dmonth($year,$month); //exit(); //debug - uncomment to see if current month entries are deleted from the tables
+// /*
+initialize_tables_4dmonth($year,$month); 
+//exit(); //debug - uncomment to see if current month entries are deleted from the tables
+
 $temp = save_eol_taxa_google_stats($month,$year); //start1 //exit("<hr>finished start1 only");
 $temp = save_agent_taxa($year_month); //start2
 $temp = save_agent_monthly_summary($year_month);                           //
-*/
+// */
 $temp = save_eol_monthly_summary($year,$month);
 
 echo"\n\n Processing done. --end-- "; exit;
@@ -104,9 +106,9 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     $time_on_page       = $row2[2];        
         
     $arr=array();
-    $arr[]=$agent_id;
     $arr[]=$year;
     $arr[]=$month;
+    $arr[]=$agent_id;    
     $arr[]=$count_of_taxa_pages;
     $arr[]=$count_of_taxa_pages_viewed;
     $arr[]=$unique_page_views;
@@ -154,6 +156,7 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     if($agent_id == 38205)  $arr[] = $result2->num_rows; //count of taxa pages
     else                    $arr[] = $row2[0]; //count of taxa pages
 
+    //ditox dapat my inner join sa goolge_page_stats table
     $query="Select Count(google_analytics_partner_taxa.taxon_concept_id)
     From google_analytics_partner_taxa Where
     google_analytics_partner_taxa.agent_id = $agent_id AND
@@ -228,7 +231,7 @@ function save_agent_monthly_summary($year_month)
 }//end func //end start3
 
 
-function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id)
+function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year)
 {
     if($agent_id == 38205)//BHL
     {   
@@ -240,9 +243,11 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id)
         where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")"; */
             
         $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
-        from taxon_concepts tc inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
-        Inner Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id        
-        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");
+        from taxon_concepts tc inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
+        inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
+        Inner Join google_analytics_page_stat gaps ON tc.id = gaps.taxon_concept_id        
+        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . " 
+        and gaps.month=$month and gaps.year=$year ";
         //$query .= " LIMIT 1 "; //debug
     }
     elseif($agent_id == 11)//Catalogue of Life
@@ -250,10 +255,11 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id)
         $query = "
         select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id     
         from taxon_concepts tc inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-        Inner Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id
+        Inner Join google_analytics_page_stat gaps ON tc.id = gaps.taxon_concept_id
         where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
         and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
-        where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
+        where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().") 
+        and gaps.month=$month and gaps.year=$year ";
         //$query .= " LIMIT 1 "; //debug    
     }
     else //rest of the partners
@@ -266,8 +272,10 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id)
         JOIN taxa t ON (het.taxon_id=t.id) 
         join hierarchy_entries he on t.hierarchy_entry_id = he.id 
         join taxon_concepts tc on he.taxon_concept_id = tc.id         
-        Join google_analytics_page_stat ON tc.id = google_analytics_page_stat.taxon_concept_id
-        WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0 ";        
+        Join google_analytics_page_stat gaps ON tc.id = gaps.taxon_concept_id
+        WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0
+        and gaps.month=$month and gaps.year=$year
+        ";        
         //$query .= " limit 50 "; //debug     
     }
     return $query;
@@ -279,6 +287,9 @@ function save_agent_taxa($year_month)
     global $mysqli;
     global $mysqli2;    
 
+    $year =intval(substr($year_month,0,4));
+    $month=intval(substr($year_month,5,2));    
+    
     //=================================================================
     //query 1 /* not needed anymore */
     //=================================================================
@@ -298,7 +309,7 @@ function save_agent_taxa($year_month)
     {
         $i++;
         echo"agent id = $row[id] $i of $num_rows \n";
-        $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth($row["id"]);
+        $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth($row["id"],$month,$year);
         $result2 = $mysqli->query($query);    
         $fields=array();
         $fields[0]="taxon_concept_id";
@@ -311,7 +322,7 @@ function save_agent_taxa($year_month)
     //query 3
     
     echo"\n start BHL stats...\n";    
-    $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(38205);
+    $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(38205,$month,$year);
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="taxon_concept_id";
@@ -319,7 +330,7 @@ function save_agent_taxa($year_month)
     $temp = save_to_txt($result, "google_analytics_partner_taxa_bhl",$fields,$year_month,chr(9),0,"txt");
     
     echo"\n start COL stats...\n";    
-    $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(11);
+    $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(11,$month,$year);
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="taxon_concept_id";
@@ -343,6 +354,7 @@ function save_agent_taxa($year_month)
 
 }//end func //end start2
 
+/*working commented
 function get_sciname_from_tc_id($tc_id)
 {   global $mysqli;
     $query="Select distinct names.`string` as sciname
@@ -356,7 +368,7 @@ function get_sciname_from_tc_id($tc_id)
     $sciname = $row[0];
     //print"[[$sciname -- $tc_id]]";
     return $sciname;        
-}
+}*/
 //############################################################################ start functions
 
 function save_eol_taxa_google_stats($month,$year)
@@ -548,10 +560,8 @@ function initialize_tables_4dmonth($year,$month)
     $query="delete from `google_analytics_page_stat`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
     $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
     $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
+    $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
 }//function initialize_tables_4dmonth()
-
-
-
 
 
 //#############################################################################################################
