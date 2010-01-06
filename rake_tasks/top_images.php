@@ -151,7 +151,6 @@ Functions::log("Ended top_images");
 //         $mysqli->end_transaction();
 //     }
 // }
-Functions::log("Ended top_images");
 
 
 ?>

@@ -122,7 +122,7 @@ class TaxonConceptIndexer
     function lookup_top_images($start, $limit, $filter = "1=1")
     {
         echo "\nquerying top_images\n";
-        $result = $this->mysqli->query("SELECT  he.taxon_concept_id id, ti.data_object_id FROM  hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND view_order=1");
+        $result = $this->mysqli->query("SELECT he.taxon_concept_id id, ti.data_object_id FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND ti.view_order=1 ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC");
         echo "done querying top_images\n";
         
         while($result && $row=$result->fetch_assoc())
