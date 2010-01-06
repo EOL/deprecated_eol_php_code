@@ -36,11 +36,11 @@ print" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href='../species_stat_marine/display.php'>Marine Stats &gt;&gt;</a>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a target='cps' href='http://services.eol.org/eol_php_code/applications/partner_stat/index.php'>Content Partner Stats &gt;&gt;</a>";
+<a target='cps' href='http://services.eol.org/eol_php_code/applications/partner_stat/index.php'>Content Partner Stats &gt;&gt;</a>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a target='google' href='http://services.eol.org/eol_php_code/applications/google_stats/index.php'>Google Stats &gt;&gt;</a>";
-
+";
 
 
 print"</font>
