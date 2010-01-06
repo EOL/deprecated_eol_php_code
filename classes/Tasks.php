@@ -370,6 +370,7 @@ class Tasks extends MysqlBase
     
     
     
+    // this method will use its own transactions so commit any open transactions before using
     public static function rebuild_nested_set($hierarchy_id)
     {
         if(!$hierarchy_id) return false;

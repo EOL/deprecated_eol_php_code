@@ -15,7 +15,7 @@ class CompareHierarchies
     
     
     
-    
+    // this method will use its own transactions so commit any open transactions before using
     public static function begin_concept_assignment($hierarchy_id = null)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -223,6 +223,7 @@ class CompareHierarchies
     
     
     
+    // this method will use its own transactions so commit any open transactions before using
     public static function process_hierarchy($hierarchy, $compare_to_hierarchy = null, $match_synonyms = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];

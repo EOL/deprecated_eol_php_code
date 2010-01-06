@@ -89,10 +89,10 @@ class MysqlConnection
         return $result;
     }
     
-    function load_data_infile($path, $table)
+    function load_data_infile($path, $table, $do_transaction = true)
     {
         $insert_batch_size = 5000;
-        $this->begin_transaction();
+        if($do_transaction) $this->begin_transaction();
         $values = array();
         $FILE = fopen($path, "r");
         while(!feof($FILE))
@@ -110,7 +110,7 @@ class MysqlConnection
             }
         }
         if(count($values)) $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
-        $this->end_transaction();
+        if($do_transaction) $this->end_transaction();
     }
     
     function delete($query)
