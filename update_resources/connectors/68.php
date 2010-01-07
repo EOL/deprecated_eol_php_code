@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 //connector for Duth Species Catalogue
-//exit;
+exit;
 set_time_limit(0);
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
@@ -112,7 +112,7 @@ while(true)
     //new
     //if($i <= $total_taxid_count)unlink($file);    
 }
-print "\n --end-- ";
+print "\n --end-- \n";
 fclose($OUT);
 
 //end

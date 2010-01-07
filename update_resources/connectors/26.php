@@ -117,7 +117,7 @@ while(true)
     //new
     //if($i <= $total_taxid_count)unlink($file);    
 }
-print "\n --end-- ";
+print "\n --end-- \n";
 fclose($OUT);
 
 //end
