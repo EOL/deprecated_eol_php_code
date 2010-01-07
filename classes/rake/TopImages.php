@@ -186,8 +186,6 @@ class TopImages
             echo "Deleting old data\n";
             $this->mysqli->delete("DELETE FROM top_images");
             $this->mysqli->delete("DELETE FROM top_unpublished_images");
-            //$mysqli->delete("DELETE FROM top_species_images");
-            //$mysqli->delete("DELETE FROM top_unpublished_species_images");
             
             $this->load_data_from_files();
         }
@@ -205,24 +203,27 @@ class TopImages
         echo "Update 2 of 2\n";
         $this->mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
 
-        // $species_rank_ids_array = array();
-        // if($id = Rank::find('species')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('sp')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('sp.')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('subspecies')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('subsp')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('subsp.')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('variety')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('var')) $species_rank_ids_array[] = $id;
-        // if($id = Rank::find('var.')) $species_rank_ids_array[] = $id;
-        // $species_rank_ids = implode(",", $species_rank_ids_array);
-        // 
-        // // maybe also add where lft=rgt-1??
-        // echo "top_species_images\n";
-        // $mysqli->update("INSERT INTO top_species_images (SELECT ti.* FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
-        // 
-        // echo "top_unpublished_species_images\n";
-        // $mysqli->update("INSERT INTO top_unpublished_species_images (SELECT tui.* FROM hierarchy_entries he JOIN top_unpublished_images tui ON (he.id=tui.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
+        $species_rank_ids_array = array();
+        if($id = Rank::find('species')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('sp')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('sp.')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('subspecies')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('subsp')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('subsp.')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('variety')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('var')) $species_rank_ids_array[] = $id;
+        if($id = Rank::find('var.')) $species_rank_ids_array[] = $id;
+        $species_rank_ids = implode(",", $species_rank_ids_array);
+        
+        $mysqli->delete("DELETE FROM top_species_images");
+        $mysqli->delete("DELETE FROM top_unpublished_species_images");
+        
+        // maybe also add where lft=rgt-1??
+        echo "top_species_images\n";
+        $mysqli->update("INSERT INTO top_species_images (SELECT ti.* FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
+        
+        echo "top_unpublished_species_images\n";
+        $mysqli->update("INSERT INTO top_unpublished_species_images (SELECT tui.* FROM hierarchy_entries he JOIN top_unpublished_images tui ON (he.id=tui.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
         
         
         $this->mysqli->end_transaction();

@@ -524,10 +524,6 @@ class Functions
         $string = str_replace($str_nbsp, "&nbsp;", $string);
         
         if($remove_shitespace) $string = self::remove_whitespace($string);
-        echo 'and here';
-        echo "\n";
-        echo $string;
-        echo "\n";
         return trim($string);
     }
     
