@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 //connector for WORMS
-exit;
+//exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
@@ -11,6 +11,7 @@ define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+$bad_id=""; //not well formed XML
 // /*
 $start=0;
 $file_number=1;
@@ -117,22 +118,39 @@ while(true)
     //new
     //if($i <= $total_taxid_count)unlink($file);    
 }
+print "\n not well-formed XML = $bad_id \n";
 print "\n --end-- \n";
 fclose($OUT);
+
+$OUT = fopen("bad_id.txt", "w+");            
+fwrite($OUT, $bad_id);fclose($OUT);
 
 //end
 //====================================================================================
 //start functions #################################################################################################
 function process($id)
 {   
+    global $bad_id;
+    
     //global $OUT;        
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
     //$file = "http://127.0.0.1/worms.xml";
     //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972
-    //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255100
+    //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255100    
+    // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=247972     
+    // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=248002
+    // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=137115
+    // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=247983
     
     
     set_time_limit(0);
+    if($xml = Functions::get_hashed_response($file)){}
+    else
+    {
+        $bad_id .= $id . ",";
+        return false;
+    }
+    
     $contents = Functions::get_remote_file($file);
     //$contents = get_file_contents($file);
     if($contents)
