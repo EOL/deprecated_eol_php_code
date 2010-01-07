@@ -1,69 +1,87 @@
 #!/usr/local/bin/php
 <?php
-/* connector for Dutch Species Catalog */
-exit; //not yet fixed
-
-
+//connector for Duth Species Catalogue
+//exit;
 set_time_limit(0);
-ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+// /*
+$start=0;
 $file_number=1;
+// */
 
 //only on local; to be deleted before going into production
 /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
-$resource = new Resource(68);//Duth Species Catalog
+$resource = new Resource(68);
 //exit("[$resource->id]");
 
-
-//$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "bold_" . $file_number .".xml";
-//$OUT = fopen($old_resource_path, "w+");
 
 $main_count=0;
 //====================================================================================
 $main_id_list = array();
-$id_processed = array();
+//$id_processed = array();
 $main_id_list = get_main_id_list();
-echo "\n total taxid count = " . count($main_id_list) . "\n\n";;
+$total_taxid_count = count($main_id_list);
+echo "\n total taxid count = " . $total_taxid_count . "\n\n";;
 //exit;
 //====================================================================================
 $i=1;
+$bad=0;
 //while( count($id_processed) != count($main_id_list) )
 //{
     echo "-x- \n";    
-    for ($i = 0; $i < count($main_id_list); $i++)     
+    for ($i = $start; $i < $total_taxid_count; $i++)     
     {
         $taxid = $main_id_list[$i];
-        if(!in_array("$taxid", $id_processed))        
-        {                        
-            if(count($id_processed) % 10000 == 0)
-            {   //start new file                
+        //if(!in_array("$taxid", $id_processed))        
+        //{                                    
+            //if(count($id_processed) % 10000 == 0)
+            if($i % 10000 == 0) //working
+            {   
+                //start new file                
                 if(isset($OUT))fclose($OUT);
-                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "worms_" . $file_number .".xml";
+                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/dutch_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
+            }            
+                        
+            // /*
+            //if(process($taxid,$OUT))
+            if($contents=process($taxid))            
+            {
+                //$id_processed[] = $taxid;
+                echo " -ok- ";
+                //new
+                fwrite($OUT, $contents);
+                //new
             }
-            if(process($taxid)) $id_processed[] = $taxid;
-            echo $i+1 . ". ";            
-            echo count($id_processed) . " of " . count($main_id_list) . "\n";                        
-        }                
+            else
+            {
+                echo " -bad- "; $bad++;
+            }
+            // */                        
+            echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
+            //echo $i+1 . ". " . count($id_processed) . " of " . $total_taxid_count . "\n";                        
+        //}                
     }    
+    /* working; only needed with while()
     $main_id_list = get_main_id_list();
+    */
 //}//end while
 
 //print_r($main_id_list);print_r($id_processed);
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
 //====================================================================================
-//start compiling all worms_?.xml 
+//start compiling all individual xml 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
@@ -78,28 +96,85 @@ $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
 $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
 fwrite($OUT, $str);
 $i=0;
+
+//while($i <= $total_taxid_count)
 while(true)
 {
-    print "$i "; $i++;
-    $file = CONTENT_RESOURCE_LOCAL_PATH . "worms_" . $i .".xml";
+    $i++; print "$i ";
+    $file = CONTENT_RESOURCE_LOCAL_PATH . "/temp/dutch_" . $i .".xml";
     $str = Functions::get_remote_file($file);
     if($str)
     {
         fwrite($OUT, $str);
         unlink($file);
-    }        
-    else break;
+    }            
+    else break;    
+    //new
+    //if($i <= $total_taxid_count)unlink($file);    
 }
 print "\n --end-- ";
 fclose($OUT);
+
 //end
 //====================================================================================
 //start functions #################################################################################################
 function process($id)
-{   global $OUT;        
-    $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
-    //       http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255127    
+{   
+    //global $OUT;        
+    $file = "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=$id&version=EOL";
+    /*
+    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
+    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=eol
+    */    
+
+    //start process reference
+        $ref="";
+        if($xml = Functions::get_hashed_response($file))
+        {   
+            foreach($xml->taxon as $taxon)
+            {
+                foreach($taxon->dataObject as $dobj)
+                {
+                    $t_dc = $dobj->children("http://purl.org/dc/elements/1.1/");        
+                    $desc = trim($t_dc->description);
+                    if  (   strpos($desc,'Literatuur') != ""   and
+                            $dobj->subject == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription"    
+                        )
+                    {
+                        //print"<hr>$desc";
+                        $desc = clean_str($desc);
+                        $desc = "---" . str_ireplace("&amp;", "xxx", $desc);                        
+                	    $beg='---';$end1="</p><h1>"; $end2="173xxx";			
+                    	$desc = parse_html($desc,$beg,$end1,$end2,$end2,$end2,"",false);	//str = the html block        
+                        
+                        //print"<hr>$desc<hr>";
+
+                        $desc = str_ireplace('<p>' , "&arr[]=", $desc);	
+                        $arr=array();	
+                        parse_str($desc);
+                        
+                        $ref = process_array($arr);
+                        //print "<pre>";print($ref);print "</pre>";//exit;                                
+                    }                  
+                    //else print "[x]";  //not Literatuur
+                }
+            }
+        }    
+    //end process reference
+    //exit("ditox");
+
+    set_time_limit(0);
     $contents = Functions::get_remote_file($file);
+    if($ref != "")
+    {
+        //insert the $ref inside the XML
+        $pos = strpos($contents,'<dataObject>');
+        $contents = substr_replace($contents, $ref, $pos,0) ;        
+        
+        $contents = str_ireplace("<reference></reference>", "", $contents);//remove blank ref
+        
+    }
+    //$contents = get_file_contents($file);
     if($contents)
     {
     	$pos1 = stripos($contents,"<taxon>");
@@ -107,29 +182,18 @@ function process($id)
     	if($pos1 != "" and $pos2 != "")
     	{
     		$contents = trim(substr($contents,$pos1,$pos2-$pos1+8));
-            fwrite($OUT, $contents);
-            return true;
+            //fwrite($OUT, $contents);
+            return $contents;
+            //return true;
     	}
     }    
     return false;
 }//end process() 
 function get_main_id_list()
 {
-    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
-
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
-
-    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test1.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test2.xml";
-    //$url[]="http://127.0.0.1/mtce/WORMS/20091016/id/test3.xml";    
-
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20080101&enddate=20081231";
-    //$url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20090101&enddate=20091231";    
+    //$url[] = "http://128.128.175.77/mtce/DutchSpeciesCatalogue/DutchSpeciesCatalogueIDs.xml";
+    $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/DutchSpeciesCatalogue/DutchSpeciesCatalogueIDs.xml";
+    //print_r($url);exit;
  
     echo "\n URLs = " . sizeof($url) . "\n";
     $no_of_urls = sizeof($url);        
@@ -141,17 +205,94 @@ function get_main_id_list()
         //if($xml = @simplexml_load_file($url[$i]))        
         if($xml = Functions::get_hashed_response($url[$i]))        
         {   
-            $no_of_taxdetail = count($xml->taxdetail);
-            foreach($xml->taxdetail as $taxdetail)
+            $no_of_taxdetail = count($xml->id);
+            foreach($xml->id as $id)
             {
-                $temp = @$taxdetail["id"];
+                $temp = $id;
                 $arr["$temp"]=true;
                 $j++; $jj++;
             }    
         }
         echo "\n" . $i+1 . " of " . $no_of_urls . " URLs | taxid count = " . $j . "\n";     
     }
-    $arr = array_keys($arr);
+    $arr = array_keys($arr);    
+    //print_r($arr);exit;    
     return $arr;
 }//get_main_id_list()
+
+function clean_str($str)
+{    
+    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+    return $str;
+}
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
+{
+    //PRINT "[$all]"; exit;
+	$beg_len = strlen(trim($beg));
+	$end1_len = strlen(trim($end1));
+	$end2_len = strlen(trim($end2));
+	$end3_len = strlen(trim($end3));	
+	$end4_len = strlen(trim($end4));		
+	//print "[[$str]]";
+
+	$str = trim($str); 	
+	$str = $str . "|||";	
+	$len = strlen($str);	
+	$arr = array(); $k=0;	
+	for ($i = 0; $i < $len; $i++) 
+	{
+        if(strtolower(substr($str,$i,$beg_len)) == strtolower($beg))
+		{	
+			$i=$i+$beg_len;
+			$pos1 = $i;			
+			//print substr($str,$i,10) . "<br>";									
+			$cont = 'y';
+			while($cont == 'y')
+			{
+				if(	substr($str,$i,$end1_len) == $end1 or 
+					substr($str,$i,$end2_len) == $end2 or 
+					substr($str,$i,$end3_len) == $end3 or 
+					substr($str,$i,$end4_len) == $end4 or 
+					substr($str,$i,3) == '|||' )
+				{
+					$pos2 = $i - 1; 					
+					$cont = 'n';					
+					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
+					//print "$arr[$k] $wrap";					                    
+					$k++;
+				}
+				$i++;
+			}//end while
+			$i--;			
+            
+            //start exit on first occurrence of $beg
+            if($exit_on_first_match)break;
+            //end exit on first occurrence of $beg
+            
+		}		
+	}//end outer loop
+    if($all == "")	
+    {
+        $id='';
+	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        return $id;
+    }
+    elseif($all == "all") return $arr;	
+}//end function
+
+function process_array($arr)
+{
+    $ref="";
+    for ($i = 0; $i < count($arr); $i++) 
+    {           
+        $str = str_ireplace("xxx", "&amp;", $arr[$i]);        
+        //$str = strip_tags($str,'<em><i>');
+        $str = strip_tags($str);
+        //$ref .= "&lt;reference&gt;$str&lt;/reference&gt;";        
+        $ref .= "<reference>$str</reference>";        
+    }
+    //return $arr;    
+    return $ref;
+}
+
 ?>
