@@ -60,7 +60,7 @@ for($month = 1; $month <= 12 ; $month++)
         <a href='start3.php?month=$month&year=$year'>Step 3 (qry 9-12 CSV files)</a> |         
         */
         
-        $str .= " <a href='generate_monthly_stats.php?month=$month&year=$year'>Generate monthly stats</a> ";
+        //$str .= " <a href='generate_monthly_stats.php?month=$month&year=$year'>Generate monthly stats</a> ";
         
         print"<td><i><font size='2'>$str</font></i></td>";    
         
