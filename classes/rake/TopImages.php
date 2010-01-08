@@ -40,7 +40,7 @@ class TopImages
             $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
             
             echo "Memory: ".memory_get_usage()."\n";
-            $result = $this->mysqli->query("SELECT  he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published FROM  hierarchy_entries he JOIN hierarchy_entries he_concepts ON (he.taxon_concept_id= he_concepts.taxon_concept_id)  JOIN taxa t ON (he_concepts.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id)  JOIN data_objects do ON  (dot.data_object_id= do.id) WHERE he.id   BETWEEN $i AND ".($i+$this->iteration_size)." AND he.rgt=he.lft+1 AND he.hierarchy_id!=399 AND he.hierarchy_id!=105 AND he.hierarchy_id!=129    AND do.data_type_id=$image_type_id ORDER BY he.id");
+            $result = $this->mysqli->query("SELECT  he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published FROM  hierarchy_entries he JOIN hierarchy_entries he_concepts ON (he.taxon_concept_id= he_concepts.taxon_concept_id)  JOIN taxa t ON (he_concepts.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id)  JOIN data_objects do ON  (dot.data_object_id= do.id) WHERE he.id   BETWEEN $i AND ".($i+$this->iteration_size)." AND he.hierarchy_id!=399 AND he.hierarchy_id!=105 AND he.hierarchy_id!=129    AND do.data_type_id=$image_type_id ORDER BY he.id");
             echo "Memory: ".memory_get_usage()."\n";
             
             list($parent_ids, $top_images, $top_unpublished_images) = $this->get_data_from_result($result);
@@ -108,7 +108,7 @@ class TopImages
             $visibility_id = $row["visibility_id"];
             $published = $row["published"];
             $vetted_id = $row["vetted_id"];
-            $parent_ids[$parent_id] = 1;
+            if($parent_id) $parent_ids[$parent_id] = 1;
             
             $vetted_sort_order = isset($this->vetted_sort_orders[$vetted_id]) ? $this->vetted_sort_orders[$vetted_id] : 5;
             
@@ -215,15 +215,15 @@ class TopImages
         if($id = Rank::find('var.')) $species_rank_ids_array[] = $id;
         $species_rank_ids = implode(",", $species_rank_ids_array);
         
-        $mysqli->delete("DELETE FROM top_species_images");
-        $mysqli->delete("DELETE FROM top_unpublished_species_images");
+        $this->mysqli->delete("DELETE FROM top_species_images");
+        $this->mysqli->delete("DELETE FROM top_unpublished_species_images");
         
         // maybe also add where lft=rgt-1??
         echo "top_species_images\n";
-        $mysqli->update("INSERT INTO top_species_images (SELECT ti.* FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
+        $this->mysqli->update("INSERT INTO top_species_images (SELECT ti.* FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
         
         echo "top_unpublished_species_images\n";
-        $mysqli->update("INSERT INTO top_unpublished_species_images (SELECT tui.* FROM hierarchy_entries he JOIN top_unpublished_images tui ON (he.id=tui.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
+        $this->mysqli->update("INSERT INTO top_unpublished_species_images (SELECT tui.* FROM hierarchy_entries he JOIN top_unpublished_images tui ON (he.id=tui.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
         
         
         $this->mysqli->end_transaction();

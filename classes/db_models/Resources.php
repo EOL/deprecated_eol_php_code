@@ -453,6 +453,12 @@ class Resource extends MysqlBase
     {
         return 0;
     }
+    
+    static function find_by_title($string)
+    {
+        return parent::find_by("title", $string, Functions::class_name(__FILE__));
+    }
+    
 }
 
 ?>
