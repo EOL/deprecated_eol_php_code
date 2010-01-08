@@ -36,7 +36,7 @@ page_stats_taxa.with_BHL,
 page_stats_taxa.vetted_not_published,
 page_stats_taxa.vetted_unknown_published_visible_inCol,
 page_stats_taxa.vetted_unknown_published_visible_notinCol,
-page_stats_taxa.date_created,
+concat(month(date_created),'/',day(date_created),'/',year(date_created)) as date_created,
 page_stats_taxa.time_created,
 page_stats_taxa.pages_incol,
 page_stats_taxa.pages_not_incol,
@@ -50,7 +50,7 @@ where   taxa_bhl_no_text <> 0 and
 "; 
 if($days != "")$query .= " and concat(month(date_created),'/',day(date_created),'/',year(date_created)) not in($days) ";
 
-//print "<hr>$query<hr>"; //debug
+print "<hr>$query<hr>"; //debug
 
 $result = $mysqli->query($query);    
 
@@ -171,7 +171,6 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
 	if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}		
     
 }//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
-
 
 function getDays($filename)
 {    

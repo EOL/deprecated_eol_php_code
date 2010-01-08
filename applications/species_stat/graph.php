@@ -120,7 +120,7 @@ function get_values_fromCSV($title)
                 else        
                 {
                     //print"[$c]";
-                    $arr["$label[$c]"][]=&$data[$c];
+                    if(isset($label[$c]))$arr["$label[$c]"][]=&$data[$c]; //new Jan8
                 }
             }                        
             //if($row == 10)break;    
