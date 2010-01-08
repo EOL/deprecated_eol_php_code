@@ -14,7 +14,7 @@ $filename = "saved_stats";
 
 $days = getDays($filename);
 
-print $days . "<hr>";
+//print $days . "<hr>"; //debug
 
 $query = "Select
 page_stats_taxa.id,
@@ -48,9 +48,9 @@ where   taxa_bhl_no_text <> 0 and
         taxa_links_no_text <> 0 and
         with_bhl <> 0
 "; 
-if($days != "")$query .= " and date_created not in($days) ";
+if($days != "")$query .= " and concat(month(date_created),'/',day(date_created),'/',year(date_created)) not in($days) ";
 
-//print $query;
+//print "<hr>$query<hr>"; //debug
 
 $result = $mysqli->query($query);    
 
@@ -184,13 +184,13 @@ function getDays($filename)
         $num = count($data);
         for ($c=0; $c < $num; $c++) 
         {        
-            if($c==0)$comma_separated .= "'" . trim($data[$c]) . "'" . ",";
+            if($c == 0)$comma_separated .= "'" . trim($data[$c]) . "'" . ",";
         }
     }//end while
     $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
     
     //start build up header if no entries yet
-    print "[$comma_separated]";
+    //print "comma-separated: [$comma_separated]<hr>"; //debug
     if($comma_separated == "")
     {
         $arr=array();
