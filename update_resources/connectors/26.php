@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 //connector for WORMS
-//exit;
+exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
@@ -132,11 +132,12 @@ function process($id)
 {   
     global $bad_id;
     
-    //global $OUT;        
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
     //$file = "http://127.0.0.1/worms.xml";
+    
     //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972
     //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255100    
+    
     // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=247972     
     // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=248002
     // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=137115
@@ -183,12 +184,12 @@ function get_main_id_list()
     $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20100101&enddate=20101231";
     */
     
-    /*
+    // /*
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2007.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2008.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2009.xml";
-    */
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2010.xml";
+    // */    
  
     echo "\n URLs = " . sizeof($url) . "\n";
     $no_of_urls = sizeof($url);        
