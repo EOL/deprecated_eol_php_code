@@ -7,39 +7,37 @@ require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli2 = load_mysql_environment('eol_statistics');        
 $mysqli2 = load_mysql_environment('development'); //to be used when developing locally
-        
 set_time_limit(0);
-
 /*
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html#d4Ecommerce
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
-
 $arr = process_parameters();//month and year parameters
-$month = $arr[0];
-$year = $arr[1];
-$year_month = $year . "_" . $month; //$year_month = "2009_04";
+$month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
-// /*
+//empty the 4 tables for the month
 initialize_tables_4dmonth($year,$month); 
-//exit(); //debug - uncomment to see if current month entries are deleted from the tables
-
-$temp = save_eol_taxa_google_stats($month,$year); //start1 //exit("<hr>finished start1 only");
-$temp = save_agent_taxa($year_month); //start2
-$temp = save_agent_monthly_summary($year_month);                           //
-// */
-$temp = save_eol_monthly_summary($year,$month);
-
+//save google analytics stats
+save_eol_taxa_google_stats($month,$year); 
+//save partner stats
+save_agent_taxa($year_month); //start2
+//save partner summaries
+save_agent_monthly_summary($year_month);                           //
+//save eol-wide summaries
+save_eol_monthly_summary($year,$month);
 echo"\n\n Processing done. --end-- "; exit;
 
 //####################################################################################################################################
 //####################################################################################################################################
 function process_parameters()
 {
+    global $argv;
+
     $month = get_val_var("month");
     $year = get_val_var("year");
+    
     if($month == "")
     {
         $arg1='';   
