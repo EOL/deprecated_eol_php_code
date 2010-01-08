@@ -47,10 +47,13 @@ for($month = 1; $month <= 12 ; $month++)
         else                        $str="Individual provider data available";
     
         if($csv_available < 4) $str .= " 
-        <a href='generate.php?month=$month&year=$year'>Generate (1-2-3)</a> |                 
+    
         ";     
         
         /*             
+        
+            <a href='generate.php?month=$month&year=$year'>Generate (1-2-3)</a> |                 
+        
         Prepare files
         <a href='start1.php?month=$month&year=$year'>Step 1 (gaps)</a>
         <a href='start2.php?month=$month&year=$year'>Step 2 (qry 1-8)</a>
