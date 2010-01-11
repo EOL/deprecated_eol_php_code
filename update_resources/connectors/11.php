@@ -2,11 +2,12 @@
 //#!/usr/local/bin/php
 //connector for Biolib.cz
 
-exit;
+//exit;
 
 set_time_limit(0);
 ini_set('memory_limit','3000M');
-define("ENVIRONMENT", "development");
+//define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "development");
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -16,6 +17,7 @@ $file = "http://www.biolib.cz/DWN/eoldata.xml";
 $xml = simplexml_load_file($file);
 
 $i=0;
+$wrap="\n";
 print "taxa count = " . count($xml) . "\n";
 
 $resource = new Resource(11);//Biolib.cz
@@ -37,6 +39,7 @@ fwrite($OUT, $str);
 foreach($xml->taxon as $t)
 {
     $i++;    
+    print "$i $wrap";
     //if($i >= 100 and $i <= 105)
     if(true)    
     {                   
@@ -139,8 +142,7 @@ function get_data_object($do,$t_dc2,$t_dcterms)
         $agentParameters["fullName"] = $agent;
         $agents[] = new SchemaAgent($agentParameters);
     }
-    $dataObjectParameters["agents"] = $agents;
-    
+    $dataObjectParameters["agents"] = $agents;    
     
     $dataObjectParameters["created"]       = $do->created;
     $dataObjectParameters["modified"]      = $do->modified;
@@ -149,8 +151,7 @@ function get_data_object($do,$t_dc2,$t_dcterms)
     $dataObjectParameters["source"]        = $t_dc2->source;
     $dataObjectParameters["mediaURL"]      = $do->mediaURL;
     $dataObjectParameters["thumbnailURL"]  = $do->thumbnailURL;
-    $dataObjectParameters["location"]      = $do->location;          
-    
+    $dataObjectParameters["location"]      = $do->location;              
 
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();    
@@ -165,6 +166,4 @@ function get_data_object($do,$t_dc2,$t_dcterms)
 
     return $dataObjectParameters;
 }
-
-
 ?>
