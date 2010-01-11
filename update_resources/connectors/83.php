@@ -61,13 +61,16 @@ foreach($xml->url as $url)
         $image_ids[] = $id;
     }
 }
-print "$wrap $wrap count of image ID's = " . count($image_ids); //exit;
+$total_image_ids = count($image_ids);
+print "$wrap $wrap count of image ID's = $total_image_ids"; //exit;
+
 
 // loop through image ids
 $k=0;
 foreach($image_ids as $image_id)
 {
-    print "$wrap $image_id";
+    $k++;
+    print "$wrap $image_id  [$k of $total_image_ids]";
     $image_details_url = $details_method_prefix . $image_id;
     $xml = simplexml_load_file($image_details_url);    
     $dwc = $xml->specimen->children("http://rs.tdwg.org/dwc/dwcore/");    
@@ -174,7 +177,8 @@ foreach($image_ids as $image_id)
     
     $used_taxa[$taxon_identifier] = $taxon_parameters;            
     
-    //$k++;if($k == 3)break;    //debug; to limit no. of records
+    
+    //if($k == 20)break;    //debug; to limit no. of records
 }
 
 /*
