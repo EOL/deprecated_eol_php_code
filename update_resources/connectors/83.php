@@ -1,6 +1,18 @@
 #!/usr/local/bin/php
 <?php
-/* MorphBank connector */
+/* MorphBank connector 
+
+<?xml version="1.0" encoding="utf-8" ?>
+<response>
+    <url>http://services.morphbank.net/mb/request?method=search&amp;objecttype=Image&amp;limit=-1&amp;keywords=baskauf&amp;format=id</url>
+</response>
+
+http://www.morphbank.net/eolids.xml
+http://services.morphbank.net/mb2/request?method=eol&format=id
+http://services.morphbank.net/mb3/request?method=eol&format=id
+
+*/
+
 //exit;
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
@@ -24,6 +36,8 @@ $image_ids = array();
 $schema_taxa = array();
 $used_taxa = array();
 
+$wrap = "\n"; //$wrap = "<br>";
+
 //get all image ids
 /* working but not being used as advised by Greg from MorphBank
 $limit_of_inventory = 25; //300000
@@ -33,19 +47,27 @@ foreach($image_id_xml->id as $id)
 {$image_ids[] = $id;}
 */
 
-$id_list_url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&limit=-1&keywords=baskauf&format=id";
-$image_id_xml = simplexml_load_file($id_list_url);
-foreach($image_id_xml->id as $id)
+$xml = simplexml_load_file("http://www.morphbank.net/eolids.xml");
+foreach($xml->url as $url)
 {
-    $image_ids[] = $id;
-    print $id . " - ";
+    print "$wrap [$url] $wrap";   
+    $url = trim($url);
+    /* used before as test
+    $url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&limit=-1&keywords=baskauf&format=id";
+    */    
+    $image_id_xml = simplexml_load_file($url);
+    foreach($image_id_xml->id as $id)
+    {
+        $image_ids[] = $id;
+    }
 }
-print "<hr>" . count($image_ids); //exit;
+print "$wrap $wrap count of image ID's = " . count($image_ids); //exit;
 
 // loop through image ids
 $k=0;
 foreach($image_ids as $image_id)
 {
+    print "$wrap $image_id";
     $image_details_url = $details_method_prefix . $image_id;
     $xml = simplexml_load_file($image_details_url);    
     $dwc = $xml->specimen->children("http://rs.tdwg.org/dwc/dwcore/");    
@@ -125,6 +147,7 @@ foreach($image_ids as $image_id)
 
     $license = null;    
     if(preg_match("/(http:\/\/creativecommons\.org\/licenses\/[^\/]+\/[^\/]+\/)/", $license_text, $arr)){$license = $arr[1];}
+    if(stripos($license,"publicdomain") != "")$license="http://creativecommons.org/licenses/publicdomain/";
     if(!$license) continue;        
 
     $desc = null;
@@ -171,6 +194,7 @@ $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
+print "$wrap --end-- ";
 ////////////////////// ---
 
 function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent_name ,$description, $type)
