@@ -1,11 +1,14 @@
 #!/usr/local/bin/php
 <?php
 //connector for WORMS
+/*  date        ID's    bad ID's
+    2010-Jan-11 160115  97    
+*/
 exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -135,9 +138,8 @@ function process($id)
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
     //$file = "http://127.0.0.1/worms.xml";
     
-    //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972
-    //  http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255100    
-    
+    // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=377972
+    // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=255100        
     // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=247972     
     // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=248002
     // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=137115
