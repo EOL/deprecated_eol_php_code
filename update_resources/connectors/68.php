@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 //connector for Duth Species Catalogue
-exit;
+//exit;
 set_time_limit(0);
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
@@ -169,10 +169,8 @@ function process($id)
     {
         //insert the $ref inside the XML
         $pos = strpos($contents,'<dataObject>');
-        $contents = substr_replace($contents, $ref, $pos,0) ;        
-        
-        $contents = str_ireplace("<reference></reference>", "", $contents);//remove blank ref
-        
+        $contents = substr_replace($contents, $ref, $pos,0) ;                
+        $contents = str_ireplace("<reference></reference>", "", $contents);//remove blank ref        
     }
     //$contents = get_file_contents($file);
     if($contents)
