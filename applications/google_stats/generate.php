@@ -348,8 +348,8 @@ function get_from_api($month,$year)
         $range=10000;
         $range=10000;
         
-        mkdir("data/" . $year . "_" . $month , 0700);        
-        mkdir("data/" . $year . "_" . $month . "/temp", 0700);        
+        mkdir("data/" . $year . "_" . $month , 0777);        
+        mkdir("data/" . $year . "_" . $month . "/temp", 0777);        
         
         $OUT = fopen("data/" . $year . "_" . $month . "/temp/" . $google_analytics_page_statistics . ".txt", "w+");
         $cr = "\n";
