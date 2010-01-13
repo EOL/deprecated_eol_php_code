@@ -19,14 +19,19 @@ $month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_m
 
 //empty the 4 tables for the month
 initialize_tables_4dmonth($year,$month); 
+
 //save google analytics stats
 save_eol_taxa_google_stats($month,$year); 
+
 //save partner stats
 save_agent_taxa($year_month); //start2
+
 //save partner summaries
-save_agent_monthly_summary($year_month);                           //
+save_agent_monthly_summary($year_month);                      
+
 //save eol-wide summaries
 save_eol_monthly_summary($year,$month);
+
 echo"\n\n Processing done. --end-- "; exit;
 
 //####################################################################################################################################
@@ -87,11 +92,11 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     global $mysqli2;
     //start get count_of_taxa_pages viewed during the month, etc.
     $query = "Select distinct
-     Sum(google_analytics_page_stat.page_views) AS page_views,
-    Sum(google_analytics_page_stat.unique_page_views) AS unique_page_views,
-    Sum(time_to_sec(google_analytics_page_stat.time_on_page)) /60/60 AS time_on_page
+    Sum(google_analytics_page_stats.page_views) AS page_views,
+    Sum(google_analytics_page_stats.unique_page_views) AS unique_page_views,
+    Sum(time_to_sec(google_analytics_page_stats.time_on_page)) AS time_on_page
     From google_analytics_partner_taxa
-    Inner Join google_analytics_page_stat ON google_analytics_partner_taxa.taxon_concept_id = google_analytics_page_stat.taxon_concept_id AND google_analytics_partner_taxa.`year` = google_analytics_page_stat.`year` AND google_analytics_partner_taxa.`month` = google_analytics_page_stat.`month`
+    Inner Join google_analytics_page_stats ON google_analytics_partner_taxa.taxon_concept_id = google_analytics_page_stats.taxon_concept_id AND google_analytics_partner_taxa.`year` = google_analytics_page_stats.`year` AND google_analytics_partner_taxa.`month` = google_analytics_page_stats.`month`
     Where
     google_analytics_partner_taxa.agent_id = $agent_id AND
     google_analytics_partner_taxa.`year` = $year AND
@@ -243,7 +248,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
         from taxon_concepts tc inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
         inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
-        Inner Join google_analytics_page_stat gaps ON tc.id = gaps.taxon_concept_id        
+        Inner Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id        
         where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . " 
         and gaps.month=$month and gaps.year=$year ";
         //$query .= " LIMIT 1 "; //debug
@@ -253,7 +258,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         $query = "
         select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id     
         from taxon_concepts tc inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-        Inner Join google_analytics_page_stat gaps ON tc.id = gaps.taxon_concept_id
+        Inner Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
         where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
         and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
         where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().") 
@@ -270,7 +275,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         JOIN taxa t ON (het.taxon_id=t.id) 
         join hierarchy_entries he on t.hierarchy_entry_id = he.id 
         join taxon_concepts tc on he.taxon_concept_id = tc.id         
-        Join google_analytics_page_stat gaps ON tc.id = gaps.taxon_concept_id
+        Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
         WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0
         and gaps.month=$month and gaps.year=$year
         ";        
@@ -410,7 +415,7 @@ function save_eol_taxa_google_stats($month,$year)
         
         mkdir("data/" . $year . "_" . $month , 0700);        
         
-        $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stat.txt", "w+");
+        $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stats.txt", "w+");
         $cr = "\n";
         $sep = ",";
         $sep = chr(9); //tab
@@ -428,7 +433,7 @@ function save_eol_taxa_google_stats($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            //if($cnt == 1)$continue=false; //debug - use to force-stop loop     
+            /* for debugging */ //$continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 
@@ -514,7 +519,7 @@ function save_eol_taxa_google_stats($month,$year)
         fclose($OUT);        
 
         print"ditox";        
-        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stat.txt' INTO TABLE google_analytics_page_stat");      
+        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
         
     }
     else 
@@ -527,35 +532,12 @@ function save_eol_taxa_google_stats($month,$year)
 
 function create_tables()
 {   /* to be run as migrations */   
-    $query="CREATE TABLE `google_analytics_partner_taxa` (
-    `taxon_concept_id` int(10) unsigned NOT NULL,
-    `agent_id` int(10) unsigned NOT NULL,
-    `year` smallint(4) NOT NULL,
-    `month` tinyint(2) NOT NULL,
-    KEY `taxon_concept_id` (`taxon_concept_id`),
-    KEY `agent_id` (`agent_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-    $update = $mysqli->query($query);    
-
-    $query="CREATE TABLE `google_analytics_page_stat` (
-    `taxon_concept_id` int(10) unsigned NOT NULL default '0',
-    `year` smallint(4) NOT NULL,
-    `month` tinyint(2) NOT NULL,
-    `page_views` int(10) unsigned NOT NULL,
-    `unique_page_views` int(10) unsigned NOT NULL,
-    `time_on_page` time NOT NULL,
-    PRIMARY KEY  (`taxon_concept_id`),
-    KEY `taxon_concept_id` (`taxon_concept_id`),
-    KEY `page_views` (`page_views`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-    $update = $mysqli->query($query);    
-
 }
 
 function initialize_tables_4dmonth($year,$month)
 {	global $mysqli2;    
     //$month=intval($month);
-    $query="delete from `google_analytics_page_stat`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
+    $query="delete from `google_analytics_page_stats`        where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
     $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
     $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
     $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
@@ -622,12 +604,21 @@ function save_eol_monthly_summary($year,$month)
     $result = $mysqli->query($query);           
     $taxa_pages = $result->num_rows;    
     
-    $query="Select distinct google_analytics_page_stat.taxon_concept_id
-    From google_analytics_page_stat where year = $year and month = $month ";    
+    $query="Select distinct google_analytics_page_stats.taxon_concept_id
+    From google_analytics_page_stats where year = $year and month = $month ";    
     $result = $mysqli->query($query);           
     $taxa_pages_viewed = $result->num_rows;
     
-    $tab_delim .= $taxa_pages . chr(9) . $taxa_pages_viewed;
+    $query="Select sum(time_to_sec(google_analytics_page_stats.time_on_page)) time_on_pages
+    From google_analytics_page_stats
+    Where 
+    google_analytics_page_stats.`year` = $year AND
+    google_analytics_page_stats.`month` = $month ";
+    $result = $mysqli->query($query);           
+    $row = $result->fetch_row();            
+    $time_on_pages = $row[0];
+
+    $tab_delim .= $taxa_pages . chr(9) . $taxa_pages_viewed . chr(9) . $time_on_pages;
  
     //start saving...    
     $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
