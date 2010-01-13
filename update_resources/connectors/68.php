@@ -1,7 +1,6 @@
 #!/usr/local/bin/php
 <?php
 //connector for Duth Species Catalogue
-//exit;
 set_time_limit(0);
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
@@ -17,13 +16,11 @@ $file_number=1;
 
 //only on local; to be deleted before going into production
 /*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
+    $mysqli->truncate_tables("development");
+    Functions::load_fixtures("development");
 */
-$resource = new Resource(68);
-//exit("[$resource->id]");
 
-
+$resource = new Resource(68); //exit("[$resource->id]");
 $main_count=0;
 //====================================================================================
 $main_id_list = array();
@@ -35,49 +32,26 @@ echo "\n total taxid count = " . $total_taxid_count . "\n\n";;
 //====================================================================================
 $i=1;
 $bad=0;
-//while( count($id_processed) != count($main_id_list) )
-//{
-    echo "-x- \n";    
-    for ($i = $start; $i < $total_taxid_count; $i++)     
+echo "-x- \n";    
+for ($i = $start; $i < $total_taxid_count; $i++)     
+{
+    $taxid = $main_id_list[$i];
+    if($i % 10000 == 0) //working
+    {   
+        //start new file                
+        if(isset($OUT))fclose($OUT);
+        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/dutch_" . $file_number .".xml";
+        $OUT = fopen($old_resource_path, "w+");            
+        $file_number++;
+    }                                    
+    if($contents=process($taxid))            
     {
-        $taxid = $main_id_list[$i];
-        //if(!in_array("$taxid", $id_processed))        
-        //{                                    
-            //if(count($id_processed) % 10000 == 0)
-            if($i % 10000 == 0) //working
-            {   
-                //start new file                
-                if(isset($OUT))fclose($OUT);
-                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/dutch_" . $file_number .".xml";
-                $OUT = fopen($old_resource_path, "w+");            
-                $file_number++;
-            }            
-                        
-            // /*
-            //if(process($taxid,$OUT))
-            if($contents=process($taxid))            
-            {
-                //$id_processed[] = $taxid;
-                echo " -ok- ";
-                //new
-                fwrite($OUT, $contents);
-                //new
-            }
-            else
-            {
-                echo " -bad- "; $bad++;
-            }
-            // */                        
-            echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
-            //echo $i+1 . ". " . count($id_processed) . " of " . $total_taxid_count . "\n";                        
-        //}                
-    }    
-    /* working; only needed with while()
-    $main_id_list = get_main_id_list();
-    */
-//}//end while
-
-//print_r($main_id_list);print_r($id_processed);
+        echo " -ok- ";
+        fwrite($OUT, $contents);
+    }
+    else echo " -bad- "; $bad++;
+    echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
+}    
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
 //====================================================================================
@@ -97,7 +71,6 @@ $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://se
 fwrite($OUT, $str);
 $i=0;
 
-//while($i <= $total_taxid_count)
 while(true)
 {
     $i++; print "$i ";
@@ -115,13 +88,17 @@ while(true)
 print "\n --end-- \n";
 fclose($OUT);
 
-//end
 //====================================================================================
 //start functions #################################################################################################
 function process($id)
 {   
     //global $OUT;        
     $file = "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=$id&version=EOL";
+    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=   &version=EOL
+    
+    print"<hr><a href='$file'>$file</a>";
+    
+    
     /*
     http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
     http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=eol
