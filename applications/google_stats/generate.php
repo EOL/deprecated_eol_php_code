@@ -518,7 +518,7 @@ function process_parameters()
     {
         print"\n Invalid parameters!\n
         e.g. for July 2009 enter: \n
-        \t php generate_monthly_stats.php 7 2009 \n\n ";
+        \t php generate.php 7 2009 \n\n ";
         exit();
     }
     $month = GetNumMonthAsString($month, $year);
