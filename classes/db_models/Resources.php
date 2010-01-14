@@ -267,10 +267,12 @@ class Resource extends MysqlBase
             Functions::debug("Parsed resource: $this->id");
             
             $this->end_harvest();
+            $this->mysqli->commit();
             
             // if there are things in preview mode in old harvest which are not in this harvest
             // then set them to be invisible
             $this->make_old_preview_objects_invisible();
+            $this->mysqli->commit();
             
             if($hierarchy_id = $this->hierarchy_id())
             {

@@ -51,6 +51,11 @@ class DataObject extends MysqlBase
         $mysqli->update("UPDATE data_objects SET published=1 WHERE id=$id");
     }
     
+    public function unpublish_refs()
+    {
+        $this->mysqli->update("UPDATE data_objects do JOIN data_objects_refs dor ON (do.id=dor.data_object_id) JOIN refs r ON (dor.ref_id=r.id) SET r.published=0 WHERE do.guid='$this->guid'");
+    }
+    
     function getTaxa()
     {
         $taxa = array();

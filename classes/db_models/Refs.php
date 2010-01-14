@@ -15,6 +15,11 @@ class Reference extends MysqlBase
         $this->mysqli->insert("INSERT INTO ref_identifiers VALUES ($this->id,$type_id,'$value')");
     }
     
+    public function publish()
+    {
+        $this->mysqli->update("UPDATE refs SET published=1 WHERE id=$this->id");
+    }
+    
     static function insert($string)
     {
         return parent::insert_into("full_reference", $string, Functions::class_name(__FILE__));

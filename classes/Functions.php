@@ -96,6 +96,17 @@ class Functions
         return $hours;
     }
     
+    public static function grep_processlist($string)
+    {
+        $count = 0;
+        exec('ps -ef', $ps);
+        foreach($ps as $process)
+        {
+            if(preg_match("/".preg_quote($string, '/')."/", $process)) $count++;
+        }
+        return $count;
+    }
+    
     public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
         self::debug("Grabbing $remote_url: attempt 1");

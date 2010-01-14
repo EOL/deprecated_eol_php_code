@@ -78,16 +78,21 @@ class SchemaConnection extends MysqlBase
                 $taxon->add_common_name($c);
                 unset($c);
             }
-                    
-            foreach($t->refs as &$r)
+            
+            if(@$t->refs)
             {
-                $reference = new Reference($r->id);
-                if(@$reference->id)
+                $taxon->unpublish_refs();
+                foreach($t->refs as &$r)
                 {
-                    $taxon->add_reference($reference->id);
-                    foreach($r->identifiers as $i) $reference->add_ref_identifier($i->ref_identifier_type_id, $i->identifier);
+                    $reference = new Reference($r->id);
+                    if(@$reference->id)
+                    {
+                        $taxon->add_reference($reference->id);
+                        $reference->publish();
+                        foreach($r->identifiers as $i) $reference->add_ref_identifier($i->ref_identifier_type_id, $i->identifier);
+                    }
+                    unset($r);
                 }
-                unset($r);
             }
         }
         
@@ -150,15 +155,20 @@ class SchemaConnection extends MysqlBase
                 unset($id);
             }
             
-            foreach($d->refs as &$r)
+            if(@$d->refs)
             {
-                $reference = new Reference($r->id);
-                if(@$reference->id)
+                $data_object->unpublish_refs();
+                foreach($d->refs as &$r)
                 {
-                    $data_object->add_reference($reference->id);
-                    foreach($r->identifiers as $i) $reference->add_ref_identifier($i->ref_identifier_type_id, $i->identifier);
+                    $reference = new Reference($r->id);
+                    if(@$reference->id)
+                    {
+                        $data_object->add_reference($reference->id);
+                        $reference->publish();
+                        foreach($r->identifiers as $i) $reference->add_ref_identifier($i->ref_identifier_type_id, $i->identifier);
+                    }
+                    unset($r);
                 }
-                unset($r);
             }
         }
     }

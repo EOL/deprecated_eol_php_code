@@ -27,6 +27,11 @@ class Taxon extends MysqlBase
         return $this->hierarchy_entry;
     }
     
+    public function unpublish_refs()
+    {
+        $this->mysqli->update("UPDATE taxa t JOIN refs_taxa rt ON (t.id=rt.taxon_id) JOIN refs r ON (rt.ref_id=r.id) SET r.published=0 WHERE t.hierarchy_entry_id=$this->hierarchy_entry_id");
+    }
+    
     public function add_reference($reference_id)
     {
         if(!$reference_id) return 0;
