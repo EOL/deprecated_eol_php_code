@@ -43,13 +43,18 @@ for ($i = $start; $i < $total_taxid_count; $i++)
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/dutch_" . $file_number .".xml";
         $OUT = fopen($old_resource_path, "w+");            
         $file_number++;
-    }                                    
+    }      
     if($contents=process($taxid))            
     {
         echo " -ok- ";
         fwrite($OUT, $contents);
     }
-    else echo " -bad- "; $bad++;
+    else 
+    {
+        echo " -bad- "; 
+        $bad++;
+    }    
+    //print"<hr>[$contents]<hr>";    
     echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
 }    
 //====================================================================================
@@ -95,6 +100,12 @@ function process($id)
     //global $OUT;        
     $file = "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=$id&version=EOL";
     //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=   &version=EOL
+//           http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
+                                                                                             //  0AHCYFBQBTMT
+//           http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=eol
+                                                                                             //  000457094381
+             
+             
     
     print"<hr><a href='$file'>$file</a>";
     
@@ -149,7 +160,6 @@ function process($id)
         $contents = substr_replace($contents, $ref, $pos,0) ;                
         $contents = str_ireplace("<reference></reference>", "", $contents);//remove blank ref        
     }
-    //$contents = get_file_contents($file);
     if($contents)
     {
     	$pos1 = stripos($contents,"<taxon>");
@@ -157,9 +167,7 @@ function process($id)
     	if($pos1 != "" and $pos2 != "")
     	{
     		$contents = trim(substr($contents,$pos1,$pos2-$pos1+8));
-            //fwrite($OUT, $contents);
             return $contents;
-            //return true;
     	}
     }    
     return false;
