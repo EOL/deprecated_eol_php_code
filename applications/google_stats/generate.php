@@ -18,38 +18,8 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
 
-$month = get_val_var("month");
-$year = get_val_var("year");
-
-if($month == "")
-{
-    $arg1='';   
-    $arg2='';
-
-    if(isset($argv[0])) $arg0=$argv[0]; //this is the filename xxx.php
-    if(isset($argv[1])) $month=$argv[1];        
-    if(isset($argv[2])) $year=$argv[2];        
-
-    print"
-    month = $month  \n
-    year = $year    \n
-    ";
-
-    if($month != "" and $year != "")
-    {
-        print"Processing, please wait...  \n\n ";
-    }
-}
-
-if($month == "" or $year == "")
-{
-    print"
-    Invalid parameters  \n
-    e.g. for July 2009 enter: \n
-    php generate.php 7 2009  
-    ";
-    exit();
-}
+$arr = process_parameters();//month and year parameters
+$month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
 
 //exit("finish test");
@@ -524,6 +494,39 @@ function initialize_tables()
 	$query="CREATE TABLE  `eol_statistics`.`hierarchies_names_" . $year_month . "` ( `hierarchiesID` int(10) unsigned NOT NULL, `scientificName` varchar(255) default NULL, `commonNameEN` varchar(255) default NULL, PRIMARY KEY  (`hierarchiesID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8"; $update = $mysqli2->query($query);
     
 }//function initialize_tables()
+function process_parameters()
+{
+    global $argv;
+
+    $month = get_val_var("month");
+    $year = get_val_var("year");
+    
+    if($month == "")
+    {
+        $arg1='';   
+        $arg2='';
+        if(isset($argv[0])) $arg0=$argv[0]; //this is the filename xxx.php
+        if(isset($argv[1])) $month=$argv[1];        
+        if(isset($argv[2])) $year=$argv[2];        
+        print"
+        month = $month  \n
+        year = $year    \n
+        ";    
+        if($month != "" and $year != "") print"Processing, please wait...  \n\n ";
+    }
+    if($month == "" or $year == "" or $year < 2008 or $year > date('Y') or $month < 1 or $month > 12)
+    {
+        print"\n Invalid parameters!\n
+        e.g. for July 2009 enter: \n
+        \t php generate_monthly_stats.php 7 2009 \n\n ";
+        exit();
+    }
+    $month = GetNumMonthAsString($month, $year);
+    $arr = array();
+    $arr[]=$month;
+    $arr[]=$year;
+    return $arr;
+}//function process_parameters()
 
 
 
