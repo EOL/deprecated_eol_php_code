@@ -109,7 +109,11 @@ class MysqlConnection
                 $values = array();
             }
         }
+        fclose($FILE);
+        
         if(count($values)) $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
+        unset($values);
+        
         if($do_transaction) $this->end_transaction();
     }
     
