@@ -249,8 +249,8 @@ class CompareHierarchies
             $result = $mysqli->query("SELECT 1 FROM hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE he1.hierarchy_id=$hierarchy->id OR he2.hierarchy_id=$hierarchy->id LIMIT 1");
             if($result && $row=$result->fetch_assoc())
             {
-                $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_1) WHERE (he.hierarchy_id=$hierarchy->id)");
-                $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_2) WHERE (he.hierarchy_id=$hierarchy->id)");
+                $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_1) WHERE he.hierarchy_id=$hierarchy->id");
+                $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_2) WHERE he.hierarchy_id=$hierarchy->id");
             }
         }
         
