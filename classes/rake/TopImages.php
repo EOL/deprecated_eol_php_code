@@ -84,6 +84,66 @@ class TopImages
         if($all_parent_ids) $this->process_parents($all_parent_ids);
     }
     
+    public function top_concept_images($published = false)
+    {
+        $OUT = fopen(LOCAL_ROOT . "temp/top_concept_images.sql", "w+");
+        
+        if($published)
+        {
+            $table_name = 'top_concept_images';
+            $select_table_name = 'top_images';
+        }else
+        {
+            $table_name = 'top_unpublished_concept_images';
+            $select_table_name = 'top_unpublished_images';
+        }
+        
+        $start = 0;
+        $stop = 0;
+        $batch_size = 200000;
+        
+        $result = $this->mysqli->query("SELECT MIN(he.taxon_concept_id) min, MAX(he.taxon_concept_id) max FROM $select_table_name ti JOIN hierarchy_entries he ON (ti.hierarchy_entry_id=he.id)");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $start = $row['min'];
+            $stop = $row['max'];
+        }
+        
+        for($i=$start ; $i<$stop ; $i+=$batch_size)
+        {
+            echo "Page ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
+            
+            $last_taxon_concept_id = 0;
+            $top_images = array();
+            $result = $this->mysqli->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." ORDER BY he.taxon_concept_id");
+            while($result && $row=$result->fetch_assoc())
+            {
+                $taxon_concept_id = $row['taxon_concept_id'];
+                $data_object_id = $row['data_object_id'];
+                $vetted_sort_order = $row['vetted_sort_order'];
+                $data_rating = $row['data_rating'];
+                
+                if($taxon_concept_id != $last_taxon_concept_id)
+                {
+                    $last_taxon_concept_id = $taxon_concept_id;
+                    if($top_images) self::write_sorted_results_to_file($top_images, $OUT);
+                    $top_images = array();
+                }
+                $top_images[$vetted_sort_order][$data_rating][$data_object_id] = "$taxon_concept_id\t$data_object_id";
+            }
+            if($top_images) self::write_sorted_results_to_file($top_images, $OUT);
+        }
+        fclose($OUT);
+        
+        if(filesize(LOCAL_ROOT ."temp/top_concept_images.sql"))
+        {
+            echo "Deleting old concept data\n";
+            $this->mysqli->delete("DELETE FROM $table_name");
+            $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_concept_images.sql", $table_name, false);
+        }
+        shell_exec("rm ". LOCAL_ROOT ."temp/top_concept_images.sql");
+    }
+    
     
     function get_data_from_result(&$result)
     {
@@ -132,9 +192,9 @@ class TopImages
         return array($parent_ids, $top_images, $top_unpublished_images);
     }
     
-    function process_top_images($top_images, $top_unpublished_images)
+    public static function write_sorted_results_to_file($top_images, $FILE)
     {
-        if(!$this->TOP_IMAGES_FILE || !$this->TOP_UNPUBLISHED_IMAGES) return false;
+        if(!$FILE) return false;
         
         $view_order = 1;
         ksort($top_images);
@@ -146,35 +206,21 @@ class TopImages
                 krsort($object_ids);
                 foreach($object_ids as $object_id => $data)
                 {
-                    fwrite($this->TOP_IMAGES_FILE, $data . "\t$view_order\n");
+                    fwrite($FILE, $data . "\t$view_order\n");
                     $view_order++;
-                    if($view_order > 300) break;
+                    if($view_order > 500) break;
                 }
                 unset($object_ids);
             }
             unset($ratings);
         }
         unset($top_images);
-        
-        $view_order = 1;
-        ksort($top_unpublished_images);
-        foreach($top_unpublished_images as $vetted_orders => $ratings)
-        {
-            krsort($ratings);
-            foreach($ratings as $r => $object_ids)
-            {
-                krsort($object_ids);
-                foreach($object_ids as $object_id => $data)
-                {
-                    fwrite($this->TOP_UNPUBLISHED_IMAGES, $data . "\t$view_order\n");
-                    $view_order++;
-                    if($view_order > 300) break;
-                }
-                unset($object_ids);
-            }
-            unset($ratings);
-        }
-        unset($top_images);
+    }
+    
+    function process_top_images($top_images, $top_unpublished_images)
+    {
+        self::write_sorted_results_to_file($top_images, $this->TOP_IMAGES_FILE);
+        self::write_sorted_results_to_file($top_unpublished_images, $this->TOP_UNPUBLISHED_IMAGES);
     }
     
     function begin_load_data()
