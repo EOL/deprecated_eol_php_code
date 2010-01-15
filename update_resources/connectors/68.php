@@ -107,7 +107,7 @@ function process($id)
              
              
     
-    print"<hr><a href='$file'>$file</a>";
+    //print"<hr><a href='$file'>$file</a>";
     
     
     /*
@@ -175,7 +175,8 @@ function process($id)
 function get_main_id_list()
 {
     //$url[] = "http://128.128.175.77/mtce/DutchSpeciesCatalogue/DutchSpeciesCatalogueIDs.xml";
-    $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/DutchSpeciesCatalogue/DutchSpeciesCatalogueIDs.xml";
+    //$url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/DutchSpeciesCatalogue/DutchSpeciesCatalogueIDs.xml";    
+    $url[] = "http://www.nederlandsesoorten.nl/eol/EolList.xml";
     //print_r($url);exit;
  
     echo "\n URLs = " . sizeof($url) . "\n";
