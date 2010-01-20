@@ -134,12 +134,12 @@ class Name extends MysqlBase
         else $canonical_form = Functions::canonical_form($string);
         $canonical_form_id = CanonicalForm::insert($canonical_form);
         $italicized_form = Functions::italiziced_form($string);
+        $clean_name = Functions::clean_name($string);
         
-        $id = parent::insert_fields_into(array('string' => $string, 'italicized' => $italicized_form, 'italicized_verified' => 0, 'canonical_form_id' => $canonical_form_id, 'canonical_verified' => 0), Functions::class_name(__FILE__));
+        $id = parent::insert_fields_into(array('string' => $string, 'clean_name' => $clean_name, 'italicized' => $italicized_form, 'italicized_verified' => 0, 'canonical_form_id' => $canonical_form_id, 'canonical_verified' => 0), Functions::class_name(__FILE__));
         
         if($id)
         {
-            CleanName::insert($id, Functions::clean_name($string));
             $name = new Name($id);
             $name->add_to_normalized();
             unset($name);
@@ -161,7 +161,7 @@ class Name extends MysqlBase
         
         $clean_name = Functions::clean_name($string);
         
-        if($clean_name && $id = CleanName::find($clean_name)) return $id;
+        if($clean_name && $id = Name::find_by_clean_name($clean_name)) return $id;
         
         return 0;
     }
@@ -170,6 +170,12 @@ class Name extends MysqlBase
     {
         return parent::find_by_id_base("string", $id, Functions::class_name(__FILE__));
     }
+    
+    static function find_by_clean_name($clean_name)
+    {
+        return parent::find_by("clean_name", $clean_name, Functions::class_name(__FILE__));
+    }
+    
 }
 
 ?>
