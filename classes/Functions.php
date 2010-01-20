@@ -532,6 +532,7 @@ class Functions
         //utf-8 0x0A (nobreak space) does not get inserted into mysql properly, we change it back to &nbsp; 
         $str_nbsp = html_entity_decode("&nbsp;");
         
+        $string = str_replace(" ", " ", $string);
         $string = str_replace($str_nbsp, "&nbsp;", $string);
         
         if($remove_shitespace) $string = self::remove_whitespace($string);
