@@ -3,7 +3,7 @@
 //connector for Duth Species Catalogue
 set_time_limit(0);
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -36,6 +36,7 @@ echo "-x- \n";
 for ($i = $start; $i < $total_taxid_count; $i++)     
 {
     $taxid = $main_id_list[$i];
+    $taxid = "000464941632";//debug Acipitter
     if($i % 10000 == 0) //working
     {   
         //start new file                
@@ -47,6 +48,7 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     if($contents=process($taxid))            
     {
         echo " -ok- ";
+        //$contents = clean_str($contents);//ditox
         fwrite($OUT, $contents);
     }
     else 
@@ -56,6 +58,7 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     }    
     //print"<hr>[$contents]<hr>";    
     echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
+    if($i==0)$i=$total_taxid_count;//debug to limit the loop
 }    
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
@@ -99,13 +102,8 @@ function process($id)
 {   
     //global $OUT;        
     $file = "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=$id&version=EOL";
-    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=   &version=EOL
-//           http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
-                                                                                             //  0AHCYFBQBTMT
-//           http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=eol
-                                                                                             //  000457094381
-             
-             
+    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
+    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=eol
     
     //print"<hr><a href='$file'>$file</a>";
     
@@ -204,11 +202,7 @@ function get_main_id_list()
     return $arr;
 }//get_main_id_list()
 
-function clean_str($str)
-{    
-    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
-    return $str;
-}
+
 function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
 {
     //PRINT "[$all]"; exit;
@@ -278,5 +272,9 @@ function process_array($arr)
     //return $arr;    
     return $ref;
 }
-
+function clean_str($str)
+{    
+    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+    return $str;
+}
 ?>

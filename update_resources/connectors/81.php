@@ -23,7 +23,7 @@ http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=931
 */
 
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
