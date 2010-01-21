@@ -411,8 +411,9 @@ function save_eol_taxa_google_stats($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=10000; //debug
+        //$range=1000; //debug
         
+        mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
         
         $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stats.txt", "w+");
