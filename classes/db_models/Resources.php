@@ -127,14 +127,17 @@ class Resource extends MysqlBase
     
     public function last_harvest_event_id()
     {
+        if(isset($this->last_harvest_event_id)) return $this->last_harvest_event_id;
+        
+        $this->last_harvest_event_id = 0;
         if($this->harvest_event) $result = $this->mysqli->query("SELECT MAX(id) as id FROM harvest_events WHERE resource_id=$this->id AND id<".$this->harvest_event->id);
         else $result = $this->mysqli->query("SELECT SQL_NO_CACHE MAX(id) as id FROM harvest_events WHERE resource_id=$this->id");
         if($result && $row=$result->fetch_assoc())
         {
-            return $row["id"];
+            $this->last_harvest_event_id = $row["id"];
         }
         
-        return 0;
+        return $this->last_harvest_event_id;
     }
     
     public function most_recent_harvest_event_id()
@@ -269,6 +272,9 @@ class Resource extends MysqlBase
             $this->end_harvest();
             $this->mysqli->commit();
             
+            $this->update_names_of_new_entries();
+            $this->mysqli->commit();
+            
             // if there are things in preview mode in old harvest which are not in this harvest
             // then set them to be invisible
             $this->make_old_preview_objects_invisible();
@@ -311,6 +317,24 @@ class Resource extends MysqlBase
             if($this->auto_publish())
             {
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
+            }
+        }
+    }
+    
+    public function update_names_of_new_entries()
+    {
+        if($this->harvest_event)
+        {
+            $last_harvest_max_he_id = 0;
+            if($last_he_id = $this->last_harvest_event_id)
+            {
+                $result = $this->mysqli->query("SELECT max(hierarchy_entry_id) max FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) WHERE het.harvest_event_id=$last_he_id");
+                if($result && $row=$result->fetch_assoc()) $last_harvest_max_he_id = $row['max'];
+            }
+            $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id=".$this->harvest_event->id." AND t.hierarchy_entry_id>$last_harvest_max_he_id");
+            while($result && $row=$result->fetch_assoc())
+            {
+                Tasks::update_taxon_concept_names($row['taxon_concept_id']);
             }
         }
     }

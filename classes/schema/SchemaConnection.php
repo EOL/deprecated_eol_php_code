@@ -102,8 +102,6 @@ class SchemaConnection extends MysqlBase
             unset($d);
         }
         
-        Tasks::update_taxon_concept_names($taxon->hierarchy_entry()->taxon_concept_id);
-        
         return $taxon;
     }
     
