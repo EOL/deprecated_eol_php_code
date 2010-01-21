@@ -261,7 +261,7 @@ class Tasks extends MysqlBase
             {
                 $preferred = 0;
                 if($k2 && $v2=="preferred") $preferred = 1;
-                $mysqli->insert("INSERT INTO taxon_concept_names VALUES ($taxon_concept_id, $k, $k2, 0, 0, $preferred)");
+                $mysqli->insert("INSERT INTO taxon_concept_names VALUES ($taxon_concept_id, $k, $k2, 0, 0, $preferred, NULL)");
             }
         }
         
@@ -279,7 +279,7 @@ class Tasks extends MysqlBase
             $preferred = 1;
             $result2 = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND source_hierarchy_entry_id=0 AND language_id=$language_id AND vern=1 AND preferred=1");
             if($result2 && $row2=$result2->fetch_assoc()) $preferred = 0;
-            $mysqli->insert("INSERT INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, 0, $language_id, 1, $preferred)");
+            $mysqli->insert("INSERT INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, 0, $language_id, 1, $preferred, NULL)");
         }
         
         unset($matching_ids);
