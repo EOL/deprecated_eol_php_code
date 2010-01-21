@@ -72,7 +72,6 @@ $GLOBALS['function_returns']    = array();
 
 $GLOBALS['no_cache']['agents']              = true;
 $GLOBALS['no_cache']['canonical_forms']     = true;
-$GLOBALS['no_cache']['clean_names']         = true;
 $GLOBALS['no_cache']['data_objects']        = true;
 $GLOBALS['no_cache']['hierarchy_entries']   = true;
 $GLOBALS['no_cache']['name_languages']      = true;
