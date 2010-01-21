@@ -20,10 +20,14 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Basid
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&iwidth=600
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
+
+date            taxid   with public barcode
+2010 Jan 20     16105   5594    
+
 */
 
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -62,12 +66,11 @@ $query="Select distinct names.`string` as taxon_phylum From hierarchy_entries In
 Inner Join names ON hierarchy_entries.name_id = names.id Where
 ranks.id = 280 Order By names.`string` Asc ";
 //rank.id 280 = phylum
-
 //$query .= " and taxon_phylum = 'Chordata' ";
 //$query .= " and taxon_phylum = 'Chaetognatha' ";
 //$query .= " and taxon_phylum <> 'Annelida' ";
-
 //$query .= " limit 1 ";
+
 $result = $mysqli->query($query);    
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 
