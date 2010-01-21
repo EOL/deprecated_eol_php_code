@@ -316,8 +316,9 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=10000;
+        //$range=1000;//debug
         
+        mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
         mkdir("data/" . $year . "_" . $month . "/temp", 0777);        
         
