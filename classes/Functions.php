@@ -545,28 +545,6 @@ class Functions
         return $string;
     }
     
-    public static function normalized_prepare($string)
-    {
-        $string = str_replace("(","",$string);
-        $string = str_replace(")","",$string);
-        $string = str_replace("[","",$string);
-        $string = str_replace("]","",$string);
-        $string = str_replace("{","",$string);
-        $string = str_replace("}","",$string);
-        $string = str_replace(".","",$string);
-        $string = str_replace(",","",$string);
-        $string = str_replace(" and "," ",$string);
-        $string = str_replace("&"," ",$string);
-        $string = str_replace(":"," ",$string);
-        $string = str_replace("\""," ",$string);
-        $string = str_replace("'"," ",$string);
-        $string = str_replace("?"," ",$string);
-        $string = str_replace(";"," ",$string);
-        while(preg_match("/  /",$string)) $string = trim(str_replace("  "," ",$string));
-        
-        return $string;
-    }
-    
     public static function utf8_to_ascii($nameString)
     {
         // source code at http://us3.php.net/manual/en/function.iconv.php#93609

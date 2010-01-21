@@ -37,54 +37,6 @@ class Tasks extends MysqlBase
         $mysqli->end_transaction();
     }
     
-    public static function rebuild_normalized_names()
-    {
-        //currently not using name parts (name, author, year)
-        $normalized_qualifier_id = NormalizedQualifier::insert("Name");
-        
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        $mysqli->begin_transaction();
-        
-        $mysqli->delete("DELETE FROM normalized_names");
-        $mysqli->delete("DELETE FROM normalized_links");
-        
-        $result = $mysqli->query("SELECT MAX(id) as max FROM names");
-        $row = $result->fetch_assoc();
-        $max = $row["max"];
-        $start = 1;
-        $interval = 50000;
-        while($start < $max)
-        {
-            Functions::debug($start);
-            $result = $mysqli->query("SELECT id, string FROM names WHERE id BETWEEN $start AND ".($start+$interval-1));
-            while($result && $row=$result->fetch_assoc())
-            {
-                $id = $row["id"];
-                $string = $row["string"];
-                
-                $string = Functions::normalized_prepare($string);
-                $words = preg_split("/[ -]/",$string);
-                
-                $index = 0;
-                foreach($words as $k => $v)
-                {
-                    $v = trim($v);
-                    if(!$v) continue;
-                    
-                    $normalized_id = NormalizedName::insert($v);
-                    
-                    $mysqli->insert("INSERT INTO normalized_links VALUES ($normalized_id, $id, $index, $normalized_qualifier_id)");
-                    $index++;
-                }
-                
-                unset($words);
-            }
-            $start += $interval;
-        }
-        
-        $mysqli->end_transaction();
-    }
-    
     function canonical_forms()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];

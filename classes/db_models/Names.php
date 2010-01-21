@@ -49,19 +49,6 @@ class Name extends MysqlBase
         return $canonical_form;
     }
     
-    public function normalized_names()
-    {
-        $return = array();
-        
-        $result = $this->mysqli->query("SELECT nl.normalized_name_id FROM normalized_links nl JOIN normalized_names nn ON (nl.normalized_name_id=nn.id) WHERE nl.name_id=$this->id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $return[] = new NormalizedName($row["normalized_name_id"]);
-        }
-        
-        return $return;
-    }
-    
     public function add_language($language_id, $parent_id, $preferred)
     {
         $result = $this->mysqli->query("SELECT * FROM name_languages WHERE name_id=$this->id AND parent_name_id=$parent_id AND language_id=$language_id");
@@ -93,28 +80,6 @@ class Name extends MysqlBase
         $mysqli->insert("INSERT INTO name_languages VALUES ($name_id, $language_id, $parent_id, $preferred)");
     }
     
-    private function add_to_normalized()
-    {
-        $string = Functions::normalized_prepare($this->string);
-        $words = preg_split("/[ -]/",$string);
-        
-        $index = 0;
-        foreach($words as $k => $v)
-        {
-            $v = trim($v);
-            if(!$v) continue;
-            
-            $normalized_id = NormalizedName::insert($v);
-            $normalized_qualifier_id = NormalizedQualifier::insert("Name");
-            
-            //currently not using name parts (name, author, year)
-            $this->mysqli->insert("INSERT INTO normalized_links VALUES ($normalized_id, $this->id, $index, $normalized_qualifier_id)");
-            $index++;
-        }
-        
-        unset($words);
-    }
-    
     static function unassigned_ids()
     {
         return array(5335536);
@@ -141,7 +106,6 @@ class Name extends MysqlBase
         if($id)
         {
             $name = new Name($id);
-            $name->add_to_normalized();
             unset($name);
         }
         

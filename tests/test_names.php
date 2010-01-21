@@ -28,10 +28,6 @@ class test_names extends TestBase
         $canonical_form = $name->canonical_form();
         $this->assertTrue($name->id>0, "Should be able to make a name object");
         $this->assertTrue($canonical_form->string=="Aus bus", "Name should have a canonical form");
-        
-        $normalized_names = $name->normalized_names();
-        $this->assertIsA($normalized_names, "array", "There should be normalized names");
-        $this->assertIsA($normalized_names[0], "NormalizedName", "There should be normalized names");
     }
 }
 
