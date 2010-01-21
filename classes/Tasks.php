@@ -2,40 +2,40 @@
 
 class Tasks extends MysqlBase
 {
-    public static function clean_names()
-    {
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        $mysqli->begin_transaction();
-        
-        $mysqli->delete("DELETE FROM clean_names");
-        
-        $result = $mysqli->query("SELECT MAX(id) as max FROM names");
-        $row = $result->fetch_assoc();
-        $max = $row["max"];
-        $start = 1;
-        $interval = 50000;
-        while($start < $max)
-        {
-            Functions::debug($start);
-            $result = $mysqli->query("SELECT id, string FROM names WHERE id BETWEEN $start AND ".($start+$interval-1));
-            while($result && $row=$result->fetch_assoc())
-            {
-                $id = $row["id"];
-                $string = $row["string"];
-                $clean_name = Functions::clean_name($string);
-                
-                //CleanName::insert($id, $clean_name);
-                
-                $query = "INSERT INTO clean_names VALUES ($id,'".$mysqli->escape($clean_name)."')";
-                $mysqli->insert($query);
-            }
-            flush();
-            $start += $interval;
-        }
-        
-        
-        $mysqli->end_transaction();
-    }
+    // public static function clean_names()
+    // {
+    //     $mysqli =& $GLOBALS['mysqli_connection'];
+    //     $mysqli->begin_transaction();
+    //     
+    //     $mysqli->delete("DELETE FROM clean_names");
+    //     
+    //     $result = $mysqli->query("SELECT MAX(id) as max FROM names");
+    //     $row = $result->fetch_assoc();
+    //     $max = $row["max"];
+    //     $start = 1;
+    //     $interval = 50000;
+    //     while($start < $max)
+    //     {
+    //         Functions::debug($start);
+    //         $result = $mysqli->query("SELECT id, string FROM names WHERE id BETWEEN $start AND ".($start+$interval-1));
+    //         while($result && $row=$result->fetch_assoc())
+    //         {
+    //             $id = $row["id"];
+    //             $string = $row["string"];
+    //             $clean_name = Functions::clean_name($string);
+    //             
+    //             //CleanName::insert($id, $clean_name);
+    //             
+    //             $query = "INSERT INTO clean_names VALUES ($id,'".$mysqli->escape($clean_name)."')";
+    //             $mysqli->insert($query);
+    //         }
+    //         flush();
+    //         $start += $interval;
+    //     }
+    //     
+    //     
+    //     $mysqli->end_transaction();
+    // }
     
     function canonical_forms()
     {
