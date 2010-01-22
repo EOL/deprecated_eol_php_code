@@ -92,10 +92,12 @@ class TopImages
         {
             $table_name = 'top_concept_images';
             $select_table_name = 'top_images';
+            $where = 'AND he.published=1';
         }else
         {
             $table_name = 'top_unpublished_concept_images';
             $select_table_name = 'top_unpublished_images';
+            $where = '';
         }
         
         $start = 0;
@@ -115,7 +117,7 @@ class TopImages
             
             $last_taxon_concept_id = 0;
             $top_images = array();
-            $result = $this->mysqli->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." ORDER BY he.taxon_concept_id");
+            $result = $this->mysqli->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." $where ORDER BY he.taxon_concept_id");
             while($result && $row=$result->fetch_assoc())
             {
                 $taxon_concept_id = $row['taxon_concept_id'];
@@ -197,13 +199,13 @@ class TopImages
         if(!$FILE) return false;
         
         $view_order = 1;
-        ksort($top_images);
+        ksort($top_images); // vetted view order ASC
         foreach($top_images as $vetted_orders => $ratings)
         {
-            krsort($ratings);
+            krsort($ratings); // data object rating DESC
             foreach($ratings as $r => $object_ids)
             {
-                krsort($object_ids);
+                krsort($object_ids); // data object ID DESC
                 foreach($object_ids as $object_id => $data)
                 {
                     fwrite($FILE, $data . "\t$view_order\n");
