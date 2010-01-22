@@ -36,7 +36,9 @@ echo "-x- \n";
 for ($i = $start; $i < $total_taxid_count; $i++)     
 {
     $taxid = $main_id_list[$i];
-    $taxid = "000464941632";//debug Acipitter
+    //$taxid = "000464941632";//debug Acipitter
+    //$taxid = "000000016023";//Agrilus planipennis Fairmaire, 1888 
+
     if($i % 10000 == 0) //working
     {   
         //start new file                
@@ -48,7 +50,6 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     if($contents=process($taxid))            
     {
         echo " -ok- ";
-        //$contents = clean_str($contents);//ditox
         fwrite($OUT, $contents);
     }
     else 
@@ -58,7 +59,9 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     }    
     //print"<hr>[$contents]<hr>";    
     echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
-    if($i==0)$i=$total_taxid_count;//debug to limit the loop
+    /*
+    if($i==0)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
+    */
 }    
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
