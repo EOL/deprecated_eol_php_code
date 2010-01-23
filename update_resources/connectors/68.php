@@ -19,6 +19,11 @@ $file_number=1;
     $mysqli->truncate_tables("development");
     Functions::load_fixtures("development");
 */
+/*
+    as of       id      bad 
+    Jan23 2010  4744    108
+    
+*/
 
 $resource = new Resource(68); //exit("[$resource->id]");
 $main_count=0;
