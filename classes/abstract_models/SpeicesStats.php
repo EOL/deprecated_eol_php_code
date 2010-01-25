@@ -33,7 +33,7 @@ class SpeciesStats extends MysqlBase
         $with_BHL           = $stats->pages_with_bhl();
         $taxa_BHL_no_text   = $stats->pages_with_bhl_no_text();
                 
-        $vetted_not_published                           = 173; //$stats->pages_awaiting_publishing();
+        $vetted_not_published                           = 0; //$stats->pages_awaiting_publishing();
         $vetted_unknown_published_visible_inCol         = $stats->col_content_needs_curation();
         $vetted_unknown_published_visible_notinCol      = $stats->non_col_content_needs_curation();
         
