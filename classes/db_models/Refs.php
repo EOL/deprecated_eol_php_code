@@ -17,7 +17,7 @@ class Reference extends MysqlBase
     
     public function publish()
     {
-        $this->mysqli->update("UPDATE refs SET published=1 WHERE id=$this->id");
+        $this->mysqli->update("UPDATE refs SET published=1, visibility_id=".Visibility::insert("Visible")." WHERE id=$this->id");
     }
     
     static function insert($string)

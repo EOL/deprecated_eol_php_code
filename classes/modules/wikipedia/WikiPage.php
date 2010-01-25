@@ -310,9 +310,9 @@ class WikiPage
         $html = preg_replace("/<h2> *<span class=\"mw-headline\" id=\"External_links\"> *External links *<\/span>(.*)$/ims", '', $html);
         
         // remove the Taxobox panel
-        if(preg_match("/^.*?(<table class=\"[^\"]*biota.*)$/ims", $html, $arr))
+        if(preg_match("/^(.*?)(<table class=\"[^\"]*biota.*)$/ims", $html, $arr))
         {
-            $html = self::remove_block('<table', '<\/table>', $arr[1], 1);
+            $html = $arr[1] . self::remove_block('<table', '<\/table>', $arr[2], 1);
         }
         
         // remove some styles which add columns - this doesn't work well in our text panel
