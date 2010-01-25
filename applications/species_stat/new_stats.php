@@ -68,6 +68,8 @@ echo "$wrap---------------- Lifedesk$wrap$wrap";
 echo "lifedesk_taxa: ".$stats->lifedesk_taxa()."$wrap";
 echo Functions::time_elapsed()."$wrap";
 echo "lifedesk_data_objects: ".$stats->lifedesk_data_objects()."$wrap";
+
+
 echo Functions::time_elapsed()."$wrap";
 
 ?>

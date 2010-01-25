@@ -326,15 +326,13 @@ if($view == 3)
         
         $arr['Total number of pages'][$i]                        = number_format($col_total + $notcol_total);
         $arr['Total number of pages with names from CoL'][$i]    = number_format($col_total);
-        $arr['Total number of pages with names not in CoL'][$i]    = number_format($notcol_total);        
-        
+        $arr['Total number of pages with names not in CoL'][$i]    = number_format($notcol_total);                
         $arr['Pages with content'][$i]                 = number_format($row["taxa_count"]);
         $arr['Pages with text'][$i]                 = number_format($row["taxa_text"]);
         $arr['Pages with images'][$i]                 = number_format($row["taxa_images"]);
         $arr['Pages with text and images'][$i]         = number_format($row["taxa_text_images"]);
         $arr['Pages with images and no text'][$i]     = number_format($row["taxa_images_no_text"]);
-        $arr['Pages with text and no images'][$i]     = number_format($row["taxa_text_no_images"]);        
-        
+        $arr['Pages with text and no images'][$i]     = number_format($row["taxa_text_no_images"]);                
         $arr['Pages with links (specialist projects) and no text'][$i]        = number_format($row["taxa_links_no_text"]);        
         
         $arr['Number of pages with at least one vetted data object'][$i] = number_format($row["vet_obj"]);
@@ -345,8 +343,7 @@ if($view == 3)
         $arr['Number of non CoL pages taxa with vetted data objects in more than one category'][$i] = number_format($row["vet_obj_morethan_1cat_notinCOL"]);
 
         $arr['Pages with BHL links'][$i]                = number_format($row["with_BHL"]);        
-        $arr['Pages with BHL links with no text'][$i]   = number_format($row["taxa_BHL_no_text"]);        
-        
+        $arr['Pages with BHL links with no text'][$i]   = number_format($row["taxa_BHL_no_text"]);                
 
         $arr['Approved pages awaiting publication'][$i] = number_format($row["vetted_not_published"]);
         $arr['Pages with CoL names with content that requires curation'][$i]     = number_format($row["vetted_unknown_published_visible_inCol"]);
