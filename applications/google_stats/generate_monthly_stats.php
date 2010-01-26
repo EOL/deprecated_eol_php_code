@@ -1,4 +1,5 @@
 <?php
+//define("ENVIRONMENT", "integration"); 
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
@@ -14,6 +15,10 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
+
+
+$timestart = microtime(1);
+
 $arr = process_parameters();//month and year parameters
 $month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
@@ -32,7 +37,15 @@ save_agent_monthly_summary($year_month);
 //save eol-wide summaries
 save_eol_monthly_summary($year,$month);
 
-echo"\n\n Processing done. --end-- "; exit;
+echo"\n\n Processing done. --end-- \n "; 
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+
+exit;
 
 //####################################################################################################################################
 //####################################################################################################################################
@@ -135,12 +148,31 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
         where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");                 
     }
     elseif($agent_id == 11)//Catalogue of Life
-    {   $query = "Select distinct Count(tc.id)     
+    {   
+        /* not optimized
+        $query = "Select distinct Count(tc.id)     
         from taxon_concepts tc 
         inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
-        and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
-        where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
+        where 
+        tc.supercedure_id=0 and 
+        tc.published=1 and 
+        tc.vetted_id <> " . Vetted::find("untrusted") . "    
+        and 
+        tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
+        where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";        
+        */
+        
+        $query = "Select Count(taxon_concepts.id) 
+        From hierarchy_entries
+        Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+        Where
+        hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
+        taxon_concepts.published        = 1 AND
+        taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
+        taxon_concepts.supercedure_id   = 0 ";
+        
+        //print "<hr>$query<hr>";exit;
+        
     }
     else //rest of the partners
     {   $query = "Select distinct Count(he.taxon_concept_id) 
@@ -255,14 +287,31 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
+        /* not optimized
         $query = "
         select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id     
-        from taxon_concepts tc inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
+        from taxon_concepts tc 
+        inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
         Inner Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
         where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
         and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
         where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().") 
         and gaps.month=$month and gaps.year=$year ";
+        */
+        $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
+        From hierarchy_entries
+        Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+        Inner Join google_analytics_page_stats gaps ON taxon_concepts.id = gaps.taxon_concept_id
+        Where
+        hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
+        taxon_concepts.published        = 1 AND
+        taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
+        taxon_concepts.supercedure_id   = 0 
+        and gaps.month=$month and gaps.year=$year ";
+
+        //print"<hr>$query<hr>"; exit;
+        
+        
         //$query .= " LIMIT 1 "; //debug    
     }
     else //rest of the partners
@@ -411,7 +460,7 @@ function save_eol_taxa_google_stats($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        //$range=1000; //debug
+        $range=1000; //debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
@@ -434,7 +483,7 @@ function save_eol_taxa_google_stats($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ //$continue=false;
+            /* for debugging */ $continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 

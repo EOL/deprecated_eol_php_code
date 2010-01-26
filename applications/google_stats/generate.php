@@ -1,12 +1,12 @@
 <?php
 
+//define("ENVIRONMENT", "integration"); 
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 //exit;
-
 
 $mysqli2 = load_mysql_environment('eol_statistics');        
 set_time_limit(0);
@@ -226,19 +226,26 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     //==============================================================================================
     //start COL 2009
 
-    /* working but don't go through taxon_concept_names
-    $query = "select distinct 'COL 2009' full_name, tc.id taxon_concept_id from 
-    taxon_concepts tc STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "   
-    and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries where 
-    hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")"; */
-
     //before 'COL 2009'
-    $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id from 
+    /* not optimized
+    $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id 
+    from 
     taxon_concepts tc STRAIGHT_JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
     where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
     and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
     where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
+    */
+    $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
+    From hierarchy_entries
+    Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+    Where
+    hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
+    taxon_concepts.published        = 1 AND
+    taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
+    taxon_concepts.supercedure_id   = 0 ";
+
+    //print"<hr>$query<hr>"; exit;
+    
 
     //$query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
@@ -316,7 +323,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        //$range=1000;//debug
+        $range=1000;//debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
@@ -337,7 +344,7 @@ function get_from_api($month,$year)
             print "no. of records = " . count($data) . "<br>";            
             
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ //$continue=false;
+            /* for debugging */ $continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 
