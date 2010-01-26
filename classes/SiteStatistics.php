@@ -9,6 +9,43 @@ class SiteStatistics
         $this->mysqli =& $GLOBALS['mysqli_connection'];
     }
     
+    public function insert_stats()
+    {
+        $stats = array();
+        //$stats['id'] = ;
+        //$stats['active'] = ;
+        $stats['taxa_count'] =                                      $this->total_pages();
+        $stats['taxa_text'] =                                       $this->pages_with_text();
+        $stats['taxa_images'] =                                     $this->pages_with_images();
+        $stats['taxa_text_images'] =                                $this->pages_with_text_and_images();
+        $stats['taxa_BHL_no_text'] =                                $this->pages_with_bhl_no_text();
+        $stats['taxa_links_no_text'] =                              $this->pages_with_links_no_text();
+        $stats['taxa_images_no_text'] =                             $this->pages_with_images_no_text();
+        $stats['taxa_text_no_images'] =                             $this->pages_with_text_no_images();
+        $stats['vet_obj_only_1cat_inCOL'] =                         $this->pages_in_col_one_category();
+        $stats['vet_obj_only_1cat_notinCOL'] =                      $this->pages_not_in_col_one_category();
+        $stats['vet_obj_morethan_1cat_inCOL'] =                     $this->pages_in_col_more_categories();
+        $stats['vet_obj_morethan_1cat_notinCOL'] =                  $this->pages_not_in_col_more_categories();
+        $stats['vet_obj'] =                                         $this->pages_with_vetted_objects();
+        $stats['no_vet_obj2'] =                                     $this->pages_in_col_no_content();
+        $stats['with_BHL'] =                                        $this->pages_with_bhl();
+        $stats['vetted_not_published'] =                            $this->pages_awaiting_publishing();
+        $stats['vetted_unknown_published_visible_inCol'] =          $this->col_content_needs_curation();
+        $stats['vetted_unknown_published_visible_notinCol'] =       $this->non_col_content_needs_curation();
+        //$stats['date_created'] =                                    $this->();
+        //$stats['time_created'] =                                    $this->();
+        $stats['pages_incol'] =                                     $this->total_pages_in_col();
+        $stats['pages_not_incol'] =                                 $this->total_pages_not_in_col();
+        //$stats['a_taxa_with_text'] =                                $this->();
+        //$stats['timestamp'] =                                       $this->();
+        //$stats['a_vetted_not_published'] =                          $this->();
+        //$stats['a_vetted_unknown_published_visible_notinCol'] =     $this->();
+        //$stats['a_vetted_unknown_published_visible_inCol'] =        $this->();
+        $stats['lifedesk_taxa'] =                                   $this->lifedesk_taxa();
+        $stats['lifedesk_dataobject'] =                             $this->lifedesk_data_objects();
+        
+        $this->myqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
+    }
     
     ////////////////////////////////////
     ////////////////////////////////////  Main Stats
@@ -123,7 +160,7 @@ class SiteStatistics
         $this->pages_with_vetted_objects = 0;
         
         $content_by_category = $this->content_by_category();
-        $this->pages_with_vetted_objects = array_sum($content_by_category);
+        $this->pages_with_vetted_objects = $content_by_category['total_with_objects'];
         return $this->pages_with_vetted_objects;
     }
     
@@ -143,7 +180,7 @@ class SiteStatistics
         $this->pages_in_col_one_category = 0;
         
         $content_by_category = $this->content_by_category();
-        $this->pages_in_col_one_category = $content_by_category['col_one'];
+        $this->pages_in_col_one_category = $content_by_category['one_type_in_col'];
         return $this->pages_in_col_one_category;
     }
     
@@ -153,7 +190,7 @@ class SiteStatistics
         $this->pages_not_in_col_one_category = 0;
         
         $content_by_category = $this->content_by_category();
-        $this->pages_not_in_col_one_category = $content_by_category['noncol_one'];
+        $this->pages_not_in_col_one_category = $content_by_category['one_type_not_in_col'];
         return $this->pages_not_in_col_one_category;
     }
     
@@ -163,7 +200,7 @@ class SiteStatistics
         $this->pages_in_col_more_categories = 0;
         
         $content_by_category = $this->content_by_category();
-        $this->pages_in_col_more_categories = $content_by_category['noncol_one'];
+        $this->pages_in_col_more_categories = $content_by_category['more_types_in_col'];
         return $this->pages_in_col_more_categories;
     }
     
@@ -173,7 +210,7 @@ class SiteStatistics
         $this->pages_not_in_col_more_categories = 0;
         
         $content_by_category = $this->content_by_category();
-        $this->pages_not_in_col_more_categories = $content_by_category['noncol_one'];
+        $this->pages_not_in_col_more_categories = $content_by_category['more_types_not_in_col'];
         return $this->pages_not_in_col_more_categories;
     }
     
@@ -231,8 +268,8 @@ class SiteStatistics
         if(isset($this->col_content_needs_curation)) return $this->col_content_needs_curation;
         $this->col_content_needs_curation = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM hierarchy_entries he JOIN hierarchy_entries he_concepts ON (he.taxon_concept_id=he_concepts.taxon_concept_id) JOIN taxa t ON (he_concepts.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE he.hierarchy_id=".Hierarchy::col_2009()." AND do.published=1 AND do.vetted_id=".Vetted::find('Unknown'));
-        if($result && $row=$result->fetch_assoc()) $this->col_content_needs_curation = $row['count'];
+        $taxon_concept_curation = $this->taxon_concept_curation();
+        $this->col_content_needs_curation = $taxon_concept_curation['needs_curation_in_col'];
         return $this->col_content_needs_curation;
     }
     
@@ -241,10 +278,9 @@ class SiteStatistics
         if(isset($this->non_col_content_needs_curation)) return $this->non_col_content_needs_curation;
         $this->non_col_content_needs_curation = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM hierarchy_entries he JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE do.published AND do.vetted_id=".Vetted::find('Unknown'));
-        if($result && $row=$result->fetch_assoc()) $this->non_col_content_needs_curation = $row['count'] - $this->col_content_needs_curation();
+        $taxon_concept_curation = $this->taxon_concept_curation();
+        $this->non_col_content_needs_curation = $taxon_concept_curation['needs_curation_not_in_col'];
         return $this->non_col_content_needs_curation;
-        
     }
     
     
@@ -295,84 +331,71 @@ class SiteStatistics
     public function content_by_category()
     {
         if(isset($this->content_by_category)) return $this->content_by_category;
-        $this->content_by_category = array();
+        $this->content_by_category = array(
+            'total_with_objects'    => 0,
+            'one_type_in_col'       => 0,
+            'one_type_not_in_col'   => 0,
+            'more_types_in_col'     => 0,
+            'more_types_not_in_col' => 0);
         
-        $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
-        $text_type_id = DataType::find("http://purl.org/dc/dcmitype/Text");
+        $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_data_types`");
+        $this->mysqli->query("CREATE TABLE `taxon_concepts_data_types` (
+          `taxon_concept_id` int unsigned NOT NULL,
+          `count_data_types` smallint unsigned NOT NULL,
+          `count_toc` smallint unsigned NOT NULL,
+          `in_col` tinyint unsigned NULL,
+          PRIMARY KEY  (`taxon_concept_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         
-        $taxon_concept_ids = array();
-        echo "counting\n";
-        $result = $this->mysqli->query("SELECT tc.id, he_col.id in_col FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) LEFT JOIN hierarchy_entries he_col on (tc.id=he_col.taxon_concept_id and he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.supercedure_id=0 AND tc.published=1 AND (tcc.text=1 OR tcc.image=1)");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $taxon_concept_ids[$row['id']] = $row['in_col'];
-        }
-        echo "done counting\n";
+        $this->mysqli->query("INSERT IGNORE INTO taxon_concepts_data_types (SELECT tc.id, count(distinct do.data_type_id), count(distinct dotoc.toc_id), he_col.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) LEFT JOIN data_objects_table_of_contents dotoc ON (do.id=dotoc.data_object_id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find("trusted")." GROUP BY tc.id)");
         
-        $batches = array_chunk(array_keys($taxon_concept_ids), 10000);
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types");
+        if($result && $row=$result->fetch_assoc()) $this->content_by_category['total_with_objects'] = $row['count'];
         
-        $content_count = array();
-        $content_count[0] = array();
-        $content_count[1] = array();
-        foreach($batches as $key => $batch)
-        {
-            echo "starting batch ".($key+1)." of ".count($batches)."\n";
-            $last_concept_id = 0;
-            $result = $this->mysqli->query("select he.taxon_concept_id id, do.data_type_id, toc.id toc_id
-                from hierarchy_entries he
-                join taxa t on (he.id=t.hierarchy_entry_id)
-                join data_objects_taxa dot on (t.id=dot.taxon_id)
-                join data_objects do on (dot.data_object_id=do.id)
-                left join (
-                    data_objects_table_of_contents dotoc
-                    join table_of_contents toc on (dotoc.toc_id=toc.id)
-                ) on (do.id=dotoc.data_object_id) 
-                where he.taxon_concept_id IN (".implode($batch,",").") AND do.published=1 and do.vetted_id=".Vetted::insert("Trusted"));
-            while($result && $row=$result->fetch_assoc())
-            {
-                $id = $row["id"];
-                
-                if($id != $last_concept_id)
-                {
-                    if($last_concept_id)
-                    {
-                        $count_text = count($distinct_toc_ids);
-                        $count_other = count($distinct_data_type_ids);
-                        $content_count[$in_col][$id] = $count_text + $count_other;
-                    }
-                    
-                    $in_col = @$taxon_concept_ids[$id];
-                    $distinct_data_type_ids = array();
-                    $distinct_toc_ids = array();
-                }
-                
-                $data_type_id = $row["data_type_id"];
-                $toc_id = $row["toc_id"];
-                if($row["data_type_id"] == $text_type_id) $distinct_toc_ids[$toc_id] = 1;
-                elseif($row["data_type_id"] == $image_type_id) $distinct_data_type_ids[$data_type_id] = 1;
-            }
-        }
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types=1 AND count_toc<2 AND in_col IS NOT NULL");
+        if($result && $row=$result->fetch_assoc()) $this->content_by_category['one_type_in_col'] = $row['count'];
         
-        $col_one = 0;
-        $col_more = 0;
-        foreach($content_count[0] as $id => $count)
-        {
-            if($count==1) $col_one++;
-            elseif($count>1) $col_more++;
-        }
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types=1 AND count_toc<2 AND in_col IS NULL");
+        if($result && $row=$result->fetch_assoc()) $this->content_by_category['one_type_not_in_col'] = $row['count'];
         
-        $noncol_one = 0;
-        $noncol_more = 0;
-        foreach($content_count[1] as $id => $count)
-        {
-            if($count==1) $noncol_one++;
-            else $noncol_more++;
-        }
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types>1 OR count_toc>1 AND in_col IS NOT NULL");
+        if($result && $row=$result->fetch_assoc()) $this->content_by_category['more_types_in_col'] = $row['count'];
         
-        $this->content_by_category = array('col_one' => $col_one, 'col_more' => $col_more, 'noncol_one' => $noncol_one, 'noncol_more' => $noncol_more);
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types>1 OR count_toc>1 AND in_col IS NULL");
+        if($result && $row=$result->fetch_assoc()) $this->content_by_category['more_types_not_in_col'] = $row['count'];
+        
+        $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_data_types`");
+        
         return $this->content_by_category;
     }
     
+    public function taxon_concept_curation()
+    {
+        if(isset($this->taxon_concept_curation)) return $this->taxon_concept_curation;
+        $this->taxon_concept_curation = array(
+            'needs_curation_in_col'     => 0,
+            'needs_curation_not_in_col' => 0);
+        
+        $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_curation`");
+        $this->mysqli->query("CREATE TABLE `taxon_concepts_curation` (
+          `taxon_concept_id` int unsigned NOT NULL,
+          `requires_curation` tinyint unsigned NOT NULL,
+          `in_col` tinyint unsigned NULL,
+          PRIMARY KEY  (`taxon_concept_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        
+        $this->mysqli->query("INSERT IGNORE INTO taxon_concepts_curation (SELECT tc.id, 1, he_col.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." GROUP BY tc.id)");
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_curation WHERE in_col IS NOT NULL");
+        if($result && $row=$result->fetch_assoc()) $this->taxon_concept_curation['needs_curation_in_col'] = $row['count'];
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_curation WHERE in_col IS NULL");
+        if($result && $row=$result->fetch_assoc()) $this->taxon_concept_curation['needs_curation_not_in_col'] = $row['count'];
+        
+        $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_curation`");
+        
+        return $this->taxon_concept_curation;
+    }
     
 }
 
