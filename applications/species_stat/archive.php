@@ -1,11 +1,8 @@
 <?php
-
 //define("ENVIRONMENT", "integration");		//where stats are stored	
-//define("ENVIRONMENT", "slave");		//where stats are stored
+//define("ENVIRONMENT", "slave");		    //where stats are stored
 //define("ENVIRONMENT", "development");		//where stats are stored
 //define("ENVIRONMENT", "data_main");		//where stats are stored
-
-
 
 define("DEBUG", true);
 define("MYSQL_DEBUG", true);

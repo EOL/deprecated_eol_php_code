@@ -3,8 +3,8 @@
 // define('MYSQL_DEBUG', true);
 // define('DEBUG_TO_FILE', true);
 
-//define("ENVIRONMENT", "integration");
-define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "integration");
+//define("ENVIRONMENT", "slave_32");
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

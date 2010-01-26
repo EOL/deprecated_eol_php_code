@@ -8,12 +8,9 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 set_time_limit(0);
-
 //=================================================================
 $filename = "saved_stats";
-
 $days = getDays($filename);
-
 //print $days . "<hr>"; //debug
 
 $query = "Select
@@ -206,8 +203,8 @@ function getDays($filename)
         $arr[]='Pages with text and no images';   
         $arr[]='Number of pages with at least one vetted data object';                                        
         $arr[]='Number of taxa with no data objects (in CoL)&#44; i.e. base pages';                               
-        $arr[]='Number of pages with a CoL name and a vetted data or Flickr object in one category';          
-        $arr[]='Number of non CoL pages with a vetted data object or an image from Flickr in one category';   
+        $arr[]='Number of pages with a CoL name and a vetted data object in one category';          
+        $arr[]='Number of non CoL pages with a vetted data object in one category';   
         $arr[]='Number of pages with a CoL name with vetted data objects in more than one category';          
         $arr[]='Number of non CoL pages taxa with vetted data objects in more than one category';             
         $arr[]='Approved pages awaiting publication';                          
@@ -240,9 +237,6 @@ function getDays($filename)
     return trim($comma_separated);
 }
 
-
-
-
 function get_val_var($v)
 {
     if     (isset($_GET["$v"])){$var=$_GET["$v"];}
@@ -250,7 +244,4 @@ function get_val_var($v)
     else   return NULL;                            
     return $var;    
 }
-
-
-
 ?>

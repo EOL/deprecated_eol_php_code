@@ -1,5 +1,4 @@
 <?php
-
 //define("ENVIRONMENT", "integration");        //where stats are stored
 //define("ENVIRONMENT", "slave_215");        //where stats are stored
 //define("ENVIRONMENT", "data_main");        //where stats are stored
@@ -134,8 +133,8 @@ print"
 //===========================================================================================
 $s5="Number of pages with at least one vetted data object: ";
 $s6="Number of taxa with no data objects (in CoL), i.e. 'base pages': ";
-$s1="Number of pages with a CoL name and a vetted data or Flickr object in one category: ";
-$s2="Number of non CoL pages with a vetted data object or an image from Flickr in one category: ";
+$s1="Number of pages with a CoL name and a vetted data object in one category: ";     
+$s2="Number of non CoL pages with a vetted data object in one category: ";
 $s3="Number of pages with a CoL name with vetted data objects in more than one category: ";
 $s4="Number of non CoL pages taxa with vetted data objects in more than one category: ";
 
@@ -337,8 +336,8 @@ if($view == 3)
         
         $arr['Number of pages with at least one vetted data object'][$i] = number_format($row["vet_obj"]);
         $arr['Number of taxa with no data objects (in CoL), i.e. base pages'][$i] = number_format($row["no_vet_obj2"]);
-        $arr['Number of pages with a CoL name and a vetted data or Flickr object in one category'][$i] = number_format($row["vet_obj_only_1cat_inCOL"]);
-        $arr['Number of non CoL pages with a vetted data object or an image from Flickr in one category'][$i] = number_format($row["vet_obj_only_1cat_notinCOL"]);
+        $arr['Number of pages with a CoL name and a vetted data object in one category'][$i] = number_format($row["vet_obj_only_1cat_inCOL"]);
+        $arr['Number of non CoL pages with a vetted data object in one category'][$i] = number_format($row["vet_obj_only_1cat_notinCOL"]);
         $arr['Number of pages with a CoL name with vetted data objects in more than one category'][$i] = number_format($row["vet_obj_morethan_1cat_inCOL"]);
         $arr['Number of non CoL pages taxa with vetted data objects in more than one category'][$i] = number_format($row["vet_obj_morethan_1cat_notinCOL"]);
 

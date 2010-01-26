@@ -1,5 +1,4 @@
 <?php
-
 //define("ENVIRONMENT", "integration");				//where stats are stored
 //define("ENVIRONMENT", "slave_215");				//where stats are stored
 //define("ENVIRONMENT", "development");				//where stats are stored
