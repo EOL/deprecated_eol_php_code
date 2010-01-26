@@ -14,7 +14,7 @@ class SiteStatistics
         $stats = array();
         //$stats['id'] = ;
         //$stats['active'] = ;
-        $stats['taxa_count'] =                                      $this->total_pages();
+        $stats['taxa_count'] =                                      $this->pages_with_content();
         $stats['taxa_text'] =                                       $this->pages_with_text();
         $stats['taxa_images'] =                                     $this->pages_with_images();
         $stats['taxa_text_images'] =                                $this->pages_with_text_and_images();
