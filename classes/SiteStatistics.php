@@ -12,7 +12,7 @@ class SiteStatistics
     public function insert_stats()
     {
         $stats = array();
-        //$stats['id'] = ;
+        //$stats['id'] = ; // this is an auto-increment field
         //$stats['active'] = ;
         $stats['taxa_count'] =                                      $this->pages_with_content();
         $stats['taxa_text'] =                                       $this->pages_with_text();
@@ -32,8 +32,10 @@ class SiteStatistics
         $stats['vetted_not_published'] =                            $this->pages_awaiting_publishing();
         $stats['vetted_unknown_published_visible_inCol'] =          $this->col_content_needs_curation();
         $stats['vetted_unknown_published_visible_notinCol'] =       $this->non_col_content_needs_curation();
-        //$stats['date_created'] =                                    $this->();
-        //$stats['time_created'] =                                    $this->();
+        
+        $stats['date_created'] =                                    date('Y-m-d');
+        $stats['time_created'] =                                    date('H:i:s');
+        
         $stats['pages_incol'] =                                     $this->total_pages_in_col();
         $stats['pages_not_incol'] =                                 $this->total_pages_not_in_col();
         //$stats['a_taxa_with_text'] =                                $this->();
@@ -44,7 +46,7 @@ class SiteStatistics
         $stats['lifedesk_taxa'] =                                   $this->lifedesk_taxa();
         $stats['lifedesk_dataobject'] =                             $this->lifedesk_data_objects();
         
-        $this->myqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
+        $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
     }
     
     ////////////////////////////////////
