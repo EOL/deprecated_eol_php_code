@@ -7,9 +7,10 @@ class SiteStatistics
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->mysqli_eol = load_mysql_environment('slave_eol');
     }
     
-    public function insert_stats()
+    public function insert_taxa_stats()
     {
         $stats = array();
         $stats['taxa_count'] =                                      $this->pages_with_content();
@@ -32,11 +33,6 @@ class SiteStatistics
         $stats['vetted_unknown_published_visible_notinCol'] =       $this->non_col_content_needs_curation();
         $stats['pages_incol'] =                                     $this->total_pages_in_col();
         $stats['pages_not_incol'] =                                 $this->total_pages_not_in_col();
-        //$stats['a_taxa_with_text'] =                                $this->();
-        //$stats['timestamp'] =                                       $this->();
-        //$stats['a_vetted_not_published'] =                          $this->();
-        //$stats['a_vetted_unknown_published_visible_notinCol'] =     $this->();
-        //$stats['a_vetted_unknown_published_visible_inCol'] =        $this->();
         $stats['lifedesk_taxa'] =                                   $this->lifedesk_taxa();
         $stats['lifedesk_dataobject'] =                             $this->lifedesk_data_objects();
         $stats['date_created'] =                                    date('Y-m-d');
@@ -44,6 +40,22 @@ class SiteStatistics
         
         $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
     }
+    
+    public function insert_data_object_stats()
+    {
+        $stats = array();
+        $stats['taxa_count'] =                                          $this->total_data_objects();
+        $stats['vetted_unknown_published_visible_uniqueGuid'] =         $this->unvetted_visible_data_objects();
+        $stats['vetted_untrusted_published_visible_uniqueGuid'] =       $this->untrusted_visible_data_objects();
+        $stats['vetted_unknown_published_notVisible_uniqueGuid'] =      $this->invisible_unvetted_data_objects();
+        $stats['vetted_untrusted_published_notVisible_uniqueGuid'] =    $this->invisible_untrusted_data_objects();
+        $stats['user_submitted_text'] =                                 $this->user_submitted_data_objects();
+        $stats['date_created'] =                                        date('Y-m-d');
+        $stats['time_created'] =                                        date('H:i:s');
+        
+        $this->mysqli->insert("INSERT INTO page_stats_dataobjects (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
+    }
+    
     
     ////////////////////////////////////
     ////////////////////////////////////  Main Stats
@@ -320,6 +332,79 @@ class SiteStatistics
         }
         return $resource_ids;
     }
+    
+    
+    
+    ////////////////////////////////////
+    ////////////////////////////////////   DataObjects
+    ////////////////////////////////////
+    
+    public function total_data_objects()
+    {
+        if(isset($this->total_data_objects)) return $this->total_data_objects;
+        $this->total_data_objects = 0;
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects WHERE published=1 AND visibility_id=".Visibility::find('visible'));
+        if($result && $row=$result->fetch_assoc()) $this->total_data_objects = $row['count'];
+        return $this->total_data_objects;
+    }
+    
+    public function unvetted_visible_data_objects()
+    {
+        if(isset($this->unvetted_visible_data_objects)) return $this->unvetted_visible_data_objects;
+        $this->unvetted_visible_data_objects = 0;
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND vetted_id=".Vetted::find('Unknown'));
+        if($result && $row=$result->fetch_assoc()) $this->unvetted_visible_data_objects = $row['count'];
+        return $this->unvetted_visible_data_objects;
+    }
+    
+    public function untrusted_visible_data_objects()
+    {
+        if(isset($this->untrusted_visible_data_objects)) return $this->untrusted_visible_data_objects;
+        $this->untrusted_visible_data_objects = 0;
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND vetted_id=".Vetted::find('Untrusted'));
+        if($result && $row=$result->fetch_assoc()) $this->untrusted_visible_data_objects = $row['count'];
+        return $this->untrusted_visible_data_objects;
+    }
+    
+    public function invisible_unvetted_data_objects()
+    {
+        if(isset($this->invisible_unvetted_data_objects)) return $this->invisible_unvetted_data_objects;
+        $this->invisible_unvetted_data_objects = 0;
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects WHERE published=1 AND visibility_id=".Visibility::find('invisible')." AND vetted_id=".Vetted::find('Unknown'));
+        if($result && $row=$result->fetch_assoc()) $this->invisible_unvetted_data_objects = $row['count'];
+        return $this->invisible_unvetted_data_objects;
+    }
+    
+    public function invisible_untrusted_data_objects()
+    {
+        if(isset($this->invisible_untrusted_data_objects)) return $this->invisible_untrusted_data_objects;
+        $this->invisible_untrusted_data_objects = 0;
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects WHERE published=1 AND visibility_id=".Visibility::find('invisible')." AND vetted_id=".Vetted::find('Untrusted'));
+        if($result && $row=$result->fetch_assoc()) $this->invisible_untrusted_data_objects = $row['count'];
+        return $this->invisible_untrusted_data_objects;
+    }
+    
+    public function user_submitted_data_objects()
+    {
+        if(isset($this->user_submitted_data_objects)) return $this->user_submitted_data_objects;
+        $this->user_submitted_data_objects = 0;
+        
+        $data_object_ids = array();
+        $result = $this->mysqli_eol->query("SELECT DISTINCT data_object_id FROM users_data_objects");
+        while($result && $row=$result->fetch_assoc()) $data_object_ids[] = $row['data_object_id'];
+        
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND id IN (".implode($data_object_ids, ",").")");
+        if($result && $row=$result->fetch_assoc()) $this->user_submitted_data_objects = $row['count'];
+        return $this->user_submitted_data_objects;
+    }
+    
+    
+    
     
     
     ////////////////////////////////////
