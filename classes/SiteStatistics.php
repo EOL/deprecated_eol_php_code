@@ -39,6 +39,7 @@ class SiteStatistics
         $stats['time_created'] =                                    date('H:i:s');
         
         $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
+        $this->delete_old_records_from('page_stats_taxa');
     }
     
     public function insert_data_object_stats()
@@ -54,6 +55,7 @@ class SiteStatistics
         $stats['time_created'] =                                        date('H:i:s');
         
         $this->mysqli->insert("INSERT INTO page_stats_dataobjects (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
+        $this->delete_old_records_from('page_stats_dataobjects');
     }
     
     
@@ -478,6 +480,17 @@ class SiteStatistics
         $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_curation`");
         
         return $this->taxon_concept_curation;
+    }
+    
+    private function delete_old_records_from($table)
+    {
+        if($table != "page_stats_taxa" && $table != "page_stats_dataobjects") return false;
+        $result = $this->mysqli->query("SELECT id FROM $table ORDER BY date_created DESC, time_created DESC limit 8,1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $delete_from_id = $row['id'];
+            $mysqli->delete("DELETE FROM $table WHERE id >= $delete_from_id");
+        }
     }
     
 }
