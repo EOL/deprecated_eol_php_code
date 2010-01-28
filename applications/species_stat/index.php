@@ -21,6 +21,12 @@ $controller = @$parameters["_ctrl"];
 if(@$argv[1]) $parameters['group']  = $argv[1];
 if(@$argv[2]) $parameters['f']      = $argv[2];
 
+/*
+$parameters["_ctrl"] = "species_stats";
+$parameters['group']  = 1;
+$parameters['f']      = "results";
+*/
+
 if($controller)
 {
     $class = $controller . "_controller";
