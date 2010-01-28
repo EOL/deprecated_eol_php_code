@@ -64,7 +64,7 @@ class TaxonConceptIndexer
     function lookup_names($start, $limit, $filter = "1=1")
     {
         echo "\nquerying names\n";
-        $result = $this->mysqli->query("SELECT  tc.id,tc.published, tc.vetted_id,  tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id)  WHERE tc.id  BETWEEN $start AND  ".($start+$limit));
+        $result = $this->mysqli->query("SELECT  tc.id,tc.published, tc.vetted_id,  tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id = tcn.taxon_concept_id)  WHERE tc.id  BETWEEN $start AND  ".($start+$limit));
         echo "done querying names\n";
         
         while($result && $row=$result->fetch_assoc())

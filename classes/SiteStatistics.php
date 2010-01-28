@@ -484,13 +484,13 @@ class SiteStatistics
     
     private function delete_old_records_from($table)
     {
-        if($table != "page_stats_taxa" && $table != "page_stats_dataobjects") return false;
-        $result = $this->mysqli->query("SELECT id FROM $table ORDER BY date_created DESC, time_created DESC limit 8,1");
-        if($result && $row=$result->fetch_assoc())
-        {
-            $delete_from_id = $row['id'];
-            $mysqli->delete("DELETE FROM $table WHERE id >= $delete_from_id");
-        }
+        // if($table != "page_stats_taxa" && $table != "page_stats_dataobjects") return false;
+        // $result = $this->mysqli->query("SELECT id FROM $table ORDER BY date_created DESC, time_created DESC limit 8,1");
+        // if($result && $row=$result->fetch_assoc())
+        // {
+        //     $delete_from_id = $row['id'];
+        //     $this->mysqli->delete("DELETE FROM $table WHERE id >= $delete_from_id");
+        // }
     }
     
 }
