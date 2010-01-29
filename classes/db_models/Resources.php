@@ -326,7 +326,7 @@ class Resource extends MysqlBase
         if($this->harvest_event)
         {
             $last_harvest_max_he_id = 0;
-            if($last_he_id = $this->last_harvest_event_id)
+            if($last_he_id = $this->last_harvest_event_id())
             {
                 $result = $this->mysqli->query("SELECT max(hierarchy_entry_id) max FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) WHERE het.harvest_event_id=$last_he_id");
                 if($result && $row=$result->fetch_assoc()) $last_harvest_max_he_id = $row['max'];
