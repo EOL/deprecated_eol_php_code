@@ -2,7 +2,7 @@
 
 //define("ENVIRONMENT", "integration"); 
 //define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -344,7 +344,7 @@ function get_from_api($month,$year)
             print "no. of records = " . count($data) . "<br>";            
             
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ $continue=false;
+            /* for debugging */ //$continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 
