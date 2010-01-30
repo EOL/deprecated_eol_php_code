@@ -1,6 +1,6 @@
 <?php
 
-//define("ENVIRONMENT", "integration"); 
+define("ENVIRONMENT", "integration"); 
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
