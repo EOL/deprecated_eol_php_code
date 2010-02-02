@@ -391,10 +391,13 @@ class SpeciesStats extends MysqlBase
         From harvest_events_taxa
         Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
         Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
-        Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
+        
         Where harvest_events_taxa.harvest_event_id = $harvest_event_id        
         ";    
+        /*
+        //Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
         //and taxon_concepts.vetted_id = " . Vetted::find("trusted") . " and taxon_concepts.supercedure_id=0
+        */
         
         //and taxon_concepts.published=1 
         //hpogymnia needs in(5,0)
