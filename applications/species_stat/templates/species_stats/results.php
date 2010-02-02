@@ -44,7 +44,7 @@ print "<br>Number of params returned: " . count($arr) . "<br>";
 // */
 if(count($arr)==26) published_data_objects($arr); //group 4
 //if(count($arr)==14) lifedesk_stat($stats); //group 5
-if(count($arr)==1) lifedesk_stat($stats); //group 5
+if(count($arr)==15) lifedesk_stat($stats); //group 5
 
 
 function lifedesk_stat($stats)
