@@ -334,7 +334,6 @@ class SpeciesStats extends MysqlBase
             $published_taxa = count(@$arr["published"]);
             $unpublished_taxa = count(@$arr["unpublished"]);
             $all_taxa = count(@$arr["all"]);                                    
-            //$all_taxa = $arr;
 
             /*            
             print $row["harvest_event_id"] . " $title taxa pages published      = " . $published_taxa . "<br>";
@@ -390,7 +389,7 @@ class SpeciesStats extends MysqlBase
     function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
     {   
         $query = "
-        SELECT DISTINCT he.taxon_concept_id as id , '0' as published
+        SELECT DISTINCT he.taxon_concept_id as id , 0 as published
         FROM harvest_events_taxa het 
         JOIN taxa t ON (het.taxon_id=t.id) 
         JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) 
@@ -405,7 +404,7 @@ class SpeciesStats extends MysqlBase
         {
             if($row["published"])$all_ids["published"][]=$row["id"];
             else                 $all_ids["unpublished"][]=$row["id"];
-            $all_ids["all"][]=$row["id"];
+                                 $all_ids["all"][]=$row["id"];
         }
         $result->close();            
         $all_ids = array_keys($all_ids);
