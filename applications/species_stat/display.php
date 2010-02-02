@@ -368,7 +368,9 @@ if($view == 3)
         if($i==17)print"<tr><td>&nbsp;</td></tr><tr><td><b>BHL Statistics</b></td></tr>";
         if($i==19)print"<tr><td>&nbsp;</td></tr><tr><td><b>Curatorial Statistics</b></td></tr>";
         
-        if($i==22)print"<tr><td>&nbsp;</td></tr><tr><td><b>LifeDesks (in EOL Content Registry) Stats <a target='lifedesk' href='index.php?group=5&f=results'>More info</a></b></td></tr>";
+        if($i==22)print"<tr><td>&nbsp;</td></tr><tr><td><b>LifeDesks (in EOL Content Registry) Stats         
+        </b></td></tr>";
+        //<a target='lifedesk' href='index.php?group=5&f=results'>More info</a>
         
         
         if ($i % 2 == 0){$vcolor = 'white';}
