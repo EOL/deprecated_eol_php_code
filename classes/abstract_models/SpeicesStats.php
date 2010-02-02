@@ -331,10 +331,10 @@ class SpeciesStats extends MysqlBase
             else                                        $harvest_event_id = $row["harvest_event_id"];                                
 
             $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
-            //$published_taxa = count(@$arr["published"]);
-            //$unpublished_taxa = count(@$arr["unpublished"]);
-            //$all_taxa = count(@$arr["all"]);                                    
-            $all_taxa = $arr;
+            $published_taxa = count(@$arr["published"]);
+            $unpublished_taxa = count(@$arr["unpublished"]);
+            $all_taxa = count(@$arr["all"]);                                    
+            //$all_taxa = $arr;
 
             /*            
             print $row["harvest_event_id"] . " $title taxa pages published      = " . $published_taxa . "<br>";
@@ -356,9 +356,9 @@ class SpeciesStats extends MysqlBase
                 print $row["harvest_event_id"] . " <u>taxa pages published     = " . $published_taxa . "</u><br>";
                 print $row["harvest_event_id"] . " data objects published   = " . $published_do . "<br>";                
                 */
-                //$total_published_taxa += $published_taxa;
+                $total_published_taxa += $published_taxa;
                 $total_published_do += $published_do;                                
-                //$provider["published"]["$title"][0]=$published_taxa;
+                $provider["published"]["$title"][0]=$published_taxa;
                 $provider["published"]["$title"][1]=$published_do;
             }            
             else
@@ -390,17 +390,25 @@ class SpeciesStats extends MysqlBase
     function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
     {   
         $query = "
-        SELECT COUNT(DISTINCT(he.taxon_concept_id)) count 
+        SELECT DISTINCT(he.taxon_concept_id id), 0 published
         FROM harvest_events_taxa het 
         JOIN taxa t ON (het.taxon_id=t.id) 
         JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) 
         WHERE het.harvest_event_id = $harvest_event_id ";
 
         $result = $this->mysqli->query($query);                
-        $row = $result->fetch_row();            
-        $all_ids   = $row[0];
 
-        
+        $all_ids=array();
+        $all_ids["published"]=array();
+        $all_ids["unpublished"]=array();
+        while($result && $row=$result->fetch_assoc())
+        {
+            if($row["published"])$all_ids["published"][]=$row["id"];
+            else                 $all_ids["unpublished"][]=$row["id"];
+            $all_ids["all"][]=$row["id"];
+        }
+        $result->close();            
+        $all_ids = array_keys($all_ids);
         return $all_ids;
         /*
         $query = "Select distinct hierarchy_entries.taxon_concept_id as id
