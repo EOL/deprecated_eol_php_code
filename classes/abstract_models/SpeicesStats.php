@@ -342,8 +342,8 @@ class SpeciesStats extends MysqlBase
             print $row["harvest_event_id"] . "        taxa pages all            = " . $all_taxa . "<br>";            
             */                    
             $arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
-            //$published_do = count(@$arr["published"]);
-            //$unpublished_do = count(@$arr["unpublished"]);            
+            $published_do = count(@$arr["published"]);
+            $unpublished_do = count(@$arr["unpublished"]);            
             /*
             print $row["harvest_event_id"] . " data objects published   = " . $published_do . "<br>";
             print $row["harvest_event_id"] . " data objects unpublished = " . $unpublished_do ;
