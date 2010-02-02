@@ -329,10 +329,12 @@ class SpeciesStats extends MysqlBase
             $provider["$title"]=true;        
             if(@$latest_published[$row['resource_id']]) $harvest_event_id = $latest_published[$row['resource_id']];
             else                                        $harvest_event_id = $row["harvest_event_id"];                                
+
             $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
             $published_taxa = count(@$arr["published"]);
             $unpublished_taxa = count(@$arr["unpublished"]);
             $all_taxa = count(@$arr["all"]);                                    
+
             /*            
             print $row["harvest_event_id"] . " $title taxa pages published      = " . $published_taxa . "<br>";
             print $row["harvest_event_id"] . "        taxa pages unpublished    = " . $unpublished_taxa . "<br>";            
@@ -390,9 +392,10 @@ class SpeciesStats extends MysqlBase
         Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
         Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
         Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
-        Where harvest_events_taxa.harvest_event_id = $harvest_event_id
-        and taxon_concepts.vetted_id = " . Vetted::find("trusted") . " and taxon_concepts.supercedure_id=0
+        Where harvest_events_taxa.harvest_event_id = $harvest_event_id        
         ";    
+        //and taxon_concepts.vetted_id = " . Vetted::find("trusted") . " and taxon_concepts.supercedure_id=0
+        
         //and taxon_concepts.published=1 
         //hpogymnia needs in(5,0)
         //odonata needs in(5)
