@@ -387,7 +387,7 @@ class SpeciesStats extends MysqlBase
     }//end function dataobject_stat_more($group)    
     
     function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
-    {   $query = "Select distinct hierarchy_entries.taxon_concept_id as id, taxon_concepts.published
+    {   $query = "Select distinct hierarchy_entries.taxon_concept_id as id
         From harvest_events_taxa
         Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
         Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
@@ -395,6 +395,7 @@ class SpeciesStats extends MysqlBase
         Where harvest_events_taxa.harvest_event_id = $harvest_event_id        
         ";    
         /*
+        //, taxon_concepts.published
         //Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
         //and taxon_concepts.vetted_id = " . Vetted::find("trusted") . " and taxon_concepts.supercedure_id=0
         */
@@ -409,8 +410,10 @@ class SpeciesStats extends MysqlBase
         $all_ids["unpublished"]=array();
         while($result && $row=$result->fetch_assoc())
         {
+            /*
             if($row["published"])$all_ids["published"][]=$row["id"];
             else                 $all_ids["unpublished"][]=$row["id"];
+            */
             $all_ids["all"][]=$row["id"];
         }
         $result->close();            
