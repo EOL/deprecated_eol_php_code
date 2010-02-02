@@ -390,7 +390,7 @@ class SpeciesStats extends MysqlBase
     function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
     {   
         $query = "
-        SELECT DISTINCT(he.taxon_concept_id id), 0 published
+        SELECT DISTINCT(he.taxon_concept_id id), '0' as published
         FROM harvest_events_taxa het 
         JOIN taxa t ON (het.taxon_id=t.id) 
         JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) 
