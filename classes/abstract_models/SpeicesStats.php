@@ -396,7 +396,7 @@ class SpeciesStats extends MysqlBase
         JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) 
         WHERE het.harvest_event_id = $harvest_event_id ";
 
-        $result = $mysqli->query($query);
+        $result = $this->mysqli->query($query);                
         $row = $result->fetch_row();            
         $all_ids   = $row[0];
 
