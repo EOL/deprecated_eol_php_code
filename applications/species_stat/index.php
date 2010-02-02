@@ -5,7 +5,7 @@
 //define("ENVIRONMENT", "data_main");				//where stats are stored
 
 define("DEBUG", true);
-define("MYSQL_DEBUG", false);
+define("MYSQL_DEBUG", true);
 define("DEBUG_TO_FILE", false);
 
 require_once(dirname(__FILE__)."/../../config/start.php");

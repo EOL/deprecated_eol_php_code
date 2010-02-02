@@ -397,8 +397,10 @@ if($view == 3)
                     and $k == 0
                 )
             {    //and $arr['Run date'][$k] >= '2009-05-11'
+                /*until we save the ids again Feb2
                 $href1 = "<a href='details_do.php?autoctr=" . $arr2['id'][$k] . "&label=$label[$i]'>";
                 $href2 = "</a>";
+                */
             }
 
             //print "<td align='right'>" . @$arr[$label[$i]][$k] . "</td><td width='10'>&nbsp;</td>";

@@ -105,20 +105,20 @@ print"<hr>";
 
 
 // /* page_stats not in slave
-$qry = "select `id`, active, taxa_count, date_created, time_created 
-from $tbl order by date_created desc,time_created desc ";
+$qry = "select `id`, taxa_count, date_created
+from $tbl order by date_created desc ";
 $sql = $mysqli->query($qry);
 	print"n=$sql->num_rows <br> <select name='id' ><option value=''>";
 	while( $row = $sql->fetch_assoc() )	
 	{	
 		$style="";
-		if($row["active"]=='y'){$style = "style='color : Red;'";}
+		//if($row["active"]=='y'){$style = "style='color : Red;'";}
 		
 		print "<option $style value='$row[id]' ";
 		if($id == $row['id'])
 		{	print "selected";
 		}    		
-		print ">$row[date_created] $row[time_created] n=$row[taxa_count] </option>";
+		print ">$row[date_created] n=$row[taxa_count] </option>";
 	}		
 	$sql->close();
 	print"</select>";
