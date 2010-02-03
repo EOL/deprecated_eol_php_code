@@ -288,8 +288,10 @@ class SpeciesStats extends MysqlBase
         //end user submitted do        
         
         $comma_separated = implode(",", $param);        
-                
-        return "$comma_separated";        
+
+        $return[0]=$param;
+        $return[1]="data_objects_more_stat";
+        return $return;
 
     }//end function dataobject_stat_more($group)
 
@@ -331,60 +333,47 @@ class SpeciesStats extends MysqlBase
             else                                        $harvest_event_id = $row["harvest_event_id"];                                
 
             $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
+            /*not used
             $published_taxa = count(@$arr["published"]);
             $unpublished_taxa = count(@$arr["unpublished"]);
+            */
             $all_taxa = count(@$arr["all"]);                                    
 
-            /*            
-            print $row["harvest_event_id"] . " $title taxa pages published      = " . $published_taxa . "<br>";
-            print $row["harvest_event_id"] . "        taxa pages unpublished    = " . $unpublished_taxa . "<br>";            
-            print $row["harvest_event_id"] . "        taxa pages all            = " . $all_taxa . "<br>";            
-            */                    
             $arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
             $published_do = count(@$arr["published"]);
             $unpublished_do = count(@$arr["unpublished"]);            
-            /*
-            print $row["harvest_event_id"] . " data objects published   = " . $published_do . "<br>";
-            print $row["harvest_event_id"] . " data objects unpublished = " . $unpublished_do ;
-            print "<hr>";            
-            */
-            //print "<hr>";
+            $all_do = count(@$arr["all"]);
+
             if($published_do > 0)
-            {   /*
-                print "Published <br>";
-                print $row["harvest_event_id"] . " <u>taxa pages published     = " . $published_taxa . "</u><br>";
-                print $row["harvest_event_id"] . " data objects published   = " . $published_do . "<br>";                
-                */
-                $total_published_taxa += $published_taxa;
+            {                   
+                $total_published_taxa += $all_taxa;
                 $total_published_do += $published_do;                                
-                $provider["published"]["$title"][0]=$published_taxa;
+                
+                $provider["published"]["$title"][0]=$all_taxa;
                 $provider["published"]["$title"][1]=$published_do;
             }            
-            else
-            {
-                if($unpublished_do > 0)
-                {   /*
-                    print "With unpublished data objects <br>";
-                    print $row["harvest_event_id"] . " taxa pages unpublished   = " . $all_taxa . "<br>";            
-                    print $row["harvest_event_id"] . " data objects unpublished = " . $unpublished_do ;                    
-                    */
-                    $total_unpublished_taxa += $all_taxa;
-                    $total_unpublished_do += $unpublished_do;                                
-                    $provider["unpublished"][$title]=true;                    
-                }                
-            }
-            //print "<hr><hr><hr>";            
+
+            if($unpublished_do > 0)
+            {   
+                $total_unpublished_taxa += $all_taxa;
+                $total_unpublished_do += $unpublished_do;                                
+
+                $provider["unpublished"]["$title"][0]=$all_taxa;
+                $provider["unpublished"]["$title"][1]=$unpublished_do;
+            }                
         }                
-        /*       
-        print "<hr>";        
-        print "<hr>taxa pages published = " . $total_published_taxa;                
-        print "<hr>data objects published = " . $total_published_do;                
-        print "<hr>";        
-        */        
         $provider["totals"][0]=$total_published_taxa;
         $provider["totals"][1]=$total_published_do;                
-        return $provider;        
-    }//end function dataobject_stat_more($group)    
+        $provider["totals"][2]=$total_unpublished_taxa;
+        $provider["totals"][3]=$total_unpublished_do;                
+
+        //return $provider;        
+
+        $return[0]=$provider;
+        $return[1]="lifedesk_stat";
+        return $return;
+        
+    }//end function 
     
     function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
     {   
@@ -404,11 +393,12 @@ class SpeciesStats extends MysqlBase
         {
             if($row["published"])$all_ids["published"][]=$row["id"];
             else                 $all_ids["unpublished"][]=$row["id"];
-                                 $all_ids["all"][]=$row["id"];
+
+            $all_ids["all"][]=$row["id"];
         }
         $result->close();            
-        $all_ids = array_keys($all_ids);
         return $all_ids;
+
         /*
         $query = "Select distinct hierarchy_entries.taxon_concept_id as id
         From harvest_events_taxa
@@ -452,12 +442,14 @@ class SpeciesStats extends MysqlBase
         Where data_objects_harvest_events.harvest_event_id = $harvest_event_id ";    
         //AND data_objects.published = '1' 
         $result = $this->mysqli->query($query);                
-        
+
         $all_ids=array();
         while($result && $row=$result->fetch_assoc())
         {
             if($row["published"])$all_ids["published"][]=$row["id"];
             else                 $all_ids["unpublished"][]=$row["id"];
+            
+            $all_ids["all"][]=$row["id"];
         }
         $result->close();            
         //$all_ids = array_keys($all_ids);
