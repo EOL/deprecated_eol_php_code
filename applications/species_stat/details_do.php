@@ -7,7 +7,7 @@
 print"<table style='font-family : Arial; font-size : x-small;'><tr><td>";
 
 define("DEBUG", false);
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
