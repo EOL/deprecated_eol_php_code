@@ -32,26 +32,40 @@ foreach($stats as $taxon_concept_id => $stat)
 }
 */
 
-if(is_array($stats)) $arr = $stats;
+if(is_array($stats)) 
+{
+    //print "<hr>an array<hr>";
+    $arr = $stats;
+    if      ($arr[1]=="data_objects_more_stat")  published_data_objects($arr[0]); //group 4
+    elseif  ($arr[1]=="lifedesk_stat")          lifedesk_stat($arr[0]); //group 5
+}
 else
 {
-	//print "<hr>not an array";
+    exit("<hr>- wrong data format -<hr>");
+    //no one is going here anymore
+	//print "<hr>not an array<hr>";
     $comma_separated = $stats;
     $arr = explode(",",$comma_separated);
 }
-// /*
+
+/*
 print "<br>Number of params returned: " . count($arr) . "<br>"; 
-// */
 if(count($arr)==26) published_data_objects($arr); //group 4
-//if(count($arr)==14) lifedesk_stat($stats); //group 5
-if(count($arr)==15) lifedesk_stat($stats); //group 5
+if(count($arr)==15) lifedesk_stat($arr); //group 5
+*/
 
 
 function lifedesk_stat($stats)
-{            
-        //print_r($stats);    exit;
+{       //print"<pre>";print_r($stats);print"</pre>";
+
         $total_published_taxa=$stats["totals"][0];
         $total_published_do=$stats["totals"][1];
+        $total_unpublished_taxa=$stats["totals"][2];
+        $total_unpublished_do=$stats["totals"][3];
+        
+        $total_taxa = $total_published_taxa + $total_unpublished_taxa;
+        $total_do = $total_published_do + $total_unpublished_do;
+        
         $provider=$stats;
     
         //start display
@@ -59,7 +73,7 @@ function lifedesk_stat($stats)
         print"<p style='font-family : Arial;'>
         These are LifeDesk providers who have registered in the <a target='eol_registry' href='http://www.eol.org/administrator/content_partner_report'>EOL Content Partner Registry</a>.<br>
         </p>
-        
+                
         <table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Narrow;'>
         <tr align='center'><td colspan='3'>LifeDesks</td></tr>
         <tr align='center'>
@@ -83,7 +97,37 @@ function lifedesk_stat($stats)
                     <td>$total_published_do</td>
                 </tr>";
         //print"</table>";        
-
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        $arr = array_keys($provider["unpublished"]);
+        print"
+        <tr align='center'>
+            <td>Un-published (n=" . count($arr) . ")</td>
+            <td>Taxa pages</td>
+            <td>Data objects</td>
+        </tr>";
+        for ($i = 0; $i < count($arr); $i++) 
+        {
+            print " <tr>
+                        <td>$arr[$i]</td>
+                        <td align='right'>" . $provider["unpublished"][$arr[$i]][0] . "</td>
+                        <td align='right'>" . $provider["unpublished"][$arr[$i]][1] . "</td>
+                    </tr>
+                  ";
+        }
+        print"  <tr align='right'>
+                    <td>Total:</td>
+                    <td>$total_unpublished_taxa</td>
+                    <td>$total_unpublished_do</td>
+                </tr>
+                <tr align='right' bgcolor='aqua'>
+                    <td>Total:</td>
+                    <td>$total_taxa</td>
+                    <td>$total_do</td>
+                </tr>
+                ";
+        
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        /*
         $arr = array_keys($provider["unpublished"]);
         print"
         <tr align='center'>
@@ -97,8 +141,10 @@ function lifedesk_stat($stats)
                     </tr>
                   ";
         }
+        */
         print"</table>";        
-        print("<font size='2'>{as of " . date('Y-m-d H:i:s') . "}</font>");
+        print("<font size='2'>{as of " . date('Y-m-d H:i:s') . "} ");
+        print" &nbsp;&nbsp;&nbsp; <a href='javascript:self.close()'>Exit</a></font>";
         
         //end display
 

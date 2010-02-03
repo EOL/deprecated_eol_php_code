@@ -1,13 +1,13 @@
 <?php
 
 //define("ENVIRONMENT", "integration");	//where stats are stored
-//define("ENVIRONMENT", "slave_32");    //where stats are stored
+//define("ENVIRONMENT", "slave_215");    //where stats are stored
 //define("ENVIRONMENT", "data_main");	//where stats are stored
 
 print"<table style='font-family : Arial; font-size : x-small;'><tr><td>";
 
 define("DEBUG", false);
-define("MYSQL_DEBUG", false);
+define("MYSQL_DEBUG", true);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -275,11 +275,19 @@ while( $row = $sql->fetch_assoc() )
 				Where taxon_concepts.id = $arr[$i] and taxon_concept_names.vern = 0
 				and taxon_concept_names.preferred = 1 ";
 				*/
+                /*
 				$qry="Select distinct clean_names.clean_name
 				From clean_names
 				Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
 				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 				Where taxon_concepts.id = $arr[$i] ";
+                */
+				$qry="Select distinct names.clean_name
+				From names
+				Inner Join hierarchy_entries ON names.name_id = hierarchy_entries.name_id
+				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+				Where taxon_concepts.id = $arr[$i] ";
+                
 				$sql2 = $mysqli->query($qry);	
 				//print"<hr>$qry<hr>";				
 

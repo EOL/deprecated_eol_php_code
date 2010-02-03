@@ -368,9 +368,10 @@ if($view == 3)
         if($i==17)print"<tr><td>&nbsp;</td></tr><tr><td><b>BHL Statistics</b></td></tr>";
         if($i==19)print"<tr><td>&nbsp;</td></tr><tr><td><b>Curatorial Statistics</b></td></tr>";
         
-        if($i==22)print"<tr><td>&nbsp;</td></tr><tr><td><b>LifeDesks (in EOL Content Registry) Stats         
+        if($i==22)print"<tr><td>&nbsp;</td></tr><tr><td><b>LifeDesks (in EOL Content Partner Registry) Stats &nbsp;&nbsp;
+        <a target='lifedesk' href='index.php?group=5&f=results'>More info</a>
         </b></td></tr>";
-        //<a target='lifedesk' href='index.php?group=5&f=results'>More info</a>
+        
         
         
         if ($i % 2 == 0){$vcolor = 'white';}
@@ -484,8 +485,10 @@ if($view == 3)
                         
                 )//and $arr['Run date'][$k] >= '2009-05-11'                        
             {
+                /* temp commented 
                 $href1 = "<a href='details_do.php?autoctr=" . $arr2['id'][$k] . "&label=$label[$i]&what=data_object'>";
                 $href2 = "</a>";
+                */
             }
             print "<td align='right'>$href1";
             print @$arr[$label[$i]][$k];
