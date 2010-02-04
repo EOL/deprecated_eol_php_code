@@ -33,7 +33,7 @@ and data_objects_harvest_events.harvest_event_id = 1132
 $result = $mysqli->query($query);    
 while($row=$result->fetch_assoc())
 {
-    print "$row[$vetted_id] \n";
+    print "$row[vetted_id] \n";
 }
 exit;
 
