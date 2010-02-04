@@ -8,7 +8,7 @@ connector for hexacorallians
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
-define("DEBUG", true);
+define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -297,11 +297,9 @@ function process($url,$validname)
     return $arr;        
 }
 
-
-
-
 function parse_contents($str)
 {
+    global $wrap;
     /* it can be:
     <a href="speciesdetail.cfm?genus=Abyssopathes&subgenus=&species=lyra&subspecies=&synseniorid=9266&validspecies=Abyssopathes%20lyra&authorship=%28Brook%2C%201889%29">Abyssopathes lyra (Brook, 1889)</a>
     or
@@ -310,18 +308,87 @@ function parse_contents($str)
     $temp='';
     $beg='speciesdetail.cfm?'; $end1='</a>'; 
     $temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
-
     if($temp=='')	
     {
         $beg='speciesdetail_for_nosyn.cfm?'; $end1='</a>'; 
         $temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
-    }
-    
-    $str = '<a href="http://hercules.kgs.ku.edu/hexacoral/anemone2/' . $beg . $temp;
+    }  
 
-   
+    $site_url="http://hercules.kgs.ku.edu/hexacoral/anemone2/";
+    $temp = '<a href="' . $site_url . '' . $beg . $temp . "</a>";
+    //get url_for_main_menu
+        $beg='="'; $end1='">'; 
+        $url_for_main_menu = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
+        print"$wrap url_for_main_menu[$url_for_main_menu]";    
+    //end url_for_main_menu
     
-    print"<hr>$str";
+    //get sciname
+        $beg='">'; $end1='</a>'; 
+        $sciname = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
+        print"$wrap sciname[$sciname]";
+    //end sciname
+    
+    $main_menu = Functions::get_remote_file($url_for_main_menu);        
+    //get url for images page
+        $url_for_images_page="";
+        //"images.cfm?&genus=Abyssopathes&subgenus=&species=lyra&subspecies=&seniorid=9266&validspecies=Abyssopathes%20lyra&authorship=%28Brook%2C%201889%29">Images</a> 
+        $beg='images.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        if($temp != "") 
+        {
+            $url_for_images_page = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_images_page'>images</a>]";    
+        }   
+    //end url for images page
+    
+    //get url for classification
+        $url_for_classification="";
+        //"showclassification2.cfm?synseniorid=2914&genus=Aiptasiogeton&subgenus=&species=eruptaurantia&subspecies=&origgenus=Actinothoe&origspecies=eruptaurantia&origsubspecies=&origsubgenus=&&validspecies=Aiptasiogeton%20eruptaurantia&authorship=%28Field%2C%201949%29">Classification</a> 
+        $beg='showclassification2.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        if($temp != "") 
+        {
+            $url_for_classification = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_classification'>classification</a>]";    
+        }
+    //end url for classification
+
+    //get url for strict_synonymy
+        $url_for_strict_synonymy="";
+        //"synonymy_strict.cfm?seniorid=2914&validspecies=Aiptasiogeton%20eruptaurantia&authorship=%28Field%2C%201949%29">Strict synonymy</a> 
+        $beg='synonymy_strict.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        if($temp != "") 
+        {
+            $url_for_strict_synonymy = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_strict_synonymy'>strict_synonymy</a>]";    
+        }
+    //end url for strict_synonymy
+
+    //get url for references
+        $url_for_references="";
+        //"all_mentions_of_names2.cfm?species...
+        $beg='all_mentions_of_names.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));                    
+        if($temp=="")
+        {
+            $beg='all_mentions_of_names2.cfm'; $end1='">'; 
+            $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        }        
+        if($temp != "") 
+        {
+            $url_for_references = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_references'>references</a>]";    
+        }
+        else print"$wrap no references";
+    //end url for references
+
+    
+
+
+    
+    
+    print"<hr>$main_menu"; 
     exit("<hr>ditox");
     //========================================================================================	       
     return array ($taxa);    
