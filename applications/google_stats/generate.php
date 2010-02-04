@@ -1,8 +1,8 @@
 <?php
 
-define("ENVIRONMENT", "integration"); 
-//define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
+//define("ENVIRONMENT", "integration"); 
+define("ENVIRONMENT", "slave_32");
+define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -323,7 +323,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=1000;//debug
+        //$range=1000;//debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        

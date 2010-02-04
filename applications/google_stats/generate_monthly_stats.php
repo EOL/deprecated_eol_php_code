@@ -1,5 +1,6 @@
 <?php
 //define("ENVIRONMENT", "integration"); 
+//define("ENVIRONMENT", "eol_statistics"); 
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -8,6 +9,21 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli2 = load_mysql_environment('eol_statistics');        
 $mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 set_time_limit(0);
+
+/*
+tables used:
+taxon_concepts
+taxon_concept_names
+page_names
+hierarchy_entries
+agents
+agents_resources
+harvest_events
+taxa
+names
+
+*/
+
 /*
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html#d4Ecommerce
@@ -103,12 +119,15 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
 {
     global $mysqli2;
     //start get count_of_taxa_pages viewed during the month, etc.
-    $query = "Select distinct
+    $query = "Select 
     Sum(google_analytics_page_stats.page_views) AS page_views,
     Sum(google_analytics_page_stats.unique_page_views) AS unique_page_views,
     Sum(time_to_sec(google_analytics_page_stats.time_on_page)) AS time_on_page
     From google_analytics_partner_taxa
-    Inner Join google_analytics_page_stats ON google_analytics_partner_taxa.taxon_concept_id = google_analytics_page_stats.taxon_concept_id AND google_analytics_partner_taxa.`year` = google_analytics_page_stats.`year` AND google_analytics_partner_taxa.`month` = google_analytics_page_stats.`month`
+    Inner Join google_analytics_page_stats ON 
+        google_analytics_partner_taxa.taxon_concept_id = google_analytics_page_stats.taxon_concept_id 
+    AND google_analytics_partner_taxa.`year` = google_analytics_page_stats.`year` 
+    AND google_analytics_partner_taxa.`month` = google_analytics_page_stats.`month`
     Where
     google_analytics_partner_taxa.agent_id = $agent_id AND
     google_analytics_partner_taxa.`year` = $year AND
@@ -148,19 +167,6 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
-        /* not optimized
-        $query = "Select distinct Count(tc.id)     
-        from taxon_concepts tc 
-        inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-        where 
-        tc.supercedure_id=0 and 
-        tc.published=1 and 
-        tc.vetted_id <> " . Vetted::find("untrusted") . "    
-        and 
-        tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
-        where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";        
-        */
-        
         $query = "Select Count(taxon_concepts.id) 
         From hierarchy_entries
         Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
@@ -170,11 +176,12 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
         taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
         taxon_concepts.supercedure_id   = 0 ";
         
-        //print "<hr>$query<hr>";exit;
-        
+        //print "<hr>$query<hr>";exit;        
     }
     else //rest of the partners
-    {   $query = "Select distinct Count(he.taxon_concept_id) 
+    {   
+        /* removed agents table
+        $query = "Select distinct he.taxon_concept_id 
         FROM agents a 
         JOIN agents_resources ar ON (a.id=ar.agent_id) 
         JOIN harvest_events hev ON (ar.resource_id=hev.resource_id) 
@@ -183,12 +190,25 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
         join hierarchy_entries he on t.hierarchy_entry_id = he.id 
         join taxon_concepts tc on he.taxon_concept_id = tc.id 
         WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0 ";                
+        */
+        
+        $query="Select distinct tc.id taxon_concept_id
+        From agents_resources
+        Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
+        Inner Join harvest_events_taxa ON harvest_events.id = harvest_events_taxa.harvest_event_id
+        Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
+        Inner Join hierarchy_entries ON taxa.hierarchy_entry_id = hierarchy_entries.id
+        Inner Join taxon_concepts tc ON hierarchy_entries.taxon_concept_id = tc.id
+        WHERE agents_resources.agent_id = $agent_id
+        and tc.published = 1 and tc.supercedure_id = 0        
+        ";
+        
     }
     $result2 = $mysqli->query($query);            
     $row2 = $result2->fetch_row();                
     
-    if($agent_id == 38205)  $arr[] = $result2->num_rows; //count of taxa pages
-    else                    $arr[] = $row2[0]; //count of taxa pages
+    if($agent_id == 11) $arr[] = $row2[0]; //count of taxa pages
+    else                $arr[] = $result2->num_rows; //count of taxa pages
 
     //ditox dapat my inner join sa goolge_page_stats table
     $query="Select Count(google_analytics_partner_taxa.taxon_concept_id)
@@ -280,17 +300,6 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
-        /* not optimized
-        $query = "
-        select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id     
-        from taxon_concepts tc 
-        inner JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-        Inner Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
-        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
-        and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
-        where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().") 
-        and gaps.month=$month and gaps.year=$year ";
-        */
         $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
         From hierarchy_entries
         Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
@@ -453,7 +462,7 @@ function save_eol_taxa_google_stats($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=1000; //debug
+        $range=5000; //debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
@@ -476,7 +485,7 @@ function save_eol_taxa_google_stats($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ $continue=false;
+            /* for debugging */ //$continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 
