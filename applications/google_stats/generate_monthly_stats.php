@@ -122,6 +122,7 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
 function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed)
 {
     //global $mysqli2;
+      global $mysqli
     
     //start get count_of_taxa_pages viewed during the month, etc.
     $query = "Select 
@@ -245,7 +246,7 @@ function get_sql_for_partners_with_published_data()
 
 function save_agent_monthly_summary($year_month)
 {
-    global $mysqli;
+      global $mysqli;
     //global $mysqli2;    
 
     $year =intval(substr($year_month,0,4));
@@ -354,7 +355,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
 
 function save_agent_taxa($year_month)
 {
-    global $mysqli;
+      global $mysqli;
     //global $mysqli2;    
 
     $year =intval(substr($year_month,0,4));
@@ -451,6 +452,7 @@ function get_sciname_from_tc_id($tc_id)
 function save_eol_taxa_google_stats($month,$year)
 {
     //global $mysqli2;
+      global mysqli;
     
     $year_month = $year . "_" . $month;
     
@@ -612,7 +614,9 @@ function create_tables()
 }
 
 function initialize_tables_4dmonth($year,$month)
-{	//global $mysqli2;    
+{	
+    //global $mysqli2;    
+      global $mysqli;
 
     //$month=intval($month);
     //$mysqli2
