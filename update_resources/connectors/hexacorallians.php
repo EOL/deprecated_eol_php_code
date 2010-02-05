@@ -45,8 +45,11 @@ $arr_desc_taxa = array();
 $arr_categories = array();
 $arr_outlinks = array();              
 
+print("<hr> count taxa_list = " . count($taxa_list) );
+
 for ($i = 0; $i < count($taxa_list); $i++) 
 {
+    
     //main loop
     print $wrap;
     print $i+1 . " of " . count($taxa_list) . " id=" . $taxa_list[$i] . " ";
@@ -273,11 +276,31 @@ function get_taxa_list($file)
                         
         $beg='xxx'; $end1='"'; 
         $sciname = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
+        
+//         /* for debug
+        $sn = "Paranthosactis denhartogi";//has classification
+        //$sn = "Favites abdita";//has skeleton
+        if(trim($sciname) == $sn)
+        {
+            print"$wrap $sciname";
+            $arr2["$sciname"]=true; //exit;
+        }
+//         */        
+        
+         /* regular routine
+        //print"$wrap $sciname";
         $arr2["$sciname"]=1;
-    }    
+         */
+        
+    }   
+    //exit; 
     $arr = array_keys($arr2);    
+    
+     /* regular routine
     array_splice($arr, 0, 1);   //deletes first array element
     array_pop($arr);            //deletes last array element
+     */
+    
     //print"<pre>";print_r($arr);print"</pre>";    
     //print"<hr>$str";
     return $arr;    
@@ -288,21 +311,28 @@ function get_taxa_list($file)
 function process($url,$validname)
 {
     global $wrap;
-    
     $contents = cURL_it($validname,$url);
     if($contents) print "";
     else print "$wrap bad post [$validname] $wrap ";
-
     $arr = parse_contents($contents);
     return $arr;        
 }
 
-function get_references($url)
+function get_tabular_data($url,$item)
 {
     global $wrap;
     
     $table = Functions::get_remote_file($url);                
-    $beg='<th align=left><b>Nomenclature Notes </b></td></th>'; $end1='</table>'; 
+    
+    if      ($item == "synonyms")       $beg='<TH><B>Authorship</b></TH>'; 
+    elseif  ($item == "references")     $beg='<th align=left><b>Nomenclature Notes </b></td></th>'; 
+    elseif  ($item == "skeletons")      $beg='<th>Percent Magnesium</th>'; 
+    elseif  ($item == "classification") $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
+    
+    if($item == "classification")   $end1='<br> </td>'; 
+    else                            $end1='</table>'; 
+    
+    
     $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
     $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string        
     $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
@@ -313,7 +343,7 @@ function get_references($url)
     $temp = trim(str_ireplace('</tr>' , "***", $temp));	
     $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
     $arr = explode("***", $temp);
-    $arr_images=array();
+    $arr_records=array();
     
     for ($i = 0; $i < count($arr); $i++) 
     {
@@ -322,39 +352,10 @@ function get_references($url)
         $str = trim(str_ireplace('</td>' , "***", $str));	
         $str = substr($str,0,strlen($str)-3);//remove last '***'
         $arr2 = explode("***", $str);    
-        $arr_images[]=$arr2;
+        $arr_records[]=$arr2;
     }
-    print"<pre>";print_r($arr_images);print"</pre>";
-    //exit("<hr>stop muna");
-}
-function get_synonyms($url)
-{
-    global $wrap;
-    
-    $table = Functions::get_remote_file($url);            
-    $beg='<TH><B>Authorship</b></TH>'; $end1='</table>'; 
-    $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
-    $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
-    $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
-    //print "<hr>$temp"; exit;
-    
-    $temp = str_ireplace('<tr>' , "", $temp);	
-    $temp = trim(str_ireplace('</tr>' , "***", $temp));	
-    $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
-    $arr = explode("***", $temp);
-    $arr_images=array();
-    
-    for ($i = 0; $i < count($arr); $i++) 
-    {
-        $str = $arr[$i];
-        $str = str_ireplace('<td>' , "", $str);	
-        $str = trim(str_ireplace('</td>' , "***", $str));	
-        $str = substr($str,0,strlen($str)-3);//remove last '***'
-        $arr2 = explode("***", $str);    
-        $arr_images[]=$arr2;
-    }
-    print"<pre>";print_r($arr_images);print"</pre>";
-    //exit("<hr>stop muna");
+    print"<pre>";print_r($arr_records);print"</pre>";
+    return $arr_records;
 }
 
 function get_images($url)
@@ -397,6 +398,7 @@ function parse_contents($str)
     <a href="speciesdetail.cfm?genus=Abyssopathes&subgenus=&species=lyra&subspecies=&synseniorid=9266&validspecies=Abyssopathes%20lyra&authorship=%28Brook%2C%201889%29">Abyssopathes lyra (Brook, 1889)</a>
     or
     <a href="speciesdetail_for_nosyn.cfm?species=dentata&genus=Sandalolitha&subgenus=&subspecies=">Sandalolitha dentata Quelch, 1884</a>
+    //
     */
     $temp='';
     $beg='speciesdetail.cfm?'; $end1='</a>'; 
@@ -406,6 +408,8 @@ function parse_contents($str)
         $beg='speciesdetail_for_nosyn.cfm?'; $end1='</a>'; 
         $temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
     }  
+    
+    //anemone2/speciesdetail_for_nosyn.cfm?spe
 
     $site_url="http://hercules.kgs.ku.edu/hexacoral/anemone2/";
     $temp = '<a href="' . $site_url . '' . $beg . $temp . "</a>";
@@ -440,12 +444,20 @@ function parse_contents($str)
     //get url for classification
         $url_for_classification="";
         //"showclassification2.cfm?synseniorid=2914&genus=Aiptasiogeton&subgenus=&species=eruptaurantia&subspecies=&origgenus=Actinothoe&origspecies=eruptaurantia&origsubspecies=&origsubgenus=&&validspecies=Aiptasiogeton%20eruptaurantia&authorship=%28Field%2C%201949%29">Classification</a> 
-        $beg='showclassification2.cfm'; $end1='">'; 
+        $beg='showclassification2.cfm'; $end1='">';         
         $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        if($temp == "")
+        {
+            //http://hercules.kgs.ku.edu/hexacoral/anemone2/classification_path_no_syn.cfm?genus=Astr%C3%A6a&subgenus=&species=abdita&subspecies=
+            $beg='classification_path_no_syn.cfm'; $end1='">';         
+            $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        }        
         if($temp != "") 
         {
             $url_for_classification = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_classification'>classification</a>]";    
+            $arr_classification = get_tabular_data($url_for_classification,"classification");            
+            
         }else print"$wrap no classification";   
     //end url for classification
 
@@ -458,7 +470,7 @@ function parse_contents($str)
         {
             $url_for_strict_synonymy = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_strict_synonymy'>strict_synonymy</a>]";    
-            $arr_synonyms = get_synonyms($url_for_strict_synonymy);            
+            $arr_synonyms = get_tabular_data($url_for_strict_synonymy,"synonyms");            
             
         }else print"$wrap no strict_synonymy";   
     //end url for strict_synonymy
@@ -477,7 +489,7 @@ function parse_contents($str)
         {
             $url_for_references = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_references'>references</a>]";    
-            $arr_references = get_references($url_for_references);            
+            $arr_references = get_tabular_data($url_for_references,"references");            
 
         }else print"$wrap no references";   
 
@@ -495,7 +507,23 @@ function parse_contents($str)
         }else print"$wrap no common_names";   
     //end url for common_names
     
+    //get url for skeletons
+        //e.g. for species (Favites abdita) with skeleton 
 
+        $url_for_skeletons="";
+        //http://hercules.kgs.ku.edu/hexacoral/anemone2/skeleton.cfm?genus=Favites&subgenus=&species=abdita&subspecies=
+        $beg='skeleton.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        if($temp != "") 
+        {
+            $url_for_skeletons = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_skeletons'>skeletons</a>]";    
+            $arr_synonyms = get_tabular_data($url_for_skeletons,"skeletons");            
+            
+        }else print"$wrap no skeletons";   
+
+        
+    //end url for skeleton
 
     
     
