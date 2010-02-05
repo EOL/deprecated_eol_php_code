@@ -1,6 +1,6 @@
 <?php
 //define("ENVIRONMENT", "integration"); 
-//define("ENVIRONMENT", "eol_statistics"); 
+define("ENVIRONMENT", "eol_statistics"); 
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
