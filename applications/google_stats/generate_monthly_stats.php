@@ -1,13 +1,18 @@
 <?php
-//define("ENVIRONMENT", "integration"); 
-define("ENVIRONMENT", "eol_statistics"); 
+//define("ENVIRONMENT", "staging"); 
+//define("ENVIRONMENT", "eol_statistics"); 
+
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
-$mysqli2 = load_mysql_environment('eol_statistics');        
-$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
+$mysqli2 = $mysqli;
+
+//$mysqli2 = load_mysql_environment('staging');        
+//$mysqli2 = load_mysql_environment('eol_statistics');        
+//$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
+
 set_time_limit(0);
 
 /*
@@ -21,7 +26,6 @@ agents_resources
 harvest_events
 taxa
 names
-
 */
 
 /*
@@ -318,7 +322,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
     }
     else //rest of the partners
     {   
-        $query = "SELECT DISTINCT a.id, he.taxon_concept_id 
+        $query = "SELECT DISTINCT a.id agent_id, he.taxon_concept_id 
         FROM agents a 
         JOIN agents_resources ar ON (a.id=ar.agent_id) 
         JOIN harvest_events hev ON (ar.resource_id=hev.resource_id) 
@@ -367,7 +371,7 @@ function save_agent_taxa($year_month)
         $result2 = $mysqli->query($query);    
         $fields=array();
         $fields[0]="taxon_concept_id";
-        $fields[1]="id";
+        $fields[1]="agent_id";
         $temp = save_to_txt($result2,"google_analytics_partner_taxa",$fields,$year_month,chr(9),0,"txt");
     }
     
@@ -485,7 +489,7 @@ function save_eol_taxa_google_stats($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ //$continue=false;
+            /* for debugging */ $continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 
