@@ -321,7 +321,7 @@ if($view == 3)
         $col_total        = $row["pages_incol"];
         $notcol_total     = $row["pages_not_incol"];
 
-        $arr['Run date'][$i] = "$row[date_created]<br>$row[time_created]";        
+        $arr['Run date'][$i] = "$row[date_created]";        
         
         $arr['Total number of pages'][$i]                        = number_format($col_total + $notcol_total);
         $arr['Total number of pages with names from CoL'][$i]    = number_format($col_total);
@@ -424,14 +424,14 @@ if($view == 3)
     //=================================================================================================
     //start data objects
     print"<hr>";
-    $qry="select * from page_stats_dataobjects order by date_created desc, time_created desc limit 8";
+    $qry="select * from page_stats_dataobjects order by date_created desc desc limit 8";
     $sql = $mysqli->query($qry);
     $arr = array();
     $arr2 = array();    //to store the autoctr field in page_stats
     $i=0;
     while( $row = $sql->fetch_assoc() )
     {
-        $arr['Run date'][$i] = "$row[date_created]<br>$row[time_created]";        
+        $arr['Run date'][$i] = "$row[date_created]";        
 
         $arr['Total number of data objects'][$i]                                 = number_format($row["taxa_count"]);
         
