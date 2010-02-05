@@ -236,7 +236,7 @@ print"
 
 
 //$qry="select * from page_stats_dataobjects where active = 'y' ";
-$qry="select * from page_stats_dataobjects order by date_created desc, time_created desc limit 1";
+$qry="select * from page_stats_dataobjects order by date_created desc limit 1";
 
 
 $sql = $mysqli->query($qry);
