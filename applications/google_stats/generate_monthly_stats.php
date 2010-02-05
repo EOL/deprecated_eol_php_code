@@ -122,7 +122,7 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
 function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed)
 {
     //global $mysqli2;
-      global $mysqli
+      global $mysqli;
     
     //start get count_of_taxa_pages viewed during the month, etc.
     $query = "Select 
@@ -667,6 +667,8 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 
 function save_eol_monthly_summary($year,$month)
 {
+    global $mysqli;    
+    
     $tab_delim = "";    
     $tab_delim .= $year . chr(9) . $month . chr(9);        
     
@@ -679,7 +681,6 @@ function save_eol_monthly_summary($year,$month)
         if($a <= $b) $tab_delim .= $value . chr(9); //tab            
     } 
     
-    global $mysqli;    
 
     $query="Select distinct tcn.taxon_concept_id
     FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id)
