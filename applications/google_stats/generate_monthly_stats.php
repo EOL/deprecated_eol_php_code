@@ -236,7 +236,7 @@ function get_sql_for_partners_with_published_data()
     $query="Select distinct agents.id From agents
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
-    Where 1 = 1 and harvest_events.published_at is not null "; 
+    Where 1 = 1 and harvest_events.published_at is not null limit 3"; 
     //$query .= " and  "; 
     //$query .= " and agents.id = 2 "; //debug FishBase
     $query .= " order by agents.full_name ";    
@@ -598,8 +598,7 @@ function save_eol_taxa_google_stats($month,$year)
         //print"ditox";   
         //$mysqli2     
         $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
-        exit;
-        
+       
     }
     else 
     {
