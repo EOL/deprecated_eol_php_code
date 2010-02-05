@@ -452,7 +452,7 @@ function get_sciname_from_tc_id($tc_id)
 function save_eol_taxa_google_stats($month,$year)
 {
     //global $mysqli2;
-      global mysqli;
+      global $mysqli;
     
     $year_month = $year . "_" . $month;
     
