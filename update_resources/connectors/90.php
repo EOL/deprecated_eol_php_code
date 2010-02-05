@@ -18,8 +18,8 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 */
 
-//$wrap = "\n"; 
-$wrap = "<br>"; 
+$wrap = "\n"; 
+//$wrap = "<br>"; 
  
 $resource = new Resource(90); //exit($resource->id);
 
@@ -110,7 +110,7 @@ function process_loop($arr) //run each URL and extract data
     {
 //      if($i >= 5)break; //debug        //ditox
         $i++;
-//      if(in_array($i,array(16))){
+//      if(in_array($i,array(8))){
         if(1==1){
 
         $str = Functions::get_remote_file($url);            
@@ -315,6 +315,13 @@ function process_loop($arr) //run each URL and extract data
         if($summary=="")
         {   $beg='Summary. &mdash;'; $end1='</p>'; $end2="173xxx";            
             $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+
+        if($summary=="")
+        {   $beg='Summary</b> . &ndash;'; $end1='</p>'; $end2="173xxx";            
+            $summary = trim(parse_html($tmp_str,$beg,$end1,$end2,$end2,$end2,"",true));}
+            
+            
+             
 
         
         

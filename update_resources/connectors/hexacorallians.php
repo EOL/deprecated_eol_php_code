@@ -297,6 +297,99 @@ function process($url,$validname)
     return $arr;        
 }
 
+function get_references($url)
+{
+    global $wrap;
+    
+    $table = Functions::get_remote_file($url);                
+    $beg='<th align=left><b>Nomenclature Notes </b></td></th>'; $end1='</table>'; 
+    $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
+    $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string        
+    $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
+                                                       
+    //print $temp; exit;
+    
+    $temp = str_ireplace('<tr>' , "", $temp);	
+    $temp = trim(str_ireplace('</tr>' , "***", $temp));	
+    $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
+    $arr = explode("***", $temp);
+    $arr_images=array();
+    
+    for ($i = 0; $i < count($arr); $i++) 
+    {
+        $str = $arr[$i];
+        $str = str_ireplace('<td>' , "", $str);	
+        $str = trim(str_ireplace('</td>' , "***", $str));	
+        $str = substr($str,0,strlen($str)-3);//remove last '***'
+        $arr2 = explode("***", $str);    
+        $arr_images[]=$arr2;
+    }
+    print"<pre>";print_r($arr_images);print"</pre>";
+    //exit("<hr>stop muna");
+}
+function get_synonyms($url)
+{
+    global $wrap;
+    
+    $table = Functions::get_remote_file($url);            
+    $beg='<TH><B>Authorship</b></TH>'; $end1='</table>'; 
+    $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
+    $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
+    $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
+    //print "<hr>$temp"; exit;
+    
+    $temp = str_ireplace('<tr>' , "", $temp);	
+    $temp = trim(str_ireplace('</tr>' , "***", $temp));	
+    $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
+    $arr = explode("***", $temp);
+    $arr_images=array();
+    
+    for ($i = 0; $i < count($arr); $i++) 
+    {
+        $str = $arr[$i];
+        $str = str_ireplace('<td>' , "", $str);	
+        $str = trim(str_ireplace('</td>' , "***", $str));	
+        $str = substr($str,0,strlen($str)-3);//remove last '***'
+        $arr2 = explode("***", $str);    
+        $arr_images[]=$arr2;
+    }
+    print"<pre>";print_r($arr_images);print"</pre>";
+    //exit("<hr>stop muna");
+}
+
+function get_images($url)
+{
+    global $wrap;
+    
+    $table = Functions::get_remote_file($url);            
+    $beg='<th>Caption</th>'; $end1='<th colspan=5 >For more information'; 
+    $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));            
+    
+    $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
+    $temp = substr($temp,0,strlen($temp)-5);//to remove the '<tr>' at the end of the string    
+    $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
+
+    //print $temp; exit;
+    
+    $temp = str_ireplace('<tr>' , "", $temp);	
+    $temp = trim(str_ireplace('</tr>' , "***", $temp));	
+    $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
+    $arr = explode("***", $temp);
+    $arr_images=array();
+    
+    for ($i = 0; $i < count($arr); $i++) 
+    {
+        $str = $arr[$i];
+        $str = str_ireplace('<td>' , "", $str);	
+        $str = trim(str_ireplace('</td>' , "***", $str));	
+        $str = substr($str,0,strlen($str)-3);//remove last '***'
+        $arr2 = explode("***", $str);    
+        $arr_images[]=$arr2;
+    }
+    print"<pre>";print_r($arr_images);print"</pre>";
+    //exit("<hr>stop muna");
+}
+
 function parse_contents($str)
 {
     global $wrap;
@@ -337,8 +430,11 @@ function parse_contents($str)
         if($temp != "") 
         {
             $url_for_images_page = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_images_page'>images</a>]";    
-        }   
+            print"$wrap [<a href='$url_for_images_page'>images</a>]";                
+            $arr_images = get_images($url_for_images_page);            
+        }else print"$wrap no images";   
+        
+                
     //end url for images page
     
     //get url for classification
@@ -350,7 +446,7 @@ function parse_contents($str)
         {
             $url_for_classification = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_classification'>classification</a>]";    
-        }
+        }else print"$wrap no classification";   
     //end url for classification
 
     //get url for strict_synonymy
@@ -362,7 +458,9 @@ function parse_contents($str)
         {
             $url_for_strict_synonymy = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_strict_synonymy'>strict_synonymy</a>]";    
-        }
+            $arr_synonyms = get_synonyms($url_for_strict_synonymy);            
+            
+        }else print"$wrap no strict_synonymy";   
     //end url for strict_synonymy
 
     //get url for references
@@ -379,10 +477,23 @@ function parse_contents($str)
         {
             $url_for_references = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_references'>references</a>]";    
-        }
-        else print"$wrap no references";
+            $arr_references = get_references($url_for_references);            
+
+        }else print"$wrap no references";   
+
     //end url for references
 
+    //get url for common_names
+        $url_for_common_names="";
+        //"common.cfm?seniorid=2914&validspecies=Aiptasiogeton%20eruptaurantia&authorship=%28Field%2C%201949%29">Strict synonymy</a> 
+        $beg='common.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        if($temp != "") 
+        {
+            $url_for_common_names = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_common_names'>common_names</a>]";    
+        }else print"$wrap no common_names";   
+    //end url for common_names
     
 
 
@@ -487,6 +598,11 @@ function array_trim($a,$len)
 		}
 	} 	
 	return $b; 
+}
+function clean_str($str)
+{    
+    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+    return $str;
 }
 
 ?>
