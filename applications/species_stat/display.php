@@ -49,7 +49,7 @@ print"</font>
 
 //$qry="select * from page_stats_taxa where active = 'y' ";
 //$qry="select * from page_stats_taxa where taxa_BHL_no_text > 0 order by date_created desc, time_created desc ";
-$qry="select * from page_stats_taxa                            order by date_created desc, time_created desc ";
+$qry="select * from page_stats_taxa                            order by date_created desc ";
 if($view != 3)  $qry .= "  limit 1";
 else            $qry .= "  limit 8";
 $sql = $mysqli->query($qry);
