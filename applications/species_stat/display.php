@@ -424,7 +424,7 @@ if($view == 3)
     //=================================================================================================
     //start data objects
     print"<hr>";
-    $qry="select * from page_stats_dataobjects order by date_created desc desc limit 8";
+    $qry="select * from page_stats_dataobjects order by date_created desc limit 8";
     $sql = $mysqli->query($qry);
     $arr = array();
     $arr2 = array();    //to store the autoctr field in page_stats
