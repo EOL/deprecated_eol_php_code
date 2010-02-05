@@ -7,8 +7,8 @@ define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
-$mysqli2 = $mysqli;
 
+//$mysqli2 = $mysqli;
 //$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
 //$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
@@ -121,7 +121,8 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
 
 function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed)
 {
-    global $mysqli2;
+    //global $mysqli2;
+    
     //start get count_of_taxa_pages viewed during the month, etc.
     $query = "Select 
     Sum(google_analytics_page_stats.page_views) AS page_views,
@@ -136,7 +137,8 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     google_analytics_partner_taxa.agent_id = $agent_id AND
     google_analytics_partner_taxa.`year` = $year AND
     google_analytics_partner_taxa.`month` = $month ";        
-    $result2 = $mysqli2->query($query);    
+    //$mysqli2
+    $result2 = $mysqli->query($query);    
     $row2 = $result2->fetch_row();            
         
     $page_views         = $row2[0];
@@ -244,7 +246,7 @@ function get_sql_for_partners_with_published_data()
 function save_agent_monthly_summary($year_month)
 {
     global $mysqli;
-    global $mysqli2;    
+    //global $mysqli2;    
 
     $year =intval(substr($year_month,0,4));
     $month=intval(substr($year_month,5,2));
@@ -260,13 +262,22 @@ function save_agent_monthly_summary($year_month)
     $num_rows = $result->num_rows; $i=0;
     while($result && $row=$result->fetch_assoc())	
     {
+
+        $time_start = microtime(1);
+    
         $i++;
-        echo"agent id = $row[id] $i of $num_rows \n";        
+        echo"agent id = $row[id] $i of $num_rows ";        
         $arr = get_count_of_taxa_pages_per_partner($row["id"],$year,$month);
             $count_of_taxa_pages = $arr[0];
             $count_of_taxa_pages_viewed = $arr[1];        
         $arr = get_monthly_summaries_per_partner($row["id"],$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
         $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                        
+        
+        $elapsed_time_in_sec = microtime(1)-$time_start;
+        echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
+        
+        
+        
     }//end while
     //=================================================================    
     echo"\n start BHL stats summaries...\n";    
@@ -283,7 +294,8 @@ function save_agent_monthly_summary($year_month)
     $arr = get_monthly_summaries_per_partner(11,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                
     //=================================================================
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' 
+    //$mysqli2
+    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' 
     INTO TABLE google_analytics_partner_summaries");        
     //=================================================================
 
@@ -343,7 +355,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
 function save_agent_taxa($year_month)
 {
     global $mysqli;
-    global $mysqli2;    
+    //global $mysqli2;    
 
     $year =intval(substr($year_month,0,4));
     $month=intval(substr($year_month,5,2));    
@@ -365,14 +377,20 @@ function save_agent_taxa($year_month)
     $num_rows = $result->num_rows; $i=0;
     while($result && $row=$result->fetch_assoc())	
     {
+        $time_start = microtime(1);
+
         $i++;
-        echo"agent id = $row[id] $i of $num_rows \n";
+        echo"agent id = $row[id] $i of $num_rows ";
         $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth($row["id"],$month,$year);
         $result2 = $mysqli->query($query);    
         $fields=array();
         $fields[0]="taxon_concept_id";
         $fields[1]="agent_id";
         $temp = save_to_txt($result2,"google_analytics_partner_taxa",$fields,$year_month,chr(9),0,"txt");
+
+        $elapsed_time_in_sec = microtime(1)-$time_start;
+        echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
+
     }
     
 
@@ -398,9 +416,10 @@ function save_agent_taxa($year_month)
     //=================================================================
     //query 4,5 /* not needed anymore */
     //query 6,7,8
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa.txt'     INTO TABLE google_analytics_partner_taxa");        
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt' INTO TABLE google_analytics_partner_taxa");        
-    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_col.txt' INTO TABLE google_analytics_partner_taxa");        
+    //$mysqli2
+    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa.txt'     INTO TABLE google_analytics_partner_taxa");        
+    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt' INTO TABLE google_analytics_partner_taxa");        
+    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_col.txt' INTO TABLE google_analytics_partner_taxa");        
     //=================================================================
 
     //start query9,10,11,12 => start3.php
@@ -431,7 +450,7 @@ function get_sciname_from_tc_id($tc_id)
 
 function save_eol_taxa_google_stats($month,$year)
 {
-    global $mysqli2;
+    //global $mysqli2;
     
     $year_month = $year . "_" . $month;
     
@@ -574,8 +593,10 @@ function save_eol_taxa_google_stats($month,$year)
         }//end while
         fclose($OUT);        
 
-        //print"ditox";        
-        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
+        //print"ditox";   
+        //$mysqli2     
+        $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
+        exit;
         
     }
     else 
@@ -591,12 +612,14 @@ function create_tables()
 }
 
 function initialize_tables_4dmonth($year,$month)
-{	global $mysqli2;    
+{	//global $mysqli2;    
+
     //$month=intval($month);
-    $query="delete from `google_analytics_page_stats`        where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
-    $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
-    $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
-    $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
+    //$mysqli2
+    $query="delete from `google_analytics_page_stats`        where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);        
+    $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);    		
+    $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);            
+    $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);            
 }//function initialize_tables_4dmonth()
 
 
