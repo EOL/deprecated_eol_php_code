@@ -32,14 +32,15 @@ $used_taxa = array();
 
 $id_list=array();
 
-
 $total_taxid_count = 0;
 $do_count = 0;
 
 
-$url            ="http://hercules.kgs.ku.edu/hexacoral/anemone2/valid_species.cfm";
-$home_url       ="http://hercules.kgs.ku.edu/hexacoral/anemone2/index.cfm";
-$form_url       ="http://hercules.kgs.ku.edu/hexacoral/anemone2/valid_species_search.cfm";
+$url        ="http://hercules.kgs.ku.edu/hexacoral/anemone2/valid_species.cfm";
+$home_url   ="http://hercules.kgs.ku.edu/hexacoral/anemone2/index.cfm";
+$form_url   ="http://hercules.kgs.ku.edu/hexacoral/anemone2/valid_species_search.cfm";
+$site_url   ="http://hercules.kgs.ku.edu/hexacoral/anemone2/";
+
 $taxa_list = get_taxa_list($url);
 
 $arr_desc_taxa = array();
@@ -48,6 +49,8 @@ $arr_outlinks = array();
 
 print("<hr> count taxa_list = " . count($taxa_list) );
 
+//
+//for ($i = 0; $i < 5; $i++) 
 for ($i = 0; $i < count($taxa_list); $i++) 
 {
     
@@ -55,55 +58,27 @@ for ($i = 0; $i < count($taxa_list); $i++)
     print $wrap;
     print $i+1 . " of " . count($taxa_list) . " id=" . $taxa_list[$i] . " ";
     $validname = $taxa_list[$i];        
-    list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) 
-    = process($form_url,$validname);
-
+    //list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($form_url,$validname);
+    $arr = process($form_url,$validname);
+    $taxa = $arr[0];
+    $classification = $arr[1];
+    $arr_images = $arr[2];
+    
     if(trim($taxa) == "")
     {   
         print " --blank taxa--";
         continue; 
         //exit(" $philid blank taxa exists");
     }
-    //print"$id<hr> --- $image_url<hr> --- $description<hr> --- $desc_pic<hr> --- $desc_taxa<hr> --- $categories<hr> --- $taxa<hr> --- $copyright<hr> $providers<hr> --- $creation_date<hr> --- $photo_credit<hr> --- $outlinks<hr> --- ";
     
-    $desc_taxa = str_ireplace("animals sre filtered", "animals are filtered", $desc_taxa);
-    
-    //$categories="xxx";
-    $outlinks = utf8_encode($outlinks);
+    /*
     $desc_pic = utf8_encode($desc_pic);
     $desc_taxa = utf8_encode($desc_taxa);
-    
-    /* desc_taxa is no longer included    
-    if($desc_taxa != "")$desc_pic .= "<br><br>$desc_taxa";   
     */
     
-    $desc_pic = $desc_pic . "<br>" . "Created: $creation_date";
-    
-    $desc_pic = str_ireplace("<i>comb scales</i>", "comb scales", $desc_pic);
-    $desc_pic = str_ireplace("<i>lateral plate</i>", "lateral plate", $desc_pic);
-    $desc_pic = str_ireplace("<i>spinulose hairs</i>", "spinulose hairs", $desc_pic);
-    $desc_pic = str_ireplace("<i>median ventral brush</i>", "median ventral brush", $desc_pic);
-    
-     
-    if(in_array($taxa . $desc_taxa, $arr_desc_taxa))$desc_taxa="";
-    else                                            $arr_desc_taxa[] = $taxa . $desc_taxa;     
 
-    if(in_array($taxa . $categories, $arr_categories))$categories="";
-    else                                              $arr_categories[] = $taxa . $categories;     
+    $taxon = str_replace(" ", "_", $taxa_list[$i]);
     
-    if(in_array($taxa . $outlinks, $arr_outlinks))$outlinks="";
-    else                                          $arr_outlinks[] = $taxa . $outlinks;     
-
-    //new
-    $desc_taxa="";
-    
-    if($categories != "")$desc_taxa .= "<hr>Categories:<br>$categories";   
-    if($outlinks != "")  $desc_taxa .= "<hr>Outlinks:<br>$outlinks";
-    
-    //print"<hr><hr>";    
-    //print"<hr>";     
-
-    $taxon = str_replace(" ", "_", $taxa);
     if(@$used_taxa[$taxon])
     {
         $taxon_parameters = $used_taxa[$taxon];
@@ -111,7 +86,18 @@ for ($i = 0; $i < count($taxa_list); $i++)
     else
     {
         $taxon_parameters = array();
-        $taxon_parameters["identifier"] = "CDC_" . $taxon; //$main->taxid;
+        $taxon_parameters["identifier"] = "hexacorals_" . $taxon; //$main->taxid;
+        
+        if(isset($classification["Class"][0]))        
+        {
+            $taxon_parameters["kingdom"]    = $classification["Kingdom"][0];
+            $taxon_parameters["phylum"]     = $classification["Phylum"][0];
+            $taxon_parameters["class"]      = $classification["Class"][0];
+            $taxon_parameters["order"]      = $classification["Order"][0];
+            $taxon_parameters["family"]     = $classification["Family"][0];
+            $taxon_parameters["genus"]      = $classification["Genus"][0];
+        }
+
         $taxon_parameters["scientificName"]= $taxa;
         $taxon_parameters["source"] = $home_url;
         $used_taxa[$taxon] = $taxon_parameters;            
@@ -119,25 +105,38 @@ for ($i = 0; $i < count($taxa_list); $i++)
 
     if(1==1)
     {
-        //if($do_count == 0)//echo "$wrap$wrap phylum = " . $taxa . "$wrap";
+
 
         $dc_source = $home_url;       
 
-        $do_count++;        
-        $agent_name = $photo_credit;
-        $agent_role = "photographer";            
         
+        //$agent_name = $photo_credit;
+        //$agent_role = "photographer";            
         
         /* for debugging
         $image_url = "http://127.0.0.1/test.tif";
         $image_url = "http://www.findingspecies.org/indu/images/YIH_13569_MED_EOL.TIFF";
         */
         
-        // /* just debug; no images for now
-        $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"");               
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
-        // */
-        
+        //start images
+        foreach ($arr_images as $value)
+        {
+            $do_count++;        
+            //print"<hr> $value[0] ";
+            ///*            
+            $arr_temp=img_href_src($value[0]);
+            $dc_source = $site_url . $arr_temp[0];
+            $image_url  = $site_url . $arr_temp[1];
+            //*/
+            $agent_name="";
+            $agent_role="";
+            $desc_pic = "Name: $value[1] <br> Reference: $value[2] <br> View: $value[3] <br> Caption: $value[4]";
+            $copyright="";
+            
+            $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"");               
+            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
+        }
+        //end images
 
         /* no text descriptions per Katja
         if($desc_taxa != "")
@@ -178,6 +177,23 @@ fclose($OUT);
 echo "$wrap$wrap Done processing.";
 exit("<hr>-done-");
 
+function img_href_src($str)
+{
+    /*
+    <A HREF="imagedetail.cfm?imageid=5880&genus=Paranthosactis&species=denhartogi&subgenus=&subspecies=">
+    <IMG SRC="images/05851_05900/05880.jpg" BORDER=0 HEIGHT=80 WIDTH=80></a>
+    */
+    
+    $beg='<A HREF="'; $end1='">'; 
+    $href = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    
+    $beg='<IMG SRC="'; $end1='" BORDER='; 
+    $src = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    
+    return array($href,$src);
+    
+}
+
 function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title)   
 {        
     //$description = "<![CDATA[ $description ]]>";
@@ -206,6 +222,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
     {
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
         $dataObjectParameters["mimeType"] = "image/jpeg";            
+        $dataObjectParameters["source"] = $dc_source;
         $dataObjectParameters["mediaURL"] = $image_url;
         $dataObjectParameters["rights"] = $copyright;
         $dc_source ="";
@@ -215,7 +232,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;            
     $dataObjectParameters["identifier"] = $taxon . "_" . $do_count;        
-    $dataObjectParameters["rightsHolder"] = "Public Health Image Library";
+    $dataObjectParameters["rightsHolder"] = "Hexacorallians of the World";
     $dataObjectParameters["language"] = "en";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
         
@@ -291,7 +308,7 @@ function get_taxa_list($file)
          /* regular routine
         //print"$wrap $sciname";
         $arr2["$sciname"]=1;
-         */
+      */
         
     }   
     //exit; 
@@ -307,8 +324,6 @@ function get_taxa_list($file)
     return $arr;    
 }
 
-
-
 function process($url,$validname)
 {
     global $wrap;
@@ -320,7 +335,8 @@ function process($url,$validname)
 }
 
 function get_tabular_data($url,$item)
-{
+{   return;
+
     global $wrap;
     
     $table = Functions::get_remote_file($url);                
@@ -394,11 +410,14 @@ function get_images($url)
     }
     print"<pre>";print_r($arr_images);print"</pre>";
     //exit("<hr>stop muna");
+    return $arr_images;
 }
 
 function parse_contents($str)
 {
     global $wrap;
+    global $site_url;
+    
     /* it can be:
     <a href="speciesdetail.cfm?genus=Abyssopathes&subgenus=&species=lyra&subspecies=&synseniorid=9266&validspecies=Abyssopathes%20lyra&authorship=%28Brook%2C%201889%29">Abyssopathes lyra (Brook, 1889)</a>
     or
@@ -416,7 +435,6 @@ function parse_contents($str)
     
     //anemone2/speciesdetail_for_nosyn.cfm?spe
 
-    $site_url="http://hercules.kgs.ku.edu/hexacoral/anemone2/";
     $temp = '<a href="' . $site_url . '' . $beg . $temp . "</a>";
     //get url_for_main_menu
         $beg='="'; $end1='">'; 
@@ -426,8 +444,8 @@ function parse_contents($str)
     
     //get sciname
         $beg='">'; $end1='</a>'; 
-        $sciname = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
-        print"$wrap sciname[$sciname]";
+        $taxa = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
+        print"$wrap taxa[$taxa]";
     //end sciname
     
     $main_menu = Functions::get_remote_file($url_for_main_menu);        
@@ -440,9 +458,9 @@ function parse_contents($str)
         {
             $url_for_images_page = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_images_page'>images</a>]";                
-            /*
+            ///*
             $arr_images = get_images($url_for_images_page);            
-            */
+            //*/
         }else print"$wrap no images";   
         
                 
@@ -529,22 +547,33 @@ function parse_contents($str)
             $arr_synonyms = get_tabular_data($url_for_skeletons,"skeletons");            
             
         }else print"$wrap no skeletons";   
-
-        
     //end url for skeleton
 
-    
-    
     print"<hr>$main_menu"; 
-    exit("<hr>ditox");
+    //exit("<hr>ditox");
     //========================================================================================	       
-    return array ($taxa);    
+    //return array ($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks);      
+    return array($taxa,$arr_classification,$arr_images);
 }//function parse_contents($contents)
+
 function parse_classification($arr)
 {
-    $var = $arr[0][0];
-    print"<hr>$var";
-    //exit;    
+    global $wrap;    
+    $var = trim($arr[0][0]);
+    //print"<hr>$var";
+    $arr = explode("<br>", $var);
+    //print"<pre>";print_r($arr);print"</pre>";
+    $arr2=array();    
+    foreach ($arr as $str) 
+    {
+        $beg='<b>'; $end1='</b>'; 
+        $rank = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+        $beg='">'; $end1='</a>'; 
+        $name = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));                    
+        if($rank) $arr2["$rank"][]=$name; //print"$wrap $rank -- $name";                
+    }    
+    print"<pre>";print_r($arr2);print"</pre>";    
+    return $arr2;
 }
 
 function cURL_it($validname,$url)
