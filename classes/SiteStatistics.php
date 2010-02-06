@@ -36,7 +36,7 @@ class SiteStatistics
         $stats['lifedesk_taxa'] =                                   $this->lifedesk_taxa();
         $stats['lifedesk_dataobject'] =                             $this->lifedesk_data_objects();
         $stats['date_created'] =                                    date('Y-m-d');
-        //$stats['time_created'] =                                    date('H:i:s');
+        $stats['time_created'] =                                    date('H:i:s');
         
         $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
         $this->delete_old_records_from('page_stats_taxa');
