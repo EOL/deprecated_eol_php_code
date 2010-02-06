@@ -1,6 +1,6 @@
 <?php
 //define("ENVIRONMENT", "staging"); 
-//define("ENVIRONMENT", "eol_statistics"); 
+define("ENVIRONMENT", "eol_statistics"); 
 
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
@@ -17,15 +17,15 @@ set_time_limit(0);
 
 /*
 tables used:
-taxon_concepts
-taxon_concept_names
-page_names
-hierarchy_entries
-agents
-agents_resources
-harvest_events
-taxa
-names
+    taxon_concepts
+    taxon_concept_names
+    page_names
+    hierarchy_entries
+    agents
+    agents_resources
+    harvest_events
+    taxa
+    names
 */
 
 /*
@@ -240,7 +240,7 @@ function get_sql_for_partners_with_published_data()
     //$query .= " and  "; 
     //$query .= " and agents.id = 2 "; //debug FishBase
     $query .= " order by agents.full_name ";    
-    $query .= " limit 3 "; //debug
+    $query .= " limit 2 "; //debug
     return $query;
 }
 
@@ -487,7 +487,7 @@ function save_eol_taxa_google_stats($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=5000; //debug
+        $range=1000; //debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
