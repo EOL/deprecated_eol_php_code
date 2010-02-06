@@ -21,9 +21,10 @@ exit;
 
 $wrap = "\n";
 $wrap = "<br>";
- 
+/* 
 $resource = new Resource(1);
 print "resource id = " . $resource->id . "$wrap";
+*/
 //exit;
 
 $schema_taxa = array();
@@ -329,19 +330,24 @@ function get_tabular_data($url,$item)
     elseif  ($item == "skeletons")      $beg='<th>Percent Magnesium</th>'; 
     elseif  ($item == "classification") $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
     
-    if($item == "classification")   $end1='<br> </td>'; 
+    if($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
     else                            $end1='</table>'; 
     
     
     $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
-    $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string        
+    
+    $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
+        
     $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
                                                        
     //print $temp; exit;
     
     $temp = str_ireplace('<tr>' , "", $temp);	
     $temp = trim(str_ireplace('</tr>' , "***", $temp));	
+    
+    //if($item != "classification")    
     $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
+    
     $arr = explode("***", $temp);
     $arr_records=array();
     
@@ -350,7 +356,7 @@ function get_tabular_data($url,$item)
         $str = $arr[$i];
         $str = str_ireplace('<td>' , "", $str);	
         $str = trim(str_ireplace('</td>' , "***", $str));	
-        $str = substr($str,0,strlen($str)-3);//remove last '***'
+        if($item != "classification") $str = substr($str,0,strlen($str)-3);//remove last '***'
         $arr2 = explode("***", $str);    
         $arr_records[]=$arr2;
     }
@@ -435,7 +441,9 @@ function parse_contents($str)
         {
             $url_for_images_page = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_images_page'>images</a>]";                
+            /*
             $arr_images = get_images($url_for_images_page);            
+            */
         }else print"$wrap no images";   
         
                 
@@ -457,7 +465,8 @@ function parse_contents($str)
             $url_for_classification = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_classification'>classification</a>]";    
             $arr_classification = get_tabular_data($url_for_classification,"classification");            
-            
+            if($arr_classification) $arr_classification=parse_classification($arr_classification);
+                        
         }else print"$wrap no classification";   
     //end url for classification
 
@@ -532,6 +541,12 @@ function parse_contents($str)
     //========================================================================================	       
     return array ($taxa);    
 }//function parse_contents($contents)
+function parse_classification($arr)
+{
+    $var = $arr[0][0];
+    print"<hr>$var";
+    //exit;    
+}
 
 function cURL_it($validname,$url)
 {    
