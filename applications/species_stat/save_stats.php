@@ -34,10 +34,8 @@ page_stats_taxa.vetted_not_published,
 page_stats_taxa.vetted_unknown_published_visible_inCol,
 page_stats_taxa.vetted_unknown_published_visible_notinCol,
 concat(month(date_created),'/',day(date_created),'/',year(date_created)) as date_created,
-page_stats_taxa.time_created,
 page_stats_taxa.pages_incol,
 page_stats_taxa.pages_not_incol,
-page_stats_taxa.`timestamp`,
 page_stats_taxa.lifedesk_taxa,
 page_stats_taxa.lifedesk_dataobject
 From page_stats_taxa 
