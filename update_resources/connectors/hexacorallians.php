@@ -345,8 +345,7 @@ function get_tabular_data($url,$item)
     $temp = str_ireplace('<tr>' , "", $temp);	
     $temp = trim(str_ireplace('</tr>' , "***", $temp));	
     
-    //if($item != "classification")    
-    $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
+    if($item != "classification")    $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
     
     $arr = explode("***", $temp);
     $arr_records=array();
