@@ -48,8 +48,16 @@ class ContentManager
         
         // if the download succeeded
         if(file_exists($temp_file_path))
-        {
+        {            
+            //start by eli
+            
+            //exit("<hr>01[$temp_file_path]<hr>");            
+            //commented Oct14
             $new_suffix = $this->determine_file_suffix($temp_file_path,$suffix);
+            
+            echo "\n final new_suffix[$new_suffix] \n";                        
+            //$new_suffix = $suffix;            
+
             if($new_suffix)
             {
                 if($type=="content") $new_file_prefix = $this->new_content_file_name();
@@ -59,7 +67,12 @@ class ContentManager
                 $new_file_path = $new_file_prefix.".".$new_suffix;
                 
                 // copy temporary file into its new home
-                shell_exec("cp ".$temp_file_path." ".$new_file_path);
+                //shell_exec("cp ".$temp_file_path." ".$new_file_path);
+                
+                //start replacement of above line/row
+                if (!copy($temp_file_path, $new_file_path))echo "failed to copy $file...\n";
+                else echo "copy file successful...\n";
+                //end                
                 
                 // fail if for some reason there is still no file at the new path
                 if(!file_exists($new_file_path)) return false;
@@ -80,40 +93,69 @@ class ContentManager
                 elseif($type=="partner" && preg_match("/^".preg_quote(CONTENT_PARTNER_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = $arr[1];
                 elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/",$new_file_path,$arr))  $new_file_path = $arr[1];
             }
+            else echo "\n errorx...\n";
         }
         
-        if(file_exists($temp_file_path)) unlink($temp_file_path);
+        //if(file_exists($temp_file_path)) unlink($temp_file_path); //modified
         return $new_file_path;
     }
 
     function determine_file_suffix($file_path,$suffix)
     {
-        // use the Unix/Linux `file` command to determine file type
-        $stat = strtolower(shell_exec("file ".$file_path));
-        $file_type = "";
-        if(preg_match("/^[^ ]+: (.*)$/",$stat,$arr)) $file_type = trim($arr[1]);
-        if(preg_match("/^\"(.*)/", $file_type, $arr)) $file_type = trim($arr[1]);
-        
-        $new_suffix = "";
-        
-        if(preg_match("/^([^ ]+) image data/",$file_type,$arr))
+        //start by eli - didn't use the Unix/Linux `file` command to determine file type
+        echo "\n file_path = $file_path";
+        $new_suffix=$suffix;        
+        echo "\n suffix[$suffix]";        
+        $arr = array('jpg','tif','flv','mov','avi','gz','tar','zip','xml','pdf','html','png','xml','gif');
+
+        if(!in_array("$suffix", $arr))                       
         {
-            $new_suffix = $arr[1];
-            if($new_suffix == "jpeg") $new_suffix = "jpg";
-            if($new_suffix == "tiff") $new_suffix = "tif";
-        }elseif(preg_match("/^macromedia flash/i",$file_type,$arr)) $new_suffix = "flv";
-        elseif(preg_match("/^apple quickTime/i",$file_type,$arr)) $new_suffix = "mov";
-        elseif(preg_match("/^riff \(little-endian\) data, avi/i",$file_type,$arr)) $new_suffix = "avi";
-        elseif(preg_match("/^gzip compressed data/i",$file_type,$arr)) $new_suffix = "gz";
-        elseif(preg_match("/^posix tar archive/i",$file_type,$arr)) $new_suffix = "tar ";
-        elseif(preg_match("/^zip archive data/i",$file_type,$arr)) $new_suffix = "zip";
-        elseif(preg_match("/^xml( |$)/i",$file_type,$arr) || preg_match("/xml$/i",$file_type,$arr)) $new_suffix = "xml";
-        elseif(preg_match("/^pdf( |$)/i",$file_type,$arr)) $new_suffix = "pdf";
-        elseif(preg_match("/^html( |$)/i",$file_type,$arr)) $new_suffix = "html";
-        elseif(preg_match("/PNG image/i",$file_type,$arr)) $new_suffix = "png";
-        elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i",$file_type,$arr)) $new_suffix = "xml";
-        elseif($suffix=="xml" && preg_match("/^ascii text/i",$file_type,$arr)) $new_suffix = "xml";
-        
+            echo "\n xxx not in_array[$suffix]";                        
+            
+            //exit("yyy");
+            
+            $new_suffix=false;
+            $new_suffix="xml";
+            
+            $image = array(	
+			    	0 => array(	"type" => "image/bmp"		                , "suffix" => "bmp"),
+    				1 => array(	"type" => "image/gif"		                , "suffix" => "gif"),
+    				2 => array(	"type" => "image/jpeg"	                    , "suffix" => "jpg"),
+    				3 => array(	"type" => "image/png"	                    , "suffix" => "png"),
+    				4 => array(	"type" => "image/svg+xml"	                , "suffix" => "xml"),
+       				5 => array(	"type" => "image/tiff"	                    , "suffix" => "tif"),                
+                    6 => array(	"type" => "application/x-shockwave-flash"	, "suffix" => "flv")                
+            			  );
+            /*reference
+            $url = "http://www.youtube.com/v/eKcztOR6UYM";
+            $url = "http://www.morphbank.net/?id=224728&imgType=jpg";
+            $url = "http://www.fishbase.org/images/thumbnails/gif/tn_Ornil_u0.gif";
+            $image_data = getimagesize($url);
+            print_r($image_data);            
+            */
+                                      
+            //$url = "http://www.morphbank.net/?id=224728&imgType=jpg";
+            $url = $file_path;
+            $image_data = getimagesize($url);
+            print"\n url = $url \n <hr>";
+            print_r($image_data);
+            print "\n mime = [" . $image_data["mime"] . "] \n ";
+            //exit(" \n xxx");
+            
+            for ($i = 0; $i < count($image); $i++)     
+            {
+                if($image_data["mime"] == $image[$i]["type"])
+                {
+                    print "<hr>" . $image[$i]["type"];
+                    print "<hr>" . $image[$i]["suffix"];        
+                    $new_suffix = $image[$i]["suffix"];        
+                    break;
+                }
+            }        
+        }                
+        else echo "\n in_array new_suffix[$new_suffix]";                        
+                
+        echo "\n new_suffix[$new_suffix]";                        
         return $new_suffix;
     }
     
