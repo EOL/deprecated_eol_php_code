@@ -63,6 +63,14 @@ for ($i = 0; $i < count($taxa_list); $i++)
     $taxa = $arr[0];
     $classification = $arr[1];
     $arr_images = $arr[2];
+    $html_skeletons = $arr[3];
+    $url_for_skeletons = $arr[4];
+    $arr_common_names = $arr[5];
+    
+    
+    $html_biological_associations = $arr[5];
+    $url_for_biological_associations = $arr[6];
+
     
     if(trim($taxa) == "")
     {   
@@ -100,16 +108,20 @@ for ($i = 0; $i < count($taxa_list); $i++)
 
         $taxon_parameters["scientificName"]= $taxa;
         $taxon_parameters["source"] = $home_url;
+        
+        $taxon_parameters["commonNames"] = array();
+        foreach($arr_common_names as $commonname)
+        {            
+            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+        }                
+        
+        
         $used_taxa[$taxon] = $taxon_parameters;            
     }
 
     if(1==1)
     {
-
-
         $dc_source = $home_url;       
-
-        
         //$agent_name = $photo_credit;
         //$agent_role = "photographer";            
         
@@ -137,7 +149,30 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
         }
         //end images
+        
+        //start skeletons
+        if($html_skeletons != "")
+        {   $do_count++;
+            $agent_name = ""; $agent_role = ""; $image_url="";
+            $title="Skeletal Records";            
+            $dc_source = $url_for_skeletons;
+            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title);                           
+            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+        }        
+        //end skeletons
 
+        //start biological_associations
+        if($html_biological_associations != "")
+        {   $do_count++;
+            $agent_name = ""; $agent_role = ""; $image_url="";
+            $title="Biological Associations";            
+            $dc_source = $url_for_biological_associations;
+            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_biological_associations,$copyright,$image_url,$title);                           
+            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+        }        
+        //end biological_associations
+
+        
         /* no text descriptions per Katja
         if($desc_taxa != "")
         {
@@ -296,8 +331,10 @@ function get_taxa_list($file)
         $sciname = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
         
 //         /* for debug
-        $sn = "Paranthosactis denhartogi";//has classification
+        //$sn = "Paranthosactis denhartogi";//has classification
+        $sn = "Zoanthus sociatus";//has skeleton, common names, biological associations
         //$sn = "Favites abdita";//has skeleton
+        //$sn = "Urticina crassicornis";//has nematocysts
         if(trim($sciname) == $sn)
         {
             print"$wrap $sciname";
@@ -335,20 +372,24 @@ function process($url,$validname)
 }
 
 function get_tabular_data($url,$item)
-{   return;
+{   //return;
 
     global $wrap;
     
     $table = Functions::get_remote_file($url);                
     
-    if      ($item == "synonyms")       $beg='<TH><B>Authorship</b></TH>'; 
-    elseif  ($item == "references")     $beg='<th align=left><b>Nomenclature Notes </b></td></th>'; 
-    elseif  ($item == "skeletons")      $beg='<th>Percent Magnesium</th>'; 
-    elseif  ($item == "classification") $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
+    if      ($item == "synonyms")                   $beg='<TH><B>Authorship</b></TH>'; 
+    elseif  ($item == "references")                 $beg='<th align=left><b>Nomenclature Notes </b></td></th>'; 
+    elseif  ($item == "skeletons")                  $beg='<th>Percent Magnesium</th>'; 
+    elseif  ($item == "biological_associations")    $beg='<TH COLSPAN="2">Algal symbionts</TH>'; 
+    elseif  ($item == "classification")             $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
+    elseif  ($item == "common_names")               $beg='<TBODY>'; 
     
-    if($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
-    else                            $end1='</table>'; 
-    
+    if    ($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
+    elseif($item == "classification")   $end1='</TBODY>';
+    else                                $end1='</table>'; 
+
+//elseif  ($item == "biological_associations")    $end1='</TABLE>';     
     
     $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
     
@@ -372,7 +413,13 @@ function get_tabular_data($url,$item)
         $str = str_ireplace('<td>' , "", $str);	
         $str = trim(str_ireplace('</td>' , "***", $str));	
         if($item != "classification") $str = substr($str,0,strlen($str)-3);//remove last '***'
+        
+        $str=strip_tags($str,"<a>");
         $arr2 = explode("***", $str);    
+        
+        
+        //$temp = str_replace(array("","",""), "", $temp);			
+
         $arr_records[]=$arr2;
     }
     print"<pre>";print_r($arr_records);print"</pre>";
@@ -454,6 +501,7 @@ function parse_contents($str)
         //"images.cfm?&genus=Abyssopathes&subgenus=&species=lyra&subspecies=&seniorid=9266&validspecies=Abyssopathes%20lyra&authorship=%28Brook%2C%201889%29">Images</a> 
         $beg='images.cfm'; $end1='">'; 
         $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        $arr_images=array();
         if($temp != "") 
         {
             $url_for_images_page = $site_url . $beg . $temp;
@@ -477,13 +525,13 @@ function parse_contents($str)
             $beg='classification_path_no_syn.cfm'; $end1='">';         
             $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
         }        
+        
         if($temp != "") 
         {
             $url_for_classification = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_classification'>classification</a>]";    
             $arr_classification = get_tabular_data($url_for_classification,"classification");            
-            if($arr_classification) $arr_classification=parse_classification($arr_classification);
-                        
+            if($arr_classification) $arr_classification=parse_classification($arr_classification);                        
         }else print"$wrap no classification";   
     //end url for classification
 
@@ -526,36 +574,104 @@ function parse_contents($str)
         //"common.cfm?seniorid=2914&validspecies=Aiptasiogeton%20eruptaurantia&authorship=%28Field%2C%201949%29">Strict synonymy</a> 
         $beg='common.cfm'; $end1='">'; 
         $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        $arr_common_names=array();
         if($temp != "") 
         {
             $url_for_common_names = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_common_names'>common_names</a>]";    
+            $arr_common_names = get_tabular_data($url_for_common_names,"common_names");                        
+            //start process
+            $arr=array();
+            foreach ($arr_common_names as $value)
+            {
+                $temp = strtolower($value[0]);
+                $temp = trim(get_str_from_anchor_tag($temp));
+                $arr["$temp"]=1;
+            }
+            $arr_common_names = array_keys($arr);
+            print"<hr>";
+            print_r($arr_common_names);
+            exit;
+            //end process
+                        
         }else print"$wrap no common_names";   
     //end url for common_names
     
     //get url for skeletons
         //e.g. for species (Favites abdita) with skeleton 
-
         $url_for_skeletons="";
         //http://hercules.kgs.ku.edu/hexacoral/anemone2/skeleton.cfm?genus=Favites&subgenus=&species=abdita&subspecies=
         $beg='skeleton.cfm'; $end1='">'; 
         $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        $html_skeletons="";
         if($temp != "") 
         {
             $url_for_skeletons = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_skeletons'>skeletons</a>]";    
-            $arr_synonyms = get_tabular_data($url_for_skeletons,"skeletons");            
-            
+            $arr_skeletons = get_tabular_data($url_for_skeletons,"skeletons");            
+            $arr_fields = array("Author","Skeleton?","Mineral or Organic?","Mineral","Percent Magnesium");
+            $html_skeletons = arr2html($arr_skeletons,$arr_fields);            
         }else print"$wrap no skeletons";   
     //end url for skeleton
+
+    //get url for biological_associations
+        //e.g. for species () with biological_associations
+        $url_for_biological_associations="";
+        //
+        $beg='symbiont_info.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        $html_biological_associations="";
+        if($temp != "") 
+        {
+            $url_for_biological_associations = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_biological_associations'>biological_associations</a>]";    
+            $arr_biological_associations = get_tabular_data($url_for_biological_associations,"biological_associations");            
+            $arr_fields = array("Algal symbionts");
+            $html_biological_associations = arr2html($arr_biological_associations,$arr_fields);            
+        }else print"$wrap no biological_associations";   
+    //end url for biological_associations
+
 
     print"<hr>$main_menu"; 
     //exit("<hr>ditox");
     //========================================================================================	       
     //return array ($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks);      
-    return array($taxa,$arr_classification,$arr_images);
+    return array($taxa,$arr_classification,$arr_images
+                    ,$html_skeletons,$url_for_skeletons
+                    ,$html_biological_associations,$url_for_biological_associations
+                    ,$arr_common_names
+                );
 }//function parse_contents($contents)
-
+function arr2html($arr_data,$arr_fields)
+{
+    $html="<table border='1' cellpadding='4' cellspacing='0'>";
+    
+    $html .="<tr>";   
+    foreach ($arr_fields as $value)
+    {
+        $html .="<th>$value</th>";      
+    }
+    $html .="</tr>";   
+    
+    foreach ($arr_data as $value)
+    {
+        $html .="<tr>";   
+        foreach ($value as $item)
+        {   
+            if(stripos($item, "href") != "" )
+            {
+                $beg='">'; $end1='</a>'; 
+                $item = trim(parse_html($item,$beg,$end1,$end1,$end1,$end1,""));                                  
+            }
+            $html .="<td>$item</td>";
+        };      
+        $html .="</tr>";   
+    }
+    
+    $html .="</table>";   
+    return $html;
+    
+}
 function parse_classification($arr)
 {
     global $wrap;    
@@ -574,6 +690,12 @@ function parse_classification($arr)
     }    
     print"<pre>";print_r($arr2);print"</pre>";    
     return $arr2;
+}
+
+function get_str_from_anchor_tag($str)
+{
+    $beg='">'; $end1='</a>'; 
+    return trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));                                  
 }
 
 function cURL_it($validname,$url)
@@ -622,10 +744,10 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
 			$cont = 'y';
 			while($cont == 'y')
 			{
-				if(	substr($str,$i,$end1_len) == $end1 or 
-					substr($str,$i,$end2_len) == $end2 or 
-					substr($str,$i,$end3_len) == $end3 or 
-					substr($str,$i,$end4_len) == $end4 or 
+				if(	strtolower(substr($str,$i,$end1_len)) == strtolower($end1) or 
+					strtolower(substr($str,$i,$end2_len)) == strtolower($end2) or 
+					strtolower(substr($str,$i,$end3_len)) == strtolower($end3) or 
+					strtolower(substr($str,$i,$end4_len)) == strtolower($end4) or 
 					substr($str,$i,3) == '|||' )
 				{
 					$pos2 = $i - 1; 					
