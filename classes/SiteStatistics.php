@@ -35,7 +35,7 @@ class SiteStatistics
         $stats['pages_not_incol'] =                                 $this->total_pages_not_in_col();
         $stats['lifedesk_taxa'] =                                   $this->lifedesk_taxa();
         $stats['lifedesk_dataobject'] =                             $this->lifedesk_data_objects();
-        $stats['date_created'] =                                    date('Y-m-d');
+        //$stats['date_created'] =                                    date('Y-m-d');
         //$stats['time_created'] =                                    date('H:i:s');
         
         $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
