@@ -310,8 +310,7 @@ class Functions
     
     public static function class_name($path)
     {
-        //if(preg_match("/\/([^\/]+)\.php$/", $path, $arr)) $path = $arr[1];
-        if(preg_match("/\\\([^\\\]+)\.php$/", $path, $arr)) $path = $arr[1];//by eli
+        if(preg_match("/\/([^\/]+)\.php$/", $path, $arr)) $path = $arr[1];
         return strtolower(preg_replace("/([a-z])([A-Z])/", "\\1_".strtolower("\\2"), $path));
     }
     
