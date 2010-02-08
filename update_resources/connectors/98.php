@@ -6,7 +6,7 @@ connector for hexacorallians
 
 //exit;
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -20,9 +20,10 @@ exit;
 */
 
 $wrap = "\n";
-$wrap = "<br>";
+//$wrap = "<br>";
+
 // /* 
-$resource = new Resource(1);
+$resource = new Resource(98);
 print "resource id = " . $resource->id . "$wrap";
 // */
 //exit;
@@ -47,7 +48,7 @@ $arr_desc_taxa = array();
 $arr_categories = array();
 $arr_outlinks = array();              
 
-print("<hr> count taxa_list = " . count($taxa_list) );
+print("$wrap count taxa_list = " . count($taxa_list) );
 
 //
 //for ($i = 0; $i < 5; $i++) 
@@ -55,7 +56,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
 {
     
     //main loop
-    print $wrap;
+    print "$wrap $wrap";
     print $i+1 . " of " . count($taxa_list) . " id=" . $taxa_list[$i] . " ";
     $validname = $taxa_list[$i];        
     //list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($form_url,$validname);
@@ -352,8 +353,10 @@ function get_taxa_list($file)
         //$sn = "Zoanthus sociatus";//has skeleton, common names, biological associations
         //$sn = "Favites abdita";//has skeleton
         //$sn = "Urticina crassicornis";//has nematocysts
-        $sn = "Abyssopathes lyra";//has images
-        if(trim($sciname) == $sn)
+        //$sn = "Abyssopathes lyra";//has images
+
+        $sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra");
+        if (in_array(trim($sciname), $sn)) 
         {
             print"$wrap $sciname";
             $arr2["$sciname"]=true; //exit;
@@ -363,7 +366,7 @@ function get_taxa_list($file)
          /* regular routine
         //print"$wrap $sciname";
         $arr2["$sciname"]=1;
-      */
+         */
         
     }   
     //exit; 
@@ -443,7 +446,7 @@ function get_tabular_data($url,$item)
 
         $arr_records[]=$arr2;
     }
-    print"<pre>";print_r($arr_records);print"</pre>";
+    //print"<pre>";print_r($arr_records);print"</pre>";
     return $arr_records;
 }
 
@@ -476,7 +479,7 @@ function get_images($url)
         $arr2 = explode("***", $str);    
         $arr_images[]=$arr2;
     }
-    print"<pre>";print_r($arr_images);print"</pre>";
+    //print"<pre>";print_r($arr_images);print"</pre>";
     //exit("<hr>stop muna");
     return $arr_images;
 }
@@ -507,7 +510,7 @@ function parse_contents($str)
     //get url_for_main_menu
         $beg='="'; $end1='">'; 
         $url_for_main_menu = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
-        print"$wrap url_for_main_menu[$url_for_main_menu]";    
+        print"$wrap [<a href='$url_for_main_menu'>url_for_main_menu</a>]";    
     //end url_for_main_menu
     
     //get sciname
@@ -595,6 +598,7 @@ function parse_contents($str)
                 {
                     $temp .= "." . $item;
                 }
+                $temp = trim(substr($temp,1,strlen($temp)));//to remove the '.' on the first char
                 
                 //<a href="reference_detail.cfm?ref_number=58&type=Article"> 
                 $temp = str_ireplace("reference_detail.cfm",$site_url . "reference_detail.cfm",$temp);
@@ -603,7 +607,7 @@ function parse_contents($str)
                 
             }
             $arr_references = array_keys($arr);
-            print"<hr>"; print_r($arr_references); //exit;
+            //print"<hr>"; print_r($arr_references); //exit;
             //end process
 
 
@@ -628,11 +632,11 @@ function parse_contents($str)
             {
                 $temp = strtolower($value[0]);
                 $temp = trim(get_str_from_anchor_tag($temp));
-                print"[$temp]";
+                //print"[$temp]";
                 $arr["$temp"]=1;
             }
             $arr_common_names = array_keys($arr);
-            print"<hr>"; print_r($arr_common_names); //exit;
+            //print"<hr>"; print_r($arr_common_names); //exit;
             //end process
                         
         }else print"$wrap no common_names";   
@@ -673,7 +677,7 @@ function parse_contents($str)
     //end url for biological_associations
 
 
-    print"<hr>$main_menu"; 
+    //print"<hr>$main_menu"; 
     //exit("<hr>ditox");
     //========================================================================================	       
     //return array ($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks);      
@@ -731,7 +735,7 @@ function parse_classification($arr)
         $name = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));                    
         if($rank) $arr2["$rank"][]=$name; //print"$wrap $rank -- $name";                
     }    
-    print"<pre>";print_r($arr2);print"</pre>";    
+    //print"<pre>";print_r($arr2);print"</pre>";    
     return $arr2;
 }
 
