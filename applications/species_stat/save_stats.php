@@ -99,7 +99,7 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
             //date
                 $arr[]= "$row[date_created]";                
             //time
-                $arr[]= "$row[time_created]";                                
+                //$arr[]= "$row[time_created]";                                
             //$arr['Total number of pages']                        
                 $arr[]= $col_total + $notcol_total;
             //$arr['Total number of pages with names from CoL']    
@@ -189,7 +189,7 @@ function getDays($filename)
     {
         $arr=array();
         $arr[]='date';
-        $arr[]='time';
+        //$arr[]='time';
         $arr[]='Total number of pages';                        
         $arr[]='Total number of pages with names from CoL';    
         $arr[]='Total number of pages with names not in CoL';  
