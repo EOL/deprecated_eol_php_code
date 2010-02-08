@@ -21,10 +21,10 @@ exit;
 
 $wrap = "\n";
 $wrap = "<br>";
-/* 
+ /* 
 $resource = new Resource(1);
 print "resource id = " . $resource->id . "$wrap";
-*/
+ */
 //exit;
 
 $schema_taxa = array();
@@ -61,15 +61,16 @@ for ($i = 0; $i < count($taxa_list); $i++)
     //list($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks) = process($form_url,$validname);
     $arr = process($form_url,$validname);
     $taxa = $arr[0];
-    $classification = $arr[1];
-    $arr_images = $arr[2];
-    $html_skeletons = $arr[3];
-    $url_for_skeletons = $arr[4];
-    $arr_common_names = $arr[5];
+    $dc_source = $arr[1];
+    $classification = $arr[2];
+    $arr_images = $arr[3];
+    $html_skeletons = $arr[4];
+    $url_for_skeletons = $arr[5];
+    $html_biological_associations = $arr[6];
+    $url_for_biological_associations = $arr[7];
+    $arr_common_names = $arr[8];
+    $arr_references = $arr[9];
     
-    
-    $html_biological_associations = $arr[5];
-    $url_for_biological_associations = $arr[6];
 
     
     if(trim($taxa) == "")
@@ -85,7 +86,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
     */
     
 
-    $taxon = str_replace(" ", "_", $taxa_list[$i]);
+    $taxon = str_ireplace(" ", "_", $taxa_list[$i]);
     
     if(@$used_taxa[$taxon])
     {
@@ -107,7 +108,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
         }
 
         $taxon_parameters["scientificName"]= $taxa;
-        $taxon_parameters["source"] = $home_url;
+        $taxon_parameters["source"] = $dc_source;
         
         $taxon_parameters["commonNames"] = array();
         foreach($arr_common_names as $commonname)
@@ -115,6 +116,21 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
         }                
         
+
+        if(count($arr_references) > 0)
+        {
+            //get_str_from_anchor_tag
+            //get_href_from_anchor_tag
+            $taxon_parameters["references"] = array();
+            $referenceParameters = array();
+            foreach ($arr_references as $ref)
+            {            
+                $referenceParameters["fullReference"] = trim($ref);
+                $references[] = new SchemaReference($referenceParameters);
+            }
+            $taxon_parameters["references"] = $references;
+        }    
+
         
         $used_taxa[$taxon] = $taxon_parameters;            
     }
@@ -145,7 +161,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $desc_pic = "Name: $value[1] <br> Reference: $value[2] <br> View: $value[3] <br> Caption: $value[4]";
             $copyright="";
             
-            $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"");               
+            $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"","");               
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
         }
         //end images
@@ -153,10 +169,11 @@ for ($i = 0; $i < count($taxa_list); $i++)
         //start skeletons
         if($html_skeletons != "")
         {   $do_count++;
-            $agent_name = ""; $agent_role = ""; $image_url="";
+            $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
             $title="Skeletal Records";            
             $dc_source = $url_for_skeletons;
-            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title);                           
+            $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
+            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title,$subject);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
         }        
         //end skeletons
@@ -164,10 +181,11 @@ for ($i = 0; $i < count($taxa_list); $i++)
         //start biological_associations
         if($html_biological_associations != "")
         {   $do_count++;
-            $agent_name = ""; $agent_role = ""; $image_url="";
+            $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
             $title="Biological Associations";            
             $dc_source = $url_for_biological_associations;
-            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_biological_associations,$copyright,$image_url,$title);                           
+            $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
+            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_biological_associations,$copyright,$image_url,$title,$subject);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
         }        
         //end biological_associations
@@ -229,7 +247,7 @@ function img_href_src($str)
     
 }
 
-function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title)   
+function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title,$subject)   
 {        
     //$description = "<![CDATA[ $description ]]>";
     $dataObjectParameters = array();
@@ -242,9 +260,8 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         
-        $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";        
-        //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement";        
-        //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Diseases";
+        $subjectParameters["label"] = $subject;
+        //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";        
         
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
         //end subject            
@@ -376,6 +393,8 @@ function get_tabular_data($url,$item)
 
     global $wrap;
     
+    //exit("<hr>$url");
+    
     $table = Functions::get_remote_file($url);                
     
     if      ($item == "synonyms")                   $beg='<TH><B>Authorship</b></TH>'; 
@@ -386,17 +405,19 @@ function get_tabular_data($url,$item)
     elseif  ($item == "common_names")               $beg='<TBODY>'; 
     
     if    ($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
-    elseif($item == "classification")   $end1='</TBODY>';
+    elseif($item == "common_names")     $end1='</TBODY>';
     else                                $end1='</table>'; 
 
 //elseif  ($item == "biological_associations")    $end1='</TABLE>';     
     
     $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
-    
-    $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
+
+    if($item != "common_names") $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
         
-    $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
-                                                       
+    $temp = str_ireplace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
+    $temp = str_ireplace('<TR class="common2">','<tr>',$temp);
+    
+                                                           
     //print $temp; exit;
     
     $temp = str_ireplace('<tr>' , "", $temp);	
@@ -417,8 +438,7 @@ function get_tabular_data($url,$item)
         $str=strip_tags($str,"<a>");
         $arr2 = explode("***", $str);    
         
-        
-        //$temp = str_replace(array("","",""), "", $temp);			
+        //$temp = str_ireplace(array("","",""), "", $temp);			
 
         $arr_records[]=$arr2;
     }
@@ -436,7 +456,7 @@ function get_images($url)
     
     $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
     $temp = substr($temp,0,strlen($temp)-5);//to remove the '<tr>' at the end of the string    
-    $temp = str_replace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
+    $temp = str_ireplace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
 
     //print $temp; exit;
     
@@ -565,6 +585,27 @@ function parse_contents($str)
             print"$wrap [<a href='$url_for_references'>references</a>]";    
             $arr_references = get_tabular_data($url_for_references,"references");            
 
+            //start process
+            $arr=array();
+            foreach ($arr_references as $value)
+            {
+                $temp="";
+                foreach ($value as $item)
+                {
+                    $temp .= "." . $item;
+                }
+                
+                //<a href="reference_detail.cfm?ref_number=58&type=Article"> 
+                $temp = str_ireplace("reference_detail.cfm",$site_url . "reference_detail.cfm",$temp);
+                
+                $arr["$temp"]=1;
+                
+            }
+            $arr_references = array_keys($arr);
+            print"<hr>"; print_r($arr_references); //exit;
+            //end process
+
+
         }else print"$wrap no references";   
 
     //end url for references
@@ -586,12 +627,11 @@ function parse_contents($str)
             {
                 $temp = strtolower($value[0]);
                 $temp = trim(get_str_from_anchor_tag($temp));
+                print"[$temp]";
                 $arr["$temp"]=1;
             }
             $arr_common_names = array_keys($arr);
-            print"<hr>";
-            print_r($arr_common_names);
-            exit;
+            print"<hr>"; print_r($arr_common_names); //exit;
             //end process
                         
         }else print"$wrap no common_names";   
@@ -636,10 +676,12 @@ function parse_contents($str)
     //exit("<hr>ditox");
     //========================================================================================	       
     //return array ($id,$image_url,$description,$desc_pic,$desc_taxa,$categories,$taxa,$copyright,$providers,$creation_date,$photo_credit,$outlinks);      
-    return array($taxa,$arr_classification,$arr_images
+    return array($taxa,$url_for_main_menu
+                    ,$arr_classification,$arr_images
                     ,$html_skeletons,$url_for_skeletons
                     ,$html_biological_associations,$url_for_biological_associations
                     ,$arr_common_names
+                    ,$arr_references
                 );
 }//function parse_contents($contents)
 function arr2html($arr_data,$arr_fields)
@@ -692,10 +734,17 @@ function parse_classification($arr)
     return $arr2;
 }
 
+
 function get_str_from_anchor_tag($str)
 {
     $beg='">'; $end1='</a>'; 
-    return trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));                                  
+    return trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));                                  
+}
+function get_href_from_anchor_tag($str)
+{
+    //      <a href="reference_detail.cfm?ref_number=58&type=Article"> 
+    $beg='href="'; $end1='">'; 
+    return trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));//exist on first match = true
 }
 
 function cURL_it($validname,$url)
@@ -794,7 +843,7 @@ function array_trim($a,$len)
 }
 function clean_str($str)
 {    
-    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
     return $str;
 }
 
