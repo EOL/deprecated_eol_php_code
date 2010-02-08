@@ -21,10 +21,10 @@ exit;
 
 $wrap = "\n";
 $wrap = "<br>";
- /* 
+// /* 
 $resource = new Resource(1);
 print "resource id = " . $resource->id . "$wrap";
- */
+// */
 //exit;
 
 $schema_taxa = array();
@@ -349,9 +349,10 @@ function get_taxa_list($file)
         
 //         /* for debug
         //$sn = "Paranthosactis denhartogi";//has classification
-        $sn = "Zoanthus sociatus";//has skeleton, common names, biological associations
+        //$sn = "Zoanthus sociatus";//has skeleton, common names, biological associations
         //$sn = "Favites abdita";//has skeleton
         //$sn = "Urticina crassicornis";//has nematocysts
+        $sn = "Abyssopathes lyra";//has images
         if(trim($sciname) == $sn)
         {
             print"$wrap $sciname";
