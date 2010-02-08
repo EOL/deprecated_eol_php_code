@@ -1,15 +1,17 @@
 <?php
-//define("ENVIRONMENT", "staging"); 
+define("ENVIRONMENT", "staging"); 
 //define("ENVIRONMENT", "eol_statistics"); 
+//define("ENVIRONMENT", "slave_32"); 
 
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
+
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //$mysqli2 = $mysqli;
-//$mysqli2 = load_mysql_environment('staging');        
+$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
 //$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
@@ -121,7 +123,7 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
 
 function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed)
 {
-    //global $mysqli2;
+    global $mysqli2;
       global $mysqli;
     
     //start get count_of_taxa_pages viewed during the month, etc.
@@ -139,7 +141,8 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     google_analytics_partner_taxa.`year` = $year AND
     google_analytics_partner_taxa.`month` = $month ";        
     //$mysqli2
-    $result2 = $mysqli->query($query);    
+    $result2 = $mysqli2->query($query);    
+    //print"\n $query";
     $row2 = $result2->fetch_row();            
         
     $page_views         = $row2[0];
@@ -166,22 +169,28 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     
     if($agent_id == 38205)//BHL
     {           
-        $query = "Select distinct tc.id
+        $query = "SELECT COUNT(DISTINCT(tc.id)) count 
         from taxon_concepts tc 
-        inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-        inner JOIN page_names pn on (tcn.name_id=pn.name_id)
-        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");                 
+        JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
+        JOIN page_names pn on (tcn.name_id=pn.name_id)
+        where tc.supercedure_id=0 and tc.published=1 ";
+        //removed and tc.vetted_id <> " . Vetted::find("untrusted");                 
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
+        /*
         $query = "Select Count(taxon_concepts.id) 
         From hierarchy_entries
-        Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
+        Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
         Where
         hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
-        taxon_concepts.published        = 1 AND
-        taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
+        taxon_concepts.published        = 1 AND        
         taxon_concepts.supercedure_id   = 0 ";
+        //removed taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
+        */
+
+        $query = "SELECT COUNT(he.taxon_concept_id) count FROM hierarchy_entries he 
+        WHERE he.hierarchy_id=".Hierarchy::col_2009();        
         
         //print "<hr>$query<hr>";exit;        
     }
@@ -214,8 +223,8 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     $result2 = $mysqli->query($query);            
     $row2 = $result2->fetch_row();                
     
-    if($agent_id == 11) $arr[] = $row2[0]; //count of taxa pages
-    else                $arr[] = $result2->num_rows; //count of taxa pages
+    if($agent_id == 11 or $agent_id == 38205) $arr[] = $row2[0]; //count of taxa pages
+    else                                      $arr[] = $result2->num_rows; //count of taxa pages
 
     //ditox dapat my inner join sa goolge_page_stats table
     $query="Select Count(google_analytics_partner_taxa.taxon_concept_id)
@@ -236,18 +245,19 @@ function get_sql_for_partners_with_published_data()
     $query="Select distinct agents.id From agents
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
-    Where 1 = 1 and harvest_events.published_at is not null "; 
+    Where 1 = 1 and harvest_events.published_at is not null 
+    and agents.id not in(11,38205) "; 
     //$query .= " and  "; 
     //$query .= " and agents.id = 2 "; //debug FishBase
     $query .= " order by agents.full_name ";    
-    $query .= " limit 2 "; //debug
+    //$query .= " limit 2 "; //debug
     return $query;
 }
 
 function save_agent_monthly_summary($year_month)
 {
       global $mysqli;
-    //global $mysqli2;    
+    global $mysqli2;    
 
     $year =intval(substr($year_month,0,4));
     $month=intval(substr($year_month,5,2));
@@ -263,15 +273,15 @@ function save_agent_monthly_summary($year_month)
     $num_rows = $result->num_rows; $i=0;
     while($result && $row=$result->fetch_assoc())	
     {
-
-        $time_start = microtime(1);
-    
+        $time_start = microtime(1);    
         $i++;
+        
         echo"agent id = $row[id] $i of $num_rows ";        
         $arr = get_count_of_taxa_pages_per_partner($row["id"],$year,$month);
-            $count_of_taxa_pages = $arr[0];
+            $count_of_taxa_pages        = $arr[0];
             $count_of_taxa_pages_viewed = $arr[1];        
-        $arr = get_monthly_summaries_per_partner($row["id"],$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
+            
+        $arr  = get_monthly_summaries_per_partner($row["id"],$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
         $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                        
         
         $elapsed_time_in_sec = microtime(1)-$time_start;
@@ -296,7 +306,7 @@ function save_agent_monthly_summary($year_month)
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,chr(9),"txt");                
     //=================================================================
     //$mysqli2
-    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' 
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' 
     INTO TABLE google_analytics_partner_summaries");        
     //=================================================================
 
@@ -308,15 +318,19 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
     if($agent_id == 38205)//BHL
     {   
         $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
-        from taxon_concepts tc inner JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-        inner JOIN page_names pn on (tcn.name_id=pn.name_id) 
-        Inner Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id        
-        where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . " 
+        from taxon_concepts tc 
+        JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
+        JOIN page_names pn on (tcn.name_id=pn.name_id) 
+        Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id        
+        where tc.supercedure_id=0 and tc.published=1 
         and gaps.month=$month and gaps.year=$year ";
+        //removed and tc.vetted_id <> " . Vetted::find("untrusted") . " 
         //$query .= " LIMIT 1 "; //debug
+
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
+        /*
         $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
         From hierarchy_entries
         Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
@@ -326,6 +340,14 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         taxon_concepts.published        = 1 AND
         taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
         taxon_concepts.supercedure_id   = 0 
+        and gaps.month=$month and gaps.year=$year ";
+        */
+        
+        $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
+        From hierarchy_entries
+        Inner Join google_analytics_page_stats gaps ON hierarchy_entries.taxon_concept_id = gaps.taxon_concept_id
+        Where
+        hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
         and gaps.month=$month and gaps.year=$year ";
 
         //print"<hr>$query<hr>"; exit;
@@ -356,7 +378,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
 function save_agent_taxa($year_month)
 {
       global $mysqli;
-    //global $mysqli2;    
+    global $mysqli2;    
 
     $year =intval(substr($year_month,0,4));
     $month=intval(substr($year_month,5,2));    
@@ -418,9 +440,9 @@ function save_agent_taxa($year_month)
     //query 4,5 /* not needed anymore */
     //query 6,7,8
     //$mysqli2
-    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa.txt'     INTO TABLE google_analytics_partner_taxa");        
-    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt' INTO TABLE google_analytics_partner_taxa");        
-    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_col.txt' INTO TABLE google_analytics_partner_taxa");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa.txt'     INTO TABLE google_analytics_partner_taxa");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt' INTO TABLE google_analytics_partner_taxa");        
+    $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_col.txt' INTO TABLE google_analytics_partner_taxa");        
     //=================================================================
 
     //start query9,10,11,12 => start3.php
@@ -451,7 +473,7 @@ function get_sciname_from_tc_id($tc_id)
 
 function save_eol_taxa_google_stats($month,$year)
 {
-    //global $mysqli2;
+    global $mysqli2;
       global $mysqli;
     
     $year_month = $year . "_" . $month;
@@ -487,7 +509,7 @@ function save_eol_taxa_google_stats($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=1000; //debug
+        $range=5000; //debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
@@ -510,7 +532,7 @@ function save_eol_taxa_google_stats($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ $continue=false;
+            /* for debugging */ //$continue=false;
         
             $str = "";    
             foreach($data as $metric => $count) 
@@ -597,7 +619,7 @@ function save_eol_taxa_google_stats($month,$year)
 
         //print"ditox";   
         //$mysqli2     
-        $update = $mysqli->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
+        $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
        
     }
     else 
@@ -614,15 +636,15 @@ function create_tables()
 
 function initialize_tables_4dmonth($year,$month)
 {	
-    //global $mysqli2;    
+    global $mysqli2;    
       global $mysqli;
 
     //$month=intval($month);
     //$mysqli2
-    $query="delete from `google_analytics_page_stats`        where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);        
-    $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);    		
-    $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);            
-    $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli->query($query);            
+    $query="delete from `google_analytics_page_stats`        where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
+    $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
+    $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
+    $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
 }//function initialize_tables_4dmonth()
 
 
