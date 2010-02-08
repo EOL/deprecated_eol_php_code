@@ -1,6 +1,6 @@
 <?php
 //define("ENVIRONMENT", "staging"); 
-define("ENVIRONMENT", "eol_statistics"); 
+//define("ENVIRONMENT", "eol_statistics"); 
 
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
