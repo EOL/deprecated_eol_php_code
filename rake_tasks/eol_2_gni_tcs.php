@@ -2,8 +2,10 @@
 <?php
 
 /*
-rundate 2009 09 17: 8286031 | unique names 1535661
-rundate 2009 11 25: 8667699 | unique names 1572382
+rundate     processed   unique names    recs in GNI
+2009 09 17: 8286031     1535661
+2009 11 25: 8667699     1572382         1,440,818
+2010 02 05: 6299946     1789269         1,779,942
 */
 
 //define("ENVIRONMENT", "slave_32"); //comment if to put in BEAST
