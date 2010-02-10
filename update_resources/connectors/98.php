@@ -6,7 +6,7 @@ connector for hexacorallians
 
 //exit;
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -20,7 +20,7 @@ exit;
 */
 
 $wrap = "\n";
-$wrap = "<br>";
+//$wrap = "<br>";
 
 // /* 
 $resource = new Resource(98);
@@ -362,11 +362,12 @@ function get_taxa_list($file)
         //$sn = "Urticina crassicornis"; Verrillactis paguri (Stimpson in Verrill, 1869) //has nematocysts
         //$sn = "Abyssopathes lyra";//has images
 
-        //$sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra","Verrillactis paguri");
+        $sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra","Verrillactis paguri","Montastraea annularis");
         //$sn = array("Verrillactis paguri","Urticina crassicornis");
         //$sn = array("Paranthosactis denhartogi", "Zoanthus sociatus");
-        $sn = array("Monactis vestita"); //has all specimens
-        //$sn = array("Favites abdita","Zoanthus sociatus");
+        //$sn = array("Monactis vestita"); //has all specimens
+        //Montastraea annularis  with common names and classification
+        //$sn = array("Montastraea annularis");
         if (in_array(trim($sciname), $sn)) 
         {
             print"$wrap $sciname";
@@ -419,15 +420,21 @@ function get_tabular_data($url,$item)
     elseif  ($item == "classification")             $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
     elseif  ($item == "common_names")               $beg='<TBODY>';     
     elseif  ($item == "nematocysts")               $beg='<th width="60">State</th>'; 
-    elseif  ($item == "specimens")                 $beg='<th>Source </th>'; 
+    //elseif  ($item == "specimens")                 $beg='<th>Source </th>'; 
     
     if    ($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
     elseif($item == "common_names")     $end1='</TBODY>';
     else                                $end1='</table>'; 
 
-
-    
     $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
+    
+    if($item == "classification" and $temp == "")    
+    {
+        $beg='<TH>Current classification</TH>';
+        $end='</td>';
+        $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
+    }
+    
 
     if( $item != "common_names" and
         $item != "specimens"
@@ -442,7 +449,11 @@ function get_tabular_data($url,$item)
                                 '<tr class="listrow1" >'), '<tr>', $temp);			                                 
                                 
     $temp = str_ireplace('<TR class="common2">','<tr>',$temp);
-    
+
+    if($item == "specimens")// to fix the weird <tr> withouth ending </tr>
+    {
+        $temp = str_ireplace('<tr>','</tr><tr>',$temp);        
+    }    
                                                            
     //print $temp; exit;
     
@@ -461,9 +472,9 @@ function get_tabular_data($url,$item)
         $str = trim(str_ireplace('</td>' , "***", $str));	
         if($item != "classification") $str = substr($str,0,strlen($str)-3);//remove last '***'
         
-        $str=strip_tags($str,"<a>");
+        $str=strip_tags($str,"<a><b><B><br><BR>");
         
-        $str = htmlspecialchars_decode($str);
+        //$str = htmlspecialchars_decode($str);
         
         $arr2 = explode("***", $str);    
 
@@ -715,6 +726,7 @@ function parse_contents($str)
 
 
     //get url for specimens
+    /*
         $url_for_specimens="";
         //all_specimens_xml.cfm?
         $beg='all_specimens_xml.cfm'; $end1='">'; 
@@ -735,8 +747,8 @@ function parse_contents($str)
             $arr_specimens = array_keys($arr);
             print"<hr>"; print_r($arr_specimens); exit;
             //end process
-                        
         }else print"$wrap no specimens";   
+    */
     //end url for specimens
 
 
@@ -790,12 +802,11 @@ function parse_classification($arr)
     foreach ($arr as $str) 
     {
         $beg='<b>'; $end1='</b>'; 
-        $rank = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
-        $beg='">'; $end1='</a>'; 
-        $name = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));                    
+        $rank = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));                    
+        $name = get_str_from_anchor_tag($str);
         if($rank) $arr2["$rank"][]=$name; //print"$wrap $rank -- $name";                
     }    
-    //print"<pre>";print_r($arr2);print"</pre>";    
+    print"<pre>";print_r($arr2);print"</pre>";    //exit;
     return $arr2;
 }
 
