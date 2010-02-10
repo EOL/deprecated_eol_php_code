@@ -364,6 +364,8 @@ function get_taxa_list($file)
 
         $sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra","Verrillactis paguri");
         //$sn = array("Verrillactis paguri","Urticina crassicornis");
+        //$sn = array("Paranthosactis denhartogi", "Zoanthus sociatus");
+        //$sn = array("Verrillactis paguri");
         if (in_array(trim($sciname), $sn)) 
         {
             print"$wrap $sciname";
@@ -452,6 +454,9 @@ function get_tabular_data($url,$item)
         if($item != "classification") $str = substr($str,0,strlen($str)-3);//remove last '***'
         
         $str=strip_tags($str,"<a>");
+        
+        $str = htmlspecialchars_decode($str);
+        
         $arr2 = explode("***", $str);    
         
         //$temp = str_ireplace(array("","",""), "", $temp);			
@@ -689,7 +694,7 @@ function parse_contents($str)
         {   $url_for_nematocysts = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_nematocysts'>nematocysts</a>]";    
             $arr_nematocysts = get_tabular_data($url_for_nematocysts,"nematocysts");            
-            $arr_fields = array("Location","Image","Cnidae Type","Range of <br> Lengths (µm)"," ","Range of <br >Widths (µm)","n","N","State");            
+            $arr_fields = array("Location","Image","Cnidae Type","Range of <br> Lengths (m)"," ","Range of <br >Widths (m)","n","N","State");            
             $html_nematocysts = arr2html($arr_nematocysts,$arr_fields,$url_for_main_menu);            
             $html_nematocysts = "<div style='font-size : small;'>$html_nematocysts</div>";
             //to have the 2nd row have colspan=9
