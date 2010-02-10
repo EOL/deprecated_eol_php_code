@@ -22,10 +22,10 @@ exit;
 $wrap = "\n";
 //$wrap = "<br>";
 
- /* 
+// /* 
 $resource = new Resource(98);
 print "resource id = " . $resource->id . "$wrap";
- */
+// */
 //exit;
 
 $schema_taxa = array();
