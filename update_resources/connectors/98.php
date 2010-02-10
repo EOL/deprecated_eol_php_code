@@ -22,10 +22,10 @@ exit;
 $wrap = "\n";
 //$wrap = "<br>";
 
-// /* 
+ /* 
 $resource = new Resource(98);
 print "resource id = " . $resource->id . "$wrap";
-// */
+ */
 //exit;
 
 $schema_taxa = array();
@@ -71,8 +71,8 @@ for ($i = 0; $i < count($taxa_list); $i++)
     $url_for_biological_associations = $arr[7];
     $arr_common_names = $arr[8];
     $arr_references = $arr[9];
-    
-
+    $html_nematocysts = $arr[10];
+    $url_for_nematocysts = $arr[11];
     
     if(trim($taxa) == "")
     {   
@@ -86,7 +86,6 @@ for ($i = 0; $i < count($taxa_list); $i++)
     $desc_taxa = utf8_encode($desc_taxa);
     */
     
-
     $taxon = str_ireplace(" ", "_", $taxa_list[$i]);
     
     if(@$used_taxa[$taxon])
@@ -116,7 +115,6 @@ for ($i = 0; $i < count($taxa_list); $i++)
         {            
             $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
         }                
-        
 
         if(count($arr_references) > 0)
         {
@@ -131,8 +129,6 @@ for ($i = 0; $i < count($taxa_list); $i++)
             }
             $taxon_parameters["references"] = $references;
         }    
-
-        
         $used_taxa[$taxon] = $taxon_parameters;            
     }
 
@@ -159,6 +155,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             //*/
             $agent_name="";
             $agent_role="";
+            $value[1] = strip_tags($value[1]);
             $desc_pic = "Name: $value[1] <br> Reference: $value[2] <br> View: $value[3] <br> Caption: $value[4]";
             $copyright="";
             
@@ -191,6 +188,17 @@ for ($i = 0; $i < count($taxa_list); $i++)
         }        
         //end biological_associations
 
+        //start nematocysts
+        if($html_nematocysts != "")
+        {   $do_count++;
+            $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
+            $title="Nematocysts";            
+            $dc_source = $url_for_nematocysts;
+            $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
+            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_nematocysts,$copyright,$image_url,$title,$subject);
+            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+        }        
+        //end skeletons
         
         /* no text descriptions per Katja
         if($desc_taxa != "")
@@ -262,8 +270,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         $subjectParameters = array();
         
         $subjectParameters["label"] = $subject;
-        //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";        
-        
+                
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
         //end subject            
             
@@ -352,10 +359,11 @@ function get_taxa_list($file)
         //$sn = "Paranthosactis denhartogi";//has classification
         //$sn = "Zoanthus sociatus";//has skeleton, common names, biological associations
         //$sn = "Favites abdita";//has skeleton
-        //$sn = "Urticina crassicornis";//has nematocysts
+        //$sn = "Urticina crassicornis"; Verrillactis paguri (Stimpson in Verrill, 1869) //has nematocysts
         //$sn = "Abyssopathes lyra";//has images
 
-        $sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra");
+        $sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra","Verrillactis paguri");
+        //$sn = array("Verrillactis paguri","Urticina crassicornis");
         if (in_array(trim($sciname), $sn)) 
         {
             print"$wrap $sciname";
@@ -407,6 +415,10 @@ function get_tabular_data($url,$item)
     elseif  ($item == "biological_associations")    $beg='<TH COLSPAN="2">Algal symbionts</TH>'; 
     elseif  ($item == "classification")             $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
     elseif  ($item == "common_names")               $beg='<TBODY>'; 
+    
+    elseif  ($item == "nematocysts")               $beg='<th width="60">State</th>'; 
+    
+    
     
     if    ($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
     elseif($item == "common_names")     $end1='</TBODY>';
@@ -598,21 +610,15 @@ function parse_contents($str)
                 {
                     $temp .= "." . $item;
                 }
-                $temp = trim(substr($temp,1,strlen($temp)));//to remove the '.' on the first char
-                
+                $temp = trim(substr($temp,1,strlen($temp)));//to remove the '.' on the first char                
                 //<a href="reference_detail.cfm?ref_number=58&type=Article"> 
-                $temp = str_ireplace("reference_detail.cfm",$site_url . "reference_detail.cfm",$temp);
-                
-                $arr["$temp"]=1;
-                
+                $temp = str_ireplace("reference_detail.cfm",$site_url . "reference_detail.cfm",$temp);                
+                $arr["$temp"]=1;                
             }
             $arr_references = array_keys($arr);
             //print"<hr>"; print_r($arr_references); //exit;
             //end process
-
-
         }else print"$wrap no references";   
-
     //end url for references
 
     //get url for common_names
@@ -650,32 +656,46 @@ function parse_contents($str)
         $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
         $html_skeletons="";
         if($temp != "") 
-        {
-            $url_for_skeletons = $site_url . $beg . $temp;
+        {   $url_for_skeletons = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_skeletons'>skeletons</a>]";    
             $arr_skeletons = get_tabular_data($url_for_skeletons,"skeletons");            
             $arr_fields = array("Author","Skeleton?","Mineral or Organic?","Mineral","Percent Magnesium");
-            $html_skeletons = arr2html($arr_skeletons,$arr_fields);            
+            $html_skeletons = arr2html($arr_skeletons,$arr_fields,$url_for_main_menu);            
+            $html_skeletons = "<div style='font-size : small;'>$html_skeletons</div>";
         }else print"$wrap no skeletons";   
     //end url for skeleton
 
     //get url for biological_associations
-        //e.g. for species () with biological_associations
         $url_for_biological_associations="";
-        //
         $beg='symbiont_info.cfm'; $end1='">'; 
         $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
         $html_biological_associations="";
         if($temp != "") 
-        {
-            $url_for_biological_associations = $site_url . $beg . $temp;
+        {   $url_for_biological_associations = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_biological_associations'>biological_associations</a>]";    
             $arr_biological_associations = get_tabular_data($url_for_biological_associations,"biological_associations");            
             $arr_fields = array("Algal symbionts");
-            $html_biological_associations = arr2html($arr_biological_associations,$arr_fields);            
+            $html_biological_associations = arr2html($arr_biological_associations,$arr_fields,$url_for_main_menu);            
+            $html_biological_associations = "<div style='font-size : small;'>$html_biological_associations</div>";
         }else print"$wrap no biological_associations";   
     //end url for biological_associations
 
+    //get url for nematocysts
+        $url_for_nematocysts="";
+        $beg='cnidae_information.cfm'; $end1='">';         
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        $html_nematocysts="";
+        if($temp != "") 
+        {   $url_for_nematocysts = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_nematocysts'>nematocysts</a>]";    
+            $arr_nematocysts = get_tabular_data($url_for_nematocysts,"nematocysts");            
+            $arr_fields = array("Location","Image","Cnidae Type","Range of <br> Lengths (µm)"," ","Range of <br >Widths (µm)","n","N","State");            
+            $html_nematocysts = arr2html($arr_nematocysts,$arr_fields,$url_for_main_menu);            
+            $html_nematocysts = "<div style='font-size : small;'>$html_nematocysts</div>";
+            //to have the 2nd row have colspan=9
+            $html_nematocysts = str_ireplace("</th></tr><tr><td>", "</th></tr><tr><td colspan='9'>", $html_nematocysts);
+        }else print"$wrap no nematocysts";   
+    //end url for nematocysts
 
     //print"<hr>$main_menu"; 
     //exit("<hr>ditox");
@@ -687,19 +707,18 @@ function parse_contents($str)
                     ,$html_biological_associations,$url_for_biological_associations
                     ,$arr_common_names
                     ,$arr_references
+                    ,$html_nematocysts,$url_for_nematocysts
                 );
 }//function parse_contents($contents)
-function arr2html($arr_data,$arr_fields)
+function arr2html($arr_data,$arr_fields,$url_for_main_menu)
 {
-    $html="<table border='1' cellpadding='4' cellspacing='0'>";
-    
+    $html="<a target='hexacorallians' href='$url_for_main_menu'>More info</a><br><table style='font-size : small;' border='1' cellpadding='4' cellspacing='0'>";    
     $html .="<tr>";   
     foreach ($arr_fields as $value)
     {
         $html .="<th>$value</th>";      
     }
-    $html .="</tr>";   
-    
+    $html .="</tr>";       
     foreach ($arr_data as $value)
     {
         $html .="<tr>";   
@@ -713,11 +732,9 @@ function arr2html($arr_data,$arr_fields)
             $html .="<td>$item</td>";
         };      
         $html .="</tr>";   
-    }
-    
+    }    
     $html .="</table>";   
-    return $html;
-    
+    return $html;    
 }
 function parse_classification($arr)
 {
