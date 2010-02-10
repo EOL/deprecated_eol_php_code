@@ -99,12 +99,12 @@ for ($i = 0; $i < count($taxa_list); $i++)
         
         if(isset($classification["Class"][0]))        
         {
-            $taxon_parameters["kingdom"]    = $classification["Kingdom"][0];
-            $taxon_parameters["phylum"]     = $classification["Phylum"][0];
-            $taxon_parameters["class"]      = $classification["Class"][0];
-            $taxon_parameters["order"]      = $classification["Order"][0];
-            $taxon_parameters["family"]     = $classification["Family"][0];
-            $taxon_parameters["genus"]      = $classification["Genus"][0];
+            $taxon_parameters["kingdom"]    = @$classification["Kingdom"][0];
+            $taxon_parameters["phylum"]     = @$classification["Phylum"][0];
+            $taxon_parameters["class"]      = @$classification["Class"][0];
+            $taxon_parameters["order"]      = @$classification["Order"][0];
+            $taxon_parameters["family"]     = @$classification["Family"][0];
+            $taxon_parameters["genus"]      = @$classification["Genus"][0];
         }
 
         $taxon_parameters["scientificName"]= $taxa;
