@@ -6,7 +6,7 @@ connector for hexacorallians
 
 //exit;
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -20,7 +20,7 @@ exit;
 */
 
 $wrap = "\n";
-//$wrap = "<br>";
+$wrap = "<br>";
 
 // /* 
 $resource = new Resource(98);
@@ -168,7 +168,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
         if($html_skeletons != "")
         {   $do_count++;
             $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
-            $title="Skeletal Records";            
+            $title="Biology: Skeleton";            
             $dc_source = $url_for_skeletons;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
             $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title,$subject);
@@ -192,7 +192,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
         if($html_nematocysts != "")
         {   $do_count++;
             $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
-            $title="Nematocysts";            
+            $title="Biology: Nematocysts";            
             $dc_source = $url_for_nematocysts;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
             $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_nematocysts,$copyright,$image_url,$title,$subject);
@@ -362,10 +362,11 @@ function get_taxa_list($file)
         //$sn = "Urticina crassicornis"; Verrillactis paguri (Stimpson in Verrill, 1869) //has nematocysts
         //$sn = "Abyssopathes lyra";//has images
 
-        $sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra","Verrillactis paguri");
+        //$sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra","Verrillactis paguri");
         //$sn = array("Verrillactis paguri","Urticina crassicornis");
         //$sn = array("Paranthosactis denhartogi", "Zoanthus sociatus");
-        //$sn = array("Verrillactis paguri");
+        $sn = array("Monactis vestita"); //has all specimens
+        //$sn = array("Favites abdita","Zoanthus sociatus");
         if (in_array(trim($sciname), $sn)) 
         {
             print"$wrap $sciname";
@@ -416,23 +417,30 @@ function get_tabular_data($url,$item)
     elseif  ($item == "skeletons")                  $beg='<th>Percent Magnesium</th>'; 
     elseif  ($item == "biological_associations")    $beg='<TH COLSPAN="2">Algal symbionts</TH>'; 
     elseif  ($item == "classification")             $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
-    elseif  ($item == "common_names")               $beg='<TBODY>'; 
-    
+    elseif  ($item == "common_names")               $beg='<TBODY>';     
     elseif  ($item == "nematocysts")               $beg='<th width="60">State</th>'; 
-    
-    
+    elseif  ($item == "specimens")                 $beg='<th>Source </th>'; 
     
     if    ($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
     elseif($item == "common_names")     $end1='</TBODY>';
     else                                $end1='</table>'; 
 
-//elseif  ($item == "biological_associations")    $end1='</TABLE>';     
+
     
     $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
 
-    if($item != "common_names") $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
+    if( $item != "common_names" and
+        $item != "specimens"
+      ) $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
         
-    $temp = str_ireplace(array("<tr class=listrow1 >","<tr class=listrow2 >","<tr  class=listrow2  >"), "<tr>", $temp);			
+    $temp = str_ireplace(array( '<tr class=listrow1 >',
+                                '<tr class=listrow2 >',
+                                '<tr  class=listrow2  >',
+                                '<tr  class="listrow2"  >',
+                                '<tr class="listrow1" >',
+                                '<tr  class="listrow2"  >',
+                                '<tr class="listrow1" >'), '<tr>', $temp);			                                 
+                                
     $temp = str_ireplace('<TR class="common2">','<tr>',$temp);
     
                                                            
@@ -458,12 +466,10 @@ function get_tabular_data($url,$item)
         $str = htmlspecialchars_decode($str);
         
         $arr2 = explode("***", $str);    
-        
-        //$temp = str_ireplace(array("","",""), "", $temp);			
 
         $arr_records[]=$arr2;
     }
-    //print"<pre>";print_r($arr_records);print"</pre>";
+    print"<pre>";print_r($arr_records);print"</pre>"; 
     return $arr_records;
 }
 
@@ -618,11 +624,16 @@ function parse_contents($str)
                 $temp = trim(substr($temp,1,strlen($temp)));//to remove the '.' on the first char                
                 //<a href="reference_detail.cfm?ref_number=58&type=Article"> 
                 $temp = str_ireplace("reference_detail.cfm",$site_url . "reference_detail.cfm",$temp);                
+                
+                //if we want to remove the anchor 
+                $temp = get_str_from_anchor_tag($temp);
+                
                 $arr["$temp"]=1;                
             }
             $arr_references = array_keys($arr);
-            //print"<hr>"; print_r($arr_references); //exit;
+            print"<hr><hr>"; print_r($arr_references); //exit;
             //end process
+            
         }else print"$wrap no references";   
     //end url for references
 
@@ -701,6 +712,33 @@ function parse_contents($str)
             $html_nematocysts = str_ireplace("</th></tr><tr><td>", "</th></tr><tr><td colspan='9'>", $html_nematocysts);
         }else print"$wrap no nematocysts";   
     //end url for nematocysts
+
+
+    //get url for specimens
+        $url_for_specimens="";
+        //all_specimens_xml.cfm?
+        $beg='all_specimens_xml.cfm'; $end1='">'; 
+        $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
+        $arr_specimens=array();
+        if($temp != "") 
+        {
+            $url_for_specimens = $site_url . $beg . $temp;
+            print"$wrap [<a href='$url_for_specimens'>specimens</a>]";    
+            $arr_specimens = get_tabular_data($url_for_specimens,"specimens");                        
+            //start process
+            $arr=array();
+            foreach ($arr_specimens as $value)
+            {
+                $temp = @$value[5];
+                $arr["$temp"]=1;
+            }
+            $arr_specimens = array_keys($arr);
+            print"<hr>"; print_r($arr_specimens); exit;
+            //end process
+                        
+        }else print"$wrap no specimens";   
+    //end url for specimens
+
 
     //print"<hr>$main_menu"; 
     //exit("<hr>ditox");
