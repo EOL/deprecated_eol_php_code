@@ -1,9 +1,9 @@
 <?php
-define("ENVIRONMENT", "staging"); 
+//define("ENVIRONMENT", "staging"); 
 //define("ENVIRONMENT", "eol_statistics"); 
 //define("ENVIRONMENT", "slave_32"); 
 
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
@@ -11,7 +11,7 @@ require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //$mysqli2 = $mysqli;
-$mysqli2 = load_mysql_environment('staging');        
+//$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
 $mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
@@ -75,8 +75,6 @@ $elapsed_time_sec = microtime(1)-$timestart;
 echo "elapsed time = $elapsed_time_sec sec              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
-
-
 exit;
 
 //####################################################################################################################################
@@ -396,7 +394,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
 
 function save_agent_taxa($year_month)
 {
-      global $mysqli;
+    global $mysqli;
     global $mysqli2;    
 
     $year =intval(substr($year_month,0,4));
@@ -432,13 +430,11 @@ function save_agent_taxa($year_month)
 
         $elapsed_time_in_sec = microtime(1)-$time_start;
         echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
-
-    }
-    
+    }    
 
     //=================================================================
     //query 3
-    
+        
     echo"\n start BHL stats...\n";    
     $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(38205,$month,$year);
     $result = $mysqli->query($query);    
