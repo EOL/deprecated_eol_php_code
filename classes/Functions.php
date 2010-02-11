@@ -160,15 +160,15 @@ class Functions
         return $content_length;
     }
     
-    public static function temp_filepath($relative_from_root = false)
+    public static function temp_filepath($relative_from_root = false, $extension = 'file')
     {
         if($relative_from_root) $prefix = "";
         else $prefix = LOCAL_ROOT;
         
-        $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".file";
+        $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
         while(glob($filepath))
         {
-            $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".file";
+            $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
         }
         
         return $filepath;

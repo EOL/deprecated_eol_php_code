@@ -20,6 +20,11 @@ class DataType extends MysqlBase
         return parent::insert_fields_into(array('schema_value' => $string, 'label' => $string), Functions::class_name(__FILE__));
     }
     
+    static function find_by_label($string)
+    {
+        return parent::find_by("label", $string, Functions::class_name(__FILE__));
+    }
+    
     static function find($string)
     {
         return parent::find_by("schema_value", $string, Functions::class_name(__FILE__));

@@ -39,7 +39,7 @@ class SiteStatistics
         //$stats['time_created'] =                                    date('H:i:s');
         
         $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
-        $this->delete_old_records_from('page_stats_taxa');
+        //$this->delete_old_records_from('page_stats_taxa');
     }
     
     public function insert_data_object_stats()
@@ -55,7 +55,7 @@ class SiteStatistics
         $stats['time_created'] =                                        date('H:i:s');
         
         $this->mysqli->insert("INSERT INTO page_stats_dataobjects (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
-        $this->delete_old_records_from('page_stats_dataobjects');
+        //$this->delete_old_records_from('page_stats_dataobjects');
     }
     
     
@@ -327,7 +327,7 @@ class SiteStatistics
     public function latest_published_lifedesk_resources()
     {
         $resource_ids = array();
-        $result = $this->mysqli->query("SELECT r.id, max(he.id) max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.accesspoint_url LIKE '%lifedesks.org%' GROUP BY r.id");
+        $result = $this->mysqli->query("SELECT r.id, max(he.id) max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.accesspoint_url LIKE '%lifedesks.org%' AND he.published_at IS NOT NULL GROUP BY r.id");
         while($result && $row=$result->fetch_assoc())
         {
             $resource_ids[] = $row['max'];

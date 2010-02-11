@@ -89,7 +89,7 @@ class MysqlConnection
         return $result;
     }
     
-    function load_data_infile($path, $table, $do_transaction = true)
+    function load_data_infile($path, $table, $do_transaction = true, $commit_batches = false)
     {
         $insert_batch_size = 5000;
         if($do_transaction) $this->begin_transaction();
@@ -106,12 +106,14 @@ class MysqlConnection
             {
                 //echo "INSERT INTO `$table` VALUES (". implode("),(", $values) .")\n";
                 $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
+                if($commit_batches) $this->commit();
                 $values = array();
             }
         }
         fclose($FILE);
         
         if(count($values)) $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
+        if($commit_batches) $this->commit();
         unset($values);
         
         if($do_transaction) $this->end_transaction();
