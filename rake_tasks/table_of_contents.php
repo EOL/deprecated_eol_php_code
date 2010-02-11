@@ -1,8 +1,8 @@
 <?php
 
-define('DEBUG', true);
-define('MYSQL_DEBUG', true);
-define('ENVIRONMENT', 'integration');
+// define('DEBUG', true);
+// define('MYSQL_DEBUG', true);
+// define('ENVIRONMENT', 'integration');
 include_once(dirname(__FILE__) . "/../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];

@@ -21,6 +21,7 @@ shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
 // split the huge file into 300M chunks
 shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikipedia.xml ".dirname(__FILE__)."/files/wikipedia/part_");
 
+
 // determine the filename of the last chunk
 $last_line = exec("ls -l ".dirname(__FILE__)."/files/wikipedia");
 if(preg_match("/part_([a-z]{2})$/", trim($last_line), $arr)) $last_part = $arr[1];

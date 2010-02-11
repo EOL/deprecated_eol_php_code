@@ -10,14 +10,14 @@ $options = array("-download", "-now");
 
 if($attr != "-id" || !$id || !is_numeric($id) || ($opt1 && !in_array($opt1, $options)) || ($opt2 && !in_array($opt2, $options)))
 {
-    echo "\n\n\tforce_download.php -id [resource_id] [-download] [-now]\n\n";
+    echo "\n\n\tforce_harvest.php -id [resource_id] [-download] [-now]\n\n";
     exit;
 }
 
 
-define('DEBUG', true);
-define('MYSQL_DEBUG', true);
-define('DEBUG_TO_FILE', true);
+//define('DEBUG', true);
+//define('MYSQL_DEBUG', true);
+//define('DEBUG_TO_FILE', true);
 
 include_once(dirname(__FILE__)."/../config/start.php");
 

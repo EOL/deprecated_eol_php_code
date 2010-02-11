@@ -1,24 +1,22 @@
-#!/usr/local/bin/php
 <?php
 
 //define("MYSQL_DEBUG", true);
-$path = "";
-if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
-
-//$xml = simplexml_load_file("amphib_dump.xml",'SimpleXMLElement',LIBXML_NOCDATA);
-$xml = simplexml_load_file(LOCAL_ROOT . "temp/antweb2eol_080731.xml");
+$file = trim(Functions::get_remote_file("http://antweb.org/getEOL.do"));
+//$file = trim(Functions::get_remote_file("../../temp/ants.xml"));
+//echo "$file";
+$xml = simplexml_load_string($file);
 $taxon_index = 0;
-foreach(@$xml->taxon as $taxon)
+foreach($xml->taxon as $taxon)
 {
     $i = 0;
     $label_index = 0;
-    foreach(@$taxon->dataObject as $dataObject)
+    foreach($taxon->dataObject as $dataObject)
     {
         $i++;
         $dataObject_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
@@ -48,12 +46,13 @@ foreach(@$xml->taxon as $taxon)
     $taxon_index++;
 }
 
-
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "24.xml";
-
-$OUT = fopen($old_resource_path, "w+");
-fwrite($OUT, $xml->asXML());
-fclose($OUT);
-
+if($taxon_index)
+{
+    $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "24.xml";
+    
+    $OUT = fopen($old_resource_path, "w+");
+    fwrite($OUT, $xml->asXML());
+    fclose($OUT);
+}
 
 ?>
