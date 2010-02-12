@@ -16,7 +16,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
 $use_sql_load_infile=true;
-
+//$use_sql_load_infile=false;
 
 //start test load data infile
     /*
@@ -125,7 +125,7 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
 	for ($i = 0; $i < count($arr); $i++) 		
 	{
 		$field = $arr[$i];
-		$str .= $field . $field_separator;    //chr(9) is tab
+		$str .= $field . $field_separator;    //"\t" is tab
 	}
     //to remove last char - for field separator
     $str = substr($str,0,strlen($str)-1);
@@ -540,12 +540,13 @@ function save_eol_taxa_google_stats($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=4000; //debug
+        $range=1000; //debug
+        //$range=1;
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
         
-        $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stats.txt", "w+");
+        
         $cr = "\n";
         //$sep = ",";
         $sep = "\t"; //tab
@@ -565,11 +566,14 @@ function save_eol_taxa_google_stats($month,$year)
             if(count($data) == 0)$continue=false;        
             /* for debugging */ //$continue=false;
             
-            /* for debugging */ if($i >= 30000)$continue=false;
+            /* for debugging */ if($i >= 15000)$continue=false;
         
-            $str = "";    
+
+
             foreach($data as $metric => $count) 
             {
+                $str = "";                                
+                                
                 $i++; print "$i. \n";                
                 // /*                
                 if(true)
@@ -641,19 +645,35 @@ function save_eol_taxa_google_stats($month,$year)
                 //print "<hr>";
                 // */
                 
+            
+            $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stats.txt", "w"); // open for writing, truncate file to zero length.
+            fwrite($OUT, $str);
+            fclose($OUT);        
+            if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
+            else
+            {
+                if($str)
+                {
+                    $str = str_ireplace("\t", ",", $str);                                 
+                    $str = str_ireplace("\n", "", $str);                                 
+                    $update = $mysqli2->query("INSERT IGNORE INTO `google_analytics_page_stats` VALUES ($str)");
+                }
+            }
+            //$update = $mysqli2->load_data_infile(             "data/" . $year . "_" . $month . "/google_analytics_page_stats.txt",          "google_analytics_page_stats", true);
+
+
             }//end for loop
-            echo"\n More, please wait... \n";
+            
+
+            echo"\n More, please wait... $start_count \n";
 
             //exit;
-                        
-            fwrite($OUT, $str); // transferred out of the while
+
         }//end while
-        fclose($OUT);        
+        
 
         //print"ditox";   
         //$mysqli2     
-        if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
-        else                     $update = $mysqli2->load_data_infile(             "data/" . $year . "_" . $month . "/google_analytics_page_stats.txt",          "google_analytics_page_stats", true);
 
        
     }
@@ -694,7 +714,7 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 		for ($i = 0; $i < count($fields); $i++) 		
 		{
 			$field = $fields[$i];
-			$str .= $field . $field_separator;    // "\t" is tab
+			$str .= $field . $field_separator;    //"\t" is tab
 		}
 		$str .= "\n";    
     }
@@ -704,7 +724,7 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 		for ($i = 0; $i < count($fields); $i++) 		
 		{
 			$field = $fields[$i];
-			$str .= $row["$field"] . $field_separator;    // "\t" is tab
+			$str .= $row["$field"] . $field_separator;    //"\t" is tab
 		}
         $str .= intval(substr($year_month,0,4)) . $field_separator;
         $str .= intval(substr($year_month,5,2));//no more field separator for last item
