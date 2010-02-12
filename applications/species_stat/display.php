@@ -51,7 +51,7 @@ print"</font>
 //$qry="select * from page_stats_taxa where taxa_BHL_no_text > 0 order by date_created desc, time_created desc ";
 $qry="select * from page_stats_taxa                            order by date_created desc ";
 if($view != 3)  $qry .= "  limit 1";
-else            $qry .= "  limit 8";
+else            $qry .= "  limit 7";
 $sql = $mysqli->query($qry);
 
 if($view != 3)
@@ -424,7 +424,7 @@ if($view == 3)
     //=================================================================================================
     //start data objects
     print"<hr>";
-    $qry="select * from page_stats_dataobjects order by date_created desc limit 8";
+    $qry="select * from page_stats_dataobjects order by date_created desc limit 7";
     $sql = $mysqli->query($qry);
     $arr = array();
     $arr2 = array();    //to store the autoctr field in page_stats
