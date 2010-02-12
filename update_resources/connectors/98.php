@@ -4,9 +4,12 @@
 connector for hexacorallians
 */
 
+set_time_limit(0);
+ini_set('memory_limit','3500M');
+
 //exit;
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -355,7 +358,7 @@ function get_taxa_list($file)
         $beg='xxx'; $end1='"'; 
         $sciname = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
         
-//         /* for debug
+         /* for debug
         //$sn = "Paranthosactis denhartogi";//has classification
         //$sn = "Zoanthus sociatus";//has skeleton, common names, biological associations
         //$sn = "Favites abdita";//has skeleton
@@ -373,21 +376,21 @@ function get_taxa_list($file)
             print"$wrap $sciname";
             $arr2["$sciname"]=true; //exit;
         }
-//         */        
+         */        
         
-         /* regular routine
-        //print"$wrap $sciname";
+//         /* regular routine
+        print"$wrap $sciname";
         $arr2["$sciname"]=1;
-         */
+//         */
         
     }   
     //exit; 
     $arr = array_keys($arr2);    
     
-     /* regular routine
+//     /* regular routine
     array_splice($arr, 0, 1);   //deletes first array element
     array_pop($arr);            //deletes last array element
-     */
+//     */
     
     //print"<pre>";print_r($arr);print"</pre>";    
     //print"<hr>$str";
