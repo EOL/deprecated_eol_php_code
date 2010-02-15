@@ -21,10 +21,10 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 //$mysqli2 = $mysqli;
 //$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
-$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
+//$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
-$use_sql_load_infile=true;
-//$use_sql_load_infile=false;
+//$use_sql_load_infile=true;
+$use_sql_load_infile=false;
 
 //start test load data infile
     /*
