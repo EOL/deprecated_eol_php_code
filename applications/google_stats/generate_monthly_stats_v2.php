@@ -3,6 +3,14 @@
 //define("ENVIRONMENT", "eol_statistics"); 
 //define("ENVIRONMENT", "slave_32"); 
 
+/*
+http://127.0.0.1/eol_php_code/applications/google_stats/generate_monthly_stats_v2.php?month=12&year=2009
+
+$str="abc123,";
+print substr($str,0,strlen($str)-1);
+exit;
+*/
+
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -246,7 +254,7 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     if($agent_id == 11 or $agent_id == 38205) $arr[] = $row2[0]; //count of taxa pages
     else                                      $arr[] = $result2->num_rows; //count of taxa pages
 
-    //ditox dapat my inner join sa goolge_page_stats table
+    //dapat my inner join sa goolge_page_stats table
     $query="Select Count(google_analytics_partner_taxa.taxon_concept_id)
     From google_analytics_partner_taxa Where
     google_analytics_partner_taxa.agent_id = $agent_id AND
@@ -540,7 +548,7 @@ function save_eol_taxa_google_stats($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        $range=1000; //debug
+        $range=5000; //debug
         //$range=1;
         
         mkdir("data/" , 0777);        
@@ -564,16 +572,12 @@ function save_eol_taxa_google_stats($month,$year)
          
             $cnt++;   
             if(count($data) == 0)$continue=false;        
-            /* for debugging */ //$continue=false;
-            
-            /* for debugging */ if($i >= 15000)$continue=false;
-        
+            /* for debugging */ //$continue=false;            
+            /* for debugging */ //if($i >= 15000)$continue=false;        
 
-
+            $str = "";                                
             foreach($data as $metric => $count) 
-            {
-                $str = "";                                
-                                
+            {                                
                 $i++; print "$i. \n";                
                 // /*                
                 if(true)
@@ -627,13 +631,19 @@ function save_eol_taxa_google_stats($month,$year)
                     
                     if($taxon_id > 0)
                     {
-                        $str .= $taxon_id . $sep . 
+                    
+                        if(!$use_sql_load_infile)$str .= "(";
+                    
+                        $str .= intval($taxon_id) . $sep . 
                                 intval(substr($year_month,0,4)) . $sep .
                                 intval(substr($year_month,5,2)) . $sep .
                                 intval($count["ga:pageviews"]) . $sep . 
                                 intval($count["ga:uniquePageviews"]) . $sep . 
                                 "'" . $averate_time_on_page . "'" 
                                 . $cr;
+                                
+                        if(!$use_sql_load_infile)$str .= "),";
+                        
                                 /* 
                                 $bounce_rate . $sep . 
                                 $percent_exit . $sep . 
@@ -645,6 +655,9 @@ function save_eol_taxa_google_stats($month,$year)
                 //print "<hr>";
                 // */
                 
+            }//end for loop
+            
+
             
             $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stats.txt", "w"); // open for writing, truncate file to zero length.
             fwrite($OUT, $str);
@@ -652,19 +665,26 @@ function save_eol_taxa_google_stats($month,$year)
             if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
             else
             {
+                                   //$update = $mysqli2->load_data_infile(             "data/" . $year . "_" . $month . "/google_analytics_page_stats.txt",          "google_analytics_page_stats", true);
                 if($str)
                 {
                     $str = str_ireplace("\t", ",", $str);                                 
                     $str = str_ireplace("\n", "", $str);                                 
-                    $update = $mysqli2->query("INSERT IGNORE INTO `google_analytics_page_stats` VALUES ($str)");
+                    
+                    //ditox
+                    $str = substr($str,0,strlen($str)-1);//to remove the last char which is a "," comma.
+                       
+                    $update = $mysqli2->query("INSERT IGNORE INTO `google_analytics_page_stats` VALUES $str ");
+
                 }
             }
-            //$update = $mysqli2->load_data_infile(             "data/" . $year . "_" . $month . "/google_analytics_page_stats.txt",          "google_analytics_page_stats", true);
-
-
-            }//end for loop
             
+                    $update = $mysqli2->query("select count(*) total From google_analytics_page_stats ");
+                    $rowx = $update->fetch_row();            
+                    print "\n current no of recs: " . $rowx[0];
+           //         exit;
 
+            
             echo"\n More, please wait... $start_count \n";
 
             //exit;

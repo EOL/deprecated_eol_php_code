@@ -623,7 +623,7 @@ function save_eol_taxa_google_stats($month,$year)
                     
                     if($taxon_id > 0)
                     {
-                        $str .= $taxon_id . $sep . 
+                        $str .= intval($taxon_id) . $sep . 
                                 intval(substr($year_month,0,4)) . $sep .
                                 intval(substr($year_month,5,2)) . $sep .
                                 intval($count["ga:pageviews"]) . $sep . 
