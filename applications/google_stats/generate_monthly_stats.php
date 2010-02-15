@@ -18,7 +18,7 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-//$mysqli2 = $mysqli;
+$mysqli2 = $mysqli; // to use in Beast
 //$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
 //$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
