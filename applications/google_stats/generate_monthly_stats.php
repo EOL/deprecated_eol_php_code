@@ -11,7 +11,7 @@ print substr($str,0,strlen($str)-1);
 exit;
 */
 
-define("MYSQL_DEBUG", true);
+define("MYSQL_DEBUG", false);
 define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/start.php");
 
