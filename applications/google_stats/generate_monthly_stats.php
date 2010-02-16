@@ -1,5 +1,5 @@
 <?php
-//define("ENVIRONMENT", "staging"); 
+define("ENVIRONMENT", "staging"); 
 //define("ENVIRONMENT", "eol_statistics"); 
 //define("ENVIRONMENT", "slave_32"); 
 
@@ -18,8 +18,8 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$mysqli2 = $mysqli; // to use in Beast
-//$mysqli2 = load_mysql_environment('staging');        
+//$mysqli2 = $mysqli; // to use in Beast
+$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
 //$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
@@ -317,23 +317,28 @@ function save_agent_monthly_summary($year_month)
         $elapsed_time_in_sec = microtime(1)-$time_start;
         echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
         
-        
-        
     }//end while
     //=================================================================    
     echo"\n start BHL stats summaries...\n";    
+    $time_start = microtime(1);    
     $arr = get_count_of_taxa_pages_per_partner(38205,$year,$month);
         $count_of_taxa_pages = $arr[0];
         $count_of_taxa_pages_viewed = $arr[1];    
     $arr = get_monthly_summaries_per_partner(38205,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,"\t","txt");                
+    $elapsed_time_in_sec = microtime(1)-$time_start;
+    echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
     
     echo"\n start COL stats summaries...\n";    
+    $time_start = microtime(1);        
     $arr = get_count_of_taxa_pages_per_partner(11,$year,$month);
         $count_of_taxa_pages = $arr[0];
         $count_of_taxa_pages_viewed = $arr[1];
     $arr = get_monthly_summaries_per_partner(11,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,"\t","txt");                
+    $elapsed_time_in_sec = microtime(1)-$time_start;
+    echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
+
     //=================================================================
     //$mysqli2
     
@@ -452,20 +457,26 @@ function save_agent_taxa($year_month)
     //query 3
         
     echo"\n start BHL stats...\n";    
+    $time_start = microtime(1);
     $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(38205,$month,$year);
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="taxon_concept_id";
     $fields[1]="agent_id";
     $temp = save_to_txt($result, "google_analytics_partner_taxa_bhl",$fields,$year_month,"\t",0,"txt");
+    $elapsed_time_in_sec = microtime(1)-$time_start;
+    echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
     
     echo"\n start COL stats...\n";    
+    $time_start = microtime(1);
     $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(11,$month,$year);
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="taxon_concept_id";
     $fields[1]="agent_id";
     $temp = save_to_txt($result, "google_analytics_partner_taxa_col",$fields,$year_month,"\t",0,"txt");
+    $elapsed_time_in_sec = microtime(1)-$time_start;
+    echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
 
     //=================================================================
     //query 4,5 /* not needed anymore */
