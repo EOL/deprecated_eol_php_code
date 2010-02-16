@@ -1,15 +1,12 @@
 #!/usr/local/bin/php  
 <?php
-/*
-connector for hexacorallians
-*/
-
+/* connector for hexacorallians */
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 
 //exit;
 //define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -25,11 +22,8 @@ exit;
 $wrap = "\n";
 //$wrap = "<br>";
 
-// /* 
 $resource = new Resource(98);
-print "resource id = " . $resource->id . "$wrap";
-// */
-//exit;
+print "resource id = " . $resource->id . "$wrap"; //exit;
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -38,7 +32,6 @@ $id_list=array();
 
 $total_taxid_count = 0;
 $do_count = 0;
-
 
 $url        ="http://hercules.kgs.ku.edu/hexacoral/anemone2/valid_species.cfm";
 $home_url   ="http://hercules.kgs.ku.edu/hexacoral/anemone2/index.cfm";
@@ -116,18 +109,22 @@ for ($i = 0; $i < count($taxa_list); $i++)
         $taxon_parameters["commonNames"] = array();
         foreach($arr_common_names as $commonname)
         {            
+            $commonname = "<![CDATA[$commonname]]>";
             $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
         }                
 
         if(count($arr_references) > 0)
         {
+            $references=array();
             //get_str_from_anchor_tag
             //get_href_from_anchor_tag
             $taxon_parameters["references"] = array();
             $referenceParameters = array();
             foreach ($arr_references as $ref)
-            {            
-                $referenceParameters["fullReference"] = trim($ref);
+            {                        
+                if(substr($ref,0,19)=="Goffredo S., Radeti")$ref="Goffredo S., Radeti J., Airi V., and Zaccanti F., 2005";
+                $referenceParameters["fullReference"] = trim($ref);                
+                $ref = "<![CDATA[$ref]]>";                
                 $references[] = new SchemaReference($referenceParameters);
             }
             $taxon_parameters["references"] = $references;
@@ -201,24 +198,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_nematocysts,$copyright,$image_url,$title,$subject);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
         }        
-        //end skeletons
-        
-        /* no text descriptions per Katja
-        if($desc_taxa != "")
-        {
-            $temp = trim(strip_tags($desc_taxa));                        
-            if(substr($temp,0,9)  != "Outlinks:")
-            {
-                if(substr($temp,0,11) == "Categories:") $title="Categories";
-                //$desc_taxa="<b>Discussion on disease(s) caused by this organism:</b>" . $desc_taxa;                        
-                $do_count++;
-                $agent_name = $providers;
-                $agent_role = "source";            
-                $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url,$title);                           
-                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
-            }            
-        }
-        */
+        //end skeletons        
         
         $used_taxa[$taxon] = $taxon_parameters;
 
@@ -242,6 +222,11 @@ fclose($OUT);
 echo "$wrap$wrap Done processing.";
 exit("<hr>-done-");
 
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
 function img_href_src($str)
 {
     /*
@@ -261,7 +246,7 @@ function img_href_src($str)
 
 function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title,$subject)   
 {        
-    //$description = "<![CDATA[ $description ]]>";
+
     $dataObjectParameters = array();
         
     if($type == "text")
@@ -370,7 +355,8 @@ function get_taxa_list($file)
         //$sn = array("Paranthosactis denhartogi", "Zoanthus sociatus");
         //$sn = array("Monactis vestita"); //has all specimens
         //Montastraea annularis  with common names and classification
-        //$sn = array("Montastraea annularis");
+        $sn = array("Turbinaria reniformis","Anthemiphyllia patera","Madrepora carolina"); // with encoding errors
+                                     
         if (in_array(trim($sciname), $sn)) 
         {
             print"$wrap $sciname";
@@ -666,7 +652,8 @@ function parse_contents($str)
             $arr=array();
             foreach ($arr_common_names as $value)
             {
-                $temp = strtolower($value[0]);
+                //$temp = strtolower($value[0]); //not a good idea especially for special chars
+                $temp = $value[0];
                 $temp = trim(get_str_from_anchor_tag($temp));
                 //print"[$temp]";
                 $arr["$temp"]=1;
