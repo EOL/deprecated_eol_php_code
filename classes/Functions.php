@@ -545,6 +545,17 @@ class Functions
         return $string;
     }
     
+    // from http://www.php.net/manual/en/function.in-array.php#89256
+    public static function array_searchi($needle, $haystack)
+    {
+        $needle = strtolower($needle);
+        foreach($haystack as $key => $value)
+        {
+            if(strtolower($value) == $needle) return $key;
+        }
+        return null;
+    }
+    
     public static function utf8_to_ascii($nameString)
     {
         // source code at http://us3.php.net/manual/en/function.iconv.php#93609
@@ -1239,6 +1250,16 @@ class Functions
         $str = "<pre>";
         $str .= print_r($array, 1);
         $str .= "</pre>";
+        
+        if($return) return $str;
+        echo $str;
+    }
+    
+    public static function print_r_public($str, $return = false)
+    {
+        $str = print_r($str, true);
+        $regex = "/\n    \[.*?:private\] =>.*?(\n    \[)/ims";
+        while(preg_match($regex, $str)) $str = preg_replace($regex, "\\1", $str);
         
         if($return) return $str;
         echo $str;

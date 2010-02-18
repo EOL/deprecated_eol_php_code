@@ -293,7 +293,7 @@ class WikiPage
     public function get_page_html()
     {
         //$response = Functions::get_hashed_response("http://en.wikipedia.org/w/api.php?action=parse&format=xml&page=". urlencode($this->title));
-        $response = Functions::get_hashed_response("http://en.wikipedia.org/w/api.php?action=parse&format=xml&oldid=$this->revision");
+        $response = Functions::get_hashed_response("http://en.wikipedia.org/w/api.php?action=parse&format=xml&prop=text&oldid=$this->revision");
         if(@$response->parse->text)
         {
             return self::wikipedia_to_eol_html($response->parse->text);
