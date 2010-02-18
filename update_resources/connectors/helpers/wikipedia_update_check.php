@@ -3,7 +3,7 @@
 //define('DEBUG', true);
 //define('MYSQL_DEBUG', true);
 //define('DEBUG_TO_FILE', true);
-define("DOWNLOAD_WAIT_TIME", "300000");
+define("DOWNLOAD_WAIT_TIME", "500000");
 
 include_once(dirname(__FILE__) . "/../../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -72,7 +72,8 @@ function check_revisions($revision_ids)
     echo "CHECKING BATCH $count_checks (".Functions::time_elapsed().")\n";
     
     $url = revision_query_url(array_keys($revision_ids));
-    $response_xml = Functions::get_hashed_response($url);
+    $response_xml = Functions::get_hashed_response_fake_browser($url);
+    if(!$response_xml) return false;
     foreach($response_xml->query->pages->page as $page)
     {
         $latest_revision_id = (int) $page['lastrevid'];

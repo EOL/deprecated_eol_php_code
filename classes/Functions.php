@@ -139,6 +139,35 @@ class Functions
         return $hash;
     }
     
+    public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    {
+        self::debug("Grabbing $remote_url: attempt 1");
+        
+        $file = @self::fake_user_agent_http_get($remote_url);
+        usleep($download_wait_time);
+        
+        $attempts = 1;
+        while(!$file && $attempts < DOWNLOAD_ATTEMPTS)
+        {
+            self::debug("Grabbing $remote_url: attempt ".($attempts+1));
+            
+            $file = @self::fake_user_agent_http_get($remote_url);
+            usleep($download_wait_time);
+            $attempts++;
+        }
+        return $file;
+    }
+    
+    public static function get_hashed_response_fake_browser($url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    {
+        $response = self::get_remote_file_fake_browser($url, $download_wait_time);
+        
+        $hash = simplexml_load_string($response);
+        
+        return $hash;
+    }
+    
+    
     // see http://www.php.net/manual/en/function.filesize.php#92462
     public static function remote_file_size($uri)
     {
@@ -182,7 +211,7 @@ class Functions
         return substr($random, 1);
     }
     
-    public static function curl_post_request($url, $parameters_array)
+    public static function curl_post_request($url, $parameters_array = array())
     {
         $ch = curl_init();
         
@@ -204,9 +233,33 @@ class Functions
             curl_close($ch);
             return $result;
         }
-        
+        echo 'Curl error: ' . curl_error($ch);
         return false;
     }
+    
+    public static function fake_user_agent_http_get($address)
+    {
+        // $agents[] = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; WOW64; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; Media Center PC 5.0)";
+        // $agents[] = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
+        // $agents[] = "Opera/9.63 (Windows NT 6.0; U; ru) Presto/2.1.1";
+        // $agents[] = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.5) Gecko/2008120122 Firefox/3.0.5";
+        // $agents[] = "Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.8.1.18) Gecko/20081203 Firefox/2.0.0.18";
+        // $agents[] = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.16) Gecko/20080702 Firefox/2.0.0.16";
+        $agents[] = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_6; en-us) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1";
+        //$agent = $agents[rand(0,(count($agents)-1))];
+        $agent = $agents[0];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $address);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_USERAGENT, $agent);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return $data;
+    }
+
+    
     
     public static function cmp_hierarchy_entries($a, $b)
     {
