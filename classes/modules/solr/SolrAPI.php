@@ -157,12 +157,12 @@ class SolrAPI
         
         
         
-        $curl = "curl ". $this->action_url ."/update/csv -F separator='". $this->file_delimiter ."'";
+        $curl = "curl ". $this->action_url ."/update/csv -F overwrite=true -F separator='". $this->file_delimiter ."'";
         foreach($multi_values as $field => $bool)
         {
             $curl .= " -F f.$field.split=true -F f.$field.separator='". $this->multi_value_delimiter ."'";
         }
-        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType=text/plain;charset=utf-8 -F overwrite=true";
+        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType=text/plain;charset=utf-8";
         
         echo "calling: $curl\n";
         exec($curl);

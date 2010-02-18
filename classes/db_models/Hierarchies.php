@@ -48,9 +48,20 @@ class Hierarchy extends MysqlBase
         return parent::find_by("label", $string, Functions::class_name(__FILE__));
     }
     
+    static function default()
+    {
+        if(defined('DEFAULT_HIERARCHY_LABEL')) return self::find_by_label(DEFAULT_HIERARCHY_LABEL);
+        else return null;
+    }
+    
     static function col_2009()
     {
         return self::find_by_label('Species 2000 & ITIS Catalogue of Life: Annual Checklist 2009');
+    }
+    
+    static function colcn_2009()
+    {
+      return self::find_by_label('Catalogue of Life China');
     }
     
     static function next_group_id()
