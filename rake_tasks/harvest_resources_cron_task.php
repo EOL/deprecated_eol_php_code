@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 
 //define('DEBUG', true);
@@ -35,13 +34,13 @@ else sleep(1200);
 
 
 // publish all pending resources
-shell_exec("/usr/local/bin/php ".dirname(__FILE__)."/publish_resources.php");
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php");
 
 // denormalize tables
-shell_exec("/usr/local/bin/php ".dirname(__FILE__)."/denormalize_tables.php");
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php");
 
 // finally, clear the cache
-shell_exec("/usr/local/bin/php ".dirname(__FILE__)."/clear_eol_cache.php");
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php");
 
 
 ?>
