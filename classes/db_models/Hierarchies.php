@@ -48,7 +48,7 @@ class Hierarchy extends MysqlBase
         return parent::find_by("label", $string, Functions::class_name(__FILE__));
     }
     
-    static function default()
+    static function default_id()
     {
         if(defined('DEFAULT_HIERARCHY_LABEL')) return self::find_by_label(DEFAULT_HIERARCHY_LABEL);
         else return null;

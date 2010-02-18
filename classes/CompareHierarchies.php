@@ -25,7 +25,7 @@ class CompareHierarchies
         self::lookup_preview_harvests();
         
         $hierarchies_compared = array();
-        $hierarchy_lookup_ids2 = array(Hierarchy::default() => 1347615);
+        $hierarchy_lookup_ids2 = array(Hierarchy::default_id() => 1347615);
         
         $result = $mysqli->query("SELECT h.id, count(*) as count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count(*) ASC");
         while($result && $row=$result->fetch_assoc())
