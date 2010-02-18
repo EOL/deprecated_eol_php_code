@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 //connector for Duth Species Catalogue
 set_time_limit(0);

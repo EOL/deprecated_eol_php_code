@@ -1,5 +1,4 @@
 <?php
-//#!/usr/local/bin/php
 /* North American Mammals connector - this will not be ran from BEAST because data is coming from provider's MDB */
 exit;
 

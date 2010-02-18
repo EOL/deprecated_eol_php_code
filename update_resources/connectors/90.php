@@ -1,5 +1,4 @@
 <?php
-//#!/usr/local/bin/php
 /*  turtles website 
 http://www.iucn-tftsg.org/pub-chron/
 */

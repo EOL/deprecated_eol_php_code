@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 /* connector for AmphibiaWeb */
 set_time_limit(0);

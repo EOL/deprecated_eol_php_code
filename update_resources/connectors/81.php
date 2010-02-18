@@ -1,4 +1,3 @@
-#!/usr/local/bin/php  
 <?php
 //
 /* connector for BOLD Systems */

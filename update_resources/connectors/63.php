@@ -1,6 +1,4 @@
-#!/usr/local/bin/php
 <?php
-//#!/usr/local/bin/php
 //connector for INOTAXA
 
 //http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=BCA-coleoptv4p3s-t82

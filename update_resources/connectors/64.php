@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 /* Radiolaria connector */
 //exit;

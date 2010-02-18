@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 
 define("USING_SPM", true);
@@ -81,7 +80,7 @@ $OUT = fopen($new_resource_path, "w+");
 fwrite($OUT, serialize($all_taxa));
 fclose($OUT);
 
-shell_exec(dirname(__FILE__)."/helpers/plazi_step_two.php");
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/helpers/plazi_step_two.php");
 
 shell_exec("rm -f ". LOCAL_ROOT . "temp/30.xml");
 shell_exec("rm -f ". LOCAL_ROOT . "temp/downloaded_rdf.rdf");

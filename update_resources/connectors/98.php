@@ -1,4 +1,3 @@
-#!/usr/local/bin/php  
 <?php
 /* connector for hexacorallians */
 set_time_limit(0);

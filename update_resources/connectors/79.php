@@ -1,4 +1,3 @@
-#!/usr/local/bin/php  
 <?php
 /*
 connector for Public Health Image Library (CDC) 
