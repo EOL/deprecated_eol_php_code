@@ -1,5 +1,4 @@
 <?php
-//#!/usr/local/bin/php
 
 //define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);

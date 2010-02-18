@@ -1,4 +1,3 @@
-<!--- #!/usr/local/bin/php --->
 <?php
 /* 
     This code processes the latest WORMS resource XML and generates stats for it.

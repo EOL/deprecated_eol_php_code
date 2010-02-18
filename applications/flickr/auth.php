@@ -1,5 +1,4 @@
 <?php
-//#!/usr/local/bin/php
 
 
 

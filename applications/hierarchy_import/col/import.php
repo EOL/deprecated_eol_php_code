@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 //define('MYSQL_DEBUG', true);
