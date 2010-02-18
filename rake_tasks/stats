@@ -1,7 +1,0 @@
-#!/bin/bash
-
-
-
-/usr/local/bin/php /data/www/eol_php_code/applications/species_stat/index.php 2 results
-/usr/local/bin/php /data/www/eol_php_code/applications/species_stat/index.php 1 results
-/usr/local/bin/php /data/www/eol_php_code/applications/species_stat/index.php 3 results
