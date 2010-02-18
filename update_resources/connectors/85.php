@@ -270,19 +270,11 @@ function get_data_object($id, $agent_name, $dc_source, $description, $reference,
     ///////////////////////////////////////////////////////////////////
 
     $references = array();
-
-    $referenceParameters = array();
-    
+    $referenceParameters = array();    
     $reference = utf8_encode($reference);
-    //$reference = "<![CDATA[" . $reference . "]]>";
-    
-    $referenceParameters["fullReference"] = $reference;
-    
-    
-    
-    
-    $references[] = new SchemaReference($referenceParameters);    
-    
+    //$reference = "<![CDATA[" . $reference . "]]>";    
+    $referenceParameters["fullReference"] = $reference;    
+    $references[] = new SchemaReference($referenceParameters);        
     $dataObjectParameters["references"] = $references;         
 
     ///////////////////////////////////////////////////////////////////

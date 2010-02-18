@@ -5,7 +5,7 @@ ini_set('memory_limit','3500M');
 
 //exit;
 //define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
+define("ENVIRONMENT", "slave_32");
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/start.php");
@@ -69,6 +69,11 @@ for ($i = 0; $i < count($taxa_list); $i++)
     $html_nematocysts = $arr[10];
     $url_for_nematocysts = $arr[11];
     
+    
+    print"<pre>";
+    print_r($html_nematocysts);
+    print"</pre>";
+    
     if(trim($taxa) == "")
     {   
         print " --blank taxa--";
@@ -108,8 +113,11 @@ for ($i = 0; $i < count($taxa_list); $i++)
         $taxon_parameters["commonNames"] = array();
         foreach($arr_common_names as $commonname)
         {            
-            $commonname = "<![CDATA[$commonname]]>";
-            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            if($commonname)
+            {
+                $commonname = "<![CDATA[$commonname]]>";
+                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            }
         }                
 
         if(count($arr_references) > 0)
@@ -118,12 +126,18 @@ for ($i = 0; $i < count($taxa_list); $i++)
             //get_str_from_anchor_tag
             //get_href_from_anchor_tag
             $taxon_parameters["references"] = array();
-            $referenceParameters = array();
+            
             foreach ($arr_references as $ref)
             {                        
+                $referenceParameters = array();
+                $href = get_href_from_anchor_tag($ref);
+                $ref = get_str_from_anchor_tag($ref);
+            
                 if(substr($ref,0,19)=="Goffredo S., Radeti")$ref="Goffredo S., Radeti J., Airi V., and Zaccanti F., 2005";
                 $referenceParameters["fullReference"] = trim($ref);                
-                $ref = "<![CDATA[$ref]]>";                
+                //$ref = "<![CDATA[$ref]]>";                                                
+                
+                if($href)$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $href));                                
                 $references[] = new SchemaReference($referenceParameters);
             }
             $taxon_parameters["references"] = $references;
@@ -197,7 +211,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_nematocysts,$copyright,$image_url,$title,$subject);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
         }        
-        //end skeletons        
+        //end         
         
         $used_taxa[$taxon] = $taxon_parameters;
 
@@ -281,7 +295,10 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
     $dataObjectParameters["identifier"] = $taxon . "_" . $do_count;        
     $dataObjectParameters["rightsHolder"] = "Hexacorallians of the World";
     $dataObjectParameters["language"] = "en";
-    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
+    //$dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
+    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+    
+    
         
     //==========================================================================================
     /* working...
@@ -342,11 +359,10 @@ function get_taxa_list($file)
         $beg='xxx'; $end1='"'; 
         $sciname = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
         
-         /* for debug
+//         /* for debug
         //$sn = "Paranthosactis denhartogi";//has classification
         //$sn = "Zoanthus sociatus";//has skeleton, common names, biological associations
-        //$sn = "Favites abdita";//has skeleton
-        //$sn = "Urticina crassicornis"; Verrillactis paguri (Stimpson in Verrill, 1869) //has nematocysts
+        //$sn = "Favites abdita";//has skeleton        
         //$sn = "Abyssopathes lyra";//has images
 
         $sn = array("Paranthosactis denhartogi", "Zoanthus sociatus", "Favites abdita","Urticina crassicornis","Abyssopathes lyra","Verrillactis paguri","Montastraea annularis");
@@ -354,28 +370,32 @@ function get_taxa_list($file)
         //$sn = array("Paranthosactis denhartogi", "Zoanthus sociatus");
         //$sn = array("Monactis vestita"); //has all specimens
         //Montastraea annularis  with common names and classification
-        $sn = array("Turbinaria reniformis","Anthemiphyllia patera","Madrepora carolina"); // with encoding errors
+        //$sn = array("Turbinaria reniformis","Anthemiphyllia patera","Madrepora carolina"); // with encoding errors        
+        //$sn = array("Urticina crassicornis","Verrillactis paguri"); // has nematocysts
+        
+        //$sn = array("Favites abdita");
+        
                                      
         if (in_array(trim($sciname), $sn)) 
         {
             print"$wrap $sciname";
             $arr2["$sciname"]=true; //exit;
         }
-         */        
+//         */        
         
-//         /* regular routine
+         /* regular routine
         print"$wrap $sciname";
         $arr2["$sciname"]=1;
-//         */
+         */
         
     }   
     //exit; 
     $arr = array_keys($arr2);    
     
-//     /* regular routine
+     /* regular routine
     array_splice($arr, 0, 1);   //deletes first array element
     array_pop($arr);            //deletes last array element
-//     */
+     */
     
     //print"<pre>";print_r($arr);print"</pre>";    
     //print"<hr>$str";
@@ -407,7 +427,7 @@ function get_tabular_data($url,$item)
     elseif  ($item == "biological_associations")    $beg='<TH COLSPAN="2">Algal symbionts</TH>'; 
     elseif  ($item == "classification")             $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
     elseif  ($item == "common_names")               $beg='<TBODY>';     
-    elseif  ($item == "nematocysts")               $beg='<th width="60">State</th>'; 
+    elseif  ($item == "nematocysts")                $beg='<th width="60">State</th>'; 
     //elseif  ($item == "specimens")                 $beg='<th>Source </th>'; 
     
     if    ($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
@@ -468,7 +488,17 @@ function get_tabular_data($url,$item)
 
         $arr_records[]=$arr2;
     }
-    print"<pre>";print_r($arr_records);print"</pre>"; 
+    
+    if($item == "skeletons")//to check if 2nd column from table is NO
+    {
+        //print"<hr>";
+        $temp_arr = $arr_records[0];
+        //print trim($temp_arr[1]);
+        if(trim($temp_arr[1])=="NO")$arr_records=array();
+    }
+    print"<pre>";print_r($arr_records);print"</pre>";     
+    //if($item == "skeletons")exit("<hr>");
+    
     return $arr_records;
 }
 
@@ -621,11 +651,12 @@ function parse_contents($str)
                     $temp .= "." . $item;
                 }
                 $temp = trim(substr($temp,1,strlen($temp)));//to remove the '.' on the first char                
+
                 //<a href="reference_detail.cfm?ref_number=58&type=Article"> 
                 $temp = str_ireplace("reference_detail.cfm",$site_url . "reference_detail.cfm",$temp);                
                 
                 //if we want to remove the anchor 
-                $temp = get_str_from_anchor_tag($temp);
+                //$temp = get_str_from_anchor_tag($temp);
                 
                 $arr["$temp"]=1;                
             }
@@ -675,9 +706,13 @@ function parse_contents($str)
         {   $url_for_skeletons = $site_url . $beg . $temp;
             print"$wrap [<a href='$url_for_skeletons'>skeletons</a>]";    
             $arr_skeletons = get_tabular_data($url_for_skeletons,"skeletons");            
-            $arr_fields = array("Author","Skeleton?","Mineral or Organic?","Mineral","Percent Magnesium");
-            $html_skeletons = arr2html($arr_skeletons,$arr_fields,$url_for_main_menu);            
-            $html_skeletons = "<div style='font-size : small;'>$html_skeletons</div>";
+            if($arr_skeletons)//to check if it isn't null
+            {
+                $arr_fields = array("Author","Skeleton?","Mineral or Organic?","Mineral","Percent Magnesium");
+                $html_skeletons = arr2html($arr_skeletons,$arr_fields,$url_for_main_menu);            
+                $html_skeletons = "<div style='font-size : small;'>$html_skeletons</div>";
+            }
+            
         }else print"$wrap no skeletons";   
     //end url for skeleton
 
@@ -756,7 +791,7 @@ function parse_contents($str)
 }//function parse_contents($contents)
 function arr2html($arr_data,$arr_fields,$url_for_main_menu)
 {
-    $html="<a target='hexacorallians' href='$url_for_main_menu'>More info</a><br><table style='font-size : small;' border='1' cellpadding='4' cellspacing='0'>";    
+    $html="<a target='hexacorallians' href='$url_for_main_menu'>More info</a><br><table style='font-size : small;' border='1' cellpadding='4' cellspacing='0'>";
     $html .="<tr>";   
     foreach ($arr_fields as $value)
     {
@@ -803,7 +838,14 @@ function parse_classification($arr)
 function get_str_from_anchor_tag($str)
 {
     $beg='">'; $end1='</a>'; 
-    return trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));                                  
+    $temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));                                  
+    
+    //to get string after </a> if there are any
+    $str .= "xxx";
+    $beg='</a>'; $end1='xxx'; 
+    $temp2 = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));                                     
+    
+    return $temp . " " . $temp2;
 }
 function get_href_from_anchor_tag($str)
 {
