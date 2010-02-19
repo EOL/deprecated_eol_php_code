@@ -77,6 +77,7 @@ class Resource extends MysqlBase
         return true;
     }
     
+    // will return boolean of THIS resource is ready
     public function ready_to_harvest($hours_ahead_of_time = null)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -90,13 +91,14 @@ class Resource extends MysqlBase
         return false;
     }
     
+    // static method to find ALL resources ready
     public static function ready_for_harvesting()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $resources = array();
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::insert("Force Harvest")." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published")."))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::insert("Force Harvest")." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Upload Failed").", ".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published")."))");
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = new Resource($row["id"]);

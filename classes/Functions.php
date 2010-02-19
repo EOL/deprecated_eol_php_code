@@ -1311,8 +1311,8 @@ class Functions
     public static function print_r_public($str, $return = false)
     {
         $str = print_r($str, true);
-        $regex = "/\n    \[.*?:private\] =>.*?(\n    \[)/ims";
-        while(preg_match($regex, $str)) $str = preg_replace($regex, "\\1", $str);
+        $regex = "/\n( +)\[[^\]]*?:(private|protected)\] =>.*?(\n\\1\[)/ims";
+        while(preg_match($regex, $str)) $str = preg_replace($regex, "\\3", $str);
         
         if($return) return $str;
         echo $str;
