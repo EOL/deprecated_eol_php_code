@@ -1,7 +1,7 @@
 <?php
 
-define('DEBUG', true);
-define('MYSQL_DEBUG', true);
+//define('DEBUG', true);
+//define('MYSQL_DEBUG', true);
 //define('DEBUG_TO_FILE', true);
 include_once(dirname(__FILE__)."/../config/start.php");
 system("clear");
