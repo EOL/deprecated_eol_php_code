@@ -601,6 +601,7 @@ class Functions
     // from http://www.php.net/manual/en/function.in-array.php#89256
     public static function array_searchi($needle, $haystack)
     {
+        if(!is_array($haystack)) return null;
         $needle = strtolower($needle);
         foreach($haystack as $key => $value)
         {
