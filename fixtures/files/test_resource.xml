@@ -1,10 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <response
   xmlns='http://www.eol.org/transfer/content/0.2'
+  xmlns:xsd='http://www.w3.org/2001/XMLSchema'
   xmlns:dc='http://purl.org/dc/elements/1.1/'
   xmlns:dcterms='http://purl.org/dc/terms/'
   xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'
-  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'>
+  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xsi:schemaLocation='http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd'>
 <taxon>
   <dc:identifier>98h34jgbksfbg</dc:identifier>
   <dwc:Kingdom>Animalia</dwc:Kingdom>
@@ -69,62 +72,6 @@
   </dataObject>
 </taxon>
 <taxon>
-  <dc:identifier>anksjrg9h4g</dc:identifier>
-  <dwc:Family>Pseudococcidae</dwc:Family>
-  <dwc:ScientificName></dwc:ScientificName>
-  <dataObject>
-    <dc:identifier>3127549724</dc:identifier>
-    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
-    <mimeType>image/jpeg</mimeType>
-    <agent homepage="http://www.flickr.com/photos/31031835@N08" role="photographer">John Tann</agent>
-    <dcterms:created>2008-12-20 11:05:40</dcterms:created>
-    <dc:title>Life on the wattle - detail</dc:title>
-    <license>http://creativecommons.org/licenses/by-nc/2.0/</license>
-    <dc:source>http://www.flickr.com/photos/31031835@N08/3127549724/</dc:source>
-    <dc:description>Mealy bugs (Pseudococcidae)</dc:description>
-    <mediaURL>http://farm4.static.flickr.com/3203/3127549724_a858a96fc5.jpg</mediaURL>
-    <location>Sydney, New South Wales, Australia</location>
-  </dataObject>
-</taxon>
-<taxon>
-  <dc:identifier>09ujfedionage</dc:identifier>
-  <dwc:Order>Bivalva</dwc:Order>
-  <dwc:Family>Donacidae</dwc:Family>
-  <dwc:Genus>Donax</dwc:Genus>
-  <dwc:ScientificName>Donax trunculus</dwc:ScientificName>
-<dataObject>
-  <dc:identifier>3126754071</dc:identifier>
-  <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
-  <mimeType>image/jpeg</mimeType>
-<agent homepage="http://www.flickr.com/photos/10770266@N04" role="photographer">Isidro Martínez</agent>
-  <dcterms:created>2008-12-22 05:42:26</dcterms:created>
-  <dc:title>Donax trunculus</dc:title>
-  <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
-  <dc:source>http://www.flickr.com/photos/10770266@N04/3126754071/</dc:source>
-  <dc:description>Used for seafood</dc:description>
-  <mediaURL>http://farm4.static.flickr.com/3075/3126754071_a2e8022309.jpg</mediaURL>
-</dataObject>
-</taxon>
-<taxon>
-  <dc:identifier>sdfgbgwe5h</dc:identifier>
-  <dwc:Order>Bivalva</dwc:Order>
-  <dwc:Family>Carditidae</dwc:Family>
-  <dwc:Genus>Cardita</dwc:Genus>
-  <dwc:ScientificName>Cardita calyculata</dwc:ScientificName>
-<dataObject>
-  <dc:identifier>3126754067</dc:identifier>
-  <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
-  <mimeType>image/jpeg</mimeType>
-<agent homepage="http://www.flickr.com/photos/10770266@N04" role="photographer">Isidro Martínez</agent>
-  <dcterms:created>2008-12-22 05:42:26</dcterms:created>
-  <dc:title>Cardita calyculata</dc:title>
-  <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
-  <dc:source>http://www.flickr.com/photos/10770266@N04/3126754067/</dc:source>
-  <dc:description>Found in the beach of Arrecife, Lanzarote, Canary Islands</dc:description>
-  <mediaURL>http://farm4.static.flickr.com/3283/3126754067_6900470825.jpg</mediaURL>
-</dataObject>
-</taxon>
-<taxon>
   <dc:identifier>235y235y</dc:identifier>
   <dwc:Order>Neuroptera</dwc:Order>
   <dwc:Family>Mantispidae</dwc:Family>
@@ -132,15 +79,15 @@
   <dwc:ScientificName></dwc:ScientificName>
   <dataObject>
     <dc:identifier>3087438151</dc:identifier>
-    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
-    <mimeType>image/jpeg</mimeType>
-    <agent homepage="http://www.flickr.com/photos/25401497@N02" role="photographer">Donald Hobern</agent>
+    <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+    <mimeType>text/html</mimeType>
+    <agent homepage="http://www.flickr.com/photos/25401497@N02" role="author">Donald Hobern</agent>
     <dcterms:created>2008-12-07 09:21:31</dcterms:created>
     <dc:title>Theristria sp.</dc:title>
-    <license>http://creativecommons.org/licenses/by/2.0/</license>
+    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
     <dc:source>http://www.flickr.com/photos/dhobern/3087438151/</dc:source>
+    <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation</subject>
     <dc:description><![CDATA[&lt;i&gt;Theristria&lt;/i&gt; sp., to MV light, Aranda, ACT, 5/6 December 2008]]></dc:description>
-    <mediaURL>http://farm4.static.flickr.com/3115/3087438151_3dd9eb5182.jpg</mediaURL>
     <location><![CDATA[&lt;i&gt;Canberra&lt;/i&gt;, Australian Capital Territory, Australia]]></location>
   </dataObject>
 </taxon>

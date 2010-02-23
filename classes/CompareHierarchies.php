@@ -25,7 +25,11 @@ class CompareHierarchies
         self::lookup_preview_harvests();
         
         $hierarchies_compared = array();
-        $hierarchy_lookup_ids2 = array(Hierarchy::default_id() => 1347615);
+        if($default_id = Hierarchy::default_id())
+        {
+            $default_hierarchy = new Hierarchy($default_id);
+            if(@$default_hierarchy->id) $hierarchy_lookup_ids2 = array($default_id => 1347615);
+        }
         
         $result = $mysqli->query("SELECT h.id, count(*) as count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count(*) ASC");
         while($result && $row=$result->fetch_assoc())
@@ -56,11 +60,11 @@ class CompareHierarchies
                 // have the smaller hierarchy as the first parameter so the comparison will be quicker
                 if($count1 < $count2)
                 {
-                    echo "Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n";
+                    Functions::debug("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)");
                     self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2);
                 }else
                 {
-                    echo "Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n";
+                    Functions::debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
                     self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1);
                 }
                 
@@ -133,7 +137,7 @@ class CompareHierarchies
                 
                 if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                 {
-                    echo "The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop\n";
+                    Functions::debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop");
                     continue;
                 }
                 $i++;
@@ -227,6 +231,7 @@ class CompareHierarchies
     public static function process_hierarchy($hierarchy, $compare_to_hierarchy = null, $match_synonyms = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
         
         $start_time = microtime(true);
         
@@ -313,7 +318,7 @@ class CompareHierarchies
         }
         
         fclose($SQL_FILE);
-        echo 'loading data\n';
+        //echo 'loading data\n';
         $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships");
         
         // remove the tmp file

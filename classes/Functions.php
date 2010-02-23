@@ -197,6 +197,11 @@ class Functions
         return $content_length;
     }
     
+    public static function ping($uri)
+    {
+        return (self::remote_file_size($uri) !== null);
+    }
+    
     public static function temp_filepath($relative_from_root = false, $extension = 'file')
     {
         if($relative_from_root) $prefix = "";

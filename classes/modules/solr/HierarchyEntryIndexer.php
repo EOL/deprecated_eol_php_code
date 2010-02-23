@@ -27,6 +27,8 @@ class HierarchyEntryIndexer
     {
         $filter = "1=1";
         
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
+        
         if($hierarchy_id)
         {
             $this->solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');

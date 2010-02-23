@@ -32,6 +32,16 @@ class SolrAPI
         @unlink(LOCAL_ROOT . $this->csv_path);
     }
     
+    public static function ping($s = SOLR_SERVER, $c = '')
+    {
+        $server = trim($s);
+        if(!preg_match("/\/$/", $server)) $server .= "/";
+        $core = $c;
+        if(preg_match("/^(.*)\/$/", $core, $arr)) $core = $arr[1];
+        $action_url = $server . $core;
+        return Functions::ping($action_url . "/admin/file/?file=schema.xml");
+    }
+    
     private function load_schema()
     {
         // load schema XML

@@ -11,6 +11,18 @@ class Taxon extends MysqlBase
         if(@!$this->id) return;
     }
     
+    public static function all()
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $all = array();
+        $result = $mysqli->query("SELECT * FROM taxa");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $all[] = new Taxon($row);
+        }
+        return $all;
+    }
+    
     public function name()
     {
         if(@$this->name) return $this->name;

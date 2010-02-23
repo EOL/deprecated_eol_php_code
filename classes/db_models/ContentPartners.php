@@ -9,6 +9,11 @@ class ContentPartner extends MysqlBase
         if(@!$this->id) return;
     }
     
+    static function insert($parameters)
+    {
+        return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
+    }
+    
     static function find($agent_id)
     {
         return parent::find_by("agent_id", $agent_id, Functions::class_name(__FILE__));

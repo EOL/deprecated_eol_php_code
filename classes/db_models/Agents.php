@@ -24,19 +24,13 @@ class Agent extends MysqlBase
     {
         if(!$parameters) return 0;
         
-        if(get_class($parameters)=="Agent")
+        if(@get_class($parameters)=="Agent")
         {
             if($result = self::find_by_mock_object($parameters)) return $result;
             return parent::insert_object_into($parameters, Functions::class_name(__FILE__));
         }
         
-        $name = trim($name);
-        if(!$name) return 0;
-        
-        if($result = self::find($name)) return $result;
-        $agent_id = parent::insert_fields_into(array('full_name' => $name, 'display_name' => $name, 'homepage' => $homepage, 'logo_url' => $logo_url), Functions::class_name(__FILE__));
-        
-        return $agent_id;
+        return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
     }
     
     static function find($string)

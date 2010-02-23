@@ -7,23 +7,23 @@ class SimpletestWebBase extends WebTestCase
 {
     function setUp()
     {
-        $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $called_class_name = get_class($this);
+        echo "WebTest => ".$called_class_name."\n"; flush();
         
-        if(isset($this->load_fixtures))
-        {
-            $this->mysqli->truncate_tables('test');
-            $this->fixtures = Functions::load_fixtures('test');
-        }
+        $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->mysqli->truncate_tables('test');
+        if(isset($this->load_fixtures)) $this->load_fixtures();
     }
     
     function tearDown()
     {
-        if(isset($this->load_fixtures)) unset($this->fixtures);
+        unset($this->fixtures);
         //shell_exec("rm -fdr ".DOC_ROOT."temp/*");
-        
-        $called_class_name = get_class($this);
-        echo "UnitTest => ".$called_class_name."\n";
-        flush();
+    }
+    
+    function load_fixtures()
+    {
+        $this->fixtures = Functions::load_fixtures('test');
     }
 }
 

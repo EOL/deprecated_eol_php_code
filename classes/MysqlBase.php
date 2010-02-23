@@ -229,11 +229,7 @@ class MysqlBase
     
     public function __toString()
     {
-        $string = "<pre>";
-        $string .= print_r($this, true);
-        $string .= "</pre>";
-        
-        return $string;
+        return Functions::print_r_public($this, true);
     }
 }
 

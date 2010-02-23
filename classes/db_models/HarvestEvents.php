@@ -9,6 +9,18 @@ class HarvestEvent extends MysqlBase
         if(@!$this->id) return;
     }
     
+    public static function all()
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $all = array();
+        $result = $mysqli->query("SELECT * FROM harvest_events");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $all[] = new HarvestEvent($row);
+        }
+        return $all;
+    }
+    
     public function delete()
     {
         $this->mysqli->delete("DELETE do FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$this->id AND dohe.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");

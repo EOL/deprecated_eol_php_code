@@ -52,11 +52,11 @@ class Resource extends MysqlBase
         
         return false;
     }
-
+    
     public function vetted()
     {
         if($this->vetted || $this->content_partner()->vetted) return true;
-
+        
         return false;
     }
     
@@ -452,7 +452,7 @@ class Resource extends MysqlBase
         $provider_agent = $this->data_supplier();
         
         $params = array();
-        if($provider_agent->id) $params["agent_id"] = $provider_agent->id;
+        if(@$provider_agent->id) $params["agent_id"] = $provider_agent->id;
         $params["label"] = $this->title;
         $params["description"] = "From resource $this->title";
         $hierarchy_mock = Functions::mock_object("Hierarchy", $params);

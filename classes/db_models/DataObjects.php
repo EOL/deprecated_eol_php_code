@@ -9,6 +9,18 @@ class DataObject extends MysqlBase
         if(@!$this->id) return;
     }
     
+    public static function all()
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $all = array();
+        $result = $mysqli->query("SELECT * FROM data_objects");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $all[] = new DataObject($row);
+        }
+        return $all;
+    }
+    
     public static function delete($id)
     {
         if(!$id) return false;
@@ -189,13 +201,13 @@ class DataObject extends MysqlBase
         if($data_object->data_type_id==DataType::find("http://purl.org/dc/dcmitype/Sound") && @!trim($data_object->object_url)) return false;
         if($data_object->data_type_id==DataType::find("http://purl.org/dc/dcmitype/MovingImage") && @!trim($data_object->object_url)) return false;
         
-        
         $find_result = self::find($resource, $data_object);
         if(@!$find_result["exact"] && @!$find_result["similar"])
         {
             // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
             if(!$data_object->cache_object($content_manager, $resource)) return false;
             
+            $data_object->vetted_id = Vetted::insert('unknown');
             $data_object->visibility_id = Visibility::insert("Preview");
             
             return array(new DataObject(DataObject::insert($data_object)), "Inserted");
