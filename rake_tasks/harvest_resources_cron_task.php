@@ -28,10 +28,12 @@ Functions::log("Ended harvesting");
 
 
 
+// clear the cache in case some images were unpublished but still referenced in denormalized tables
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php");
+
 // sleep for 20 minutes to allow changes from transactions to propegate
 if(defined('ENVIRONMENT') && ENVIRONMENT =='development') sleep(1);
 else sleep(1200);
-
 
 // publish all pending resources
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php");

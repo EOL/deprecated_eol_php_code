@@ -1,6 +1,6 @@
 <?php
 
-//define('DEBUG', true);
+define('DEBUG', true);
 //define('MYSQL_DEBUG', true);
 //define('DEBUG_TO_FILE', true);
 define("DOWNLOAD_WAIT_TIME", "500000");
@@ -27,9 +27,10 @@ if($result && $row=$result->fetch_assoc())
     {
         $data_object_id = $row['id'];
         $source_url = $row['source_url'];
-        if(preg_match("/&oldid=([0-9]+)$/", $source_url, $arr))
+        if(preg_match("/index\.php\?title=(.*?)\&oldid=([0-9]+)$/", $source_url, $arr))
         {
-            $revision_ids[$arr[1]] = $data_object_id;
+            $title = str_replace("_", " ", $arr[1]);
+            $revision_ids[$arr[2]] = $data_object_id;
             if(count($revision_ids)==50)
             {
                 check_revisions($revision_ids);
@@ -41,7 +42,11 @@ if($result && $row=$result->fetch_assoc())
 }
 
 $FILE = fopen(LOCAL_ROOT . "/temp/wikipedia_unchanged.txt", "w+");
-fwrite($FILE, implode("\n", $GLOBALS['objects_unchanged']));
+fwrite($FILE, "data_object_id\tpageid\trevision_date\n");
+foreach($GLOBALS['objects_unchanged'] as $data_object_id => $rest)
+{
+    fwrite($FILE, "$data_object_id\t$rest\n");
+}
 fclose($FILE);
 
 $FILE = fopen(LOCAL_ROOT . "/temp/wikipedia_deleted.txt", "w+");
@@ -49,9 +54,10 @@ fwrite($FILE, implode("\n", $GLOBALS['objects_deleted']));
 fclose($FILE);
 
 $FILE = fopen(LOCAL_ROOT . "/temp/wikipedia_updated.txt", "w+");
-foreach($GLOBALS['objects_updated'] as $old_id => $new_id)
+fwrite($FILE, "data_object_id\tlatest_revision_id\tpageid\tcurrent title\trevision_date\n");
+foreach($GLOBALS['objects_updated'] as $data_object_id => $rest)
 {
-    fwrite($FILE, "$old_id\t$new_id\n");
+    fwrite($FILE, "$data_object_id\t$rest\n");
 }
 fclose($FILE);
 
@@ -76,6 +82,9 @@ function check_revisions($revision_ids)
     if(!$response_xml) return false;
     foreach($response_xml->query->pages->page as $page)
     {
+        $title = (string) $page['title'];
+        $pageid = (int) $page['pageid'];
+        $date = (string) $page['touched'];
         $latest_revision_id = (int) $page['lastrevid'];
         $query_revision_id = (int) $page->revisions->rev['revid'];
         $data_object_id = @$revision_ids[$query_revision_id];
@@ -85,8 +94,13 @@ function check_revisions($revision_ids)
         // an ID asked for which doesn't currently have a page - possible deletion
         if(!isset($page['pageid'])) continue;
         
-        if($latest_revision_id == $query_revision_id) $GLOBALS['objects_unchanged'][] = $data_object_id;
-        else $GLOBALS['objects_updated'][$data_object_id] = $latest_revision_id;
+        if($latest_revision_id == $query_revision_id)
+        {
+            $GLOBALS['objects_unchanged'][$data_object_id] = "$pageid\t$date";
+        }else
+        {
+            $GLOBALS['objects_updated'][$data_object_id] = "$latest_revision_id\t$pageid\t$title\t$date";
+        }
         $revisions_seen[] = $query_revision_id;
     }
     

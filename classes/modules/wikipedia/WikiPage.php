@@ -11,6 +11,7 @@ class WikiPage
         $this->simple_xml = simplexml_load_string($this->xml);
         $this->text = (string) $this->simple_xml->revision->text;
         $this->title = (string) $this->simple_xml->title;
+        $this->pageid = (string) $this->simple_xml->id;
         $this->contributor = (string) $this->simple_xml->revision->contributor->username;
         $this->revision = (string) $this->simple_xml->revision->id;
         $this->timestamp = (string) $this->simple_xml->revision->timestamp;
@@ -234,7 +235,7 @@ class WikiPage
         }
         
         $taxon_parameters = array();
-        $taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
+        $taxon_parameters["identifier"] = $this->pageid;
         if($taxon_rank!='regnum' && $v = @$taxonomy['regnum']) $taxon_parameters['kingdom'] = $v;
         if($taxon_rank!='phylum' && $v = @$taxonomy['phylum']) $taxon_parameters['phylum'] = $v;
         if($taxon_rank!='classis' && $v = @$taxonomy['classis']) $taxon_parameters['class'] = $v;
@@ -263,7 +264,7 @@ class WikiPage
         
         $data_object_parameters = array();
         
-        $data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
+        $data_object_parameters["identifier"] = $this->pageid;
         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
         $data_object_parameters["mimeType"] = "text/html";
         $data_object_parameters["title"] = $this->title;
@@ -293,7 +294,7 @@ class WikiPage
     public function get_page_html()
     {
         //$response = Functions::get_hashed_response("http://en.wikipedia.org/w/api.php?action=parse&format=xml&page=". urlencode($this->title));
-        $response = Functions::get_hashed_response("http://en.wikipedia.org/w/api.php?action=parse&format=xml&prop=text&oldid=$this->revision");
+        $response = Functions::get_hashed_response_fake_browser("http://en.wikipedia.org/w/api.php?action=parse&format=xml&prop=text&oldid=$this->revision");
         if(@$response->parse->text)
         {
             return self::wikipedia_to_eol_html($response->parse->text);

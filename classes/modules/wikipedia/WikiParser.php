@@ -18,10 +18,6 @@ class WikiParser
             list($match, $junk) = self::balance_tags("[[", "]]", $match, $arr[2]);
             $replacement = self::format_brackets($match, $format);
             $string = preg_replace("/".preg_quote($match, "/")."/", $replacement, $string);
-            
-            // echo "match:$match<br>\n";
-            // echo "replacement:$replacement<br>\n";
-            // echo "preg_replace(/".preg_quote($match, "/")."/, $replacement, string);<br>";
         }
         
         // [http://... The text to link to]
