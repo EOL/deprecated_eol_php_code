@@ -2,17 +2,17 @@
 
 class test_taxa extends SimpletestUnitBase
 {
-    function testFindAndCreateByID()
-    {
-        $taxon = new Taxon($this->fixtures->taxa->Tetragnatha_guatemalensis->id);
-        $this->assertTrue($taxon->id, $this->fixtures->taxa->Tetragnatha_guatemalensis->id, "Should be able to find this taxon by id");
-    }
-    
-    function testCreateByArray()
-    {
-        $taxon = new Taxon(get_object_vars($this->fixtures->taxa->Tetragnatha_guatemalensis));
-        $this->assertTrue($taxon->id, $this->fixtures->taxa->Tetragnatha_guatemalensis->id, "Should be able to find taxon by parameters");
-    }
+    // function testFindAndCreateByID()
+    // {
+    //     $taxon = new Taxon($this->fixtures->taxa->Tetragnatha_guatemalensis->id);
+    //     $this->assertTrue($taxon->id, $this->fixtures->taxa->Tetragnatha_guatemalensis->id, "Should be able to find this taxon by id");
+    // }
+    // 
+    // function testCreateByArray()
+    // {
+    //     $taxon = new Taxon(get_object_vars($this->fixtures->taxa->Tetragnatha_guatemalensis));
+    //     $this->assertTrue($taxon->id, $this->fixtures->taxa->Tetragnatha_guatemalensis->id, "Should be able to find taxon by parameters");
+    // }
     
     // function testInsertByObject()
     // {
