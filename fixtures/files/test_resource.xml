@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<response
+  xmlns='http://www.eol.org/transfer/content/0.2'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcterms='http://purl.org/dc/terms/'
+  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'
+  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'>
+<taxon>
+  <dc:identifier>98h34jgbksfbg</dc:identifier>
+  <dwc:Kingdom>Animalia</dwc:Kingdom>
+  <dwc:Phylum>Chordata</dwc:Phylum>
+  <dwc:Class>Aves</dwc:Class>
+  <dwc:Order>Passeriformes</dwc:Order>
+  <dwc:Family>Hirundinidae</dwc:Family>
+  <dwc:Genus>Delichon</dwc:Genus>
+  <dwc:ScientificName>Delichon urbica</dwc:ScientificName>
+  <commonName xml:lang='en'>some en common name</commonName>
+  <commonName xml:lang='fr'>some fr common name</commonName>
+  <commonName xml:lang='sp'>some sp common name</commonName>
+  <synonym relationship='ambiguous synonym'>some ambig syn</synonym>
+  <synonym relationship='heterotypic synonym'>some heterotypic synonym</synonym>
+  <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/346&quot;&gt;Hackett, J. D.&lt;/a&gt;</reference>
+  <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/350&quot;&gt;Nash, E. A.&lt;/a&gt;</reference>
+  <dataObject>
+    <dc:identifier>3127123681</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <mimeType>image/jpeg</mimeType>
+    <agent homepage="http://www.flickr.com/photos/58213213@N00" role="photographer">Valter Jacinto</agent>
+    <dcterms:created>2006-05-30 15:15:44</dcterms:created>
+    <dc:title>Andorinha-dos-beirais // House Martin (Delichon urbica), juvenile</dc:title>
+    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/valter/3127123681/</dc:source>
+    <dc:description>View Large-Sized &lt;a href=&quot;http://bighugelabs.com/flickr/onblack.php?id=3127123681&amp;amp;size=large&quot;&gt;[On Black]&lt;/a&gt;</dc:description>
+    <mediaURL>http://farm4.static.flickr.com/3120/3127123681_2d32b7a4e2.jpg</mediaURL>
+    <location>Faro Airport, Faro, Portugal</location>
+  </dataObject>
+  <dataObject>
+    <dc:identifier>45656456356</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+    <mimeType>text/html</mimeType>
+    <agent homepage="http://www.flickr.com/photos/58213213@N00" role="author">Valter Jacinto</agent>
+    <dcterms:created>2006-05-30 15:15:44</dcterms:created>
+    <dc:title>Andorinha-dos-beirais // House Martin (Delichon urbica), juvenile</dc:title>
+    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/valter/3127123681/</dc:source>
+    <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+    <dc:description>View Large &lt;a href=&quot;http://bighugelabs.com/flickr/onblack.php?id=3127123681&amp;amp;size=large&quot;&gt;[On Black]&lt;/a&gt;</dc:description>
+    <location>Faro Airport, Faro, Portugal</location>
+  </dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>Блефарот</dc:identifier>
+  <dc:source>http://commons.wikimedia.org/wiki/Блефарот</dc:source>
+  <dwc:Kingdom>Animalia</dwc:Kingdom>
+  <dwc:Phylum>Arthropoda</dwc:Phylum>
+  <dwc:Class>Insecta</dwc:Class>
+  <dwc:Order>Diptera</dwc:Order>
+  <dwc:Genus>Blepharotes Duncan, 1840</dwc:Genus>
+  <dwc:ScientificName>Asilidae</dwc:ScientificName>
+  <dataObject>
+    <dc:identifier>File:Блефарот.jpg</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <agent homepage="http://commons.wikimedia.org/wiki/User:Kilom691">Kilom691</agent>
+    <dc:title>File:Блефарот.jpg</dc:title>
+    <license>http://creativecommons.org/licenses/by-sa/3.0/</license>
+    <dc:source>http://commons.wikimedia.org/wiki/File:Блефарот.jpg</dc:source>
+    <dc:description>&lt;i&gt;Blepharotes coriarius&lt;/i&gt;&lt;b&gt;Russian:&lt;/b&gt; Зоологический музей в Санкт-Петербурге. Блефарот</dc:description>
+   <mediaURL>http://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/%D0%91%D0%BB%D0%B5%D1%84%D0%B0%D1%80%D0%BE%D1%82.jpg/460px-%D0%91%D0%BB%D0%B5%D1%84%D0%B0%D1%80%D0%BE%D1%82.jpg</mediaURL>
+  </dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>anksjrg9h4g</dc:identifier>
+  <dwc:Family>Pseudococcidae</dwc:Family>
+  <dwc:ScientificName></dwc:ScientificName>
+  <dataObject>
+    <dc:identifier>3127549724</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <mimeType>image/jpeg</mimeType>
+    <agent homepage="http://www.flickr.com/photos/31031835@N08" role="photographer">John Tann</agent>
+    <dcterms:created>2008-12-20 11:05:40</dcterms:created>
+    <dc:title>Life on the wattle - detail</dc:title>
+    <license>http://creativecommons.org/licenses/by-nc/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/31031835@N08/3127549724/</dc:source>
+    <dc:description>Mealy bugs (Pseudococcidae)</dc:description>
+    <mediaURL>http://farm4.static.flickr.com/3203/3127549724_a858a96fc5.jpg</mediaURL>
+    <location>Sydney, New South Wales, Australia</location>
+  </dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>09ujfedionage</dc:identifier>
+  <dwc:Order>Bivalva</dwc:Order>
+  <dwc:Family>Donacidae</dwc:Family>
+  <dwc:Genus>Donax</dwc:Genus>
+  <dwc:ScientificName>Donax trunculus</dwc:ScientificName>
+<dataObject>
+  <dc:identifier>3126754071</dc:identifier>
+  <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+  <mimeType>image/jpeg</mimeType>
+<agent homepage="http://www.flickr.com/photos/10770266@N04" role="photographer">Isidro Martínez</agent>
+  <dcterms:created>2008-12-22 05:42:26</dcterms:created>
+  <dc:title>Donax trunculus</dc:title>
+  <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+  <dc:source>http://www.flickr.com/photos/10770266@N04/3126754071/</dc:source>
+  <dc:description>Used for seafood</dc:description>
+  <mediaURL>http://farm4.static.flickr.com/3075/3126754071_a2e8022309.jpg</mediaURL>
+</dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>sdfgbgwe5h</dc:identifier>
+  <dwc:Order>Bivalva</dwc:Order>
+  <dwc:Family>Carditidae</dwc:Family>
+  <dwc:Genus>Cardita</dwc:Genus>
+  <dwc:ScientificName>Cardita calyculata</dwc:ScientificName>
+<dataObject>
+  <dc:identifier>3126754067</dc:identifier>
+  <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+  <mimeType>image/jpeg</mimeType>
+<agent homepage="http://www.flickr.com/photos/10770266@N04" role="photographer">Isidro Martínez</agent>
+  <dcterms:created>2008-12-22 05:42:26</dcterms:created>
+  <dc:title>Cardita calyculata</dc:title>
+  <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+  <dc:source>http://www.flickr.com/photos/10770266@N04/3126754067/</dc:source>
+  <dc:description>Found in the beach of Arrecife, Lanzarote, Canary Islands</dc:description>
+  <mediaURL>http://farm4.static.flickr.com/3283/3126754067_6900470825.jpg</mediaURL>
+</dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>235y235y</dc:identifier>
+  <dwc:Order>Neuroptera</dwc:Order>
+  <dwc:Family>Mantispidae</dwc:Family>
+  <dwc:Genus>Theristria</dwc:Genus>
+  <dwc:ScientificName></dwc:ScientificName>
+  <dataObject>
+    <dc:identifier>3087438151</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <mimeType>image/jpeg</mimeType>
+    <agent homepage="http://www.flickr.com/photos/25401497@N02" role="photographer">Donald Hobern</agent>
+    <dcterms:created>2008-12-07 09:21:31</dcterms:created>
+    <dc:title>Theristria sp.</dc:title>
+    <license>http://creativecommons.org/licenses/by/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/dhobern/3087438151/</dc:source>
+    <dc:description><![CDATA[&lt;i&gt;Theristria&lt;/i&gt; sp., to MV light, Aranda, ACT, 5/6 December 2008]]></dc:description>
+    <mediaURL>http://farm4.static.flickr.com/3115/3087438151_3dd9eb5182.jpg</mediaURL>
+    <location><![CDATA[&lt;i&gt;Canberra&lt;/i&gt;, Australian Capital Territory, Australia]]></location>
+  </dataObject>
+</taxon>
+
+</response>

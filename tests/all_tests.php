@@ -2,6 +2,7 @@
 
 define("ENVIRONMENT", "test");
 //define("MYSQL_DEBUG", true);
+define("CLI", !isset($_SERVER['HTTP_USER_AGENT']));
 
 require_once("../config/start.php");
 require_once(SIMPLE_TEST.'autorun.php');
@@ -9,9 +10,8 @@ require_once(SIMPLE_TEST.'autorun.php');
 
 $test_name = @$_GET["test"];
 
-
-
-$group_test = &new GroupTest('All tests');
+Functions::time_elapsed();
+$group_test = new GroupTest('All tests');
 
 if($test_name)
 {
@@ -21,9 +21,11 @@ if($test_name)
     $group_test->addTestCase(new $test_name());
 }else get_all_tests($group_test);
 
-$group_test->run(new HtmlReporter());
 
+if(CLI) $group_test->run(new TextReporter());
+else $group_test->run(new HtmlReporter());
 
+echo "\nRunning time: ".Functions::time_elapsed()."\n\n";
 
 
 
