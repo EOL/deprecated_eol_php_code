@@ -1,9 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-
-class test_content_manager extends TestBase
+class test_content_manager extends SimpletestUnitBase
 {
     // function setUp()
     // {

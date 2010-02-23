@@ -1,8 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-class test_names extends TestBase
+class test_names extends SimpletestUnitBase
 {    
     function testNameFunctions()
     {

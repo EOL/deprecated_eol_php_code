@@ -1,9 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-
-class test_fixtures extends TestBase
+class test_fixtures extends SimpletestUnitBase
 {
     function testHaveResources()
     {

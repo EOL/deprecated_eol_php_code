@@ -1,8 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-class test_harvester extends TestBase
+class test_harvester extends SimpletestUnitBase
 {
     function testSomething()
     {

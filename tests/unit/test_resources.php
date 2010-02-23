@@ -1,8 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-class test_resources extends TestBase
+class test_resources extends SimpletestUnitBase
 {
     function testSomething()
     {

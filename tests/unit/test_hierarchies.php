@@ -1,9 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-
-class test_hierarchies extends TestBase
+class test_hierarchies extends SimpletestUnitBase
 {
     function testCreateFromMockObject()
     {

@@ -1,8 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-class test_agents extends TestBase
+class test_agents extends SimpletestUnitBase
 {
     function testCreateByMock()
     {

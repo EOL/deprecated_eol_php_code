@@ -1,8 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-class test_clean_name extends TestBase
+class test_clean_name extends SimpletestUnitBase
 {
     function testCleanNameFunction()
     {

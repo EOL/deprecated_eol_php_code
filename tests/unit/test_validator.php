@@ -1,8 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-class test_validator extends TestBase
+class test_validator extends SimpletestUnitBase
 {
     function testProperValidation()
     {

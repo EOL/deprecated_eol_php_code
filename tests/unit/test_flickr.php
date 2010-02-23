@@ -1,9 +1,6 @@
 <?php
 
-include_once("TestBase.php");
-
-
-class test_flickr extends TestBase
+class test_flickr extends SimpletestUnitBase
 {
     // function testRequestParameters()
     // {
