@@ -4,6 +4,7 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set("display_errors", 1);
 
 define("ENVIRONMENT", "test");
+//define("DEBUG", true);
 //define("MYSQL_DEBUG", true);
 define("CLI", !isset($_SERVER['HTTP_USER_AGENT']));
 

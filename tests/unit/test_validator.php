@@ -4,14 +4,14 @@ class test_validator extends SimpletestUnitBase
 {
     function testProperValidation()
     {
-        $response = SchemaValidator::validate(LOCAL_ROOT."/fixtures/files/resource.xml");
+        $response = SchemaValidator::validate(LOCAL_ROOT."/fixtures/files/test_resource.xml");
         $this->assertTrue($response, "There should be a response");
         $this->assertNotA($response, "array", "Response should not be an array");
     }
     
     function testImroperValidation()
     {
-        $doc = simplexml_load_file(LOCAL_ROOT."/fixtures/files/resource.xml");
+        $doc = simplexml_load_file(LOCAL_ROOT."/fixtures/files/test_resource.xml");
         $taxon = $doc->addChild('taxon');
         $taxon->addChild('identifier', '12345', 'http://purl.org/dc/elements/1.1/');
         $taxon->addChild('scientificname', 'some name', 'http://rs.tdwg.org/dwc/dwcore/');
