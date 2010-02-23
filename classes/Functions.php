@@ -26,6 +26,14 @@ class Functions
         )*$%xs', $string);
     }
     
+    public function to_camel_case($str)
+    {
+        $str = str_replace('_', ' ', $str);
+        $str = ucwords($str);
+        $str = str_replace(' ', '', $str);
+        return $str;
+    }
+    
     public static function array_to_xml($array, $prefix = "  ")
     {
         $xml = "";
