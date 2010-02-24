@@ -232,7 +232,7 @@ function is_field_in_table($field, $table)
 
 function table_fields($table)
 {
-    if($cache = Cache::get('table_fields_' . $table)) return $cache;
+    if($cache = MemoryCache::get('table_fields_' . $table)) return $cache;
     
     $fields = array();
     
@@ -243,7 +243,7 @@ function table_fields($table)
     }
     if($result && @$result->num_rows) $result->free();
     
-    Cache::set('table_fields_' . $table, $fields, 600);
+    MemoryCache::set('table_fields_' . $table, $fields, 600);
     
     return $fields;
 }
