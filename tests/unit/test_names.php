@@ -13,6 +13,7 @@ class test_names extends SimpletestUnitBase
         
         $this->assertTrue($canonical_form == $cf, "The canonical form should be right");
         $this->assertTrue($clean_name == $cl, "The clean name should be right");
+        $this->assertTrue(Functions::canonical_form('Homo sapiens cultiv sapiens del Leary') == 'Homo sapiens sapiens', 'Should have correct canonical form');
     }
     
     function testInsertName()
