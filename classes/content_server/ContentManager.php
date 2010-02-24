@@ -49,7 +49,9 @@ class ContentManager
         // if the download succeeded
         if(file_exists($temp_file_path))
         {
-            $new_suffix = $this->determine_file_suffix($temp_file_path,$suffix);
+            if(defined("OPERATING_SYSTEM_TYPE") && OPERATING_SYSTEM_TYPE == "DOS") $new_suffix = $this->determine_file_suffix_pc($temp_file_path,$suffix);
+            else $new_suffix = $this->determine_file_suffix($temp_file_path,$suffix);
+            
             if($new_suffix)
             {
                 if($type=="content") $new_file_prefix = $this->new_content_file_name();
@@ -59,7 +61,8 @@ class ContentManager
                 $new_file_path = $new_file_prefix.".".$new_suffix;
                 
                 // copy temporary file into its new home
-                shell_exec("cp ".$temp_file_path." ".$new_file_path);
+                //shell_exec("cp ".$temp_file_path." ".$new_file_path);
+                copy($temp_file_path, $new_file_path);
                 
                 // fail if for some reason there is still no file at the new path
                 if(!file_exists($new_file_path)) return false;
@@ -114,6 +117,41 @@ class ContentManager
         elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i",$file_type,$arr)) $new_suffix = "xml";
         elseif($suffix=="xml" && preg_match("/^ascii text/i",$file_type,$arr)) $new_suffix = "xml";
         
+        return $new_suffix;
+    }
+    
+    function determine_file_suffix_pc($file_path,$suffix)
+    {
+        $new_suffix=$suffix;     
+        $arr = array('jpg','tif','flv','mov','avi','gz','tar','zip','xml','pdf','html','png','xml','gif');
+
+        if(!in_array("$suffix", $arr))                       
+        {
+            $new_suffix=false;
+            $new_suffix="xml";
+            
+            $image = array(	
+			    	0 => array(	"type" => "image/bmp"		                , "suffix" => "bmp"),
+    				1 => array(	"type" => "image/gif"		                , "suffix" => "gif"),
+    				2 => array(	"type" => "image/jpeg"	                    , "suffix" => "jpg"),
+    				3 => array(	"type" => "image/png"	                    , "suffix" => "png"),
+    				4 => array(	"type" => "image/svg+xml"	                , "suffix" => "xml"),
+       				5 => array(	"type" => "image/tiff"	                    , "suffix" => "tif"),                
+                    6 => array(	"type" => "application/x-shockwave-flash"	, "suffix" => "flv"));
+
+            $url = $file_path;
+            $image_data = getimagesize($url);
+            
+            for ($i = 0; $i < count($image); $i++)     
+            {
+                if($image_data["mime"] == $image[$i]["type"])
+                {    
+                    $new_suffix = $image[$i]["suffix"];        
+                    break;
+                }
+            }        
+        }
+                              
         return $new_suffix;
     }
     
