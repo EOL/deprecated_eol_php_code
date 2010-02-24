@@ -1,6 +1,7 @@
 <?php
 
-error_reporting(E_ALL & ~E_DEPRECATED);
+if(defined('E_DEPRECATED')) error_reporting(E_ALL & ~E_DEPRECATED);
+else error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 define("ENVIRONMENT", "test");
