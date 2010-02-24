@@ -1,0 +1,256 @@
+<?php
+
+
+
+
+/*
+===================================
+    String functions
+*/
+
+function to_camel_case($str)
+{
+    $str = str_replace('_', ' ', $str);
+    $str = ucwords($str);
+    $str = str_replace(' ', '', $str);
+    return $str;
+}
+
+function is_camel_case($str)
+{
+    if(preg_match("/^[A-Z][A-Za-z]*$/", $str)) return true;
+    return false;
+}
+
+function to_underscore($str)
+{
+    $str = preg_replace('/([A-Z])/', '_' . strtolower('\\1'), $str);
+    $str = preg_replace('/^_/', '', $str);
+    $str = strtolower($str);
+    return $str;
+}
+
+function is_underscore($str)
+{
+    if(preg_match("/^[a-z\/]+(_[a-z\/]+)*$/", $str)) return true;
+    return false;
+}
+
+function to_singular($str)
+{
+    if(preg_match("/^(.*)(ies)$/", $str, $arr)) $str = $arr[1] . 'y';
+    elseif(preg_match("/^(.*)(oes)$/", $str, $arr)) $str = $arr[1] . 'o';
+    elseif(preg_match("/^(.*)(s)$/", $str, $arr)) $str = $arr[1];
+    
+    return $str;
+}
+
+function to_plural($str)
+{
+    if(preg_match("/^(.*)(y)$/", $str, $arr)) $str = $arr[1] . 'ies';
+    elseif(preg_match("/^(.*)(o)$/", $str, $arr)) $str = $arr[1] . 'oes';
+    else $str .= 's';
+    
+    return $str;
+}
+
+function display($str)
+{
+    if(@$GLOBALS['ENV_DEBUG_TO_FILE']) fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
+    else
+    {
+        echo "$str<br>\n";
+        flush();
+    }
+}
+
+function debug($string)
+{
+    if(@$GLOBALS['ENV_DEBUG'])
+    {
+        display($string . ' :: [' . get_last_function(2) . ']');
+    }
+}
+
+function mysql_debug($string)
+{
+    if(@$GLOBALS['ENV_MYSQL_DEBUG'])
+    {
+        display($string . ' :: [' . get_last_function(3) . ']');
+    }
+}
+
+
+
+
+
+
+
+
+/*
+===================================
+    Misc
+*/
+
+function render_view($view, $parameters = NULL, $return = false)
+{
+    $filename = DOC_ROOT . 'app/views/' . $view . '.php';
+    if(file_exists($filename))
+    {
+        if(is_array($parameters)) extract($parameters);
+        
+        ob_start();
+        include $filename;
+        $contents = ob_get_contents();
+        ob_end_clean();
+        
+        if($return) return $contents;
+        
+        echo $contents;
+        return true;
+    }
+    
+    trigger_error('Unknown view `' . $view . '` in '.get_last_function(1), E_USER_ERROR);
+}
+
+function require_module($module)
+{
+    $module_path = DOC_ROOT . "classes/modules/$module/module.php";
+    require_once($module_path);
+}
+
+function print_pre($arr)
+{
+    echo '<pre>';
+    print_r($arr);
+    echo '</pre>';
+}
+
+function start_timer()
+{
+    return time_elapsed();
+}
+
+function time_elapsed()
+{
+    static $a;
+    if(!isset($a)) $a = microtime(true);
+    return (string) round(microtime(true)-$a, 6);
+}
+
+function get_last_function($index = 1)
+{
+    $backtrace = debug_backtrace();
+    $line = @$backtrace[$index]['line'];
+    $file = @$backtrace[$index]['file'];
+    
+    return "$file [$line]";
+}
+
+function shutdown_check()
+{
+    if($GLOBALS['db_connection']->transaction_in_progress) $GLOBALS['db_connection']->rollback();
+    if($GLOBALS['ENV_MYSQL_DEBUG']) debug("\n\n<hr>Shutting down<br>\n\n\n");
+    
+    if($GLOBALS['ENV_DEBUG'] && $GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])
+    {
+        fclose($GLOBALS['ENV_DEBUG_FILE_HANDLE']);
+    }
+}
+
+function load_fixtures($environment = "test")
+{
+    if(@$GLOBALS['ENV_NAME'] != $environment) return false;
+    
+    $files = get_fixture_files();
+    
+    $fixture_data = (object) array();
+    
+    $GLOBALS['db_connection']->begin_transaction();
+    foreach($files as $table)
+    {
+        $fixture_data->$table = (object) array();
+        
+        $rows = Horde_Yaml::loadFile(DOC_ROOT . "fixtures/$table.yml");
+        foreach($rows as $id => $row)
+        {
+            $fixture_data->$table->$id = (object) array();
+            
+            foreach($row as $key => $val)
+            {
+                if(!is_field_in_table($key, $table)) unset($row[$key]);
+            }
+            
+            $query = "INSERT INTO $table (`";
+            $query .= implode("`, `", array_keys($row));
+            $query .= "`) VALUES ('";
+            $query .= implode("', '", $row);
+            $query .= "')";
+            
+            $GLOBALS['db_connection']->insert($query);
+            
+            foreach($row as $k => $v)
+            {
+                $fixture_data->$table->$id->$k = $v;
+            }
+        }
+    }
+    $GLOBALS['db_connection']->end_transaction();
+    
+    return $fixture_data;
+}
+
+function get_fixture_files()
+{
+    $files = array();
+    
+    $dir = DOC_ROOT . 'fixtures/';
+    if($handle = opendir($dir))
+    {
+       while(false !== ($file = readdir($handle)))
+       {
+           if(preg_match("/^(.*)\.yml$/",trim($file), $arr))
+           {
+               $files[] = $arr[1];
+           }
+       }
+       closedir($handle);
+    }
+    
+    return $files;
+}
+
+function is_field_in_table($field, $table)
+{
+    $fields = table_fields($table);
+    foreach($fields as $f)
+    {
+        if($f == $field) return true;
+    }
+    return false;
+}
+
+function table_fields($table)
+{
+    if($cache = Cache::get('table_fields_' . $table)) return $cache;
+    
+    $fields = array();
+    
+    $result = $GLOBALS['db_connection']->query('SHOW fields FROM `' . $table . '`');
+    while($result && $row=$result->fetch_assoc())
+    {
+        $fields[] = $row["Field"];
+    }
+    if($result && @$result->num_rows) $result->free();
+    
+    Cache::set('table_fields_' . $table, $fields, 600);
+    
+    return $fields;
+}
+
+function trim_namespace($class)
+{
+    return preg_replace("/^(.*)\\\/", "", $class);
+}
+
+?>
