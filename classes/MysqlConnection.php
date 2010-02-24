@@ -219,7 +219,7 @@ class MysqlConnection
             $return = "";
             if($master) $result = $this->mysqli->query("SELECT @@autocommit");
             else $result = $this->master_mysqli->query("SELECT @@autocommit");
-            if($row = $result->fetch_row())
+            if($result && $row = $result->fetch_row())
             {
                 $return .= "com: ".$row[0].", ";
                 $result->free();
