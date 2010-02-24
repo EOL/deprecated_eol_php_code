@@ -309,7 +309,7 @@ class MysqliConnection
         if($this->master_server)
         {
             mysql_debug("Connecting to host:$this->master_server, database:$this->master_database");
-            $this->master_mysqli = @new \mysqli($this->master_server, $this->master_user, $this->master_password, "", $this->master_port, $this->master_socket);
+            $this->master_mysqli = @new mysqli($this->master_server, $this->master_user, $this->master_password, "", $this->master_port, $this->master_socket);
             
             if($this->master_mysqli->connect_errno)
             {
