@@ -4,42 +4,38 @@ if(defined('E_DEPRECATED')) error_reporting(E_ALL & ~E_DEPRECATED);
 else error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-define("ENVIRONMENT", "test");
-//define("DEBUG", true);
-//define("MYSQL_DEBUG", true);
-define("CLI", !isset($_SERVER['HTTP_USER_AGENT']));
+$GLOBALS['ENV_NAME'] = 'test';
+require_once(dirname(__FILE__) . '/../config/environment.php');
 
-require_once("../config/start.php");
-
-require_once(LOCAL_ROOT . '/classes/modules/simpletest/autorun.php');
-require_once(LOCAL_ROOT . '/classes/modules/simpletest_extended/simpletest_unit_base.php');
-require_once(LOCAL_ROOT . '/classes/modules/simpletest_extended/simpletest_web_base.php');
+require_once(DOC_ROOT . 'classes/modules/simpletest/autorun.php');
+require_once(DOC_ROOT . 'classes/modules/simpletest_extended/simpletest_unit_base.php');
+require_once(DOC_ROOT . 'classes/modules/simpletest_extended/simpletest_web_base.php');
 
 $test_name = @$_GET["test"];
 if(!$test_name && @$argv[1]) $test_name = $argv[1];
 
-Functions::debug('Starting tests');
-$start_time = Functions::time_elapsed();
+debug('Starting tests');
+$start_time = time_elapsed();
 
 $group_test = new GroupTest('All tests');
 
 // entered a test directory name
 if(preg_match("/^([a-z_]+)\/?$/i", $test_name, $arr))
 {
-    if(!is_dir(LOCAL_ROOT . "tests/$arr[1]/"))
+    if(!is_dir(DOC_ROOT . "tests/$arr[1]/"))
     {
         echo "ERROR: directory tests/$arr[1]/ does not exist";
         exit;
     }
-    get_tests_from_dir(LOCAL_ROOT . "tests/$arr[1]/", $group_test, false);
+    get_tests_from_dir(DOC_ROOT . "tests/$arr[1]/", $group_test, false);
 }elseif($test_name)
 {
-    if(!file_exists(LOCAL_ROOT . "tests/$test_name.php"))
+    if(!file_exists(DOC_ROOT . "tests/$test_name.php"))
     {
         echo "ERROR: test tests/$test_name.php does not exist";
         exit;
     }
-    require_once(LOCAL_ROOT . "tests/$test_name.php");
+    require_once(DOC_ROOT . "tests/$test_name.php");
     
     if(preg_match("/^[^\/]+\/(.*)$/", $test_name, $arr)) $test_name = $arr[1];
     
@@ -47,13 +43,13 @@ if(preg_match("/^([a-z_]+)\/?$/i", $test_name, $arr))
     $group_test->addTestCase(new $test_name());
 }else
 {
-    get_tests_from_dir(LOCAL_ROOT . "tests/", $group_test, true);
+    get_tests_from_dir(DOC_ROOT . "tests/", $group_test, true);
 }
 
-if(CLI) $group_test->run(new TextReporter());
+if(!isset($_SERVER['HTTP_USER_AGENT'])) $group_test->run(new TextReporter());
 else $group_test->run(new HtmlReporter());
 
-$end_time = Functions::time_elapsed();
+$end_time = time_elapsed();
 
 echo "Tests ran in ". ($end_time-$start_time) ." seconds\n\n";
 

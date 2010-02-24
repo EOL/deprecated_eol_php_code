@@ -9,8 +9,7 @@ class SimpletestUnitBase extends UnitTestCase
         $called_class_name = get_class($this);
         echo "UnitTest => ".$called_class_name."\n"; flush();
         
-        $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->mysqli->truncate_tables('test');
+        $GLOBALS['db_connection']->truncate_tables('test');
         if(isset($this->load_fixtures)) $this->load_fixtures();
     }
     
@@ -22,7 +21,7 @@ class SimpletestUnitBase extends UnitTestCase
     
     function load_fixtures()
     {
-        $this->fixtures = Functions::load_fixtures('test');
+        $this->fixtures = load_fixtures('test');
     }
 }
 

@@ -6,7 +6,7 @@ class MysqlBase
     
     function db_connect()
     {
-        $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->mysqli =& $GLOBALS['db_connection'];
     }
     
     function initialize($param = NULL)
@@ -24,7 +24,7 @@ class MysqlBase
             
             if(!$row)
             {
-                $result = $this->mysqli->query("SELECT SQL_NO_CACHE * FROM ".$this->table_name." WHERE id=$param");
+                $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE * FROM ".$this->table_name." WHERE id=$param");
                 if($result && $result->num_rows)
                 {
                     $row=$result->fetch_assoc();
@@ -45,7 +45,7 @@ class MysqlBase
         
         $fields = array();
         
-        $result = $this->mysqli->query("SHOW fields FROM ".$this->table_name);
+        $result = $GLOBALS['db_connection']->query("SHOW fields FROM ".$this->table_name);
         while($result && $row=$result->fetch_assoc())
         {
             $fields[] = $row["Field"];
@@ -66,10 +66,9 @@ class MysqlBase
         if(!$table) return 0;
         
         if($result = self::find_by($field, $string, $table)) return $result;
-        $mysqli =& $GLOBALS['mysqli_connection'];
-    
-        $string = $mysqli->escape($string);
-        $id = $mysqli->insert("INSERT INTO $table (`$field`) VALUES ('$string')");
+        
+        $string = $GLOBALS['db_connection']->escape($string);
+        $id = $GLOBALS['db_connection']->insert("INSERT INTO $table (`$field`) VALUES ('$string')");
         if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['table_ids'][$table][$field][$string] = $id;
         
         return $id;
@@ -82,9 +81,7 @@ class MysqlBase
         if(!$fields) return 0;
         if(!is_array($fields)) return 0;
         
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        foreach($fields as $k => $v) $fields[$k] = $mysqli->escape($v);
+        foreach($fields as $k => $v) $fields[$k] = $GLOBALS['db_connection']->escape($v);
         
         $query = "INSERT INTO $table (`";
         $query .= implode("`, `", array_keys($fields));
@@ -92,7 +89,7 @@ class MysqlBase
         $query .= implode("', '", $fields);
         $query .= "')";
         
-        $id = $mysqli->insert($query);
+        $id = $GLOBALS['db_connection']->insert($query);
         if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['table_ids'][$table][implode("|",array_keys($fields))."|=|".implode("|",$fields)] = $id;
         
         return $id;
@@ -105,13 +102,11 @@ class MysqlBase
         if(!$object) return 0;
         if(get_parent_class($object) != "MysqlBase") return 0;
         
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
         $parameters = array();
         $fields = $object->get_table_fields();
         foreach($fields as $field)
         {
-            if(@$object->$field) $parameters[$field] = $mysqli->escape($object->$field);
+            if(@$object->$field) $parameters[$field] = $GLOBALS['db_connection']->escape($object->$field);
         }
         
         $query = "INSERT INTO $table (`";
@@ -120,7 +115,7 @@ class MysqlBase
         $query .= implode("', '", $parameters);
         $query .= "')";
         
-        $id = $mysqli->insert($query);
+        $id = $GLOBALS['db_connection']->insert($query);
         if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['table_ids'][$table][implode("|",array_keys($parameters))."|=|".implode("|",$parameters)] = $id;
         
         return $id;
@@ -135,13 +130,11 @@ class MysqlBase
         if(!$string) return 0;
         if(!$table) return 0;
         
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
         if(isset($GLOBALS['find_by_ids'][$table][$field][$string])) return $GLOBALS['find_by_ids'][$table][$field][$string];
         
         $id = 0;
-        $string = $mysqli->escape($string);
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM $table WHERE $field='$string'");
+        $string = $GLOBALS['db_connection']->escape($string);
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id FROM $table WHERE $field='$string'");
         if($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];
@@ -160,11 +153,9 @@ class MysqlBase
         if(!$id) return 0;
         if(!$table) return 0;
         
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
         if(isset($GLOBALS['tables_find_by_id'][$table][$field][$id])) return $GLOBALS['tables_find_by_id'][$table][$field][$id];
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE $field FROM $table WHERE id=$id");
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE $field FROM $table WHERE id=$id");
         if($result && $row=$result->fetch_assoc())
         {
             $field = $row[$field];
@@ -183,13 +174,11 @@ class MysqlBase
         if(!$object) return 0;
         if(get_parent_class($object) != "MysqlBase") return 0;
         
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
         $query_parameters = array();
         $fields = $object->get_table_fields();
         foreach($fields as $field)
         {
-            if(@$object->$field) $query_parameters[] = "$field='".$mysqli->escape($object->$field)."'";
+            if(@$object->$field) $query_parameters[] = "$field='".$GLOBALS['db_connection']->escape($object->$field)."'";
         }
         if(!$query_parameters) return 0;
         
@@ -197,7 +186,7 @@ class MysqlBase
         $query .= implode(" AND ", $query_parameters);
         
         $id = 0;
-        $result = $mysqli->query($query);
+        $result = $GLOBALS['db_connection']->query($query);
         if($result && $row = $result->fetch_assoc())
         {
             $id = $row["id"];
@@ -211,9 +200,7 @@ class MysqlBase
     {
         $ids = array();
         
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM $table WHERE $field = $value ORDER BY $order");
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id FROM $table WHERE $field = $value ORDER BY $order");
         while($result && $row = $result->fetch_assoc())
         {
             $ids[] = $row["id"];
@@ -224,7 +211,7 @@ class MysqlBase
     
     function delete_base($id, $table)
     {
-        $this->mysqli->delete("DELETE FROM $table WHERE id=$id");
+        $GLOBALS['db_connection']->delete("DELETE FROM $table WHERE id=$id");
     }
     
     public function __toString()

@@ -6,7 +6,7 @@ class test_fixtures extends SimpletestUnitBase
     
     function testHaveResources()
     {
-        $result = $this->mysqli->query("SELECT * FROM resources");
+        $result = $GLOBALS['db_connection']->query("SELECT * FROM resources");
         $this->assertTrue($result && $result->num_rows!=0, "Should have resources");
     }
     
@@ -17,7 +17,7 @@ class test_fixtures extends SimpletestUnitBase
     
     function testHaveTaxa()
     {
-        $result = $this->mysqli->query("SELECT * FROM taxa");
+        $result = $GLOBALS['db_connection']->query("SELECT * FROM taxa");
         $this->assertTrue($result && $result->num_rows!=0, "Should have taxa");
     }
     
