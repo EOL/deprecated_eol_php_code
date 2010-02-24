@@ -11,7 +11,8 @@ class ActiveRecordError extends Exception
     
     public static function handleException(Exception $e)
     {
-        static::printException($e);
+        //static::printException($e);
+        self::printException($e);
     }
 }
 
