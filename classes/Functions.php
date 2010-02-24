@@ -376,7 +376,10 @@ class Functions
     
     public static function class_name($path)
     {
-        if(preg_match("/\/([^\/]+)\.php$/", $path, $arr)) $path = $arr[1];
+        if(defined("OPERATING_SYSTEM_TYPE") && OPERATING_SYSTEM_TYPE == "DOS")
+        {
+            if(preg_match("/\\\([^\\\]+)\.php$/", $path, $arr)) $path = $arr[1];
+        }elseif(preg_match("/\/([^\/]+)\.php$/", $path, $arr)) $path = $arr[1];
         return strtolower(preg_replace("/([a-z])([A-Z])/", "\\1_".strtolower("\\2"), $path));
     }
     
