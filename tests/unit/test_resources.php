@@ -27,7 +27,7 @@ class test_resources extends SimpletestUnitBase
         $this->assertIsA($resource->content_partner(), 'ContentPartner', 'Resource should have a content partner');
         $this->assertTrue($resource->content_partner()->id == $content_partner_id, 'ContentPartner', 'Resource should have the right content partner');
         
-        shell_exec("cp -f ".LOCAL_ROOT."/fixtures/files/test_resource.xml ".CONTENT_RESOURCE_LOCAL_PATH."/".$resource->id.".xml");
+        copy(LOCAL_ROOT."/fixtures/files/test_resource.xml", CONTENT_RESOURCE_LOCAL_PATH."/".$resource->id.".xml");
         
         $this->assertTrue(count(HarvestEvent::all()) == 0, 'There shouldnt be any events to begin with');
         $this->assertTrue(count(DataObject::all()) == 0, 'There shouldnt be any data objects to begin with');
@@ -57,7 +57,7 @@ class test_resources extends SimpletestUnitBase
         //     Functions::import_decode
         // }
         
-        //shell_exec("rm ".CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml");
+        unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml");
     }
 }
 
