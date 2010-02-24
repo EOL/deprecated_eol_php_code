@@ -27,6 +27,8 @@ Functions::require_module('darwincore');
 date_default_timezone_set('America/New_York');
 setlocale(LC_ALL, 'en_US.ASCII');
 
+if(strtolower(substr(php_uname(), 0, 3)) == 'win') define('SYSTEM_OS', 'Windows');
+else define('SYSTEM_OS', 'Unix');
 
 
 
