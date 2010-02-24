@@ -39,7 +39,9 @@ class SolrAPI
         $core = $c;
         if(preg_match("/^(.*)\/$/", $core, $arr)) $core = $arr[1];
         $action_url = $server . $core;
-        return Functions::ping($action_url . "/admin/file/?file=schema.xml");
+        $schema = Functions::get_hashed_response($action_url . "/admin/file/?file=schema.xml");
+        if($schema) return true;
+        return false;
     }
     
     private function load_schema()

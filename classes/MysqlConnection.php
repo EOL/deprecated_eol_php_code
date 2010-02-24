@@ -254,19 +254,12 @@ class MysqlConnection
             $this->master_user = $this->user;
             $this->master_password = $this->password;
             $this->master_database = $this->database;
-            $this->master_encoding = $this->encoding;       
+            $this->master_encoding = $this->encoding;
             $this->master_port = $this->port;
             $this->master_socket = $this->socket;
             
             $this->master_mysqli = @$this->mysqli;
         }
-    }
-    
-    function time_elapsed()
-    {
-        static $a;
-        if(!isset($a)) $a = microtime(true);
-        return (string) round(microtime(true)-$a, 6);
     }
 }
 

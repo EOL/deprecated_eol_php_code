@@ -49,7 +49,7 @@ class ContentManager
         // if the download succeeded
         if(file_exists($temp_file_path))
         {
-            if(defined("OPERATING_SYSTEM_TYPE") && OPERATING_SYSTEM_TYPE == "DOS") $new_suffix = $this->determine_file_suffix_pc($temp_file_path,$suffix);
+            if(SYSTEM_OS == "Windows") $new_suffix = $this->determine_file_suffix_pc($temp_file_path,$suffix);
             else $new_suffix = $this->determine_file_suffix($temp_file_path,$suffix);
             
             if($new_suffix)
