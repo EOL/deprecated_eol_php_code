@@ -63,6 +63,20 @@ class test_functions extends SimpletestUnitBase
         $this->assertTrue(Functions::remove_whitespace('A b ') == 'A b', 'Should have removed whitespace');
         $this->assertTrue(Functions::remove_whitespace('A      b   ') == 'A b', 'Should have removed whitespace');
     }
+    
+    function testImportDecode()
+    {
+        $this->assertTrue(Functions::import_decode('Búfal aquàtic', false, false) == 'Búfal aquàtic', 'Should get decoded properly');
+        $this->assertTrue(Functions::import_decode('Búfal   aquàtic ', false, false) == 'Búfal   aquàtic', 'Should get decoded properly');
+        $this->assertTrue(Functions::import_decode('Búfal   aquàtic ') == 'Búfal   aquàtic', 'Shouldnt remove whitespace by default');
+        $this->assertTrue(Functions::import_decode('Búfal   aquàtic ', true, false) == 'Búfal aquàtic', 'Should get decoded properly');
+        $this->assertTrue(Functions::import_decode("Búfal \x0A aquàtic", true, false) == 'Búfal &nbsp; aquàtic', 'Should get decoded properly');
+        $this->assertTrue(Functions::import_decode("Búfal   aquàtic") == 'Búfal   aquàtic', 'Should get decoded properly');
+        $this->assertTrue(Functions::import_decode('Búfal &lt;aquàtic&gt;', false, false) == 'Búfal &lt;aquàtic&gt;', 'Should get decoded properly');
+        $this->assertTrue(Functions::import_decode('Búfal &lt;aquàtic&gt;', false, true) == 'Búfal <aquàtic>', 'Should get decoded properly');
+        $this->assertTrue(Functions::import_decode('Búfal &lt;aquàtic&gt;') == 'Búfal <aquàtic>', 'Decode should be the default');
+        $this->assertTrue(Functions::import_decode('Búfal &lt;aquàtic&gt;') == 'Búfal <aquàtic>', 'Decode should be the default');
+    }
 
 }
 
