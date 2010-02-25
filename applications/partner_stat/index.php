@@ -16,7 +16,7 @@
 //define("ENVIRONMENT", "slave_215");
 //define("ENVIRONMENT", "development");
 
-//$GLOBALS['ENV_NAME'] = 'development';
+$GLOBALS['ENV_NAME'] = 'production';
 
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
