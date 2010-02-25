@@ -1,6 +1,6 @@
 <?php
 
-require_once(LOCAL_ROOT . '/classes/modules/simpletest/autorun.php');
+require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
 
 class SimpletestUnitBase extends UnitTestCase
 {

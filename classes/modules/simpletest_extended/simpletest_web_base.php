@@ -1,7 +1,7 @@
 <?php
 
-require_once(LOCAL_ROOT . '/classes/modules/simpletest/autorun.php');
-require_once(LOCAL_ROOT . '/classes/modules/simpletest/web_tester.php');
+require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
+require_once(DOC_ROOT . 'vendor/simpletest/web_tester.php');
 
 class SimpletestWebBase extends WebTestCase
 {
@@ -10,8 +10,7 @@ class SimpletestWebBase extends WebTestCase
         $called_class_name = get_class($this);
         echo "WebTest => ".$called_class_name."\n"; flush();
         
-        $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->mysqli->truncate_tables('test');
+        $GLOBALS['db_connection']->truncate_tables('test');
         if(isset($this->load_fixtures)) $this->load_fixtures();
     }
     
@@ -23,7 +22,7 @@ class SimpletestWebBase extends WebTestCase
     
     function load_fixtures()
     {
-        $this->fixtures = Functions::load_fixtures('test');
+        $this->fixtures = load_fixtures('test');
     }
 }
 

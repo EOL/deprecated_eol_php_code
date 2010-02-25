@@ -7,7 +7,7 @@ ini_set("display_errors", 1);
 $GLOBALS['ENV_NAME'] = 'test';
 require_once(dirname(__FILE__) . '/../config/environment.php');
 
-require_once(DOC_ROOT . 'classes/modules/simpletest/autorun.php');
+require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
 require_once(DOC_ROOT . 'classes/modules/simpletest_extended/simpletest_unit_base.php');
 require_once(DOC_ROOT . 'classes/modules/simpletest_extended/simpletest_web_base.php');
 
