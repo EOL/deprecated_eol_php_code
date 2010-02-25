@@ -5,28 +5,52 @@ class MemoryCache
 {
     public static function get($key)
     {
-        if(!is_string($key)) return false;
-        if(!isset($GLOBALS['memory_cache'][$key])) return false;
+        if(!is_string($key))
+        {
+            trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            return false;
+        }
+        if(!isset($GLOBALS['memory_cache'][$key]))
+        {
+            //trigger_error("MemoryCache: key doesnt exist", E_USER_WARNING);
+            return false;
+        }
         return unserialize($GLOBALS['memory_cache'][$key]);
     }
     
     public static function add($key, $value, $expire = 10, $force = false)
     {
-        if(!is_string($key)) return false;
-        if(!$force && isset($GLOBALS['memory_cache'][$key])) return false;
+        if(!is_string($key))
+        {
+            trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            return false;
+        }
+        if(!$force && isset($GLOBALS['memory_cache'][$key]))
+        {
+            //trigger_error("MemoryCache: key already exists", E_USER_WARNING);
+            return false;
+        }
         $GLOBALS['memory_cache'][$key] = serialize($value);
         return true;
     }
     
     public static function set($key, $value, $expire = 10)
     {
-        if(!is_string($key)) return false;
+        if(!is_string($key))
+        {
+            trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            return false;
+        }
         return self::add($key, $value, $expire, true);
     }
     
     public static function delete($key, $timeout = 0)
     {
-        if(!is_string($key)) return false;
+        if(!is_string($key))
+        {
+            trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            return false;
+        }
         if(isset($GLOBALS['memory_cache'][$key])) unset($GLOBALS['memory_cache'][$key]);
     }
     

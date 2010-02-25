@@ -98,7 +98,7 @@ class Name extends MysqlBase
         if($given_canonical_form) $canonical_form = $given_canonical_form;
         else $canonical_form = Functions::canonical_form($string);
         $canonical_form_id = CanonicalForm::insert($canonical_form);
-        $italicized_form = Functions::italiziced_form($string);
+        $italicized_form = Functions::italicized_form($string);
         $clean_name = Functions::clean_name($string);
         
         $id = parent::insert_fields_into(array('string' => $string, 'clean_name' => $clean_name, 'italicized' => $italicized_form, 'italicized_verified' => 0, 'canonical_form_id' => $canonical_form_id, 'canonical_verified' => 0), Functions::class_name(__FILE__));

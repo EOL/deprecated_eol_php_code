@@ -24,15 +24,16 @@ if(preg_match("/^([a-z_]+)\/?$/i", $test_name, $arr))
 {
     if(!is_dir(DOC_ROOT . "tests/$arr[1]/"))
     {
-        echo "ERROR: directory tests/$arr[1]/ does not exist";
+        trigger_error("Directory tests/$arr[1]/ does not exist", E_USER_ERROR);
         exit;
     }
     get_tests_from_dir(DOC_ROOT . "tests/$arr[1]/", $group_test, false);
 }elseif($test_name)
 {
+    if(preg_match("/^(.*)\.php/", $test_name, $arr)) $test_name = $arr[1];
     if(!file_exists(DOC_ROOT . "tests/$test_name.php"))
     {
-        echo "ERROR: test tests/$test_name.php does not exist";
+        trigger_error("Test tests/$test_name.php does not exist", E_USER_ERROR);
         exit;
     }
     require_once(DOC_ROOT . "tests/$test_name.php");

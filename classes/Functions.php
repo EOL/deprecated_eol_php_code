@@ -357,7 +357,7 @@ class Functions
         return trim($return_string);
     }
     
-    public static function italiziced_form($string)
+    public static function italicized_form($string)
     {
         $canonical_form = self::canonical_form($string);
         
@@ -373,6 +373,8 @@ class Functions
         
         $string = str_replace("|-n-|","<i>",$string);
         $string = str_replace("|-/n-|","</i>",$string);
+        $string = str_replace("<i><i>", "<i>", $string);
+        $string = str_replace("</i></i>", "</i>", $string);
         
         unset($canonical_form);
         return $string;
@@ -615,7 +617,7 @@ class Functions
     public static function remove_whitespace($string)
     {
         while(preg_match("/  /",$string)) $string = trim(str_replace("  "," ",$string));
-        return $string;
+        return trim($string);
     }
     
     // from http://www.php.net/manual/en/function.in-array.php#89256
