@@ -5,7 +5,7 @@ define('DEBUG', 1);
 define('DEBUG_TO_FILE', 1);
 define("ENVIRONMENT", "slave");
 
-include_once("../../config/start.php");
+include_once("../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

@@ -1,5 +1,22 @@
 <?php
 
+/* Set your working development environment */
+// the old way of setting the environment is to use the constant, so give that priority
+if(defined('ENVIRONMENT')) $GLOBALS['ENV_NAME'] = ENVIRONMENT;
+if(!isset($GLOBALS['ENV_NAME']))
+{
+    // Environments are currently only used to configure the proper MySQL connection as defined in database.yml
+    $GLOBALS['ENV_NAME'] = "development";
+}
+
+/* Override with any settings from /config/environments/ENVIRONMENT.php */
+if(file_exists(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php'))
+{
+    require_once(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php');
+}
+
+
+
 /* requiring PEAR package Horde/Yaml to import *.yml files */
 require_once "Horde/Yaml.php";
 require_once "Horde/Yaml/Loader.php";
@@ -15,19 +32,13 @@ define("LOCAL_ROOT", DOC_ROOT);
 if(!defined("WEB_ROOT")) define("WEB_ROOT", 'http://' . @$_SERVER['SERVER_NAME'] . '/');
 define("LOCAL_WEB_ROOT", WEB_ROOT);
 
+
+
 require_once(LOCAL_ROOT."classes/MysqlBase.php");
 require_all_classes_recursively(DOC_ROOT . 'vendor/php_active_record/classes/');
 require_all_classes_recursively(DOC_ROOT . 'classes/');
 
 set_exception_handler(array('ActiveRecordError', 'handleException'));
-
-/* Set your working development environment */
-if(!isset($GLOBALS['ENV_NAME']) && defined('ENVIRONMENT')) $GLOBALS['ENV_NAME'] = ENVIRONMENT;
-if(!isset($GLOBALS['ENV_NAME']))
-{
-    // Environments are currently only used to configure the proper MySQL connection as defined in database.yml
-    $GLOBALS['ENV_NAME'] = "development";
-}
 
 /* Should really always be set to true */
 if(!isset($GLOBALS['ENV_USE_MYSQL'])) $GLOBALS['ENV_USE_MYSQL'] = true;
