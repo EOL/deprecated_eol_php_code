@@ -1,0 +1,92 @@
+<<<<<<< .mine
+canadian_arachnologist:
+    agent_id: 1
+    resource_id: 111
+    resource_agent_role_id: 3
+
+ant_web:
+    agent_id: 2
+    resource_id: 222
+    resource_agent_role_id: 3
+
+arkive:
+    agent_id: 3
+    resource_id: 333
+    resource_agent_role_id: 3
+
+amphibia_web:
+    agent_id: 4
+    resource_id: 444
+    resource_agent_role_id: 3
+
+animal_diversity_web:
+    agent_id: 5
+    resource_id: 555
+    resource_agent_role_id: 3
+
+efloras:
+    agent_id: 7
+    resource_id: 666
+    resource_agent_role_id: 3
+
+iucn_initial:
+    agent_id: 7
+    resource_id: 777
+    resource_agent_role_id: 3
+
+morphbank:
+    agent_id: 8
+    resource_id: 888
+    resource_agent_role_id: 3
+
+inotaxa:
+    agent_id: 9
+    resource_id: 63
+    resource_agent_role_id: 3
+
+    =======
+canadian_arachnologist:
+    agent_id: 1
+    resource_id: 111
+    resource_agent_role_id: 3
+
+ant_web:
+    agent_id: 2
+    resource_id: 222
+    resource_agent_role_id: 3
+
+arkive:
+    agent_id: 3
+    resource_id: 333
+    resource_agent_role_id: 3
+
+amphibia_web:
+    agent_id: 4
+    resource_id: 444
+    resource_agent_role_id: 3
+
+animal_diversity_web:
+    agent_id: 5
+    resource_id: 555
+    resource_agent_role_id: 3
+
+efloras:
+    agent_id: 6
+    resource_id: 666
+    resource_agent_role_id: 3
+
+iucn_initial:
+    agent_id: 7
+    resource_id: 777
+    resource_agent_role_id: 3
+
+morphbank:
+    agent_id: 8
+    resource_id: 888
+    resource_agent_role_id: 3
+
+inotaxa:
+    agent_id: 9
+    resource_id: 63
+    resource_agent_role_id: 3
+>>>>>>> .r82

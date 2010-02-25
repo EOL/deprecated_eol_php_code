@@ -1,0 +1,48 @@
+ref_identifier_types_1:
+    id: 1
+    label: bici
+
+ref_identifier_types_2:
+    id: 2
+    label: coden
+
+ref_identifier_types_3:
+    id: 3
+    label: doi
+
+ref_identifier_types_4:
+    id: 4
+    label: eissn
+
+ref_identifier_types_5:
+    id: 5
+    label: handle
+
+ref_identifier_types_6:
+    id: 7
+    label: isbn
+
+ref_identifier_types_7:
+    id: 6
+    label: issn
+
+ref_identifier_types_8:
+    id: 8
+    label: lsid
+
+ref_identifier_types_9:
+    id: 9
+    label: oclc
+
+ref_identifier_types_10:
+    id: 10
+    label: sici
+
+ref_identifier_types_11:
+    id: 11
+    label: url
+
+ref_identifier_types_12:
+    id: 12
+    label: urn
+

@@ -1,0 +1,11 @@
+inserted:
+    id: 1
+    label: Inserted
+
+unchanged:
+    id: 2
+    label: Unchanged
+
+updated:
+    id: 3
+    label: Updated

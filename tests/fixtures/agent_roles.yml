@@ -1,0 +1,60 @@
+agent_roles_1:
+    id: 1
+    label: Animator
+
+agent_roles_2:
+    id: 2
+    label: Author
+
+agent_roles_3:
+    id: 3
+    label: Compiler
+
+agent_roles_4:
+    id: 4
+    label: Composer
+
+agent_roles_5:
+    id: 15
+    label: Contact Person
+
+agent_roles_6:
+    id: 5
+    label: Creator
+
+agent_roles_7:
+    id: 6
+    label: Director
+
+agent_roles_8:
+    id: 7
+    label: Editor
+
+agent_roles_9:
+    id: 8
+    label: Illustrator
+
+agent_roles_10:
+    id: 9
+    label: Photographer
+
+agent_roles_11:
+    id: 10
+    label: Project
+
+agent_roles_12:
+    id: 11
+    label: Publisher
+
+agent_roles_13:
+    id: 12
+    label: Recorder
+
+agent_roles_14:
+    id: 13
+    label: Source
+
+agent_roles_15:
+    id: 14
+    label: Source Database
+

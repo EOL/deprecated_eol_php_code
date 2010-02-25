@@ -1,0 +1,27 @@
+kingdom:
+        id: 1
+        label: Kingdom
+
+phylum:
+        id: 2
+        label: Phylum
+
+class:
+        id: 3
+        label: Class
+
+order:
+        id: 4
+        label: Order
+
+family:
+        id: 5
+        label: Family
+
+genus:
+        id: 6
+        label: Genus
+
+species:
+        id: 7
+        label: Species

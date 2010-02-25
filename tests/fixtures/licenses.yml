@@ -1,0 +1,72 @@
+licenses_1:
+    id: 1
+    title: public domain
+    description: No rights reserved
+    source_url: 
+    version: 0
+    logo_url: 
+
+licenses_2:
+    id: 2
+    title: all rights reserved
+    description: (c) All rights reserved
+    source_url: 
+    version: 0
+    logo_url: 
+
+licenses_3:
+    id: 3
+    title: cc-by-nc 3.0
+    description: Some rights reserved
+    source_url: http://creativecommons.org/licenses/by-nc/3.0/
+    version: 0
+    logo_url: /images/licenses/cc_by_nc_small.png
+
+licenses_4:
+    id: 4
+    title: cc-by 3.0
+    description: Some rights reserved
+    source_url: http://creativecommons.org/licenses/by/3.0/
+    version: 0
+    logo_url: /images/licenses/cc_by_small.png
+
+licenses_5:
+    id: 5
+    title: cc-by-sa 3.0
+    description: Some rights reserved
+    source_url: http://creativecommons.org/licenses/by-sa/3.0/
+    version: 0
+    logo_url: /images/licenses/cc_by_sa_small.png
+
+licenses_6:
+    id: 6
+    title: cc-by-nc-sa 3.0
+    description: Some rights reserved
+    source_url: http://creativecommons.org/licenses/by-nc-sa/3.0/
+    version: 0
+    logo_url: /images/licenses/cc_by_nc_sa_small.png
+
+licenses_7:
+    id: 7
+    title: gnu-fdl
+    description: Some rights reserved
+    source_url: http://www.gnu.org/licenses/fdl.html
+    version: 0
+    logo_url: /images/licenses/gnu_fdl_small.png
+
+licenses_8:
+    id: 8
+    title: gnu-gpl
+    description: Some rights reserved
+    source_url: http://www.gnu.org/licenses/gpl.html
+    version: 0
+    logo_url: /images/licenses/gnu_fdl_small.png
+
+licenses_9:
+    id: 9
+    title: 
+    description: 
+    source_url: http://creativecommons.org/licenses/by-nc-sa/1.0/
+    version: 
+    logo_url: 
+

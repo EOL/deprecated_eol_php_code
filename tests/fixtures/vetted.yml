@@ -1,0 +1,18 @@
+vetted_1:
+    id: 0
+    label: Unknown
+    created_at: 2008-10-17 14:53:42
+    updated_at: 2008-10-17 14:53:42
+
+vetted_2:
+    id: 4
+    label: Untrusted
+    created_at: 2008-10-17 14:53:42
+    updated_at: 2008-10-17 14:53:42
+
+vetted_3:
+    id: 5
+    label: Trusted
+    created_at: 2008-10-17 14:53:42
+    updated_at: 2008-10-17 14:53:42
+

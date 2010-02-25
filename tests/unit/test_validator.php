@@ -4,26 +4,28 @@ class test_validator extends SimpletestUnitBase
 {
     function testProperValidation()
     {
-        $response = SchemaValidator::validate(LOCAL_ROOT."/fixtures/files/test_resource.xml");
+        $response = SchemaValidator::validate(DOC_ROOT . "tests/fixtures/files/test_resource.xml");
         $this->assertTrue($response, "There should be a response");
         $this->assertNotA($response, "array", "Response should not be an array");
     }
     
     function testImroperValidation()
     {
-        $doc = simplexml_load_file(LOCAL_ROOT."/fixtures/files/test_resource.xml");
+        $doc = simplexml_load_file(DOC_ROOT . "tests/fixtures/files/test_resource.xml");
         $taxon = $doc->addChild('taxon');
         $taxon->addChild('identifier', '12345', 'http://purl.org/dc/elements/1.1/');
         $taxon->addChild('scientificname', 'some name', 'http://rs.tdwg.org/dwc/dwcore/');
         //this should be capitalized to be valid
         
-        $FILE = fopen(LOCAL_ROOT."/temp/resource.xml", "w+");
+        $FILE = fopen(DOC_ROOT . "temp/resource.xml", "w+");
         fwrite($FILE, $doc->asXML());
         fclose($FILE);
         
-        $response = SchemaValidator::validate(LOCAL_ROOT."/temp/resource.xml");
+        $response = SchemaValidator::validate(DOC_ROOT . "temp/resource.xml");
         $this->assertTrue($response, "There should be a response");
         $this->assertIsA($response, "array", "Response should be an array of errors");
+        
+        unlink(DOC_ROOT . "temp/resource.xml");
     }
 }
 

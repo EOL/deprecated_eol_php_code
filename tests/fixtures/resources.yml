@@ -1,0 +1,77 @@
+canadian_arachnologist:
+    id: 111
+    title: Canadian Arachnologist
+    refresh_period_hours: 1
+    resource_status_id: 1
+    auto_publish: 1
+    vetted: 1
+
+ant_web:
+    id: 222
+    title: AntWeb
+    refresh_period_hours: 1
+    resource_status_id: 1
+
+arkive:
+    id: 333
+    title: ARKive
+    refresh_period_hours: 1
+    resource_status_id: 1
+
+amphibia_web:
+    id: 444
+    title: Amphibia Web
+    refresh_period_hours: 1
+    resource_status_id: 1
+
+animal_diversity_web:
+    id: 555
+    title: Animal Diversity Web
+    refresh_period_hours: 1
+    resource_status_id: 1
+
+biopix:
+    id: 666
+    title: Biopix
+    refresh_period_hours: 1
+    resource_status_id: 1
+    auto_publish: 1
+    license_id: 6
+    rights_statement: All information copyright Biopix
+    rights_holder: Copyright held by Biopix
+    language_id: 152
+
+iucn:
+    id: 777
+    title: Initial IUCN Import
+    refresh_period_hours: 1
+    resource_status_id: 1
+    auto_publish: 1
+    license_id: 6
+    rights_statement: All information copyright IUCN
+    rights_holder: Copyright held by Initial IUCN Import
+    language_id: 152
+
+morphbank:
+    id: 888
+    title: Morphbank resource
+    refresh_period_hours: 1
+    resource_status_id: 1
+    auto_publish: 1
+    license_id: 6
+    rights_statement: All information copyright Morphbank
+    rights_holder: Copyright held by Initial Morphbank Import
+    language_id: 152
+    accesspoint_url: http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=474239
+
+inotaxa:
+    id: 63
+    title: INOTAXA resource
+    refresh_period_hours: 1
+    resource_status_id: 1
+    auto_publish: 1
+    license_id: 6
+    rights_statement: All information copyright INOTAXA
+    rights_holder: Copyright held by Initial INOTAXA Import
+    language_id: 152
+    accesspoint_url: http://128.128.175.77/bca.xml

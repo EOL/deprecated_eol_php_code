@@ -1,0 +1,76 @@
+synonym_relations_1:
+    id: 19
+    label: accepted name
+
+synonym_relations_2:
+    id: 3
+    label: acronym
+
+synonym_relations_3:
+    id: 16
+    label: ambiguous synonym
+
+synonym_relations_4:
+    id: 4
+    label: anamorph
+
+synonym_relations_5:
+    id: 5
+    label: blast name
+
+synonym_relations_6:
+    id: 2
+    label: common name
+
+synonym_relations_7:
+    id: 6
+    label: equivalent name
+
+synonym_relations_8:
+    id: 7
+    label: genbank acronym
+
+synonym_relations_9:
+    id: 8
+    label: genbank anamorph
+
+synonym_relations_10:
+    id: 9
+    label: genbank common name
+
+synonym_relations_11:
+    id: 10
+    label: genbank synonym
+
+synonym_relations_12:
+    id: 11
+    label: in-part
+
+synonym_relations_13:
+    id: 12
+    label: includes
+
+synonym_relations_14:
+    id: 17
+    label: misapplied name
+
+synonym_relations_15:
+    id: 13
+    label: misnomer
+
+synonym_relations_16:
+    id: 14
+    label: misspelling
+
+synonym_relations_17:
+    id: 18
+    label: provisionally accepted name
+
+synonym_relations_18:
+    id: 1
+    label: synonym
+
+synonym_relations_19:
+    id: 15
+    label: teleomorph
+
