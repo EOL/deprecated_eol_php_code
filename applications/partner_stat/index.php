@@ -15,9 +15,12 @@
 //define("ENVIRONMENT", "slave_32");
 //define("ENVIRONMENT", "slave_215");
 //define("ENVIRONMENT", "development");
+
+//$GLOBALS['ENV_NAME'] = 'development';
+
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $agent_id = get_val_var("agent_id");
