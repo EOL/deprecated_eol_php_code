@@ -58,7 +58,7 @@ class Taxon extends MysqlBase
         
         $name_id = Name::insert($c->common_name);
         if(!$c->language_id) $c->language_id = Language::insert('Common name');
-        Name::add_language_by_name_id($name_id, $c->language_id, $this->name_id, 0);
+        //Name::add_language_by_name_id($name_id, $c->language_id, $this->name_id, 0);
     }
     
     public function add_data_object($data_object_id, $data_object)
@@ -146,7 +146,7 @@ class Taxon extends MysqlBase
         
         if($guid = $find_result["exact"])
         {
-            $result = $mysqli->query("SELECT SQL_NO_CACHE taxon_id FROM harvest_events_taxa WHERE guid='$guid' AND harvest_event_id=".$resource->harvest_event->id."ORDER BY data_object_id DESC LIMIT 0,1");
+            $result = $mysqli->query("SELECT SQL_NO_CACHE taxon_id FROM harvest_events_taxa WHERE guid='$guid' AND harvest_event_id=".$resource->harvest_event->id." ORDER BY data_object_id DESC LIMIT 0,1");
             if($result && $row=$result->fetch_assoc())
             {
                 return array(new Taxon($row["taxon_id"]), "Reused");
@@ -268,44 +268,44 @@ class Taxon extends MysqlBase
         if(@$string = $taxon->taxon_kingdom)
         {
             $name = new Name(Name::insert($string));
-            $name->make_scientific();
+            //$name->make_scientific();
             $name_ids["kingdom"] = $name->id;
         }
         if(@$string = $taxon->taxon_phylum)
         {
             $name = new Name(Name::insert($string));
-            $name->make_scientific();
+            //$name->make_scientific();
             $name_ids["phylum"] = $name->id;
         }
         if(@$string = $taxon->taxon_class)
         {
             $name = new Name(Name::insert($string));
-            $name->make_scientific();
+            //$name->make_scientific();
             $name_ids["class"] = $name->id;
         }
         if(@$string = $taxon->taxon_order)
         {
             $name = new Name(Name::insert($string));
-            $name->make_scientific();
+            //$name->make_scientific();
             $name_ids["order"] = $name->id;
         }
         if(@$string = $taxon->taxon_family)
         {
             $name = new Name(Name::insert($string));
-            $name->make_scientific();
+            //$name->make_scientific();
             $name_ids["family"] = $name->id;
         }
         if(@$string = $taxon->taxon_genus)
         {
             $name = new Name(Name::insert($string));
-            $name->make_scientific();
+            //$name->make_scientific();
             $name_ids["genus"] = $name->id;
         }
         if(@$taxon->taxon_family && !@$taxon->taxon_genus && @preg_match("/^([^ ]+) /", $taxon->scientific_name, $arr))
         {
             $string = $arr[1];
             $name = new Name(Name::insert($string));
-            $name->make_scientific();
+            //$name->make_scientific();
             $name_ids["genus"] = $name->id;
         }
         if(@$taxon->name_id) $name_ids[] = $taxon->name_id;

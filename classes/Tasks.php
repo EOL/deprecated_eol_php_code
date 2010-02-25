@@ -235,17 +235,13 @@ class Tasks extends MysqlBase
         
         
         //This makes sure we have a scientific name, gets the canonicalFormID
-        $result = $mysqli->query("SELECT n.canonical_form_id, nl.name_id FROM name_languages nl JOIN names n ON (nl.name_id=n.id) WHERE nl.name_id IN (".implode(",",array_keys($name_ids)).") AND nl.language_id=".Language::insert("Scientific Name"));
+        $result = $mysqli->query("SELECT n_match.id FROM names n JOIN canonical_forms cf ON (n.canonical_form_id=cf.id) JOIN names n_match ON (cf.id=n_match.canonical_form_id) WHERE n.id IN (".implode(",",array_keys($name_ids)).") AND n_match.string=cf.string");
         while($result && $row=$result->fetch_assoc())
         {
             //add the canonicalForm to the taxon_concept
             //only adding canonicalForm - not all names with the same canonicalForm - this might be changed in the future to be more inclusive
-            $result2 = $mysqli->query("SELECT n.id FROM canonical_forms cf JOIN names n ON (cf.id=n.canonical_form_id) WHERE cf.id=".$row["canonical_form_id"]." AND n.string=cf.string");
-            while($result2 && $row2=$result2->fetch_assoc())
-            {
-                $matching_ids[$row2["id"]][0] = 1;
-                $name_ids[$row2["id"]] = 1;
-            }
+            $matching_ids[$row["id"]][0] = 1;
+            $name_ids[$row["id"]] = 1;
         }
         $result->free();
         

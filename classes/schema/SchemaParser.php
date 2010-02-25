@@ -74,11 +74,11 @@ class SchemaParser
                     }else continue;
                 }
                 
-                if($taxon_parameters["name_id"])
-                {
-                    $name = new Name($taxon_parameters["name_id"]);
-                    $name->make_scientific();
-                }
+                // if($taxon_parameters["name_id"])
+                // {
+                //     $name = new Name($taxon_parameters["name_id"]);
+                //     $name->make_scientific();
+                // }
                 
                 
                 $taxon_parameters["common_names"] = array();

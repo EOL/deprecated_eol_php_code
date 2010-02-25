@@ -21,13 +21,20 @@ class HarvestEvent extends MysqlBase
         return $all;
     }
     
-    public function delete()
+    public static function delete($id)
     {
-        $this->mysqli->delete("DELETE do FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$this->id AND dohe.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
-        $this->mysqli->delete("DELETE FROM data_objects_harvest_events WHERE harvest_event_id=$this->id");
-        $this->mysqli->delete("DELETE t FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) WHERE harvest_event_id=$this->id AND het.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
-        $this->mysqli->delete("DELETE FROM harvest_events_taxa WHERE harvest_event_id=$this->id");
-        $this->mysqli->delete("DELETE FROM harvest_events WHERE id=$this->id");
+        if(!$id) return false;
+        
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $mysqli->begin_transaction();
+        $mysqli->delete("DELETE do FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$id AND dohe.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
+        $mysqli->delete("DELETE FROM data_objects_harvest_events WHERE harvest_event_id=$id");
+        $mysqli->delete("DELETE t FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) WHERE harvest_event_id=$id AND het.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
+        $mysqli->delete("DELETE FROM harvest_events_taxa WHERE harvest_event_id=$id");
+        $mysqli->delete("DELETE FROM harvest_events WHERE id=$id");
+        
+        $mysqli->end_transaction();
     }
     
     function resource()

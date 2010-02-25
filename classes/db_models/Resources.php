@@ -16,6 +16,7 @@ class Resource extends MysqlBase
         
         $this->harvest_event = false;
         $this->resource_path = CONTENT_RESOURCE_LOCAL_PATH.$this->id.".xml";
+        $this->resource_deletions_path = CONTENT_RESOURCE_LOCAL_PATH.$this->id."_delete.xml";
     }
     
     public static function delete($id)
@@ -270,6 +271,11 @@ class Resource extends MysqlBase
             SchemaParser::parse($this->resource_path, $connection);
             unset($connection);
             Functions::debug("Parsed resource: $this->id");
+            $this->mysqli->commit();
+            
+            // if the resource only contains information to update, then check for a 
+            // _delete file for the identifiers of the objects to delete
+            $this->add_unchanged_data_to_harvest();
             
             $this->end_harvest();
             $this->mysqli->commit();
@@ -322,6 +328,42 @@ class Resource extends MysqlBase
             }
         }
     }
+    
+    public function add_unchanged_data_to_harvest()
+    {
+        // there is no _delete file so we assume the resource is complete
+        if(!file_exists($this->resource_deletions_path)) return false;
+        
+        if($this->harvest_event)
+        {
+            $last_harvest_event_id = $this->last_harvest_event_id();
+            // if there isn't a previous harvest there's nothing to delete or remain unchanged
+            if(!$last_harvest_event_id) return false;
+            
+            $identifiers_to_delete = array();
+            $file = file($this->resource_deletions_path);
+            foreach($file as $line)
+            {
+                $id = trim($line);
+                if($id) $identifiers_to_delete[] = trim($line);
+            }
+            
+            // at this point identifiers_to_delete could be empty - meaning we don't want to delete anything and
+            // we want to being over all old items not references in the resource file
+            $identifiers_to_delete_string = "'". implode("','", $identifiers_to_delete) ."'";
+            if($identifiers_to_delete_string == "''") $identifiers_to_delete_string = "'NONSENSE 9832rhjgovih'";
+            
+            $unchanged_status_id = Status::insert('Unchanged');
+            // add the unchanged data objects
+            $this->mysqli->insert("INSERT INTO data_objects_harvest_events (harvest_event_id, data_object_id, guid, status_id)  SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.data_object_id=dohe.data_object_id) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
+            
+            // add the unchanged taxa
+            $this->mysqli->insert("INSERT INTO harvest_events_taxa (harvest_event_id, taxon_id, guid, status_id) SELECT ".$this->harvest_event->id.", het.taxon_id, het.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) JOIN harvest_events_taxa het ON (dot.taxon_id=het.taxon_id) LEFT JOIN harvest_events_taxa het_current ON (het_current.harvest_event_id=".$this->harvest_event->id." AND het_current.taxon_id=het.taxon_id) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND het.harvest_event_id=$last_harvest_event_id AND het_current.taxon_id IS NULL");
+            
+            // at this point everything has been added EXCEPT the things we want to delete
+        }
+    }
+    
     
     public function update_names_of_new_entries()
     {
