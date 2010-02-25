@@ -516,7 +516,7 @@ class Functions
         {
             $fixture_data->$table = (object) array();
             
-            $rows = Horde_Yaml::loadFile(LOCAL_ROOT."fixtures/$table.yml");
+            $rows = Horde_Yaml::loadFile(LOCAL_ROOT."tests/fixtures/$table.yml");
             foreach($rows as $id => $row)
             {
                 $fixture_data->$table->$id = (object) array();
@@ -563,7 +563,7 @@ class Functions
     {
         $files = array();
         
-        $dir = LOCAL_ROOT."fixtures/";
+        $dir = LOCAL_ROOT."tests/fixtures/";
         $files_in_dir = self::get_files_in_dir($dir);
         foreach($files_in_dir as $file)
         {

@@ -65,7 +65,11 @@ class ContentManager
                 copy($temp_file_path, $new_file_path);
                 
                 // fail if for some reason there is still no file at the new path
-                if(!file_exists($new_file_path)) return false;
+                if(!file_exists($new_file_path))
+                {
+                    trigger_error("ContentManager: Unable to download file $file", E_NOTICE);
+                    return false;
+                }
                 
                 if(preg_match("/^(.*)\.gz$/", $new_file_path, $arr))
                 {

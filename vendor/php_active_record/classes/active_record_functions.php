@@ -171,7 +171,7 @@ function load_fixtures($environment = "test")
     {
         $fixture_data->$table = (object) array();
         
-        $rows = Horde_Yaml::loadFile(DOC_ROOT . "fixtures/$table.yml");
+        $rows = Horde_Yaml::loadFile(DOC_ROOT . "tests/fixtures/$table.yml");
         foreach($rows as $id => $row)
         {
             $fixture_data->$table->$id = (object) array();
@@ -204,7 +204,7 @@ function get_fixture_files()
 {
     $files = array();
     
-    $dir = DOC_ROOT . 'fixtures/';
+    $dir = DOC_ROOT . 'tests/fixtures/';
     if($handle = opendir($dir))
     {
        while(false !== ($file = readdir($handle)))

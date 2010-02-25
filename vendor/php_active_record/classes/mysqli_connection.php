@@ -317,7 +317,7 @@ class MysqliConnection
                 exit;
             }
             
-            if(!$this->master_mysqli($this->database))
+            if(!$this->master_mysqli->select_db($this->database))
             {
                 if(@!$GLOBALS['ENV_ALLOW_MISSING_DB'])
                 {
