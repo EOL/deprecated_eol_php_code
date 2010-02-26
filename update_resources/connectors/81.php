@@ -27,9 +27,12 @@ date            taxid   with public barcode
 
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
+
+$GLOBALS['ENV_NAME'] = 'slave_32';
+
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //only on local; to be deleted before going into production
@@ -103,7 +106,8 @@ while($row=$result->fetch_assoc())
         
         //start #########################################################################  
 
-        if(intval($main->public_barcodes > 0))
+        //if(intval($main->public_barcodes > 0))
+        if(intval($main->barcodes > 0))
         {
             $id_with_public_barcode[]=$main->taxid;
             $taxid_count_with_barcode++;
@@ -129,7 +133,7 @@ while($row=$result->fetch_assoc())
             $do_count++;
 
             $dc_source = $species_service_url . urlencode($main->name);                            
-            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->public_barcodes);                   
+            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes);                   
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             $used_taxa[$taxon] = $taxon_parameters;
             // end comment here to just see count */
