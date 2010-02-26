@@ -2,15 +2,25 @@
 //connector for WORMS
 /*  date        ID's    bad ID's
     2010-Jan-11 160115  97    
+    
+        2010-feb-26
+2007    53366
+2008    66101
+2009    8955
+2010    9572
+         
 */
-exit;
+//exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
+
+
+$GLOBALS['ENV_NAME'] = 'slave_32';
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $bad_id=""; //not well formed XML
@@ -171,12 +181,14 @@ function process($id)
 }//end process() 
 function get_main_id_list()
 {
-
-    /*
-    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2007.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2008.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2009.xml";
-    */
+    // /*
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2009.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2010.xml";    
+    // */
+    
+    //$url[]="http://127.0.0.1/mtce/WORMS/20100104/test.xml";    
 
     /* WORMS server can't render such requests online
     $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";
@@ -185,12 +197,12 @@ function get_main_id_list()
     $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20100101&enddate=20101231";
     */
     
-    // /*
+    /*
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2007.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2008.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2009.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2010.xml";
-    // */    
+    */    
  
     echo "\n URLs = " . sizeof($url) . "\n";
     $no_of_urls = sizeof($url);        
