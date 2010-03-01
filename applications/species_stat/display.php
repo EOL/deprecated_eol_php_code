@@ -370,6 +370,8 @@ if($view == 3)
         
         if($i==22)print"<tr><td>&nbsp;</td></tr><tr><td><b>LifeDesks (in EOL Content Partner Registry) Stats &nbsp;&nbsp;
         <a target='lifedesk' href='index.php?group=5&f=results'>More info</a>
+        <a target='lifedesk' href='lifedesk_moreinfo.php'>More info</a>
+        
         </b></td></tr>";
         
         
