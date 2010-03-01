@@ -1,7 +1,7 @@
 <?php
 //
 /* connector for BOLD Systems */
-//exit;
+exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
@@ -20,9 +20,9 @@ http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&iwidth=600
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
 
-date            taxid   with public barcode
+date            taxid   with public barcode     with barcodes
 2010 Jan 20     16105   5594    
-
+2010 Mar 01     60749                           60749
 */
 
 //define("ENVIRONMENT", "development");
