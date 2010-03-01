@@ -20,7 +20,8 @@ require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $mysqli2 = $mysqli; // to use in Beast
-exit;
+//exit; //for debug
+
 //$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
 //$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
