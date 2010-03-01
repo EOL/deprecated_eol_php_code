@@ -12,7 +12,7 @@ define("MYSQL_DEBUG", false);
 define("DEBUG_TO_FILE", false);
 
 //include_once(dirname(__FILE__).  "/../../config/environment.php");
-require_once("../../config/environment.php");
+require_once("../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
