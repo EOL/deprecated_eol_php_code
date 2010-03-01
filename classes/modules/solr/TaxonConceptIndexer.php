@@ -75,8 +75,11 @@ class TaxonConceptIndexer
             if($row['vern'] && $string)
             {
                 $attr = 'common_name';
-                $this->objects[$id][$attr][SolrApi::text_filter($string, false)] = 1;
-                $this->objects[$id][$attr][SolrApi::text_filter($string)] = 1;
+                $name1 = SolrApi::text_filter($string, false);
+                $name2 = SolrApi::text_filter($string);
+                
+                if($name1) $this->objects[$id][$attr][$name1] = 1;
+                if($name2) $this->objects[$id][$attr][$name2] = 1;
             }elseif($string)
             {
                 $name1 = SolrApi::text_filter($string, false);
@@ -84,17 +87,31 @@ class TaxonConceptIndexer
                 
                 if($row['preferred'])
                 {
-                    $this->objects[$id]['preferred_scientific_name'][$name1] = 1;
-                    $this->objects[$id]['preferred_scientific_name'][$name2] = 1;
+                    if($name1) $this->objects[$id]['preferred_scientific_name'][$name1] = 1;
+                    if($name2) $this->objects[$id]['preferred_scientific_name'][$name2] = 1;
                 }
                 
-                $this->objects[$id]['scientific_name'][$name1] = 1;
-                $this->objects[$id]['scientific_name'][$name2] = 1;
+                if($name1) $this->objects[$id]['scientific_name'][$name1] = 1;
+                if($name2) $this->objects[$id]['scientific_name'][$name2] = 1;
             }
             
             $this->objects[$id]['vetted_id'] = $row['vetted_id'];
             $this->objects[$id]['published'] = $row['published'];
             $this->objects[$id]['supercedure_id'] = $row['supercedure_id'];
+        }
+        
+        // if any common name is also a scientific name - then remove the common name 
+        foreach($this->objects as $id => $arr)
+        {
+            if(!isset($arr['common_name'])) continue;
+            foreach($arr['common_name'] as $name => $val)
+            {
+                if(isset($this->objects[$id]['scientific_name'][$name]))
+                {
+                    //echo "$id) $name\n";
+                    unset($this->objects[$id]['common_name'][$name]);
+                }
+            }
         }
     }
     
