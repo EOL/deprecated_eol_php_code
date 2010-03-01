@@ -458,12 +458,10 @@ if($view == 3)
     for ($i = 0; $i < count($arr); $i++) 
     {    
         if($i==0)print"<tr><td><b>Data Object Statistics</b>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a target='more stats' href='index.php?group=4&f=results'>More stats (2-3 mins.)</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        
         <a target='more stats' href='moreinfo.php?on=dataobjects'>More stats (2-3 mins.)</a>
-        
-        
         </td></tr>";
+        //<a target='more stats' href='index.php?group=4&f=results'>More stats (2-3 mins.)</a>
         
         //if($i==10)
         //if($i==16)

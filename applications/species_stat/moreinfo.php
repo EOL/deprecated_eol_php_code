@@ -3,8 +3,10 @@
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
 
-require_once("../../config/start.php");
+//require_once("../../config/start.php");
+require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+
 
 if(!($on = $_GET["on"])) exit("Wrong entry.");
 
@@ -295,7 +297,7 @@ function get_values_fromCSV()
 
             $all_ids["all"][]=$row["id"];
         }
-        $result->close();            
+        //$result->close();            
         return $all_ids;
 
         /*
@@ -352,7 +354,7 @@ function get_values_fromCSV()
             
             $all_ids["all"][]=$row["id"];
         }
-        $result->close();            
+        //$result->close();            
         //$all_ids = array_keys($all_ids);
         return $all_ids;
     }//end get_data_object_ids_from_harvest_event($harvest_event_id)    
@@ -366,7 +368,12 @@ function get_values_fromCSV()
 
     function dataobject_stat_more()    //group 1=taxa stat; 2=data object stat
     {   
+    
+
         global $mysqli;
+        
+
+        
         
         $data_type = array(
         1 => "Image"      , 
@@ -382,6 +389,9 @@ function get_values_fromCSV()
         2 => array( "id" => Vetted::find("untrusted") , "label" => "Untrusted"),    
         3 => array( "id" => Vetted::find("trusted")   , "label" => "Trusted")       
         );                    
+        
+        //exit("222");                        
+        
         //initialize
         for ($i = 1; $i <= count($data_type); $i++) 
         {
@@ -396,7 +406,14 @@ function get_values_fromCSV()
         From (data_objects AS do) Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id) 
         Where do.published = 1 "; 
         //$query .= " limit 100,100 "; //debug only
+
+        //print"<hr>$query";
+        
+        
         $result = $mysqli->query($query);        
+        
+        
+        
         while($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];    
@@ -405,7 +422,7 @@ function get_values_fromCSV()
             $vetted_id      = $row["vetted_id"];            
             $do[$vetted_id][$data_type_id][$id] = true;            
         }
-        $result->close();    
+        //$result->close();    
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////              
         $param = array();
         for ($i = 1; $i <= count($data_type); $i++) 
@@ -418,35 +435,43 @@ function get_values_fromCSV()
             }
         }
         //print sizeof($param); exit;
+        
+        //exit("111");
                 
         //start Flickr count        
         $query = "Select Max(harvest_events.id) From harvest_events Where harvest_events.resource_id = '15' Group By harvest_events.resource_id ";
         $result = $mysqli->query($query);
         $row = $result->fetch_row();			
         $latest_event_id = $row[0];                
-        $result->close();                
+        //$result->close();                
         if($latest_event_id)        
         {
             $query = "Select Count(data_objects_harvest_events.data_object_id) From data_objects_harvest_events Where data_objects_harvest_events.harvest_event_id = $latest_event_id";
             $result = $mysqli->query($query);
             $row = $result->fetch_row();			
             $param[] = $row[0];                
-            $result->close();        
+            //$result->close();        
         }
         else $param[] = '';
         //end Flickr count                      
-        
+                    
         //start user submitted do
-        //$mysqli2 = load_mysql_environment('eol_production');
-        $mysqli2 = load_mysql_environment('slave_eol');
-        //$query = "Select Count(users_data_objects.id) From users_data_objects";	//all including unpublished
-        $query = "select count(udo.id) as 'total_user_text_objects' 
-		from eol_production.users_data_objects as udo join eol_data_production.data_objects as do on do.id=udo.data_object_id WHERE do.published=1;";
+            // /*
+            //$mysqli2 = load_mysql_environment('eol_production');
+            $mysqli2 = load_mysql_environment('slave_eol');
+            //$query = "Select Count(users_data_objects.id) From users_data_objects";	//all including unpublished
+            $query = "select count(udo.id) as 'total_user_text_objects' 
+    		from eol_production.users_data_objects as udo join eol_data_production.data_objects as do on do.id=udo.data_object_id WHERE do.published=1;";
         
-		$result = $mysqli2->query($query);        
-        $row = $result->fetch_row();			
-        $param[] = $row[0];                
-        $result->close();
+	    	$result = $mysqli2->query($query);        
+            $row = $result->fetch_row();			
+            $param[] = $row[0];                
+            $result->close();
+            //*/
+            
+            //$param[] = 0;
+            
+            
         //end user submitted do        
         
         $comma_separated = implode(",", $param);        
