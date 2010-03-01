@@ -263,6 +263,8 @@ function get_values_fromCSV()
     
     function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
     {   
+        global $mysqli;
+        
         $query = "
         SELECT DISTINCT he.taxon_concept_id as id , 0 as published
         FROM harvest_events_taxa het 
@@ -270,7 +272,7 @@ function get_values_fromCSV()
         JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) 
         WHERE het.harvest_event_id = $harvest_event_id ";
 
-        $result = $this->mysqli->query($query);                
+        $result = $mysqli->query($query);                
 
         $all_ids=array();
         $all_ids["published"]=array();
@@ -322,12 +324,14 @@ function get_values_fromCSV()
     }//end get_taxon_concept_ids_from_harvest_event($harvest_event_id)    
 
     function get_data_object_ids_from_harvest_event($harvest_event_id)
-    {   $query = "Select distinct data_objects_harvest_events.data_object_id as id, data_objects.published
+    {  
+        global $mysqli; 
+        $query = "Select distinct data_objects_harvest_events.data_object_id as id, data_objects.published
         From data_objects_harvest_events
         Inner Join data_objects ON data_objects_harvest_events.data_object_id = data_objects.id
         Where data_objects_harvest_events.harvest_event_id = $harvest_event_id ";    
         //AND data_objects.published = '1' 
-        $result = $this->mysqli->query($query);                
+        $result = $mysqli->query($query);                
 
         $all_ids=array();
         while($result && $row=$result->fetch_assoc())
