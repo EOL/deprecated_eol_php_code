@@ -14,11 +14,18 @@ class test_content_manager extends SimpletestUnitBase
         parent::tearDown();
     }
     
+    function testWebServerAvailability()
+    {
+        $file = Functions::get_remote_file(WEB_ROOT . "phpinfo.php");
+        $this->assertPattern("/phpinfo\(\)/", $file);
+    }
+    
     function testGrabResource()
     {
-        $file = $this->content_manager->grab_file(WEB_ROOT . 'tests/fixtures/files/test_resource.xml', 101, "resource");
-        $this->assertTrue($file == "101.xml", "File name should be same as resource id");
-        $this->assertTrue(file_exists(CONTENT_RESOURCE_LOCAL_PATH."/101.xml"), "File should exist");
+        $file = $this->content_manager->grab_file(WEB_ROOT . 'tests/fixtures/files/test_resource.xml', 101010101, "resource");
+        $this->assertTrue($file == "101010101.xml", "File name should be same as resource id");
+        $this->assertTrue(file_exists(CONTENT_RESOURCE_LOCAL_PATH."101010101.xml"), "File should exist");
+        unlink(CONTENT_RESOURCE_LOCAL_PATH."101010101.xml");
     }
     
     function testGrabPartnerImage()
@@ -46,6 +53,9 @@ class test_content_manager extends SimpletestUnitBase
             $this->assertTrue(file_exists(CONTENT_LOCAL_PATH."/".$dir.$prefix."_large.jpg"), "Should be a large thumbnail");
             $this->assertTrue(file_exists(CONTENT_LOCAL_PATH."/".$dir.$prefix."_orig.jpg"), "Should be an orignial size converted to jpeg");
         }else $this->assertTrue(false, "Image should match this pattern");
+        
+        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "content");
+        $this->assertPattern("/^[0-9]{15}/", $file, 'Should be able to download images with no file extension');
     }
 }
 
