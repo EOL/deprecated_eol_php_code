@@ -216,7 +216,9 @@ function get_values_fromCSV()
             if(@$latest_published[$row['resource_id']]) $harvest_event_id = $latest_published[$row['resource_id']];
             else                                        $harvest_event_id = $row["harvest_event_id"];                                
 
-            $arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
+            //$arr = $this->get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
+            $arr = get_taxon_concept_ids_from_harvest_event($harvest_event_id);      
+            
             /*not used
             $published_taxa = count(@$arr["published"]);
             $unpublished_taxa = count(@$arr["unpublished"]);
