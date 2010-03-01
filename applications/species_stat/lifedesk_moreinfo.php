@@ -225,7 +225,8 @@ function get_values_fromCSV()
             */
             $all_taxa = count(@$arr["all"]);                                    
 
-            $arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
+            //$arr = $this->get_data_object_ids_from_harvest_event($harvest_event_id);
+            $arr = get_data_object_ids_from_harvest_event($harvest_event_id);
             $published_do = count(@$arr["published"]);
             $unpublished_do = count(@$arr["unpublished"]);            
             $all_do = count(@$arr["all"]);
