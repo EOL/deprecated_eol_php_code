@@ -5,7 +5,7 @@
 //define("ENVIRONMENT", "data_main");				//where stats are stored
 
 
-$GLOBALS['ENV_NAME'] = 'production';
+//$GLOBALS['ENV_NAME'] = 'production';
 
 define("DEBUG", true);
 define("MYSQL_DEBUG", false);
