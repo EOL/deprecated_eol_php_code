@@ -8,7 +8,8 @@ define("DEBUG", true);
 define("MYSQL_DEBUG", false);
 define("DEBUG_TO_FILE", false);
 
-require_once(dirname(__FILE__)."/../../config/start.php");
+require_once(dirname(__FILE__)."/../../config/environment.php");
+
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 set_time_limit(0);
