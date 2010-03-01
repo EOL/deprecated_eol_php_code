@@ -4,11 +4,15 @@
 //define("ENVIRONMENT", "development");				//where stats are stored
 //define("ENVIRONMENT", "data_main");				//where stats are stored
 
+
+//$GLOBALS['ENV_NAME'] = 'development';
+
 define("DEBUG", true);
 define("MYSQL_DEBUG", false);
 define("DEBUG_TO_FILE", false);
 
-require_once(dirname(__FILE__)."/../../config/environment.php");
+//include_once(dirname(__FILE__).  "/../../config/environment.php");
+require_once("../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
