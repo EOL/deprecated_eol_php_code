@@ -9,9 +9,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 $stats = get_lifedesk_stat();
 
-print"<hr>";
-print"<pre>";print_r($stats);print"</pre>";
-exit;
+//print"<hr>";print"<pre>";print_r($stats);print"</pre>";exit;
 
 
 $temp = lifedesk_stat($stats);
