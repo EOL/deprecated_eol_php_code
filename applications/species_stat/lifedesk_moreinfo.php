@@ -7,6 +7,7 @@ require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $stats = get_lifedesk_stat();
+$temp = lifedesk_stat($stats);
 
 function lifedesk_stat($stats)
 {       //print"<pre>";print_r($stats);print"</pre>";
