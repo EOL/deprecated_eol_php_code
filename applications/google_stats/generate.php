@@ -1,14 +1,18 @@
 <?php
 
 //define("ENVIRONMENT", "integration"); 
-define("ENVIRONMENT", "slave_32");
+//define("ENVIRONMENT", "slave_32");
+
+$GLOBALS['ENV_NAME'] = 'slave_32';  //source of data
+
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+//include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 //exit;
 
-$mysqli2 = load_mysql_environment('eol_statistics');        
+$mysqli2 = load_mysql_environment('eol_statistics');    //destination storage
 set_time_limit(0);
 
 /*
@@ -323,7 +327,7 @@ function get_from_api($month,$year)
         $start_count=1; 
         //$start_count=30001;
         $range=10000;
-        //$range=1000;//debug
+        $range=5000;//debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        

@@ -699,7 +699,7 @@ function save_eol_taxa_google_stats($month,$year)
            //         exit;
 
             
-            echo"\n More, please wait... $start_count \n";
+            echo"\n Getting data from Google Analytics... \n More, please wait... $start_count \n";
 
             //exit;
 
