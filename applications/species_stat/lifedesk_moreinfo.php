@@ -9,10 +9,12 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 $stats = get_lifedesk_stat();
 
+$arr = $stats;
+if      ($arr[1]=="data_objects_more_stat") published_data_objects($arr[0]); //group 4
+elseif  ($arr[1]=="lifedesk_stat")          lifedesk_stat($arr[0]); //group 5
+
+
 //print"<hr>";print"<pre>";print_r($stats);print"</pre>";exit;
-
-
-$temp = lifedesk_stat($stats);
 
 function lifedesk_stat($stats)
 {       //print"<pre>";print_r($stats);print"</pre>";
