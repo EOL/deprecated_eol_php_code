@@ -1,5 +1,7 @@
 <?php
 
+$timestart = microtime(1);
+
 //define("ENVIRONMENT", "integration"); 
 //define("ENVIRONMENT", "slave_32");
 
@@ -46,6 +48,18 @@ $temp = prepare_agentHierarchies_hierarchiesNames($year_month); //start start2
 // */
 
 $temp = create_csv_files($year_month);                          //start start3
+
+
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+//###############################################################################################################
+//###############################################################################################################
+//###############################################################################################################
+
 
 function create_csv_files($year_month)
 {

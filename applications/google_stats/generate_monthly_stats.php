@@ -1,12 +1,17 @@
 <?php
 
+/*
+run date    1March2010  1April2010
+GA records  110,679
+report mon. Feb2010     Mar2010
+*/
+
 //define("ENVIRONMENT", "staging"); 
 //define("ENVIRONMENT", "eol_statistics"); 
 //define("ENVIRONMENT", "slave_32"); 
 
 /*
 http://127.0.0.1/eol_php_code/applications/google_stats/generate_monthly_stats_v2.php?month=12&year=2009
-
 $str="abc123,";
 print substr($str,0,strlen($str)-1);
 exit;
