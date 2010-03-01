@@ -369,7 +369,7 @@ if($view == 3)
         if($i==19)print"<tr><td>&nbsp;</td></tr><tr><td><b>Curatorial Statistics</b></td></tr>";
         
         if($i==22)print"<tr><td>&nbsp;</td></tr><tr><td><b>LifeDesks (in EOL Content Partner Registry) Stats &nbsp;&nbsp;        
-        <a target='lifedesk' href='lifedesk_moreinfo.php'>More info</a>
+        <a target='lifedesk' href='moreinfo.php?on=lifedesk'>More info</a>
         
         </b></td></tr>";
         //<a target='lifedesk' href='index.php?group=5&f=results'>More info</a>
@@ -460,6 +460,8 @@ if($view == 3)
         if($i==0)print"<tr><td><b>Data Object Statistics</b>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <a target='more stats' href='index.php?group=4&f=results'>More stats (2-3 mins.)</a>
+        <a target='more stats' href='moreinfo.php?on=dataobjects'>More stats (2-3 mins.)</a>
+        
         
         </td></tr>";
         

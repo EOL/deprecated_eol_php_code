@@ -6,8 +6,10 @@ define("MYSQL_DEBUG", false);
 require_once("../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+if(!($on = $_GET["on"])) exit("Wrong entry.");
 
-$stats = get_lifedesk_stat();
+if      ($on == "lifedesk")     $stats = get_lifedesk_stat();
+elseif  ($on == "dataobjects")  $stats = dataobject_stat_more();
 
 $arr = $stats;
 if      ($arr[1]=="data_objects_more_stat") published_data_objects($arr[0]); //group 4
@@ -356,4 +358,199 @@ function get_values_fromCSV()
     }//end get_data_object_ids_from_harvest_event($harvest_event_id)    
 
 
+    
+//###################################################################
+//start with data objects
+
+
+
+    function dataobject_stat_more()    //group 1=taxa stat; 2=data object stat
+    {   
+        global $mysqli;
+        
+        $data_type = array(
+        1 => "Image"      , 
+        2 => "Sound"      , 
+        3 => "Text"       , 
+        4 => "Video"      , 
+        5 => "GBIF Image" , 
+        6 => "IUCN"       , 
+        7 => "Flash"      , 
+        8 => "YouTube"    );
+        $vetted_type = array( 
+        1 => array( "id" => Vetted::find("unknown")   , "label" => "Unknown"),      
+        2 => array( "id" => Vetted::find("untrusted") , "label" => "Untrusted"),    
+        3 => array( "id" => Vetted::find("trusted")   , "label" => "Trusted")       
+        );                    
+        //initialize
+        for ($i = 1; $i <= count($data_type); $i++) 
+        {
+            for ($j = 1; $j <= count($vetted_type); $j++) 
+            {
+                $str1 = $vetted_type[$j]['id'];
+                $str2 = $i;
+                $do[$str1][$str2] = array();        
+            }
+        }       
+        $query = "Select distinct do.id, do.data_type_id, do.vetted_id, dotoc.toc_id AS toc_id, do.visibility_id 
+        From (data_objects AS do) Left Join data_objects_table_of_contents AS dotoc ON (do.id = dotoc.data_object_id) 
+        Where do.published = 1 "; 
+        //$query .= " limit 100,100 "; //debug only
+        $result = $mysqli->query($query);        
+        while($result && $row=$result->fetch_assoc())
+        {
+            $id = $row["id"];    
+            $toc_id = $row["toc_id"];                
+            $data_type_id   = $row["data_type_id"];
+            $vetted_id      = $row["vetted_id"];            
+            $do[$vetted_id][$data_type_id][$id] = true;            
+        }
+        $result->close();    
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////              
+        $param = array();
+        for ($i = 1; $i <= count($data_type); $i++) 
+        {
+            for ($j = 1; $j <= count($vetted_type); $j++) 
+            {
+                $str1 = $vetted_type[$j]['id'];
+                $str2 = $i;
+                $param[] = count($do[$str1][$str2]);
+            }
+        }
+        //print sizeof($param); exit;
+                
+        //start Flickr count        
+        $query = "Select Max(harvest_events.id) From harvest_events Where harvest_events.resource_id = '15' Group By harvest_events.resource_id ";
+        $result = $mysqli->query($query);
+        $row = $result->fetch_row();			
+        $latest_event_id = $row[0];                
+        $result->close();                
+        if($latest_event_id)        
+        {
+            $query = "Select Count(data_objects_harvest_events.data_object_id) From data_objects_harvest_events Where data_objects_harvest_events.harvest_event_id = $latest_event_id";
+            $result = $mysqli->query($query);
+            $row = $result->fetch_row();			
+            $param[] = $row[0];                
+            $result->close();        
+        }
+        else $param[] = '';
+        //end Flickr count                      
+        
+        //start user submitted do
+        //$mysqli2 = load_mysql_environment('eol_production');
+        $mysqli2 = load_mysql_environment('slave_eol');
+        //$query = "Select Count(users_data_objects.id) From users_data_objects";	//all including unpublished
+        $query = "select count(udo.id) as 'total_user_text_objects' 
+		from eol_production.users_data_objects as udo join eol_data_production.data_objects as do on do.id=udo.data_object_id WHERE do.published=1;";
+        
+		$result = $mysqli2->query($query);        
+        $row = $result->fetch_row();			
+        $param[] = $row[0];                
+        $result->close();
+        //end user submitted do        
+        
+        $comma_separated = implode(",", $param);        
+
+        $return[0]=$param;
+        $return[1]="data_objects_more_stat";
+        return $return;
+
+    }//end function dataobject_stat_more($group)
+
+
+
+
+function published_data_objects($arr)
+{
+    global $mysqli;
+    
+	//global $arr;
+	
+    print"Published Data Objects: <br/>";
+    $flickr_count = $arr[24];
+    $user_do_count = $arr[25];
+	/* debug
+	print "<hr>
+    $flickr_count <br>
+    $user_do_count <br>		
+	<hr>";
+	print_r($arr);
+	*/
+	//exit;
+	
+    array_pop($arr);    
+    array_pop($arr);        
+    
+    $data_type = array(
+    1 => "Image"      , 
+    2 => "Sound"      , 
+    3 => "Text"       , 
+    4 => "Video"      , 
+    5 => "GBIF Image" , 
+    6 => "IUCN"       , 
+    7 => "Flash"      , 
+    8 => "YouTube"    
+    );
+    $vetted_type = array( 
+    1 => array( "id" => "0" , "label" => "Unknown"),
+    2 => array( "id" => "4" , "label" => "Untrusted"),
+    3 => array( "id" => "5" , "label" => "Trusted")
+    );                
+
+    for ($j = 1; $j <= count($data_type); $j++) 
+    {
+        $sum[$j]=0;
+    }  
+
+    print"
+    <table cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Narrow;'>    
+    <tr align='center'>";
+        for ($i = 1; $i <= count($data_type); $i++) 
+        {
+            print"<td colspan='3'>" . $data_type[$i] . "</td>";
+        }      
+    print"</tr>";
+    
+    print"
+    <tr align='center'>";
+    $k=0;
+    for ($j = 1; $j <= count($data_type); $j++) 
+    {
+        for ($i = 1; $i <= count($vetted_type); $i++) 
+        {
+            print"<td>" . $vetted_type[$i]['label'] . "</td>";
+            $sum[$j] = $sum[$j] + $arr[$k];
+            $k++;
+        }      
+    }  
+    print"</tr>";
+
+    print"
+    <tr align='center'>";
+        for ($i = 0; $i < count($arr); $i++) 
+        {
+            print"<Td align='right'>" . $arr[$i] . "</td>";
+        }
+    print"</tr>";
+
+    print"
+    <tr align='center'>";
+    $k=0;
+    for ($j = 1; $j <= count($data_type); $j++) 
+    {
+        print"<td colspan='3' align='right'>" . number_format($sum[$j]) . "</td>";            
+    }  
+    print"</tr>";
+    print"    
+    </table>       
+    <br> Total published data objects = " . number_format(array_sum($sum)) . "    
+    <br> Latest Flickr harvest count = " . number_format($flickr_count) . "    
+    <br> User-submitted data objects = " . number_format($user_do_count) . "<br>";    
+    
+    print("<font size='2'>{as of " . date('Y-m-d H:i:s') . "}</font>");
+    
+    print"<br><font size='2'><br> <a href='javascript:self.close()'>Exit</a></font>";
+}//end func
+    
+    
 ?>
