@@ -1,7 +1,8 @@
 <?php
 //connector for WORMS
-/*  date        ID's    bad ID's
+/*  date        ID's    bad ID's    not well formed xml
     2010-Jan-11 160115  97    
+    2010-Mar-02 137794  59          241953,139430,139596,372873,131521      
     
         2010-feb-26
 2007    53366

@@ -14,8 +14,10 @@ http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Bimastos+welchi
 
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
-
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Basidiomycota
+http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Chaetognatha
+
+
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&iwidth=600
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
@@ -73,10 +75,9 @@ Inner Join names ON hierarchy_entries.name_id = names.id Where
 ranks.id = 280  ";
 //rank.id 280 = phylum
 //$query .= " and names.`string` = 'Chordata' ";
-$query .= " and names.`string` = 'Chaetognatha' ";
+//$query .= " and names.`string` = 'Chaetognatha' ";
 //$query .= " and names.`string` <> 'Annelida' ";
-
-$query .= " Order By names.`string` Asc ";
+//$query .= " Order By names.`string` Asc ";
 //$query .= " limit 1 ";
 
 //print"<hr>$query<hr>";
@@ -106,6 +107,13 @@ while($row=$result->fetch_assoc())
     $do_count = 0;
     foreach($xml->taxon as $main)
     {                       
+        //===================================================================// check if there is content
+        //$dc_source = $species_service_url . urlencode($main->name);                            
+        $dc_source = $species_service_url . urlencode($main->taxid);                                    
+        $description=check_if_with_content($main->taxid,$dc_source,$main->barcodes);
+        if(!$description)continue;
+        //===================================================================
+    
         if(in_array("$main->taxid", $id_list)) continue;
         else $id_list[]=$main->taxid;
     
@@ -114,7 +122,8 @@ while($row=$result->fetch_assoc())
         //start #########################################################################  
 
         //if(intval($main->public_barcodes > 0))
-        if(intval($main->barcodes > 0))
+
+        if(intval($main->barcodes) > 0)
         {
             $id_with_public_barcode[]=$main->taxid;
             $taxid_count_with_barcode++;
@@ -140,9 +149,7 @@ while($row=$result->fetch_assoc())
 
             $do_count++;
 
-            //$dc_source = $species_service_url . urlencode($main->name);                            
-            $dc_source = $species_service_url . urlencode($main->taxid);                            
-            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes);                   
+            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description);                   
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             $used_taxa[$taxon] = $taxon_parameters;
             // end comment here to just see count */
@@ -177,8 +184,8 @@ fclose($OUT);
 
 echo "$wrap$wrap Done processing.";
 
-function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
-{    
+function check_if_with_content($taxid,$dc_source,$public_barcodes)
+{
     global $wrap;
     /*            
     Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
@@ -208,8 +215,6 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
     else $text_dna_sequence = '';    
 
     //
-    //
-    //
     //if($text_dna_sequence)
     if(trim($text_dna_sequence) != "")
     {
@@ -223,12 +228,26 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         $url_fasta_file = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";        
         $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
     }
-    else $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     
+    else 
+    {
+        $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     
+        return false;
+    }
+    
     //Genetic Barcode
     $description = "
     The following is a representative barcode sequence, the centroid of all available sequences for this species.    
     <br><a target='barcode' href='$src'><img src='$src' height=''></a>" . $temp;        
     //end get text dna sequence
+
+    return $description;    
+}
+
+
+function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$description)
+{    
+
+    
     
     $dataObjectParameters = array();    
     //$dataObjectParameters["title"] = "Molecular and Genetics";    
