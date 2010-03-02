@@ -284,8 +284,7 @@ function get_month_list()
 function save_monthly()
 {
     $filename = "data/monthly.csv";    
-    //$temp = array("2008","2009","2010");    
-    $temp = array("2008","2009");    
+    $temp = array("2008","2009","2010");    
     
     for($i = 0; $i < count($temp) ; $i++) 
     {
