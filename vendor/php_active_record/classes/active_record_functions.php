@@ -113,6 +113,26 @@ function render_view($view, $parameters = NULL, $return = false)
     trigger_error('Unknown view `' . $view . '` in '.get_last_function(1), E_USER_ERROR);
 }
 
+function render_template($filename, $parameters = NULL, $return = false)
+{
+    $filename = "templates/" . $filename . ".php";
+    if(is_file($filename))
+    {
+        if(is_array($parameters)) extract($parameters);
+        
+        ob_start();
+        include $filename;
+        $contents = ob_get_contents();
+        ob_end_clean();
+        
+        if($return) return $contents;
+        else echo $contents;
+    }else print "template $filename does not exist";
+    
+    return false;
+}
+
+
 function require_module($module)
 {
     $module_path = DOC_ROOT . "classes/modules/$module/module.php";
