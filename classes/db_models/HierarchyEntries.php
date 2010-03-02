@@ -9,6 +9,32 @@ class HierarchyEntry extends MysqlBase
         if(@!$this->id) return;
     }
     
+    public function split_from_concept_static($hierarchy_entry_id)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $entry = new HierarchyEntry($hierarchy_entry_id);
+        if(!$entry || @!$entry->id) return null;
+        
+        $result = $mysqli->query("SELECT he2.id, he2.taxon_concept_id FROM hierarchy_entries he JOIN hierarchy_entries he2 USING (taxon_concept_id) WHERE he.id=$hierarchy_entry_id");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $count = $result->num_rows;
+            // if there is only one member in the entry's concept there is no need to split it
+            if($count > 1)
+            {
+                $taxon_concept_id = TaxonConcept::insert();
+                
+                $mysqli->update("UPDATE taxon_concepts SET published=$entry->published, vetted_id=$entry->vetted_id WHERE id=$taxon_concept_id");
+                $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
+                $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
+                $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
+                return $taxon_concept_id;
+            }
+        }
+        return null;
+    }
+    
     public function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -36,6 +62,14 @@ class HierarchyEntry extends MysqlBase
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
+                
+                $mysqli->update("UPDATE taxon_concepts SET published=0, vetted_id=0 WHERE id IN ($taxon_concept_id, ".$row['taxon_concept_id'].")");
+                
+                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=he.published WHERE tc.id=$taxon_concept_id AND he.published!=0");
+                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=he.vetted_id WHERE tc.id=$taxon_concept_id AND he.vetted_id!=0");
+                
+                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=he.published WHERE tc.id=".$row['taxon_concept_id']." AND he.published!=0");
+                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=he.vetted_id WHERE tc.id=".$row['taxon_concept_id']." AND he.vetted_id!=0");
             }
         }
     }
@@ -203,7 +237,7 @@ class HierarchyEntry extends MysqlBase
         while($result && $row=$result->fetch_assoc()) $children[] = new HierarchyEntry($row);
         $result->free();
         
-        usort($children, "Functions::cmp_hierarchy_entries");
+        @usort($children, "Functions::cmp_hierarchy_entries");
         
         return $children;
     }
@@ -216,7 +250,7 @@ class HierarchyEntry extends MysqlBase
         while($result && $row=$result->fetch_assoc()) $synonyms[] = new Synonym($row);
         $result->free();
         
-        usort($synonyms, "Functions::cmp_hierarchy_entries");
+        @usort($synonyms, "Functions::cmp_hierarchy_entries");
         
         return $synonyms;
     }
