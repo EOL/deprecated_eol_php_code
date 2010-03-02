@@ -1,7 +1,7 @@
 <?php
 //
 /* connector for BOLD Systems */
-exit;
+//exit;
 /*
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
@@ -57,7 +57,11 @@ $wrap = "\n";
 //$wrap = "<br>";
 
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
-$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon=";
+//$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
+$species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
+
+
+
 
 /*
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
@@ -66,13 +70,16 @@ $query .= " Order By taxa.taxon_phylum Asc ";
 
 $query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
 Inner Join names ON hierarchy_entries.name_id = names.id Where
-ranks.id = 280 Order By names.`string` Asc ";
+ranks.id = 280  ";
 //rank.id 280 = phylum
-//$query .= " and taxon_phylum = 'Chordata' ";
-//$query .= " and taxon_phylum = 'Chaetognatha' ";
-//$query .= " and taxon_phylum <> 'Annelida' ";
+//$query .= " and names.`string` = 'Chordata' ";
+$query .= " and names.`string` = 'Chaetognatha' ";
+//$query .= " and names.`string` <> 'Annelida' ";
+
+$query .= " Order By names.`string` Asc ";
 //$query .= " limit 1 ";
 
+//print"<hr>$query<hr>";
 $result = $mysqli->query($query);    
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 
@@ -124,7 +131,8 @@ while($row=$result->fetch_assoc())
                 $taxon_parameters = array();
                 $taxon_parameters["identifier"] = $main->taxid;
                 $taxon_parameters["scientificName"]= $main->name;
-                $taxon_parameters["source"] = $species_service_url . urlencode($main->name);
+                //$taxon_parameters["source"] = $species_service_url . urlencode($main->name);
+                $taxon_parameters["source"] = $species_service_url . urlencode($main->taxid);
             
                 $used_taxa[$taxon] = $taxon_parameters;            
             }            
@@ -132,7 +140,8 @@ while($row=$result->fetch_assoc())
 
             $do_count++;
 
-            $dc_source = $species_service_url . urlencode($main->name);                            
+            //$dc_source = $species_service_url . urlencode($main->name);                            
+            $dc_source = $species_service_url . urlencode($main->taxid);                            
             $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes);                   
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             $used_taxa[$taxon] = $taxon_parameters;
@@ -190,7 +199,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes)
         if($count_sequence > 0)
         {
             if($public_barcodes == 1)$str="There is 1 barcode sequence available from BOLD and GenBank. Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen. Other sequences that do not yet meet barcode criteria may also be available.";
-            else $str="There are $count_sequence barcode sequences available from BOLD and GenBank. Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
+            else                     $str="There are $count_sequence barcode sequences available from BOLD and GenBank. Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
             $str .= "<br>&nbsp;<br>";                
             $text_dna_sequence .= "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";                
         }
