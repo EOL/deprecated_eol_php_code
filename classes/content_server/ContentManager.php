@@ -139,7 +139,7 @@ class ContentManager
     				1 => array(	"type" => "image/gif"		                , "suffix" => "gif"),
     				2 => array(	"type" => "image/jpeg"	                    , "suffix" => "jpg"),
     				3 => array(	"type" => "image/png"	                    , "suffix" => "png"),
-    				4 => array(	"type" => "image/svg+xml"	                , "suffix" => "xml"),
+    				4 => array(	"type" => "image/svg+xml"	                , "suffix" => "svg"),
        				5 => array(	"type" => "image/tiff"	                    , "suffix" => "tif"),                
                     6 => array(	"type" => "application/x-shockwave-flash"	, "suffix" => "flv"));
 
