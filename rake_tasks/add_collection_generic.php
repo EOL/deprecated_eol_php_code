@@ -1,10 +1,11 @@
 <?php                                                                                                                                                          
 
-$GLOBALS['ENV_NAME'] = 'development';
+//$GLOBALS['ENV_NAME'] = 'staging';
+define("ENVIRONMENT", "staging");
 define('DEBUG', false);
 define('MYSQL_DEBUG', false);
 
-include_once(dirname(__FILE__) . "/../config/environment.php");
+include_once(dirname(__FILE__) . "/../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 /* fullname must come from agents!full_name */
