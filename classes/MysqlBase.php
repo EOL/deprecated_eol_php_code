@@ -61,11 +61,12 @@ class MysqlBase
         $field = trim($field);
         $string = trim($string);
         $table = trim($table);
-        if(!$field) return 0;
-        if(!$string) return 0;
-        if(!$table) return 0;
+        if(!$field) return null;
+        if(!$string) return null;
+        if(!$table) return null;
         
-        if($result = self::find_by($field, $string, $table)) return $result;
+        $result = self::find_by($field, $string, $table);
+        if($result !== null) return $result;
         
         $string = $GLOBALS['db_connection']->escape($string);
         $id = $GLOBALS['db_connection']->insert("INSERT INTO $table (`$field`) VALUES ('$string')");
@@ -77,9 +78,9 @@ class MysqlBase
     function insert_fields_into($fields, $table)
     {
         $table = trim($table);
-        if(!$table) return 0;
-        if(!$fields) return 0;
-        if(!is_array($fields)) return 0;
+        if(!$table) return null;
+        if(!$fields) return null;
+        if(!is_array($fields)) return null;
         
         foreach($fields as $k => $v) $fields[$k] = $GLOBALS['db_connection']->escape($v);
         
@@ -98,9 +99,9 @@ class MysqlBase
     function insert_object_into($object, $table)
     {
         $table = trim($table);
-        if(!$table) return 0;
-        if(!$object) return 0;
-        if(get_parent_class($object) != "MysqlBase") return 0;
+        if(!$table) return null;
+        if(!$object) return null;
+        if(get_parent_class($object) != "MysqlBase") return null;
         
         $parameters = array();
         $fields = $object->get_table_fields();
@@ -126,13 +127,13 @@ class MysqlBase
         $field = trim($field);
         $string = trim($string);
         $table = trim($table);
-        if(!$field) return 0;
-        if(!$string) return 0;
-        if(!$table) return 0;
+        if(!$field) return null;
+        if(!$string) return null;
+        if(!$table) return null;
         
         if(isset($GLOBALS['find_by_ids'][$table][$field][$string])) return $GLOBALS['find_by_ids'][$table][$field][$string];
         
-        $id = 0;
+        $id = null;
         $string = $GLOBALS['db_connection']->escape($string);
         $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id FROM $table WHERE $field='$string'");
         if($result && $row=$result->fetch_assoc())
@@ -149,9 +150,9 @@ class MysqlBase
     {
         $field = trim($field);
         $table = trim($table);
-        if(!$field) return 0;
-        if(!$id) return 0;
-        if(!$table) return 0;
+        if(!$field) return null;
+        if(!$id) return null;
+        if(!$table) return null;
         
         if(isset($GLOBALS['tables_find_by_id'][$table][$field][$id])) return $GLOBALS['tables_find_by_id'][$table][$field][$id];
         
@@ -170,9 +171,9 @@ class MysqlBase
     function find_by_mock_obj($object, $table)
     {
         $table = trim($table);
-        if(!$table) return 0;
-        if(!$object) return 0;
-        if(get_parent_class($object) != "MysqlBase") return 0;
+        if(!$table) return null;
+        if(!$object) return null;
+        if(get_parent_class($object) != "MysqlBase") return null;
         
         $query_parameters = array();
         $fields = $object->get_table_fields();
@@ -180,12 +181,12 @@ class MysqlBase
         {
             if(@$object->$field) $query_parameters[] = "$field='".$GLOBALS['db_connection']->escape($object->$field)."'";
         }
-        if(!$query_parameters) return 0;
+        if(!$query_parameters) return null;
         
         $query = "SELECT SQL_NO_CACHE id FROM $table WHERE ";
         $query .= implode(" AND ", $query_parameters);
         
-        $id = 0;
+        $id = null;
         $result = $GLOBALS['db_connection']->query($query);
         if($result && $row = $result->fetch_assoc())
         {

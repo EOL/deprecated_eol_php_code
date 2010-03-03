@@ -126,36 +126,36 @@ class ContentManager
     
     function determine_file_suffix_pc($file_path,$suffix)
     {
-        $new_suffix=$suffix;     
+        $new_suffix=$suffix;
         $arr = array('jpg','tif','flv','mov','avi','gz','tar','zip','xml','pdf','html','png','xml','gif');
-
-        if(!in_array("$suffix", $arr))                       
+        
+        if(!in_array("$suffix", $arr))
         {
             $new_suffix=false;
             $new_suffix="xml";
             
-            $image = array(	
-			    	0 => array(	"type" => "image/bmp"		                , "suffix" => "bmp"),
-    				1 => array(	"type" => "image/gif"		                , "suffix" => "gif"),
-    				2 => array(	"type" => "image/jpeg"	                    , "suffix" => "jpg"),
-    				3 => array(	"type" => "image/png"	                    , "suffix" => "png"),
-    				4 => array(	"type" => "image/svg+xml"	                , "suffix" => "svg"),
-       				5 => array(	"type" => "image/tiff"	                    , "suffix" => "tif"),                
-                    6 => array(	"type" => "application/x-shockwave-flash"	, "suffix" => "flv"));
-
+            $image = array( 
+                    0 => array(    "type" => "image/bmp"                        , "suffix" => "bmp"),
+                    1 => array(    "type" => "image/gif"                        , "suffix" => "gif"),
+                    2 => array(    "type" => "image/jpeg"                       , "suffix" => "jpg"),
+                    3 => array(    "type" => "image/png"                        , "suffix" => "png"),
+                    4 => array(    "type" => "image/svg+xml"                    , "suffix" => "svg"),
+                    5 => array(    "type" => "image/tiff"                       , "suffix" => "tif"),
+                    6 => array(    "type" => "application/x-shockwave-flash"    , "suffix" => "flv"));
+            
             $url = $file_path;
             $image_data = getimagesize($url);
             
-            for ($i = 0; $i < count($image); $i++)     
+            for ($i = 0; $i < count($image); $i++)
             {
                 if($image_data["mime"] == $image[$i]["type"])
                 {    
-                    $new_suffix = $image[$i]["suffix"];        
+                    $new_suffix = $image[$i]["suffix"];
                     break;
                 }
-            }        
+            }
         }
-                              
+        
         return $new_suffix;
     }
     
