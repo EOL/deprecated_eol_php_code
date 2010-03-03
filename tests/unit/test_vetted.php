@@ -15,7 +15,7 @@ class test_vetted extends SimpletestUnitBase
         $this->assertTrue(Vetted::insert('unknown') == 0, 'Should recognize rows with ID=0 again');
         
         // go back to auto_inc so as to not effect other tests
-        //$GLOBALS['db_connection']->update("ALTER TABLE vetted MODIFY id INT NOT NULL auto_increment");
+        $GLOBALS['db_connection']->update("ALTER TABLE vetted MODIFY id INT NOT NULL auto_increment");
         
         $this->assertTrue(Vetted::insert('unknown') == 0, 'Should recognize rows with ID=0 even with auto increment set');
     }
