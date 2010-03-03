@@ -123,6 +123,7 @@ class test_resources extends SimpletestUnitBase
                         $test_value = $objects[$j]->$key;
                         // dates have a default value in the DB
                         if($test_value == "0000-00-00 00:00:00") $test_value = "";
+                        if($value == null) $value = 0;
                         $this->assertTrue($value == $test_value, "DataObject ($j) $key should be correct");
                     }
                     $j++;

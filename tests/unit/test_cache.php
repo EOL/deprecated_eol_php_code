@@ -27,7 +27,7 @@ class test_cache extends SimpletestUnitBase
             $this->assertTrue(Memcached::get('the_key') == 'yet_another_value', 'Key should exist before deleting');
             Memcached::delete('the_key');
             $this->assertFalse(Memcached::get('the_key'), 'Key deletion should work');
-        }
+        }else echo "\nYOU DO NOT HAVE MEMCACHED INSTALLED\n";
     }
     
     function testMemoryCache()
