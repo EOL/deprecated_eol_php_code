@@ -30,10 +30,10 @@ class test_content_manager extends SimpletestUnitBase
     
     function testGrabPartnerImage()
     {
-        $file = $this->content_manager->grab_file("http://www.eol.org/images/eol_logo_header.png", 0, "partner");
+        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "partner");
         $this->assertPattern("/^[0-9]{6}$/", $file, "File should have 6 digits");
         
-        $this->assertTrue(file_exists(CONTENT_PARTNER_LOCAL_PATH."/".$file.".png"), "Image should exist");
+        $this->assertTrue(file_exists(CONTENT_PARTNER_LOCAL_PATH."/".$file.".jpg"), "Image should exist");
         
         $this->assertTrue(file_exists(CONTENT_PARTNER_LOCAL_PATH."/".$file."_small.png"), "Should be a small thumbnail");
         $this->assertTrue(file_exists(CONTENT_PARTNER_LOCAL_PATH."/".$file."_large.png"), "Should be a large thumbnail");
@@ -41,7 +41,7 @@ class test_content_manager extends SimpletestUnitBase
     
     function testGrabContentImage()
     {
-        $file = $this->content_manager->grab_file("http://www.eol.org/images/eol_logo_header.png", 0, "content");
+        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "content");
         $this->assertPattern("/^[0-9]{15}/", $file);
         
         if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
