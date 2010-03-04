@@ -1,7 +1,7 @@
 <?php                                                                                                                                                          
 
 //$GLOBALS['ENV_NAME'] = 'staging';
-define("ENVIRONMENT", "staging");
+//define("ENVIRONMENT", "staging");
 define('DEBUG', false);
 define('MYSQL_DEBUG', false);
 
