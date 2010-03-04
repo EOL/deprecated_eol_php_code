@@ -4,7 +4,9 @@ if(defined('E_DEPRECATED')) error_reporting(E_ALL & ~E_DEPRECATED);
 else error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
+/* forcing the test environment and turning off caching */
 $GLOBALS['ENV_NAME'] = 'test';
+$GLOBALS['ENV_ENABLE_CACHING'] = false;
 require_once(dirname(__FILE__) . '/../config/environment.php');
 
 require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');

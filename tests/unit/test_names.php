@@ -16,18 +16,37 @@ class test_names extends SimpletestUnitBase
         $this->assertTrue(Functions::canonical_form('Homo sapiens cultiv sapiens del Leary') == 'Homo sapiens sapiens', 'Should have correct canonical form');
     }
     
-    function testInsertName()
+    function testInsertNameWithoutCaching()
     {
+        $GLOBALS['no_cache']['names'] = true;
         $str = "Aus bus Smith (Linnaeus 1777)";
         
         $name_id = Name::insert($str);
-        $this->assertTrue($name_id>0, "There should be a name_id");
+        $this->assertTrue($name_id > 0, "There should be a name_id");
         
         $name = new Name($name_id);
         $canonical_form = $name->canonical_form();
-        $this->assertTrue($name->id>0, "Should be able to make a name object");
-        $this->assertTrue($canonical_form->string=="Aus bus", "Name should have a canonical form");
+        $this->assertTrue($name->id > 0, "Should be able to make a name object");
+        $this->assertTrue($canonical_form->string == "Aus bus", "Name should have a canonical form");
     }
+    
+    function testInsertNameWithCaching()
+    {
+        $GLOBALS['ENV_ENABLE_CACHING'] = true;
+        unset($GLOBALS['no_cache']['names']);
+        $str = "Aus bus Smith (Linnaeus 1777)";
+        
+        $name_id = Name::insert($str);
+        $this->assertTrue($name_id > 0, "There should be a name_id");
+        
+        $name = new Name($name_id);
+        $canonical_form = $name->canonical_form();
+        $this->assertTrue($name->id > 0, "Should be able to make a name object");
+        $this->assertTrue($canonical_form->string == "Aus bus", "Name should have a canonical form");
+        $GLOBALS['no_cache']['names'] = true;
+        $GLOBALS['ENV_ENABLE_CACHING'] = false;
+    }
+    
 }
 
 ?>

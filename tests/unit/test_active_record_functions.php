@@ -58,6 +58,13 @@ class test_active_record_functions extends SimpletestUnitBase
         $end_time = time_elapsed();
         $this->assertTrue(abs($end_time - $start_time - 2) < 0.003, 'Timer should be accurate to .003');
     }
+    
+    function testTableFields()
+    {
+        $GLOBALS['db_connection']->insert('CREATE TABLE some_test_table (field_one INT, field_two INT, field_three VARCHAR(10))');
+        $this->assertTrue(table_fields('some_test_table') == array('field_one', 'field_two', 'field_three'), 'Table fields should work');
+        $GLOBALS['db_connection']->delete('DROP TABLE some_test_table');
+    }
 }
 
 ?>
