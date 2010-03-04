@@ -9,6 +9,7 @@ class SimpletestUnitBase extends UnitTestCase
         $called_class_name = get_class($this);
         echo "UnitTest => ".$called_class_name."\n"; flush();
         
+        Cache::flush();
         $GLOBALS['db_connection']->truncate_tables('test');
         if(isset($this->load_fixtures)) $this->load_fixtures();
     }
