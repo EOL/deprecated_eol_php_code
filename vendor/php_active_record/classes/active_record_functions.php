@@ -252,7 +252,7 @@ function is_field_in_table($field, $table)
 
 function table_fields($table)
 {
-    if($cache = MemoryCache::get('table_fields_' . $table)) return $cache;
+    if($cache = Cache::get('table_fields_' . $table)) return $cache;
     
     $fields = array();
     
@@ -263,9 +263,17 @@ function table_fields($table)
     }
     if($result && @$result->num_rows) $result->free();
     
-    MemoryCache::set('table_fields_' . $table, $fields, 600);
+    Cache::set('table_fields_' . $table, $fields);
     
     return $fields;
+}
+
+function cache_model($table)
+{
+    // there is no memcached connection and ENV_CACHE is not set to memory
+    if(@!$GLOBALS['memcached_connection'] && @$GLOBALS['ENV_CACHE'] != 'memory') return false;
+    if(@$GLOBALS['no_cache'][$table]) return false;
+    return true;
 }
 
 function trim_namespace($class)

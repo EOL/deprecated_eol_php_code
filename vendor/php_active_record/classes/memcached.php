@@ -55,9 +55,15 @@ class Memcached
         return $GLOBALS['memcached_connection']->flush();
     }
     
-    private static function connected()
+    public static function connected()
     {
-        if(@!$GLOBALS['memcached_connection']) return false;
+        if(@!$GLOBALS['memcached_connection'] && @$GLOBALS['ENV_MEMCACHED_SERVER'])
+        {
+            $memcached_connection = new Memcache;
+            $memcached_connection->connect($GLOBALS['ENV_MEMCACHED_SERVER'], 11211);
+            $GLOBALS['memcached_connection'] = $memcached_connection;
+            if(@!$GLOBALS['memcached_connection']) return false;
+        }
         return true;
     }
 }
