@@ -1,34 +1,17 @@
 <?php
 
-define('MYSQL_DEBUG', 1);
-define('DEBUG', 1);
-define('DEBUG_TO_FILE', 1);
-define("ENVIRONMENT", "slave");
+$GLOBALS['ENV_NAME'] = 'staging';
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+include_once(dirname(__FILE__) . "/../../lib/LifedeskAPI.php");
 
-include_once("../../config/environment.php");
-
-$mysqli =& $GLOBALS['mysqli_connection'];
-
-
-$function = @$_GET["function"];
-$search = @$_GET["search"];
-$id = @$_GET["id"];
-$sid = @$_GET["sid"];
-$format = @$_GET["format"];
-$callback = @$_GET["callback"];
-$ancestry = @$_GET["ancestry"];
-$hierarchy_id = @$_GET["hierarchy_id"];
-
-
-if(!$function) $function = @$_POST["function"];
-if(!$search) $search = @$_POST["search"];
-if(!$id) $id = @$_POST["id"];
-if(!$sid) $sid = @$_POST["sid"];
-if(!$format) $format = @$_POST["format"];
-if(!$callback) $callback = @$_POST["callback"];
-if(!$ancestry) $ancestry = @$_POST["ancestry"];
-if(!$hierarchy_id) $hierarchy_id = @$_POST["hierarchy_id"];
-
+$function = @$_REQUEST["function"];
+$search = @$_REQUEST["search"];
+$id = @$_REQUEST["id"];
+$sid = @$_REQUEST["sid"];
+$format = @$_REQUEST["format"];
+$callback = @$_REQUEST["callback"];
+$ancestry = @$_REQUEST["ancestry"];
+$hierarchy_id = @$_REQUEST["hierarchy_id"];
 
 $connection = new LifeDeskAPI();
 
@@ -37,7 +20,6 @@ $results = array();
 switch($function)
 {
     case "search":
-        //if($mysqli) printf("Host info: %s\n", $mysqli->host_info);
         $results = $connection->search($search, $hierarchy_id);
         break;
     case "details":

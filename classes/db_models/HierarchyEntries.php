@@ -214,7 +214,7 @@ class HierarchyEntry extends MysqlBase
         $count = 0;
         
         $result = $this->mysqli->query("SELECT COUNT(id) as count FROM hierarchy_entries WHERE lft BETWEEN $this->lft AND $this->rgt AND hierarchy_id=$this->hierarchy_id");
-        if($result && $row=$result->fetch_assoc()) $count = $row["count"];
+        if($result && $row=$result->fetch_assoc()) $count = $row["count"] - 1;
         
         return $count;
     }
@@ -396,7 +396,7 @@ class HierarchyEntry extends MysqlBase
     {
         if(!$parameters) return 0;
         
-        if(get_class($parameters)=="HierarchyEntry")
+        if(@get_class($parameters)=="HierarchyEntry")
         {
             if($result = self::find_by_mock_object($parameters)) return $result;
             

@@ -148,6 +148,7 @@ class LifeDeskAPI extends MysqlBase
     function details_tcs($id)
     {
         $entry = new HierarchyEntry($id);
+        if(@!$entry->id) return false;
         
         $nomenclaturalCode = "Zoological";
         $rankCode = "";

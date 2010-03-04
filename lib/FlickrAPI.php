@@ -37,7 +37,6 @@ class FlickrAPI
     {
         global $used_image_ids;
         
-        echo "GET_PHOTOS: $page, $per_page\n";
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token);
         
         $page_taxa = array();
@@ -59,7 +58,6 @@ class FlickrAPI
     
     public static function get_taxa_for_photo($photo_id, $secret, $auth_token = "")
     {
-        echo "PHOTO_ID: $photo_id\n";
         $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
         $photo = $photo_response->photo;
         if(!$photo) Functions::debug("\n\nERROR:Photo $photo_id is not available\n\n");
@@ -251,10 +249,10 @@ class FlickrAPI
         return Functions::get_hashed_response($url);
     }
     
-    public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "")
+    public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "", $user_id = NULL)
     {
         $extras = "";
-        $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token), 1);
+        $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id), 1);
         return Functions::get_hashed_response($url);
     }
     

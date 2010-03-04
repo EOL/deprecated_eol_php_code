@@ -71,6 +71,11 @@ $GLOBALS['flickr_licenses'][4] = "http://creativecommons.org/licenses/by/2.0/";
 $GLOBALS['flickr_licenses'][5] = "http://creativecommons.org/licenses/by-sa/2.0/";
 //$GLOBALS['flickr_licenses'][6] = "http://creativecommons.org/licenses/by-nd/2.0/";
 
+define("FLICKR_REST_PREFIX", "http://api.flickr.com/services/rest/?");
+define("FLICKR_AUTH_PREFIX", "http://api.flickr.com/services/auth/?");
+define("FLICKR_UPLOAD_URL", "http://www.flickr.com/services/upload/");
+define("FLICKR_EOL_GROUP_ID", "806927@N20");
+
 
 /* table data which will not get cached - there are too many rows */
 $GLOBALS['no_cache']['agents']              = true;
@@ -83,6 +88,18 @@ $GLOBALS['no_cache']['synonyms']            = true;
 $GLOBALS['no_cache']['taxa']                = true;
 $GLOBALS['no_cache']['taxon_concept_names'] = true;
 $GLOBALS['no_cache']['taxon_concepts']      = true;
+
+
+/* for the Plazi connector */
+define("RDFAPI_INCLUDE_DIR",    DOC_ROOT . "classes/modules/rdfapi-php/api/");
+define("LSID_RESOLVER",         "http://lsid.tdwg.org/");
+define("RDF_NS",                "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+define("RDFS_NS",               "http://www.w3.org/2000/01/rdf-schema#");
+define("XSD_NS",                "http://www.w3.org/2001/XMLSchema#");
+define("SPM_NS",                "http://rs.tdwg.org/ontology/voc/SpeciesProfileModel#");
+define("SPMI_NS",               "http://rs.tdwg.org/ontology/voc/SPMInfoItems#");
+define("TC_NS",                 "http://rs.tdwg.org/ontology/voc/TaxonConcept#");
+define("TN_NS",                 "http://rs.tdwg.org/ontology/voc/TaxonName#");
 
 
 /* setting the ImageMagick path */
