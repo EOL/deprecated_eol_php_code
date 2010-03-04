@@ -240,6 +240,21 @@ function get_fixture_files()
     return $files;
 }
 
+function read_dir($dir)
+{
+    $files = array();
+    if($handle = opendir($dir))
+    {
+       while(false !== ($file = readdir($handle)))
+       {
+           $files[] = trim($file);
+       }
+       closedir($handle);
+    }
+    sort($files);
+    return $files;
+}
+
 function is_field_in_table($field, $table)
 {
     $fields = table_fields($table);
@@ -250,9 +265,10 @@ function is_field_in_table($field, $table)
     return false;
 }
 
+/* currently storing field information in memory only */
 function table_fields($table)
 {
-    if($cache = Cache::get('table_fields_' . $table)) return $cache;
+    if($cache = MemoryCache::get('table_fields_' . $table)) return $cache;
     
     $fields = array();
     
@@ -263,7 +279,7 @@ function table_fields($table)
     }
     if($result && @$result->num_rows) $result->free();
     
-    Cache::set('table_fields_' . $table, $fields);
+    MemoryCache::set('table_fields_' . $table, $fields);
     
     return $fields;
 }

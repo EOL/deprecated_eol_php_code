@@ -161,16 +161,16 @@ class MysqliConnection
     function truncate_tables($environment = "test")
     {
         if($GLOBALS['ENV_NAME'] != $environment) return false;
-        
         $this->check();
+        
+        $query = "";
         $this->debug("show tables from ".$this->master_database, true);
-                
         $result = $this->master_mysqli->query("show tables from ".$this->master_database);
         while($result && $row=$result->fetch_assoc())
         {
-            $this->debug("TRUNCATE TABLE ".$row["Tables_in_".$this->master_database], true);
-            $this->master_mysqli->query("TRUNCATE TABLE ".$row["Tables_in_".$this->master_database]);
+            $query .= "TRUNCATE TABLE ". $row["Tables_in_".$this->master_database] .";";
         }
+        $this->multi_query($query);
     }
     
     function real_escape_string($string)

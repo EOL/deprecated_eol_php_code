@@ -29,7 +29,7 @@ if(!defined('DEFAULT_HIERARCHY_LABEL')) define('DEFAULT_HIERARCHY_LABEL', 'Speci
 
 
 /* MEMCACHED */
-$GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
+//$GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
 $GLOBALS['ENV_ENABLE_CACHING'] = true;
 
 

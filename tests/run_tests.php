@@ -61,23 +61,20 @@ echo "Tests ran in ". ($end_time-$start_time) ." seconds\n\n";
 
 function get_tests_from_dir($dir, &$group_test, $recursive)
 {
-    if($handle = opendir($dir))
+    $files = read_dir($dir);
+    foreach($files as $file)
     {
-       while(false !== ($file = readdir($handle)))
-       {
-           if(!$recursive && preg_match("/^(test_.*)\.php/", $file, $arr))
-           {
-               $file = $arr[1];
-               require_once($dir . $file.".php");
-               
-               $file = $file;
-               $group_test->addTestCase(new $file());
-           }elseif($recursive && is_dir($dir .'/'. $file) && !preg_match("/^\./", $file))
-           {
-               get_tests_from_dir($dir .'/'. $file .'/', $group_test, false);
-           }
-       }
-       closedir($handle);
+        if(!$recursive && preg_match("/^(test_.*)\.php/", $file, $arr))
+        {
+            $file = $arr[1];
+            require_once($dir . $file.".php");
+            
+            $file = $file;
+            $group_test->addTestCase(new $file());
+        }elseif($recursive && is_dir($dir .'/'. $file) && !preg_match("/^\./", $file))
+        {
+            get_tests_from_dir($dir .'/'. $file .'/', $group_test, false);
+        }
     }
 }
 
