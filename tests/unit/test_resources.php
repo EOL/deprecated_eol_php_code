@@ -132,7 +132,7 @@ class test_resources extends SimpletestUnitBase
             }
         }
         
-        unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml");
+        @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml");
     }
 }
 
