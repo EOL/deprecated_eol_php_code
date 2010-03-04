@@ -1,5 +1,10 @@
 <?php
 
+/* best to leave the PHP settings at the top in case they are overridden in another environment */
+ini_set('memory_limit', '50M');
+ini_set('max_execution_time', '360');
+
+
 /* Default Environment */
 if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
 
