@@ -6,10 +6,7 @@
 
 <?php
 
-//define('MYSQL_DEBUG', true);
-//define('DEBUG', true);
-define("ENVIRONMENT", "production_read_only");
-include_once("../../config/start.php");
+include_once("../../config/environment.php");
 include_once("functions.php");
 
 $taxon_concept_id = @$_GET["taxon_concept_id"];

@@ -283,7 +283,7 @@ function show_kingdoms_he($hierarchy_id)
         $kingdoms[] = new HierarchyEntry($row["id"]);
     }
     
-    usort($kingdoms, "Functions::cmp_hierarchy_entries");
+    @usort($kingdoms, "Functions::cmp_hierarchy_entries");
     
     foreach($kingdoms as $k => $v)
     {

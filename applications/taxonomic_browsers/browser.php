@@ -6,10 +6,7 @@
 
 <?php
 
-//define("DEBUG", true);
-//define("MYSQL_DEBUG", true);
-//define("ENVIRONMENT", "integration");
-include_once("../../config/start.php");
+include_once("../../config/environment.php");
 include_once("functions.php");
 
 $id = @$_GET["id"];

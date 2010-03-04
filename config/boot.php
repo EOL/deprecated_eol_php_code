@@ -2,7 +2,8 @@
 
 /* Set your working development environment */
 // the old way of setting the environment is to use the constant, so give that priority
-if(defined('ENVIRONMENT')) $GLOBALS['ENV_NAME'] = ENVIRONMENT;
+if(isset($_REQUEST['ENV_NAME'])) $GLOBALS['ENV_NAME'] = $_REQUEST['ENV_NAME'];
+elseif(defined('ENVIRONMENT')) $GLOBALS['ENV_NAME'] = ENVIRONMENT;
 if(!isset($GLOBALS['ENV_NAME']))
 {
     // Environments are currently only used to configure the proper MySQL connection as defined in database.yml

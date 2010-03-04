@@ -10,6 +10,7 @@ class SimpletestWebBase extends WebTestCase
         $called_class_name = get_class($this);
         echo "WebTest => ".$called_class_name."\n"; flush();
         
+        Cache::flush();
         $GLOBALS['db_connection']->truncate_tables('test');
         if(isset($this->load_fixtures)) $this->load_fixtures();
     }
