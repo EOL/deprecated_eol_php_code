@@ -17,18 +17,18 @@ class MysqlBase
         if(is_array($param))
         {
             $row = $param;
-            if(@!$GLOBALS['no_cache'][$this->table_name]) $GLOBALS['class_instances'][$this->table_name][implode("|",array_keys($param))."|=|".implode("|",$param)] = $row;
+            if(cache_model($this->table_name)) Cache::set('class_instances_'.$this->table_name.'_'.serialize($param), $row);
         }elseif($param)
         {
-            $row = @$GLOBALS['class_instances'][$this->table_name][$param];
+            if($cache = Cache::get('class_instances_'.$this->table_name.'_'.serialize($param))) $row = $cache;
             
             if(!$row)
             {
                 $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE * FROM ".$this->table_name." WHERE id=$param");
                 if($result && $result->num_rows)
                 {
-                    $row=$result->fetch_assoc();
-                    if(@!$GLOBALS['no_cache'][$this->table_name]) $GLOBALS['class_instances'][$this->table_name][$param] = $row;
+                    $row = $result->fetch_assoc();
+                    if(cache_model($this->table_name)) Cache::set('class_instances_'.$this->table_name.'_'.serialize($param), $row);
                 }
             }
         }
@@ -41,19 +41,7 @@ class MysqlBase
     
     function get_table_fields()
     {
-        if(isset($GLOBALS['table_fields'][$this->table_name])) return $GLOBALS['table_fields'][$this->table_name];
-        
-        $fields = array();
-        
-        $result = $GLOBALS['db_connection']->query("SHOW fields FROM ".$this->table_name);
-        while($result && $row=$result->fetch_assoc())
-        {
-            $fields[] = $row["Field"];
-        }
-        if($result) $result->free();
-        
-        $GLOBALS['table_fields'][$this->table_name] = $fields;
-        return $fields;
+        return table_fields($this->table_name);
     }
     
     function insert_into($field, $string, $table)
@@ -70,7 +58,6 @@ class MysqlBase
         
         $string = $GLOBALS['db_connection']->escape($string);
         $id = $GLOBALS['db_connection']->insert("INSERT INTO $table (`$field`) VALUES ('$string')");
-        if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['table_ids'][$table][$field][$string] = $id;
         
         return $id;
     }
@@ -91,7 +78,6 @@ class MysqlBase
         $query .= "')";
         
         $id = $GLOBALS['db_connection']->insert($query);
-        if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['table_ids'][$table][implode("|",array_keys($fields))."|=|".implode("|",$fields)] = $id;
         
         return $id;
     }
@@ -117,7 +103,6 @@ class MysqlBase
         $query .= "')";
         
         $id = $GLOBALS['db_connection']->insert($query);
-        if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['table_ids'][$table][implode("|",array_keys($parameters))."|=|".implode("|",$parameters)] = $id;
         
         return $id;
     }
@@ -131,7 +116,7 @@ class MysqlBase
         if(!$string) return null;
         if(!$table) return null;
         
-        if(isset($GLOBALS['find_by_ids'][$table][$field][$string])) return $GLOBALS['find_by_ids'][$table][$field][$string];
+        if($cache = Cache::get('find_by_ids_'.$table.'_'.$field.'_'.$string)) return $cache;
         
         $id = null;
         $string = $GLOBALS['db_connection']->escape($string);
@@ -139,7 +124,7 @@ class MysqlBase
         if($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];
-            if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['find_by_ids'][$table][$field][$string] = $id;
+            if(cache_model($table)) Cache::set('find_by_ids_'.$table.'_'.$field.'_'.$string, $id);
         }
         if($result && $result->num_rows) $result->free();
         
@@ -154,13 +139,13 @@ class MysqlBase
         if(!$id) return null;
         if(!$table) return null;
         
-        if(isset($GLOBALS['tables_find_by_id'][$table][$field][$id])) return $GLOBALS['tables_find_by_id'][$table][$field][$id];
+        if($cache = Cache::get('tables_find_by_id_'.$table.'_'.$field.'_'.$id)) return $cache;
         
         $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE $field FROM $table WHERE id=$id");
         if($result && $row=$result->fetch_assoc())
         {
             $field = $row[$field];
-            if(@!$GLOBALS['no_cache'][$table]) $GLOBALS['tables_find_by_id'][$table][$field][$id] = $field;
+            if(cache_model($table)) Cache::set('tables_find_by_id_'.$table.'_'.$field.'_'.$id, $field);
             return $field;
         }
         if($result && $result->num_rows) $result->free();
