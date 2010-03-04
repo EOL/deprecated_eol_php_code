@@ -76,7 +76,7 @@ class Hierarchy extends MysqlBase
     
     static function insert($parameters)
     {
-        if(get_class($parameters)=="Hierarchy")
+        if(@get_class($parameters)=="Hierarchy")
         {
             if($result = self::find_by_mock_object($parameters)) return $result;
             return parent::insert_object_into($parameters, Functions::class_name(__FILE__));

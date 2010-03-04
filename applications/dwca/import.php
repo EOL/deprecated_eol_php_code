@@ -1,13 +1,14 @@
 <?php
 
-define('ENVIRONMENT', 'test');
-include_once(dirname(__FILE__) . "/../../config/start.php");
+define('ENVIRONMENT', 'development');
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 Functions::require_module('darwincore');
 
 
 
 
 $uri = '/Users/pleary/Downloads/catlife.tar.gz';
+$uri = '/Users/pleary/Downloads/diatoms.tar.gz';
 try
 {
     $dwca = new DarwinCoreArchiveHarvester($uri);
@@ -36,7 +37,7 @@ echo $taxa[0];
 
 
 
-$agent_params = array(  "full_name"     => "National Center for Biotechnology Information",
+$agent_params = array(  "full_name"     => "$uri",
                         "acronym"       => "NCBI");
                             
 $agent_id = Agent::insert(Functions::mock_object("Agent", $agent_params));
@@ -51,7 +52,7 @@ if($agent_hierarchy_id)
     $hierarchy_group_id = Hierarchy::next_group_id();
     $hierarchy_group_version = 1;
 }
-$hierarchy_params = array(  "label"                     => "NCBI Taxonomy",
+$hierarchy_params = array(  "label"                     => "$uri",
                             "description"               => "latest export",
                             "agent_id"                  => $agent_id,
                             "hierarchy_group_id"        => $hierarchy_group_id,
