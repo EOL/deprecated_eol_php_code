@@ -44,11 +44,6 @@ if($resource)
     }
     
     
-    if(isset($GLOBALS['lifedesks_to_ignore']) && preg_match("/(".implode('|', $GLOBALS['lifedesks_to_ignore']).")\.lifedesks\.org/", $resource->accesspoint_url))
-    {
-        echo "\n$resource->title ($id) is a LifeDesk that is being ignored\n\n";
-        exit;
-    }
     if(!file_exists($resource->resource_file_path()))
     {
         echo "\n$resource->title ($id) does not have a resource file\n\n";
