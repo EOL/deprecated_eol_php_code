@@ -206,9 +206,8 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     if($agent_id == 38205)//BHL
     {           
         $query = "SELECT COUNT(DISTINCT(tc.id)) count 
-        from taxon_concepts tc 
-        JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-        JOIN page_names pn on (tcn.name_id=pn.name_id)
+        from taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id)
+        
         where tc.supercedure_id=0 and tc.published=1 ";
         //removed and tc.vetted_id <> " . Vetted::find("untrusted");                 
     }
@@ -363,9 +362,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
     if($agent_id == 38205)//BHL
     {   
         $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
-        from taxon_concepts tc 
-        JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-        JOIN page_names pn on (tcn.name_id=pn.name_id) 
+        from taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) 
         Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id        
         where tc.supercedure_id=0 and tc.published=1 
         and gaps.month=$month and gaps.year=$year ";

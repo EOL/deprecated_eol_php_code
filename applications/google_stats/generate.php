@@ -229,11 +229,12 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     /* $query = "SELECT DISTINCT 'BHL' full_name, tcn.taxon_concept_id From page_names AS pn Inner Join taxon_concept_names AS tcn ON (pn.name_id = tcn.name_id) Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id WHERE taxon_concepts.published = 1 and taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . " "; */
 
     //before 'BHL'
-    $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id from taxon_concepts tc 
-    STRAIGHT_JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-    STRAIGHT_JOIN page_names pn on (tcn.name_id=pn.name_id) 
-    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted");
+    $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
+    from taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) 
+    where tc.supercedure_id=0 and tc.published=1 ";
     //$query .= " LIMIT 1 "; //debug
+    //removed and tc.vetted_id <> " . Vetted::find("untrusted") //to be same with generate_monthly_stats.php
+    
     $result = $mysqli->query($query);    
     $fields=array();
     $fields[0]="agent_id";
