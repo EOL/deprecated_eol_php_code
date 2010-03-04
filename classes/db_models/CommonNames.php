@@ -35,17 +35,18 @@ class CommonName extends MysqlBase
     {
         $string = trim($string);
         if(!$string) return 0;
+        $table = Functions::class_name(__FILE__);
         
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        if(isset($GLOBAL['table_ids']['common_names'][$string."|".$language_id])) return $GLOBAL['table_ids']['common_names'][$string."|".$language_id];
+        if($cache = Cache::get('table_ids_'.$table.'_'.$string.'_'.$language_id)) return $cache;
         
         $id = 0;
         $string = $mysqli->escape($string);
         $result = $mysqli->query("SELECT id FROM common_names WHERE common_name='$string' AND language_id=$language_id");
         if($result && $row=$result->fetch_assoc()) $id = $row["id"];
         
-        $GLOBAL['table_ids']['common_names'][$string."|".$language_id] = $id;
+        if(cache_model($table)) Cache::set('table_ids_'.$table.'_'.$string.'_'.$language_id, $id);
         
         return $id;
     }

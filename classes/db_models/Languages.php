@@ -15,8 +15,9 @@ class Language extends MysqlBase
     {
         $string = trim($string);
         if(!$string) return 0;
+        $table = Functions::class_name(__FILE__);
         
-        if(isset($GLOBALS['find_by_ids'][Functions::class_name(__FILE__)]['insert_lookup'][$string])) return $GLOBALS['find_by_ids'][Functions::class_name(__FILE__)]['insert_lookup'][$string];
+        if($cache = Cache::get('language_insert_'.$string)) return $cache;
         $id = 0;
         
         if($result = self::find_by_iso_639_1($string)) $id = $result;
@@ -25,7 +26,7 @@ class Language extends MysqlBase
         elseif($result = self::find($string)) $id = $result;
         else $id = parent::insert_fields_into(array('label' => $string), Functions::class_name(__FILE__));
         
-        if(@!$GLOBALS['no_cache'][Functions::class_name(__FILE__)]) $GLOBALS['find_by_ids'][Functions::class_name(__FILE__)]['insert_lookup'][$string] = $id;
+        if(cache_model($table)) Cache::set('language_insert_'.$string, $id);
         
         return $id;
     }

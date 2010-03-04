@@ -21,7 +21,6 @@ class InfoItem extends MysqlBase
         
         $string = $mysqli->escape($string);
         $id = $mysqli->insert("INSERT INTO info_items VALUES (NULL, '$string', '', 0)");
-        $GLOBAL['table_ids']['info_items'][$string] = $id;
         
         return $id;
     }

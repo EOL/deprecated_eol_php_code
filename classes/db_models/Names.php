@@ -15,7 +15,7 @@ class Name extends MysqlBase
     {
         $this->add_language(Language::insert("Scientific Name"), 0, 0);
         $canonical_form = $this->canonical_form();
-
+        
         if($this->canonical_form()->string != $this->string)
         {
             $new_name = new Name(Name::insert($this->canonical_form()->string));
