@@ -3,6 +3,13 @@
 /*  date        ID's    bad ID's    not well formed xml
     2010-Jan-11 160115  97    
     2010-Mar-02 137794  59          241953,139430,139596,372873,131521      
+
+http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=241953
+http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=139430
+http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=139596
+http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=372873
+http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=131521
+
     
         2010-feb-26
 2007    53366

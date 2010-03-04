@@ -4,7 +4,7 @@
 //http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=BCA-coleoptv4p3s-t82
 //http://www.inotaxa.org/jsp/display.jsp?context=ElementID&taxmlitid=BCA-coleoptv4p3-3313
 
-exit;
+//exit;
 
 /* good sample for preview
 next 9
@@ -13,14 +13,15 @@ http://127.0.0.1:3000/harvest_events/8/taxa/620
 http://127.0.0.1:3000/harvest_events/8/taxa/515
 */
 
-
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
+
+$GLOBALS['ENV_NAME'] = 'slave_32';
 define("MYSQL_DEBUG", false);
 define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
-
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+
 
 /*
 $mysqli->truncate_tables("development");
@@ -102,6 +103,9 @@ foreach($providers as $provider)
                 {
                     $taxon_identifier = @$tt["TaxonID"];
                     $dwc_ScientificName = $tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName;
+                    
+                    if($dwc_ScientificName != "Aphrastus angularis")continue;   //debug
+                    
                     $rank = $tt->TaxonHeading->RankDesignation;
                     //print $dwc_ScientificName . "($taxon_identifier)($rank) | ";
                     $i++;
@@ -343,6 +347,16 @@ function get_agents($agents_arr)
     return $agents;
 }
 
+function separate_footnote_from_paragraph($temp)
+{    
+    //$position = strrpos($temp, '†');
+    $pos = strrpos($temp, 'â€');
+     
+    print"<br>pos = $pos";
+    $temp = substr_replace($temp, '<hr>xxx', $pos,0) ;          
+    return $temp;
+}
+
 function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 = image object
 {
     global $taxon_identifier;
@@ -360,7 +374,14 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
         if($type == 1)//text
         {
             $temp = @$item->asXML();
-            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp));
+
+            $temp = separate_footnote_from_paragraph($temp);
+            
+            print"<hr>$temp";
+            
+            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp,"<hr>"));            
+            
+            
         }
         else //image
         {
