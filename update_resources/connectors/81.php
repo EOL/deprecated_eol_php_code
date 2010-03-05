@@ -7,20 +7,25 @@ http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=127144&iwidth=600
 
+Go to download page:
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=10325
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=26136
+http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
 
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Bimastos+welchi
 
+List of species per phylum
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Basidiomycota
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Chaetognatha
+http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Pyrrophycophyta
 
 
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&iwidth=600
-http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
+
+
 
 date            taxid   with public barcode     with barcodes
 2010 Jan 20     16105   5594    
@@ -31,7 +36,6 @@ date            taxid   with public barcode     with barcodes
 //define("ENVIRONMENT", "slave_32");
 
 $GLOBALS['ENV_NAME'] = 'slave_32';
-
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -49,6 +53,7 @@ exit;
 
 set_time_limit(0);
 $resource = new Resource(81); //print $resource->id; exit;
+
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -73,9 +78,11 @@ $query .= " Order By taxa.taxon_phylum Asc ";
 $query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
 Inner Join names ON hierarchy_entries.name_id = names.id Where
 ranks.id = 280  ";
+/* debug limit phylum names: */
 //rank.id 280 = phylum
 //$query .= " and names.`string` = 'Chordata' ";
 //$query .= " and names.`string` = 'Chaetognatha' ";
+//$query .= " and names.`string` = 'Pyrrophycophyta' ";
 //$query .= " and names.`string` <> 'Annelida' ";
 //$query .= " Order By names.`string` Asc ";
 //$query .= " limit 1 ";
@@ -92,7 +99,8 @@ while($row=$result->fetch_assoc())
 {
     $taxid_count=0;
     $taxid_count_with_barcode=0;
-    
+
+        
     $ctr++;   
     print "$wrap $ctr. phylum = " . $row["taxon_phylum"] . "$wrap";
         
@@ -107,6 +115,15 @@ while($row=$result->fetch_assoc())
     $do_count = 0;
     foreach($xml->taxon as $main)
     {                       
+        //if($taxid_count > 15)continue;   //debug - to limit no. of taxa to process
+        
+        /*
+        if(in_array($main->name, array("Prorocentrum cassubicum","Gymnodinium catenatum")))
+        {print "<br>[" . $main->name . "]";}
+        else continue;  
+        */
+        //debug to limit
+        
         //===================================================================// check if there is content
         //$dc_source = $species_service_url . urlencode($main->name);                            
         $dc_source = $species_service_url . urlencode($main->taxid);                                    
@@ -130,15 +147,29 @@ while($row=$result->fetch_assoc())
             
             // start comment here to just see count  /*            
             //start taxon part
+            
             $taxon = str_replace(" ", "_", $main->name);
+            
+            
             if(@$used_taxa[$taxon])
             {
                 $taxon_parameters = $used_taxa[$taxon];
             }
             else
             {
+                $taxa = get_higher_taxa($main->taxid);
+                print"<pre>";print_r($taxa);print"</pre>";
+                
                 $taxon_parameters = array();
                 $taxon_parameters["identifier"] = $main->taxid;
+
+                $taxon_parameters["kingdom"] = @$taxa["kingdom"];
+                $taxon_parameters["phylum"]  = @$taxa["phylum"];
+                $taxon_parameters["class"]   = @$taxa["class"];
+                $taxon_parameters["order"]   = @$taxa["order"];
+                $taxon_parameters["family"]  = @$taxa["family"];
+                $taxon_parameters["genus"]   = @$taxa["genus"];
+                
                 $taxon_parameters["scientificName"]= $main->name;
                 //$taxon_parameters["source"] = $species_service_url . urlencode($main->name);
                 $taxon_parameters["source"] = $species_service_url . urlencode($main->taxid);
@@ -184,6 +215,45 @@ fclose($OUT);
 
 echo "$wrap$wrap Done processing.";
 
+//###########################################################################################
+function get_higher_taxa($taxid)
+{
+    global $wrap;
+    /*
+    <span class="taxon_name">Aphelocoma californica PS-1 {species}&nbsp;
+        <a title="phylum"href="taxbrowser.php?taxid=18">Chordata</a>; 
+        <a title="class"href="taxbrowser.php?taxid=51">Aves</a>; 
+        <a title="order"href="taxbrowser.php?taxid=321">Passeriformes</a>; 
+        <a title="family"href="taxbrowser.php?taxid=1160">Corvidae</a>; 
+        <a title="genus"href="taxbrowser.php?taxid=4698">Aphelocoma</a>;     
+    </span>    
+    */
+    $arr = array();
+
+    $file="http://www.boldsystems.org/views/taxbrowser.php?taxid=" . $taxid;
+    $str = Functions::get_remote_file($file);        
+    $beg='taxon_name">'; $end1='</span>'; 
+    $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    //print"$str";
+    $str = str_ireplace('<a title=' , 'xxx<a title=', $str);	
+    $str = str_ireplace('</a>' , '</a>yyy', $str);	    
+    $str = str_ireplace('xxx' , "&arr[]=", $str);	
+    $arr=array();	
+    parse_str($str);	
+    //print "after parse_str recs = " . count($arr) . "$wrap $wrap";	           
+    //print"<pre>";print_r($arr);print"</pre>";
+    $taxa=array();    
+    foreach ($arr as $a)
+    {
+        $index = get_title_from_anchor_tag($a);
+        $taxa["$index"] = get_str_from_anchor_tag($a);
+    }
+    return $taxa;
+}
+
+function get_str_from_anchor_tag($str){$beg='">'; $end1='</a>';$temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));return $temp;}
+function get_title_from_anchor_tag($str){$beg='<a title="'; $end1='"';$temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));return $temp;}
+
 function check_if_with_content($taxid,$dc_source,$public_barcodes)
 {
     global $wrap;
@@ -205,17 +275,23 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
         
         if($count_sequence > 0)
         {
-            if($public_barcodes == 1)$str="There is 1 barcode sequence available from BOLD and GenBank. Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen. Other sequences that do not yet meet barcode criteria may also be available.";
-            else                     $str="There are $count_sequence barcode sequences available from BOLD and GenBank. Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
+            if($count_sequence == 1)$str="There is 1 barcode sequence available from BOLD and GenBank. 
+                                    Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. 
+                                    See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen. 
+                                    Other sequences that do not yet meet barcode criteria may also be available.";
+                                    
+            else                    $str="There are $count_sequence barcode sequences available from BOLD and GenBank. 
+                                    Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. 
+                                    See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
             $str .= "<br>&nbsp;<br>";                
-            $text_dna_sequence .= "<br>&nbsp;<br> -- end -- <br>&nbsp;<br>";                
+            $text_dna_sequence .= "<br>-- end --<br>";                
         }
         else $str="";
     }
     else $text_dna_sequence = '';    
 
+
     //
-    //if($text_dna_sequence)
     if(trim($text_dna_sequence) != "")
     {
         $temp = "<br>&nbsp;<br>$str ";
@@ -235,12 +311,30 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
     }
     
     //Genetic Barcode
-    $description = "
-    The following is a representative barcode sequence, the centroid of all available sequences for this species.    
-    <br><a target='barcode' href='$src'><img src='$src' height=''></a>" . $temp;        
+
+    if(barcode_image_available($src))        
+    {
+        $description = "
+        The following is a representative barcode sequence, the centroid of all available sequences for this species.    
+        <br><a target='barcode' href='$src'><img src='$src' height=''></a>" . $temp;            
+    }
+    else
+    {
+        $temp .= "<br>Barcode image not yet available.";
+        $description = $temp;            
+    }
+    
     //end get text dna sequence
 
     return $description;    
+}
+
+function barcode_image_available($src)
+{
+    $str = Functions::get_remote_file($src);            
+    $ans = stripos($str,"ERROR: Unable to retrieve sequence");
+    if(is_numeric($ans))return false;
+    else                return true;
 }
 
 

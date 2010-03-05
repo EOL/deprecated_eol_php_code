@@ -104,7 +104,14 @@ foreach($providers as $provider)
                     $taxon_identifier = @$tt["TaxonID"];
                     $dwc_ScientificName = $tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName;
                     
-                    if($dwc_ScientificName != "Aphrastus angularis")continue;   //debug
+
+                    /* Aphrastus angularis
+                    */
+                    if(in_array($dwc_ScientificName, array("Attelabus ater"))){}
+                    else continue;
+                    //debug
+                    
+                    
                     
                     $rank = $tt->TaxonHeading->RankDesignation;
                     //print $dwc_ScientificName . "($taxon_identifier)($rank) | ";
@@ -348,14 +355,31 @@ function get_agents($agents_arr)
 }
 
 function separate_footnote_from_paragraph($temp)
-{    
-    //$position = strrpos($temp, '†');
-    $pos = strrpos($temp, 'â€');
-     
-    print"<br>pos = $pos";
-    $temp = substr_replace($temp, '<hr>xxx', $pos,0) ;          
+{   
+    // start separates <footnote> from the paragraph
+    $pos = strrpos($temp, 'â€'); //this is the char †     
+    $temp = substr_replace($temp, '<br><br>', $pos,0) ;                  
+    
+    $temp = remove_tag($temp,"milestone");
+    
     return $temp;
 }
+
+function remove_tag($str,$tag)
+{   
+    $needle = "<" . $tag; 
+    $pos = stripos($str, $needle);
+    if(is_numeric($pos) and $pos > 0)
+    {
+        $temp1 = substr($str,0,$pos-1);
+        $needle = "</" . $tag . ">";
+        $pos = stripos($str, $needle);
+        $temp2 = substr($str,$pos+(3+strlen($needle)),strlen($str));
+        return $temp1 . $temp2;
+    }    
+    return;
+}
+
 
 function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 = image object
 {
@@ -374,13 +398,13 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
         if($type == 1)//text
         {
             $temp = @$item->asXML();
-
-            $temp = separate_footnote_from_paragraph($temp);
+            //$temp = @$item;
+            //print"<br>[[$title]]<br>";
+            if($title == "Discussion")$temp = separate_footnote_from_paragraph($temp);
             
             print"<hr>$temp";
-            
-            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp,"<hr>"));            
-            
+                        
+            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp,"<br>"));                        
             
         }
         else //image

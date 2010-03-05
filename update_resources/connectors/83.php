@@ -23,8 +23,6 @@ include_once(dirname(__FILE__) . "/../../config/start.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
-
-
 /*
 $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
