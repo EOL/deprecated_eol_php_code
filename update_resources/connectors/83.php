@@ -16,11 +16,14 @@ http://services.morphbank.net/mb3/request?method=eol&format=id
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 
+$GLOBALS['ENV_NAME'] = 'slave_32';
 define("MYSQL_DEBUG", false);
-define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
-
+define("DEBUG", false);
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+
+
+
 
 /*
 $mysqli->truncate_tables("development");
@@ -35,7 +38,7 @@ $image_ids = array();
 $schema_taxa = array();
 $used_taxa = array();
 
-$wrap = "\n"; //$wrap = "<br>";
+$wrap = "\n"; $wrap = "<br>";
 
 //get all image ids
 /* working but not being used as advised by Greg from MorphBank
