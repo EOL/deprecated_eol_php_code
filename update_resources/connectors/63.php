@@ -34,8 +34,9 @@ $subject_arr = array("Associations","Behaviour","Biology","Conservation","Conser
 
 $providers = array( 0 => array( "url" => dirname(__FILE__) . "/files/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"      , "active" => 0),
                     1 => array( "url" => dirname(__FILE__) . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml" , "active" => 0),
-                    2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"  , "active" => 1)                    
+                    2 => array( "url" => "http://128.128.175.77/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"  , "active" => 1)                    
                   );
+                  //http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml
 
 /*
 TaxonomicPublication
@@ -105,9 +106,14 @@ foreach($providers as $provider)
                     $dwc_ScientificName = $tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName;
                     
 
-                    /* Aphrastus angularis
+                    /*  Aphrastus angularis
+                        Attelabus ater
+                        Ophryastes ovipennis
+                        Thecesternus affinis - Context in original:
+                        Thecesternus humeralis - separate or put citation
                     */
-                    if(in_array($dwc_ScientificName, array("Attelabus ater"))){}
+                    if(in_array($dwc_ScientificName, array("Thecesternus humeralis"))){}                                        
+                    
                     else continue;
                     //debug
                     
@@ -243,7 +249,8 @@ foreach($providers as $provider)
                     
                     if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
                     {
-                        $title = "Habitat";
+                        //$title = "Habitat";
+                        $title = "Distribution";
                         $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                           
                         $temp = process_dataobjects($arr,1,$ref,$title);
                     }                                        
@@ -362,11 +369,15 @@ function separate_footnote_from_paragraph($temp)
     
     $temp = remove_tag($temp,"milestone");
     
+    $temp = str_ireplace("Context in original:", "", $temp);
+    
+    //
+    
     return $temp;
 }
 
 function remove_tag($str,$tag)
-{   
+{   /* this will remove <tag>xxx</tag> from string */
     $needle = "<" . $tag; 
     $pos = stripos($str, $needle);
     if(is_numeric($pos) and $pos > 0)
@@ -377,7 +388,7 @@ function remove_tag($str,$tag)
         $temp2 = substr($str,$pos+(3+strlen($needle)),strlen($str));
         return $temp1 . $temp2;
     }    
-    return;
+    return $str;
 }
 
 
