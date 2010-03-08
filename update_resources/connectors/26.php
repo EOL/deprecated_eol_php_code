@@ -25,11 +25,17 @@ ini_set('memory_limit','3500M');
 //define("ENVIRONMENT", "slave_32");
 
 
+
+
+
 $GLOBALS['ENV_NAME'] = 'slave_32';
 define("MYSQL_DEBUG", false);
 define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+
+
+
 
 $bad_id=""; //not well formed XML
 // /*
@@ -190,10 +196,35 @@ function process($id)
 function get_main_id_list()
 {
     // /*
-    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2007.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2008.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2009.xml";
-    $url[]="http://127.0.0.1/mtce/WORMS/20100226/2010.xml";    
+    ini_set('memory_limit','3500M');
+        
+    $url=array();
+
+    $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2009.xml";    
+    
+    $url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20090819/id/2009.xml";
+    
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091016/id/2009.xml";
+    
+    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20091112/id/2009.xml";    
+    
+    $url[]="http://127.0.0.1/mtce/WORMS/20100104/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100104/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100104/id/2009.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100104/id/2010.xml";        
+
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2009.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2010.xml";    
     // */
     
     //$url[]="http://127.0.0.1/mtce/WORMS/20100104/test.xml";    

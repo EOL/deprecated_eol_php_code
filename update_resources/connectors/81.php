@@ -52,8 +52,9 @@ exit;
 ////////////////////////////////////////////////////////////////////////////////////////
 
 set_time_limit(0);
-$resource = new Resource(81); //print $resource->id; exit;
+ini_set('memory_limit','3500M');
 
+$resource = new Resource(81); //print $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
