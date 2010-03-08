@@ -92,6 +92,9 @@ ranks.id = 280  ";
 $result = $mysqli->query($query);    
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 
+$phylum_count = $result->num_rows;
+
+
 $total_taxid_count = 0;
 $do_count = 0;//weird but needed here
 $ctr=0;
@@ -100,10 +103,9 @@ while($row=$result->fetch_assoc())
 {
     $taxid_count=0;
     $taxid_count_with_barcode=0;
-
         
     $ctr++;   
-    print "$wrap $ctr. phylum = " . $row["taxon_phylum"] . "$wrap";
+    
         
     $url = $phylum_service_url . trim($row["taxon_phylum"]);
     
@@ -114,8 +116,13 @@ while($row=$result->fetch_assoc())
     if(!($xml = @simplexml_load_file($url)))continue;    
     
     $do_count = 0;
+    $count_per_phylum=0;
     foreach($xml->taxon as $main)
     {                       
+        $count_per_phylum++;
+        print "$wrap $ctr of $phylum_count -- phylum = " . $row["taxon_phylum"];
+        print " | $count_per_phylum of " . size($main) . "$wrap";
+        
         //if($taxid_count > 15)continue;   //debug - to limit no. of taxa to process
         
         /*

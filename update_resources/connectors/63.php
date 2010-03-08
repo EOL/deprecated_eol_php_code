@@ -13,14 +13,27 @@ http://127.0.0.1:3000/harvest_events/8/taxa/620
 http://127.0.0.1:3000/harvest_events/8/taxa/515
 */
 
+set_time_limit(0);
+ini_set('memory_limit','3500M');
+
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 
+// /* local
 $GLOBALS['ENV_NAME'] = 'slave_32';
 define("MYSQL_DEBUG", false);
-define("DEBUG", true);
+define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+// */
+
+/* run on beast */
+/*
+define("MYSQL_DEBUG", false);
+define("DEBUG", false);
+include_once(dirname(__FILE__) . "/../../config/start.php");
+$mysqli =& $GLOBALS['mysqli_connection'];
+*/
 
 
 /*
@@ -37,6 +50,9 @@ $providers = array( 0 => array( "url" => dirname(__FILE__) . "/files/BCA_coleopt
                     2 => array( "url" => "http://128.128.175.77/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"  , "active" => 1)                    
                   );
                   //http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml
+
+$wrap = "\n";
+//$wrap = "<br>";
 
 /*
 TaxonomicPublication
@@ -76,6 +92,7 @@ $used_taxa = array();
 
 foreach($providers as $provider)
 {
+    global $wrap;
     // start loop through
     if($provider["active"])
     {
@@ -83,7 +100,7 @@ foreach($providers as $provider)
         $xml = @simplexml_load_file($url);        
         if(!($xml = @simplexml_load_file($url)))
         {
-            print "<br> <a href='$url'>$url</a> not accessible";
+            print "$wrap <a href='$url'>$url</a> not accessible";
             continue;
         }
 
@@ -96,15 +113,34 @@ foreach($providers as $provider)
         $rightsHolder = trim(strip_tags($xml->IndividualPublication->PublicationFrontMatter->SeriesTitle->Title->asXML()));
         //end get rights holder
 
+        $main_count=0;
         foreach($xml->IndividualPublication as $main)
-        {
+        {   $main_count++; 
+            
+            //print"<pre>";print_r($main);print"</pre>";
+
+            
+                        
+            $ptm_count=0;
             foreach($main->PublicationTaxonomicMatter as $ptm)
-            {
+            {   $ptm_count++; 
+
+
+                //print"<pre>";print_r($ptm);print"</pre>";exit;
+
+            
+                $tt_count=0;
                 foreach($ptm->TaxonTreatment as $tt)
                 {
+                    $tt_count++; 
+                    print"$wrap $main_count of " . count($xml->IndividualPublication);
+                    print" | $ptm_count of " . count($main->PublicationTaxonomicMatter);
+                    print" | $tt_count of " . count($ptm->TaxonTreatment);
+                
                     $taxon_identifier = @$tt["TaxonID"];
                     $dwc_ScientificName = $tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName;
                     
+                    //print "$wrap $dwc_ScientificName ";                    
 
                     /*  Aphrastus angularis
                         Attelabus ater
@@ -112,9 +148,16 @@ foreach($providers as $provider)
                         Thecesternus affinis - Context in original:
                         Thecesternus humeralis - separate or put citation
                     */
-                    if(in_array($dwc_ScientificName, array("Thecesternus humeralis"))){}                                        
                     
-                    else continue;
+                    //if(in_array($dwc_ScientificName, array("Thecesternus humeralis"))){}
+                     /*
+                    //if(in_array($dwc_ScientificName, array( "Thecesternus humeralis",
+                                                            "Aphrastus angularis",
+                                                            "Attelabus ater",
+                                                            "Ophryastes ovipennis",
+                                                            "Thecesternus affinis"))){}                    
+                     */
+                    //else continue;                    
                     //debug
                     
                     
@@ -163,6 +206,8 @@ foreach($providers as $provider)
                         $taxon_parameters["scientificName"]= $dwc_ScientificName;
                         $taxon_parameters["source"] = "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=" . $taxon_identifier;
 
+                        
+                        
                         if($main_citation)
                         {
                             $taxon_parameters["references"] = array();
@@ -310,7 +355,7 @@ foreach($providers as $provider)
                     //end image dataobject
                     
 
-                    //print"<br>";
+                    //print"$wrap";
                 }
                 //print"<hr>";
             }
@@ -319,7 +364,7 @@ foreach($providers as $provider)
 
         /*
         print "<hr>
-        i = $i <br>
+        i = $i $wrap
         sciname = " . count($sciname);
         print "<hr>";
         print count(array_keys($sciname));
@@ -329,7 +374,7 @@ foreach($providers as $provider)
 
         // end loop through
 
-        print "<hr>" . $provider["url"];
+        print "$wrap $wrap" . $provider["url"];
 
     }//if($provider["active"])
 
@@ -348,7 +393,7 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-print "<hr> Done processing.";
+print "$wrap -Done processing- ";
 
 
 function get_agents($agents_arr)
@@ -363,16 +408,14 @@ function get_agents($agents_arr)
 
 function separate_footnote_from_paragraph($temp)
 {   
-    // start separates <footnote> from the paragraph
-    $pos = strrpos($temp, 'â€'); //this is the char †     
-    $temp = substr_replace($temp, '<br><br>', $pos,0) ;                  
-    
-    $temp = remove_tag($temp,"milestone");
-    
-    $temp = str_ireplace("Context in original:", "", $temp);
-    
-    //
-    
+    if(substr_count($temp, 'â€') > 1)
+    {
+        // start separates <footnote> from the paragraph
+        $pos = strrpos($temp, 'â€'); //this is the char †     
+        if(is_numeric($pos))$temp = substr_replace($temp, '<br><br>', $pos,0) ;                  
+    }
+    $temp = remove_tag($temp,"milestone");    
+    $temp = str_ireplace("Context in original:", "", $temp);    
     return $temp;
 }
 
@@ -410,10 +453,10 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
         {
             $temp = @$item->asXML();
             //$temp = @$item;
-            //print"<br>[[$title]]<br>";
+            //print"$wrap[[$title]]$wrap";
             if($title == "Discussion")$temp = separate_footnote_from_paragraph($temp);
             
-            print"<hr>$temp";
+            //print"<hr>$temp";//debug
                         
             $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp,"<br>"));                        
             
@@ -508,6 +551,85 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
     //else{exit("not an array");}
 }//function process_dataobjects($arr)
 
+function get_ref_from_site($dc_source)
+{
+    set_time_limit(0);
+    $str = Functions::get_remote_file($dc_source);        
+
+    $beg='"getActiveText()"><nonexplicit>'; $end1='</nonexplicit>'; 
+    $ref = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    
+    $beg='"getActiveText()"><nonexplicit>'; $end1='</a>'; 
+    $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    
+    $str .= "xxx";
+    $beg='<a'; $end1='xxx'; 
+    $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));                      
+    $str = "<a" . $str;
+    
+    $url = get_href_from_anchor_tag($str);
+    
+    return array($ref,$url);
+}
+
+function get_href_from_anchor_tag($str)
+{
+    //      <a href="reference_detail.cfm?ref_number=58&type=Article"> 
+    $beg='href="'; $end1='"'; 
+    return trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));//exist on first match = true
+}
+
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL)	//str = the html block
+{
+    //PRINT "[$all]"; exit;
+	$beg_len = strlen(trim($beg));
+	$end1_len = strlen(trim($end1));
+	$end2_len = strlen(trim($end2));
+	$end3_len = strlen(trim($end3));	
+	$end4_len = strlen(trim($end4));		
+	//print "[[$str]]";
+
+	$str = trim($str); 	
+	$str = $str . "|||";	
+	$len = strlen($str);	
+	$arr = array(); $k=0;	
+	for ($i = 0; $i < $len; $i++) 
+	{
+		//if(substr($str,$i,$beg_len) == $beg)
+        if(strtolower(substr($str,$i,$beg_len)) == strtolower($beg))
+		{	
+			$i=$i+$beg_len;
+			$pos1 = $i;			
+			//print substr($str,$i,10) . "<br>";									
+			$cont = 'y';
+			while($cont == 'y')
+			{
+				if(	substr($str,$i,$end1_len) == $end1 or 
+					substr($str,$i,$end2_len) == $end2 or 
+					substr($str,$i,$end3_len) == $end3 or 
+					substr($str,$i,$end4_len) == $end4 or 
+					substr($str,$i,3) == '|||' )
+				{
+					$pos2 = $i - 1; 					
+					$cont = 'n';					
+					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
+					//print "$arr[$k] $wrap";					
+					$k++;
+				}
+				$i++;
+			}//end while
+			$i--;			
+		}		
+	}//end outer loop
+    if($all == "")	
+    {
+        $id='';
+	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        return $id;
+    }
+    elseif($all == "all") return $arr;	
+}//end function
+
 function get_data_object($id, $created, $modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents_arr)
 {
     global $rightsHolder;
@@ -560,19 +682,34 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
     $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
     ///////////////////////////////////
 
-    ///////////////////////////////////
-    ///*working
-    $dataObjectParameters["references"] = array();
-
-    $referenceParameters = array();
-    $referenceParameters["fullReference"] = trim($ref);
-    $references[] = new SchemaReference($referenceParameters);
-
-    /*not working...
-    $referenceParam["referenceIdentifiers"][] = array("label" => "label" , "value" => "value");
+    /* bypass $ref that was passed */
+    // /*
+    $arr = get_ref_from_site($dc_source);
+    if($arr)
+    {
+        $ref        = @$arr[0];
+        $ref_url    = @$arr[1];
+    }
+    // */
+    
+    /*
+    $ref="";
+    $ref_url="";
     */
 
-    $dataObjectParameters["references"] = $references;
+    ///////////////////////////////////
+    ///*working
+    if($ref)
+    {
+        $dataObjectParameters["references"] = array();
+
+        $referenceParameters = array();
+        $referenceParameters["fullReference"] = trim($ref);
+        if($ref_url)$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $ref_url));                                
+        $references[] = new SchemaReference($referenceParameters);
+
+        $dataObjectParameters["references"] = $references;
+    }
     ///////////////////////////////////
 
     return $dataObjectParameters;
