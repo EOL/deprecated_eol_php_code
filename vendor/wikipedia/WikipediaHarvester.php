@@ -49,12 +49,12 @@ class WikipediaHarvester
     
     function download_wikipedia_dump()
     {
-        // // download latest Wikipedia export
-        // shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
-        // // unzip the download
-        // shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
-        // // split the huge file into 300M chunks
-        // shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikipedia.xml ".dirname(__FILE__)."/files/wikipedia/part_");
+        // download latest Wikipedia export
+        shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
+        // unzip the download
+        shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
+        // split the huge file into 300M chunks
+        shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikipedia.xml ".dirname(__FILE__)."/files/wikipedia/part_");
         
         // determine the filename of the last chunk
         $last_part = NULL;
@@ -66,9 +66,9 @@ class WikipediaHarvester
     function cleanup_wikipedia_dump()
     {
         // cleaning up downloaded files
-        shell_exec("rm -f ".dirname(__FILE__)."/files/wikipedia/*");
-        shell_exec("rm -f ".dirname(__FILE__)."/files/wikipedia.xml");
-        shell_exec("rm -f ".dirname(__FILE__)."/files/wikipedia.xml.bz2");
+        shell_exec("rm -f ".LOCAL_ROOT ."/update_resources/connectors/files/wikipedia/*");
+        shell_exec("rm -f ".LOCAL_ROOT ."/update_resources/connectors/files/wikipedia.xml");
+        shell_exec("rm -f ".LOCAL_ROOT ."/update_resources/connectors/files/wikipedia.xml.bz2");
     }
     
     function load_update_information()
@@ -76,7 +76,7 @@ class WikipediaHarvester
         $this->pageids_to_update = array();
         $this->pageids_to_ignore = array();
         // run the update checker to generate files containing updated/delete/unchanged records
-        // // shell_exec(PHP_BIN_PATH . dirname(__FILE__) . "/helpers/wikipedia_update_check.php");
+        shell_exec(PHP_BIN_PATH . dirname(__FILE__) . "/helpers/wikipedia_update_check.php");
         $lines = file(LOCAL_ROOT . "/temp/wikipedia_updated.txt");
         $i = 0;
         foreach($lines as $line)

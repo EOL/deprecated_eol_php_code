@@ -1,16 +1,9 @@
 <?php
 
-
-define('ENVIRONMENT', 'slave');
-//define('DEBUG', true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+$GLOBALS['ENV_NAME'] = 'slave';
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 define("WIKI_USER_PREFIX", "http://en.wikipedia.org/wiki/User:");
-Functions::require_module("wikipedia");
-$mysqli =& $GLOBALS['mysqli_connection'];
-
-date_default_timezone_set('America/New_York');
-
-
+Functions::require_vendor("wikipedia");
 
 
 $harvester = new WikipediaHarvester();
