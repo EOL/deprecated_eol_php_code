@@ -34,14 +34,20 @@ $GLOBALS['ENV_ENABLE_CACHING'] = true;
 
 
 /* Modules needed */
-require_vendor('eol_content_schema');
-require_vendor('solr');
-require_vendor('darwincore');
+require_library('Functions');
 require_library('ContentManager');
 require_library('SSH2Connection');
 require_library('SchemaConnection');
 require_library('SchemaParser');
 require_library('SchemaValidator');
+require_library('CompareHierarchies');
+require_library('ControllerBase');
+require_library('MysqlBase');
+require_library('NamesFunctions');
+require_library('Tasks');
+require_vendor('eol_content_schema');
+require_vendor('solr');
+require_vendor('darwincore');
 
 
 /* Solr delimeters */

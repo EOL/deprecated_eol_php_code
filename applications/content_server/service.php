@@ -1,8 +1,7 @@
 <?php
 
-//define('MYSQL_DEBUG', true);
-//define('DEBUG', true);
-include_once("../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+require_library('CyberSource');
 
 
 $function = @$_GET["function"];

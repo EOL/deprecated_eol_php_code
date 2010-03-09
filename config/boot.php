@@ -40,14 +40,13 @@ define('LOCAL_WEB_ROOT', WEB_ROOT);
 
 
 
-require_once(DOC_ROOT . 'classes/MysqlBase.php');
+require_once(DOC_ROOT . 'lib/MysqlBase.php');
 require_all_classes_recursively(DOC_ROOT . 'vendor/php_active_record/classes/');
 
 if(defined('USING_SPM') && USING_SPM)
 {
-    require_once(DOC_ROOT . "classes/MysqlBase.php");
     require_once(DOC_ROOT . "vendor/rdfapi-php/api/RdfAPI.php");
-    require_once(DOC_ROOT . "classes/Functions.php");
+    require_once(DOC_ROOT . "lib/Functions.php");
     require_once(DOC_ROOT . "vendor/rdf/RDFDocument.php");
     require_once(DOC_ROOT . "vendor/rdf/RDFDocumentElement.php");
 }else require_all_classes_recursively(DOC_ROOT . 'classes/');
@@ -169,7 +168,7 @@ function require_all_classes_recursively($dir)
            if($file != '.' && $file != '..')
            {
                if(preg_match("/\.php$/",trim($file))) require_once($dir.$file);
-               elseif(!preg_match("/\./", $file) && $file != 'modules' && $file != 'TDWG') require_all_classes_recursively($dir.$file.'/');
+               elseif(!preg_match("/\./", $file)) require_all_classes_recursively($dir.$file.'/');
            }
        }
        closedir($handle);
