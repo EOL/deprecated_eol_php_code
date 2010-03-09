@@ -39,6 +39,9 @@ require_vendor('solr');
 require_vendor('darwincore');
 require_library('ContentManager');
 require_library('SSH2Connection');
+require_library('SchemaConnection');
+require_library('SchemaParser');
+require_library('SchemaValidator');
 
 
 /* Solr delimeters */
