@@ -38,8 +38,10 @@ class DarwinCoreTaxon
                     $attribute = $this->possible_attributes[$namespace_abbreviation][$attribute_key];
                     if($namespace == $this->default_namespace) $this->$attribute = $value;
                     else $this->$namespace_abbreviation->$attribute = $value;
-                }else throw new Exception("Unknown element $element in $namespace");
-            }else throw new Exception("Unknown namespace $namespace");
+                }
+                //else throw new Exception("Unknown element $element in $namespace");
+            }
+            //else throw new Exception("Unknown namespace $namespace");
         }
     }
     

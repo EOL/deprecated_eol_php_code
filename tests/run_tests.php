@@ -10,8 +10,8 @@ $GLOBALS['ENV_ENABLE_CACHING'] = false;
 require_once(dirname(__FILE__) . '/../config/environment.php');
 
 require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
-require_once(DOC_ROOT . 'classes/modules/simpletest_extended/simpletest_unit_base.php');
-require_once(DOC_ROOT . 'classes/modules/simpletest_extended/simpletest_web_base.php');
+require_once(DOC_ROOT . 'vendor/simpletest_extended/simpletest_unit_base.php');
+require_once(DOC_ROOT . 'vendor/simpletest_extended/simpletest_web_base.php');
 
 $test_name = @$_GET["test"];
 if(!$test_name && @$argv[1]) $test_name = $argv[1];
