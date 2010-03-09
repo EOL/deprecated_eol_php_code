@@ -5,7 +5,7 @@ require("initialize.php");
 
 
 //require_once 'Excel/reader.php';
-require_once('../../classes/modules/Excel/reader.php');
+require_once('../../vendor/Excel/reader.php');
 
 $data = new Spreadsheet_Excel_Reader();
 
