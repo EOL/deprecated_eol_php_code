@@ -49,7 +49,7 @@ if(defined('USING_SPM') && USING_SPM)
     require_once(DOC_ROOT . "lib/Functions.php");
     require_once(DOC_ROOT . "vendor/rdf/RDFDocument.php");
     require_once(DOC_ROOT . "vendor/rdf/RDFDocumentElement.php");
-}else require_all_classes_recursively(DOC_ROOT . 'classes/');
+}else require_all_classes_recursively(DOC_ROOT . 'app/models/');
 
 set_exception_handler(array('ActiveRecordError', 'handleException'));
 
