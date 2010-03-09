@@ -34,9 +34,9 @@ $GLOBALS['ENV_ENABLE_CACHING'] = true;
 
 
 /* Modules needed */
-require_module('eol_content_schema');
-require_module('solr');
-require_module('darwincore');
+require_vendor('eol_content_schema');
+require_vendor('solr');
+require_vendor('darwincore');
 
 
 /* Solr delimeters */

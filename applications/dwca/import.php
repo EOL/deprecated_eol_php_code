@@ -2,7 +2,7 @@
 
 define('ENVIRONMENT', 'development');
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-Functions::require_module('darwincore');
+require_vendor('darwincore');
 
 
 
