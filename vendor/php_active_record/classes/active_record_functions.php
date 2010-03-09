@@ -145,6 +145,12 @@ function require_vendor($module)
     require_once($module_path);
 }
 
+function require_library($library)
+{
+    $library_path = DOC_ROOT . "lib/$library.php";
+    require_once($library_path);
+}
+
 
 function print_pre($arr)
 {

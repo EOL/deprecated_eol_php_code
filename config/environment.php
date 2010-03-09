@@ -37,6 +37,8 @@ $GLOBALS['ENV_ENABLE_CACHING'] = true;
 require_vendor('eol_content_schema');
 require_vendor('solr');
 require_vendor('darwincore');
+require_library('ContentManager');
+require_library('SSH2Connection');
 
 
 /* Solr delimeters */

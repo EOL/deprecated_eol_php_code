@@ -1,7 +1,7 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-include_once(dirname(__FILE__) . "/../../lib/FlickrAPI.php");
+require_library('FlickrAPI');
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

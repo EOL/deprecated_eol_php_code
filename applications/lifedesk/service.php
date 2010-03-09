@@ -2,7 +2,7 @@
 
 $GLOBALS['ENV_NAME'] = 'staging';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-include_once(dirname(__FILE__) . "/../../lib/LifedeskAPI.php");
+require_library('LifedeskAPI');
 
 $function = @$_REQUEST["function"];
 $search = @$_REQUEST["search"];

@@ -1,6 +1,6 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../../lib/FlickrAPI.php");
+require_library('FlickrAPI');
 
 class test_flickr_api extends SimpletestUnitBase
 {
