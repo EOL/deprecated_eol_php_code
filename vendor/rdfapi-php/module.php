@@ -10,7 +10,8 @@
 // ----------------------------------------------------------------------------------
 
 
-if(!defined("RDFAPI_INCLUDE_DIR")) define("RDFAPI_INCLUDE_DIR", "this will break");
+//if(!defined("RDFAPI_INCLUDE_DIR")) define("RDFAPI_INCLUDE_DIR", "this will break");
+define('RDFAPI_INCLUDE_DIR', dirname(__FILE__)."/api/");
 
 // Include Constants and base Object
 require_once( RDFAPI_INCLUDE_DIR . 'constants.php' );

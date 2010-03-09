@@ -139,6 +139,13 @@ function require_module($module)
     require_once($module_path);
 }
 
+function require_vendor($module)
+{
+    $module_path = DOC_ROOT . "vendor/$module/module.php";
+    require_once($module_path);
+}
+
+
 function print_pre($arr)
 {
     echo '<pre>';

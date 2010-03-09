@@ -42,7 +42,15 @@ define('LOCAL_WEB_ROOT', WEB_ROOT);
 
 require_once(DOC_ROOT . 'classes/MysqlBase.php');
 require_all_classes_recursively(DOC_ROOT . 'vendor/php_active_record/classes/');
-require_all_classes_recursively(DOC_ROOT . 'classes/');
+
+if(defined('USING_SPM') && USING_SPM)
+{
+    require_once(DOC_ROOT . "classes/MysqlBase.php");
+    require_once(DOC_ROOT . "vendor/rdfapi-php/api/RdfAPI.php");
+    require_once(DOC_ROOT . "classes/Functions.php");
+    require_once(DOC_ROOT . "vendor/rdf/RDFDocument.php");
+    require_once(DOC_ROOT . "vendor/rdf/RDFDocumentElement.php");
+}else require_all_classes_recursively(DOC_ROOT . 'classes/');
 
 set_exception_handler(array('ActiveRecordError', 'handleException'));
 
@@ -89,6 +97,7 @@ define('LOWER','a-záááàâåãäăæčćçéèêëĕíìîïǐĭñńóòôø�
 /* USING US EST as default timezone */
 if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America/New_York';
 date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);
+setlocale(LC_ALL, 'en_US.utf8');
 
 
 

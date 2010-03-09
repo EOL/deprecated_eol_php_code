@@ -1,16 +1,15 @@
 <?php
 
-define("USING_SPM", true);
-define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
-
-$mysqli =& $GLOBALS['mysqli_connection'];
-
+define('USING_SPM', true);
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+// require_vendor('rdfapi-php');
+require_vendor('rdf');
 
 
 
-$download_cache_path = LOCAL_ROOT . "temp/plazi.xml";
-$new_resource_path = LOCAL_ROOT . "temp/30.xml";
+
+$download_cache_path = DOC_ROOT . "temp/plazi.xml";
+$new_resource_path = DOC_ROOT . "temp/30.xml";
 
 $new_resource_xml = Functions::get_remote_file("http://plazi.cs.umb.edu/exist/rest/db/taxonx_docs");
 
@@ -82,9 +81,9 @@ fclose($OUT);
 
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/helpers/plazi_step_two.php");
 
-shell_exec("rm -f ". LOCAL_ROOT . "temp/30.xml");
-shell_exec("rm -f ". LOCAL_ROOT . "temp/downloaded_rdf.rdf");
-shell_exec("rm -f ". LOCAL_ROOT . "temp/plazi.xml");
+shell_exec("rm -f ". DOC_ROOT . "temp/30.xml");
+shell_exec("rm -f ". DOC_ROOT . "temp/downloaded_rdf.rdf");
+shell_exec("rm -f ". DOC_ROOT . "temp/plazi.xml");
 
 
 

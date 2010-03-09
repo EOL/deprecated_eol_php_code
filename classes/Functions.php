@@ -117,7 +117,7 @@ class Functions
     
     public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
-        self::debug("Grabbing $remote_url: attempt 1");
+        debug("Grabbing $remote_url: attempt 1");
         
         $context = stream_context_create(array('http' => array('timeout' => DOWNLOAD_TIMEOUT_SECONDS)));
         
@@ -127,7 +127,7 @@ class Functions
         $attempts = 1;
         while(!$file && $attempts < DOWNLOAD_ATTEMPTS)
         {
-            self::debug("Grabbing $remote_url: attempt ".($attempts+1));
+            debug("Grabbing $remote_url: attempt ".($attempts+1));
             
             $file = @file_get_contents($remote_url, 0, $context);
             usleep($download_wait_time);
@@ -149,7 +149,7 @@ class Functions
     
     public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
-        self::debug("Grabbing $remote_url: attempt 1");
+        debug("Grabbing $remote_url: attempt 1");
         
         $file = @self::fake_user_agent_http_get($remote_url);
         usleep($download_wait_time);
@@ -157,7 +157,7 @@ class Functions
         $attempts = 1;
         while(!$file && $attempts < DOWNLOAD_ATTEMPTS)
         {
-            self::debug("Grabbing $remote_url: attempt ".($attempts+1));
+            debug("Grabbing $remote_url: attempt ".($attempts+1));
             
             $file = @self::fake_user_agent_http_get($remote_url);
             usleep($download_wait_time);
@@ -237,7 +237,7 @@ class Functions
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
         curl_setopt($ch, CURLOPT_TIMEOUT,50);
         
-        self::debug("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
+        debug("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
         set_time_limit(50);
         $result = curl_exec($ch);
         
