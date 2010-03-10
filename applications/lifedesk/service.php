@@ -1,6 +1,5 @@
 <?php
 
-$GLOBALS['ENV_NAME'] = 'staging';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('LifedeskAPI');
 

@@ -23,6 +23,7 @@
     <xsd:complexType name="responseType">
         <xsd:sequence>
             <xsd:element name="taxon" type="taxonBaseType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="dataObject" type="dataObjectBaseType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     
@@ -239,7 +240,7 @@
                 </xsd:annotation>
             </xsd:element>
             
-            <xsd:element name="mediaURL" type="xsd:anyURI" minOccurs="0">
+            <xsd:element name="mediaURL" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
                     <xsd:documentation>A URL reference directly to the media resource.</xsd:documentation>
                 </xsd:annotation>
