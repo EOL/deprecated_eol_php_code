@@ -6,7 +6,7 @@
 
 <?php
 
-include_once("../../config/environment.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 include_once("functions.php");
 
 $taxon_concept_id = @$_GET["taxon_concept_id"];

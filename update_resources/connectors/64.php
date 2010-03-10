@@ -1,11 +1,7 @@
 <?php
 /* Radiolaria connector */
 //exit;
-//define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
-define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $resource = new Resource(64);

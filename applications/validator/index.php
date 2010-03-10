@@ -1,10 +1,6 @@
 <?php
 
-//define("ENVIRONMENT", "integration");
-//define("DEBUG", true);
-//define("MYSQL_DEBUG", true);
-require_once("../../config/start.php");
-$mysqli =& $GLOBALS['mysqli_connection'];
+require_once("../../config/environment.php");
 
 set_time_limit(0);
 

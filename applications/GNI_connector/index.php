@@ -9,17 +9,13 @@
 <?php
 /* has to be connected to the vpn */
 
-//define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
-define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
-$mysqli =& $GLOBALS['mysqli_connection'];
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
 print"<table border='1' cellpadding='5' cellspacing='0'>";
 
 $qry = "select title, id, accesspoint_url, service_type_id from resources order by title";
-$result = $mysqli->query($qry);    
+$result = $GLOBALS['db_connection']->query($qry);    
 
 print"<td><font size='2'><i>Select an EOL resource</i></font>
 <select id='resource_id' name=resource_id onChange='proc()' style='font-size : small; font-family : Arial; background-color : Aqua;'><option>";

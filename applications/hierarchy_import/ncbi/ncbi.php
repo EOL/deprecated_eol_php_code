@@ -1,7 +1,6 @@
 <?php
 
-//define("ENVIRONMENT", "staging");
-include_once(dirname(__FILE__) . "/../../../config/start.php");
+include_once(dirname(__FILE__) . "/../../../config/environment.php");
 
 
 shell_exec("curl ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz -o ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");

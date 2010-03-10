@@ -1,6 +1,6 @@
 <?php
 //<!-- <meta http-equiv="content-type" content="text/html; charset=utf-8" /> -->
-//include_once(dirname(__FILE__) . "/../../config/start.php");
+//include_once(dirname(__FILE__) . "/../../config/environment.php");
 require("initialize.php");
 
 
@@ -292,15 +292,15 @@ function make_DO($taxon)
 $desc = $sheet[2][$str][$i];
 
 /*
-$desc = str_ireplace('“', '&#147;', $desc);
-$desc = str_ireplace('”', '&#148;', $desc);
-$desc = str_ireplace('’', '&#146;', $desc);
+$desc = str_ireplace('Ã¬', '&#147;', $desc);
+$desc = str_ireplace('Ã®', '&#148;', $desc);
+$desc = str_ireplace('Ã­', '&#146;', $desc);
 */
-//$desc = str_ireplace("â", "&#" . ord("â") . ";", $desc);
+//$desc = str_ireplace("â€š", "&#" . ord("â€š") . ";", $desc);
 /*
-$desc = str_ireplace('“', '&#116;', $desc);
-$desc = str_ireplace('”', '&#39;', $desc);
-$desc = str_ireplace('’', '&#39;', $desc);
+$desc = str_ireplace('Ã¬', '&#116;', $desc);
+$desc = str_ireplace('Ã®', '&#39;', $desc);
+$desc = str_ireplace('Ã­', '&#39;', $desc);
 */
 //$desc = utf8_decode($desc);
 

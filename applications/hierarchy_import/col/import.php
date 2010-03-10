@@ -1,12 +1,6 @@
 <?php
 
-//define('MYSQL_DEBUG', true);
-define('DEBUG', true);
-//define("ENVIRONMENT", "development");
-
-$path = "";
-//if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."/data/www/eol_php_code/config/start.php");
+include_once(dirname(__FILE__)."/../../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli_col = load_mysql_environment("col2009");

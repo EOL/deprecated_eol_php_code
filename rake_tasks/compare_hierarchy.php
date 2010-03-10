@@ -12,11 +12,8 @@ if($attr != "-id" || !$id || !is_numeric($id) || ($self && $self!="-self"))
 }
 
 
-define("ENVIRONMENT", "integration");
-define("DEBUG", true);
-include_once(dirname(__FILE__)."/../config/start.php");
 
-$mysqli =& $GLOBALS['mysqli_connection'];
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 
 ob_start();

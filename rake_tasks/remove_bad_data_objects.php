@@ -1,13 +1,8 @@
 <?php
 
-//exit;
+exit;
 
-$path = "";
-define('DEBUG', true);
-//define('MYSQL_DEBUG', true);
-//define('DEBUG_TO_FILE', true);
-if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."../config/start.php");
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

@@ -16,30 +16,9 @@ http://127.0.0.1:3000/harvest_events/8/taxa/515
 set_time_limit(0);
 ini_set('memory_limit','3500M');
 
-//define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
-
-// /* local
 $GLOBALS['ENV_NAME'] = 'slave_32';
-define("MYSQL_DEBUG", false);
-define("DEBUG", false);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-// */
-
-/* run on beast */
-/*
-define("MYSQL_DEBUG", false);
-define("DEBUG", false);
-include_once(dirname(__FILE__) . "/../../config/start.php");
-$mysqli =& $GLOBALS['mysqli_connection'];
-*/
-
-
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-*/
 
 $resource = new Resource(63);
 

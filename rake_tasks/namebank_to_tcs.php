@@ -2,8 +2,8 @@
 
 //define("DEBUG", true);
 //define("MYSQL_DEBUG", true);
-define("ENVIRONMENT", "wattle");
-include_once("../config/start.php");
+//define("ENVIRONMENT", "wattle");
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

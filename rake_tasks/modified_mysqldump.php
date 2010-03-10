@@ -1,9 +1,9 @@
 <?php
 
-system('clear');
-define('ENVIRONMENT', 'staging_production');
-//define('ENVIRONMENT', 'integration');
-include_once(dirname(__FILE__) . "/../config/start.php");
+// system('clear');
+// define('ENVIRONMENT', 'staging_production');
+// //define('ENVIRONMENT', 'integration');
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

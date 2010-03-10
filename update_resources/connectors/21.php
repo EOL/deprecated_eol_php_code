@@ -2,17 +2,7 @@
 /* connector for AmphibiaWeb */
 set_time_limit(0);
 
-//define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", true);
-define("DEBUG", true);
-
-/*
-$path = "";
-if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."../../config/start.php");
-*/
-
-include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 $resource = new Resource(21);
 $new_resource_path = LOCAL_ROOT . "temp/".$resource->id.".xml";

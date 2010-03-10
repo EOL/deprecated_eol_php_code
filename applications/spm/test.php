@@ -2,7 +2,7 @@
 
 define("USING_SPM", true);
 //define("DEBUG", true);
-include_once("../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 //$url = "plazi_spm_9_24_08.xml";
 //$url = "files/plazi_spm_10_20_08.xml";

@@ -1,6 +1,6 @@
 <?php
 
-include_once(dirname(__FILE__) . "/../config/start.php");
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 Functions::log("Starting denormalizing");
 

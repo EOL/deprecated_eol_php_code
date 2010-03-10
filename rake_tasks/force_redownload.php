@@ -10,10 +10,8 @@ if(!$object_cache_url || !is_numeric($object_cache_url) || strlen($object_cache_
 }
 
 
-define('DEBUG', true);
-define('MYSQL_DEBUG', true);
 
-include_once(dirname(__FILE__)."/../config/start.php");
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

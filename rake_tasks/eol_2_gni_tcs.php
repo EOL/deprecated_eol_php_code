@@ -8,9 +8,7 @@ rundate     processed   unique names    recs in GNI
 */
 
 //define("ENVIRONMENT", "slave_32"); //comment if to put in BEAST
-define("MYSQL_DEBUG", false);
-define("DEBUG", false);
-include_once(dirname(__FILE__) . "/../config/start.php");
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 set_time_limit(0);
 $mysqli =& $GLOBALS['mysqli_connection'];

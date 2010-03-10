@@ -1,7 +1,6 @@
 <?php
 
-define('DEBUG', true);
-include_once(dirname(__FILE__) . "/../config/start.php");
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -14,7 +13,7 @@ Functions::log("Starting clear cache");
 if(@!$GLOBALS['clear_cache_urls']) return;
 foreach($GLOBALS['clear_cache_urls'] as $clear_cache_url)
 {
-    Functions::debug("Clearing cache of species pages: " . $clear_cache_url);
+    debug("Clearing cache of species pages: " . $clear_cache_url);
     Functions::get_remote_file($clear_cache_url);
 }
 

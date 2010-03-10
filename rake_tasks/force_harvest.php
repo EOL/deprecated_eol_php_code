@@ -15,12 +15,8 @@ if($attr != "-id" || !$id || !is_numeric($id) || ($opt1 && !in_array($opt1, $opt
 }
 
 
-//define('DEBUG', true);
-//define('MYSQL_DEBUG', true);
-//define('DEBUG_TO_FILE', true);
-//define('ENVIRONMENT', 'integration');
 
-include_once(dirname(__FILE__)."/../config/start.php");
+include_once(dirname(__FILE__) . "/../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

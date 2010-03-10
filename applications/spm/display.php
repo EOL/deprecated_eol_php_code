@@ -1,8 +1,7 @@
 <?php
 
 define("USING_SPM", true);
-define("DEBUG", true);
-include_once("../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
 $url = @$_GET["url"];

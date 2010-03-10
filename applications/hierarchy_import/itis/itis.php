@@ -20,16 +20,7 @@ if(@$argv[1]!="-f" || !preg_match("/^itis[0-9]{6}\.tar\.gz$/i",@$argv[2]))
 
 
 
-
-//define('MYSQL_DEBUG', true);
-define('DEBUG', true);
-define("ENVIRONMENT", "test");
-
-
-
-$path = "";
-if(preg_match("/^(.*\/)[^\/]+/", $_SERVER["_"], $arr)) $path = $arr[1];
-include_once($path."../../../config/start.php");
+include_once(dirname(__FILE__)."/../../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 //$mysqli->truncate_tables();

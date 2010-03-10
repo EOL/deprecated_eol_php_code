@@ -1,6 +1,6 @@
 <?php
 
-require_once(dirname(__FILE__) . '/../../config/start.php');
+require_once(dirname(__FILE__) . '/../../config/environment.php');
 ini_set('memory_limit','3000M');
 set_time_limit(0);
 $url = get_val_var('url');

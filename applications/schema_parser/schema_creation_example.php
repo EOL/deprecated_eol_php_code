@@ -3,7 +3,7 @@
 // This include is necessary as it will include all classes needed within this script
 // this will also create a connection to the database for the selected enviroment
 // the default environment is development. Check out the README file for more startup info
-include_once(dirname(__FILE__) ."/../../config/start.php");
+include_once(dirname(__FILE__) ."/../../config/environment.php");
 
 
 // within this script I play around with a few ways to set the parameters for the class

@@ -1,13 +1,13 @@
 <?php
 
 //define("DEBUG", true);
-include_once("../../config/start.php");
+include_once("../../config/environment.php");
 
 if(@$_POST["nameList"])
 {
     $names = explode("\n",$_POST["nameList"]);
     
-    $OUT = fopen("output.txt","w+");
+    $OUT = fopen(DOC_ROOT."temp/google_output.txt","w+");
     
     while(list($key,$val)=each($names))
     {
@@ -23,12 +23,7 @@ if(@$_POST["nameList"])
         {
             $file = Functions::get_remote_file("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=".$name."&start=$start");
             $json = json_decode($file, 1);
-            
             flush();
-            
-//            echo "<pre>";
-//            print_r($json);
-//            echo "</pre>";
             
             while(list($key2,$val2)=each($json['responseData']['results']))
             {
@@ -44,7 +39,7 @@ if(@$_POST["nameList"])
     
     fclose($OUT);
     
-    echo "<a href='output.txt'>Download Results</a><br>";
+    echo "<a href='".WEB_ROOT."temp/google_output.txt'>Download Results</a><br>";
 }else
 {
     echo "Enter a list of names:<br>
