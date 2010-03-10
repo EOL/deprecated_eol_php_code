@@ -2,10 +2,8 @@
 /* North American Mammals connector - this will not be ran from BEAST because data is coming from provider's MDB */
 exit;
 
-define("ENVIRONMENT", "development"); //always to run locally
-define("MYSQL_DEBUG", false);
-define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+$GLOBALS['ENV_NAME'] = "development"; //always to run locally
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

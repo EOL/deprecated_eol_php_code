@@ -5,7 +5,7 @@
 
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];

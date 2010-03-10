@@ -9,7 +9,6 @@ $GLOBALS['ENV_NAME'] = 'slave_32';  //source of data
 
 define("MYSQL_DEBUG", true);
 define("DEBUG", true);
-//include_once(dirname(__FILE__) . "/../../config/start.php");
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 //exit;

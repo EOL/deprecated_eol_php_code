@@ -3,7 +3,7 @@
 //define("ENVIRONMENT", "slave_215");
 //define("MYSQL_DEBUG", true);
 //define("DEBUG", true);
-require_once("../../config/start.php");
+require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 

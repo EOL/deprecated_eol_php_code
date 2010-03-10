@@ -1,11 +1,8 @@
 <?php
 //connector for Duth Species Catalogue
 set_time_limit(0);
-//define("ENVIRONMENT", "development");
-define("ENVIRONMENT", "slave_32");
-define("MYSQL_DEBUG", false);
-define("DEBUG", false);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+$GLOBALS['ENV_NAME'] = "slave_32";
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 // /*

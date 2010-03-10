@@ -1,9 +1,7 @@
 <?php
 
-define("ENVIRONMENT", "slave_32");      
-define("DEBUG", false);
-define("MYSQL_DEBUG", false);
-require_once("../../config/start.php");
+$GLOBALS['ENV_NAME'] = "slave_32";
+require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 ini_set('memory_limit','1000M');

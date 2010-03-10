@@ -6,7 +6,7 @@
 //define("ENVIRONMENT", "development");
 //define("ENVIRONMENT", "slave_32");
 //define("MYSQL_DEBUG", true);
-require_once("../../config/start.php");
+require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //$mysqli = slave_conn();

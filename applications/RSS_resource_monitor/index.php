@@ -22,10 +22,7 @@
 
 <?php
 
-//define("ENVIRONMENT", "slave_32");
-//define("ENVIRONMENT", "development");
-define("MYSQL_DEBUG", false);
-require_once("../../config/start.php");
+require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 

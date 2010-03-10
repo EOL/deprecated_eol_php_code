@@ -8,7 +8,7 @@
 
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
-require_once("../../config/start.php");
+require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 set_time_limit(0);

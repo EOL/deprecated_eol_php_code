@@ -83,15 +83,33 @@ if((@$GLOBALS['ENV_DEBUG'] || @$GLOBALS['ENV_MYSQL_DEBUG']) && @$GLOBALS['ENV_DE
 /* Auto flush echo statements to the screen when debugging */
 if(@$GLOBALS['ENV_MYSQL_DEBUG'] || @$GLOBALS['ENV_DEBUG']) ob_implicit_flush(true);
 
+
 /* Caching is turned off by default */
 if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = false;
 /* Cache is set to memory by default */
 if(!isset($GLOBALS['ENV_MEMCACHED_SERVER'])) $GLOBALS['ENV_CACHE'] = 'memory';
 
 
+/* ImageMagick */
+if(defined('MAGICK_HOME'))
+{
+    /* setting the ImageMagick path */
+    putenv('MAGICK_HOME='. MAGICK_HOME);
+    putenv('PATH='. MAGICK_HOME .'/bin/:'.getenv('PATH'));
+    putenv('DYLD_LIBRARY_PATH='. MAGICK_HOME .'/lib');
+}
+
+
 /* unicode characters for regular expressions */
 define('UPPER','A-ZÀÂÅÅÃÄÁÆČÇÉÈÊËÍÌÎÏÑÓÒÔØÕÖÚÙÛÜßĶŘŠŞŽŒ');
 define('LOWER','a-záááàâåãäăæčćçéèêëĕíìîïǐĭñńóòôøõöŏúùûüůśšşřğžźýýÿœœ');
+
+
+/* file downloads should be throttled by adding delays */
+if(!defined('DOWNLOAD_WAIT_TIME')) define('DOWNLOAD_WAIT_TIME', '300000'); //.3 seconds
+define('DOWNLOAD_ATTEMPTS', '2');
+define('DOWNLOAD_TIMEOUT_SECONDS', '10');
+
 
 /* USING US EST as default timezone */
 if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America/New_York';

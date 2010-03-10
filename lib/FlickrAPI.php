@@ -1,5 +1,20 @@
 <?php
 
+/* for the Flickr connector */
+$GLOBALS['flickr_licenses'] = array();
+//$GLOBALS['flickr_licenses'][0] = "All Rights Reserved";
+$GLOBALS['flickr_licenses'][1] = "http://creativecommons.org/licenses/by-nc-sa/2.0/";
+$GLOBALS['flickr_licenses'][2] = "http://creativecommons.org/licenses/by-nc/2.0/";
+//$GLOBALS['flickr_licenses'][3] = "http://creativecommons.org/licenses/by-nc-nd/2.0/";
+$GLOBALS['flickr_licenses'][4] = "http://creativecommons.org/licenses/by/2.0/";
+$GLOBALS['flickr_licenses'][5] = "http://creativecommons.org/licenses/by-sa/2.0/";
+//$GLOBALS['flickr_licenses'][6] = "http://creativecommons.org/licenses/by-nd/2.0/";
+
+define("FLICKR_REST_PREFIX", "http://api.flickr.com/services/rest/?");
+define("FLICKR_AUTH_PREFIX", "http://api.flickr.com/services/auth/?");
+define("FLICKR_UPLOAD_URL", "http://www.flickr.com/services/upload/");
+define("FLICKR_EOL_GROUP_ID", "806927@N20");
+
 class FlickrAPI
 {
     public static function get_all_eol_photos($auth_token = "")
