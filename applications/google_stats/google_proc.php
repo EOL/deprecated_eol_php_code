@@ -1,16 +1,94 @@
 <?php
-function get_from_api($month,$year)
+function prepare_vars($website,$month,$year)
+{
+    //###############################################################################
+    $start_date = "$year-$month-01";
+    $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);               
+    //###############################################################################
+    if($website == "eol" or $website == NULL)
+    {   $login = GOOGLE_ANALYTICS_API_USERNAME;
+        $password = GOOGLE_ANALYTICS_API_PASSWORD;
+        $organization = "www.eol.org";
+    }
+    elseif($website == "fishbase")
+    {   $login = "celloran@cgiar.org";
+        $password = "kitelloran";
+        $organization = "FishBase - All mirrors";
+    }
+    print"$organization <br>";    
+    //###############################################################################
+    $arr = array(   "login"         => $login,
+                    "password"      => $password,
+                    "organization"  => $organization,
+                    "start_date"    => $start_date,
+                    "end_date"      => $end_date
+                );
+    return $arr;
+    //###############################################################################
+}
+
+function get_from_api_Report($month,$year,$website=NULL,$report)
+{   $arr = prepare_vars($website,$month,$year); 
+    $login          =$arr["login"];
+    $password       =$arr["password"];
+    $organization   =$arr["organization"];    
+    $start_date     =$arr["start_date"];
+    $end_date       =$arr["end_date"];    
+    require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
+    $api = new analytics_api();
+    if($api->login($login, $password)) 
+    {
+        $api->load_accounts();
+        $arr=$api->accounts;
+        $id=$arr["$organization"]["tableId"];    
+        
+        if($report=="top_content")$data = $api->data($id,'ga:PagePath','ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits',false,$start_date,$end_date,100,1,false,false);
+        
+        
+        $val=array();            
+        $final = array();        
+        foreach($data as $metric => $count) 
+        {   $val[$metric]=$count;                        
+            $temp_bounce_rate   = number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2);
+            $temp_percent_exit  = number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2);             
+            $time_on_page       = "'" . $api->sec2hms(round($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"])) ,false) . "'";                    
+            $final[]  = array(  "Page"                  => $metric, 
+                                "Pageviews"             => $count["ga:pageviews"],
+                                "Unique Pageviews"      => $count["ga:uniquePageviews"],                          
+                                "Average Time on Page"  => $time_on_page,
+                                "Bounce Rate"           => $temp_bounce_rate, 
+                                "Percent Exit"          => $temp_percent_exit   );
+        }   
+        //echo "<pre>" . print_r($final) . "</pre> <hr>" . count($final) . "<hr>";                     
+    }
+    else echo "login failed <br>";    
+    return $final;
+}//end function
+
+
+function get_from_api($month,$year,$website=NULL)
 {
     //exit(" -- stopx -- ");
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
     
-    $final = array();
-    
+        
     require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
-    
-    $login = GOOGLE_ANALYTICS_API_USERNAME;
-    $password = GOOGLE_ANALYTICS_API_PASSWORD;
+ 
+    if($website == "eol" or $website == NULL)
+    {
+        $login = GOOGLE_ANALYTICS_API_USERNAME;
+        $password = GOOGLE_ANALYTICS_API_PASSWORD;
+        $organization = "www.eol.org";
+    }
+    elseif($website == "fishbase")
+    {
+        $login = "celloran@cgiar.org";
+        $password = "kitelloran";
+        $organization = "FishBase - All mirrors";
+    }
+
+    print"$organization <br>";    
     //$password .= "eli";
     $id = '';
     
@@ -22,9 +100,9 @@ function get_from_api($month,$year)
         {
             $api->load_accounts();
             $arr=$api->accounts;
-        }
-        $id=$arr["www.eol.org"]["tableId"];
-    
+        }        
+        //print"<pre>";print_r($arr);print"</pre>";                
+        $id=$arr["$organization"]["tableId"];    
         //exit;//////////////////////////////////////////////////////////////////////////////////////////////        
          /*
         print"<pre>";
@@ -51,8 +129,10 @@ function get_from_api($month,$year)
             }                                    
             $temp_uniquePageviews   = $val["ga:uniquePageviews"];            
             //==============================================================
+                        
             $data = $api->data($id, ''   , 'ga:bounces,ga:entrances,ga:exits,ga:newVisits,ga:pageviews,ga:timeOnPage,ga:timeOnSite,ga:visitors,ga:visits',false ,$start_date ,$end_date ,10      ,1    ,false,false);
             $val=array();
+            $final = array();
             foreach($data as $metric => $count) 
             {
                 $val[$metric]=$count;
@@ -73,7 +153,7 @@ function get_from_api($month,$year)
             {
                 $val[$metric]=$count;
             }                                    
-            $final[0]["Average Time on Page"]   = "'" . $api->sec2hms($val["ga:timeOnPage"]/($val["ga:pageviews"] - $val["ga:exits"]) ,false) . "'";        
+            $final[0]["Average Time on Page"]   = "'" . $api->sec2hms(round($val["ga:timeOnPage"]/($val["ga:pageviews"] - $val["ga:exits"])) ,false) . "'";        
             //==============================================================
             $final[0]["Percent New Visits"] = $temp_percent_new_visits;
             //==============================================================			

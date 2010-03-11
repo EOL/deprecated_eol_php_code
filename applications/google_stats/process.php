@@ -51,11 +51,20 @@ if($report == "eol")// www.eol.org monthly report
     print eol_month_report($comma_separated);
     exit;
 }
-if($report == "year2date")// monthly tabular report
+
+if($report == "year2date")   
 {
-    $temp = monthly_tabular($year);
-    exit;
+    $website = get_val_var('website');    
+    $temp = monthly_tabular($year,NULL,$website,NULL);exit;
 }
+if($report == "monthly_stat")
+{
+    $month = get_val_var('month');
+    $website = get_val_var('website');    
+    $report_type = get_val_var('report_type');    
+    $temp = monthly_tabular($year,$month,$website,$report_type);exit;
+}
+
 if($report == "save_monthly")// save monthly
 {
     $temp = save_monthly();
@@ -377,21 +386,55 @@ function getMonthYear()
 
 
 
-function monthly_tabular($year)
+function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
 {
-    print"<table cellpadding='4' cellspacing='0' border='1'>";
+    /*
+    if($month)print"not null [$month]";
+    else print "is null [$month]";
+    */ 
+    //exit;
     
-    if($year < date("Y"))$month_limit=12;
-    else $month_limit = date("n");
+    print"<table cellpadding='4' cellspacing='0' border='1'>";
+
+    if($month)  
+    {
+        $month_start = $month;
+        $exit_after_first_rec=true;
+    }
+    else        
+    {
+        $month_start = 1;
+        $exit_after_first_rec=false;   
+    }
+
+    if($year < date("Y"))   $month_limit=12;
+    else                    $month_limit = date("n");
+    
     
     $tab_delim = "";    
-    for ($month = 1; $month <= $month_limit; $month++) 
+    $ctr=0;
+    
+    if($website=="both")$arr=array("eol","fishbase");
+    else                $arr=array($website);
+    
+    foreach ($arr as &$website)
+    {
+
+    
+    for ($month = $month_start; $month <= $month_limit; $month++) 
     {        
         $tab_delim .= $year . chr(9) . $month . chr(9);        
+
+        if    ($report_type == "visitors_overview" or $report_type == NULL) 
+                                                 $api = get_from_api(GetNumMonthAsString($month, $year),$year,$website);            
+        elseif($report_type == "top_content")    $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type);
+        elseif($report_type == "referring_sites")$api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type);
         
-        $api = get_from_api(GetNumMonthAsString($month, $year),$year);            
-        print"<tr bgcolor='aqua' align='center'>";
-        if($month == 1)
+
+        
+        print"<tr bgcolor='aqua' align='center'>";        
+        $ctr++;
+        if($ctr == 1)
         {
             print"<td>$year</td>";
             foreach($api[0] as $label => $value) 
@@ -400,9 +443,15 @@ function monthly_tabular($year)
             }             
         }
         print"</tr>";                
+        
+        foreach($api as &$api2) 
+        {
+        
+        
         print"<tr><td align='center'> " . date("F", mktime(0, 0, 0, $month, 1, $year)) . "</td>";        
     
-        foreach($api[0] as $label => $value) 
+        //foreach($api[0] as $label => $value) 
+        foreach($api2 as $label => $value) 
         {            
             $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
             //$a = "$year $month " . getlastdayofmonth(intval($month), $year) . " 23:59:59";           
@@ -411,14 +460,30 @@ function monthly_tabular($year)
             if($a <= $b) $tab_delim .= $value . chr(9); //tab
             
             $unit="";
+            $align="right";
             if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits")))$unit="%";
             if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews")))$value=number_format($value);
-            print"<td align='right'>$value$unit</td>";
+            if(in_array($label, array("Page")))$align="left";
+            
+            $display="$value$unit";
+            
+            if($label == "Page")
+            {
+                $display=substr($value,0,50);
+                $display="<a href='http://www.eol.org" . $value . "'>$display</a>";
+            }
+            print"<td align='$align'>$display</td>";
         } 
         $tab_delim .= "\n"; //tab
         print"</tr>";                
+        
+        }//2nd loop
+        
+        if($exit_after_first_rec)break;
     
-    }//loop month    
+    }//loop month //inner loop
+    }//outer loop    
+        
     print"</table>";
 
     // /* working ...    
