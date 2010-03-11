@@ -42,22 +42,49 @@ function get_from_api_Report($month,$year,$website=NULL,$report)
         $arr=$api->accounts;
         $id=$arr["$organization"]["tableId"];    
         
-        if($report=="top_content")$data = $api->data($id,'ga:PagePath','ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits',false,$start_date,$end_date,100,1,false,false);
+        if($report=="top_content")    $data = $api->data($id,'ga:PagePath','ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits',false,$start_date,$end_date,100,1,false,false);
+        if($report=="content_title")  $data = $api->data($id,'ga:PageTitle','ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits',false,$start_date,$end_date,100,1,false,false);
         
+        if($report=="referring_sites")$data = $api->data($id,'ga:source'     ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        
+        if($report=="continent")      $data = $api->data($id,'ga:continent'   ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        if($report=="subcontinent")   $data = $api->data($id,'ga:subcontinent','ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        if($report=="country")        $data = $api->data($id,'ga:country'     ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        if($report=="region")         $data = $api->data($id,'ga:region'      ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        if($report=="city")           $data = $api->data($id,'ga:city'        ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        
+        if($report=="visitor_type")   $data = $api->data($id,'ga:visitorType','ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
         
         $val=array();            
         $final = array();        
         foreach($data as $metric => $count) 
         {   $val[$metric]=$count;                        
-            $temp_bounce_rate   = number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2);
-            $temp_percent_exit  = number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2);             
-            $time_on_page       = "'" . $api->sec2hms(round($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"])) ,false) . "'";                    
-            $final[]  = array(  "Page"                  => $metric, 
+
+            if(in_array($report, array("top_content","content_title")))
+            {  
+               if    ($report == "top_content")$metric_title = "Page";
+               elseif($report == "content_title")$metric_title = "Page Title";
+               
+                
+               $final[]=array(  $metric_title           => "<i>" . utf8_decode($metric) . "</i>", 
                                 "Pageviews"             => $count["ga:pageviews"],
                                 "Unique Pageviews"      => $count["ga:uniquePageviews"],                          
-                                "Average Time on Page"  => $time_on_page,
-                                "Bounce Rate"           => $temp_bounce_rate, 
-                                "Percent Exit"          => $temp_percent_exit   );
+                                "Average Time on Page"  => "'" . $api->sec2hms(round($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"])) ,false) . "'",
+                                "Bounce Rate"           => number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2), 
+                                "Percent Exit"          => number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2)   );
+            }
+            
+            if(in_array($report, array("referring_sites","subcontinent","continent","country","region","city","visitor_type")))
+            {  
+               $final[]=array(  "Source"                => $metric, 
+                                "Visits"                => $count["ga:visits"],
+                                "Pages/Visit"           => number_format($count["ga:pageviews"]/$count["ga:visits"],2),
+                                "Average Time on Site"  => "'" . $api->sec2hms(round($count["ga:timeOnSite"]/$count["ga:visits"]) ,false) . "'",
+                                "% New Visits"          => number_format($count["ga:newVisits"]/$count["ga:visits"]*100,2),
+                                "Bounce Rate"           => number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2)
+                                );
+            }
+            
         }   
         //echo "<pre>" . print_r($final) . "</pre> <hr>" . count($final) . "<hr>";                     
     }
@@ -142,7 +169,7 @@ function get_from_api($month,$year,$website=NULL)
             $final[0]["Pageviews"]              = $val["ga:pageviews"];                 
             $final[0]["Unique Pageviews"]       = $temp_uniquePageviews;                           
             $final[0]["Average Pages/Visit"]    = number_format($val["ga:pageviews"]/$val["ga:visits"],2);        
-            $final[0]["Average Time on Site"]   = "'" . $api->sec2hms($val["ga:timeOnSite"]/$val["ga:visits"] ,false) . "'";                    
+            $final[0]["Average Time on Site"]   = "'" . $api->sec2hms(round($val["ga:timeOnSite"]/$val["ga:visits"]) ,false) . "'";       
 			$temp_percent_new_visits            = number_format($val["ga:newVisits"]/$val["ga:visits"]*100,2);			
 			$temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100,2);
             $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100,2);             

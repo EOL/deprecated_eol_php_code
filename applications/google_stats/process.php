@@ -425,12 +425,15 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
     {        
         $tab_delim .= $year . chr(9) . $month . chr(9);        
 
-        if    ($report_type == "visitors_overview" or $report_type == NULL) 
-                                                 $api = get_from_api(GetNumMonthAsString($month, $year),$year,$website);            
-        elseif($report_type == "top_content")    $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type);
-        elseif($report_type == "referring_sites")$api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type);
+        if($report_type == "visitors_overview" or $report_type == NULL) 
+            $api = get_from_api(GetNumMonthAsString($month, $year),$year,$website);            
+                    
+        elseif(in_array($report_type, array("top_content","referring_sites","subcontinent","continent","country","region","city",
+                                            "visitor_type",
+                                            "content_title"
+                                            )))
+            $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type);
         
-
         
         print"<tr bgcolor='aqua' align='center'>";        
         $ctr++;
@@ -461,9 +464,9 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
             
             $unit="";
             $align="right";
-            if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits")))$unit="%";
+            if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits","% New Visits")))$unit="%";
             if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews")))$value=number_format($value);
-            if(in_array($label, array("Page")))$align="left";
+            if(in_array($label, array("Page","Source","Page Title")))$align="left";
             
             $display="$value$unit";
             
