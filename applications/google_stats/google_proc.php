@@ -14,8 +14,10 @@ function prepare_vars($website,$month,$year,$entire_year=Null)
     }
     //###############################################################################
     if($website == "eol" or $website == NULL)
-    {   $login = GOOGLE_ANALYTICS_API_USERNAME;
-        $password = GOOGLE_ANALYTICS_API_PASSWORD;
+    {   //$login = GOOGLE_ANALYTICS_API_USERNAME;
+        //$password = GOOGLE_ANALYTICS_API_PASSWORD;
+        $login = "eagbayanieol@gmail.com";
+        $password = "qwerty*173";
         $organization = "www.eol.org";
     }
     elseif($website == "fishbase")
