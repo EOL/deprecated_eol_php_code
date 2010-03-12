@@ -10,10 +10,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-//$mysqli2 = $mysqli;
+//$mysqli2 = $mysqli; //to be used when in production
 //$mysqli2 = load_mysql_environment('staging');        
 //$mysqli2 = load_mysql_environment('eol_statistics');        
-$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
+//$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
 $use_sql_load_infile=true;
 

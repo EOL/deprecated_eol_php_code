@@ -66,8 +66,8 @@ print"
     <tr>
         <td>Geography:</td>
         <td>
-            <input id='rad_rep6' type='radio' name='report' value='subcontinent'>Sub-Continent
             <input id='rad_rep7' type='radio' name='report' value='continent'>Continent
+            <input id='rad_rep6' type='radio' name='report' value='subcontinent'>Sub-Continent            
             <input id='rad_rep8' type='radio' name='report' value='country'>Country/Territory
             <input id='rad_rep9' type='radio' name='report' value='region'>Region
             <input id='rad_rep10' type='radio' name='report' value='city'>City        
