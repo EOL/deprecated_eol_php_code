@@ -147,6 +147,8 @@ function get_organization(i)
 
 <?php
 
+date_default_timezone_set('UTC');
+
 for($month = 1; $month <= 12 ; $month++) 
 {
     $a = date("Y m d", mktime(0, 0, 0, $month, 1, $year));
