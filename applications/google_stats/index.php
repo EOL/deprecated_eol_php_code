@@ -22,8 +22,6 @@ print"<hr>";
 $year = get_val_var('year');
 if($year=="")$year=date("Y");
 
-
-
 /*
 if($moreStats)print"morestats";
 else print"not morestats";
