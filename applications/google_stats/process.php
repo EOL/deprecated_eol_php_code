@@ -516,7 +516,10 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null,$enti
             if(in_array($label, array("Page","Landing Page","Exit Page")))
             {
                 $display=substr($value,0,50);
-                $display="<a target='external' href='http://www.eol.org" . strip_tags($value) . "'>$display</a>";
+                //print"[$website]";
+                if    ($website == "fishbase")$domain="www.fishbase.org";
+                elseif($website == "eol")$domain="www.eol.org";
+                $display="<a target='external' href='http://$domain" . strip_tags($value) . "'>$display</a>";
             }
             print"<td align='$align'>$display</td>";
         } 

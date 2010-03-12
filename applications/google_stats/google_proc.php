@@ -104,7 +104,11 @@ function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
         if($report=="region")         $data = $api->data($id,'ga:region'      ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
         if($report=="city")           $data = $api->data($id,'ga:city'        ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
         
-        if($report=="visitor_type")   $data = $api->data($id,'ga:visitorType','ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        if($report=="visitor_type")   
+        {
+            $data = $api->data($id,'ga:visitorType','ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+            $data2 = $api->data($id,'','ga:visits',false,$start_date,$end_date,100,1,false,false);            
+        }
         
         $val=array();            
         $final = array();        
@@ -127,14 +131,10 @@ function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
             
             if(in_array($report, array("referring_sites","continent","subcontinent","country","region","city",
                                        "referring_engines",
-                                       "referring_all",
-                                       "visitor_type"
+                                       "referring_all"
             )))            
             {  
-
-               if    ($report == "visitor_type")$metric_title = "Visitor Type";
-
-               elseif($report == "continent")$metric_title      = "Continent";
+               if($report == "continent")$metric_title      = "Continent";
                elseif($report == "subcontinent")$metric_title   = "Sub-Continent";
                elseif($report == "country")$metric_title        = "Country";
                elseif($report == "region")$metric_title         = "Region";
@@ -217,6 +217,25 @@ function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
                                 );
             }
 
+
+            if(in_array($report, array("visitor_type")))            
+            {  
+               if    ($report == "visitor_type")$metric_title = "Visitor Type";
+               else                             $metric_title = "-no name-";               
+
+               $final[]=array(  $metric_title           => "<i>" . utf8_decode($metric) . "</i>",                
+                                "Visits"                => $count["ga:visits"],
+                                "% Total Visits"        => number_format($count["ga:visits"]/$data2["ga:visits"]*100,2),
+                                
+                                "Pages/Visit"           => number_format($count["ga:pageviews"]/$count["ga:visits"],2),
+                                "Average Time on Site"  => "'" . $api->sec2hms(round($count["ga:timeOnSite"]/$count["ga:visits"]) ,false) . "'",
+                                "% New Visits"          => number_format($count["ga:newVisits"]/$count["ga:visits"]*100,2),
+                                "Bounce Rate"           => number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2)
+                                );
+            }
+
+
+            //===========================
         }   
         //echo "<pre>" . print_r($final) . "</pre> <hr>" . count($final) . "<hr>";                     
     }

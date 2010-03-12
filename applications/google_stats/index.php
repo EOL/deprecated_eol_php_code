@@ -13,6 +13,9 @@ for($i = 0; $i < count($temp) ; $i++)
 {
     print"<a href='index.php?year=" . $temp[$i] . "&moreStats=$moreStats'>$temp[$i]</a> | ";
 }
+
+if(!$moreStats)print" &nbsp;&nbsp;&nbsp; <a href='index.php?moreStats=1'>Improved Stats</a>";
+
 print"<hr>";
 
 
