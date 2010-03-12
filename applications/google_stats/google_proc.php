@@ -1,9 +1,17 @@
 <?php
-function prepare_vars($website,$month,$year)
+function prepare_vars($website,$month,$year,$entire_year=Null)
 {
     //###############################################################################
-    $start_date = "$year-$month-01";
-    $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);               
+    if($entire_year)
+    {
+        $start_date = "$year-01-01";
+        $end_date   = "$year-12-" . getlastdayofmonth(12, $year);                   
+    }
+    else
+    {
+        $start_date = "$year-$month-01";
+        $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);               
+    }
     //###############################################################################
     if($website == "eol" or $website == NULL)
     {   $login = GOOGLE_ANALYTICS_API_USERNAME;
@@ -15,7 +23,7 @@ function prepare_vars($website,$month,$year)
         $password = "kitelloran";
         $organization = "FishBase - All mirrors";
     }
-    print"$organization <br>";    
+    //print"$organization <br>";    
     //###############################################################################
     $arr = array(   "login"         => $login,
                     "password"      => $password,
@@ -27,14 +35,16 @@ function prepare_vars($website,$month,$year)
     //###############################################################################
 }
 
-function get_from_api_Report($month,$year,$website=NULL,$report)
-{   $arr = prepare_vars($website,$month,$year); 
+function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
+{   
+    $arr = prepare_vars($website,$month,$year,$entire_year); 
     $login          =$arr["login"];
     $password       =$arr["password"];
     $organization   =$arr["organization"];    
     $start_date     =$arr["start_date"];
     $end_date       =$arr["end_date"];    
     require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
+
     $api = new analytics_api();
     if($api->login($login, $password)) 
     {
@@ -42,10 +52,47 @@ function get_from_api_Report($month,$year,$website=NULL,$report)
         $arr=$api->accounts;
         $id=$arr["$organization"]["tableId"];    
         
+
+
+        if($report=="q1")$data = $api->data($id,'ga:previousPagePath','ga:pageviews,ga:nextPagePath',false,$start_date,$end_date,10,1,'ga:nextPagePath%3d%3dhttp://www.eol.org/index',false);
+
+        if($report=="q2")$data = $api->data($id,'ga:pagePath','ga:exits,ga:uniquePageviews',false,$start_date,$end_date,10,1,false,false);
+        if($report=="q3")$data = $api->data($id,'ga:pagePath','ga:exits,ga:pageviews'      ,false,$start_date,$end_date,10,1,false,false);
+        
+        
+        if($report=="browser")  
+        {   $data = $api->data($id,'ga:browser','ga:visits',false,$start_date,$end_date,100,1,false,false);
+            $data2 = $api->data($id,'','ga:visits',false,$start_date,$end_date,5000,1,false,false);            
+        }
+        if($report=="os")  
+        {   $data = $api->data($id,'ga:operatingsystem','ga:visits',false,$start_date,$end_date,100,1,false,false);
+            $data2 = $api->data($id,'','ga:visits',false,$start_date,$end_date,5000,1,false,false);            
+        }
+        
+        
         if($report=="top_content")    $data = $api->data($id,'ga:PagePath','ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits',false,$start_date,$end_date,100,1,false,false);
         if($report=="content_title")  $data = $api->data($id,'ga:PageTitle','ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits',false,$start_date,$end_date,100,1,false,false);
         
-        if($report=="referring_sites")$data = $api->data($id,'ga:source'     ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        if($report=="land_pages")  $data = $api->data($id,'ga:landingPagePath','ga:entrances,ga:bounces,ga:exits',false,$start_date,$end_date,100,1,false,false);
+
+        if($report=="exit_pages")  
+        {
+            $data = $api->data($id,'ga:exitPagePath','ga:exits,ga:pageviews',false,$start_date,$end_date,100,1,false,false);
+            $data2 = $api->data($id,'ga:PagePath','ga:pageviews',false,$start_date,$end_date,5000,1,false,false);
+            
+            /*
+            print"<pre>";
+            print_r($data2);
+            print"</pre>";            
+            print $data2["/"]["ga:pageviews"];
+            exit;
+            */
+        }
+        
+        if($report=="referring_sites")$data = $api->data($id,'ga:source'   ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,'ga:medium%3d%3dreferral',false);
+        if($report=="referring_engines")$data = $api->data($id,'ga:source' ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,'ga:medium%3d%3dorganic',false);
+        if($report=="referring_all")$data = $api->data($id,'ga:source'     ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
+        
         
         if($report=="continent")      $data = $api->data($id,'ga:continent'   ,'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
         if($report=="subcontinent")   $data = $api->data($id,'ga:subcontinent','ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances',false,$start_date,$end_date,10,1,false,false);
@@ -62,21 +109,41 @@ function get_from_api_Report($month,$year,$website=NULL,$report)
 
             if(in_array($report, array("top_content","content_title")))
             {  
-               if    ($report == "top_content")$metric_title = "Page";
+               if    ($report == "top_content")  $metric_title = "Page";
                elseif($report == "content_title")$metric_title = "Page Title";
-               
                 
                $final[]=array(  $metric_title           => "<i>" . utf8_decode($metric) . "</i>", 
                                 "Pageviews"             => $count["ga:pageviews"],
                                 "Unique Pageviews"      => $count["ga:uniquePageviews"],                          
                                 "Average Time on Page"  => "'" . $api->sec2hms(round($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"])) ,false) . "'",
                                 "Bounce Rate"           => number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2), 
-                                "Percent Exit"          => number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2)   );
+                                "Percent Exit"          => number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2)   
+                                );
             }
             
-            if(in_array($report, array("referring_sites","subcontinent","continent","country","region","city","visitor_type")))
+            if(in_array($report, array("referring_sites","continent","subcontinent","country","region","city",
+                                       "referring_engines",
+                                       "referring_all",
+                                       "visitor_type"
+            )))            
             {  
-               $final[]=array(  "Source"                => $metric, 
+
+               if    ($report == "visitor_type")$metric_title = "Visitor Type";
+
+               elseif($report == "continent")$metric_title      = "Continent";
+               elseif($report == "subcontinent")$metric_title   = "Sub-Continent";
+               elseif($report == "country")$metric_title        = "Country";
+               elseif($report == "region")$metric_title         = "Region";
+               elseif($report == "city")$metric_title           = "City";
+               
+               elseif($report == "referring_sites")$metric_title    = "Source: Referring Sites";
+               elseif($report == "referring_engines")$metric_title  = "Source: Search Engines";
+               elseif($report == "referring_all")$metric_title      = "All Traffic Sources";                           
+               
+               else                 $metric_title = "-no name-";
+               
+
+               $final[]=array(  $metric_title           => "<i>" . utf8_decode($metric) . "</i>",                
                                 "Visits"                => $count["ga:visits"],
                                 "Pages/Visit"           => number_format($count["ga:pageviews"]/$count["ga:visits"],2),
                                 "Average Time on Site"  => "'" . $api->sec2hms(round($count["ga:timeOnSite"]/$count["ga:visits"]) ,false) . "'",
@@ -85,6 +152,61 @@ function get_from_api_Report($month,$year,$website=NULL,$report)
                                 );
             }
             
+
+            if(in_array($report, array("land_pages")))
+            {  $final[]=array(  "Landing Page"          => "<i>" . utf8_decode($metric) . "</i>", 
+                                "Entrances"             => $count["ga:entrances"],
+                                "Bounces"               => $count["ga:bounces"],                          
+                                "Bounce Rate"           => number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2)
+                                );
+            }
+
+            if(in_array($report, array("exit_pages")))
+            {  $final[]=array(  "Exit Page"        => "<i>" . utf8_decode($metric) . "</i>", 
+                                "Exits"            => $count["ga:exits"],
+                                "Pageviews"        => $data2[$metric]["ga:pageviews"],                          
+                                "% Exit"           => number_format($count["ga:exits"]/($data2[$metric]["ga:pageviews"])*100,2)   );
+            }
+
+
+            if(in_array($report, array("q1")))
+            {  $final[]=array(  "xx"        => "<i>" . utf8_decode($metric) . "</i>", 
+                                "pageviews"            => $count["ga:pageviews"],
+                                "next path"            => $count["ga:nextPagePath"] 
+                                );
+            }
+            
+            
+            if(in_array($report, array("q2")))
+            {  $final[]=array(  "Page"                    => "<i>" . utf8_decode($metric) . "</i>", 
+                                "Exits"                   => $count["ga:exits"],
+                                "Unique Pageviews"        => $count["ga:uniquePageviews"],
+                                "% of ending the session" => number_format($count["ga:exits"]/$count["ga:uniquePageviews"]*100,2)
+                                );
+            }
+            
+            if(in_array($report, array("q3")))
+            {  $final[]=array(  "Page"                    => "<i>" . utf8_decode($metric) . "</i>", 
+                                "Exits"                   => $count["ga:exits"],
+                                "Pageviews"               => $count["ga:pageviews"],
+                                "% of ending the session" => number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2)
+                                );
+            }
+            
+            if(in_array($report, array("browser")))
+            {  $final[]=array(  "Browser"           => "<i>" . utf8_decode($metric) . "</i>", 
+                                "Visits"            => $count["ga:visits"],
+                                "% Total Visits"                 => number_format($count["ga:visits"]/$data2["ga:visits"]*100,2)
+                                );
+            }
+            
+            if(in_array($report, array("os")))
+            {  $final[]=array(  "Operating System"  => "<i>" . utf8_decode($metric) . "</i>", 
+                                "Visits"            => $count["ga:visits"],
+                                "% Total Visits"                 => number_format($count["ga:visits"]/$data2["ga:visits"]*100,2)
+                                );
+            }
+
         }   
         //echo "<pre>" . print_r($final) . "</pre> <hr>" . count($final) . "<hr>";                     
     }
@@ -95,13 +217,21 @@ function get_from_api_Report($month,$year,$website=NULL,$report)
 
 function get_from_api($month,$year,$website=NULL)
 {
+
+    $arr = prepare_vars($website,$month,$year); 
+    $login          =$arr["login"];
+    $password       =$arr["password"];
+    $organization   =$arr["organization"];    
+    $start_date     =$arr["start_date"];
+    $end_date       =$arr["end_date"];    
+    
+    require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
+    
+
     //exit(" -- stopx -- ");
+    /*
     $start_date = "$year-$month-01";
     $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
-    
-        
-    require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
- 
     if($website == "eol" or $website == NULL)
     {
         $login = GOOGLE_ANALYTICS_API_USERNAME;
@@ -114,9 +244,8 @@ function get_from_api($month,$year,$website=NULL)
         $password = "kitelloran";
         $organization = "FishBase - All mirrors";
     }
-
-    print"$organization <br>";    
-    //$password .= "eli";
+    */
+    
     $id = '';
     
     $api = new analytics_api();

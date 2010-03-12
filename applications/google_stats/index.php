@@ -27,49 +27,91 @@ else print"not morestats";
 exit;
 */
 
-print"<table cellpadding='6' cellspacing='0' border='1'>";
+
 if($moreStats)
 {
+    //<input id='rad_bot' type='radio' name='organization' value='both'>Both
 print"
 <form name='fn1' method='get' action='#'>
     <input id='rad_eol' type='radio' name='organization' value='eol' checked>EOL
-    <input id='rad_fbs' type='radio' name='organization' value='fishbase'>FishBase
-    <input id='rad_bot' type='radio' name='organization' value='both'>Both
+    <input id='rad_fbs' type='radio' name='organization' value='fishbase'>FishBase    
     <hr>
-
-    <input id='rad_rep1' type='radio' name='report' value='visitors_overview' checked>Visitors Overview
-
-    <br>    
-    Content: 
-    <input id='rad_rep2' type='radio' name='report' value='top_content'>Top Content
-    <input id='rad_rep3' type='radio' name='report' value='content_title'>Content by Title
+    
+    <table>    
+    <tr>
+        <td>Visitors:</td>
+        <td>
+            <input id='rad_rep1'  type='radio' name='report' value='visitors_overview' checked>Visitors Overview
+            <input id='rad_rep18' type='radio' name='report' value='browser' checked>Browser
+            <input id='rad_rep19' type='radio' name='report' value='os' checked>Operating System
+        </td>
+    </tr>
+    
+    <tr>
+        <td>Content: </td>
+        <td>
+            <input id='rad_rep2' type='radio' name='report' value='top_content'>Top Content
+            <input id='rad_rep3' type='radio' name='report' value='content_title'>Content by Title    
+            <input id='rad_rep11' type='radio' name='report' value='land_pages'>Top Landing Pages
+            <input id='rad_rep12' type='radio' name='report' value='exit_pages'>Top Exit Pages
+        </td>
+    </tr>
+    
+    <tr>
+        <td>Traffic Sources:</td>
+        <td>
+            <input id='rad_rep4'  type='radio' name='report' value='referring_sites'>Referring Sites        
+            <input id='rad_rep13' type='radio' name='report' value='referring_engines'>Search Engines        
+            <input id='rad_rep14' type='radio' name='report' value='referring_all'>All
+            <input id='rad_rep5' type='radio' name='report' value='visitor_type'>Visitor Type        
+        </td>
+    </tr>
+    
+    <tr>
+        <td>Geography:</td>
+        <td>
+            <input id='rad_rep6' type='radio' name='report' value='subcontinent'>Sub-Continent
+            <input id='rad_rep7' type='radio' name='report' value='continent'>Continent
+            <input id='rad_rep8' type='radio' name='report' value='country'>Country/Territory
+            <input id='rad_rep9' type='radio' name='report' value='region'>Region
+            <input id='rad_rep10' type='radio' name='report' value='city'>City        
+        </td>
+    </tr>
+    </table>
+    
     
     <br>
-    Traffic Sources:
-    <input id='rad_rep4' type='radio' name='report' value='referring_sites'>Referring Sites        
-    <input id='rad_rep5' type='radio' name='report' value='visitor_type'>Visitor Type
-
+    <input id='rad_rep16' type='radio' name='report' value='q2'>How many sessions ended on a particular page?
     <br>
-    Geography:
-    <input id='rad_rep6' type='radio' name='report' value='subcontinent'>Sub-Continent
-    <input id='rad_rep7' type='radio' name='report' value='continent'>Continent
-    <input id='rad_rep8' type='radio' name='report' value='country'>Country/Territory
-    <input id='rad_rep9' type='radio' name='report' value='region'>Region
-    <input id='rad_rep10' type='radio' name='report' value='city'>City
-
-    
+    <input id='rad_rep17' type='radio' name='report' value='q3'>How many views of a particular page ended the visit?
     
 </form>";
 }
+
+print"<table cellpadding='6' cellspacing='0' border='1'>";
 
 ?>
 
 <script language="javascript1.2">
 function get_organization(i)
 {
+    if(i == 173)document.getElementById('rad_rep1').checked=true; //visitor overview
+    
+    if(i == 174)
+    {
+        i = 173
+        eval("document.forms.f" + i + ".entire_year.value = 1")                
+    }
+    else
+    {
+        eval("document.forms.f" + i + ".entire_year.value = 0")           
+    }
+
+    
+
     if( document.getElementById('rad_eol').checked )eval("document.forms.f" + i + ".website.value = document.getElementById('rad_eol').value")
     if( document.getElementById('rad_fbs').checked )eval("document.forms.f" + i + ".website.value = document.getElementById('rad_fbs').value")
-    if( document.getElementById('rad_bot').checked )eval("document.forms.f" + i + ".website.value = document.getElementById('rad_bot').value")
+    //if( document.getElementById('rad_bot').checked )eval("document.forms.f" + i + ".website.value = document.getElementById('rad_bot').value")
     
     if( document.getElementById('rad_rep1').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep1').value")
     if( document.getElementById('rad_rep2').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep2').value")
@@ -81,6 +123,19 @@ function get_organization(i)
     if( document.getElementById('rad_rep8').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep8').value")
     if( document.getElementById('rad_rep9').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep9').value")
     if( document.getElementById('rad_rep10').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep10').value")
+    if( document.getElementById('rad_rep11').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep11').value")
+    if( document.getElementById('rad_rep12').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep12').value")    
+    if( document.getElementById('rad_rep13').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep13').value")    
+    if( document.getElementById('rad_rep14').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep14').value")    
+
+    //if( document.getElementById('rad_rep15').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep15').value")        
+    if( document.getElementById('rad_rep16').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep16').value")    
+    if( document.getElementById('rad_rep17').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep17').value")    
+    
+    if( document.getElementById('rad_rep18').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep18').value")    
+    if( document.getElementById('rad_rep19').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep19').value")    
+    
+    
     
     eval("document.forms.f" + i + ".submit()")
 }
@@ -136,6 +191,7 @@ for($month = 1; $month <= 12 ; $month++)
             <td><i><font size='2'></font></i>                        
                 <input type='hidden' name='website' value='eol'>
                 <input type='hidden' name='report_type' value='visitors_overview'>                
+                <input type='hidden' name='entire_year' value='0'>
                 <input type='button' value='Go' onClick='get_organization($month)'>                        
             </td>
             </form>";       
@@ -164,7 +220,11 @@ else
     <td colspan='2'><i><font size='2'></font></i>                        
         <input type='hidden' name='website' value='eol'>
         <input type='hidden' name='report_type' value='visitors_overview'>                
+        
+        <input type='hidden' name='entire_year' value='0'>
         <input type='button' value='$year Summary' onClick='get_organization(173)'>                        
+        <input type='button' value='Go' onClick='get_organization(174)'>                        
+        
     </td>
     </form>
     </tr>

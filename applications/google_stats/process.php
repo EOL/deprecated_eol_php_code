@@ -62,7 +62,8 @@ if($report == "monthly_stat")
     $month = get_val_var('month');
     $website = get_val_var('website');    
     $report_type = get_val_var('report_type');    
-    $temp = monthly_tabular($year,$month,$website,$report_type);exit;
+    $entire_year = get_val_var('entire_year');    
+    $temp = monthly_tabular($year,$month,$website,$report_type,$entire_year);exit;
 }
 
 if($report == "save_monthly")// save monthly
@@ -386,7 +387,7 @@ function getMonthYear()
 
 
 
-function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
+function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null,$entire_year=Null)
 {
     /*
     if($month)print"not null [$month]";
@@ -394,7 +395,8 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
     */ 
     //exit;
     
-    print"<table cellpadding='4' cellspacing='0' border='1'>";
+    //style='font-size : small;'
+    print"<table cellpadding='4' cellspacing='0' border='1' >";
 
     if($month)  
     {
@@ -407,8 +409,14 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
         $exit_after_first_rec=false;   
     }
 
+    if($entire_year)
+    {
+        $exit_after_first_rec=true;    
+    }
+
     if($year < date("Y"))   $month_limit=12;
     else                    $month_limit = date("n");
+
     
     
     $tab_delim = "";    
@@ -428,34 +436,58 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
         if($report_type == "visitors_overview" or $report_type == NULL) 
             $api = get_from_api(GetNumMonthAsString($month, $year),$year,$website);            
                     
-        elseif(in_array($report_type, array("top_content","referring_sites","subcontinent","continent","country","region","city",
+        elseif(in_array($report_type, array("top_content","subcontinent","continent","country","region","city",
                                             "visitor_type",
-                                            "content_title"
+                                            "content_title",
+                                            "land_pages",
+                                            "exit_pages",
+                                            
+                                            "referring_sites",
+                                            "referring_engines",
+                                            "referring_all",
+                                            
+                                            "q1","q2","q3","browser","os"
                                             )))
-            $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type);
+            $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type,$entire_year);
+            
         
+
+        //print"<hr><pre>";print_r($api);print"</pre>";exit;
+        
+        $month_str = date("F", mktime(0, 0, 0, $month, 1, $year));
         
         print"<tr bgcolor='aqua' align='center'>";        
         $ctr++;
         if($ctr == 1)
         {
-            print"<td>$year</td>";
+            if($report_type == "visitors_overview" or $report_type == NULL) print"<td>$year</td>";
+            else
+            {
+                print"<td>$year";            
+                if(!$entire_year)print"<br>$month_str";
+                print"</td>";
+            }
+            
             foreach($api[0] as $label => $value) 
             {            
                 print"<td>$label</td>";
             }             
         }
         print"</tr>";                
-        
+
+        $k=0;        
         foreach($api as &$api2) 
         {
         
-        
-        print"<tr><td align='center'> " . date("F", mktime(0, 0, 0, $month, 1, $year)) . "</td>";        
+            $k++;
+            if($report_type == "visitors_overview" or $report_type == NULL) print"<tr><td align='center'> " . $month_str . "</td>";        
+            else                                                            print"<tr><td align='right'> " . $k . ".</td>";                
     
         //foreach($api[0] as $label => $value) 
+        
         foreach($api2 as $label => $value) 
         {            
+
             $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
             //$a = "$year $month " . getlastdayofmonth(intval($month), $year) . " 23:59:59";           
             $b = date("Y m d H:i:s");                        
@@ -464,16 +496,29 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null)
             
             $unit="";
             $align="right";
-            if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits","% New Visits")))$unit="%";
-            if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews")))$value=number_format($value);
-            if(in_array($label, array("Page","Source","Page Title")))$align="left";
+            if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits","% New Visits"
+            ,"% Exit","% of ending the session","% Total Visits")))$unit="%";
+            if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews","Entrances","Bounces", "Exits")))$value=number_format($value);
+            if(in_array($label, array("Page","Source","Page Title","Landing Page","Exit Page"
+                ,"Source: Referring Sites"
+                ,"Source: Search Engines"
+                ,"All Traffic Sources"
+                ,"Visitor Type"                
+                ,"Continent"
+                ,"Sub-Continent"
+                ,"Country"
+                ,"Region"
+                ,"City"                  
+                ,"Browser","Operating System"
+            )))$align="left";
             
-            $display="$value$unit";
             
-            if($label == "Page")
+            $display="$value$unit";            
+
+            if(in_array($label, array("Page","Landing Page","Exit Page")))
             {
                 $display=substr($value,0,50);
-                $display="<a href='http://www.eol.org" . $value . "'>$display</a>";
+                $display="<a target='external' href='http://www.eol.org" . strip_tags($value) . "'>$display</a>";
             }
             print"<td align='$align'>$display</td>";
         } 
