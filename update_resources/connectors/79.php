@@ -4,6 +4,8 @@ connector for Public Health Image Library (CDC)
 http://phil.cdc.gov/phil/home.asp
 */
 
+refer files not with a url path but a dir path only
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -353,8 +355,6 @@ function process($url,$philid)
     $arr = parse_contents($contents);
     return $arr;        
 }
-
-
 
 
 function parse_contents($str)
