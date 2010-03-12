@@ -1,7 +1,7 @@
 <?php
 
 
-$GLOBALS['ENV_NAME'] = 'production';
+//$GLOBALS['ENV_NAME'] = 'production';
 
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
