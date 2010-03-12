@@ -440,13 +440,11 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null,$enti
                                             "visitor_type",
                                             "content_title",
                                             "land_pages",
-                                            "exit_pages",
-                                            
+                                            "exit_pages",                                            
                                             "referring_sites",
                                             "referring_engines",
-                                            "referring_all",
-                                            
-                                            "q1","q2","q3","browser","os"
+                                            "referring_all",                                            
+                                            "q1","q2","q3","browser","os","flash"
                                             )))
             $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type,$entire_year);
             
@@ -509,7 +507,7 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null,$enti
                 ,"Country"
                 ,"Region"
                 ,"City"                  
-                ,"Browser","Operating System"
+                ,"Browser","Operating System","Flash Versions"
             )))$align="left";
             
             

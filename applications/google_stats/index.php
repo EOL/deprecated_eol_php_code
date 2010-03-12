@@ -42,11 +42,8 @@ print"
         <td>Visitors:</td>
         <td>
             <input id='rad_rep1'  type='radio' name='report' value='visitors_overview' checked>Visitors Overview
-            <input id='rad_rep18' type='radio' name='report' value='browser' checked>Browser
-            <input id='rad_rep19' type='radio' name='report' value='os' checked>Operating System
         </td>
-    </tr>
-    
+    </tr>    
     <tr>
         <td>Content: </td>
         <td>
@@ -55,8 +52,7 @@ print"
             <input id='rad_rep11' type='radio' name='report' value='land_pages'>Top Landing Pages
             <input id='rad_rep12' type='radio' name='report' value='exit_pages'>Top Exit Pages
         </td>
-    </tr>
-    
+    </tr>    
     <tr>
         <td>Traffic Sources:</td>
         <td>
@@ -65,8 +61,7 @@ print"
             <input id='rad_rep14' type='radio' name='report' value='referring_all'>All
             <input id='rad_rep5' type='radio' name='report' value='visitor_type'>Visitor Type        
         </td>
-    </tr>
-    
+    </tr>    
     <tr>
         <td>Geography:</td>
         <td>
@@ -77,8 +72,17 @@ print"
             <input id='rad_rep10' type='radio' name='report' value='city'>City        
         </td>
     </tr>
+
+    <tr>
+        <td>Systems:</td>
+        <td>
+            <input id='rad_rep18' type='radio' name='report' value='browser' checked>Browser
+            <input id='rad_rep19' type='radio' name='report' value='os' checked>Operating System
+            <input id='rad_rep20' type='radio' name='report' value='flash' checked>Flash version
+        </td>
+    </tr>
+
     </table>
-    
     
     <br>
     <input id='rad_rep16' type='radio' name='report' value='q2'>How many sessions ended on a particular page?
@@ -134,8 +138,7 @@ function get_organization(i)
     
     if( document.getElementById('rad_rep18').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep18').value")    
     if( document.getElementById('rad_rep19').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep19').value")    
-    
-    
+    if( document.getElementById('rad_rep20').checked )eval("document.forms.f" + i + ".report_type.value = document.getElementById('rad_rep20').value")    
     
     eval("document.forms.f" + i + ".submit()")
 }

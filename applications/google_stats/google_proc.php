@@ -68,6 +68,10 @@ function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
         {   $data = $api->data($id,'ga:operatingsystem','ga:visits',false,$start_date,$end_date,100,1,false,false);
             $data2 = $api->data($id,'','ga:visits',false,$start_date,$end_date,5000,1,false,false);            
         }
+        if($report=="flash")  
+        {   $data = $api->data($id,'ga:flashVersion','ga:visits',false,$start_date,$end_date,100,1,false,false);
+            $data2 = $api->data($id,'','ga:visits',false,$start_date,$end_date,5000,1,false,false);            
+        }
         
         
         if($report=="top_content")    $data = $api->data($id,'ga:PagePath','ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits',false,$start_date,$end_date,100,1,false,false);
@@ -204,6 +208,12 @@ function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
             {  $final[]=array(  "Operating System"  => "<i>" . utf8_decode($metric) . "</i>", 
                                 "Visits"            => $count["ga:visits"],
                                 "% Total Visits"                 => number_format($count["ga:visits"]/$data2["ga:visits"]*100,2)
+                                );
+            }
+            if(in_array($report, array("flash")))
+            {  $final[]=array(  "Flash Versions"    => "<i>" . utf8_decode($metric) . "</i>", 
+                                "Visits"            => $count["ga:visits"],
+                                "% Total Visits"    => number_format($count["ga:visits"]/$data2["ga:visits"]*100,2)
                                 );
             }
 
