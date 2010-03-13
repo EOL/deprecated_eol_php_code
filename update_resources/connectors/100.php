@@ -53,7 +53,7 @@ $bad=0;
             {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
-                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $file_number .".xml";
+                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/conabio_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
             }                        
@@ -74,7 +74,7 @@ $bad=0;
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
 //====================================================================================
-//start compiling all worms_?.xml 
+//start compiling all conabio_?.xml 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
@@ -94,7 +94,7 @@ $i=0;
 while(true)
 {
     $i++; print "$i ";
-    $file = CONTENT_RESOURCE_LOCAL_PATH . "/temp/worms_" . $i .".xml";
+    $file = CONTENT_RESOURCE_LOCAL_PATH . "/temp/conabio_" . $i .".xml";
     $str = Functions::get_remote_file($file);
     if($str)
     {
