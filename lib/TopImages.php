@@ -10,7 +10,7 @@ class TopImages
     
     public function __construct()
     {
-        $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->mysqli =& $GLOBALS['db_connection'];
         
         $this->vetted_sort_orders =  array();
         $this->vetted_sort_orders[Vetted::find('Trusted')] = 1;
@@ -18,7 +18,7 @@ class TopImages
         $this->vetted_sort_orders[Vetted::find('Untrusted')] = 3;
     }
     
-    public function begin_process($lookup_ids = null)
+    public function begin_process()
     {
         $start = 0;
         $max_id = 0;
@@ -30,8 +30,14 @@ class TopImages
             $max_id = $row["max"];
         }
         
-        $this->TOP_IMAGES_FILE = fopen(LOCAL_ROOT . "temp/top_images.sql", "w+");
-        $this->TOP_UNPUBLISHED_IMAGES = fopen(LOCAL_ROOT . "temp/top_unpublished_images.sql", "w+");
+        // create and flush the temporary tables
+        $this->mysqli->insert("CREATE TABLE IF NOT EXISTS top_images_tmp LIKE top_images");
+        $this->mysqli->delete("TRUNCATE TABLE top_images_tmp");
+        $this->mysqli->insert("CREATE TABLE IF NOT EXISTS top_unpublished_images_tmp LIKE top_unpublished_images");
+        $this->mysqli->delete("TRUNCATE TABLE top_unpublished_images_tmp");
+        
+        $this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+");
+        $this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+");
         
         $all_parent_ids = array();
         for($i=$start ; $i<$max_id ; $i+=$this->iteration_size)
@@ -40,69 +46,104 @@ class TopImages
             $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
             
             echo "Memory: ".memory_get_usage()."\n";
-            $result = $this->mysqli->query("SELECT  he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published FROM  hierarchy_entries he JOIN hierarchy_entries he_concepts ON (he.taxon_concept_id= he_concepts.taxon_concept_id)  JOIN taxa t ON (he_concepts.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id)  JOIN data_objects do ON  (dot.data_object_id= do.id) WHERE he.id   BETWEEN $i AND ".($i+$this->iteration_size)." AND he.hierarchy_id!=399 AND he.hierarchy_id!=105 AND he.hierarchy_id!=129    AND do.data_type_id=$image_type_id ORDER BY he.id");
+            $result = $this->mysqli->query("
+                SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
+                    FROM data_objects_taxon_concepts dotc
+                    JOIN data_objects do ON (dotc.data_object_id=do.id)
+                    JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id)
+                    WHERE he.id BETWEEN $i AND ".($i+$this->iteration_size)."
+                    AND he.hierarchy_id!=399
+                    AND he.hierarchy_id!=105
+                    AND he.hierarchy_id!=106
+                    AND he.hierarchy_id!=129
+                    AND do.data_type_id=$image_type_id
+                    AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")
+                    ORDER BY he.id");
             echo "Memory: ".memory_get_usage()."\n";
             
-            list($parent_ids, $top_images, $top_unpublished_images) = $this->get_data_from_result($result);
+            $parent_ids = $this->get_data_from_result($result);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
         }
+        
+        // load all the info we just gathered
         fclose($this->TOP_IMAGES_FILE);
         fclose($this->TOP_UNPUBLISHED_IMAGES);
+        $this->load_data_from_files();
         
-        $this->begin_load_data();
+        // now load data for all the parents of taxa with images
         if($all_parent_ids) $this->process_parents($all_parent_ids);
+        
+        // clean up tmp files and swap tmp tables with live ones
         $this->end_load_data();
     }
     
     public function process_parents($parent_ids)
     {
-        $this->TOP_IMAGES_FILE = fopen(LOCAL_ROOT . "temp/top_images.sql", "w+");
-        $this->TOP_UNPUBLISHED_IMAGES = fopen(LOCAL_ROOT . "temp/top_unpublished_images.sql", "w+");
+        // truncate the temporary files
+        $this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+");
+        $this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+");
         
         $i = 0;
+        unset($all_parent_ids);
         $all_parent_ids = array();
-        $chunks = array_chunk($parent_ids, 20000);
-        foreach($chunks as $chunk)
+        $chunks = array_chunk($parent_ids, 7000);
+        while(list($key, $chunk) = each($chunks))
         {
             $i++;
             echo "Chunk $i of ". count($chunks) ."\n";
             $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
             
-            echo "Memory: ".memory_get_usage()."\n";
-            $result = $this->mysqli->query("(SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published FROM hierarchy_entries he JOIN hierarchy_entries he_concepts  ON (he.taxon_concept_id=he_concepts.taxon_concept_id) JOIN taxa t ON (he_concepts.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE he.id IN (". implode($chunk, ",") .") AND do.data_type_id=$image_type_id)
+            // searches for all images for THIS concept, same as above
+            // but also searches top_images for the best from its decendants
+            $result = $this->mysqli->query("
+            (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
+                FROM hierarchy_entries he
+                JOIN top_images_tmp ti ON (he.id=ti.hierarchy_entry_id)
+                JOIN data_objects do ON (ti.data_object_id=do.id)
+                WHERE he.id IN (". implode($chunk, ",") .")
+                AND do.data_type_id=$image_type_id
+                AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible')."))
             UNION
-            (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published FROM hierarchy_entries he JOIN hierarchy_entries he_children ON (he.id=he_children.parent_id) JOIN top_images ti ON (he_children.id=ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) WHERE he.id IN (". implode($chunk, ",") .") AND do.data_type_id=$image_type_id) ORDER BY hierarchy_entry_id");
+            (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
+                FROM hierarchy_entries he
+                JOIN hierarchy_entries he_children ON (he.id=he_children.parent_id)
+                JOIN top_images_tmp ti ON (he_children.id=ti.hierarchy_entry_id)
+                JOIN data_objects do ON (ti.data_object_id=do.id)
+                WHERE he.id IN (". implode($chunk, ",") .")
+                AND do.data_type_id=$image_type_id
+                AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible')."))
+            ORDER BY hierarchy_entry_id");
             echo "Memory: ".memory_get_usage()."\n";
             
-            list($parent_ids, $top_images, $top_unpublished_images) = $this->get_data_from_result($result);
+            $parent_ids = $this->get_data_from_result($result);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
         }
+        // load all info from this series of ancestry
         fclose($this->TOP_IMAGES_FILE);
         fclose($this->TOP_UNPUBLISHED_IMAGES);
-        
         $this->load_data_from_files();
+        
+        // get data for the next ancestor level
         if($all_parent_ids) $this->process_parents($all_parent_ids);
     }
     
     public function top_concept_images($published = false)
     {
-        $OUT = fopen(LOCAL_ROOT . "temp/top_concept_images.sql", "w+");
+        $OUT = fopen(DOC_ROOT . "temp/top_concept_images.sql", "w+");
         
         if($published)
         {
             $table_name = 'top_concept_images';
             $select_table_name = 'top_images';
-            $where = 'AND he.published=1';
         }else
         {
             $table_name = 'top_unpublished_concept_images';
             $select_table_name = 'top_unpublished_images';
-            $where = '';
         }
         
         $start = 0;
         $stop = 0;
-        $batch_size = 200000;
+        $batch_size = 100000;
         
         $result = $this->mysqli->query("SELECT MIN(he.taxon_concept_id) min, MAX(he.taxon_concept_id) max FROM $select_table_name ti JOIN hierarchy_entries he ON (ti.hierarchy_entry_id=he.id)");
         if($result && $row=$result->fetch_assoc())
@@ -117,7 +158,7 @@ class TopImages
             
             $last_taxon_concept_id = 0;
             $top_images = array();
-            $result = $this->mysqli->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." $where ORDER BY he.taxon_concept_id");
+            $result = $this->mysqli->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." ORDER BY he.taxon_concept_id");
             while($result && $row=$result->fetch_assoc())
             {
                 $taxon_concept_id = $row['taxon_concept_id'];
@@ -129,6 +170,7 @@ class TopImages
                 {
                     $last_taxon_concept_id = $taxon_concept_id;
                     if($top_images) self::write_sorted_results_to_file($top_images, $OUT);
+                    unset($top_images);
                     $top_images = array();
                 }
                 $top_images[$vetted_sort_order][$data_rating][$data_object_id] = "$taxon_concept_id\t$data_object_id";
@@ -137,13 +179,20 @@ class TopImages
         }
         fclose($OUT);
         
-        if(filesize(LOCAL_ROOT ."temp/top_concept_images.sql"))
+        if(filesize(DOC_ROOT ."temp/top_concept_images.sql"))
         {
-            echo "Deleting old concept data\n";
-            $this->mysqli->delete("DELETE FROM $table_name");
-            $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_concept_images.sql", $table_name, false);
+            $tmp_table_name = $table_name."_tmp";
+            $this->mysqli->insert("CREATE TABLE IF NOT EXISTS $tmp_table_name LIKE $table_name");
+            $this->mysqli->delete("TRUNCATE TABLE $tmp_table_name");
+            $this->mysqli->load_data_infile(DOC_ROOT ."temp/top_concept_images.sql", $tmp_table_name, false, true);
+            
+            $swap_table_name = $table_name."_swap";
+            $this->mysqli->update("RENAME TABLE $table_name TO $swap_table_name,
+                                                $tmp_table_name TO $table_name,
+                                                $swap_table_name TO $tmp_table_name");
+            
         }
-        shell_exec("rm ". LOCAL_ROOT ."temp/top_concept_images.sql");
+        shell_exec("rm ". DOC_ROOT ."temp/top_concept_images.sql");
     }
     
     
@@ -154,14 +203,11 @@ class TopImages
         $last_hierarchy_entry_id = 0;
         $top_images = array();
         $top_unpublished_images = array();
-        // $rows = $result->num_rows;
-        // for($h=0 ; $h<$rows ; $h++)
-        // {
-        //     $result->data_seek($h);
-        //     $row = $result->fetch_assoc();
+        
+        $visible_id = Visibility::find("visible");
         while($result && $row=$result->fetch_assoc())
         {
-            if($i%1000==0) echo "Memory: ".memory_get_usage()."\n";
+            if($i%2000==0) echo "Memory: ".memory_get_usage()."\n";
             $i++;
             $hierarchy_entry_id = $row["hierarchy_entry_id"];
             $parent_id = $row["parent_id"];
@@ -172,85 +218,92 @@ class TopImages
             $vetted_id = $row["vetted_id"];
             if($parent_id) $parent_ids[$parent_id] = 1;
             
-            $vetted_sort_order = isset($this->vetted_sort_orders[$vetted_id]) ? $this->vetted_sort_orders[$vetted_id] : 5;
             
-            // moving on to the next entry
+            // this is a new entry so commit existing data before adding more
             if($hierarchy_entry_id != $last_hierarchy_entry_id)
             {
                 $this->process_top_images($top_images, $top_unpublished_images);
                 $last_hierarchy_entry_id = $hierarchy_entry_id;
+                unset($top_images);
+                unset($top_unpublished_images);
+                unset($used_data_objects);
                 $top_images = array();
                 $top_unpublished_images = array();
+                $used_data_objects = array();
             }
             
-            if($visibility_id==Visibility::find("visible") && $published==1) $top_images[$vetted_sort_order][$data_rating][$data_object_id] = "$hierarchy_entry_id\t$data_object_id";
+            if(isset($used_data_objects[$data_object_id])) continue;
+            $used_data_objects[$data_object_id] = 1;
+            
+            $vetted_sort_order = isset($this->vetted_sort_orders[$vetted_id]) ? $this->vetted_sort_orders[$vetted_id] : 5;
+            if($visibility_id==$visible_id && $published==1) $top_images[$vetted_sort_order][$data_rating][$data_object_id] = "$hierarchy_entry_id\t$data_object_id";
             else $top_unpublished_images[$vetted_sort_order][$data_rating][$data_object_id] = "$hierarchy_entry_id\t$data_object_id";
-            unset($row);
         }
         if($result) $result->free();
         
         $this->process_top_images($top_images, $top_unpublished_images);
         
-        return array($parent_ids, $top_images, $top_unpublished_images);
+        return $parent_ids;
     }
     
-    public static function write_sorted_results_to_file($top_images, $FILE)
+    public static function write_sorted_results_to_file(&$top_images, &$FILE)
     {
         if(!$FILE) return false;
         
+        // trying to mimic the Rails top images sorting as closely as possible
         $view_order = 1;
-        ksort($top_images); // vetted view order ASC
-        foreach($top_images as $vetted_orders => $ratings)
+        ksort($top_images);
+        while(list($vetted_orders, $ratings) = each($top_images))
         {
-            krsort($ratings); // data object rating DESC
-            foreach($ratings as $r => $object_ids)
+            krsort($ratings);
+            while(list($r, $object_ids) = each($ratings))
             {
-                krsort($object_ids); // data object ID DESC
-                foreach($object_ids as $object_id => $data)
+                krsort($object_ids);
+                while(list($object_id, $data) = each($object_ids))
                 {
                     fwrite($FILE, $data . "\t$view_order\n");
                     $view_order++;
                     if($view_order > 500) break;
                 }
-                unset($object_ids);
             }
-            unset($ratings);
         }
         unset($top_images);
     }
     
-    function process_top_images($top_images, $top_unpublished_images)
+    function process_top_images(&$top_images, &$top_unpublished_images)
     {
         self::write_sorted_results_to_file($top_images, $this->TOP_IMAGES_FILE);
         self::write_sorted_results_to_file($top_unpublished_images, $this->TOP_UNPUBLISHED_IMAGES);
     }
     
-    function begin_load_data()
-    {
-        if(filesize(LOCAL_ROOT ."temp/top_images.sql"))
-        {
-            $this->mysqli->begin_transaction();
-            
-            echo "Deleting old data\n";
-            $this->mysqli->delete("DELETE FROM top_images");
-            $this->mysqli->delete("DELETE FROM top_unpublished_images");
-            
-            $this->load_data_from_files();
-        }
-    }
-    
     function end_load_data()
     {
         echo "removing data files\n";
-        shell_exec("rm ". LOCAL_ROOT ."temp/top_images.sql");
-        shell_exec("rm ". LOCAL_ROOT ."temp/top_unpublished_images.sql");
+        shell_exec("rm ". DOC_ROOT ."temp/top_images.sql");
+        shell_exec("rm ". DOC_ROOT ."temp/top_unpublished_images.sql");
+        
+        // swap temporary tables with real tables
+        $result = $this->mysqli->query("SELECT 1 FROM top_images_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->update("RENAME TABLE top_images TO top_images_swap,
+                                                top_images_tmp TO top_images,
+                                                top_images_swap TO top_images_tmp");
+        }
+        $result = $this->mysqli->query("SELECT 1 FROM top_unpublished_images_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->update("RENAME TABLE top_unpublished_images TO top_unpublished_images_swap,
+                                                top_unpublished_images_tmp TO top_unpublished_images,
+                                                top_unpublished_images_swap TO top_unpublished_images_tmp");
+        }
         
         echo "Update 1 of 2\n";
         $this->mysqli->update("UPDATE taxon_concept_content tcc JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) SET tcc.child_image=1, tcc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-
+        
         echo "Update 2 of 2\n";
         $this->mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-
+        
         $species_rank_ids_array = array();
         if($id = Rank::find('species')) $species_rank_ids_array[] = $id;
         if($id = Rank::find('sp')) $species_rank_ids_array[] = $id;
@@ -263,16 +316,14 @@ class TopImages
         if($id = Rank::find('var.')) $species_rank_ids_array[] = $id;
         $species_rank_ids = implode(",", $species_rank_ids_array);
         
-        $this->mysqli->delete("DELETE FROM top_species_images");
-        $this->mysqli->delete("DELETE FROM top_unpublished_species_images");
-        
         // maybe also add where lft=rgt-1??
         echo "top_species_images\n";
+        $this->mysqli->delete("DELETE FROM top_species_images");
         $this->mysqli->update("INSERT INTO top_species_images (SELECT ti.* FROM hierarchy_entries he JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
         
         echo "top_unpublished_species_images\n";
+        $this->mysqli->delete("DELETE FROM top_unpublished_species_images");
         $this->mysqli->update("INSERT INTO top_unpublished_species_images (SELECT tui.* FROM hierarchy_entries he JOIN top_unpublished_images tui ON (he.id=tui.hierarchy_entry_id) WHERE he.rank_id IN ($species_rank_ids))");
-        
         
         $this->mysqli->end_transaction();
     }
@@ -281,9 +332,12 @@ class TopImages
     {
         echo "inserting new data\n";
         echo "1 of 2\n";
-        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_images.sql", "top_images", false);
+        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_images.sql", "top_images_tmp", true, true);
+        //sleep(10);
+        
         echo "2 of 2\n";
-        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_unpublished_images.sql", "top_unpublished_images", false);
+        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_unpublished_images.sql", "top_unpublished_images_tmp", true, true);
+        //sleep(10);
     }
 }
 
