@@ -252,6 +252,11 @@ class MysqliConnection
         return $this->master_mysqli->error;
     }
     
+    function affected_rows()
+    {
+        return $this->master_mysqli->affected_rows;
+    }
+    
     function debug($string, $master)
     {
         static $number_of_queries;

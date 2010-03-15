@@ -64,6 +64,11 @@ function display($str)
     }
 }
 
+function write_to_log($str)
+{
+    if(@$GLOBALS['ENV_DEBUG_TO_FILE']) fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
+}
+
 function debug($string)
 {
     if(@$GLOBALS['ENV_DEBUG'])
@@ -182,9 +187,27 @@ function get_last_function($index = 1)
 
 function shutdown_check()
 {
-    if($GLOBALS['db_connection']->transaction_in_progress) $GLOBALS['db_connection']->rollback();
-    if($GLOBALS['ENV_MYSQL_DEBUG']) debug("\n\n<hr>Shutting down<br>\n\n\n");
+    $isError = false;
+    if($error = error_get_last())
+    {
+        switch($error['type'])
+        {
+            case E_ERROR:
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_USER_ERROR:
+            $isError = true;
+            break;
+        }
+    }
+    if ($isError) debug("Fatal Error: {$error['message']} in {$error['file']} on line {$error['line']}");
+    else debug("Script completed");
     
+    // close any open database connections
+    if($GLOBALS['db_connection']->transaction_in_progress) $GLOBALS['db_connection']->rollback();
+    if($GLOBALS['ENV_MYSQL_DEBUG']) debug("\n\nClosing database connection\n");
+    
+    // close the log file handle
     if($GLOBALS['ENV_DEBUG'] && $GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])
     {
         fclose($GLOBALS['ENV_DEBUG_FILE_HANDLE']);

@@ -16,8 +16,8 @@ class test_content_manager extends SimpletestUnitBase
     
     function testWebServerAvailability()
     {
-        $file = Functions::get_remote_file(WEB_ROOT . "phpinfo.php");
-        $this->assertPattern("/phpinfo\(\)/", $file);
+        $file = Functions::get_remote_file(WEB_ROOT . "tests/fixtures/files/test_resource.xml");
+        $this->assertPattern("/dataObject/", $file, 'YOUR WEB SERVER MAY NOT BE RUNNING');
     }
     
     function testGrabResource()

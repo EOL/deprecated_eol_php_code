@@ -52,6 +52,7 @@ if(defined('USING_SPM') && USING_SPM)
 }else require_all_classes_recursively(DOC_ROOT . 'app/models/');
 
 set_exception_handler(array('ActiveRecordError', 'handleException'));
+set_error_handler(array('ActiveRecordError', 'handleError'));
 
 /* Should really always be set to true */
 if(!isset($GLOBALS['ENV_USE_MYSQL'])) $GLOBALS['ENV_USE_MYSQL'] = true;
