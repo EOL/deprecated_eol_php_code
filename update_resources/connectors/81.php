@@ -6,14 +6,16 @@
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=127144&iwidth=600
+http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=85119&iwidth=600
 
 Go to download page:
-http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=10325
+http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=279181
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=26136
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=93150
 
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Gadus+morhua
 http://www.barcodinglife.org/views/taxbrowser.php?taxon=Bimastos+welchi
+http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
 
 List of species per phylum
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
@@ -21,10 +23,13 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Basid
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Chaetognatha
 http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Pyrrophycophyta
 
+Get higher taxa:
+http://www.boldsystems.org/views/taxbrowser.php?taxid=279181
 
-http://www.barcodinglife.org/views/taxbrowser.php?taxon=Agaricus+pequinii
-http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=93150&iwidth=600
-
+One set of URLs:
+http://www.boldsystems.org/views/taxbrowser.php?taxid=195548
+http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=195548
+http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=195548&iwidth=600
 
 
 date            taxid   with public barcode     with barcodes
@@ -67,8 +72,6 @@ $wrap = "\n";
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 //$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
 $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
-
-
 
 
 /*
@@ -195,8 +198,7 @@ while($row=$result->fetch_assoc())
             
         }//with public barcodes
         
-        //end #########################################################################
-        
+        //end #########################################################################        
     }
     if($taxid_count != 0)
     {
@@ -347,10 +349,7 @@ function barcode_image_available($src)
 
 
 function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$description)
-{    
-
-    
-    
+{        
     $dataObjectParameters = array();    
     //$dataObjectParameters["title"] = "Molecular and Genetics";    
     $dataObjectParameters["title"] = "Barcode data";        

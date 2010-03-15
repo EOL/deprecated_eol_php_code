@@ -3,21 +3,18 @@
 /*  date        ID's    bad ID's    not well formed xml
     2010-Jan-11 160115  97    
     2010-Mar-02 137794  59          241953,139430,139596,372873,131521      
-
-http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=241953
-http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=139430
-http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=139596
-http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=372873
-http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=131521
-
+    2010-Mar-15 167902  3679        231158,148063,148064,148077,148078,156362,156373,156391,156287,156298,156312,156323,156337,156292,156294,156309,156311,122651,156284,156301,156302,156319,156320,117650,117716,326256,326413,281017,281019,281034,281036,281051,281053,281068,281070,281083,281085,281100,281102,281117,281119,281134,281136,281151,281153,
+                                    281168,281170,281185,281187,281200,281202,281217,281219,281234,281236,281251,281253,278279,276839,218246,101138,448731,
     
+http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=231158    
+
         2010-feb-26
 2007    53366
 2008    66101
 2009    8955
-2010    9572
-         
+2010    9572         
 */
+
 //exit;
 set_time_limit(0);
 ini_set('memory_limit','3500M');
