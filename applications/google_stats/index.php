@@ -3,6 +3,7 @@
 /* nice read
 http://www.google.com/support/googleanalytics/bin/answer.py?hl=en&answer=60123
 */
+date_default_timezone_set('UTC');
 
 $csv = array("site_statistics.csv","query9.csv","query10.csv","query12.csv");
 
