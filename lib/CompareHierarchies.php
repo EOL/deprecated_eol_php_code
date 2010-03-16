@@ -235,8 +235,6 @@ class CompareHierarchies
         
         $start_time = microtime(true);
         
-        $mysqli->begin_transaction();
-        
         // get a path to a tmp file which doesn't exist yet
         $sql_filepath = Functions::temp_filepath();
         $SQL_FILE = fopen($sql_filepath, "w+");
@@ -319,12 +317,10 @@ class CompareHierarchies
         
         fclose($SQL_FILE);
         //echo 'loading data\n';
-        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships");
+        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", true, true);
         
         // remove the tmp file
         @unlink($sql_filepath);
-        
-        $mysqli->end_transaction();
     }
     
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)

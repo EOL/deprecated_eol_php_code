@@ -9,7 +9,7 @@ class test_resources extends SimpletestUnitBase
         $agent = new Agent($agent_id);
         
         // create the content partner
-        $content_partner_id = ContentPartner::insert(array('agent_id' => $agent_id, 'auto_publish' => 0, 'vetted' => 0));
+        $content_partner_id = ContentPartner::insert(array('id' => 101010101, 'agent_id' => $agent_id, 'auto_publish' => 0, 'vetted' => 0));
         
         // create the resource
         $attr = array(  'accesspoint_url'       => WEB_ROOT . 'tests/fixtures/files/test_resource.xml',
