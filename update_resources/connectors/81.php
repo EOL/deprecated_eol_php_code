@@ -3,10 +3,14 @@
 /* connector for BOLD Systems */
 //exit;
 /*
+2010Mar16   27,417
+
+
+
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=127144&iwidth=600
-http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=85119&iwidth=600
+http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=1152&iwidth=600
 
 Go to download page:
 http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=279181
@@ -67,7 +71,7 @@ $used_taxa = array();
 $id_list=array();
 
 $wrap = "\n";
-//$wrap = "<br>";
+$wrap = "<br>";
 
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 //$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
@@ -89,7 +93,7 @@ ranks.id = 280  ";
 //$query .= " and names.`string` = 'Pyrrophycophyta' ";
 //$query .= " and names.`string` <> 'Annelida' ";
 //$query .= " Order By names.`string` Asc ";
-//$query .= " limit 1 ";
+$query .= " limit 1 ";
 
 //print"<hr>$query<hr>";
 $result = $mysqli->query($query);    
@@ -107,14 +111,13 @@ while($row=$result->fetch_assoc())
     $taxid_count=0;
     $taxid_count_with_barcode=0;
         
-    $ctr++;   
-    
+    $ctr++;       
         
     $url = $phylum_service_url . trim($row["taxon_phylum"]);
     
-    /* for debug - to limit no. of record to process
-    $url = "http://127.0.0.1/bold.xml";
-    */
+    // /* for debug - to limit no. of record to process
+    $url = "http://127.0.0.1/bold2.xml";
+    // */
     
     if(!($xml = @simplexml_load_file($url)))continue;    
     
@@ -124,7 +127,7 @@ while($row=$result->fetch_assoc())
     {                       
         $count_per_phylum++;
         print "$wrap $ctr of $phylum_count -- phylum = " . $row["taxon_phylum"];
-        print " | $count_per_phylum of " . size($main) . "$wrap";
+        print " | $count_per_phylum of " . count($xml->taxon) . " $main->name  $wrap";
         
         //if($taxid_count > 15)continue;   //debug - to limit no. of taxa to process
         
@@ -135,11 +138,19 @@ while($row=$result->fetch_assoc())
         */
         //debug to limit
         
+        //===================================================================
+        
+        $arr = get_higher_taxa($main->taxid);
+        $taxa = $arr[0];
+        $bold_stats = $arr[1];
+        
+        print"<pre>";print_r($taxa);print"</pre>";
+        
         //===================================================================// check if there is content
         //$dc_source = $species_service_url . urlencode($main->name);                            
         $dc_source = $species_service_url . urlencode($main->taxid);                                    
         $description=check_if_with_content($main->taxid,$dc_source,$main->barcodes);
-        if(!$description)continue;
+        if(!$description and !$taxa)continue;
         //===================================================================
     
         if(in_array("$main->taxid", $id_list)) continue;
@@ -168,8 +179,6 @@ while($row=$result->fetch_assoc())
             }
             else
             {
-                $taxa = get_higher_taxa($main->taxid);
-                print"<pre>";print_r($taxa);print"</pre>";
                 
                 $taxon_parameters = array();
                 $taxon_parameters["identifier"] = $main->taxid;
@@ -189,10 +198,40 @@ while($row=$result->fetch_assoc())
             }            
             //end taxon part            
 
-            $do_count++;
+            
+            //1st text object
+            if($description)
+            {
+                $do_count++;
+                $title = "Barcode data";
+                $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+            }
 
-            $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description);                   
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+            //another text object
+            if($bold_stats)
+            {
+                $do_count++;                
+                $description="Barcode of Life Data Systems (BOLD) Stats <br> $bold_stats";
+                $title="Statistics of barcoding coverage";
+                $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+            }            
+            
+            //another text object
+            $map_url = "http://www.boldsystems.org/lib/gis/mini_map_500w_taxonpage_occ.php?taxid=$main->taxid";
+            print"<br><a href='$map_url'>$map_url</a>";            
+            if(url_exists($map_url))
+            {
+                $do_count++;                
+                $description="Collection Sites <div style='font-size : x-small;overflow : scroll;'> <img border='0' src='$map_url'> </div> ";
+                
+                $title="Locations of barcode sample locations";
+                $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+            }            
+            
+
             $used_taxa[$taxon] = $taxon_parameters;
             // end comment here to just see count */
             
@@ -228,6 +267,7 @@ echo "$wrap$wrap Done processing.";
 //###########################################################################################
 function get_higher_taxa($taxid)
 {
+    /* this function will get taxonomy and BOLD stats */
     global $wrap;
     /*
     <span class="taxon_name">Aphelocoma californica PS-1 {species}&nbsp;
@@ -237,11 +277,20 @@ function get_higher_taxa($taxid)
         <a title="family"href="taxbrowser.php?taxid=1160">Corvidae</a>; 
         <a title="genus"href="taxbrowser.php?taxid=4698">Aphelocoma</a>;     
     </span>    
+
+    <span class="taxon_name">Gastrolepidia {genus}&nbsp;
+        <a title="phylum"href="taxbrowser.php?taxid=2">Annelida</a>; 
+        <a title="class"href="taxbrowser.php?taxid=24489">Polychaeta</a>; 
+        <a title="order"href="taxbrowser.php?taxid=25265">Phyllodocida</a>; 
+        <a title="family"href="taxbrowser.php?taxid=28521">Polynoidae</a>;
+    </span>
+    
     */
     $arr = array();
 
     $file="http://www.boldsystems.org/views/taxbrowser.php?taxid=" . $taxid;
-    $str = Functions::get_remote_file($file);        
+    $orig_str = Functions::get_remote_file($file);        
+    $str = $orig_str;
     $beg='taxon_name">'; $end1='</span>'; 
     $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
     //print"$str";
@@ -258,10 +307,25 @@ function get_higher_taxa($taxid)
         $index = get_title_from_anchor_tag($a);
         $taxa["$index"] = get_str_from_anchor_tag($a);
     }
-    return $taxa;
+    
+    //=========================================================================//start get BOLD stats
+    $beg='<h2>BOLD Stats</h2>'; $end1='</table>';     
+    $str = trim(parse_html($orig_str,$beg,$end1,$end1,$end1,$end1,""));            
+    $str = strip_tags($str,"<tr><td><table>");
+    $str = str_ireplace('width="100%"',"",$str);    
+    $pos = stripos($str,"Species List - Progress");    
+    $str = substr($str,0,$pos) . "</td></tr></table>";    
+    print"<br>$str";
+    //$str is BOLD stats
+    //=========================================================================
+    
+    $arr=array($taxa,$str);
+    return $arr;
 }
 
-function get_str_from_anchor_tag($str){$beg='">'; $end1='</a>';$temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));return $temp;}
+function get_str_from_anchor_tag($str)
+{   $beg='">'; $end1='</a>';
+    $temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));return $temp;}
 function get_title_from_anchor_tag($str){$beg='<a title="'; $end1='"';$temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));return $temp;}
 
 function check_if_with_content($taxid,$dc_source,$public_barcodes)
@@ -271,8 +335,19 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
     Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
     World Wide Web electronic publication. www.boldsystems.org, version (08/2009). 
     */
+    
     //start get text dna sequece
     $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
+    if(barcode_image_available($src))        
+    {
+        $description = "
+        The following is a representative barcode sequence, the centroid of all available sequences for this species.    
+        <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
+    }
+    else $description = "Barcode image not yet available.";
+
+    $description .= "<br>&nbsp;<br>";
+
     if($public_barcodes > 0)
     {
         $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
@@ -283,6 +358,7 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
         
         print "$wrap [$public_barcodes]=[$count_sequence] $wrap ";
         
+        $str="";        
         if($count_sequence > 0)
         {
             if($count_sequence == 1)$str="There is 1 barcode sequence available from BOLD and GenBank. 
@@ -293,18 +369,18 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
             else                    $str="There are $count_sequence barcode sequences available from BOLD and GenBank. 
                                     Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species. 
                                     See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
+
             $str .= "<br>&nbsp;<br>";                
             $text_dna_sequence .= "<br>-- end --<br>";                
         }
-        else $str="";
-    }
-    else $text_dna_sequence = '';    
 
+    }
+    else $text_dna_sequence = "";    
 
     //
     if(trim($text_dna_sequence) != "")
     {
-        $temp = "<br>&nbsp;<br>$str ";
+        $temp = "$str ";
         $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
         /* one-click         
         $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
@@ -316,43 +392,38 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
     }
     else 
     {
-        $temp = "<br>&nbsp;<br>No available public DNA sequences <br>";     
+        $temp = "No available public DNA sequences <br>";     
         return false;
-    }
-    
-    //Genetic Barcode
+    }   
 
-    if(barcode_image_available($src))        
-    {
-        $description = "
-        The following is a representative barcode sequence, the centroid of all available sequences for this species.    
-        <br><a target='barcode' href='$src'><img src='$src' height=''></a>" . $temp;            
-    }
-    else
-    {
-        $temp .= "<br>Barcode image not yet available.";
-        $description = $temp;            
-    }
+    $description .= $temp;
     
     //end get text dna sequence
-
     return $description;    
 }
 
 function barcode_image_available($src)
 {
     $str = Functions::get_remote_file($src);            
-    $ans = stripos($str,"ERROR: Unable to retrieve sequence");
+    
+    /*
+    ERROR: Only species level taxids are accepted
+    ERROR: Unable to retrieve sequence
+    */
+    
+    $ans = stripos($str,"ERROR:");
+    
     if(is_numeric($ans))return false;
     else                return true;
 }
 
 
-function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$description)
+function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$description,$title=NULL)
 {        
     $dataObjectParameters = array();    
-    //$dataObjectParameters["title"] = "Molecular and Genetics";    
-    $dataObjectParameters["title"] = "Barcode data";        
+        
+    $dataObjectParameters["title"] = $title;        
+    
     $dataObjectParameters["description"] = $description;    
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;        
@@ -569,6 +640,33 @@ function get_best_sequence($str)
     }    
     else return "";
 }
+
+function url_exists($url) {
+    /*
+    $resURL = curl_init();
+    curl_setopt($resURL, CURLOPT_URL, $strURL);
+    curl_setopt($resURL, CURLOPT_BINARYTRANSFER, 1);
+    curl_setopt($resURL, CURLOPT_HEADERFUNCTION, 'curlHeaderCallback');
+    curl_setopt($resURL, CURLOPT_FAILONERROR, 1);
+    //curl_exec ($resURL);
+    $intReturnCode = curl_getinfo($resURL, CURLINFO_HTTP_CODE);
+    curl_close ($resURL);
+    */
+    
+
+    $ch = curl_init();  
+    curl_setopt($ch,CURLOPT_URL,$url);  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    // not to display the post submission
+    curl_setopt($ch,CURLOPT_FOLLOWLOCATION, true);  
+    $output = curl_exec($ch);
+    $intReturnCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close ($ch);
+
+    
+    if ($intReturnCode != 200 && $intReturnCode != 302 && $intReturnCode != 304) return false;
+    else                                                                         return true ;
+} 
+
 /*
 <taxon>
      <Kingdom>Animalia</Kingdom>
