@@ -14,7 +14,9 @@ define('DEBUG', false);
 //define("ENVIRONMENT", "data_main");//source of saved stats
 
 $path = "";
-include_once($path . "../../config/environment.php");
+
+require_once("../../config/environment.php");
+
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $names = array();
