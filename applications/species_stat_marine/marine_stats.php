@@ -32,7 +32,11 @@ $batch_size = 10000;
 //$xml = simplexml_load_file("../../../mtce/worms/txt/2009_04_09_WORMS.xml", null, LIBXML_NOCDATA);
 //$xml = simplexml_load_file("../../../mtce/worms/txt/2009_06_05_WORMS.xml", null, LIBXML_NOCDATA);
 //$xml = simplexml_load_file("http://services.eol.org/eol_php_code/applications/content_server/resources/26.xml", null, LIBXML_NOCDATA);
-$xml = simplexml_load_file("http://10.19.19.226/resources/26.xml", null, LIBXML_NOCDATA);
+
+//$xml = simplexml_load_file("http://10.19.19.226/resources/26.xml", null, LIBXML_NOCDATA);
+
+//on beast:
+$xml = simplexml_load_file("../../../resources/26.xml", null, LIBXML_NOCDATA);
 
 foreach($xml->taxon as $t)
 {
