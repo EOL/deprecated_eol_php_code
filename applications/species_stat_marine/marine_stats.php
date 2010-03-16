@@ -15,7 +15,7 @@ define('DEBUG', false);
 
 $path = "";
 
-require_once("../../config/environment.php");
+require_once("../../config/start.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
