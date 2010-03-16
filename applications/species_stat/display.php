@@ -84,7 +84,7 @@ print"
 <table cellpadding='1' cellspacing='0' border='0' style='font-size : small; font-family : Arial Unicode MS;'>
 
 <tr><td><b>Overall Statistics</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-<font size='1'><i>Run date: $row[date_created] $row[time_created]</i></font>
+<font size='1'><i>Run date: $row[date_created]</i></font>
 </td></tr>";
 
 
