@@ -141,8 +141,9 @@ while($row=$result->fetch_assoc())
         //===================================================================
         
         $arr = get_higher_taxa($main->taxid);
-        $taxa = $arr[0];
-        $bold_stats = $arr[1];
+        $taxa = @$arr[0];
+        $bold_stats = @$arr[1];
+        $species_level = @$arr[2];
         
         print"<pre>";print_r($taxa);print"</pre>";
         
@@ -198,6 +199,9 @@ while($row=$result->fetch_assoc())
             }            
             //end taxon part            
 
+        if($taxa)//this is synonymous to if id/url is resolvable
+        {
+        
             
             //1st text object
             if($description)
@@ -224,12 +228,16 @@ while($row=$result->fetch_assoc())
             if(url_exists($map_url))
             {
                 $do_count++;                
-                $description="Collection Sites <div style='font-size : x-small;overflow : scroll;'> <img border='0' src='$map_url'> </div> ";
+                $description="Collection Sites: world map showing specimen collection locations for <i>$main->name</i> <div style='font-size : x-small;overflow : scroll;'> <img border='0' src='$map_url'> </div> ";
                 
-                $title="Locations of barcode sample locations";
+                $title="Locations of barcode samples";
                 $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description,$title);                   
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             }            
+        
+        }//if($taxa)//this is synonymous to if id/url is resolvable
+                              
+            
             
 
             $used_taxa[$taxon] = $taxon_parameters;
@@ -267,7 +275,12 @@ echo "$wrap$wrap Done processing.";
 //###########################################################################################
 function get_higher_taxa($taxid)
 {
-    /* this function will get taxonomy and BOLD stats */
+    /* this function will get:
+        taxonomy 
+        BOLD stats 
+        boolean if species-level taxa 
+        if id/url is resolvable
+    */
     global $wrap;
     /*
     <span class="taxon_name">Aphelocoma californica PS-1 {species}&nbsp;
@@ -290,9 +303,23 @@ function get_higher_taxa($taxid)
 
     $file="http://www.boldsystems.org/views/taxbrowser.php?taxid=" . $taxid;
     $orig_str = Functions::get_remote_file($file);        
+        //side script - to check if id/url is even resolvable
+        $pos = stripos($orig_str,"fatal error");    
+        if(is_numeric($pos)){print" -fatal error found- "; return array();}
+ 
+        //print"$orig_str"; exit;
+
+        
     $str = $orig_str;
     $beg='taxon_name">'; $end1='</span>'; 
     $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    
+        //side script to check if species level taxa
+        $pos = stripos($str,"{species}");    
+        if(is_numeric($pos)){$species_level=true;}
+        else                {$species_level=false;}           
+        
+    
     //print"$str";
     $str = str_ireplace('<a title=' , 'xxx<a title=', $str);	
     $str = str_ireplace('</a>' , '</a>yyy', $str);	    
@@ -319,7 +346,7 @@ function get_higher_taxa($taxid)
     //$str is BOLD stats
     //=========================================================================
     
-    $arr=array($taxa,$str);
+    $arr=array($taxa,$str,$species_level);
     return $arr;
 }
 
@@ -331,6 +358,8 @@ function get_title_from_anchor_tag($str){$beg='<a title="'; $end1='"';$temp = tr
 function check_if_with_content($taxid,$dc_source,$public_barcodes)
 {
     global $wrap;
+    global $species_level;
+    
     /*            
     Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
     World Wide Web electronic publication. www.boldsystems.org, version (08/2009). 
@@ -338,26 +367,32 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
     
     //start get text dna sequece
     $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
-    if(barcode_image_available($src))        
+    if($species_level)
     {
-        $description = "
-        The following is a representative barcode sequence, the centroid of all available sequences for this species.    
-        <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
+        if(barcode_image_available($src))        
+        {
+            $description = "
+            The following is a representative barcode sequence, the centroid of all available sequences for this species.    
+            <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
+        }
+        else $description = "Barcode image not yet available.";
+        
+        $description .= "<br>&nbsp;<br>";
     }
-    else $description = "Barcode image not yet available.";
+    else $description = "";
+    //else $description = "Barcode image only available of species-level taxa";
 
-    $description .= "<br>&nbsp;<br>";
-
+    
+if($species_level)
+{
     if($public_barcodes > 0)
-    {
+    {    
         $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
         $arr = get_text_dna_sequence($url);
         $count_sequence     = $arr[0];
         $text_dna_sequence  = $arr[1];
-        $url_fasta_file     = $arr[2];
-        
-        print "$wrap [$public_barcodes]=[$count_sequence] $wrap ";
-        
+        $url_fasta_file     = $arr[2];        
+        print "$wrap [$public_barcodes]=[$count_sequence] $wrap ";        
         $str="";        
         if($count_sequence > 0)
         {
@@ -395,6 +430,13 @@ function check_if_with_content($taxid,$dc_source,$public_barcodes)
         $temp = "No available public DNA sequences <br>";     
         return false;
     }   
+}//if($species_level)
+else
+{
+    /* 2-click per PL advice */
+    $url_fasta_file = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";        
+    $temp = "<a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";    
+}
 
     $description .= $temp;
     
