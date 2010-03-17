@@ -96,7 +96,7 @@ class SiteStatistics
         if(isset($this->pages_with_content)) return $this->pages_with_content;
         $this->pages_with_content = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND (tcc.text=1 OR tcc.image=1 OR tcc.flash=1 OR tcc.youtube=1 OR tcc.map=1)");
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND (tcc.text=1 OR tcc.image=1 OR tcc.flash=1 OR tcc.youtube=1)");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_content = $row['count'];
         return $this->pages_with_content;
     }
