@@ -4,7 +4,8 @@
 //$GLOBALS['ENV_NAME'] = 'production';
 
 set_time_limit(0);
-ini_set('memory_limit','2000M');
+ini_set('memory_limit','3500M');
+
 
 define("DEBUG", false);
 define("MYSQL_DEBUG", false);
