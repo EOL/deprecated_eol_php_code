@@ -4,7 +4,7 @@ class test_validator_app extends SimpletestWebBase
 {
     function testWithURL()
     {
-        $this->get(WEB_ROOT . 'applications/validator/?ENV_NAME=test');
+        $this->get(WEB_ROOT . 'applications/validator/index.php?ENV_NAME=test');
         $this->setField('file_url', 'http://services.eol.org/eol_php_code/tests/fixtures/files/test_resource.xml');
         $this->clickSubmit('Submit');
         $this->assertText('http://services.eol.org/schema/content_0_2.xsd');

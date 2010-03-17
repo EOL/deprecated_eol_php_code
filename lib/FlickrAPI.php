@@ -35,7 +35,7 @@ class FlickrAPI
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++)
             {
-                Functions::display("getting page $i");
+                echo "getting page $i\n";
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token);
                 
                 if($page_taxa)
@@ -75,7 +75,7 @@ class FlickrAPI
     {
         $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
         $photo = $photo_response->photo;
-        if(!$photo) Functions::debug("\n\nERROR:Photo $photo_id is not available\n\n");
+        if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
         
         if($photo->visibility["ispublic"] != 1) return false;
         if($photo->usage["candownload"] != 1) return false;
@@ -218,7 +218,7 @@ class FlickrAPI
         // If the media type is video, there should be a Video Player type. Add that as a second data object
         if($photo["media"] == "video")
         {
-            Functions::debug("getting sizes for id: ".$photo["id"]."\n");
+            debug("getting sizes for id: ".$photo["id"]."\n");
             $sizes = self::photos_get_sizes($photo["id"]);
             if(@$sizes)
             {

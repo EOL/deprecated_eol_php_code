@@ -40,7 +40,7 @@ class ActiveRecordError extends Exception
             E_STRICT             => 'E_STRICT',
             E_RECOVERABLE_ERROR  => 'Catchable Fatal Error');
         
-        if(PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 3))
+        if(defined('PHP_MAJOR_VERSION') && (PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 3)))
         {
             $error_types[E_DEPRECATED] = 'E_DEPRECATED';
             $error_types[E_USER_DEPRECATED] = 'E_USER_DEPRECATED';
