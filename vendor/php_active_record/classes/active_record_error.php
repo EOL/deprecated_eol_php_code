@@ -38,10 +38,13 @@ class ActiveRecordError extends Exception
             E_USER_WARNING       => 'User Warning',
             E_USER_NOTICE        => 'User Notice',
             E_STRICT             => 'E_STRICT',
-            E_RECOVERABLE_ERROR  => 'Catchable Fatal Error',
-            E_DEPRECATED         => 'E_DEPRECATED',
-            E_USER_DEPRECATED    => 'E_USER_DEPRECATED'
-            );
+            E_RECOVERABLE_ERROR  => 'Catchable Fatal Error');
+        
+        if(PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 3))
+        {
+            $error_types[E_DEPRECATED] = 'E_DEPRECATED';
+            $error_types[E_USER_DEPRECATED] = 'E_USER_DEPRECATED';
+        }
         
         $error_type_string = isset($error_types[$errno]) ? $error_types[$errno] : 'Unknown Error Type';
         
