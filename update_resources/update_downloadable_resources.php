@@ -12,7 +12,7 @@ $manager = new ContentManager();
 $result = $mysqli->query("SELECT id FROM resources WHERE accesspoint_url!='' AND accesspoint_url IS NOT NULL AND service_type_id=".ServiceType::insert("EOL Transfer Schema")." AND refresh_period_hours > 0");
 while($result && $row=$result->fetch_assoc())
 {
-    echo $row["id"]."...\n\n\n";
+    echo $row["id"]."...\n";
     $resource = new Resource($row["id"]);
     if(!$resource->id) continue;
     
