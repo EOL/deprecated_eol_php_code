@@ -4,7 +4,6 @@
 //$GLOBALS['ENV_NAME'] = 'production';
 
 set_time_limit(0);
-ini_set('memory_limit','3500M');
 
 
 define("DEBUG", false);
@@ -375,7 +374,8 @@ function get_values_fromCSV()
     function dataobject_stat_more()    //group 1=taxa stat; 2=data object stat
     {   
     
-
+        ini_set('memory_limit','3500M');
+        
         global $mysqli;
         
 
