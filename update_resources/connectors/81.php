@@ -5,8 +5,6 @@
 /*
 2010Mar16   27,417
 
-
-
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=127144&iwidth=600
@@ -29,6 +27,7 @@ http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Pyrro
 
 Get higher taxa:
 http://www.boldsystems.org/views/taxbrowser.php?taxid=279181
+http://www.boldsystems.org/views/taxbrowser.php?taxid=9
 
 One set of URLs:
 http://www.boldsystems.org/views/taxbrowser.php?taxid=195548
@@ -46,10 +45,28 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
+//only on local; to be deleted before going into production
+/*
+$mysqli->truncate_tables("development");
+Functions::load_fixtures("development");
+exit;
+*/
+
+$phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
+//$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
+$species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
+
+
+/*
+$main_name_id_list=array();
+get_BOLD_taxa();
+exit;
+*/
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-$resource = new Resource(81); //print $resource->id; exit;
+
+$resource = new Resource(81); print $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -59,10 +76,8 @@ $id_list=array();
 $wrap = "\n";
 $wrap = "<br>";
 
-$phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
-//$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
-$species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
+//$all_ids
 
 /*
 $query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
@@ -131,6 +146,8 @@ while($row=$result->fetch_assoc())
         $bold_stats = @$arr[1];
         $species_level = @$arr[2];
         $with_dobjects = @$arr[3];
+        
+        if(!$taxa and !$bold_stats and !$species_level and !$with_dobjects)continue;
         
         print"<pre>";print_r($taxa);print"</pre>";
         
@@ -260,6 +277,113 @@ fclose($OUT);
 echo "$wrap$wrap Done processing.";
 
 //###########################################################################################
+function get_BOLD_taxa()
+{
+    $arr_phylum = array(0 => array( "name" => "Brachiopoda" , "id" => 9),
+                        1 => array( "name" => "Bryozoa"    , "id" => 7)
+                       );
+                       
+    $arr_phylum = array(0 => array( "name" => "Bryozoa" , "id" => 7)
+                       );
+
+                       //1 => array( "name" => "Bryozoa"    , "id" => 7)
+    $arr=proc_phylum($arr_phylum);            
+    print"<hr><pre>";print_r($arr);print"</pre>";              
+}
+function proc_phylum($arr)
+{   
+    global $species_service_url;    
+    global $main_name_id_list;
+    
+    foreach ($arr as $a)//phylum loop
+    {
+        print $a["name"] . " -- " . $a["id"] . "<br>";
+        $str = Functions::get_remote_file($species_service_url . $a["id"]);        
+        $arr2 = proc_subtaxa_block($str);        
+        print"<pre>";print_r($arr2);print"</pre>";               
+        $main_name_id_list = array_merge($main_name_id_list, $arr2);                
+        foreach ($arr2 as $a2)//class loop
+        {
+            print $a2["name"] . " -- " . $a2["id"] . "<br>";
+            $str = Functions::get_remote_file($species_service_url . $a2["id"]);        
+            $arr3 = proc_subtaxa_block($str);        
+            print"<pre>";print_r($arr3);print"</pre>";               
+            $main_name_id_list = array_merge($main_name_id_list, $arr3);                
+            foreach ($arr3 as $a3)//order loop
+            {
+                print $a3["name"] . " -- " . $a3["id"] . "<br>";
+                $str = Functions::get_remote_file($species_service_url . $a3["id"]);        
+                $arr4 = proc_subtaxa_block($str);        
+                print"<pre>";print_r($arr4);print"</pre>";               
+                $main_name_id_list = array_merge($main_name_id_list, $arr4);                            
+                foreach ($arr4 as $a4)//family loop
+                {
+                    print $a4["name"] . " -- " . $a4["id"] . "<br>";
+                    $str = Functions::get_remote_file($species_service_url . $a4["id"]);        
+                    $arr5 = proc_subtaxa_block($str);        
+                    print"<pre>";print_r($arr5);print"</pre>";               
+                    $main_name_id_list = array_merge($main_name_id_list, $arr5);                                            
+                    foreach ($arr5 as $a5)//subfamily if there is any or Genus loop
+                    {                        
+                        print $a5["name"] . " -- " . $a5["id"] . "<br>";
+                        $str = Functions::get_remote_file($species_service_url . $a5["id"]);        
+                        $arr6 = proc_subtaxa_block($str);        
+                        print"<pre>";print_r($arr6);print"</pre>";               
+                        $main_name_id_list = array_merge($main_name_id_list, $arr6);                                            
+                        foreach ($arr6 as $a6)//Genus if there was subfamily above loop
+                        {
+                            print $a6["name"] . " -- " . $a6["id"] . "<br>";
+                            $str = Functions::get_remote_file($species_service_url . $a6["id"]);        
+                            $arr7 = proc_subtaxa_block($str);        
+                            print"<pre>";print_r($arr7);print"</pre>";               
+                            $main_name_id_list = array_merge($main_name_id_list, $arr7);
+                        }        
+                    
+                    }                    
+                }
+                
+            }               
+        }                   
+    }   
+    return $main_name_id_list;     
+}
+function proc_subtaxa_block($str)
+{
+    $beg='<h2>Sub-taxa</h2>'; $end1='</ul>'; 
+    $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+        //side script check if        
+        $pos = stripos($str,"Species List - Progress");    
+        if(is_numeric($pos)){print" -stop here- "; return array();}    
+    
+    $str = strip_tags($str,"<a>");
+    //print $str . "<hr>";
+    
+    $str = str_ireplace('<a' , 'xxx<a', $str);	
+    $str = str_ireplace('xxx' , "&arr[]=", $str);	
+    $arr=array(); parse_str($str);	    
+    //print"<pre>";print_r($arr);print"</pre>";
+    
+    $final=array();
+    foreach ($arr as $a)
+    {
+        $name = "xxx" . get_str_from_anchor_tag($a);        
+        $beg='xxx'; $end1='['; //to remove "[number]"
+        $name = trim(parse_html($name,$beg,$end1,$end1,$end1,$end1,""));            
+        //print $name . " -- ";
+        
+        $id = get_href_from_anchor_tag($a)."xxx";
+        $beg='taxid='; $end1='xxx'; 
+        $id = trim(parse_html($id,$beg,$end1,$end1,$end1,$end1,""));            
+        //print $id . "<br>";
+        
+        $final[]=array("name" => $name, "id" => $id);
+    }   
+    //print"<pre>";print_r($final);print"</pre>";
+    return $final;    
+}
+function get_href_from_anchor_tag($str){$beg='href="'; $end1='"';$temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));return $temp;}
+
+
 function get_higher_taxa($taxid)
 {
     /* this function will get:
