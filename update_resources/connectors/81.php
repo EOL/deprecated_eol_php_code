@@ -305,10 +305,6 @@ function get_BOLD_taxa()
     $arr_phylum = array(0 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
     */
-    $arr_phylum = array(0 => array( "name" => "Brachiopoda" , "id" => 9),
-                        1 => array( "name" => "Bryozoa"    , "id" => 7),
-                        3 => array( "name" => "Xenoturbellida" , "id" => 88647)
-                       );
 
     $arr=proc_phylum($arr_phylum);                
     $main_name_id_list = array_merge($arr_phylum,$arr);    

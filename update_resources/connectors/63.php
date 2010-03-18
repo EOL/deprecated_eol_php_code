@@ -22,7 +22,7 @@ $subject_arr = array("Associations","Behaviour","Biology","Conservation","Conser
 
 $providers = array( 0 => array( "url" => dirname(__FILE__) . "/files/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"      , "active" => 0),
                     1 => array( "url" => dirname(__FILE__) . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml" , "active" => 0),
-                    2 => array( "url" => "http://128.128.175.77/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"  , "active" => 1)                    
+                    2 => array( "url" => "http://128.128.175.77/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"           , "active" => 1)                    
                   );
                   //http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml
 
