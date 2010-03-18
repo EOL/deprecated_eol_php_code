@@ -149,7 +149,6 @@ function process($id)
     // http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=247983
     
     
-    set_time_limit(0);
     if($xml = Functions::get_hashed_response($file)){}
     else
     {
@@ -175,9 +174,6 @@ function process($id)
 }//end process() 
 function get_main_id_list()
 {
-    // /*
-    ini_set('memory_limit','3500M');
-        
     $url=array();
 
     $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2007.xml";
@@ -251,7 +247,6 @@ function get_main_id_list()
 function get_file_contents($url)
 {
     $contents = "";
-    set_time_limit(0);
  	$handle = fopen($url, "r");	
 	if ($handle)
 	{	

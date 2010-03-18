@@ -1,20 +1,11 @@
 <?php
 
 $timestart = microtime(1);
-
-//define("ENVIRONMENT", "integration"); 
-//define("ENVIRONMENT", "slave_32");
-
-$GLOBALS['ENV_NAME'] = 'slave_32';  //source of data
-
-define("MYSQL_DEBUG", true);
-define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 //exit;
 
 $mysqli2 = load_mysql_environment('eol_statistics');    //destination storage
-set_time_limit(0);
 
 /*
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html

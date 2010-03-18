@@ -1,8 +1,6 @@
 <?php
 
-require_once("../../config/environment.php");
-
-set_time_limit(0);
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 
 
 if(@$_FILES['xml_upload']) $_POST['xml_upload'] = $_FILES['xml_upload'];

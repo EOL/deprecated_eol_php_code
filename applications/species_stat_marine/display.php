@@ -1,15 +1,7 @@
 <?php
-//define("ENVIRONMENT", "development");        //source of saved stats
-//define("ENVIRONMENT", "integration");        //source of saved stats
-//define("ENVIRONMENT", "data_main");        //source of saved stats
 
-define("DEBUG", false);
-define("MYSQL_DEBUG", false);
-
-require_once("../../config/environment.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-set_time_limit(0);
 
 $tbl = "page_stats_marine";
 

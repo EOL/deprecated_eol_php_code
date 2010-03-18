@@ -1,12 +1,8 @@
 <?php
 
-//define("ENVIRONMENT", "integration");	//where stats are stored
-//define("ENVIRONMENT", "slave_215");    //where stats are stored
-//define("ENVIRONMENT", "data_main");	//where stats are stored
-
 print"<table style='font-family : Arial; font-size : x-small;'><tr><td>";
 
-require_once("../../config/environment.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $step=50;
@@ -36,7 +32,6 @@ while($result && $row=$result->fetch_assoc())
 $temp_arr = array_keys($temp_arr);
 //end new
 
-set_time_limit(0);
 
 $eol_site = "www.eol.org";
 //$eol_site = "app1.eol.org";

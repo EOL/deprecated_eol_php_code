@@ -10,7 +10,6 @@ rundate     processed   unique names    recs in GNI
 //define("ENVIRONMENT", "slave_32"); //comment if to put in BEAST
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
-set_time_limit(0);
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 /* EOL to GNI-TCS */

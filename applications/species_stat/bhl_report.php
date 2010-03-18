@@ -1,11 +1,8 @@
 <?php
 
-$GLOBALS['ENV_NAME'] = "slave_32";
-require_once("../../config/environment.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-ini_set('memory_limit','1000M');
-set_time_limit(0);
 
 /*
 $mysqli = new mysqli("", "web", "", "eol_data_production");

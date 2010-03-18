@@ -6,9 +6,6 @@
 
 <?php
 
-// //define('MYSQL_DEBUG', true);
-// //define('DEBUG', true);
-// define("ENVIRONMENT", "development");
 // include_once(dirname(__FILE__) . "/../../config/environment.php");
 // include_once("functions.php");
 // 

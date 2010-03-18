@@ -1,6 +1,5 @@
 <?php
 
-define('ENVIRONMENT', 'development');
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_vendor('darwincore');
 

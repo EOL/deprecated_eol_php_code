@@ -1,14 +1,9 @@
 <?php
 
 /*
-define("ENVIRONMENT", "slave_32");        //where stats are stored
-define("DEBUG", false);
-define("MYSQL_DEBUG", false);
-require_once("../../config/environment.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 */
-
-set_time_limit(0);
 
 //print"<img src='http://chart.apis.google.com/chart?chs=250x100&chd=t:60,40&cht=p3&chl=Hello|World'>";
 

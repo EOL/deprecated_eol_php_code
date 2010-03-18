@@ -3,9 +3,6 @@
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
-$GLOBALS['mysqli_connection'] = load_mysql_environment(ENVIRONMENT);
-
-
 // this checks to make sure we only have one instance of this script running
 // if there are more than one then it means we're still harvesting something from yesterday
 if(Functions::grep_processlist('harvest_resources') > 1) exit;
@@ -28,7 +25,7 @@ Functions::log("Ended harvesting");
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php");
 
 // sleep for 20 minutes to allow changes from transactions to propegate
-if(defined('ENVIRONMENT') && ENVIRONMENT =='development') sleep(1);
+if($GLOBALS['ENV_NAME'] == 'development') sleep(1);
 else sleep(1200);
 
 // publish all pending resources

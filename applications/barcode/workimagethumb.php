@@ -38,11 +38,6 @@
 
 /* some settings */
 ignore_user_abort();
-set_time_limit( 0 );
-//error_reporting( FATAL | ERROR | WARNING );
-
-/* security check */
-ini_set( 'register_globals', '0' );
 
 /* start buffered output */
 ob_start();

@@ -528,7 +528,6 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
 
 function get_ref_from_site($dc_source)
 {
-    set_time_limit(0);
     $str = Functions::get_remote_file($dc_source);        
 
     $beg='"getActiveText()"><nonexplicit>'; $end1='</nonexplicit>'; 

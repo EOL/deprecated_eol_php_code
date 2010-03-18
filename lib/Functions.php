@@ -203,7 +203,7 @@ class Functions
     public static function temp_filepath($relative_from_root = false, $extension = 'file')
     {
         if($relative_from_root) $prefix = "";
-        else $prefix = LOCAL_ROOT;
+        else $prefix = DOC_ROOT;
         
         $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
         while(glob($filepath))
@@ -236,7 +236,6 @@ class Functions
         curl_setopt($ch, CURLOPT_TIMEOUT,50);
         
         debug("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
-        set_time_limit(50);
         $result = curl_exec($ch);
         
         if(0 == curl_errno($ch))
@@ -503,7 +502,7 @@ class Functions
 
     public static function load_fixtures($environment = "test")
     {
-        if(ENVIRONMENT!=$environment) return false;
+        if($GLOBALS['ENV_NAME']!=$environment) return false;
         
         $mysqli =& $GLOBALS['mysqli_connection'];
         
@@ -516,7 +515,7 @@ class Functions
         {
             $fixture_data->$table = (object) array();
             
-            $rows = Horde_Yaml::loadFile(LOCAL_ROOT."tests/fixtures/$table.yml");
+            $rows = Horde_Yaml::loadFile(DOC_ROOT."tests/fixtures/$table.yml");
             foreach($rows as $id => $row)
             {
                 $fixture_data->$table->$id = (object) array();
@@ -563,7 +562,7 @@ class Functions
     {
         $files = array();
         
-        $dir = LOCAL_ROOT."tests/fixtures/";
+        $dir = DOC_ROOT."tests/fixtures/";
         $files_in_dir = self::get_files_in_dir($dir);
         foreach($files_in_dir as $file)
         {
@@ -578,7 +577,7 @@ class Functions
     
     public static function require_module($module)
     {
-        $module_path = LOCAL_ROOT . "classes/modules/$module/module.php";
+        $module_path = DOC_ROOT . "classes/modules/$module/module.php";
         require_once($module_path);
     }
     

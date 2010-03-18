@@ -6,10 +6,6 @@ GA records  110,679
 report mon. Feb2010     Mar2010
 */
 
-//define("ENVIRONMENT", "staging"); 
-//define("ENVIRONMENT", "eol_statistics"); 
-//define("ENVIRONMENT", "slave_32"); 
-
 /*
 http://127.0.0.1/eol_php_code/applications/google_stats/generate_monthly_stats_v2.php?month=12&year=2009
 $str="abc123,";
@@ -17,8 +13,6 @@ print substr($str,0,strlen($str)-1);
 exit;
 */
 
-define("MYSQL_DEBUG", false);
-define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 require_once('google_proc.php');
@@ -43,8 +37,6 @@ $use_sql_load_infile=false;
     */
 //end test
 
-
-set_time_limit(0);
 
 /*
 tables used:

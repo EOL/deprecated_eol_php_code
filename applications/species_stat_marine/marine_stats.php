@@ -5,17 +5,9 @@
         http://services.eol.org/species_stat_marine/display.php
 */
 
-define('MYSQL_DEBUG', false);
-define('DEBUG', false);
-//define('DEBUG_TO_FILE', false);
-
-//define("ENVIRONMENT", "development");//source of saved stats
-//define("ENVIRONMENT", "integration");//source of saved stats
-//define("ENVIRONMENT", "data_main");//source of saved stats
-
 $path = "";
 
-require_once("../../config/start.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

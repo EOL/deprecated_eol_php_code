@@ -369,9 +369,7 @@ function parse_contents($str)
   	$id=$arx;
     $image_url = "http://phil.cdc.gov/PHIL_Images/" . $id . "_lores.jpg";            
     
-    ini_set('display_errors', '0'); 
     $handle = fopen($image_url, "r");	
-    ini_set('display_errors', '1'); 
     if($handle)fclose($handle);	
     else
     {

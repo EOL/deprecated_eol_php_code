@@ -1,16 +1,7 @@
 <?php
-//define("ENVIRONMENT", "integration");        //where stats are stored
-//define("ENVIRONMENT", "slave_215");        //where stats are stored
-//define("ENVIRONMENT", "data_main");        //where stats are stored
 
-
-define("DEBUG", false);
-define("MYSQL_DEBUG", false);
-
-require_once("../../config/environment.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-set_time_limit(0);
 
 $eol_site = "www.eol.org";
 //$eol_site = "app1.eol.org";

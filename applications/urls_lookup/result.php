@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL ^ E_WARNING);
-set_time_limit(0);
 
 $arr_rem = array();	//to be removed from list, URL not responding
 $arr_rem_i = 0;
@@ -23,12 +21,7 @@ $arr_rem_i = 0;
 
 */
 
-/*
-define("ENVIRONMENT", "wattle");
-define("MYSQL_DEBUG", false);
-require_once("../../config/environment.php");
-$mysqli =& $GLOBALS['mysqli_connection'];
-*/
+
 
 $total_cnt=0;
 $sub_total=0;

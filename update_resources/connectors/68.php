@@ -146,7 +146,6 @@ function process($id)
     //end process reference
     //exit("ditox");
 
-    set_time_limit(0);
     $contents = Functions::get_remote_file($file);
     if($ref != "")
     {

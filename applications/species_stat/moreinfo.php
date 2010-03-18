@@ -1,15 +1,7 @@
 <?php
 
 
-//$GLOBALS['ENV_NAME'] = 'production';
-
-set_time_limit(0);
-
-
-define("DEBUG", false);
-define("MYSQL_DEBUG", false);
-
-require_once("../../config/environment.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
@@ -372,10 +364,7 @@ function get_values_fromCSV()
 
 
     function dataobject_stat_more()    //group 1=taxa stat; 2=data object stat
-    {   
-    
-        ini_set('memory_limit','3500M');
-        
+    {           
         global $mysqli;
         
 

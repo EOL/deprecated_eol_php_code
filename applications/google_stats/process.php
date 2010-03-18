@@ -1,15 +1,9 @@
 <?php
-//define("ENVIRONMENT", "slave_32");
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-ini_set('memory_limit','1000M');
-set_time_limit(0);
-
-error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
 
 $start_cnt = get_val_var('start_cnt');
 if(!$start_cnt)$start_cnt=1;

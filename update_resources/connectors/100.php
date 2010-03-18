@@ -105,7 +105,6 @@ function process($id)
     $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
     $file = $id;    
     
-    set_time_limit(0);
     if($xml = Functions::get_hashed_response($file)){}
     else
     {
@@ -172,7 +171,6 @@ function get_main_id_list()
 function get_file_contents($url)
 {
     $contents = "";
-    set_time_limit(0);
  	$handle = fopen($url, "r");	
 	if ($handle)
 	{	

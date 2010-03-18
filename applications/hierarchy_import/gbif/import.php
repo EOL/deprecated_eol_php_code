@@ -1,9 +1,6 @@
 <?php
 
 include_once(dirname(__FILE__)."/../../../config/environment.php");
-
-ini_set('memory_limit', '2500M');
-
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //$mysqli->truncate_tables("test");

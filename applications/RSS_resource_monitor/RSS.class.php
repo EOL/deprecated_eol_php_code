@@ -147,8 +147,7 @@
 private function getItems($e,$id)
 {    
     // /*
-    //define("ENVIRONMENT", "slave_32");
-    require_once("../../config/environment.php");
+    require_once(dirname(__FILE__) ."/../../config/environment.php");
     $mysqli =& $GLOBALS['mysqli_connection'];
     $conn = $mysqli;        
     //$conn = this->mysqli;

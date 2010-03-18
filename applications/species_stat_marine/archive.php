@@ -1,17 +1,8 @@
 <?php
 
 
-//define("ENVIRONMENT", "development");		//source of saved stats
-//define("ENVIRONMENT", "integration");		//source of saved stats
-//define("ENVIRONMENT", "data_main");		//source of saved stats
-
-
-define("DEBUG", false);
-define("MYSQL_DEBUG", false);
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-set_time_limit(0);
 
 $eol_site = "www.eol.org";
 //$eol_site = "app1.eol.org";

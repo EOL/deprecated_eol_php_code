@@ -1,15 +1,11 @@
 <?php
 
-//define("ENVIRONMENT", "slave_215");
-//define("MYSQL_DEBUG", true);
-//define("DEBUG", true);
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 //$mysqli = slave_conn();
 
-set_time_limit(0);
 
 $eol_site = "www.eol.org";
 //$eol_site = "app1.eol.org";

@@ -1,22 +1,10 @@
 <?php
-//define("ENVIRONMENT", "integration");				//where stats are stored
-//define("ENVIRONMENT", "slave_215");				//where stats are stored
-//define("ENVIRONMENT", "development");				//where stats are stored
-//define("ENVIRONMENT", "data_main");				//where stats are stored
-
-
-//$GLOBALS['ENV_NAME'] = 'production';
-
-define("DEBUG", true);
-define("MYSQL_DEBUG", false);
-define("DEBUG_TO_FILE", false);
 
 //include_once(dirname(__FILE__).  "/../../config/environment.php");
-require_once("../../config/environment.php");
+require_once(dirname(__FILE__) ."/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-set_time_limit(0);
 
 $parameters =& $_GET;
 if(!$parameters) $parameters =& $_POST;
