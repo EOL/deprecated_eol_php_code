@@ -25,8 +25,7 @@ Functions::log("Ended harvesting");
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php");
 
 // sleep for 20 minutes to allow changes from transactions to propegate
-if($GLOBALS['ENV_NAME'] == 'development') sleep(1);
-else sleep(1200);
+sleep_production(1200);
 
 // publish all pending resources
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php");

@@ -19,7 +19,7 @@ foreach($connectors as $file)
     if(!$resource->ready_to_update()) continue;
     //if($resource->id==31) continue;
     
-    shell_exec(PHP_BIN_PATH . dirname(__FILE__) . "/connectors/". $file);
+    shell_exec(PHP_BIN_PATH . dirname(__FILE__) . "/connectors/". $file." ENV_NAME=slave");
 }
 
 ?>

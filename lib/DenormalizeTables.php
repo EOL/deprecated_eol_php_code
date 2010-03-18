@@ -29,7 +29,7 @@ class DenormalizeTables
             $GLOBALS['db_connection']->begin_transaction();
             $GLOBALS['db_connection']->query("INSERT IGNORE INTO data_types_taxon_concepts (SELECT tc.id, do.data_type_id, do.visibility_id, do.published FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id)  JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size).")");
             $GLOBALS['db_connection']->end_transaction();
-            sleep(3);
+            sleep_production(3);
         }
     }
     
@@ -60,7 +60,7 @@ class DenormalizeTables
             $GLOBALS['db_connection']->begin_transaction();
             $GLOBALS['db_connection']->query("INSERT IGNORE INTO data_objects_taxon_concepts (SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id)  JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size).")");
             $GLOBALS['db_connection']->end_transaction();
-            sleep(3);
+            sleep_production(3);
         }
     }
 }

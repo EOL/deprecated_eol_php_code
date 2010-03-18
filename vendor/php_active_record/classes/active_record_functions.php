@@ -333,4 +333,12 @@ function trim_namespace($class)
     return preg_replace("/^(.*)\\\/", "", $class);
 }
 
+function sleep_production($seconds)
+{
+    if(@$GLOBALS['ENV_NAME'] == 'production')
+    {
+        sleep($seconds);
+    }
+}
+
 ?>

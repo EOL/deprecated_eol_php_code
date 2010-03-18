@@ -297,7 +297,7 @@ class SchemaParser
                 
                 $i++;
                 
-                if($i%100==0 && DEBUG) Functions::debug("Parsed taxon $i");
+                if($i%100==0) Functions::debug("Parsed taxon $i");
                 
                 // trying now to see if commiting every 1000 taxa will help with replication
                 if($i%2000==0) $mysqli->commit();
