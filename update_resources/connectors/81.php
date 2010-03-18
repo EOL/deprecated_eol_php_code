@@ -144,6 +144,7 @@ while($row=$result->fetch_assoc())
         $taxa = @$arr[0];
         $bold_stats = @$arr[1];
         $species_level = @$arr[2];
+        $with_dobjects = @$arr[3];
         
         print"<pre>";print_r($taxa);print"</pre>";
         
@@ -199,7 +200,7 @@ while($row=$result->fetch_assoc())
             }            
             //end taxon part            
 
-        if($taxa)//this is synonymous to if id/url is resolvable
+        if($with_dobjects)//this is synonymous to if id/url is resolvable
         {
         
             
@@ -305,7 +306,7 @@ function get_higher_taxa($taxid)
     $orig_str = Functions::get_remote_file($file);        
         //side script - to check if id/url is even resolvable
         $pos = stripos($orig_str,"fatal error");    
-        if(is_numeric($pos)){print" -fatal error found- "; return array();}
+        if(is_numeric($pos)){print" -fatal error found- "; return array(false,false,false,false);}
  
         //print"$orig_str"; exit;
 
@@ -346,7 +347,7 @@ function get_higher_taxa($taxid)
     //$str is BOLD stats
     //=========================================================================
     
-    $arr=array($taxa,$str,$species_level);
+    $arr=array($taxa,$str,$species_level,true);
     return $arr;
 }
 
