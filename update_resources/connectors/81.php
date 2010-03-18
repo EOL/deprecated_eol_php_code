@@ -40,7 +40,7 @@ date            taxid   with public barcode     with barcodes
 2010 Mar 01     60749                           60749
 */
 
-
+$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -51,38 +51,32 @@ $mysqli->truncate_tables("development");
 Functions::load_fixtures("development");
 exit;
 */
+$wrap = "\n";
+$wrap = "<br>";
 
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 //$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
 $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
 
-/*
+// /*
 $main_name_id_list=array();
 get_BOLD_taxa();
 exit;
-*/
+// */
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
-$resource = new Resource(81); print $resource->id; exit;
+$resource = new Resource(81); //print $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
 
 $id_list=array();
 
-$wrap = "\n";
-$wrap = "<br>";
 
 
-//$all_ids
-
-/*
-$query="Select distinct taxa.taxon_phylum From taxa Where taxa.taxon_phylum Is Not Null and taxa.taxon_phylum <> '' ";
-$query .= " Order By taxa.taxon_phylum Asc ";
-*/
 
 $query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
 Inner Join names ON hierarchy_entries.name_id = names.id Where
@@ -103,32 +97,36 @@ print "phylum count = " . $result->num_rows . "$wrap"; //exit;
 $phylum_count = $result->num_rows;
 
 
+
 $total_taxid_count = 0;
 $do_count = 0;//weird but needed here
 $ctr=0;
 $id_with_public_barcode=array();
-while($row=$result->fetch_assoc())     
-{
+//while($row=$result->fetch_assoc())     
+//{
     $taxid_count=0;
-    $taxid_count_with_barcode=0;
-        
-    $ctr++;       
-        
-    $url = $phylum_service_url . trim($row["taxon_phylum"]);
+    $taxid_count_with_barcode=0;        
+    $ctr++;               
     
-    // /* for debug - to limit no. of record to process
+    /* $url = $phylum_service_url . trim($row["taxon_phylum"]);    */
+    /* for debug - to limit no. of record to process
     $url = "http://127.0.0.1/bold2.xml";
-    // */
-    
-    if(!($xml = @simplexml_load_file($url)))continue;    
-    
+    */    
+    //if(!($xml = @simplexml_load_file($url)))continue;        
     $do_count = 0;
     $count_per_phylum=0;
-    foreach($xml->taxon as $main)
-    {                       
-        $count_per_phylum++;
+    
+    
+    //foreach($xml->taxon as $main)
+    foreach($main_name_id_list as $main)
+    {     
+        $count_per_phylum++;                  
+        /*        
         print "$wrap $ctr of $phylum_count -- phylum = " . $row["taxon_phylum"];
         print " | $count_per_phylum of " . count($xml->taxon) . " $main->name  $wrap";
+        */
+        print "$wrap $count_per_phylum of " . count($main_name_id_list) . " " . $main["name"];
+        
         
         //if($taxid_count > 15)continue;   //debug - to limit no. of taxa to process
         
@@ -141,7 +139,7 @@ while($row=$result->fetch_assoc())
         
         //===================================================================
         
-        $arr = get_higher_taxa($main->taxid);
+        $arr = get_higher_taxa($main["id"]);
         $taxa = @$arr[0];
         $bold_stats = @$arr[1];
         $species_level = @$arr[2];
@@ -153,29 +151,30 @@ while($row=$result->fetch_assoc())
         
         //===================================================================// check if there is content
         //$dc_source = $species_service_url . urlencode($main->name);                            
-        $dc_source = $species_service_url . urlencode($main->taxid);                                    
-        $description=check_if_with_content($main->taxid,$dc_source,$main->barcodes);
+        $dc_source = $species_service_url . urlencode($main["id"]);                                    
+        //$description=check_if_with_content($main["id"],$dc_source,$main->barcodes);
+        $description=check_if_with_content($main["id"],$dc_source,1);
         if(!$description and !$taxa)continue;
         //===================================================================
     
-        if(in_array("$main->taxid", $id_list)) continue;
-        else $id_list[]=$main->taxid;
+        if(in_array($main["id"], $id_list)) continue;
+        else $id_list[]=$main["id"];
     
         $taxid_count++;        
         
         //start #########################################################################  
 
         //if(intval($main->public_barcodes > 0))
-
-        if(intval($main->barcodes) > 0)
+        //if(intval($main->barcodes) > 0)
+        if(true)
         {
-            $id_with_public_barcode[]=$main->taxid;
+            $id_with_public_barcode[]=$main["id"];
             $taxid_count_with_barcode++;
             
             // start comment here to just see count  /*            
             //start taxon part
             
-            $taxon = str_replace(" ", "_", $main->name);
+            $taxon = str_replace(" ", "_", $main["name"]);
             
             
             if(@$used_taxa[$taxon])
@@ -186,7 +185,7 @@ while($row=$result->fetch_assoc())
             {
                 
                 $taxon_parameters = array();
-                $taxon_parameters["identifier"] = $main->taxid;
+                $taxon_parameters["identifier"] = $main["id"];
 
                 $taxon_parameters["kingdom"] = @$taxa["kingdom"];
                 $taxon_parameters["phylum"]  = @$taxa["phylum"];
@@ -195,9 +194,9 @@ while($row=$result->fetch_assoc())
                 $taxon_parameters["family"]  = @$taxa["family"];
                 $taxon_parameters["genus"]   = @$taxa["genus"];
                 
-                $taxon_parameters["scientificName"]= $main->name;
-                //$taxon_parameters["source"] = $species_service_url . urlencode($main->name);
-                $taxon_parameters["source"] = $species_service_url . urlencode($main->taxid);
+                $taxon_parameters["scientificName"]= $main["name"];
+                //$taxon_parameters["source"] = $species_service_url . urlencode($main["name"]);
+                $taxon_parameters["source"] = $species_service_url . urlencode($main["id"]);
             
                 $used_taxa[$taxon] = $taxon_parameters;            
             }            
@@ -212,7 +211,10 @@ while($row=$result->fetch_assoc())
             {
                 $do_count++;
                 $title = "Barcode data";
-                $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                
+                //$data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                $data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,1,$description,$title);                   
+                
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             }
 
@@ -222,20 +224,22 @@ while($row=$result->fetch_assoc())
                 $do_count++;                
                 $description="Barcode of Life Data Systems (BOLD) Stats <br> $bold_stats";
                 $title="Statistics of barcoding coverage";
-                $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                //$data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                $data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,1,$description,$title);                   
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             }            
             
             //another text object
-            $map_url = "http://www.boldsystems.org/lib/gis/mini_map_500w_taxonpage_occ.php?taxid=$main->taxid";
+            $map_url = "http://www.boldsystems.org/lib/gis/mini_map_500w_taxonpage_occ.php?taxid=" . $main["id"];
             print"<br><a href='$map_url'>$map_url</a>";            
             if(url_exists($map_url))
             {
                 $do_count++;                
-                $description="Collection Sites: world map showing specimen collection locations for <i>$main->name</i> <div style='font-size : x-small;overflow : scroll;'> <img border='0' src='$map_url'> </div> ";
+                $description="Collection Sites: world map showing specimen collection locations for <i>" . $main["name"] . "</i> <div style='font-size : x-small;overflow : scroll;'> <img border='0' src='$map_url'> </div> ";
                 
                 $title="Locations of barcode samples";
-                $data_object_parameters = get_data_object($main->taxid,$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                //$data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,$main->barcodes,$description,$title);                   
+                $data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,1,$description,$title);                   
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             }            
         
@@ -257,7 +261,7 @@ while($row=$result->fetch_assoc())
         echo "$wrap with barcode=" . $taxid_count_with_barcode;
         $total_taxid_count += $taxid_count;
     }
-}//end main loop
+//}//end main loop
 
 echo "$wrap$wrap total taxid = " . $total_taxid_count . " = " . count($id_list);
 echo "$wrap$wrap total ids with public barcode = " . count($id_with_public_barcode);
@@ -277,71 +281,92 @@ fclose($OUT);
 echo "$wrap$wrap Done processing.";
 
 //###########################################################################################
+function get_phylum_list()
+{
+    $str = Functions::get_remote_file("http://www.boldsystems.org/views/taxbrowser_root.php");        
+    $beg='Animals:'; $end1='>Barcodes :'; 
+    $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    //print "<hr>$str";
+    
+    $arr = get_name_id_from_array($str);
+    print"<hr><pre>";print_r($arr);print"</pre>";              
+    return $arr;    
+}
 function get_BOLD_taxa()
 {
+    global $main_name_id_list;
+
+    $arr_phylum = get_phylum_list();
+    
     $arr_phylum = array(0 => array( "name" => "Brachiopoda" , "id" => 9),
-                        1 => array( "name" => "Bryozoa"    , "id" => 7)
-                       );
-                       
-    $arr_phylum = array(0 => array( "name" => "Bryozoa" , "id" => 7)
+                        1 => array( "name" => "Bryozoa"    , "id" => 7),
+                        3 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
 
-                       //1 => array( "name" => "Bryozoa"    , "id" => 7)
-    $arr=proc_phylum($arr_phylum);            
-    print"<hr><pre>";print_r($arr);print"</pre>";              
+    $arr_phylum = array(0 => array( "name" => "Xenoturbellida" , "id" => 88647)
+                       );
+//                        1 => array( "name" => "Bryozoa"    , "id" => 7)
+
+
+
+
+
+    $arr=proc_phylum($arr_phylum);                
+    $main_name_id_list = array_merge($arr_phylum,$arr);
+    
+    print"<hr><pre>";print_r($main_name_id_list);print"</pre>";              
 }
 function proc_phylum($arr)
 {   
     global $species_service_url;    
     global $main_name_id_list;
+    global $wrap;
     
     foreach ($arr as $a)//phylum loop
     {
-        print $a["name"] . " -- " . $a["id"] . "<br>";
+        print $wrap . $a["name"] . " -- " . $a["id"];
         $str = Functions::get_remote_file($species_service_url . $a["id"]);        
         $arr2 = proc_subtaxa_block($str);        
-        print"<pre>";print_r($arr2);print"</pre>";               
+        //print"<pre>";print_r($arr2);print"</pre>";               
         $main_name_id_list = array_merge($main_name_id_list, $arr2);                
         foreach ($arr2 as $a2)//class loop
         {
-            print $a2["name"] . " -- " . $a2["id"] . "<br>";
+            print $wrap . $a2["name"] . " -- " . $a2["id"];
             $str = Functions::get_remote_file($species_service_url . $a2["id"]);        
             $arr3 = proc_subtaxa_block($str);        
-            print"<pre>";print_r($arr3);print"</pre>";               
+            //print"<pre>";print_r($arr3);print"</pre>";               
             $main_name_id_list = array_merge($main_name_id_list, $arr3);                
             foreach ($arr3 as $a3)//order loop
             {
-                print $a3["name"] . " -- " . $a3["id"] . "<br>";
+                print $wrap . $a3["name"] . " -- " . $a3["id"];
                 $str = Functions::get_remote_file($species_service_url . $a3["id"]);        
                 $arr4 = proc_subtaxa_block($str);        
-                print"<pre>";print_r($arr4);print"</pre>";               
+                //print"<pre>";print_r($arr4);print"</pre>";               
                 $main_name_id_list = array_merge($main_name_id_list, $arr4);                            
                 foreach ($arr4 as $a4)//family loop
                 {
-                    print $a4["name"] . " -- " . $a4["id"] . "<br>";
+                    print $wrap . $a4["name"] . " -- " . $a4["id"];
                     $str = Functions::get_remote_file($species_service_url . $a4["id"]);        
                     $arr5 = proc_subtaxa_block($str);        
-                    print"<pre>";print_r($arr5);print"</pre>";               
+                    //print"<pre>";print_r($arr5);print"</pre>";               
                     $main_name_id_list = array_merge($main_name_id_list, $arr5);                                            
                     foreach ($arr5 as $a5)//subfamily if there is any or Genus loop
                     {                        
-                        print $a5["name"] . " -- " . $a5["id"] . "<br>";
+                        print $wrap . $a5["name"] . " -- " . $a5["id"];
                         $str = Functions::get_remote_file($species_service_url . $a5["id"]);        
                         $arr6 = proc_subtaxa_block($str);        
-                        print"<pre>";print_r($arr6);print"</pre>";               
+                        //print"<pre>";print_r($arr6);print"</pre>";               
                         $main_name_id_list = array_merge($main_name_id_list, $arr6);                                            
                         foreach ($arr6 as $a6)//Genus if there was subfamily above loop
                         {
-                            print $a6["name"] . " -- " . $a6["id"] . "<br>";
+                            print $wrap . $a6["name"] . " -- " . $a6["id"];
                             $str = Functions::get_remote_file($species_service_url . $a6["id"]);        
                             $arr7 = proc_subtaxa_block($str);        
-                            print"<pre>";print_r($arr7);print"</pre>";               
+                            //print"<pre>";print_r($arr7);print"</pre>";               
                             $main_name_id_list = array_merge($main_name_id_list, $arr7);
-                        }        
-                    
+                        }                            
                     }                    
-                }
-                
+                }                
             }               
         }                   
     }   
@@ -355,14 +380,18 @@ function proc_subtaxa_block($str)
         $pos = stripos($str,"Species List - Progress");    
         if(is_numeric($pos)){print" -stop here- "; return array();}    
     
-    $str = strip_tags($str,"<a>");
-    //print $str . "<hr>";
-    
+ 
+    $final = get_name_id_from_array($str);
+    return $final;    
+}
+function get_name_id_from_array($str)
+{
+    $str = strip_tags($str,"<a>");    
     $str = str_ireplace('<a' , 'xxx<a', $str);	
     $str = str_ireplace('xxx' , "&arr[]=", $str);	
     $arr=array(); parse_str($str);	    
     //print"<pre>";print_r($arr);print"</pre>";
-    
+
     $final=array();
     foreach ($arr as $a)
     {
@@ -378,9 +407,10 @@ function proc_subtaxa_block($str)
         
         $final[]=array("name" => $name, "id" => $id);
     }   
-    //print"<pre>";print_r($final);print"</pre>";
-    return $final;    
+    //print"<pre>";print_r($final);print"</pre>";    
+    return $final;
 }
+
 function get_href_from_anchor_tag($str){$beg='href="'; $end1='"';$temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));return $temp;}
 
 
