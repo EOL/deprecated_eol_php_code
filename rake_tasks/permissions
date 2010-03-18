@@ -1,5 +1,8 @@
 #!/bin/bash
 
+chown nginx:nginx /data/www/eol_php_code/log/*
+chmod ug+rw /data/www/eol_php_code/log/*
+
 chown nginx:nginx /data/www/eol_php_code/update_resources/*
 chmod ug+x /data/www/eol_php_code/update_resources/*
 

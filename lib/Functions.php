@@ -97,8 +97,6 @@ class Functions
         if(!file_exists($path)) return false;
         
         $stat = stat($path);
-        echo time()."\n";
-        echo $stat['mtime']."\n";
         $hours = ceil(((time() - $stat['mtime']) / 60) / 60);
         
         return $hours;
