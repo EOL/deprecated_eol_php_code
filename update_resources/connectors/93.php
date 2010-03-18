@@ -1,16 +1,9 @@
 <?php
 /* Antarctic Invertebrates connector */
-//define("ENVIRONMENT", "development");
-//define("ENVIRONMENT", "slave_32");
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-*/
 
 $resource = new Resource(93); //93 exit($resource->id);
 

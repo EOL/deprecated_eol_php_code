@@ -1,7 +1,5 @@
 <?php
 //connector for Duth Species Catalogue
-set_time_limit(0);
-$GLOBALS['ENV_NAME'] = "slave_32";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -10,11 +8,6 @@ $start=0;
 $file_number=1;
 // */
 
-//only on local; to be deleted before going into production
-/*
-    $mysqli->truncate_tables("development");
-    Functions::load_fixtures("development");
-*/
 /*
     as of       id      bad 
     Jan23 2010  4744    108

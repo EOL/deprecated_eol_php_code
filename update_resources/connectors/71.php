@@ -1,6 +1,5 @@
 <?php
 
-$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
 Functions::require_vendor("wikipedia");

@@ -15,12 +15,6 @@ http://services.morphbank.net/mb3/request?method=eol&format=id
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-*/
-
 $resource = new Resource(83); //exit($resource->id);
 
 $details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";

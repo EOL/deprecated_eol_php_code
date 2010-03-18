@@ -3,15 +3,9 @@
 
 //exit;
 
-$GLOBALS['ENV_NAME'] = "development";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-*/
 
 $wrap = "\n"; 
 //$wrap = "<br>"; 

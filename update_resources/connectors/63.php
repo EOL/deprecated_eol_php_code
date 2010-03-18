@@ -13,10 +13,6 @@ http://127.0.0.1:3000/harvest_events/8/taxa/620
 http://127.0.0.1:3000/harvest_events/8/taxa/515
 */
 
-set_time_limit(0);
-ini_set('memory_limit','3500M');
-
-$GLOBALS['ENV_NAME'] = 'slave_32';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

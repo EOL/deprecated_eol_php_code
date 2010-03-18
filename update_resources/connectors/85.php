@@ -2,15 +2,9 @@
 /* North American Mammals connector - this will not be ran from BEAST because data is coming from provider's MDB */
 exit;
 
-$GLOBALS['ENV_NAME'] = "development"; //always to run locally
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
-
- /*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
- */
 
 $resource = new Resource(1); //orig is 85 for North American Mammals
 //print $resource->id; exit;

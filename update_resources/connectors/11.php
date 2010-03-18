@@ -1,14 +1,6 @@
 <?php
 //connector for Biolib.cz
 
-//exit;
-
-set_time_limit(0);
-ini_set('memory_limit','3000M');
-//define("ENVIRONMENT", "slave_32");
-//define("ENVIRONMENT", "development");
-define("MYSQL_DEBUG", true);
-define("DEBUG", true);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 //$file = "http://127.0.0.1/mtce/biolib_cz/txt/eoldata.xml";

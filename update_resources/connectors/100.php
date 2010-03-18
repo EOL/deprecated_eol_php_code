@@ -1,18 +1,6 @@
 <?php
 //connector for CONABIO
 
-set_time_limit(0);
-ini_set('memory_limit','3500M');
-//define("ENVIRONMENT", "development");
-
-//define("ENVIRONMENT", "slave_32");
-
-$GLOBALS['ENV_NAME'] = 'slave_32';
-
-
-//define("MYSQL_DEBUG", false);
-//define("DEBUG", false);
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -23,11 +11,6 @@ $start=0;
 $file_number=1;
 // */
 
-//only on local; to be deleted before going into production
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-*/
 $resource = new Resource(100);//CONABIO
 //exit("[$resource->id]");
 

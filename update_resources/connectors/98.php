@@ -1,19 +1,7 @@
 <?php
 /* connector for hexacorallians */
-set_time_limit(0);
-ini_set('memory_limit','3500M');
-
-//exit;
-$GLOBALS['ENV_NAME'] = "slave_32";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-//only on local; to be deleted before going into production
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-exit;
-*/
 
 $wrap = "\n";
 //$wrap = "<br>";

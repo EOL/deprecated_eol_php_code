@@ -4,17 +4,11 @@ connector for Public Health Image Library (CDC)
 http://phil.cdc.gov/phil/home.asp
 */
 
-refer files not with a url path but a dir path only
+//refer files not with a url path but a dir path only
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-//only on local; to be deleted before going into production
-/*
-$mysqli->truncate_tables("development");
-Functions::load_fixtures("development");
-exit;
-*/
 
 $wrap = "\n";
 //$wrap = "<br>";

@@ -1,6 +1,5 @@
 <?php
 /* connector for AmphibiaWeb */
-set_time_limit(0);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
