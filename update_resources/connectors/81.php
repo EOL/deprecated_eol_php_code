@@ -52,7 +52,7 @@ Functions::load_fixtures("development");
 exit;
 */
 $wrap = "\n";
-$wrap = "<br>";
+//$wrap = "<br>";
 
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 //$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
@@ -62,7 +62,7 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 // /*
 $main_name_id_list=array();
 get_BOLD_taxa();
-exit;
+//exit;
 // */
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -231,7 +231,7 @@ $id_with_public_barcode=array();
             
             //another text object
             $map_url = "http://www.boldsystems.org/lib/gis/mini_map_500w_taxonpage_occ.php?taxid=" . $main["id"];
-            print"<br><a href='$map_url'>$map_url</a>";            
+            print"$wrap <a href='$map_url'>$map_url</a>";            
             if(url_exists($map_url))
             {
                 $do_count++;                
@@ -283,38 +283,37 @@ echo "$wrap$wrap Done processing.";
 //###########################################################################################
 function get_phylum_list()
 {
+    global $wrap;
     $str = Functions::get_remote_file("http://www.boldsystems.org/views/taxbrowser_root.php");        
     $beg='Animals:'; $end1='>Barcodes :'; 
     $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
     //print "<hr>$str";
     
     $arr = get_name_id_from_array($str);
-    print"<hr><pre>";print_r($arr);print"</pre>";              
+    print"<hr>All Phylum: " . count($arr) . "<pre>";print_r($arr);print"</pre>";              
     return $arr;    
 }
 function get_BOLD_taxa()
 {
     global $main_name_id_list;
-
     $arr_phylum = get_phylum_list();
-    
+    /*
+    $arr_phylum = array(0 => array( "name" => "Brachiopoda" , "id" => 9),
+                        1 => array( "name" => "Bryozoa"    , "id" => 7),
+                        3 => array( "name" => "Xenoturbellida" , "id" => 88647)
+                       );
+    $arr_phylum = array(0 => array( "name" => "Xenoturbellida" , "id" => 88647)
+                       );
+    */
     $arr_phylum = array(0 => array( "name" => "Brachiopoda" , "id" => 9),
                         1 => array( "name" => "Bryozoa"    , "id" => 7),
                         3 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
 
-    $arr_phylum = array(0 => array( "name" => "Xenoturbellida" , "id" => 88647)
-                       );
-//                        1 => array( "name" => "Bryozoa"    , "id" => 7)
-
-
-
-
-
     $arr=proc_phylum($arr_phylum);                
-    $main_name_id_list = array_merge($arr_phylum,$arr);
+    $main_name_id_list = array_merge($arr_phylum,$arr);    
+    print"<hr>All Taxa in BOLD: " . count($main_name_id_list) . "<pre>";print_r($main_name_id_list);print"</pre>";              
     
-    print"<hr><pre>";print_r($main_name_id_list);print"</pre>";              
 }
 function proc_phylum($arr)
 {   
@@ -322,6 +321,7 @@ function proc_phylum($arr)
     global $main_name_id_list;
     global $wrap;
     
+
     foreach ($arr as $a)//phylum loop
     {
         print $wrap . $a["name"] . " -- " . $a["id"];
@@ -483,7 +483,7 @@ function get_higher_taxa($taxid)
     $str = str_ireplace('width="100%"',"",$str);    
     $pos = stripos($str,"Species List - Progress");    
     $str = substr($str,0,$pos) . "</td></tr></table>";    
-    print"<br>$str";
+    print"$wrap $str";
     //$str is BOLD stats
     //=========================================================================
     
