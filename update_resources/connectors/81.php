@@ -40,7 +40,7 @@ date            taxid   with public barcode     with barcodes
 2010 Mar 01     60749                           60749
 */
 
-$GLOBALS['ENV_NAME'] = 'slave';
+$GLOBALS['ENV_NAME'] = 'development';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -59,16 +59,16 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
 
-// /*
+ /*
 $main_name_id_list=array();
 get_BOLD_taxa();
 //exit;
-// */
+ */
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
-$resource = new Resource(81); //print $resource->id; exit;
+$resource = new Resource(81); print "<hr>resource id = " . $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();

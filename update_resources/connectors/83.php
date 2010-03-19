@@ -12,10 +12,12 @@ http://services.morphbank.net/mb3/request?method=eol&format=id
 
 */
 
+$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$resource = new Resource(83); //exit($resource->id);
+$resource = new Resource(83); 
+//exit($resource->id);
 
 $details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";
 $image_ids = array();
@@ -23,7 +25,8 @@ $image_ids = array();
 $schema_taxa = array();
 $used_taxa = array();
 
-$wrap = "\n"; $wrap = "<br>";
+$wrap = "\n"; 
+//$wrap = "<br>";
 
 //get all image ids
 /* working but not being used as advised by Greg from MorphBank
@@ -59,7 +62,8 @@ foreach($image_ids as $image_id)
     $k++;
     print "$wrap $image_id  [$k of $total_image_ids]";
     $image_details_url = $details_method_prefix . $image_id;
-    $xml = simplexml_load_file($image_details_url);    
+    if($xml = simplexml_load_file($image_details_url)){}
+    else continue;
     $dwc = $xml->specimen->children("http://rs.tdwg.org/dwc/dwcore/");    
     $dwcc = $xml->specimen->children("http://rs.tdwg.org/dwc/curatorial/");        
     $dwcg = $xml->specimen->children("http://rs.tdwg.org/dwc/geospatial/");        
