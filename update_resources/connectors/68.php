@@ -1,5 +1,6 @@
 <?php
 //connector for Duth Species Catalogue
+exit;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

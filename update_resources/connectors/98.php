@@ -1,4 +1,5 @@
 <?php
+exit;
 /* connector for hexacorallians */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];

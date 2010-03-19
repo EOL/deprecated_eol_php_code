@@ -71,9 +71,11 @@ class Resource extends MysqlBase
         //the resource hasn't been downloaded yet
         if(!file_exists($this->resource_file_path())) return true;
         
-        //Adding 12 hours to last modified to offset time it takes to update some resources
-        $last_updated = Functions::file_hours_since_modified($this->resource_file_path()) + 12;
-        if($last_updated < $this->refresh_period_hours) return false;
+        return $this->ready_to_harvest(12);
+        
+        ////Adding 12 hours to last modified to offset time it takes to update some resources
+        //$last_updated = Functions::file_hours_since_modified($this->resource_file_path()) + 12;
+        //if($last_updated < $this->refresh_period_hours) return false;
         
         return true;
     }
