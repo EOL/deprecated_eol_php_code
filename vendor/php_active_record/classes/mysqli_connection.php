@@ -83,6 +83,7 @@ class MysqliConnection
     
     function multi_query($query)
     {
+        if(!trim($query)) return;
         $this->check();
         $this->debug($query, true);
         
@@ -94,14 +95,14 @@ class MysqliConnection
                 if($result = $this->master_mysqli->store_result()) $results[] = $result;
                 elseif($this->master_mysqli->errno)
                 {
-                    trigger_error('MySQL multi_query Error: ' . $this->master_mysql->error, E_USER_WARNING);
+                    trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
                 }
                 
                 if($result) $result->free();
             }while(@$this->master_mysqli->next_result());
         }else
         {
-            trigger_error('MySQL multi_query Error: ' . $this->master_mysql->error, E_USER_WARNING);
+            trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
         }
     }
     
@@ -168,9 +169,14 @@ class MysqliConnection
         $result = $this->master_mysqli->query("show tables from ".$this->master_database);
         while($result && $row=$result->fetch_assoc())
         {
-            $query .= "TRUNCATE TABLE ". $row["Tables_in_".$this->master_database] .";";
+            $table = $row["Tables_in_".$this->master_database];
+            $count_results = $this->master_mysqli->query("select 1 from $table limit 1");
+            if($count_results && $count_results->num_rows)
+            {
+                $query .= "TRUNCATE TABLE $table;";
+            }
         }
-        $this->multi_query($query);
+        if($query) $this->multi_query($query);
     }
     
     function real_escape_string($string)

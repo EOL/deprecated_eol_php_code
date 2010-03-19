@@ -201,11 +201,11 @@ function shutdown_check()
         }
     }
     if ($isError) debug("Fatal Error: {$error['message']} in {$error['file']} on line {$error['line']}");
-    else debug("Script completed");
+    else debug("Completed ". $_SERVER['SCRIPT_FILENAME']);
     
     // close any open database connections
     if($GLOBALS['db_connection']->transaction_in_progress) $GLOBALS['db_connection']->rollback();
-    if($GLOBALS['ENV_MYSQL_DEBUG']) debug("\n\nClosing database connection\n");
+    if($GLOBALS['ENV_MYSQL_DEBUG']) debug("\n\nClosing database connection");
     
     // close the log file handle
     if($GLOBALS['ENV_DEBUG'] && $GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])

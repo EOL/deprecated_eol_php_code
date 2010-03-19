@@ -1,7 +1,7 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-require_library('TopImages_new');
+require_library('TopImages');
 require_library('DenormalizeTables');
 
 Functions::log("Starting top_images");
