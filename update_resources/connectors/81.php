@@ -52,7 +52,7 @@ Functions::load_fixtures("development");
 exit;
 */
 $wrap = "\n";
-//$wrap = "<br>";
+$wrap = "<br>";
 
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 //$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
@@ -74,8 +74,6 @@ $schema_taxa = array();
 $used_taxa = array();
 
 $id_list=array();
-
-
 
 
 $query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
@@ -302,13 +300,15 @@ function get_BOLD_taxa()
                         1 => array( "name" => "Bryozoa"    , "id" => 7),
                         3 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
+    */
     $arr_phylum = array(0 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
-    */
+    
 
     $arr=proc_phylum($arr_phylum);                
     $main_name_id_list = array_merge($arr_phylum,$arr);    
-    print"<hr>All Taxa in BOLD: " . count($main_name_id_list) . "<pre>";print_r($main_name_id_list);print"</pre>";              
+    print"<hr>All Taxa in BOLD: " . count($main_name_id_list);
+    //print"<pre>";print_r($main_name_id_list);print"</pre>";              
     
 }
 function proc_phylum($arr)
