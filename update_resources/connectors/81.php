@@ -40,7 +40,7 @@ date            taxid   with public barcode     with barcodes
 2010 Mar 01     60749                           60749
 */
 
-$GLOBALS['ENV_NAME'] = 'development';
+$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -52,23 +52,24 @@ Functions::load_fixtures("development");
 exit;
 */
 $wrap = "\n";
-$wrap = "<br>";
+//$wrap = "<br>";
 
 $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
 //$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
 $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
 
- /*
+// /*
 $main_name_id_list=array();
 get_BOLD_taxa();
 //exit;
- */
+// */
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
-$resource = new Resource(81); print "<hr>resource id = " . $resource->id; exit;
+$resource = new Resource(81); 
+//print "<hr>resource id = " . $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -300,10 +301,10 @@ function get_BOLD_taxa()
                         1 => array( "name" => "Bryozoa"    , "id" => 7),
                         3 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
-    */
+
     $arr_phylum = array(0 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
-    
+    */    
 
     $arr=proc_phylum($arr_phylum);                
     $main_name_id_list = array_merge($arr_phylum,$arr);    
