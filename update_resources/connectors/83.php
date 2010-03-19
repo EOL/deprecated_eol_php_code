@@ -37,7 +37,8 @@ foreach($image_id_xml->id as $id)
 {$image_ids[] = $id;}
 */
 
-$xml = simplexml_load_file("http://www.morphbank.net/eolids.xml");
+if($xml = simplexml_load_file("http://www.morphbank.net/eolids.xml")){}
+else{exit("$wrap Service not available.");}
 foreach($xml->url as $url)
 {
     print "$wrap [$url] $wrap";   
@@ -45,7 +46,8 @@ foreach($xml->url as $url)
     /* used before as test
     $url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&limit=-1&keywords=baskauf&format=id";
     */    
-    $image_id_xml = simplexml_load_file($url);
+    if($image_id_xml = simplexml_load_file($url)){}
+    else continue;
     foreach($image_id_xml->id as $id)
     {
         $image_ids[] = $id;
