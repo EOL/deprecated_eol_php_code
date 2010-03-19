@@ -246,17 +246,26 @@ class SchemaParser
                     }
                     
                     
-                    // EXCEPTION - overriding the subject for text descriptions from certain resources (BOLD, Wikipedia)
+                    // EXCEPTIONS
                     if($data_object_parameters["data_type_id"] == DataType::insert("http://purl.org/dc/dcmitype/Text"))
                     {
-                        if($connection->get_resource()->title == "BOLD Systems Resource")
+                        $resource = $connection->get_resource();
+                        if($resource->title == "BOLD Systems Resource")
                         {
+                            // EXCEPTION - overriding the subject for BOLD
                             $data_object_parameters["info_items_ids"] = array(InfoItem::insert('http://www.eol.org/voc/table_of_contents#Barcode'));
-                        }elseif($connection->get_resource()->title == "Wikipedia")
+                        }elseif($resource->title == "Wikipedia")
                         {
+                            // EXCEPTION - overriding the subject for Wikipedia
                             $data_object_parameters["info_items_ids"] = array(InfoItem::insert('http://www.eol.org/voc/table_of_contents#Wikipedia'));
+                        }elseif($resource->title == "IUCN Red List")
+                        {
+                            // EXCEPTION - overriding the data type for IUCN text
+                            $data_object_parameters["data_type_id"] = DataType::insert('IUCN');
                         }
                     }
+                    
+                    
                     
                     
                     $data_object_parameters["refs"] = array();

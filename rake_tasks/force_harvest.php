@@ -8,7 +8,7 @@ $opt2 = @$argv[4];
 
 $options = array("-download", "-now");
 
-if($attr != "-id" || !$id || !is_numeric($id) || ($opt1 && !in_array($opt1, $options)) || ($opt2 && !in_array($opt2, $options)))
+if($attr != "-id" || !$id || !is_numeric($id))
 {
     echo "\n\n\tforce_harvest.php -id [resource_id] [-download] [-now]\n\n";
     exit;

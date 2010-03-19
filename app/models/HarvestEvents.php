@@ -124,7 +124,7 @@ class HarvestEvent extends MysqlBase
     
     public function vet_objects()
     {
-        $this->mysqli->query("UPDATE data_objects_harvest_events dohe STRAIGHT_JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.vetted_id=". Vetted::insert('Trusted') ." WHERE do.vetted_id=0 AND dohe.harvest_event_id=$this->id");
+        $this->mysqli->query("UPDATE data_objects_harvest_events dohe STRAIGHT_JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.vetted_id=". Vetted::insert('Trusted') ." WHERE do.vetted_id=". Vetted::insert('unknown') ." AND dohe.harvest_event_id=$this->id");
     }
     
     
@@ -136,7 +136,7 @@ class HarvestEvent extends MysqlBase
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
         
-        $this->mysqli->query("UPDATE (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) SET do_current.visibility_id = do_previous.visibility_id WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (0, ,".Visibility::insert('Inappropriate').")");
+        $this->mysqli->query("UPDATE (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) SET do_current.visibility_id = do_previous.visibility_id WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::insert('Invisible').", ,".Visibility::insert('Inappropriate').")");
     }
     
     public function expire_taxa_cache()

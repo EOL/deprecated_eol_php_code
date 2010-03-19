@@ -111,6 +111,7 @@ class HierarchiesContent
     
     function gbif_maps()
     {
+        if($GLOBALS['ENV_NAME'] != 'production') return;
         $this->mysqli->begin_transaction();
         
         $mysqli_maps = load_mysql_environment("maps");
