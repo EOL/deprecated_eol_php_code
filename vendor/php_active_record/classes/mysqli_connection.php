@@ -56,6 +56,24 @@ class MysqliConnection
         return $this->master_mysqli->insert_id;
     }
     
+    function update($query)
+    {
+        $this->check();
+        $this->debug($query, true);
+        
+        $result = $this->master_mysqli->query($query);
+        return $result;
+    }
+    
+    function delete($query)
+    {
+        $this->check();
+        $this->debug($query, true);
+        
+        $result = $this->master_mysqli->query($query);
+        return $result;
+    }
+    
     function query($query)
     {
         if(preg_match("/^(insert|update|delete|truncate|create|drop|alter|load data)/i", trim($query), $arr))
@@ -111,15 +129,6 @@ class MysqliConnection
         return $this->update($query);
     }
     
-    function update($query)
-    {
-        $this->check();
-        $this->debug($query, true);
-        
-        $result = $this->master_mysqli->query($query);
-        return $result;
-    }
-    
     function load_data_infile($path, $table, $do_transaction = true, $commit_batches = false)
     {
         $insert_batch_size = 5000;
@@ -148,15 +157,6 @@ class MysqliConnection
         unset($values);
         
         if($do_transaction) $this->end_transaction();
-    }
-    
-    function delete($query)
-    {
-        $this->check();
-        $this->debug($query, true);
-        
-        $result = $this->master_mysqli->query($query);
-        return $result;
     }
     
     function truncate_tables($environment = "test")

@@ -54,6 +54,24 @@ class Hierarchy extends MysqlBase
         else return null;
     }
     
+    public function publish_default_hierarchy_concepts()
+    {
+        $default_hierarchy_id = self::default_id();
+        
+        $entry_ids = array();
+        $result = $GLOBALS['db_connection']->query("SELECT he.id FROM hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE he.hierarchy_id=$default_hierarchy_id AND tc.published=0 AND tc.supercedure_id=0");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $entry_ids[] = $row['id'];
+        }
+        
+        if($entry_ids)
+        {
+            $GLOBALS['db_connection']->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE he.id IN (".implode($entry_ids, ',').")");
+        }
+    }
+    
+    
     static function col_2009()
     {
         return self::find_by_label('Species 2000 & ITIS Catalogue of Life: Annual Checklist 2009');

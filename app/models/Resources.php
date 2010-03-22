@@ -189,9 +189,11 @@ class Resource extends MysqlBase
         $this->mysqli->insert("INSERT INTO resources_taxa VALUES ($this->id, $taxon_id, '$identifier', '$source_url', '$created_at', '$modified_at')");
     }
     
-    public function unpublish_data_objects()
+    public function unpublish_data_objects($object_guids_to_keep = null)
     {
-        $this->mysqli->update("UPDATE harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) STRAIGHT_JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.resource_id=$this->id");
+        $where_clause = '';
+        if($object_guids_to_keep) $where_clause = "AND do.guid NOT IN ('". implode($object_guids_to_keep,"','") ."')";
+        $this->mysqli->update("UPDATE harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.resource_id=$this->id $where_clause");
     }
     
     public function unpublish_hierarchy_entries()
@@ -204,27 +206,42 @@ class Resource extends MysqlBase
         $this->mysqli->update("UPDATE hierarchies_resources hr JOIN hierarchies h ON (hr.hierarchy_id=h.id) JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=0 WHERE hr.resource_id=$this->id");
     }
     
+    public function vetted_object_guids()
+    {
+        $guids = array();
+        $result = $this->mysqli->query("SELECT do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE do.published=1 AND do.visibility_id=".Visibility::insert('Visible')." AND do.vetted_id=".Vetted::insert('Trusted')." AND he.resource_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $guids[] = $row['guid'];
+        }
+        return array_unique($guids);
+    }
     
     public function publish()
     {
         if($this->resource_status_id != ResourceStatus::insert("Publish Pending")) return false;
         $this->mysqli->begin_transaction();
-        
         if($harvest_event_id = $this->most_recent_harvest_event_id())
         {
             $harvest_event = new HarvestEvent($harvest_event_id);
             if($harvest_event->published_at) return true;
             if(!$harvest_event->completed_at) return false;
             
+            $object_guids_to_keep = array();
+            if($this->title == 'Wikipedia')
+            {
+                $object_guids_to_keep = $this->vetted_object_guids();
+            }
+            
             // make all objects in last harvest visible if they were in preview mode
-            $harvest_event->make_objects_visible();
+            $harvest_event->make_objects_visible($object_guids_to_keep);
             
             // preserve visibilities from older versions of same objects
             // if the older versions were curated they may be invible or inappropriate and we don't want to lose that info
             if($last_id = $this->most_recent_published_harvest_event_id()) $harvest_event->inherit_visibilities_from($last_id);
             
             // set published=0 for ALL objects associated with this resource
-            $this->unpublish_data_objects();
+            $this->unpublish_data_objects($object_guids_to_keep);
             
             // now only set published=1 for the objects in the latest harvest
             $harvest_event->publish_objects();
@@ -235,18 +252,16 @@ class Resource extends MysqlBase
             
             if($hierarchy_id = $this->hierarchy_id())
             {
-                $catalogue_of_life_id = Hierarchy::find_by_agent_id(Agent::find("Catalogue of Life"));
-                
                 // unpublish all concepts associated with this resource
                 $this->unpublish_taxon_concepts();
                 $this->unpublish_hierarchy_entries();
                 
-                // make sure all COL concepts are published
-                $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE he.hierarchy_id=$catalogue_of_life_id AND tc.published=0 AND tc.supercedure_id=0");
-                
                 // now set published=1 for all concepts in the latest harvest
-                $harvest_event->publish_taxon_concepts();
                 $harvest_event->publish_hierarchy_entries();
+                
+                // make sure all COL concepts are published
+                Hierarchy::publish_default_hierarchy_concepts();
+                $this->mysqli->commit();
                 
                 CompareHierarchies::begin_concept_assignment($hierarchy_id);
             }

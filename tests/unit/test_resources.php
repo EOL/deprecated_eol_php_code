@@ -19,6 +19,10 @@ class test_resources extends SimpletestUnitBase
         
         $this->check_content_after_harvesting($resource);
         
+        // set to force harvest and harvest again
+        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
+        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/harvest_resources_cron_task.php ENV_NAME=test");
+        
         @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml");
     }
     
@@ -37,6 +41,7 @@ class test_resources extends SimpletestUnitBase
                         'refresh_period_hours'  => 1,
                         'auto_publish'          => $publish,
                         'vetted'                => $vetted,
+                        'title'                 => 'Wikipedia',
                         'resource_status_id'    => ResourceStatus::insert('Validated'));
         $resource_id = Resource::insert($attr);
         $agent->add_resouce($resource_id, 'Data Supplier');

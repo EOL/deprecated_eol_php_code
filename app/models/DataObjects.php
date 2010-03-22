@@ -239,7 +239,13 @@ class DataObject extends MysqlBase
                     $data_object->guid = $existing_data_object->guid;
                     $data_object->curated = $existing_data_object->curated;
                     $data_object->vetted_id = $existing_data_object->vetted_id;
-                    $data_object->visibility_id = $existing_data_object->visibility_id;
+                    $data_object->visibility_id = Visibility::insert("Preview");
+                    if($existing_data_object->visibility_id != Visibility::insert("Visible"))
+                    {
+                        // if the existing object is visible - this will go on as preview
+                        // otherwise this will inherit the visibility (unpublished)
+                        $data_object->visibility_id = $existing_data_object->visibility_id;
+                    }
                     $data_object->data_rating = $existing_data_object->data_rating;
                     
                     // Check to see if we can reuse cached object or need to download it again

@@ -56,9 +56,11 @@ class HarvestEvent extends MysqlBase
         $this->mysqli->update("UPDATE harvest_events SET published_at=NOW() WHERE id=$this->id");
     }
     
-    public function make_objects_visible()
+    public function make_objects_visible($object_guids_to_keep = null)
     {
-        $this->mysqli->query("UPDATE data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.visibility_id=". Visibility::insert('Visible') ." WHERE do.visibility_id=". Visibility::insert('Preview') ." AND dohe.harvest_event_id=$this->id");
+        $where_clause = '';
+        if($object_guids_to_keep) $where_clause = "AND do.guid NOT IN ('". implode($object_guids_to_keep,"','") ."')";
+        $this->mysqli->query("UPDATE data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.visibility_id=". Visibility::insert('Visible') ." WHERE do.visibility_id=". Visibility::insert('Preview') ." AND dohe.harvest_event_id=$this->id $where_clause");
     }
     
     public function publish_objects()
@@ -66,29 +68,9 @@ class HarvestEvent extends MysqlBase
         $this->mysqli->query("UPDATE data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=1 WHERE do.published=0 AND dohe.harvest_event_id=$this->id");
     }
     
-    public function publish_taxon_concepts()
-    {
-        $this->mysqli->update("UPDATE harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE het.harvest_event_id=$this->id AND tc.supercedure_id=0");
-        $result = $this->mysqli->query("SELECT he.id FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id=$this->id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $this->publish_taxon_concept_parents($row['id']);
-        }
-    }
-    
-    private function publish_taxon_concept_parents($id)
-    {
-        $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE he.id=$id AND tc.supercedure_id=0");
-        $result = $this->mysqli->query("SELECT parent_id id FROM hierarchy_entries WHERE id=$id AND parent_id!=0");
-        if($result && $row=$result->fetch_assoc())
-        {
-            $this->publish_taxon_concept_parents($row['id']);
-        }
-    }
-    
     public function publish_hierarchy_entries()
     {
-        $this->mysqli->update("UPDATE harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) SET he.published=1, he.visibility_id=". Visibility::insert('visible') ." WHERE het.harvest_event_id=$this->id");
+        $this->mysqli->update("UPDATE harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.published=1, he.visibility_id=". Visibility::insert('visible') .", tc.published=1 WHERE het.harvest_event_id=$this->id");
         $this->publish_hierarchy_entry_parents();
         $this->make_hierarchy_entry_parents_visible();
     }
@@ -97,12 +79,14 @@ class HarvestEvent extends MysqlBase
     {
         if($hierarchy_id = $this->resource()->hierarchy_id())
         {
-            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0 LIMIT 1");
-            while($result && $row=$result->fetch_assoc())
+            $continue = true;
+            while($continue)
             {
-                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.published=1 WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0");
-
-                $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0 LIMIT 1");
+                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) JOIN taxon_concepts tc_parents ON (he_parents.taxon_concept_id=tc_parents.id) SET he_parents.published=1, tc_parents.published=1 WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0");
+                
+                // continue doing this as long as we're effecting new rows
+                $continue = $this->mysqli->affected_rows();
+                if($continue) echo "Continuing with $continue parents\n";
             }
         }
     }
@@ -111,12 +95,14 @@ class HarvestEvent extends MysqlBase
     {
         if($hierarchy_id = $this->resource()->hierarchy_id())
         {
-            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible') ." LIMIT 1");
-            while($result && $row=$result->fetch_assoc())
+            $continue = true;
+            while($continue)
             {
                 $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('visible') ." WHERE he.hierarchy_id=$hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible'));
-
-                $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible') ." LIMIT 1");
+                
+                // continue doing this as long as we're effecting new rows
+                $continue = $this->mysqli->affected_rows();
+                if($continue) echo "Continuing with $continue parents\n";
             }
         }
     }
@@ -136,7 +122,7 @@ class HarvestEvent extends MysqlBase
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
         
-        $this->mysqli->query("UPDATE (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) SET do_current.visibility_id = do_previous.visibility_id WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::insert('Invisible').", ,".Visibility::insert('Inappropriate').")");
+        $this->mysqli->query("UPDATE (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) SET do_current.visibility_id = do_previous.visibility_id WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::insert('Invisible').", ".Visibility::insert('Inappropriate').")");
     }
     
     public function expire_taxa_cache()
