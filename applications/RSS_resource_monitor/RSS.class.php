@@ -78,10 +78,10 @@
             trim(concat('Status: ',agent_statuses.label,'<br>', if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , 
             concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link 
             From harvest_events 
-            right Join resources ON harvest_events.resource_id = resources.id 
+            left Join resources ON harvest_events.resource_id = resources.id 
             left Join agents_resources ON resources.id = agents_resources.resource_id 
             left Join agents ON agents_resources.agent_id = agents.id 
-            Join resource_statuses ON resources.resource_status_id = resource_statuses.id 
+            left resource_statuses ON resources.resource_status_id = resource_statuses.id 
             left Join agent_statuses ON agents.agent_status_id = agent_statuses.id 
             where resource_statuses.id = $id 
             Order By resources.harvested_at Desc ";
