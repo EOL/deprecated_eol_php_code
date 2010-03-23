@@ -1,7 +1,9 @@
 <?php
 /* MorphBank connector 
-execution time:
+estimated execution time: 
+*/
 
+/*
 <?xml version="1.0" encoding="utf-8" ?>
 <response>
     <url>http://services.morphbank.net/mb/request?method=search&amp;objecttype=Image&amp;limit=-1&amp;keywords=baskauf&amp;format=id</url>
@@ -10,7 +12,6 @@ execution time:
 http://www.morphbank.net/eolids.xml
 http://services.morphbank.net/mb2/request?method=eol&format=id
 http://services.morphbank.net/mb3/request?method=eol&format=id
-
 */
 
 $timestart = microtime(1);
@@ -203,6 +204,11 @@ echo "$wrap";
 echo "elapsed time = $elapsed_time_sec sec              $wrap";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
+
+exit("$wrap$wrap Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
 
 
 //==========================================================================================

@@ -1,6 +1,10 @@
 <?php
 exit;
-/* connector for hexacorallians */
+/* connector for hexacorallians 
+estimated execution time: 
+*/
+$timestart = microtime(1);
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -218,8 +222,14 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-echo "$wrap$wrap Done processing.";
-exit("<hr>-done-");
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "$wrap";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("$wrap$wrap Done processing.");
+
 
 //######################################################################################################################
 //######################################################################################################################

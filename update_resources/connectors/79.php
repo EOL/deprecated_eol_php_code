@@ -2,7 +2,9 @@
 /*
 connector for Public Health Image Library (CDC) 
 http://phil.cdc.gov/phil/home.asp
+estimated execution time: 
 */
+$timestart = microtime(1);
 
 //refer files not with a url path but a dir path only
 
@@ -166,8 +168,16 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-echo "$wrap$wrap Done processing.";
-exit("<hr>-done-");
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
 
 function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title)   
 {        

@@ -1,8 +1,7 @@
 <?php
 /* connector for Biolib.cz
-execution time: 3-4 mins.
+estimated execution time:  3-4 mins.
 */
-
 $timestart = microtime(1);
 
 
@@ -38,12 +37,15 @@ fwrite($OUT, $str);
 foreach($xml->taxon as $t)
 {
     $i++;    
-    print "$i $wrap";
-    //if($i >= 100 and $i <= 105)
-    if(true)    
+    print "$i $wrap";    
+    
+    //if($i >= 1 and $i <= 100)//debug
+    if(true)//true operation    
     {                   
         $do_count = sizeof($t->dataObject);
-        if($do_count > 0)
+        
+        //if(true)//debug
+        if($do_count > 0)//true operation
         {
             $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");                         
             $t_dc = $t->children("http://purl.org/dc/elements/1.1/");        
@@ -66,7 +68,14 @@ foreach($xml->taxon as $t)
             $taxonParameters["order"]           = Functions::import_decode($order);
             $taxonParameters["family"]          = Functions::import_decode($family);
             $taxonParameters["scientificName"]  = Functions::import_decode($sciname);    
-
+            
+            
+            $taxonParameters["synonyms"] = array();
+            foreach($t->synonym as $syn)
+            {
+                $taxonParameters["synonyms"][] = new SchemaSynonym(array("synonym" => $syn, "relationship" => $url = $syn["relationship"]));                
+            }
+            
             //start process dataObjects =====================================================================
             $taxonParameters["dataObjects"] = array();    
             $dataObjects = array();
@@ -102,6 +111,7 @@ foreach($xml->taxon as $t)
             ///////////////////////////////////////////////////////////////////////////////////            
         }//if($do > 0)
     }    
+    else{break;}
 }
 
 $str = "</response>";
@@ -110,11 +120,15 @@ fclose($OUT);
 
 
 $elapsed_time_sec = microtime(1)-$timestart;
-echo "\n";
+echo "$wrap";
 echo "elapsed time = $elapsed_time_sec sec              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 
+exit("$wrap$wrap Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
 
 //==========================================================================================
 function get_data_object($do,$t_dc2,$t_dcterms)

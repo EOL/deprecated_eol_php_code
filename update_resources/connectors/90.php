@@ -1,7 +1,9 @@
 <?php
 /*  turtles website 
 http://www.iucn-tftsg.org/pub-chron/
+estimated execution time: 
 */
+$timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
@@ -45,7 +47,17 @@ $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
-print "$wrap -- Done processing -- "; exit;
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
 
 
 function process_file1($file)

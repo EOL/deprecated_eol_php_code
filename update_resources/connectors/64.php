@@ -1,5 +1,9 @@
 <?php
-/* Radiolaria connector */
+/* Radiolaria connector 
+estimated execution time: 
+*/
+$timestart = microtime(1);
+
 //exit;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -106,7 +110,20 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 print "<hr>$old_resource_path<hr>";
 ////////////////////// ---
-print "<hr> Done processing.";
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
+
+
 function process_dataobjects($item,$type,$object_id)//$type 1 = text object; 2 = image object
 {
     global $taxon_identifier;    

@@ -1,5 +1,9 @@
 <?php
-//connector for Duth Species Catalogue
+/*connector for Duth Species Catalogue
+estimated execution time: 
+*/
+$timestart = microtime(1);
+
 exit;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -93,6 +97,19 @@ while(true)
 }
 print "\n --end-- \n";
 fclose($OUT);
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
 
 //====================================================================================
 //start functions #################################################################################################

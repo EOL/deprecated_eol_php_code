@@ -1,6 +1,9 @@
 <?php
-//
-/* connector for BOLD Systems */
+/* connector for BOLD Systems 
+estimated execution time: 
+*/
+$timestart = microtime(1);
+
 //exit;
 /*
 2010Mar16   27,417
@@ -277,9 +280,18 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 
-echo "$wrap$wrap Done processing.";
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "$wrap";
+echo "elapsed time = $elapsed_time_sec sec              $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
 
-//###########################################################################################
+exit("$wrap$wrap Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
 function get_phylum_list()
 {
     global $wrap;

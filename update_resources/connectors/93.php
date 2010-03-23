@@ -1,12 +1,12 @@
 <?php
-/* Antarctic Invertebrates connector */
+/* Antarctic Invertebrates connector 
+estimated execution time: 
+*/
+$timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 $resource = new Resource(93); //93 exit($resource->id);
-
 $wrap="\n";
 //$wrap="<br>";
 
@@ -137,6 +137,18 @@ $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
 
 function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent_name ,$description, $type, $source_url)
 {

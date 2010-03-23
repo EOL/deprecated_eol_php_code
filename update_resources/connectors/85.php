@@ -1,5 +1,9 @@
 <?php
-/* North American Mammals connector - this will not be ran from BEAST because data is coming from provider's MDB */
+/* North American Mammals connector - this will not be ran from BEAST because data is coming from provider's MDB 
+estimated execution time: 
+*/
+$timestart = microtime(1);
+
 exit;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -197,6 +201,17 @@ $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
 
 
 function get_data_object($id, $agent_name, $dc_source, $description, $reference, $subject, $title)

@@ -1,5 +1,9 @@
 <?php
-//connector for WORMS
+/*connector for WORMS
+estimated execution time: 
+*/
+$timestart = microtime(1);
+
 /*  date        ID's    bad ID's    not well formed xml
     2010-Jan-11 160115  97    
     2010-Mar-02 137794  59          241953,139430,139596,372873,131521      
@@ -130,6 +134,20 @@ fclose($OUT);
 
 $OUT = fopen("bad_id.txt", "w+");            
 fwrite($OUT, $bad_id);fclose($OUT);
+
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
 
 //end
 //====================================================================================

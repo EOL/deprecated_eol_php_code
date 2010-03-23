@@ -1,5 +1,9 @@
 <?php
-//connector for CONABIO
+/*connector for CONABIO
+estimated execution time: 
+*/
+
+$timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
@@ -96,6 +100,21 @@ $OUT = fopen("bad_id.txt", "w+");
 fwrite($OUT, $bad_id);fclose($OUT);
 
 //end
+
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "$wrap";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+exit("$wrap$wrap Done processing.");
+
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
 //====================================================================================
 //start functions #################################################################################################
 function process($id)
