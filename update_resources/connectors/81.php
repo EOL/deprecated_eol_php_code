@@ -322,6 +322,7 @@ function get_BOLD_taxa()
     $main_name_id_list = array_merge($arr_phylum,$arr);    
     print"<hr>All Taxa in BOLD: " . count($main_name_id_list);
     //print"<pre>";print_r($main_name_id_list);print"</pre>";              
+    save_to_txt($main_name_id_list);
     
 }
 function proc_phylum($arr)
