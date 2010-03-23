@@ -76,7 +76,7 @@ print"<table border='1'>
 <form method='get' action='process.php' id='fn'><input type='hidden' id='f' name='f'><input type='hidden' id='what' name='f_list'>
 </form>
 
-<tr><td colspan='2' align='center'>EOL Resource Monitoring - RSS Feeds<br>&nbsp;</td></tr>";
+<tr><td colspan='6' align='center'>EOL Resource Monitoring - RSS Feeds<br>&nbsp;</td></tr>";
 $cnt=0;
 for ($i = 1; $i <= count($feeds) ; $i++) 
 {
@@ -140,7 +140,7 @@ $qry = "select title, id, service_type_id from resources order by title";
 $result = $mysqli->query($qry);	
 
 $cnt++;
-print"<td>" . $cnt . ". </td><td><select id='resource_id' name=resource_id onChange='proc()'><option>";
+print"<td>" . $cnt . ". </td><td colspan='4'><select id='resource_id' name=resource_id onChange='proc()'><option>";
 while($result && $row=$result->fetch_assoc())
 {
 	print"<option value=$row[id]>$row[title] [$row[id]] ";
