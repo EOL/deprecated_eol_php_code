@@ -15,10 +15,6 @@ $feeds = array(
                 11 => array("title" => "Resources: Publish Pending"	                , "feed" => "11"),
                 12 => array("title" => "Resources: Unpublish Pending"	            , "feed" => "12"),
                 13 => array("title" => "Resources: Force Harvest"                   , "feed" => "13")
-                
-                
-                
-                
 			  );
 /*			  
 $domain = "services.eol.org";

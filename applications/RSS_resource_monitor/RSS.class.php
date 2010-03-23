@@ -123,13 +123,21 @@
         //start list of links                
         require("feeds.php");
         $links='See other feeds: ';
+
+
+        $arr = explode(",",$f_list);
+
+        
         for ($i = 1; $i <= count($feeds) ; $i++) 
         {
             //$links .= strpos($f_list, "$i") . " | ";        
             //if($i != 5 and $i != $e)
             //if( ( $i <= 2 or $i >= 6 ) and $i != $e )
             //if(strpos($f_list, "$i") != "" and $i != $e )
-            if(is_int(strpos($f_list, "$i")) and $i != $e )
+            
+            //if(is_int(strpos($f_list, "$i")) and $i != $e )
+            if (in_array($i, $arr))
+            
             {
                 $links .= " " . "<a href='http://$domain/$feed_path?f=" . $feeds[$i]["feed"]."&f_list=$f_list'>" . $feeds[$i]["title"] . "</a> &nbsp;|&nbsp; ";
             }
