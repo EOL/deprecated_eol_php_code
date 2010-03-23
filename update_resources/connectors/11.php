@@ -12,7 +12,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 //$file = "http://www.biolib.cz/DWN/eoldata.xml";
 //$file = "http://128.128.175.77/eol_php_code/applications/content_server/resources/eoldata.xml";
-$file = "http://pandanus.eol.org/public/eol_resource/eoldata.xml"
+$file = "http://pandanus.eol.org/public/EOL_resource/eoldata.xml";
 $xml = simplexml_load_file($file);
 
 $i=0;
@@ -60,12 +60,12 @@ foreach($xml->taxon as $t)
             $taxonParameters = array();
             $taxonParameters["identifier"]      = utf8_encode($identifier);
             $taxonParameters["source"]          = utf8_encode($source);
-            $taxonParameters["kingdom"]         = utf8_encode($kingdom);
-            $taxonParameters["phylum"]          = utf8_encode($phylum);
-            $taxonParameters["class"]           = utf8_encode($class);
-            $taxonParameters["order"]           = utf8_encode($order);
-            $taxonParameters["family"]          = utf8_encode($family);
-            $taxonParameters["scientificName"]  = utf8_encode($sciname);    
+            $taxonParameters["kingdom"]         = Functions::import_decode($kingdom);
+            $taxonParameters["phylum"]          = Functions::import_decode($phylum);
+            $taxonParameters["class"]           = Functions::import_decode($class);
+            $taxonParameters["order"]           = Functions::import_decode($order);
+            $taxonParameters["family"]          = Functions::import_decode($family);
+            $taxonParameters["scientificName"]  = Functions::import_decode($sciname);    
 
             //start process dataObjects =====================================================================
             $taxonParameters["dataObjects"] = array();    
@@ -156,11 +156,11 @@ function get_data_object($do,$t_dc2,$t_dcterms)
     $dataObjectParameters["created"]       = $do->created;
     $dataObjectParameters["modified"]      = $do->modified;
     $dataObjectParameters["license"]       = $do->license;
-    $dataObjectParameters["rightsHolder"]  = $t_dcterms->rightsHolder;    
+    $dataObjectParameters["rightsHolder"]  = Functions::import_decode($t_dcterms->rightsHolder);    
     $dataObjectParameters["source"]        = $t_dc2->source;
     $dataObjectParameters["mediaURL"]      = $do->mediaURL;
     $dataObjectParameters["thumbnailURL"]  = $do->thumbnailURL;
-    $dataObjectParameters["location"]      = $do->location;              
+    $dataObjectParameters["location"]      = Functions::import_decode($do->location);              
 
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();    
