@@ -57,19 +57,19 @@
             ";                     }
 
         elseif($e==8){    //  resources: upload failed
-            $qry="
-            Select distinct
-            if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title,
-            trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description ,
-            concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link        	
-            From harvest_events 
-            right Join resources ON harvest_events.resource_id = resources.id
-            left Join agents_resources ON resources.id = agents_resources.resource_id 
-            left Join agents ON agents_resources.agent_id = agents.id
-            Join resource_statuses ON resources.resource_status_id = resource_statuses.id
-    		where resource_statuses.id = 3
-            Order By resources.harvested_at Desc
-            ";                     }
+            $qry="Select distinct if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title, trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link From harvest_events right Join resources ON harvest_events.resource_id = resources.id left Join agents_resources ON resources.id = agents_resources.resource_id left Join agents ON agents_resources.agent_id = agents.id Join resource_statuses ON resources.resource_status_id = resource_statuses.id where resource_statuses.id = 3 Order By resources.harvested_at Desc ";}
+        elseif($e==9){    //  resources: Validation Failed
+            $qry="Select distinct if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title, trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link From harvest_events right Join resources ON harvest_events.resource_id = resources.id left Join agents_resources ON resources.id = agents_resources.resource_id left Join agents ON agents_resources.agent_id = agents.id Join resource_statuses ON resources.resource_status_id = resource_statuses.id where resource_statuses.id = 6 Order By resources.harvested_at Desc ";}
+        elseif($e==10){    //  resources: Processing Failed
+            $qry="Select distinct if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title, trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link From harvest_events right Join resources ON harvest_events.resource_id = resources.id left Join agents_resources ON resources.id = agents_resources.resource_id left Join agents ON agents_resources.agent_id = agents.id Join resource_statuses ON resources.resource_status_id = resource_statuses.id where resource_statuses.id = 9 Order By resources.harvested_at Desc ";}
+        elseif($e==11){    //  resources: Publish Pending
+            $qry="Select distinct if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title, trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link From harvest_events right Join resources ON harvest_events.resource_id = resources.id left Join agents_resources ON resources.id = agents_resources.resource_id left Join agents ON agents_resources.agent_id = agents.id Join resource_statuses ON resources.resource_status_id = resource_statuses.id where resource_statuses.id = 11 Order By resources.harvested_at Desc ";}
+        elseif($e==12){    //  resources: Unpublish Pending
+            $qry="Select distinct if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title, trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link From harvest_events right Join resources ON harvest_events.resource_id = resources.id left Join agents_resources ON resources.id = agents_resources.resource_id left Join agents ON agents_resources.agent_id = agents.id Join resource_statuses ON resources.resource_status_id = resource_statuses.id where resource_statuses.id = 12 Order By resources.harvested_at Desc ";}
+        elseif($e==13){    //  resources: Force Harvest
+            $qry="Select distinct if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title, trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link From harvest_events right Join resources ON harvest_events.resource_id = resources.id left Join agents_resources ON resources.id = agents_resources.resource_id left Join agents ON agents_resources.agent_id = agents.id Join resource_statuses ON resources.resource_status_id = resource_statuses.id where resource_statuses.id = 13 Order By resources.harvested_at Desc ";}
+            
+            
                      
         elseif($e==5){    //  individual resource info
             $qry="
@@ -183,7 +183,8 @@ private function getItems($e,$id)
 
     $items = '';
         
-    if($e < 5 or $e == 6 or $e == 7 or $e == 8)
+    //if($e < 5 or $e == 6 or $e == 7 or $e == 8)
+    if($e < 5 or ($e >= 6 and $e <= 13))
     {
         if        ($e == 7 ){require('next_harvest.php');}
         elseif    ($e == 6 ){require('next_harvest_multiple.php');}
