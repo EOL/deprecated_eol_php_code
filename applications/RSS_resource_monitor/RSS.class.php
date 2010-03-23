@@ -74,8 +74,8 @@
             elseif($e==12)$id=12;
             elseif($e==13)$id=13;
             $qry="Select distinct 
-            if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title, 
-            trim(concat('Status: ',agent_statuses.label,'<br>', if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , 
+            concat(if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)),' {',agent_statuses.label,'}') as title, 
+            trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , 
             concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link 
             From harvest_events 
             right Join resources ON harvest_events.resource_id = resources.id 
