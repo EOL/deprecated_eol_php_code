@@ -104,7 +104,7 @@ for ($i = 1; $i <= count($feeds) ; $i++)
 		{	print"<td valign='middle' rowspan='12' align='center'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<a title='Subscribe' target='_top' href='javascript:document.forms.fn.submit()'>
 			<img alt='Subscribe' src='feed_icon_big.png' border='0'></a> Related feeds &nbsp;&nbsp;&nbsp;&nbsp;
-			<br><i><small>Click checkbox for feeds you want to group</small></i>
+			<br><i><small>Click checkbox for feeds<br>you want to group</small></i>
 			</td>";
 		}
 	
