@@ -8,7 +8,7 @@
 function check_click()
 {	txtbox = '';
 	var i=1;
-	for (i=1;i<=7;i++)
+	for (i=1;i<=13;i++)
 	{	if(i != 5)
 		{	var str = 'check_' + i;
 			if(document.getElementById(str).checked){txtbox += i + ",";}			
