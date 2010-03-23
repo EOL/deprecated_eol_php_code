@@ -161,18 +161,14 @@
 
 private function getItems($e,$id)
 {    
-
-    $GLOBALS['ENV_NAME'] = 'slave';
+    //$GLOBALS['ENV_NAME'] = 'slave';
     require_once(dirname(__FILE__) ."/../../config/environment.php");
     $mysqli =& $GLOBALS['mysqli_connection'];
     $conn = $mysqli;        
-
     
     $query = $this->feed_about($e,$id);
-    $result = $conn->query($query);    
-    
-    //print $result->num_rows;
-    
+    $result = $conn->query($query);        
+   
     if($e == 5)
     {
         $row        = $result->fetch_row();            
@@ -180,10 +176,8 @@ private function getItems($e,$id)
         $result = $conn->query($query); //so pointer goes back to first record of the recordset
     }
 
-
     $items = '';
         
-    //if($e < 5 or $e == 6 or $e == 7 or $e == 8)
     if($e < 5 or ($e >= 6 and $e <= 13))
     {
         if        ($e == 7 ){require('next_harvest.php');}
