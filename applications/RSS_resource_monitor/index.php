@@ -3,9 +3,43 @@
 <html>
 <head>
 	<title>EOL Resource Monitoring - RSS Feeds</title>
+
+<script language="javascript1.2">
+function check_click()
+{	txtbox = '';
+	var i=1;
+	for (i=1;i<=7;i++)
+	{	if(i != 5)
+		{	var str = 'check_' + i;
+			if(document.getElementById(str).checked){txtbox += i + ",";}			
+		}				
+	}		
+	txtbox = txtbox.substr(0,txtbox.length-1);	
+	document.getElementById('what').value = txtbox;
+	document.getElementById('f').value = txtbox.substr(0,1);	
+}//function check_click()
+
+function proc()
+{
+	var number = document.getElementById('resource_id').selectedIndex;
+	//alert(document.getElementById('resource_id').options[number].value);
+	
+	document.getElementById('txt2').value = '';
+	document.getElementById('txt2').value = document.getElementById('txt').value +
+											document.getElementById('resource_id').options[number].value;
+	
+	document.getElementById('subscribe').href = document.getElementById('txt2').value;
+	document.getElementById('preview').href = 'right.php?url=' + document.getElementById('txt2').value;
+	
+}
+</script>
+
+
 </head>
 
 <body>
+
+
 
 	<!--- now it becomes dynamic, see below
 	<link 	rel="alternate" 
@@ -21,7 +55,7 @@
 </form>
 
 <?php
-
+//$GLOBALS['ENV_NAME'] = 'slave';
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -39,21 +73,6 @@ for ($i = 1; $i <= count($feeds) ; $i++)
 
 ?>
 
-<script language="javascript1.2">
-function check_click()
-{	txtbox = '';
-	var i=1;
-	for (i=1;i<=7;i++)
-	{	if(i != 5)
-		{	var str = 'check_' + i;
-			if(document.getElementById(str).checked){txtbox += i + ",";}			
-		}				
-	}		
-	txtbox = txtbox.substr(0,txtbox.length-1);	
-	document.getElementById('what').value = txtbox;
-	document.getElementById('f').value = txtbox.substr(0,1);	
-}//function check_click()
-</script>
 
 <?php
 
@@ -146,37 +165,15 @@ print"</table>";
 
 ?>
 
-<script language="javascript1.2">
-function proc()
-{
-	var number = document.getElementById('resource_id').selectedIndex;
-	//alert(document.getElementById('resource_id').options[number].value);
-	
-	document.getElementById('txt2').value = '';
-	document.getElementById('txt2').value = document.getElementById('txt').value +
-											document.getElementById('resource_id').options[number].value;
-	
-	document.getElementById('subscribe').href = document.getElementById('txt2').value;
-	document.getElementById('preview').href = 'right.php?url=' + document.getElementById('txt2').value;
-	
-}
-</script>
 
 <?php
-	
 	/*
 	<a id='preview' target='right' href=''>
 	Preview</a>		
 	";
 	*/
-
-	
-	
 ?>
-
-
 <br>
 <i><font size="2">Login to www.eol.org to see onward links.</font></i>
-
 </body>
 </html>

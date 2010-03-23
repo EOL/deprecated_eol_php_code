@@ -6,7 +6,8 @@ $feeds = array(
 				4 => array(	"title" => "Resources with harvest errors"				, "feed" => "4"),
 				5 => array(	"title" => "Content Partner Resource Status"			, "feed" => "5"),
 				6 => array(	"title" => "Schedules for next harvest (multiple row)"	, "feed" => "6"),
-				7 => array(	"title" => "Schedules for next harvest (single row)"	, "feed" => "7")
+				7 => array(	"title" => "Schedules for next harvest (single row)"	, "feed" => "7"),
+                8 => array(	"title" => "Resources: Upload Failed"	                , "feed" => "8")
 			  );
 /*			  
 $domain = "services.eol.org";

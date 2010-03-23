@@ -11,7 +11,7 @@
             $qry="Select resources.harvested_at as description, agents.full_name as title, agents.id ,
             concat('http://www.eol.org/administrator/content_partner_report/show/',agents.id) as link
             From resources Inner Join agents_resources ON resources.id = agents_resources.resource_id Inner Join agents ON agents_resources.agent_id = agents.id
-            Order By resources.harvested_at Desc limit 20 ";        
+            Order By resources.harvested_at Desc limit 50 ";        
                  }
         elseif($e==6 or $e==7){    //next harvests
             $qry="Select DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR) as next_harvest, 
@@ -29,7 +29,7 @@
             concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link        
             From harvest_events Inner Join resources ON harvest_events.resource_id = resources.id
             Inner Join agents_resources ON resources.id = agents_resources.resource_id Inner Join agents ON agents_resources.agent_id = agents.id
-            Order By harvest_events.published_at Desc limit 20 ";
+            Order By harvest_events.published_at Desc limit 50 ";
                      }
         elseif($e==3){    // harvested, awaiting publication
             $qry="Select
@@ -53,6 +53,21 @@
             left Join agents_resources ON resources.id = agents_resources.resource_id 
             left Join agents ON agents_resources.agent_id = agents.id
             where MID(resources.notes,1,3) = '<b>' 
+            Order By resources.harvested_at Desc
+            ";                     }
+
+        elseif($e==8){    //  resources: upload failed
+            $qry="
+            Select distinct
+            if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)) as title,
+            trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description ,
+            concat('http://www.eol.org/content_partner/resources/',resources.id,'/harvest_events?content_partner_id=',agents.id) as link        	
+            From harvest_events 
+            right Join resources ON harvest_events.resource_id = resources.id
+            left Join agents_resources ON resources.id = agents_resources.resource_id 
+            left Join agents ON agents_resources.agent_id = agents.id
+            Join resource_statuses ON resources.resource_status_id = resource_statuses.id
+    		where resource_statuses.id = 3
             Order By resources.harvested_at Desc
             ";                     }
                      
@@ -146,17 +161,12 @@
 
 private function getItems($e,$id)
 {    
-    // /*
+
+    $GLOBALS['ENV_NAME'] = 'slave';
     require_once(dirname(__FILE__) ."/../../config/environment.php");
     $mysqli =& $GLOBALS['mysqli_connection'];
     $conn = $mysqli;        
-    //$conn = this->mysqli;
-    // */
 
-    /*
-    $conn = $this->slave_conn();
-    */
-    
     
     $query = $this->feed_about($e,$id);
     $result = $conn->query($query);    
@@ -173,7 +183,7 @@ private function getItems($e,$id)
 
     $items = '';
         
-    if($e < 5 or $e == 6 or $e == 7)
+    if($e < 5 or $e == 6 or $e == 7 or $e == 8)
     {
         if        ($e == 7 ){require('next_harvest.php');}
         elseif    ($e == 6 ){require('next_harvest_multiple.php');}
