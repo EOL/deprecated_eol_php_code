@@ -1,9 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-
 <html>
 <head>
 	<title>EOL Resource Monitoring - RSS Feeds</title>
-
 <script language="javascript1.2">
 function check_click()
 {	txtbox = '';
@@ -16,7 +14,16 @@ function check_click()
 	}		
 	txtbox = txtbox.substr(0,txtbox.length-1);	
 	document.getElementById('what').value = txtbox;
-	document.getElementById('f').value = txtbox.substr(0,1);	
+    
+    temp = txtbox.indexOf(',');
+    if(temp > 0)
+    {
+        document.getElementById('f').value = txtbox.substr(0,temp);	
+    }
+    else
+    {
+        document.getElementById('f').value = txtbox;	
+    }
 }//function check_click()
 
 function proc()
@@ -33,13 +40,8 @@ function proc()
 	
 }
 </script>
-
-
 </head>
-
 <body>
-
-
 
 	<!--- now it becomes dynamic, see below
 	<link 	rel="alternate" 
@@ -47,17 +49,12 @@ function proc()
     		title="Recently harvested resources" 
 			href="http://128.128.175.77/eol_php_code/applications/RSS_resource_monitoring/index.php?f=1">	
 		--->
-			
-<form method="get" action="process.php" id="fn">
-<input type="hidden" id="f" name="f">
-<input type="hidden" id="what" name="f_list">
-</form>
+
 
 <?php
 //$GLOBALS['ENV_NAME'] = 'slave';
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 
 require("feeds.php");
 for ($i = 1; $i <= count($feeds) ; $i++) 
@@ -76,6 +73,9 @@ for ($i = 1; $i <= count($feeds) ; $i++)
 <?php
 
 print"<table border='1'>
+<form method='get' action='process.php' id='fn'><input type='hidden' id='f' name='f'><input type='hidden' id='what' name='f_list'>
+</form>
+
 <tr><td colspan='2' align='center'>EOL Resource Monitoring - RSS Feeds<br>&nbsp;</td></tr>";
 $cnt=0;
 for ($i = 1; $i <= count($feeds) ; $i++) 
@@ -101,7 +101,7 @@ for ($i = 1; $i <= count($feeds) ; $i++)
 		print"<td width='10'></td><td><input type='checkbox' value='$i' onClick='check_click()' id='check_$i'></td>";
 	
 		if($cnt == 1)
-		{	print"<td valign='middle' rowspan='6' align='center'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		{	print"<td valign='middle' rowspan='12' align='center'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<a title='Subscribe' target='_top' href='javascript:document.forms.fn.submit()'>
 			<img alt='Subscribe' src='feed_icon_big.png' border='0'></a> Related feeds &nbsp;&nbsp;&nbsp;&nbsp;
 			<br><i><small>Click checkbox for feeds you want to group</small></i>
