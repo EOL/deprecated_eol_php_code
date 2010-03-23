@@ -11,7 +11,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
 //$file = "http://www.biolib.cz/DWN/eoldata.xml";
-$file = "http://128.128.175.77/eol_php_code/applications/content_server/resources/eoldata.xml";
+//$file = "http://128.128.175.77/eol_php_code/applications/content_server/resources/eoldata.xml";
+$file = "http://pandanus.eol.org/public/eol_resource/eoldata.xml"
 $xml = simplexml_load_file($file);
 
 $i=0;
