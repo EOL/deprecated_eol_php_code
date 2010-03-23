@@ -79,7 +79,7 @@ function debug($string)
 
 function mysql_debug($string)
 {
-    if(@$GLOBALS['ENV_MYSQL_DEBUG'])
+    if(@$GLOBALS['ENV_MYSQL_DEBUG'] && @$GLOBALS['ENV_DEBUG'])
     {
         display($string . ' :: [' . get_last_function(3) . ']');
     }
