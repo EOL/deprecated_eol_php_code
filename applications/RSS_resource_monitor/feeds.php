@@ -1,7 +1,7 @@
 <?php
 $feeds = array(	
-				1  => array("title" => "Recently harvested resources (n=20)"		, "feed" => "1"),
-				2  => array("title" => "Recently published resources (n=20)"		, "feed" => "2"),
+				1  => array("title" => "Recently harvested resources (n=50)"		, "feed" => "1"),
+				2  => array("title" => "Recently published resources (n=50)"		, "feed" => "2"),
 				3  => array("title" => "Harvested resources awaiting publication"	, "feed" => "3"),
 				4  => array("title" => "Resources with harvest errors"				, "feed" => "4"),
 				5  => array("title" => "Content Partner Resource Status"			, "feed" => "5"),
