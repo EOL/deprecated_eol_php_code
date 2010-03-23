@@ -1,10 +1,17 @@
 <?php
-//connector for Biolib.cz
+/* connector for Biolib.cz
+execution time: 3-4 mins.
+*/
 
+$timestart = microtime(1);
+
+
+$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-//$file = "http://127.0.0.1/mtce/biolib_cz/txt/eoldata.xml";
-$file = "http://www.biolib.cz/DWN/eoldata.xml";
+
+//$file = "http://www.biolib.cz/DWN/eoldata.xml";
+$file = "http://128.128.175.77/eol_php_code/applications/content_server/resources/eoldata.xml";
 $xml = simplexml_load_file($file);
 
 $i=0;
@@ -100,6 +107,15 @@ $str = "</response>";
 fwrite($OUT, $str);
 fclose($OUT);
 
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+
+
+//==========================================================================================
 function get_data_object($do,$t_dc2,$t_dcterms)
 {
     /*
@@ -130,7 +146,8 @@ function get_data_object($do,$t_dc2,$t_dcterms)
         $agentParameters["role"]     = $agent["role"];
         $agentParameters["homepage"] = $agent["homepage"];
         $agentParameters["logoURL"]  = $agent["logoURL"];        
-        $agentParameters["fullName"] = $agent;
+        $agentParameters["fullName"] = Functions::import_decode($agent);    
+        
         $agents[] = new SchemaAgent($agentParameters);
     }
     $dataObjectParameters["agents"] = $agents;    

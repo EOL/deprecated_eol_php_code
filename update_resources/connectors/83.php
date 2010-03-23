@@ -1,5 +1,6 @@
 <?php
 /* MorphBank connector 
+execution time:
 
 <?xml version="1.0" encoding="utf-8" ?>
 <response>
@@ -12,12 +13,15 @@ http://services.morphbank.net/mb3/request?method=eol&format=id
 
 */
 
+$timestart = microtime(1);
+
 $GLOBALS['ENV_NAME'] = 'slave';
+//$GLOBALS['ENV_NAME'] = 'development';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$resource = new Resource(83); 
-//exit($resource->id);
+$resource = new Resource(83); //orig ID
+exit($resource->id);
 
 $details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";
 $image_ids = array();
@@ -26,7 +30,7 @@ $schema_taxa = array();
 $used_taxa = array();
 
 $wrap = "\n"; 
-//$wrap = "<br>";
+$wrap = "<br>";
 
 //get all image ids
 /* working but not being used as advised by Greg from MorphBank
@@ -171,7 +175,7 @@ foreach($image_ids as $image_id)
     $used_taxa[$taxon_identifier] = $taxon_parameters;            
     
     
-    //if($k == 20)break;    //debug; to limit no. of records
+    if($k == 20)break;    //debug; to limit no. of records
 }
 
 /*
@@ -194,6 +198,14 @@ fclose($OUT);
 print "$wrap --end-- ";
 ////////////////////// ---
 
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "$wrap";
+echo "elapsed time = $elapsed_time_sec sec              $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
+
+
+//==========================================================================================
 function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent_name ,$description, $type)
 {
     $dataObjectParameters = array();
