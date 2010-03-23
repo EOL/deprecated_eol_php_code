@@ -2,33 +2,23 @@
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
-$mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
-
-
-shell_exec("curl http://www.biodiversitylibrary.org/data/data.zip -o ". LOCAL_ROOT ."temp/data.zip");
-shell_exec("unzip ". LOCAL_ROOT ."temp/data.zip -d ". LOCAL_ROOT ."temp/data");
-
-
-$mysqli->begin_transaction();
-
-$mysqli->delete("DELETE FROM publication_titles");
-$mysqli->delete("DELETE FROM title_items");
-$mysqli->delete("DELETE FROM item_pages");
-$mysqli->delete("DELETE FROM page_names");
+shell_exec("curl http://www.biodiversitylibrary.org/data/data.zip -o ". DOC_ROOT ."temp/data.zip");
+shell_exec("unzip ". DOC_ROOT ."temp/data.zip -d ". DOC_ROOT ."temp/data");
 
 insert_titles();
 insert_items();
 insert_pages();
 insert_page_names();
 
-$mysqli->end_transaction();
+// shell_exec("rm -f ". LOCAL_ROOT ."temp/data/*");
+// shell_exec("rm -f ". LOCAL_ROOT ."temp/data.zip");
 
-shell_exec("rm -f ". LOCAL_ROOT ."temp/data/*");
-shell_exec("rm -f ". LOCAL_ROOT ."temp/data.zip");
 
+// clear the cache 
+shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 
 
@@ -38,12 +28,9 @@ shell_exec("rm -f ". LOCAL_ROOT ."temp/data.zip");
 
 function insert_titles()
 {
-    global $mysqli;
-    
     echo "Starting insert_titles\n";
-    shell_exec("iconv -f UTF-16 -t UTF-8 ". LOCAL_ROOT ."temp/data/title.txt > ". LOCAL_ROOT ."temp/data/title_c.txt");
-    $OUT = fopen(LOCAL_ROOT."temp/titles.txt", "w+");
-    $FILE = fopen(LOCAL_ROOT."temp/data/title_c.txt", "r");
+    $OUT = fopen(DOC_ROOT ."temp/titles.txt", "w+");
+    $FILE = fopen(DOC_ROOT ."temp/data/data/title.txt", "r");
     $i=0;
     while(!feof($FILE))
     {
@@ -53,29 +40,39 @@ function insert_titles()
             if($i==1) continue;
             $line = rtrim($line, "\n\r");
             $data = explode("\t", $line);
-            if(count($data) != 12) continue;
-            $data[12] = $data[11];
-            $data[11] = '';
-            foreach($data as &$datum) $datum = $mysqli->escape($datum);
+            $details = array();
+            $details['id']           = $GLOBALS['db_connection']->escape($data[0]);
+            $details['marc_bib_id']  = $GLOBALS['db_connection']->escape($data[1]);
+            $details['marc_leader']  = $GLOBALS['db_connection']->escape($data[2]);
+            $details['title']        = $GLOBALS['db_connection']->escape($data[3]);
+            $details['short_title']  = $GLOBALS['db_connection']->escape($data[4]);
+            $details['details']      = $GLOBALS['db_connection']->escape($data[5]);
+            $details['call_number']  = $GLOBALS['db_connection']->escape($data[6]);
+            $details['start_year']   = $GLOBALS['db_connection']->escape($data[7]);
+            $details['end_year']     = $GLOBALS['db_connection']->escape($data[8]);
+            $details['language']     = $GLOBALS['db_connection']->escape($data[9]);
+            $details['author']       = $GLOBALS['db_connection']->escape($data[10]);
+            $details['abbreviation'] = '';
+            $details['url']          = $GLOBALS['db_connection']->escape($data[11]);
             
-            fwrite($OUT, "'". implode("'\t'", $data) ."'\n");
+            fwrite($OUT, "'". implode("'\t'", $details) ."'\n");
         }
-        //if($i>50000) break;
     }
     
-    $mysqli->load_data_infile(LOCAL_ROOT."temp/titles.txt", "publication_titles");
-    //shell_exec("rm ". LOCAL_ROOT."temp/titles.txt");
+    if(filesize(DOC_ROOT ."temp/titles.txt"))
+    {
+        $GLOBALS['db_connection']->delete("TRUNCATE TABLE publication_titles");
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/titles.txt", "publication_titles", true, true);
+    }
+    shell_exec("rm ". DOC_ROOT ."temp/titles.txt");
 }
 
 
 function insert_items()
 {
-    global $mysqli;
-    
     echo "Starting insert_items\n";
-    shell_exec("iconv -f UTF-16 -t UTF-8 ". LOCAL_ROOT ."temp/data/item.txt > ". LOCAL_ROOT ."temp/data/item_c.txt");
-    $OUT = fopen(LOCAL_ROOT."temp/items.txt", "w+");
-    $FILE = fopen(LOCAL_ROOT."temp/data/item_c.txt", "r");
+    $OUT = fopen(DOC_ROOT ."temp/items.txt", "w+");
+    $FILE = fopen(DOC_ROOT ."temp/data/data/item.txt", "r");
     $i=0;
     while(!feof($FILE))
     {
@@ -85,29 +82,32 @@ function insert_items()
             if($i==1) continue;
             $line = rtrim($line, "\n\r");
             $data = explode("\t", $line);
-            if(count($data) != 11) continue;
-            unset($data[7]);
-            unset($data[8]);
-            unset($data[9]);
-            unset($data[10]);
-            foreach($data as &$datum) $datum = $mysqli->escape($datum);
+            $details = array();
+            $details['id']                      = $GLOBALS['db_connection']->escape($data[0]);
+            $details['publication_title_id']    = $GLOBALS['db_connection']->escape($data[1]);
+            $details['bar_code']                = $GLOBALS['db_connection']->escape($data[3]);
+            $details['marc_item_id']            = $GLOBALS['db_connection']->escape($data[4]);
+            $details['call_number']             = $GLOBALS['db_connection']->escape($data[5]);
+            $details['volume_info']             = $GLOBALS['db_connection']->escape($data[6]);
+            $details['url']                     = $GLOBALS['db_connection']->escape($data[7]);
             
-            fwrite($OUT, "'". implode("'\t'", $data) ."'\n");
+            fwrite($OUT, "'". implode("'\t'", $details) ."'\n");
         }
-        //if($i>50000) break;
     }
     
-    $mysqli->load_data_infile(LOCAL_ROOT."temp/items.txt", "title_items");
-    //shell_exec("rm ". LOCAL_ROOT."temp/items.txt");
+    if(filesize(DOC_ROOT ."temp/items.txt"))
+    {
+        $GLOBALS['db_connection']->delete("TRUNCATE TABLE title_items");
+        $GLOBALS['db_connection']->load_data_infile(LOCAL_ROOT ."temp/items.txt", "title_items", true, true);
+    }
+    shell_exec("rm ". DOC_ROOT ."temp/items.txt");
 }
 
 function insert_pages()
 {
-    global $mysqli;
-    
     echo "Starting insert_pages\n";
-    $OUT = fopen(LOCAL_ROOT."temp/pages.txt", "w+");
-    $FILE = fopen(LOCAL_ROOT."temp/data/page.txt", "r");
+    $OUT = fopen(DOC_ROOT ."temp/pages.txt", "w+");
+    $FILE = fopen(DOC_ROOT ."temp/data/data/page.txt", "r");
     $i=0;
     while(!feof($FILE))
     {
@@ -117,27 +117,35 @@ function insert_pages()
             if($i==1) continue;
             $line = rtrim($line, "\n\r");
             $data = explode("\t", $line);
-            if(count($data) != 8) continue;
-            $data[8] = $data[7];
-            $data[7] = "http://www.biodiversitylibrary.org/page/".$data[0];
-            foreach($data as &$datum) $datum = $mysqli->escape($datum);
+            $details = array();
+            $details['id']              = $GLOBALS['db_connection']->escape($data[0]);
+            $details['title_item_id']   = $GLOBALS['db_connection']->escape($data[1]);
+            $details['year']            = $GLOBALS['db_connection']->escape($data[3]);
+            $details['volume']          = $GLOBALS['db_connection']->escape($data[4]);
+            $details['issue']           = $GLOBALS['db_connection']->escape($data[5]);
+            $details['prefix']          = $GLOBALS['db_connection']->escape($data[6]);
+            $details['number']          = $GLOBALS['db_connection']->escape($data[7]);
+            $details['url']             = "http://www.biodiversitylibrary.org/page/". $details['id'];
+            $details['page_type']       = $GLOBALS['db_connection']->escape($data[8]);
             
-            fwrite($OUT, "'". implode("'\t'", $data) ."'\n");
+            fwrite($OUT, "'". implode("'\t'", $details) ."'\n");
         }
-        //if($i>50000) break;
+        //if($i>=500000) break;
     }
     
-    $mysqli->load_data_infile(LOCAL_ROOT."temp/pages.txt", "item_pages");
-    //shell_exec("rm ". LOCAL_ROOT."temp/pages.txt");
+    if(filesize(DOC_ROOT ."temp/pages.txt"))
+    {
+        $GLOBALS['db_connection']->delete("TRUNCATE TABLE item_pages");
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/pages.txt", "item_pages", true, 30);
+    }
+    shell_exec("rm ". DOC_ROOT ."temp/pages.txt");
 }
 
 function insert_page_names()
 {
-    global $mysqli;
-    
     echo "Starting insert_page_names\n";
-    $OUT = fopen(LOCAL_ROOT."temp/page_names.txt", "w+");
-    $FILE = fopen(LOCAL_ROOT."temp/data/PageName.txt", "r");
+    $OUT = fopen(DOC_ROOT ."temp/page_names.txt", "w+");
+    $FILE = fopen(DOC_ROOT ."temp/data/data/pagename.txt", "r");
     $i=0;
     while(!feof($FILE))
     {
@@ -147,17 +155,20 @@ function insert_page_names()
             if($i==1) continue;
             $line = rtrim($line, "\n\r");
             $data = explode("\t", $line);
-            if(count($data) != 3) continue;
             $name_id = $data[0];
             $page_id = $data[2];
                 
-            fwrite($OUT, "$page_id\t$name_id\n");
+            if($name_id) fwrite($OUT, "$page_id\t$name_id\n");
         }
-        //if($i>50000) break;
+        //if($i>=500000) break;
     }
     
-    $mysqli->load_data_infile(LOCAL_ROOT."temp/page_names.txt", "page_names");
-    //shell_exec("rm ". LOCAL_ROOT."temp/page_names.txt");
+    if(filesize(DOC_ROOT ."temp/page_names.txt"))
+    {
+        $GLOBALS['db_connection']->delete("TRUNCATE TABLE page_names");
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/page_names.txt", "page_names", true, 1);
+    }
+    shell_exec("rm ". DOC_ROOT ."temp/page_names.txt");
 }
 
 ?>

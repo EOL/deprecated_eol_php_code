@@ -135,6 +135,7 @@ class MysqliConnection
         if($do_transaction) $this->begin_transaction();
         $values = array();
         $FILE = fopen($path, "r");
+        $batch = 0;
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))
@@ -144,9 +145,9 @@ class MysqliConnection
             }
             if(count($values) > $insert_batch_size)
             {
-                //echo "INSERT INTO `$table` VALUES (". implode("),(", $values) .")\n";
+                $batch++;
                 $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
-                if($commit_batches) $this->commit();
+                if($commit_batches && ($batch%$commit_batches)==0) $this->commit();
                 $values = array();
             }
         }

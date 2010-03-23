@@ -15,7 +15,10 @@ foreach($resources as $resource)
     //if($resource->id != 71) continue;
     
     echo $resource->id."\n";
-    $resource->harvest();
+    
+    $validate = true;
+    if($GLOBALS['ENV_NAME'] == 'test') $validate = false;
+    $resource->harvest($validate);
 }
 Functions::log("Ended harvesting");
 

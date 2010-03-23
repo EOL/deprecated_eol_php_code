@@ -271,11 +271,12 @@ class Resource extends MysqlBase
         $this->mysqli->end_transaction();
     }
     
-    public function harvest()
+    public function harvest($validate = true)
     {
         Functions::debug("Starting harvest of resource: $this->id");
         Functions::debug("Validating resource: $this->id");
-        $valid = $this->validate($this->resource_path);
+        // set valid to true if we don't need validation
+        $valid = $validate ? $this->validate($this->resource_path) : true;
         Functions::debug("Validated resource: $this->id");
         if($valid)
         {

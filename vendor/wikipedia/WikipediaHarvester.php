@@ -50,7 +50,7 @@ class WikipediaHarvester
     function download_wikipedia_dump()
     {
         // download latest Wikipedia export
-        //shell_exec("curl ".$this->resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikipedia.xml.bz2");
+        shell_exec("curl ".$this->resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikipedia.xml.bz2");
         // unzip the download
         shell_exec("bunzip2 ". DOC_ROOT ."update_resources/connectors/files/wikipedia.xml.bz2");
         // split the huge file into 300M chunks
