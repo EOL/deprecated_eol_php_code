@@ -219,7 +219,7 @@ class WikimediaPage
         
         $homepage = "";
         if(preg_match("/<a href='(.*?)'>/", $author, $arr)) $homepage = $arr[1];
-        if(!preg_match("/\/wiki\/(user|:[a-z]{2}/i", $homepage) || preg_match("/;/", $homepage)) $homepage = "";
+        if(!preg_match("/\/wiki\/(user|:[a-z]{2})/i", $homepage) || preg_match("/;/", $homepage)) $homepage = "";
         $author = preg_replace("/<a href='(.*?)'>/", "", $author);
         $author = str_replace("</a>", "", $author);
         
@@ -308,7 +308,7 @@ class WikimediaPage
         $lines = explode("\n", $text);
         foreach($lines as $line)
         {
-            if(preg_match("/^\s*\[{0,2}\s*(image|file)\s*:(.*?)(\||$)/i", $line, $arr))
+            if(preg_match("/^\s*\[{0,2}\s*(image|file)\s*:(.*?)(\||$)/ims", $line, $arr))
             {
                 $images[] = trim($arr[2]);
             }

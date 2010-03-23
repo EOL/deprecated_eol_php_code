@@ -2,21 +2,21 @@
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
-Functions::require_vendor("wikipedia");
+require_vendor("wikipedia");
 
 
 
 $resource = new Resource(71);
 
-// download latest Wikimedia Commons export
-shell_exec("curl ".$resource->accesspoint_url." -o ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
-// unzip the download
-shell_exec("bunzip2 ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
-// split the huge file into 300M chunks
-shell_exec("split -b 300m ".dirname(__FILE__)."/files/wikimedia.xml ".dirname(__FILE__)."/files/wikimedia/part_");
+// // download latest Wikimedia Commons export
+// shell_exec("curl ".$resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+// // unzip the download
+// shell_exec("bunzip2 ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+// // split the huge file into 300M chunks
+// shell_exec("split -b 300m ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml ". DOC_ROOT ."update_resources/connectors/files/wikimedia/part_");
 
 // determine the filename of the last chunk
-$last_line = exec("ls -l ".dirname(__FILE__)."/files/wikimedia");
+$last_line = exec("ls -l ". DOC_ROOT ."update_resources/connectors/files/wikimedia");
 if(preg_match("/part_a([a-z])$/", trim($last_line), $arr)) $final_part_suffix = $arr[1];
 else
 {
@@ -39,8 +39,8 @@ iterate_files('get_scientific_pages');
 // second pass to grab image information for scientific images
 iterate_files('get_media_pages');
 
-Functions::debug("\n\n# total taxa: ".count($GLOBALS['taxa']));
-Functions::debug("# total images: ".count($GLOBALS['data_objects']));
+echo "\n\n# total taxa: ".count($GLOBALS['taxa'])."\n";
+echo "# total images: ".count($GLOBALS['data_objects'])."\n";
 
 
 // calling Wikimedia Commons API to get image file URLs which are not in the XML dump
@@ -49,10 +49,10 @@ get_image_urls();
 create_resource_file();
 
 
-// cleaning up downloaded files
-shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia/*");
-shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml");
-shell_exec("rm -f ".dirname(__FILE__)."/files/wikimedia.xml.bz2");
+// // cleaning up downloaded files
+// shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia/*");
+// shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml");
+// shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
 
 echo "end";
 
@@ -88,9 +88,9 @@ function iterate_files($callback, $title = false)
 
 function process_file($part_suffix, $callback, $title = false)
 {
-    Functions::debug("Processing file $part_suffix with callback $callback");
+    echo "Processing file $part_suffix with callback $callback\n";
     flush();
-    $FILE = fopen(dirname(__FILE__)."/files/wikimedia/part_a".$part_suffix, "r");
+    $FILE = fopen(DOC_ROOT ."update_resources/connectors/files/wikimedia/part_a".$part_suffix, "r");
     
     $current_page = "";
     static $page_number = 0;
@@ -109,8 +109,8 @@ function process_file($part_suffix, $callback, $title = false)
                 $page_number++;
                 if($page_number % 100000 == 0)
                 {
-                    Functions::debug("page: $page_number");
-                    Functions::debug("memory: ".memory_get_usage());
+                    echo "page: $page_number\n";
+                    echo "memory: ".memory_get_usage()."\n";
                     flush();
                 }
                 
@@ -126,8 +126,9 @@ function process_file($part_suffix, $callback, $title = false)
         }
     }
     
-    Functions::debug("\n\n# taxa so far: ".count($GLOBALS['taxa']));
-    Functions::debug("# images so far: ".count($GLOBALS['data_objects']));
+    echo "\n\n# taxa so far: ".count($GLOBALS['taxa'])."\n";
+    echo "# images so far: ".count($GLOBALS['image_titles'])."\n";
+    echo "# objects so far: ".count($GLOBALS['data_objects'])."\n";
 }
 
 
@@ -215,7 +216,7 @@ function get_image_urls()
         if(count($search_titles) >= 50)
         {
             $lookup_number++;
-            Functions::debug("Looking up $lookup_number of $total_lookups");
+            echo "Looking up $lookup_number of $total_lookups\n";
             flush();
             lookup_image_urls($search_titles);
             $search_titles = array();
@@ -225,7 +226,7 @@ function get_image_urls()
     if($search_titles)
     {
         $lookup_number++;
-        Functions::debug("Looking up $lookup_number of $total_lookups");
+        echo "Looking up $lookup_number of $total_lookups\n";
         flush();
         lookup_image_urls($search_titles);
     }
@@ -236,7 +237,7 @@ function lookup_image_urls($titles)
     $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiurlwidth=460&iiprop=url&titles=";
     $url .= implode("|", array_keys($titles));
     
-    $result = Functions::get_remote_file($url);
+    $result = Functions::get_remote_file_fake_browser($url);
     
     $normalized = array();
     $json = json_decode($result);
@@ -259,7 +260,7 @@ function lookup_image_urls($titles)
             {
                 $url = $obj->imageinfo[0]->thumburl;
                 $GLOBALS['data_objects'][$title]['mediaURL'] = $url;
-            }else Functions::debug("NOTHING FOR $title");
+            }else echo "NOTHING FOR $title\n";
         }
     }
 }
