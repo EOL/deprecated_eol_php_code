@@ -49,8 +49,8 @@ function proc()
 		--->
 			
 <form method="get" action="process.php" id="fn">
-<input type="text" id="f" name="f">
-<input type="text" id="what" name="f_list">
+<input type="hidden" id="f" name="f">
+<input type="hidden" id="what" name="f_list">
 </form>
 
 <?php
@@ -156,8 +156,8 @@ print"</select></td>";
 
 
 print"
-<input type='text' id='txt' value='http://$domain/$feed_path?f=5&resources_id=' size='100'><br>
-<input type='text' id='txt2' size='100'>
+<input type='hidden' id='txt' value='http://$domain/$feed_path?f=5&resources_id=' size='100'><br>
+<input type='hidden' id='txt2' size='100'>
 ";
 
 print"</table>";
