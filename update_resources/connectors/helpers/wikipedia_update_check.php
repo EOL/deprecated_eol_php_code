@@ -37,7 +37,7 @@ if($result && $row=$result->fetch_assoc())
     if($revision_ids) check_revisions($revision_ids);
 }
 
-$FILE = fopen(LOCAL_ROOT . "/temp/wikipedia_unchanged.txt", "w+");
+$FILE = fopen(DOC_ROOT . "temp/wikipedia_unchanged.txt", "w+");
 fwrite($FILE, "data_object_id\tpageid\trevision_date\n");
 foreach($GLOBALS['objects_unchanged'] as $data_object_id => $rest)
 {
@@ -45,11 +45,11 @@ foreach($GLOBALS['objects_unchanged'] as $data_object_id => $rest)
 }
 fclose($FILE);
 
-$FILE = fopen(LOCAL_ROOT . "/temp/wikipedia_deleted.txt", "w+");
+$FILE = fopen(DOC_ROOT . "temp/wikipedia_deleted.txt", "w+");
 fwrite($FILE, implode("\n", $GLOBALS['objects_deleted']));
 fclose($FILE);
 
-$FILE = fopen(LOCAL_ROOT . "/temp/wikipedia_updated.txt", "w+");
+$FILE = fopen(DOC_ROOT . "temp/wikipedia_updated.txt", "w+");
 fwrite($FILE, "data_object_id\tlatest_revision_id\tpageid\tcurrent title\trevision_date\n");
 foreach($GLOBALS['objects_updated'] as $data_object_id => $rest)
 {
