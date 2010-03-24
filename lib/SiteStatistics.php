@@ -280,8 +280,8 @@ class SiteStatistics
         if(isset($this->col_content_needs_curation)) return $this->col_content_needs_curation;
         $this->col_content_needs_curation = 0;
         
-        $taxon_concept_curation = $this->taxon_concept_curation();
-        $this->col_content_needs_curation = $taxon_concept_curation['needs_curation_in_col'];
+        $result = $this->mysqli->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NOT NULL");
+        if($result && $row=$result->fetch_assoc()) $this->col_content_needs_curation = $row['count'];
         return $this->col_content_needs_curation;
     }
     
@@ -290,8 +290,8 @@ class SiteStatistics
         if(isset($this->non_col_content_needs_curation)) return $this->non_col_content_needs_curation;
         $this->non_col_content_needs_curation = 0;
         
-        $taxon_concept_curation = $this->taxon_concept_curation();
-        $this->non_col_content_needs_curation = $taxon_concept_curation['needs_curation_not_in_col'];
+        $result = $this->mysqli->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NULL");
+        if($result && $row=$result->fetch_assoc()) $this->non_col_content_needs_curation = $row['count'];
         return $this->non_col_content_needs_curation;
     }
     
