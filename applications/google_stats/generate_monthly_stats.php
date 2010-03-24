@@ -787,13 +787,19 @@ function save_eol_monthly_summary($year,$month)
         if($a <= $b) $tab_delim .= $value . "\t"; //tab            
     } 
     
-
+    /*didn't coincide with daily pageStats
     $query="Select distinct tcn.taxon_concept_id
     FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id)
     WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1";    
     $result = $mysqli->query($query);           
     $taxa_pages = $result->num_rows;    
-    
+    */
+
+    $query="SELECT COUNT(*) count FROM taxon_concepts tc WHERE tc.published=1 AND tc.supercedure_id=0";
+    $result = $mysqli->query($query);           
+    $row = $result->fetch_row();            
+    $taxa_pages = $row[0];
+
     $query="Select distinct google_analytics_page_stats.taxon_concept_id
     From google_analytics_page_stats where year = $year and month = $month ";    
     $result = $mysqli->query($query);           

@@ -27,9 +27,10 @@ if($agentID != "")
 $report = get_val_var('report');
 $year = get_val_var('year');
 
-if($report != "year2date")
+if($report != "year2date" and $report != "monthly_stat")
 {
     //start - stats for entire eol
+    //exit("goes here");
     $eol_CountOfTaxaPages = getCountOfTaxaPages('',$path,"eol");
     $eol_total_taxon_id   = count_rec($path . "/query12.csv");    
     $eol_total_taxon_id--; //subtract 1 so not to count the column title
