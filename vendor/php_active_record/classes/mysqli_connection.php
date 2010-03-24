@@ -268,7 +268,7 @@ class MysqliConnection
     {
         static $number_of_queries;
         static $number_of_master_queries;
-        if(@$GLOBALS['ENV_MYSQL_DEBUG'])
+        if(@$GLOBALS['ENV_MYSQL_DEBUG'] && @$GLOBALS['ENV_DEBUG'])
         {
             if(!isset($number_of_queries)) $number_of_queries = 1;
             if(!isset($number_of_master_queries)) $number_of_master_queries = 1;
