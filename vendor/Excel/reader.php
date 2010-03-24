@@ -259,8 +259,15 @@ class Spreadsheet_Excel_Reader
      * Some basic initialisation
      */ 
     function Spreadsheet_Excel_Reader()
-    {
-        $this->_ole =& new OLERead();
+    {        
+        /* not working in 5.3
+        $this->_ole = & new OLERead();
+        */
+
+        /* as of 2010 Mar23 - accomodate 5.3 */
+        $temp = new OLERead();
+        $this->_ole = $temp;
+        
         $this->setUTFEncoder('iconv');
 		//$this->setUTFEncoder('mb');
 		
@@ -979,6 +986,9 @@ class Spreadsheet_Excel_Reader
         if ($numValue > 1) {
             $utcDays = $numValue - ($this->nineteenFour ? SPREADSHEET_EXCEL_READER_UTCOFFSETDAYS1904 : SPREADSHEET_EXCEL_READER_UTCOFFSETDAYS);
             $utcValue = round(($utcDays+1) * SPREADSHEET_EXCEL_READER_MSINADAY);
+
+            date_default_timezone_set('UTC'); //added by ELi
+            
             $string = date ($this->curformat, $utcValue);
             $raw = $utcValue;
         } else {
