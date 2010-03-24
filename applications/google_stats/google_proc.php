@@ -122,11 +122,16 @@ function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
                if    ($report == "top_content")  $metric_title = "Page";
                elseif($report == "content_title")$metric_title = "Page Title";
                 
+               if($count["ga:entrances"]==0)$bounce_rate=0;
+               else                         $bounce_rate=number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2);
+               
+               //$bounce_rate=number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2);
+              
                $final[]=array(  $metric_title           => "<i>" . utf8_decode($metric) . "</i>", 
                                 "Pageviews"             => $count["ga:pageviews"],
                                 "Unique Pageviews"      => $count["ga:uniquePageviews"],                          
                                 "Average Time on Page"  => "'" . $api->sec2hms(round($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"])) ,false) . "'",
-                                "Bounce Rate"           => number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2), 
+                                "Bounce Rate"           => $bounce_rate, 
                                 "Percent Exit"          => number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2)   
                                 );
             }
