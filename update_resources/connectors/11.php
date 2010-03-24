@@ -1,5 +1,6 @@
 <?php
 /* connector for Biolib.cz
+This connector only gets taxa with dataobjects from the external resource XML.
 estimated execution time:  3-4 mins.
 */
 $timestart = microtime(1);
@@ -18,7 +19,8 @@ $i=0;
 $wrap="\n";
 print "taxa count = " . count($xml) . "\n";
 
-$resource = new Resource(11);//Biolib.cz
+$resource = new Resource(11);//Biolib.cz //exit($resource->id);
+
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 
