@@ -1,7 +1,7 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-
+$GLOBALS['ENV_DEBUG'] = false;
 
 
 
@@ -13,8 +13,8 @@ insert_items();
 insert_pages();
 insert_page_names();
 
-// shell_exec("rm -f ". LOCAL_ROOT ."temp/data/*");
-// shell_exec("rm -f ". LOCAL_ROOT ."temp/data.zip");
+shell_exec("rm -f ". LOCAL_ROOT ."temp/data/*");
+shell_exec("rm -f ". LOCAL_ROOT ."temp/data.zip");
 
 
 // clear the cache 
