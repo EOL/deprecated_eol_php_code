@@ -365,10 +365,11 @@ function get_values_fromCSV()
 
     function dataobject_stat_more()    //group 1=taxa stat; 2=data object stat
     {           
-        global $mysqli;
-        
 
-        
+        set_time_limit(0);
+        ini_set('memory_limit','3500M');
+
+        global $mysqli;
         
         $data_type = array(
         1 => "Image"      , 
