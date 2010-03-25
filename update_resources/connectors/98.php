@@ -5,6 +5,7 @@ estimated execution time:
 */
 $timestart = microtime(1);
 
+$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -38,8 +39,7 @@ print("$wrap count taxa_list = " . count($taxa_list) );
 //
 //for ($i = 0; $i < 5; $i++) 
 for ($i = 0; $i < count($taxa_list); $i++) 
-{
-    
+{    
     //main loop
     print "$wrap $wrap";
     print $i+1 . " of " . count($taxa_list) . " id=" . $taxa_list[$i] . " ";
@@ -369,8 +369,7 @@ function get_taxa_list($file)
         //$sn = array("Turbinaria reniformis","Anthemiphyllia patera","Madrepora carolina"); // with encoding errors        
         //$sn = array("Urticina crassicornis","Verrillactis paguri"); // has nematocysts
         
-        //$sn = array("Favites abdita");
-        
+        //$sn = array("Favites abdita");        
                                      
         if (in_array(trim($sciname), $sn)) 
         {
@@ -388,10 +387,10 @@ function get_taxa_list($file)
     //exit; 
     $arr = array_keys($arr2);    
     
-//     /* regular routine
+    // /* regular routine
     array_splice($arr, 0, 1);   //deletes first array element
     array_pop($arr);            //deletes last array element
-//     */
+    // */
     
     //print"<pre>";print_r($arr);print"</pre>";    
     //print"<hr>$str";
