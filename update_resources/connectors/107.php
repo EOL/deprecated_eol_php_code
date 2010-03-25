@@ -5,7 +5,7 @@ estimated execution time: 28-30 mins for 868 species.
 
 $timestart = microtime(1);
 
-//$GLOBALS['ENV_NAME'] = 'slave';
+$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -38,7 +38,8 @@ $bad=0;
             {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
-                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "files/britain_ireland_" . $file_number .".xml";
+                //$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "temp/britain_ireland_" . $file_number .".xml";
+                $old_resource_path = "files/britain_ireland_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
             }                        
@@ -79,7 +80,8 @@ $i=0;
 while(true)
 {
     $i++; print "$i ";
-    $file = CONTENT_RESOURCE_LOCAL_PATH . "/files/britain_ireland_" . $i .".xml";
+    //$file = CONTENT_RESOURCE_LOCAL_PATH . "temp/britain_ireland_" . $i .".xml";
+    $file = "files/britain_ireland_" . $i .".xml";
     $str = Functions::get_remote_file($file);
     if($str)
     {
