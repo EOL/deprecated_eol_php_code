@@ -1,6 +1,7 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = false;
 require_library('SiteStatistics');
 
 Functions::log("Starting site statistics");

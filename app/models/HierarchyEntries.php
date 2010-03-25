@@ -35,7 +35,7 @@ class HierarchyEntry extends MysqlBase
         return null;
     }
     
-    public function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false)
+    public static function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         

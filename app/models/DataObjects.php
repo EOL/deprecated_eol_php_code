@@ -233,13 +233,18 @@ class DataObject extends MysqlBase
                     return array($existing_data_object, "Unchanged");
                 }else
                 {
+                    $data_object->vetted_id = Vetted::insert('unknown');
+                    $data_object->visibility_id = Visibility::insert("Preview");
                     // This data object has different metadata than the object in the last harvest with the same guid
                     // So we have to create a new one with the same guid to reference for this harvest.
                     // The new one will inherit the curated, vetted, visibility info from the last object
                     $data_object->guid = $existing_data_object->guid;
                     $data_object->curated = $existing_data_object->curated;
-                    $data_object->vetted_id = $existing_data_object->vetted_id;
-                    $data_object->visibility_id = Visibility::insert("Preview");
+                    if($resource->title != "Wikipedia")
+                    {
+                        // all new Wikipedia articles should be unvetted, even if the previous version was vetted
+                        $data_object->vetted_id = $existing_data_object->vetted_id;
+                    }
                     if($existing_data_object->visibility_id != Visibility::insert("Visible"))
                     {
                         // if the existing object is visible - this will go on as preview
