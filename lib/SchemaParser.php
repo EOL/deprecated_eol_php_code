@@ -308,8 +308,8 @@ class SchemaParser
                 
                 if($i%100==0) Functions::debug("Parsed taxon $i");
                 
-                // trying now to see if commiting every 1000 taxa will help with replication
-                if($i%2000==0) $mysqli->commit();
+                // trying now to see if commiting every 200 taxa will help with replication
+                if($i%200==0) $mysqli->commit();
                 
                 if(defined("DEBUG_PARSE_TAXON_LIMIT") && DEBUG_PARSE_TAXON_LIMIT && $i >= DEBUG_PARSE_TAXON_LIMIT) break;
             }

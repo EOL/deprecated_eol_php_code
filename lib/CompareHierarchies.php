@@ -144,6 +144,7 @@ class CompareHierarchies
                 //if($i%1==0) echo "supercede_by_ids($tc_id1, $tc_id2): $score. $row_num of $rows. mem: ".memory_get_usage()."\n";
                 TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
                 $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
+                if($i%200==0) $mysqli->commit();
             }
         }
         $mysqli->end_transaction();
