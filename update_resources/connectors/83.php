@@ -16,7 +16,7 @@ http://services.morphbank.net/mb3/request?method=eol&format=id
 
 $timestart = microtime(1);
 
-$GLOBALS['ENV_NAME'] = 'slave';
+//$GLOBALS['ENV_NAME'] = 'slave';
 //$GLOBALS['ENV_NAME'] = 'development';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
