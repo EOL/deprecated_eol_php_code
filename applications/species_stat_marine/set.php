@@ -3,11 +3,9 @@
 //use to set values in the database
 //exit;
 
-//define("ENVIRONMENT", "development");
-define("MYSQL_DEBUG", true);
-define("DEBUG", true);
-include_once(dirname(__FILE__) . "/../../config/start.php");
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
+
 
 $wrap = "\n\n";
 
