@@ -22,7 +22,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $resource = new Resource(83); //orig ID
-exit($resource->id);
+//exit($resource->id);
 
 $details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";
 $image_ids = array();
@@ -176,7 +176,7 @@ foreach($image_ids as $image_id)
     $used_taxa[$taxon_identifier] = $taxon_parameters;            
     
     
-    if($k == 20)break;    //debug; to limit no. of records
+    //if($k == 20)break;    //debug; to limit no. of records
 }
 
 /*
