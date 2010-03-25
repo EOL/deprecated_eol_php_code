@@ -13,7 +13,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 //$wrap = "\n"; 
 $wrap = "<br>"; 
  
-$resource = new Resource(2); //exit($resource->id);
+$resource = new Resource(1); //exit($resource->id);
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -24,14 +24,15 @@ $urls = array( 0 => array( "url" => $path . "legumesEOL.htm"  , "active" => 0), 
                1 => array( "url" => $path . "GrassEOL.htm"    , "active" => 1),   //
                2 => array( "url" => $path . "gymnosperms.htm" , "active" => 0)
              );
+$do_count=0;
 $i=0;
 foreach($urls as $path)
 {    
     if($path["active"])
     {        
         print $i+1 . ". " . $path["url"] . "$wrap";        
-        if($i <= 1) process_file1($path["url"]);    //legumesEOL, GrassEOL
-        else {}                                     //gymnosperms
+        if($i <= 1) process_file1($path["url"],$i);    //legumesEOL, GrassEOL
+        else {}                                        //gymnosperms
         
     }
     $i++;
@@ -60,11 +61,11 @@ exit("\n\n Done processing.");
 //######################################################################################################################
 
 
-
-function process_file1($file)
+function process_file1($file,$doc_id)
 {        
     global $wrap;
     global $used_taxa;
+    global $do_count;
     
     print "$wrap";    
     $str = Functions::get_remote_file($file);    
@@ -88,27 +89,53 @@ function process_file1($file)
     {
         $str = clean_str($str);
         $str = str_ireplace("< /i>","</i>",$str);
-
         
-        // if($i >= 5)break; //debug        //ditox
+        if($i >= 5)break; //debug        //ditox
+        
         $i++;
         // if(in_array($i,array(8))){
         if(true)
         {
             //<b><i>Abrus precatorius</i></b>
-            //$beg='<b><i>'; $end1='</i></b>';$end2='</i>';$end3='</b>'; 
+
+            //get sciname
             $beg='<b>'; $end1='</i></b>';$end2='</i>';$end3='</b>'; 
             $sciname = strip_tags(trim(parse_html($str,$beg,$end1,$end2,$end3,$end1,"")));            
 
+            //get desc
             $str .= "xxx";
-            $beg='</b></i>'; $end1='xxx'; 
-            $desc = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+            $beg='</i></b>'; $end1='xxx'; 
+            $desc = strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")));                        
+            $last_char_of_desc = substr($desc,strlen($desc)-1,1);
+            if($last_char_of_desc == ",")$desc = substr($desc,0,strlen($desc)-1);
             
             if($sciname == "")print "jjj";
-            print "$sciname $wrap";
             
-            //print "<hr>";                                
-            //assign_variables($sciname,$comname,$agent,$summary,$distribution,$synonymy,$status,$citation,$image,$img_caption,$img_agent,$map_caption,$url,$i);                            
+            print "$sciname $wrap";
+            print "$desc <hr>";                      
+                        
+            print "<hr>";                                
+            $arr_agents=array();
+            if($doc_id == 0 or $doc_id == 1)//Grasses & Legumes
+            {
+                $dc_rights = "Compiled from several sources by Dr. David Bogler, Missouri Botanical Garden in collaboration with the USDA NRCS NPDC";
+                $arr_agents[]=array("name"=>"Dr. David Bogler",          "role"=>"compiler" ,"homepage"=>"");
+                $arr_agents[]=array("name"=>"Missouri Botanical Garden", "role"=>"source"   ,"homepage"=>"http://www.mobot.org");
+                $arr_agents[]=array("name"=>"USDA NRCS NPDC",            "role"=>"source"   ,"homepage"=>"http://www.nrcs.usda.gov");
+            }
+            elseif($doc_id == 2)//Gymnosperms
+            {
+                $dc_rights = "Compiled from several sources by Stephen C. Meyers, Oregon State University in collaboration with Aaron Liston, Oregon State University, Steffi Ickert-Bond, University of Alaska Fairbanks, and Damon Little, New York Botanical Garden.";                
+                $arr_agents[]=array("name"=>"Stephen C. Meyers",    "role"=>"compiler","homepage"=>"");
+                $arr_agents[]=array("name"=>"Aaron Liston",         "role"=>"compiler","homepage"=>"");
+                $arr_agents[]=array("name"=>"Steffi Ickert-Bond",   "role"=>"compiler","homepage"=>"");
+                $arr_agents[]=array("name"=>"Damon Little",         "role"=>"compiler","homepage"=>"");
+            }
+            
+            $dc_source = "http://npdc.usda.gov/technical/plantid_wetland_mono.html";
+            
+            $do_count++;           
+            assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count);                            
         }        
     }//main loop
     
@@ -118,15 +145,15 @@ function process_file1($file)
 
 
 
-function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synonymy,$status,$citation,$image,$img_caption,$img_agent,$map_caption,$url,$k)
+function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count)
 {
     global $used_taxa;
     global $wrap;
     
-    $kingdom="Animalia";
+        $kingdom="Animalia";
     
         $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = "iucn_ssc_" . $k;
+        $taxon_identifier = "eomlfbi_" . $do_count;
         if(@$used_taxa[$taxon_identifier])
         {
             $taxon_parameters = $used_taxa[$taxon_identifier];
@@ -138,24 +165,26 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
             $taxon_parameters["kingdom"] = $kingdom;
             $taxon_parameters["genus"] = $genus;
             $taxon_parameters["scientificName"]= $sciname;        
-            $taxon_parameters["source"] = $url;                    
+            $taxon_parameters["source"] = $dc_source;                    
 
-            /////////////////////////////////////////////////////////////
+            /*
             $taxon_parameters["commonNames"] = array();
             $arr_comname=conv_2array($comname);
-            //for ($i = 0; $i < count($arr_comname); $i++) 
             foreach ($arr_comname as $commonname) 
             {
                 $commonname = str_ireplace(';' , '', $commonname);
                 $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
             }
+            */
             /////////////////////////////////////////////////////////////
+            /*
             $taxon_params["synonyms"] = array();
             $arr_synonym=conv_2array($synonymy);
             foreach ($arr_synonym as $synonym) 
             {
                 $taxon_parameters["synonyms"][] = new SchemaSynonym(array("synonym" => $synonym, "relationship" => "synonym"));
             }
+            */
             /////////////////////////////////////////////////////////////
             
             $taxon_parameters["dataObjects"]= array();        
@@ -163,55 +192,23 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         }        
         
         //start text dataobject                
-        $dc_identifier = "GenDesc_" . $taxon_identifier;    
-        $desc = $summary;
-        $title = "Summary";
-        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology";
-        $type = "text";
-        $reference = $citation;        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
+        $dc_identifier  = $do_count;    
+        $desc           = $desc;
+        $title          = "Physical Description";
+        $subject        = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description";
+        $type           = "text";
+        $reference      = "";        
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $dc_source, $subject, $type, $reference, $arr_agents);       
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         
         //start text dataobject                
-        $dc_identifier = "Distribution_" . $taxon_identifier;    
-        $desc = $distribution . "$wrap" . $map_caption;
-        $title = "Distribution";
-        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
-        $type = "text";
-        $reference = $citation;        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         
         //start text dataobject                
-        $dc_identifier = "Status_" . $taxon_identifier;    
-        $desc = $status;
-        $title = "Status";
-        $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus";
-        $type = "text";
-        $reference = $citation;        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-        //end text dataobject                    
-        
+        //end text dataobject                            
 
         //start img dataobject                
-        /*working, temporarily commented until we get the permission
-        $dc_identifier = "Image_" . $taxon_identifier;    
-        $desc = $img_caption;
-        $title = "";
-        $subject = "";
-        $type = "image";
-        $reference = "";        
-        
-        $mediaurl = $image;
-        $agent=$img_agent;
-
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent, $mediaurl);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-        */
         //end img dataobject                            
         
         $used_taxa[$taxon_identifier] = $taxon_parameters;                                
@@ -231,7 +228,7 @@ function conv_2array($list)
     return $arr;
 }
 
-function get_data_object($id, $description, $title, $url, $subject, $type, $reference, $agent, $mediaurl=NULL)
+function get_data_object($id, $description, $dc_rights, $title, $url, $subject, $type, $reference, $arr_agents, $mediaurl=NULL)
 {
      
     $dataObjectParameters = array();
@@ -248,38 +245,32 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
         ///////////////////////////////////        
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
         $dataObjectParameters["mimeType"] = "text/html";        
-
-
-
-
     }
+    /*
     else
     {
         $dataObjectParameters["identifier"] = $id;    
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
         
         $dataObjectParameters["mimeType"] = "image/jpeg";
-        //$dataObjectParameters["thumbnailURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=thumb";
         $dataObjectParameters["mediaURL"] = $mediaurl;
     }
+    */
 
+            /////////////////////////////////////////////////////////////
+            
+            foreach ($arr_agents as $g)
+            {        
+                $agentParameters = array();            
+                $agentParameters["role"]     = $g["role"];
+                $agentParameters["fullName"] = $g["name"];
+                $agentParameters["homepage"] = $g["homepage"];
+                $agents[] = new SchemaAgent($agentParameters);
+            }            
+            $dataObjectParameters["agents"] = $agents;    
+            /////////////////////////////////////////////////////////////
 
     ///////////////////////////////////
-    //print "<hr>[[$agent]]";
-    $agent = conv_2array($agent);
-    //exit("<hr>");
-    foreach ($agent as $agent) 
-    {
-        if(trim($agent)!="")
-        {
-            $agentParameters = array();        
-            $agentParameters["homepage"] = "http://www.iucn-tftsg.org/";
-            $agentParameters["role"] = "author";
-            $agentParameters["fullName"] = $agent;
-            $agents[] = new SchemaAgent($agentParameters);
-        }
-    }        
-    $dataObjectParameters["agents"] = $agents;    
     ///////////////////////////////////
     
     $dataObjectParameters["description"] = $description;        
@@ -290,11 +281,10 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
     $dataObjectParameters["source"] = $url;    
 
     //$dataObjectParameters["rights"] = "Copyright 2009 IUCN Tortoise and Freshwater Turtle Specialist Group";
-	$dataObjectParameters["rights"] = "Copyright 2009 Chelonian Research Foundation";
+	$dataObjectParameters["rights"] = $dc_rights;
 	
-    $dataObjectParameters["rightsHolder"] = "IUCN/SSC Tortoise and Freshwater Turtle Specialist Group";
+    $dataObjectParameters["rightsHolder"] = "";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-
     
     ///////////////////////////////////
     if($reference != "")

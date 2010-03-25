@@ -179,8 +179,9 @@ function get_main_id_list()
                 $arr["$temp"]=true;
                 $j++; $jj++;
             }    
+            print "\n";
         }
-        echo "\n\n" . $i+1 . " of " . $no_of_urls . " URLs | taxid count = " . $j . "\n";     
+        echo "\n" . $i+1 . " of " . $no_of_urls . " URLs | taxid count = " . $j . "\n";     
     }
     print " \n";
     $arr = array_keys($arr);
