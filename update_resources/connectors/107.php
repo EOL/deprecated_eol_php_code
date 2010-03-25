@@ -6,11 +6,8 @@ estimated execution time: 28-30 mins for 868 species.
 $timestart = microtime(1);
 
 //$GLOBALS['ENV_NAME'] = 'slave';
-$GLOBALS['ENV_NAME'] = 'development';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-
 
 $bad_id=""; //not well formed XML
 // /*
@@ -18,11 +15,8 @@ $start=0;
 $file_number=1;
 // */
 
-
-$resource = new Resource(1);//Encyclopedia of Marine Life of Britain and Ireland
+$resource = new Resource(107);//Encyclopedia of Marine Life of Britain and Ireland 
 //exit("[$resource->id]");
-
-
 
 $main_count=0;
 //====================================================================================
