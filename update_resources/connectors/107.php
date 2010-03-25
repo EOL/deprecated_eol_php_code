@@ -38,7 +38,7 @@ $bad=0;
             {   
                 //start new file                
                 if(isset($OUT))fclose($OUT);
-                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/temp/britain_ireland_" . $file_number .".xml";
+                $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "/files/britain_ireland_" . $file_number .".xml";
                 $OUT = fopen($old_resource_path, "w+");            
                 $file_number++;
             }                        
@@ -79,7 +79,7 @@ $i=0;
 while(true)
 {
     $i++; print "$i ";
-    $file = CONTENT_RESOURCE_LOCAL_PATH . "/temp/britain_ireland_" . $i .".xml";
+    $file = CONTENT_RESOURCE_LOCAL_PATH . "/files/britain_ireland_" . $i .".xml";
     $str = Functions::get_remote_file($file);
     if($str)
     {
