@@ -38,7 +38,7 @@ while($start < $max)
 {
     $records = "";
     
-    Functions::debug($start);
+    debug($start);
     $result = $mysqli->query("SELECT n.namebank_id, n.string FROM names n JOIN name_languages nl ON (n.id=nl.name_id) WHERE n.id BETWEEN $start AND ".($start+$interval-1)." AND n.namebank_id!=0 AND nl.language_id=".Language::find("Scientific Name")." GROUP BY n.id");
     while($result && $row=$result->fetch_assoc())
     {

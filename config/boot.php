@@ -20,8 +20,6 @@ if(file_exists(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.p
     require_once(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php');
 }
 
-
-
 /* requiring PEAR package Horde/Yaml to import *.yml files */
 require_once 'Horde/Yaml.php';
 require_once 'Horde/Yaml/Loader.php';
@@ -32,7 +30,8 @@ if(strtolower(substr(php_uname(), 0, 3)) == 'win') define('SYSTEM_OS', 'Windows'
 else define('SYSTEM_OS', 'Unix');
 
 /* set the root paths */
-define('DOC_ROOT', dirname(__FILE__) . '/../');
+$root = preg_replace("/config$/", "", dirname(__FILE__));
+define('DOC_ROOT', $root);
 define('LOCAL_ROOT', DOC_ROOT);
 //if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://' . @$_SERVER['SERVER_NAME'] . '/');
 if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://' . gethostbyname(gethostname()) . '/');

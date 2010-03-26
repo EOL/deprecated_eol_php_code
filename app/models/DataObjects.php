@@ -11,14 +11,23 @@ class DataObject extends MysqlBase
     
     public static function all()
     {
-        $mysqli =& $GLOBALS['mysqli_connection'];
         $all = array();
-        $result = $mysqli->query("SELECT * FROM data_objects");
+        $result = $GLOBALS['db_connection']->query("SELECT * FROM data_objects");
         while($result && $row=$result->fetch_assoc())
         {
             $all[] = new DataObject($row);
         }
         return $all;
+    }
+    
+    public static function last()
+    {
+        $result = $GLOBALS['db_connection']->query("SELECT * FROM data_objects ORDER BY id DESC limit 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return new DataObject($row);
+        }
+        return null;
     }
     
     public static function delete($id)
@@ -131,6 +140,17 @@ class DataObject extends MysqlBase
         return $agents;
     }
     
+    public function info_items()
+    {
+        $info_items = array();
+        $result = $this->mysqli->query("SELECT info_item_id FROM data_objects_info_items WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $info_items[] = new InfoItem($row["info_item_id"]);
+        }
+        return $info_items;
+    }
+    
     static function equivalent($data_object_1, $data_object_2)
     {
         $match = $data_object_1->equals($data_object_2);
@@ -144,13 +164,14 @@ class DataObject extends MysqlBase
         $fields = $this->get_table_fields();
         foreach($fields as $field)
         {
-            $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url", "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id", "visibility_id", "curated", "published");
+            $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url", "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id", "visibility_id", "curated", "published", "description_linked");
             if(in_array($field, $fields_to_ignore)) continue;
             
-            //Functions::debug($taxon->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
-            if(@isset($this->$field) && @$data_object->$field != $this->$field)
+            if(@$this->$field == "0") $this->$field = 0;
+            if(@$data_object->$field == "0") $data_object->$field = 0;
+            if(isset($this->$field) && @$data_object->$field != $this->$field)
             {
-                Functions::debug($data_object->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
+                debug($data_object->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
                 return false;
             }
         }

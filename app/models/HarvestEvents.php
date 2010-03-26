@@ -132,7 +132,7 @@ class HarvestEvent extends MysqlBase
         if(defined("TAXON_CACHE_PREFIX"))
         {
             $response = Functions::curl_post_request(TAXON_CACHE_PREFIX, array("taxa_ids" => implode(",", $taxon_ids)));
-            Functions::debug($response);
+            debug($response);
         }
     }
     

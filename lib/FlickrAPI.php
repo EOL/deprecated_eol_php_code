@@ -293,7 +293,7 @@ class FlickrAPI
     {
         $photo_url = "http://farm".$farm.".static.flickr.com/".$server."/".$photo_id."_".$secret.".jpg";
         
-        // Functions::debug("getting sizes for id: $photo_id\n");
+        // debug("getting sizes for id: $photo_id\n");
         // $sizes = self::photos_get_sizes($photo_id);
         // if(@$sizes)
         // {

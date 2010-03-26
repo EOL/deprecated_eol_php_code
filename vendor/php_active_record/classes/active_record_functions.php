@@ -56,8 +56,10 @@ function to_plural($str)
 
 function display($str)
 {
-    if(@$GLOBALS['ENV_DEBUG_TO_FILE']) fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
-    else
+    if($GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])
+    {
+        fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
+    }else
     {
         echo "$str<br>\n";
         flush();
@@ -66,22 +68,25 @@ function display($str)
 
 function write_to_log($str)
 {
-    if(@$GLOBALS['ENV_DEBUG_TO_FILE']) fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
+    if($GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])
+    {
+        fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
+    }
 }
 
 function debug($string)
 {
-    if(@$GLOBALS['ENV_DEBUG'])
+    if($GLOBALS['ENV_NAME']=='test' || $GLOBALS['ENV_DEBUG'])
     {
-        display($string . ' :: [' . get_last_function(2) . ']');
+        display($string . ' :: [' . get_last_function(3) . ']');
     }
 }
 
 function mysql_debug($string)
 {
-    if(@$GLOBALS['ENV_MYSQL_DEBUG'] && @$GLOBALS['ENV_DEBUG'])
+    if($GLOBALS['ENV_NAME']=='test' || ($GLOBALS['ENV_MYSQL_DEBUG'] && $GLOBALS['ENV_DEBUG']))
     {
-        display($string . ' :: [' . get_last_function(3) . ']');
+        display($string . ' :: [' . get_last_function(5) . ']');
     }
 }
 
@@ -181,7 +186,7 @@ function get_last_function($index = 1)
     $backtrace = debug_backtrace();
     $line = @$backtrace[$index]['line'];
     $file = @$backtrace[$index]['file'];
-    
+    $file = str_replace(DOC_ROOT, "", $file);
     return "$file [$line]";
 }
 
@@ -205,7 +210,7 @@ function shutdown_check()
     
     // close any open database connections
     if($GLOBALS['db_connection']->transaction_in_progress) $GLOBALS['db_connection']->rollback();
-    if($GLOBALS['ENV_MYSQL_DEBUG']) debug("\n\nClosing database connection");
+    if($GLOBALS['ENV_MYSQL_DEBUG']) debug("Closing database connection\n");
     
     // close the log file handle
     if($GLOBALS['ENV_DEBUG'] && $GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])

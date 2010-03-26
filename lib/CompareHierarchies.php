@@ -60,11 +60,11 @@ class CompareHierarchies
                 // have the smaller hierarchy as the first parameter so the comparison will be quicker
                 if($count1 < $count2)
                 {
-                    Functions::debug("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)");
+                    debug("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)");
                     self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2);
                 }else
                 {
-                    Functions::debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
+                    debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
                     self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1);
                 }
                 
@@ -137,7 +137,7 @@ class CompareHierarchies
                 
                 if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                 {
-                    Functions::debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop");
+                    debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop");
                     continue;
                 }
                 $i++;

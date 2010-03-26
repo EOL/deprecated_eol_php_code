@@ -202,7 +202,7 @@ function get_vernaculars()
     {
         if($i%10000==0)
         {
-            Functions::debug("Vernaculars Line: $i");
+            debug("Vernaculars Line: $i");
             $mysqli->commit();
         }
         
@@ -294,7 +294,7 @@ function get_names()
     {
         if($i%10000==0)
         {
-            Functions::debug("Names Line: $i");
+            debug("Names Line: $i");
             $mysqli->commit();
         }
         $i++;

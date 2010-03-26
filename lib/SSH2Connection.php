@@ -7,15 +7,15 @@ class SSH2Connection
     
     function __construct($server_ip, $username, $password = false)
     {
-        Functions::debug("attempting to connect to $server_ip with $username::*****");
+        debug("attempting to connect to $server_ip with $username::*****");
         $this->ssh2_connection = @ssh2_connect($server_ip, 22);
         if($this->ssh2_connection)
         {
-            Functions::debug("Connected to $server_ip");
+            debug("Connected to $server_ip");
             $logged_in = @ssh2_auth_password($this->ssh2_connection, $username, $password);
             if($logged_in)
             {
-                Functions::debug("Created SFTP connection to $server_ip");
+                debug("Created SFTP connection to $server_ip");
                 $this->sftp_connection = ssh2_sftp($this->ssh2_connection);
             }
         }
@@ -25,7 +25,7 @@ class SSH2Connection
     {
         if($this->ssh2_connection)
         {
-            Functions::debug("Syncing $year::$month::$day::$hour");
+            debug("Syncing $year::$month::$day::$hour");
             ssh2_exec($this->ssh2_connection, "/bin/rsync_scripts/download-updates.cgi $month $day $year $hour");
         }
     }
@@ -34,7 +34,7 @@ class SSH2Connection
     {
         if($this->ssh2_connection)
         {
-            Functions::debug("Syncing logos");
+            debug("Syncing logos");
             ssh2_exec($this->ssh2_connection, "/bin/rsync_scripts/download-content-partners.cgi");
         }
     }

@@ -16,7 +16,7 @@ class Tasks extends MysqlBase
     //     $interval = 50000;
     //     while($start < $max)
     //     {
-    //         Functions::debug($start);
+    //         debug($start);
     //         $result = $mysqli->query("SELECT id, string FROM names WHERE id BETWEEN $start AND ".($start+$interval-1));
     //         while($result && $row=$result->fetch_assoc())
     //         {
@@ -52,7 +52,7 @@ class Tasks extends MysqlBase
         $interval = 50000;
         while($start < $max)
         {
-            Functions::debug($start);
+            debug($start);
             $result = $mysqli->query("SELECT id, string FROM names WHERE id BETWEEN $start AND ".($start+$interval-2)." AND canonical_form_verified!=0");
             while($result && $row=$result->fetch_assoc())
             {
@@ -123,7 +123,7 @@ class Tasks extends MysqlBase
             $ancestry = $row["ancestry"];
             if(preg_match("/^1769426(\||$)/", $ancestry)) continue;
             
-            if($i%100==0) Functions::debug("NOW COMPARING: $id - ".Functions::time_elapsed());
+            if($i%100==0) debug("NOW COMPARING: $id - ".Functions::time_elapsed());
             
             $concept1 = new TaxonConcept($taxon_concept_id);
             $entry1 = new HierarchyEntry($id);

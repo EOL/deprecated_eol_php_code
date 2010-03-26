@@ -47,7 +47,7 @@ while($start < $max)
 {
     $records = "";
     
-    Functions::debug($start);
+    debug($start);
     $result = $mysqli->query("SELECT tcn.taxon_concept_id id, n.string, he.hierarchy_id, he.lft, he.rgt FROM taxon_concept_names tcn JOIN hierarchy_entries he ON (tcn.taxon_concept_id=he.taxon_concept_id) JOIN names n ON (he.name_id=n.id) WHERE tcn.taxon_concept_id BETWEEN $start AND ".($start+$interval-1)." AND tcn.source_hierarchy_entry_id!=0 AND tcn.preferred=1 GROUP BY tcn.taxon_concept_id");
     while($result && $row=$result->fetch_assoc())
     {

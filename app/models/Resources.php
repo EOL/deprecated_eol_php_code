@@ -273,22 +273,22 @@ class Resource extends MysqlBase
     
     public function harvest($validate = true)
     {
-        Functions::debug("Starting harvest of resource: $this->id");
-        Functions::debug("Validating resource: $this->id");
+        debug("Starting harvest of resource: $this->id");
+        debug("Validating resource: $this->id");
         // set valid to true if we don't need validation
         $valid = $validate ? $this->validate($this->resource_path) : true;
-        Functions::debug("Validated resource: $this->id");
+        debug("Validated resource: $this->id");
         if($valid)
         {
             $this->mysqli->begin_transaction();
             
             $this->start_harvest();
             
-            Functions::debug("Parsing resource: $this->id");
+            debug("Parsing resource: $this->id");
             $connection = new SchemaConnection($this);
-            SchemaParser::parse($this->resource_path, $connection);
+            SchemaParser::parse($this->resource_path, $connection, false);
             unset($connection);
-            Functions::debug("Parsed resource: $this->id");
+            debug("Parsed resource: $this->id");
             $this->mysqli->commit();
             
             // if the resource only contains information to update, then check for a 
@@ -310,9 +310,9 @@ class Resource extends MysqlBase
             {
                 $catalogue_of_life_id = Hierarchy::find_by_agent_id(Agent::find("Catalogue of Life"));
                 
-                Functions::debug("Assigning nested set values resource: $this->id");
+                debug("Assigning nested set values resource: $this->id");
                 Tasks::rebuild_nested_set($hierarchy_id);
-                Functions::debug("Finished assigning: $this->id");
+                debug("Finished assigning: $this->id");
                 
                 // Rebuild the Solr index for this hierarchy
                 $indexer = new HierarchyEntryIndexer();
@@ -462,15 +462,15 @@ class Resource extends MysqlBase
                 $d1 = explode(" ", $this->start_harvest_time);
                 $d2 = explode(" ", $this->end_harvest_time);
                 
-                Functions::debug("Start harvest time: $this->start_harvest_time");
-                Functions::debug("End harvest time: $this->end_harvest_time");
+                debug("Start harvest time: $this->start_harvest_time");
+                debug("End harvest time: $this->end_harvest_time");
                 
                 $time1 = mktime($d1[3], 0, 0, $d1[1], $d1[2], $d1[0]);
                 $time2 = mktime($d2[3], 0, 0, $d2[1], $d2[2], $d2[0]);
                 
                 $harvest_hours = ceil(($time2 - $time1) / 3600);
                 
-                Functions::debug("Harvest hours: $harvest_hours");
+                debug("Harvest hours: $harvest_hours");
                 
                 $date = explode(" ", date("Y m d H", mktime($d1[3], 0, 0, $d1[1], $d1[2], $d1[0])));
                 ContentManager::sync_to_content_servers($date[0], $date[1], $date[2], $date[3]);

@@ -2,13 +2,14 @@
 
 class SchemaParser
 {
-    public static function parse($uri, &$connection)
+    public static function parse($uri, &$connection, $validate = true)
     {
         if(!$uri) return false;
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        $errors = SchemaValidator::validate($uri);
-        if($errors !== true) return false;
+        // set valid to true if we don't need validation
+        $valid = $validate ? SchemaValidator::validate($uri) : true;
+        if($valid !== true) return false;
         
         $reader = new XMLReader();
         $reader->open($uri);
@@ -74,6 +75,8 @@ class SchemaParser
                     }else continue;
                 }
                 
+                // // Note: this assume that all dwc:scientificNames are actually scientific
+                // // we should probably have a qualifier at the hierarchy entry and synonym level to indicate name type
                 // if($taxon_parameters["name_id"])
                 // {
                 //     $name = new Name($taxon_parameters["name_id"]);
@@ -306,7 +309,7 @@ class SchemaParser
                 
                 $i++;
                 
-                if($i%100==0) Functions::debug("Parsed taxon $i");
+                if($i%100==0) debug("Parsed taxon $i");
                 
                 // trying now to see if commiting every 200 taxa will help with replication
                 if($i%200==0) $mysqli->commit();
@@ -320,8 +323,8 @@ class SchemaParser
     {
         if(!$uri) return false;
         
-        $errors = SchemaValidator::validate($uri);
-        if($errors !== true) return array();
+        $valid = SchemaValidator::validate($uri);
+        if($valid !== true) return array();
         
         $errors = array();
         $warnings = array();
@@ -384,7 +387,7 @@ class SchemaParser
                 $xml->taxon[$i] = null;
                 $i++;
                 
-                //if($i%100==0 && DEBUG) Functions::debug("Parsed taxon $i");
+                //if($i%100==0 && DEBUG) debug("Parsed taxon $i");
                 //if(defined("DEBUG_PARSE_TAXON_LIMIT") && $i >= DEBUG_PARSE_TAXON_LIMIT) break;
             }
         }

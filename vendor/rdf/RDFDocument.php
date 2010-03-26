@@ -72,7 +72,7 @@ class RDFDocument
     function sparql_query($querystring)
     {
         $querystring = $this->load_querystring() . $querystring;
-        //Functions::debug("$querystring<hr>");
+        //debug("$querystring<hr>");
         
         $result = $this->model->sparqlQuery($querystring);
         //if(DEBUG) SPARQLEngine::writeQueryResultAsHtmlTable($result);

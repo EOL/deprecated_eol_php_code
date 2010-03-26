@@ -4,7 +4,7 @@ class test_resources extends SimpletestUnitBase
 {
     function testHarvesting()
     {
-        $resource = $this->create_resource();
+        $resource = self::create_resource();
         
         $this->assertTrue(count(HarvestEvent::all()) == 0, 'There shouldnt be any events to begin with');
         $this->assertTrue(count(DataObject::all()) == 0, 'There shouldnt be any data objects to begin with');
@@ -14,47 +14,63 @@ class test_resources extends SimpletestUnitBase
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
         $this->assertTrue($result->num_rows == 0, 'shouldnt be any top images');
         
-        // harvest the resource and run all the denormalized tasks
+        // harvest the resource and run all the denormalized tasks to test them
         shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/harvest_resources_cron_task.php ENV_NAME=test");
         
         $this->check_content_after_harvesting($resource);
         
-        // set to force harvest and harvest again
-        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
-        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/harvest_resources_cron_task.php ENV_NAME=test");
+        self::harvest($resource);
         
         @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml");
     }
     
-    function create_resource($publish = 1, $vetted = 1)
+    function testIUCNDataType()
     {
-        // create the test resource
-        $agent_id = Agent::insert(array('full_name' => 'Test Content Partner'));
-        $agent = new Agent($agent_id);
-        
-        // create the content partner
-        $content_partner_id = ContentPartner::insert(array('id' => 101010101, 'agent_id' => $agent_id, 'auto_publish' => $publish, 'vetted' => $vetted));
-        
-        // create the resource
-        $attr = array(  'accesspoint_url'       => WEB_ROOT . 'tests/fixtures/files/test_resource.xml',
-                        'service_type_id'       => ServiceType::insert('EOL Transfer Schema'),
-                        'refresh_period_hours'  => 1,
-                        'auto_publish'          => $publish,
-                        'vetted'                => $vetted,
-                        'title'                 => 'Wikipedia',
-                        'resource_status_id'    => ResourceStatus::insert('Validated'));
-        $resource_id = Resource::insert($attr);
-        $agent->add_resouce($resource_id, 'Data Supplier');
-        $resource = new Resource($resource_id);
-        
-        $this->assertTrue(isset($resource->id), 'Resource should have an ID');
-        $this->assertTrue($resource->id >= 1, 'Resource ID should be 1 or more');
-        $this->assertIsA($resource->content_partner(), 'ContentPartner', 'Resource should have a content partner');
-        $this->assertTrue($resource->content_partner()->id == $content_partner_id, 'ContentPartner', 'Resource should have the right content partner');
-        
-        copy(DOC_ROOT . "tests/fixtures/files/test_resource.xml", $resource->resource_file_path());
-        return $resource;
+        $resource = self::create_resource(array('title' => 'IUCN Red List'));
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->data_type_id == DataType::insert('IUCN'), 'IUCN should get a special data type');
     }
+    
+    function testWikipediaInfoItem()
+    {
+        $resource = self::create_resource(array('title' => 'Wikipedia'));
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $ii = InfoItem::insert('http://www.eol.org/voc/table_of_contents#Wikipedia');
+        $do_iis = $last_object->info_items();
+        $this->assertTrue($ii == $do_iis[0]->id, 'Wikipedia should get a special TOC');
+    }
+    
+    function testBOLDInfoItem()
+    {
+        $resource = self::create_resource(array('title' => 'BOLD Systems Resource'));
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $ii = InfoItem::insert('http://www.eol.org/voc/table_of_contents#Barcode');
+        $do_iis = $last_object->info_items();
+        $this->assertTrue($ii == $do_iis[0]->id, 'BOLD should get a special TOC');
+    }
+    
+    function testUnvettedUnpublished()
+    {
+        $resource = self::create_resource(array('vetted' => false, 'auto_publish' => false));
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->published == 0, 'Should not get published');
+        $this->assertTrue($last_object->vetted_id == Vetted::insert('unknown'), 'Should not be vetted');
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     function check_content_after_harvesting($resource)
     {
@@ -152,6 +168,8 @@ class test_resources extends SimpletestUnitBase
                     $data_object_parameters["thumbnail_url"] = Functions::import_decode($d->thumbnailURL);
                     $data_object_parameters["location"] = Functions::import_decode($d->location, 0, 0);
                     
+                    $this->assertTrue($objects[$j]->published == 1, "DataObject ($j) should be published");
+                    $this->assertTrue($objects[$j]->vetted_id == Vetted::insert('trusted'), "DataObject ($j) should be vetted");                    
                     foreach($data_object_parameters as $key => $value)
                     {
                         $test_value = $objects[$j]->$key;
@@ -166,6 +184,52 @@ class test_resources extends SimpletestUnitBase
             }
         }
     }
+    
+    
+    
+    
+    
+    
+    private static function harvest($resource)
+    {
+        // set to force harvest and harvest again
+        shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
+        $resource->harvest(false);
+        shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/publish_resources.php ENV_NAME=test");
+        shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/table_of_contents.php ENV_NAME=test");
+    }
+    
+    private static function create_resource($args = array())
+    {
+        if(!isset($args['auto_publish'])) $args['auto_publish'] = 1;
+        if(!isset($args['vetted'])) $args['vetted'] = 1;
+        if(!isset($args['title'])) $args['title'] = 'Test Resource';
+        if(!isset($args['file_path'])) $args['file_path'] = DOC_ROOT . 'tests/fixtures/files/test_resource.xml';
+        
+        // create the test resource
+        $agent_id = Agent::insert(array('full_name' => 'Test Content Partner'));
+        $agent = new Agent($agent_id);
+        
+        // create the content partner
+        $content_partner_id = ContentPartner::insert(array('id' => 101010101, 'agent_id' => $agent_id, 'auto_publish' => $args['auto_publish'], 'vetted' => $args['vetted']));
+        
+        // create the resource
+        $attr = array(  'accesspoint_url'       => $args['file_path'],
+                        'service_type_id'       => ServiceType::insert('EOL Transfer Schema'),
+                        'refresh_period_hours'  => 1,
+                        'auto_publish'          => $args['auto_publish'],
+                        'vetted'                => $args['vetted'],
+                        'title'                 => $args['title'],
+                        'resource_status_id'    => ResourceStatus::insert('Validated'));
+        $resource_id = Resource::insert($attr);
+        $agent->add_resouce($resource_id, 'Data Supplier');
+        $resource = new Resource($resource_id);
+        
+        copy($resource->accesspoint_url, $resource->resource_file_path());
+        return $resource;
+    }
+    
+    
 }
 
 ?>

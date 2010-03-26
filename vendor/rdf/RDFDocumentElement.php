@@ -84,7 +84,7 @@ class RDFDocumentElement
     {
         if(!trim($uri)) return false;
         
-        //Functions::debug("Creating $class -> document -> $uri");
+        //debug("Creating $class -> document -> $uri");
         if(preg_match("/^([#_\/].*)/", $uri, $arr)) return new $class($document, $uri);
         elseif(preg_match("/^".preg_quote($document->url,"/")."(#.*)$/", $uri, $arr)) return new $class($document, $uri);
         elseif(preg_match("/^urn:lsid:/", $uri))
@@ -108,7 +108,7 @@ class RDFDocumentElement
                 $document->saveAs("cache/".$uri.".xml");
             }
             
-            //Functions::debug($doc_uri);
+            //debug($doc_uri);
             
             return new $class($document, $uri);
         }

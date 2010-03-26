@@ -25,17 +25,17 @@ class NamesFunctions
             if($score == 1) $final_score = 1;
         }else
         {
-            //Functions::debug("ancestry - ".Functions::time_elapsed());
+            //debug("ancestry - ".Functions::time_elapsed());
             $scores["ancestry"] = self::compare_taxon_concept_ancestries($hierarchy_entries1, $hierarchy_entries2, $complete_hierarchy);
             if($scores["ancestry"]==-2) return 0;
             
-            //Functions::debug("name - ".Functions::time_elapsed());
+            //debug("name - ".Functions::time_elapsed());
             list($scores["name"], $scores["synonyms"]) = self::compare_taxon_concept_names($concept1->id, $all_names1, $concept2->id, $all_names2);
             
-            //Functions::debug("children - ".Functions::time_elapsed());
+            //debug("children - ".Functions::time_elapsed());
             $scores["children"] = self::compare_taxon_concept_children($all_names1["children"], $all_names2["children"]);
             
-            //Functions::debug("siblings - ".Functions::time_elapsed());
+            //debug("siblings - ".Functions::time_elapsed());
             //$scores["siblings"] = self::compare_taxon_concept_siblings($concept1, $concept2);
             
             $final_score = self::evaluate_score($scores);
@@ -130,7 +130,7 @@ class NamesFunctions
             {
                 $score = self::compare_names($name1, $name2);
                 
-                //Functions::debug("comparing $name1->string to $name2->string");
+                //debug("comparing $name1->string to $name2->string");
                 
                 if($score > $max_name_score && (in_array($name1, $names1) || in_array($name2, $names2)))
                 {

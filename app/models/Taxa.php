@@ -114,9 +114,7 @@ class Taxon extends MysqlBase
             
             if(isset($this->$field) && $taxon->$field != $this->$field)
             {
-                //Functions::debug("$this");
-                //Functions::debug("$taxon");
-                Functions::debug($taxon->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
+                debug($taxon->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
                 return false;
             }
         }
