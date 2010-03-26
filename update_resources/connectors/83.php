@@ -1,6 +1,6 @@
 <?php
 /* MorphBank connector 
-estimated execution time: 
+estimated execution time: 6 hours
 */
 
 /*
