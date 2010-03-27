@@ -116,7 +116,8 @@ if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America
 date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);
 setlocale(LC_ALL, 'en_US.utf8');
 
-
+// sets a static start time to base later comparisons on
+time_elapsed();
 
 /* defining some functions which are needed by the boot loader */
 
