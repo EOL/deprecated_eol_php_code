@@ -63,6 +63,88 @@ class DenormalizeTables
             sleep_production(3);
         }
     }
+    
+    public static function taxon_concepts_exploded($select_hierarchy_id = 0)
+    {
+        $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count ASC");
+        //$result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id FROM hierarchies h");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $hierarchy_id = $row['hierarchy_id'];
+            if($select_hierarchy_id && $select_hierarchy_id!=$hierarchy_id) continue;
+            self::explode_hierarchy($hierarchy_id);
+        }
+    }
+    
+    public static function explode_hierarchy($id)
+    {
+        echo "Exploding $id\n";
+        
+        // make sure our target table exists
+        $GLOBALS['db_connection']->query("CREATE TABLE IF NOT EXISTS `hierarchy_entries_exploded` (
+                  `hierarchy_entry_id` int unsigned NOT NULL,
+                  `ancestor_hierarchy_entry_id` int unsigned NOT NULL,
+                  KEY `hierarchy_entry_id` (`hierarchy_entry_id`),
+                  KEY `ancestor_hierarchy_entry_id` (`ancestor_hierarchy_entry_id`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+        //$GLOBALS['db_connection']->delete("DELETE hex FROM hierarchy_entries_exploded hex JOIN hierarchy_entries he ON (hex.hierarchy_entry_id=he.id) WHERE he.hierarchy_id=$id");
+        
+        $FILE = fopen(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', 'w+');
+        $i=0;
+        $children = array();
+        $result = $GLOBALS['db_connection']->query("SELECT id, parent_id FROM  hierarchy_entries he WHERE hierarchy_id=$id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            if($i%10000 == 0 ) echo "Memory: ".memory_get_usage()."\n";
+            $i++;
+            $children[$row['parent_id']][] = $row['id'];
+        }
+        if($result) $result->free();
+        echo "Memory: ".memory_get_usage()."\n";
+        
+        
+        if(isset($children[0]))
+        {
+            foreach($children[0] as &$child_id)
+            {
+                self::explode_recursively($child_id, array(), $children, $FILE);
+            }
+            unset($child_id);
+            unset($children[0]);
+        }
+        
+        fclose($FILE);
+        echo "inserting: ".time_elapsed()."\n";
+        $GLOBALS['db_connection']->insert("LOAD DATA LOCAL INFILE '". DOC_ROOT ."temp/hierarchy_entries_exploded.sql' IGNORE INTO TABLE hierarchy_entries_exploded");
+        //$GLOBALS['db_connection']->load_data_infile(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', "hierarchy_entries_exploded", true, 20);
+        unlink(DOC_ROOT .'temp/hierarchy_entries_exploded.sql');
+        echo "done inserting: ".time_elapsed()."\n";
+    }
+    
+    public static function explode_recursively(&$id, $parents, &$children, &$FILE)
+    {
+        static $i=0;
+        if($i%10000 == 0 ) echo "Memory r: ".memory_get_usage()."\n";
+        $i++;
+        
+        foreach($parents as &$parent_id)
+        {
+            fwrite($FILE, "$id\t$parent_id\n");
+        }
+        unset($parent_id);
+        
+        if(isset($children[$id]))
+        {
+            $parents[] = $id;
+            foreach($children[$id] as &$child_id)
+            {
+                self::explode_recursively($child_id, $parents, $children, $FILE);
+                unset($child_id);
+            }
+            unset($child_id);
+            unset($children[$id]);
+        }
+    }
 }
 
 ?>
