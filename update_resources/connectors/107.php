@@ -5,7 +5,7 @@ estimated execution time: 28-30 mins for 868 species.
 
 $timestart = microtime(1);
 
-$GLOBALS['ENV_NAME'] = 'slave';
+//$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
