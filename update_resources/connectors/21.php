@@ -4,7 +4,7 @@
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 $resource = new Resource(21);
-$new_resource_path = LOCAL_ROOT . "temp/".$resource->id.".xml";
+$new_resource_path = DOC_ROOT . "temp/".$resource->id.".xml";
 
 $new_resource_xml = Functions::get_remote_file($resource->accesspoint_url);
 $new_resource_xml = utf8_encode($new_resource_xml);

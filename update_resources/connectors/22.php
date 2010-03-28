@@ -4,7 +4,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
 
-$new_resource_path = LOCAL_ROOT . "temp/22.xml.gz";
+$new_resource_path = DOC_ROOT . "temp/22.xml.gz";
 
 $new_resource = Functions::get_remote_file("http://animaldiversity.ummz.umich.edu/XML/adw_eol.xml.gz");
 
@@ -13,7 +13,7 @@ fwrite($OUT, $new_resource);
 fclose($OUT);
 
 shell_exec("gunzip -f ".$new_resource_path);
-$new_resource_path = LOCAL_ROOT . "temp/22.xml";
+$new_resource_path = DOC_ROOT . "temp/22.xml";
 
 $xml = file_get_contents($new_resource_path);
 $xml = str_replace("<dc:description>", "<dc:description><![CDATA[", $xml);

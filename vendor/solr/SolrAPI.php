@@ -29,7 +29,7 @@ class SolrAPI
     
     function __destruct()
     {
-        @unlink(LOCAL_ROOT . $this->csv_path);
+        @unlink(DOC_ROOT . $this->csv_path);
     }
     
     public static function ping($s = SOLR_SERVER, $c = '')
@@ -120,8 +120,8 @@ class SolrAPI
     
     public function delete($query)
     {
-        @unlink(LOCAL_ROOT . $this->csv_path);
-        $OUT = fopen(LOCAL_ROOT . $this->csv_path, "w+");
+        @unlink(DOC_ROOT . $this->csv_path);
+        $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
         fwrite($OUT, "<delete><query>$query</query></delete>");
         fclose($OUT);
         
@@ -131,8 +131,8 @@ class SolrAPI
     
     public function send_attributes($objects)
     {
-        @unlink(LOCAL_ROOT . $this->csv_path);
-        $OUT = fopen(LOCAL_ROOT . $this->csv_path, "w+");
+        @unlink(DOC_ROOT . $this->csv_path);
+        $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
         
         $fields = array_keys(get_object_vars($this->schema_object));
         fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");

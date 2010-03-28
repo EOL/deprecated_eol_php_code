@@ -7,10 +7,10 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 $binary = file_get_contents('http://ligercat.ubio.org/eol_ids_with_clouds.txt.gz');
-$OUT = fopen(LOCAL_ROOT . 'temp/eol_ids_with_clouds.txt.gz', 'w+');
+$OUT = fopen(DOC_ROOT . 'temp/eol_ids_with_clouds.txt.gz', 'w+');
 fwrite($OUT, $binary);
 fclose($OUT);
-shell_exec("gunzip -f ". LOCAL_ROOT . "temp/eol_ids_with_clouds.txt.gz");
+shell_exec("gunzip -f ". DOC_ROOT . "temp/eol_ids_with_clouds.txt.gz");
 
 
 
@@ -30,7 +30,7 @@ $collection = new Collection($collection_id);
 $mysqli->delete("DELETE FROM mappings WHERE collection_id = $collection->id");
 
 
-$file = file(LOCAL_ROOT . "temp/eol_ids_with_clouds.txt");
+$file = file(DOC_ROOT . "temp/eol_ids_with_clouds.txt");
 $i = 0;
 $ids = array();
 foreach($file as $line)
@@ -64,7 +64,7 @@ if($ids)
 
 $mysqli->end_transaction();
 
-shell_exec("rm -f ". LOCAL_ROOT . "temp/eol_ids_with_clouds.txt");
+shell_exec("rm -f ". DOC_ROOT . "temp/eol_ids_with_clouds.txt");
 
 
 

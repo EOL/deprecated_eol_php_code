@@ -45,7 +45,7 @@ function get_from_api_Report($month,$year,$website=NULL,$report,$entire_year)
     $organization   =$arr["organization"];    
     $start_date     =$arr["start_date"];
     $end_date       =$arr["end_date"];    
-    require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
+    require_once(DOC_ROOT . 'vendor/Google_Analytics_API_PHP/analytics_api.php');
 
     $api = new analytics_api();
     if($api->login($login, $password)) 
@@ -261,7 +261,7 @@ function get_from_api($month,$year,$website=NULL)
     $start_date     =$arr["start_date"];
     $end_date       =$arr["end_date"];    
     
-    require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
+    require_once(DOC_ROOT . 'vendor/Google_Analytics_API_PHP/analytics_api.php');
     
 
     //exit(" -- stopx -- ");

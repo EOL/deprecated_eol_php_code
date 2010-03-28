@@ -308,7 +308,7 @@ function get_from_api($month,$year)
     
     $final = array();
     
-    require_once(LOCAL_ROOT . '/vendor/Google_Analytics_API_PHP/analytics_api.php');
+    require_once(DOC_ROOT . 'vendor/Google_Analytics_API_PHP/analytics_api.php');
     
     $login = GOOGLE_ANALYTICS_API_USERNAME;
     $password = GOOGLE_ANALYTICS_API_PASSWORD;

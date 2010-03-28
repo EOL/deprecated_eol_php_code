@@ -14,11 +14,11 @@ class RDFDocument
         
         $document = Functions::get_remote_file($url);
         if(!preg_match("/rdf:rdf/i", $document)) throw new Exception("Not a valid RDF Document: $url");
-        $FILE = fopen(LOCAL_ROOT . "temp/downloaded_rdf.rdf", "w+");
+        $FILE = fopen(DOC_ROOT . "temp/downloaded_rdf.rdf", "w+");
         fwrite($FILE, $document);
         fclose($FILE);
         
-        $this->model->load(LOCAL_ROOT . "temp/downloaded_rdf.rdf");
+        $this->model->load(DOC_ROOT . "temp/downloaded_rdf.rdf");
         
         $this->prefixes = array(    "rdf"           => "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
                                     "spmi"          => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#",

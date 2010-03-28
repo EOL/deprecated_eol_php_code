@@ -133,12 +133,12 @@ if($what == 'transform')
     fclose($fn);        
     
     /*
-    define("LOCAL_ROOT","C:\\webroot\\eol_php_code\\");
+    define("DOC_ROOT","C:\\webroot\\eol_php_code\\");
     define("LOCAL_WEB_ROOT","http://localhost/eol_php_code/");
     CONTENT_GNI_RESOURCE_PATH
     */
     
-    $source_path = str_ireplace(LOCAL_ROOT, LOCAL_WEB_ROOT, CONTENT_GNI_RESOURCE_PATH);
+    $source_path = str_ireplace(DOC_ROOT, LOCAL_WEB_ROOT, CONTENT_GNI_RESOURCE_PATH);
     $source_path = str_ireplace("//", "/", $source_path);
     $source_path .= "$filename.xml";
     $source_path = str_ireplace("http:/", "", $source_path);

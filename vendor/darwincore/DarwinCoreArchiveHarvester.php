@@ -21,7 +21,7 @@ class DarwinCoreArchiveHarvester
         $directory_name = $arr[1];
         
         // // make temp dir
-        $this->archive_directory = LOCAL_ROOT."/temp/dwca";
+        $this->archive_directory = DOC_ROOT."temp/dwca";
         shell_exec("mkdir $this->archive_directory");
         
         // copy contents to temp gzip file
@@ -31,7 +31,7 @@ class DarwinCoreArchiveHarvester
         fclose($TMP);
         
         // extract contents of temp gzip file to temp dir
-        $output = shell_exec("tar -xzf $temp_file_path -C ".LOCAL_ROOT."/temp/dwca");
+        $output = shell_exec("tar -xzf $temp_file_path -C ".DOC_ROOT."temp/dwca");
     }
     
     function cleanup()
