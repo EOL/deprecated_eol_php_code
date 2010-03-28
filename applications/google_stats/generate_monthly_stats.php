@@ -32,7 +32,7 @@ $use_sql_load_infile=false;
     /*
     $query="delete from `google_analytics_page_stats`";  
     $update = $mysqli2->query($query);        
-    $temp = $mysqli->load_data_infile("data/2010_01/google_analytics_partner_summaries.txt", "google_analytics_partner_summaries", true);
+    $temp = $mysqli->load_data_infile("data/2010_01/google_analytics_partner_summaries.txt", "google_analytics_partner_summaries");
     exit;
     */
 //end test
@@ -342,7 +342,7 @@ function save_agent_monthly_summary($year_month)
     //$mysqli2
     
     if($use_sql_load_infile)$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' INTO TABLE google_analytics_partner_summaries");            
-    else                    $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_summaries.txt",          "google_analytics_partner_summaries", true);
+    else                    $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_summaries.txt",          "google_analytics_partner_summaries");
     
     //=================================================================
 
@@ -481,13 +481,13 @@ function save_agent_taxa($year_month)
     //$mysqli2
 
     if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa.txt'     INTO TABLE google_analytics_partner_taxa");        
-    else                     $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_taxa.txt",              "google_analytics_partner_taxa", true);    
+    else                     $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_taxa.txt",              "google_analytics_partner_taxa");    
     
     if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt' INTO TABLE google_analytics_partner_taxa");        
-    else                     $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt",          "google_analytics_partner_taxa", true);
+    else                     $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_taxa_bhl.txt",          "google_analytics_partner_taxa");
     
     if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa_col.txt' INTO TABLE google_analytics_partner_taxa");      
-    else                     $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_taxa_col.txt",          "google_analytics_partner_taxa", true);
+    else                     $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_taxa_col.txt",          "google_analytics_partner_taxa");
     //=================================================================
 
     //start query9,10,11,12 => start3.php
@@ -673,7 +673,7 @@ function save_eol_taxa_google_stats($month,$year)
             if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
             else
             {
-                                   //$update = $mysqli2->load_data_infile(             "data/" . $year . "_" . $month . "/google_analytics_page_stats.txt",          "google_analytics_page_stats", true);
+                                   //$update = $mysqli2->load_data_infile(             "data/" . $year . "_" . $month . "/google_analytics_page_stats.txt",          "google_analytics_page_stats");
                 if($str)
                 {
                     $str = str_ireplace("\t", ",", $str);                                 
@@ -819,7 +819,7 @@ function save_eol_monthly_summary($year,$month)
     //start saving...    
     $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
     if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'temp.txt' INTO TABLE google_analytics_summaries");        
-    else                     $update = $mysqli2->load_data_infile(             "temp.txt",          "google_analytics_summaries", true);
+    else                     $update = $mysqli2->load_data_infile(             "temp.txt",          "google_analytics_summaries");
     //
 }//function save_eol_monthly_summary($year)
 

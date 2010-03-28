@@ -184,7 +184,7 @@ class TopImages
             $tmp_table_name = $table_name."_tmp";
             $this->mysqli->insert("CREATE TABLE IF NOT EXISTS $tmp_table_name LIKE $table_name");
             $this->mysqli->delete("TRUNCATE TABLE $tmp_table_name");
-            $this->mysqli->load_data_infile(DOC_ROOT ."temp/top_concept_images.sql", $tmp_table_name, false, true);
+            $this->mysqli->load_data_infile(DOC_ROOT ."temp/top_concept_images.sql", $tmp_table_name);
             
             $swap_table_name = $table_name."_swap";
             $this->mysqli->update("RENAME TABLE $table_name TO $swap_table_name,
@@ -332,11 +332,11 @@ class TopImages
     {
         echo "inserting new data\n";
         echo "1 of 2\n";
-        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_images.sql", "top_images_tmp", true, true);
+        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_images.sql", "top_images_tmp");
         sleep_production(10);
         
         echo "2 of 2\n";
-        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_unpublished_images.sql", "top_unpublished_images_tmp", true, true);
+        $this->mysqli->load_data_infile(LOCAL_ROOT ."temp/top_unpublished_images.sql", "top_unpublished_images_tmp");
         sleep_production(10);
     }
 }

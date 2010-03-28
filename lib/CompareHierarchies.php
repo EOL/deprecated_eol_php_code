@@ -318,7 +318,7 @@ class CompareHierarchies
         
         fclose($SQL_FILE);
         //echo 'loading data\n';
-        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", true, true);
+        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships");
         
         // remove the tmp file
         @unlink($sql_filepath);

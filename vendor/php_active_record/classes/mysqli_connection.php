@@ -65,6 +65,11 @@ class MysqliConnection
         return $result;
     }
     
+    function master($query)
+    {
+        return $this->update($query);
+    }
+    
     function delete($query)
     {
         $this->check();
@@ -124,40 +129,48 @@ class MysqliConnection
         }
     }
     
-    function master($query)
+    function load_data_infile($path, $table, $action = "IGNORE")
     {
-        return $this->update($query);
-    }
-    
-    function load_data_infile($path, $table, $do_transaction = true, $commit_batches = false)
-    {
-        $insert_batch_size = 5000;
-        if($do_transaction) $this->begin_transaction();
-        $values = array();
+        if($action != "REPLACE") $action = "IGNORE";
+        $maximum_rows_in_file = 200000;
+        $tmp_file_path = DOC_ROOT ."temp/load_data_tmp.sql";
+        
+        $this->begin_transaction();
+        $this->insert("SET FOREIGN_KEY_CHECKS = 0");
+        $LOAD_DATA_TEMP = fopen($tmp_file_path, "w+");
+        flock($LOAD_DATA_TEMP, LOCK_EX);
+        
+        $line_counter = 0;
         $FILE = fopen($path, "r");
-        $batch = 0;
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))
             {
-                $line = rtrim($line, "\n\r");
-                $values[] = str_replace("\t", ",", $line);
-            }
-            if(count($values) > $insert_batch_size)
-            {
-                $batch++;
-                $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
-                if($commit_batches && ($batch%$commit_batches)==0) $this->commit();
-                $values = array();
+                fwrite($LOAD_DATA_TEMP, $line);
+                
+                $line_counter++;
+                // load data if we have enough rows
+                if($line_counter >= $maximum_rows_in_file)
+                {
+                    echo "committing $line_counter\n";
+                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table`");
+                    rewind($LOAD_DATA_TEMP);
+                    ftruncate($LOAD_DATA_TEMP, 0);
+                    $line_counter = 0;
+                }
             }
         }
         fclose($FILE);
         
-        if(count($values)) $this->insert("INSERT IGNORE INTO `$table` VALUES (". implode("),(", $values) .")");
-        if($commit_batches) $this->commit();
-        unset($values);
+        // insert the remaining rows
+        if(filesize($tmp_file_path))
+        {
+            @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table`");
+        }
         
-        if($do_transaction) $this->end_transaction();
+        $this->insert("SET FOREIGN_KEY_CHECKS = 1");
+        $this->end_transaction();
+        //unlink($tmp_file_path);
     }
     
     function truncate_tables($environment = "test")
@@ -299,7 +312,10 @@ class MysqliConnection
     function initialize()
     {
         mysql_debug("Connecting to host:$this->server, database:$this->database");
-        $this->mysqli = @new mysqli($this->server, $this->user, $this->password, "", $this->port, $this->socket);
+        $this->mysqli = new mysqli();
+        $this->mysqli->init();
+        $this->mysqli->options(MYSQLI_OPT_LOCAL_INFILE, true);
+        $this->mysqli->real_connect($this->server, $this->user, $this->password, "", $this->port, $this->socket, MYSQLI_CLIENT_COMPRESS);
         
         if($this->mysqli->connect_errno)
         {
@@ -321,7 +337,10 @@ class MysqliConnection
         if($this->master_server)
         {
             mysql_debug("Connecting to host:$this->master_server, database:$this->master_database");
-            $this->master_mysqli = @new mysqli($this->master_server, $this->master_user, $this->master_password, "", $this->master_port, $this->master_socket);
+            $this->master_mysqli = new mysqli();
+            $this->master_mysqli->init();
+            $this->master_mysqli->options(MYSQLI_OPT_LOCAL_INFILE, true);
+            $this->master_mysqli->real_connect($this->master_server, $this->master_user, $this->master_password, "", $this->master_port, $this->master_socket, MYSQLI_CLIENT_COMPRESS);
             
             if($this->master_mysqli->connect_errno)
             {

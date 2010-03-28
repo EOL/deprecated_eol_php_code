@@ -115,9 +115,8 @@ class DenormalizeTables
         
         fclose($FILE);
         echo "inserting: ".time_elapsed()."\n";
-        $GLOBALS['db_connection']->insert("LOAD DATA LOCAL INFILE '". DOC_ROOT ."temp/hierarchy_entries_exploded.sql' IGNORE INTO TABLE hierarchy_entries_exploded");
-        //$GLOBALS['db_connection']->load_data_infile(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', "hierarchy_entries_exploded", true, 20);
-        unlink(DOC_ROOT .'temp/hierarchy_entries_exploded.sql');
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', "hierarchy_entries_exploded");
+        //unlink(DOC_ROOT .'temp/hierarchy_entries_exploded.sql');
         echo "done inserting: ".time_elapsed()."\n";
     }
     
@@ -127,6 +126,8 @@ class DenormalizeTables
         if($i%10000 == 0 ) echo "Memory r: ".memory_get_usage()."\n";
         $i++;
         
+        // everything is in its own path
+        fwrite($FILE, "$id\t$id\n");
         foreach($parents as &$parent_id)
         {
             fwrite($FILE, "$id\t$parent_id\n");
@@ -139,7 +140,6 @@ class DenormalizeTables
             foreach($children[$id] as &$child_id)
             {
                 self::explode_recursively($child_id, $parents, $children, $FILE);
-                unset($child_id);
             }
             unset($child_id);
             unset($children[$id]);

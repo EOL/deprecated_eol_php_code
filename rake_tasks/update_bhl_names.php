@@ -62,7 +62,7 @@ function insert_titles()
     if(filesize(DOC_ROOT ."temp/titles.txt"))
     {
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE publication_titles");
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/titles.txt", "publication_titles", true, true);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/titles.txt", "publication_titles");
     }
     shell_exec("rm ". DOC_ROOT ."temp/titles.txt");
 }
@@ -98,7 +98,7 @@ function insert_items()
     if(filesize(DOC_ROOT ."temp/items.txt"))
     {
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE title_items");
-        $GLOBALS['db_connection']->load_data_infile(LOCAL_ROOT ."temp/items.txt", "title_items", true, true);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/items.txt", "title_items");
     }
     shell_exec("rm ". DOC_ROOT ."temp/items.txt");
 }
@@ -136,7 +136,7 @@ function insert_pages()
     if(filesize(DOC_ROOT ."temp/pages.txt"))
     {
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE item_pages");
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/pages.txt", "item_pages", true, 30);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/pages.txt", "item_pages");
     }
     shell_exec("rm ". DOC_ROOT ."temp/pages.txt");
 }
@@ -166,7 +166,7 @@ function insert_page_names()
     if(filesize(DOC_ROOT ."temp/page_names.txt"))
     {
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE page_names");
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/page_names.txt", "page_names", true, 1);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/page_names.txt", "page_names");
     }
     shell_exec("rm ". DOC_ROOT ."temp/page_names.txt");
 }
