@@ -372,11 +372,11 @@ function temp_filepath($relative_from_root = false, $extension = 'file')
     if($relative_from_root) $prefix = "";
     else $prefix = DOC_ROOT;
     
-    $filepath = $prefix ."temp/tmp_". random_digits(5) .".$extension";
+    $filepath = $prefix ."tmp/tmp_". random_digits(5) .".$extension";
     // make sure the name is unique
     while(glob($filepath))
     {
-        $filepath = $prefix ."temp/tmp_". random_digits(5) .".$extension";
+        $filepath = $prefix ."tmp/tmp_". random_digits(5) .".$extension";
     }
     return $filepath;
 }

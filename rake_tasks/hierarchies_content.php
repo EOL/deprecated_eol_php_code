@@ -7,6 +7,7 @@ require_library('DenormalizeTables');
 
 Functions::log("Starting hierarchies_content");
 
+DenormalizeTables::data_objects_taxon_concepts();
 DenormalizeTables::data_types_taxon_concepts();
 
 $hierarchies_content = new HierarchiesContent();

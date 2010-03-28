@@ -93,13 +93,13 @@ class test_active_record_functions extends SimpletestUnitBase
     function testTempFilePath()
     {
         $tmp_path = temp_filepath();
-        $this->assertPattern("/^".preg_quote(DOC_ROOT,"/") ."temp\/tmp_[0-9]{5}\.file$/", $tmp_path, 'should return correct temp file path');
+        $this->assertPattern("/^".preg_quote(DOC_ROOT,"/") ."tmp\/tmp_[0-9]{5}\.file$/", $tmp_path, 'should return correct temp file path');
         
         $tmp_path = temp_filepath(true);
-        $this->assertPattern("/^temp\/tmp_[0-9]{5}\.file$/", $tmp_path, 'should return relative temp file path');
+        $this->assertPattern("/^tmp\/tmp_[0-9]{5}\.file$/", $tmp_path, 'should return relative temp file path');
         
         $tmp_path = temp_filepath(true, 'jpg');
-        $this->assertPattern("/^temp\/tmp_[0-9]{5}\.jpg$/", $tmp_path, 'should return relative temp file path with extension');
+        $this->assertPattern("/^tmp\/tmp_[0-9]{5}\.jpg$/", $tmp_path, 'should return relative temp file path with extension');
         
     }
 }

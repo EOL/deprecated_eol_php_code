@@ -26,9 +26,10 @@ class DenormalizeTables
         for($i=$start ; $i<$stop ; $i+=$batch_size)
         {
             echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
-            $GLOBALS['db_connection']->begin_transaction();
-            $GLOBALS['db_connection']->query("INSERT IGNORE INTO data_types_taxon_concepts (SELECT tc.id, do.data_type_id, do.visibility_id, do.published FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id)  JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size).")");
-            $GLOBALS['db_connection']->end_transaction();
+            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT dotc.taxon_concept_id, do.data_type_id, do.visibility_id, do.published FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE do.id BETWEEN $i AND ". ($i+$batch_size));
+            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_types_taxon_concepts');
+            unlink($outfile);
+            
             sleep_production(3);
         }
     }
@@ -57,15 +58,17 @@ class DenormalizeTables
         for($i=$start ; $i<$stop ; $i+=$batch_size)
         {
             echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
-            $GLOBALS['db_connection']->begin_transaction();
-            $GLOBALS['db_connection']->query("INSERT IGNORE INTO data_objects_taxon_concepts (SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id)  JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size).")");
-            $GLOBALS['db_connection']->end_transaction();
+            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size));
+            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_taxon_concepts');
+            unlink($outfile);
+            
             sleep_production(3);
         }
     }
     
     public static function taxon_concepts_exploded($select_hierarchy_id = 0)
     {
+        // do the small ones first
         $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count ASC");
         //$result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id FROM hierarchies h");
         while($result && $row=$result->fetch_assoc())
@@ -90,19 +93,6 @@ class DenormalizeTables
         //$GLOBALS['db_connection']->delete('TRUNCATE TABLE hierarchy_entries_exploded');
         //$GLOBALS['db_connection']->delete("DELETE hex FROM hierarchy_entries_exploded hex JOIN hierarchy_entries he ON (hex.hierarchy_entry_id=he.id) WHERE he.hierarchy_id=$id");
         
-        $FILE = fopen(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', 'w+');
-        $i=0;
-        $children = array();
-        //  $result = $GLOBALS['db_connection']->query("SELECT id, parent_id FROM  hierarchy_entries he WHERE hierarchy_id=$id");
-        // while($result && $row=$result->fetch_assoc())
-        // {
-        //     if($i%10000 == 0 ) echo "Memory: ".memory_get_usage()."\n";
-        //     $i++;
-        //     $children[$row['parent_id']][] = $row['id'];
-        // }
-        // if($result) $result->free();
-        // echo "Memory: ".memory_get_usage()."\n";
-        
         $GLOBALS['ids_with_content'] = array();
         $result = $GLOBALS['db_connection']->query("SELECT he.id FROM hierarchies_content hc JOIN hierarchy_entries he ON (hc.hierarchy_entry_id=he.id) WHERE he.hierarchy_id=$id AND (hc.text=1 OR hc.image=1 OR hc.text_unpublished=1 OR hc.image_unpublished=1 OR hc.flash=1 OR hc.youtube=1)");
         while($result && $row=$result->fetch_assoc())
@@ -111,6 +101,8 @@ class DenormalizeTables
         }
         if(!$GLOBALS['ids_with_content']) return false;
         
+        $i=0;
+        $children = array();
         $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT id, parent_id FROM  hierarchy_entries he WHERE hierarchy_id=$id");
         $RESULT = fopen($outfile, "r");
         while(!feof($RESULT))
@@ -127,7 +119,7 @@ class DenormalizeTables
         unlink($outfile);
         echo "Memory: ".memory_get_usage()."\n";
         
-        
+        $FILE = fopen(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', 'w+');
         if(isset($children[0]))
         {
             foreach($children[0] as &$child_id)
@@ -141,7 +133,7 @@ class DenormalizeTables
         fclose($FILE);
         echo "inserting: ".time_elapsed()."\n";
         $GLOBALS['db_connection']->load_data_infile(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', "hierarchy_entries_exploded");
-        //unlink(DOC_ROOT .'temp/hierarchy_entries_exploded.sql');
+        unlink(DOC_ROOT .'temp/hierarchy_entries_exploded.sql');
         echo "done inserting: ".time_elapsed()."\n";
     }
     
