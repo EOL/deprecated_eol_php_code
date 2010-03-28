@@ -87,19 +87,44 @@ class DenormalizeTables
                   KEY `hierarchy_entry_id` (`hierarchy_entry_id`),
                   KEY `ancestor_hierarchy_entry_id` (`ancestor_hierarchy_entry_id`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+        //$GLOBALS['db_connection']->delete('TRUNCATE TABLE hierarchy_entries_exploded');
         //$GLOBALS['db_connection']->delete("DELETE hex FROM hierarchy_entries_exploded hex JOIN hierarchy_entries he ON (hex.hierarchy_entry_id=he.id) WHERE he.hierarchy_id=$id");
         
         $FILE = fopen(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', 'w+');
         $i=0;
         $children = array();
-        $result = $GLOBALS['db_connection']->query("SELECT id, parent_id FROM  hierarchy_entries he WHERE hierarchy_id=$id");
+        //  $result = $GLOBALS['db_connection']->query("SELECT id, parent_id FROM  hierarchy_entries he WHERE hierarchy_id=$id");
+        // while($result && $row=$result->fetch_assoc())
+        // {
+        //     if($i%10000 == 0 ) echo "Memory: ".memory_get_usage()."\n";
+        //     $i++;
+        //     $children[$row['parent_id']][] = $row['id'];
+        // }
+        // if($result) $result->free();
+        // echo "Memory: ".memory_get_usage()."\n";
+        
+        $GLOBALS['ids_with_content'] = array();
+        $result = $GLOBALS['db_connection']->query("SELECT he.id FROM hierarchies_content hc JOIN hierarchy_entries he ON (hc.hierarchy_entry_id=he.id) WHERE he.hierarchy_id=$id AND (hc.text=1 OR hc.image=1 OR hc.text_unpublished=1 OR hc.image_unpublished=1 OR hc.flash=1 OR hc.youtube=1)");
         while($result && $row=$result->fetch_assoc())
         {
-            if($i%10000 == 0 ) echo "Memory: ".memory_get_usage()."\n";
-            $i++;
-            $children[$row['parent_id']][] = $row['id'];
+            $GLOBALS['ids_with_content'][$row['id']] = 1;
         }
-        if($result) $result->free();
+        if(!$GLOBALS['ids_with_content']) return false;
+        
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT id, parent_id FROM  hierarchy_entries he WHERE hierarchy_id=$id");
+        $RESULT = fopen($outfile, "r");
+        while(!feof($RESULT))
+        {
+            if($line = fgets($RESULT, 4096))
+            {
+                if($i%10000 == 0 ) echo "Memory: ".memory_get_usage()."\n";
+                $i++;
+                
+                $parts = explode("\t", trim($line));
+                $children[$parts[1]][] = $parts[0];
+            }
+        }
+        unlink($outfile);
         echo "Memory: ".memory_get_usage()."\n";
         
         
@@ -126,13 +151,17 @@ class DenormalizeTables
         if($i%10000 == 0 ) echo "Memory r: ".memory_get_usage()."\n";
         $i++;
         
-        // everything is in its own path
-        fwrite($FILE, "$id\t$id\n");
-        foreach($parents as &$parent_id)
+        if(isset($GLOBALS['ids_with_content'][$id]))
         {
-            fwrite($FILE, "$id\t$parent_id\n");
+            // everything is in its own path
+            $str = "$id\t$id\n";
+            foreach($parents as &$parent_id)
+            {
+                $str .= "$id\t$parent_id\n";
+            }
+            unset($parent_id);
+            fwrite($FILE, $str);
         }
-        unset($parent_id);
         
         if(isset($children[$id]))
         {

@@ -165,11 +165,12 @@ class MysqliConnection
         $tmp_file_path = DOC_ROOT ."temp/load_data_tmp.sql";
         
         $this->begin_transaction();
-        $this->insert("SET FOREIGN_KEY_CHECKS = 0");
+        //$this->insert("SET FOREIGN_KEY_CHECKS = 0");
         $LOAD_DATA_TEMP = fopen($tmp_file_path, "w+");
         flock($LOAD_DATA_TEMP, LOCK_EX);
         
         $line_counter = 0;
+        $batch = 0;
         $FILE = fopen($path, "r");
         while(!feof($FILE))
         {
@@ -181,7 +182,10 @@ class MysqliConnection
                 // load data if we have enough rows
                 if($line_counter >= $maximum_rows_in_file)
                 {
-                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table` FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n'");
+                    $batch++;
+                    echo "Committing ".$batch*$maximum_rows_in_file." : ".time_elapsed()."\n";
+                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n'");
+                    $this->commit();
                     rewind($LOAD_DATA_TEMP);
                     ftruncate($LOAD_DATA_TEMP, 0);
                     $line_counter = 0;
@@ -196,9 +200,9 @@ class MysqliConnection
             @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table`");
         }
         
-        $this->insert("SET FOREIGN_KEY_CHECKS = 1");
+        //$this->insert("SET FOREIGN_KEY_CHECKS = 1");
         $this->end_transaction();
-        //unlink($tmp_file_path);
+        unlink($tmp_file_path);
     }
     
     function select_into_outfile($query, $escape = false)
