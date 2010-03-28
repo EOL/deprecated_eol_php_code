@@ -108,7 +108,7 @@ info_items_18:
 
 info_items_19:
     id: 19
-    schema_value: http'://rs.tdwg.org/ontology/voc/SPMInfoItems#Management'
+    schema_value: 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management'
     label: Management
     toc_id: 295
 

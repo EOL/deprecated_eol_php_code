@@ -60,6 +60,22 @@ class test_mysqli extends SimpletestUnitBase
         $GLOBALS['db_connection']->update('DROP TABLE `test_load_data`');
         unlink($tmp_file_path);
     }
+    
+    function testSelectIntoOutfile()
+    {
+        $GLOBALS['db_connection']->update('CREATE TABLE `test_load_data` ( `id` INT, `test_string` VARCHAR(50), PRIMARY KEY (`id`))');
+        $GLOBALS['db_connection']->query("INSERT INTO test_load_data VALUES (1, 'one'),(2, 'two'),(3, 'three'),(4, 'four')");
+        
+        $outfile = $GLOBALS['db_connection']->select_into_outfile('SELECT * FROM test_load_data');
+        $contents = file($outfile);
+        $this->assertTrue(count($contents) == 4, 'file should have 4 lines');
+        $this->assertTrue($contents[0] == "1\tone\n", 'first row should be correct');
+        $this->assertTrue($contents[3] == "4\tfour\n", 'last row should be correct');
+        
+        // cleanup
+        $GLOBALS['db_connection']->update('DROP TABLE `test_load_data`');
+        unlink($outfile);
+    }
 }
 
 ?>

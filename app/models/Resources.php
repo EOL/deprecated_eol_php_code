@@ -186,7 +186,7 @@ class Resource extends MysqlBase
         $source_url = @$this->mysqli->escape($taxon->source_url);
         $created_at = @$this->mysqli->escape($taxon->created_at);
         $modified_at = @$this->mysqli->escape($taxon->modified_at);
-        $this->mysqli->insert("INSERT INTO resources_taxa VALUES ($this->id, $taxon_id, '$identifier', '$source_url', '$created_at', '$modified_at')");
+        $this->mysqli->insert("INSERT IGNORE INTO resources_taxa VALUES ($this->id, $taxon_id, '$identifier', '$source_url', '$created_at', '$modified_at')");
     }
     
     public function unpublish_data_objects($object_guids_to_keep = null)
@@ -308,8 +308,6 @@ class Resource extends MysqlBase
             
             if($hierarchy_id = $this->hierarchy_id())
             {
-                $catalogue_of_life_id = Hierarchy::find_by_agent_id(Agent::find("Catalogue of Life"));
-                
                 debug("Assigning nested set values resource: $this->id");
                 Tasks::rebuild_nested_set($hierarchy_id);
                 debug("Finished assigning: $this->id");

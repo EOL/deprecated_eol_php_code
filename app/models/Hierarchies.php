@@ -30,6 +30,7 @@ class Hierarchy extends MysqlBase
     
     static function find_by_agent_id($agent_id)
     {
+        if(!$agent_id) return null;
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $result = $mysqli->query("SELECT max(id) as max FROM hierarchies WHERE agent_id=$agent_id");
@@ -57,6 +58,7 @@ class Hierarchy extends MysqlBase
     public function publish_default_hierarchy_concepts()
     {
         $default_hierarchy_id = self::default_id();
+        if(!$default_hierarchy_id) return false;
         
         $entry_ids = array();
         $result = $GLOBALS['db_connection']->query("SELECT he.id FROM hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE he.hierarchy_id=$default_hierarchy_id AND tc.published=0 AND tc.supercedure_id=0");

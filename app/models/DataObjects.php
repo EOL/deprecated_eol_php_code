@@ -99,19 +99,20 @@ class DataObject extends MysqlBase
     public function add_agent($agent_id, $agent_role_id, $view_order)
     {
         if(!$agent_id) return false;
-        $this->mysqli->insert("INSERT INTO agents_data_objects VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
+        if(!$agent_role_id) $agent_role_id = 0;
+        $this->mysqli->insert("INSERT IGNORE INTO agents_data_objects VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
     }
     
     public function add_audience($audience_id)
     {
         if(!$audience_id) return false;
-        $this->mysqli->insert("INSERT INTO audiences_data_objects VALUES ($this->id, $audience_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO audiences_data_objects VALUES ($this->id, $audience_id)");
     }
     
     public function add_info_item($info_item_id)
     {
         if(!$info_item_id) return false;
-        $this->mysqli->insert("INSERT INTO data_objects_info_items VALUES ($this->id, $info_item_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_info_items VALUES ($this->id, $info_item_id)");
     }
     
     public function references()

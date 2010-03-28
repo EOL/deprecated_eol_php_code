@@ -60,19 +60,19 @@ class HierarchiesContent
         sleep_production(60);
         
         // update attributes for all the data types we care about
-        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.text=1 WHERE dttc.data_type_id=".DataType::find_by_label('Text')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::find('visible')."");
+        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.text=1 WHERE dttc.data_type_id=".DataType::insert('Text')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
         sleep_production(60);
-        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.image=1 WHERE dttc.data_type_id=".DataType::find_by_label('Image')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::find('visible')."");
+        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.image=1 WHERE dttc.data_type_id=".DataType::insert('Image')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
         sleep_production(60);
-        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.flash=1 WHERE dttc.data_type_id=".DataType::find_by_label('Flash')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::find('visible')."");
+        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.flash=1 WHERE dttc.data_type_id=".DataType::insert('Flash')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
         sleep_production(60);
-        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.youtube=1 WHERE dttc.data_type_id=".DataType::find_by_label('YouTube')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::find('visible')."");
+        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.youtube=1 WHERE dttc.data_type_id=".DataType::insert('YouTube')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
         sleep_production(60);
         
         // update attributes for all the UNPUBLISHED data types we care about
-        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.text_unpublished=1 WHERE dttc.data_type_id=".DataType::find_by_label('Text')." AND (dttc.published=1 OR dttc.visibility_id!=".Visibility::find('visible').")");
+        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.text_unpublished=1 WHERE dttc.data_type_id=".DataType::insert('Text')." AND (dttc.published=1 OR dttc.visibility_id!=".Visibility::insert('visible').")");
         sleep_production(60);
-        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.image_unpublished=1 WHERE dttc.data_type_id=".DataType::find_by_label('Image')." AND (dttc.published=1 OR dttc.visibility_id!=".Visibility::find('visible').")");
+        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.image_unpublished=1 WHERE dttc.data_type_id=".DataType::insert('Image')." AND (dttc.published=1 OR dttc.visibility_id!=".Visibility::insert('visible').")");
         sleep_production(60);
         
         // update the content_level attribute

@@ -47,14 +47,14 @@ class Taxon extends MysqlBase
     public function add_reference($reference_id)
     {
         if(!$reference_id) return 0;
-        $this->mysqli->insert("INSERT INTO refs_taxa VALUES ($this->id, $reference_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO refs_taxa VALUES ($this->id, $reference_id)");
     }
     
     public function add_common_name($c)
     {
         $common_name_id = CommonName::insert($c);
         if(!$common_name_id) return 0;
-        $this->mysqli->insert("INSERT INTO common_names_taxa VALUES ($this->id, $common_name_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO common_names_taxa VALUES ($this->id, $common_name_id)");
         
         $name_id = Name::insert($c->common_name);
         if(!$c->language_id) $c->language_id = Language::insert('Common name');
@@ -65,7 +65,7 @@ class Taxon extends MysqlBase
     {
         if(!$data_object_id) return 0;
         $identifier = @$this->mysqli->escape($data_object->identifier);
-        $this->mysqli->insert("INSERT INTO data_objects_taxa VALUES ($this->id, $data_object_id, '$identifier')");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxa VALUES ($this->id, $data_object_id, '$identifier')");
     }
     
     public function common_names()
@@ -144,7 +144,7 @@ class Taxon extends MysqlBase
         
         if($guid = $find_result["exact"])
         {
-            $result = $mysqli->query("SELECT SQL_NO_CACHE taxon_id FROM harvest_events_taxa WHERE guid='$guid' AND harvest_event_id=".$resource->harvest_event->id." ORDER BY data_object_id DESC LIMIT 0,1");
+            $result = $mysqli->query("SELECT SQL_NO_CACHE taxon_id FROM harvest_events_taxa WHERE guid='$guid' AND harvest_event_id=".$resource->harvest_event->id." ORDER BY taxon_id DESC LIMIT 0,1");
             if($result && $row=$result->fetch_assoc())
             {
                 return array(new Taxon($row["taxon_id"]), "Reused");

@@ -305,15 +305,15 @@ class TopImages
         $this->mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
         
         $species_rank_ids_array = array();
-        if($id = Rank::find('species')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('sp')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('sp.')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('subspecies')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('subsp')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('subsp.')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('variety')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('var')) $species_rank_ids_array[] = $id;
-        if($id = Rank::find('var.')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('species')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('sp')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('sp.')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('subspecies')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('subsp')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('subsp.')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('variety')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('var')) $species_rank_ids_array[] = $id;
+        if($id = Rank::insert('var.')) $species_rank_ids_array[] = $id;
         $species_rank_ids = implode(",", $species_rank_ids_array);
         
         // maybe also add where lft=rgt-1??

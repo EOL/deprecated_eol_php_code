@@ -2289,11 +2289,11 @@ languages_208:
 languages_209:
     id: 209
     label: Guarani
-    name: Avañe'ẽ
+    name: Avañeẽ
     iso_639_1: gn
     iso_639_2: grn
     iso_639_3: grn
-    source_form: Avañe'ẽ
+    source_form: Avañeẽ
     sort_order: 1
     activated_on: 
 
@@ -2332,7 +2332,7 @@ languages_212:
 
 languages_213:
     id: 213
-    label: Gwich'in
+    label: Gwichin
     name: 
     iso_639_1: 
     iso_639_2: 
@@ -5413,11 +5413,11 @@ languages_492:
 languages_493:
     id: 493
     label: Samoan
-    name: gagana fa'a Samoa
+    name: gagana faa Samoa
     iso_639_1: sm
     iso_639_2: smo
     iso_639_3: smo
-    source_form: gagana fa'a Samoa
+    source_form: gagana faa Samoa
     sort_order: 1
     activated_on: 
 
@@ -6590,11 +6590,11 @@ languages_599:
 languages_600:
     id: 600
     label: Uzbek
-    name: O'zbek
+    name: Ozbek
     iso_639_1: uz
     iso_639_2: uzb
     iso_639_3: uzb
-    source_form: O'zbek
+    source_form: Ozbek
     sort_order: 1
     activated_on: 
 

@@ -54,7 +54,8 @@ class MysqliConnection
         $this->master_mysqli->query($query);
         if($this->master_mysqli->errno)
         {
-            trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            trigger_error('MySQL insert Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            mysql_debug('MySQL insert Error: ' . $this->master_mysqli->error, E_USER_WARNING);
         }
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
         return $this->master_mysqli->insert_id;
@@ -66,6 +67,12 @@ class MysqliConnection
         $this->debug($query, true);
         
         $result = $this->master_mysqli->query($query);
+        if($this->master_mysqli->errno)
+        {
+            trigger_error('MySQL update Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            mysql_debug('MySQL update Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+        }
+        if($err = mysqli_errno($this->master_mysqli)) return NULL;
         return $result;
     }
     
@@ -80,6 +87,27 @@ class MysqliConnection
         $this->debug($query, true);
         
         $result = $this->master_mysqli->query($query);
+        if($this->master_mysqli->errno)
+        {
+            trigger_error('MySQL delete Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            mysql_debug('MySQL delete Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+        }
+        if($err = mysqli_errno($this->master_mysqli)) return NULL;
+        return $result;
+    }
+    
+    function select($query)
+    {
+        $this->check();
+        $this->debug($query, false);
+        
+        $result = $this->mysqli->query($query);
+        if($this->mysqli->errno)
+        {
+            trigger_error('MySQL select Error: ' . $this->mysqli->error, E_USER_WARNING);
+            mysql_debug('MySQL select Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+        }
+        if($err = mysqli_errno($this->mysqli)) return NULL;
         return $result;
     }
     
@@ -101,11 +129,7 @@ class MysqliConnection
             }
         }
         
-        $this->check();
-        $this->debug($query, false);
-        
-        $result = $this->mysqli->query($query);
-        return $result;
+        return $this->select($query);
     }
     
     function multi_query($query)
@@ -175,6 +199,21 @@ class MysqliConnection
         $this->insert("SET FOREIGN_KEY_CHECKS = 1");
         $this->end_transaction();
         //unlink($tmp_file_path);
+    }
+    
+    function select_into_outfile($query, $escape = false)
+    {
+        $tmp_file_path = temp_filepath();
+        
+        // perpare the command line command
+        $command = "mysql --host=$this->server --user=$this->user --password=$this->password --database=$this->database --compress --column-names=false";
+        if($this->port) $command .= " --port=$this->port";
+        if($this->encoding) $command .= " --default-character-set=$this->encoding";
+        $command .= " -e '$query' > $tmp_file_path";
+        
+        // execute the query
+        shell_exec($command);
+        return $tmp_file_path;
     }
     
     function truncate_tables($environment = "test")
@@ -285,7 +324,7 @@ class MysqliConnection
     {
         static $number_of_queries;
         static $number_of_master_queries;
-        if(@$GLOBALS['ENV_MYSQL_DEBUG'] && @$GLOBALS['ENV_DEBUG'])
+        if((@$GLOBALS['ENV_MYSQL_DEBUG'] && @$GLOBALS['ENV_DEBUG']) || $GLOBALS['ENV_NAME'] == 'test')
         {
             if(!isset($number_of_queries)) $number_of_queries = 1;
             if(!isset($number_of_master_queries)) $number_of_master_queries = 1;

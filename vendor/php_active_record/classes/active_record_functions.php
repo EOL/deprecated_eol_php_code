@@ -86,7 +86,7 @@ function mysql_debug($string)
 {
     if($GLOBALS['ENV_NAME']=='test' || ($GLOBALS['ENV_MYSQL_DEBUG'] && $GLOBALS['ENV_DEBUG']))
     {
-        display($string . ' :: [' . get_last_function(5) . ']');
+        display($string . ' :: [' . get_last_function(4) . ']');
     }
 }
 
@@ -345,6 +345,16 @@ function sleep_production($seconds)
         sleep($seconds);
     }
 }
+
+function usleep_production($microseconds)
+{
+    //1000000 us = 1s
+    if(@$GLOBALS['ENV_NAME'] == 'production')
+    {
+        usleep($microseconds);
+    }
+}
+
 
 function random_digits($number, $start = 0)
 {
