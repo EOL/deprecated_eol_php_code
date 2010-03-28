@@ -1,19 +1,20 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
 require_vendor("wikipedia");
 
 
-
+exit;
 $resource = new Resource(71);
 
-// // download latest Wikimedia Commons export
-// shell_exec("curl ".$resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
-// // unzip the download
-// shell_exec("bunzip2 ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
-// // split the huge file into 300M chunks
-// shell_exec("split -b 300m ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml ". DOC_ROOT ."update_resources/connectors/files/wikimedia/part_");
+// download latest Wikimedia Commons export
+shell_exec("curl ".$resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+// unzip the download
+shell_exec("bunzip2 ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+// split the huge file into 300M chunks
+shell_exec("split -b 300m ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml ". DOC_ROOT ."update_resources/connectors/files/wikimedia/part_");
 
 // determine the filename of the last chunk
 $last_line = exec("ls -l ". DOC_ROOT ."update_resources/connectors/files/wikimedia");
@@ -49,10 +50,10 @@ get_image_urls();
 create_resource_file();
 
 
-// // cleaning up downloaded files
-// shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia/*");
-// shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml");
-// shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+// cleaning up downloaded files
+shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia/*");
+shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml");
+shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
 
 echo "end";
 

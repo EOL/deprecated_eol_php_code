@@ -4,9 +4,6 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
-$mysqli =& $GLOBALS['mysqli_connection'];
-
-
 
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_PLEARY_AUTH_TOKEN))

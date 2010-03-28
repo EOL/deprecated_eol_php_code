@@ -52,6 +52,10 @@ class MysqliConnection
         $this->debug($query, true);
         
         $this->master_mysqli->query($query);
+        if($this->master_mysqli->errno)
+        {
+            trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+        }
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
         return $this->master_mysqli->insert_id;
     }
@@ -132,6 +136,7 @@ class MysqliConnection
     function load_data_infile($path, $table, $action = "IGNORE")
     {
         if($action != "REPLACE") $action = "IGNORE";
+        // how many rows to split the larger file into
         $maximum_rows_in_file = 50000;
         $tmp_file_path = DOC_ROOT ."temp/load_data_tmp.sql";
         
