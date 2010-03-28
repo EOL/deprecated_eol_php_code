@@ -237,7 +237,7 @@ class CompareHierarchies
         $start_time = microtime(true);
         
         // get a path to a tmp file which doesn't exist yet
-        $sql_filepath = Functions::temp_filepath();
+        $sql_filepath = temp_filepath();
         $SQL_FILE = fopen($sql_filepath, "w+");
         
         // delete all records which will conflict with this comparison session
@@ -309,7 +309,7 @@ class CompareHierarchies
                             $type = 'syn';
                         }else $type = 'name';
                         
-                        fwrite($SQL_FILE, "$id1\t$id2\t'$type'\t$score\t''\n");
+                        fwrite($SQL_FILE, "$id1\t$id2\t$type\t$score\t\n");
                     }
                 }
                 unset($GLOBALS['hierarchy_entry_matches']);

@@ -56,33 +56,33 @@ class Functions
         return $xml;
     }
     
-    public static function display($text)
-    {
-        if(DEBUG_TO_FILE) fwrite($GLOBALS['debug_file'], str_pad(self::time_elapsed(), 12, " ", STR_PAD_LEFT)." -> ". $text."\n");
-        else
-        {
-            echo "$text<br>\n";
-            flush();
-        }
-    }
+    // public static function display($text)
+    // {
+    //     if(DEBUG_TO_FILE) fwrite($GLOBALS['debug_file'], str_pad(self::time_elapsed(), 12, " ", STR_PAD_LEFT)." -> ". $text."\n");
+    //     else
+    //     {
+    //         echo "$text<br>\n";
+    //         flush();
+    //     }
+    // }
     
-    public static function mysql_debug($string)
-    {
-        if(defined('MYSQL_DEBUG') && MYSQL_DEBUG)
-        {
-            self::display($string." :: [".self::get_last_function(4)."]");
-            //self::display("Stacktrace: ".self::stacktrace());
-        }
-    }
+    // public static function mysql_debug($string)
+    // {
+    //     if(defined('MYSQL_DEBUG') && MYSQL_DEBUG)
+    //     {
+    //         self::display($string." :: [".self::get_last_function(4)."]");
+    //         //self::display("Stacktrace: ".self::stacktrace());
+    //     }
+    // }
     
-    public static function debug($string)
-    {
-        if(defined('DEBUG') && DEBUG)
-        {
-            self::display($string." :: [".self::get_last_function(3)."]");
-            //self::display("Stacktrace: ".self::stacktrace());
-        }
-    }
+    // public static function debug($string)
+    // {
+    //     if(defined('DEBUG') && DEBUG)
+    //     {
+    //         self::display($string." :: [".self::get_last_function(3)."]");
+    //         //self::display("Stacktrace: ".self::stacktrace());
+    //     }
+    // }
     
     public static function log($string)
     {
@@ -200,27 +200,27 @@ class Functions
         return (self::remote_file_size($uri) !== null);
     }
     
-    public static function temp_filepath($relative_from_root = false, $extension = 'file')
-    {
-        if($relative_from_root) $prefix = "";
-        else $prefix = DOC_ROOT;
-        
-        $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
-        while(glob($filepath))
-        {
-            $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
-        }
-        
-        return $filepath;
-    }
+    // public static function temp_filepath($relative_from_root = false, $extension = 'file')
+    // {
+    //     if($relative_from_root) $prefix = "";
+    //     else $prefix = DOC_ROOT;
+    //     
+    //     $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
+    //     while(glob($filepath))
+    //     {
+    //         $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
+    //     }
+    //     
+    //     return $filepath;
+    // }
     
-    public function random_digits($number, $start = 0)
-    {
-        $start = "1".str_repeat($start, $number);
-        $end = "1".str_repeat(9, $number);
-        $random = rand($start,$end);
-        return substr($random, 1);
-    }
+    // public function random_digits($number, $start = 0)
+    // {
+    //     $start = "1".str_repeat($start, $number);
+    //     $end = "1".str_repeat(9, $number);
+    //     $random = rand($start,$end);
+    //     return substr($random, 1);
+    // }
     
     public static function curl_post_request($url, $parameters_array = array())
     {

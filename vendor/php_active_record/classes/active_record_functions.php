@@ -346,4 +346,30 @@ function sleep_production($seconds)
     }
 }
 
+function random_digits($number, $start = 0)
+{
+    if(!$number) return null;
+    // adding a 1 in front so we can get zeros in the first position
+    $start = "1".$start.str_repeat(0, $number-1);
+    $end = "1".str_repeat(9, $number);
+    $random = rand($start, $end);
+    // chop off the 1 to get the real random number
+    return substr($random, 1);
+}
+
+function temp_filepath($relative_from_root = false, $extension = 'file')
+{
+    if($relative_from_root) $prefix = "";
+    else $prefix = DOC_ROOT;
+    
+    $filepath = $prefix ."temp/tmp_". random_digits(5) .".$extension";
+    // make sure the name is unique
+    while(glob($filepath))
+    {
+        $filepath = $prefix ."temp/tmp_". random_digits(5) .".$extension";
+    }
+    return $filepath;
+}
+
+
 ?>

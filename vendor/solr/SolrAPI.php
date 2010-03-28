@@ -20,7 +20,7 @@ class SolrAPI
         $this->file_delimiter = $d;
         $this->multi_value_delimiter = $mv;
         
-        $this->csv_path = Functions::temp_filepath(true);
+        $this->csv_path = temp_filepath(true);
         $this->action_url = $this->server . $this->core;
         if(preg_match("/^(.*)\/$/", $this->action_url, $arr)) $this->action_url = $arr[1];
         

@@ -55,7 +55,7 @@ function insert_titles()
             $details['abbreviation'] = '';
             $details['url']          = $GLOBALS['db_connection']->escape($data[11]);
             
-            fwrite($OUT, "'". implode("'\t'", $details) ."'\n");
+            fwrite($OUT, implode("\t", $details) ."\n");
         }
     }
     
@@ -91,7 +91,7 @@ function insert_items()
             $details['volume_info']             = $GLOBALS['db_connection']->escape($data[6]);
             $details['url']                     = $GLOBALS['db_connection']->escape($data[7]);
             
-            fwrite($OUT, "'". implode("'\t'", $details) ."'\n");
+            fwrite($OUT, implode("\t", $details) ."\n");
         }
     }
     
@@ -128,7 +128,7 @@ function insert_pages()
             $details['url']             = "http://www.biodiversitylibrary.org/page/". $details['id'];
             $details['page_type']       = $GLOBALS['db_connection']->escape($data[8]);
             
-            fwrite($OUT, "'". implode("'\t'", $details) ."'\n");
+            fwrite($OUT, implode("\t", $details) ."\n");
         }
         //if($i>=500000) break;
     }

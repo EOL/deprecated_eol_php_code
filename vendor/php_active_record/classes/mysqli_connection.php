@@ -132,7 +132,7 @@ class MysqliConnection
     function load_data_infile($path, $table, $action = "IGNORE")
     {
         if($action != "REPLACE") $action = "IGNORE";
-        $maximum_rows_in_file = 100000;
+        $maximum_rows_in_file = 50000;
         $tmp_file_path = DOC_ROOT ."temp/load_data_tmp.sql";
         
         $this->begin_transaction();
@@ -152,8 +152,7 @@ class MysqliConnection
                 // load data if we have enough rows
                 if($line_counter >= $maximum_rows_in_file)
                 {
-                    echo "committing $line_counter\n";
-                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table`");
+                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table` FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n'");
                     rewind($LOAD_DATA_TEMP);
                     ftruncate($LOAD_DATA_TEMP, 0);
                     $line_counter = 0;

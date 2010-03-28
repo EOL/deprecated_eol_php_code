@@ -65,6 +65,43 @@ class test_active_record_functions extends SimpletestUnitBase
         $this->assertTrue(table_fields('some_test_table') == array('field_one', 'field_two', 'field_three'), 'Table fields should work');
         $GLOBALS['db_connection']->delete('DROP TABLE some_test_table');
     }
+    
+    function testRandomDigits()
+    {
+        $random = random_digits(7);
+        $this->assertTrue(strlen($random) == 7, 'should get 7 random digits');
+        $this->assertPattern("/^[0-9]{7}$/", $random, 'should get 7 random digits');
+        $this->assertTrue($random != random_digits(7), 'should get a different 7 random digits');
+        
+        $random = random_digits(6, 7);
+        $this->assertTrue(strlen($random) == 6, 'should get 6 random digits');
+        
+        // make sure the first digit is never less than 7 - 30 tries
+        $pass_test = true;
+        for($i=0; $i<30 ; $i++)
+        {
+            $random = random_digits(6, 7);
+            if(substr($random, 0, 1) < 7)
+            {
+                $pass_test = false;
+                break;
+            }
+        }
+        $this->assertTrue($pass_test, 'the first digit should never be less than 7');
+    }
+    
+    function testTempFilePath()
+    {
+        $tmp_path = temp_filepath();
+        $this->assertPattern("/^".preg_quote(DOC_ROOT,"/") ."temp\/tmp_[0-9]{5}\.file$/", $tmp_path, 'should return correct temp file path');
+        
+        $tmp_path = temp_filepath(true);
+        $this->assertPattern("/^temp\/tmp_[0-9]{5}\.file$/", $tmp_path, 'should return relative temp file path');
+        
+        $tmp_path = temp_filepath(true, 'jpg');
+        $this->assertPattern("/^temp\/tmp_[0-9]{5}\.jpg$/", $tmp_path, 'should return relative temp file path with extension');
+        
+    }
 }
 
 ?>

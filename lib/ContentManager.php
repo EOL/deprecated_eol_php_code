@@ -181,10 +181,10 @@ class ContentManager
     
     function new_partner_file_name()
     {
-        $file = Functions::random_digits(6, 1);
+        $file = random_digits(6, 1);
         while(glob(CONTENT_PARTNER_LOCAL_PATH."/$file"."*"))
         {
-            $file = Functions::random_digits(6, 1);
+            $file = random_digits(6, 1);
         }
         
         return CONTENT_PARTNER_LOCAL_PATH.$file;
@@ -207,10 +207,10 @@ class ContentManager
         
         // Generate a random identifier for the data object
         // loop until we have a unique random identifier
-        $file = Functions::random_digits(5);
+        $file = random_digits(5);
         while(glob(CONTENT_LOCAL_PATH."$year/$month/$day/$hour/$file"."*"))
         {
-            $file = Functions::random_digits(5);
+            $file = random_digits(5);
         }
         
         return CONTENT_LOCAL_PATH."$year/$month/$day/$hour/$file";
