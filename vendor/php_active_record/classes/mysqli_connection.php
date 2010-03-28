@@ -132,7 +132,7 @@ class MysqliConnection
     function load_data_infile($path, $table, $action = "IGNORE")
     {
         if($action != "REPLACE") $action = "IGNORE";
-        $maximum_rows_in_file = 200000;
+        $maximum_rows_in_file = 100000;
         $tmp_file_path = DOC_ROOT ."temp/load_data_tmp.sql";
         
         $this->begin_transaction();
