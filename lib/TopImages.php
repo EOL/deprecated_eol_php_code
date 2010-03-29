@@ -61,7 +61,7 @@ class TopImages
                     ORDER BY he.id");
             echo "Memory: ".memory_get_usage()."\n";
             
-            $parent_ids = $this->get_data_from_result($outfile);
+            $parent_ids = $this->get_data_from_result($outfile, false);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
         }
         
@@ -115,7 +115,7 @@ class TopImages
             ORDER BY hierarchy_entry_id");
             echo "Memory: ".memory_get_usage()."\n";
             
-            $parent_ids = $this->get_data_from_result($outfile, false);
+            $parent_ids = $this->get_data_from_result($outfile);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
         }
         // load all info from this series of ancestry
