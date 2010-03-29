@@ -10,8 +10,8 @@ $GLOBALS['ENV_NAME'] = 'development';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-//$wrap = "\n"; 
-$wrap = "<br>"; 
+$wrap = "\n"; 
+//$wrap = "<br>"; 
  
 $resource = new Resource(1); //exit($resource->id);
 
@@ -20,9 +20,9 @@ $used_taxa = array();
 
 //$file = "";
 $path="files/USDA_text_descriptions/";
-$urls = array( 0 => array( "url" => $path . "legumesEOL.htm"  , "active" => 0),   //
+$urls = array( 0 => array( "url" => $path . "legumesEOL.htm"  , "active" => 1),   //
                1 => array( "url" => $path . "GrassEOL.htm"    , "active" => 1),   //
-               2 => array( "url" => $path . "gymnosperms.htm" , "active" => 0)
+               2 => array( "url" => $path . "gymnosperms.htm" , "active" => 1)
              );
 $do_count=0;
 $i=0;
@@ -31,8 +31,8 @@ foreach($urls as $path)
     if($path["active"])
     {        
         print $i+1 . ". " . $path["url"] . "$wrap";        
-        if($i <= 1) process_file1($path["url"],$i);    //legumesEOL, GrassEOL
-        else {}                                        //gymnosperms
+        if    ($i <= 1) process_file1($path["url"],$i); //legumesEOL, GrassEOL
+        elseif($i == 2) process_file2($path["url"],$i); //gymnosperms
         
     }
     $i++;
@@ -50,28 +50,93 @@ fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
 $elapsed_time_sec = microtime(1)-$timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec sec              \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+echo "$wrap";
+echo "elapsed time = $elapsed_time_sec sec              $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
 
 exit("\n\n Done processing.");
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################
 
+function process_file2($file,$doc_id)
+{        
+    /* the gymnosperms.htm is not as structured as the other 2 docs.
+       a minor manual edit on the doc was needed. 
+    */
+    global $wrap;
+    global $used_taxa;
+
+    
+    print "$wrap";    
+    $str = Functions::get_remote_file($file);    
+
+    $str = str_ireplace(chr(10) , "<br>", $str);	
+    $str = str_ireplace(chr(13) , "", $str);	    
+
+    $str = str_ireplace('<br><br>' , "&arr[]=", $str);	
+    //print "<hr>$str"; exit;        
+        
+    $str=trim($str);
+    $str=substr($str,0,strlen($str)-7);   //to remove last part of string "&arr[]="
+    //print "<hr>$str"; exit;
+
+    $arr=array();	
+    parse_str($str);	
+    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
+    
+    //print"<pre>";print_r($arr);print"</pre>";
+    //exit;
+    
+    $i=0;
+    foreach($arr as $str)
+    {
+        $str = clean_str($str);
+        
+        //if($i >= 5)break; //debug        //ditox
+        
+        $i++;
+        // if(in_array($i,array(8))){
+        if(true)
+        {
+            //<b><i>Abrus precatorius</i></b>
+
+            //get sciname
+            $str = "xxx" . $str;
+            $beg='xxx'; $end1='<br>';
+            $sciname = strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")));            
+
+            //get desc
+            $str .= "yyy";
+            $beg='<br>'; $end1='yyy'; 
+            $desc = strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")));                        
+            $last_char_of_desc = substr($desc,strlen($desc)-1,1);
+            if($last_char_of_desc == ",")$desc = substr($desc,0,strlen($desc)-1);            
+            $desc .= ".";
+            
+            if($sciname == "")print "jjj";            
+            print "$i. $sciname $wrap";
+            //print "$desc";                      
+
+            prepare_agent_rights($doc_id,$sciname,$desc);
+                                    
+        }        
+    }//main loop
+    
+    //exit;    
+        
+}//end function process_file2($file)
 
 function process_file1($file,$doc_id)
 {        
     global $wrap;
     global $used_taxa;
-    global $do_count;
     
     print "$wrap";    
     $str = Functions::get_remote_file($file);    
 
     $str = str_ireplace('<br><br>' , "&arr[]=", $str);	
-    //$str=strip_tags($str,'<A>');
     
     $str=trim($str);
     $str=substr($str,0,strlen($str)-7);   //to remove last part of string "&arr[]="
@@ -90,7 +155,7 @@ function process_file1($file,$doc_id)
         $str = clean_str($str);
         $str = str_ireplace("< /i>","</i>",$str);
         
-        if($i >= 5)break; //debug        //ditox
+        //if($i >= 5)break; //debug        //ditox
         
         $i++;
         // if(in_array($i,array(8))){
@@ -108,34 +173,15 @@ function process_file1($file,$doc_id)
             $desc = strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")));                        
             $last_char_of_desc = substr($desc,strlen($desc)-1,1);
             if($last_char_of_desc == ",")$desc = substr($desc,0,strlen($desc)-1);
-            
-            if($sciname == "")print "jjj";
-            
-            print "$sciname $wrap";
-            print "$desc <hr>";                      
+            $desc .= ".";
                         
-            print "<hr>";                                
-            $arr_agents=array();
-            if($doc_id == 0 or $doc_id == 1)//Grasses & Legumes
-            {
-                $dc_rights = "Compiled from several sources by Dr. David Bogler, Missouri Botanical Garden in collaboration with the USDA NRCS NPDC";
-                $arr_agents[]=array("name"=>"Dr. David Bogler",          "role"=>"compiler" ,"homepage"=>"");
-                $arr_agents[]=array("name"=>"Missouri Botanical Garden", "role"=>"source"   ,"homepage"=>"http://www.mobot.org");
-                $arr_agents[]=array("name"=>"USDA NRCS NPDC",            "role"=>"source"   ,"homepage"=>"http://www.nrcs.usda.gov");
-            }
-            elseif($doc_id == 2)//Gymnosperms
-            {
-                $dc_rights = "Compiled from several sources by Stephen C. Meyers, Oregon State University in collaboration with Aaron Liston, Oregon State University, Steffi Ickert-Bond, University of Alaska Fairbanks, and Damon Little, New York Botanical Garden.";                
-                $arr_agents[]=array("name"=>"Stephen C. Meyers",    "role"=>"compiler","homepage"=>"");
-                $arr_agents[]=array("name"=>"Aaron Liston",         "role"=>"compiler","homepage"=>"");
-                $arr_agents[]=array("name"=>"Steffi Ickert-Bond",   "role"=>"compiler","homepage"=>"");
-                $arr_agents[]=array("name"=>"Damon Little",         "role"=>"compiler","homepage"=>"");
-            }
+            if($sciname == "")print "jjj";
+            print "$i. $sciname $wrap";
+            //print "$desc";                      
             
-            $dc_source = "http://npdc.usda.gov/technical/plantid_wetland_mono.html";
             
-            $do_count++;           
-            assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count);                            
+            prepare_agent_rights($doc_id,$sciname,$desc);
+                                    
         }        
     }//main loop
     
@@ -143,6 +189,32 @@ function process_file1($file,$doc_id)
         
 }//end function process_file1($file)
 
+function prepare_agent_rights($doc_id,$sciname,$desc)
+{
+    global $do_count;
+    
+    $arr_agents=array();
+    if($doc_id == 0 or $doc_id == 1)//Grasses & Legumes
+    {
+        $dc_rights = "Compiled from several sources by Dr. David Bogler, Missouri Botanical Garden in collaboration with the USDA NRCS NPDC";
+        $arr_agents[]=array("name"=>"Dr. David Bogler",          "role"=>"compiler" ,"homepage"=>"");
+        $arr_agents[]=array("name"=>"Missouri Botanical Garden", "role"=>"source"   ,"homepage"=>"http://www.mobot.org");
+        $arr_agents[]=array("name"=>"USDA NRCS NPDC",            "role"=>"source"   ,"homepage"=>"http://www.nrcs.usda.gov");
+    }
+    elseif($doc_id == 2)//Gymnosperms
+    {
+        $dc_rights = "Compiled from several sources by Stephen C. Meyers, Oregon State University in collaboration with Aaron Liston, Oregon State University, Steffi Ickert-Bond, University of Alaska Fairbanks, and Damon Little, New York Botanical Garden.";                
+        $arr_agents[]=array("name"=>"Stephen C. Meyers",    "role"=>"compiler","homepage"=>"");
+        $arr_agents[]=array("name"=>"Aaron Liston",         "role"=>"compiler","homepage"=>"");
+        $arr_agents[]=array("name"=>"Steffi Ickert-Bond",   "role"=>"compiler","homepage"=>"");
+        $arr_agents[]=array("name"=>"Damon Little",         "role"=>"compiler","homepage"=>"");
+    }
+    
+    $dc_source = "http://npdc.usda.gov/technical/plantid_wetland_mono.html";
+    
+    $do_count++;           
+    assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count);                            
+}
 
 
 function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count)
