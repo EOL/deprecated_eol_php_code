@@ -51,9 +51,13 @@ $id     = 107;  //for Encyclopedia of Marine Life - Britain and Ireland
 $fld    = "service_type_id";
 $value  = 2;
 
+$id     = 98;  //hexacorallians
+$fld    = "service_type_id";
+$value  = 2;
+
 */
 
-$id     = 98;  //hexacorallians
+$id     = 100;  //Conabio
 $fld    = "service_type_id";
 $value  = 2;
 
