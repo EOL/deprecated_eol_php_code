@@ -56,23 +56,14 @@
             Order By resources.harvested_at Desc
             ";                     }
 
-        /*
-        elseif($e==8){    //  resources: upload failed
-        elseif($e==9){    //  resources: Validation Failed
-        elseif($e==10){    //  resources: Processing Failed
-        elseif($e==11){    //  resources: Publish Pending
-        elseif($e==12){    //  resources: Unpublish Pending
-        elseif($e==13){    //  resources: Force Harvest
-        */
-                    
         elseif($e >= 8 and $e <= 13)            
         {
-            if    ($e==8)$id=3;
-            elseif($e==9)$id=6;
-            elseif($e==10)$id=9;
-            elseif($e==11)$id=11;
-            elseif($e==12)$id=12;
-            elseif($e==13)$id=13;
+            if    ($e==8)$id=3;     //  resources: upload failed
+            elseif($e==9)$id=6;     //  resources: Validation Failed
+            elseif($e==10)$id=9;    //  resources: Processing Failed
+            elseif($e==11)$id=11;   //  resources: Publish Pending
+            elseif($e==12)$id=12;   //  resources: Unpublish Pending
+            elseif($e==13)$id=13;   //  resources: Force Harvest
             $qry="Select distinct 
             concat(if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)),' {',agent_statuses.label,'}') as title, 
             trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description , 
@@ -212,10 +203,13 @@ private function getItems($e,$id)
             //while($row=$result->fetch_assoc())
             while($result && $row=$result->fetch_assoc())
             {
+                if(in_array($e, array('11','12','13')))$row_desc="";
+                else                                   $row_desc=$row["description"];
+                
                 $items .= '<item>
                              <title>' . $row["title"] .'</title>
                              <link>'. $row["link"] .'</link>
-                             <description><![CDATA['. $row["description"] .']]></description>
+                             <description><![CDATA['. $row_desc .']]></description>
                          </item>';
             }
         }
