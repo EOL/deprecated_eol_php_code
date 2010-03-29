@@ -1,7 +1,7 @@
 <?php
 /* connector for USDA text descriptions compiled by Gerald "Stinger" Guala, Ph.D. using the SLIKS software.
 This connector reads 4 HTML files
-estimated execution time: mins -> 
+estimated execution time: 53 secs to 1 min. -> 
 */
 $timestart = microtime(1);
 
