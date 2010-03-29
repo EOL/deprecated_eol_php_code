@@ -13,7 +13,8 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $wrap = "\n"; 
 //$wrap = "<br>"; 
  
-$resource = new Resource(1); //exit($resource->id);
+$resource = new Resource(108); //USDA Plant text descriptions
+//exit($resource->id);
 
 $schema_taxa = array();
 $used_taxa = array();
