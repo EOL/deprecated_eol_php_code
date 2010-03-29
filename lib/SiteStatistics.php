@@ -428,25 +428,27 @@ class SiteStatistics
           `taxon_concept_id` int unsigned NOT NULL,
           `count_data_types` smallint unsigned NOT NULL,
           `count_toc` smallint unsigned NOT NULL,
-          `in_col` tinyint unsigned NULL,
+          `in_col` tinyint unsigned NOT NULL,
           PRIMARY KEY  (`taxon_concept_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         
-        $this->mysqli->query("INSERT IGNORE INTO taxon_concepts_data_types (SELECT tc.id, count(distinct do.data_type_id), count(distinct dotoc.toc_id), he_col.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON  (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) LEFT JOIN data_objects_table_of_contents dotoc ON (do.id=dotoc.data_object_id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find("trusted")." GROUP BY tc.id)");
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, count(distinct do.data_type_id), count(distinct dotoc.toc_id), he_col.id IS NOT NULL FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON (tc.id=dotc.taxon_concept_id) JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN data_objects_table_of_contents dotoc ON (do.id=dotoc.data_object_id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find("trusted")." GROUP BY tc.id");
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_data_types');
+        unlink($outfile);
         
         $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types");
         if($result && $row=$result->fetch_assoc()) $this->content_by_category['total_with_objects'] = $row['count'];
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types=1 AND count_toc<2 AND in_col IS NOT NULL");
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types=1 AND count_toc<2 AND in_col=1");
         if($result && $row=$result->fetch_assoc()) $this->content_by_category['one_type_in_col'] = $row['count'];
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types=1 AND count_toc<2 AND in_col IS NULL");
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types=1 AND count_toc<2 AND in_col=0");
         if($result && $row=$result->fetch_assoc()) $this->content_by_category['one_type_not_in_col'] = $row['count'];
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types>1 OR count_toc>1 AND in_col IS NOT NULL");
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types>1 OR count_toc>1 AND in_col=1");
         if($result && $row=$result->fetch_assoc()) $this->content_by_category['more_types_in_col'] = $row['count'];
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types>1 OR count_toc>1 AND in_col IS NULL");
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_data_types WHERE count_data_types>1 OR count_toc>1 AND in_col=0");
         if($result && $row=$result->fetch_assoc()) $this->content_by_category['more_types_not_in_col'] = $row['count'];
         
         $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_data_types`");
@@ -465,16 +467,18 @@ class SiteStatistics
         $this->mysqli->query("CREATE TABLE `taxon_concepts_curation` (
           `taxon_concept_id` int unsigned NOT NULL,
           `requires_curation` tinyint unsigned NOT NULL,
-          `in_col` tinyint unsigned NULL,
+          `in_col` tinyint unsigned NOT NULL,
           PRIMARY KEY  (`taxon_concept_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         
-        $this->mysqli->query("INSERT IGNORE INTO taxon_concepts_curation (SELECT tc.id, 1, he_col.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id)  JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." GROUP BY tc.id)");
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, 1, he_col.id IS NOT NULL FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON (tc.id=dotc.taxon_concept_id) JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown'));
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_curation');
+        unlink($outfile);
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_curation WHERE in_col IS NOT NULL");
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_curation WHERE in_col=1");
         if($result && $row=$result->fetch_assoc()) $this->taxon_concept_curation['needs_curation_in_col'] = $row['count'];
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_curation WHERE in_col IS NULL");
+        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts_curation WHERE in_col=0");
         if($result && $row=$result->fetch_assoc()) $this->taxon_concept_curation['needs_curation_not_in_col'] = $row['count'];
         
         $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_curation`");

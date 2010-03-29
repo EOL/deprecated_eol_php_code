@@ -163,7 +163,7 @@ class MysqliConnection
         // how many rows to split the larger file into
         $maximum_rows_in_file = 50000;
         if($action == 'REPLACE') $maximum_rows_in_file = 20000;
-        $tmp_file_path = DOC_ROOT ."temp/load_data_tmp.sql";
+        $tmp_file_path = temp_filepath();
         
         $this->begin_transaction();
         //$this->insert("SET FOREIGN_KEY_CHECKS = 0");
@@ -215,7 +215,7 @@ class MysqliConnection
         $command = "mysql --host=$this->server --user=$this->user --password=$this->password --database=$this->database --compress --column-names=false";
         if($this->port) $command .= " --port=$this->port";
         if($this->encoding) $command .= " --default-character-set=$this->encoding";
-        $command .= " -e '$query' > $tmp_file_path";
+        $command .= " -e \"$query\"  > $tmp_file_path";
         
         // execute the query
         $this->debug($query, true);

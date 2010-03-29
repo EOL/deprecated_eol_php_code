@@ -3,7 +3,6 @@
 include_once(dirname(__FILE__) . "/../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 require_library('TopImages');
-require_library('DenormalizeTables');
 
 Functions::log("Starting top_images");
 

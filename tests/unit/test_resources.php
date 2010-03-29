@@ -84,6 +84,8 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows > 0, 'should be taxon_concept_content after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM taxon_concept_names LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be taxon_concept_names after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM feed_data_objects LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be feed_data_objects after harvesting');
         
         
         // make sure we have harvest events

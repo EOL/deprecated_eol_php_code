@@ -68,12 +68,97 @@ class DenormalizeTables
     
     public static function taxon_concepts_exploded($select_hierarchy_id = 0)
     {
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `taxon_concepts_exploded`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `taxon_concepts_exploded` (
+                  `taxon_concept_id` int unsigned NOT NULL,
+                  `parent_id` int unsigned NOT NULL,
+                  PRIMARY KEY (`taxon_concept_id`),
+                  KEY `parent_id` (`parent_id`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+        
+        # TODO - dont hardcode IDs
+        $hierarchies_to_ignore = array(399,105,106,129);
+        
         // do the small ones first
-        $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count ASC");
+        $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count DESC");
         //$result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id FROM hierarchies h");
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
+            if(in_array($hierarchy_id, $hierarchies_to_ignore)) continue;
+            if($select_hierarchy_id && $select_hierarchy_id!=$hierarchy_id) continue;
+            self::taxon_concept_explode_hierarchy($hierarchy_id);
+        }
+    }
+    
+    public static function taxon_concept_explode_hierarchy($id)
+    {
+        echo "Exploding $id\n";
+        
+        // get all concept_id, parent_concept_id which wont create loops
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT he.taxon_concept_id, he_parent.taxon_concept_id FROM hierarchy_entries he LEFT JOIN hierarchy_entries he_parent ON (he.parent_id=he_parent.id) LEFT JOIN taxon_concepts_exploded tcx ON (he.taxon_concept_id=tcx.parent_id AND tcx.taxon_concept_id=he_parent.taxon_concept_id) WHERE he.hierarchy_id=$id AND tcx.taxon_concept_id IS NULL");
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_exploded');
+        unlink($outfile);
+    }
+    
+    
+    
+    
+    
+    
+    /*
+    
+    public static function data_objects_hierarchy_entries()
+    {
+        // create a temporary table for this session
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `data_objects_hierarchy_entries`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `data_objects_hierarchy_entries` (
+                  `data_object_id` int unsigned NOT NULL,
+                  `hierarchy_entry_id` int unsigned NOT NULL,
+                  PRIMARY KEY  (`data_object_id`, `hierarchy_entry_id`),
+                  KEY `hierarchy_entry_id` (`hierarchy_entry_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        
+        $start = 0;
+        $stop = 0;
+        $batch_size = 50000;
+        $result = $GLOBALS['db_connection']->query("SELECT MIN(id) min, MAX(id) max FROM data_objects");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $start = $row['min'];
+            $stop = $row['max'];
+        }
+        for($i=$start ; $i<$stop ; $i+=$batch_size)
+        {
+            echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
+            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT DISTINCT do.id, he.id FROM hierarchy_entries he JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size));
+            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_hierarchy_entries');
+            unlink($outfile);
+            
+            sleep_production(3);
+        }
+    }
+    
+    public static function hierarchy_entries_exploded($select_hierarchy_id = 0)
+    {
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `taxon_concepts_exploded`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `taxon_concepts_exploded` (
+                  `taxon_concept_id` int unsigned NOT NULL,
+                  `parent_id` int unsigned NOT NULL,
+                  PRIMARY KEY (`taxon_concept_id`),
+                  KEY `parent_id` (`parent_id`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+        
+        # TODO - dont hardcode IDs
+        $hierarchies_to_ignore = array(399,105,106,129);
+        
+        // do the small ones first
+        $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count ASC");
+        //$result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id FROM hierarchies h");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $hierarchy_id = $row['hierarchy_id'];
+            if(in_array($hierarchy_id, $hierarchies_to_ignore)) continue;
             if($select_hierarchy_id && $select_hierarchy_id!=$hierarchy_id) continue;
             self::explode_hierarchy($hierarchy_id);
         }
@@ -166,6 +251,7 @@ class DenormalizeTables
             unset($children[$id]);
         }
     }
+    */
 }
 
 ?>

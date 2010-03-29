@@ -46,7 +46,7 @@ class TopImages
             $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
             
             echo "Memory: ".memory_get_usage()."\n";
-            $result = $this->mysqli->query("
+            $outfile = $this->mysqli->select_into_outfile("
                 SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
                     FROM data_objects_taxon_concepts dotc
                     JOIN data_objects do ON (dotc.data_object_id=do.id)
@@ -61,7 +61,7 @@ class TopImages
                     ORDER BY he.id");
             echo "Memory: ".memory_get_usage()."\n";
             
-            $parent_ids = $this->get_data_from_result($result);
+            $parent_ids = $this->get_data_from_result($outfile);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
         }
         
@@ -95,7 +95,7 @@ class TopImages
             
             // searches for all images for THIS concept, same as above
             // but also searches top_images for the best from its decendants
-            $result = $this->mysqli->query("
+            $outfile = $this->mysqli->select_into_outfile("
             (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
                 FROM hierarchy_entries he
                 JOIN top_images_tmp ti ON (he.id=ti.hierarchy_entry_id)
@@ -115,7 +115,7 @@ class TopImages
             ORDER BY hierarchy_entry_id");
             echo "Memory: ".memory_get_usage()."\n";
             
-            $parent_ids = $this->get_data_from_result($result);
+            $parent_ids = $this->get_data_from_result($outfile, false);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
         }
         // load all info from this series of ancestry
@@ -196,52 +196,71 @@ class TopImages
     }
     
     
-    function get_data_from_result(&$result)
+    function get_data_from_result($outfile, $delete = true)
     {
         $i = 0;
         $parent_ids = array();
         $last_hierarchy_entry_id = 0;
         $top_images = array();
         $top_unpublished_images = array();
+        $hierarchy_entry_ids = array();
         
         $visible_id = Visibility::find("visible");
-        while($result && $row=$result->fetch_assoc())
+        $RESULT = fopen($outfile, "r");
+        while(!feof($RESULT))
         {
-            if($i%2000==0) echo "Memory: ".memory_get_usage()."\n";
-            $i++;
-            $hierarchy_entry_id = $row["hierarchy_entry_id"];
-            $parent_id = $row["parent_id"];
-            $data_object_id = $row["id"];
-            $data_rating = $row["data_rating"];
-            $visibility_id = $row["visibility_id"];
-            $published = $row["published"];
-            $vetted_id = $row["vetted_id"];
-            if($parent_id) $parent_ids[$parent_id] = 1;
-            
-            
-            // this is a new entry so commit existing data before adding more
-            if($hierarchy_entry_id != $last_hierarchy_entry_id)
+            if($line = fgets($RESULT, 4096))
             {
-                $this->process_top_images($top_images, $top_unpublished_images);
-                $last_hierarchy_entry_id = $hierarchy_entry_id;
-                unset($top_images);
-                unset($top_unpublished_images);
-                unset($used_data_objects);
-                $top_images = array();
-                $top_unpublished_images = array();
-                $used_data_objects = array();
+                if($i%2000==0) echo "Memory: ".memory_get_usage()."\n";
+                $i++;
+                //he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
+                $fields = explode("\t", trim($line));
+                $hierarchy_entry_id = $fields[0];
+                $parent_id = $fields[1];
+                $data_object_id = $fields[2];
+                $data_rating = $fields[3];
+                $visibility_id = $fields[4];
+                $vetted_id = $fields[5];
+                $published = $fields[6];
+                if($parent_id) $parent_ids[$parent_id] = 1;
+                
+                // this is a new entry so commit existing data before adding more
+                if($hierarchy_entry_id != $last_hierarchy_entry_id)
+                {
+                    $this->process_top_images($top_images, $top_unpublished_images);
+                    if($top_images) $hierarchy_entry_ids[] = $last_hierarchy_entry_id;
+                    $last_hierarchy_entry_id = $hierarchy_entry_id;
+                    unset($top_images);
+                    unset($top_unpublished_images);
+                    unset($used_data_objects);
+                    $top_images = array();
+                    $top_unpublished_images = array();
+                    $used_data_objects = array();
+                }
+                
+                if(isset($used_data_objects[$data_object_id])) continue;
+                $used_data_objects[$data_object_id] = 1;
+                
+                $vetted_sort_order = isset($this->vetted_sort_orders[$vetted_id]) ? $this->vetted_sort_orders[$vetted_id] : 5;
+                if($visibility_id==$visible_id && $published==1) $top_images[$vetted_sort_order][$data_rating][$data_object_id] = "$hierarchy_entry_id\t$data_object_id";
+                else $top_unpublished_images[$vetted_sort_order][$data_rating][$data_object_id] = "$hierarchy_entry_id\t$data_object_id";
             }
-            
-            if(isset($used_data_objects[$data_object_id])) continue;
-            $used_data_objects[$data_object_id] = 1;
-            
-            $vetted_sort_order = isset($this->vetted_sort_orders[$vetted_id]) ? $this->vetted_sort_orders[$vetted_id] : 5;
-            if($visibility_id==$visible_id && $published==1) $top_images[$vetted_sort_order][$data_rating][$data_object_id] = "$hierarchy_entry_id\t$data_object_id";
-            else $top_unpublished_images[$vetted_sort_order][$data_rating][$data_object_id] = "$hierarchy_entry_id\t$data_object_id";
         }
-        if($result) $result->free();
+        fclose($RESULT);
+        unlink($outfile);
         
         $this->process_top_images($top_images, $top_unpublished_images);
+        
+        if($top_images) $hierarchy_entry_ids[] = $last_hierarchy_entry_id;
+        if($delete)
+        {
+            $split_ids = array_chunk($hierarchy_entry_ids, 5000);
+            while(list($key, $chunk) = each($split_ids))
+            {
+                $this->mysqli->delete("DELETE FROM top_images_tmp WHERE hierarchy_entry_id IN (".implode($chunk, ",").")");
+                $this->mysqli->delete("DELETE FROM top_unpublished_images_tmp WHERE hierarchy_entry_id IN (".implode($chunk, ",").")");
+            }
+        }
         
         return $parent_ids;
     }
