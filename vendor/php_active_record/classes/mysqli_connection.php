@@ -157,11 +157,12 @@ class MysqliConnection
         }
     }
     
-    function load_data_infile($path, $table, $action = "IGNORE")
+    function load_data_infile($path, $table, $action = "IGNORE", $set = '')
     {
         if($action != "REPLACE") $action = "IGNORE";
         // how many rows to split the larger file into
         $maximum_rows_in_file = 50000;
+        if($action == 'REPLACE') $maximum_rows_in_file = 20000;
         $tmp_file_path = DOC_ROOT ."temp/load_data_tmp.sql";
         
         $this->begin_transaction();
@@ -184,8 +185,9 @@ class MysqliConnection
                 {
                     $batch++;
                     echo "Committing ".$batch*$maximum_rows_in_file." : ".time_elapsed()."\n";
-                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n'");
+                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' $set");
                     $this->commit();
+                    usleep_production(500000);
                     rewind($LOAD_DATA_TEMP);
                     ftruncate($LOAD_DATA_TEMP, 0);
                     $line_counter = 0;
@@ -216,6 +218,7 @@ class MysqliConnection
         $command .= " -e '$query' > $tmp_file_path";
         
         // execute the query
+        $this->debug($query, true);
         shell_exec($command);
         return $tmp_file_path;
     }
