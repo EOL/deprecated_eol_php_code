@@ -1,7 +1,7 @@
 <?php
 //exit;
 /* connector for hexacorallians 
-estimated execution time: 
+estimated execution time: 7.7 to 8 hrs
 */
 $timestart = microtime(1);
 
