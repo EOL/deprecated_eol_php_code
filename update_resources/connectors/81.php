@@ -8,6 +8,10 @@ $timestart = microtime(1);
 /*
 2010Mar16   27,417
 
+2010Mar30 114872 of 135176 Mastigoteuthis hjorti
+
+
+
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=127144&iwidth=600
@@ -61,16 +65,38 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
 
-// /*
+    //$species_group="Animals";
+    $species_group="Fungi"; //running...
+    //$species_group="Plants";
+    //$species_group="Protists";  //running...
+
+    //$species_group="Animals_1";    
+    //$species_group="Animals_2";    
+    //$species_group="Animals_3";    
+    //$species_group="Animals_4";    //running...
+    
+    print "$species_group $wrap";
+    $txt_file="bold_id_list.txt";
+    $txt_file="bold_id_list_" . $species_group . ".txt";
+
+//********************************************************************************
+ /* can be commented if TXT file has already been created
+ 
+    $main_name_id_list=array();
+    get_BOLD_taxa();//this will save to /files/$txt_file the id and sciname
+    exit("<hr>TXT file saved -- $species_group.");
+ */
+//********************************************************************************
+
 $main_name_id_list=array();
-get_BOLD_taxa();
+$main_name_id_list=get_from_txt();//this will retrieve the id and sciname from txt file
+
 //exit;
 // */
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-
-$resource = new Resource(81); 
+//$resource = new Resource(81); 
 //print "<hr>resource id = " . $resource->id; exit;
 
 $schema_taxa = array();
@@ -78,25 +104,22 @@ $used_taxa = array();
 
 $id_list=array();
 
-
+/* no longer being used
 $query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
 Inner Join names ON hierarchy_entries.name_id = names.id Where
 ranks.id = 280  ";
-/* debug limit phylum names: */
 //rank.id 280 = phylum
 //$query .= " and names.`string` = 'Chordata' ";
 //$query .= " and names.`string` = 'Chaetognatha' ";
 //$query .= " and names.`string` = 'Pyrrophycophyta' ";
 //$query .= " and names.`string` <> 'Annelida' ";
 //$query .= " Order By names.`string` Asc ";
-$query .= " limit 1 ";
-
+//$query .= " limit 1 ";
 //print"<hr>$query<hr>";
 $result = $mysqli->query($query);    
 print "phylum count = " . $result->num_rows . "$wrap"; //exit;
-
 $phylum_count = $result->num_rows;
-
+*/
 
 
 $total_taxid_count = 0;
@@ -273,7 +296,8 @@ foreach($used_taxa as $taxon_parameters)
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+//$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLD_" . $species_group . ".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
@@ -306,24 +330,159 @@ function get_phylum_list()
 function get_BOLD_taxa()
 {
     global $main_name_id_list;
+    global $species_group;
+    
+     /* normal operation
     $arr_phylum = get_phylum_list();
-    /*
+     */
+    
+    /* debug
     $arr_phylum = array(0 => array( "name" => "Brachiopoda" , "id" => 9),
                         1 => array( "name" => "Bryozoa"    , "id" => 7),
                         3 => array( "name" => "Xenoturbellida" , "id" => 88647)
                        );
+    */    
+    
 
-    $arr_phylum = array(0 => array( "name" => "Xenoturbellida" , "id" => 88647)
+    //Animals
+    if($species_group=="Animals")
+    {
+    $arr_phylum = array(0 => array( "name" => "Acanthocephala"  , "id" => 11),
+                        1 => array( "name" => "Annelida"        , "id" => 2),
+                        2 => array( "name" => "Arthropoda"      , "id" => 20),
+                        3 => array( "name" => "Brachiopoda"     , "id" => 9),
+                        4 => array( "name" => "Bryozoa"         , "id" => 7),
+                        5 => array( "name" => "Chaetognatha"    , "id" => 13),
+                        6 => array( "name" => "Chordata"        , "id" => 18),
+                        7 => array( "name" => "Cnidaria"        , "id" => 3),
+                        8 => array( "name" => "Cycliophora"     , "id" => 79455),
+                        9 => array( "name" => "Echinodermata"   , "id" => 4),
+                        10 => array( "name" => "Echiura"         , "id" => 27333),
+                        11 => array( "name" => "Gnathostomulida" , "id" => 78956),
+                        12 => array( "name" => "Hemichordata"    , "id" => 21),
+                        13 => array( "name" => "Mollusca"        , "id" => 23),
+                        14 => array( "name" => "Nematoda"        , "id" => 19),
+                        15 => array( "name" => "Onychophora"     , "id" => 10),
+                        16 => array( "name" => "Platyhelminthes" , "id" => 5),
+                        17 => array( "name" => "Pogonophora"     , "id" => 28524),
+                        18 => array( "name" => "Porifera"        , "id" => 24818),
+                        19 => array( "name" => "Rotifera"        , "id" => 16),
+                        20 => array( "name" => "Sipuncula"       , "id" => 15),
+                        21 => array( "name" => "Tardigrada"      , "id" => 26033),
+                        22 => array( "name" => "Xenoturbellida"  , "id" => 88647)
+                       );
+    }
+
+    if($species_group=="Animals_1")
+    {
+    $arr_phylum = array(0 => array( "name" => "Acanthocephala"  , "id" => 11),
+                        1 => array( "name" => "Annelida"        , "id" => 2),
+                        2 => array( "name" => "Arthropoda"      , "id" => 20),
+                        3 => array( "name" => "Brachiopoda"     , "id" => 9),
+                        4 => array( "name" => "Bryozoa"         , "id" => 7)
+                       );                        
+    }
+    
+    if($species_group=="Animals_2")
+    {
+    $arr_phylum = array(0 => array( "name" => "Chaetognatha"    , "id" => 13),
+                        1 => array( "name" => "Chordata"        , "id" => 18),
+                        2 => array( "name" => "Cnidaria"        , "id" => 3),
+                        3 => array( "name" => "Cycliophora"     , "id" => 79455),
+                        4 => array( "name" => "Echinodermata"   , "id" => 4)
+                       );
+    }
+    if($species_group=="Animals_3")
+    {
+    $arr_phylum = array(0 => array( "name" => "Echiura"         , "id" => 27333),
+                        1 => array( "name" => "Gnathostomulida" , "id" => 78956),
+                        2 => array( "name" => "Hemichordata"    , "id" => 21),
+                        3 => array( "name" => "Mollusca"        , "id" => 23),
+                        4 => array( "name" => "Nematoda"        , "id" => 19)
+                       );
+    }
+    if($species_group=="Animals_4")
+    {
+    $arr_phylum = array(0 => array( "name" => "Onychophora"     , "id" => 10),
+                        1 => array( "name" => "Platyhelminthes" , "id" => 5),
+                        2 => array( "name" => "Pogonophora"     , "id" => 28524),
+                        3 => array( "name" => "Porifera"        , "id" => 24818),
+                        4 => array( "name" => "Rotifera"        , "id" => 16),
+                        5 => array( "name" => "Sipuncula"       , "id" => 15),
+                        6 => array( "name" => "Tardigrada"      , "id" => 26033),
+                        7 => array( "name" => "Xenoturbellida"  , "id" => 88647)
+                       );
+    }
+
+
+    //Fungi 
+    if($species_group=="Fungi")
+    {
+    $arr_phylum = array(0 => array( "name" => "Ascomycota"      , "id" => 34),
+                        1 => array( "name" => "Basidiomycota"   , "id" => 23675),
+                        2 => array( "name" => "Chytridiomycota" , "id" => 23691),
+                        3 => array( "name" => "Myxomycota"      , "id" => 83947),
+                        4 => array( "name" => "Zygomycota"      , "id" => 23738)
+                       );                        
+    }
+    
+    //Plants 
+    if($species_group=="Plants")
+    {
+    $arr_phylum = array(0 => array( "name" => "Bryophyta"           , "id" => 176192),
+                        1 => array( "name" => "Chlorarachniophyta"  , "id" => 109954),
+                        2 => array( "name" => "Chlorophyta"         , "id" => 112296),
+                        3 => array( "name" => "Lycopodiophyta"      , "id" => 38696),
+                        4 => array( "name" => "Magnoliophyta"       , "id" => 12),
+                        5 => array( "name" => "Pinophyta"          , "id" => 251587),
+                        6 => array( "name" => "Pteridophyta"       , "id" => 38074),
+                        7 => array( "name" => "Pyrrophycophyta"    , "id" => 91354),
+                        8 => array( "name" => "Rhodophyta"         , "id" => 48327),
+                        9 => array( "name" => "Stramenopiles"      , "id" => 109924)
+                       );    
+    }
+    
+    //Protists                        
+    if($species_group=="Protists")
+    {
+    $arr_phylum = array(0 => array( "name" => "Bacillariophyta"    , "id" => 74445),
+                        1 => array( "name" => "Ciliophora"         , "id" => 72834),
+                        2 => array( "name" => "Dinozoa"            , "id" => 70855),
+                        3 => array( "name" => "Heterokontophyta"   , "id" => 53944),
+                        4 => array( "name" => "Opalozoa"           , "id" => 72171),                        
+                        5 => array( "name" => "Straminipila"       , "id" => 23715)
+                       );
+    }    
+    
+    /* debug
+    $arr_phylum = array(0 => array( "name" => "Xenoturbellida"  , "id" => 88647)
                        );
     */    
+
 
     $arr=proc_phylum($arr_phylum);                
     $main_name_id_list = array_merge($arr_phylum,$arr);    
     print"<hr>All Taxa in BOLD: " . count($main_name_id_list);
-    //print"<pre>";print_r($main_name_id_list);print"</pre>";              
-    save_to_txt($main_name_id_list);
-    
+    print"<pre>";print_r($main_name_id_list);print"</pre>";              
+    save_to_txt($main_name_id_list);    
+    //exit;
 }
+
+function save_to_txt($arr)
+{
+    global $txt_file;
+    
+	$str="";        
+	//for ($i = 0; $i < count($arr); $i++) 		
+    foreach ($arr as $value)
+	{
+		$str .= $value["id"] . "\t" . $value["name"] . "\n";    //"\t" is tab
+	}  
+	$filename = "files/" . $txt_file;
+	if($fp = fopen($filename,"w+")){fwrite($fp,$str);fclose($fp);}		    
+    return "";    
+}//function save_to_txt2
+
 function proc_phylum($arr)
 {   
     global $species_service_url;    
@@ -658,8 +817,8 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$descripti
     }
     $dataObjectParameters["agents"] = $agents;    
     //==========================================================================================
-    $audience = array(  0 => array(     "Expert users"),
-                        1 => array(     "General public")
+    $audience = array(  0 => array("Expert users"),
+                        1 => array("General public")
                      );        
     $audiences = array();
     foreach($audience as $audience)
@@ -674,6 +833,9 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$descripti
 }
 function get_text_dna_sequence($url)
 {
+    set_time_limit(0);
+    ini_set('memory_limit','3500M');
+
     //$str = get_file_contents($url); //print $str;  
     $str = Functions::get_remote_file($url);    
     
@@ -800,6 +962,9 @@ exit("<hr>$best_sequence<hr>");
 
 function get_best_sequence($str)
 {
+    set_time_limit(0);
+    ini_set('memory_limit','3500M');
+
     $str = str_ireplace('>' , '&arr[]=', $str);	
     $arr=array();	
     parse_str($str);	
@@ -834,6 +999,11 @@ function get_best_sequence($str)
 }
 
 function url_exists($url) {
+
+    set_time_limit(0);
+    ini_set('memory_limit','3500M');
+
+
     /*
     $resURL = curl_init();
     curl_setopt($resURL, CURLOPT_URL, $strURL);
@@ -858,6 +1028,35 @@ function url_exists($url) {
     if ($intReturnCode != 200 && $intReturnCode != 302 && $intReturnCode != 304) return false;
     else                                                                         return true ;
 } 
+
+function get_from_txt()
+{
+    global $txt_file;
+    $filename = "files/" . $txt_file;
+    $fd = fopen ($filename, "r");
+    $contents = fread ($fd,filesize ($filename));    
+    fclose ($fd);
+    
+    $delimiter = "\n";
+    $splitcontents = explode($delimiter, $contents);
+    $counter = "";
+    //echo $contents;
+    
+    $arr=array();
+    foreach ( $splitcontents as $value )
+    {    
+        $counter = $counter+1;
+        //echo "<b>Split $counter: </b> $value <br>";        
+        if($value)
+        {
+            $temp = explode("\t", $value);
+            //print_r($temp); //exit;
+            $arr[]=array("name" => &$temp[1] , "id" => &$temp[0]);
+        }        
+    }    
+    //print"<pre>";print_r($arr);print"</pre>"; exit;    
+    return $arr;
+}//end func
 
 /*
 <taxon>
