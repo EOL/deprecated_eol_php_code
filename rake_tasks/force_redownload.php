@@ -1,6 +1,5 @@
 <?php
 
-system("clear");
 $object_cache_url = @$argv[1];
 
 if(!$object_cache_url || !is_numeric($object_cache_url) || strlen($object_cache_url) != 15)

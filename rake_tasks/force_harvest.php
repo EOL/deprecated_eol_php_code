@@ -1,6 +1,5 @@
 <?php
 
-system("clear");
 $attr = @$argv[1];
 $id = @$argv[2];
 $opt1 = @$argv[3];
