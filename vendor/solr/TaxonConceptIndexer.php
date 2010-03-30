@@ -75,14 +75,14 @@ class TaxonConceptIndexer
             if($row['vern'] && $string)
             {
                 $attr = 'common_name';
-                $name1 = SolrApi::text_filter($string, false);
+                //$name1 = SolrApi::text_filter($string, false);
                 $name2 = SolrApi::text_filter($string);
                 
                 if($name1) $this->objects[$id][$attr][$name1] = 1;
                 if($name2) $this->objects[$id][$attr][$name2] = 1;
             }elseif($string)
             {
-                $name1 = SolrApi::text_filter($string, false);
+                //$name1 = SolrApi::text_filter($string, false);
                 $name2 = SolrApi::text_filter($string);
                 
                 if($row['preferred'])

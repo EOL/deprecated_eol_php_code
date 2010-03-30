@@ -27,6 +27,7 @@ class FeedDenormalizer
         $GLOBALS['db_connection']->query("CREATE TABLE IF NOT EXISTS `feed_data_objects` (
                   `taxon_concept_id` int(10) unsigned NOT NULL,
                   `data_object_id` int(10) unsigned NOT NULL,
+                  `data_type_id` smallint(5) unsigned NOT NULL,
                   `created_at` timestamp NOT NULL,
                   PRIMARY KEY  (`taxon_concept_id`,`data_object_id`),
                   KEY `data_object_id` (`data_object_id`)
@@ -45,15 +46,16 @@ class FeedDenormalizer
             
             echo "Memory: ".memory_get_usage()."\n";
             $outfile = $this->mysqli->select_into_outfile("
-                SELECT tcx.taxon_concept_id, tcx.parent_id, do.id data_object_id, do.created_at
+                SELECT tcx.taxon_concept_id, tcx.parent_id, do.id data_object_id, do.data_type_id, do.created_at
                     FROM data_objects_taxon_concepts dotc
                     JOIN data_objects do ON (dotc.data_object_id=do.id)
                     JOIN taxon_concepts_exploded tcx ON (dotc.taxon_concept_id=tcx.taxon_concept_id)
                     WHERE tcx.taxon_concept_id BETWEEN $i AND ".($i+$this->iteration_size)."
-                    AND do.data_type_id IN ($image_type_id, $text_type_id)
+                    AND do.data_type_id IN  ($image_type_id, $text_type_id)
                     AND do.created_at IS NOT NULL
-                    AND do.created_at != '0000-00-00 00:00:00'
-                    AND (do.published=1 OR  do.visibility_id!=".Visibility::find('visible').")
+                    AND do.created_at!='0000-00-00 00:00:00'
+                    AND do.published=1
+                    AND do.visibility_id=".Visibility::find('visible')."
                     ORDER BY tcx.taxon_concept_id");
             echo "Memory: ".memory_get_usage()."\n";
             
@@ -89,12 +91,12 @@ class FeedDenormalizer
             // searches for all images for THIS concept, same as above
             // but also searches top_images for the best from its decendants
             $outfile = $this->mysqli->select_into_outfile("
-            (SELECT tcx.taxon_concept_id, tcx.parent_id, fdo.data_object_id,  fdo.created_at
+            (SELECT tcx.taxon_concept_id, tcx.parent_id, fdo.data_object_id, fdo.data_type_id, fdo.created_at
                 FROM taxon_concepts_exploded tcx
                 JOIN feed_data_objects_tmp fdo ON (tcx.taxon_concept_id=fdo.taxon_concept_id)
                 WHERE tcx.taxon_concept_id IN (". implode($chunk, ",") ."))
             UNION
-            (SELECT tcx.taxon_concept_id, tcx.parent_id, fdo.data_object_id, fdo.created_at
+            (SELECT tcx.taxon_concept_id, tcx.parent_id, fdo.data_object_id, fdo.data_type_id, fdo.created_at
                 FROM taxon_concepts_exploded tcx
                 JOIN taxon_concepts_exploded tcx_children ON (tcx.taxon_concept_id=tcx_children.parent_id)
                 JOIN feed_data_objects_tmp fdo ON  (tcx_children.taxon_concept_id=fdo.taxon_concept_id)
@@ -133,7 +135,8 @@ class FeedDenormalizer
                 $taxon_concept_id = $fields[0];
                 $parent_id = $fields[1];
                 $data_object_id = $fields[2];
-                $created_at = $fields[3];
+                $data_type_id = $fields[3];
+                $created_at = $fields[4];
                 if($parent_id) $parent_ids[$parent_id] = 1;
                 
                 // this is a new entry so commit existing data before adding more
@@ -152,7 +155,7 @@ class FeedDenormalizer
                 if(isset($used_data_objects[$data_object_id])) continue;
                 $used_data_objects[$data_object_id] = 1;
                 
-                $feed_objects[$created_at][$data_object_id] = "$taxon_concept_id\t$data_object_id\t$created_at";
+                $feed_objects[$data_type_id][$created_at][$data_object_id] = "$taxon_concept_id\t$data_object_id\t$data_type_id\t$created_at";
             }
         }
         fclose($RESULT);
@@ -175,18 +178,23 @@ class FeedDenormalizer
     
     public function insert_data(&$feed_objects)
     {
-        $view_order = 1;
-        krsort($feed_objects);
-        while(list($date, $object_ids) = each($feed_objects))
+        // this will limit each data type to their top 100 objects
+        ksort($feed_objects);
+        while(list($data_type_id, $dates) = each($feed_objects))
         {
-            krsort($object_ids);
-            while(list($object_id, $data) = each($object_ids))
+            $view_order = 1;
+            krsort($dates);
+            while(list($date, $object_ids) = each($dates))
             {
-                fwrite($this->DATA_FILE, $data . "\n");
-                $view_order++;
-                if($view_order > 200) break;
+                krsort($object_ids);
+                while(list($object_id, $data) = each($object_ids))
+                {
+                    fwrite($this->DATA_FILE, $data . "\n");
+                    $view_order++;
+                    if($view_order > 100) break;
+                }
+                if($view_order > 100) break;
             }
-            if($view_order > 200) break;
         }
     }
     
