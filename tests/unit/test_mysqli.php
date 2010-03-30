@@ -69,8 +69,8 @@ class test_mysqli extends SimpletestUnitBase
         $outfile = $GLOBALS['db_connection']->select_into_outfile('SELECT * FROM test_load_data');
         $contents = file($outfile);
         $this->assertTrue(count($contents) == 4, 'file should have 4 lines');
-        $this->assertTrue($contents[0] == "1\tone\n", 'first row should be correct');
-        $this->assertTrue($contents[3] == "4\tfour\n", 'last row should be correct');
+        $this->assertTrue(trim($contents[0]) == "1\tone", 'first row should be correct');
+        $this->assertTrue(trim($contents[3]) == "4\tfour", 'last row should be correct');
         
         // cleanup
         $GLOBALS['db_connection']->update('DROP TABLE `test_load_data`');
