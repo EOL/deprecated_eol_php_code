@@ -201,7 +201,7 @@ class FeedDenormalizer
     function end_load_data()
     {
         echo "removing data files\n";
-        shell_exec("rm ". DOC_ROOT ."temp/feed_data_objects.sql");
+        unlink(DOC_ROOT ."temp/feed_data_objects.sql");
         
         // swap temporary tables with real tables
         $result = $this->mysqli->query("SELECT 1 FROM feed_data_objects_tmp LIMIT 1");

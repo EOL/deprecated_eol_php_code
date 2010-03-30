@@ -29,8 +29,6 @@ class DenormalizeTables
             $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT dotc.taxon_concept_id, do.data_type_id, do.visibility_id, do.published FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE do.id BETWEEN $i AND ". ($i+$batch_size));
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_types_taxon_concepts');
             unlink($outfile);
-            
-            sleep_production(3);
         }
     }
     
@@ -61,8 +59,6 @@ class DenormalizeTables
             $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size));
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_taxon_concepts');
             unlink($outfile);
-            
-            sleep_production(3);
         }
     }
     

@@ -64,7 +64,7 @@ class TaxonConceptIndexer
     function lookup_names($start, $limit, $filter = "1=1")
     {
         echo "\nquerying names\n";
-        $result = $this->mysqli->query("SELECT  tc.id,tc.published, tc.vetted_id,  tc.supercedure_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id = tcn.taxon_concept_id)  WHERE tc.id  BETWEEN $start AND  ".($start+$limit));
+        $result = $this->mysqli->query("SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id = tcn.taxon_concept_id)  WHERE tc.id  BETWEEN $start AND  ".($start+$limit)." AND tc.supercedure_id=0 AND tc.published=1");
         echo "done querying names\n";
         
         while($result && $row=$result->fetch_assoc())
@@ -76,28 +76,28 @@ class TaxonConceptIndexer
             {
                 $attr = 'common_name';
                 //$name1 = SolrApi::text_filter($string, false);
-                $name2 = SolrApi::text_filter($string);
+                $name = SolrApi::text_filter($string);
                 
-                if($name1) $this->objects[$id][$attr][$name1] = 1;
-                if($name2) $this->objects[$id][$attr][$name2] = 1;
+                //if($name1) $this->objects[$id][$attr][$name1] = 1;
+                if($name) $this->objects[$id][$attr][$name] = 1;
             }elseif($string)
             {
                 //$name1 = SolrApi::text_filter($string, false);
-                $name2 = SolrApi::text_filter($string);
+                $name = SolrApi::text_filter($string);
                 
                 if($row['preferred'])
                 {
-                    if($name1) $this->objects[$id]['preferred_scientific_name'][$name1] = 1;
-                    if($name2) $this->objects[$id]['preferred_scientific_name'][$name2] = 1;
+                    //if($name1) $this->objects[$id]['preferred_scientific_name'][$name1] = 1;
+                    if($name) $this->objects[$id]['preferred_scientific_name'][$name] = 1;
                 }
                 
-                if($name1) $this->objects[$id]['scientific_name'][$name1] = 1;
-                if($name2) $this->objects[$id]['scientific_name'][$name2] = 1;
+                //if($name1) $this->objects[$id]['scientific_name'][$name1] = 1;
+                if($name) $this->objects[$id]['scientific_name'][$name] = 1;
             }
             
             $this->objects[$id]['vetted_id'] = $row['vetted_id'];
-            $this->objects[$id]['published'] = $row['published'];
-            $this->objects[$id]['supercedure_id'] = $row['supercedure_id'];
+            $this->objects[$id]['published'] = 1;
+            $this->objects[$id]['supercedure_id'] = 0;
         }
         
         // if any common name is also a scientific name - then remove the common name 
