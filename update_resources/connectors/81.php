@@ -43,7 +43,6 @@ date            taxid   with public barcode     with barcodes
 2010 Mar 01     60749                           60749
 */
 
-$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

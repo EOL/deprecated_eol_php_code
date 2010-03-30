@@ -5,8 +5,6 @@ estimated execution time:  3-4 mins.
 */
 $timestart = microtime(1);
 
-
-$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 

@@ -5,7 +5,6 @@ estimated execution time:
 */
 $timestart = microtime(1);
 
-//$GLOBALS['ENV_NAME'] = 'slave';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

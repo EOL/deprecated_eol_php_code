@@ -52,7 +52,6 @@ function proc()
 
 
 <?php
-//$GLOBALS['ENV_NAME'] = 'slave';
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

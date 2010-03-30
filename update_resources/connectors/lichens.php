@@ -8,8 +8,6 @@ $timestart = microtime(1);
 $species_page_url = "http://emuweb.fieldmuseum.org/arthropod/InsDisplay.php?irn=";
 $image_url        = "http://emuweb.fieldmuseum.org/web/objects/common/webmedia.php?irn=";
 
-//$GLOBALS['ENV_NAME'] = 'slave';
-$GLOBALS['ENV_NAME'] = 'development';
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
