@@ -70,7 +70,7 @@ class SolrAPI
         return @$response->result;
     }
     
-    public function get_results(&$query)
+    public function get_results($query)
     {
         $objects = array();
         
