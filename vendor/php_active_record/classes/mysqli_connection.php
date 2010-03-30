@@ -221,7 +221,6 @@ class MysqliConnection
         $command .= " -e \"$query\"  > $tmp_file_path";
         
         // execute the query
-        debug($command);
         $this->debug($query, true);
         shell_exec($command);
         if(file_exists($tmp_file_path)) return $tmp_file_path;
