@@ -192,7 +192,7 @@ class TopImages
                                                 $swap_table_name TO $tmp_table_name");
             
         }
-        shell_exec("rm ". DOC_ROOT ."temp/top_concept_images.sql");
+        unlink(DOC_ROOT ."temp/top_concept_images.sql");
     }
     
     
@@ -298,8 +298,8 @@ class TopImages
     function end_load_data()
     {
         echo "removing data files\n";
-        shell_exec("rm ". DOC_ROOT ."temp/top_images.sql");
-        shell_exec("rm ". DOC_ROOT ."temp/top_unpublished_images.sql");
+        unlink(DOC_ROOT ."temp/top_images.sql");
+        unlink(DOC_ROOT ."temp/top_unpublished_images.sql");
         
         // swap temporary tables with real tables
         $result = $this->mysqli->query("SELECT 1 FROM top_images_tmp LIMIT 1");
