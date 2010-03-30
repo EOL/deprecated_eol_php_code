@@ -338,19 +338,10 @@ class MysqliConnection
             
             $this->check();
             
-            $return = "";
-            if($master) $result = $this->mysqli->query("SELECT @@autocommit");
-            else $result = $this->master_mysqli->query("SELECT @@autocommit");
-            if($result && $row = $result->fetch_row())
-            {
-                $return .= "com: ".$row[0].", ";
-                $result->free();
-            }
-            
-            if($master) $return .= "M#$number_of_master_queries, ";
-            else $return .= "#$number_of_queries, ";
-            $return .= "id: ".$this->thread_id($master)."<br>\n";
-            $return .= " $string;";
+            $return = "db";
+            if($master) $return .= "(M) $number_of_master_queries";
+            else $return .= " $number_of_queries";
+            $return .= "\n\t$string";
             
             mysql_debug($return);
             

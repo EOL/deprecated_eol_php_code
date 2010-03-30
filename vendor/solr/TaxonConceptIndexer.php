@@ -118,7 +118,7 @@ class TaxonConceptIndexer
     function lookup_ranks($start, $limit, $filter = "1=1")
     {
         echo "\nquerying ranks\n";
-        $result = $this->mysqli->query("SELECT  taxon_concept_id, rank_id, hierarchy_id FROM  hierarchy_entries WHERE taxon_concept_id BETWEEN $start AND ".($start+$limit));
+        $result = $this->mysqli->query("SELECT  taxon_concept_id, rank_id, hierarchy_id FROM  hierarchy_entries WHERE taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND tc.supercedure_id=0 AND tc.published=1");
         echo "done querying ranks\n";
         
         while($result && $row=$result->fetch_assoc())
@@ -139,7 +139,7 @@ class TaxonConceptIndexer
     function lookup_top_images($start, $limit, $filter = "1=1")
     {
         echo "\nquerying top_images\n";
-        $result = $this->mysqli->query("SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND ti.view_order=1 ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC");
+        $result = $this->mysqli->query("SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND tc.supercedure_id=0 AND tc.published=1 AND ti.view_order=1 ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC");
         echo "done querying top_images\n";
         
         while($result && $row=$result->fetch_assoc())

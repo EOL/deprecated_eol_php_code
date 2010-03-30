@@ -219,7 +219,6 @@ class FeedDenormalizer
     {
         echo "inserting new data\n";
         $this->mysqli->load_data_infile(DOC_ROOT ."temp/feed_data_objects.sql", "feed_data_objects_tmp");
-        sleep_production(10);
     }
 }
 

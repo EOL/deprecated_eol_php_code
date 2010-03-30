@@ -130,8 +130,6 @@ class DenormalizeTables
             $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT DISTINCT do.id, he.id FROM hierarchy_entries he JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size));
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_hierarchy_entries');
             unlink($outfile);
-            
-            sleep_production(3);
         }
     }
     

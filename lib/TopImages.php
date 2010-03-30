@@ -352,11 +352,9 @@ class TopImages
         echo "inserting new data\n";
         echo "1 of 2\n";
         $this->mysqli->load_data_infile(DOC_ROOT ."temp/top_images.sql", "top_images_tmp");
-        sleep_production(10);
         
         echo "2 of 2\n";
         $this->mysqli->load_data_infile(DOC_ROOT ."temp/top_unpublished_images.sql", "top_unpublished_images_tmp");
-        sleep_production(10);
     }
 }
 

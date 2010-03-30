@@ -91,9 +91,10 @@ class CompareHierarchies
         $visible_id = Visibility::insert('visible');
         $preview_id = Visibility::insert('preview');
         
-        $mysqli->begin_transaction();
         
         $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!=he2.id ORDER BY he1.visibility_id ASC, he2.visibility_id ASC, score DESC, id1 ASC, id2 ASC");
+        
+        $mysqli->begin_transaction();
         
         $rows = $result->num_rows;
         $row_num = 0;
@@ -144,7 +145,7 @@ class CompareHierarchies
                 //if($i%1==0) echo "supercede_by_ids($tc_id1, $tc_id2): $score. $row_num of $rows. mem: ".memory_get_usage()."\n";
                 TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
                 $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
-                if($i%200==0) $mysqli->commit();
+                if($i%100==0) $mysqli->commit();
             }
         }
         $mysqli->end_transaction();

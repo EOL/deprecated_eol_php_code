@@ -58,7 +58,7 @@ function display($str)
 {
     if($GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])
     {
-        fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
+        fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], date('m/d H:i:s') .":: $str\n");
     }else
     {
         echo "$str<br>\n";
@@ -70,7 +70,7 @@ function write_to_log($str)
 {
     if($GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])
     {
-        fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], str_pad(time_elapsed(), 12, ' ', STR_PAD_LEFT) . ' -> ' . $str . "\n");
+        fwrite($GLOBALS['ENV_DEBUG_FILE_HANDLE'], date('m/d H:i:s') .":: $str\n");
     }
 }
 
