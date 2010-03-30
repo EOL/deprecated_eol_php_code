@@ -168,7 +168,7 @@ class MysqliConnection
         $this->begin_transaction();
         //$this->insert("SET FOREIGN_KEY_CHECKS = 0");
         $LOAD_DATA_TEMP = fopen($tmp_file_path, "w+");
-        flock($LOAD_DATA_TEMP, LOCK_EX);
+        //flock($LOAD_DATA_TEMP, LOCK_EX);
         
         $line_counter = 0;
         $batch = 0;
@@ -185,7 +185,7 @@ class MysqliConnection
                 {
                     $batch++;
                     echo "Committing ".$batch*$maximum_rows_in_file." : ".time_elapsed()."\n";
-                    @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' $set");
+                    @$this->update("LOAD DATA LOCAL INFILE '".str_replace("\\", "/", $tmp_file_path)."' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' $set");
                     $this->commit();
                     usleep_production(500000);
                     rewind($LOAD_DATA_TEMP);
@@ -199,7 +199,7 @@ class MysqliConnection
         // insert the remaining rows
         if(filesize($tmp_file_path))
         {
-            @$this->update("LOAD DATA LOCAL INFILE '$tmp_file_path' $action INTO TABLE `$table`");
+            @$this->update("LOAD DATA LOCAL INFILE '".str_replace("\\", "/", $tmp_file_path)."' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' $set");
         }
         
         //$this->insert("SET FOREIGN_KEY_CHECKS = 1");
@@ -209,6 +209,9 @@ class MysqliConnection
     
     function select_into_outfile($query, $escape = false)
     {
+        $query = str_replace("\n", " ", $query);
+        $query = str_replace("\r", " ", $query);
+        $query = str_replace("\t", " ", $query);
         $tmp_file_path = temp_filepath();
         
         // perpare the command line command
@@ -218,9 +221,11 @@ class MysqliConnection
         $command .= " -e \"$query\"  > $tmp_file_path";
         
         // execute the query
+        debug($command);
         $this->debug($query, true);
         shell_exec($command);
-        return $tmp_file_path;
+        if(file_exists($tmp_file_path)) return $tmp_file_path;
+        return false;
     }
     
     function truncate_tables($environment = "test")
