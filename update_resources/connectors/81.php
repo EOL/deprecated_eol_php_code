@@ -66,26 +66,31 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
 
     //$species_group="Animals";
-    $species_group="Fungi"; //running...
-    //$species_group="Plants";
-    //$species_group="Protists";  //running...
+    
+    //$species_group="Fungi"; //running...
+    //$species_group="Plants";    //running...
+    //$species_group="Protists";  //running... done
 
     //$species_group="Animals_1";    
-    //$species_group="Animals_2";    
-    //$species_group="Animals_3";    
-    //$species_group="Animals_4";    //running...
+    //$species_group="Animals_Arthropoda";    
+    
+    $species_group="Animals_2";    
+    //$species_group="Animals_Echinodermata";    
+    
+    //$species_group="Animals_3";    //running...
+    //$species_group="Animals_4";    //running... done
     
     print "$species_group $wrap";
     $txt_file="bold_id_list.txt";
     $txt_file="bold_id_list_" . $species_group . ".txt";
 
 //********************************************************************************
- /* can be commented if TXT file has already been created
+// /* can be commented if TXT file has already been created
  
     $main_name_id_list=array();
     get_BOLD_taxa();//this will save to /files/$txt_file the id and sciname
     exit("<hr>TXT file saved -- $species_group.");
- */
+// */
 //********************************************************************************
 
 $main_name_id_list=array();
@@ -309,7 +314,7 @@ echo "elapsed time = $elapsed_time_sec sec              $wrap";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
 
-exit("$wrap$wrap Done processing.");
+exit("$wrap$wrap Done processing - $species_group ");
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################
@@ -376,10 +381,14 @@ function get_BOLD_taxa()
     if($species_group=="Animals_1")
     {
     $arr_phylum = array(0 => array( "name" => "Acanthocephala"  , "id" => 11),
-                        1 => array( "name" => "Annelida"        , "id" => 2),
-                        2 => array( "name" => "Arthropoda"      , "id" => 20),
-                        3 => array( "name" => "Brachiopoda"     , "id" => 9),
-                        4 => array( "name" => "Bryozoa"         , "id" => 7)
+                        1 => array( "name" => "Annelida"        , "id" => 2),                        
+                        2 => array( "name" => "Brachiopoda"     , "id" => 9),
+                        3 => array( "name" => "Bryozoa"         , "id" => 7)
+                       );                        
+    }
+    if($species_group=="Animals_Arthropoda")
+    {
+    $arr_phylum = array(0 => array( "name" => "Arthropoda"      , "id" => 20)
                        );                        
     }
     
@@ -388,10 +397,18 @@ function get_BOLD_taxa()
     $arr_phylum = array(0 => array( "name" => "Chaetognatha"    , "id" => 13),
                         1 => array( "name" => "Chordata"        , "id" => 18),
                         2 => array( "name" => "Cnidaria"        , "id" => 3),
-                        3 => array( "name" => "Cycliophora"     , "id" => 79455),
-                        4 => array( "name" => "Echinodermata"   , "id" => 4)
+                        3 => array( "name" => "Cycliophora"     , "id" => 79455)
                        );
     }
+
+    if($species_group=="Animals_Echinodermata")
+    {
+    $arr_phylum = array(0 => array( "name" => "Echinodermata"   , "id" => 4)    
+                       );
+    }
+    
+    
+    
     if($species_group=="Animals_3")
     {
     $arr_phylum = array(0 => array( "name" => "Echiura"         , "id" => 27333),
