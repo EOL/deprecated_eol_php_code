@@ -1,5 +1,6 @@
 <?php
 
+
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -98,6 +99,7 @@ if(count($arr) == 0){exit;}
 print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Unicode MS;'>";
 
 $us = "&#153;";	//unique separator
+
 $value_list="";
 for ($i = 0; $i < count($arr); $i++) 
 {
@@ -107,6 +109,8 @@ for ($i = 0; $i < count($arr); $i++)
 	$arr[$i]
 	</td></tr>";
 	*/	
+    
+    if(strlen(trim($arr[$i])) <= 3)continue;
 	
 	$tempx = $arr[$i];
 	$arr[$i] = Functions::clean_name($arr[$i]);
@@ -122,10 +126,14 @@ for ($i = 0; $i < count($arr); $i++)
 
 }
 
+//print"<hr>$us = " . substr($value_list,0,1) . "<hr>";
+
+if(substr($value_list,0,1)=="&")$value_list=trim(substr($value_list,6,strlen($value_list)));
 
 $qry = sql_do($value_list,$choice2,$us);
 $sql = $mysqli->query($qry);	
-//print $qry;
+
+//print "<hr>$value_list --- $qry";
 //print check_err($mysqli,$sql,$qry);
 	
 	
@@ -206,7 +214,7 @@ while( $row = $sql->fetch_assoc() )
 				Inner Join names ON taxa.name_id = names.id
 				Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-				Where taxon_concepts.id = '$row[tc_id]' ";
+				Where taxon_concepts.id = $row[tc_id] ";
 				$qry .= " AND taxa.taxon_family <> '' limit 1 ";
 				$sql2 = $mysqli->query($qry);
 				print"<td>";
@@ -809,8 +817,9 @@ function get_sn_list($sn)
 	Inner Join names ON taxa.name_id = names.id
 	Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id			
-	where names.clean_name='$string'
+	where names.clean_name like '$string%'
 	";
+    //where names.clean_name='$string' //mar31
 	
 	$sql = $mysqli->query($query);
 	$row = $sql->fetch_row();			
