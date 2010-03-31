@@ -3,9 +3,7 @@
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-
 //$mysqli = slave_conn();
-
 
 $eol_site = "www.eol.org";
 //$eol_site = "app1.eol.org";
@@ -16,6 +14,11 @@ $report = 'list';	//original functionality
 $tbl = "clean_names";	//instead of 'names'
 $fld = "clean_name";	//instead of 'string'
 $fld_id = "name_id";	//instead of 'id'
+
+$tbl = "names";	//instead of 'names'
+$fld = "clean_name";	//instead of 'string'
+$fld_id = "id";	//instead of 'id'
+
 
 /*
 Acarospora immersa
@@ -199,8 +202,8 @@ while( $row = $sql->fetch_assoc() )
 				taxa.taxon_kingdom, taxa.taxon_phylum, taxa.taxon_class, taxa.taxon_order,
 				taxa.taxon_family, taxa.scientific_name, $tbl.$fld as string
 				From taxa
-				Inner Join clean_names ON taxa.name_id = clean_names.name_id
-				Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+				Inner Join names ON taxa.name_id = names.id
+				Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 				Where taxon_concepts.id = '$row[tc_id]' ";
 				$qry .= " AND taxa.taxon_family <> '' limit 1 ";
@@ -501,8 +504,8 @@ function sql_do($val,$i,$us)
 		$qry = "Select distinct $tbl.$fld as sn,
 		taxon_concepts.id as tc_id
 		From taxa
-		Inner Join clean_names ON taxa.name_id = clean_names.name_id
-		Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+		Inner Join names ON taxa.name_id = names.id
+		Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 		Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 		Where $tbl.$fld In ($val)
 		Order By $tbl.$fld Asc ";		
@@ -535,8 +538,8 @@ function sql_do($val,$i,$us)
 				$qry="
 				Select distinct info_items.label, $tbl.$fld as sn, taxon_concepts.id as tc_id
 				From taxa
-				Inner Join clean_names ON taxa.name_id = clean_names.name_id
-				Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+				Inner Join names ON taxa.name_id = names.id
+				Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 				Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
 				Inner Join data_objects_info_items ON data_objects_taxa.data_object_id = data_objects_info_items.data_object_id
@@ -582,8 +585,8 @@ function sql_do($val,$i,$us)
 				if(data_objects.object_title='',data_types.label,data_objects.object_title) AS label			
 
     			From taxa
-	        	Inner Join clean_names ON taxa.name_id = clean_names.name_id
-    			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+	        	Inner Join names ON taxa.name_id = names.id
+    			Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
     			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
     			Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
     			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
@@ -621,8 +624,8 @@ function sql_do($val,$i,$us)
 			///*Dec13
 			$qry="Select distinct $tbl.$fld AS sn, taxon_concepts.id as tc_id, data_types.label
 			From taxa
-			Inner Join clean_names ON taxa.name_id = clean_names.name_id
-			Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+			Inner Join names ON taxa.name_id = names.id
+			Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 			Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 			Inner Join data_objects_taxa ON taxa.id = data_objects_taxa.taxon_id
 			Inner Join data_objects ON data_objects_taxa.data_object_id = data_objects.id
@@ -802,10 +805,10 @@ function get_sn_list($sn)
 
 	$query = "select distinct taxon_concepts.id 
 	From taxa
-	Inner Join clean_names ON taxa.name_id = clean_names.name_id
-	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+	Inner Join names ON taxa.name_id = names.id
+	Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id			
-	where clean_names.$fld='$string'
+	where names.clean_name='$string'
 	";
 	
 	$sql = $mysqli->query($query);
@@ -825,8 +828,8 @@ function get_sn_list($sn)
 	*/
 	$query = "Select distinct $tbl.$fld as string
 	From taxa
-	Inner Join clean_names ON taxa.name_id = clean_names.name_id
-	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+	Inner Join names ON taxa.name_id = names.id
+	Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id			
 	Where taxon_concepts.id = '$id'
 	Order By $tbl.$fld Asc
