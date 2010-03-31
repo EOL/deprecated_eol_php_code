@@ -59,9 +59,13 @@ $id     = 100;  //Conabio
 $fld    = "service_type_id";
 $value  = 2;
 
+$id     = 108;  //USDA Plants text descriptions
+$fld    = "service_type_id";
+$value  = 2;
+
 */
 
-$id     = 108;  //USDA Plants text descriptions
+$id     = 93;  //Antarctic Invertebrates
 $fld    = "service_type_id";
 $value  = 2;
 
