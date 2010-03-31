@@ -1,6 +1,6 @@
 <?php
 /* connector for BOLD Systems 
-estimated execution time: 
+estimated execution time: 4days
 */
 $timestart = microtime(1);
 
@@ -9,8 +9,6 @@ $timestart = microtime(1);
 2010Mar16   27,417
 
 2010Mar30 114872 of 135176 Mastigoteuthis hjorti
-
-
 
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=26136&iwidth=600
 http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=111651&iwidth=600
@@ -65,17 +63,39 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
 
-    //$species_group="Animals";
+    //$species_group="Animals"; //not being used
     
-    //$species_group="Fungi"; //running...
-    //$species_group="Plants";    //running...
-    //$species_group="Protists";  //running... done
+    //$species_group="Fungi";       //running... done
+    //$species_group="Plants";      //running...
+    //$species_group="Protists";    //running... done
 
-    //$species_group="Animals_1";    
-    //$species_group="Animals_Arthropoda";    
+    //$species_group="Animals_1";    //running...
     
-    $species_group="Animals_2";    
-    //$species_group="Animals_Echinodermata";    
+    //$species_group="Animals_Arthropoda";    //not being used
+    
+    //$species_group="Animals_Arthropoda_Insecta";  //not being used    
+
+    //$species_group="Animals_Arthropoda_Insecta_Coleoptera";
+    //$species_group="Animals_Arthropoda_Insecta_Diptera";
+    //$species_group="Animals_Arthropoda_Insecta_Hemiptera";
+    //$species_group="Animals_Arthropoda_Insecta_Hymenoptera";
+    $species_group="Animals_Arthropoda_Insecta_Lepidoptera";           
+    //$species_group="Animals_Arthropoda_Insecta_Trichoptera";           
+    //$species_group="Animals_Arthropoda_Insecta_others";           
+    
+    
+    //$species_group="Animals_Arthropoda_Malacostraca";    
+    //$species_group="Animals_Arthropoda_Arachnida";    
+    //$species_group="Animals_Arthropoda_others";        
+            
+    
+    //$species_group="Animals_2";    
+    //$species_group="Animals_Echinodermata";    //running
+
+    //$species_group="Animals_Chordata";    //not being used
+    //$species_group="Animals_Chordata_Actinopterygii";    
+    //$species_group="Animals_Chordata_Aves";    
+    //$species_group="Animals_Chordata_others";    
     
     //$species_group="Animals_3";    //running...
     //$species_group="Animals_4";    //running... done
@@ -85,12 +105,12 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
     $txt_file="bold_id_list_" . $species_group . ".txt";
 
 //********************************************************************************
-// /* can be commented if TXT file has already been created
+ /* can be commented if TXT file has already been created
  
     $main_name_id_list=array();
     get_BOLD_taxa();//this will save to /files/$txt_file the id and sciname
     exit("<hr>TXT file saved -- $species_group.");
-// */
+ */
 //********************************************************************************
 
 $main_name_id_list=array();
@@ -386,20 +406,108 @@ function get_BOLD_taxa()
                         3 => array( "name" => "Bryozoa"         , "id" => 7)
                        );                        
     }
-    if($species_group=="Animals_Arthropoda")
-    {
-    $arr_phylum = array(0 => array( "name" => "Arthropoda"      , "id" => 20)
-                       );                        
+
+    if($species_group=="Animals_Arthropoda"){$arr_phylum = array(0 => array( "name" => "Arthropoda" , "id" => 20));}
+
+    if($species_group=="Animals_Arthropoda_Insecta"){$arr_class = array(0 => array( "name" => "Insecta" , "id" => 82));}
+    
+    if($species_group=="Animals_Arthropoda_Insecta_Coleoptera") {$arr_order = array(0 => array( "name" => "Coleoptera"  , "id" => 413));}
+    if($species_group=="Animals_Arthropoda_Insecta_Diptera")    {$arr_order = array(0 => array( "name" => "Diptera"     , "id" => 127));}
+    if($species_group=="Animals_Arthropoda_Insecta_Hemiptera")  {$arr_order = array(0 => array( "name" => "Hemiptera"   , "id" => 133));}    
+    if($species_group=="Animals_Arthropoda_Insecta_Hymenoptera"){$arr_order = array(0 => array( "name" => "Hymenoptera" , "id" => 125));}   
+    if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera"){$arr_order = array(0 => array( "name" => "Lepidoptera" , "id" => 113));}    
+    if($species_group=="Animals_Arthropoda_Insecta_Trichoptera"){$arr_order = array(0 => array( "name" => "Trichoptera" , "id" => 99));}    
+    if($species_group=="Animals_Arthropoda_Insecta_others")
+    {   $arr_order = array(0 => array( "name" => "Archaeognatha"    , "id" => 87070),
+                           1 => array( "name" => "Blattaria"        , "id" => 151950),
+                           2 => array( "name" => "Blattodea"        , "id" => 160574),
+                           3 => array( "name" => "Dermaptera"       , "id" => 160573),
+                           4 => array( "name" => "Dictyoptera"      , "id" => 131),
+                           5 => array( "name" => "Diplura"          , "id" => 24810),
+                           6 => array( "name" => "Embioptera"       , "id" => 152886),
+                           7 => array( "name" => "Ephemeroptera"    , "id" => 405),
+                           8 => array( "name" => "Grylloblattodea"  , "id" => 79520),
+                           9 => array( "name" => "Homoptera"        , "id" => 228197),
+                           10 => array( "name" => "Isoptera"        , "id" => 97),
+                           11 => array( "name" => "Mantodea"        , "id" => 80725),
+                           12 => array( "name" => "Mantophasmatodea", "id" => 78987),
+                           13 => array( "name" => "Mecoptera"       , "id" => 109),
+                           14 => array( "name" => "Megaloptera"     , "id" => 27042),
+                           15 => array( "name" => "Neuroptera"      , "id" => 107),
+                           16 => array( "name" => "Odonata"         , "id" => 105),
+                           17 => array( "name" => "Orthoptera"      , "id" => 101),
+                           18 => array( "name" => "Phasmatodea"     , "id" => 115),
+                           19 => array( "name" => "Phasmida"        , "id" => 266323),
+                           20 => array( "name" => "Phthiraptera"    , "id" => 103),
+                           21 => array( "name" => "Plecoptera"      , "id" => 135),
+                           22 => array( "name" => "Psocoptera"      , "id" => 123),
+                           23 => array( "name" => "Raphidioptera"   , "id" => 194686),
+                           24 => array( "name" => "Saltatoria"      , "id" => 208619),
+                           25 => array( "name" => "Siphonaptera"    , "id" => 91399),
+                           26 => array( "name" => "Strepsiptera"    , "id" => 106972),
+                           27 => array( "name" => "Thysanoptera"    , "id" => 111),
+                           28 => array( "name" => "Thysanura"       , "id" => 121)
+                          );
     }
+    
+    
+    
+    
+    
+    if($species_group=="Animals_Arthropoda_Malacostraca"){$arr_class = array(0 => array( "name" => "Malacostraca" , "id" => 69));}
+    if($species_group=="Animals_Arthropoda_Arachnida"){$arr_class = array(0 => array( "name" => "Arachnida" , "id" => 63));}
+    if($species_group=="Animals_Arthropoda_others")        
+    {
+        $arr_class = array(0 => array( "name" => "Branchiopoda"     , "id" => 68),
+                           1 => array( "name" => "Cephalocarida"    , "id" => 73),
+                           2 => array( "name" => "Chilopoda"        , "id" => 75),
+                           3 => array( "name" => "Cirripedia"       , "id" => 84284),
+                           4 => array( "name" => "Collembola"       , "id" => 372),
+                           5 => array( "name" => "Diplopoda"        , "id" => 85),
+                           6 => array( "name" => "Maxillopoda"      , "id" => 72),
+                           7 => array( "name" => "Merostomata"      , "id" => 74),
+                           8 => array( "name" => "Ostracoda"        , "id" => 80),
+                           9 => array( "name" => "Pentastomida"     , "id" => 83),
+                           10 => array( "name" => "Pycnogonida"     , "id" => 26059),
+                           11 => array( "name" => "Remipedia"       , "id" => 84),
+                           12 => array( "name" => "Symphyla"        , "id" => 80390)                            
+                          );
+    }
+        
+    
     
     if($species_group=="Animals_2")
     {
-    $arr_phylum = array(0 => array( "name" => "Chaetognatha"    , "id" => 13),
-                        1 => array( "name" => "Chordata"        , "id" => 18),
-                        2 => array( "name" => "Cnidaria"        , "id" => 3),
-                        3 => array( "name" => "Cycliophora"     , "id" => 79455)
-                       );
+        $arr_phylum = array(0 => array( "name" => "Chaetognatha"    , "id" => 13),
+                            1 => array( "name" => "Cnidaria"        , "id" => 3),
+                            2 => array( "name" => "Cycliophora"     , "id" => 79455)
+                           );
     }
+
+    if($species_group=="Animals_Chordata"){$arr_phylum = array(0 => array( "name" => "Chordata" , "id" => 18));}
+    
+    if($species_group=="Animals_Chordata_Actinopterygii"){$arr_class = array(0 => array( "name" => "Actinopterygii" , "id" => 77));}
+    if($species_group=="Animals_Chordata_Aves")          {$arr_class = array(0 => array( "name" => "Aves"           , "id" => 51));}
+    if($species_group=="Animals_Chordata_others")        
+    {
+        $arr_class = array(0 => array( "name" => "Amphibia"             , "id" => 50),
+                           1 => array( "name" => "Appendicularia"       , "id" => 96365),
+                           2 => array( "name" => "Ascidiacea"           , "id" => 61),
+                           3 => array( "name" => "Cephalaspidomorphi"   , "id" => 64),
+                           4 => array( "name" => "Cephalochordata"      , "id" => 65),
+                           5 => array( "name" => "Elasmobranchii"       , "id" => 34196),
+                           6 => array( "name" => "Holocephali"          , "id" => 34231),
+                           7 => array( "name" => "Larvacea"             , "id" => 263620),
+                           8 => array( "name" => "Mammalia"             , "id" => 62),
+                           9 => array( "name" => "Myxini"               , "id" => 66),
+                           10 => array( "name" => "Reptilia"            , "id" => 76),
+                           11 => array( "name" => "Sarcopterygii"       , "id" => 52),
+                           12 => array( "name" => "Thaliacea"           , "id" => 27266)                            
+                          );
+    }
+
+    
+    
 
     if($species_group=="Animals_Echinodermata")
     {
@@ -476,9 +584,23 @@ function get_BOLD_taxa()
                        );
     */    
 
-
-    $arr=proc_phylum($arr_phylum);                
-    $main_name_id_list = array_merge($arr_phylum,$arr);    
+    if(isset($arr_phylum))  
+    {
+        $arr=proc_phylum($arr_phylum);                
+        $main_name_id_list = array_merge($arr_phylum,$arr);    
+    }
+    elseif(isset($arr_class))   
+    {
+        $arr=proc_class($arr_class);                
+        $main_name_id_list = array_merge($arr_class,$arr);    
+    }
+    elseif(isset($arr_order))   
+    {
+        $arr=proc_order($arr_order);                
+        $main_name_id_list = array_merge($arr_order,$arr);    
+    }
+    
+    
     print"<hr>All Taxa in BOLD: " . count($main_name_id_list);
     print"<pre>";print_r($main_name_id_list);print"</pre>";              
     save_to_txt($main_name_id_list);    
@@ -500,12 +622,106 @@ function save_to_txt($arr)
     return "";    
 }//function save_to_txt2
 
+
+function proc_order($arr3)
+{   
+    global $species_service_url;    
+    global $main_name_id_list;
+    global $wrap;    
+
+            foreach ($arr3 as $a3)//order loop
+            {
+                print $wrap . $a3["name"] . " -- " . $a3["id"];
+                $str = Functions::get_remote_file($species_service_url . $a3["id"]);        
+                $arr4 = proc_subtaxa_block($str);        
+                //print"<pre>";print_r($arr4);print"</pre>";               
+                $main_name_id_list = array_merge($main_name_id_list, $arr4);                            
+                foreach ($arr4 as $a4)//family loop
+                {
+                    print $wrap . $a4["name"] . " -- " . $a4["id"];
+                    $str = Functions::get_remote_file($species_service_url . $a4["id"]);        
+                    $arr5 = proc_subtaxa_block($str);        
+                    //print"<pre>";print_r($arr5);print"</pre>";               
+                    $main_name_id_list = array_merge($main_name_id_list, $arr5);                                            
+                    foreach ($arr5 as $a5)//subfamily if there is any or Genus loop
+                    {                        
+                        print $wrap . $a5["name"] . " -- " . $a5["id"];
+                        $str = Functions::get_remote_file($species_service_url . $a5["id"]);        
+                        $arr6 = proc_subtaxa_block($str);        
+                        //print"<pre>";print_r($arr6);print"</pre>";               
+                        $main_name_id_list = array_merge($main_name_id_list, $arr6);                                            
+                        foreach ($arr6 as $a6)//Genus if there was subfamily above loop
+                        {
+                            print $wrap . $a6["name"] . " -- " . $a6["id"];
+                            $str = Functions::get_remote_file($species_service_url . $a6["id"]);        
+                            $arr7 = proc_subtaxa_block($str);        
+                            //print"<pre>";print_r($arr7);print"</pre>";               
+                            $main_name_id_list = array_merge($main_name_id_list, $arr7);
+                        }                            
+                    }                    
+                }                
+            }               
+
+    return $main_name_id_list;     
+}
+
+
+
+function proc_class($arr2)
+{   
+    global $species_service_url;    
+    global $main_name_id_list;
+    global $wrap;    
+
+        foreach ($arr2 as $a2)//class loop
+        {
+            print $wrap . $a2["name"] . " -- " . $a2["id"];
+            $str = Functions::get_remote_file($species_service_url . $a2["id"]);        
+            $arr3 = proc_subtaxa_block($str);        
+            //print"<pre>";print_r($arr3);print"</pre>";               
+            $main_name_id_list = array_merge($main_name_id_list, $arr3);                
+            foreach ($arr3 as $a3)//order loop
+            {
+                print $wrap . $a3["name"] . " -- " . $a3["id"];
+                $str = Functions::get_remote_file($species_service_url . $a3["id"]);        
+                $arr4 = proc_subtaxa_block($str);        
+                //print"<pre>";print_r($arr4);print"</pre>";               
+                $main_name_id_list = array_merge($main_name_id_list, $arr4);                            
+                foreach ($arr4 as $a4)//family loop
+                {
+                    print $wrap . $a4["name"] . " -- " . $a4["id"];
+                    $str = Functions::get_remote_file($species_service_url . $a4["id"]);        
+                    $arr5 = proc_subtaxa_block($str);        
+                    //print"<pre>";print_r($arr5);print"</pre>";               
+                    $main_name_id_list = array_merge($main_name_id_list, $arr5);                                            
+                    foreach ($arr5 as $a5)//subfamily if there is any or Genus loop
+                    {                        
+                        print $wrap . $a5["name"] . " -- " . $a5["id"];
+                        $str = Functions::get_remote_file($species_service_url . $a5["id"]);        
+                        $arr6 = proc_subtaxa_block($str);        
+                        //print"<pre>";print_r($arr6);print"</pre>";               
+                        $main_name_id_list = array_merge($main_name_id_list, $arr6);                                            
+                        foreach ($arr6 as $a6)//Genus if there was subfamily above loop
+                        {
+                            print $wrap . $a6["name"] . " -- " . $a6["id"];
+                            $str = Functions::get_remote_file($species_service_url . $a6["id"]);        
+                            $arr7 = proc_subtaxa_block($str);        
+                            //print"<pre>";print_r($arr7);print"</pre>";               
+                            $main_name_id_list = array_merge($main_name_id_list, $arr7);
+                        }                            
+                    }                    
+                }                
+            }               
+        }                   
+
+    return $main_name_id_list;     
+}
+
 function proc_phylum($arr)
 {   
     global $species_service_url;    
     global $main_name_id_list;
-    global $wrap;
-    
+    global $wrap;    
 
     foreach ($arr as $a)//phylum loop
     {
@@ -557,6 +773,11 @@ function proc_phylum($arr)
     }   
     return $main_name_id_list;     
 }
+
+
+
+
+
 function proc_subtaxa_block($str)
 {
     $beg='<h2>Sub-taxa</h2>'; $end1='</ul>'; 
