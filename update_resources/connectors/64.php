@@ -1,6 +1,6 @@
 <?php
 /* Radiolaria connector 
-estimated execution time: 
+estimated execution time: 3-5 secs.
 */
 $timestart = microtime(1);
 
@@ -83,12 +83,12 @@ foreach($xml->species_list->species as $main)
     //print"<hr>";
 }
 // /*
-print "<hr>
-i = $i <br>
+print "\n
+i = $i \n
 sciname = " . count($sciname);
-print "<hr>";
+print "\n";
 print count(array_keys($sciname));
-print "<hr>";
+print "\n";
 print count(array_keys($used_taxa));
 // */
 // end loop through

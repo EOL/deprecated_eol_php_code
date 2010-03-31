@@ -1,10 +1,9 @@
 <?php
 /*connector for Duth Species Catalogue
-estimated execution time: 
+estimated execution time: 15 hours
 */
 $timestart = microtime(1);
 
-exit;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -15,8 +14,7 @@ $file_number=1;
 
 /*
     as of       id      bad 
-    Jan23 2010  4744    108
-    
+    Jan23 2010  4744    108    
 */
 
 $resource = new Resource(68); //exit("[$resource->id]");
