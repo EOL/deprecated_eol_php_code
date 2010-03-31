@@ -86,7 +86,7 @@ class Functions
     
     public static function log($string)
     {
-        if(isset($GLOBALS['log_file']))
+        if(isset($GLOBALS['log_file']) && $GLOBALS['ENV_NAME'] != 'test')
         {
             fwrite($GLOBALS['log_file'], date('H:i:s m.d.Y').": $string\n");
         }
