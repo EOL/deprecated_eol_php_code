@@ -1,6 +1,6 @@
 <?php
 /* Antarctic Invertebrates connector 
-estimated execution time: 
+estimated execution time: 2-3 mins.
 */
 $timestart = microtime(1);
 
@@ -14,9 +14,9 @@ $schema_taxa = array();
 $used_taxa = array();
 
 /*
-*/
 $xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm?rows=5";
 $xml_url = "http://127.0.0.1/ai.xml";
+*/
 $xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm";
 
 if(!($xml = @simplexml_load_file($xml_url)))
