@@ -3,7 +3,6 @@
 	xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:eol="http://www.eol.org/transfer/content/0.3">
-
 	
 <!--
 <xsl:template match="/">
@@ -11,7 +10,6 @@
 </xsl:template>
 -->
 
-	
 <xsl:template match="/">
 <html>
 <body>
@@ -32,14 +30,11 @@
 	dwc:ScientificName = <xsl:value-of select="count(//dwc:ScientificName)"/>
 	</td></tr>		
 
-
 	<tr><td>
 	<a href='javascript:self.close()'>&lt;&lt; Back to menu</a>
-	</td></tr>
-	
+	</td></tr>	
 	</table>	
 </body>
 </html>
 </xsl:template>
-
 </xsl:stylesheet>

@@ -8,7 +8,7 @@
 
 <?php
 /* has to be connected to the vpn */
-exit;
+//exit;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
