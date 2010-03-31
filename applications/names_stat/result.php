@@ -2,7 +2,7 @@
 
 //uses NAMES table
 
-
+//$GLOBALS['ENV_NAME'] = "slave";
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -17,6 +17,11 @@ $report = 'list';	//original functionality
 $tbl = "clean_names";	//instead of 'names'
 $fld = "clean_name";	//instead of 'string'
 $fld_id = "name_id";	//instead of 'id'
+
+$tbl = "names";	//instead of 'names'
+$fld = "clean_name";	//instead of 'string'
+$fld_id = "id";	//instead of 'id'
+
 
 $sep = chr(9);
 /*
@@ -182,8 +187,8 @@ for ($i = 0; $i < count($arr); $i++)
 	//print"<hr>111<hr>";
 	// /* //dec 7 commented
 	$qry="select distinct tcn.taxon_concept_id as id
-	From clean_names AS n
-	Inner Join taxon_concept_names AS tcn ON (n.name_id = tcn.name_id)
+	From names AS n
+	Inner Join taxon_concept_names AS tcn ON (n.id = tcn.name_id)
 	Inner Join taxon_concepts ON tcn.taxon_concept_id = taxon_concepts.id
 	where n.$fld='$string'
 	and taxon_concepts.published = 1
@@ -556,10 +561,10 @@ function get_sn_list($sn)
 	*/
 	$query = "
 	Select distinct taxon_concepts.id as taxon_concept_id
-	From clean_names 
-	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+	From names 
+	Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-	where clean_names.clean_name='$string'
+	where names.clean_name='$string'
 	";
 	
 	$sql = $mysqli->query($query);
@@ -578,8 +583,8 @@ function get_sn_list($sn)
 	*/
 	$query = "
 	Select distinct $tbl.$fld as string
-	From clean_names 
-	Inner Join hierarchy_entries ON clean_names.name_id = hierarchy_entries.name_id
+	From names 
+	Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
 	Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
 	Where taxon_concepts.id = '$id' 
 	Order By $tbl.$fld Asc
