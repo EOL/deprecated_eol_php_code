@@ -331,6 +331,14 @@ class MysqliConnection
         return $this->master_mysqli->affected_rows;
     }
     
+    function swap_tables($table_one, $table_two)
+    {
+        $swap = $table_one . "_to_swap";
+        $this->update("RENAME TABLE $table_one TO $swap,
+                                    $table_two TO $table_one,
+                                    $swap TO $table_two");
+    }
+    
     function debug($string, $master)
     {
         static $number_of_queries;

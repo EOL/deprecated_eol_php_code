@@ -5,14 +5,18 @@ class DenormalizeTables
     public static function data_types_taxon_concepts()
     {
         // create a temporary table for this session
-        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `data_types_taxon_concepts`");
-        $GLOBALS['db_connection']->query("CREATE TABLE `data_types_taxon_concepts` (
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `data_types_taxon_concepts_tmp`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `data_types_taxon_concepts_tmp` (
                   `taxon_concept_id` int unsigned NOT NULL,
                   `data_type_id` smallint unsigned NOT NULL,
                   `visibility_id` smallint unsigned NOT NULL,
                   `published` tinyint unsigned NOT NULL,
                   PRIMARY KEY  (`taxon_concept_id`,`data_type_id`, `visibility_id`, `published`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS data_types_taxon_concepts LIKE data_types_taxon_concepts_tmp");
+        
+        // $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS data_types_taxon_concepts_tmp LIKE data_types_taxon_concepts");
+        // $GLOBALS['db_connection']->delete("TRUNCATE TABLE data_types_taxon_concepts_tmp");
         
         $start = 0;
         $stop = 0;
@@ -27,8 +31,14 @@ class DenormalizeTables
         {
             echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
             $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT dotc.taxon_concept_id, do.data_type_id, do.visibility_id, do.published FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE do.id BETWEEN $i AND ". ($i+$batch_size));
-            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_types_taxon_concepts');
+            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_types_taxon_concepts_tmp');
             unlink($outfile);
+        }
+        
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_types_taxon_concepts_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $GLOBALS['db_connection']->swap_tables("data_types_taxon_concepts", "data_types_taxon_concepts_tmp");
         }
     }
     
@@ -36,13 +46,17 @@ class DenormalizeTables
     public static function data_objects_taxon_concepts()
     {
         // create a temporary table for this session
-        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `data_objects_taxon_concepts`");
-        $GLOBALS['db_connection']->query("CREATE TABLE `data_objects_taxon_concepts` (
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `data_objects_taxon_concepts_tmp`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `data_objects_taxon_concepts_tmp` (
                   `taxon_concept_id` int unsigned NOT NULL,
                   `data_object_id` int unsigned NOT NULL,
                   PRIMARY KEY  (`taxon_concept_id`, `data_object_id`),
                   KEY `data_object_id` (`data_object_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS data_objects_taxon_concepts LIKE data_objects_taxon_concepts_tmp");
+        
+        // $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS data_objects_taxon_concepts_tmp LIKE data_objects_taxon_concepts");
+        // $GLOBALS['db_connection']->delete("TRUNCATE TABLE data_objects_taxon_concepts_tmp");
         
         $start = 0;
         $stop = 0;
@@ -57,20 +71,30 @@ class DenormalizeTables
         {
             echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
             $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size));
-            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_taxon_concepts');
+            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_taxon_concepts_tmp');
             unlink($outfile);
+        }
+        
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_objects_taxon_concepts_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $GLOBALS['db_connection']->swap_tables("data_objects_taxon_concepts", "data_objects_taxon_concepts_tmp");
         }
     }
     
     public static function taxon_concepts_exploded($select_hierarchy_id = 0)
     {
-        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `taxon_concepts_exploded`");
-        $GLOBALS['db_connection']->query("CREATE TABLE `taxon_concepts_exploded` (
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `taxon_concepts_exploded_tmp`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `taxon_concepts_exploded_tmp` (
                   `taxon_concept_id` int unsigned NOT NULL,
                   `parent_id` int unsigned NOT NULL,
                   PRIMARY KEY (`taxon_concept_id`),
                   KEY `parent_id` (`parent_id`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+        $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS taxon_concepts_exploded LIKE taxon_concepts_exploded_tmp");
+        
+        // $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS taxon_concepts_exploded_tmp LIKE taxon_concepts_exploded");
+        // $GLOBALS['db_connection']->delete("TRUNCATE TABLE taxon_concepts_exploded_tmp");
         
         # TODO - dont hardcode IDs
         $hierarchies_to_ignore = array(399,105,106,129);
@@ -85,6 +109,12 @@ class DenormalizeTables
             if($select_hierarchy_id && $select_hierarchy_id!=$hierarchy_id) continue;
             self::taxon_concept_explode_hierarchy($hierarchy_id);
         }
+        
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM taxon_concepts_exploded_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $GLOBALS['db_connection']->swap_tables("taxon_concepts_exploded", "taxon_concepts_exploded_tmp");
+        }
     }
     
     public static function taxon_concept_explode_hierarchy($id)
@@ -93,159 +123,9 @@ class DenormalizeTables
         
         // get all concept_id, parent_concept_id which wont create loops
         $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT he.taxon_concept_id, he_parent.taxon_concept_id FROM hierarchy_entries he LEFT JOIN hierarchy_entries he_parent ON (he.parent_id=he_parent.id) LEFT JOIN taxon_concepts_exploded tcx ON (he.taxon_concept_id=tcx.parent_id AND tcx.taxon_concept_id=he_parent.taxon_concept_id) WHERE he.hierarchy_id=$id AND tcx.taxon_concept_id IS NULL");
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_exploded');
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_exploded_tmp');
         unlink($outfile);
     }
-    
-    
-    
-    
-    
-    
-    /*
-    
-    public static function data_objects_hierarchy_entries()
-    {
-        // create a temporary table for this session
-        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `data_objects_hierarchy_entries`");
-        $GLOBALS['db_connection']->query("CREATE TABLE `data_objects_hierarchy_entries` (
-                  `data_object_id` int unsigned NOT NULL,
-                  `hierarchy_entry_id` int unsigned NOT NULL,
-                  PRIMARY KEY  (`data_object_id`, `hierarchy_entry_id`),
-                  KEY `hierarchy_entry_id` (`hierarchy_entry_id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-        
-        $start = 0;
-        $stop = 0;
-        $batch_size = 50000;
-        $result = $GLOBALS['db_connection']->query("SELECT MIN(id) min, MAX(id) max FROM data_objects");
-        if($result && $row=$result->fetch_assoc())
-        {
-            $start = $row['min'];
-            $stop = $row['max'];
-        }
-        for($i=$start ; $i<$stop ; $i+=$batch_size)
-        {
-            echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
-            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT DISTINCT do.id, he.id FROM hierarchy_entries he JOIN taxa t ON (he.id=t.hierarchy_entry_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size));
-            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_hierarchy_entries');
-            unlink($outfile);
-        }
-    }
-    
-    public static function hierarchy_entries_exploded($select_hierarchy_id = 0)
-    {
-        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `taxon_concepts_exploded`");
-        $GLOBALS['db_connection']->query("CREATE TABLE `taxon_concepts_exploded` (
-                  `taxon_concept_id` int unsigned NOT NULL,
-                  `parent_id` int unsigned NOT NULL,
-                  PRIMARY KEY (`taxon_concept_id`),
-                  KEY `parent_id` (`parent_id`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-        
-        # TODO - dont hardcode IDs
-        $hierarchies_to_ignore = array(399,105,106,129);
-        
-        // do the small ones first
-        $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count ASC");
-        //$result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id FROM hierarchies h");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $hierarchy_id = $row['hierarchy_id'];
-            if(in_array($hierarchy_id, $hierarchies_to_ignore)) continue;
-            if($select_hierarchy_id && $select_hierarchy_id!=$hierarchy_id) continue;
-            self::explode_hierarchy($hierarchy_id);
-        }
-    }
-    
-    public static function explode_hierarchy($id)
-    {
-        echo "Exploding $id\n";
-        
-        // make sure our target table exists
-        $GLOBALS['db_connection']->query("CREATE TABLE IF NOT EXISTS `hierarchy_entries_exploded` (
-                  `hierarchy_entry_id` int unsigned NOT NULL,
-                  `ancestor_hierarchy_entry_id` int unsigned NOT NULL,
-                  KEY `hierarchy_entry_id` (`hierarchy_entry_id`),
-                  KEY `ancestor_hierarchy_entry_id` (`ancestor_hierarchy_entry_id`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-        //$GLOBALS['db_connection']->delete('TRUNCATE TABLE hierarchy_entries_exploded');
-        //$GLOBALS['db_connection']->delete("DELETE hex FROM hierarchy_entries_exploded hex JOIN hierarchy_entries he ON (hex.hierarchy_entry_id=he.id) WHERE he.hierarchy_id=$id");
-        
-        $GLOBALS['ids_with_content'] = array();
-        $result = $GLOBALS['db_connection']->query("SELECT he.id FROM hierarchies_content hc JOIN hierarchy_entries he ON (hc.hierarchy_entry_id=he.id) WHERE he.hierarchy_id=$id AND (hc.text=1 OR hc.image=1 OR hc.text_unpublished=1 OR hc.image_unpublished=1 OR hc.flash=1 OR hc.youtube=1)");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $GLOBALS['ids_with_content'][$row['id']] = 1;
-        }
-        if(!$GLOBALS['ids_with_content']) return false;
-        
-        $i=0;
-        $children = array();
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT id, parent_id FROM  hierarchy_entries he WHERE hierarchy_id=$id");
-        $RESULT = fopen($outfile, "r");
-        while(!feof($RESULT))
-        {
-            if($line = fgets($RESULT, 4096))
-            {
-                if($i%10000 == 0 ) echo "Memory: ".memory_get_usage()."\n";
-                $i++;
-                
-                $parts = explode("\t", trim($line));
-                $children[$parts[1]][] = $parts[0];
-            }
-        }
-        unlink($outfile);
-        echo "Memory: ".memory_get_usage()."\n";
-        
-        $FILE = fopen(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', 'w+');
-        if(isset($children[0]))
-        {
-            foreach($children[0] as &$child_id)
-            {
-                self::explode_recursively($child_id, array(), $children, $FILE);
-            }
-            unset($child_id);
-            unset($children[0]);
-        }
-        
-        fclose($FILE);
-        echo "inserting: ".time_elapsed()."\n";
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT .'temp/hierarchy_entries_exploded.sql', "hierarchy_entries_exploded");
-        unlink(DOC_ROOT .'temp/hierarchy_entries_exploded.sql');
-        echo "done inserting: ".time_elapsed()."\n";
-    }
-    
-    public static function explode_recursively(&$id, $parents, &$children, &$FILE)
-    {
-        static $i=0;
-        if($i%10000 == 0 ) echo "Memory r: ".memory_get_usage()."\n";
-        $i++;
-        
-        if(isset($GLOBALS['ids_with_content'][$id]))
-        {
-            // everything is in its own path
-            $str = "$id\t$id\n";
-            foreach($parents as &$parent_id)
-            {
-                $str .= "$id\t$parent_id\n";
-            }
-            unset($parent_id);
-            fwrite($FILE, $str);
-        }
-        
-        if(isset($children[$id]))
-        {
-            $parents[] = $id;
-            foreach($children[$id] as &$child_id)
-            {
-                self::explode_recursively($child_id, $parents, $children, $FILE);
-            }
-            unset($child_id);
-            unset($children[$id]);
-        }
-    }
-    */
 }
 
 ?>
