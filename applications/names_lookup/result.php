@@ -3,6 +3,7 @@
 require_once("../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+
 //$mysqli = slave_conn();
 
 $eol_site = "www.eol.org";
