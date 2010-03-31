@@ -132,7 +132,7 @@ class HierarchiesContent
         if($ids)
         {
             echo "ADDING\n";
-            $query = "UPDATE hierarchy_entries he JOIN hierarchies_content_tmp hc ON (he.id=hcn.hierarchy_entry_id) SET hc.map=1 WHERE he.hierarchy_id=129 AND he.identifier IN (". implode(",", $ids) .")";
+            $query = "UPDATE hierarchy_entries he JOIN hierarchies_content_tmp hc ON (he.id=hc.hierarchy_entry_id) SET hc.map=1 WHERE he.hierarchy_id=129 AND he.identifier IN (". implode(",", $ids) .")";
             $this->mysqli->update($query);
             $ids = array();
         }

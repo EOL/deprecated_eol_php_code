@@ -1,7 +1,6 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = false;
 require_library("HierarchiesContent");
 
 Functions::log("Starting hierarchies_content");
