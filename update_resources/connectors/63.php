@@ -1,6 +1,6 @@
 <?php
 /* connector for INOTAXA
-estimated execution time: 
+estimated execution time: 1.5 to 2 hours
 */
 $timestart = microtime(1);
 
