@@ -1,23 +1,4 @@
-data_administrator:
-    id: 1
-    label: Data Administrator
-
-systems_administrator:
-    id: 2
-    label: Systems Administrator
 
 data_supplier:
     id: 3
     label: Data Supplier
-
-data_host:
-    id: 4
-    label: Data Host
-
-technical_host:
-    id: 5
-    label: Technical Host
-
-administrative:
-    id: 6
-    label: Administrative

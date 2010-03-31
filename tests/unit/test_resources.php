@@ -4,6 +4,7 @@ class test_resources extends SimpletestUnitBase
 {
     function testHarvesting()
     {
+        $this->load_fixtures();
         $resource = self::create_resource();
         
         $this->assertTrue(count(HarvestEvent::all()) == 0, 'There shouldnt be any events to begin with');
@@ -90,7 +91,10 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows > 0, 'should be data_objects_taxon_concepts after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_types_taxon_concepts LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be data_types_taxon_concepts after harvesting');
-        
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_objects_table_of_contents LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be data_objects_table_of_contents after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM random_hierarchy_images LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be random_hierarchy_images after harvesting');
         
         // make sure we have harvest events
         $events = HarvestEvent::all();
