@@ -2,7 +2,6 @@
 
 //uses NAMES table
 
-//$GLOBALS['ENV_NAME'] = "slave";
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
