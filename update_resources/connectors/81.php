@@ -79,10 +79,26 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
     //$species_group="Animals_Arthropoda_Insecta_Diptera";
     //$species_group="Animals_Arthropoda_Insecta_Hemiptera";
     //$species_group="Animals_Arthropoda_Insecta_Hymenoptera";
-    $species_group="Animals_Arthropoda_Insecta_Lepidoptera";           
-    //$species_group="Animals_Arthropoda_Insecta_Trichoptera";           
-    //$species_group="Animals_Arthropoda_Insecta_others";           
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera";           //not being used
+
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Geometridae";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Noctuidae";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Nymphalidae";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Sphingidae";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Tortricidae";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Arctiidae";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_1";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_2";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_3";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_4";
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_5";
+    $species_group="Animals_Arthropoda_Insecta_Lepidoptera_6";
     
+        
+    
+    
+    //$species_group="Animals_Arthropoda_Insecta_Trichoptera";           
+    //$species_group="Animals_Arthropoda_Insecta_others";               
     
     //$species_group="Animals_Arthropoda_Malacostraca";    
     //$species_group="Animals_Arthropoda_Arachnida";    
@@ -105,8 +121,7 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
     $txt_file="bold_id_list_" . $species_group . ".txt";
 
 //********************************************************************************
- /* can be commented if TXT file has already been created
- 
+ /* can be commented if TXT file has already been created 
     $main_name_id_list=array();
     get_BOLD_taxa();//this will save to /files/$txt_file the id and sciname
     exit("<hr>TXT file saved -- $species_group.");
@@ -415,7 +430,163 @@ function get_BOLD_taxa()
     if($species_group=="Animals_Arthropoda_Insecta_Diptera")    {$arr_order = array(0 => array( "name" => "Diptera"     , "id" => 127));}
     if($species_group=="Animals_Arthropoda_Insecta_Hemiptera")  {$arr_order = array(0 => array( "name" => "Hemiptera"   , "id" => 133));}    
     if($species_group=="Animals_Arthropoda_Insecta_Hymenoptera"){$arr_order = array(0 => array( "name" => "Hymenoptera" , "id" => 125));}   
+
     if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera"){$arr_order = array(0 => array( "name" => "Lepidoptera" , "id" => 113));}    
+
+
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_Geometridae"){$arr_family = array(0 => array( "name" => "Geometridae" , "id" => 525));}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_Noctuidae")  {$arr_family = array(0 => array( "name" => "Noctuidae"   , "id" => 561));}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_Nymphalidae"){$arr_family = array(0 => array( "name" => "Nymphalidae" , "id" => 723));}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_Sphingidae") {$arr_family = array(0 => array( "name" => "Sphingidae"  , "id" => 551));}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_Tortricidae"){$arr_family = array(0 => array( "name" => "Tortricidae" , "id" => 425));}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_Arctiidae")  {$arr_family = array(0 => array( "name" => "Arctiidae"   , "id" => 603));}    
+
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_1")  
+{$arr_family = array(0 => array( "name" => "Acanthopteroctetidae"   , "id" => 86520),
+                     1 => array( "name" => "Acrolepiidae"   , "id" => 667),
+                     2 => array( "name" => "Acrolophidae"   , "id" => 473),
+                     3 => array( "name" => "Adelidae"   , "id" => 453),
+                     4 => array( "name" => "Agathiphagidae"   , "id" => 533),
+                     5 => array( "name" => "Aididae"   , "id" => 86533),
+                     6 => array( "name" => "Alucitidae"   , "id" => 33546),
+                     7 => array( "name" => "Amphisbatidae"   , "id" => 531),
+                     8 => array( "name" => "Andesianidae"   , "id" => 93305),
+                     9 => array( "name" => "Anomoeotidae"   , "id" => 271637),
+                     10 => array( "name" => "Anthelidae"   , "id" => 643),
+                     11 => array( "name" => "Apatelodidae"   , "id" => 269113),
+                     12 => array( "name" => "Apateloidae"   , "id" => 177453),
+                     13 => array( "name" => "Arrhenophanidae"   , "id" => 86543),
+                     14 => array( "name" => "Autostichidae"   , "id" => 455),
+                     15 => array( "name" => "Batrachedridae"   , "id" => 553),
+                     16 => array( "name" => "Bedelliidae"   , "id" => 73621),
+                     17 => array( "name" => "Bombycidae"   , "id" => 709),
+                     18 => array( "name" => "Brachodidae"   , "id" => 76981),
+                     19 => array( "name" => "Brahmaeidae"   , "id" => 85481)                     
+                    );}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_2")  
+{$arr_family = array(0 => array( "name" => "Bucculatricidae"   , "id" => 471),
+                     1 => array( "name" => "Callidulidae"   , "id" => 86575),
+                     2 => array( "name" => "Carposinidae"   , "id" => 683),
+                     3 => array( "name" => "Carthaeidae"   , "id" => 86486),
+                     4 => array( "name" => "Castniidae"   , "id" => 58871),
+                     5 => array( "name" => "Cesidosidae"   , "id" => 210190),
+                     6 => array( "name" => "Chimabachidae"   , "id" => 183138),
+                     7 => array( "name" => "Choreutidae"   , "id" => 679),
+                     8 => array( "name" => "Cimeliidae"   , "id" => 94684),
+                     9 => array( "name" => "Coleophoridae"   , "id" => 649),
+                     10 => array( "name" => "Copromorphidae"   , "id" => 53617),
+                     11 => array( "name" => "Cosmopterigidae"   , "id" => 429),
+                     12 => array( "name" => "Cossidae"   , "id" => 703),
+                     13 => array( "name" => "Crambidae"   , "id" => 24760),
+                     14 => array( "name" => "Crinopterygidae"   , "id" => 86616),
+                     15 => array( "name" => "Cryptolechiidae"   , "id" => 183440),
+                     16 => array( "name" => "Cyclotornidae"   , "id" => 53594),
+                     17 => array( "name" => "Dalceridae"   , "id" => 57912),
+                     18 => array( "name" => "Deoclonidae"   , "id" => 112166),
+                     19 => array( "name" => "Depressariidae"   , "id" => 53558)                     
+                    );}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_3")  
+{$arr_family = array(0 => array( "name" => "Dioptidae"   , "id" => 257570),
+                     1 => array( "name" => "Doidae"   , "id" => 58791),
+                     2 => array( "name" => "Douglasiidae"   , "id" => 687),
+                     3 => array( "name" => "Drepanidae"   , "id" => 701),
+                     4 => array( "name" => "Dudgeoneidae"   , "id" => 123178),
+                     5 => array( "name" => "Elachistidae"   , "id" => 575),
+                     6 => array( "name" => "Endromidae"   , "id" => 86561),
+                     7 => array( "name" => "Epermeniidae"   , "id" => 727),
+                     8 => array( "name" => "Epicopeiidae"   , "id" => 86570),
+                     9 => array( "name" => "Epiplemidae"   , "id" => 70354),
+                     10 => array( "name" => "Epipyropidae"   , "id" => 435),
+                     11 => array( "name" => "Erebidae"   , "id" => 33532),
+                     12 => array( "name" => "Eriocottidae"   , "id" => 93269),
+                     13 => array( "name" => "Eriocraniidae"   , "id" => 731),
+                     14 => array( "name" => "Ethmiidae"   , "id" => 260996),
+                     15 => array( "name" => "Eupterotidae"   , "id" => 477),
+                     16 => array( "name" => "Galacticidae"   , "id" => 77397),
+                     17 => array( "name" => "Gelechiidae"   , "id" => 545),
+                     18 => array( "name" => "Glyphidoceridae"   , "id" => 479),
+                     19 => array( "name" => "Glyphipterigidae"   , "id" => 491)                     
+                    );}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_4")  
+{$arr_family = array(0 => array( "name" => "Gracillariidae"   , "id" => 583),
+                     1 => array( "name" => "Hedylidae"   , "id" => 441),
+                     2 => array( "name" => "Heliodinidae"   , "id" => 447),
+                     3 => array( "name" => "Heliozelidae"   , "id" => 697),
+                     4 => array( "name" => "Hepialidae"   , "id" => 557),
+                     5 => array( "name" => "Hesperiidae"   , "id" => 675),
+                     6 => array( "name" => "Heterobathmiidae"   , "id" => 611),
+                     7 => array( "name" => "Heterogynidae"   , "id" => 189108),
+                     8 => array( "name" => "Himantopteridae"   , "id" => 210215),
+                     9 => array( "name" => "Hyblaeidae"   , "id" => 617),
+                     10 => array( "name" => "Hypertrophidae"   , "id" => 53565),
+                     11 => array( "name" => "Immidae"   , "id" => 663),
+                     12 => array( "name" => "Incurvariidae"   , "id" => 475),
+                     13 => array( "name" => "Lacturidae"   , "id" => 53547),
+                     14 => array( "name" => "Lasiocampidae"   , "id" => 623),
+                     15 => array( "name" => "Lecithoceridae"   , "id" => 601),
+                     16 => array( "name" => "Lemoniidae"   , "id" => 86621),
+                     17 => array( "name" => "Limacodidae"   , "id" => 529),
+                     18 => array( "name" => "Lophocoronidae"   , "id" => 139788),
+                     19 => array( "name" => "Lycaenidae"   , "id" => 555)                     
+                    );}    
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_5")  
+{$arr_family = array(0 => array( "name" => "Lymantriidae"   , "id" => 585),
+                     1 => array( "name" => "Lyonetiidae"   , "id" => 501),
+                     2 => array( "name" => "Lypusidae"   , "id" => 187140),
+                     3 => array( "name" => "Megalopygidae"   , "id" => 605),
+                     4 => array( "name" => "Metarbelidae"   , "id" => 274648),
+                     5 => array( "name" => "Micropterigidae"   , "id" => 587),
+                     6 => array( "name" => "Mimallonidae"   , "id" => 55500),
+                     7 => array( "name" => "Mirinidae"   , "id" => 86597),
+                     8 => array( "name" => "Mnesarchaeidae"   , "id" => 86609),
+                     9 => array( "name" => "Neopseustidae"   , "id" => 86643),
+                     10 => array( "name" => "Nepticulidae"   , "id" => 537),
+                     11 => array( "name" => "Nolidae"   , "id" => 267046),
+                     12 => array( "name" => "Notodonitidae"   , "id" => 177618),
+                     13 => array( "name" => "Notodontidae"   , "id" => 521),
+                     14 => array( "name" => "Oecophoridae"   , "id" => 433),
+                     15 => array( "name" => "Oenosandridae"   , "id" => 53517),
+                     16 => array( "name" => "Opostegidae"   , "id" => 513),
+                     17 => array( "name" => "Oxytenidae"   , "id" => 55521),
+                     18 => array( "name" => "Palaeosetidae"   , "id" => 139909),
+                     19 => array( "name" => "Palaephatidae"   , "id" => 139910),
+                     20 => array( "name" => "Papilionidae"   , "id" => 489),
+                     21 => array( "name" => "Peleopodidae"   , "id" => 71865),
+                     22 => array( "name" => "Pieridae"   , "id" => 705),
+                     23 => array( "name" => "Plutellidae"   , "id" => 695),
+                     24 => array( "name" => "Prodoxidae"   , "id" => 711)
+                    );}    
+                    
+
+if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_6")  
+{$arr_family = array(0 => array( "name" => "Prototheoridae"   , "id" => 210246),
+                     1 => array( "name" => "Psychidae"   , "id" => 651),
+                     2 => array( "name" => "Pterophoridae"   , "id" => 637),
+                     3 => array( "name" => "Pyralidae"   , "id" => 689),
+                     4 => array( "name" => "Ratardidae"   , "id" => 93596),
+                     5 => array( "name" => "Riodinidae"   , "id" => 591),
+                     6 => array( "name" => "Roeslerstammiidae"   , "id" => 53578),
+                     7 => array( "name" => "Saturniidae"   , "id" => 451),
+                     8 => array( "name" => "Satyridae"   , "id" => 208897),
+                     9 => array( "name" => "Schreckensteiniidae"   , "id" => 653),
+                     10 => array( "name" => "Scythrididae"   , "id" => 100107),
+                     11 => array( "name" => "Sematuridae"   , "id" => 58865),
+                     12 => array( "name" => "Sesiidae"   , "id" => 503),
+                     13 => array( "name" => "Thyatiridae"   , "id" => 421),
+                     14 => array( "name" => "Thyretidae"   , "id" => 163256),
+                     15 => array( "name" => "Thyrididae"   , "id" => 493),
+                     16 => array( "name" => "Tineidae"   , "id" => 419),
+                     17 => array( "name" => "Tineodidae"   , "id" => 76989),
+                     18 => array( "name" => "Tischeriidae"   , "id" => 625),
+                     19 => array( "name" => "Uraniidae"   , "id" => 691),                     
+                     20 => array( "name" => "Urodidae"   , "id" => 23508),
+                     21 => array( "name" => "Xyloryctidae"   , "id" => 417),
+                     22 => array( "name" => "Yponomeutidae"   , "id" => 665),
+                     23 => array( "name" => "Ypsolophidae"   , "id" => 699),
+                     24 => array( "name" => "Zygaenidae"   , "id" => 487)
+                    );}    
+
+    
     if($species_group=="Animals_Arthropoda_Insecta_Trichoptera"){$arr_order = array(0 => array( "name" => "Trichoptera" , "id" => 99));}    
     if($species_group=="Animals_Arthropoda_Insecta_others")
     {   $arr_order = array(0 => array( "name" => "Archaeognatha"    , "id" => 87070),
@@ -599,6 +770,11 @@ function get_BOLD_taxa()
         $arr=proc_order($arr_order);                
         $main_name_id_list = array_merge($arr_order,$arr);    
     }
+    elseif(isset($arr_family))   
+    {
+        $arr=proc_family($arr_family);                
+        $main_name_id_list = array_merge($arr_family,$arr);    
+    }
     
     
     print"<hr>All Taxa in BOLD: " . count($main_name_id_list);
@@ -621,6 +797,41 @@ function save_to_txt($arr)
 	if($fp = fopen($filename,"w+")){fwrite($fp,$str);fclose($fp);}		    
     return "";    
 }//function save_to_txt2
+
+
+function proc_family($arr4)
+{   
+    global $species_service_url;    
+    global $main_name_id_list;
+    global $wrap;    
+
+                foreach ($arr4 as $a4)//family loop
+                {
+                    print $wrap . $a4["name"] . " -- " . $a4["id"];
+                    $str = Functions::get_remote_file($species_service_url . $a4["id"]);        
+                    $arr5 = proc_subtaxa_block($str);        
+                    //print"<pre>";print_r($arr5);print"</pre>";               
+                    $main_name_id_list = array_merge($main_name_id_list, $arr5);                                            
+                    foreach ($arr5 as $a5)//subfamily if there is any or Genus loop
+                    {                        
+                        print $wrap . $a5["name"] . " -- " . $a5["id"];
+                        $str = Functions::get_remote_file($species_service_url . $a5["id"]);        
+                        $arr6 = proc_subtaxa_block($str);        
+                        //print"<pre>";print_r($arr6);print"</pre>";               
+                        $main_name_id_list = array_merge($main_name_id_list, $arr6);                                            
+                        foreach ($arr6 as $a6)//Genus if there was subfamily above loop
+                        {
+                            print $wrap . $a6["name"] . " -- " . $a6["id"];
+                            $str = Functions::get_remote_file($species_service_url . $a6["id"]);        
+                            $arr7 = proc_subtaxa_block($str);        
+                            //print"<pre>";print_r($arr7);print"</pre>";               
+                            $main_name_id_list = array_merge($main_name_id_list, $arr7);
+                        }                            
+                    }                    
+                }                
+
+    return $main_name_id_list;     
+}
 
 
 function proc_order($arr3)
@@ -889,7 +1100,7 @@ function get_higher_taxa($taxid)
     $str = str_ireplace('width="100%"',"",$str);    
     $pos = stripos($str,"Species List - Progress");    
     $str = substr($str,0,$pos) . "</td></tr></table>";    
-    print"$wrap $str";
+    //print"$wrap $str";
     //$str is BOLD stats
     //=========================================================================
     

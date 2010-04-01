@@ -2,6 +2,7 @@
 /*connector for Duth Species Catalogue
 estimated execution time: 15 hours
 */
+exit;
 $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
