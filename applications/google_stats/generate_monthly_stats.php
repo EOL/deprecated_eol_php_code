@@ -13,7 +13,6 @@ print substr($str,0,strlen($str)-1);
 exit;
 */
 
-$GLOBALS['ENV_NAME'] = "staging";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 require_once('google_proc.php');
