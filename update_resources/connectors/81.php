@@ -2,6 +2,7 @@
 /* connector for BOLD Systems 
 estimated execution time: 4days
 */
+exit;
 $timestart = microtime(1);
 
 //exit;
