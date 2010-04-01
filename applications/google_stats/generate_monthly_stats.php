@@ -1,6 +1,7 @@
 <?php
-
 /*
+execution time: 1.5 hours
+
 run date    1March2010  1April2010
 GA records  110,679
 report mon. Feb2010     Mar2010
