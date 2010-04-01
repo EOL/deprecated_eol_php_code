@@ -381,5 +381,37 @@ function temp_filepath($relative_from_root = false, $extension = 'file')
     return $filepath;
 }
 
+function file_randomize($path)
+{
+    // loop through the file finding the offset of all newlines
+    $newline_positions = array(0);
+    $FILE = fopen($path, "r");
+    while(!feof($FILE))
+    {
+        if(fgets($FILE, 4096))
+        {
+            $newline_positions[] = ftell($FILE);
+        }
+    }
+    
+    // randomize the offsets and seek around the file getting the random lines
+    shuffle($newline_positions);
+    $new_file_path = temp_filepath();
+    $NEW_FILE = fopen($new_file_path, "w+");
+    foreach($newline_positions as $position)
+    {
+        fseek($FILE, $position);
+        if($line = fgets($FILE, 4096))
+        {
+            fwrite($NEW_FILE, $line);
+        }
+    }
+    fclose($NEW_FILE);
+    fclose($FILE);
+    
+    unlink($path);
+    rename($new_file_path, $path);
+}
+
 
 ?>

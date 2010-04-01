@@ -22,35 +22,18 @@ if($id = Rank::find('nothosubspecies')) $species_rank_ids_array[] = $id;
 if($id = Rank::find('nothovariety')) $species_rank_ids_array[] = $id;
 $species_rank_ids = implode(",", $species_rank_ids_array);
 
-$result = $GLOBALS['db_connection']->query("SELECT distinct he.id, tcc.image_object_id, he.hierarchy_id, he.taxon_concept_id, n.italicized name FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcc.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND (he.lft=he.rgt-1 OR he.rank_id IN ($species_rank_ids)) AND tcc.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
-if(@!$result || @!$result->num_rows) {}
-else
-{
-    $GLOBALS['db_connection']->begin_transaction();
-    
-    $GLOBALS['db_connection']->delete("DELETE FROM random_hierarchy_images");
-    
-    $random_taxa = array();
-    while($result && $row=$result->fetch_assoc())
-    {
-        $id = $row["id"];
-        $data_object_id = $row["image_object_id"];
-        $hierarchy_id = $row["hierarchy_id"];
-        $taxon_concept_id = $row["taxon_concept_id"];
-        $name = $GLOBALS['db_connection']->real_escape_string($row["name"]);
-        
-        $query = "INSERT INTO random_hierarchy_images VALUES (NULL, $data_object_id, $id, $hierarchy_id, $taxon_concept_id, '$name')";
-        $random_taxa[] = $query;
-    }
-    
-    shuffle($random_taxa);
-    foreach($random_taxa as $random)
-    {
-        $GLOBALS['db_connection']->insert($random);
-    }
-    
-    $GLOBALS['db_connection']->end_transaction();
-}
+$outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT distinct NULL, tcc.image_object_id, he.id, he.hierarchy_id, he.taxon_concept_id, n.italicized name FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcc.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND (he.lft=he.rgt-1 OR he.rank_id IN ($species_rank_ids)) AND tcc.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
+
+file_randomize($outfile);
+
+$GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS random_hierarchy_images_tmp LIKE random_hierarchy_images");
+$GLOBALS['db_connection']->delete("TRUNCATE TABLE random_hierarchy_images_tmp");
+
+$GLOBALS['db_connection']->load_data_infile($outfile, 'random_hierarchy_images_tmp');
+$GLOBALS['db_connection']->swap_tables("random_hierarchy_images", "random_hierarchy_images_tmp");
+
+
+unlink($outfile);
 Functions::log("Ended random_hierarchy_images");
 
 

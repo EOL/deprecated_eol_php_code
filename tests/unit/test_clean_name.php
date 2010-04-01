@@ -9,7 +9,7 @@ class test_clean_name extends SimpletestUnitBase
     
     function runTestsFromCSV($csv_file)
     {
-        $file = file(dirname(__FILE__) . "/../csv_files/$csv_file");
+        $file = file(dirname(__FILE__) . "/../rails_csv_files/$csv_file");
         foreach($file as $line => $test_case)
         {
             if($line==0) continue;
