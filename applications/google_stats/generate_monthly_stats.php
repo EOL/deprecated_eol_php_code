@@ -13,6 +13,7 @@ print substr($str,0,strlen($str)-1);
 exit;
 */
 
+$GLOBALS['ENV_NAME'] = "staging";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 require_once('google_proc.php');
@@ -22,7 +23,7 @@ $mysqli2 = $mysqli; // to use in Beast
 //exit; //for debug
 
 //$mysqli2 = load_mysql_environment('staging');        
-//$mysqli2 = load_mysql_environment('eol_statistics');        
+//$mysqli2 = load_mysql_environment('eol_statistics');     //from old system
 //$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
 //$use_sql_load_infile=true;
@@ -553,10 +554,10 @@ function save_eol_taxa_google_stats($month,$year)
         // get some account summary information without a dimension
         $i=0;
         $continue=true; 
-        $start_count=1; 
-        //$start_count=30001;
-        $range=10000;
-        $range=5000; //debug
+        $start_count=1; //actual operation
+        //$start_count=30001; //debug
+        $range=10000; //actual operation
+        //$range=5000; //debug
         //$range=1;
         
         mkdir("data/" , 0777);        
