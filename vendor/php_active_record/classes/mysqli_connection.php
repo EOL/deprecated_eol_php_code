@@ -215,11 +215,12 @@ class MysqliConnection
         $tmp_file_path = temp_filepath();
         
         // perpare the command line command
-        $command = "mysql --host=$this->server --user=$this->user --password=$this->password --database=$this->database --compress --column-names=false";
+        $command = MYSQL_BIN_PATH . " --host=$this->server --user=$this->user --password=$this->password --database=$this->database --compress --column-names=false";
         if($this->port) $command .= " --port=$this->port";
         if($this->encoding) $command .= " --default-character-set=$this->encoding";
         $command .= " -e \"$query\"  > $tmp_file_path";
         
+        // echo "$command\n";
         // execute the query
         $this->debug($query, true);
         shell_exec($command);

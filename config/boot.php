@@ -37,6 +37,9 @@ define('LOCAL_ROOT', DOC_ROOT);
 if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://' . gethostbyname(gethostname()) . '/');
 define('LOCAL_WEB_ROOT', WEB_ROOT);
 
+if(!defined('PHP_BIN_PATH')) define('PHP_BIN_PATH', PHP_BINDIR . '/php ');
+if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');
+
 
 
 require_once(DOC_ROOT . 'lib/MysqlBase.php');

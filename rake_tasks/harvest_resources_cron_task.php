@@ -33,6 +33,9 @@ sleep_production(600);
 // publish all pending resources
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
+// sleep for 5 minutes to allow changes from transactions to propegate
+sleep_production(300);
+
 // denormalize tables
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
