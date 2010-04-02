@@ -30,11 +30,14 @@ $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS random_hierarchy_i
 $GLOBALS['db_connection']->delete("TRUNCATE TABLE random_hierarchy_images_tmp");
 
 $GLOBALS['db_connection']->load_data_infile($outfile, 'random_hierarchy_images_tmp');
-$GLOBALS['db_connection']->swap_tables("random_hierarchy_images", "random_hierarchy_images_tmp");
-
-
 unlink($outfile);
-Functions::log("Ended random_hierarchy_images");
 
+$result = $GLOBALS['db_connection']->query("SELECT 1 FROM random_hierarchy_images_tmp LIMIT 1");
+if($result && $row=$result->fetch_assoc())
+{
+    $GLOBALS['db_connection']->swap_tables("random_hierarchy_images", "random_hierarchy_images_tmp");
+}
+
+Functions::log("Ended random_hierarchy_images");
 
 ?>
