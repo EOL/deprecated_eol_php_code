@@ -9,7 +9,7 @@ if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
 
 define('WEB_ROOT', 'http://localhost/eol_php_code/');   // URL prefix of this installation
 define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
-define('PHP_BIN_PATH', '/usr/local/bin/php ');          // path to PHP binary. THE SPACE AT THE END IS IMPORTANT
+define('MYSQL_BIN_PATH', 'mysql ');                     // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 
 
 /* Initialize app - this should be towards the top of environment.php, but declare the WEB_ROOT first 
