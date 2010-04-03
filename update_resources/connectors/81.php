@@ -1,9 +1,27 @@
 <?php
 /* connector for BOLD Systems 
 estimated execution time: 4days
+
+http://validator.w3.org/
 */
 exit;
 $timestart = microtime(1);
+
+$GLOBALS['ENV_NAME'] = "slave";
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+$mysqli =& $GLOBALS['mysqli_connection'];
+
+
+$resource = new Resource(81); 
+print "<hr>resource id = " . $resource->id; //exit;
+
+
+// /* //-------------- start put together all XML files 
+combine_xml($resource->id);
+exit;
+//-------------- end put together all XML files 
+// */
+
 
 //exit;
 /*
@@ -46,8 +64,6 @@ date            taxid   with public barcode     with barcodes
 2010 Mar 01     60749                           60749
 */
 
-include_once(dirname(__FILE__) . "/../../config/environment.php");
-$mysqli =& $GLOBALS['mysqli_connection'];
 
 
 //only on local; to be deleted before going into production
@@ -63,25 +79,20 @@ $phylum_service_url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcode
 //$species_service_url = "http://www.barcodinglife.org/views/taxbrowser.php?taxon="; //no longer working
 $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
-
-    //$species_group="Animals"; //not being used
+    //32 files in all
     
+        //$species_group="Animals"; //not being used    
     //$species_group="Fungi";       //running... done
     //$species_group="Plants";      //running...
     //$species_group="Protists";    //running... done
-
-    //$species_group="Animals_1";    //running...
-    
-    //$species_group="Animals_Arthropoda";    //not being used
-    
-    //$species_group="Animals_Arthropoda_Insecta";  //not being used    
-
+    //$species_group="Animals_1";    //running...    
+        //$species_group="Animals_Arthropoda";    //not being used    
+        //$species_group="Animals_Arthropoda_Insecta";  //not being used    
     //$species_group="Animals_Arthropoda_Insecta_Coleoptera";
     //$species_group="Animals_Arthropoda_Insecta_Diptera";
     //$species_group="Animals_Arthropoda_Insecta_Hemiptera";
     //$species_group="Animals_Arthropoda_Insecta_Hymenoptera";
-    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera";           //not being used
-
+        //$species_group="Animals_Arthropoda_Insecta_Lepidoptera";           //not being used
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Geometridae";
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Noctuidae";
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Nymphalidae";
@@ -93,27 +104,18 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_3";
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_4";
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_5";
-    $species_group="Animals_Arthropoda_Insecta_Lepidoptera_6";
-    
-        
-    
-    
+    //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_6";
     //$species_group="Animals_Arthropoda_Insecta_Trichoptera";           
-    //$species_group="Animals_Arthropoda_Insecta_others";               
-    
+    //$species_group="Animals_Arthropoda_Insecta_others";                   
     //$species_group="Animals_Arthropoda_Malacostraca";    
     //$species_group="Animals_Arthropoda_Arachnida";    
     //$species_group="Animals_Arthropoda_others";        
-            
-    
     //$species_group="Animals_2";    
     //$species_group="Animals_Echinodermata";    //running
-
-    //$species_group="Animals_Chordata";    //not being used
+        //$species_group="Animals_Chordata";    //not being used
     //$species_group="Animals_Chordata_Actinopterygii";    
     //$species_group="Animals_Chordata_Aves";    
-    //$species_group="Animals_Chordata_others";    
-    
+    $species_group="Animals_Chordata_others";        
     //$species_group="Animals_3";    //running...
     //$species_group="Animals_4";    //running... done
     
@@ -137,30 +139,11 @@ $main_name_id_list=get_from_txt();//this will retrieve the id and sciname from t
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-//$resource = new Resource(81); 
-//print "<hr>resource id = " . $resource->id; exit;
 
 $schema_taxa = array();
 $used_taxa = array();
 
 $id_list=array();
-
-/* no longer being used
-$query="Select distinct names.`string` as taxon_phylum From hierarchy_entries Inner Join ranks ON hierarchy_entries.rank_id = ranks.id
-Inner Join names ON hierarchy_entries.name_id = names.id Where
-ranks.id = 280  ";
-//rank.id 280 = phylum
-//$query .= " and names.`string` = 'Chordata' ";
-//$query .= " and names.`string` = 'Chaetognatha' ";
-//$query .= " and names.`string` = 'Pyrrophycophyta' ";
-//$query .= " and names.`string` <> 'Annelida' ";
-//$query .= " Order By names.`string` Asc ";
-//$query .= " limit 1 ";
-//print"<hr>$query<hr>";
-$result = $mysqli->query($query);    
-print "phylum count = " . $result->num_rows . "$wrap"; //exit;
-$phylum_count = $result->num_rows;
-*/
 
 
 $total_taxid_count = 0;
@@ -179,8 +162,7 @@ $id_with_public_barcode=array();
     */    
     //if(!($xml = @simplexml_load_file($url)))continue;        
     $do_count = 0;
-    $count_per_phylum=0;
-    
+    $count_per_phylum=0;    
     
     //foreach($xml->taxon as $main)
     foreach($main_name_id_list as $main)
@@ -190,8 +172,7 @@ $id_with_public_barcode=array();
         print "$wrap $ctr of $phylum_count -- phylum = " . $row["taxon_phylum"];
         print " | $count_per_phylum of " . count($xml->taxon) . " $main->name  $wrap";
         */
-        print "$wrap $count_per_phylum of " . count($main_name_id_list) . " " . $main["name"];
-        
+        print "$wrap $count_per_phylum of " . count($main_name_id_list) . " " . $main["name"];        
         
         //if($taxid_count > 15)continue;   //debug - to limit no. of taxa to process
         
@@ -252,14 +233,16 @@ $id_with_public_barcode=array();
                 $taxon_parameters = array();
                 $taxon_parameters["identifier"] = $main["id"];
 
-                $taxon_parameters["kingdom"] = @$taxa["kingdom"];
-                $taxon_parameters["phylum"]  = @$taxa["phylum"];
-                $taxon_parameters["class"]   = @$taxa["class"];
-                $taxon_parameters["order"]   = @$taxa["order"];
-                $taxon_parameters["family"]  = @$taxa["family"];
-                $taxon_parameters["genus"]   = @$taxa["genus"];
+                $taxon_parameters["kingdom"] = Functions::import_decode(@$taxa["kingdom"]);
+                $taxon_parameters["phylum"]  = Functions::import_decode(@$taxa["phylum"]);
+                $taxon_parameters["class"]   = Functions::import_decode(@$taxa["class"]);
+                $taxon_parameters["order"]   = Functions::import_decode(@$taxa["order"]);
+                $taxon_parameters["family"]  = Functions::import_decode(@$taxa["family"]);
+                $taxon_parameters["genus"]   = Functions::import_decode(@$taxa["genus"]);
                 
-                $taxon_parameters["scientificName"]= $main["name"];
+                $taxon_parameters["scientificName"]= Functions::import_decode($main["name"]);               
+                
+                
                 //$taxon_parameters["source"] = $species_service_url . urlencode($main["name"]);
                 $taxon_parameters["source"] = $species_service_url . urlencode($main["id"]);
             
@@ -354,6 +337,87 @@ exit("$wrap$wrap Done processing - $species_group ");
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################
+function combine_xml($resource_id)
+{
+    $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
+    $OUT = fopen($old_resource_path, "w+");
+    $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
+    $str .= "<response\n";
+    $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";           
+    $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
+    $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";           
+    $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";           
+    $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";           
+    $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";           
+    $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";                      
+    $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
+    fwrite($OUT, $str);
+    $i=0;    
+
+    $arr=array("bold_Animals_1",
+               "bold_Animals_2",
+               "bold_Animals_3",
+               "bold_Animals_4",
+               "bold_Animals_Arthropoda_Arachnida",
+               "bold_Animals_Arthropoda_Insecta_Coleoptera", 
+               "bold_Animals_Arthropoda_Insecta_Diptera",
+               "bold_Animals_Arthropoda_Insecta_Hemiptera",
+               "bold_Animals_Arthropoda_Insecta_Hymenoptera",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_1",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_2",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_3",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_4",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_5",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_6",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_Arctiidae",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_Geometridae",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_Noctuidae",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_Nymphalidae",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_Sphingidae",
+               "bold_Animals_Arthropoda_Insecta_Lepidoptera_Tortricidae",
+               "bold_Animals_Arthropoda_Insecta_others",
+               "bold_Animals_Arthropoda_Insecta_Trichoptera",
+               "bold_Animals_Arthropoda_Malacostraca",
+               "bold_Animals_Arthropoda_others",
+               "bold_Animals_Chordata_Actinopterygii",
+               "bold_Animals_Chordata_Aves",
+               "bold_Animals_Chordata_others",
+               "bold_Animals_Echinodermata",
+               "bold_Fungi",                                             
+               "bold_Plants",
+               "bold_Protists"               
+              );
+    print"<br>";
+    foreach ($arr as $xml) 
+    {        
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "/" . $xml . ".xml";
+        
+        $i++; print "$i. $file ";
+        if($temp_xml = Functions::get_hashed_response($file))
+        {
+            print" ok ";        
+            // /*            
+            $contents = Functions::get_remote_file($file);
+            if($contents)
+            {
+            	$pos1 = stripos($contents,"<taxon>");
+        	    $pos2 = strripos($contents,"</taxon>");			            
+            	if($pos1 != "" and $pos2 != "")
+            	{
+        	    	$contents = trim(substr($contents,$pos1,$pos2-$pos1+8));
+                    fwrite($OUT, $contents);    
+            	}            
+            }    
+            // */
+        }
+        
+        else print " bad";
+        print"<br>";
+    }
+    $str = "</response>";fwrite($OUT, $str);    
+    fclose($OUT);
+    
+}//end combine_xml();
 
 
 function get_phylum_list()
@@ -1223,9 +1287,9 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$descripti
 {        
     $dataObjectParameters = array();    
         
-    $dataObjectParameters["title"] = $title;        
+    $dataObjectParameters["title"] = Functions::import_decode($title);            
+    $dataObjectParameters["description"] = Functions::import_decode($description);            
     
-    $dataObjectParameters["description"] = $description;    
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;        
     $dataObjectParameters["identifier"] = $taxid . "_" . $do_count;
