@@ -1,13 +1,15 @@
 <?php
 /* connector for USDA text descriptions compiled by Gerald "Stinger" Guala, Ph.D. using the SLIKS software.
 This connector reads 4 HTML files
-estimated execution time: 53 secs to 1 min. -> 
+estimated execution time: 1.34 to 2 min. -> 
+× x X
 */
 $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+$not_found=0;
 $wrap = "\n"; 
 //$wrap = "<br>"; 
  
@@ -17,8 +19,14 @@ $resource = new Resource(108); //USDA Plant text descriptions
 $schema_taxa = array();
 $used_taxa = array();
 
-//$file = "";
+$dc_source = "http://plants.usda.gov/java/profile?symbol=";
+$keys_url  = "http://npdc.usda.gov/technical/plantid_wetland_mono.html";
+
 $path="files/USDA_text_descriptions/";
+$txt_file = $path . "species_list.txt";
+$species_list = get_from_txt($txt_file);//this will retrieve the id and sciname from txt file
+//exit;
+
 $urls = array( 0 => array( "url" => $path . "legumesEOL.htm"  , "active" => 1),   //
                1 => array( "url" => $path . "GrassEOL.htm"    , "active" => 1),   //
                2 => array( "url" => $path . "gymnosperms.htm" , "active" => 1)
@@ -31,8 +39,7 @@ foreach($urls as $path)
     {        
         print $i+1 . ". " . $path["url"] . "$wrap";        
         if    ($i <= 1) process_file1($path["url"],$i); //legumesEOL, GrassEOL
-        elseif($i == 2) process_file2($path["url"],$i); //gymnosperms
-        
+        elseif($i == 2) process_file2($path["url"],$i); //gymnosperms        
     }
     $i++;
 }    
@@ -58,7 +65,6 @@ exit("\n\n Done processing.");
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################
-
 function process_file2($file,$doc_id)
 {        
     /* the gymnosperms.htm is not as structured as the other 2 docs.
@@ -66,7 +72,6 @@ function process_file2($file,$doc_id)
     */
     global $wrap;
     global $used_taxa;
-
     
     print "$wrap";    
     $str = Functions::get_remote_file($file);    
@@ -104,7 +109,7 @@ function process_file2($file,$doc_id)
             //get sciname
             $str = "xxx" . $str;
             $beg='xxx'; $end1='<br>';
-            $sciname = strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")));            
+            $sciname = trim(strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""))));            
 
             //get desc
             $str .= "yyy";
@@ -134,6 +139,7 @@ function process_file1($file,$doc_id)
     
     print "$wrap";    
     $str = Functions::get_remote_file($file);    
+    $str = clean_str($str);
 
     $str = str_ireplace('<br><br>' , "&arr[]=", $str);	
     
@@ -176,11 +182,9 @@ function process_file1($file,$doc_id)
                         
             if($sciname == "")print "jjj";
             print "$i. $sciname $wrap";
-            //print "$desc";                      
+            //print "$desc";                                  
             
-            
-            prepare_agent_rights($doc_id,$sciname,$desc);
-                                    
+            prepare_agent_rights($doc_id,$sciname,$desc);                                    
         }        
     }//main loop
     
@@ -191,6 +195,7 @@ function process_file1($file,$doc_id)
 function prepare_agent_rights($doc_id,$sciname,$desc)
 {
     global $do_count;
+    global $dc_source;
     
     $arr_agents=array();
     if($doc_id == 0 or $doc_id == 1)//Grasses & Legumes
@@ -207,9 +212,7 @@ function prepare_agent_rights($doc_id,$sciname,$desc)
         $arr_agents[]=array("name"=>"Aaron Liston",         "role"=>"compiler","homepage"=>"");
         $arr_agents[]=array("name"=>"Steffi Ickert-Bond",   "role"=>"compiler","homepage"=>"");
         $arr_agents[]=array("name"=>"Damon Little",         "role"=>"compiler","homepage"=>"");
-    }
-    
-    $dc_source = "http://npdc.usda.gov/technical/plantid_wetland_mono.html";
+    }        
     
     $do_count++;           
     assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count);                            
@@ -218,13 +221,33 @@ function prepare_agent_rights($doc_id,$sciname,$desc)
 
 function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count)
 {
+    global $species_list;
     global $used_taxa;
+    global $keys_url;
     global $wrap;
     
-        $kingdom="Animalia";
+    global $not_found;
     
-        $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = "eomlfbi_" . $do_count;
+    
+        //$genus = substr($sciname,0,stripos($sciname," "));
+        //$taxon_identifier = "eomlfbi_" . $do_count;
+        
+        if(isset($species_list["$sciname"]["symbol"])) 
+        {
+            $taxon_identifier = $species_list["$sciname"]["symbol"];
+            $source_url = $dc_source . $species_list["$sciname"]["symbol"];            
+            $do_identifier = $species_list["$sciname"]["symbol"] . "_USDA_keys_object";
+        }
+        else                                    
+        {
+            $taxon_identifier = str_ireplace(" ", "_", $sciname) . "_USDA_keys";
+            $source_url = $keys_url;            
+            $do_identifier = str_ireplace(" ", "_", $sciname) . "_USDA_keys_object";            
+
+            $not_found++;
+            //print("<hr> $not_found xxxyyy $sciname <hr>");//debug
+        }
+        
         if(@$used_taxa[$taxon_identifier])
         {
             $taxon_parameters = $used_taxa[$taxon_identifier];
@@ -233,10 +256,14 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         {
             $taxon_parameters = array();
             $taxon_parameters["identifier"] = $taxon_identifier;
-            $taxon_parameters["kingdom"] = $kingdom;
-            $taxon_parameters["genus"] = $genus;
-            $taxon_parameters["scientificName"]= $sciname;        
-            $taxon_parameters["source"] = $dc_source;                    
+            $taxon_parameters["kingdom"] = &$species_list["$sciname"]["Kingdom"];
+            $taxon_parameters["class"] = &$species_list["$sciname"]["Class"];
+            $taxon_parameters["order"] = &$species_list["$sciname"]["Order"];
+            $taxon_parameters["family"] = &$species_list["$sciname"]["Family"];
+            $taxon_parameters["genus"] = &$species_list["$sciname"]["Genus"];
+                        
+            $taxon_parameters["scientificName"]= $sciname;                    
+            $taxon_parameters["source"] = $source_url;
 
             /*
             $taxon_parameters["commonNames"] = array();
@@ -263,17 +290,14 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         }        
         
         //start text dataobject                
-        $dc_identifier  = $do_count;    
+        $dc_identifier  = $do_identifier;            
         $desc           = $desc;
         $title          = "Physical Description";
         $subject        = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description";
         $type           = "text";
         $reference      = "";        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $dc_source, $subject, $type, $reference, $arr_agents);       
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents);       
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-        //end text dataobject                    
-        
-        //start text dataobject                
         //end text dataobject                    
         
         //start text dataobject                
@@ -300,8 +324,7 @@ function conv_2array($list)
 }
 
 function get_data_object($id, $description, $dc_rights, $title, $url, $subject, $type, $reference, $arr_agents, $mediaurl=NULL)
-{
-     
+{     
     $dataObjectParameters = array();
     
     if($type == "text")
@@ -327,7 +350,6 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
         $dataObjectParameters["mediaURL"] = $mediaurl;
     }
     */
-
             /////////////////////////////////////////////////////////////
             
             foreach ($arr_agents as $g)
@@ -377,7 +399,9 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
 
 function clean_str($str)
 {    
-    $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+    //"\xOA", ,  "\x0B", "\x0A"
+    
     //$str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '#', $str);			
     // this line counts how many # as num, and repeats this char in num times, then replaces these chars with just 1 space ' ' 
     //$str = str_replace(str_repeat("#", substr_count($str, '#')), ' ', $str);
@@ -495,5 +519,50 @@ function reverse_str($str)
     }    
     return trim($accumulate);
 }
-
+function get_from_txt($filename)
+{    
+    $fd = fopen ($filename, "r");
+    $contents = fread ($fd,filesize ($filename));    
+    fclose ($fd);
+    
+    $delimiter = "\n";
+    $splitcontents = explode($delimiter, $contents);
+    $counter = "";
+    //echo $contents;
+    
+    $arr=array();
+    foreach ( $splitcontents as $value )
+    {    
+        $counter = $counter+1;
+        //echo "<b>Split $counter: </b> $value <br>";        
+        if($value && $counter > 1)
+        {
+            //$temp = explode("\t", $value);
+            $temp = explode(",", $value);
+            //print_r($temp); exit;            
+            /*
+            Array ( [0] => "Accepted Symbol" 
+                    [1] => "Synonym Symbol" 
+                    [2] => "Scientific Name" 
+                    [3] => "Genus" 
+                    [4] => "Family" 
+                    [5] => "Order" 
+                    [6] => "Class" 
+                    [7] => "Kingdom" ) */
+            
+            $sciname = str_ireplace('"','',$temp[2]);
+            
+            $arr[$sciname]=array("symbol"           => str_ireplace('"','',$temp[0]), 
+                                 "Scientific Name"  => $sciname,
+                                 "Genus"            => str_ireplace('"','',$temp[3]),                         
+                                 "Family"           => str_ireplace('"','',$temp[4]),
+                                 "Order"            => str_ireplace('"','',$temp[5]),
+                                 "Class"            => str_ireplace('"','',$temp[6]),
+                                 "Kingdom"          => str_ireplace('"','',$temp[7]));
+        }                
+        //if($counter > 10)break;//debug only
+    }    
+    //print"<pre>";print_r($arr);print"</pre>"; exit;    
+    return $arr;
+}//end func
 ?>
