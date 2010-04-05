@@ -147,8 +147,6 @@ exit("\n\n Done processing.");
 //######################################################################################################################
 //######################################################################################################################
 
-
-
 //end
 //====================================================================================
 //start functions #################################################################################################
@@ -175,7 +173,6 @@ function process($id)
     }
     
     $contents = Functions::get_remote_file($file);
-    //$contents = get_file_contents($file);
     if($contents)
     {
     	$pos1 = stripos($contents,"<taxon>");
@@ -183,9 +180,7 @@ function process($id)
     	if($pos1 != "" and $pos2 != "")
     	{
     		$contents = trim(substr($contents,$pos1,$pos2-$pos1+8));
-            //fwrite($OUT, $contents);
             return $contents;
-            //return true;
     	}
     }    
     return false;

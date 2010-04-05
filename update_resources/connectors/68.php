@@ -1,9 +1,15 @@
 <?php
 /*connector for Duth Species Catalogue
 estimated execution time: 15 hours
+
+Rana catesbeiana Shaw, 1802 
+http://www.eol.org/harvest_events/1622/taxa/330963
+
 */
-exit;
+
+//exit;
 $timestart = microtime(1);
+
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -36,6 +42,7 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     $taxid = $main_id_list[$i];
     //$taxid = "000464941632";//debug Acipitter
     //$taxid = "000000016023";//Agrilus planipennis Fairmaire, 1888 
+    //$taxid = "0AHCYFBQBTMT"; //Rana catesbeiana Shaw, 1802 
 
     if($i % 10000 == 0) //working
     {   
@@ -57,9 +64,10 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     }    
     //print"<hr>[$contents]<hr>";    
     echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
-    /*
+    
+     /*
     if($i==0)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
-    */
+     */
 }    
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
@@ -173,6 +181,20 @@ function process($id)
     }
     if($contents)
     {
+
+        $contents = str_ireplace("<caption>Naamgeving</caption>", "", $contents);
+        $contents = str_ireplace("<caption>Voorkomen</caption>", "", $contents);
+        $contents = str_ireplace("<caption>Beschermingsstatus</caption>", "", $contents);
+        
+        $contents = str_ireplace(             "<dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>"
+        ,  "<dc:title>Classification</dc:title><dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>", $contents);
+
+        
+        
+
+        
+        
+    
     	$pos1 = stripos($contents,"<taxon>");
     	$pos2 = stripos($contents,"</taxon>");			
     	if($pos1 != "" and $pos2 != "")
