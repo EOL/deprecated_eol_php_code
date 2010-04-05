@@ -30,6 +30,8 @@ class HarvestEvent extends MysqlBase
         $mysqli->begin_transaction();
         $mysqli->delete("DELETE do FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$id AND dohe.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
         $mysqli->delete("DELETE FROM data_objects_harvest_events WHERE harvest_event_id=$id");
+        $mysqli->delete("DELETE ti FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN top_images ti ON (t.hierarchy_entry_id=ti.hierarchy_entry_id) WHERE harvest_event_id=$id AND het.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
+        $mysqli->delete("DELETE he FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE harvest_event_id=$id AND het.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
         $mysqli->delete("DELETE t FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) WHERE harvest_event_id=$id AND het.status_id IN (".Status::insert("Inserted").", ".Status::insert("Updated").")");
         $mysqli->delete("DELETE FROM harvest_events_taxa WHERE harvest_event_id=$id");
         $mysqli->delete("DELETE FROM harvest_events WHERE id=$id");
