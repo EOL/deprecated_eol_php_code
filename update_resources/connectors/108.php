@@ -1,12 +1,13 @@
 <?php
 /* connector for USDA text descriptions compiled by Gerald "Stinger" Guala, Ph.D. using the SLIKS software.
-This connector reads 3 HTML files
 estimated execution time: 1.34 to 2 min. -> 
 
 This character '×' must be deleted from the species_list_with_synonyms.txt because the names from the 3 HTML docs don't 
 have this character.
 
 Bromus lanceolatus - grass
+
+Connector reads 3 HTML files and generates the EOL-compliant XML.
 
 */
 $timestart = microtime(1);
