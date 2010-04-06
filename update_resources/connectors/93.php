@@ -1,6 +1,10 @@
 <?php
 /* Antarctic Invertebrates connector 
 estimated execution time: 2-3 mins.
+
+Partner provided an XML service for their entire data. XML is not EOL-compliant. 
+Connector reads the XML and generates the EOL-compliant XML.
+
 */
 $timestart = microtime(1);
 
