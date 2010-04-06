@@ -1,8 +1,13 @@
 <?php
 /* connector for USDA text descriptions compiled by Gerald "Stinger" Guala, Ph.D. using the SLIKS software.
-This connector reads 4 HTML files
+This connector reads 3 HTML files
 estimated execution time: 1.34 to 2 min. -> 
-× x X
+
+This character '×' must be deleted from the species_list_with_synonyms.txt because the names from the 3 HTML docs don't 
+have this character.
+
+Bromus lanceolatus - grass
+
 */
 $timestart = microtime(1);
 
@@ -23,7 +28,8 @@ $dc_source = "http://plants.usda.gov/java/profile?symbol=";
 $keys_url  = "http://npdc.usda.gov/technical/plantid_wetland_mono.html";
 
 $path="files/USDA_text_descriptions/";
-$txt_file = $path . "species_list.txt";
+//$txt_file = $path . "species_list.txt";
+$txt_file = $path . "species_list_with_synonyms.txt";
 $species_list = get_from_txt($txt_file);//this will retrieve the id and sciname from txt file
 //exit;
 
@@ -72,6 +78,7 @@ function process_file2($file,$doc_id)
     */
     global $wrap;
     global $used_taxa;
+    
     
     print "$wrap";    
     $str = Functions::get_remote_file($file);    
@@ -136,6 +143,7 @@ function process_file1($file,$doc_id)
 {        
     global $wrap;
     global $used_taxa;
+
     
     print "$wrap";    
     $str = Functions::get_remote_file($file);    
@@ -168,9 +176,14 @@ function process_file1($file,$doc_id)
         {
             //<b><i>Abrus precatorius</i></b>
 
+            
             //get sciname
             $beg='<b>'; $end1='</i></b>';$end2='</i>';$end3='</b>'; 
             $sciname = strip_tags(trim(parse_html($str,$beg,$end1,$end2,$end3,$end1,"")));            
+            $sciname = str_ireplace(chr(13),"", $sciname);
+            $sciname = str_ireplace(chr(10),"", $sciname);
+            $sciname = trim($sciname);
+            
 
             //get desc
             $str .= "xxx";
@@ -230,24 +243,30 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
     
     
         //$genus = substr($sciname,0,stripos($sciname," "));
-        //$taxon_identifier = "eomlfbi_" . $do_count;
         
-        if(isset($species_list["$sciname"]["symbol"])) 
+        
+        //if(isset(@$species_list["$sciname"]["symbol"])) 
+        
+        if(@$species_list["$sciname"]["symbol"] != "") 
         {
-            $taxon_identifier = $species_list["$sciname"]["symbol"];
-            $source_url = $dc_source . $species_list["$sciname"]["symbol"];            
-            $do_identifier = $species_list["$sciname"]["symbol"] . "_USDA_keys_object";
+            $taxon_identifier   = @$species_list[$sciname]["symbol"] . "_" . $sciname;
+            $source_url         = $dc_source . @$species_list[$sciname]["symbol"];            
+            $do_identifier      = @$species_list[$sciname]["symbol"] . "_USDA_keys_object";
         }
         else                                    
         {
-            $taxon_identifier = str_ireplace(" ", "_", $sciname) . "_USDA_keys";
-            $source_url = $keys_url;            
-            $do_identifier = str_ireplace(" ", "_", $sciname) . "_USDA_keys_object";            
+            $taxon_identifier   = str_ireplace(" ", "_", $sciname) . "_USDA_keys";
+            $source_url         = $keys_url;            
+            $do_identifier      = str_ireplace(" ", "_", $sciname) . "_USDA_keys_object";            
 
+            /*
             $not_found++;
-            //print("<hr> $not_found xxxyyy $sciname <hr>");//debug
+            print("<hr> $not_found not found in USDA list xxxyyy $sciname <hr>");//debug
+            */
+
         }
-        
+
+
         if(@$used_taxa[$taxon_identifier])
         {
             $taxon_parameters = $used_taxa[$taxon_identifier];
@@ -256,11 +275,11 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         {
             $taxon_parameters = array();
             $taxon_parameters["identifier"] = $taxon_identifier;
-            $taxon_parameters["kingdom"] = &$species_list["$sciname"]["Kingdom"];
-            $taxon_parameters["class"] = &$species_list["$sciname"]["Class"];
-            $taxon_parameters["order"] = &$species_list["$sciname"]["Order"];
-            $taxon_parameters["family"] = &$species_list["$sciname"]["Family"];
-            $taxon_parameters["genus"] = &$species_list["$sciname"]["Genus"];
+            $taxon_parameters["kingdom"] = trim(@$species_list["$sciname"]["Kingdom"]);
+            $taxon_parameters["class"] = trim(@$species_list["$sciname"]["Class"]);
+            $taxon_parameters["order"] = trim(@$species_list["$sciname"]["Order"]);
+            $taxon_parameters["family"] = trim(@$species_list["$sciname"]["Family"]);
+            $taxon_parameters["genus"] = trim(@$species_list["$sciname"]["Genus"]);
                         
             $taxon_parameters["scientificName"]= $sciname;                    
             $taxon_parameters["source"] = $source_url;
@@ -274,6 +293,7 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
                 $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
             }
             */
+            
             /////////////////////////////////////////////////////////////
             /*
             $taxon_params["synonyms"] = array();
@@ -290,13 +310,14 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         }        
         
         //start text dataobject                
-        $dc_identifier  = $do_identifier;            
+        $dc_identifier  = $do_identifier;
+        //$dc_identifier  = "";            
         $desc           = $desc;
         $title          = "Physical Description";
         $subject        = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description";
         $type           = "text";
         $reference      = "";        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents);       
+        $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents);
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         
@@ -400,11 +421,6 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
 function clean_str($str)
 {    
     $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
-    //"\xOA", ,  "\x0B", "\x0A"
-    
-    //$str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '#', $str);			
-    // this line counts how many # as num, and repeats this char in num times, then replaces these chars with just 1 space ' ' 
-    //$str = str_replace(str_repeat("#", substr_count($str, '#')), ' ', $str);
     return $str;
 }
 function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
@@ -552,13 +568,16 @@ function get_from_txt($filename)
             
             $sciname = str_ireplace('"','',$temp[2]);
             
-            $arr[$sciname]=array("symbol"           => str_ireplace('"','',$temp[0]), 
-                                 "Scientific Name"  => $sciname,
-                                 "Genus"            => str_ireplace('"','',$temp[3]),                         
-                                 "Family"           => str_ireplace('"','',$temp[4]),
-                                 "Order"            => str_ireplace('"','',$temp[5]),
-                                 "Class"            => str_ireplace('"','',$temp[6]),
-                                 "Kingdom"          => str_ireplace('"','',$temp[7]));
+            if(!isset($arr[$sciname]))           
+            {             
+                $arr[$sciname]=array("symbol"           => str_ireplace('"','',$temp[0]), 
+                                     "Scientific Name"  => $sciname,
+                                     "Genus"            => str_ireplace('"','',$temp[3]),                         
+                                     "Family"           => str_ireplace('"','',$temp[4]),
+                                     "Order"            => str_ireplace('"','',$temp[5]),
+                                     "Class"            => str_ireplace('"','',$temp[6]),
+                                     "Kingdom"          => str_ireplace('"','',$temp[7]));
+            }                                 
         }                
         //if($counter > 10)break;//debug only
     }    
