@@ -2,6 +2,11 @@
 //exit;
 /* connector for hexacorallians 
 estimated execution time: 7.7 to 8 hrs
+
+run April 6 to correct dc:identifier for dataObject
+
+Connector screen scrapes the partner website.
+
 */
 $timestart = microtime(1);
 
@@ -58,10 +63,11 @@ for ($i = 0; $i < count($taxa_list); $i++)
     $html_nematocysts = $arr[10];
     $url_for_nematocysts = $arr[11];
     
-    
+    /*
     print"<pre>";
     print_r($html_nematocysts);
     print"</pre>";
+    */
     
     if(trim($taxa) == "")
     {   
@@ -173,7 +179,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $title="Biology: Skeleton";            
             $dc_source = $url_for_skeletons;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
-            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title,$subject);
+            $data_object_parameters = get_data_object("text",$taxon,"skeleton",$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title,$subject);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
         }        
         //end skeletons
@@ -185,7 +191,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $title="Biological Associations";            
             $dc_source = $url_for_biological_associations;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
-            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_biological_associations,$copyright,$image_url,$title,$subject);
+            $data_object_parameters = get_data_object("text",$taxon,"bio_association",$dc_source,$agent_name,$agent_role,$html_biological_associations,$copyright,$image_url,$title,$subject);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
         }        
         //end biological_associations
@@ -197,7 +203,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $title="Biology: Nematocysts";            
             $dc_source = $url_for_nematocysts;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
-            $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$html_nematocysts,$copyright,$image_url,$title,$subject);
+            $data_object_parameters = get_data_object("text",$taxon,"nematocyst",$dc_source,$agent_name,$agent_role,$html_nematocysts,$copyright,$image_url,$title,$subject);
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
         }        
         //end         
@@ -252,7 +258,7 @@ function img_href_src($str)
     
 }
 
-function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title,$subject)   
+function get_data_object($type,$taxon,$text_id,$dc_source,$agent_name,$agent_role,$description,$copyright,$image_url,$title,$subject)   
 {        
 
     $dataObjectParameters = array();
@@ -273,6 +279,9 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
         $dataObjectParameters["mimeType"] = "text/html";
         $dataObjectParameters["source"] = $dc_source;
+        
+        $dataObjectParameters["identifier"] = $taxon . "_" . $text_id;
+        
     }
     elseif($type == "image")
     {
@@ -282,12 +291,13 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         $dataObjectParameters["mediaURL"] = $image_url;
         $dataObjectParameters["rights"] = $copyright;
         $dc_source ="";
+        $dataObjectParameters["identifier"] = $image_url;
     }
         
     $dataObjectParameters["description"] = $description;
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;            
-    $dataObjectParameters["identifier"] = $taxon . "_" . $do_count;        
+    
     $dataObjectParameters["rightsHolder"] = "Hexacorallians of the World";
     $dataObjectParameters["language"] = "en";
     //$dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
@@ -377,10 +387,10 @@ function get_taxa_list($file)
         }
          */        
         
-//         /* regular routine
+        // /* regular routine
         print"$wrap $sciname";
         $arr2["$sciname"]=1;
-//         */
+        // */
         
     }   
     //exit; 
@@ -490,7 +500,7 @@ function get_tabular_data($url,$item)
         //print trim($temp_arr[1]);
         if(trim($temp_arr[1])=="NO")$arr_records=array();
     }
-    print"<pre>";print_r($arr_records);print"</pre>";     
+    //print"<pre>";print_r($arr_records);print"</pre>";     
     //if($item == "skeletons")exit("<hr>");
     
     return $arr_records;
@@ -556,7 +566,7 @@ function parse_contents($str)
     //get url_for_main_menu
         $beg='="'; $end1='">'; 
         $url_for_main_menu = trim(parse_html($temp,$beg,$end1,$end1,$end1,$end1,""));            
-        print"$wrap [<a href='$url_for_main_menu'>url_for_main_menu</a>]";    
+        //print"$wrap [<a href='$url_for_main_menu'>url_for_main_menu</a>]";    
     //end url_for_main_menu
     
     //get sciname
@@ -575,7 +585,7 @@ function parse_contents($str)
         if($temp != "") 
         {
             $url_for_images_page = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_images_page'>images</a>]";                
+            //print"$wrap [<a href='$url_for_images_page'>images</a>]";                
             ///*
             $arr_images = get_images($url_for_images_page);            
             //*/
@@ -599,7 +609,7 @@ function parse_contents($str)
         if($temp != "") 
         {
             $url_for_classification = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_classification'>classification</a>]";    
+            //print"$wrap [<a href='$url_for_classification'>classification</a>]";    
             $arr_classification = get_tabular_data($url_for_classification,"classification");            
             if($arr_classification) $arr_classification=parse_classification($arr_classification);                        
         }else print"$wrap no classification";   
@@ -613,7 +623,7 @@ function parse_contents($str)
         if($temp != "") 
         {
             $url_for_strict_synonymy = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_strict_synonymy'>strict_synonymy</a>]";    
+            //print"$wrap [<a href='$url_for_strict_synonymy'>strict_synonymy</a>]";    
             $arr_synonyms = get_tabular_data($url_for_strict_synonymy,"synonyms");            
             
         }else print"$wrap no strict_synonymy";   
@@ -629,10 +639,12 @@ function parse_contents($str)
             $beg='all_mentions_of_names2.cfm'; $end1='">'; 
             $temp = trim(parse_html($main_menu,$beg,$end1,$end1,$end1,$end1,""));            
         }        
+
+        $arr_references = array();
         if($temp != "") 
         {
             $url_for_references = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_references'>references</a>]";    
+            //print"$wrap [<a href='$url_for_references'>references</a>]";    
             $arr_references = get_tabular_data($url_for_references,"references");            
 
             //start process
@@ -655,7 +667,7 @@ function parse_contents($str)
                 $arr["$temp"]=1;                
             }
             $arr_references = array_keys($arr);
-            print"<hr><hr>"; print_r($arr_references); //exit;
+            //print"<hr><hr>"; print_r($arr_references); //exit;
             //end process
             
         }else print"$wrap no references";   
@@ -670,7 +682,7 @@ function parse_contents($str)
         if($temp != "") 
         {
             $url_for_common_names = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_common_names'>common_names</a>]";    
+            //print"$wrap [<a href='$url_for_common_names'>common_names</a>]";    
             $arr_common_names = get_tabular_data($url_for_common_names,"common_names");                        
             //start process
             $arr=array();
@@ -698,7 +710,7 @@ function parse_contents($str)
         $html_skeletons="";
         if($temp != "") 
         {   $url_for_skeletons = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_skeletons'>skeletons</a>]";    
+            //print"$wrap [<a href='$url_for_skeletons'>skeletons</a>]";    
             $arr_skeletons = get_tabular_data($url_for_skeletons,"skeletons");            
             if($arr_skeletons)//to check if it isn't null
             {
@@ -717,7 +729,7 @@ function parse_contents($str)
         $html_biological_associations="";
         if($temp != "") 
         {   $url_for_biological_associations = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_biological_associations'>biological_associations</a>]";    
+            //print"$wrap [<a href='$url_for_biological_associations'>biological_associations</a>]";    
             $arr_biological_associations = get_tabular_data($url_for_biological_associations,"biological_associations");            
             $arr_fields = array("Algal symbionts");
             $html_biological_associations = arr2html($arr_biological_associations,$arr_fields,$url_for_main_menu);            
@@ -732,7 +744,7 @@ function parse_contents($str)
         $html_nematocysts="";
         if($temp != "") 
         {   $url_for_nematocysts = $site_url . $beg . $temp;
-            print"$wrap [<a href='$url_for_nematocysts'>nematocysts</a>]";    
+            //print"$wrap [<a href='$url_for_nematocysts'>nematocysts</a>]";    
             $arr_nematocysts = get_tabular_data($url_for_nematocysts,"nematocysts");            
             $arr_fields = array("Location","Image","Cnidae Type","Range of <br> Lengths (m)"," ","Range of <br >Widths (m)","n","N","State");            
             $html_nematocysts = arr2html($arr_nematocysts,$arr_fields,$url_for_main_menu);            
