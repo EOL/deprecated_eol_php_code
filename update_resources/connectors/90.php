@@ -452,10 +452,14 @@ function process_loop($arr) //run each URL and extract data
         $status = strip_tags($status);                    
         $citation = strip_tags($citation);                            
         
-        print "$i. $sciname [$comname] [$agent]         
+        print "$i. $sciname [$comname] [$agent] $wrap";
+        /*
+        print"         
         $wrap <u>PDF url:</u> $wrap [$pdf_url]         
         $wrap <u>status:</u> $wrap [$status]        
         ";
+        */
+        
         /*
         print"                      
         <br><u>summary:</u><br> [$summary]
