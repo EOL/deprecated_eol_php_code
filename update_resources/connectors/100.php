@@ -1,6 +1,10 @@
 <?php
 /*connector for CONABIO
 estimated execution time: 
+
+Partner provides a list of URL's for its individual species XML.
+The connector loops to this list and compiles individual XML's to 1 final XML for EOL ingestion.
+
 */
 
 $timestart = microtime(1);
