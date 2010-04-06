@@ -249,7 +249,7 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         
         if(@$species_list["$sciname"]["symbol"] != "") 
         {
-            $taxon_identifier   = @$species_list[$sciname]["symbol"] . "_" . $sciname;
+            $taxon_identifier   = @$species_list[$sciname]["symbol"] . "_" . str_ireplace(" ", "_", $sciname);
             $source_url         = $dc_source . @$species_list[$sciname]["symbol"];            
             $do_identifier      = @$species_list[$sciname]["symbol"] . "_USDA_keys_object";
         }
