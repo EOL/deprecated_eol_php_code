@@ -1,7 +1,12 @@
 <?php
 /*  turtles website 
 http://www.iucn-tftsg.org/pub-chron/
-estimated execution time: 2-3 mins.
+estimated execution time: 5-6 mins.
+
+run April 6 to correct dc:identifier for taxon and dataObject
+
+Connector screen scrapes the partner website.
+
 */
 $timestart = microtime(1);
 
@@ -475,10 +480,12 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
     global $used_taxa;
     global $wrap;
     
-    $kingdom="Animalia";
+    $kingdom="Animalia";    
+    
+        $sciname = trim($sciname);
     
         $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = "iucn_ssc_" . $k;
+        $taxon_identifier = "iucn_ssc_" . str_ireplace(" ", "_", $sciname);
         if(@$used_taxa[$taxon_identifier])
         {
             $taxon_parameters = $used_taxa[$taxon_identifier];
