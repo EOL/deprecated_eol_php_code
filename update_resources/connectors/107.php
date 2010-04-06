@@ -1,6 +1,10 @@
 <?php
 /*connector for Encyclopedia of Marine Life of Britain and Ireland
 estimated execution time: 28-30 mins for 868 species.
+
+Partner provides a list of URL's for its individual species XML.
+The connector loops to this list and compiles individual XML's to 1 final XML for EOL ingestion.
+
 */
 
 $timestart = microtime(1);
@@ -120,7 +124,7 @@ function process($id)
 {   
     global $bad_id;
     
-    $file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
+    //$file = "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=$id";
     $file = $id;    
     
     if($xml = Functions::get_hashed_response($file)){}
@@ -147,9 +151,7 @@ function process($id)
     return false;
 }//end process() 
 function get_main_id_list()
-{
-
-    
+{    
     /*
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2007.xml";
     $url[] = "http://services.eol.org/eol_php_code/update_resources/connectors/files/WORMS/2008.xml";
@@ -186,20 +188,5 @@ function get_main_id_list()
     $arr = array_keys($arr);
     return $arr;
 }//get_main_id_list()
-
-/*
-function get_file_contents($url)
-{
-    $contents = "";
- 	$handle = fopen($url, "r");	
-	if ($handle)
-	{	
-		while (!feof($handle)){$contents .= fread($handle, 8192);}
-		fclose($handle);				
-    }
-    else print "[error fopen] \n ";
-    return $contents;
-}
-*/
 
 ?>
