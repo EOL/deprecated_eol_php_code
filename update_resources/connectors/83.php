@@ -1,6 +1,10 @@
 <?php
 /* MorphBank connector 
 estimated execution time: 6 hours
+
+Partner provides a list of URL's and each URL will list ID's.
+Then connector uses their service to read each ID and get the information needed.
+
 */
 
 /*
@@ -80,6 +84,7 @@ foreach($image_ids as $image_id)
     $dwc_Family = trim($dwc->Family);
     $dwc_Genus = trim($dwc->Genus);
     $dwc_ScientificName = trim($dwc->ScientificName);
+    
     $taxon_identifier = str_replace(" ", "_", $dwc_ScientificName);    
     if(@$used_taxa[$taxon_identifier])
     {
