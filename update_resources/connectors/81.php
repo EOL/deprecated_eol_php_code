@@ -3,8 +3,11 @@
 estimated execution time: 4days
 
 http://validator.w3.org/
+use the Progmmer's File Editor to remove \xa0 in XML to fix non-UTF8 chars got from scraping.
+
+
 */
-exit;
+//exit;
 $timestart = microtime(1);
 
 $GLOBALS['ENV_NAME'] = "slave";
@@ -16,11 +19,11 @@ $resource = new Resource(81);
 print "<hr>resource id = " . $resource->id; //exit;
 
 
-// /* //-------------- start put together all XML files 
+ /* //-------------- start put together all XML files 
 combine_xml($resource->id);
 exit;
 //-------------- end put together all XML files 
-// */
+ */
 
 
 //exit;
@@ -81,18 +84,18 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
 
     //32 files in all
     
-        //$species_group="Animals"; //not being used    
+            //$species_group="Animals"; //not being used    
     //$species_group="Fungi";       //running... done
     //$species_group="Plants";      //running...
     //$species_group="Protists";    //running... done
     //$species_group="Animals_1";    //running...    
-        //$species_group="Animals_Arthropoda";    //not being used    
-        //$species_group="Animals_Arthropoda_Insecta";  //not being used    
+            //$species_group="Animals_Arthropoda";    //not being used    
+            //$species_group="Animals_Arthropoda_Insecta";  //not being used    
     //$species_group="Animals_Arthropoda_Insecta_Coleoptera";
     //$species_group="Animals_Arthropoda_Insecta_Diptera";
     //$species_group="Animals_Arthropoda_Insecta_Hemiptera";
     //$species_group="Animals_Arthropoda_Insecta_Hymenoptera";
-        //$species_group="Animals_Arthropoda_Insecta_Lepidoptera";           //not being used
+            //$species_group="Animals_Arthropoda_Insecta_Lepidoptera";           //not being used
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Geometridae";
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Noctuidae";
     //$species_group="Animals_Arthropoda_Insecta_Lepidoptera_Nymphalidae";
@@ -112,12 +115,12 @@ $species_service_url = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
     //$species_group="Animals_Arthropoda_others";        
     //$species_group="Animals_2";    
     //$species_group="Animals_Echinodermata";    //running
-        //$species_group="Animals_Chordata";    //not being used
+            //$species_group="Animals_Chordata";    //not being used
     //$species_group="Animals_Chordata_Actinopterygii";    
     //$species_group="Animals_Chordata_Aves";    
-    $species_group="Animals_Chordata_others";        
+    //$species_group="Animals_Chordata_others";        
     //$species_group="Animals_3";    //running...
-    //$species_group="Animals_4";    //running... done
+    $species_group="Animals_4";    //running... done
     
     print "$species_group $wrap";
     $txt_file="bold_id_list.txt";
@@ -174,7 +177,7 @@ $id_with_public_barcode=array();
         */
         print "$wrap $count_per_phylum of " . count($main_name_id_list) . " " . $main["name"];        
         
-        //if($taxid_count > 15)continue;   //debug - to limit no. of taxa to process
+        //if($taxid_count > 3)continue;   //debug - to limit no. of taxa to process
         
         /*
         if(in_array($main->name, array("Prorocentrum cassubicum","Gymnodinium catenatum")))
@@ -258,24 +261,24 @@ $id_with_public_barcode=array();
             if($description)
             {
                 $do_count++;
-                $title = "Barcode data";
-                
-                //$data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,$main->barcodes,$description,$title);                   
-                $data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,1,$description,$title);                   
-                
+                $title = "Barcode data";                
+                $dc_identifier = $main["id"] . "_barcode_data";
+                $data_object_parameters = get_data_object($dc_identifier,$do_count,$dc_source,1,$description,$title);                  
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             }
 
             //another text object
+            // /*
             if($bold_stats)
             {
                 $do_count++;                
                 $description="Barcode of Life Data Systems (BOLD) Stats <br> $bold_stats";
                 $title="Statistics of barcoding coverage";
-                //$data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,$main->barcodes,$description,$title);                   
-                $data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,1,$description,$title);                   
+                $dc_identifier = $main["id"] . "_stats";
+                $data_object_parameters = get_data_object($dc_identifier,$do_count,$dc_source,1,$description,$title);
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             }            
+            // */
             
             //another text object
             $map_url = "http://www.boldsystems.org/lib/gis/mini_map_500w_taxonpage_occ.php?taxid=" . $main["id"];
@@ -283,11 +286,10 @@ $id_with_public_barcode=array();
             if(url_exists($map_url))
             {
                 $do_count++;                
-                $description="Collection Sites: world map showing specimen collection locations for <i>" . $main["name"] . "</i> <div style='font-size : x-small;overflow : scroll;'> <img border='0' src='$map_url'> </div> ";
-                
+                $description="Collection Sites: world map showing specimen collection locations for <i>" . $main["name"] . "</i> <div style='font-size : x-small;overflow : scroll;'> <img border='0' src='$map_url'> </div> ";                
                 $title="Locations of barcode samples";
-                //$data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,$main->barcodes,$description,$title);                   
-                $data_object_parameters = get_data_object($main["id"],$do_count,$dc_source,1,$description,$title);                   
+                $dc_identifier = $main["id"] . "_map";
+                $data_object_parameters = get_data_object($dc_identifier,$do_count,$dc_source,1,$description,$title);                   
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
             }            
         
@@ -442,9 +444,9 @@ function get_BOLD_taxa()
      */
     
     /* debug
-    $arr_phylum = array(0 => array( "name" => "Brachiopoda" , "id" => 9),
-                        1 => array( "name" => "Bryozoa"    , "id" => 7),
-                        3 => array( "name" => "Xenoturbellida" , "id" => 88647)
+    $arr_phylum = array(0 => array( "name" => "Brachiopoda"     , "id" => 9),
+                        1 => array( "name" => "Bryozoa"         , "id" => 7),
+                        3 => array( "name" => "Xenoturbellida"  , "id" => 88647)
                        );
     */    
     
@@ -749,8 +751,7 @@ if($species_group=="Animals_Arthropoda_Insecta_Lepidoptera_6")
     {
     $arr_phylum = array(0 => array( "name" => "Echinodermata"   , "id" => 4)    
                        );
-    }
-    
+    }    
     
     
     if($species_group=="Animals_3")
@@ -1284,7 +1285,8 @@ function barcode_image_available($src)
 
 
 function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$description,$title=NULL)
-{        
+{       
+    
     $dataObjectParameters = array();    
         
     $dataObjectParameters["title"] = Functions::import_decode($title);            
@@ -1292,7 +1294,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$descripti
     
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;        
-    $dataObjectParameters["identifier"] = $taxid . "_" . $do_count;
+    $dataObjectParameters["identifier"] = $taxid;
     //$dataObjectParameters["rights"] = "Copyright 2009 - partner name";
     $dataObjectParameters["rightsHolder"] = "Barcode of Life Data Systems";
     if(true)
@@ -1571,7 +1573,11 @@ function get_from_txt()
     //print"<pre>";print_r($arr);print"</pre>"; exit;    
     return $arr;
 }//end func
-
+function clean_str($str)
+{    
+    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB","\xA0", "\xAO","\xB0", '\xa0', chr(13), chr(10), '\xaO'), '', $str);			
+    return $str;
+}
 /*
 <taxon>
      <Kingdom>Animalia</Kingdom>
