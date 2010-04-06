@@ -4,6 +4,7 @@ http://www.iucn-tftsg.org/pub-chron/
 estimated execution time: 5-6 mins.
 
 run April 6 to correct dc:identifier for taxon and dataObject
+set to force-harvest April 6
 
 Connector screen scrapes the partner website.
 

@@ -1,10 +1,16 @@
 <?php
-/* North American Mammals connector - this will not be ran from BEAST because data is coming from provider's MDB 
-estimated execution time: 
+/* North American Mammals 
+estimated execution time: 1-2 minutes
+
+Connector will not be ran from BEAST because data is coming from provider's MDB.
+
+run April 6 to correct dc:identifier for taxon and dataObject
+set to force-harvest April 6
+
 */
 $timestart = microtime(1);
 
-exit;
+//exit;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
@@ -42,7 +48,7 @@ inner Join nam_genus ON nam_species.genus_id = nam_genus.genus_id
 left Join nam_family ON nam_genus.family_id = nam_family.Family_ID
 left Join nam_orders ON nam_family.order_id = nam_orders.order_id
 left Join nam_conservation_status ON nam_species.conservation_status_id = nam_conservation_status.id ";
-$query .= " limit 10 ";   //for debug only
+//$query .= " limit 10 ";   //for debug only
 
 $result = $mysqli->query($query);    
 
@@ -58,8 +64,9 @@ while($row=$result->fetch_assoc())
     $dwc_Family         = trim($row["family_name"]);
     $dwc_Genus          = trim($row["genus_name"]);
     $dwc_ScientificName = trim($row["sci_name"]);
-    //$taxon_identifier   = str_replace(" ", "_", $dwc_ScientificName) . "_$ctr";
-    $taxon_identifier   = "NAM_" . $row["species_id"];
+    
+    //$taxon_identifier   = "NAM_" . str_ireplace(" ","_",trim($row["sci_name"]));
+    $taxon_identifier   = "NAM_" . $row["species_id"];    
     
     if(@$used_taxa[$taxon_identifier])
     {
@@ -99,7 +106,7 @@ while($row=$result->fetch_assoc())
     }    
     
     $do_cnt++;
-    $dc_identifier = "$taxon_identifier" . "_" . $do_cnt;
+    $dc_identifier = "$taxon_identifier" . "_GenDesc";
     //$dcterms_created = trim($xml->image->dateCreated);  
     //$dcterms_modified = trim($xml->image->dateLastModified);
     //$thumbnailURL = trim($xml->image->thumbUrl);
@@ -140,7 +147,7 @@ while($row=$result->fetch_assoc())
     if($description != "")
     {
         $do_cnt++;
-        $dc_identifier = "$taxon_identifier" . "_" . $do_cnt;
+        $dc_identifier = "$taxon_identifier" . "_Size";
 
         $title="Size in North America";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size";                
@@ -155,7 +162,7 @@ while($row=$result->fetch_assoc())
     if($row["conservation_status_notes"] != "")
     {
         $do_cnt++;
-        $dc_identifier = "$taxon_identifier" . "_" . $do_cnt;
+        $dc_identifier = "$taxon_identifier" . "_ConservationStatus";
         $description = $row["conservation_status_notes"];    
         $title = "Status";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus";
@@ -170,7 +177,7 @@ while($row=$result->fetch_assoc())
 	if ($handle)
 	{
         $do_cnt++;
-        $dc_identifier = "$taxon_identifier" . "_" . $do_cnt;
+        $dc_identifier = "$taxon_identifier" . "_Distribution";
         $description = "<table border='0' align='center'><tr><td align='center'><br><img src='$url'></td></tr></table>";
         $title = "Distribution in North America";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
