@@ -1,10 +1,18 @@
 <?php
+exit;
 /* connector for BOLD Systems 
-estimated execution time: 4days
+estimated execution time: 24 days
 
 http://validator.w3.org/
 use the Progmmer's File Editor to remove \xa0 in XML to fix non-UTF8 chars got from scraping.
 
+This connector runs in 3 stages:
+1. create txt files of ID's
+2. scrape data from site using the ID's and create the EOL-XML for specified species group.
+3. compile all EOL-XML into 1 final XML for EOL ingestion.
+Note: this connector is not to run in Beast but manually in Eli's local bec. it was at this point it was
+customized to run many different species groups simultaneously. Meaning many instances of the connector has
+to run to finish all 130K species in 24 hours.
 
 */
 //exit;
