@@ -9,6 +9,8 @@ Bromus lanceolatus - grass
 
 Connector reads 3 HTML files and generates the EOL-compliant XML.
 
+set to force-harvest April 7
+
 */
 $timestart = microtime(1);
 

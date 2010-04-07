@@ -1,9 +1,10 @@
 <?php
-//exit;
+exit;
 /* connector for hexacorallians 
 estimated execution time: 7.7 to 8 hrs
 
 run April 6 to correct dc:identifier for dataObject
+set to force-harvest April 7
 
 Connector screen scrapes the partner website.
 
