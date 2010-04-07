@@ -3,8 +3,9 @@ exit;
 /* connector for BOLD Systems 
 estimated execution time: 24 days
 
-http://validator.w3.org/
-use the Progmmer's File Editor to remove \xa0 in XML to fix non-UTF8 chars got from scraping.
+--> use http://validator.w3.org/ and IE to detect encoding problem
+--> use the Progmmer's File Editor to remove \xa0 in XML to fix non-UTF8 chars got from scraping.
+--> \xfc = ü replaced to &#252; is a problem in BOLD_plants.xml
 
 This connector runs in 3 stages:
 1. create txt files of ID's
@@ -27,11 +28,11 @@ $resource = new Resource(81);
 print "<hr>resource id = " . $resource->id; //exit;
 
 
- /* //-------------- start put together all XML files 
+// /* //-------------- start put together all XML files 
 combine_xml($resource->id);
 exit;
 //-------------- end put together all XML files 
- */
+// */
 
 
 //exit;
@@ -423,6 +424,8 @@ function combine_xml($resource_id)
         
         else print " bad";
         print"<br>";
+        
+        //break; //debug to exit loop on first loop
     }
     $str = "</response>";fwrite($OUT, $str);    
     fclose($OUT);
