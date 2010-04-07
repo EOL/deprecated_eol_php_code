@@ -199,8 +199,9 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     if($agent_id == 38205)//BHL
     {           
         $query = "SELECT COUNT(DISTINCT(tc.id)) count 
-        from taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id)
-        
+        from taxon_concepts tc 
+        JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
+        JOIN page_names pn on (tcn.name_id=pn.name_id)        
         where tc.supercedure_id=0 and tc.published=1 ";
         //removed and tc.vetted_id <> " . Vetted::find("untrusted");                 
     }

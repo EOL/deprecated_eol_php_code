@@ -1,6 +1,11 @@
 <?php
+/*execution time: 3.8 - 4 hours 
+2010 Apr 1  116398
+*/
 
 $timestart = microtime(1);
+
+$GLOBALS['ENV_NAME'] = "slave";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 //exit;
@@ -138,16 +143,31 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
     //=================================================================
     //query 1
-    $query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) 
-    JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) 
-    WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id 
-    ORDER BY tcn.source_hierarchy_entry_id DESC "; 
+
+    /*didn't coincide with daily pageStats
+    $query = "SELECT tcn.taxon_concept_id, n.string FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) 
+    WHERE tc.supercedure_id=0 AND tc.published=1 GROUP BY tcn.taxon_concept_id ORDER BY tcn.source_hierarchy_entry_id DESC "; 
+    $result = $mysqli->query($query);           
+    $taxa_pages = $result->num_rows;    
+    */
     //$query .= " limit 1 "; //debug ??? maybe can't be limited, even on when debugging
-    $result = $mysqli->query($query);    
-    $fields=array();
-    $fields[0]="taxon_concept_id";
-    $fields[1]="string";
-    $temp = save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9),0,"txt");
+
+    $query = "Select tc.id FROM taxon_concepts tc WHERE tc.published=1 AND tc.supercedure_id=0"; 
+    $result = $mysqli->query($query);     
+    $str="";
+    while($result && $row=$result->fetch_assoc())
+    {   
+        $sciname = get_sciname($row["id"]);
+        $str .= $row["id"] . "\t" . $sciname . "\n";
+    }    
+    $filename = "data/" . $year_month . "/temp/" . "hierarchies_names" . ".txt";
+	if($fp = fopen($filename,"w+")){fwrite($fp,$str);fclose($fp);}		    
+	//if($fp = fopen($filename,"a")) {fwrite($fp,$str);fclose($fp);}		
+
+    /* not being used anymore
+    $temp =  save_to_txt($result,"hierarchies_names",$fields,$year_month,chr(9)          ,0               ,"txt");
+    function save_to_txt($result,$filename          ,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
+    */
     //=================================================================
     //query 2
     
@@ -220,7 +240,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
     //before 'BHL'
     $query = "select distinct 38205 agent_id, 'Biodiversity Heritage Library' full_name, tc.id taxon_concept_id 
-    from taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) 
+    from taxon_concepts tc 
+    JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
+    JOIN page_names pn on (tcn.name_id=pn.name_id) 
     where tc.supercedure_id=0 and tc.published=1 ";
     //$query .= " LIMIT 1 "; //debug
     //removed and tc.vetted_id <> " . Vetted::find("untrusted") //to be same with generate_monthly_stats.php
@@ -244,6 +266,8 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
     where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
     */
+    //ditox
+    /*    
     $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
     From hierarchy_entries
     Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
@@ -252,9 +276,13 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     taxon_concepts.published        = 1 AND
     taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
     taxon_concepts.supercedure_id   = 0 ";
+    */
+    $query="
+    SELECT he.taxon_concept_id, 11 agent_id, 'Catalogue of Life' full_name FROM hierarchy_entries he 
+    WHERE he.hierarchy_id = ".Hierarchy::col_2009()."";
+        
 
-    //print"<hr>$query<hr>"; exit;
-    
+    //print"<hr>$query<hr>"; exit;    
 
     //$query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
@@ -289,6 +317,15 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
 }//end func
 
+function get_sciname($id)
+{
+    global $mysqli;
+    $query="Select names.`string` From hierarchy_entries Inner Join names ON hierarchy_entries.name_id = names.id
+    Where hierarchy_entries.taxon_concept_id = $id limit 1";
+    $result = $mysqli->query($query);            
+    if($result && $row=$result->fetch_assoc()) return $row['string'];
+    else return "xxx";    
+}
 
 //############################################################################ start functions
 
@@ -330,9 +367,9 @@ function get_from_api($month,$year)
         $i=0;
         $continue=true; 
         $start_count=1; 
-        //$start_count=30001;
+        //$start_count=30001; //debug
         $range=10000;
-        $range=5000;//debug
+        //$range=5000;//debug
         
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);        
