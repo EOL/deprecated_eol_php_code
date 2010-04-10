@@ -96,21 +96,21 @@ foreach($xml->taxon as $t)
             $title = "";
             if($desc = $t->EOL_GeneralDescription)
             {   $do_count++;
-                $do_identifier = $identifier . "_" . $do_count;
+                $do_identifier = $identifier . "_GenDesc;
                 $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title);            
             }                
 
             $title = "Physical Description";
             if($desc = $t->EOL_PhysDescription)
             {   $do_count++;
-                $do_identifier = $identifier . "_" . $do_count;
+                $do_identifier = $identifier . "_PhysDesc";
                 $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title);            
             }                
             
             $title = "Type specimen information";
             if($desc = $t->PhysDescription)
             {   $do_count++;
-                $do_identifier = $identifier . "_" . $do_count;
+                $do_identifier = $identifier . "_TypeSpecimen";
                 $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title);            
             }    
             
