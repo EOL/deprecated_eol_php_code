@@ -138,7 +138,8 @@ foreach($xml->taxon as $t)
                     $mimeType = Functions::import_decode($t->$mim_str);
                     
                     $do_count++;
-                    $do_identifier = $identifier . "_" . $do_count;
+                    //$do_identifier = $identifier . "_" . $do_count;
+                    $do_identifier = $mediaURL;
                     $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$mediaURL);            
                 }
             }
