@@ -11,7 +11,8 @@ $image_url        = "http://emuweb.fieldmuseum.org/web/objects/common/webmedia.p
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
-$file = "http://128.128.175.77/eol_php_code/applications/content_server/resources/FMNH_2010_03_23.xml";
+//$file = "http://localhost/eol_php_code/applications/content_server/resources/FMNH_2010_03_23.xml";
+$file = "files/FieldMuseumLichen/FMNH_2010_03_23.xml";
 $xml = simplexml_load_file($file);
 
 $i=0;
@@ -19,7 +20,7 @@ $wrap="\n";
 $wrap="<br>";
 print "taxa count = " . count($xml) . "$wrap";
 
-$resource = new Resource(1);//Lichens database - Field Museum Grainger EMU
+$resource = new Resource(111);//Lichens database - Field Museum Grainger EMU
 //exit($resource->id);
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
