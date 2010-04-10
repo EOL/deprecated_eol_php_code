@@ -96,7 +96,7 @@ foreach($xml->taxon as $t)
             $title = "";
             if($desc = $t->EOL_GeneralDescription)
             {   $do_count++;
-                $do_identifier = $identifier . "_GenDesc;
+                $do_identifier = $identifier . "_GenDesc";
                 $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title);            
             }                
 
