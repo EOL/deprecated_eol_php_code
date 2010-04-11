@@ -54,7 +54,7 @@ foreach($xml->taxon as $t)
             $t_dc = $t->children("http://purl.org/dc/elements/1.1/");        
             */
         
-            $identifier = Functions::import_decode($t->EOL_Identifier);    
+            $identifier = "fieldmuseum_lichen_" . Functions::import_decode($t->EOL_Identifier);    
             $source     = "";    
             $kingdom    = Functions::import_decode($t->ClaKingdom);    
             $phylum     = Functions::import_decode($t->ClaPhylum);    
