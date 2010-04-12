@@ -5,9 +5,15 @@ estimated execution time: 15 hours
 Rana catesbeiana Shaw, 1802 
 http://www.eol.org/harvest_events/1622/taxa/330963
 
+Partner provides a list of their species ID's in an XML. They also provided individual 
+species service to the EOL-schema. This connector loops to the ID's then run each species to their species service 
+and compiles all XML to 1 final XML for EOL ingestion.
+
+This connector normally will run on Eli's PC and will just move the generated 68.xml to Beast.
+
 */
 
-//exit;
+exit;
 $timestart = microtime(1);
 
 
@@ -125,7 +131,7 @@ function process($id)
     //global $OUT;        
     $file = "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=$id&version=EOL";
     //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
-    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=eol
+    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=eol
     
     //print"<hr><a href='$file'>$file</a>";
     
