@@ -1,6 +1,12 @@
 <?php
 /* Radiolaria connector 
 estimated execution time: 3-5 secs.
+
+Partner provided a non EOL-compliant XML service for all their species.
+Connector parses this XML and generates the EOL-compliant XML.
+
+dataObject.dc:identifier is blank
+
 */
 $timestart = microtime(1);
 
@@ -132,12 +138,13 @@ function process_dataobjects($item,$type,$object_id)//$type 1 = text object; 2 =
     global $taxon;    
     global $species_url;
     global $main;    
-    $dc_identifier   = $object_id;
+    
     $dc_source       = $species_url . $taxon_identifier;
     $dcterms_created = "";
     $ref             = "";            
     if($type == 1) //text
     {            
+        $dc_identifier   = "";
         $description    = trim($item->de_description);
           
         $description = str_ireplace("Dimensions.", "Dimensions. ", $description);
@@ -159,6 +166,7 @@ function process_dataobjects($item,$type,$object_id)//$type 1 = text object; 2 =
     }
     else //image
     {
+        $dc_identifier   = $item->url;
         $description    = trim($item->im_description);            
         $title          = "";            
         $subject        = "";                                  
