@@ -210,6 +210,7 @@ exit("$wrap$wrap Done processing.");
 function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$mediaURL=NULL)
 {
 
+
     $dataObjectParameters = array();
     $dataObjectParameters["identifier"] = $do_identifier;
     $dataObjectParameters["dataType"]   = $dataType;
@@ -245,12 +246,7 @@ function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$titl
         $dataObjectParameters["agents"] = $agents;    
     //}
 
-    
-
-
-    
     $dataObjectParameters["license"]       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-
     $dataObjectParameters["source"]        = $source;    
     
     /*    
