@@ -5,9 +5,6 @@ estimated execution time: 1-2 minutes
 
 Connector will not be ran from BEAST because data is coming from provider's MDB.
 
-run April 6 to correct dc:identifier for taxon and dataObject
-set to force-harvest April 6 failed, 7
-
 */
 $timestart = microtime(1);
 

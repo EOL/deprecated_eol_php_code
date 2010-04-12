@@ -13,12 +13,13 @@ Then connector uses their service to read each ID and get the information needed
     <url>http://services.morphbank.net/mb/request?method=search&amp;objecttype=Image&amp;limit=-1&amp;keywords=baskauf&amp;format=id</url>
 </response>
 
-http://www.morphbank.net/eolids.xml
 http://services.morphbank.net/mb2/request?method=eol&format=id
 http://services.morphbank.net/mb3/request?method=eol&format=id
 */
 
 $timestart = microtime(1);
+
+$url_id_list = "http://www.morphbank.net/eolids.xml";
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -44,7 +45,7 @@ foreach($image_id_xml->id as $id)
 {$image_ids[] = $id;}
 */
 
-if($xml = simplexml_load_file("http://www.morphbank.net/eolids.xml")){}
+if($xml = simplexml_load_file($url_id_list)){}
 else{exit("$wrap Service not available.");}
 foreach($xml->url as $url)
 {
