@@ -2,7 +2,7 @@
 /* connector for INOTAXA
 estimated execution time: 1.5 to 2 hours
 
-Partner provided a non EOL-compliant XML service for all their species.
+Partner provided a non EOL-compliant XML file for all their species.
 Connector parses this XML and generates the EOL-compliant XML.
 
 Some dataObject.dc:identifier will be blank

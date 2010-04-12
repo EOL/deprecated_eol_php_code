@@ -1,6 +1,13 @@
 <?php
 /*connector for WORMS
 estimated execution time: 
+
+Partner provides a list of their species ID's in multiple XML services. They also provided individual 
+species service for the EOL-schema. This connector loops to the ID's then run each species to their species service 
+and compiles all XML into 1 final XML for EOL ingestion.
+
+This can run on Eli's PC and just move the resource 26.xml to Beast.
+
 */
 $timestart = microtime(1);
 
@@ -19,7 +26,7 @@ http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=231158
 2010    9572         
 */
 
-//exit;
+exit;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

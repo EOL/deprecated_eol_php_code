@@ -6,8 +6,8 @@ Rana catesbeiana Shaw, 1802
 http://www.eol.org/harvest_events/1622/taxa/330963
 
 Partner provides a list of their species ID's in an XML. They also provided individual 
-species service to the EOL-schema. This connector loops to the ID's then run each species to their species service 
-and compiles all XML to 1 final XML for EOL ingestion.
+species service for the EOL-schema. This connector loops to the ID's then run each species to their species service 
+and compiles all XML into 1 final XML for EOL ingestion.
 
 This connector normally will run on Eli's PC and will just move the generated 68.xml to Beast.
 
