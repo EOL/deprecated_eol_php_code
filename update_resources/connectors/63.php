@@ -1,6 +1,12 @@
 <?php
 /* connector for INOTAXA
 estimated execution time: 1.5 to 2 hours
+
+Partner provided a non EOL-compliant XML service for all their species.
+Connector parses this XML and generates the EOL-compliant XML.
+
+Some dataObject.dc:identifier will be blank
+
 */
 $timestart = microtime(1);
 
@@ -461,7 +467,9 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
             if($type == 1)
             {
                 $dc_identifier = $item["ElementID"];
+                /*
                 if($dc_identifier == "")$dc_identifier = "object_" . $taxon_identifier;
+                */
             }
             else $dc_identifier = $image_id;                                                        
             
