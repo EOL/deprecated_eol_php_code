@@ -29,11 +29,10 @@ $resource = new Resource(63);
 
 $subject_arr = array("Associations","Behaviour","Biology","Conservation","ConservationStatus","Cyclicity","Cytology","Description","DiagnosticDescription","Diseases","Dispersal","Distribution","Ecology","Evolution","GeneralDescription","Genetics","Growth","Habitat","Key","Legislation","LifeCycle","LifeExpectancy","Management","Migration","MolecularBiology","Morphology","Physiology","PopulationBiology","Procedures","Reproduction","RiskStatement","Size","TaxonBiology","Threats","Trends","TrophicStrategy","Uses");
 
-$providers = array( 0 => array( "url" => "files/inotaxa/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"      , "active" => 1),
-                    1 => array( "url" => dirname(__FILE__) . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml" , "active" => 0),
-                    2 => array( "url" => "http://128.128.175.77/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"           , "active" => 0)                    
+$providers = array( 0 => array( "url" => "files/inotaxa/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"                     , "active" => 1),
+                    1 => array( "url" => "files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml"                        , "active" => 0),
+                    2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"    , "active" => 0)                
                   );
-                  //http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml
 
 $wrap = "\n";
 //$wrap = "<br>";
