@@ -5,6 +5,7 @@ http://phil.cdc.gov/phil/home.asp
 estimated execution time: 
 
 This is screen scraping task all throughout
+***
 
 */
 $timestart = microtime(1);

@@ -4,6 +4,7 @@ estimated execution time: 6 hours
 
 Partner provides a list of URL's and each URL will list ID's.
 Then connector uses their service to read each ID and get the information needed.
+***
 
 */
 
