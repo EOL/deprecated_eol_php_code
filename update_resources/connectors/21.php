@@ -1,6 +1,6 @@
 <?php
 /* connector for AmphibiaWeb 
-execution time: 22 - 25 seconds
+execution time: 30 - 35 seconds
 
 Partner provided a non EOL-compliant XML file for all their species.
 Connector parses this XML and generates the EOL-compliant XML.
