@@ -5,9 +5,11 @@ estimated execution time: 4 secs -> for the text XML dump of 10 species.
 */
 $timestart = microtime(1);
 
-$species_page_url = "http://emuweb.fieldmuseum.org/arthropod/InsDisplay.php?irn=";
+//$species_page_url = "http://emuweb.fieldmuseum.org/arthropod/InsDisplay.php?irn="; //not working
+$species_page_url = "http://emuweb.fieldmuseum.org/botany/botanytaxDisplay.php?irn=";
 $image_url        = "http://emuweb.fieldmuseum.org/web/objects/common/webmedia.php?irn=";
 
+//$GLOBALS['ENV_NAME'] = "slave";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
@@ -55,7 +57,7 @@ foreach($xml->taxon as $t)
             */
         
             $identifier = "fieldmuseum_lichen_" . Functions::import_decode($t->EOL_Identifier);    
-            $source     = "";    
+            $source     = $species_page_url . $t->EOL_Identifier;    
             $kingdom    = Functions::import_decode($t->ClaKingdom);    
             $phylum     = Functions::import_decode($t->ClaPhylum);    
             $class      = Functions::import_decode($t->ClaClass);    
@@ -90,28 +92,34 @@ foreach($xml->taxon as $t)
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
             $dataType = "http://purl.org/dc/dcmitype/Text";
             $mimeType = "text/html";
-    
+        
+            $do_agents = array();
+            $do_agents[] = array("name"=>"Robert Lücking"                        , "role"=>"compiler");
+            $do_agents[] = array("name"=>"Audrey Sica"                           , "role"=>"compiler");
+            $do_agents[] = array("name"=>"Joanna McCaffrey"                      , "role"=>"compiler");
+            $do_agents[] = array("name"=>"Grainger Foundation (PI R. Lücking)"   , "role"=>"project");    
+
             //print"<hr>$t->PhysDescription<hr>";            
                         
             $title = "";
             if($desc = $t->EOL_GeneralDescription)
             {   $do_count++;
                 $do_identifier = $identifier . "_GenDesc";
-                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title);            
+                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents);            
             }                
 
             $title = "Physical Description";
             if($desc = $t->EOL_PhysDescription)
             {   $do_count++;
                 $do_identifier = $identifier . "_PhysDesc";
-                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title);            
+                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents);            
             }                
             
             $title = "Type specimen information";
             if($desc = $t->PhysDescription)
             {   $do_count++;
                 $do_identifier = $identifier . "_TypeSpecimen";
-                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title);            
+                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents);            
             }    
             
             //stat images =================================================================================================
@@ -129,10 +137,11 @@ foreach($xml->taxon as $t)
                 //print $t->$img_str . "<br>";   
                 if($t->$img_str != "")
                 {
+                    $source = $t->img_str;
                     $mediaURL = str_ireplace("(", "", $t->$img_str);                    
                     $id = parse_url($mediaURL, PHP_URL_QUERY);
                     $id = trim(substr($id,stripos($id,"=")+1,strlen($id)));
-                    $mediaURL = $image_url . $id;                                        
+                    $mediaURL = $image_url . $id;                                                           
 
                     $desc  = Functions::import_decode($t->$cap_str);
                     $mimeType = Functions::import_decode($t->$mim_str);
@@ -140,7 +149,11 @@ foreach($xml->taxon as $t)
                     $do_count++;
                     //$do_identifier = $identifier . "_" . $do_count;
                     $do_identifier = $mediaURL;
-                    $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$mediaURL);            
+
+                    $do_agents = array();
+                    $do_agents[] = array("name"=>"© The Field Museum"                    , "role"=>"publisher");
+
+                    $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$mediaURL);            
                 }
             }
             
@@ -193,7 +206,8 @@ exit("$wrap$wrap Done processing.");
 //######################################################################################################################
 
 //==========================================================================================
-function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$mediaURL=NULL)
+
+function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$mediaURL=NULL)
 {
 
     $dataObjectParameters = array();
@@ -212,28 +226,38 @@ function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$titl
         $subjectParameters["label"] = $subject;
         $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
     }
+ 	
     
-    /*
-    $agents = array();
-    foreach($do->agent as $agent)
-    {  
-        $agentParameters = array();
-        $agentParameters["role"]     = $agent["role"];
-        $agentParameters["homepage"] = $agent["homepage"];
-        $agentParameters["logoURL"]  = $agent["logoURL"];        
-        $agentParameters["fullName"] = Functions::import_decode($agent);            
-        $agents[] = new SchemaAgent($agentParameters);
-    }
-    $dataObjectParameters["agents"] = $agents;    
-    */
+        
+    //if($mimeType == "text/html")    
+    //{        
+        $agents = array();
+        foreach($do_agents as $agent)
+        {  
+            $agentParameters = array();
+            $agentParameters["role"]     = $agent["role"];
+            $agentParameters["homepage"] = "http://emuweb.fieldmuseum.org/botany/botanytaxon.php";
+            //$agentParameters["logoURL"]  = $agent["logoURL"];        
+            //$agentParameters["fullName"] = Functions::import_decode($agent["name"]);            
+            $agentParameters["fullName"] = utf8_encode($agent["name"]);            
+            $agents[] = new SchemaAgent($agentParameters);
+        }
+        $dataObjectParameters["agents"] = $agents;    
+    //}
+
+    
+
+
     
     $dataObjectParameters["license"]       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+
+    $dataObjectParameters["source"]        = $source;    
     
     /*    
     $dataObjectParameters["created"]       = $do->created;
     $dataObjectParameters["modified"]      = $do->modified;    
     $dataObjectParameters["rightsHolder"]  = Functions::import_decode($t_dcterms->rightsHolder);    
-    $dataObjectParameters["source"]        = $t_dc2->source;    
+    
     $dataObjectParameters["thumbnailURL"]  = $do->thumbnailURL;
     $dataObjectParameters["location"]      = Functions::import_decode($do->location);              
     */
