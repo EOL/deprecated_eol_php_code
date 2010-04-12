@@ -3,6 +3,9 @@
 connector for Public Health Image Library (CDC) 
 http://phil.cdc.gov/phil/home.asp
 estimated execution time: 
+
+This is screen scraping task all throughout
+
 */
 $timestart = microtime(1);
 
@@ -186,6 +189,8 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         
     if($type == "text")
     {            
+        /* working but not we're not getting any text desc from this partner
+        //$dataObjectParameters["identifier"] = ""; no id for text description
         $dataObjectParameters["title"] = $title;            
 
         //start subject        
@@ -202,9 +207,11 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
         $dataObjectParameters["mimeType"] = "text/html";
         $dataObjectParameters["source"] = $dc_source;
+        */
     }
     elseif($type == "image")
     {
+        $dataObjectParameters["identifier"] = $image_url;
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
         $dataObjectParameters["mimeType"] = "image/jpeg";            
         $dataObjectParameters["mediaURL"] = $image_url;
@@ -215,7 +222,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
     $dataObjectParameters["description"] = $description;
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;            
-    $dataObjectParameters["identifier"] = $taxon . "_" . $do_count;        
+    
     $dataObjectParameters["rightsHolder"] = "Public Health Image Library";
     $dataObjectParameters["language"] = "en";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
