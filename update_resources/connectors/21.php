@@ -41,8 +41,6 @@ $do_count=0;
 $taxa = array();
 $xml = simplexml_load_file($new_resource_path);
 
-$total = sizeof($xml->species);
-
 
 $i=0;
 foreach(@$xml->species as $species)
@@ -154,6 +152,19 @@ foreach(@$xml->species as $species)
     $taxa[] = new SchemaTaxon($taxonParameters);
 }
 
+
+////////////////////// ---
+$new_resource_xml = SchemaDocument::get_taxon_xml($taxa);
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$OUT = fopen($old_resource_path, "w+");
+fwrite($OUT, $new_resource_xml);
+fclose($OUT);
+////////////////////// ---
+
+//print "<hr>removed: $new_resource_path";
+
+shell_exec("rm ".$new_resource_path);
+
 $elapsed_time_sec = microtime(1)-$timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec sec              \n";
@@ -201,19 +212,5 @@ function get_data_object($id, $title, $description, $subject)
     return $dataObjectParameters;
 }
 
-
-////////////////////// ---
-$new_resource_xml = SchemaDocument::get_taxon_xml($taxa);
-
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
-
-$OUT = fopen($old_resource_path, "w+");
-fwrite($OUT, $new_resource_xml);
-fclose($OUT);
-////////////////////// ---
-
-//print "<hr>removed: $new_resource_path";
-
-shell_exec("rm ".$new_resource_path);
 
 ?>
