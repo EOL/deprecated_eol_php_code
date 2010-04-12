@@ -109,9 +109,7 @@ foreach($providers as $provider)
             foreach($main->PublicationTaxonomicMatter as $ptm)
             {   $ptm_count++; 
 
-
                 //print"<pre>";print_r($ptm);print"</pre>";exit;
-
             
                 $tt_count=0;
                 foreach($ptm->TaxonTreatment as $tt)
@@ -119,7 +117,7 @@ foreach($providers as $provider)
                     $tt_count++; 
                     print"$wrap $main_count of " . count($xml->IndividualPublication);
                     print" | $ptm_count of " . count($main->PublicationTaxonomicMatter);
-                    print" | $tt_count of " . count($ptm->TaxonTreatment);
+                    print" | $tt_count of ";
                 
                     $taxon_identifier = @$tt["TaxonID"];
                     $dwc_ScientificName = $tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName;

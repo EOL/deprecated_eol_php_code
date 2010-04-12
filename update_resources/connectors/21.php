@@ -1,5 +1,14 @@
 <?php
-/* connector for AmphibiaWeb */
+/* connector for AmphibiaWeb 
+execution time: 22 - 25 seconds
+
+Partner provided a non EOL-compliant XML file for all their species.
+Connector parses this XML and generates the EOL-compliant XML.
+
+<taxon> and <dataObject> have dc:identifier
+
+*/
+$timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -25,14 +34,23 @@ fclose($OUT);
 
 unset($new_resource_xml);
 
-print"<hr>$new_resource_path<hr>"; //exit;
+//print"<hr>$new_resource_path<hr>"; exit;
 
 $do_count=0;
 
 $taxa = array();
 $xml = simplexml_load_file($new_resource_path);
+
+$total = sizeof($xml->species);
+
+
+$i=0;
 foreach(@$xml->species as $species)
 {
+    $i++;
+    print "\n $i of ";
+    
+    
     $amphibID = (int) trim($species->amphib_id);
     $genus = utf8_decode((string) trim($species->genus));
     $speciesName = utf8_decode((string) trim($species->species));
@@ -110,10 +128,10 @@ foreach(@$xml->species as $species)
     $taxonParameters["dataObjects"] = array();
     
     $dataObjects = array();
-    if($distribution) 		$dataObjects[] = get_data_object("Distribution and Habitat", $distribution, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution");
-    if($life_history) 		$dataObjects[] = get_data_object("Life History, Abundance, Activity, and Special Behaviors", $life_history, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends");
-    if($trends_and_threats) $dataObjects[] = get_data_object("Life History, Abundance, Activity, and Special Behaviors", $trends_and_threats, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats");
-    if($relation_to_humans) $dataObjects[] = get_data_object("Relation to Humans", $relation_to_humans, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement");    
+    if($distribution) 		$dataObjects[] = get_data_object($amphibID . "_distribution","Distribution and Habitat", $distribution, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution");
+    if($life_history) 		$dataObjects[] = get_data_object($amphibID . "_life_history","Life History, Abundance, Activity, and Special Behaviors", $life_history, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends");
+    if($trends_and_threats) $dataObjects[] = get_data_object($amphibID . "_trends_threats","Life History, Abundance, Activity, and Special Behaviors", $trends_and_threats, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats");
+    if($relation_to_humans) $dataObjects[] = get_data_object($amphibID . "_relation_to_humans","Relation to Humans", $relation_to_humans, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement");    
 
     if(trim($description)!="")
     {
@@ -123,7 +141,7 @@ foreach(@$xml->species as $species)
     {
         if(trim($comments)!="")$description = $comments;    
     }    
-    if($description)$dataObjects[] = get_data_object("Description", $description, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
+    if($description)$dataObjects[] = get_data_object($amphibID . "_description","Description", $description, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
     
     //if($comments) 			$dataObjects[] = get_data_object("Comments", $comments, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");        
     
@@ -136,8 +154,19 @@ foreach(@$xml->species as $species)
     $taxa[] = new SchemaTaxon($taxonParameters);
 }
 
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 
-function get_data_object($title, $description, $subject)
+exit("\n\n Done processing.");
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
+function get_data_object($id, $title, $description, $subject)
 {
     global $resource;
     global $pageURL;
@@ -147,7 +176,7 @@ function get_data_object($title, $description, $subject)
     $do_count++;
     
     $dataObjectParameters = array();
-    $dataObjectParameters["identifier"] = "do_" . $do_count;        
+    $dataObjectParameters["identifier"] = $id;
     $dataObjectParameters["title"] = $title;
     $dataObjectParameters["description"] = $description;
     $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
