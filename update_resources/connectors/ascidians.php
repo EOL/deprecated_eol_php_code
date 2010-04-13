@@ -222,6 +222,20 @@ function process_file1($file,$doc_id)
 }//end function process_file1($file)
 function get_tabular_data($str)
 {
+    /*
+    <table>
+        <tr>
+            <td>value 1</td>
+            <td>value 2</td>
+            <td>value 3</td>
+        </tr>
+        <tr>
+            <td>field 1</td>
+            <td>field 2</td>
+            <td>field 3</td>
+        </tr>
+    </table>
+    */
     global $wrap;
     
     $str = str_ireplace('<tr align="center">' , "&arr[]=", $str);	    

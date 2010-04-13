@@ -92,6 +92,8 @@ foreach($xml->taxon as $t)
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
             $dataType = "http://purl.org/dc/dcmitype/Text";
             $mimeType = "text/html";
+            
+            $rightsHolder = $t->dc_rights;
         
             $do_agents = array();
             $do_agents[] = array("name"=>"Robert Lücking"                        , "role"=>"compiler");
@@ -105,21 +107,21 @@ foreach($xml->taxon as $t)
             if($desc = $t->EOL_GeneralDescription)
             {   $do_count++;
                 $do_identifier = $identifier . "_GenDesc";
-                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents);            
+                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$rightsHolder);            
             }                
 
             $title = "Physical Description";
             if($desc = $t->EOL_PhysDescription)
             {   $do_count++;
                 $do_identifier = $identifier . "_PhysDesc";
-                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents);            
+                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$rightsHolder);            
             }                
             
             $title = "Type specimen information";
             if($desc = $t->PhysDescription)
             {   $do_count++;
                 $do_identifier = $identifier . "_TypeSpecimen";
-                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents);            
+                $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$rightsHolder);            
             }    
             
             //stat images =================================================================================================
@@ -135,10 +137,21 @@ foreach($xml->taxon as $t)
             {
                 $img_str="Img_$j"; $cap_str="Caption_$j"; $mim_str="mimeType_$j";   
                 //print $t->$img_str . "<br>";   
-                if($t->$img_str != "")
-                {
-                    $source = $t->img_str;
+                if(trim($t->$img_str) != "")
+                {                    
+                    
                     $mediaURL = str_ireplace("(", "", $t->$img_str);                    
+                    
+                    $source = $mediaURL;
+                    
+                    //start get rights and publisher from page
+                    $arr = parse_image_page($source);
+                    $rightsHolder   = utf8_encode(trim($arr[0]));                    
+                    $publisher      = utf8_encode(clean_str($arr[1]));            
+                    //end get rights and publisher from page
+                    
+                    
+                    
                     $id = parse_url($mediaURL, PHP_URL_QUERY);
                     $id = trim(substr($id,stripos($id,"=")+1,strlen($id)));
                     $mediaURL = $image_url . $id;                                                           
@@ -151,9 +164,10 @@ foreach($xml->taxon as $t)
                     $do_identifier = $mediaURL;
 
                     $do_agents = array();
-                    $do_agents[] = array("name"=>"© The Field Museum"                    , "role"=>"publisher");
+                    $do_agents[] = array("name"=>$publisher , "role"=>"publisher");
 
-                    $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$mediaURL);            
+                    $dataObjects[] = get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$rightsHolder,$mediaURL);            
+                    
                 }
             }
             
@@ -206,8 +220,80 @@ exit("$wrap$wrap Done processing.");
 //######################################################################################################################
 
 //==========================================================================================
+function get_tabular_data($str)
+{
+    global $wrap;
+    /*
+    <table>
+        <tr>
+            <td>field 1</td>
+            <td>value 1</td>
+        </tr>
+        <tr>
+            <td>field 2</td>
+            <td>value 3</td>
+        </tr>
+    </table>
+    */
+    
+    $str = str_ireplace('<tr' , "xxx<tr", $str);	        
+    $str = str_ireplace('xxx' , "&arr[]=", $str);	    
+    $str=trim($str);   
+    $arr=array();	
+    parse_str($str);	
+    //print "after parse_str recs = " . count($arr) . "$wrap $wrap";
+    $arr_tr = $arr;
+    
+    $i=0;
 
-function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$mediaURL=NULL)
+    $rights="";
+    $publisher="";
+    foreach($arr_tr as $tr)
+    {
+        $i++;        
+        $tr = str_ireplace("<td" , "xxx<td"     , $tr);
+        $tr = str_ireplace('xxx' , "&arr[]=" , $tr);	    
+        $arr=array();
+        parse_str($tr);	
+        /*        
+        print "after parse_str recs = " . count($arr) . "$wrap $wrap";                
+        print"<pre>";print_r($arr);print"</pre>";        
+        */        
+        $field = trim(strip_tags($arr[0]));
+        $value = trim(strip_tags($arr[1]));
+        //print "$field = $value <br>";        
+
+
+        if($field == "Rights:")$rights = $value;
+        if($field == "Publisher:")$publisher = $value;
+        
+    }
+    
+    //print"<pre>";print_r($return_arr);print"</pre>"; 
+    //exit;
+    
+    return array($rights,$publisher);
+}
+
+function parse_image_page($file)
+{
+    if($str = Functions::get_remote_file($file))
+    {        
+        $pos = stripos($str, "Image Only");
+        $str = trim(substr($str,$pos,strlen($str)));
+        
+        $beg='<table'; $end1='</table>';
+        $str = "$beg " . trim(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""))) . " $end1";            
+     
+        //print"<hr>$str";        exit;
+
+        $arr = get_tabular_data($str);               
+        return $arr;        
+    }
+    return;
+}
+
+function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$title,$source,$do_agents,$rightsHolder,$mediaURL=NULL)
 {
 
 
@@ -248,11 +334,12 @@ function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$titl
 
     $dataObjectParameters["license"]       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
     $dataObjectParameters["source"]        = $source;    
+    $dataObjectParameters["rightsHolder"]  = Functions::import_decode($rightsHolder);        
     
     /*    
     $dataObjectParameters["created"]       = $do->created;
     $dataObjectParameters["modified"]      = $do->modified;    
-    $dataObjectParameters["rightsHolder"]  = Functions::import_decode($t_dcterms->rightsHolder);    
+    
     
     $dataObjectParameters["thumbnailURL"]  = $do->thumbnailURL;
     $dataObjectParameters["location"]      = Functions::import_decode($do->location);              
@@ -272,5 +359,64 @@ function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$titl
        ///////////////////////////////////
 
     return $dataObjectParameters;
+}
+function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
+{
+    //PRINT "[$all]"; exit;
+	$beg_len = strlen(trim($beg));
+	$end1_len = strlen(trim($end1));
+	$end2_len = strlen(trim($end2));
+	$end3_len = strlen(trim($end3));	
+	$end4_len = strlen(trim($end4));		
+	//print "[[$str]]";
+
+	$str = trim($str); 	
+	$str = $str . "|||";	
+	$len = strlen($str);	
+	$arr = array(); $k=0;	
+	for ($i = 0; $i < $len; $i++) 
+	{
+        if(strtolower(substr($str,$i,$beg_len)) == strtolower($beg))
+		{	
+			$i=$i+$beg_len;
+			$pos1 = $i;			
+			//print substr($str,$i,10) . "<br>";									
+			$cont = 'y';
+			while($cont == 'y')
+			{
+				if(	strtolower(substr($str,$i,$end1_len)) == strtolower($end1) or 
+					strtolower(substr($str,$i,$end2_len)) == strtolower($end2) or 
+					strtolower(substr($str,$i,$end3_len)) == strtolower($end3) or 
+					strtolower(substr($str,$i,$end4_len)) == strtolower($end4) or 
+					substr($str,$i,3) == '|||' )
+				{
+					$pos2 = $i - 1; 					
+					$cont = 'n';					
+					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
+					//print "$arr[$k] $wrap";					                    
+					$k++;
+				}
+				$i++;
+			}//end while
+			$i--;			
+            
+            //start exit on first occurrence of $beg
+            if($exit_on_first_match)break;
+            //end exit on first occurrence of $beg
+            
+		}		
+	}//end outer loop
+    if($all == "")	
+    {
+        $id='';
+	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        return $id;
+    }
+    elseif($all == "all") return $arr;	
+}//end function
+function clean_str($str)
+{    
+    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\x82","\xc3"), '', $str);			
+    return $str;
 }
 ?>
