@@ -16,6 +16,7 @@ $wrap = "<br>";
  
 $resource = new Resource(1);
 //exit($resource->id);
+$url_list=array();
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -26,14 +27,14 @@ $keys_url  = "";
 $path="files/";
 //$txt_file = $path . "species_list.txt";
 $txt_file = $path . "species_list_with_synonyms.txt";
-$species_list = get_from_txt($txt_file);//this will retrieve the id and sciname from txt file
+
 //exit;
 
 
 
 $path="http://www.ascidians.com/families/";
-$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 1),   //
-               1  => array( "url" => $path . "polycitoridae/polycitoridae.htm"          ,"family"=>"Polycitoridae"      , "active" => 0),   //
+$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 0),   //
+               1  => array( "url" => $path . "polycitoridae/polycitoridae.htm"          ,"family"=>"Polycitoridae"      , "active" => 1),   //
                2  => array( "url" => $path . "polyclinidae/polyclinidae.htm"            ,"family"=>"Polyclinidae"       , "active" => 0),   //                
                3  => array( "url" => $path . "pycnoclavellidae/pycnoclavellidae.htm"    ,"family"=>"Pycnoclavellidae"   , "active" => 0),   //                
                4  => array( "url" => $path . "ascidiidae/ascidiidae.htm"                ,"family"=>"Ascidiidae"         , "active" => 0),   //                
@@ -57,11 +58,22 @@ foreach($urls as $path)
     if($path["active"])
     {        
         print $i+1 . ". " . $path["url"] . "$wrap";        
-        if    ($i <= 1) process_file1($path["url"],$i); //legumesEOL, GrassEOL
-        elseif($i == 2) process_file2($path["url"],$i); //gymnosperms        
+        if    ($i <= 16) process_file1($path["url"],$i,$path["family"]); //
+        //elseif($i == 2) process_file2($path["url"],$i); //  
     }
     $i++;
 }    
+
+print"<pre>";print_r($url_list);print"</pre>";
+exit;
+/*
+    //start - 2nd part is loop through the $url_list and extract the image dataobject
+    foreach($url_list as $arr)
+    {
+            
+    }    
+    //end - 2nd part is loop through the $url_list and extract the image dataobject
+*/
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -152,11 +164,58 @@ function process_file2($file,$doc_id)
         
 }//end function process_file2($file)
 
-function process_file1($file,$doc_id)
+function proc_species_page($url,$sciname,$family)
+{
+    global $wrap;
+    global $url_list;
+    
+    $url_list[] = array("sciname"=>$sciname,"family"=>$family,"url"=>$url);
+    $first_part_of_url = substr($url,0,strrpos($url, "/"));
+    
+    //#############################################################################################################
+    //#############################################################################################################
+    //start - first part is get the individual URL's of each image
+    $img_urls=array();
+    $str = Functions::get_remote_file($url);           
+    $str = strip_tags($str,"<a>");
+    //print"<hr>$str";
+    
+    $str = str_ireplace('<a href="' , 'xxx<a href="', $str);	
+    $str = str_ireplace('xxx' , "&arr[]=", $str);	
+    $str=trim($str);
+    $arr=array();	
+    parse_str($str);	
+    //print "after parse_str recs = " . count($arr) . "$wrap $wrap";	
+    //print"<pre>";print_r($arr);print"</pre>";
+    //exit;
+    
+    foreach($arr as $temp_url)
+    {
+        $temp = get_href_from_anchor_tag($temp_url);
+        if(substr($temp,0,2)!=".." and substr($temp,0,4)!="http" and substr($temp,0,4)!="file")
+        {
+            $url_list[] = array("sciname"=>$sciname,"family"=>$family,"url"=>$first_part_of_url . "/" . $temp);
+        }
+    } 
+    
+    //print"<pre>";print_r($url_list);print"</pre>";
+    //exit;
+    //end - first part is get the individual URL's of each image
+    
+    //#############################################################################################################
+    //#############################################################################################################
+    
+    
+    //#############################################################################################################
+    //#############################################################################################################
+   
+    return;
+}
+function process_file1($file,$doc_id,$family)
 {        
     global $wrap;
     global $used_taxa;
-
+    global $url_list;
     
     print "$wrap";    
     $str = Functions::get_remote_file($file);        
@@ -165,62 +224,34 @@ function process_file1($file,$doc_id)
     $beg='<table'; $end1='</table>';
     $str = $beg . " " . trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")) . " " . $end1;            
     
-    $arr = get_tabular_data($str);
-    exit;    
-
-  
-
-    //print "<hr>$str"; exit;
-
-    $arr=array();	
-    parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
-    
-    //print"<pre>";print_r($arr);print"</pre>";
+    $species_url_arr = get_tabular_data2($str,$file);
+      
+    //print"<pre>";print_r($species_url_arr);print"</pre>";exit;
     
     $i=0;
-    foreach($arr as $str)
+    foreach($species_url_arr as $str)
     {
-        $str = clean_str($str);
-        $str = str_ireplace("< /i>","</i>",$str);
-        
-        //if($i >= 5)break; //debug        //ditox
-        
         $i++;
-        // if(in_array($i,array(8))){
+        //if($i >= 5)break; //debug        //ditox                
+        //if(in_array($i,array(1,3)))        
         if(true)
-        {
-            //<b><i>Abrus precatorius</i></b>
-
-            
-            //get sciname
-            $beg='<b>'; $end1='</i></b>';$end2='</i>';$end3='</b>'; 
-            $sciname = strip_tags(trim(parse_html($str,$beg,$end1,$end2,$end3,$end1,"")));            
-            $sciname = str_ireplace(chr(13),"", $sciname);
-            $sciname = str_ireplace(chr(10),"", $sciname);
-            $sciname = trim($sciname);
-            
-
-            //get desc
-            $str .= "xxx";
-            $beg='</i></b>'; $end1='xxx'; 
-            $desc = strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")));                        
-            $last_char_of_desc = substr($desc,strlen($desc)-1,1);
-            if($last_char_of_desc == ",")$desc = substr($desc,0,strlen($desc)-1);
-            $desc .= ".";
-                        
-            if($sciname == "")print "jjj";
-            print "$i. $sciname $wrap";
-            //print "$desc";                                  
-            
-            prepare_agent_rights($doc_id,$sciname,$desc);                                    
+        {   
+            if($str["active"])
+            {
+                $img_data_objects = proc_species_page($str["url"],$str["caption"],$family);
+                print $str["url"]."<br>";
+                /*         
+                prepare_agent_rights($doc_id,$sciname,$desc);                                    
+                */
+            }
         }        
-    }//main loop
+    }//main loop    
     
-    //exit;    
-        
+    
+    //print"<pre>";print_r($url_list);print"</pre>";
+    //exit;            
 }//end function process_file1($file)
-function get_tabular_data($str)
+function get_tabular_data($str,$file)
 {
     /*
     <table>
@@ -238,7 +269,19 @@ function get_tabular_data($str)
     */
     global $wrap;
     
-    $str = str_ireplace('<tr align="center">' , "&arr[]=", $str);	    
+    $str = clean_str($str);
+    
+    $str = str_ireplace('<tr align="center">' , "&arr[]=", $str);//1    
+    
+    $str = str_ireplace('<tr valign="bottom" align="center">' , "&arr[]=", $str);//2
+    $str = str_ireplace('<tr valign="top" align="center">' , "&arr[]=", $str);//2
+    $str = str_ireplace('<tr align="center" valign="bottom">' , "&arr[]=", $str);//2
+
+    
+    
+    $str = str_ireplace('target="_self"' , '', $str);//2
+    $str = strip_tags($str,"<tr><td><a>");
+        
     $str=trim($str);
     
     $arr=array();	
@@ -246,7 +289,7 @@ function get_tabular_data($str)
     print "after parse_str recs = " . count($arr) . "$wrap $wrap";
     $arr_tr = $arr;
     
-    //print"<pre>";print_r($arr);print"</pre>";exit;
+    print"<pre>";print_r($arr);print"</pre>";//exit;
     
     $img_url=array();
     $img_txt=array();
@@ -259,10 +302,11 @@ function get_tabular_data($str)
         $tr = str_ireplace('xxx' , "&arr[]=" , $tr);	    
         $arr=array();
         parse_str($tr);	
-        /*        
+         /*        
         print "after parse_str recs = " . count($arr) . "$wrap $wrap";                
         print"<pre>";print_r($arr);print"</pre>";        
-        */
+        exit;
+         */
         foreach($arr as $td)
         {
             if ($i % 2)$img_url[]=$td;
@@ -270,26 +314,124 @@ function get_tabular_data($str)
         }   
         
     }
-    /*
+    // /*
     print"<pre>";print_r($img_url);print"</pre>";        
     print"<pre>";print_r($img_txt);print"</pre>";        
-    */    
+    exit;
+    //*/    
     $arr=array();
     for ($i = 0; $i < count($img_url); $i++) 
     {
         if(stripos($img_txt[$i], "href"))$active=false;
         else                             $active=true;
         
-        $arr[]=array("url" => $img_url[$i], "caption" => $img_txt[$i], "active" => $active);
+        $url = strip_tags($img_url[$i],"<a>");
+        $url = get_href_from_anchor_tag($url);        
+        if($active)
+        {
+            $first_part_of_url = substr($file,0,strrpos($file, "/"));
+            $url = $first_part_of_url . "/" . $url;
+        }            
+        $arr[]=array("url" => $url, "caption" => $img_txt[$i], "active" => $active);        
     }
     
-    print"<pre>";print_r($arr);print"</pre>";        
+    //print"<pre>";print_r($arr);print"</pre>";
+    //exit;
     
-        
-    exit;
+    return $arr;    
+}
+
+function get_tabular_data2($str,$file)
+{
+    /*
+    <table>
+        <tr>
+            <td>value 1</td>
+            <td>value 2</td>
+            <td>value 3</td>
+        </tr>
+        <tr>
+            <td>field 1</td>
+            <td>field 2</td>
+            <td>field 3</td>
+        </tr>
+    </table>
+    */
+    global $wrap;
+    
+    $str = clean_str($str);
+    
+    $str = str_ireplace('<tr align="center">' , "&arr[]=", $str);//1    
+    
+    $str = str_ireplace('<tr valign="bottom" align="center">' , "&arr[]=", $str);//2
+    $str = str_ireplace('<tr valign="top" align="center">' , "&arr[]=", $str);//2
+    $str = str_ireplace('<tr align="center" valign="bottom">' , "&arr[]=", $str);//2
 
     
+    
+    $str = str_ireplace('target="_self"' , '', $str);//2
+    $str = strip_tags($str,"<tr><td><a>");
+        
+    $str=trim($str);
+    
+    $arr=array();	
+    parse_str($str);	
+    print "after parse_str recs = " . count($arr) . "$wrap $wrap";
+    $arr_tr = $arr;
+    
+    print"<pre>";print_r($arr);print"</pre>";//exit;
+    
+    $img_url=array();
+    $img_txt=array();
+    $i=0;
+    foreach($arr_tr as $tr)
+    {
+        $i++;
+        
+        $tr = str_ireplace("<td" , "xxx<td"     , $tr);
+        $tr = str_ireplace('xxx' , "&arr[]=" , $tr);	    
+        $arr=array();
+        parse_str($tr);	
+        // /*        
+        print "after parse_str recs = " . count($arr) . "$wrap $wrap";                
+        print"<pre>";print_r($arr);print"</pre>";        
+        //exit;
+        // */
+        foreach($arr as $td)
+        {
+            if ($i % 2)$img_url[]=$td;
+            else       $img_txt[]=$td;            
+        }   
+        
+    }
+    // /*
+    //exit;
+    print"<pre>";print_r($img_url);print"</pre>";        
+    print"<pre>";print_r($img_txt);print"</pre>";        
+    exit;
+    //*/    
+    $arr=array();
+    for ($i = 0; $i < count($img_url); $i++) 
+    {
+        if(stripos($img_txt[$i], "href"))$active=false;
+        else                             $active=true;
+        
+        $url = strip_tags($img_url[$i],"<a>");
+        $url = get_href_from_anchor_tag($url);        
+        if($active)
+        {
+            $first_part_of_url = substr($file,0,strrpos($file, "/"));
+            $url = $first_part_of_url . "/" . $url;
+        }            
+        $arr[]=array("url" => $url, "caption" => $img_txt[$i], "active" => $active);        
+    }
+    
+    //print"<pre>";print_r($arr);print"</pre>";
+    //exit;
+    
+    return $arr;    
 }
+
 
 function prepare_agent_rights($doc_id,$sciname,$desc)
 {
@@ -621,53 +763,11 @@ function reverse_str($str)
     }    
     return trim($accumulate);
 }
-function get_from_txt($filename)
-{    
-    $fd = fopen ($filename, "r");
-    $contents = fread ($fd,filesize ($filename));    
-    fclose ($fd);
-    
-    $delimiter = "\n";
-    $splitcontents = explode($delimiter, $contents);
-    $counter = "";
-    //echo $contents;
-    
-    $arr=array();
-    foreach ( $splitcontents as $value )
-    {    
-        $counter = $counter+1;
-        //echo "<b>Split $counter: </b> $value <br>";        
-        if($value && $counter > 1)
-        {
-            //$temp = explode("\t", $value);
-            $temp = explode(",", $value);
-            //print_r($temp); exit;            
-            /*
-            Array ( [0] => "Accepted Symbol" 
-                    [1] => "Synonym Symbol" 
-                    [2] => "Scientific Name" 
-                    [3] => "Genus" 
-                    [4] => "Family" 
-                    [5] => "Order" 
-                    [6] => "Class" 
-                    [7] => "Kingdom" ) */
-            
-            $sciname = str_ireplace('"','',$temp[2]);
-            
-            if(!isset($arr[$sciname]))           
-            {             
-                $arr[$sciname]=array("symbol"           => str_ireplace('"','',$temp[0]), 
-                                     "Scientific Name"  => $sciname,
-                                     "Genus"            => str_ireplace('"','',$temp[3]),                         
-                                     "Family"           => str_ireplace('"','',$temp[4]),
-                                     "Order"            => str_ireplace('"','',$temp[5]),
-                                     "Class"            => str_ireplace('"','',$temp[6]),
-                                     "Kingdom"          => str_ireplace('"','',$temp[7]));
-            }                                 
-        }                
-        //if($counter > 10)break;//debug only
-    }    
-    //print"<pre>";print_r($arr);print"</pre>"; exit;    
-    return $arr;
-}//end func
+
+function get_href_from_anchor_tag($str)
+{
+    $beg='href="'; $end1='"';
+    $temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));
+    return $temp;
+}
 ?>
