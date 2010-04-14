@@ -1,7 +1,11 @@
 <?php
 /* connector for Lichens database - Field Museum Grainger EMU
-This connector reads an XML dump from provider.
-estimated execution time: 4 secs -> for the text XML dump of 10 species.
+
+estimated execution time: 11-13 secs -> for the text XML dump of 10 species.
+
+This connector reads an XML dump from provider. Some fields for the image objects are taken from
+the image detail page of the provider, so this connector also does some scraping.
+
 */
 $timestart = microtime(1);
 
@@ -9,9 +13,7 @@ $timestart = microtime(1);
 $species_page_url = "http://emuweb.fieldmuseum.org/botany/botanytaxDisplay.php?irn=";
 $image_url        = "http://emuweb.fieldmuseum.org/web/objects/common/webmedia.php?irn=";
 
-//$GLOBALS['ENV_NAME'] = "slave";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
 
 //$file = "http://localhost/eol_php_code/applications/content_server/resources/FMNH_2010_03_23.xml";
 $file = "files/FieldMuseumLichen/FMNH_2010_03_23.xml";
@@ -19,11 +21,10 @@ $xml = simplexml_load_file($file);
 
 $i=0;
 $wrap="\n";
-$wrap="<br>";
+//$wrap="<br>";
 print "taxa count = " . count($xml) . "$wrap";
 
-$resource = new Resource(111);//Lichens database - Field Museum Grainger EMU
-//exit($resource->id);
+$resource = new Resource(111);//Lichens database - Field Museum Grainger EMU //exit($resource->id);
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
@@ -65,7 +66,7 @@ foreach($xml->taxon as $t)
             $family     = Functions::import_decode($t->ClaFamily);    
             $genus     = Functions::import_decode($t->ClaGenus);                
             $sciname    = Functions::import_decode($t->ClaScientificName);               
-           
+            
             $taxonParameters = array();
             $taxonParameters["identifier"]      = utf8_encode($identifier);
             $taxonParameters["source"]          = utf8_encode($source);
@@ -146,8 +147,8 @@ foreach($xml->taxon as $t)
                     
                     //start get rights and publisher from page
                     $arr = parse_image_page($source);
-                    $rightsHolder   = utf8_encode(trim($arr[0]));                    
-                    $publisher      = utf8_encode(clean_str($arr[1]));            
+                    $rightsHolder   = trim($arr[0]);                    
+                    $publisher      = trim($arr[1]);            
                     //end get rights and publisher from page
                     
                     
@@ -263,10 +264,8 @@ function get_tabular_data($str)
         $value = trim(strip_tags($arr[1]));
         //print "$field = $value <br>";        
 
-
-        if($field == "Rights:")$rights = $value;
-        if($field == "Publisher:")$publisher = $value;
-        
+        if($field == "Rights:")     $rights = clean_str($value);        
+        if($field == "Publisher:")  $publisher = clean_str($value);        
     }
     
     //print"<pre>";print_r($return_arr);print"</pre>"; 
@@ -415,8 +414,10 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
     elseif($all == "all") return $arr;	
 }//end function
 function clean_str($str)
-{    
-    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\x82","\xc3"), '', $str);			
+{
+    $str = str_ireplace("©", "", $str);			           
+    $str = utf8_encode($str); 
+    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), "", $str);			
     return $str;
 }
 ?>
