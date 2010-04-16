@@ -459,12 +459,15 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$fami
             if($rec["sciname"] == $sciname)
             {
                 $arr = parse_image_detail_page($rec["url"]);
+                $desc           = $arr[0];
+                $mediaurl       = $arr[1];
                 
-                exit;
+                //exit;
+                
                 $dc_identifier  = $rec["url"];
                 $source_url     = $rec["url"];
-                $mediaurl       = $rec["url"];
-                $desc           = "";
+                
+                
                 $type           = "image";
                 $title          = "";
                 $subject        = "";
