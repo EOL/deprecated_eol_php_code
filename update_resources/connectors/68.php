@@ -191,15 +191,12 @@ function process($id)
         $contents = str_ireplace("<caption>Naamgeving</caption>", "", $contents);
         $contents = str_ireplace("<caption>Voorkomen</caption>", "", $contents);
         $contents = str_ireplace("<caption>Beschermingsstatus</caption>", "", $contents);
-        
+
+        /*        
         $contents = str_ireplace(             "<dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>"
         ,  "<dc:title>Classification</dc:title><dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>", $contents);
+        */
 
-        
-        
-
-        
-        
     
     	$pos1 = stripos($contents,"<taxon>");
     	$pos2 = stripos($contents,"</taxon>");			

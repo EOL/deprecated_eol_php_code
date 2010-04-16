@@ -28,16 +28,13 @@ $used_taxa = array();
 $dc_source = "";
 $keys_url  = "";
 
-$path="files/";
+$path = dirname(__FILE__) . "/files/";
 //$txt_file = $path . "species_list.txt";
 $txt_file = $path . "species_list_with_synonyms.txt";
-
 //exit;
 
-
-
 $path="http://www.ascidians.com/families/";
-$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 0),   //
+$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 1),   //
                1  => array( "url" => $path . "polycitoridae/polycitoridae.htm"          ,"family"=>"Polycitoridae"      , "active" => 0),   //
                2  => array( "url" => $path . "polyclinidae/polyclinidae.htm"            ,"family"=>"Polyclinidae"       , "active" => 0),   //                
                3  => array( "url" => $path . "pycnoclavellidae/pycnoclavellidae.htm"    ,"family"=>"Pycnoclavellidae"   , "active" => 0),   //                
@@ -50,7 +47,7 @@ $urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"        
                10 => array( "url" => $path . "perophoridae/perophoridae.htm"            ,"family"=>"Perophoridae"       , "active" => 0),   //                
                11 => array( "url" => $path . "plurellidae/plurellidae.htm"              ,"family"=>"Plurellidae"        , "active" => 0),   //empty                
                12 => array( "url" => $path . "botryllidae/botryllidae.htm"              ,"family"=>"Botryllidae"        , "active" => 0),   //                
-               13 => array( "url" => $path . "molgulidae/molgulidae.htm"                ,"family"=>"Molgulidae"         , "active" => 1),   //        start here        
+               13 => array( "url" => $path . "molgulidae/molgulidae.htm"                ,"family"=>"Molgulidae"         , "active" => 0),   //       
                14 => array( "url" => $path . "pyuridae/pyuridae.htm"                    ,"family"=>"Pyuridae"           , "active" => 0),   //                
                15 => array( "url" => $path . "styelidae/styelidae.htm"                  ,"family"=>"Styelidae"          , "active" => 0),   //                
                16 => array( "url" => $path . "thaliacea/thaliacea.htm"                  ,"family"=>"Thaliacea (Salps)"  , "active" => 0)
@@ -62,22 +59,39 @@ foreach($urls as $path)
     if($path["active"])
     {        
         print $i+1 . ". " . $path["url"] . "$wrap";        
-        if    ($i <= 16) process_file1($path["url"],$i,$path["family"]); //
-        //elseif($i == 2) process_file2($path["url"],$i); //  
+        process_file1($path["url"],$i,$path["family"]); 
+        /*
+        process_file1 will assemble the $url_list array:
+        [141] => Array
+        (
+            [sciname] => Lissoclinum fragile
+            [family] => Didemnidae
+            [url] => http://www.ascidians.com/families/didemnidae/Lissoclinum_fragile/lissoclinumfragile2.htm
+        )
+        [142] => Array
+        (
+            [sciname] => Lissoclinum patella
+            [family] => Didemnidae
+            [url] => http://www.ascidians.com/families/didemnidae/Lissoclinum_patella/lissoclinumpatella.htm
+        )
+        [143] => Array
+        (
+            [sciname] => Lissoclinum patella
+            [family] => Didemnidae
+            [url] => http://www.ascidians.com/families/didemnidae/Lissoclinum_patella/lissoclinumpatella2.htm
+        )                
+        */        
     }
     $i++;
 }    
 
 print"<pre>";print_r($url_list);print"</pre>";
-exit;
-/*
-    //start - 2nd part is loop through the $url_list and extract the image dataobject
-    foreach($url_list as $arr)
-    {
-            
-    }    
-    //end - 2nd part is loop through the $url_list and extract the image dataobject
-*/
+
+
+//start - 2nd part is loop through the $url_list and extract the image dataobject
+process_file2($url_list);
+//end - 2nd part is loop through the $url_list and extract the image dataobject
+
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -100,66 +114,60 @@ exit("\n\n Done processing.");
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################
-function process_file2($file,$doc_id)
+function process_file2($url_list)
 {        
-    /* the gymnosperms.htm is not as structured as the other 2 docs.
-       a minor manual edit on the doc was needed. 
-    */
+
     global $wrap;
     global $used_taxa;
     
-    
-    print "$wrap";    
-    $str = Functions::get_remote_file($file);    
-
-    $str = str_ireplace(chr(10) , "<br>", $str);	
-    $str = str_ireplace(chr(13) , "", $str);	    
-
-    $str = str_ireplace('<br><br>' , "&arr[]=", $str);	
-    //print "<hr>$str"; exit;        
-        
-    $str=trim($str);
-    $str=substr($str,0,strlen($str)-7);   //to remove last part of string "&arr[]="
-    //print "<hr>$str"; exit;
-
-    $arr=array();	
-    parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
-    
-    //print"<pre>";print_r($arr);print"</pre>";
+    //start first get a unique list of scinames    
+    $temp=array();
+    foreach($url_list as $arr)
+    {
+        $temp[$arr["sciname"]]=1;
+    }
+    $temp = array_keys($temp);
+    $unique_sciname=array();    
+    foreach($temp as $sn)
+    {
+        foreach($url_list as $sn2)
+        {
+            if($sn == $sn2["sciname"])
+            {
+                $unique_sciname[]=array("sciname"=>$sn , "url"=> $sn2["url"], "family"=>$sn2["family"]);
+                break;
+            }
+        }    
+    }        
+    print"<pre>";print_r($unique_sciname);print"<pre>";
     //exit;
+    //end first get a unique list of scinames    
+    
     
     $i=0;
-    foreach($arr as $str)
-    {
-        $str = clean_str($str);
-        
+    foreach($unique_sciname as $arr)
+    {        
         //if($i >= 5)break; //debug        //ditox
         
         $i++;
         // if(in_array($i,array(8))){
         if(true)
         {
-            //<b><i>Abrus precatorius</i></b>
-
-            //get sciname
-            $str = "xxx" . $str;
-            $beg='xxx'; $end1='<br>';
-            $sciname = trim(strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""))));            
-
-            //get desc
-            $str .= "yyy";
-            $beg='<br>'; $end1='yyy'; 
-            $desc = strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")));                        
-            $last_char_of_desc = substr($desc,strlen($desc)-1,1);
-            if($last_char_of_desc == ",")$desc = substr($desc,0,strlen($desc)-1);            
-            $desc .= ".";
+            $sciname = $arr["sciname"];
+            $desc = "image caption";
             
             if($sciname == "")print "jjj";            
             print "$i. $sciname $wrap";
             //print "$desc";                      
-
-            prepare_agent_rights($doc_id,$sciname,$desc);
+            
+            $dc_source = $arr["url"];
+            $family = $arr["family"];
+            
+            $arr_agents=array();
+            $dc_rights = "Compiled by eli...";
+            $arr_agents[]=array("name"=>"Dr. elijoshua", "role"=>"compiler" ,"homepage"=>"");    
+    
+            assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$family);
                                     
         }        
     }//main loop
@@ -257,9 +265,6 @@ function process_file1($file,$doc_id,$family)
             {
                 $temp = proc_species_page($str["url"],$str["caption"],$family);
                 print $str["url"];
-                /*         
-                prepare_agent_rights($doc_id,$sciname,$desc);                                    
-                */                
             }
             else print "inactive";
         }   
@@ -370,66 +375,19 @@ function get_tabular_data($str,$file)
 
 
 
-function prepare_agent_rights($doc_id,$sciname,$desc)
-{
-    global $do_count;
-    global $dc_source;
-    
-    $arr_agents=array();
-    if($doc_id == 0 or $doc_id == 1)//Grasses & Legumes
-    {
-        $dc_rights = "Compiled from several sources by Dr. David Bogler, Missouri Botanical Garden in collaboration with the USDA NRCS NPDC";
-        $arr_agents[]=array("name"=>"Dr. David Bogler",          "role"=>"compiler" ,"homepage"=>"");
-        $arr_agents[]=array("name"=>"Missouri Botanical Garden", "role"=>"source"   ,"homepage"=>"http://www.mobot.org");
-        $arr_agents[]=array("name"=>"USDA NRCS NPDC",            "role"=>"source"   ,"homepage"=>"http://www.nrcs.usda.gov");
-    }
-    elseif($doc_id == 2)//Gymnosperms
-    {
-        $dc_rights = "Compiled from several sources by Stephen C. Meyers, Oregon State University in collaboration with Aaron Liston, Oregon State University, Steffi Ickert-Bond, University of Alaska Fairbanks, and Damon Little, New York Botanical Garden.";                
-        $arr_agents[]=array("name"=>"Stephen C. Meyers",    "role"=>"compiler","homepage"=>"");
-        $arr_agents[]=array("name"=>"Aaron Liston",         "role"=>"compiler","homepage"=>"");
-        $arr_agents[]=array("name"=>"Steffi Ickert-Bond",   "role"=>"compiler","homepage"=>"");
-        $arr_agents[]=array("name"=>"Damon Little",         "role"=>"compiler","homepage"=>"");
-    }        
-    
-    $do_count++;           
-    assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count);                            
-}
-
-
-function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_count)
+function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$family)
 {
     global $species_list;
     global $used_taxa;
     global $keys_url;
     global $wrap;
+    global $not_found;    
     
-    global $not_found;
-    
-    
-        //$genus = substr($sciname,0,stripos($sciname," "));
+    global $url_list;
         
-        
-        //if(isset(@$species_list["$sciname"]["symbol"])) 
-        
-        if(@$species_list["$sciname"]["symbol"] != "") 
-        {
-            $taxon_identifier   = @$species_list[$sciname]["symbol"] . "_" . str_ireplace(" ", "_", $sciname);
-            $source_url         = $dc_source . @$species_list[$sciname]["symbol"];            
-            $do_identifier      = $taxon_identifier . "_USDA_keys_object";
-        }
-        else                                    
-        {
-            $taxon_identifier   = str_ireplace(" ", "_", $sciname) . "_USDA_keys";
-            $source_url         = $keys_url;            
-            $do_identifier      = str_ireplace(" ", "_", $sciname) . "_USDA_keys_object";            
-
-            /*
-            $not_found++;
-            print("<hr> $not_found not found in USDA list xxxyyy $sciname <hr>");//debug
-            */
-
-        }
+        $taxon_identifier   = str_ireplace(" ", "_", $sciname) . "_ascidians";
+        $source_url         = $dc_source;            
+        $do_identifier      = str_ireplace(" ", "_", $sciname) . "_ascidians_object";            
 
 
         if(@$used_taxa[$taxon_identifier])
@@ -440,11 +398,15 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         {
             $taxon_parameters = array();
             $taxon_parameters["identifier"] = $taxon_identifier;
+            
+            /*
             $taxon_parameters["kingdom"] = trim(@$species_list["$sciname"]["Kingdom"]);
             $taxon_parameters["class"] = trim(@$species_list["$sciname"]["Class"]);
             $taxon_parameters["order"] = trim(@$species_list["$sciname"]["Order"]);
-            $taxon_parameters["family"] = trim(@$species_list["$sciname"]["Family"]);
             $taxon_parameters["genus"] = trim(@$species_list["$sciname"]["Genus"]);
+            */
+            $taxon_parameters["family"] = $family;
+            
                         
             $taxon_parameters["scientificName"]= $sciname;                    
             $taxon_parameters["source"] = $source_url;
@@ -475,8 +437,8 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         }        
         
         //start text dataobject                
+        /*
         $dc_identifier  = $do_identifier;
-        //$dc_identifier  = "";            
         $desc           = $desc;
         $title          = "Physical Description";
         $subject        = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description";
@@ -484,17 +446,59 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         $reference      = "";        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents);
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        */
         //end text dataobject                    
         
         //start text dataobject                
         //end text dataobject                            
 
         //start img dataobject                
+        
+        foreach($url_list as $rec)
+        {
+            if($rec["sciname"] == $sciname)
+            {
+                $arr = parse_image_detail_page($rec["url"]);
+                
+                exit;
+                $dc_identifier  = $rec["url"];
+                $source_url     = $rec["url"];
+                $mediaurl       = $rec["url"];
+                $desc           = "";
+                $type           = "image";
+                $title          = "";
+                $subject        = "";
+                $reference      = "";        
+                $data_object_parameters =  
+                get_data_object($dc_identifier, $desc,        $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents, $mediaurl);                
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                 
+            }            
+        }
+        
+
         //end img dataobject                            
         
         $used_taxa[$taxon_identifier] = $taxon_parameters;                                
         
     return "";        
+}
+
+function parse_image_detail_page($url)
+{
+    $str = Functions::get_remote_file($url);               
+    
+    $beg='Locality:'; $end1='</td>';
+    $caption = $beg . " " . strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false)));    
+    print"<hr>caption=$caption";
+    
+
+    $beg='<img src="'; $end1='"';
+    $media_url = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));    
+    $media_url = substr($url,0,strrpos($url, "/")) . "/" . $media_url;
+    
+    print"<hr>media_url=$media_url";
+    
+    return array($caption,$media_url);
 }
 
 function conv_2array($list)
@@ -526,7 +530,6 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
         $dataObjectParameters["mimeType"] = "text/html";        
     }
-    /*
     else
     {
         $dataObjectParameters["identifier"] = $id;    
@@ -535,7 +538,7 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
         $dataObjectParameters["mimeType"] = "image/jpeg";
         $dataObjectParameters["mediaURL"] = $mediaurl;
     }
-    */
+
             /////////////////////////////////////////////////////////////
             
             foreach ($arr_agents as $g)
