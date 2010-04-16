@@ -488,18 +488,20 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$fami
 
 function parse_image_detail_page($url)
 {
+    $url = "http://www.ascidians.com/families/didemnidae/Didemnum_lahilei/didemnumlahilei11.htm";
     $str = Functions::get_remote_file($url);               
     
     $beg='Locality:'; $end1='</td>';
-    $caption = $beg . " " . strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false)));    
+    $caption = $beg . " " . strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true)));    
     print"<hr>caption=$caption";
     
 
     $beg='<img src="'; $end1='"';
-    $media_url = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));    
+    $media_url = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));    
     $media_url = substr($url,0,strrpos($url, "/")) . "/" . $media_url;
     
     print"<hr>media_url=$media_url";
+    //exit;
     
     return array($caption,$media_url);
 }
