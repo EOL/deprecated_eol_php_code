@@ -30,11 +30,12 @@ $used_taxa = array();
 $dc_source = "http://plants.usda.gov/java/profile?symbol=";
 $keys_url  = "http://npdc.usda.gov/technical/plantid_wetland_mono.html";
 
-$path="files/USDA_text_descriptions/";
+$path = dirname(__FILE__) . "/files/USDA_text_descriptions/";//always use absolute path
+
 //$txt_file = $path . "species_list.txt";
 $txt_file = $path . "species_list_with_synonyms.txt";
 $species_list = get_from_txt($txt_file);//this will retrieve the id and sciname from txt file
-//exit;
+//print"<pre>";print_r($species_list);print"</pre>";exit;
 
 $urls = array( 0 => array( "url" => $path . "legumesEOL.htm"  , "active" => 1),   //
                1 => array( "url" => $path . "GrassEOL.htm"    , "active" => 1),   //

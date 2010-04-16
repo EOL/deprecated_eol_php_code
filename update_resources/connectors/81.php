@@ -870,7 +870,11 @@ function save_to_txt($arr)
 	{
 		$str .= $value["id"] . "\t" . $value["name"] . "\n";    //"\t" is tab
 	}  
-	$filename = "files/" . $txt_file;
+	
+    //$filename = "files/" . $txt_file;
+    $filename = dirname(__FILE__) . "/files/" . $txt_file;
+    
+    
 	if($fp = fopen($filename,"w+")){fwrite($fp,$str);fclose($fp);}		    
     return "";    
 }//function save_to_txt2
@@ -1559,7 +1563,11 @@ function url_exists($url) {
 function get_from_txt()
 {
     global $txt_file;
-    $filename = "files/" . $txt_file;
+    
+    //$filename = "files/" . $txt_file;
+    $filename = dirname(__FILE__) . "/files/" . $txt_file;
+    
+    
     $fd = fopen ($filename, "r");
     $contents = fread ($fd,filesize ($filename));    
     fclose ($fd);
