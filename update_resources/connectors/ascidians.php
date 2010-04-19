@@ -16,7 +16,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 $not_found=0;
 $wrap = "\n"; 
-$wrap = "<br>"; 
+//$wrap = "<br>"; 
  
 $resource = new Resource(1);
 //exit($resource->id);
@@ -34,8 +34,8 @@ $txt_file = $path . "species_list_with_synonyms.txt";
 //exit;
 
 $path="http://www.ascidians.com/families/";
-$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 1),   //
-               1  => array( "url" => $path . "polycitoridae/polycitoridae.htm"          ,"family"=>"Polycitoridae"      , "active" => 0),   //
+$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 0),   //
+               1  => array( "url" => $path . "polycitoridae/polycitoridae.htm"          ,"family"=>"Polycitoridae"      , "active" => 1),   //
                2  => array( "url" => $path . "polyclinidae/polyclinidae.htm"            ,"family"=>"Polyclinidae"       , "active" => 0),   //                
                3  => array( "url" => $path . "pycnoclavellidae/pycnoclavellidae.htm"    ,"family"=>"Pycnoclavellidae"   , "active" => 0),   //                
                4  => array( "url" => $path . "ascidiidae/ascidiidae.htm"                ,"family"=>"Ascidiidae"         , "active" => 0),   //                
@@ -44,9 +44,9 @@ $urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"        
                7  => array( "url" => $path . "corellidae/corellidae.htm"                ,"family"=>"Corellidae"         , "active" => 0),   //                
                8  => array( "url" => $path . "holozoidae/holozoidae.htm"                ,"family"=>"Holozoidae"         , "active" => 0),   //                
                9  => array( "url" => $path . "octactemidae/octactemidae.htm"            ,"family"=>"Octacnemidae"       , "active" => 0),   //empty                
-               10 => array( "url" => $path . "perophoridae/perophoridae.htm"            ,"family"=>"Perophoridae"       , "active" => 0),   //                
+               10 => array( "url" => $path . "perophoridae/perophoridae.htm"            ,"family"=>"Perophoridae"       , "active" => 0),   //x                
                11 => array( "url" => $path . "plurellidae/plurellidae.htm"              ,"family"=>"Plurellidae"        , "active" => 0),   //empty                
-               12 => array( "url" => $path . "botryllidae/botryllidae.htm"              ,"family"=>"Botryllidae"        , "active" => 0),   //                
+               12 => array( "url" => $path . "botryllidae/botryllidae.htm"              ,"family"=>"Botryllidae"        , "active" => 0),   //x                
                13 => array( "url" => $path . "molgulidae/molgulidae.htm"                ,"family"=>"Molgulidae"         , "active" => 0),   //       
                14 => array( "url" => $path . "pyuridae/pyuridae.htm"                    ,"family"=>"Pyuridae"           , "active" => 0),   //                
                15 => array( "url" => $path . "styelidae/styelidae.htm"                  ,"family"=>"Styelidae"          , "active" => 0),   //                
@@ -139,7 +139,7 @@ function process_file2($url_list)
             }
         }    
     }        
-    print"<pre>";print_r($unique_sciname);print"<pre>";
+    print"$wrap Unique sciname list: $wrap<pre>";print_r($unique_sciname);print"<pre>";
     //exit;
     //end first get a unique list of scinames    
     
@@ -163,9 +163,11 @@ function process_file2($url_list)
             $dc_source = $arr["url"];
             $family = $arr["family"];
             
-            $arr_agents=array();
-            $dc_rights = "Compiled by eli...";
-            $arr_agents[]=array("name"=>"Dr. elijoshua", "role"=>"compiler" ,"homepage"=>"");    
+            $arr_agents=array();            
+            $arr_agents[] = array("name"=>"Arjan Gittenberger" , "role"=>"photographer", "homepage"=>"http://www.ascidians.com/");
+            
+            $dc_rights = "";
+            
     
             assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$family);
                                     
@@ -268,7 +270,7 @@ function process_file1($file,$doc_id,$family)
             }
             else print "inactive";
         }   
-        print"<br>";     
+        print"$wrap";     
     }//main loop    
     
     
@@ -461,17 +463,16 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$fami
                 $arr = parse_image_detail_page($rec["url"]);
                 $desc           = $arr[0];
                 $mediaurl       = $arr[1];
-                
+                $reference      = $arr[2];
+                if($mediaurl=="")continue;
                 //exit;
                 
                 $dc_identifier  = $rec["url"];
-                $source_url     = $rec["url"];
-                
+                $source_url     = $rec["url"];                
                 
                 $type           = "image";
                 $title          = "";
                 $subject        = "";
-                $reference      = "";        
                 $data_object_parameters =  
                 get_data_object($dc_identifier, $desc,        $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents, $mediaurl);                
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                 
@@ -488,22 +489,56 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$fami
 
 function parse_image_detail_page($url)
 {
+    global $wrap;
+    
+    $caption    ="";
+    $media_url  ="";
+    $reference  ="";
+    
+    /* for testing
     $url = "http://www.ascidians.com/families/didemnidae/Didemnum_lahilei/didemnumlahilei11.htm";
+    */
+    //$url="http://www.ascidians.com/families/didemnidae/Didemnum_pink/didemnummorphpink.htm";
+    //$url="http://www.ascidians.com/families/perophoridae/Perophora_%20namei/perophoranamei.htm";
+
+    $url = str_ireplace(' ', '%20', $url);	    
+    
     $str = Functions::get_remote_file($url);               
     
-    $beg='Locality:'; $end1='</td>';
-    $caption = $beg . " " . strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true)));    
-    print"<hr>caption=$caption";
+    //filter "photograph by"
+    if(is_numeric(stripos($str,"photograph by")))return array("","","");    
     
+    //caption
+    $beg='Locality:'; $end1='</p>';
+    $caption = $beg . " " . strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true)));
+    
+    //reference
+    $beg='localities mentioned):'; $end1="</p>"; 
+    $reference = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));    
+    if(is_numeric(stripos($reference,"…")))$reference="";    
+    if(is_numeric(stripos($reference,"...")))$reference="";    
+    if(is_numeric(stripos($reference,"&#133;")))$reference="";        
+    
+    //if($reference != "")$reference .= ". <a href='http://www.ascidians.com/literature.htm' target='ascidians literature'>Literature for identification</a>";
 
+    $caption = strip_tags(clean_str($caption));    
+    $reference = strip_tags(clean_str($reference));    
+    
+    $caption .= ". $reference";    
+    
+    print"$wrap caption = $caption";
+    print"$wrap reference = $reference";
+    
+    //media_url
     $beg='<img src="'; $end1='"';
     $media_url = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));    
     $media_url = substr($url,0,strrpos($url, "/")) . "/" . $media_url;
     
-    print"<hr>media_url=$media_url";
-    //exit;
     
-    return array($caption,$media_url);
+    print"<hr>$wrap media_url=$media_url";
+    //exit;//debug
+    
+    return array($caption,$media_url,$reference);
 }
 
 function conv_2array($list)

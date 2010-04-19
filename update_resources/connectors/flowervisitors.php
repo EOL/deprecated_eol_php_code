@@ -1,17 +1,20 @@
 <?php
-/* flowervisitors connector */
+/* flowervisitors connector 
+estimated execution time: 26 mins.
 
+Connector screen scrapes the partner website.
+*/
 //exit;
 
-include_once(dirname(__FILE__) . "/../../config/environment.php");
+$timestart = microtime(1);
 
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $wrap = "\n"; 
 //$wrap = "<br>"; 
  
-$resource = new Resource(1); //exit($resource->id);
-
+$resource = new Resource(2); //exit($resource->id);
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -71,7 +74,21 @@ $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
-print "$wrap -- Done processing -- "; exit;
+
+
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "$wrap";
+echo "elapsed time = $elapsed_time_sec sec              $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
+
+exit("\n\n Done processing.");
+
+//######################################################################################################################
+//######################################################################################################################
+//######################################################################################################################
+
+
 
 function process_file3($file)
 {       
@@ -358,8 +375,8 @@ function process_file4($file,$type)
         $i++; print "$i. "; print "$sciname $wrap";                       
 
         $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = str_replace(" ", "_", $sciname);                
-        $dc_identifier = "txt_" . $taxon_identifier;    
+        $taxon_identifier = str_replace(" ", "_", $sciname) . "_flower_visitors";
+        $dc_identifier = str_replace(" ", "_", $sciname) . "_obj_flower_visitors";
             
         $taxon_parameters = array();
         $taxon_parameters["identifier"] = $taxon_identifier;
@@ -396,8 +413,11 @@ function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subje
     global $used_taxa;
     
         $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = str_replace(" ", "_", $sciname);                
-        $dc_identifier = "txt_" . $taxon_identifier;    
+
+        $taxon_identifier = str_replace(" ", "_", $sciname) . "_flower_visitors";
+        $dc_identifier = str_replace(" ", "_", $sciname) . "_obj_flower_visitors";
+
+        
         if(@$used_taxa[$taxon_identifier])
         {
             $taxon_parameters = $used_taxa[$taxon_identifier];
@@ -463,8 +483,16 @@ function get_data_object($id, $description, $title, $url, $subject)
     $dataObjectParameters["language"] = "en";    
     
     $dataObjectParameters["source"] = $url;
-    
 
+    $reference="Hilty, J. Editor. 2010. Insect Visitors of Illinois Wildflowers. World Wide Web electronic publication. flowervisitors.info, version (04/2010).";
+
+        $dataObjectParameters["references"] = array();
+        $referenceParameters = array();
+        $referenceParameters["fullReference"] = trim($reference);
+        $references[] = new SchemaReference($referenceParameters);
+        $dataObjectParameters["references"] = $references;
+    
+    
     $dataObjectParameters["rights"] = "Copyright &#169; 2002-2009 by Dr. John Hilty";
     $dataObjectParameters["rightsHolder"] = "John Hilty";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
