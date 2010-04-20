@@ -92,7 +92,7 @@ class CompareHierarchies
         $preview_id = Visibility::insert('preview');
         
         
-        $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!=he2.id ORDER BY he1.visibility_id ASC, he2.visibility_id ASC, score DESC, id1 ASC, id2 ASC");
+        $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!=he2.id ORDER BY he1.visibility_id ASC, he2.visibility_id  ASC, score  DESC, id1 ASC, id2 ASC");
         
         $mysqli->begin_transaction();
         
@@ -322,7 +322,7 @@ class CompareHierarchies
         
         fclose($SQL_FILE);
         //echo 'loading data\n';
-        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", 'IGNORE', '', 2500000);
+        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", 'IGNORE', '', 5000000);
         
         // remove the tmp file
         @unlink($sql_filepath);

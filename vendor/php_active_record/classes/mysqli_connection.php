@@ -230,11 +230,12 @@ class MysqliConnection
         return false;
     }
     
-    function delete_from_where($table, $field, $select, $numeric = true)
+    function delete_from_where($table, $field, $select, $udelay = 500000)
     {
         $outfile = $this->select_into_outfile($select);
         
         $ids = array();
+        $this->begin_transaction();
         $FILE = fopen($outfile, "r");
         while(!feof($FILE))
         {
@@ -243,20 +244,21 @@ class MysqliConnection
                 $ids[] = trim($line);
                 if(count($ids)>=10000)
                 {
-                    //$this->begin_transaction();
                     $this->delete("DELETE FROM $table WHERE $field IN (".implode(",", $ids).")");
-                    //$this->end_transaction();
+                    $this->commit();
+                    usleep_production($udelay);
                     $ids = array();
                 }
             }
         }
         if($ids)
         {
-            //$this->begin_transaction();
             $this->delete("DELETE FROM $table WHERE $field IN (".implode(",", $ids).")");
-            //$this->end_transaction();
+            $this->commit();
+            usleep_production($udelay);
         }
         fclose($FILE);
+        $this->end_transaction();
         unlink($outfile);
     }
     
