@@ -169,7 +169,7 @@ class CompareHierarchies
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $counts = array();
-        $result = $mysqli->query("SELECT he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id IN ($tc_id1, $tc_id2) AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id IN ($tc_id1, $tc_id2) AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
