@@ -11,6 +11,18 @@ class Name extends MysqlBase
         $this->string = ucfirst($this->string);
     }
     
+    public static function all()
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $all = array();
+        $result = $mysqli->query("SELECT SQL_NO_CACHE * FROM names");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $all[] = new Name($row);
+        }
+        return $all;
+    }
+    
     public function make_scientific()
     {
         $this->add_language(Language::insert("Scientific Name"), 0, 0);

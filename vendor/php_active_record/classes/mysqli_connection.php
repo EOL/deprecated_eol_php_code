@@ -228,6 +228,36 @@ class MysqliConnection
         return false;
     }
     
+    function delete_from_where($table, $field, $select, $numeric = true)
+    {
+        $outfile = $this->select_into_outfile($select);
+        
+        $ids = array();
+        $FILE = fopen($outfile, "r");
+        while(!feof($FILE))
+        {
+            if($line = fgets($FILE, 4096))
+            {
+                $ids[] = trim($line);
+                if(count($ids)>=10000)
+                {
+                    //$this->begin_transaction();
+                    $this->delete("DELETE FROM $table WHERE $field IN (".implode(",", $ids).")");
+                    //$this->end_transaction();
+                    $ids = array();
+                }
+            }
+        }
+        if($ids)
+        {
+            //$this->begin_transaction();
+            $this->delete("DELETE FROM $table WHERE $field IN (".implode(",", $ids).")");
+            //$this->end_transaction();
+        }
+        fclose($FILE);
+        unlink($outfile);
+    }
+    
     function truncate_tables($environment = "test")
     {
         if($GLOBALS['ENV_NAME'] != $environment) return false;

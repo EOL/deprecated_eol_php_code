@@ -76,6 +76,24 @@ class test_mysqli extends SimpletestUnitBase
         $GLOBALS['db_connection']->update('DROP TABLE `test_load_data`');
         unlink($outfile);
     }
+    
+    function testDeleteFromWhere()
+    {
+        $GLOBALS['db_connection']->begin_transaction();
+        for($i=1 ; $i<=20002 ; $i++)
+        {
+            $GLOBALS['db_connection']->insert("INSERT INTO names (id, string) VALUES ($i, '$i')");
+        }
+        $GLOBALS['db_connection']->end_transaction();
+        
+        $this->assertTrue(count(Name::all()) == 20002, 'should start with 3 names');
+        
+        $GLOBALS['db_connection']->delete_from_where('names', 'id', 'select id from names where id<=10002');
+        $this->assertTrue(count(Name::all()) == 10000, 'should end up with 1 name');
+        
+        $GLOBALS['db_connection']->delete_from_where('names', 'id', 'select id from names');
+        $this->assertTrue(count(Name::all()) == 0, 'should end up with 0 names');
+    }
 }
 
 ?>

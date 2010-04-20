@@ -251,8 +251,11 @@ class CompareHierarchies
             }
         }else
         {
-            $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_1) WHERE he.hierarchy_id=$hierarchy->id");
-            $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_2) WHERE he.hierarchy_id=$hierarchy->id");
+            // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_1) WHERE he.hierarchy_id=$hierarchy->id");
+            // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_2) WHERE he.hierarchy_id=$hierarchy->id");
+            
+            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_1', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id");
+            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_2', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id");
         }
         
         
