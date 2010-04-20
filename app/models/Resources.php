@@ -80,6 +80,12 @@ class Resource extends MysqlBase
         return true;
     }
     
+    public function set_autopublish($value)
+    {
+        $auto_publish = ($value === true) ? 1 : 0;
+        $this->mysqli->update("UPDATE resources SET auto_publish=$auto_publish WHERE id=$this->id");
+    }
+    
     // will return boolean of THIS resource is ready
     public function ready_to_harvest($hours_ahead_of_time = null)
     {
@@ -215,6 +221,11 @@ class Resource extends MysqlBase
             $guids[] = $row['guid'];
         }
         return array_unique($guids);
+    }
+    
+    public function force_publish()
+    {
+        $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
     }
     
     public function publish()
@@ -371,10 +382,10 @@ class Resource extends MysqlBase
             
             $unchanged_status_id = Status::insert('Unchanged');
             // add the unchanged data objects
-            $this->mysqli->insert("INSERT INTO data_objects_harvest_events (harvest_event_id, data_object_id, guid, status_id)  SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.guid=dohe.guid) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
+            $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events (harvest_event_id, data_object_id, guid, status_id)  SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.guid=dohe.guid) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
             
             // add the unchanged taxa
-            $this->mysqli->insert("INSERT INTO harvest_events_taxa (harvest_event_id, taxon_id, guid, status_id) SELECT ".$this->harvest_event->id.", het.taxon_id, het.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) JOIN harvest_events_taxa het ON (dot.taxon_id=het.taxon_id) LEFT JOIN harvest_events_taxa het_current ON (het_current.harvest_event_id=".$this->harvest_event->id." AND het_current.guid=het.guid) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND het.harvest_event_id=$last_harvest_event_id AND het_current.taxon_id IS NULL");
+            $this->mysqli->insert("INSERT IGNORE INTO harvest_events_taxa (harvest_event_id, taxon_id, guid, status_id) SELECT ".$this->harvest_event->id.", het.taxon_id, het.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) JOIN harvest_events_taxa het ON (dot.taxon_id=het.taxon_id) LEFT JOIN harvest_events_taxa het_current ON (het_current.harvest_event_id=".$this->harvest_event->id." AND het_current.guid=het.guid) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND het.harvest_event_id=$last_harvest_event_id AND het_current.taxon_id IS NULL");
             
             // at this point everything has been added EXCEPT the things we want to delete
         }
@@ -516,7 +527,7 @@ class Resource extends MysqlBase
         $hierarchy_mock = Functions::mock_object("Hierarchy", $params);
         $hierarchy_id = Hierarchy::insert($hierarchy_mock);
         
-        $this->mysqli->insert("INSERT INTO hierarchies_resources VALUES ($this->id, $hierarchy_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO hierarchies_resources VALUES ($this->id, $hierarchy_id)");
         
         return $hierarchy_id;
     }

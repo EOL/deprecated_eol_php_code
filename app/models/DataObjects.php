@@ -267,7 +267,7 @@ class DataObject extends MysqlBase
                         // all new Wikipedia articles should be unvetted, even if the previous version was vetted
                         $data_object->vetted_id = $existing_data_object->vetted_id;
                     }
-                    if($existing_data_object->visibility_id != Visibility::insert("Visible"))
+                    if($existing_data_object->visibility_id != Visibility::insert("Visible") && $existing_data_object->visibility_id != NULL)
                     {
                         // if the existing object is visible - this will go on as preview
                         // otherwise this will inherit the visibility (unpublished)

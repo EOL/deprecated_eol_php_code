@@ -62,6 +62,42 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($last_object->vetted_id == Vetted::insert('unknown'), 'Should not be vetted');
     }
     
+    function testSetAutoPublish()
+    {
+        $resource = self::create_resource(array('title' => 'BOLD Systems Resource', 'auto_publish' => false));
+        $this->assertTrue($resource->auto_publish == 0);
+        
+        $resource->set_autopublish(true);
+        $resource = new Resource($resource->id);
+        $this->assertTrue($resource->auto_publish == 1);
+    }
+    
+    function testPublishing()
+    {
+        $resource = self::create_resource(array('title' => 'BOLD Systems Resource', 'auto_publish' => false));
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->published == 0);
+        $this->assertTrue($last_object->visibility_id == Visibility::insert('preview'));
+        
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->published == 0);
+        $this->assertTrue($last_object->visibility_id == Visibility::insert('preview'));
+        
+        $resource->set_autopublish(true);
+        $resource = new Resource($resource->id);
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->published == 1);
+        $this->assertTrue($last_object->visibility_id == Visibility::insert('visible'));
+        
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->published == 1);
+        $this->assertTrue($last_object->visibility_id == Visibility::insert('visible'));
+    }
+    
     
     
     

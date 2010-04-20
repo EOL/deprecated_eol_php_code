@@ -154,13 +154,13 @@ class HarvestEvent extends MysqlBase
     public function add_taxon($taxon, $status)
     {
         if(@!$taxon->id) return false;
-        $this->mysqli->insert("INSERT INTO harvest_events_taxa VALUES ($this->id, $taxon->id, '$taxon->guid', ".Status::insert($status).")");
+        $this->mysqli->insert("INSERT IGNORE INTO harvest_events_taxa VALUES ($this->id, $taxon->id, '$taxon->guid', ".Status::insert($status).")");
     }
     
     public function add_data_object($data_object, $status)
     {
         if(@!$data_object->id) return false;
-        $this->mysqli->insert("INSERT INTO data_objects_harvest_events VALUES ($this->id, $data_object->id, '$data_object->guid', ".Status::insert($status).")");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events VALUES ($this->id, $data_object->id, '$data_object->guid', ".Status::insert($status).")");
     }
     
     static function insert($resource_id)
