@@ -157,7 +157,7 @@ class MysqliConnection
         }
     }
     
-    function load_data_infile($path, $table, $action = "IGNORE", $set = '')
+    function load_data_infile($path, $table, $action = "IGNORE", $set = '', $udelay = 500000)
     {
         if($action != "REPLACE") $action = "IGNORE";
         // how many rows to split the larger file into
@@ -187,7 +187,7 @@ class MysqliConnection
                     echo "Committing ".$batch*$maximum_rows_in_file." : ".time_elapsed()."\n";
                     @$this->update("LOAD DATA LOCAL INFILE '".str_replace("\\", "/", $tmp_file_path)."' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' $set");
                     $this->commit();
-                    usleep_production(500000);
+                    usleep_production($udelay);
                     rewind($LOAD_DATA_TEMP);
                     ftruncate($LOAD_DATA_TEMP, 0);
                     $line_counter = 0;
@@ -200,6 +200,8 @@ class MysqliConnection
         if(filesize($tmp_file_path))
         {
             @$this->update("LOAD DATA LOCAL INFILE '".str_replace("\\", "/", $tmp_file_path)."' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' $set");
+            $this->commit();
+            usleep_production($udelay);
         }
         
         //$this->insert("SET FOREIGN_KEY_CHECKS = 1");
