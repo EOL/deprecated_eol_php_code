@@ -254,8 +254,8 @@ class CompareHierarchies
             // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_1) WHERE he.hierarchy_id=$hierarchy->id");
             // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_2) WHERE he.hierarchy_id=$hierarchy->id");
             
-            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_1', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id");
-            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_2', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id");
+            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_1', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 3000000);
+            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_2', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 3000000);
         }
         
         
@@ -322,7 +322,7 @@ class CompareHierarchies
         
         fclose($SQL_FILE);
         //echo 'loading data\n';
-        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", 'IGNORE', '', 5000000);
+        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", 'IGNORE', '', 6000000);
         
         // remove the tmp file
         @unlink($sql_filepath);
