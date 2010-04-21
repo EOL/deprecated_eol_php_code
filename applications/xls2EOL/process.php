@@ -84,14 +84,14 @@ $user_title = $data->sheets[2]['cells'][2];    //this is to get the 24 user 'tit
 $dc_source='';
 
 $temp = "<?xml version='1.0' encoding='utf-8' ?><response
-    xmlns='http://www.eol.org/transfer/content/0.2'
+    xmlns='http://www.eol.org/transfer/content/0.3'
     xmlns:xsd='http://www.w3.org/2001/XMLSchema'
     xmlns:dc='http://purl.org/dc/elements/1.1/'
     xmlns:dcterms='http://purl.org/dc/terms/'
     xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'
     xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xsi:schemaLocation='http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd'>";
+    xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>";
 $temp .= start();
 $temp .= "</response>";
 
@@ -185,8 +185,7 @@ function make_DO_multimedia($taxon)
             <dc:identifier>" . "mm_" . str_ireplace(" ", "_", utf8_encode($sheet[4]['Taxon Name'][$i])) . "_" . $i . "</dc:identifier>";
 
             $temp = get_DataType($sheet[4]['Data Type'][$i]);                        
-            if($temp != ''){$m .= "<dataType>" . $temp . "</dataType>";}
-            
+            if($temp != ''){$m .= "<dataType>" . $temp . "</dataType>";}            
 
             
             if($sheet[4]['MIME Type'][$i] != '')$m .= "<mimeType>" . $sheet[4]['MIME Type'][$i] . "</mimeType>";
@@ -199,8 +198,7 @@ function make_DO_multimedia($taxon)
             if($sheet[4]['Caption'][$i] != '')$m .= "<dc:title>" . $sheet[4]['Caption'][$i] . "</dc:title>";            
             if($sheet[4]['Language'][$i] != '')$m .= "<dc:language>" . $sheet[4]['Language'][$i] . "</dc:language>";
             
-            $m .= get_attribution($sheet[4]['Attribution Code'][$i]);                                                
-            
+            $m .= get_attribution($sheet[4]['Attribution Code'][$i]);                                                            
             
             if($sheet[4]['Audience'][$i]!='')$m .= "<audience>" . $sheet[4]['Audience'][$i] . "</audience>";
             
@@ -288,8 +286,8 @@ function make_DO($taxon)
                     //$m .= "<dc:source></dc:source>";
 
 
-//$desc = utf8_encode($sheet[2][$str][$i]);
-$desc = $sheet[2][$str][$i];
+  $desc = utf8_encode($sheet[2][$str][$i]);
+//$desc =             $sheet[2][$str][$i];
 
 /*
 $desc = str_ireplace('ì', '&#147;', $desc);
