@@ -7,15 +7,17 @@
     2nd function of this script is to compute:
     How many WORMS pages have wikipedia and flickr
     
-    1.5 hours
-    date    marine pages    worms with wikipedia    worms with flickr
-    Apr 19  185308          5093                    1491
     
-    names from xml: 164,223
-    names in eol:   144,164
-    marine pages:   185,308
-    obj:            103,386
-    vetted obj:     102,896                            
+as of April 21:
+    execution time: 2.24 hours
+    Names from XML: 164223
+    Names in EOL: 143075
+    Marine pages: 145265
+    Pages with objects: 80659
+    Pages with vetted objects: 80241
+    Marine pages with Wikipedia content = 5167
+    Marine pages with Flickr content = 1548    
+    
     
 */
 
@@ -195,8 +197,10 @@ function count_pages_per_agent_id($agent_id,$marine_pages)
     From data_objects_harvest_events
     Inner Join data_objects_taxon_concepts ON data_objects_harvest_events.data_object_id = data_objects_taxon_concepts.data_object_id
     Inner Join data_objects ON data_objects_harvest_events.data_object_id = data_objects.id
-    Where data_objects_harvest_events.harvest_event_id = $latest_harvest_event_id
-    and data_objects.vetted_id <> " . Vetted::find("untrusted") . "";
+    Where 
+    data_objects_harvest_events.harvest_event_id = $latest_harvest_event_id and 
+    data_objects.vetted_id <> " . Vetted::find("untrusted") . "";
+    
     $result = $mysqli->query($query);    
     while($result && $row=$result->fetch_assoc())
     {        
