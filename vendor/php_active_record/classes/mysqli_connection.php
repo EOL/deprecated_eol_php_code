@@ -230,7 +230,7 @@ class MysqliConnection
         return false;
     }
     
-    function delete_from_where($table, $field, $select, $udelay = 500000)
+    function delete_from_where($table, $field, $select, $udelay = 1000000)
     {
         $outfile = $this->select_into_outfile($select);
         
