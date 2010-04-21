@@ -273,7 +273,7 @@ function make_DO($taxon)
                     if($sheet[2]['DateModified'][$i] != '')$m .= "<dcterms:modified>" . $sheet[2]['DateModified'][$i] . "</dcterms:modified>";
                     
                     //$jj = $j+7; //withouth 'audience' in sheet 'text descriptions'
-                    $jj = $j+8;
+                    $jj = $j+21;
                     if(@$user_title[$jj] == 'Title if different')    $m .= "<dc:title>" . $title . "</dc:title>";
                     else                                            $m .= "<dc:title>" . @$user_title[$jj] . "</dc:title>";
                     
@@ -286,8 +286,25 @@ function make_DO($taxon)
                     //$m .= "<dc:source></dc:source>";
 
 
+                      $desc = $sheet[2][$str][$i]; //fixed the encoding error; April 21 2010
+                        
+                      $desc = str_replace("Â“", "\"", $desc);
+                      $desc = str_replace("Â”", "\"", $desc);
+                      $desc = str_replace("Â–", "-", $desc);                      
+                      $desc = str_replace("Â", "", $desc);
+                      $desc = str_replace("Î", "", $desc);
+                      $desc = str_replace("¼", "", $desc);
+                      $desc = str_replace("â", "", $desc);
+                                            
                     
-                      $desc = utf8_encode($sheet[2][$str][$i]); //fixed the encoding error; April 21 2010
+                      $desc = utf8_encode($desc); //fixed the encoding error; April 21 2010
+                      
+                      
+                      
+                      
+                      
+
+                      
                     //$desc =             $sheet[2][$str][$i];
                     
                     /*

@@ -47,8 +47,62 @@ $sheet[2]['Audience']= array();
 
 $sheet[2]['DateCreated']= array();
 $sheet[2]['DateModified']= array();
-
 $sheet[2]['Taxon Name']= array();
+
+$sheet[2]['Associations']= array();
+$sheet[2]['Behaviour']= array();
+$sheet[2]['Biology']= array();
+$sheet[2]['Conservation']= array();
+$sheet[2]['ConservationStatus']= array();
+$sheet[2]['Cyclicity']= array();
+$sheet[2]['Cytology']= array();
+$sheet[2]['Description']= array();
+$sheet[2]['DiagnosticDescription']= array();
+$sheet[2]['Diseases']= array();
+$sheet[2]['Dispersal']= array();
+$sheet[2]['Distribution']= array();
+$sheet[2]['Ecology']= array();
+$sheet[2]['Evolution']= array();
+$sheet[2]['GeneralDescription']= array();
+$sheet[2]['Genetics']= array();
+$sheet[2]['Growth']= array();
+$sheet[2]['Habitat']= array();
+$sheet[2]['Key']= array();
+$sheet[2]['Legislation']= array();
+$sheet[2]['LifeCycle']= array();
+$sheet[2]['LifeExpectancy']= array();
+$sheet[2]['LookAlikes']= array();
+$sheet[2]['Management']= array();
+$sheet[2]['Migration']= array();
+$sheet[2]['MolecularBiology']= array();
+$sheet[2]['Morphology']= array();
+$sheet[2]['Physiology']= array();
+$sheet[2]['PopulationBiology']= array();
+$sheet[2]['Procedures']= array();
+$sheet[2]['Reproduction']= array();
+$sheet[2]['RiskStatement']= array();
+$sheet[2]['Size']= array();
+$sheet[2]['TaxonBiology']= array();
+$sheet[2]['Threats']= array();
+$sheet[2]['Trends']= array();
+$sheet[2]['TrophicStrategy']= array();
+$sheet[2]['Uses']= array();
+
+$DO_text = array(
+'Associations', 'Behaviour', 'Biology', 'Conservation', 'ConservationStatus', 'Cyclicity', 'Cytology', 'Description', 
+'DiagnosticDescription', 'Diseases', 'Dispersal', 'Distribution', 'Ecology', 'Evolution', 'GeneralDescription', 
+'Genetics', 'Growth', 'Habitat', 'Key', 'Legislation', 'LifeCycle', 'LifeExpectancy', 'LookAlikes', 'Management', 'Migration', 
+'MolecularBiology', 'Morphology', 'Physiology', 'PopulationBiology', 'Procedures', 'Reproduction', 'RiskStatement', 'Size', 
+'TaxonBiology', 'Threats', 'Trends', 'TrophicStrategy', 'Uses');
+
+$DO_text_title = array(
+'Associations', 'Behaviour', 'Biology', 'Conservation', 'Conservation Status', 'Cyclicity', 'Cytology', 'Description', 
+'Diagnostic Description', 'Diseases', 'Dispersal', 'Distribution', 'Ecology', 'Evolution', 'General Description', 
+'Genetics', 'Growth', 'Habitat', 'Key', 'Legislation', 'LifeCycle', 'Life Expectancy', 'Look Alikes', 'Management', 'Migration', 
+'Molecular Biology', 'Morphology', 'Physiology', 'Population Biology', 'Procedures', 'Reproduction', 'Risk Statement', 'Size', 
+'Taxon Biology', 'Threats', 'Trends', 'Trophic Strategy', 'Uses');
+
+/*
 $sheet[2]['Associations']= array();
 $sheet[2]['ConservationStatus']= array();
 $sheet[2]['DiagnosticDescription']= array();
@@ -83,7 +137,7 @@ $DO_text_title = array('Associations',    'Conservation Status', 'Diagnostic Des
 'Evolution', 'General Description', 'Genetics',    'Growth', 'Habitat', 'Life Cycle', 'Life Expectancy', 'Look Alikes',
 'Management', 'Morphology', 'Physiology', 'Population Biology', 'Procedures',
 'Reproduction', 'Size', 'TaxonBiology', 'Threats', 'Uses');
-
+*/
 
 //References
 //$sheet[3]['DataObject ID']             = array();
