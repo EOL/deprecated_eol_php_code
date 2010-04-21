@@ -401,7 +401,7 @@ function get_referece($code,$what_code)//dataobject id
                         $temp = $sheet[3][$temp_index][$i];            
                         if($temp != ''){$str .= trim(strtolower($temp_index)) . "='" . htmlentities(trim($temp)) . "' ";}
                     }        
-                    $str .= "><![CDATA[" . $sheet[3]['Bibliographic Citation'][$i] . "]]></reference>";                                        
+                    $str .= "><![CDATA[" . utf8_encode($sheet[3]['Bibliographic Citation'][$i]) . "]]></reference>";//added utf8_encode() April 21 2010
                 }                
             }
         }            
@@ -546,7 +546,10 @@ function get_attribution($code)
 
         if($sheet[1]['RightsStatement'][$i] != '')$str .= "<dc:rights>" . $sheet[1]['RightsStatement'][$i] . "</dc:rights>";
         if($sheet[1]['RightsHolder'][$i] != '')$str .= "<dcterms:rightsHolder>" . $sheet[1]['RightsHolder'][$i] . "</dcterms:rightsHolder>";
-        if($sheet[1]['BibliographicCitation'][$i] != '')$str .= "<dcterms:bibliographicCitation>" . $sheet[1]['BibliographicCitation'][$i] . "</dcterms:bibliographicCitation>";
+        if($sheet[1]['BibliographicCitation'][$i] != '')
+        {
+            $str .= "<dcterms:bibliographicCitation>" . utf8_encode($sheet[1]['BibliographicCitation'][$i]) . "</dcterms:bibliographicCitation>";//added utf8_encode() April 21 2010
+        }
     }
     
     return $str;
