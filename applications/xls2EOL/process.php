@@ -286,22 +286,22 @@ function make_DO($taxon)
                     //$m .= "<dc:source></dc:source>";
 
 
-  $desc = utf8_encode($sheet[2][$str][$i]);
-//$desc =             $sheet[2][$str][$i];
-
-/*
-$desc = str_ireplace('ì', '&#147;', $desc);
-$desc = str_ireplace('î', '&#148;', $desc);
-$desc = str_ireplace('í', '&#146;', $desc);
-*/
-//$desc = str_ireplace("‚", "&#" . ord("‚") . ";", $desc);
-/*
-$desc = str_ireplace('ì', '&#116;', $desc);
-$desc = str_ireplace('î', '&#39;', $desc);
-$desc = str_ireplace('í', '&#39;', $desc);
-*/
-//$desc = utf8_decode($desc);
-
+                    
+                      $desc = utf8_encode($sheet[2][$str][$i]); //fixed the encoding error; April 21 2010
+                    //$desc =             $sheet[2][$str][$i];
+                    
+                    /*
+                    $desc = str_ireplace('ì', '&#147;', $desc);
+                    $desc = str_ireplace('î', '&#148;', $desc);
+                    $desc = str_ireplace('í', '&#146;', $desc);
+                    */
+                    //$desc = str_ireplace("‚", "&#" . ord("‚") . ";", $desc);
+                    /*
+                    $desc = str_ireplace('ì', '&#116;', $desc);
+                    $desc = str_ireplace('î', '&#39;', $desc);
+                    $desc = str_ireplace('í', '&#39;', $desc);
+                    */
+                    //$desc = utf8_decode($desc);
 
 
                     $m .= "<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $str . "</subject>
@@ -408,7 +408,7 @@ function get_referece($code,$what_code)//dataobject id
     }
     
     //exit;    
-    /* working well
+    /* working well - debug
     $str="";
     for ($i=0; $i <= sizeof($fields)-1; $i++) 
     {
@@ -425,7 +425,6 @@ function get_referece($code,$what_code)//dataobject id
         }
     }        
     */
-
         
     return $str;
 }//end get_ref
