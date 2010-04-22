@@ -1,6 +1,6 @@
 <?php
 /* connector for Ascidians
-estimated execution time: 10 mins.
+estimated execution time: 10-13 mins.
 
 Connector screen scrapes the partner website.
 
