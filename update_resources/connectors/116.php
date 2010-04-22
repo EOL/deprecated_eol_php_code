@@ -5,6 +5,7 @@ estimated execution time: 10-13 mins.
 Connector screen scrapes the partner website.
 
 */
+exit;//it can run in Beast but not too often for the data in website to change, maybe 3-4 updates in a year.
 
 $timestart = microtime(1);
 
