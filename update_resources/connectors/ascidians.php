@@ -1,15 +1,11 @@
 <?php
 /* connector for Ascidians
-estimated execution time: 
+estimated execution time: 10 mins.
 
 Connector screen scrapes the partner website.
 
 */
 $timestart = microtime(1);
-
-//print get_href_from_anchor_tag('<a href="../../pycnoclavellidae/Pycnoclavella_taureanensis/pycnoclavellataureanensis1.htm">Pycnoclavella taureanensis</a>');
-//exit;
-//print chr(38);exit;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -18,7 +14,7 @@ $not_found=0;
 $wrap = "\n"; 
 //$wrap = "<br>"; 
  
-$resource = new Resource(1);
+$resource = new Resource(116);//The Dutch Ascidians Homepage 
 //exit($resource->id);
 $url_list=array();
 
@@ -34,23 +30,23 @@ $txt_file = $path . "species_list_with_synonyms.txt";
 //exit;
 
 $path="http://www.ascidians.com/families/";
-$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 0),   //
+$urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"                ,"family"=>"Didemnidae"         , "active" => 1),   //
                1  => array( "url" => $path . "polycitoridae/polycitoridae.htm"          ,"family"=>"Polycitoridae"      , "active" => 1),   //
-               2  => array( "url" => $path . "polyclinidae/polyclinidae.htm"            ,"family"=>"Polyclinidae"       , "active" => 0),   //                
-               3  => array( "url" => $path . "pycnoclavellidae/pycnoclavellidae.htm"    ,"family"=>"Pycnoclavellidae"   , "active" => 0),   //                
-               4  => array( "url" => $path . "ascidiidae/ascidiidae.htm"                ,"family"=>"Ascidiidae"         , "active" => 0),   //                
+               2  => array( "url" => $path . "polyclinidae/polyclinidae.htm"            ,"family"=>"Polyclinidae"       , "active" => 1),   //                
+               3  => array( "url" => $path . "pycnoclavellidae/pycnoclavellidae.htm"    ,"family"=>"Pycnoclavellidae"   , "active" => 1),   //                
+               4  => array( "url" => $path . "ascidiidae/ascidiidae.htm"                ,"family"=>"Ascidiidae"         , "active" => 1),   //                
                5  => array( "url" => $path . "agnesiidae/agnesiidae.htm"                ,"family"=>"Agnesiidae"         , "active" => 0),   //empty                
-               6  => array( "url" => $path . "cionidae/cionidae.htm"                    ,"family"=>"Cionidae"           , "active" => 0),   //                
-               7  => array( "url" => $path . "corellidae/corellidae.htm"                ,"family"=>"Corellidae"         , "active" => 0),   //                
-               8  => array( "url" => $path . "holozoidae/holozoidae.htm"                ,"family"=>"Holozoidae"         , "active" => 0),   //                
+               6  => array( "url" => $path . "cionidae/cionidae.htm"                    ,"family"=>"Cionidae"           , "active" => 1),   //                
+               7  => array( "url" => $path . "corellidae/corellidae.htm"                ,"family"=>"Corellidae"         , "active" => 1),   //                
+               8  => array( "url" => $path . "holozoidae/holozoidae.htm"                ,"family"=>"Holozoidae"         , "active" => 1),   //                
                9  => array( "url" => $path . "octactemidae/octactemidae.htm"            ,"family"=>"Octacnemidae"       , "active" => 0),   //empty                
-               10 => array( "url" => $path . "perophoridae/perophoridae.htm"            ,"family"=>"Perophoridae"       , "active" => 0),   //x                
+               10 => array( "url" => $path . "perophoridae/perophoridae.htm"            ,"family"=>"Perophoridae"       , "active" => 1),   //x 
                11 => array( "url" => $path . "plurellidae/plurellidae.htm"              ,"family"=>"Plurellidae"        , "active" => 0),   //empty                
-               12 => array( "url" => $path . "botryllidae/botryllidae.htm"              ,"family"=>"Botryllidae"        , "active" => 0),   //x                
-               13 => array( "url" => $path . "molgulidae/molgulidae.htm"                ,"family"=>"Molgulidae"         , "active" => 0),   //       
-               14 => array( "url" => $path . "pyuridae/pyuridae.htm"                    ,"family"=>"Pyuridae"           , "active" => 0),   //                
-               15 => array( "url" => $path . "styelidae/styelidae.htm"                  ,"family"=>"Styelidae"          , "active" => 0),   //                
-               16 => array( "url" => $path . "thaliacea/thaliacea.htm"                  ,"family"=>"Thaliacea (Salps)"  , "active" => 0)
+               12 => array( "url" => $path . "botryllidae/botryllidae.htm"              ,"family"=>"Botryllidae"        , "active" => 1),   //x                
+               13 => array( "url" => $path . "molgulidae/molgulidae.htm"                ,"family"=>"Molgulidae"         , "active" => 1),   //       
+               14 => array( "url" => $path . "pyuridae/pyuridae.htm"                    ,"family"=>"Pyuridae"           , "active" => 1),   //                
+               15 => array( "url" => $path . "styelidae/styelidae.htm"                  ,"family"=>"Styelidae"          , "active" => 1),   //                
+               16 => array( "url" => $path . "thaliacea/thaliacea.htm"                  ,"family"=>"Thaliacea (Salps)"  , "active" => 1)
              );
 $do_count=0;
 $i=0;
