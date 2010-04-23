@@ -103,382 +103,57 @@ print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : small
 $us = "&#153;";	//unique separator
 
 $value_list="";
-for ($i = 0; $i < count($arr); $i++) 
-{
-	/* list of entries
-	print"
-	<tr><td>
-	$arr[$i]
-	</td></tr>";
-	*/	
-    
-    if(strlen(trim($arr[$i])) <= 3)continue;
-	
-	$tempx = $arr[$i];
-	$arr[$i] = Functions::clean_name($arr[$i]);
-	//print "<br>clean name = " . $arr[$i];	
-	if($i==0)	$value_list .= "'" 		. Functions::canonical_form($arr[$i]) . "'";
-	else		$value_list .= "$us'" 	. Functions::canonical_form($arr[$i]) . "'";
-	
-	$arr[$i] = $tempx;		
-	 /*
-	$canonical_form = Functions::canonical_form($arr[$i]);
-	print "<br>canonical form = " . $canonical_form . "<br>";
-	 */
 
+$api_put_species="http://labs1.eol.org/api/search/";
+$api_put_taxid_1="http://labs1.eol.org/api/pages/";
+$api_put_taxid_2="?images=75&text=75&subjects=all&vetted=1";    
+
+
+foreach($arr as $sciname)
+{
+	print"$sciname<br>";
+    $file = $api_put_species . urlencode($sciname);
+    $xml = Functions::get_hashed_response($file);
+    $arr_details = get_details($xml);
+}
+function get_details($xml)
+{
+    $array=
+    foreach($xml->entry as $species)
+    {
+        print "$species->title $species->id<br>";
+        $arr_do = get_objects_info($species->id);        
+    }            
+}
+function get_objects_info($id)
+{
+    global $api_put_taxid_1;    
+    global $api_put_taxid_2;    
+    
+    $file = $api_put_taxid_1 . $id . $api_put_taxid_2;
+    $xml = Functions::get_hashed_response($file);    
+   
+    $text=0;$image=0;
+    foreach($xml->taxon as $taxon)
+    {
+        foreach($taxon->dataObject as $object)
+        {
+            if      ($object->dataType == "http://purl.org/dc/dcmitype/StillImage") $image++;
+            elseif  ($object->dataType == "http://purl.org/dc/dcmitype/Text") $text++;        
+        }    
+    }
+    print "$text $image<br>";    
+    return array($id,$text,$image)
 }
 
-//print"<hr>$us = " . substr($value_list,0,1) . "<hr>";
+exit("<hr>stopx");
 
-if(substr($value_list,0,1)=="&")$value_list=trim(substr($value_list,6,strlen($value_list)));
-
-$qry = sql_do($value_list,$choice2,$us);
-$sql = $mysqli->query($qry);	
-
-//print "<hr>$value_list --- $qry";
-//print check_err($mysqli,$sql,$qry);
-	
-	
-$vsn="";
-$i=0;
-$value_list_y="";
-	
-	
-$oldLabel="";
-$oldSN="";
-while( $row = $sql->fetch_assoc() )
-{
-		
-	//if(1==1)
-	if($oldLabel != $row["label"] or $oldSN != $row["sn"])
-	{
-		if($i==0)
-		{
-			if($choice2 == 3 or $choice2 == 1)	//exist in eol and with data objects
-			{
-			print"<tr><form name='fn'><td colspan='2'>$head ";
-			?>&nbsp;&nbsp;&nbsp;
-			n=<input name="cnt" type="text">
-			<?php
-			print"</td></form></tr>";
-			}
-		}
-
-		if($i==0)
-		{$value_list_y .= "'" . trim($row["sn"]) . "'";}
-		else
-		{$value_list_y .= "$us'" . trim($row["sn"]) . "'";}	
-		$i++;
-
-		if($choice2==3 or $choice2==1 or $choice2==5)
-		{
-			print"<tr>";
-			//if(1==1)	//if you want to see all scinames repeated
-			if($vsn != $row["sn"])
-			{				
-				//$tmp = "<a target='_blank' href='http://$eol_site/search?q=" . urlencode($row["sn"]) . "&search_image=&search_type=text'>$row[sn]</a>";
-				$tmp = "<a target='_blank' href='http://$eol_site/pages/$row[tc_id]'>$row[sn]</a>";			
-				if	(
-						($data_kind == 1 and $choice2 == 3)	or
-						($choice2 == 1 and $with_name_source == '')	or
-						($choice2 == 5)
-					) 	
-				{	$rd .= $row["sn"];				
-					$rd .= $tab . " http://$eol_site/pages/$row[tc_id]";	
-					$rd .= $cr;
-				}
-				else									
-				{	$rd .= $row["sn"] . $tab;				
-					$rd .= " http://$eol_site/pages/$row[tc_id]" . $tab;
-				}	//ditox
-			
-				print"<td><i>$tmp</td>";
-			}
-			else{print"<td></td>";}
-			
-			if($choice2==5)	//for family search
-			{
-				print"<td>$row[tc_id]</td>";
-				
-				/* Dec13 not use taxon_concept_names
-				$qry="Select distinct
-				taxa.taxon_kingdom, taxa.taxon_phylum, taxa.taxon_class, taxa.taxon_order,
-				taxa.taxon_family, taxa.scientific_name, $tbl.$fld as string
-				From taxon_concept_names Inner Join $tbl ON taxon_concept_names.name_id = $tbl.$fld_id 
-				Left Join taxa ON $tbl.$fld_id = taxa.name_id
-				Where taxon_concept_names.taxon_concept_id = '$row[tc_id]' 
-				and taxon_concept_names.vern = 0 ";
-				*/
-				$qry="Select distinct
-				taxa.taxon_kingdom, taxa.taxon_phylum, taxa.taxon_class, taxa.taxon_order,
-				taxa.taxon_family, taxa.scientific_name, $tbl.$fld as string
-				From taxa
-				Inner Join names ON taxa.name_id = names.id
-				Inner Join hierarchy_entries ON names.id = hierarchy_entries.name_id
-				Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-				Where taxon_concepts.id = $row[tc_id] ";
-				$qry .= " AND taxa.taxon_family <> '' limit 1 ";
-				$sql2 = $mysqli->query($qry);
-				print"<td>";
-				while( $row2 = $sql2->fetch_assoc() )
-				{
-					//print "$row2[taxon_family] - $row2[scientific_name] - $row2[string]";
-					print "$row2[taxon_family]";
-					$rd .= "$row[sn]" . $tab . $row2["taxon_family"] . $cr; //ditox
-				}
-				print"</td>";
-				$sql2->close();								
-			}// end for family search
-						
-				
-			if	(	($with_name_source != "" or $choice2 == 3)	and
-					$choice2 != 5
-					)
-			{
-				print"
-				<td>$row[label]</td>";				
-				$rd .= $tab . $row["label"] . $cr; //ditox
-			}
-				
-			print"
-			</tr>
-			";		
-			
-		}	
-		
-		$vsn=$row["sn"];
-
-		}//if($oldLabel != $row[label])
-		$oldLabel = $row["label"];
-		$oldSN = $row["sn"];
-	}
-	$sql->close();	
-	
-	/*
-	$us = "&#153;";	//unique separator
-	$value_list_y 	= str_ireplace(",", $us, $value_list_y);
-	$value_list 	= str_ireplace(",", $us, $value_list);
-	*/
-	
-	$arr = explode("$us",$value_list_y);
-	$arr = array_unique($arr);					
-
-	if($choice2==3 or $choice2==1)
-	{
-    	print"
-    	<script language='javascript1.2'>
-    	document.forms.fn.cnt.value = " . "n=" . count($arr) . "
-    	</script>";
-	}
-
-	$value_list_y = implode("$us", $arr);
-
-	
-
-	$arr1 = explode("$us",$value_list_y);
-	$arr2 = explode("$us",$value_list);
-	$arr3 = array_diff($arr2,$arr1);
-
-	// one package	
-	asort($arr3);
-	$value_list_final = implode("$us", $arr3);	
-	$arr3 = explode("$us",$value_list_final);
-	// end one package
-	$orig_lenth_of_arr = count($arr3);
-		
-	/*
-	print"
-	<tr><td>$value_list</td></tr>
-	<tr><td>$value_list_y</td></tr>
-	<tr><td>$value_list_final</td></tr>
-	<tr><td><hr></td></tr>
-	";
-	*/	
-
-	$RNWDO=array();	//related names with data objects
-	$RNWDO_i=0;
-	//if($choice2==4 or $choice2==2)
-	if($choice2==4 or $choice2==2 or $choice2==3)//eli new feb25
-	{
-	
-		//$arr3 = array_trim($arr3); 
-		$arr3 = array_trim($arr3,$orig_lenth_of_arr); 
-	
-		//print"<tr><td align='center'>$head &nbsp;&nbsp;&nbsp; n=" . count($arr3) . "<input type='hidden' id='cnt2' ></td>";
-		print"<tr><input type='hidden' id='cnt2' >";
-		
-		if($choice2 == 3)
-		{
-			print"<td align='center' colspan='2'>With related names having data objects</td>";
-			$rd .= $cr . "With related names having data objects" . $cr;
-		}
-			
-		print"</tr>";
-		$cnt2=0;
-		for ($i = 0; $i < count($arr3); $i++) 
-		{
-			$tmp = str_ireplace("'","",$arr3[$i]);			
-			
-			$tmp_sn = $tmp;
-			
-			/* transferred below
-			$rd .= $tmp . $cr;				
-			*/
-			
-			$tmp = "<a target='_blank' href='http://$eol_site/search?q=" . urlencode($tmp) . "&search_image=&search_type=text'>$tmp</a>";
-            
-            /*			
-			if($choice2 == 4)
-			{
-				print"<tr><td> j <i>$tmp</i></td></tr>";		
-			}
-            */			
-			
-			//exit("<hr>[$tmp_sn] - $tmp - " . count($arr3));
-			
-			//start cyndy request
-			$sn_list = get_sn_list("$tmp_sn");
-			$qry = sql_do($sn_list,$choice2,$us);
-
-			
-			//print "$sn_list";
-			if($sn_list != "")
-			{
-							
-				$sql2 = $mysqli->query($qry);										
-				
-				if($choice2 == 3 or $choice2 == 4)	//With data objects	| Without data objects
-				{
-				
-					
-					if($sql2->num_rows != 0)
-					{
-						if($choice2 == 3){print"<tr><td><i>$tmp</i></td></tr>";$rd .= $tmp_sn . $cr;}
-						
-						$RNWDO[$RNWDO_i]="'$tmp_sn'"; $RNWDO_i++;
-					
-						$cnt2++;
-						if($choice2 == 3)	//With data objects	
-						{
-						print"<tr><td></td><td>
-						<table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Unicode MS;'>";
-						}
-						
-						$oldLabel="";
-						while( $row2 = $sql2->fetch_assoc() )
-						{
-							if($oldLabel != $row2["label"])
-							{
-
-							
-							$orig_sn = $row2["sn"];
-							//$sn = "<a target='_parent' href='http://$eol_site/search?q=" . urlencode($row2["sn"]) . "&search_image=&search_type=text'>$row2[sn]</a>";
-							
-							$sn = "<a target='_blank' href='http://$eol_site/pages/$row2[tc_id]'>$row2[sn]</a>";
-							
-							if($choice2 == 3)	//With data objects	
-							{
-								print"
-								<tr>
-									<td><i>$sn</i></td>
-									<td>$row2[label]</td>
-								</tr>
-								";								
-								$rd .= $tab . "$orig_sn" . $tab . "$row2[label]";				//ditox								
-								
-								$rd .= $tab . "http://$eol_site/pages/$row2[tc_id]";
-								
-								$rd .= $cr;	
-							}
-							
-							}//if($oldLabel != $row2["label"])
-							$oldLabel = $row2["label"];
-						}	
-						if($choice2 == 3)
-						{
-							print"</table></td></tr>";
-						}
-					}
-				}
-				
-				//print " -- $sql2->num_rows ";
-				
-				/*
-				if($choice2 == 4)//without data objects
-				{
-					if($sql2->num_rows == 0){print"<tr><td> jjj <i>$tmp</i></td></tr>";}
-				}
-				*/
-				//print"<tr><td> jjjj <i>$tmp</i></td></tr>";
-				
-				$sql2->close();
-
-			}//if($sn_list != "")
-						
-			//end cyndy request
-			
-			
-		}//end for
-		print"
-		<script language='javascript1.2'>
-		document.getElementById('cnt2').value = $cnt2		
-		</script>";
-
-
-	if($choice2 == 4 or $choice2 == 2)
-	{	
-		$arr = array_diff($arr3,$RNWDO);	
-		
-		// one package after array_diff
-		asort($arr);
-		$value_list_final = implode("$us", $arr);	
-		$arr = explode("$us",$value_list_final);
-		
-		$orig_lenth_of_arr = count($arr);		
-		//$arr=array_trim($arr); 
-		$arr=array_trim($arr,$orig_lenth_of_arr); 
-		// end one package after array_diff
-		
-		print"<tr><td>$head &nbsp;&nbsp; n = " . count($arr) . "</td></tr>";
-		
-		$rd .= "$cr $head n = " . count($arr) . $cr;
-		
-		//exit;
-		for ($i = 0; $i < count($arr); $i++)
-		{
-			$arr[$i] = str_ireplace("'","",$arr[$i]);			
-			print"<tr><td><i>$arr[$i]</i></td></tr>";
-			$rd .= $arr[$i] . $cr;
-		}	
-
-		
-		print"
-		<script language='javascript1.2'>
-		document.getElementById('cnt2').value = " . count($arr) . "		
-		</script>";
-		
-		
-	}
-	
-	if($choice2 == 1 or $choice2 == 3)
-	{
-		?>
-		
-		<script language="javascript1.2">
-		document.forms.fn.cnt.value = eval(Number(document.forms.fn.cnt.value) + Number(document.getElementById('cnt2').value));
-		//alert('eli');
-		</script>
-		
-		<?php
-	}
-			
-}	
-	
-	
-print "</table>";
 ?>
 
-
+<!--- ################################################################################################################# --->
+<!--- ################################################################################################################# --->
+<!--- ################################################################################################################# --->
+<!--- ################################################################################################################# --->
 
 <?php
 function sql_do($val,$i,$us)	
