@@ -65,21 +65,30 @@ $us = "&#153;";	//unique separator
 
 $value_list="";
 
-$api_put_species="http://www.eol.org/api/search/";
-$api_put_taxid_1="http://www.eol.org/api/pages/";
-$api_put_taxid_2="?images=75&text=75&subjects=all&vetted=$vetted";    
-//$api_put_taxid_2="?images=75&text=75&subjects=all";    
 
-//http://www.eol.org/api/pages/206692?images=75&text=75&subjects=all&vetted=$vetted
+//$domain="labs1.eol.org";
+//$domain="staging.eol.org";
+$domain="www.eol.org";
 
+$api_put_species="http://$domain/api/search/";
+$api_put_taxid_1="http://$domain/api/pages/";
+$api_put_taxid_2="?images=75&text=75&subjects=all";
+//$api_put_taxid_2 .= "&vetted=$vetted";    
 
+//http://staging.eol.org/api/pages/206692?images=75&text=75&subjects=all
+
+/*
+http://www.eol.org/api/pages/206692?images=75&text=75&subjects=all&vetted=1
+http://www.eol.org/api/search/gadus morhua
+
+*/
 
 $arr_table=array();
 foreach($arr as $sciname)
 {
 	//print"$sciname<br>";//debug
     $file = $api_put_species . urlencode($sciname);
-    //print"$file --- ";
+    //print"<hr>$file<hr>";
     $xml = Functions::get_hashed_response($file);
     $arr_details = get_details($xml);
     $arr_details = sort_deatils($arr_details);
@@ -119,7 +128,7 @@ function show_table($arr)
         print"
         <tr>
             <td >"               . utf8_decode($row["sciname"]) . "</td>
-            <td align='center'><a target='eol' href='http://www.eol.org/pages/" . $row["tc_id"] . "'>" . $row["tc_id"] . "</a></td>            
+            <td align='center'><a target='_eol' href='http://www.eol.org/pages/" . $row["tc_id"] . "'>" . $row["tc_id"] . "</a></td>            
             <td align='right'>"  . $row["text"] . "</td>
             <td align='right'>"  . $row["image"] . "</td>
             <td align='right'>"  . $row["total_objects"] . "</td>
@@ -164,7 +173,7 @@ function get_details($xml)
     $arr=array();
     foreach($xml->entry as $species)
     {
-        print "$species->title $species->id<br>";//debug
+        //print "$species->title $species->id<br>";//debug
         $arr_do = get_objects_info("$species->id","$species->title");        
         $arr[]=$arr_do;
     }            
@@ -175,11 +184,16 @@ function get_objects_info($id,$sciname)
     global $api_put_taxid_1;    
     global $api_put_taxid_2;    
 
-    if(substr($id,0,4)=="http") $file = $id . $api_put_taxid_2;
-    else                        $file = $api_put_taxid_1 . $id . $api_put_taxid_2;
+    //if(substr($id,0,4)=="http") $file = $id . $api_put_taxid_2;
+    //else                        
+    
+    //id = http://www.eol.org/pages/2788733
+    $id=str_ireplace("http://www.eol.org/pages/","",$id);
+    $file = $api_put_taxid_1 . $id . $api_put_taxid_2;
 
     $xml = Functions::get_hashed_response($file);    
-    print"<hr>$api_put_taxid_1<hr>id = $id<hr>$api_put_taxid_2<hr>[[$file]] $xml<hr>";
+    //print"<hr>$file<hr>";
+    //print"<hr>$api_put_taxid_1<hr>id = $id<hr>$api_put_taxid_2<hr>[[$file]] $xml<hr>";
        
     $text=0;$image=0;
     foreach($xml->taxon->dataObject as $object)

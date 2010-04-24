@@ -56,10 +56,11 @@ Sort order: <br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="text" ># of Text objects <br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="image" ># of Images<br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="total_objects" checked ># of total objects <i>(Text + Image)</i> <br>
+<!---
 Type: <br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="vetted" value="1" checked >Vetted objects only <br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="vetted" value="0" >All <br>
-
+--->
 <hr>
 </td></tr>
 <tr><td>
