@@ -50,30 +50,18 @@ depending on the application, can affect the visual display of text."
 <table>
 
 
-
-<!---
 <tr><td>
-Select filter:
-</td></tr>
-<tr><td>
-<input onClick="proc3()"  type="radio" name="choice2" value="1" 		>Exist in EoL			
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" name="with_name_source">With name source
-<br>
-<input onClick="proc3()"  type="radio" name="choice2" value="2" 		>Do not exist in EoL	<br>
-<input onClick="proc3()"  type="radio" name="choice2" value="3" checked >With data objects		
-	&nbsp;&nbsp;&nbsp;&nbsp;
-	<font size="2">
-	<input type="radio" name="data_kind" value="1" checked>Text
-	<input type="radio" name="data_kind" value="2">Image | 
-	<input type="radio" name="format" value="1" checked>Info items
-	<input type="radio" name="format" value="2">Objects title
-	</font>	
-<input onClick="proc3()"  type="radio" name="choice2" value="4" 		>Without data objects 	<br>
-</td></tr>
-<tr><td><hr></td></tr>
---->
+# of records returned: <input type="text" name="return" size="3" value="1"> <i>(blank for all)</i> <br>
+Sort order: <br>
+&nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="text" ># of Text objects <br>
+&nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="image" ># of Images<br>
+&nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="total_objects" checked ># of total objects <i>(Text + Image)</i> <br>
+Type: <br>
+&nbsp;&nbsp;&nbsp;<input type="radio" name="vetted" value="1" checked >Vetted objects only <br>
+&nbsp;&nbsp;&nbsp;<input type="radio" name="vetted" value="0" >All <br>
 
+<hr>
+</td></tr>
 <tr><td>
 Names are:
 </td></tr>
