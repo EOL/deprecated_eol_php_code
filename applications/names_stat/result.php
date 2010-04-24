@@ -11,6 +11,7 @@ $returns 	= get_val_var('return');
 $sort_order = get_val_var('sort');
 $vetted     = get_val_var('vetted');
 
+
 $list 			= get_val_var('list');
 
 $separator 		= get_val_var('separator');
@@ -86,7 +87,7 @@ http://www.eol.org/api/search/gadus morhua
 $arr_table=array();
 foreach($arr as $sciname)
 {
-	//print"$sciname<br>";//debug
+	//print"$sciname <br>";//debug
     $file = $api_put_species . urlencode($sciname);
     //print"<hr>$file<hr>";
     $xml = Functions::get_hashed_response($file);
