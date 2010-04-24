@@ -110,8 +110,8 @@ function show_table($arr)
     {
         print"
         <tr>
-            <td >"               . $row["sciname"] . "</td>
-            <td align='center'>" . $row["tc_id"] . "</td>
+            <td >"               . utf8_decode($row["sciname"]) . "</td>
+            <td align='center'><a target='eol' href='http://www.eol.org/pages/" . $row["tc_id"] . "'>" . $row["tc_id"] . "</a></td>            
             <td align='right'>"  . $row["text"] . "</td>
             <td align='right'>"  . $row["image"] . "</td>
             <td align='right'>"  . $row["total_objects"] . "</td>
