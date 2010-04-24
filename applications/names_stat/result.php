@@ -70,6 +70,10 @@ $api_put_taxid_1="http://www.eol.org/api/pages/";
 $api_put_taxid_2="?images=75&text=75&subjects=all&vetted=$vetted";    
 //$api_put_taxid_2="?images=75&text=75&subjects=all";    
 
+//http://www.eol.org/api/pages/206692?images=75&text=75&subjects=all&vetted=$vetted
+
+
+
 $arr_table=array();
 foreach($arr as $sciname)
 {
@@ -158,9 +162,9 @@ function cmp($a, $b)
 function get_details($xml)
 {
     $arr=array();
-    foreach(@$xml->entry as $species)
+    foreach($xml->entry as $species)
     {
-        //print "$species->title $species->id<br>";//debug
+        print "$species->title $species->id<br>";//debug
         $arr_do = get_objects_info("$species->id","$species->title");        
         $arr[]=$arr_do;
     }            
@@ -170,10 +174,13 @@ function get_objects_info($id,$sciname)
 {
     global $api_put_taxid_1;    
     global $api_put_taxid_2;    
-    
-    $file = $api_put_taxid_1 . $id . $api_put_taxid_2;
+
+    if(substr($id,0,4)=="http") $file = $id . $api_put_taxid_2;
+    else                        $file = $api_put_taxid_1 . $id . $api_put_taxid_2;
+
     $xml = Functions::get_hashed_response($file);    
-   
+    print"<hr>$api_put_taxid_1<hr>id = $id<hr>$api_put_taxid_2<hr>[[$file]] $xml<hr>";
+       
     $text=0;$image=0;
     foreach($xml->taxon->dataObject as $object)
     {
