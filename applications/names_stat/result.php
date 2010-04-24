@@ -158,7 +158,7 @@ function cmp($a, $b)
 function get_details($xml)
 {
     $arr=array();
-    foreach($xml->entry as $species)
+    foreach(@$xml->entry as $species)
     {
         //print "$species->title $species->id<br>";//debug
         $arr_do = get_objects_info("$species->id","$species->title");        
