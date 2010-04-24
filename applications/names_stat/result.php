@@ -98,13 +98,17 @@ show_table($arr_table);
 function show_table($arr)
 {
     print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Unicode MS;'>	
-        <tr>
-            <td>Name</td>
-            <td>ID</td>
-            <td># of Text</td>
-            <td># of Images</td>
+        <tr align='center'>
+            <td rowspan='2'>Name</td>
+            <td rowspan='2'>ID</td>
+            <td colspan='3'># of Data Objects</td>
+        </tr>
+        <tr align='center'>
+            <td>Text</td>
+            <td>Image</td>
             <td>Total</td>            
-        </tr>";
+        </tr>
+        ";
 
     foreach($arr as $row)
     {

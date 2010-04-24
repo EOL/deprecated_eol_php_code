@@ -51,7 +51,7 @@ depending on the application, can affect the visual display of text."
 
 
 <tr><td>
-# of records returned: <input type="text" name="return" size="3" value="1"> <i>(blank for all)</i> <br>
+# of records returned per taxa: <input style="text-align : right;" type="text" name="return" size="3" value="1"> <i>(blank for all)</i> <br>
 Sort order: <br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="text" ># of Text objects <br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="image" ># of Images<br>
