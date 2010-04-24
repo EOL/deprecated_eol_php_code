@@ -65,8 +65,8 @@ $us = "&#153;";	//unique separator
 
 $value_list="";
 
-$api_put_species="http://labs1.eol.org/api/search/";
-$api_put_taxid_1="http://labs1.eol.org/api/pages/";
+$api_put_species="http://www.eol.org/api/search/";
+$api_put_taxid_1="http://www.eol.org/api/pages/";
 $api_put_taxid_2="?images=75&text=75&subjects=all&vetted=$vetted";    
 //$api_put_taxid_2="?images=75&text=75&subjects=all";    
 
