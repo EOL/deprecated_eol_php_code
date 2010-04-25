@@ -58,7 +58,7 @@ $arr = array_unique($arr);	//print "<hr>";	print_r($arr);	//exit;
 $arr = array_trim($arr,$orig_lenth_of_arr);	// $orig_lenth_of_arr --- this is the length of array after explode function
 sort($arr); //ksort($arr);
 
-print "<font size='2' face='courier'>Total no. of names submitted: " . " " . count($arr) . "</font><hr>";
+print "<font size='2' face='courier'>Total no. of names submitted: " . " " . count($arr) . "</font>";
 if(count($arr) == 0){exit;}
 //exit;
 print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Unicode MS;'>";
