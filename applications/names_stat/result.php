@@ -10,6 +10,7 @@ $report = 'list';	//original functionality
 $returns 	= get_val_var('return');
 $sort_order = get_val_var('sort');
 $vetted     = get_val_var('vetted');
+$sciname_4color = "";
 
 
 $list 			= get_val_var('list');
@@ -91,7 +92,7 @@ foreach($arr as $sciname)
     $file = $api_put_species . urlencode($sciname);
     //print"<hr>$file<hr>";
     $xml = Functions::get_hashed_response($file);
-    $arr_details = get_details($xml);
+    $arr_details = get_details($xml,$sciname);
     $arr_details = sort_deatils($arr_details);
     //print"<pre>";print_r($arr_details);print"</pre>";//debug
     $arr_table = array_merge($arr_details,$arr_table);    
@@ -113,6 +114,7 @@ function show_table($arr)
 {
     print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Unicode MS;'>	
         <tr align='center'>
+            <td rowspan='2'>Searched</td>
             <td rowspan='2'>Name</td>
             <td rowspan='2'>ID</td>
             <td colspan='3'># of Data Objects</td>
@@ -123,17 +125,33 @@ function show_table($arr)
             <td>Total</td>            
         </tr>
         ";
-
+    
+    $sciname="";
+    
+    $color="white";
     foreach($arr as $row)
     {
+        
+        if($sciname <> $row["orig_sciname"]) 
+        {            
+            $sciname = $row["orig_sciname"];
+            if($color=="white")$color="aqua";
+            else               $color="white";
+        }
+
+
+
         print"
-        <tr>
+        <tr bgcolor='$color'>
+            <td >"               . utf8_decode($row["orig_sciname"]) . "</td>
             <td >"               . utf8_decode($row["sciname"]) . "</td>
             <td align='center'><a target='_eol' href='http://www.eol.org/pages/" . $row["tc_id"] . "'>" . $row["tc_id"] . "</a></td>            
             <td align='right'>"  . $row["text"] . "</td>
             <td align='right'>"  . $row["image"] . "</td>
             <td align='right'>"  . $row["total_objects"] . "</td>
         </tr>";        
+
+
     }    
     print"</table>";
 }
@@ -169,21 +187,22 @@ function cmp($a, $b)
     //return strcmp($a["text"], $b["text"]);    
     return $a["$sort_order"] < $b["$sort_order"];
 }
-function get_details($xml)
+function get_details($xml,$orig_sciname)
 {
     $arr=array();
     foreach($xml->entry as $species)
     {
         //print "$species->title $species->id<br>";//debug
-        $arr_do = get_objects_info("$species->id","$species->title");        
+        $arr_do = get_objects_info("$species->id","$species->title","$orig_sciname");        
         $arr[]=$arr_do;
     }            
     return $arr;
 }
-function get_objects_info($id,$sciname)
+function get_objects_info($id,$sciname,$orig_sciname)
 {
     global $api_put_taxid_1;    
     global $api_put_taxid_2;    
+    global $sciname_4color;
 
     //if(substr($id,0,4)=="http") $file = $id . $api_put_taxid_2;
     //else                        
@@ -204,7 +223,14 @@ function get_objects_info($id,$sciname)
     }
     $total_objects=$image + $text;
     //print "$text $image<br>";//debug
-    return array("tc_id"=>$id,"sciname"=>$sciname,"text"=>$text,"image"=>$image,"total_objects"=>$total_objects);
+    
+    if($orig_sciname != $sciname_4color)
+    {
+        $sciname_4color=$sciname;
+    }
+
+    
+    return array("tc_id"=>$id,"sciname"=>$sciname,"text"=>$text,"image"=>$image,"total_objects"=>$total_objects,"orig_sciname"=>$orig_sciname);
 }
 
 function get_val_var($v)
