@@ -2,25 +2,33 @@
 
 include_once(dirname(__FILE__)."/../../../config/environment.php");
 
-// $GLOBALS['ENV_DEBUG'] = false;
-// $GLOBALS['ENV_MYSQL_DEBUG'] = false;
-// $GLOBALS['ENV_DEBUG_TO_FILE'] = false;
-// $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli_col = load_mysql_environment("col2010");
 
 
-$mysqli->truncate_tables("development");
+$mysqli->truncate_tables("test_db");
 $mysqli->begin_transaction();
 
+
+$GLOBALS['agents_file_path'] = temp_filepath();
+$GLOBALS['synonyms_file_path'] = temp_filepath();
+$GLOBALS['agents_file'] = fopen($GLOBALS['agents_file_path'], "w+");
+$GLOBALS['synonyms_file'] = fopen($GLOBALS['synonyms_file_path'], "w+");
 
 get_agents();
 get_parents();
 add_hierarchy();
 start_process();
-//Tasks::rebuild_nested_set($GLOBALS['hierarchy']->id);
+Tasks::rebuild_nested_set($GLOBALS['hierarchy']->id);
 
+fclose($GLOBALS['agents_file']);
+fclose($GLOBALS['synonyms_file']);
+$mysqli->load_data_infile($GLOBALS['agents_file_path'], 'agents_hierarchy_entries'); 
+$mysqli->load_data_infile($GLOBALS['synonyms_file_path'], 'agents_hierarchy_entries'); 
+
+unlink($GLOBALS['agents_path']);
+unlink($GLOBALS['synonyms_file_path']);
 
 $mysqli->end_transaction();
 exit;
@@ -118,13 +126,17 @@ function start_process()
 {
     global $mysqli_col;
     
-    foreach(@$GLOBALS['children'][0] as $id)
+    $result = $mysqli_col->query("SELECT t.record_id id, t.lsid, t.name taxon_name, t.taxon rank, t.parent_id, t.name_code, t.is_accepted_name, sn.genus, sn.species, sn.infraspecies, sn.infraspecies_marker, sn.author, sn.database_id FROM taxa t LEFT JOIN scientific_names sn ON (t.name_code=sn.name_code) WHERE t.record_id IN (". implode(",", @$GLOBALS['children'][0]) .")");
+    $i=0;
+    while($result && $row=$result->fetch_assoc())
     {
-        add_col_taxon($id, 0, '', 0);
+        $i++;
+        if($i<4) continue;
+        add_col_taxon($row, 0, '', 0);
     }
 }
 
-function add_col_taxon($taxon_id, $parent_hierarchy_entry_id, $ancestry, $depth)
+function add_col_taxon($row, $parent_hierarchy_entry_id, $ancestry, $depth)
 {
     global $mysqli_col;
     global $mysqli;
@@ -142,98 +154,94 @@ function add_col_taxon($taxon_id, $parent_hierarchy_entry_id, $ancestry, $depth)
     
     //if($counter>5000) return false;
     
-    $result = $mysqli_col->query("SELECT t.record_id id, t.lsid, t.name taxon_name, t.taxon rank, t.parent_id, t.name_code, t.is_accepted_name, sn.genus, sn.species, sn.infraspecies, sn.infraspecies_marker, sn.author, sn.database_id FROM taxa t LEFT JOIN scientific_names sn ON (t.name_code=sn.name_code) WHERE t.record_id=$taxon_id");
-    while($result && $row=$result->fetch_assoc())
+    $id = $row["id"];
+    $lsid = $row["lsid"];
+    $name_code = $row["name_code"];
+    $database_id = $row["database_id"];
+    $is_accepted_name = $row["is_accepted_name"];
+    $taxon_name = html_entity_decode(htmlspecialchars_decode(trim($row["taxon_name"])), ENT_COMPAT, "UTF-8");
+    $rank_id = Rank::insert($row["rank"]);
+    $scientific = true;
+    
+    if($name_code)
     {
-        $id = $row["id"];
-        $lsid = $row["lsid"];
-        $name_code = $row["name_code"];
-        $database_id = $row["database_id"];
-        $is_accepted_name = $row["is_accepted_name"];
-        $taxon_name = html_entity_decode(htmlspecialchars_decode(trim($row["taxon_name"])), ENT_COMPAT, "UTF-8");
-        $rank_id = Rank::insert($row["rank"]);
-        $scientific = true;
+        $genus = html_entity_decode(htmlspecialchars_decode(trim($row["genus"])), ENT_COMPAT, "UTF-8");
+        $species = html_entity_decode(htmlspecialchars_decode(trim($row["species"])), ENT_COMPAT, "UTF-8");
+        $infraspecies = html_entity_decode(htmlspecialchars_decode(trim($row["infraspecies"])), ENT_COMPAT, "UTF-8");
+        $infraspecies_marker = trim($row["infraspecies_marker"]);
+        $author = html_entity_decode(htmlspecialchars_decode(trim($row["author"])), ENT_COMPAT, "UTF-8");
+        $database_id = trim($row["database_id"]);
+        list($name_string, $canonical_form) = create_col_name($genus, $species, $infraspecies, $infraspecies_marker, $author, $database_id);
         
-        if($name_code)
+        if($database_id == 14) $scientific = false;
+    }else
+    {
+        $name_string = $taxon_name;
+        $canonical_form = $name_string;
+        
+        if(preg_match("/ /", $name_string))
         {
-            $genus = html_entity_decode(htmlspecialchars_decode(trim($row["genus"])), ENT_COMPAT, "UTF-8");
-            $species = html_entity_decode(htmlspecialchars_decode(trim($row["species"])), ENT_COMPAT, "UTF-8");
-            $infraspecies = html_entity_decode(htmlspecialchars_decode(trim($row["infraspecies"])), ENT_COMPAT, "UTF-8");
-            $infraspecies_marker = trim($row["infraspecies_marker"]);
-            $author = html_entity_decode(htmlspecialchars_decode(trim($row["author"])), ENT_COMPAT, "UTF-8");
-            $database_id = trim($row["database_id"]);
-            list($name_string, $canonical_form) = create_col_name($genus, $species, $infraspecies, $infraspecies_marker, $author, $database_id);
-            
-            if($database_id == 14) $scientific = false;
-        }else
-        {
-            $name_string = $taxon_name;
-            $canonical_form = $name_string;
-            
-            if(preg_match("/ /", $name_string))
-            {
-                $canonical_form = "";
-                $scientific = false;
-            }
+            $canonical_form = "";
+            $scientific = false;
         }
-        if(!$name_string)
-        {
-            echo "$id: no name_string\n";
-            continue;
-        }
-        
-        $name_id = Name::insert($name_string, $canonical_form);
-        if($scientific)
-        {
-            //Name::make_scientific_by_name_id($name_id);
-            
-            if($canonical_form)
-            {
-                $canonical_form_name_id = Name::insert($canonical_form, $canonical_form);
-                //Name::make_scientific_by_name_id($canonical_form_name_id);
-            }
-        }
-        
-        if(!$name_id)
-        {
-            echo "$id: no name_id\n";
-            continue;
-        }
-        
-        
-        $params = array("identifier"    => $id,
-                        "name_id"       => $name_id,
-                        "parent_id"     => $parent_hierarchy_entry_id,
-                        "hierarchy_id"  => $GLOBALS['hierarchy']->id,
-                        "rank_id"       => $rank_id,
-                        "ancestry"      => $ancestry);
-        
-        $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($mock_hierarchy_entry));
-        unset($params);
-        unset($mock_hierarchy_entry);
-        
-        if($name_code)
-        {
-            add_col_synonyms($hierarchy_entry, $name_code);
-            add_col_common_names($hierarchy_entry, $name_code);
-            add_col_agents($hierarchy_entry, $database_id);
-        }
-        
-        if($ancestry) $ancestry .= "|".$name_id;
-        else $ancestry = $name_id;
-        
-        if(@$GLOBALS['children'][$id])
-        {
-            foreach($GLOBALS['children'][$id] as $child_id)
-            {
-                add_col_taxon($child_id, $hierarchy_entry->id, $ancestry, $depth+1);
-            }
-        }
-        
-        //if($result2 && $result2->num_rows) $result2->free();
     }
-    if($result && $result->num_rows) $result->free();
+    if(!$name_string)
+    {
+        $name_string = 'Not assigned';
+        echo "$id: no name_string\n";
+        return;
+    }
+    
+    $name_id = Name::insert($name_string, $canonical_form);
+    // if($scientific)
+    // {
+    //     //Name::make_scientific_by_name_id($name_id);
+    //     
+    //     if($canonical_form && $canonical_form != $name_string)
+    //     {
+    //         $canonical_form_name_id = Name::insert($canonical_form, $canonical_form);
+    //         //Name::make_scientific_by_name_id($canonical_form_name_id);
+    //     }
+    // }
+    
+    if(!$name_id)
+    {
+        echo "$id: no name_id\n";
+        return;
+    }
+    
+    
+    $params = array("identifier"    => $id,
+                    "name_id"       => $name_id,
+                    "parent_id"     => $parent_hierarchy_entry_id,
+                    "hierarchy_id"  => $GLOBALS['hierarchy']->id,
+                    "rank_id"       => $rank_id,
+                    "ancestry"      => $ancestry);
+    
+    $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
+    $hierarchy_entry_id = HierarchyEntry::insert($mock_hierarchy_entry, true);
+    //$hierarchy_entry = new HierarchyEntry($hierarchy_entry_id);
+    unset($params);
+    unset($mock_hierarchy_entry);
+    
+    if($name_code)
+    {
+        add_col_synonyms($hierarchy_entry_id, $name_code);
+        add_col_common_names($hierarchy_entry_id, $name_code);
+        add_col_agents($hierarchy_entry_id, $database_id);
+    }
+    
+    if($ancestry) $ancestry .= "|".$name_id;
+    else $ancestry = $name_id;
+    
+    if(@$GLOBALS['children'][$id])
+    {
+        $result = $mysqli_col->query("SELECT t.record_id id, t.lsid, t.name taxon_name, t.taxon rank, t.parent_id, t.name_code, t.is_accepted_name, sn.genus, sn.species, sn.infraspecies, sn.infraspecies_marker, sn.author, sn.database_id FROM taxa t LEFT JOIN scientific_names sn ON (t.name_code=sn.name_code) WHERE t.record_id IN (". implode(",", $GLOBALS['children'][$id]) .")");
+        while($result && $row=$result->fetch_assoc())
+        {
+            add_col_taxon($row, $hierarchy_entry_id, $ancestry, $depth+1);
+        }
+    }
 }
 
 function create_col_name($genus, $species, $infraspecies, $infraspecies_marker, $author, $database_id)
@@ -269,12 +277,13 @@ function create_col_name($genus, $species, $infraspecies, $infraspecies_marker, 
     return array($name_string, $canonical_form);
 }
 
-function add_col_synonyms(&$hierarchy_entry, $name_code)
+function add_col_synonyms($hierarchy_entry_id, $name_code)
 {
     global $mysqli;
     global $mysqli_col;
     
     $result = $mysqli_col->query("SELECT * FROM scientific_names sn LEFT JOIN sp2000_statuses st ON (sn.sp2000_status_id=st.record_id) WHERE accepted_name_code='$name_code' AND name_code != accepted_name_code");
+    $hierarchy_id = $GLOBALS['hierarchy']->id;
     while($result && $row=$result->fetch_assoc())
     {
         $genus = html_entity_decode(htmlspecialchars_decode(trim($row["genus"])), ENT_COMPAT, "UTF-8");
@@ -291,55 +300,49 @@ function add_col_synonyms(&$hierarchy_entry, $name_code)
         if(!$name_string) continue;
         
         $name_id = Name::insert($name_string, $canonical_form);
-        if($scientific)
-        {
-            //Name::make_scientific_by_name_id($name_id);
-            
-            if($canonical_form)
-            {
-                $canonical_form_name_id = Name::insert($canonical_form, $canonical_form);
-                //Name::make_scientific_by_name_id($canonical_form_name_id);
-            }
-        }
+        // if($scientific)
+        // {
+        //     //Name::make_scientific_by_name_id($name_id);
+        //     
+        //     if($canonical_form && $canonical_form != $name_string)
+        //     {
+        //         $canonical_form_name_id = Name::insert($canonical_form, $canonical_form);
+        //         //Name::make_scientific_by_name_id($canonical_form_name_id);
+        //     }
+        // }
         
-        $hierarchy_entry->add_synonym($name_id, $relationship_id, 0, 0);
+        fwrite($GLOBALS['synonyms_file'], "$name_id\t$relationship_id\t0\t$hierarchy_entry_id\t0\t$hierarchy_id\t0\t0\n");
     }
     if($result && $result->num_rows) $result->free();
 }
 
-function add_col_common_names(&$hierarchy_entry, $name_code)
+function add_col_common_names($hierarchy_entry_id, $name_code)
 {
     global $mysqli;
     global $mysqli_col;
     
     $result = $mysqli_col->query("SELECT common_name, language FROM common_names WHERE name_code='$name_code'");
-    $used = array();
+    $common_name_id = SynonymRelation::insert("Common name");
+    $hierarchy_id = $GLOBALS['hierarchy']->id;
     while($result && $row=$result->fetch_assoc())
     {
         $name_string = html_entity_decode(htmlspecialchars_decode(trim($row["common_name"])), ENT_COMPAT, "UTF-8");
         $language_id = Language::insert(trim($row["language"]));
         
-        if(@$used[$name_string."|".$language_id]) continue;
-        
         $name_id = Name::insert($name_string);
-        //$name = new Name($name_id);
-        //$name->add_language($language_id, $hierarchy_entry->name_id, 0);
-        
-        $hierarchy_entry->add_synonym($name_id, SynonymRelation::insert("Common name"), $language_id, 0);
-        
-        $used[$name_string."|".$language_id] = 1;
+        fwrite($GLOBALS['synonyms_file'], "$name_id\t$common_name_id\t$language_id\t$hierarchy_entry_id\t0\t$hierarchy_id\t0\t0\n");
     }
     if($result && $result->num_rows) $result->free();
-    unset($used);
 }
 
-function add_col_agents(&$hierarchy_entry, $database_id)
+function add_col_agents($hierarchy_entry_id, $database_id)
 {
+    global $mysqli;
     if($database_id)
     {
         foreach(@$GLOBALS['agent_ids'][$database_id] as $role_id => $agent_id)
         {
-            $hierarchy_entry->add_agent($agent_id, $role_id, 0);
+            fwrite($GLOBALS['agents_file'], "$hierarchy_entry_id\t$agent_id\t$role_id\t0\n");
         }
     }
 }

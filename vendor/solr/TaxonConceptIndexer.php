@@ -5,10 +5,12 @@ class TaxonConceptIndexer
     private $mysqli;
     private $solr;
     private $objects;
+    private $solr_server;
     
-    public function __construct()
+    public function __construct($solr_server = SOLR_SERVER)
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->solr_server = $solr_server;
     }
     
     public function index($hierarchy_id = NULL, $optimize = true)
@@ -18,12 +20,12 @@ class TaxonConceptIndexer
         
         if($this->hierarchy_id)
         {
-            $this->solr = new SolrAPI(SOLR_SERVER, 'taxon_concepts');
+            $this->solr = new SolrAPI($this->solr_server, 'taxon_concepts');
             //$this->solr->delete("hierarchy_id:$this->hierarchy_id");
             //$filter = "he.hierarchy_id IN ($this->hierarchy_id)";
         }else
         {
-            $this->solr = new SolrAPI(SOLR_SERVER, 'taxon_concepts_swap');
+            $this->solr = new SolrAPI($this->solr_server, 'taxon_concepts_swap');
             $this->solr->delete_all_documents();
         }
         

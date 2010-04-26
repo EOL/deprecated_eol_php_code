@@ -187,7 +187,7 @@ function show_hierarchies_he()
     {
         $hierarchy = new Hierarchy($row["id"]);
         
-        echo "<a href='?hierarchy_id=$hierarchy->id'>$hierarchy->id :: $hierarchy->label :: $hierarchy->description</a><br>\n";
+        echo "<a href='?hierarchy_id=$hierarchy->id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>$hierarchy->id :: $hierarchy->label :: $hierarchy->description</a><br>\n";
     }
 }
 
@@ -233,9 +233,9 @@ function show_all_children_he($node, $indent)
 function show_name_he($hierarchy_entry, $indent, $expand)
 {
     $display = str_repeat("&nbsp;", $indent*2);
-    if($expand) $display .= "(<a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id'>-</a>) ";
-    else $display .= "(<a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&expand=1'>+</a>) ";
-    $display .= "<small><b><u>[$hierarchy_entry->lft]</u></b></small> <a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id'>".$hierarchy_entry->name()->string."</a> <small><b><u>[$hierarchy_entry->rgt]</u></b></small>";
+    if($expand) $display .= "(<a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>-</a>) ";
+    else $display .= "(<a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&expand=1&ENV_NAME=".$GLOBALS['ENV_NAME']."'>+</a>) ";
+    $display .= "<small><b><u>[$hierarchy_entry->lft]</u></b></small> <a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>".$hierarchy_entry->name()->string."</a> <small><b><u>[$hierarchy_entry->rgt]</u></b></small>";
     
     if(@$rank = $hierarchy_entry->rank()->label) $display .= " <small>($rank)</small>";
     if($agents = $hierarchy_entry->agents())

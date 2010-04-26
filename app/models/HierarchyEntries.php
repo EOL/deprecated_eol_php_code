@@ -392,19 +392,19 @@ class HierarchyEntry extends MysqlBase
         $mysqli->end_transaction();
     }
     
-    static function insert($parameters)
+    static function insert($parameters, $force = false)
     {
         if(!$parameters) return 0;
         
         if(@get_class($parameters)=="HierarchyEntry")
         {
-            if($result = self::find_by_mock_object($parameters)) return $result;
+            if(!$force && $result = self::find_by_mock_object($parameters)) return $result;
             
             if(@!$parameters->taxon_concept_id) $parameters->taxon_concept_id = TaxonConcept::insert();
             return parent::insert_object_into($parameters, Functions::class_name(__FILE__));
         }
         
-        if($result = self::find($parameters)) return $result;
+        if(!$force && $result = self::find($parameters)) return $result;
         
         if(@!$parameters['taxon_concept_id']) $parameters['taxon_concept_id'] = TaxonConcept::insert();
         return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));

@@ -92,7 +92,7 @@ class CompareHierarchies
         $preview_id = Visibility::insert('preview');
         
         
-        $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!=he2.id ORDER BY he1.visibility_id ASC, he2.visibility_id  ASC, score  DESC, id1 ASC, id2 ASC");
+        $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!=he2.id ORDER BY he1.visibility_id ASC, he2.visibility_id  ASC, score DESC,id1 ASC, id2 ASC");
         
         $mysqli->begin_transaction();
         
@@ -254,8 +254,8 @@ class CompareHierarchies
             // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_1) WHERE he.hierarchy_id=$hierarchy->id");
             // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_2) WHERE he.hierarchy_id=$hierarchy->id");
             
-            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_1', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 3000000);
-            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_2', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 3000000);
+            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_1', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 4000000);
+            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_2', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 4000000);
         }
         
         
