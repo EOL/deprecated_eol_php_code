@@ -261,17 +261,21 @@ function get_data_object($type,$taxon,$do_id,$agent,$title,$dc_source,$rightsHol
                    1 => array(     "role" => "project"      , "homepage" => $home_url    , "Public Health Image Library")
                   );    
     */
-        
+    
+    
+    print"<hr><pre>"; print_r($agent); print "<pre>";    
+    //exit;
     if($agent)
     {
         $agents = array();
-        foreach($agent as $agent)
+        foreach($agent as $a)
         {  
+            print"<br>". $a["role"];
             $agentParameters = array();
-            $agentParameters["role"]     = $agent["role"];
-            $agentParameters["homepage"] = $agent["homepage"];
+            $agentParameters["role"]     = $a["role"];
+            $agentParameters["homepage"] = $a["homepage"];
             $agentParameters["logoURL"]  = "";        
-            $agentParameters["fullName"] = $agent["name"];
+            $agentParameters["fullName"] = $a["name"];
             $agents[] = new SchemaAgent($agentParameters);
         }
         $dataObjectParameters["agents"] = $agents;    
@@ -464,8 +468,7 @@ function parse_contents($str)
                         "caption"        => trim($arr["Name"] . ". " . $arr["Description"] . ". Image count: " . $arr["ImageCount"]),
                         "title"          => $arr["Name"],
                         "rightsHolder"   => $arr["OwnerFriendlyName"]
-                    );
-        
+                    );        
     }    
     
     //print"<pre>";print_r($r);print"</pre>";exit;
