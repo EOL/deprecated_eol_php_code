@@ -2,11 +2,16 @@
 
 include_once(dirname(__FILE__)."/../../../config/environment.php");
 
+// $GLOBALS['ENV_DEBUG'] = false;
+// $GLOBALS['ENV_MYSQL_DEBUG'] = false;
+// $GLOBALS['ENV_DEBUG_TO_FILE'] = false;
+// $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
+
 $mysqli =& $GLOBALS['mysqli_connection'];
-$mysqli_col = load_mysql_environment("col2009");
+$mysqli_col = load_mysql_environment("col2010");
 
 
-//$mysqli->truncate_tables("development");
+$mysqli->truncate_tables("development");
 $mysqli->begin_transaction();
 
 
@@ -40,6 +45,7 @@ function get_parents()
     {
         $GLOBALS['children'][$row['parent_id']][] = $row['id'];
     }
+    if($result && $result->num_rows) $result->free();
 }
 
 
@@ -73,8 +79,8 @@ function get_agents()
                                                                 "display_name"  => $contact_name));
         $contact_agent_id = Agent::insert($contact_mock);
         
-        $GLOBALS['agent_ids'][$database_id]["Source Database"] = $database_agent_id;
-        $GLOBALS['agent_ids'][$database_id]["Source"] = $contact_agent_id;
+        $GLOBALS['agent_ids'][$database_id][AgentRole::insert("Source Database")] = $database_agent_id;
+        $GLOBALS['agent_ids'][$database_id][AgentRole::insert("Source")] = $contact_agent_id;
     }
 }
 
@@ -99,8 +105,8 @@ function add_hierarchy()
         $hierarchy_group_version = 1;
     }
     
-    $hierarchy_params = array(  "label"                     => "Species 2000 & ITIS Catalogue of Life: Annual Checklist 2009",
-                                "description"               => "2009 edition",
+    $hierarchy_params = array(  "label"                     => "Species 2000 & ITIS Catalogue of Life: Annual Checklist 2010",
+                                "description"               => "2010 edition",
                                 "agent_id"                  => $agent_id,
                                 "hierarchy_group_id"        => $hierarchy_group_id,
                                 "hierarchy_group_version"   => $hierarchy_group_version);
@@ -127,7 +133,12 @@ function add_col_taxon($taxon_id, $parent_hierarchy_entry_id, $ancestry, $depth)
     if($counter % 1000 == 0) echo "counter: $counter; memory: ".memory_get_usage()."; time: ".Functions::time_elapsed()."\n";
     $counter++;
     
-    if($depth==4) $mysqli->commit();
+    //if($depth==5) return;
+    if($counter % 200 == 0)
+    {
+        echo "COMMITING\n";
+        $mysqli->commit();
+    }
     
     //if($counter>5000) return false;
     
@@ -174,12 +185,12 @@ function add_col_taxon($taxon_id, $parent_hierarchy_entry_id, $ancestry, $depth)
         $name_id = Name::insert($name_string, $canonical_form);
         if($scientific)
         {
-            Name::make_scientific_by_name_id($name_id);
+            //Name::make_scientific_by_name_id($name_id);
             
             if($canonical_form)
             {
                 $canonical_form_name_id = Name::insert($canonical_form, $canonical_form);
-                Name::make_scientific_by_name_id($canonical_form_name_id);
+                //Name::make_scientific_by_name_id($canonical_form_name_id);
             }
         }
         
@@ -216,9 +227,7 @@ function add_col_taxon($taxon_id, $parent_hierarchy_entry_id, $ancestry, $depth)
         {
             foreach($GLOBALS['children'][$id] as $child_id)
             {
-                //if($depth<5) {
-                    add_col_taxon($child_id, $hierarchy_entry->id, $ancestry, $depth+1);
-                //}
+                add_col_taxon($child_id, $hierarchy_entry->id, $ancestry, $depth+1);
             }
         }
         
@@ -284,12 +293,12 @@ function add_col_synonyms(&$hierarchy_entry, $name_code)
         $name_id = Name::insert($name_string, $canonical_form);
         if($scientific)
         {
-            Name::make_scientific_by_name_id($name_id);
+            //Name::make_scientific_by_name_id($name_id);
             
             if($canonical_form)
             {
                 $canonical_form_name_id = Name::insert($canonical_form, $canonical_form);
-                Name::make_scientific_by_name_id($canonical_form_name_id);
+                //Name::make_scientific_by_name_id($canonical_form_name_id);
             }
         }
         
@@ -313,8 +322,8 @@ function add_col_common_names(&$hierarchy_entry, $name_code)
         if(@$used[$name_string."|".$language_id]) continue;
         
         $name_id = Name::insert($name_string);
-        $name = new Name($name_id);
-        $name->add_language($language_id, $hierarchy_entry->name_id, 0);
+        //$name = new Name($name_id);
+        //$name->add_language($language_id, $hierarchy_entry->name_id, 0);
         
         $hierarchy_entry->add_synonym($name_id, SynonymRelation::insert("Common name"), $language_id, 0);
         
@@ -328,9 +337,9 @@ function add_col_agents(&$hierarchy_entry, $database_id)
 {
     if($database_id)
     {
-        foreach(@$GLOBALS['agent_ids'][$database_id] as $role => $agent_id)
+        foreach(@$GLOBALS['agent_ids'][$database_id] as $role_id => $agent_id)
         {
-            $hierarchy_entry->add_agent($agent_id, AgentRole::insert($role), 0);
+            $hierarchy_entry->add_agent($agent_id, $role_id, 0);
         }
     }
 }

@@ -115,12 +115,6 @@ class Name extends MysqlBase
         
         $id = parent::insert_fields_into(array('string' => $string, 'clean_name' => $clean_name, 'italicized' => $italicized_form, 'italicized_verified' => 0, 'canonical_form_id' => $canonical_form_id, 'canonical_verified' => 0), Functions::class_name(__FILE__));
         
-        if($id)
-        {
-            $name = new Name($id);
-            unset($name);
-        }
-        
         return $id;
     }
     
