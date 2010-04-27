@@ -22,6 +22,12 @@ $used_taxa = array();
 
 $form_url   ="http://photosynth.net/PhotosynthHandler.ashx";
 $tag        ="erja family";
+//$tag        ="encyclopedia of life";
+//$tag        ="eol";
+
+
+
+
 
 $records = process($form_url);
 print"<pre>";print_r($records);print"</pre>";
@@ -39,10 +45,11 @@ foreach($taxa_list as $taxa)
     print "$wrap $wrap";
     print $i . " of " . count($taxa_list) . " id=" . $taxa["name"] . " ";
 
-    $taxon          = $taxa["name"];
-    $taxon_id       = $taxa["id"];
-    $dc_source      = $taxa["source_url"];
-    $classification = $taxa["classification"];
+    $taxon              = $taxa["name"];
+    $taxon_id           = $taxa["id"];
+    $dc_source          = $taxa["source_url"];
+    $classification     = $taxa["classification"];
+    $arr_common_names   = $taxa["comnames"];    
     
     if(trim($taxon) == "")
     {   
@@ -69,16 +76,17 @@ foreach($taxa_list as $taxa)
         $taxon_parameters["scientificName"]= $taxon;
         $taxon_parameters["source"] = $dc_source;
         
-        /*
         $taxon_parameters["commonNames"] = array();
         foreach($arr_common_names as $commonname)
         {            
             if($commonname)
             {
-                $commonname = "<![CDATA[$commonname]]>";
+                $commonname = "<![CDATA[" . trim($commonname) . "]]>";
                 $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
             }
         }                
+
+        /*
         if(count($arr_references) > 0)
         {
             $references=array();
@@ -174,7 +182,9 @@ function get_taxa_list($records)
     foreach($records as $rec)
     {
         $arr[$rec["taxon"]]=array("id"=>$rec["taxon_id"],"name"=>$rec["taxon"],"classification"=>$rec["classification"],
-        "source_url"=>$rec["source_url"]);
+        "source_url"=>$rec["source_url"],
+        "comnames"=>$rec["comnames"]
+        );
     }
     return $arr;
 }
@@ -299,8 +309,11 @@ function parse_contents($str)
 
     $str = str_ireplace('{"Images":[],' , "&arr[]=", $str);	
     $arr=array(); parse_str($str);	    
-    //print"<pre>";print_r($arr);print"</pre>";
-    
+
+    print"<hr>" . count($arr);
+    print"<pre>";print_r($arr);print"</pre>";
+    //exit;
+        
     $temp_arr=array();
     foreach($arr as $temp)
     {
@@ -336,14 +349,28 @@ function parse_contents($str)
     print"<pre>";print_r($final_arr);print"</pre>";        
 
     $r=array();
+    
+    $excluded_ids = array(  "",""
+                         );
+    
     foreach($final_arr as $arr)
     {
+        if(in_array($arr["Id"], $excluded_ids))continue;
+        
         print $arr["Id"] . "$wrap";
+
+        print"
+        <iframe frameborder='0' src='http://photosynth.net/embed.aspx?cid=" . $arr["Id"] . "&delayLoad=true&slideShowPlaying=true' width='500' height='300'></iframe>
+        ";
+
+        
         //=====================================================================================        
         $source_url = "http://photosynth.net/edit.aspx?cid=" . $arr["Id"];
         //=====================================================================================        
         $classification = get_classification($arr["Description"]);
-        $sciname = $classification["scientificname"];
+        $sciname = $classification["scientificname"];        
+        //=====================================================================================        
+        $comnames = get_comnames($arr["Description"]);
         //=====================================================================================        
         $arr_CL = get_caption_license($arr["Description"]);
             $caption = $arr_CL["caption"];
@@ -356,6 +383,7 @@ function parse_contents($str)
         $r[]=array  (   "taxon"          => $sciname,   
                         "taxon_id"       => $arr["OwnerUserGuid"] . "_" . str_ireplace(" ","_",$sciname),   
                         "classification" => $classification,
+                        "comnames"       => $comnames,
                         "do_id"          => $arr["Id"],
                         "source_url"     => $source_url,
                         "agent"          => $agent,                        
@@ -366,6 +394,7 @@ function parse_contents($str)
                         "license"        => $license
                     );        
     }        
+    //exit;
     //print"<pre>";print_r($r);print"</pre>";exit;
     return $r;    
 }//function parse_contents($contents)
@@ -381,6 +410,12 @@ function get_caption_license($str)
     $beg='description:license='; $end1='"'; $license = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
     
     return array("caption"=>$caption,"license"=>$license);    
+}
+function get_comnames($str)
+{
+    $beg='taxonomy:common='; $end1='"'; $temp = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
+    $arr = explode(",",$temp);
+    return $arr;
 }
 
 function get_classification($str)
@@ -511,7 +546,7 @@ function get_href_from_anchor_tag($str)
 function cURL_it($url)
 {    
     global $tag;
-    $fields = 'validname=collectionId&cmd=Search&text=10,0,tag:"' . $tag . '"';  
+    $fields = 'validname=collectionId&cmd=Search&text=100,0,tag:"' . $tag . '"';  
     //$fields = 'validname=collectionId&cmd=Search&text=10,0,tag:"homo sapiens"';  
     $ch = curl_init();  
     curl_setopt($ch,CURLOPT_URL,$url);  
@@ -535,4 +570,74 @@ function cURL_it($url)
 // /*
 
 //http://www.slideshare.net/csparr/eol-flickr-tutorial-presentation?type=powerpoint
+
+/*
+Dear EOL Photosynth-contributors
+
+In order for your photosynth to be harvested by EOL you need to enter 3 types of machine tags 
+in the 'Description' field of your photosynth.
+
+1. machine tag for the name:
+    You only need ONE of these tags for your image to be included in EOL. 
+    Binomial is best. The names (except for common names) should be the Latin, scientific names for the organisms. 
+        
+        e.g. just binomial
+        "taxonomy:binomial=Gadus morhua" 
+        
+        e.g. binomial and family
+        "taxonomy:binomial=Gadus morhua" 
+        "taxonomy:family=Gadidae" 
+        
+        e.g. just order
+        "taxonomy:order=Lepidoptera"  
+        
+        e.g. trinomial and common names
+        "taxonomy:trinomial=Oreochromis niloticus niloticus" 
+        "taxonomy:common=tilapia, Nile tilapia, big tilapia"               
+    
+        list of possible tags for names:
+            taxonomy:kingdom=
+            taxonomy:phylum=
+            taxonomy:class=
+            taxonomy:order=
+            taxonomy:family=
+            taxonomy:genus=
+            taxonomy:species=
+            taxonomy:binomial=
+            taxonomy:trinomial=
+            taxonomy:common=
+
+2. machine tag for the license: (only 5 options to choose)
+    e.g.
+    "description:license=http://creativecommons.org/licenses/publicdomain/"
+    or
+    "description:license=http://creativecommons.org/licenses/by/3.0/"
+    or
+    "description:license=http://creativecommons.org/licenses/by-sa/3.0/"
+    or
+    "description:license=http://creativecommons.org/licenses/by-nc/3.0/"
+    or
+    "description:license=http://creativecommons.org/licenses/by-nc-sa/3.0/"
+
+3. machine tag for the caption (or description) of the photosynth:
+    e.g.
+    "description:caption=This photosynth is about the hunting behavior of lions in the great plains."        
+    or
+    "description:caption=A bear feeding her young."        
+    
+
+
+
+
+
+
+
+
+      
+    
+    
+
+    
+*/
+
 ?>

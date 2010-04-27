@@ -13,7 +13,7 @@ This connector normally will run on Eli's PC and will just move the generated 68
 
 */
 
-exit;
+//exit;
 $timestart = microtime(1);
 
 
@@ -71,9 +71,9 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     //print"<hr>[$contents]<hr>";    
     echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
     
-     /*
-    if($i==0)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
-     */
+    // /*
+    if($i==3)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
+    // */
 }    
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
