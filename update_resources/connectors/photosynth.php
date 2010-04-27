@@ -23,7 +23,7 @@ $used_taxa = array();
 $form_url   ="http://photosynth.net/PhotosynthHandler.ashx";
 $tag        ="erja family";
 //$tag        ="encyclopedia of life";
-//$tag        ="eol";
+$tag        ="eol";
 
 
 
@@ -82,7 +82,7 @@ foreach($taxa_list as $taxa)
             if($commonname)
             {
                 $commonname = "<![CDATA[" . trim($commonname) . "]]>";
-                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => ""));
             }
         }                
 
@@ -372,9 +372,9 @@ function parse_contents($str)
         //=====================================================================================        
         $comnames = get_comnames($arr["Description"]);
         //=====================================================================================        
-        $arr_CL = get_caption_license($arr["Description"]);
-            $caption = $arr_CL["caption"];
-            $license = $arr_CL["license"];        
+        $arr_temp = get_caption_license($arr["Description"]);
+            $caption = $arr_temp["caption"];
+            $license = $arr_temp["license"];        
         if($caption == "")$caption = $arr["Description"];
         //=====================================================================================                
         $agent=array();

@@ -482,8 +482,17 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
             
             if($type == 2)$title = "";
 
-            if(in_array($title, $subject_arr))$subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $title;
-            else                              $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+            if(in_array($title, $subject_arr))  $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $title;
+            
+            elseif($title == "Latin Diagnosis") $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription";//new
+            elseif(in_array($title, array("Discussion","Description"))) //new
+            {
+                $title = "Physical description";
+                $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology";                
+            }             
+
+            else                                $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+            
             if($type == 2)$subject = "";
          
             if($type == 1)
@@ -673,8 +682,11 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
     $audienceParameters["label"] = "Expert users";
     $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
 
+    /*
     $audienceParameters["label"] = "General public";
     $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    */
+    
     ///////////////////////////////////
 
     /* bypass $ref that was passed */
