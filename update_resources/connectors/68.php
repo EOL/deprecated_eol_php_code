@@ -13,7 +13,7 @@ This connector normally will run on Eli's PC and will just move the generated 68
 
 */
 
-//exit;
+exit;
 $timestart = microtime(1);
 
 
