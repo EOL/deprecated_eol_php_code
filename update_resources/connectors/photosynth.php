@@ -3,6 +3,7 @@
 estimated execution time:
 
 Connector sends a post request to their unofficial service
+
 */
 
 $timestart = microtime(1);
@@ -19,16 +20,8 @@ print "resource id = " . $resource->id . "$wrap"; //exit;
 $schema_taxa = array();
 $used_taxa = array();
 
-$id_list=array();
-
-$total_taxid_count = 0;
-$do_count = 0;
-
-$url        ="";
-$home_url   ="http://photosynth.net/";
 $form_url   ="http://photosynth.net/PhotosynthHandler.ashx";
-$site_url   ="http://photosynth.net/";
-
+$tag        ="erja family";
 
 $records = process($form_url);
 print"<pre>";print_r($records);print"</pre>";
@@ -36,12 +29,8 @@ $taxa_list = get_taxa_list($records);
 print"<pre>";print_r($taxa_list);print"</pre>";
 //exit;
 
-
 print("$wrap count taxa_list = " . count($taxa_list) );
 
-//
-//for ($i = 0; $i < 5; $i++) 
-//for ($i = 0; $i < count($taxa_list); $i++) 
 $i=0;
 foreach($taxa_list as $taxa)
 {    
@@ -114,23 +103,21 @@ foreach($taxa_list as $taxa)
 
     if(1==1)
     {
-        $dc_source = $home_url;       
-        
         //start images
         //foreach ($arr_images as $value)
         foreach ($records as $rec)
         {
             if($taxon == $rec["taxon"])
-            {
-                $do_count++;      
+            {                
                 $do_id      = $rec["do_id"];  
                 $agent      = $rec["agent"];
                 $title      = $rec["title"];
                 $dc_source  = $rec["source_url"];
-                $rightsHolder  = $rec["rightsHolder"];
-                $description  = $rec["caption"];
+                $rightsHolder   = $rec["rightsHolder"];
+                $description    = $rec["caption"];
+                $license        = $rec["license"];
                 
-                $data_object_parameters = get_data_object("photosynth",$taxon,$do_id,$agent,$title,$dc_source,$rightsHolder,$description);
+                $data_object_parameters = get_data_object("photosynth",$taxon,$do_id,$agent,$title,$dc_source,$rightsHolder,$description,$license);
                 $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                     
             }            
         }
@@ -139,7 +126,7 @@ foreach($taxa_list as $taxa)
         /*
         //start skeletons         
         if($html_skeletons != "")
-        {   $do_count++;
+        {   
             $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
             $title="Biology: Skeleton";            
             $dc_source = $url_for_skeletons;
@@ -209,7 +196,7 @@ function img_href_src($str)
     
 }
 
-function get_data_object($type,$taxon,$do_id,$agent,$title,$dc_source,$rightsHolder,$description)
+function get_data_object($type,$taxon,$do_id,$agent,$title,$dc_source,$rightsHolder,$description,$license)
 {        
 
     $dataObjectParameters = array();
@@ -250,27 +237,23 @@ function get_data_object($type,$taxon,$do_id,$agent,$title,$dc_source,$rightsHol
     
     $dataObjectParameters["rightsHolder"] = $rightsHolder;
     $dataObjectParameters["language"] = "en";
-    $dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
-    //$dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
     
-    
+    if($license != "")$dataObjectParameters["license"] = $license;        
+    else              $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";  
+    //$dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
         
     //==========================================================================================
     /* working...
-    $agent = array(0 => array(     "role" => "photographer" , "homepage" => ""           , $photo_credit),
-                   1 => array(     "role" => "project"      , "homepage" => $home_url    , "Public Health Image Library")
+    $agent = array(0 => array(     "role" => "photographer" , "homepage" => ""    , $photo_credit),
+                   1 => array(     "role" => "project"      , "homepage" => ""    , "Public Health Image Library")
                   );    
-    */
-    
-    
-    print"<hr><pre>"; print_r($agent); print "<pre>";    
-    //exit;
+    */    
+    //print"<hr><pre>"; print_r($agent); print "<pre>";exit;    
     if($agent)
     {
         $agents = array();
         foreach($agent as $a)
         {  
-            print"<br>". $a["role"];
             $agentParameters = array();
             $agentParameters["role"]     = $a["role"];
             $agentParameters["homepage"] = $a["homepage"];
@@ -296,7 +279,6 @@ function get_data_object($type,$taxon,$do_id,$agent,$title,$dc_source,$rightsHol
     return $dataObjectParameters;
 }
 
-
 function process($url)
 {
     global $wrap;
@@ -307,105 +289,11 @@ function process($url)
     return $arr;        
 }
 
-function get_tabular_data($url,$item)
-{   //return;
-
-    global $wrap;
-    
-    //exit("<hr>$url");
-    
-    $table = Functions::get_remote_file($url);                
-    
-    if      ($item == "synonyms")                   $beg='<TH><B>Authorship</b></TH>'; 
-    elseif  ($item == "references")                 $beg='<th align=left><b>Nomenclature Notes </b></td></th>'; 
-    elseif  ($item == "skeletons")                  $beg='<th>Percent Magnesium</th>'; 
-    elseif  ($item == "biological_associations")    $beg='<TH COLSPAN="2">Algal symbionts</TH>'; 
-    elseif  ($item == "classification")             $beg='<th>Current Classification: Click on a taxon to view its components</th>'; 
-    elseif  ($item == "common_names")               $beg='<TBODY>';     
-    elseif  ($item == "nematocysts")                $beg='<th width="60">State</th>'; 
-    //elseif  ($item == "specimens")                 $beg='<th>Source </th>'; 
-    
-    if    ($item == "classification")   $end1='</td>'; //$end1='<br> </td>'; //$end1='</tr>';//
-    elseif($item == "common_names")     $end1='</TBODY>';
-    else                                $end1='</table>'; 
-
-    $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
-    
-    if($item == "classification" and $temp == "")    
-    {
-        $beg='<TH>Current classification</TH>';
-        $end='</td>';
-        $temp = trim(parse_html($table,$beg,$end1,$end1,$end1,$end1,""));                
-    }
-    
-
-    if( $item != "common_names" and
-        $item != "specimens"
-      ) $temp = substr($temp,5,strlen($temp));//to remove the '</tr>' at the start of the string    
-        
-    $temp = str_ireplace(array( '<tr class=listrow1 >',
-                                '<tr class=listrow2 >',
-                                '<tr  class=listrow2  >',
-                                '<tr  class="listrow2"  >',
-                                '<tr class="listrow1" >',
-                                '<tr  class="listrow2"  >',
-                                '<tr class="listrow1" >'), '<tr>', $temp);			                                 
-                                
-    $temp = str_ireplace('<TR class="common2">','<tr>',$temp);
-
-    if($item == "specimens")// to fix the weird <tr> withouth ending </tr>
-    {
-        $temp = str_ireplace('<tr>','</tr><tr>',$temp);        
-    }    
-                                                           
-    //print $temp; exit;
-    
-    $temp = str_ireplace('<tr>' , "", $temp);	
-    $temp = trim(str_ireplace('</tr>' , "***", $temp));	
-    
-    if($item != "classification")    $temp = substr($temp,0,strlen($temp)-3);//remove last '***'
-    
-    $arr = explode("***", $temp);
-    $arr_records=array();
-    
-    for ($i = 0; $i < count($arr); $i++) 
-    {
-        $str = $arr[$i];
-        $str = str_ireplace('<td>' , "", $str);	
-        $str = trim(str_ireplace('</td>' , "***", $str));	
-        if($item != "classification") $str = substr($str,0,strlen($str)-3);//remove last '***'
-        
-        $str=strip_tags($str,"<a><b><B><br><BR>");
-        
-        //$str = htmlspecialchars_decode($str);
-        
-        $arr2 = explode("***", $str);    
-
-        $arr_records[]=$arr2;
-    }
-    
-    if($item == "skeletons")//to check if 2nd column from table is NO
-    {
-        //print"<hr>";
-        $temp_arr = $arr_records[0];
-        //print trim($temp_arr[1]);
-        if(trim($temp_arr[1])=="NO")$arr_records=array();
-    }
-    //print"<pre>";print_r($arr_records);print"</pre>";     
-    //if($item == "skeletons")exit("<hr>");
-    
-    return $arr_records;
-}
-
-
-
 function parse_contents($str)
 {
-
     global $wrap;
-    global $site_url;
+
     
-    //ditox    
     $beg='"Collections":['; $end1=']}'; 
     $str = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');                
 
@@ -416,13 +304,11 @@ function parse_contents($str)
     $temp_arr=array();
     foreach($arr as $temp)
     {
-        $str = str_ireplace(',"' , '|"', $temp);	        
-        
+        $str = str_ireplace(',"' , '|"', $temp);	                
         $r = explode("|",$str);
         $temp_arr[]=$r;
         //print"<pre>";print_r($r);print"</pre>";        
-    }
-    
+    }    
     //print"<pre>";print_r($temp_arr);print"</pre>";        
 
     $final_arr=array();    
@@ -453,44 +339,52 @@ function parse_contents($str)
     foreach($final_arr as $arr)
     {
         print $arr["Id"] . "$wrap";
+        //=====================================================================================        
         $source_url = "http://photosynth.net/edit.aspx?cid=" . $arr["Id"];
-        
+        //=====================================================================================        
         $classification = get_classification($arr["Description"]);
         $sciname = $classification["scientificname"];
-        
+        //=====================================================================================        
+        $arr_CL = get_caption_license($arr["Description"]);
+            $caption = $arr_CL["caption"];
+            $license = $arr_CL["license"];        
+        if($caption == "")$caption = $arr["Description"];
+        //=====================================================================================                
+        $agent=array();
+        $agent[]=array("role" => "creator" , "homepage" => $source_url , "name" => $arr["OwnerFriendlyName"]);
+        //=====================================================================================        
         $r[]=array  (   "taxon"          => $sciname,   
                         "taxon_id"       => $arr["OwnerUserGuid"] . "_" . str_ireplace(" ","_",$sciname),   
                         "classification" => $classification,
                         "do_id"          => $arr["Id"],
                         "source_url"     => $source_url,
-                        "agent"          => array("role" => "compiler" , "homepage" => $source_url , "name" => $arr["OwnerFriendlyName"]),                        
+                        "agent"          => $agent,                        
                         "thumbnailURL"   => $arr["ThumbnailUrl"],
-                        "caption"        => trim($arr["Name"] . ". " . $arr["Description"] . ". Image count: " . $arr["ImageCount"]),
+                        "caption"        => trim($arr["Name"] . ". " . $caption . " (Image count: " . $arr["ImageCount"] . ")"),
                         "title"          => $arr["Name"],
-                        "rightsHolder"   => $arr["OwnerFriendlyName"]
+                        "rightsHolder"   => $arr["OwnerFriendlyName"],
+                        "license"        => $license
                     );        
-    }    
-    
+    }        
     //print"<pre>";print_r($r);print"</pre>";exit;
-    return $r;
-    
-    /*    
-    return array($taxa,$url_for_main_menu
-                    ,$arr_classification,$arr_images
-                    ,$html_skeletons,$url_for_skeletons
-                    ,$html_biological_associations,$url_for_biological_associations
-                    ,$arr_common_names
-                    ,$arr_references
-                    ,$html_nematocysts,$url_for_nematocysts
-                );
-                */
+    return $r;    
 }//function parse_contents($contents)
 
-function get_classification($str)
+function get_caption_license($str)
 {
-
-
     /*
+    "description:caption=my caption string"
+    "description:license=http://creativecommons.org/licenses/by-nc-sa/3.0/"
+    */
+    $caption="";$license="";
+    $beg='description:caption='; $end1='"'; $caption = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
+    $beg='description:license='; $end1='"'; $license = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
+    
+    return array("caption"=>$caption,"license"=>$license);    
+}
+
+function get_classification($str)
+{   /*
     * taxonomy:kingdom=* for example “ taxonomy: b inomial=Vanessa atalanta” 
     * taxonomy:phylum=* taxonomy:order=Lepidoptera 
     * taxonomy:class= * 
@@ -534,7 +428,7 @@ function get_classification($str)
                     "scientificname"=>$sciname
                 );
     
-    //print"$str<pre>";print_r($arr);print"</pre>";exit;
+    //print"<pre>";print_r($arr);print"</pre>";exit;
     return $arr;    
 }
 
@@ -595,33 +489,6 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
 // */
 
 
-function arr2html($arr_data,$arr_fields,$url_for_main_menu)
-{
-    $html="<a target='hexacorallians' href='$url_for_main_menu'>More info</a><br><table style='font-size : small;' border='1' cellpadding='4' cellspacing='0'>";
-    $html .="<tr>";   
-    foreach ($arr_fields as $value)
-    {
-        $html .="<th>$value</th>";      
-    }
-    $html .="</tr>";       
-    foreach ($arr_data as $value)
-    {
-        $html .="<tr>";   
-        foreach ($value as $item)
-        {   
-            if(stripos($item, "href") != "" )
-            {
-                $beg='">'; $end1='</a>'; 
-                $item = trim(parse_html($item,$beg,$end1,$end1,$end1,$end1,""));                                  
-            }
-            $html .="<td>$item</td>";
-        };      
-        $html .="</tr>";   
-    }    
-    $html .="</table>";   
-    return $html;    
-}
-
 function get_str_from_anchor_tag($str)
 {
     $beg='">'; $end1='</a>'; 
@@ -643,7 +510,8 @@ function get_href_from_anchor_tag($str)
 
 function cURL_it($url)
 {    
-    $fields = 'validname=collectionId&cmd=Search&text=10,0,tag:"erja family"';  
+    global $tag;
+    $fields = 'validname=collectionId&cmd=Search&text=10,0,tag:"' . $tag . '"';  
     //$fields = 'validname=collectionId&cmd=Search&text=10,0,tag:"homo sapiens"';  
     $ch = curl_init();  
     curl_setopt($ch,CURLOPT_URL,$url);  
@@ -665,27 +533,6 @@ function cURL_it($url)
 
 
 // /*
-	
-function array_trim($a,$len) 
-{ 	
-	$b=array();
-	$j = 0; 
-	//print "<hr> -- "; print count($a); print "<hr> -- ";
-	for ($i = 0; $i < $len; $i++) 
-	{ 
-		//if (array_key_exists($i,$a))
-        if(isset($a[$i]))
-		{
-			if (trim($a[$i]) != "") { $b[$j++] = $a[$i]; } 		
-            else print "[walang laman]";
-		}
-	} 	
-	return $b; 
-}
-function clean_str($str)
-{    
-    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
-    return $str;
-}
 
+//http://www.slideshare.net/csparr/eol-flickr-tutorial-presentation?type=powerpoint
 ?>
