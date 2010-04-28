@@ -138,7 +138,7 @@ function save_to_txt($arr)
 	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
 
     print "<hr><i>Use a spreadsheet to open the tab-delimited TXT file created for ";
-	print "<a target='_blank' href=$filename> - Download - </a></i>";
+	print "<a target='tab_delimited' href=$filename> - Download - </a></i>";
     
 }//function save_to_txt
 
