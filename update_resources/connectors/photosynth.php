@@ -2,7 +2,8 @@
 /* connector for Photosynth -- http://photosynth.net/
 estimated execution time:
 
-Connector sends a post request to their unofficial service
+Connector sends a post request to their unofficial service.
+It also scrapes the site to get additional data (tags) which are not exposed in the API.
 
 */
 
@@ -23,10 +24,7 @@ $used_taxa = array();
 $form_url   ="http://photosynth.net/PhotosynthHandler.ashx";
 $tag        ="erja family";
 //$tag        ="encyclopedia of life";
-$tag        ="eol";
-
-
-
+//$tag        ="eol";
 
 
 $records = process($form_url);
@@ -346,12 +344,11 @@ function parse_contents($str)
         eval("\$final_arr[] = array(" . $str . ");");		
     }
     
-    print"<pre>";print_r($final_arr);print"</pre>";        
+    print"<pre>";print_r($final_arr);print"</pre>";//exit;
 
     $r=array();
     
-    $excluded_ids = array(  "",""
-                         );
+    $excluded_ids = array("","");
     
     foreach($final_arr as $arr)
     {
@@ -363,7 +360,12 @@ function parse_contents($str)
         <iframe frameborder='0' src='http://photosynth.net/embed.aspx?cid=" . $arr["Id"] . "&delayLoad=true&slideShowPlaying=true' width='500' height='300'></iframe>
         ";
 
+        $data = scrape_site("http://photosynth.net/view.aspx?cid=" . $arr["Id"]);
         
+        
+        
+        
+        exit;        
         //=====================================================================================        
         $source_url = "http://photosynth.net/edit.aspx?cid=" . $arr["Id"];
         //=====================================================================================        
@@ -398,6 +400,24 @@ function parse_contents($str)
     //print"<pre>";print_r($r);print"</pre>";exit;
     return $r;    
 }//function parse_contents($contents)
+
+function scrape_site($url)
+{
+    $str = Functions::get_remote_file($url);
+    
+    /*
+    <span class="tag"> <a href="http://photosynth.net/search.aspx?q=erja family">&#34;erja family&#34;</a>
+    </span>
+    */
+    
+    $str = str_ireplace('<span class="tag">' , "&arr[]=", $str);	
+    $arr=array(); parse_str($str);	    
+    print"<pre>";print_r($arr);print"</pre>";
+    
+    print"<hr><a href='$url'>$url</a>";
+    //print $contents;
+    exit;
+}
 
 function get_caption_license($str)
 {
@@ -582,18 +602,18 @@ in the 'Description' field of your photosynth.
     Binomial is best. The names (except for common names) should be the Latin, scientific names for the organisms. 
         
         e.g. just binomial
-        "taxonomy:binomial=Gadus morhua" 
+            "taxonomy:binomial=Gadus morhua" 
         
         e.g. binomial and family
-        "taxonomy:binomial=Gadus morhua" 
-        "taxonomy:family=Gadidae" 
+            "taxonomy:binomial=Gadus morhua" 
+            "taxonomy:family=Gadidae" 
         
-        e.g. just order
-        "taxonomy:order=Lepidoptera"  
+        e.g. just Order name
+            "taxonomy:order=Lepidoptera"  
         
         e.g. trinomial and common names
-        "taxonomy:trinomial=Oreochromis niloticus niloticus" 
-        "taxonomy:common=tilapia, Nile tilapia, big tilapia"               
+            "taxonomy:trinomial=Oreochromis niloticus niloticus" 
+            "taxonomy:common=tilapia, Nile tilapia, big tilapia"               
     
         list of possible tags for names:
             taxonomy:kingdom=
@@ -609,21 +629,21 @@ in the 'Description' field of your photosynth.
 
 2. machine tag for the license: (only 5 options to choose)
     e.g.
-    "description:license=http://creativecommons.org/licenses/publicdomain/"
+        "description:license=http://creativecommons.org/licenses/publicdomain/"
     or
-    "description:license=http://creativecommons.org/licenses/by/3.0/"
+        "description:license=http://creativecommons.org/licenses/by/3.0/"
     or
-    "description:license=http://creativecommons.org/licenses/by-sa/3.0/"
+        "description:license=http://creativecommons.org/licenses/by-sa/3.0/"
     or
-    "description:license=http://creativecommons.org/licenses/by-nc/3.0/"
+        "description:license=http://creativecommons.org/licenses/by-nc/3.0/"
     or
-    "description:license=http://creativecommons.org/licenses/by-nc-sa/3.0/"
+        "description:license=http://creativecommons.org/licenses/by-nc-sa/3.0/"
 
 3. machine tag for the caption (or description) of the photosynth:
     e.g.
-    "description:caption=This photosynth is about the hunting behavior of lions in the great plains."        
+        "description:caption=This photosynth is about the hunting behavior of lions in the great plains."        
     or
-    "description:caption=A bear feeding her young."        
+        "description:caption=A bear feeding her young."        
     
 
 
