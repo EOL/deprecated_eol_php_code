@@ -1,159 +1,28 @@
 <?php
 /* connector for Photosynth -- http://photosynth.net/
 estimated execution time:
-
 Connector sends a post request to their unofficial service.
 It also scrapes the site to get additional data (tags) which are not exposed in the API.
-
 */
 
 $timestart = microtime(1);
 
+$GLOBALS['ENV_NAME'] = "slave_215";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 $wrap = "\n";
 $wrap = "<br>";
 
-$resource = new Resource(1);
+$resource = new Resource(119);
 print "resource id = " . $resource->id . "$wrap"; //exit;
-
-$schema_taxa = array();
-$used_taxa = array();
-
 $form_url   ="http://photosynth.net/PhotosynthHandler.ashx";
 $tag        ="erja family";
 //$tag        ="encyclopedia of life";
-//$tag        ="eol";
+$tag        ="eol";
 
+$schema_taxa = harvest_photosynth($form_url);
 
-$records = process($form_url);
-print"<pre>";print_r($records);print"</pre>";
-$taxa_list = get_taxa_list($records);
-print"<pre>";print_r($taxa_list);print"</pre>";
-//exit;
-
-print("$wrap count taxa_list = " . count($taxa_list) );
-
-$i=0;
-foreach($taxa_list as $taxa)
-{    
-    $i++;
-    //main loop
-    print "$wrap $wrap";
-    print $i . " of " . count($taxa_list) . " id=" . $taxa["name"] . " ";
-
-    $taxon              = $taxa["name"];
-    $taxon_id           = $taxa["id"];
-    $dc_source          = $taxa["source_url"];
-    $classification     = $taxa["classification"];
-    $arr_common_names   = $taxa["comnames"];    
-    
-    if(trim($taxon) == "")
-    {   
-        print " --blank taxa--";
-        continue; 
-    }    
-        
-    if(@$used_taxa[$taxon])
-    {
-        $taxon_parameters = $used_taxa[$taxon];
-    }
-    else
-    {
-        $taxon_parameters = array();
-        $taxon_parameters["identifier"] = $taxon_id;
-        
-        $taxon_parameters["kingdom"]    = @$classification["kingdom"];
-        $taxon_parameters["phylum"]     = @$classification["phylum"];
-        $taxon_parameters["class"]      = @$classification["class"];
-        $taxon_parameters["order"]      = @$classification["order"];
-        $taxon_parameters["family"]     = @$classification["family"];
-        $taxon_parameters["genus"]      = @$classification["genus"];
-
-        $taxon_parameters["scientificName"]= $taxon;
-        $taxon_parameters["source"] = $dc_source;
-        
-        $taxon_parameters["commonNames"] = array();
-        foreach($arr_common_names as $commonname)
-        {            
-            if($commonname)
-            {
-                $commonname = "<![CDATA[" . trim($commonname) . "]]>";
-                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => ""));
-            }
-        }                
-
-        /*
-        if(count($arr_references) > 0)
-        {
-            $references=array();
-            $taxon_parameters["references"] = array();            
-            foreach ($arr_references as $ref)
-            {                        
-                $referenceParameters = array();
-                $href = get_href_from_anchor_tag($ref);
-                $ref = get_str_from_anchor_tag($ref);
-            
-                if(substr($ref,0,19)=="Goffredo S., Radeti")$ref="Goffredo S., Radeti J., Airi V., and Zaccanti F., 2005";
-                $referenceParameters["fullReference"] = trim($ref);                               
-                if($href)$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $href));                                
-                $references[] = new SchemaReference($referenceParameters);
-            }
-            $taxon_parameters["references"] = $references;
-        }    
-        */
-                
-        $used_taxa[$taxon] = $taxon_parameters;            
-    }
-
-    if(1==1)
-    {
-        //start images
-        //foreach ($arr_images as $value)
-        foreach ($records as $rec)
-        {
-            if($taxon == $rec["taxon"])
-            {                
-                $do_id      = $rec["do_id"];  
-                $agent      = $rec["agent"];
-                $title      = $rec["title"];
-                $dc_source  = $rec["source_url"];
-                $rightsHolder   = $rec["rightsHolder"];
-                $description    = $rec["caption"];
-                $license        = $rec["license"];
-                
-                $data_object_parameters = get_data_object("photosynth",$taxon,$do_id,$agent,$title,$dc_source,$rightsHolder,$description,$license);
-                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                     
-            }            
-        }
-        //end images
-        
-        /*
-        //start skeletons         
-        if($html_skeletons != "")
-        {   
-            $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
-            $title="Biology: Skeleton";            
-            $dc_source = $url_for_skeletons;
-            $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
-            $data_object_parameters = get_data_object("text",$taxon,"skeleton",$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title,$subject);
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
-        }        
-        //end skeletons
-        */
-        
-        $used_taxa[$taxon] = $taxon_parameters;
-
-    }//with photos
-    
-    //end main loop   
-}
-
-foreach($used_taxa as $taxon_parameters)
-{
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
-}
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
@@ -174,6 +43,145 @@ exit("$wrap$wrap Done processing.");
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################
+function harvest_photosynth($form_url)
+{
+    global $wrap;    
+    
+    $schema_taxa = array();
+    $used_taxa = array();    
+    
+    $records = process($form_url);
+    print"<pre>";print_r($records);print"</pre>";
+    //exit;
+    $taxa_list = get_taxa_list($records);
+    print"<pre>";print_r($taxa_list);print"</pre>";
+    //exit;
+    
+    print("$wrap count taxa_list = " . count($taxa_list) );
+    
+    $i=0;
+    foreach($taxa_list as $taxa)
+    {    
+        $i++;
+        //main loop
+        print "$wrap $wrap";
+        print $i . " of " . count($taxa_list) . " id=" . $taxa["name"] . " ";
+    
+        $taxon              = $taxa["name"];
+        $taxon_id           = $taxa["id"];
+        $dc_source          = $taxa["source_url"];
+        $classification     = $taxa["classification"];
+        $arr_common_names   = $taxa["comnames"];    
+        
+        if(trim($taxon) == "")
+        {   
+            print " --blank taxa--";
+            continue; 
+        }    
+            
+        if(@$used_taxa[$taxon])
+        {
+            $taxon_parameters = $used_taxa[$taxon];
+        }
+        else
+        {
+            $taxon_parameters = array();
+            $taxon_parameters["identifier"] = $taxon_id;
+            
+            $taxon_parameters["kingdom"]    = @$classification["kingdom"];
+            $taxon_parameters["phylum"]     = @$classification["phylum"];
+            $taxon_parameters["class"]      = @$classification["class"];
+            $taxon_parameters["order"]      = @$classification["order"];
+            $taxon_parameters["family"]     = @$classification["family"];
+            $taxon_parameters["genus"]      = @$classification["genus"];
+    
+            $taxon_parameters["scientificName"]= $taxon;
+            $taxon_parameters["source"] = $dc_source;
+            
+            $taxon_parameters["commonNames"] = array();
+            foreach($arr_common_names as $commonname)
+            {            
+                if($commonname)
+                {
+                    $commonname = "<![CDATA[" . trim($commonname) . "]]>";
+                    $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => ""));
+                }
+            }                
+    
+            /*
+            if(count($arr_references) > 0)
+            {
+                $references=array();
+                $taxon_parameters["references"] = array();            
+                foreach ($arr_references as $ref)
+                {                        
+                    $referenceParameters = array();
+                    $href = get_href_from_anchor_tag($ref);
+                    $ref = get_str_from_anchor_tag($ref);
+                
+                    if(substr($ref,0,19)=="Goffredo S., Radeti")$ref="Goffredo S., Radeti J., Airi V., and Zaccanti F., 2005";
+                    $referenceParameters["fullReference"] = trim($ref);                               
+                    if($href)$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $href));                                
+                    $references[] = new SchemaReference($referenceParameters);
+                }
+                $taxon_parameters["references"] = $references;
+            }    
+            */
+                    
+            $used_taxa[$taxon] = $taxon_parameters;            
+        }
+    
+        if(1==1)
+        {
+            //start images
+            //foreach ($arr_images as $value)
+            foreach ($records as $rec)
+            {
+                if($taxon == $rec["taxon"])
+                {                
+                    $do_id      = $rec["do_id"];  
+                    $agent      = $rec["agent"];
+                    $title      = $rec["title"];
+                    $dc_source  = $rec["source_url"];
+                    $rightsHolder   = $rec["rightsHolder"];
+                    $description    = $rec["caption"];
+                    $license        = $rec["license"];
+                    
+                    $data_object_parameters = get_data_object("photosynth",$taxon,$do_id,$agent,$title,$dc_source,$rightsHolder,$description,$license);
+                    $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                     
+                }            
+            }
+            //end images
+            
+            /*
+            //start skeletons         
+            if($html_skeletons != "")
+            {   
+                $agent_name = ""; $agent_role = ""; $image_url=""; $copyright="";
+                $title="Biology: Skeleton";            
+                $dc_source = $url_for_skeletons;
+                $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
+                $data_object_parameters = get_data_object("text",$taxon,"skeleton",$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title,$subject);
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+            }        
+            //end skeletons
+            */
+            
+            $used_taxa[$taxon] = $taxon_parameters;
+    
+        }//with photos
+        
+        //end main loop   
+    }
+    
+    foreach($used_taxa as $taxon_parameters)
+    {
+        $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    }
+    
+    return $schema_taxa;    
+}
+
 function get_taxa_list($records)
 {
     $arr=array();
@@ -247,7 +255,7 @@ function get_data_object($type,$taxon,$do_id,$agent,$title,$dc_source,$rightsHol
     $dataObjectParameters["language"] = "en";
     
     if($license != "")$dataObjectParameters["license"] = $license;        
-    else              $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";  
+    //else              $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";  
     //$dataObjectParameters["license"] = "http://creativecommons.org/licenses/publicdomain/";        
         
     //==========================================================================================
@@ -290,7 +298,11 @@ function get_data_object($type,$taxon,$do_id,$agent,$title,$dc_source,$rightsHol
 function process($url)
 {
     global $wrap;
-    $contents = cURL_it($url);
+    global $tag;
+
+    $fields = 'validname=collectionId&cmd=Search&text=100,0,tag:"' . $tag . '"';  
+    $contents = cURL_it($url,$fields);    
+    
     if($contents) print "";
     else print "$wrap bad post $wrap ";
     $arr = parse_contents($contents);
@@ -300,7 +312,6 @@ function process($url)
 function parse_contents($str)
 {
     global $wrap;
-
     
     $beg='"Collections":['; $end1=']}'; 
     $str = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');                
@@ -360,24 +371,21 @@ function parse_contents($str)
         <iframe frameborder='0' src='http://photosynth.net/embed.aspx?cid=" . $arr["Id"] . "&delayLoad=true&slideShowPlaying=true' width='500' height='300'></iframe>
         ";
 
-        $data = scrape_site("http://photosynth.net/view.aspx?cid=" . $arr["Id"]);
+        $arr_result = scrape_site($arr["Id"]);
+        $data = $arr_result[0];
+        $arr_tags = $arr_result[1];
         
-        
-        
-        
-        exit;        
+        //exit;        
         //=====================================================================================        
         $source_url = "http://photosynth.net/edit.aspx?cid=" . $arr["Id"];
         //=====================================================================================        
-        $classification = get_classification($arr["Description"]);
+        $classification = get_classification($data);
         $sciname = $classification["scientificname"];        
         //=====================================================================================        
-        $comnames = get_comnames($arr["Description"]);
+        $comnames = get_comnames($arr_tags);
         //=====================================================================================        
-        $arr_temp = get_caption_license($arr["Description"]);
-            $caption = $arr_temp["caption"];
-            $license = $arr_temp["license"];        
-        if($caption == "")$caption = $arr["Description"];
+        $license = get_license($arr_tags);
+        $caption = $arr["Description"];
         //=====================================================================================                
         $agent=array();
         $agent[]=array("role" => "creator" , "homepage" => $source_url , "name" => $arr["OwnerFriendlyName"]);
@@ -401,41 +409,103 @@ function parse_contents($str)
     return $r;    
 }//function parse_contents($contents)
 
-function scrape_site($url)
+
+function scrape_site($id)
 {
-    $str = Functions::get_remote_file($url);
+    /*    
+    http://photosynth.net/view.aspx?cid=a7d5789b-4e45-468e-bec0-3c667d2da33b
+    */    
     
+    $url = "http://photosynth.net/view.aspx";
+    print"<hr><a href='$url?cid=$id'>$url?cid=$id</a><hr>";
+    
+    require_once(DOC_ROOT . 'vendor/Snoopy/Snoopy.class.php');
+	//include "Snoopy.class.php";
+	$snoopy = new Snoopy;
+	$submit_url = $url;	
+	$submit_vars["cid"] = $id;		
+	$snoopy->submit($submit_url,$submit_vars);
+	$str = $snoopy->results;
+        
+    $beg='<div id="tagCloud">'; $end1='</div>'; 
+    $str = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
+    $str = strip_tags($str);    
+
     /*
-    <span class="tag"> <a href="http://photosynth.net/search.aspx?q=erja family">&#34;erja family&#34;</a>
-    </span>
+    taxonomy&#58;binomial&#61;
+    taxonomy:binomial=
     */
+    $str = str_ireplace('&#34;','"',$str);
+    $str = str_ireplace('&#58;',':',$str);
+    $str = str_ireplace('&#61;','=',$str);
     
-    $str = str_ireplace('<span class="tag">' , "&arr[]=", $str);	
-    $arr=array(); parse_str($str);	    
+           
+    //print"<hr>$str<hr>";
+    
+    $arr = explode("\n",$str);
     print"<pre>";print_r($arr);print"</pre>";
+    $data="";
+    foreach($arr as $r)
+    {
+        print trim($r) . "<br>";
+        $data .= trim($r);
+    }
     
-    print"<hr><a href='$url'>$url</a>";
-    //print $contents;
-    exit;
+    print"<hr>$data<hr>";
+    //exit;
+    return array($data,$arr);
+    
+
+    //exit;
+    
 }
 
-function get_caption_license($str)
+function get_license($arr_tags)
 {
     /*
-    "description:caption=my caption string"
-    "description:license=http://creativecommons.org/licenses/by-nc-sa/3.0/"
+    dc:license=cc-by
+    dc:license=cc-by-sa
+    dc:license=cc-by-nc
+    dc:license=cc-by-nc-sa
+    dc:license=public domain    
     */
-    $caption="";$license="";
-    $beg='description:caption='; $end1='"'; $caption = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
-    $beg='description:license='; $end1='"'; $license = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
+
+
+    $comnames=array();    
+    foreach($arr_tags as $tag)
+    {
+        $tag .= "xxx";
+        $beg='dc:license='; $end1='"';$end2='xxx'; $license = trim(parse_html($tag,$beg,$end1,$end2,$end1,$end1,''));
+        if($license)break;
+    }
+    if($license == "cc-by")         $license = "http://creativecommons.org/licenses/by/3.0/";
+    if($license == "cc-by-sa")      $license = "http://creativecommons.org/licenses/by-sa/3.0/";
+    if($license == "cc-by-nc")      $license = "http://creativecommons.org/licenses/by-nc/3.0/";
+    if($license == "cc-by-nc-sa")   $license = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+    if($license == "public domain") $license = "http://creativecommons.org/licenses/publicdomain/";
+
+    return $license;
     
-    return array("caption"=>$caption,"license"=>$license);    
 }
-function get_comnames($str)
+function get_comnames($arr_tags)
 {
-    $beg='taxonomy:common='; $end1='"'; $temp = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
-    $arr = explode(",",$temp);
-    return $arr;
+    //$beg='taxonomy:common='; $end1='"'; $temp = parse_html($str,$beg,$end1,$end1,$end1,$end1,'');
+    //$arr = explode(",",$temp);    
+    
+    $comnames=array();    
+    foreach($arr_tags as $tag)
+    {
+        $beg='taxonomy:common='; $end1='"'; $temp = parse_html($tag,$beg,$end1,$end1,$end1,$end1,'');
+        if($temp)$comnames[]=$temp;
+    }
+    
+    /*
+    print "after parse_str recs = " . count($comnames);
+    print"<pre>";print_r($comnames);print"</pre>";
+    exit;    
+    */
+    
+    return $comnames;
 }
 
 function get_classification($str)
@@ -563,16 +633,17 @@ function get_href_from_anchor_tag($str)
     return trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));//exist on first match = true
 }
 
-function cURL_it($url)
+function cURL_it($url,$fields)
 {    
-    global $tag;
-    $fields = 'validname=collectionId&cmd=Search&text=100,0,tag:"' . $tag . '"';  
-    //$fields = 'validname=collectionId&cmd=Search&text=10,0,tag:"homo sapiens"';  
     $ch = curl_init();  
     curl_setopt($ch,CURLOPT_URL,$url);  
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    // not to display the post submission
+    
+    /*
     curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/cookies.txt');
     curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/cookies.txt');
+    */
+    
     curl_setopt($ch,CURLOPT_POST, $fields);  
     curl_setopt($ch,CURLOPT_POSTFIELDS, $fields);  
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION, true);  
@@ -584,7 +655,7 @@ function cURL_it($url)
     $ans = strval($ans);
     if($ans != "")  return false;
     else            return $output;        
-}//function cURL_it()
+}
 
 
 // /*
@@ -594,7 +665,7 @@ function cURL_it($url)
 /*
 Dear EOL Photosynth-contributors
 
-In order for your photosynth to be harvested by EOL you need to enter 3 types of machine tags 
+In order for your photosynth to be harvested by EOL you need to enter 2 types of machine tags 
 in the 'Description' field of your photosynth.
 
 1. machine tag for the name:
@@ -604,16 +675,19 @@ in the 'Description' field of your photosynth.
         e.g. just binomial
             "taxonomy:binomial=Gadus morhua" 
         
-        e.g. binomial and family
+        e.g. binomial and family and common names
             "taxonomy:binomial=Gadus morhua" 
             "taxonomy:family=Gadidae" 
+            "taxonomy:common=atlantic cod"               
+            "taxonomy:common=cod"               
         
         e.g. just Order name
             "taxonomy:order=Lepidoptera"  
         
         e.g. trinomial and common names
             "taxonomy:trinomial=Oreochromis niloticus niloticus" 
-            "taxonomy:common=tilapia, Nile tilapia, big tilapia"               
+            "taxonomy:common=tilapia"               
+            "taxonomy:common=Nile tilapia"               
     
         list of possible tags for names:
             taxonomy:kingdom=
@@ -628,6 +702,14 @@ in the 'Description' field of your photosynth.
             taxonomy:common=
 
 2. machine tag for the license: (only 5 options to choose)
+
+    "dc:license=cc-by"
+    "dc:license=cc-by-sa"
+    "dc:license=cc-by-nc"
+    "dc:license=cc-by-nc-sa"
+    "dc:license=public domain"
+    
+
     e.g.
         "description:license=http://creativecommons.org/licenses/publicdomain/"
     or
@@ -638,24 +720,6 @@ in the 'Description' field of your photosynth.
         "description:license=http://creativecommons.org/licenses/by-nc/3.0/"
     or
         "description:license=http://creativecommons.org/licenses/by-nc-sa/3.0/"
-
-3. machine tag for the caption (or description) of the photosynth:
-    e.g.
-        "description:caption=This photosynth is about the hunting behavior of lions in the great plains."        
-    or
-        "description:caption=A bear feeding her young."        
-    
-
-
-
-
-
-
-
-
-      
-    
-    
 
     
 */
