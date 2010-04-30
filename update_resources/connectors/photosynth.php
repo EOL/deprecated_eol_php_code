@@ -19,7 +19,7 @@ print "resource id = " . $resource->id . "$wrap"; //exit;
 $form_url   ="http://photosynth.net/PhotosynthHandler.ashx";
 $tag        ="erja family";
 //$tag        ="encyclopedia of life";
-$tag        ="eol";
+//$tag        ="eol";
 
 $schema_taxa = harvest_photosynth($form_url);
 
