@@ -12,7 +12,7 @@ require_library('PhotosynthAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
 $wrap = "\n";
-$wrap = "<br>";
+//$wrap = "<br>";
 
 $tag = "erja family";
 //$tag = "eol";
