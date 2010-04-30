@@ -4,6 +4,9 @@ define("FORM_URL", "http://photosynth.net/PhotosynthHandler.ashx");
 define("VIEW_URL", "http://photosynth.net/view.aspx?cid=");
 define("USER_URL", "http://photosynth.net/userprofilepage.aspx?user=");
 
+define("TAG_SEARCHED", "erja family");
+//define("TAG_SEARCHED", "eol");
+
 class PhotosynthAPI
 {    
     public static function harvest_photosynth()
@@ -143,15 +146,13 @@ class PhotosynthAPI
     public static function get_records()
     {
         global $wrap;
-        global $tag;
     
-        $fields = 'validname=collectionId&cmd=Search&text=100,0,tag:"' . $tag . '"';  
-        $contents = self::cURL_it(FORM_URL,$fields);    
-        
+        $fields = 'validname=collectionId&cmd=Search&text=100,0,tag:"' . TAG_SEARCHED . '"';  
+        $contents = self::cURL_it(FORM_URL,$fields);            
         if($contents) print "";
         else print "$wrap bad post $wrap ";
-        $arr = self::parse_contents($contents);
-        return $arr;        
+        $arr_contents = self::parse_contents($contents);
+        return $arr_contents;        
     }
     
     public static function parse_contents($str)
@@ -202,18 +203,13 @@ class PhotosynthAPI
         
         print"<pre>";print_r($final_arr);print"</pre>";//exit;
     
-        $r=array();
-        
-        $excluded_ids = array("","");
-        
+        $final=array();        
+        $excluded_ids = array("","");        
         foreach($final_arr as $arr)
         {            
             if(in_array($arr["Id"], $excluded_ids))continue;            
             //print"<iframe frameborder='0' src='http://photosynth.net/embed.aspx?cid=" . $arr["Id"] . "&delayLoad=true&slideShowPlaying=true' width='500' height='300'></iframe>";    
             $arr_tags = self::get_tags_from_site($arr["Id"]);
-            
-            //print"<pre>333";print_r($arr_tags);print"</pre>";
-            
             //=====================================================================================        
             $source_url = VIEW_URL . $arr["Id"];            
             $agent_homepage = USER_URL . $arr["OwnerFriendlyName"];                        
@@ -225,7 +221,7 @@ class PhotosynthAPI
             $agent=array();
             $agent[]=array("role" => "creator" , "homepage" => $agent_homepage , "name" => $arr["OwnerFriendlyName"]);
             //=====================================================================================        
-            $r[]=array  (   "taxon"          => $sciname,   
+            $final[]=array ("taxon"          => $sciname,   
                             "taxon_id"       => $arr["OwnerUserGuid"] . "_" . str_ireplace(" ","_",$sciname),   
                             "classification" => $classification,
                             "comnames"       => $comnames,
@@ -239,9 +235,7 @@ class PhotosynthAPI
                             "license"        => $license
                         );        
         }        
-        //exit;
-        //print"<pre>";print_r($r);print"</pre>";exit;
-        return $r;    
+        return $final;    
     }
     
     public static function get_tags_from_site($id)
@@ -266,29 +260,26 @@ class PhotosynthAPI
     	$snoopy->submit($submit_url,$submit_vars);
     	$str = $snoopy->results;        
                
-        //print"<hr>$str<hr>";exit;
-            
+        //print"<hr>$str<hr>";exit;            
         $beg='<div id="tagCloud">'; $end1='</div>'; 
         $str = trim(self::parse_html($str,$beg,$end1,$end1,$end1,$end1,""));            
         $str = strip_tags($str);        
         /*
-        taxonomy&#58;binomial&#61;
-        taxonomy:binomial=
+        taxonomy&#58;binomial&#61; taxonomy:binomial=
         */
         $str = str_ireplace('&#34;','"',$str);
         $str = str_ireplace('&#58;',':',$str);
         $str = str_ireplace('&#61;','=',$str);                
-        $arr_tags = explode("\n",$str); 
-        
+        $arr_temp = explode("\n",$str);         
         //print"<pre>";print_r($arr_tags);print"</pre>";
         
-        $final=array();
-        foreach($arr_tags as $r)
+        $arr_tags=array();
+        foreach($arr_temp as $tag)
         {
-            if(trim($r)!="")$final[]=$r;
+            if(trim($tag)!="")$arr_tags[]=trim($tag);
         }
-        //print"<pre>111";print_r($final);print"</pre>";//exit;
-        return $final;    
+        //print"<pre>111";print_r($arr_tags);print"</pre>";//exit;
+        return $arr_tags;    
     }
     
     public static function get_license($arr_tags)
@@ -327,6 +318,8 @@ class PhotosynthAPI
     
     public static function get_classification($arr_tags)
     {   
+        global $wrap;
+        
         $kingdom="";
         $phylum="";
         $class="";
@@ -334,15 +327,12 @@ class PhotosynthAPI
         $family="";
         $genus="";
         $binomial="";
-        $trinomial="";
+        $trinomial="";        
         
-        
-        //print"<pre>222 ";print_r($arr_tags);print"</pre>";exit;
-
         foreach($arr_tags as $tag)
-        {
-            print" -- $tag <br>";
-            $tag = trim($tag) . "xxx";
+        {            
+            print" -- $tag $wrap";
+            $tag .= "xxx";
             
             if($kingdom=="")  {$beg='taxonomy:kingdom=';  $end1='"';$end2='xxx'; $kingdom   = self::parse_html($tag,$beg,$end1,$end2,$end1,$end1,'');}
             if($phylum=="")   {$beg='taxonomy:phylum=';   $end1='"';$end2='xxx'; $phylum    = self::parse_html($tag,$beg,$end1,$end2,$end1,$end1,'');}
@@ -365,7 +355,7 @@ class PhotosynthAPI
         if($family!="")$sciname=$family;
         if($genus!="")$sciname=$genus;
         if($scientificname!="")$sciname=$scientificname;        
-        $arr = array(   "kingdom"=>$kingdom,
+        $classification = array(   "kingdom"=>$kingdom,
                         "phylum"=>$phylum,
                         "class"=>$class,
                         "order"=>$order,
@@ -373,8 +363,8 @@ class PhotosynthAPI
                         "genus"=>$genus,
                         "scientificname"=>$sciname
                     );        
-        print"<pre>";print_r($arr);print"</pre>";//exit;
-        return $arr;    
+        print"<pre>";print_r($classification);print"</pre>";//exit;
+        return $classification;    
     }
     
     public static function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
