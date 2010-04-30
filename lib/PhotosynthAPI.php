@@ -353,6 +353,8 @@ class PhotosynthAPI
             if($binomial=="") {$beg='taxonomy:binomial='; $end1='"';$end2='xxx'; $binomial  = self::parse_html($tag,$beg,$end1,$end2,$end1,$end1,'');}
             if($trinomial==""){$beg='taxonomy:trinomial=';$end1='"';$end2='xxx'; $trinomial = self::parse_html($tag,$beg,$end1,$end2,$end1,$end1,'');}            
         }
+        
+        $scientificname="";
         if($binomial!="")$scientificname = $binomial;
         if($trinomial!="")$scientificname = $trinomial;        
         $sciname="";
