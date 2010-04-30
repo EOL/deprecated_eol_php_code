@@ -14,17 +14,11 @@ $GLOBALS['ENV_DEBUG'] = false;
 $wrap = "\n";
 //$wrap = "<br>";
 
-$tag = "erja family";
-//$tag = "eol";
-
 $schema_taxa = PhotosynthAPI::harvest_photosynth();
-
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "119.xml";
 $OUT = fopen($old_resource_path, "w+");
-fwrite($OUT, $new_resource_xml);
-fclose($OUT);
-
+fwrite($OUT, $new_resource_xml); fclose($OUT);
 
 $elapsed_time_sec = microtime(1)-$timestart;
 echo "$wrap";
