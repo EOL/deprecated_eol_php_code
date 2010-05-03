@@ -136,15 +136,6 @@ class Functions
         return $file;
     }
     
-    public static function get_hashed_response($url, $download_wait_time = DOWNLOAD_WAIT_TIME)
-    {
-        $response = self::get_remote_file($url, $download_wait_time);
-        
-        $hash = simplexml_load_string($response);
-        
-        return $hash;
-    }
-    
     public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
         debug("Grabbing $remote_url: attempt 1");
@@ -162,6 +153,15 @@ class Functions
             $attempts++;
         }
         return $file;
+    }
+    
+    public static function get_hashed_response($url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    {
+        $response = self::get_remote_file($url, $download_wait_time);
+        
+        $hash = simplexml_load_string($response);
+        
+        return $hash;
     }
     
     public static function get_hashed_response_fake_browser($url, $download_wait_time = DOWNLOAD_WAIT_TIME)

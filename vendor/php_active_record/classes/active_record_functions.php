@@ -381,6 +381,24 @@ function temp_filepath($relative_from_root = false, $extension = 'file')
     return $filepath;
 }
 
+function create_temp_dir()
+{
+    $filepath = DOC_ROOT ."tmp/dir_". random_digits(5);
+    // make sure the name is unique
+    while(glob($filepath))
+    {
+        $filepath = DOC_ROOT ."tmp/dir_". random_digits(5);
+    }
+    mkdir($filepath);
+    return $filepath;
+}
+
+// function delete_dir($path)
+// {
+//     while(glob($path))
+// }
+
+
 function file_randomize($path)
 {
     // loop through the file finding the offset of all newlines

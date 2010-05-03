@@ -12,12 +12,13 @@ class TaxonImporter
     private $hierarchy_published;
     private $taxon_ids_inserted;
     
-    public function __construct(&$hierarchy, $vetted_id = 0, $published = 0)
+    public function __construct(&$hierarchy, $vetted_id = 0, $visibility_id = 0, $published = 0)
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->valid_taxonomic_statuses = array("valid", "accepted");
         $this->hierarchy = $hierarchy;
         $this->hierarchy_vetted_id = $vetted_id;
+        $this->hierarchy_visibility_id = $visibility_id;
         $this->hierarchy_published = $published;
     }
     
@@ -39,14 +40,14 @@ class TaxonImporter
             }
             
             $taxon_id = $taxon->taxonID;
-            $parent_taxon_id = $taxon->parentNameUsageID;
-            if($taxon_id && $is_valid)
+            $parent_taxon_id = @$taxon->parentNameUsageID;
+            if($taxon_id && $is_valid && @$taxon->scientificName)
             {
-                static $total_valid_taxa = 0;
-                $total_valid_taxa++;
-                
                 if(!$parent_taxon_id) $parent_taxon_id = 0;
                 $this->children[$parent_taxon_id][] = $taxon;
+            }elseif($taxon_id && @$taxon->vernacularName)
+            {
+                $this->vernacular_names[$taxon_id][] = $taxon;
             }elseif(!$is_valid && $parent_taxon_id)
             {
                 $this->synonyms[$parent_taxon_id][] = $taxon;
@@ -59,15 +60,15 @@ class TaxonImporter
         // set the nested set values
         Tasks::rebuild_nested_set($this->hierarchy->id);
         
-        // // Rebuild the Solr index for this hierarchy
-        // $indexer = new HierarchyEntryIndexer();
-        // $indexer->index($hierarchy->id);
-        // 
-        // // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-        // CompareHierarchies::process_hierarchy($hierarchy, null, true);
-        // 
-        // // Use the entry relationships to assign the proper concept IDs
-        // CompareHierarchies::begin_concept_assignment($hierarchy->id);
+        // Rebuild the Solr index for this hierarchy
+        $indexer = new HierarchyEntryIndexer();
+        $indexer->index($this->hierarchy->id);
+        
+        // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+        CompareHierarchies::process_hierarchy($this->hierarchy, null, true);
+        
+        // Use the entry relationships to assign the proper concept IDs
+        CompareHierarchies::begin_concept_assignment($this->hierarchy->id);
     }
     
     private function begin_adding_nodes()
@@ -85,7 +86,9 @@ class TaxonImporter
     
     function add_hierarchy_entry(&$taxon, $parent_hierarchy_entry_id, $ancestry)
     {
-        echo "Memory: ".memory_get_usage()."\n";
+        static $i=0;
+        $i++;
+        if($i%500==0) echo "Memory: ".memory_get_usage()."\n";
         
         // make sure this taxon has a name, otherwise skip this branch
         if(!isset($taxon->scientificName)) return false;
@@ -100,10 +103,10 @@ class TaxonImporter
                         "rank_id"       => Rank::insert(@$taxon->taxonRank),
                         "ancestry"      => $ancestry,
                         "vetted_id"     => $this->hierarchy_vetted_id,
+                        "visibility_id" => $this->hierarchy_visibility_id,
                         "published"     => $this->hierarchy_published);
         
-        $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($mock_hierarchy_entry));
+        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
         $this->taxon_ids_inserted[$taxon->taxonID] = $hierarchy_entry->id;
         unset($params);
         unset($mock_hierarchy_entry);
@@ -121,6 +124,20 @@ class TaxonImporter
                 if(isset($synonym_taxon->taxonID)) $this->taxon_ids_inserted[$synonym_taxon->taxonID] = 1;
             }
             unset($this->synonyms[$taxon->taxonID]);
+        }
+        
+        if(isset($this->vernacular_names[$taxon->taxonID]))
+        {
+            foreach($this->vernacular_names[$taxon->taxonID] as $vernacular)
+            {
+                if(!isset($vernacular->vernacularName)) continue;
+                
+                $name_id = Name::insert($vernacular->vernacularName);
+                $language_id = Language::insert(@$vernacular->dcterms->language);
+                $synonym_relation_id = SynonymRelation::insert('common name');
+                $hierarchy_entry->add_synonym($name_id, $synonym_relation_id, $language_id, 0, $this->hierarchy_vetted_id, $this->hierarchy_published);
+            }
+            unset($this->vernacular_names[$taxon->taxonID]);
         }
         
         if(isset($this->children[$taxon->taxonID]))
