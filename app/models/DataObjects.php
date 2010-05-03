@@ -102,6 +102,10 @@ class DataObject extends MysqlBase
         if(!$agent_role_id) $agent_role_id = 0;
         $this->mysqli->insert("INSERT IGNORE INTO agents_data_objects VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
     }
+    public function delete_agents()
+    {
+        $this->mysqli->insert("DELETE FROM agents_data_objects WHERE data_object_id=$this->id");
+    }
     
     public function add_audience($audience_id)
     {

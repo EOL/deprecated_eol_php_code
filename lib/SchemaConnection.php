@@ -123,6 +123,7 @@ class SchemaConnection extends MysqlBase
         if($status!="Reused")
         {
             $i = 0;
+            $data_object->delete_agents();
             foreach($d->agents as &$a)
             {
                 $agent_id = Agent::insert($a);
