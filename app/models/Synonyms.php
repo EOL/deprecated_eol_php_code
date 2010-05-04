@@ -60,7 +60,6 @@ class Synonym extends MysqlBase
     
     static function find($parameters)
     {
-        if(!$relation_id) $relation_id = 0;
         if(@!$parameters['synonym_relation_id']) $parameters['synonym_relation_id'] = 0;
         if(@!$parameters['language_id']) $parameters['language_id'] = 0;
         if(@!$parameters['hierarchy_entry_id']) $parameters['hierarchy_entry_id'] = 0;
