@@ -2,9 +2,11 @@
 /*
 execution time: 1.5 hours
 
-run date    1March2010  1April2010
-GA records  110,679
-report mon. Feb2010     Mar2010
+month:      run date:       GA records      execution time:
+Feb2010     1March2010      110,679
+Mar2010     1April2010                      1.5 hrs
+Apr2010     3May2010                        1.7 hrs
+
 */
 
 /*
