@@ -204,9 +204,9 @@ class WikimediaPage
         }
         
         $data_object_parameters["agents"] = array();
-        if($this->agent_parameters())
+        if($a = $this->agent_parameters())
         {
-            $data_object_parameters["agents"][] = new SchemaAgent($this->agent_parameters());
+            $data_object_parameters["agents"][] = new SchemaAgent($a);
         }
         
         return $data_object_parameters;
@@ -226,6 +226,7 @@ class WikimediaPage
         $agent_parameters = array();
         $agent_parameters["fullName"] = htmlspecialchars($author);
         if(Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+        $agent_parameters["role"] = 'photographer';
         
         $this->agent_parameters = $agent_parameters;
         return $agent_parameters;

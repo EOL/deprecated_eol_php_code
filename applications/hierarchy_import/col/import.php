@@ -1,5 +1,5 @@
 <?php
-
+exit;
 include_once(dirname(__FILE__)."/../../../config/environment.php");
 
 
@@ -7,7 +7,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli_col = load_mysql_environment("col2010");
 
 
-$mysqli->truncate_tables("test_db");
+//$mysqli->truncate_tables("test_db");
 $mysqli->begin_transaction();
 
 
@@ -25,10 +25,10 @@ Tasks::rebuild_nested_set($GLOBALS['hierarchy']->id);
 fclose($GLOBALS['agents_file']);
 fclose($GLOBALS['synonyms_file']);
 $mysqli->load_data_infile($GLOBALS['agents_file_path'], 'agents_hierarchy_entries'); 
-$mysqli->load_data_infile($GLOBALS['synonyms_file_path'], 'agents_hierarchy_entries'); 
-
-unlink($GLOBALS['agents_path']);
-unlink($GLOBALS['synonyms_file_path']);
+$mysqli->load_data_infile($GLOBALS['synonyms_file_path'], 'synonyms'); 
+// 
+// unlink($GLOBALS['agents_file_path']);
+// unlink($GLOBALS['synonyms_file_path']);
 
 $mysqli->end_transaction();
 exit;
@@ -119,7 +119,7 @@ function add_hierarchy()
                                 "hierarchy_group_id"        => $hierarchy_group_id,
                                 "hierarchy_group_version"   => $hierarchy_group_version);
     
-    $GLOBALS['hierarchy'] = new Hierarchy(Hierarchy::insert(Functions::mock_object("Hierarchy", $hierarchy_params)));
+    $GLOBALS['hierarchy'] = new Hierarchy(Hierarchy::insert($hierarchy_params));
 }
 
 function start_process()
@@ -131,7 +131,8 @@ function start_process()
     while($result && $row=$result->fetch_assoc())
     {
         $i++;
-        if($i<4) continue;
+        //if($i<4) continue;
+        //if($row['id']!=2242856) continue;
         add_col_taxon($row, 0, '', 0);
     }
 }
@@ -189,7 +190,7 @@ function add_col_taxon($row, $parent_hierarchy_entry_id, $ancestry, $depth)
     {
         $name_string = 'Not assigned';
         echo "$id: no name_string\n";
-        return;
+        //return;
     }
     
     $name_id = Name::insert($name_string, $canonical_form);
@@ -218,11 +219,9 @@ function add_col_taxon($row, $parent_hierarchy_entry_id, $ancestry, $depth)
                     "rank_id"       => $rank_id,
                     "ancestry"      => $ancestry);
     
-    $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-    $hierarchy_entry_id = HierarchyEntry::insert($mock_hierarchy_entry, true);
+    $hierarchy_entry_id = HierarchyEntry::insert($params, true);
     //$hierarchy_entry = new HierarchyEntry($hierarchy_entry_id);
     unset($params);
-    unset($mock_hierarchy_entry);
     
     if($name_code)
     {
@@ -311,7 +310,7 @@ function add_col_synonyms($hierarchy_entry_id, $name_code)
         //     }
         // }
         
-        fwrite($GLOBALS['synonyms_file'], "$name_id\t$relationship_id\t0\t$hierarchy_entry_id\t0\t$hierarchy_id\t0\t0\n");
+        fwrite($GLOBALS['synonyms_file'], "NULL\t$name_id\t$relationship_id\t0\t$hierarchy_entry_id\t0\t$hierarchy_id\t0\t0\n");
     }
     if($result && $result->num_rows) $result->free();
 }
@@ -330,7 +329,7 @@ function add_col_common_names($hierarchy_entry_id, $name_code)
         $language_id = Language::insert(trim($row["language"]));
         
         $name_id = Name::insert($name_string);
-        fwrite($GLOBALS['synonyms_file'], "$name_id\t$common_name_id\t$language_id\t$hierarchy_entry_id\t0\t$hierarchy_id\t0\t0\n");
+        fwrite($GLOBALS['synonyms_file'], "NULL\t$name_id\t$common_name_id\t$language_id\t$hierarchy_entry_id\t0\t$hierarchy_id\t0\t0\n");
     }
     if($result && $result->num_rows) $result->free();
 }
