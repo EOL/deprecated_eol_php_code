@@ -9,12 +9,6 @@ Apr2010     3May2010                        1.7 hrs
 
 */
 
-/*
-http://127.0.0.1/eol_php_code/applications/google_stats/generate_monthly_stats_v2.php?month=12&year=2009
-$str="abc123,";
-print substr($str,0,strlen($str)-1);
-exit;
-*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
@@ -24,22 +18,9 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli2 = $mysqli; // to use in Beast
 //exit; //for debug
 
-//$mysqli2 = load_mysql_environment('staging');        
-//$mysqli2 = load_mysql_environment('eol_statistics');     //from old system
-//$mysqli2 = load_mysql_environment('development'); //to be used when developing locally
 
 //$use_sql_load_infile=true;
 $use_sql_load_infile=false;
-
-//start test load data infile
-    /*
-    $query="delete from `google_analytics_page_stats`";  
-    $update = $mysqli2->query($query);        
-    $temp = $mysqli->load_data_infile("data/2010_01/google_analytics_partner_summaries.txt", "google_analytics_partner_summaries");
-    exit;
-    */
-//end test
-
 
 /*
 tables used:
@@ -209,36 +190,11 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
-        /*
-        $query = "Select Count(taxon_concepts.id) 
-        From hierarchy_entries
-        Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-        Where
-        hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
-        taxon_concepts.published        = 1 AND        
-        taxon_concepts.supercedure_id   = 0 ";
-        //removed taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
-        */
-
         $query = "SELECT COUNT(he.taxon_concept_id) count FROM hierarchy_entries he 
-        WHERE he.hierarchy_id=".Hierarchy::col_2009();        
-        
-        //print "<hr>$query<hr>";exit;        
+        WHERE he.hierarchy_id=".Hierarchy::col_2009();                
     }
     else //rest of the partners
     {   
-        /* removed agents table
-        $query = "Select distinct he.taxon_concept_id 
-        FROM agents a 
-        JOIN agents_resources ar ON (a.id=ar.agent_id) 
-        JOIN harvest_events hev ON (ar.resource_id=hev.resource_id) 
-        JOIN harvest_events_taxa het ON (hev.id=het.harvest_event_id) 
-        JOIN taxa t ON (het.taxon_id=t.id) 
-        join hierarchy_entries he on t.hierarchy_entry_id = he.id 
-        join taxon_concepts tc on he.taxon_concept_id = tc.id 
-        WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0 ";                
-        */
-        
         $query="Select distinct tc.id taxon_concept_id
         From agents_resources
         Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
@@ -247,9 +203,8 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
         Inner Join hierarchy_entries ON taxa.hierarchy_entry_id = hierarchy_entries.id
         Inner Join taxon_concepts tc ON hierarchy_entries.taxon_concept_id = tc.id
         WHERE agents_resources.agent_id = $agent_id
-        and tc.published = 1 and tc.supercedure_id = 0        
-        ";
-        
+        and tc.published = 1 and tc.supercedure_id = 0
+        ";        
     }
     $result2 = $mysqli->query($query);            
     $row2 = $result2->fetch_row();                
@@ -331,7 +286,7 @@ function save_agent_monthly_summary($year_month)
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,"\t","txt");                
     $elapsed_time_in_sec = microtime(1)-$time_start;
     echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
-    
+    //=================================================================    
     echo"\n start COL stats summaries...\n";    
     $time_start = microtime(1);        
     $arr = get_count_of_taxa_pages_per_partner(11,$year,$month);
@@ -364,23 +319,9 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         and gaps.month=$month and gaps.year=$year ";
         //removed and tc.vetted_id <> " . Vetted::find("untrusted") . " 
         //$query .= " LIMIT 1 "; //debug
-
     }
     elseif($agent_id == 11)//Catalogue of Life
-    {   
-        /*
-        $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
-        From hierarchy_entries
-        Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-        Inner Join google_analytics_page_stats gaps ON taxon_concepts.id = gaps.taxon_concept_id
-        Where
-        hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
-        taxon_concepts.published        = 1 AND
-        taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
-        taxon_concepts.supercedure_id   = 0 
-        and gaps.month=$month and gaps.year=$year ";
-        */
-        
+    {           
         $query="
         select distinct 11 agent_id, 'Catalogue of Life' full_name, hierarchy_entries.taxon_concept_id
         From hierarchy_entries
@@ -389,7 +330,6 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." 
         and gaps.month = $month and gaps.year = $year
         ";        
-
         //print"<hr>$query<hr>"; exit;                
         //$query .= " LIMIT 1 "; //debug    
     }
@@ -496,10 +436,6 @@ function save_agent_taxa($year_month)
 
     //start query9,10,11,12 => start3.php
     //start query11 - site_statistics
-    //print"<hr>xxx [$temp]<hr>"; exit($temp);
-    /*
-    //$query1 .= " INTO OUTFILE 'C:/webroot/eol_php_code/applications/google_stats/data/2009_07/eli.txt' FIELDS TERMINATED BY '\t' ";
-    */   
 
 }//end func //end start2
 
@@ -524,8 +460,7 @@ function save_eol_taxa_google_stats($month,$year)
 {
     global $mysqli2;
     global $mysqli;
-    global $use_sql_load_infile;
-    
+    global $use_sql_load_infile;    
     
     $year_month = $year . "_" . $month;
     
@@ -561,11 +496,9 @@ function save_eol_taxa_google_stats($month,$year)
         //$start_count=30001; //debug
         $range=10000; //actual operation
         //$range=5000; //debug
-        //$range=1;
         
         mkdir("data/" , 0777);        
-        mkdir("data/" . $year . "_" . $month , 0777);        
-        
+        mkdir("data/" . $year . "_" . $month , 0777);                
         
         $cr = "\n";
         //$sep = ",";
@@ -614,7 +547,7 @@ function save_eol_taxa_google_stats($month,$year)
                     }
                     else $averate_time_on_page = "";
                     
-                    /*
+                    /* debug
                     echo " -- " . $bounce_rate;
                     echo " -- " . $percent_exit;
                     echo " -- " . $averate_time_on_page;                                    
@@ -630,20 +563,12 @@ function save_eol_taxa_google_stats($month,$year)
                     //print " | count = " . count($count) . "";
                     $url = "http://www.eol.org" . $metric;
                     $taxon_id = parse_url($url, PHP_URL_PATH);
-                    //print "[$taxon_id]";
                     if(strval(stripos($taxon_id,"/pages/"))!= '')$taxon_id = str_ireplace("/pages/", "", $taxon_id);
                     else                                         $taxon_id = '';
                     //print "[$taxon_id]";
                     
-                    /* not used anymore
-                    $sciname="";                    
-                    if(is_numeric($taxon_id))$sciname = get_sciname_from_tc_id($taxon_id);                                        
-                    //else echo" not numeric ";
-                    */                    
-                    
                     if($taxon_id > 0)
-                    {
-                    
+                    {                    
                         if(!$use_sql_load_infile)$str .= "(";
                     
                         $str .= intval($taxon_id) . $sep . 
@@ -677,13 +602,11 @@ function save_eol_taxa_google_stats($month,$year)
             if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year . "_" . $month . "/google_analytics_page_stats.txt' INTO TABLE google_analytics_page_stats");      
             else
             {
-                                   //$update = $mysqli2->load_data_infile(             "data/" . $year . "_" . $month . "/google_analytics_page_stats.txt",          "google_analytics_page_stats");
                 if($str)
                 {
                     $str = str_ireplace("\t", ",", $str);                                 
                     $str = str_ireplace("\n", "", $str);                                 
                     
-                    //ditox
                     $str = substr($str,0,strlen($str)-1);//to remove the last char which is a "," comma.
                        
                     $update = $mysqli2->query("INSERT IGNORE INTO `google_analytics_page_stats` VALUES $str ");
@@ -694,19 +617,16 @@ function save_eol_taxa_google_stats($month,$year)
                     $update = $mysqli2->query("select count(*) total From google_analytics_page_stats ");
                     $rowx = $update->fetch_row();            
                     print "\n current no of recs: " . $rowx[0];
-           //         exit;
+                    //exit;
 
             
             echo"\n Getting data from Google Analytics... \n More, please wait... $start_count \n";
-
             //exit;
 
-        }//end while
-        
+        }//end while        
 
         //print"ditox";   
         //$mysqli2     
-
        
     }
     else 
@@ -716,23 +636,15 @@ function save_eol_taxa_google_stats($month,$year)
     return $final;
 }//function 
 
-
-function create_tables()
-{   /* to be run as migrations */   
-}
-
 function initialize_tables_4dmonth($year,$month)
 {	
     global $mysqli2;    
-      global $mysqli;
-
-    //$month=intval($month);
-    //$mysqli2
     $query="delete from `google_analytics_page_stats`        where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);        
     $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
     $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
     $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
 }//function initialize_tables_4dmonth()
+
 
 
 //#############################################################################################################
