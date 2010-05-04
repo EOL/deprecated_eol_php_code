@@ -60,7 +60,20 @@ class Synonym extends MysqlBase
     
     static function find($parameters)
     {
-        return 0;
+        if(!$relation_id) $relation_id = 0;
+        if(@!$parameters['synonym_relation_id']) $parameters['synonym_relation_id'] = 0;
+        if(@!$parameters['language_id']) $parameters['language_id'] = 0;
+        if(@!$parameters['hierarchy_entry_id']) $parameters['hierarchy_entry_id'] = 0;
+        if(@!$parameters['hierarchy_id']) $parameters['hierarchy_id'] = 0;
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id
+            FROM synonyms
+            WHERE name_id=". $parameters['name_id'] ."
+            AND synonym_relation_id=". $parameters['synonym_relation_id'] ."
+            AND language_id=". $parameters['language_id'] ."
+            AND hierarchy_entry_id=". $parameters['hierarchy_entry_id'] ."
+            AND hierarchy_id=". $parameters['hierarchy_id']);
+        if($result && $row=$result->fetch_assoc()) return $row['id'];
+        return false;
     }
 }
 

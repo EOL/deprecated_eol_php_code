@@ -444,10 +444,8 @@ function add_hierarchy_entry($name_tsn, $parent_hierarchy_entry_id, $ancestry)
                         "rank_id"       => $name_array["rank_id"],
                         "ancestry"      => $ancestry);
         
-        $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($mock_hierarchy_entry));
+        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
         unset($params);
-        unset($mock_hierarchy_entry);
         
         if(@$GLOBALS['synonyms'][$name_tsn])
         {

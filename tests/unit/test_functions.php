@@ -76,6 +76,10 @@ class test_functions extends SimpletestUnitBase
         $this->assertTrue(Functions::import_decode('Búfal &lt;aquàtic&gt;', false, true) == 'Búfal <aquàtic>', 'Should get decoded properly');
         $this->assertTrue(Functions::import_decode('Búfal &lt;aquàtic&gt;') == 'Búfal <aquàtic>', 'Decode should be the default');
         $this->assertTrue(Functions::import_decode('Búfal &lt;aquàtic&gt;') == 'Búfal <aquàtic>', 'Decode should be the default');
+        
+        $this->assertTrue(Functions::import_decode('Búfal &nbsp; aquàtic', false, false) == 'Búfal &nbsp; aquàtic', 'Decode should be the default');
+        $this->assertTrue(Functions::import_decode('Búfal &nbsp; aquàtic', false, true) == 'Búfal   aquàtic', 'Decode should be the default');
+        $this->assertTrue(Functions::import_decode('Búfal &nbsp; aquàtic', true, true) == 'Búfal aquàtic', 'Decode should be the default');
     }
 
 }

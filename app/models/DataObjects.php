@@ -93,7 +93,7 @@ class DataObject extends MysqlBase
     public function add_reference($reference_id)
     {
         if(!$reference_id) return 0;
-        $this->mysqli->insert("INSERT INTO data_objects_refs VALUES ($this->id, $reference_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_refs VALUES ($this->id, $reference_id)");
     }
     
     public function add_agent($agent_id, $agent_role_id, $view_order)

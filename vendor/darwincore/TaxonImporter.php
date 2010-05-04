@@ -60,15 +60,15 @@ class TaxonImporter
         // set the nested set values
         Tasks::rebuild_nested_set($this->hierarchy->id);
         
-        // Rebuild the Solr index for this hierarchy
-        $indexer = new HierarchyEntryIndexer();
-        $indexer->index($this->hierarchy->id);
-        
-        // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-        CompareHierarchies::process_hierarchy($this->hierarchy, null, true);
-        
-        // Use the entry relationships to assign the proper concept IDs
-        CompareHierarchies::begin_concept_assignment($this->hierarchy->id);
+        // // Rebuild the Solr index for this hierarchy
+        // $indexer = new HierarchyEntryIndexer();
+        // $indexer->index($this->hierarchy->id);
+        // 
+        // // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+        // CompareHierarchies::process_hierarchy($this->hierarchy, null, true);
+        // 
+        // // Use the entry relationships to assign the proper concept IDs
+        // CompareHierarchies::begin_concept_assignment($this->hierarchy->id);
     }
     
     private function begin_adding_nodes()
@@ -109,7 +109,6 @@ class TaxonImporter
         $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
         $this->taxon_ids_inserted[$taxon->taxonID] = $hierarchy_entry->id;
         unset($params);
-        unset($mock_hierarchy_entry);
         
         if(isset($this->synonyms[$taxon->taxonID]))
         {

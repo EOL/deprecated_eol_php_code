@@ -599,10 +599,15 @@ class Functions
     
     public static function import_decode($string, $remove_shitespace = false, $decode = true)
     {
-        if($decode) $string = htmlspecialchars_decode(html_entity_decode($string));
+        if($decode)
+        {
+            $string = str_replace('&nbsp;',  ' ', $string);
+            $string = htmlspecialchars_decode(html_entity_decode($string));
+        }
         
         $string = str_replace(" ", " ", $string);
         //utf-8 0x0A (nobreak space) does not get inserted into mysql properly, we change it back to &nbsp; 
+        //$string = str_replace("\xA0", "&nbsp;", $string);
         $string = str_replace("\x0A", "&nbsp;", $string);
         
         if($remove_shitespace) $string = self::remove_whitespace($string);

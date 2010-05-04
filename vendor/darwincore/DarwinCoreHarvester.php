@@ -120,11 +120,9 @@ class DarwinCoreHarvester
                         "rank_id"       => $taxon_attributes["rank_id"],
                         "ancestry"      => $ancestry);
         
-        $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($mock_hierarchy_entry));
+        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
         $GLOBALS['taxon_ids_inserted'][$taxon_id] = 1;
         unset($params);
-        unset($mock_hierarchy_entry);
         
         if(isset($taxon_attributes['synonyms']))
         {

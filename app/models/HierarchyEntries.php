@@ -303,7 +303,7 @@ class HierarchyEntry extends MysqlBase
     public function add_agent($agent_id, $agent_role_id, $view_order)
     {
         if(!$agent_id) return false;
-        $this->mysqli->insert("INSERT INTO agents_hierarchy_entries VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
+        $this->mysqli->insert("INSERT IGNORE INTO agents_hierarchy_entries VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
     }
     
     public function add_synonym($name_id, $relation_id, $language_id, $preferred, $vetted_id = 0, $published = 0)
@@ -312,26 +312,14 @@ class HierarchyEntry extends MysqlBase
         if(!$relation_id) $relation_id = 0;
         if(!$language_id) $language_id = 0;
         if(!$preferred) $preferred = 0;
-        $this->mysqli->insert("INSERT INTO synonyms VALUES (NULL, $name_id, $relation_id, $language_id, $this->id, $preferred, $this->hierarchy_id, $vetted_id, $published)");
-    }
-    
-    public static function add_child_to($node_id)
-    {
-        $mysqli =& $GLOBALS['mysqli_connection'];
-
-        $node = new HierarchyEntry($node_id);
-        if(!$node->id) return false;
-
-        $params = array();
-        $params["hierarchy_id"] = $node->hierarchy_id;
-        $params["parent_id"] = $node->id;
-        $params["parent_id"] = $parent_hierarchy_entry->id;
-
-        $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-
-
-
-        return $id;
+        Synonym::insert(array(  'name_id'               => $name_id,
+                                'synonym_relation_id'   => $relation_id,
+                                'language_id'           => $language_id,
+                                'hierarchy_entry_id'    => $this->id,
+                                'preferred'             => $preferred,
+                                'hierarchy_id'          => $this->hierarchy_id,
+                                'vetted_id'             => $vetted_id,
+                                'published'             => $published));
     }
     
     public static function move_to_child_of($node_id, $child_of_id)
@@ -412,7 +400,14 @@ class HierarchyEntry extends MysqlBase
     
     static function find($parameters)
     {
-        return 0;
+        if(@!$parameters['parent_id']) $parameters['parent_id'] = 0;
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id
+            FROM hierarchy_entries
+            WHERE name_id=". $parameters['name_id'] ."
+            AND parent_id=". $parameters['parent_id'] ."
+            AND hierarchy_id=". $parameters['hierarchy_id']);
+        if($result && $row=$result->fetch_assoc()) return $row['id'];
+        return false;
     }
     
     static function find_by_mock_object($mock)
