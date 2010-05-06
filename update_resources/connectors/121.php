@@ -36,23 +36,29 @@ class LarvaeAPI
         $used_collection_ids = array();
         
         $path="http://www.whoi.edu/vent-larval-id/";
-        $urls = array( 0  => array( "path" => $path . "GastSpecies.htm" , "active" => 1),   //
-                       1  => array( "path" => $path . "MiscSpecies.htm" , "active" => 0),   //
+        $urls = array( 0  => array( "path" => $path . "MiscSpecies.htm" , "active" => 1),  //
+                       1  => array( "path" => $path . "GastSpecies.htm" , "active" => 1)   //                       
                      );
         foreach($urls as $url)
         {
             if($url["active"])
             {
-                print $url["path"] . "<br>";
+                $page_taxa = self::get_larvae_taxa($url["path"]);                                
+                print "website: " . $url["path"] . "<br>";
+                print"<hr> page_taxa count: " . $url["path"] . " -- " . count($page_taxa) . "<br>";
                 
-                $page_taxa = self::get_larvae_taxa($url["path"]);                
+                //print"<pre>page_taxa: ";print_r($page_taxa);print"</pre>";                        
+                /*
                 if($page_taxa)
                 {
                     foreach($page_taxa as $t) $all_taxa[] = $t;
                 }
+                */
+                $all_taxa = array_merge($all_taxa,$page_taxa);                                    
             }
         }
-        //exit;
+        //print"<pre>all_taxa: ";print_r($all_taxa);print"</pre>";        
+        //print count($all_taxa);        
         return $all_taxa;
     }
     
@@ -62,20 +68,17 @@ class LarvaeAPI
         
         $response = self::search_collections($url);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
-        //foreach($response->Collections as $synth)
         foreach($response as $rec)
         {
-            if(@$used_collection_ids[$rec["id"]]) continue;
+            if(@$used_collection_ids[$rec["sciname"]]) continue;
             
             $taxon = self::get_taxa_for_photo($rec);
             if($taxon) $page_taxa[] = $taxon;
             
-            $used_collection_ids[$rec["id"]] = true;
-        }
-        
+            $used_collection_ids[$rec["sciname"]] = true;
+        }        
         return $page_taxa;
-    }
-    
+    }    
     
     public static function search_collections($url)//this will output the raw (but structured) output from the external service
     {
@@ -101,49 +104,62 @@ class LarvaeAPI
     public static function get_url_list($str)
     {
         $str = trim(substr($str,stripos($str,"Species Table"),strlen($str)));//start in this section of the HTML
+        //special case corrections                    
+        $str = str_ireplace('<a name="Arthropods"></a>','',$str);
+        $str = str_ireplace('<a name="Miscellaneous"></a>','',$str);
+
         //print"$str";//exit;
+             
+
+        $arr_url_list=array();
         
-        $str = str_ireplace('<a href' , 'xxx<a href', $str);	
+        $str = str_ireplace('<tr' , 'xxx<tr', $str);	
         $str = str_ireplace('xxx' , "&arr[]=", $str);	
         $arr = array(); parse_str($str);	    
         //print"<pre>";print_r($arr);print"</pre>";
-        print"\n";
         
-        $arr_url_list=array();
-        
-        $i=0;//for debug
+        $loop=0;//debug
         foreach($arr as $r)
-        {    
-            //$i++;if($i >= 4)break;
-            
-            if(!is_numeric(stripos($r,"src=")))
+        {
+            //$loop++;if($loop >= 4)break;
+                    
+            $r = str_ireplace('<th','<td',$r);
+            $r = str_ireplace('</th','</td',$r);
+        
+            $r = str_ireplace('<td' , 'xxx<td', $r);	
+            $r = str_ireplace('xxx' , "&arr2[]=", $r);	
+            $arr2 = array(); parse_str($r);	    
+            //print"<pre>";print_r($arr2);print"</pre>";    
+
+            $i=0;
+            foreach($arr2 as $r2)
             {
-                //special case corrections                    
-                $r = str_ireplace('<a name="Arthropods"></a>','',$r);
-                $r = str_ireplace('<a name="Miscellaneous"></a>','',$r);
+                if($i==1)
+                {
+                    $temp = strip_tags($r2,"<a>");                                
+                    $temp = str_ireplace(' target="_blank"',"",$temp);                
+                    
+                    //<a href="Bathymargaritessymplector.htm" target="_blank">Bathymargarites symplector</a>                
+                    if(preg_match("/\">(.*)<\/a>/", $temp, $matches))$sciname = utf8_encode($matches[1]);
+                    else $sciname="";
+                    
+                    if(preg_match("/href=\"(.*)\"/", $temp, $matches))$href = $matches[1];
+                    else $href="";
+                    
+                    $url = SPECIES_URL . $href;                                                    
+    
+                }
+                elseif($i==2)
+                {
+                    $size = trim(strip_tags($r2));                    
+                    $arr_url_list[]=array("sciname"=>$sciname,"url"=>$url,"size"=>$size);                    
+                    $sciname=""; $url=""; $size=""; //initialize for the next loop                    
+                }                
                 
-                $temp = strip_tags($r,"<a>");                                
-                $temp = str_ireplace(' target="_blank"',"",$temp);                
-                
-                //<a href="Bathymargaritessymplector.htm" target="_blank">Bathymargarites symplector</a>                
-                if(preg_match("/\">(.*)<\/a>/", $temp, $matches))$sciname = utf8_encode($matches[1]);
-                else $sciname="";
-                
-                if(preg_match("/href=\"(.*)\"/", $temp, $matches))$href = $matches[1];
-                else $href="";
-                
-                //$sciname = self::get_str_from_anchor_tag($temp);
-                //$href = self::get_href_from_anchor_tag($temp);                
-                
-                //print "[[$temp]] [[$sciname]]\n<hr>";                            
-                //print "[[$href]] -- [[$sciname]] \n<hr>";                                            
-
-                $url = SPECIES_URL . $href;                                
-                
-                $arr_url_list[]=array("sciname"=>$sciname,"url"=>$url);
-
-            }            
-        }
+                $i++;    
+            }                           
+        }        
+        
         print"<pre>";print_r($arr_url_list);print"</pre>";        
         //exit;                
         return $arr_url_list;
@@ -179,15 +195,33 @@ class LarvaeAPI
             $order = self::get_rank("Order",$species);
             $class = self::get_rank("Class",$species);
             
-            print"<hr>orig:[[" . $sciname . "]] species:[[$species]] family:[[$family]] order:[[$order]] class:[[$class]]<hr>";
+            //print"<hr>orig:[[" . $sciname . "]] species:[[$species]] family:[[$family]] order:[[$order]] class:[[$class]]<hr>";
             //end species
+
+            //=============================================================================================================
+            //start morphology
+
+            $beg = '<!-- InstanceBeginEditable name="Morphology" -->'; $end1='<!-- InstanceEndEditable -->'; 
+            $temp = self::parse_html($html,$beg,$end1,$end1,$end1,$end1,'');                            
+            
+            /* get entire table
+            $morphology = "<table border='0' cellspacing='0' cellpadding='5'>" . strip_tags($temp,"<tr><td><i>") . "</table>";
+            */
+
+            ///* //get just Morphology section
+            $beg='Morphology:'; $end1='</td>'; 
+            $morphology = trim(self::parse_html($temp,$beg,$end1,$end1,$end1,$end1,''));                               
+            $morphology = "<table border='0' cellspacing='0' cellpadding='5'>" . strip_tags($morphology,"<tr><td><i>") . "</table>";
+            //*/
+
+            print"<hr>morphology: [[$morphology]]";                
+
+            //end morphology
+
             //=============================================================================================================
             //start photos
-            // /*
             $beg='<!-- InstanceBeginEditable name="Photos" -->'; $end1='<!-- InstanceEndEditable -->'; 
             $photos = self::parse_html($html,$beg,$end1,$end1,$end1,$end1,'');                               
-            // */
-            
             
             //print"<hr>photos: [[$photos]]<Br>"; exit;
             //http://www.whoi.edu/vent-larval-id/Images/Bathymargarites_symplector-1_web.jpg
@@ -205,37 +239,29 @@ class LarvaeAPI
                     $img = trim($keywords[0]);
                     if(substr($img,strlen($img)-3,3)=="gif")$mimeType="image/gif";
                     if(substr($img,strlen($img)-3,3)=="jpg")$mimeType="image/jpeg";                    
-                    $arr_photos[] = array("mediaURL"=>IMAGE_URL . $keywords[0],"mimeType"=>$mimeType,"dataType"=>"http://purl.org/dc/dcmitype/StillImage","description"=>$sciname,"dc_source"=>$sourceURL);
+                    
+                    $agent=array();
+                    if(is_numeric(stripos($img,"_SEM_")))
+                    {                        
+                         $agent[]=array("role" => "photographer" , "homepage" => "http://www.whoi.edu/" , "name" => "Susan Mills");
+                         $agent[]=array("role" => "photographer" , "homepage" => "http://www.whoi.edu/" , "name" => "Diane Adams");
+                    }
+                    else $agent[]=array("role" => "photographer" , "homepage" => "http://www.whoi.edu/" , "name" => "Stace Beaulieu");
+                    $arr_photos[] = array("mediaURL"=>IMAGE_URL . $keywords[0],"mimeType"=>$mimeType,"dataType"=>"http://purl.org/dc/dcmitype/StillImage","description"=>$morphology,"dc_source"=>$sourceURL,"agent"=>$agent);
                 }
                 //print $keywords[0] . "<hr>";
             }
-            print"<pre>";print_r($arr_photos);print"</pre>";            
+            //print"<pre>";print_r($arr_photos);print"</pre>"; //debug            
             //end photos
             //=============================================================================================================
-            //start morphology
-
-            $beg = '<!-- InstanceBeginEditable name="Morphology" -->'; $end1='<!-- InstanceEndEditable -->'; 
-            $temp = self::parse_html($html,$beg,$end1,$end1,$end1,$end1,'');                            
-
-            $morphology = "<table border='0' cellspacing='0' cellpadding='5'>" . strip_tags($temp,"<tr><td><i>") . "</table>";
-            /*
-            $beg='Morphology:'; $end1='</td>'; 
-            $morphology = trim(self::parse_html($temp,$beg,$end1,$end1,$end1,$end1,''));                               
-            */
-
-            print"<hr>morphology: [[$morphology]]";                
-
-            //end morphology
-            //=============================================================================================================
-            //=============================================================================================================
-
+            
             //start confused with
             $beg = '<!-- InstanceBeginEditable name="Confused with" -->'; $end1='<!-- InstanceEndEditable -->'; 
             $temp = self::parse_html($html,$beg,$end1,$end1,$end1,$end1,'');                            
             
             //print"<hr>xxx [[$temp]]";                                
             $confused_with = self::get_confusedWith_desc($temp);
-            print"<hr>confused with: [[$confused_with]] ";                
+            //print"<hr>confused with: [[$confused_with]] ";                
             
             //end confused with
             //=============================================================================================================
@@ -250,6 +276,7 @@ class LarvaeAPI
                                  "dc_source"=>$sourceURL,
                                  "morphology"=>array("description"=>$morphology   ,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL),
                                  "lookalikes"=>array("description"=>$confused_with,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#LookAlikes","title"=>"Can be confused with:","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL),
+                                 "size"=>array("description"=>"Size: " . $rec["size"],"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL),
                                  "photos"=>$arr_photos
                                 );
                                 
@@ -257,7 +284,7 @@ class LarvaeAPI
             //"photos"=>$arr_photos,
 
         }
-        print"<pre>";print_r($arr_scraped);print"</pre>";                            
+        //print"<pre>";print_r($arr_scraped);print"</pre>"; //debug
         return $arr_scraped;
         
     }
@@ -350,8 +377,6 @@ class LarvaeAPI
         //$taxon["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
         if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", $taxon["scientificName"], $arr)) $taxon["genus"] = $arr[1];
         
-
-        
         $arr = $rec["morphology"];
         if($arr["description"])
         {
@@ -359,7 +384,6 @@ class LarvaeAPI
             if(!$data_object) return false;
             $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
         }        
-
         $arr = $rec["lookalikes"];
         if($arr["description"])
         {
@@ -367,7 +391,14 @@ class LarvaeAPI
             if(!$data_object) return false;
             $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
         }
-        
+        $arr = $rec["size"];
+        if($arr["description"])
+        {
+            $data_object = self::get_data_object($arr);
+            if(!$data_object) return false;
+            $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
+        }
+                
         $photos = $rec["photos"];
         if($photos)
         {
@@ -385,11 +416,8 @@ class LarvaeAPI
     
     public static function get_data_object($rec)
     {
-
         $data_object_parameters = array();
-        //$data_object_parameters["identifier"] = $synth->Id;
-        
-        
+        //$data_object_parameters["identifier"] = $synth->Id;        
         
         $data_object_parameters["source"] = $rec["dc_source"];
         
@@ -404,25 +432,32 @@ class LarvaeAPI
         
         if(@$rec["subject"])
         {
-        $data_object_parameters["subjects"] = array();
-        $subjectParameters = array();
-        $subjectParameters["label"] = @$rec["subject"];
-        $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"] = array();
+            $subjectParameters = array();
+            $subjectParameters["label"] = @$rec["subject"];
+            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
         }
         
-        
-        /*
-        $agent_parameters = array();
-        $agent_parameters["fullName"] = $synth->OwnerFriendlyName;
-        $agent_parameters["homepage"] = USER_URL . $synth->OwnerFriendlyName;
-        $agent_parameters["role"] = "photographer";
-        $data_object_parameters["agents"] = array();
-        $data_object_parameters["agents"][] = new SchemaAgent($agent_parameters);
-        */
+        //print_r($rec);
+        //print_r(@$rec["agent"]);exit;
+
+         if(@$rec["agent"])
+         {               
+             $agents = array();
+             foreach($rec["agent"] as $a)
+             {  
+                 $agentParameters = array();
+                 $agentParameters["role"]     = $a["role"];
+                 $agentParameters["homepage"] = $a["homepage"];
+                 $agentParameters["logoURL"]  = "";        
+                 $agentParameters["fullName"] = $a["name"];
+                 $agents[] = new SchemaAgent($agentParameters);
+             }
+             $data_object_parameters["agents"] = $agents;
+         }
         
         //return new SchemaDataObject($data_object_parameters);
         return $data_object_parameters;
-        
     }
     
     
@@ -478,8 +513,5 @@ class LarvaeAPI
          elseif($all == "all") return $arr;    
      } 
     
-    
-    
-
 }
 ?>
