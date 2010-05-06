@@ -16,7 +16,7 @@ $GLOBALS['ENV_DEBUG'] = false;
 $taxa = LarvaeAPI::get_all_eol_photos();
 $xml = SchemaDocument::get_taxon_xml($taxa);
 
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . "1.xml";
+$resource_path = CONTENT_RESOURCE_LOCAL_PATH . "121.xml";
 
 $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
@@ -88,11 +88,11 @@ class LarvaeAPI
     
     public static function clean_html($str)
     {
-        $str = str_ireplace("&ldquo;","",$str);//special open quote
-        $str = str_ireplace("&rdquo;","",$str);//special end quote
-        $str = str_ireplace("&micro;",'µ',$str);//µ        
+        $str = str_ireplace('&ldquo;','',$str);//special open quote
+        $str = str_ireplace('&rdquo;','',$str);//special end quote
+        $str = str_ireplace('&micro;','µ',$str);
         $str = str_ireplace('&mu;' , 'µ', $str);	            
-        $str = str_ireplace("&ndash;",'-',$str);//µ
+        $str = str_ireplace('&ndash;','-',$str);
         $str = str_ireplace('&deg;' , '°', $str);	        
         $str = str_ireplace('&rsquo;' , "'", $str);	        
         return $str;
