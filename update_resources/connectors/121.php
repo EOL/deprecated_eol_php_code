@@ -44,8 +44,8 @@ class LarvaeAPI
             if($url["active"])
             {
                 $page_taxa = self::get_larvae_taxa($url["path"]);                                
-                print "website: " . $url["path"] . "<br>";
-                print"<hr> page_taxa count: " . $url["path"] . " -- " . count($page_taxa) . "<br>";
+                print"<hr>website: " . $url["path"] . "<br>";
+                print"page_taxa count: " . $url["path"] . " -- " . count($page_taxa) . "<hr>";
                 
                 //print"<pre>page_taxa: ";print_r($page_taxa);print"</pre>";                        
                 /*
@@ -57,8 +57,8 @@ class LarvaeAPI
                 $all_taxa = array_merge($all_taxa,$page_taxa);                                    
             }
         }
-        //print"<pre>all_taxa: ";print_r($all_taxa);print"</pre>";        
-        //print count($all_taxa);        
+        print"<hr><pre>all_taxa: ";print_r($all_taxa);print"</pre>";        
+        print"total: " . count($all_taxa);        
         return $all_taxa;
     }
     
@@ -98,6 +98,9 @@ class LarvaeAPI
         $str = str_ireplace('&ndash;','-',$str);
         $str = str_ireplace('&deg;' , '°', $str);	        
         $str = str_ireplace('&rsquo;' , "'", $str);	        
+        $str = str_ireplace('&gt;' , ">", $str);	        
+        $str = str_ireplace('&lt;' , "<", $str);	        
+        
         return $str;
     }
     
@@ -129,21 +132,28 @@ class LarvaeAPI
             $r = str_ireplace('<td' , 'xxx<td', $r);	
             $r = str_ireplace('xxx' , "&arr2[]=", $r);	
             $arr2 = array(); parse_str($r);	    
-            //print"<pre>";print_r($arr2);print"</pre>";    
+            //print"<pre>";print_r($arr2);print"</pre>"; exit;
 
             $i=0;
             foreach($arr2 as $r2)
             {
                 if($i==1)
                 {
-                    $temp = strip_tags($r2,"<a>");                                
+                    $temp = strip_tags($r2,"<a><em>");                                
                     $temp = str_ireplace(' target="_blank"',"",$temp);                
                     
                     //<a href="Bathymargaritessymplector.htm" target="_blank">Bathymargarites symplector</a>                
-                    if(preg_match("/\">(.*)<\/a>/", $temp, $matches))$sciname = utf8_encode($matches[1]);
+                    //if(preg_match("/\">(.*?)<\/a>/", $temp, $matches))$sciname = utf8_encode($matches[1]);
+                    
+                    if(preg_match("/<em>(.*)<\/em>/ims", $temp, $matches))$sciname = strip_tags(utf8_encode($matches[1]));
                     else $sciname="";
                     
-                    if(preg_match("/href=\"(.*)\"/", $temp, $matches))$href = $matches[1];
+                    if(preg_match("/\">(.*?)<\/a>/", $sciname, $matches))$sciname = strip_tags($matches[1]);
+                    //else $sciname="";
+                    
+                    $sciname = str_ireplace("?","",$sciname);                    
+                    
+                    if(preg_match("/href=\"(.*?)\"/", $temp, $matches))$href = $matches[1];
                     else $href="";
                     
                     $url = SPECIES_URL . $href;                                                    
@@ -161,6 +171,16 @@ class LarvaeAPI
         }        
         
         print"<pre>";print_r($arr_url_list);print"</pre>";        
+        
+        //unlink blank sciname
+        $arr=array();
+        foreach($arr_url_list as $url)
+        {
+            if($url["sciname"])$arr[]=$url;
+        }
+        print"<pre>";print_r($arr);print"</pre>";        
+        $arr_url_list=$arr;
+        
         //exit;                
         return $arr_url_list;
     }
@@ -178,17 +198,21 @@ class LarvaeAPI
             //print $html;exit;
             //=============================================================================================================
             //start species
-             /*
+            /*
             $beg='<!-- InstanceBeginEditable name="Species" -->'; $end1='<!-- InstanceEndEditable -->'; 
             $species = self::parse_html($html,$beg,$end1,$end1,$end1,$end1,'');                         
             $species = trim(strip_tags($species));            
-             */
+            */
+             
+            /*
+            Per PL:
+            - use \s* for spaces in your pattern.
+            - put ? in here: (.*?) if you want your pattern to be not greedy, without ? will be greedy.
+            */ 
             
-            // /*
             $species="";
-            if(preg_match("/<!\-\- InstanceBeginEditable name=\"Species\" \-\->(.*)<!\-\- InstanceEndEditable \-\->/", $html, $matches))
+            if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Species\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
             {$species = trim(strip_tags($matches[1]));}
-            // */
             
             $sciname = $rec["sciname"];
             $family = self::get_rank("Family",$species);
@@ -200,19 +224,23 @@ class LarvaeAPI
 
             //=============================================================================================================
             //start morphology
-
-            $beg = '<!-- InstanceBeginEditable name="Morphology" -->'; $end1='<!-- InstanceEndEditable -->'; 
-            $temp = self::parse_html($html,$beg,$end1,$end1,$end1,$end1,'');                            
+            /* $beg = '<!-- InstanceBeginEditable name="Morphology" -->'; $end1='<!-- InstanceEndEditable -->'; */            
+            
+            $temp="";
+            if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Morphology\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
+            {$temp = trim($matches[1]);}            
             
             /* get entire table
             $morphology = "<table border='0' cellspacing='0' cellpadding='5'>" . strip_tags($temp,"<tr><td><i>") . "</table>";
             */
 
-            ///* //get just Morphology section
-            $beg='Morphology:'; $end1='</td>'; 
-            $morphology = trim(self::parse_html($temp,$beg,$end1,$end1,$end1,$end1,''));                               
+            //get just Morphology section
+            /* $beg='Morphology:'; $end1='</td>'; */
+
+            $morphology="";
+            if(preg_match("/Morphology:(.*?)<\/td>/ims", $temp, $matches))
+            {$morphology = trim($matches[1]);}
             $morphology = "<table border='0' cellspacing='0' cellpadding='5'>" . strip_tags($morphology,"<tr><td><i>") . "</table>";
-            //*/
 
             print"<hr>morphology: [[$morphology]]";                
 
@@ -220,9 +248,12 @@ class LarvaeAPI
 
             //=============================================================================================================
             //start photos
-            $beg='<!-- InstanceBeginEditable name="Photos" -->'; $end1='<!-- InstanceEndEditable -->'; 
-            $photos = self::parse_html($html,$beg,$end1,$end1,$end1,$end1,'');                               
+            /* $beg='<!-- InstanceBeginEditable name="Photos" -->'; $end1='<!-- InstanceEndEditable -->'; */
             
+            $photos="";
+            if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Photos\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
+            {$photos = $matches[1];}            
+
             //print"<hr>photos: [[$photos]]<Br>"; exit;
             //http://www.whoi.edu/vent-larval-id/Images/Bathymargarites_symplector-1_web.jpg
             //http://www.whoi.edu/vent-larval-id/Images/Benthic_unknown_A_SEM_web.gif            
