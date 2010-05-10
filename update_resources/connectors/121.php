@@ -8,9 +8,7 @@ Connector screen scrapes the partner website.
 define("SPECIES_URL", "http://www.whoi.edu/vent-larval-id/");
 define("IMAGE_URL", "http://www.whoi.edu/vent-larval-id/");
 
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-//require_library('LarvaeAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = LarvaeAPI::get_all_eol_photos();
