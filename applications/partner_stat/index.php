@@ -12,6 +12,8 @@
 
 <?php
 
+
+$GLOBALS['ENV_NAME'] = "slave_215";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -26,9 +28,11 @@ else                process_agent_id($agent_id);
 function process_agent_id($agent_id)
 {
     global $mysqli;
-    $qry = "Select harvest_events.id, harvest_events.published_at 
+    $qry = "Select harvest_events.id, harvest_events.published_at ,
+    resources.title resource_title
     From agents_resources 
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id 
+    Inner Join resources ON agents_resources.resource_id = resources.id
     Where agents_resources.agent_id = $agent_id 
     order by harvest_events.id desc limit 5 ";
     $result = $mysqli->query($qry);    
@@ -47,7 +51,7 @@ function process_agent_id($agent_id)
         $taxa_count = get_taxon_concept_ids_from_harvest_event($row["id"]);
         
         //$data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
-          $data_object_stats = process_do($row["id"],$taxa_count,$row["published_at"],$agent_name,$agent_id,$ctr);        		
+          $data_object_stats = process_do($row["id"],$taxa_count,$row["published_at"],$agent_name,$agent_id,$ctr,$row["resource_title"]);        		
 
     }//end while
 }
@@ -81,7 +85,7 @@ function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
 
 
 
-function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_id,$ctr)
+function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_id,$ctr,$resource_title)
 {
     global $mysqli;
     if($agent_id == 27)//IUCN
@@ -125,11 +129,22 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
         7 => "Flash"      , 
         8 => "YouTube"    ); */
 
+        
+        /*
         $vetted_type = array( 
         1 => array( "id" => "0"   , "label" => "Unknown"),
         2 => array( "id" => "4"   , "label" => "Untrusted"),
         3 => array( "id" => "5"   , "label" => "Trusted")
-        );                    
+        );
+        */
+        
+                            
+        $vetted_type = array( 
+        1 => array( "id" => Vetted::find("unknown")   , "label" => "Unknown"),
+        2 => array( "id" => Vetted::find("untrusted") , "label" => "Untrusted"),
+        3 => array( "id" => Vetted::find("trusted")   , "label" => "Trusted")
+        );
+        
         
         //for ($i = 1; $i <= count($data_type); $i++) //Sep24
         for ($i = 1; $i <= count($datatype); $i++) 
@@ -191,8 +206,8 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
     <tr><td colspan='24'>
         <table>
             <tr><td>
-                Agent: <a target='eol' href='http://www.eol.org/administrator/content_partner_report/show/$agent_id'>$agent_name</a>                
-                &nbsp;&nbsp;&nbsp;
+                Agent: <a target='eol' href='http://www.eol.org/administrator/content_partner_report/show/$agent_id'>$agent_name</a>
+                &nbsp; [$resource_title] &nbsp;&nbsp;&nbsp;
                 <font size='2'>" . iif($published,"Published: $published","-not yet published-") . " &nbsp;&nbsp;&nbsp; Harvest event id: $harvest_event_id</font>
             </td></tr>
         </table>
