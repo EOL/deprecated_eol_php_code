@@ -269,7 +269,7 @@ function display_form()
     global $with_published_content;
     
     print"<table border='1' cellpadding='5' cellspacing='0'>
-    <tr><td align='center'><b>Content Partner Stats</b></td></tr>
+    <tr><td align='center'><b>Content Partner 'Resource-level' Harvest Stats</b></td></tr>
     <form name='fn' action='index.php' method='get'>";
     $qry = "Select distinct agents.full_name AS agent_name, agents.id AS agent_id 
     From agents
