@@ -33,7 +33,7 @@ function process_agent_id($agent_id)
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id 
     Inner Join resources ON agents_resources.resource_id = resources.id
     Where agents_resources.agent_id = $agent_id 
-    order by harvest_events.id desc limit 8 ";
+    order by harvest_events.id desc limit 5 ";
     $result = $mysqli->query($qry);    
     //print "agent_id = $agent_id <br>";    
     $ctr=0;    
