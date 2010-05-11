@@ -9,13 +9,10 @@ interactive distribution maps.
 define("SPECIES_URL", "http://www.aquamaps.org/premap2.php?cache=1&SpecID=");
 
 define("SERVICE_URL", "http://www.aquamaps.org/webservice/getAMap.php?");
-define("SERVICE_URL2", "http://www.aquamaps.org/webservice/aquamap.xml.php?");
+//define("SERVICE_URL2", "http://www.aquamaps.org/webservice/aquamap.xml.php?");
 
-
-define("FISHBASE_URL", "http://www.fishbase.org/summary/speciessummary.php?");
-
-
-
+define("FISHBASE_URL", "http://www.fishbase.org/summary/speciessummary.php?id=");
+define("SEALIFEBASE_URL", "http://www.sealifebase.org/summary/speciessummary.php?id=");
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
@@ -23,7 +20,7 @@ $GLOBALS['ENV_DEBUG'] = false;
 $taxa = AquamapsAPI::get_all_eol_photos();
 $xml = SchemaDocument::get_taxon_xml($taxa);
 
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . "1.xml";
+$resource_path = CONTENT_RESOURCE_LOCAL_PATH . "123.xml";
 
 $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
@@ -43,7 +40,7 @@ class AquamapsAPI
         $used_collection_ids = array();
         
         $path=dirname(__FILE__) . "/files/Aquamaps/";
-        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML" , "active" => 1),  //
+        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 1),  //
                        1  => array( "path" => $path . ""                          , "active" => 0)   //                       
                      );
         foreach($urls as $url)
@@ -108,12 +105,17 @@ class AquamapsAPI
         $ctr=0;
         foreach($xml->RECORD as $rec)
         {
-            //if($ctr >= 10)break;//debug
+            //if($ctr >= 5)break;//debug
             
-            echo "\n $ctr";
+            echo "\n <hr> $ctr";
             
-            $sourceURL=$rec["url"];
-
+            //$sourceURL=$rec["url"]; //not used
+            
+            //print $rec->SpecCode . $rec->SPECIESID; exit;
+            
+            if(substr($rec->SPECIESID,0,3)=="Fis")$source_dbase_link = "<a target='$rec->SpecCode' href='" . FISHBASE_URL . $rec->SpecCode . "'>FishBase</a>";
+            else                                  $source_dbase_link = "<a target='$rec->SpecCode' href='" . SEALIFEBASE_URL . $rec->SpecCode . "'>SeaLifeBase</a>";
+            
             //=============================================================================================================            
             $agent=array();
             $agent[]=array("role" => "" , "homepage" => "http://www.aquamaps.org" , "name" => "Rainer Froese");
@@ -125,7 +127,7 @@ class AquamapsAPI
             $genus = $rec->Genus;
             $species = $rec->Species;
             
-            $arr_result = self::get_aquamaps($genus, $species);
+            $arr_result = self::get_aquamaps($genus, $species, $source_dbase_link);
             $distribution = $arr_result[0];
             $sourceURL = $arr_result[1];
             $arr_photos = $arr_result[2];
@@ -153,7 +155,6 @@ class AquamapsAPI
             //=============================================================================================================
             
             
-            //$sourceURL = SPECIES_URL . $rec->SPECIESID;
                         
             $ctr++;
             $arr_scraped[]=array("id"=>$ctr,
@@ -182,7 +183,7 @@ class AquamapsAPI
         
     }
 
-    public static function get_aquamaps($genus,$species)
+    public static function get_aquamaps($genus,$species,$source_dbase_link)
     {	
     	//$fn = "http://www.aquamaps.org/webservice/getAMap.php?genus=$genus&species=$species";
 
@@ -198,28 +199,92 @@ class AquamapsAPI
         if(preg_match("/href=\'http:\/\/(.*?)\'>/ims", $html, $matches)){$sourceURL = "http://" . trim($matches[1]);}
         else                                                             $sourceURL = "";        
 
-        $attribution = "<a target='fb $genus $species' href='" . FISHBASE_URL . $param2 . "'>FishBase</a> <a target='am $genus $species' href='$sourceURL'>AquaMaps</a> ";
+        $attribution = "$source_dbase_link <a target='am $genus $species' href='$sourceURL'>AquaMaps</a> ";
         if(preg_match("/Data sources:(.*?)<\/font><\/td>/ims", $html, $matches)){$attribution .= trim($matches[1]) . "";}
 
         $attribution = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB","\xA0"), '', $attribution);			
-        $attribution = "Data sources: " . str_ireplace(" "," | ",$attribution);        
+
+        //$attribution = "Data sources: " . str_ireplace(" "," | ",$attribution);        
+        $attribution = "Data sources: " . $attribution;        
         
         //print"[$attribution]"; exit;        
-
-        //print $html;    
         //print "[$sourceURL]"; exit;
+
+
+        print $html;    
+        
+        
+        //http://www.aquamaps.org/imagethumb/file_destination/exp_8_pic_ITS-180469.jpg</a>
+        $arr_photos=array();        
+
+        $str="<table border='0' cellspacing='0' cellpadding='5'><tr><td><b>Computer Generated Maps of <i>$genus $species</i> ($review)</b></td></tr>
+        <tr><td>$attribution</td></tr>
+        ";        
+        
+        $native_range="";
+        if(preg_match("/=\&quot\;\s*(.*?)\&quot\;\'\>\s*Native range\s*/ims", $html, $matches))
+        {   $native_range = trim($matches[1]) . "";
+            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $native_range . "&w=430";
+            $str.="
+            <tr><td>&nbsp;</td></tr>
+            <tr><td>Native range</td></tr>                
+            <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='native_range' src='$src'></a></td></tr>";
+            $arr_photos[] = self::build_image_array($native_range,$genus,$species,"Native range",$sourceURL);
+        }
+        print"<hr>native_range = $native_range";        
+        
+        $pointmap="";
+        if(preg_match("/\/pointmap\/(.*?)&quot;/ims", $html, $matches))
+        {   $pointmap = trim($matches[1]) . "";            
+            $pointmap = "http://www.aquamaps.org/imagethumb/cached_maps/pointmap/" . $pointmap;
+            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $pointmap . "&w=430";
+            $str.="
+            <tr><td>&nbsp;</td></tr>
+            <tr><td>PointMap</td></tr>                
+            <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='pointmap' src='$src'></a></td></tr>";
+            $arr_photos[] = self::build_image_array($pointmap,$genus,$species,"PointMap",$sourceURL);
+        }
+        print"<hr> pointmap = $pointmap";
+
+        $suitable="";
+        if(preg_match("/\/suitable\/(.*?)&quot;/ims", $html, $matches))
+        {   $suitable = trim($matches[1]) . "";
+            $suitable = "http://www.aquamaps.org/imagethumb/cached_maps/suitable/" . $suitable;
+            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $suitable . "&w=430";
+            $str.="
+            <tr><td>&nbsp;</td></tr>
+            <tr><td>All suitable habitat</td></tr>                
+            <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='suitable' src='$src'></a></td></tr>";
+            $arr_photos[] = self::build_image_array($suitable,$genus,$species,"All suitable habitat",$sourceURL);
+        }
+        print"<hr> suitable = $suitable";
+
+        $m2050="";
+        if(preg_match("/\/2050\/(.*?)&quot;/ims", $html, $matches))
+        {   $m2050 = trim($matches[1]) . "";
+            $m2050 = "http://www.aquamaps.org/imagethumb/cached_maps/2050/" . $m2050;            
+            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $m2050 . "&w=430";
+            $str.="
+            <tr><td>&nbsp;</td></tr>
+            <tr><td>Year 2050 range</td></tr>                
+            <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='2050' src='$src'></a></td></tr>";
+            $arr_photos[] = self::build_image_array($m2050,$genus,$species,"Year 2050 range",$sourceURL);
+        }
+        print"<hr> 2050 = [$m2050]";
         
         //==============================================================================
         ///*
+
+        
+
+        /* RD's service, not correct
         $fn = SERVICE_URL2 . $param;        
         $xml = simplexml_load_file($fn);        
-        $html="<table border='0' cellspacing='0' cellpadding='5'><tr><td><b>Computer Generated Maps of <i>$genus $species</i> ($review)</b></td></tr>
-        <tr><td>$attribution</td></tr>
-        ";
-
+        
         $arr_photos=array();        
         foreach($xml->images->image as $img)
         {
+            if($img->url == "")continue;
             switch($img->type)
             {
                 case 'native range':            $type = 'Native range';break;
@@ -240,36 +305,50 @@ class AquamapsAPI
             }
             else $pointmap_url = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $img->url . "&w=430";
             
-            //start $arr_photos
             $arr_photos[] = array(  "mediaURL"=>$img->url,
                                     "mimeType"=>"image/jpeg",
                                     "dataType"=>"http://purl.org/dc/dcmitype/StillImage",
                                     "description"=>"<i>$genus $species</i>: $type",
                                     "dc_source"=>$sourceURL,
-                                    "agent"=>array());            
-            
-        }
-        
+                                    "agent"=>array());                        
+        }//end loop
         //print"<pre>";print_r($arr_photos);print"</pre>"; exit;
 
-        $html.="
-        <tr><td>&nbsp;</td></tr>
-        <tr><td>PointMap</td></tr>
-        <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='PointMap' src='$pointmap_url'></a></td></tr>
-        ";
-        
-        $html.="</table>";
+        if(isset($pointmap_url))
+        {
+            $html.="
+            <tr><td>&nbsp;</td></tr>
+            <tr><td>PointMap</td></tr>
+            <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='PointMap' src='$pointmap_url'></a></td></tr>
+            ";
+        }
 
-        //print $html; exit;
+        */
+        
+                
+        $str.="</table>";
+
+        //print $str; exit;
         //<div style='font-size : x-small;overflow : scroll;'>
-        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\xA0"), '', $html);			
-        return array(trim($html),$sourceURL,$arr_photos);
+        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\xA0"), '', $str);			
+        return array(trim($str),$sourceURL,$arr_photos);
         
         //*/
                
     }
 
-
+    
+    public static function build_image_array($img,$genus,$species,$type,$sourceURL)
+    {
+        return array(  "mediaURL"=>$img,
+                       "mimeType"=>"image/jpeg",
+                       "dataType"=>"http://purl.org/dc/dcmitype/StillImage",
+                       "description"=>"<i>$genus $species</i>: $type",
+                       "dc_source"=>$sourceURL,
+                       "agent"=>array());                        
+    }
+    
+    
     public static function get_taxa_for_photo($rec)
     {
         $taxon = array();
