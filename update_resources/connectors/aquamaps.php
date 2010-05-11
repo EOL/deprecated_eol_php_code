@@ -108,7 +108,7 @@ class AquamapsAPI
         $ctr=0;
         foreach($xml->RECORD as $rec)
         {
-            if($ctr >= 10)break;//debug
+            //if($ctr >= 10)break;//debug
             
             echo "\n $ctr";
             
