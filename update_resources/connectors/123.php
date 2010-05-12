@@ -6,13 +6,15 @@ This connector reads an XML (list of species with AquaMaps) then loops on each s
 interactive distribution maps.
 */
 
-define("SPECIES_URL", "http://www.aquamaps.org/premap2.php?cache=1&SpecID=");
 
 define("SERVICE_URL", "http://www.aquamaps.org/webservice/getAMap.php?");
 //define("SERVICE_URL2", "http://www.aquamaps.org/webservice/aquamap.xml.php?");
 
 define("FISHBASE_URL", "http://www.fishbase.org/summary/speciessummary.php?id=");
 define("SEALIFEBASE_URL", "http://www.sealifebase.org/summary/speciessummary.php?id=");
+define("MAP_RESIZER_URL", "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=");
+define("CACHED_MAPS_URL", "http://www.aquamaps.org/imagethumb/cached_maps");
+
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
@@ -61,7 +63,7 @@ class AquamapsAPI
             }
         }
         //print"<hr><pre>all_taxa: ";print_r($all_taxa);print"</pre>"; //debug see all records
-        print"total: " . count($all_taxa);        
+        print"total: " . count($all_taxa) . "<br>\n";        
         return $all_taxa;
     }
     
@@ -117,7 +119,7 @@ class AquamapsAPI
             
             //=============================================================================================================            
             $agent=array();
-            $agent[]=array("role" => "" , "homepage" => "http://www.aquamaps.org" , "name" => "Rainer Froese");
+            //$agent[]=array("role" => "" , "homepage" => "http://www.aquamaps.org" , "name" => "Rainer Froese");
             //=============================================================================================================
             
             //start distribution
@@ -127,8 +129,8 @@ class AquamapsAPI
             
             $arr_result = self::get_aquamaps($genus, $species, $source_dbase_link);
             $distribution = $arr_result[0];
-            $sourceURL = $arr_result[1];
-            $arr_photos = $arr_result[2];
+            $sourceURL    = $arr_result[1];
+            $arr_photos   = $arr_result[2];
             
             /*
             $distribution = "<form>" . $distribution . "</form>";            
@@ -207,8 +209,7 @@ class AquamapsAPI
         //print "[$sourceURL]"; exit;
 
 
-        //print $html;    
-        
+        //print $html;            
         
         //http://www.aquamaps.org/imagethumb/file_destination/exp_8_pic_ITS-180469.jpg</a>
         $arr_photos=array();        
@@ -217,61 +218,61 @@ class AquamapsAPI
         <tr><td>$attribution</td></tr>
         ";        
         
+        //============================================================================================        
         $native_range="";
         if(preg_match("/=\&quot\;\s*(.*?)\&quot\;\'\>\s*Native range\s*/ims", $html, $matches))
         {   $native_range = trim($matches[1]) . "";
-            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $native_range . "&w=430";
+            $src = MAP_RESIZER_URL . $native_range . "&w=430";
             $str.="
             <tr><td>&nbsp;</td></tr>
             <tr><td>Native range</td></tr>                
             <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='native_range' src='$src'></a></td></tr>";
             $arr_photos[] = self::build_image_array($native_range,$genus,$species,"Native range",$sourceURL);
         }
-        print"<hr>native_range = $native_range";        
-        
-        $pointmap="";
-        if(preg_match("/\/pointmap\/(.*?)&quot;/ims", $html, $matches))
-        {   $pointmap = trim($matches[1]) . "";            
-            $pointmap = "http://www.aquamaps.org/imagethumb/cached_maps/pointmap/" . $pointmap;
-            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $pointmap . "&w=430";
-            $str.="
-            <tr><td>&nbsp;</td></tr>
-            <tr><td>PointMap</td></tr>                
-            <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='pointmap' src='$src'></a></td></tr>";
-            $arr_photos[] = self::build_image_array($pointmap,$genus,$species,"PointMap",$sourceURL);
-        }
-        print"<hr> pointmap = $pointmap";
-
+        print"<hr>native_range = $native_range <img src='$native_range' height='10'>";        
+        //============================================================================================        
         $suitable="";
         if(preg_match("/\/suitable\/(.*?)&quot;/ims", $html, $matches))
         {   $suitable = trim($matches[1]) . "";
-            $suitable = "http://www.aquamaps.org/imagethumb/cached_maps/suitable/" . $suitable;
-            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $suitable . "&w=430";
+            $suitable = CACHED_MAPS_URL . "/suitable/" . $suitable;
+            $src = MAP_RESIZER_URL . $suitable . "&w=430";
             $str.="
             <tr><td>&nbsp;</td></tr>
             <tr><td>All suitable habitat</td></tr>                
             <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='suitable' src='$src'></a></td></tr>";
             $arr_photos[] = self::build_image_array($suitable,$genus,$species,"All suitable habitat",$sourceURL);
         }
-        print"<hr> suitable = $suitable";
-
+        print"<hr> suitable = $suitable <img src='$suitable' height='10'>";        
+        //============================================================================================        
+        $pointmap="";
+        if(preg_match("/\/pointmap\/(.*?)&quot;/ims", $html, $matches))
+        {   $pointmap = trim($matches[1]) . "";            
+            $pointmap = CACHED_MAPS_URL . "/pointmap/" . $pointmap;
+            $src = MAP_RESIZER_URL . $pointmap . "&w=430";
+            $str.="
+            <tr><td>&nbsp;</td></tr>
+            <tr><td>PointMap</td></tr>                
+            <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='pointmap' src='$src'></a></td></tr>";
+            $arr_photos[] = self::build_image_array($pointmap,$genus,$species,"PointMap",$sourceURL);
+        }
+        print"<hr> pointmap = $pointmap <img src='$pointmap' height='10'>";        
+        //============================================================================================        
         $m2050="";
         if(preg_match("/\/2050\/(.*?)&quot;/ims", $html, $matches))
         {   $m2050 = trim($matches[1]) . "";
-            $m2050 = "http://www.aquamaps.org/imagethumb/cached_maps/2050/" . $m2050;            
-            $src = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $m2050 . "&w=430";
+            $m2050 = CACHED_MAPS_URL . "/2050/" . $m2050;            
+            $src = MAP_RESIZER_URL . $m2050 . "&w=430";
             $str.="
             <tr><td>&nbsp;</td></tr>
             <tr><td>Year 2050 range</td></tr>                
             <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='2050' src='$src'></a></td></tr>";
             $arr_photos[] = self::build_image_array($m2050,$genus,$species,"Year 2050 range",$sourceURL);
         }
-        print"<hr> 2050 = [$m2050]";
+        print"<hr> 2050 = [$m2050] <img src='$m2050' height='10'>";        
+        //============================================================================================        
         
-        //==============================================================================
-        ///*
-
         
+        ///*        
 
         /* RD's service, not correct
         $fn = SERVICE_URL2 . $param;        
@@ -290,7 +291,7 @@ class AquamapsAPI
                 default:                        return false;
             }
             
-            $img_url = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $img->url . "&w=430";                    
+            $img_url = MAP_RESIZER_URL . $img->url . "&w=430";                    
             
             if($img->type != "pointmap")
             {                
@@ -299,7 +300,7 @@ class AquamapsAPI
                 <tr><td>$type</td></tr>                
                 <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='$type' src='$img_url'></a></td></tr>";
             }
-            else $pointmap_url = "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=" . $img->url . "&w=430";
+            else $pointmap_url = MAP_RESIZER_URL . $img->url . "&w=430";
             
             $arr_photos[] = array(  "mediaURL"=>$img->url,
                                     "mimeType"=>"image/jpeg",
