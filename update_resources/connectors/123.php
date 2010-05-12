@@ -99,8 +99,7 @@ class AquamapsAPI
     {
         $arr_scraped=array();
         
-        $xml = simplexml_load_file($url);
-        
+        $xml = simplexml_load_file($url);        
         
         $ctr=0;
         foreach($xml->RECORD as $rec)
@@ -122,7 +121,6 @@ class AquamapsAPI
             //=============================================================================================================
             
             //start distribution
-            $distribution = "found here and there";                  
             
             $genus = $rec->Genus;
             $species = $rec->Species;
@@ -153,8 +151,6 @@ class AquamapsAPI
             //print"<pre>";print_r($arr_photos);print"</pre>"; //debug            
             //end photos
             //=============================================================================================================
-            
-            
                         
             $ctr++;
             $arr_scraped[]=array("id"=>$ctr,
@@ -211,7 +207,7 @@ class AquamapsAPI
         //print "[$sourceURL]"; exit;
 
 
-        print $html;    
+        //print $html;    
         
         
         //http://www.aquamaps.org/imagethumb/file_destination/exp_8_pic_ITS-180469.jpg</a>
