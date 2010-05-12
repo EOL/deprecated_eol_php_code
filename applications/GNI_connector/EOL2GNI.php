@@ -22,64 +22,20 @@ $domain = "10.19.19.226";
 $path2XMLresource = "resources";
 // */
 
- /*
+/*
 $domain = "127.0.0.1";
 $path2XMLresource = "eol_php_code/applications/content_server/resources";
- */
+*/
 
 //start get first xmlns value
 if(substr($url,0,4) != "http") $url = "http://$domain/$path2XMLresource/".$url.".xml";
-if($download)
-{
-	//print"<META HTTP-EQUIV='Refresh' Content='0; URL=$url'>";	
-	exit("<a href='$url'>$url</a>");
-}
-
+if($download) exit("<a href='$url'>$url</a>");
 
 $xml = simplexml_load_file($url);           //print_r($xml);
 $namespaces = $xml->getNamespaces(true);    //var_dump($namespaces);
 
-/*array(5)  {        [""]=> string(39) "http://www.eol.org/transfer/content/0.1" 
-                     ["xsi"]=> string(41) "http://www.w3.org/2001/XMLSchema-instance" 
-                     ["dc"]=> string(32) "http://purl.org/dc/elements/1.1/" 
-                     ["dwc"]=> string(30) "http://rs.tdwg.org/dwc/dwcore/" 
-                     ["dcterms"]=> string(25) "http://purl.org/dc/terms/" 
-            } */    
-//print "xsi = " . $namespaces['xsi'] . "<br>";
-//print "dwc = " . $namespaces['dwc'] . "<br>";
-//print " = " . $namespaces['']         . "<hr>";
-//exit;
-//end
-
-
 $xml = new DOMDocument;        
-if($xml->load($url))
-{
-    /* working well this is to read attribute values from any part of the XML
-    //$xdoc = new DomDocument;
-    //$xdoc->Load('C:/php/xml_files/candidate.xml');
-    $candidatename = $xml->getElementsByTagName('response')->item(0);
-    $attribNode = $candidatename->getAttributeNode('son');
-
-    echo "<HTML><Head>";
-    echo "<title> Getting Attribute Example</title>";
-    echo "</Head><body><B>";
-    echo "Attribute Name is :".$attribNode->name;
-    echo "<BR>Attribute Value is :".$attribNode->value;
-    echo "</B></body></HTML>";
-    exit;
-    */    
-    
-    /*
-    $node1 = $xml->createElementNS("http://www.eol.org/transfer/content/0.2", "xmlns"); 
-    $node1 = $xml->appendChild($node1);
-    $xml->removeChild($node1); 
-    */    
-}
-else
-{
-    exit("<p>File not found. <a href='javascript:self.close()'>&lt;&lt; Back to menu</a>");
-}
+if(!$xml->load($url)) exit("<p>File not found. <a href='javascript:self.close()'>&lt;&lt; Back to menu</a>");
 
 $xsl = new DOMDocument;        
 if($what == 'transform')
@@ -95,6 +51,7 @@ elseif($what == 'evaluate')
     elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.3")$xsl->load('EOL_evaluate_03.xsl');
 }
 $proc = new XSLTProcessor;    
+
 /* //######################################################################################################
 in php.ini this has to be un-commented 
     extension=php_xsl.dll
