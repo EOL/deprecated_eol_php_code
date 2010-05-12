@@ -79,9 +79,13 @@ $id     = 119;  //Photosynth
 $fld    = "service_type_id";
 $value  = 2;
 
+$id     = 121;  //Photographic Identification Guide to Larvae at Hydrothermal Vents E.Pacific Resource
+$fld    = "service_type_id";
+$value  = 2;
+
 */
 
-$id     = 121;  //Photographic Identification Guide to Larvae at Hydrothermal Vents E.Pacific Resource
+$id     = 123;  //AquaMaps
 $fld    = "service_type_id";
 $value  = 2;
 
