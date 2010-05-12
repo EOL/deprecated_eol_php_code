@@ -353,10 +353,9 @@ class LarvaeAPI
             
             if($i % 2==0)$str.="</tr>";
         }
-        $str.="</table>";
-        
-        //print $str;exit;
-        
+        $str.="</table>";        
+        if($str=="<table border='0' cellspacing='0' cellpadding='5'><tr></table>")$str="";        
+        //print $str;exit;        
         return $str;
     }
 
@@ -368,8 +367,6 @@ class LarvaeAPI
         $rank = $keywords[0];
         return $rank;
     }
-
-    
         
     /*
     public static function get_href_from_anchor_tag($str)
