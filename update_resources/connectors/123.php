@@ -2,8 +2,10 @@
 /* connector for AquaMaps
 estimated execution time: 
 
-This connector reads an XML (list of species with AquaMaps) then loops on each species and run the service to get the
-interactive distribution maps.
+This connector reads an XML (list of species with AquaMaps) then loops on each species and run the service to get 
+the distribution maps.
+
+Maps will end up as individual images and in Distribution section.
 */
 
 
