@@ -139,17 +139,21 @@ $qry = "select title, id, service_type_id from resources order by title";
 $result = $mysqli->query($qry);	
 
 $cnt++;
-print"<td>" . $cnt . ". </td><td colspan='4'><select id='resource_id' name=resource_id onChange='proc()'><option>";
+print"<td>" . $cnt . ". </td><td colspan='5' valign='middle'><select style='font-size : x-small;' id='resource_id' name=resource_id onChange='proc()'><option>";
 while($result && $row=$result->fetch_assoc())
 {
 	print"<option value=$row[id]>$row[title] [$row[id]] ";
     if($row["service_type_id"]==2)print"[**has connector]";
 }
-print"</select></td>";
+print"</select>
 
-	print"<td>
 	<a id='subscribe' title='Subscribe' target='_top' href=''>
 	<img alt='Subscribe' src='feed_icon_big.png' border='0'>
+
+
+</td>";
+
+	print"<td>
 	</td>";
 
 
