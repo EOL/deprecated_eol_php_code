@@ -113,11 +113,11 @@ class Functions
         return $count;
     }
     
-    public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
     {
         debug("Grabbing $remote_url: attempt 1");
         
-        $context = stream_context_create(array('http' => array('timeout' => DOWNLOAD_TIMEOUT_SECONDS)));
+        $context = stream_context_create(array('http' => array('timeout' => $timeout)));
         
         $file = @file_get_contents($remote_url, 0, $context);
         usleep($download_wait_time);

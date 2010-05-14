@@ -19,17 +19,19 @@ class ContentManager
     // partner - this type means we are downloading a logo for a content partner
     // resource - this means we are downloading an XML or zipped file of the EOL schema for processing
     
-    function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
+    function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
     {
         $new_file_path = "";
-        
         $suffix = "";
         if(preg_match("/\.([^\.]+)$/",$file,$arr)) $suffix = trim($arr[1]);
+        
+        // resources may need a little extra time to establish a connection
+        if($type == "resource") $timeout = 60;
         
         $temp_file_path = CONTENT_TEMP_PREFIX.$this->unique_key.".file";
         if(preg_match("/^http:\/\//",$file))
         {
-            if($file_contents = Functions::get_remote_file($file))
+            if($file_contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, $timeout))
             {
                 // if this is a resource then update the old references to the schema
                 // there were a few temporary locations for the schema which were being used by early providers

@@ -23,6 +23,11 @@ foreach($resources as $resource)
 Functions::log("Ended harvesting");
 
 
+// setting appropriate TaxonConcept publish flag
+$GLOBALS['db_connection']->update("update hierarchies h join hierarchy_entries he on (h.id=he.hierarchy_id) join taxon_concepts tc on (he.taxon_concept_id=tc.id) set tc.published=1 where he.published=1 and he.visibility_id=1 and tc.published=0");
+$GLOBALS['db_connection']->update("update taxon_concepts tc left join hierarchy_entries he on (tc.id=he.taxon_concept_id) set tc.published=0 where tc.published=1 and he.id is null");
+$GLOBALS['db_connection']->update("update taxon_concepts set published=0 where supercedure_id!=0 and published=1");
+
 
 // clear the cache in case some images were unpublished but still referenced in denormalized tables
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
