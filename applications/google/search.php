@@ -15,13 +15,14 @@ if(@$_POST["nameList"])
         
         $name = trim($val);
         $name = urlencode($name);
+        if(!$name) continue;
         
         echo "$val...<br>";
         flush();
         
         for($start=0 ; $start<20 ; $start+=4)
         {
-            $file = Functions::get_remote_file("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=".$name."&start=$start");
+            $file = google_search($name, $start);
             $json = json_decode($file, 1);
             flush();
             
@@ -39,16 +40,35 @@ if(@$_POST["nameList"])
     
     fclose($OUT);
     
-    echo "<a href='".WEB_ROOT."temp/google_output.txt'>Download Results</a><br>";
+    echo "<br>search results powered by Google<br><br><a href='".WEB_ROOT."temp/google_output.txt'>Download Results</a><br>";
 }else
 {
     echo "Enter a list of names:<br>
         <form action='search.php' method='post'>
             <textarea name='nameList' rows='30' cols='40'></textarea>
             <input type=submit value=Submit>
-        </form>";
+        </form><br><br>search results powered by Google";
 }
 
+
+
+
+function google_search($name, $start)
+{
+    $url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=$name&start=$start&userip=".$_SERVER['SERVER_ADDR'];
+    // print_r($_SERVER);
+    // echo "$url<br>";
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_REFERER, $_SERVER['SERVER_NAME']);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_6; en-us) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1");
+    $data = curl_exec($ch);
+    curl_close($ch);
+    return $data;
+}
 
 
 

@@ -204,12 +204,12 @@ class Resource extends MysqlBase
     
     public function unpublish_hierarchy_entries()
     {
-        $this->mysqli->update("UPDATE hierarchies_resources hr JOIN hierarchy_entries he ON (hr.hierarchy_id=he.hierarchy_id)  SET he.published=0, he.visibility_id=0 WHERE he.published=1 AND hr.resource_id=$this->id");
+        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=0 WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
     }
     
     public function unpublish_taxon_concepts()
     {
-        $this->mysqli->update("UPDATE hierarchies_resources hr JOIN hierarchies h ON (hr.hierarchy_id=h.id) JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=0 WHERE hr.resource_id=$this->id");
+        $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=0 WHERE he.hierarchy_id=$this->hierarchy_id");
     }
     
     public function vetted_object_guids()
@@ -261,7 +261,7 @@ class Resource extends MysqlBase
             $harvest_event->published();
             
             
-            if($hierarchy_id = $this->hierarchy_id())
+            if($this->hierarchy_id)
             {
                 // unpublish all concepts associated with this resource
                 $this->unpublish_taxon_concepts();
@@ -274,7 +274,7 @@ class Resource extends MysqlBase
                 Hierarchy::publish_default_hierarchy_concepts();
                 $this->mysqli->commit();
                 
-                CompareHierarchies::begin_concept_assignment($hierarchy_id);
+                CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
             }
             
             $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
@@ -292,7 +292,7 @@ class Resource extends MysqlBase
         if($valid)
         {
             $this->mysqli->begin_transaction();
-            
+            $this->insert_hierarchy();
             $this->start_harvest();
             
             debug("Parsing resource: $this->id");
@@ -317,28 +317,32 @@ class Resource extends MysqlBase
             $this->make_old_preview_objects_invisible();
             $this->mysqli->commit();
             
-            if($hierarchy_id = $this->hierarchy_id())
+            if($this->hierarchy_id)
             {
                 debug("Assigning nested set values resource: $this->id");
-                Tasks::rebuild_nested_set($hierarchy_id);
+                Tasks::rebuild_nested_set($this->hierarchy_id);
                 debug("Finished assigning: $this->id");
                 
                 // Rebuild the Solr index for this hierarchy
                 $indexer = new HierarchyEntryIndexer();
-                $indexer->index($hierarchy_id);
+                $indexer->index($this->hierarchy_id);
                 
                 // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                $hierarchy = new Hierarchy($hierarchy_id);
+                $hierarchy = new Hierarchy($this->hierarchy_id);
                 CompareHierarchies::process_hierarchy($hierarchy, null, true);
                 $this->make_new_hierarchy_entries_preview($hierarchy);
                 
-                CompareHierarchies::begin_concept_assignment($hierarchy_id);
+                CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 
                 if($this->vetted())
                 {
                     // Vet all taxa associated with this resource
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=".Vetted::insert("Trusted").", tc.vetted_id=".Vetted::insert("Trusted")." WHERE hierarchy_id=$hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=".Vetted::insert("Trusted").", tc.vetted_id=".Vetted::insert("Trusted")." WHERE hierarchy_id=$this->hierarchy_id");
                 }
+                
+                // after all the resource hierarchy stuff has been taken care of - import the DWC Archive into a
+                // SEPARATE hierarchy, but try to get the same concept IDs
+                $this->import_dwc_archive();
             }
             
             if($this->vetted() && $this->harvest_event)
@@ -402,6 +406,7 @@ class Resource extends MysqlBase
                 $result = $this->mysqli->query("SELECT max(hierarchy_entry_id) max FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) WHERE het.harvest_event_id=$last_he_id");
                 if($result && $row=$result->fetch_assoc()) $last_harvest_max_he_id = $row['max'];
             }
+            if($last_harvest_max_he_id == NULL) $last_harvest_max_he_id = 0;
             $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id=".$this->harvest_event->id." AND t.hierarchy_entry_id>$last_harvest_max_he_id");
             while($result && $row=$result->fetch_assoc())
             {
@@ -516,7 +521,7 @@ class Resource extends MysqlBase
     
     public function insert_hierarchy()
     {
-        if($hierarchy_id = $this->hierarchy_id()) return $hierarchy_id;
+        if($this->hierarchy_id) return $this->hierarchy_id;
         
         $provider_agent = $this->data_supplier();
         
@@ -527,19 +532,119 @@ class Resource extends MysqlBase
         $hierarchy_mock = Functions::mock_object("Hierarchy", $params);
         $hierarchy_id = Hierarchy::insert($hierarchy_mock);
         
-        $this->mysqli->insert("INSERT IGNORE INTO hierarchies_resources VALUES ($this->id, $hierarchy_id)");
+        $this->mysqli->insert("UPDATE resources SET hierarchy_id=$hierarchy_id WHERE id=$this->id");
+        # TODO - get real object updating in place to take care of value updates
+        $this->hierarchy_id = $hierarchy_id;
         
         return $hierarchy_id;
     }
     
-    public function hierarchy_id()
+    private function insert_dwc_hierarchy()
     {
-        $result = $this->mysqli->query("SELECT hierarchy_id FROM hierarchies_resources WHERE resource_id=$this->id");
-        if($result && $row=$result->fetch_assoc()) return $row["hierarchy_id"];
+        // if there is already an archive hierarchy - make a copy for the new data
+        if($this->dwc_hierarchy_id)
+        {
+            return $this->mysqli->query("INSERT INTO hierarchies (agent_id, label, description, browsable, complete) SELECT agent_id, label, description, browsable, complete FROM hierarchies WHERE id=$this->dwc_hierarchy_id");
+        }
         
-        return 0;
+        $provider_agent = $this->data_supplier();
+        $params = array();
+        if(@$provider_agent->id) $params["agent_id"] = $provider_agent->id;
+        $params["label"] = $this->title;
+        $params["description"] = "From resource $this->title dwc archive";
+        $hierarchy_id = Hierarchy::insert($params);
+        
+        $this->mysqli->insert("UPDATE resources SET dwc_hierarchy_id=$hierarchy_id WHERE id=$this->id");
+        # TODO - get real object updating in place to take care of value updates
+        $this->dwc_hierarchy_id = $hierarchy_id;
+        
+        return $hierarchy_id;
     }
-
+    
+    private function import_dwc_archive()
+    {
+        if(!$this->dwc_archive_url) return false;
+        try
+        {
+            $archive_hierarchy_id = $this->insert_dwc_hierarchy();
+            
+            $dwca = new DarwinCoreArchiveHarvester($this->dwc_archive_url);
+            $taxa = $dwca->get_core_taxa();
+            $vernaculars = $dwca->get_vernaculars();
+            $taxa = array_merge($taxa, $vernaculars);
+            
+            $vetted_id = $this->vetted() ? Vetted::insert('trusted') : Vetted::insert('unknown');
+            $archive_hierarchy = new Hierarchy($archive_hierarchy_id);
+            $importer = new TaxonImporter($archive_hierarchy, $vetted_id, Visibility::insert('visible'), 1);
+            $importer->import_taxa($taxa);
+            
+            $result = $this->mysqli->query("SELECT taxon_concept_id FROM hierarchy_entries WHERE hierarchy_id=$archive_hierarchy_id");
+            while($result && $row=$result->fetch_assoc())
+            {
+                Tasks::update_taxon_concept_names($row['taxon_concept_id']);
+            }
+            
+            // Rebuild the Solr index for this hierarchy
+            $indexer = new HierarchyEntryIndexer();
+            $indexer->index($archive_hierarchy_id);
+            
+            // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+            CompareHierarchies::process_hierarchy($archive_hierarchy, null, true);
+            
+            // Use the entry relationships to assign the proper concept IDs
+            CompareHierarchies::begin_concept_assignment($archive_hierarchy_id);
+            
+            // this means the resource already had a hierarchy - and we just inserted one to take its place, so
+            // we now need to update resources to point to the new one now that its ready
+            if($archive_hierarchy_id != $this->dwc_hierarchy_id)
+            {
+                $this->mysqli->update("UPDATE resources SET dwc_hierarchy_id=$archive_hierarchy_id WHERE id=$this->id");
+                $this->dwc_hierarchy_id = $archive_hierarchy_id;
+            }
+        }catch(Exception $e)
+        {
+            return false;
+        }
+    }
+    
+    // private function add_orphaned_entries()
+    // {
+    //     // ADD TO TAXA
+    //     $tmp_file_path = temp_filepath();
+    //     $OUT = fopen($tmp_file_path, 'w+');
+    //     $result = $this->mysqli->query("SELECT he.id, he.name_id, n.string FROM (hierarchy_entries he JOIN names n ON (he.name_id=n.id)) LEFT JOIN taxa t ON (he.id=t.hierarchy_entry_id) WHERE he.hierarchy_id=$this->hierarchy_id");
+    //     while($result && $row=$result->fetch_assoc())
+    //     {
+    //         $guid = Functions::generate_guid();
+    //         $string = $this->mysqli->escape($row['string']);
+    //         $name_id = $row['name_id'];
+    //         $he_id = $row['id'];
+    //         fwrite($OUT, "NULL\t$guid\tNULL\tNULL\tNULL\tNULL\tNULL\t$string\t$name_id\t$he_id\tNULL\tNULL\n");
+    //     }
+    //     fclose($OUT);
+    //     $this->mysqli->load_data_infile($tmp_file_path, 'taxa', 'IGNORE', '', 6000000);
+    //     @unlink($tmp_file_path);
+    //     
+    //     // ADD TO RESOURCES TAXA
+    //     $rt_path = temp_filepath();
+    //     $RESOURCES_TAXA = fopen($rt_path, 'w+');
+    //     $het_path = temp_filepath();
+    //     $HARVEST_EVENTS_TAXA = fopen($het_path, 'w+');
+    //     $result = $this->mysqli->query("SELECT he.id, he.name_id, n.string FROM (hierarchy_entries he JOIN names n ON (he.name_id=n.id)) LEFT JOIN taxa t ON (he.id=t.hierarchy_entry_id) WHERE he.hierarchy_id=$this->hierarchy_id");
+    //     while($result && $row=$result->fetch_assoc())
+    //     {
+    //         $guid = Functions::generate_guid();
+    //         $string = $this->mysqli->escape($row['string']);
+    //         $name_id = $row['name_id'];
+    //         $he_id = $row['id'];
+    //         fwrite($OUT, "NULL\t$guid\tNULL\tNULL\tNULL\tNULL\tNULL\t$string\t$name_id\t$he_id\tNULL\tNULL\n");
+    //     }
+    //     fclose($RESOURCES_TAXA);
+    //     fclose($HARVEST_EVENTS_TAXA);
+    //     @unlink($rt_path);
+    //     @unlink($het_path);
+    // }
+    
     static function insert($parameters)
     {
         if($result = self::find($parameters)) return $result;

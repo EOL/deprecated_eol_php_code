@@ -257,53 +257,44 @@ class Taxon extends MysqlBase
     
     static function add_to_hierarchy_entries($taxon, $resource_id)
     {
-        //if($result = self::find($parameters)) return $result;
-        
         $resource = new Resource($resource_id);
-        $hierarchy = new Hierarchy($resource->insert_hierarchy());
+        $hierarchy = new Hierarchy($resource->hierarchy_id);
         
         $name_ids = array();
         if(@$string = $taxon->taxon_kingdom)
         {
             $name = new Name(Name::insert($string));
-            //$name->make_scientific();
             $name_ids["kingdom"] = $name->id;
         }
         if(@$string = $taxon->taxon_phylum)
         {
             $name = new Name(Name::insert($string));
-            //$name->make_scientific();
             $name_ids["phylum"] = $name->id;
         }
         if(@$string = $taxon->taxon_class)
         {
             $name = new Name(Name::insert($string));
-            //$name->make_scientific();
             $name_ids["class"] = $name->id;
         }
         if(@$string = $taxon->taxon_order)
         {
             $name = new Name(Name::insert($string));
-            //$name->make_scientific();
             $name_ids["order"] = $name->id;
         }
         if(@$string = $taxon->taxon_family)
         {
             $name = new Name(Name::insert($string));
-            //$name->make_scientific();
             $name_ids["family"] = $name->id;
         }
         if(@$string = $taxon->taxon_genus)
         {
             $name = new Name(Name::insert($string));
-            //$name->make_scientific();
             $name_ids["genus"] = $name->id;
         }
         if(@$taxon->taxon_family && !@$taxon->taxon_genus && @preg_match("/^([^ ]+) /", $taxon->scientific_name, $arr))
         {
             $string = $arr[1];
             $name = new Name(Name::insert($string));
-            //$name->make_scientific();
             $name_ids["genus"] = $name->id;
         }
         if(@$taxon->name_id) $name_ids[] = $taxon->name_id;
@@ -326,9 +317,7 @@ class Taxon extends MysqlBase
             
             if(!$rank && @$taxon->identifier) $params["identifier"] = $taxon->identifier;
             
-            $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-            
-            $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($mock_hierarchy_entry));
+            $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
             $parent_hierarchy_entry = $hierarchy_entry;
         }
         

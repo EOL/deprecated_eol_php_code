@@ -6,20 +6,29 @@ require_vendor('darwincore');
 
 
 
-$uri = '/Users/pleary/Downloads/catlife.tar.gz';
-$uri = '/Users/pleary/Downloads/diatoms.tar.gz';
+//$uri = '/Users/pleary/Downloads/catlife.tar.gz';
+$uri = 'http://anura.lifedesks.org/classification.tar.gz';
+
 try
 {
     $dwca = new DarwinCoreArchiveHarvester($uri);
+    
+    $taxa = $dwca->get_core_taxa();
+    $vernaculars = $dwca->get_vernaculars();
+    
+    $taxa = array_merge($taxa, $vernaculars);
+    
+    $importer = new TaxonImporter(new Hierarchy(40), Vetted::insert('trusted'), Visibility::insert('visible'), 1);
+    $importer->import_taxa($taxa);
 }catch(Exception $e)
 {
     var_dump($e);
     exit;
 }
 
-$taxa = $dwca->get_core_taxa();
 
-echo $taxa[0];
+
+
 
 
 
@@ -59,21 +68,11 @@ $hierarchy_params = array(  "label"                     => "$uri",
 $hierarchy = new Hierarchy(Hierarchy::insert(Functions::mock_object("Hierarchy", $hierarchy_params)));
 
 
-$importer = new TaxonImporter($hierarchy, 5, 1);
-$importer->import_taxa($taxa);
 
 
 
 
 
-
-
-
-// $taxon = new DarwinCoreTaxon(array("ScientificName" => "Aus bus"));
-// echo $taxon;
-// 
-// $taxon2 = new DarwinCoreTaxon(array("http://rs.tdwg.org/dwc/terms/ScientificName" => "Audds bddus"));
-// echo $taxon2;
 
 
 ?>

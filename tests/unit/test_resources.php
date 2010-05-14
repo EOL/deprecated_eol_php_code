@@ -190,6 +190,18 @@ class test_resources extends SimpletestUnitBase
                     $this->assertTrue($value == $test_value, "Taxon ($i) $key should be correct");
                 }
                 
+                $references = array();
+                foreach($t->reference as $r)
+                {
+                    $references[] = Functions::import_decode((string) $r);
+                }
+                $taxa_refs = $taxa[$i]->references();
+                $this->assertTrue(count($references) == count($taxa_refs), 'references should be the same');
+                foreach($taxa[$i]->references() as $ref)
+                {
+                    $this->assertTrue(in_array($ref->full_reference, $references), 'references should be the same');
+                }
+                
                 foreach($t->dataObject as $d)
                 {
                     $d_dc = $d->children("http://purl.org/dc/elements/1.1/");
@@ -251,6 +263,7 @@ class test_resources extends SimpletestUnitBase
         if(!isset($args['vetted'])) $args['vetted'] = 1;
         if(!isset($args['title'])) $args['title'] = 'Test Resource';
         if(!isset($args['file_path'])) $args['file_path'] = DOC_ROOT . 'tests/fixtures/files/test_resource.xml';
+        if(!isset($args['dwc_archive_url'])) $args['dwc_archive_url'] = '';
         
         // create the test resource
         $agent_id = Agent::insert(array('full_name' => 'Test Content Partner'));
@@ -266,6 +279,7 @@ class test_resources extends SimpletestUnitBase
                         'auto_publish'          => $args['auto_publish'],
                         'vetted'                => $args['vetted'],
                         'title'                 => $args['title'],
+                        'dwc_archive_url'       => $args['dwc_archive_url'],
                         'resource_status_id'    => ResourceStatus::insert('Validated'));
         $resource_id = Resource::insert($attr);
         $agent->add_resouce($resource_id, 'Data Supplier');

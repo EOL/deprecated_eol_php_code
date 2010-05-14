@@ -145,7 +145,7 @@ class CompareHierarchies
                 //if($i%1==0) echo "supercede_by_ids($tc_id1, $tc_id2): $score. $row_num of $rows. mem: ".memory_get_usage()."\n";
                 TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
                 $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
-                if($i%100==0) $mysqli->commit();
+                if($i%50==0) $mysqli->commit();
             }
         }
         $mysqli->end_transaction();
@@ -156,7 +156,7 @@ class CompareHierarchies
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $GLOBALS['hierarchy_preview_harvest_event'] = array();
-        $result = $mysqli->query("SELECT hr.hierarchy_id, max(he.id) as max FROM hierarchies_resources hr JOIN harvest_events he ON (hr.resource_id=he.resource_id) GROUP BY hr.hierarchy_id");
+        $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
         while($result && $row=$result->fetch_assoc())
         {
             $harvest_event = new HarvestEvent($row['max']);

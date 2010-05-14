@@ -79,12 +79,13 @@ class HarvestEvent extends MysqlBase
     
     public function publish_hierarchy_entry_parents()
     {
-        if($hierarchy_id = $this->resource()->hierarchy_id())
+        $r = $this->resource();
+        if($r->hierarchy_id)
         {
             $continue = true;
             while($continue)
             {
-                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) JOIN taxon_concepts tc_parents ON (he_parents.taxon_concept_id=tc_parents.id) SET he_parents.published=1, tc_parents.published=1 WHERE he.hierarchy_id=$hierarchy_id AND he.published=1 AND he_parents.published=0");
+                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) JOIN taxon_concepts tc_parents ON (he_parents.taxon_concept_id=tc_parents.id) SET he_parents.published=1, tc_parents.published=1 WHERE he.hierarchy_id=$r->hierarchy_id AND he.published=1 AND he_parents.published=0");
                 
                 // continue doing this as long as we're effecting new rows
                 $continue = $this->mysqli->affected_rows();
@@ -95,12 +96,13 @@ class HarvestEvent extends MysqlBase
     
     function make_hierarchy_entry_parents_visible()
     {
-        if($hierarchy_id = $this->resource()->hierarchy_id())
+        $r = $this->resource();
+        if($r->hierarchy_id)
         {
             $continue = true;
             while($continue)
             {
-                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('visible') ." WHERE he.hierarchy_id=$hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible'));
+                $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('visible') ." WHERE he.hierarchy_id=$r->hierarchy_id AND he.visibility_id=". Visibility::insert('visible') ." AND he_parents.visibility_id!=". Visibility::insert('visible'));
                 
                 // continue doing this as long as we're effecting new rows
                 $continue = $this->mysqli->affected_rows();
@@ -124,6 +126,7 @@ class HarvestEvent extends MysqlBase
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
         
+        // TODO: THIS IS ONE OF THE SLOWEST UPDATE QUERIES - SELECT NEEDS TO BE REMOVED FROM UPDATE
         $this->mysqli->query("UPDATE (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) SET do_current.visibility_id = do_previous.visibility_id WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::insert('Invisible').", ".Visibility::insert('Inappropriate').")");
     }
     

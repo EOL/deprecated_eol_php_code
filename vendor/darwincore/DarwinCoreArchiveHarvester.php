@@ -192,6 +192,13 @@ class DarwinCoreArchiveHarvester
                 $taxon_attributes[$field_metadata['term']] = $value;
             }else echo "There is no declared field for this index ($index)\n";
         }
+        foreach($extension->constants as $field_metadata)
+        {
+            if($value = self::convert_escaped_chars($field_metadata[$default]))
+            {
+                $taxon_attributes[$field_metadata['term']] = $value;
+            }
+        }
         $taxon = new DarwinCoreTaxon($taxon_attributes);
         return $taxon;
     }
