@@ -336,7 +336,6 @@ class AquamapsAPI
                
     }
 
-    
     public static function build_image_array($img,$genus,$species,$type,$sourceURL)
     {
         return array(  "mediaURL"=>$img,
