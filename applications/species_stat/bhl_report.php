@@ -1,8 +1,10 @@
 <?php
+/* A certain Jira ticket, requested for BHL numbers.
+*/
+
 
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 
 /*
 $mysqli = new mysqli("", "web", "", "eol_data_production");
