@@ -330,7 +330,7 @@ function display_form()
     <td><font size='2'>Access report using URL and Agent ID:<br>
     <i><a href='http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=2'>
     http://services.eol.org/eol_php_code/applications/partner_stat/index.php?agent_id=2</a></i>
-    <br>
+    <br>&nbsp;<br>
     <a href='javascript:self.close()'>Exit</a>
     </font>
     </td>
