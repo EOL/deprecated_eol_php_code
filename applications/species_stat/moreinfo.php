@@ -30,7 +30,9 @@ function lifedesk_stat($stats)
         $provider=$stats;
     
         //start display
-        $arr = array_keys($provider["published"]);
+        if(@$provider["published"]) $arr = array_keys(@$provider["published"]);
+        else                        $arr = array();
+        
         print"<p style='font-family : Arial;'>
         These are LifeDesk providers who have registered in the <a target='eol_registry' href='http://www.eol.org/administrator/content_partner_report'>EOL Content Partner Registry</a>.<br>
         </p>
@@ -59,7 +61,9 @@ function lifedesk_stat($stats)
                 </tr>";
         //print"</table>";        
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        $arr = array_keys($provider["unpublished"]);
+        if(@$provider["unpublished"])$arr = array_keys(@$provider["unpublished"]);
+        else                         $arr = array();   
+        
         print"
         <tr align='center'>
             <td>Un-published (n=" . count($arr) . ")</td>
