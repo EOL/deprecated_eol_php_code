@@ -408,10 +408,16 @@ class Resource extends MysqlBase
             }
             if($last_harvest_max_he_id == NULL) $last_harvest_max_he_id = 0;
             $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id=".$this->harvest_event->id." AND t.hierarchy_entry_id>$last_harvest_max_he_id");
+            
+            $this->mysqli->begin_transaction();
             while($result && $row=$result->fetch_assoc())
             {
+                static $i=0;
+                $i++;
+                if($i%50==0) $this->mysqli->commit();
                 Tasks::update_taxon_concept_names($row['taxon_concept_id']);
             }
+            $this->mysqli->end_transaction();
         }
     }
     
