@@ -1,4 +1,5 @@
 <?php
+exit;
 /* connector for AquaMaps
 estimated execution time: 
 
@@ -8,7 +9,6 @@ the distribution maps.
 Maps will end up as individual images and in Distribution section.
 */
 
-
 define("SERVICE_URL", "http://www.aquamaps.org/webservice/getAMap.php?");
 //define("SERVICE_URL2", "http://www.aquamaps.org/webservice/aquamap.xml.php?");
 
@@ -16,7 +16,6 @@ define("FISHBASE_URL", "http://www.fishbase.org/summary/speciessummary.php?id=")
 define("SEALIFEBASE_URL", "http://www.sealifebase.org/summary/speciessummary.php?id=");
 define("MAP_RESIZER_URL", "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=");
 define("CACHED_MAPS_URL", "http://www.aquamaps.org/imagethumb/cached_maps");
-
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
@@ -44,8 +43,8 @@ class AquamapsAPI
         $used_collection_ids = array();
         
         $path=dirname(__FILE__) . "/files/Aquamaps/";
-        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 1),  //
-                       1  => array( "path" => $path . ""                          , "active" => 0)   //                       
+        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 1),  // all 9000 species
+                       1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 0)   // test just 50 species                       
                      );
         foreach($urls as $url)
         {
@@ -159,7 +158,6 @@ class AquamapsAPI
             $ctr++;
             $arr_scraped[]=array("id"=>$ctr,
                                  "sciname"=>$rec->Genus . ' ' . $rec->Species,
-
                                  "genus"=>$rec->Genus,
                                  "family"=>$rec->Family,
                                  "order"=>$rec->Order,
@@ -173,10 +171,7 @@ class AquamapsAPI
                                                      "title"=>"AquaMaps for <i>$rec->Genus $rec->Species</i>",
                                                      "dataType"=>"http://purl.org/dc/dcmitype/Text",
                                                      "dc_source"=>$sourceURL)
-                                );   
-            
-            //,
-
+                                );               
         }
         //print"<pre>";print_r($arr_scraped);print"</pre>"; //debug
         return $arr_scraped;
