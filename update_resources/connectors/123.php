@@ -6,7 +6,8 @@ estimated execution time:
 This connector reads an XML (list of species with AquaMaps) then loops on each species and run the service to get 
 the distribution maps.
 
-Maps will end up as individual images and in Distribution section.
+Originally maps will end up as individual images and in Distribution section.
+Now it is only being shown in the Distribution section.
 */
 
 define("SERVICE_URL", "http://www.aquamaps.org/webservice/getAMap.php?");
@@ -43,8 +44,8 @@ class AquamapsAPI
         $used_collection_ids = array();
         
         $path=dirname(__FILE__) . "/files/Aquamaps/";
-        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 1),  // all 9000 species
-                       1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 0)   // test just 50 species                       
+        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 0),  // all 9000 species
+                       1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 1)   // test just 50 species                       
                      );
         foreach($urls as $url)
         {
@@ -194,7 +195,9 @@ class AquamapsAPI
         if(preg_match("/href=\'http:\/\/(.*?)\'>/ims", $html, $matches)){$sourceURL = "http://" . trim($matches[1]);}
         else                                                             $sourceURL = "";        
 
-        $attribution = "$source_dbase_link <a target='am $genus $species' href='$sourceURL'>AquaMaps</a> ";
+        //$attribution = "$source_dbase_link <a target='am $genus $species' href='$sourceURL'>AquaMaps</a> ";//working
+        $attribution = "$source_dbase_link <a target='aquamaps' href='http://www.aquamaps.org'>AquaMaps</a> ";
+        
         if(preg_match("/Data sources:(.*?)<\/font><\/td>/ims", $html, $matches)){$attribution .= trim($matches[1]) . "";}
 
         $attribution = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB","\xA0"), '', $attribution);			
@@ -224,7 +227,7 @@ class AquamapsAPI
             <tr><td>&nbsp;</td></tr>
             <tr><td>Native range</td></tr>                
             <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='native_range' src='$src'></a></td></tr>";
-            $arr_photos[] = self::build_image_array($native_range,$genus,$species,"Native range",$sourceURL);
+            //$arr_photos[] = self::build_image_array($native_range,$genus,$species,"Native range",$sourceURL);
         }
         print"<hr>native_range = $native_range <img src='$native_range' height='10'>";        
         //============================================================================================        
@@ -237,7 +240,7 @@ class AquamapsAPI
             <tr><td>&nbsp;</td></tr>
             <tr><td>All suitable habitat</td></tr>                
             <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='suitable' src='$src'></a></td></tr>";
-            $arr_photos[] = self::build_image_array($suitable,$genus,$species,"All suitable habitat",$sourceURL);
+            //$arr_photos[] = self::build_image_array($suitable,$genus,$species,"All suitable habitat",$sourceURL);
         }
         print"<hr> suitable = $suitable <img src='$suitable' height='10'>";        
         //============================================================================================        
@@ -250,7 +253,7 @@ class AquamapsAPI
             <tr><td>&nbsp;</td></tr>
             <tr><td>PointMap</td></tr>                
             <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='pointmap' src='$src'></a></td></tr>";
-            $arr_photos[] = self::build_image_array($pointmap,$genus,$species,"PointMap",$sourceURL);
+            //$arr_photos[] = self::build_image_array($pointmap,$genus,$species,"PointMap",$sourceURL);
         }
         print"<hr> pointmap = $pointmap <img src='$pointmap' height='10'>";        
         //============================================================================================        
@@ -263,7 +266,7 @@ class AquamapsAPI
             <tr><td>&nbsp;</td></tr>
             <tr><td>Year 2050 range</td></tr>                
             <tr><td><a target='am $genus $species' href='$sourceURL'><img alt='2050' src='$src'></a></td></tr>";
-            $arr_photos[] = self::build_image_array($m2050,$genus,$species,"Year 2050 range",$sourceURL);
+            //$arr_photos[] = self::build_image_array($m2050,$genus,$species,"Year 2050 range",$sourceURL);
         }
         print"<hr> 2050 = [$m2050] <img src='$m2050' height='10'>";        
         //============================================================================================        

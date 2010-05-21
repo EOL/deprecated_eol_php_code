@@ -32,9 +32,9 @@ $subject_arr = array("Associations","Behaviour","Biology","Conservation","Conser
 
 $path = dirname(__FILE__);
 
-$providers = array( 0 => array( "url" => $path . "/files/inotaxa/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"                     , "active" => 1),
-                    1 => array( "url" => $path . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml"                        , "active" => 0),
-                    2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"    , "active" => 0)                
+$providers = array( 0 => array( "url" => $path . "/files/inotaxa/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"            , "active" => 1),
+                    1 => array( "url" => $path . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml"               , "active" => 0),
+                    2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"    , "active" => 0)
                   );
 
 $wrap = "\n";
@@ -104,8 +104,6 @@ foreach($providers as $provider)
         {   $main_count++; 
             
             //print"<pre>";print_r($main);print"</pre>";
-
-            
                         
             $ptm_count=0;
             foreach($main->PublicationTaxonomicMatter as $ptm)
@@ -189,8 +187,6 @@ foreach($providers as $provider)
                         $taxon_parameters["identifier"] = $taxon_identifier;
                         $taxon_parameters["scientificName"]= $dwc_ScientificName;
                         $taxon_parameters["source"] = "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=" . $taxon_identifier;
-
-                        
                         
                         if($main_citation)
                         {
@@ -336,8 +332,7 @@ foreach($providers as $provider)
                         $temp = process_dataobjects($arr,2,"","");
                     }
                     // */
-                    //end image dataobject
-                    
+                    //end image dataobject                    
 
                     //print"$wrap";
                 }
@@ -387,8 +382,6 @@ exit("\n\n Done processing.");
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################
-
-
 
 function get_agents($agents_arr)
 {
@@ -681,7 +674,6 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
 
     $audienceParameters["label"] = "Expert users";
     $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
-
     /*
     $audienceParameters["label"] = "General public";
     $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
