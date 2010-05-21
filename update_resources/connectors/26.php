@@ -1,4 +1,5 @@
 <?php
+exit;
 /*connector for WORMS
 estimated execution time: 
 
@@ -26,10 +27,10 @@ http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=231158
 2010    9572         
 */
 
-exit;
+//exit;
+$GLOBALS['ENV_NAME'] = "slave_215";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 
 
 
@@ -221,6 +222,12 @@ function get_main_id_list()
     $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2009.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2010.xml";    
+
+    $url[]="http://127.0.0.1/mtce/WORMS/20100519/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100519/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100519/id/2009.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100519/id/2010.xml";    
+
     // */
     
     //$url[]="http://127.0.0.1/mtce/WORMS/20100104/test.xml";    
