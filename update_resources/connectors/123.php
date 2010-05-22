@@ -351,6 +351,7 @@ class AquamapsAPI
         $license = null;
         
         $taxon["source"] = $rec["dc_source"];
+        $taxon["identifier"] = $rec["dc_source"];
         $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
         $taxon["family"] = ucfirst(trim(@$rec["family"]));
         $taxon["order"] = ucfirst(trim(@$rec["order"]));
