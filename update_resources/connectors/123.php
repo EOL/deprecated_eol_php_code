@@ -42,7 +42,7 @@ class AquamapsAPI
         $all_taxa = array();
         $used_collection_ids = array();
         
-        $path=dirname(__FILE__) . "/files/Aquamaps/";
+        $path=dirname(__FILE__) . "/files/AquaMaps/";
         $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 0),  // all 9000 species
                        1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 1)   // test just 50 species                       
                      );
