@@ -351,7 +351,9 @@ class AquamapsAPI
         $license = null;
         
         $taxon["source"] = $rec["dc_source"];
-        $taxon["identifier"] = $rec["dc_source"];
+        if(preg_match("/&SpecID=(.*?)&?$/ims", $rec["dc_source"], $matches)){$species_id = trim($matches[1]);}//ends with & or end of string
+        else $species_id="";
+        $taxon["identifier"] = $species_id;
         $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
         $taxon["family"] = ucfirst(trim(@$rec["family"]));
         $taxon["order"] = ucfirst(trim(@$rec["order"]));
