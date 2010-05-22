@@ -1,5 +1,4 @@
 <?php
-exit;
 /* connector for AquaMaps
 estimated execution time: 
 
@@ -13,7 +12,7 @@ Now it is only being shown in the Distribution section.
 define("SERVICE_URL", "http://www.aquamaps.org/webservice/getAMap.php?");
 //define("SERVICE_URL2", "http://www.aquamaps.org/webservice/aquamap.xml.php?");
 
-define("FISHBASE_URL", "http://www.fishbase.org/summary/speciessummary.php?id=");
+define("FISHBASE_URL", "http://www.fishbase.us/summary/speciessummary.php?id=");
 define("SEALIFEBASE_URL", "http://www.sealifebase.org/summary/speciessummary.php?id=");
 define("MAP_RESIZER_URL", "http://www.aquamaps.org/imagethumb/workimagethumb.php?s=");
 define("CACHED_MAPS_URL", "http://www.aquamaps.org/imagethumb/cached_maps");
