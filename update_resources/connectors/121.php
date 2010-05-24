@@ -122,7 +122,7 @@ class LarvaeAPI
         $loop=0;//debug
         foreach($arr as $r)
         {
-            //$loop++;if($loop >= 4)break;
+            $loop++;if($loop >= 4)break;
                     
             $r = str_ireplace('<th','<td',$r);
             $r = str_ireplace('</th','</td',$r);
@@ -295,6 +295,11 @@ class LarvaeAPI
             //end confused with
             //=============================================================================================================
             
+            //text object agents
+            $agent=array();
+            $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "S.W. Mills");
+            $agent[]=array("role" => "author" , "homepage" => ""                     , "name" => "S.E. Beaulieu");
+            $agent[]=array("role" => "author" , "homepage" => ""                     , "name" => "L.S. Mullineaux");
             
             $ctr++;
             $arr_scraped[]=array("id"=>$ctr,
@@ -303,9 +308,9 @@ class LarvaeAPI
                                  "order"=>$order,
                                  "class"=>$class,
                                  "dc_source"=>$sourceURL,
-                                 "morphology"=>array("description"=>$morphology   ,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL),
-                                 "lookalikes"=>array("description"=>$confused_with,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#LookAlikes","title"=>"Can be confused with:","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL),
-                                 "size"=>array("description"=>"Size: " . $rec["size"],"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL),
+                                 "morphology"=>array("description"=>$morphology   ,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"Morphology","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
+                                 "lookalikes"=>array("description"=>$confused_with,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#LookAlikes","title"=>"Can be confused with:","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
+                                 "size"      =>array("description"=>"Size: " . $rec["size"],"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
                                  "photos"=>$arr_photos
                                 );
                                 
