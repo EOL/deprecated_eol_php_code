@@ -1,7 +1,7 @@
 <?php
 exit;
 /*connector for WORMS
-estimated execution time: 
+estimated execution time: 112 hours
 
 Partner provides a list of their species ID's in multiple XML services. They also provided individual 
 species service for the EOL-schema. This connector loops to the ID's then run each species to their species service 
@@ -17,7 +17,8 @@ $timestart = microtime(1);
     2010-Mar-02 137794  59          241953,139430,139596,372873,131521      
     2010-Mar-15 167902  3679        231158,148063,148064,148077,148078,156362,156373,156391,156287,156298,156312,156323,156337,156292,156294,156309,156311,122651,156284,156301,156302,156319,156320,117650,117716,326256,326413,281017,281019,281034,281036,281051,281053,281068,281070,281083,281085,281100,281102,281117,281119,281134,281136,281151,281153,
                                     281168,281170,281185,281187,281200,281202,281217,281219,281234,281236,281251,281253,278279,276839,218246,101138,448731,
-    
+    2010-May-24         7986
+        
 http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=231158    
 
         2010-feb-26
