@@ -13,9 +13,8 @@ This connector normally will run on Eli's PC and will just move the generated 68
 
 */
 
-exit;
+//exit;
 $timestart = microtime(1);
-
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -30,7 +29,9 @@ $file_number=1;
     Jan23 2010  4744    108    
 */
 
-$resource = new Resource(68); //exit("[$resource->id]");
+//$resource = new Resource(68); //exit("[$resource->id]");
+$resource_id = 68;
+
 $main_count=0;
 //====================================================================================
 $main_id_list = array();
@@ -71,15 +72,15 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     //print"<hr>[$contents]<hr>";    
     echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
     
-    // /*
-    if($i==3)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
-    // */
+     /*
+    if($i==5)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
+     */
 }    
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
 //====================================================================================
 //start compiling all individual xml 
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
 $str .= "<response\n";
@@ -175,7 +176,6 @@ function process($id)
             }
         }    
     //end process reference
-    //exit("ditox");
 
     $contents = Functions::get_remote_file($file);
     if($ref != "")
@@ -187,17 +187,34 @@ function process($id)
     }
     if($contents)
     {
-
+        //remove first line - later on moved on dc:title
         $contents = str_ireplace("<caption>Naamgeving</caption>", "", $contents);
         $contents = str_ireplace("<caption>Voorkomen</caption>", "", $contents);
         $contents = str_ireplace("<caption>Beschermingsstatus</caption>", "", $contents);
+        
+        $contents = str_ireplace("<span>Naamgeving</span>", "", $contents);
+        $contents = str_ireplace("<span>Voorkomen</span>", "", $contents);
+        $contents = str_ireplace("<span>Beschermingsstatus</span>", "", $contents);
+
 
         /*        
         $contents = str_ireplace(             "<dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology</subject>"
         ,  "<dc:title>Classification</dc:title><dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>", $contents);
         */
 
-    
+        //put corresponding dc:title         
+        $contents = str_ireplace(         "<dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>"
+        ,  "<dc:title>Naamgeving</dc:title><dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>", $contents);
+
+        $contents = str_ireplace(        "<dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>"
+        ,  "<dc:title>Voorkomen</dc:title><dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution</subject>", $contents);
+
+        $contents = str_ireplace(                 "<dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Legislation</subject>"
+        ,  "<dc:title>Beschermingsstatus</dc:title><dc:language>nl</dc:language><license>http://creativecommons.org/licenses/by-nc-sa/3.0/</license><subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Legislation</subject>", $contents);
+        
+        $contents = remove_classification_object($contents);              
+        
+        //get the <taxon> boundaries
     	$pos1 = stripos($contents,"<taxon>");
     	$pos2 = stripos($contents,"</taxon>");			
     	if($pos1 != "" and $pos2 != "")
@@ -208,6 +225,41 @@ function process($id)
     }    
     return false;
 }//end process() 
+
+function remove_classification_object($contents)
+{
+    $pos_phylum = stripos($contents,"[phylum]");
+    if(is_numeric($pos_phylum))   
+    {
+        //print"may nakita <hr>";
+        
+        //get pos of <dataObject>
+        $str="";
+        $var_pos = $pos_phylum;
+        while ($str != "<dataObject>")
+        {
+            $str = substr($contents,$var_pos,12);
+            $var_pos--;
+        }
+        $pos1 = $var_pos+1;// +1 bec of the while loop
+        
+        //get pos of </dataObject>       
+        $str="";
+        $var_pos = $pos_phylum;
+        while ($str != "</dataObject>")
+        {
+            $str = substr($contents,$var_pos,13);
+            $var_pos++;
+        }
+        $pos2 = $var_pos-1;// -1 bec of the while loop
+ 
+        //remove <dataObject> classification
+        $str = substr($contents,$pos1,$pos2-$pos1+strlen("</dataObject>"));
+        $contents = str_ireplace($str,"",$contents);        
+    }
+    return $contents;
+}
+
 function get_main_id_list()
 {
     //$url[] = "http://128.128.175.77/mtce/DutchSpeciesCatalogue/DutchSpeciesCatalogueIDs.xml";
