@@ -1,6 +1,7 @@
 <?php
+exit;
 /*connector for Duth Species Catalogue
-estimated execution time: 15 hours
+estimated execution time: 15-17 hours
 
 Rana catesbeiana Shaw, 1802 
 http://www.eol.org/harvest_events/1622/taxa/330963
@@ -12,8 +13,6 @@ and compiles all XML into 1 final XML for EOL ingestion.
 This connector normally will run on Eli's PC and will just move the generated 68.xml to Beast.
 
 */
-
-exit;
 $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -27,6 +26,7 @@ $file_number=1;
 /*
     as of       id      bad 
     Jan23 2010  4744    108    
+    May25 2010  4744    126        
 */
 
 //$resource = new Resource(68); //exit("[$resource->id]");
