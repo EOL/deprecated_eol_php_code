@@ -22,24 +22,32 @@ class Resource extends MysqlBase
     public static function delete($id)
     {
         if(!$id) return false;
+        $resource = new Resource($id);
+        if(!$resource->id) return false;
         
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $mysqli->begin_transaction();
-
+        
         //$mysqli->delete("DELETE do FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE he.resource_id=$id");
         $mysqli->delete("DELETE ado FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN agents_data_objects ado ON (dohe.data_object_id=ado.data_object_id) WHERE he.resource_id=$id");
-        $mysqli->delete("DELETE dot FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) WHERE he.resource_id=$id");
+        $mysqli->delete("DELETE dohent FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects_hierarchy_entries dohent ON (dohe.data_object_id=dohent.data_object_id) WHERE he.resource_id=$id");
         $mysqli->delete("DELETE dor FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects_refs dor ON (dohe.data_object_id=dor.data_object_id) WHERE he.resource_id=$id");
         $mysqli->delete("DELETE ado FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN audiences_data_objects ado ON (dohe.data_object_id=ado.data_object_id) WHERE he.resource_id=$id");
         $mysqli->delete("DELETE doii FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects_info_items doii ON (dohe.data_object_id=doii.data_object_id) WHERE he.resource_id=$id");
         $mysqli->delete("DELETE dotoc FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects_table_of_contents dotoc ON (dohe.data_object_id=dotoc.data_object_id) WHERE he.resource_id=$id");
         $mysqli->delete("DELETE dohe FROM harvest_events he STRAIGHT_JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) WHERE he.resource_id=$id");
         
-        $mysqli->delete("DELETE t FROM harvest_events he STRAIGHT_JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id) JOIN taxa t ON (het.taxon_id=t.id) WHERE he.resource_id=$id");
-        $mysqli->delete("DELETE rt FROM harvest_events he STRAIGHT_JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id) JOIN refs_taxa rt  ON (het.taxon_id=rt.taxon_id) WHERE he.resource_id=$id");
-        $mysqli->delete("DELETE cnt FROM harvest_events he STRAIGHT_JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id) JOIN common_names_taxa cnt  ON (het.taxon_id=cnt.taxon_id) WHERE he.resource_id=$id");
-        $mysqli->delete("DELETE het FROM harvest_events he STRAIGHT_JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id) WHERE he.resource_id=$id");
+        // primary hierarchy
+        $mysqli->delete("DELETE her FROM hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->hierarchy_id");
+        $mysqli->delete("DELETE s FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->hierarchy_id AND s.hierarchy_id=$resource->hierarchy_id");
+        $mysqli->delete("DELETE he FROM hierarchy_entries he WHERE he.hierarchy_id=$resource->hierarchy_id");
+        $mysqli->delete("DELETE hehe FROM harvest_events he STRAIGHT_JOIN harvest_events_hierarchy_entries hehe ON (he.id=hehe.harvest_event_id) WHERE he.resource_id=$id");
+        
+        // DWC hierarchy
+        $mysqli->delete("DELETE her FROM hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->dwc_hierarchy_id");
+        $mysqli->delete("DELETE s FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->hierarchy_id AND s.hierarchy_id=$resource->dwc_hierarchy_id");
+        $mysqli->delete("DELETE he FROM hierarchy_entries he WHERE he.hierarchy_id=$resource->dwc_hierarchy_id");
         
         $mysqli->delete("DELETE FROM harvest_events WHERE resource_id=$id");
         $mysqli->delete("DELETE FROM resources WHERE id=$id");
@@ -185,16 +193,6 @@ class Resource extends MysqlBase
         return $this->data_supplier;
     }
     
-    public function add_taxon($taxon_id, $taxon)
-    {
-        if(!$taxon_id) return 0;
-        $identifier = @$this->mysqli->escape($taxon->identifier);
-        $source_url = @$this->mysqli->escape($taxon->source_url);
-        $created_at = @$this->mysqli->escape($taxon->created_at);
-        $modified_at = @$this->mysqli->escape($taxon->modified_at);
-        $this->mysqli->insert("INSERT IGNORE INTO resources_taxa VALUES ($this->id, $taxon_id, '$identifier', '$source_url', '$created_at', '$modified_at')");
-    }
-    
     public function unpublish_data_objects($object_guids_to_keep = null)
     {
         $where_clause = '';
@@ -336,7 +334,7 @@ class Resource extends MysqlBase
                 
                 if($this->vetted())
                 {
-                    // Vet all taxa associated with this resource
+                    // Vet all taxon concepts associated with this resource
                     $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=".Vetted::insert("Trusted").", tc.vetted_id=".Vetted::insert("Trusted")." WHERE hierarchy_id=$this->hierarchy_id");
                 }
                 
@@ -386,10 +384,10 @@ class Resource extends MysqlBase
             
             $unchanged_status_id = Status::insert('Unchanged');
             // add the unchanged data objects
-            $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events (harvest_event_id, data_object_id, guid, status_id)  SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.guid=dohe.guid) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
+            $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events (harvest_event_id, data_object_id, guid, status_id)  SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.guid=dohe.guid) WHERE do.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
             
             // add the unchanged taxa
-            $this->mysqli->insert("INSERT IGNORE INTO harvest_events_taxa (harvest_event_id, taxon_id, guid, status_id) SELECT ".$this->harvest_event->id.", het.taxon_id, het.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_taxa dot ON (dohe.data_object_id=dot.data_object_id) JOIN harvest_events_taxa het ON (dot.taxon_id=het.taxon_id) LEFT JOIN harvest_events_taxa het_current ON (het_current.harvest_event_id=".$this->harvest_event->id." AND het_current.guid=het.guid) WHERE dot.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND het.harvest_event_id=$last_harvest_event_id AND het_current.taxon_id IS NULL");
+            $this->mysqli->insert("INSERT IGNORE INTO harvest_events_hierarchy_entries (harvest_event_id, hierarchy_entry_id, guid, status_id) SELECT ".$this->harvest_event->id.", hehe.hierarchy_entry_id, hehe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_hierarchy_entries dohent ON (dohe.data_object_id=dohent.data_object_id) JOIN harvest_events_hierarchy_entries hehe ON (dohent.hierarchy_entry_id=hehe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) LEFT JOIN harvest_events_hierarchy_entries hehe_current ON (hehe_current.harvest_event_id=".$this->harvest_event->id." AND hehe_current.guid=hehe.guid) WHERE do.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND hehe.harvest_event_id=$last_harvest_event_id AND hehe_current.hierarchy_entry_id IS NULL");
             
             // at this point everything has been added EXCEPT the things we want to delete
         }
@@ -403,11 +401,11 @@ class Resource extends MysqlBase
             $last_harvest_max_he_id = 0;
             if($last_he_id = $this->last_harvest_event_id())
             {
-                $result = $this->mysqli->query("SELECT max(hierarchy_entry_id) max FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) WHERE het.harvest_event_id=$last_he_id");
+                $result = $this->mysqli->query("SELECT max(hierarchy_entry_id) max FROM harvest_events_hierarchy_entries WHERE harvest_event_id=$last_he_id");
                 if($result && $row=$result->fetch_assoc()) $last_harvest_max_he_id = $row['max'];
             }
             if($last_harvest_max_he_id == NULL) $last_harvest_max_he_id = 0;
-            $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id=".$this->harvest_event->id." AND t.hierarchy_entry_id>$last_harvest_max_he_id");
+            $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.id>$last_harvest_max_he_id");
             
             $this->mysqli->begin_transaction();
             while($result && $row=$result->fetch_assoc())
@@ -425,7 +423,7 @@ class Resource extends MysqlBase
     {
         if($this->harvest_event)
         {
-            $this->mysqli->update("UPDATE harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::insert('preview') ." WHERE het.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=0");
+            $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::insert('preview') ." WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=0");
             $this->make_new_hierarchy_entries_parents_preview($hierarchy);
         }
     }
@@ -445,10 +443,10 @@ class Resource extends MysqlBase
     {
         if($this->harvest_event)
         {
-            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::find('preview') ." AND dohe2.data_object_id IS NULL");
+            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::insert('preview') ." AND dohe2.data_object_id IS NULL");
             if($result && $row=$result->fetch_assoc())
             {
-                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=0 WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::find('preview') ." AND dohe2.data_object_id IS NULL");
+                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=0 WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::insert('preview') ." AND dohe2.data_object_id IS NULL");
             }
         }
     }

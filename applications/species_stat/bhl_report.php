@@ -166,10 +166,9 @@ function get_eol_pages_with_do()
     dohe.harvest_event_id,
     do.id as data_object_id from 
     ((taxon_concepts tc left join hierarchy_entries he on (tc.id=he.taxon_concept_id and he.hierarchy_id = 147 ))
-    join taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-    join taxa t on (tcn.name_id=t.name_id)
-    join data_objects_taxa dot on (t.id=dot.taxon_id) 
-    join data_objects do on (dot.data_object_id=do.id)
+    join hierarchy_entries hent on (tc.id=hent.taxon_concept_id)
+    join data_objects_hierarchy_entries dohent on (hent.id=dohent.hierarchy_entry_id) 
+    join data_objects do on (dohent.data_object_id=do.id)
     join data_objects_harvest_events dohe on (do.id=dohe.data_object_id)) 
     left join data_objects_table_of_contents dotoc on (do.id=dotoc.data_object_id) 
     where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
@@ -226,13 +225,12 @@ function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
     global $mysqli;
     
     $query = "
-    Select distinct hierarchy_entries.taxon_concept_id as id
-    From harvest_events_taxa
-    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
-    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
-    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
-    Where harvest_events_taxa.harvest_event_id = $harvest_event_id
-    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
+    Select distinct he.taxon_concept_id as id
+    From harvest_events_hierarchy_entries hehe
+    Inner Join hierarchy_entries he ON (hehe.hierarchy_entry_id = he.id)
+    Inner Join taxon_concepts tc ON (tc.id = he.taxon_concept_id)
+    Where hehe.harvest_event_id = $harvest_event_id
+    and tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
     ";
     //$query .= " limit 10"; for debug
     
@@ -254,13 +252,12 @@ function get_barcoded_pages()
     global $mysqli;
     
     $query = "
-    Select distinct hierarchy_entries.taxon_concept_id
-    From harvest_events_taxa
-    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
-    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
-    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
-    Where harvest_events_taxa.harvest_event_id = '949'
-    and taxon_concepts.supercedure_id=0 and taxon_concepts.published=1 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
+    Select distinct he.taxon_concept_id
+    From harvest_events_hierarchy_entries hehe
+    Join hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id)
+    Join taxon_concepts tc ON (tc.id = he.taxon_concept_id)
+    Where hehe.harvest_event_id = '949'
+    and tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "
     ";
     
     $result = $mysqli->query($query);                

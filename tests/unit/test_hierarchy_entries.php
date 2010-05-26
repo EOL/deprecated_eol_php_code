@@ -2,7 +2,46 @@
 
 class test_hierarchy_entries extends SimpletestUnitBase
 {
-    function testCreateFromMockObject()
+    function testInsert()
+    {
+        $params = array('hierarchy_id'  => 12345,
+                        'identifier'    => 'abcd1234',
+                        'name_id'       => Name::insert('Homo sapiens'),
+                        'parent_id'     => Rank::insert('species'),
+                        'source_url'    => 'http://www.example.org/abcd1234');
+        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $this->assertTrue($hierarchy_entry->id == 1, "The hierarchy entry should have an id");
+        
+        foreach($params as $p => $value)
+        {
+            $this->assertTrue($hierarchy_entry->$p == $value, "attributes should be correct");
+        }
+        
+        $this->assertTrue($hierarchy_entry->name()->string == 'Homo sapiens', "name string sould be correct");
+    }
+    
+    function testDuplicateName()
+    {
+        $name_id = Name::insert('Chordata');
+        $params = array('hierarchy_id'  => 12345,
+                        'identifier'    => 'abcd1234',
+                        'name_id'       => $name_id,
+                        'parent_id'     => 0,
+                        'source_url'    => 'http://www.example.org/abcd1234');
+        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $this->assertTrue($hierarchy_entry->id == 1, "The hierarchy entry should have an id");
+        
+        $name_id = Name::insert('Chordata');
+        $params = array('hierarchy_id'  => 98,
+                        'identifier'    => 'abcd1234',
+                        'name_id'       => $name_id,
+                        'parent_id'     => 0,
+                        'source_url'    => 'http://www.example.org/abcd1234');
+        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $this->assertTrue($hierarchy_entry->id == 2, "The hierarchy entry should have an id");
+    }
+    
+    function testCreateFromArray()
     {
         $resource = Functions::mock_object("Resource", array("id" => 111));
         $hierarchy = Functions::mock_object("Hierarchy", array("id" => 222));
@@ -22,9 +61,7 @@ class test_hierarchy_entries extends SimpletestUnitBase
             if($parent_hierarchy_entry) $params["parent_id"] = $parent_hierarchy_entry->id;
             $params["identifier"] = 'identifier';
             
-            $mock_hierarchy_entry = Functions::mock_object("HierarchyEntry", $params);
-            
-            $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($mock_hierarchy_entry));
+            $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
             
             
             $this->assertTrue($hierarchy_entry->id > 0, "The hierarchy entry should have an id");

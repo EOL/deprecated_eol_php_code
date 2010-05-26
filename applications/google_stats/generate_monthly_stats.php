@@ -196,13 +196,12 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     else //rest of the partners
     {   
         $query="Select distinct tc.id taxon_concept_id
-        From agents_resources
-        Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
-        Inner Join harvest_events_taxa ON harvest_events.id = harvest_events_taxa.harvest_event_id
-        Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
-        Inner Join hierarchy_entries ON taxa.hierarchy_entry_id = hierarchy_entries.id
-        Inner Join taxon_concepts tc ON hierarchy_entries.taxon_concept_id = tc.id
-        WHERE agents_resources.agent_id = $agent_id
+        From agents_resources er
+        Inner Join harvest_events hev ON er.resource_id = hev.resource_id
+        Inner Join harvest_events_hierarchy_entries hehe ON hev.id = hehe.harvest_event_id
+        Inner Join hierarchy_entries he ON hehe.hierarchy_entry_id = he.id
+        Inner Join taxon_concepts tc ON he.taxon_concept_id = tc.id
+        WHERE er.agent_id = $agent_id
         and tc.published = 1 and tc.supercedure_id = 0
         ";        
     }
@@ -339,9 +338,8 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         FROM agents a 
         JOIN agents_resources ar ON (a.id=ar.agent_id) 
         JOIN harvest_events hev ON (ar.resource_id=hev.resource_id) 
-        JOIN harvest_events_taxa het ON (hev.id=het.harvest_event_id) 
-        JOIN taxa t ON (het.taxon_id=t.id) 
-        join hierarchy_entries he on t.hierarchy_entry_id = he.id 
+        JOIN harvest_events_hierarchy_entries hehe ON (hev.id=hehe.harvest_event_id) 
+        join hierarchy_entries he on hehe.hierarchy_entry_id = he.id 
         join taxon_concepts tc on he.taxon_concept_id = tc.id         
         Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
         WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0

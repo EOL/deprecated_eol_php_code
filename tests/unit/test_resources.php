@@ -9,8 +9,7 @@ class test_resources extends SimpletestUnitBase
         
         $this->assertTrue(count(HarvestEvent::all()) == 0, 'There shouldnt be any events to begin with');
         $this->assertTrue(count(DataObject::all()) == 0, 'There shouldnt be any data objects to begin with');
-        $this->assertTrue(count(Taxon::all()) == 0, 'There shouldnt be any taxa to begin with');
-        $this->assertTrue(count(Taxon::all()) == 0, 'There shouldnt be any taxa to begin with');
+        $this->assertTrue(count(HierarchyEntry::all()) == 0, 'There shouldnt be any hierarchy entries to begin with');
         
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
         $this->assertTrue($result->num_rows == 0, 'shouldnt be any top images');
@@ -111,6 +110,16 @@ class test_resources extends SimpletestUnitBase
     
     function check_content_after_harvesting($resource)
     {
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM hierarchy_entries LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be hierarchy_entries after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM refs LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be refs after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM hierarchy_entries_refs LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be hierarchy_entries_refs after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_objects_hierarchy_entries LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be data_objects_hierarchy_entries after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM synonyms LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be synonyms after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be top_images after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_concept_images LIMIT 1");
@@ -148,9 +157,9 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($objects[0]->vetted_id == Vetted::insert('trusted'), 'Objects should be in vetted "trusted"');
         $this->assertTrue($objects[0]->data_rating == 2.5, 'Objects should have the default rating');
         
-        // make sure we have taxa
-        $taxa = Taxon::all();
-        $this->assertTrue(count($taxa) > 0, 'There should be taxa after harvesting');
+        // make sure we have hierarchy entries
+        $all_entries = HierarchyEntry::all();
+        $this->assertTrue(count($all_entries) > 0, 'There should be hierarchy entries after harvesting');
         
         // Reading the resource XML and checking every field
         $reader = new XMLReader();
@@ -169,35 +178,33 @@ class test_resources extends SimpletestUnitBase
                 $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
                 
                 $taxon_parameters = array();
-                //$taxon_parameters["identifier"] = Functions::import_decode($t_dc->identifier);
-                //$taxon_parameters["source_url"] = Functions::import_decode($t_dc->source);
-                $taxon_parameters["taxon_kingdom"] = Functions::import_decode($t_dwc->Kingdom);
-                $taxon_parameters["taxon_phylum"] = Functions::import_decode($t_dwc->Phylum);
-                $taxon_parameters["taxon_class"] = Functions::import_decode($t_dwc->Class);
-                $taxon_parameters["taxon_order"] = Functions::import_decode($t_dwc->Order);
-                $taxon_parameters["taxon_family"] = Functions::import_decode($t_dwc->Family);
-                //$taxon_parameters["taxon_genus"] = Functions::import_decode($t_dwc->Genus);
+                $taxon_parameters["identifier"] = Functions::import_decode($t_dc->identifier);
+                $taxon_parameters["source_url"] = Functions::import_decode($t_dc->source);
+                // $taxon_parameters["taxon_kingdom"] = Functions::import_decode($t_dwc->Kingdom);
+                // $taxon_parameters["taxon_phylum"] = Functions::import_decode($t_dwc->Phylum);
+                // $taxon_parameters["taxon_class"] = Functions::import_decode($t_dwc->Class);
+                // $taxon_parameters["taxon_order"] = Functions::import_decode($t_dwc->Order);
+                // $taxon_parameters["taxon_family"] = Functions::import_decode($t_dwc->Family);
+                // $taxon_parameters["taxon_genus"] = Functions::import_decode($t_dwc->Genus);
                 $taxon_parameters["scientific_name"] = Functions::import_decode($t_dwc->ScientificName);
                 $taxon_parameters["name_id"] = Name::insert(Functions::import_decode($t_dwc->ScientificName));
-                //$taxon_parameters["taxon_created_at"] = trim($t_dcterms->created);
-                //$taxon_parameters["taxon_modified_at"] = trim($t_dcterms->modified);
                 
-                foreach($taxon_parameters as $key => $value)
+                $hierarchy_entry = null;
+                $result = $GLOBALS['db_connection']->query("SELECT id FROM hierarchy_entries WHERE name_id=".$taxon_parameters["name_id"]." AND identifier='". $GLOBALS['db_connection']->escape($taxon_parameters["identifier"]) ."'");
+                if($result && $row=$result->fetch_assoc())
                 {
-                    $test_value = $taxa[$i]->$key;
-                    // dates have a default value in the DB
-                    if($test_value == "0000-00-00 00:00:00") $test_value = "";
-                    $this->assertTrue($value == $test_value, "Taxon ($i) $key should be correct");
+                    $hierarchy_entry = new HierarchyEntry($row['id']);
                 }
+                $this->assertTrue($hierarchy_entry != null, 'should be able to find the entry for this taxon');
                 
                 $references = array();
                 foreach($t->reference as $r)
                 {
                     $references[] = Functions::import_decode((string) $r);
                 }
-                $taxa_refs = $taxa[$i]->references();
+                $taxa_refs = $hierarchy_entry->references();
                 $this->assertTrue(count($references) == count($taxa_refs), 'references should be the same');
-                foreach($taxa[$i]->references() as $ref)
+                foreach($hierarchy_entry->references() as $ref)
                 {
                     $this->assertTrue(in_array($ref->full_reference, $references), 'references should be the same');
                 }

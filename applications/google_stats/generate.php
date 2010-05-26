@@ -186,25 +186,13 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
     while($result && $row=$result->fetch_assoc())	
     {
-        /* legacy version
-        $query = "SELECT DISTINCT a.full_name, tcn.taxon_concept_id 
-        FROM agents a
-        JOIN agents_resources ar ON (a.id=ar.agent_id)
-        JOIN harvest_events he ON (ar.resource_id=he.resource_id)
-        JOIN harvest_events_taxa het ON (he.id=het.harvest_event_id)
-        JOIN taxa t ON (het.taxon_id=t.id)
-        JOIN taxon_concept_names tcn ON (t.name_id=tcn.name_id)
-        WHERE a.id = $row[id] ";
-        */
-        /* new Sep21, as suggested by PL */
         $query = "SELECT DISTINCT a.id, a.full_name, he.taxon_concept_id 
         FROM agents a
         JOIN agents_resources ar ON (a.id=ar.agent_id)
         JOIN harvest_events hev ON (ar.resource_id=hev.resource_id)
-        JOIN harvest_events_taxa het ON (hev.id=het.harvest_event_id)
-        JOIN taxa t ON (het.taxon_id=t.id)
-        join hierarchy_entries he on t.hierarchy_entry_id = he.id
-        join taxon_concepts tc on he.taxon_concept_id = tc.id
+        JOIN harvest_events_hirarchy_entries hehe ON (hev.id=hehe.harvest_event_id)
+        JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id = he.id)
+        JOIN taxon_concepts tc ON (he.taxon_concept_id = tc.id)
         WHERE a.id = $row[id] and tc.published = 1 and tc.supercedure_id = 0 ";    
     
         //$query .= " limit 100 "; //debug 

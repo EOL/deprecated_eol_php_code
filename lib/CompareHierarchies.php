@@ -31,6 +31,7 @@ class CompareHierarchies
             if(@$default_hierarchy->id) $hierarchy_lookup_ids2 = array($default_id => 1347615);
         }
         
+        $hierarchy_lookup_ids2 = array();
         $result = $mysqli->query("SELECT h.id, count(*) as count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count(*) ASC");
         while($result && $row=$result->fetch_assoc())
         {
@@ -198,7 +199,7 @@ class CompareHierarchies
         
         if(isset($GLOBALS['hierarchy_preview_harvest_event'][$hierarchy_id]))
         {
-            $result = $mysqli->query("SELECT 1 FROM harvest_events_taxa het JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id=".$GLOBALS['hierarchy_preview_harvest_event'][$hierarchy_id]." AND he.taxon_concept_id=$taxon_concept_id AND he.hierarchy_id=$hierarchy_id LIMIT 1");
+            $result = $mysqli->query("SELECT 1 FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=".$GLOBALS['hierarchy_preview_harvest_event'][$hierarchy_id]." AND he.taxon_concept_id=$taxon_concept_id AND he.hierarchy_id=$hierarchy_id LIMIT 1");
             if($result && $row=$result->fetch_assoc())
             {
                 return true;

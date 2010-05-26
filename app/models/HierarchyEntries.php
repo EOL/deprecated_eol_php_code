@@ -9,6 +9,18 @@ class HierarchyEntry extends MysqlBase
         if(@!$this->id) return;
     }
     
+    public static function all()
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $all = array();
+        $result = $mysqli->query("SELECT * FROM hierarchy_entries");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $all[] = new HierarchyEntry($row);
+        }
+        return $all;
+    }
+    
     public function split_from_concept_static($hierarchy_entry_id)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -121,6 +133,17 @@ class HierarchyEntry extends MysqlBase
         
         $this->rank = new Rank($this->rank_id);
         return $this->rank;
+    }
+    
+    public function references()
+    {
+        $references = array();
+        $result = $this->mysqli->query("SELECT ref_id FROM hierarchy_entries_refs WHERE hierarchy_entry_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $references[] = new Reference($row["ref_id"]);
+        }
+        return $references;
     }
     
     function set_taxon_concept_id($taxon_concept_id)
@@ -322,6 +345,23 @@ class HierarchyEntry extends MysqlBase
                                 'published'             => $published));
     }
     
+    public function add_data_object($data_object_id)
+    {
+        if(!$data_object_id) return 0;
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries VALUES ($this->id, $data_object_id)");
+    }
+    
+    public function unpublish_refs()
+    {
+        $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) JOIN refs r ON (her.ref_id=r.id) SET r.published=0 WHERE he.id=$this->id");
+    }
+    
+    public function add_reference($reference_id)
+    {
+        if(!$reference_id) return 0;
+        $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs VALUES ($this->id, $reference_id)");
+    }
+    
     public static function move_to_child_of($node_id, $child_of_id)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -380,44 +420,121 @@ class HierarchyEntry extends MysqlBase
         $mysqli->end_transaction();
     }
     
+    static function create_entries_for_taxon($taxon, $hierarchy_id)
+    {
+        $name_ids = array();
+        if(@$string = $taxon['kingdom'])
+        {
+            $name = new Name(Name::insert($string));
+            $name_ids["kingdom"] = $name->id;
+        }
+        if(@$string = $taxon['phylum'])
+        {
+            $name = new Name(Name::insert($string));
+            $name_ids["phylum"] = $name->id;
+        }
+        if(@$string = $taxon['class'])
+        {
+            $name = new Name(Name::insert($string));
+            $name_ids["class"] = $name->id;
+        }
+        if(@$string = $taxon['order'])
+        {
+            $name = new Name(Name::insert($string));
+            $name_ids["order"] = $name->id;
+        }
+        if(@$string = $taxon['family'])
+        {
+            $name = new Name(Name::insert($string));
+            $name_ids["family"] = $name->id;
+        }
+        if(@$string = $taxon['genus'])
+        {
+            $name = new Name(Name::insert($string));
+            $name_ids["genus"] = $name->id;
+        }
+        if(@$taxon['family'] && !@$taxon['genus'] && @preg_match("/^([^ ]+) /", $taxon['scientific_name'], $arr))
+        {
+            $string = $arr[1];
+            $name = new Name(Name::insert($string));
+            $name_ids["genus"] = $name->id;
+        }
+        
+        // the base level scientific_name. Unsure of the rank at this point
+        if(@$taxon['name_id']) $name_ids[] = $taxon['name_id'];
+        
+        $parent_hierarchy_entry = null;
+        foreach($name_ids as $rank => $id)
+        {
+            $params = array();
+            $params["name_id"] = $id;
+            if($parent_hierarchy_entry)
+            {
+                if($parent_hierarchy_entry->ancestry) $params["ancestry"] = $parent_hierarchy_entry->ancestry."|".$parent_hierarchy_entry->name_id;
+                else $params["ancestry"] = $parent_hierarchy_entry->name_id;
+            }
+            
+            $params["hierarchy_id"] = $hierarchy_id;
+            if($rank) $params["rank_id"] = Rank::insert($rank);
+            if($parent_hierarchy_entry) $params["parent_id"] = $parent_hierarchy_entry->id;
+            
+            // if there is no rank then we have the scientific_name
+            if(!$rank)
+            {
+                $params["identifier"] = $taxon['identifier'];
+                $params["source_url"] = $taxon['source_url'];
+            }
+            
+            write_to_log(print_r($params, 1));
+            
+            $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+            $parent_hierarchy_entry = $hierarchy_entry;
+        }
+        
+        // returns the entry object for the scientific_name
+        if($parent_hierarchy_entry) return $parent_hierarchy_entry;
+        return 0;
+    }
+    
     static function insert($parameters, $force = false)
     {
         if(!$parameters) return 0;
-        
-        if(@get_class($parameters)=="HierarchyEntry")
-        {
-            if(!$force && $result = self::find_by_mock_object($parameters)) return $result;
-            
-            if(@!$parameters->taxon_concept_id) $parameters->taxon_concept_id = TaxonConcept::insert();
-            return parent::insert_object_into($parameters, Functions::class_name(__FILE__));
-        }
+        if(!is_array($parameters)) return 0;
         
         if(!$force && $result = self::find($parameters)) return $result;
         
         if(@!$parameters['taxon_concept_id']) $parameters['taxon_concept_id'] = TaxonConcept::insert();
+        if(@!$parameters['guid']) $parameters['guid'] = Functions::generate_guid();
         return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
     }
     
     static function find($parameters)
     {
+        if(@!$parameters['name_id']) $parameters['name_id'] = 0;
         if(@!$parameters['parent_id']) $parameters['parent_id'] = 0;
-        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id
+        if(@!$parameters['identifier']) $parameters['identifier'] = '';
+        
+        // look for entries with the SAME NAME and the SAME PARENT, in the SAME HIERARCHY
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id, identifier, guid
             FROM hierarchy_entries
             WHERE name_id=". $parameters['name_id'] ."
             AND parent_id=". $parameters['parent_id'] ."
             AND hierarchy_id=". $parameters['hierarchy_id']);
-        if($result && $row=$result->fetch_assoc()) return $row['id'];
+        
+        // check the results for duplicates
+        while($result && $row=$result->fetch_assoc())
+        {
+            // each has an identifier, but they are not the same
+            if($row['identifier'] && $parameters['identifier'] && $parameters['identifier'] != $row['identifier']) continue;
+            
+            // existing entry has no identifier - so reuse it and update its identifier
+            if(!$row['identifier'] && $parameters['identifier'])
+            {
+                $GLOBALS['db_connection']->update("UPDATE hierarchy_entries SET identifier='". $GLOBALS['db_connection']->escape($parameters['identifier']) ."' WHERE id=".$row['id']);
+            }
+            return $row['id'];
+        }
         return false;
-    }
-    
-    static function find_by_mock_object($mock)
-    {
-        $search_object = clone $mock;
-        
-        unset($search_object->identifier);
-        unset($search_object->rank_id);
-        
-        return parent::find_by_mock_obj($search_object, Functions::class_name(__FILE__));
     }
 }
 

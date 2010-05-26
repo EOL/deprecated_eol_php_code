@@ -59,13 +59,12 @@ function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
 {   
     global $mysqli;
     
-    $query = "Select distinct hierarchy_entries.taxon_concept_id as id
-    From harvest_events_taxa
-    Inner Join taxa ON harvest_events_taxa.taxon_id = taxa.id
-    Inner Join hierarchy_entries ON taxa.name_id = hierarchy_entries.name_id
-    Inner Join taxon_concepts ON taxon_concepts.id = hierarchy_entries.taxon_concept_id
-    Where harvest_events_taxa.harvest_event_id = $harvest_event_id    
-    and taxon_concepts.supercedure_id=0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . " and taxon_concepts.published=1 ";        
+    $query = "Select distinct he.taxon_concept_id as id
+    From harvest_events_hierarchy_entries hehe
+    Inner Join hierarchy_entries he ON (hehe.hierarchy_entry_id = he.id)
+    Inner Join taxon_concepts tc ON (tc.id = he.taxon_concept_id)
+    Where hehe.harvest_event_id = $harvest_event_id    
+    and tc.supercedure_id=0 and tc.vetted_id <> " . Vetted::find("untrusted") . " and tc.published=1 ";        
     $result = $mysqli->query($query);        
     //print "<hr>$result->num_rows $query<hr>";
     $all_ids = $result->num_rows;

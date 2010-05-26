@@ -225,6 +225,30 @@ class WikipediaHarvester
             }
         }
     }
+    
+    public static function force_import($revision_id)
+    {
+        $api_url = "http://en.wikipedia.org/w/api.php?action=query&format=xml&revids=$revision_id&export";
+        $xml = Functions::get_hashed_response_fake_browser($api_url);
+        $export_xml = simplexml_load_string($xml->query->export);
+        
+        $page = new WikiPage($export_xml->page->asXML());
+        if(preg_match("/wikipedia/ims", $page->title)) return false;
+        if(preg_match("/taxobox/ims", $page->title)) return false;
+        if(preg_match("/template/ims", $page->title)) return false;
+        
+        echo $page->title."\n";
+        if($taxon_params = $page->taxon_parameters())
+        {
+            if($data_object_params = $page->data_object_parameters())
+            {
+                $taxon_params['dataObjects'][] = new SchemaDataObject($data_object_params);
+            }else echo "   no data object\n";
+            
+            $taxon = new SchemaTaxon($taxon_params);
+            print_r($taxon);
+        }
+    }
 }
 
 ?>

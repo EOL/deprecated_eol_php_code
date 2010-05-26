@@ -42,7 +42,7 @@ class DataObject extends MysqlBase
         if(is_array($id)) $where_clause = "data_object_id IN (".implode($id, ',').")";
 
         $mysqli->delete("DELETE FROM agents_data_objects WHERE $where_clause");
-        $mysqli->delete("DELETE FROM data_objects_taxa WHERE $where_clause");
+        $mysqli->delete("DELETE FROM data_objects_hierarchy_entries WHERE $where_clause");
         $mysqli->delete("DELETE FROM data_objects_refs WHERE $where_clause");
         $mysqli->delete("DELETE FROM audiences_data_objects WHERE $where_clause");
         $mysqli->delete("DELETE FROM data_objects_info_items WHERE $where_clause");
@@ -75,19 +75,6 @@ class DataObject extends MysqlBase
     public function unpublish_refs()
     {
         $this->mysqli->update("UPDATE data_objects do JOIN data_objects_refs dor ON (do.id=dor.data_object_id) JOIN refs r ON (dor.ref_id=r.id) SET r.published=0 WHERE do.guid='$this->guid'");
-    }
-    
-    function getTaxa()
-    {
-        $taxa = array();
-        
-        $result = $this->mysqli->query("SELECT DISTINCT taxon_id FROM data_objects_taxa WHERE data_object_id=".$this->id);
-        while($result && $row=$result->fetch_assoc())
-        {
-            $taxa[] = new Taxon($row["taxon_id"]);
-        }
-        
-        return $taxa;
     }
     
     public function add_reference($reference_id)
@@ -181,10 +168,10 @@ class DataObject extends MysqlBase
             }
         }
         
-        if(@$this->id)
-        {
-            if(!Functions::references_are_same($this->references(), $data_object->refs)) return false;
-        }elseif(!Functions::references_are_same($this->refs, $data_object->references())) return false;
+        // if(@$this->id)
+        // {
+        //     if(!Functions::references_are_same($this->references(), $data_object->refs)) return false;
+        // }elseif(!Functions::references_are_same($this->refs, $data_object->references())) return false;
         
         return true;
     }
@@ -336,7 +323,7 @@ class DataObject extends MysqlBase
         
         $return = array("exact" => 0, "similar" => array());
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE do.guid FROM resources_taxa rt JOIN taxa t ON (rt.taxon_id=t.id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE resource_id=$resource->id AND dot.identifier!='' AND dot.identifier='".@$mysqli->escape($data_object->identifier)."' ORDER BY do.id DESC LIMIT 1");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE he.resource_id=$resource->id AND do.identifier!='' AND do.identifier='".@$mysqli->escape($data_object->identifier)."' ORDER BY do.id DESC LIMIT 1");
         if($result && $row=$result->fetch_assoc())
         {
             $return["exact"] = $row["guid"];
@@ -345,7 +332,7 @@ class DataObject extends MysqlBase
         {
             //no identifier
             
-            $query = "SELECT SQL_NO_CACHE DISTINCT do.guid FROM resources_taxa rt JOIN taxa t ON (rt.taxon_id=t.id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) JOIN data_objects do ON (dot.data_object_id=do.id) WHERE resource_id=$resource->id AND ";
+            $query = "SELECT SQL_NO_CACHE DISTINCT do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE he.resource_id=$resource->id AND ";
             
             $conditions = array();
             if(@$value = $data_object->data_type_id) $conditions[] = "do.data_type_id=$value";

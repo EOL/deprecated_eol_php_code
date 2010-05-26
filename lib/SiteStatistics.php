@@ -270,7 +270,7 @@ class SiteStatistics
             if(!$harvest_event->published_at) $events_to_publish[] = $harvest_event->id;
         }
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(tc.id)) count FROM harvest_events_taxa het JOIN taxa  t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE het.harvest_event_id IN (".implode($events_to_publish, ",").") AND tc.published=0 AND tc.vetted_id=". Vetted::find("trusted"));
+        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(tc.id)) count FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE hehe.harvest_event_id IN (".implode($events_to_publish, ",").") AND tc.published=0 AND tc.vetted_id=". Vetted::find("trusted"));
         if($result && $row=$result->fetch_assoc()) $this->pages_awaiting_publishing = $row['count'];
         return $this->pages_awaiting_publishing;
     }
@@ -307,7 +307,7 @@ class SiteStatistics
         $this->lifedesk_taxa = 0;
         
         $latest_published_lifedesk_resources = $this->latest_published_lifedesk_resources();
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM harvest_events_taxa het  JOIN taxa t ON (het.taxon_id=t.id) JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) WHERE het.harvest_event_id IN (".implode($latest_published_lifedesk_resources, ",").")");
+        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id IN (".implode($latest_published_lifedesk_resources, ",").")");
         if($result && $row=$result->fetch_assoc()) $this->lifedesk_taxa = $row['count'];
         return $this->lifedesk_taxa;
     }

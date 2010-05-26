@@ -157,10 +157,11 @@ function get_stats($names)
         $ids[] = $id;
     }    
 
-    $result = $mysqli->query("SELECT DISTINCT tcn.taxon_concept_id id, vetted_id FROM taxon_concept_names tcn 
-    JOIN taxa t ON (tcn.name_id=t.name_id) JOIN data_objects_taxa dot ON (t.id=dot.taxon_id) 
-    JOIN data_objects do ON (dot.data_object_id=do.id) 
-    WHERE tcn.taxon_concept_id IN (".implode(",", $ids).") 
+    $result = $mysqli->query("SELECT DISTINCT he.taxon_concept_id id, do.vetted_id
+        FROM hierarchy_entries he 
+        JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) 
+        JOIN data_objects do ON (dohe.data_object_id=do.id) 
+        WHERE he.taxon_concept_id IN (".implode(",", $ids).") 
     AND do.published=1 
     AND do.vetted_id <> " . Vetted::find("untrusted") . "
     AND do.visibility_id = " . Visibility::find("visible") . "

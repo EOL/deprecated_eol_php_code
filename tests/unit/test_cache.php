@@ -117,28 +117,6 @@ class test_cache extends SimpletestUnitBase
         $GLOBALS['ENV_CACHE'] = $saved_value;
     }
     
-    function testCacheCommonNames()
-    {
-        // we want memory cache for testing, and will revert to old value after test
-        $saved_value = @$GLOBALS['ENV_CACHE'];
-        $GLOBALS['ENV_CACHE'] = "memory";
-        
-        CommonName::insert(Functions::mock_object("CommonName", array('common_name' => 'frog', 'language_id' => 1)));
-        CommonName::insert(Functions::mock_object("CommonName", array('common_name' => 'toad', 'language_id' => 1)));
-        $common_name_id = CommonName::insert(Functions::mock_object("CommonName", array('common_name' => 'test name', 'language_id' => 3)));
-        $common_name_id = CommonName::find('test name', 3);
-        $this->assertTrue($common_name_id > 0, 'CommonName should have an ID');
-        $this->assertTrue($common_name_id == CommonName::find('test name', 3), 'CommonName shouldnt get reinserted');
-        
-        $GLOBALS['db_connection']->truncate_tables('test');
-        $this->assertTrue($common_name_id == CommonName::find('test name', 3), 'Cache should be maintained');
-        
-        MemoryCache::flush();
-        $this->assertTrue($common_name_id != CommonName::find('test name', 3), 'Cache flushing should work');
-        
-        $GLOBALS['ENV_CACHE'] = $saved_value;
-    }
-    
     function testCacheIgnoring()
     {
         $saved_value = @$GLOBALS['no_cache']['names'];

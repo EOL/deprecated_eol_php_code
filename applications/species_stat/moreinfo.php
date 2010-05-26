@@ -280,10 +280,9 @@ function get_values_fromCSV()
         
         $query = "
         SELECT DISTINCT he.taxon_concept_id as id , 0 as published
-        FROM harvest_events_taxa het 
-        JOIN taxa t ON (het.taxon_id=t.id) 
-        JOIN hierarchy_entries he ON (t.hierarchy_entry_id=he.id) 
-        WHERE het.harvest_event_id = $harvest_event_id ";
+        FROM harvest_events_hierarchy_entries hehe 
+        JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) 
+        WHERE hehe.harvest_event_id = $harvest_event_id ";
 
         $result = $mysqli->query($query);                
 

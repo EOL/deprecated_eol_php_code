@@ -79,7 +79,7 @@
   <dwc:Order>Neuroptera</dwc:Order>
   <dwc:Family>Mantispidae</dwc:Family>
   <dwc:Genus>Theristria</dwc:Genus>
-  <dwc:ScientificName>Aus bus</dwc:ScientificName>
+  <dwc:ScientificName>Theristria bus</dwc:ScientificName>
   <dataObject>
     <dc:identifier>3087438151</dc:identifier>
     <dataType>http://purl.org/dc/dcmitype/Text</dataType>
