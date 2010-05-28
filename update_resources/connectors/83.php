@@ -1,4 +1,5 @@
 <?php
+exit;
 /* MorphBank connector 
 estimated execution time: 6 hours
 
@@ -21,12 +22,14 @@ http://services.morphbank.net/mb3/request?method=eol&format=id
 $timestart = microtime(1);
 
 $url_id_list = "http://www.morphbank.net/eolids.xml";
+//$url_id_list = "http://128.128.175.77/m.xml";
+
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$resource = new Resource(83); //orig ID
-//exit($resource->id);
+//$resource = new Resource(83); //orig ID //exit($resource->id);
+$resource_id = 83;
 
 $details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";
 $image_ids = array();
@@ -35,7 +38,7 @@ $schema_taxa = array();
 $used_taxa = array();
 
 $wrap = "\n"; 
-$wrap = "<br>";
+//$wrap = "<br>";
 
 //get all image ids
 /* working but not being used as advised by Greg from MorphBank
@@ -197,7 +200,7 @@ foreach($used_taxa as $taxon_parameters)
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);

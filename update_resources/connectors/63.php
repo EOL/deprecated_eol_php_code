@@ -9,6 +9,12 @@ Connector parses this XML and generates the EOL-compliant XML.
 Some dataObject.dc:identifier will be blank
 
 */
+
+/*
+BCA-coleoptv4p3-t239
+identical text descriptions in one <taxon>; one with identifier, the other doesn't.
+*/
+
 $timestart = microtime(1);
 
 //http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=BCA-coleoptv4p3s-t82
@@ -26,19 +32,20 @@ http://127.0.0.1:3000/harvest_events/8/taxa/515
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$resource = new Resource(63);
+//$resource = new Resource(63);
+$resource_id = 63;
 
 $subject_arr = array("Associations","Behaviour","Biology","Conservation","ConservationStatus","Cyclicity","Cytology","Description","DiagnosticDescription","Diseases","Dispersal","Distribution","Ecology","Evolution","GeneralDescription","Genetics","Growth","Habitat","Key","Legislation","LifeCycle","LifeExpectancy","Management","Migration","MolecularBiology","Morphology","Physiology","PopulationBiology","Procedures","Reproduction","RiskStatement","Size","TaxonBiology","Threats","Trends","TrophicStrategy","Uses");
 
 $path = dirname(__FILE__);
 
-$providers = array( 0 => array( "url" => $path . "/files/inotaxa/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"            , "active" => 1),
+$providers = array( 0 => array( "url" => $path . "/files/INOTAXA/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"            , "active" => 1),
                     1 => array( "url" => $path . "/files/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml"               , "active" => 0),
                     2 => array( "url" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"    , "active" => 0)
                   );
 
 $wrap = "\n";
-//$wrap = "<br>";
+$wrap = "<br>";
 
 /*
 TaxonomicPublication
@@ -75,6 +82,8 @@ $used_taxa = array();
     if this is outside the loop then, there will be 2 <taxon> elements for 2 same species from 2 BCA providers.
 */
 ///////////////////////////////
+
+
 
 foreach($providers as $provider)
 {
@@ -117,10 +126,10 @@ foreach($providers as $provider)
                     $tt_count++; 
                     print"$wrap $main_count of " . count($xml->IndividualPublication);
                     print" | $ptm_count of " . count($main->PublicationTaxonomicMatter);
-                    print" | $tt_count of ";
+                    print" | $tt_count of " . count($ptm->TaxonTreatment);
                 
                     $taxon_identifier = @$tt["TaxonID"];
-                    $dwc_ScientificName = $tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName;
+                    $dwc_ScientificName = trim($tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName);
                     
                     //print "$wrap $dwc_ScientificName ";                    
 
@@ -131,15 +140,18 @@ foreach($providers as $provider)
                         Thecesternus humeralis - separate or put citation
                     */
                     
-                    //if(in_array($dwc_ScientificName, array("Thecesternus humeralis"))){}
-                     /*
-                    //if(in_array($dwc_ScientificName, array( "Thecesternus humeralis",
-                                                            "Aphrastus angularis",
-                                                            "Attelabus ater",
+                    //if(in_array($dwc_ScientificName, array("Anypotactus"))){}else continue;                    
+                    //if(in_array($dwc_ScientificName, array("Ophryastes ovipennis"))){}else continue;                    
+                    
+                    // /*
+                    if(in_array($dwc_ScientificName, array( "Thecesternus humeralis",
                                                             "Ophryastes ovipennis",
-                                                            "Thecesternus affinis"))){}                    
-                     */
-                    //else continue;                    
+                                                            "Anypotactus",
+                                                            "Ophryastes bituberosus"
+                                                            ))){}                    
+                    else continue;                                                                                
+                    // */
+                    
                     //debug
                     
                     
@@ -272,13 +284,17 @@ foreach($providers as $provider)
                         $temp = process_dataobjects($arr,1,$ref,$title);    
                     }
                     
-                    if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
+                    if(is_numeric(stripos($dwc_ScientificName," ")))//genus doesn't have distribution only species level and below
                     {
-                        //$title = "Habitat";
-                        $title = "Distribution";
-                        $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                           
-                        $temp = process_dataobjects($arr,1,$ref,$title);
-                    }                                        
+                        if(isset($tt->NomenclaturalType->NomenclaturalTypeParagraph))
+                        {
+                            //$title = "Habitat";
+                            $title = "Distribution";
+                            $arr = $tt->NomenclaturalType->NomenclaturalTypeParagraph;                           
+                            $temp = process_dataobjects($arr,1,$ref,$title);
+                        }                                        
+                    }
+                                        
 
                     if(isset($tt->Descriptions->SameLanguageDiagnosis->SameLanguageDiagnosisParagraph))
                     {
@@ -366,7 +382,7 @@ foreach($used_taxa as $taxon_parameters)
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id . ".xml";
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
