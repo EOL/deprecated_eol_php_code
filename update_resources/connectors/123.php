@@ -1,4 +1,5 @@
 <?php
+exit;
 /* connector for AquaMaps
 estimated execution time: 
 
@@ -43,8 +44,8 @@ class AquamapsAPI
         $used_collection_ids = array();
         
         $path=dirname(__FILE__) . "/files/AquaMaps/";
-        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 0),  // all 9000 species
-                       1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 1)   // test just 50 species                       
+        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 1),  // all 9000 species
+                       1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 0)   // test just 50 species                       
                      );
         foreach($urls as $url)
         {

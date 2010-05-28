@@ -45,7 +45,7 @@ $providers = array( 0 => array( "url" => $path . "/files/INOTAXA/BCA_coleoptv4p3
                   );
 
 $wrap = "\n";
-$wrap = "<br>";
+//$wrap = "<br>";
 
 /*
 TaxonomicPublication
@@ -139,19 +139,18 @@ foreach($providers as $provider)
                         Thecesternus affinis - Context in original:
                         Thecesternus humeralis - separate or put citation
                     */
-                    
+                                        
                     //if(in_array($dwc_ScientificName, array("Anypotactus"))){}else continue;                    
                     //if(in_array($dwc_ScientificName, array("Ophryastes ovipennis"))){}else continue;                    
                     
-                    // /*
+                    /*
                     if(in_array($dwc_ScientificName, array( "Thecesternus humeralis",
                                                             "Ophryastes ovipennis",
                                                             "Anypotactus",
                                                             "Ophryastes bituberosus"
                                                             ))){}                    
                     else continue;                                                                                
-                    // */
-                    
+                    */                    
                     //debug
                     
                     
