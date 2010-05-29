@@ -100,6 +100,11 @@ class DataObject extends MysqlBase
         $this->mysqli->insert("INSERT IGNORE INTO audiences_data_objects VALUES ($this->id, $audience_id)");
     }
     
+    
+    public function delete_info_items()
+    {
+        $this->mysqli->insert("DELETE FROM data_objects_info_items WHERE data_object_id=$this->id");
+    }
     public function add_info_item($info_item_id)
     {
         if(!$info_item_id) return false;
@@ -163,7 +168,7 @@ class DataObject extends MysqlBase
             if(@$data_object->$field == "0") $data_object->$field = 0;
             if(isset($this->$field) && @$data_object->$field != $this->$field)
             {
-                debug($data_object->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
+                debug("value: ".$data_object->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
                 return false;
             }
         }
@@ -283,7 +288,7 @@ class DataObject extends MysqlBase
             while($result && $row = $result->fetch_assoc())
             {
                 $existing_data_object = new DataObject($row["data_object_id"]);
-
+                
                 if(self::equivalent($existing_data_object, $data_object))
                 {
                     $status = "Unchanged";
@@ -295,8 +300,11 @@ class DataObject extends MysqlBase
         }
         
         
-        // I really don't think this should ever be reached. It was recently due to a bug,
-        // so just in case - make sure to cache the object before returning that it was inserted
+        // Will get here if the object is similar to an existing object (description the same, image URL the same)
+        // but there is a difference - eg the identifiers are different
+        
+        $data_object->vetted_id = Vetted::insert('unknown');
+        $data_object->visibility_id = Visibility::insert("Preview");
         
         if(!$data_object->cache_object($content_manager, $resource)) return false;
         $data_object->cache_thumbnail($content_manager);

@@ -138,6 +138,8 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows > 0, 'should be data_types_taxon_concepts after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_objects_table_of_contents LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be data_objects_table_of_contents after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_objects_info_items LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be data_objects_info_items after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM random_hierarchy_images LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be random_hierarchy_images after harvesting');
         

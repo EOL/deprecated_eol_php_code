@@ -135,10 +135,14 @@ class SchemaConnection extends MysqlBase
                 unset($id);
             }
             
-            foreach($d->info_items_ids as &$id)
+            if(@$d->info_items_ids)
             {
-                $data_object->add_info_item($id);
-                unset($id);
+                $data_object->delete_info_items();
+                foreach($d->info_items_ids as &$id)
+                {
+                    $data_object->add_info_item($id);
+                    unset($id);
+                }
             }
             
             if(@$d->refs)

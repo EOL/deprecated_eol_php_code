@@ -12,7 +12,7 @@ class Reference extends MysqlBase
     public function add_ref_identifier($type_id, $value)
     {
         $value = $this->mysqli->escape($value);
-        $this->mysqli->insert("INSERT INTO ref_identifiers VALUES ($this->id,$type_id,'$value')");
+        $this->mysqli->insert("INSERT IGNORE INTO ref_identifiers VALUES ($this->id,$type_id,'$value')");
     }
     
     public function publish()

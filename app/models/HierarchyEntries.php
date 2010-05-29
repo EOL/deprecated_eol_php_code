@@ -485,8 +485,6 @@ class HierarchyEntry extends MysqlBase
                 $params["source_url"] = $taxon['source_url'];
             }
             
-            write_to_log(print_r($params, 1));
-            
             $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
             $parent_hierarchy_entry = $hierarchy_entry;
         }
