@@ -1,7 +1,6 @@
 <?php
 /* connector for Hydrothermal Vent Larvae
-estimated execution time: 
-
+estimated execution time: 20-25 seconds
 Connector screen scrapes the partner website.
 */
 
@@ -20,12 +19,10 @@ $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
 fclose($OUT);
 
-echo "time: ". Functions::time_elapsed()."\n";
+echo "time: ". Functions::time_elapsed() ."\n";
 ?>
 
-
 <?php
-
 class LarvaeAPI
 {
     public static function get_all_eol_photos()
@@ -122,7 +119,7 @@ class LarvaeAPI
         $loop=0;//debug
         foreach($arr as $r)
         {
-            $loop++;if($loop >= 4)break;
+            //$loop++;if($loop >= 4)break;
                     
             $r = str_ireplace('<th','<td',$r);
             $r = str_ireplace('</th','</td',$r);
