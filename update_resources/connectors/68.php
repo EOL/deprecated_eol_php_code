@@ -50,6 +50,8 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     //$taxid = "000464941632";//debug Acipitter
     //$taxid = "000000016023";//Agrilus planipennis Fairmaire, 1888 
     //$taxid = "0AHCYFBQBTMT"; //Rana catesbeiana Shaw, 1802 
+    
+    $taxid = "0AHCYFBZUSBF";//debug Acipitter
 
     if($i % 10000 == 0) //working
     {   
@@ -70,11 +72,11 @@ for ($i = $start; $i < $total_taxid_count; $i++)
         $bad++;
     }    
     //print"<hr>[$contents]<hr>";    
-    echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";            
+    echo $i+1 . ". of $total_taxid_count [bad=$bad] \n";                
     
-     /*
-    if($i==5)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
-     */
+    // /*
+    if($i==0)$i=$total_taxid_count;//debug to limit the loop; $i==0 just 1 taxa to process; $i==1 2 taxa to process
+    // */
 }    
 //====================================================================================
 $str = "</response>";fwrite($OUT, $str);fclose($OUT);
@@ -132,14 +134,15 @@ function process($id)
     //global $OUT;        
     $file = "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=$id&version=EOL";
     //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
-    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=eol
+    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
     
     //print"<hr><a href='$file'>$file</a>";
     
     
     /*
     http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
-    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=eol
+    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=EOL    
+    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBZUSBF&version=EOL
     */    
 
     //start process reference
