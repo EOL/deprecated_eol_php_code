@@ -94,7 +94,7 @@ $value  = "http://pandanus.eol.org/public/EOL_resource/kuttner_corrected.xml";
 */
 
 $id     = 123;  //AquaMaps
-$fld    = "auto_publish";
+$fld    = "vetted";
 $value  = 1;
 
 $query="Select resources.$fld, resources.title, resources.id From resources Where resources.id = $id";
