@@ -18,7 +18,6 @@ as of April 21:
     Marine pages with Wikipedia content = 5167
     Marine pages with Flickr content = 1548    
     
-    
 */
 
 $timestart = microtime(1);
@@ -26,12 +25,9 @@ $timestart = microtime(1);
 $wrap="\n";
 //$wrap="<br>";
 
-$path = "";
-
-$GLOBALS['ENV_NAME'] = "slave";
+//$GLOBALS['ENV_NAME'] = "slave_215";
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 
 //#####################################################################################################
 // /* use to comment the first part of the code
@@ -52,7 +48,8 @@ $batch_size = 10000;
 //$xml = simplexml_load_file("http://10.19.19.226/resources/26.xml", null, LIBXML_NOCDATA);
 
 //on beast:
-$file = "../../../resources/26.xml";
+//$file = "../../../resources/26.xml";
+$file = CONTENT_RESOURCE_LOCAL_PATH . "26.xml";
 $xml = simplexml_load_file($file , null, LIBXML_NOCDATA);
 
 foreach($xml->taxon as $t)
@@ -89,19 +86,19 @@ echo "Marine pages: ". $marine_pages_count ."$wrap";
 echo "Pages with objects: ". $pages_with_objects ."$wrap";
 echo "Pages with vetted objects: ". $pages_with_vetted_objects ."$wrap";
 
-// */
-
-/* true operation
 $date_created = date('Y-m-d');
 $time_created = date('H:i:s');
 $qry = " insert into page_stats_marine(names_from_xml  ,names_in_eol  ,marine_pages       ,pages_with_objects  ,pages_with_vetted_objects   ,date_created   ,time_created ,active )
                                select $names_from_xml ,$names_in_eol ,$marine_pages_count ,$pages_with_objects ,$pages_with_vetted_objects ,'$date_created','$time_created','n' ";
-$update = $mysqli->query($qry);//1
-*/
+$update = $mysqli->query($qry);
+
+// */
 
 //===============================================================================
-//start wikipedia flickr stat
-
+//===============================================================================
+//===============================================================================
+//start wikipedia flickr stat -- working ok
+/*
 $marine_pages = array_keys($marine_pages);
 //$marine_pages = array(1,2,3,5,6,7,206692,333);
 
@@ -118,8 +115,11 @@ Marine pages with Flickr content = " . count($flickr) . " $wrap
 save2txt($marine_pages,"marine_pages");
 save2txt($wikipedia,"worms_with_wikipedia");
 save2txt($flickr,"worms_with_flickr");
-
-
+*/  
+//end wikipedia flickr stat
+//===============================================================================
+//===============================================================================
+//===============================================================================
 $elapsed_time_sec = microtime(1)-$timestart;
 echo "$wrap";
 echo "elapsed time = $elapsed_time_sec sec              $wrap";
