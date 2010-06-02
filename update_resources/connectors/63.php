@@ -1,7 +1,7 @@
 <?php
 exit;
 /* connector for INOTAXA
-estimated execution time: 1.5 to 2 hours
+estimated execution time: 1.3 hours
 
 Partner provided a non EOL-compliant XML file for all their species.
 Connector parses this XML and generates the EOL-compliant XML.
@@ -454,14 +454,8 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
         if($type == 1)//text
         {
             $temp = @$item->asXML();
-            //$temp = @$item;
-            //print"$wrap[[$title]]$wrap";
             if($title == "Discussion")$temp = separate_footnote_from_paragraph($temp);
-            
-            //print"<hr>$temp";//debug
-                        
-            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp,"<br>"));                        
-            
+            $description .= "<br>&nbsp;<br>" . trim(strip_tags($temp,"<br>"));                                    
         }
         else //image
         {
@@ -475,9 +469,7 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
             if($type == 1)
             {
                 $dc_identifier = $item["ElementID"];
-                /*
-                if($dc_identifier == "")$dc_identifier = "object_" . $taxon_identifier;
-                */
+                /* if($dc_identifier == "")$dc_identifier = "object_" . $taxon_identifier; */
             }
             else $dc_identifier = $image_id;                                                        
             
@@ -490,15 +482,13 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
             
             if($type == 2)$title = "";
 
-            if(in_array($title, $subject_arr))  $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $title;
-            
+            if(in_array($title, $subject_arr))  $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $title;            
             elseif($title == "Latin Diagnosis") $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription";//new
             elseif(in_array($title, array("Discussion","Description"))) //new
             {
                 $title = "Physical description";
                 $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology";                
             }             
-
             else                                $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
             
             if($type == 2)$subject = "";
@@ -541,11 +531,11 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
             $dcterms_modified = "";            
             $license = "http://creativecommons.org/licenses/by/3.0/";                                           
             
-            if($type == 2)
+            if($type == 2 and $dc_identifier != "")
             {
-            $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
-            $used_taxa[$taxon] = $taxon_parameters;                    
+                $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
+                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+                $used_taxa[$taxon] = $taxon_parameters;                    
             }            
         }
     }    
@@ -553,13 +543,12 @@ function process_dataobjects($arr,$type,$ref,$title)//$type 1 = text object; 2 =
 
     //<br>&nbsp;<br>
     $description = trim(substr($description,14,strlen($description)));
-    if($type == 1)
+    if($type == 1 and $dc_identifier != "")
     {
         $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
         $used_taxa[$taxon] = $taxon_parameters;                    
-    }
-    
+    }    
     
     //else{exit("not an array");}
 }//function process_dataobjects($arr)
@@ -646,7 +635,7 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
 {
     global $rightsHolder;
 
-    $dataObjectParameters = array();
+    $dataObjectParameters = array();            
     $dataObjectParameters["title"] = $title;
     $dataObjectParameters["rightsHolder"] = $rightsHolder;
     if($subject)
@@ -660,6 +649,9 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
     $description = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $description);
     $dataObjectParameters["description"] = trim($description);
 
+    
+    
+    
     $dataObjectParameters["identifier"] = $id;
     $dataObjectParameters["created"] = $created;
     $dataObjectParameters["modified"] = $modified;
