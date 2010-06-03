@@ -38,9 +38,12 @@ class TaxonImporter
                 // $is_valid might be zero at this point so we need to check
                 if($is_valid === null) $is_valid = false;
             }
+            if($is_valid && isset($taxon->acceptedNameUsageID)) $is_valid = false;
             
             $taxon_id = $taxon->taxonID;
             $parent_taxon_id = @$taxon->parentNameUsageID;
+            $accepted_taxon_id = @$taxon->acceptedNameUsageID;
+            
             if($taxon_id && $is_valid && @$taxon->scientificName)
             {
                 if(!$parent_taxon_id) $parent_taxon_id = 0;
@@ -51,6 +54,9 @@ class TaxonImporter
             }elseif(!$is_valid && $parent_taxon_id)
             {
                 $this->synonyms[$parent_taxon_id][] = $taxon;
+            }elseif(!$is_valid && $accepted_taxon_id)
+            {
+                $this->synonyms[$accepted_taxon_id][] = $taxon;
             }
             // remove the taxon from the big array to free some memory
             unset($taxa[$key]);
@@ -88,12 +94,17 @@ class TaxonImporter
     {
         static $i=0;
         $i++;
-        if($i%500==0) echo "Memory: ".memory_get_usage()."\n";
+        if($i%500==0) { echo "Memory: ".memory_get_usage()."\n"; print_r($taxon); }
         
         // make sure this taxon has a name, otherwise skip this branch
         if(!isset($taxon->scientificName)) return false;
         // this taxon_id has already been inserted meaning this tree has a loop in it - so stop
         if(isset($this->taxon_ids_inserted[$taxon->taxonID])) return false;
+        
+        if(isset($taxon->scientificNameAuthorship))
+        {
+            $taxon->scientificName = trim($taxon->scientificName)." ".$taxon->scientificNameAuthorship;
+        }
         
         $name_id = Name::insert($taxon->scientificName);
         $params = array("identifier"    => $taxon->taxonID,

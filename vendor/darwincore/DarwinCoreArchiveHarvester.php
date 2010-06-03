@@ -145,6 +145,7 @@ class DarwinCoreArchiveHarvester
         $line_num = 0;
         foreach($lines as $line)
         {
+            if($line_num%10000==0) echo "$line_num: ".memory_get_usage()."\n";
             $line_num++;
             if($this->core->ignore_header_lines && $line_num == 1) continue;
             if(!trim($line)) continue;
@@ -200,6 +201,7 @@ class DarwinCoreArchiveHarvester
             }
         }
         $taxon = new DarwinCoreTaxon($taxon_attributes);
+        unset($taxon_attributes);
         return $taxon;
     }
     

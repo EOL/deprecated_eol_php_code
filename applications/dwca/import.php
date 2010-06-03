@@ -7,7 +7,7 @@ require_vendor('darwincore');
 
 
 //$uri = '/Users/pleary/Downloads/catlife.tar.gz';
-$uri = 'http://anura.lifedesks.org/classification.tar.gz';
+$uri = 'http://gnaclr.globalnames.org/files/7e3480237955d9f406ff38f0ffb1d7268f2902d4/index_fungorum.tar.gz';
 
 try
 {
@@ -18,7 +18,8 @@ try
     
     $taxa = array_merge($taxa, $vernaculars);
     
-    $importer = new TaxonImporter(new Hierarchy(40), Vetted::insert('trusted'), Visibility::insert('visible'), 1);
+    $hierarchy = new Hierarchy(Hierarchy::insert(array('label' => 'Index Fungorum')));
+    $importer = new TaxonImporter($hierarchy, Vetted::insert('trusted'), Visibility::insert('visible'), 1);
     $importer->import_taxa($taxa);
 }catch(Exception $e)
 {
