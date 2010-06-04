@@ -215,7 +215,16 @@ class AquamapsAPI
         $arr_photos=array();        
 
         $str="<table border='0' cellspacing='0' cellpadding='5'><tr><td><b>Computer Generated Maps of <i>$genus $species</i> ($review)</b></td></tr>
-        <tr><td>$attribution</td></tr>
+        <tr><td>
+            <table>
+                <tr valign='top'>                    
+                    <td><img src='http://www.aquamaps.org/pic/probability1.gif'></td>                    
+                    <td>&nbsp;</td>
+                    <td valign='top'>$attribution</td>
+                </tr>
+            </table>            
+        </td></tr>
+        
         ";        
         
         //============================================================================================        

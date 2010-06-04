@@ -119,7 +119,7 @@ class LarvaeAPI
         $loop=0;//debug
         foreach($arr as $r)
         {
-            //$loop++;if($loop >= 4)break;
+            //$loop++;if($loop >= 4)break; //debug to limit the no. of records
                     
             $r = str_ireplace('<th','<td',$r);
             $r = str_ireplace('</th','</td',$r);
@@ -295,8 +295,8 @@ class LarvaeAPI
             //text object agents
             $agent=array();
             $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "S.W. Mills");
-            $agent[]=array("role" => "author" , "homepage" => ""                     , "name" => "S.E. Beaulieu");
-            $agent[]=array("role" => "author" , "homepage" => ""                     , "name" => "L.S. Mullineaux");
+            $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "S.E. Beaulieu");
+            $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "L.S. Mullineaux");
             
             $ctr++;
             $arr_scraped[]=array("id"=>$ctr,
