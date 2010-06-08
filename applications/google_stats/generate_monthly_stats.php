@@ -1,23 +1,16 @@
 <?php
 /*
-execution time: 1.5 hours
-
 month:      run date:       GA records      execution time:
 Feb2010     1March2010      110,679
 Mar2010     1April2010                      1.5 hrs
 Apr2010     3May2010                        1.7 hrs
-
 */
 
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 $mysqli2 = $mysqli; // to use in Beast
 //exit; //for debug
-
 
 //$use_sql_load_infile=true;
 $use_sql_load_infile=false;
@@ -41,7 +34,6 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
-
 
 $timestart = microtime(1);
 
