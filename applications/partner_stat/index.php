@@ -9,10 +9,7 @@
         document.forms.fn.submit();
     }
     </script>
-
 <?php
-
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -40,48 +37,29 @@ function process_agent_id($agent_id)
     while($result && $row=$result->fetch_assoc())	    
     {
         $ctr++;
-        //print "<hr>harvest_event_id = $row[id] $row[published_at] ";    
-        
         $query = "SELECT a.full_name FROM agents a WHERE a.id = $agent_id";                            		
         $result2 = $mysqli->query($query);    
         $row2 = $result2->fetch_row();            
-        $agent_name = $row2[0];
-        
-        $taxa_count = get_taxon_concept_ids_from_harvest_event($row["id"]);
-        
-        //$data_object_stats = process_do($row["id"],$result2->num_rows,$row["published_at"],$agent_name,$agent_id,$ctr);        
-          $data_object_stats = process_do($row["id"],$taxa_count,$row["published_at"],$agent_name,$agent_id,$ctr,$row["resource_title"]);        		
-
-    }//end while
+        $agent_name = $row2[0];        
+        $taxa_count = get_taxon_concept_ids_from_harvest_event($row["id"]);        
+        $data_object_stats = process_do($row["id"],$taxa_count,$row["published_at"],$agent_name,$agent_id,$ctr,$row["resource_title"]);        		
+    }
 }
 
 function get_taxon_concept_ids_from_harvest_event($harvest_event_id)
 {   
-    global $mysqli;
-    
-    $query = "Select distinct he.taxon_concept_id as id
+    global $mysqli;    
+    $query = "Select count(distinct he.taxon_concept_id) total_ids
     From harvest_events_hierarchy_entries hehe
     Inner Join hierarchy_entries he ON (hehe.hierarchy_entry_id = he.id)
     Inner Join taxon_concepts tc ON (tc.id = he.taxon_concept_id)
     Where hehe.harvest_event_id = $harvest_event_id    
     and tc.supercedure_id=0 and tc.vetted_id <> " . Vetted::find("untrusted") . " and tc.published=1 ";        
     $result = $mysqli->query($query);        
-    //print "<hr>$result->num_rows $query<hr>";
-    $all_ids = $result->num_rows;
-    
-    /* not needed anymore, coz we only need the total count        
-    $all_ids=array();
-    while($result && $row=$result->fetch_assoc())
-    {$all_ids[$row["id"]]=true;}    
-    $result->close();                
-    $all_ids = array_keys($all_ids);    
-    $all_ids = count($all_ids);
-    */    
-    
+    $row = $result->fetch_row();            
+    $all_ids = $row[0];    
     return $all_ids;
 }//end get_taxon_concept_ids_from_harvest_event($harvest_event_id)    
-
-
 
 function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_id,$ctr,$resource_title)
 {
@@ -126,23 +104,12 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
         6 => "IUCN"       ,         
         7 => "Flash"      , 
         8 => "YouTube"    ); */
-
-        
-        /*
-        $vetted_type = array( 
-        1 => array( "id" => "0"   , "label" => "Unknown"),
-        2 => array( "id" => "4"   , "label" => "Untrusted"),
-        3 => array( "id" => "5"   , "label" => "Trusted")
-        );
-        */
-        
                             
         $vetted_type = array( 
         1 => array( "id" => Vetted::find("unknown")   , "label" => "Unknown"),
         2 => array( "id" => Vetted::find("untrusted") , "label" => "Untrusted"),
         3 => array( "id" => Vetted::find("trusted")   , "label" => "Trusted")
-        );
-        
+        );        
         
         //for ($i = 1; $i <= count($data_type); $i++) //Sep24
         for ($i = 1; $i <= count($datatype); $i++) 
@@ -176,13 +143,11 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
     }
 
     $param = array();
-    //for ($i = 1; $i <= count($data_type); $i++) //Sep24
     for ($i = 1; $i <= count($datatype); $i++)
     {
         for ($j = 1; $j <= count($vetted_type); $j++) 
         {
             $str1 = $vetted_type[$j]['id'];
-            //$str2 = $i; //Sep24
             $str2 = $datatype[$i]["id"];
             $param[] = count($do[$str1][$str2]);
         }
@@ -190,7 +155,6 @@ function process_do($harvest_event_id,$taxa_count,$published,$agent_name,$agent_
 
     //print "<br>";        
     $arr=$param;    
-    //for ($j = 1; $j <= count($data_type); $j++) //Sep24
     for ($j = 1; $j <= count($datatype); $j++)
     {
         $sum[$j]=0;
