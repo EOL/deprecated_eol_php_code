@@ -16,9 +16,7 @@ for($i = 0; $i < count($temp) ; $i++)
 }
 
 if(!$moreStats)print" &nbsp;&nbsp;&nbsp; <a href='index.php?moreStats=1'>Improved Stats</a>";
-
 print"<hr>";
-
 
 $year = get_val_var('year');
 if($year=="")$year=date("Y");
@@ -28,7 +26,6 @@ if($moreStats)print"morestats";
 else print"not morestats";
 exit;
 */
-
 
 if($moreStats)
 {
@@ -173,9 +170,19 @@ for($month = 1; $month <= 12 ; $month++)
         
         if(!$moreStats)
         {
-            if($csv_available == 0) print"<td>Providers</td>";
-            else                    print"<td><a href='process.php?path=" . $path . "'>Providers</a>        </td>";                
-            print"<td><a href='process.php?path=" . $path . "&report=eol'>www.eol.org</a>    </td>";                
+            if($csv_available == 0) 
+            {
+                print"<td>Providers</td>";
+                print"<td>www.eol.org</td>";                
+            }    
+            else
+            {                    
+                print"<td><a href='process.php?path=" . $path . "'>Providers</a>        </td>";                
+                print"<td><a href='process.php?path=" . $path . "&report=eol'>www.eol.org</a>    </td>";                
+            }
+
+            
+
             if($csv_available == 0)     $str="<font color='red'>Individual provider data not available.</font>";
             elseif($csv_available < 4)  $str="Individual provider data (some) not available";
             else                        $str="Individual provider data available";        
@@ -237,7 +244,6 @@ else
     </tr>
     ";       
 }
-
 
 function get_val_var($v)
 {
