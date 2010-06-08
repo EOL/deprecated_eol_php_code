@@ -1,6 +1,7 @@
 <?php
 
-
+print "<br> Temporarily disabled.";
+exit;
 
 //$GLOBALS['ENV_NAME'] = "slave";
 require_once(dirname(__FILE__) ."/../../config/environment.php");
