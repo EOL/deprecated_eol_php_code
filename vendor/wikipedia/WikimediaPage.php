@@ -127,7 +127,7 @@ class WikimediaPage
         if($taxon_rank!='familia' && $v = @$taxonomy['familia']) $taxon_parameters['family'] = $v;
         if($taxon_rank!='genus' && $v = @$taxonomy['genus']) $taxon_parameters['genus'] = $v;
         $taxon_parameters['scientificName'] = $taxon_name;
-        $taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
+        //$taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
         $taxon_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
         
         

@@ -235,7 +235,7 @@ class WikiPage
         }
         
         $taxon_parameters = array();
-        $taxon_parameters["identifier"] = $this->pageid;
+        //$taxon_parameters["identifier"] = $this->pageid;
         if($taxon_rank!='regnum' && $v = @$taxonomy['regnum']) $taxon_parameters['kingdom'] = $v;
         if($taxon_rank!='phylum' && $v = @$taxonomy['phylum']) $taxon_parameters['phylum'] = $v;
         if($taxon_rank!='classis' && $v = @$taxonomy['classis']) $taxon_parameters['class'] = $v;
