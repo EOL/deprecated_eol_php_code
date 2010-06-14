@@ -10,7 +10,7 @@ class DarwinCoreTaxon
             {
                 $namespace_uri = trim($arr[1]);
                 $element = trim($arr[2]);
-            }else $namespace = $GLOBALS['DarwinCoreTaxonDefaultNamespace'];
+            }else $namespace_uri = $GLOBALS['DarwinCoreTaxonDefaultNamespace'];
             
             // find namespace uri in our accepted list
             if(isset($GLOBALS['DarwinCoreTaxonNamespaces'][$namespace_uri]))

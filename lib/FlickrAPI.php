@@ -97,17 +97,17 @@ class FlickrAPI
         {
             $string = trim((string) $tag["raw"]);
             
-            if(preg_match("/^taxonomy:subspecies=(.*)$/i", $string, $arr)) $parameters["subspecies"][] = strtolower(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $string, $arr)) $parameters["trinomial"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:species=(.*)$/i", $string, $arr)) $parameters["species"][] = strtolower(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:binomial=(.*)$/i", $string, $arr)) $parameters["scientificName"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:genus=(.*)$/i", $string, $arr)) $parameters["genus"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:family=(.*)$/i", $string, $arr)) $parameters["family"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:order=(.*)$/i", $string, $arr)) $parameters["order"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:class=(.*)$/i", $string, $arr)) $parameters["class"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $string, $arr)) $parameters["phylum"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $string, $arr)) $parameters["kingdom"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:common=(.*)$/i", $string, $arr)) $parameters["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
+            if(preg_match("/^taxonomy:subspecies=(.+)$/i", $string, $arr)) $parameters["subspecies"][] = strtolower(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:trinomial=(.+)$/i", $string, $arr)) $parameters["trinomial"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:species=(.+)$/i", $string, $arr)) $parameters["species"][] = strtolower(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:binomial=(.+)$/i", $string, $arr)) $parameters["scientificName"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:genus=(.+)$/i", $string, $arr)) $parameters["genus"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:family=(.+)$/i", $string, $arr)) $parameters["family"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:order=(.+)$/i", $string, $arr)) $parameters["order"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:class=(.+)$/i", $string, $arr)) $parameters["class"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:phylum=(.+)$/i", $string, $arr)) $parameters["phylum"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:kingdom=(.+)$/i", $string, $arr)) $parameters["kingdom"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:common=(.+)$/i", $string, $arr)) $parameters["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
         }
         
         $taxon_parameters = array();

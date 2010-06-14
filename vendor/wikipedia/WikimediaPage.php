@@ -145,7 +145,7 @@ class WikimediaPage
         foreach($licenses as $key => $val)
         {
             //PD-USGov-CIA-WF
-            if(preg_match("/^(pd|public domain|cc-pd|usaid|nih)($| |-)/i", $val))
+            if(preg_match("/^(pd|public domain|cc-pd|usaid|nih|CopyrightedFreeUse)($| |-)/i", $val))
             {
                 $data_object_parameters["license"] = "http://creativecommons.org/licenses/publicdomain/";
                 break;
@@ -243,7 +243,7 @@ class WikimediaPage
             foreach($matches as $match)
             {
                 //echo "$match[1]<br>";
-                while(preg_match("/(\{|\|)(cc-.*?|pd|pd-.*?|gfdl|gfdl-.*?|usaid|nih|copyrighted free use|creative commons.*?|migration=.*?)(\}|\|)(.*)/msi", $match[1], $arr))
+                while(preg_match("/(\{|\|)(cc-.*?|pd|pd-.*?|gfdl|gfdl-.*?|usaid|nih|copyrighted free use|CopyrightedFreeUse|creative commons.*?|migration=.*?)(\}|\|)(.*)/msi", $match[1], $arr))
                 {
                     $licenses[] = trim($arr[2]);
                     $match[1] = $arr[3].$arr[4];
@@ -251,7 +251,7 @@ class WikimediaPage
             }
         }
         
-        if(!$licenses && preg_match("/permission\s*=\s*(gpl.*?|public domain.*?|creative commons .*?)(\}|\|)/msi", $this->text, $arr))
+        if(!$licenses && preg_match("/permission\s*=\s*(cc-.*?|gpl.*?|public domain.*?|creative commons .*?)(\}|\|)/msi", $this->text, $arr))
         {
             $licenses[] = trim($arr[1]);
         }
