@@ -89,7 +89,7 @@ class SchemaParser
                 $taxon_parameters["scientific_name"] = $name;
                 $taxon_parameters["name_id"] = Name::insert($name);
                 $taxon_parameters["kingdom"] = "";
-            }else continue;
+            }else return;
         }                
         
         $taxon_parameters["common_names"] = array();

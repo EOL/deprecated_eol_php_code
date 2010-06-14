@@ -7,6 +7,7 @@ class SiteStatistics
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->mysqli_slave = load_mysql_environment('slave');
         $this->mysqli_eol = load_mysql_environment('slave_eol');
     }
     
@@ -68,7 +69,7 @@ class SiteStatistics
         if(isset($this->total_pages)) return $this->total_pages;
         $this->total_pages = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc  WHERE tc.published=1 AND tc.supercedure_id=0");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concepts tc  WHERE tc.published=1 AND tc.supercedure_id=0");
         if($result && $row=$result->fetch_assoc()) $this->total_pages = $row['count'];
         return $this->total_pages;
     }
@@ -78,7 +79,7 @@ class SiteStatistics
         if(isset($this->total_pages_in_col)) return $this->total_pages_in_col;
         $this->total_pages_in_col = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM hierarchy_entries he  WHERE he.hierarchy_id=".Hierarchy::col_2009());
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM hierarchy_entries he  WHERE he.hierarchy_id=".Hierarchy::col_2009());
         if($result && $row=$result->fetch_assoc()) $this->total_pages_in_col = $row['count'];
         return $this->total_pages_in_col;
     }
@@ -96,7 +97,7 @@ class SiteStatistics
         if(isset($this->pages_with_content)) return $this->pages_with_content;
         $this->pages_with_content = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND (tcc.text=1 OR tcc.image=1 OR tcc.flash=1 OR tcc.youtube=1)");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND (tcc.text=1 OR tcc.image=1 OR tcc.flash=1 OR tcc.youtube=1)");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_content = $row['count'];
         return $this->pages_with_content;
     }
@@ -106,7 +107,7 @@ class SiteStatistics
         if(isset($this->pages_with_text)) return $this->pages_with_text;
         $this->pages_with_text = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=1");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=1");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_text = $row['count'];
         return $this->pages_with_text;
     }
@@ -116,7 +117,7 @@ class SiteStatistics
         if(isset($this->pages_with_images)) return $this->pages_with_images;
         $this->pages_with_images = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.image=1");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.image=1");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_images = $row['count'];
         return $this->pages_with_images;
     }
@@ -126,7 +127,7 @@ class SiteStatistics
         if(isset($this->pages_with_text_and_images)) return $this->pages_with_text_and_images;
         $this->pages_with_text_and_images = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=1 AND tcc.image=1");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=1 AND tcc.image=1");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_text_and_images = $row['count'];
         return $this->pages_with_text_and_images;
     }
@@ -136,7 +137,7 @@ class SiteStatistics
         if(isset($this->pages_with_images_no_text)) return $this->pages_with_images_no_text;
         $this->pages_with_images_no_text = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=0 AND tcc.image=1");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=0 AND tcc.image=1");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_images_no_text = $row['count'];
         return $this->pages_with_images_no_text;
     }
@@ -146,7 +147,7 @@ class SiteStatistics
         if(isset($this->pages_with_text_no_images)) return $this->pages_with_text_no_images;
         $this->pages_with_text_no_images = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=1 AND tcc.image=0");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=1 AND tcc.image=0");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_text_no_images = $row['count'];
         return $this->pages_with_text_no_images;
     }
@@ -156,7 +157,7 @@ class SiteStatistics
         if(isset($this->pages_with_links_no_text)) return $this->pages_with_links_no_text;
         $this->pages_with_links_no_text = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(tc.id)) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) JOIN mappings m ON (tcn.name_id=m.name_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=0");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(tc.id)) count FROM taxon_concepts tc  JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) JOIN mappings m ON (tcn.name_id=m.name_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=0");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_links_no_text = $row['count'];
         return $this->pages_with_links_no_text;
     }
@@ -181,7 +182,7 @@ class SiteStatistics
         if(isset($this->pages_in_col_no_content)) return $this->pages_in_col_no_content;
         $this->pages_in_col_no_content = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM  hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) WHERE he.hierarchy_id=".Hierarchy::col_2009()." AND tcc.text=0 AND tcc.image=0");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM  hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) WHERE he.hierarchy_id=".Hierarchy::col_2009()." AND tcc.text=0 AND tcc.image=0");
         if($result && $row=$result->fetch_assoc()) $this->pages_in_col_no_content = $row['count'];
         return $this->pages_in_col_no_content;
     }
@@ -236,7 +237,7 @@ class SiteStatistics
         if(isset($this->pages_with_bhl)) return $this->pages_with_bhl;
         $this->pages_with_bhl = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(tc.id)) count  FROM taxon_concepts tc JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) JOIN page_names pn ON (tcn.name_id=pn.name_id) WHERE  tc.published=1 AND tc.supercedure_id=0");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(tc.id)) count  FROM taxon_concepts tc JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) JOIN page_names pn ON (tcn.name_id=pn.name_id) WHERE  tc.published=1 AND tc.supercedure_id=0");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_bhl = $row['count'];
         return $this->pages_with_bhl;
     }
@@ -246,7 +247,7 @@ class SiteStatistics
         if(isset($this->pages_with_bhl_no_text)) return $this->pages_with_bhl_no_text;
         $this->pages_with_bhl_no_text = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(tc.id)) count  FROM taxon_concepts tc JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) JOIN page_names pn ON (tcn.name_id=pn.name_id) JOIN taxon_concept_content tcc ON  (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=0");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(tc.id)) count  FROM taxon_concepts tc JOIN taxon_concept_names tcn ON (tc.id=tcn.taxon_concept_id) JOIN page_names pn ON (tcn.name_id=pn.name_id) JOIN taxon_concept_content tcc ON  (tc.id=tcc.taxon_concept_id) WHERE tc.published=1 AND tc.supercedure_id=0 AND tcc.text=0");
         if($result && $row=$result->fetch_assoc()) $this->pages_with_bhl_no_text = $row['count'];
         return $this->pages_with_bhl_no_text;
     }
@@ -263,14 +264,14 @@ class SiteStatistics
         $this->pages_awaiting_publishing = 0;
         
         $events_to_publish = array();
-        $result = $this->mysqli->query("SELECT he.resource_id, max(he.id) max FROM  harvest_events he GROUP BY he.resource_id");
+        $result = $this->mysqli_slave->query("SELECT he.resource_id, max(he.id) max FROM  harvest_events he GROUP BY he.resource_id");
         while($result && $row=$result->fetch_assoc())
         {
             $harvest_event = new HarvestEvent($row['max']);
             if(!$harvest_event->published_at) $events_to_publish[] = $harvest_event->id;
         }
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(tc.id)) count FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE hehe.harvest_event_id IN (".implode($events_to_publish, ",").") AND tc.published=0 AND tc.vetted_id=". Vetted::find("trusted"));
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(tc.id)) count FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE hehe.harvest_event_id IN (".implode($events_to_publish, ",").") AND tc.published=0 AND tc.vetted_id=". Vetted::find("trusted"));
         if($result && $row=$result->fetch_assoc()) $this->pages_awaiting_publishing = $row['count'];
         return $this->pages_awaiting_publishing;
     }
@@ -280,7 +281,7 @@ class SiteStatistics
         if(isset($this->col_content_needs_curation)) return $this->col_content_needs_curation;
         $this->col_content_needs_curation = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NOT NULL");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NOT NULL");
         if($result && $row=$result->fetch_assoc()) $this->col_content_needs_curation = $row['count'];
         return $this->col_content_needs_curation;
     }
@@ -290,7 +291,7 @@ class SiteStatistics
         if(isset($this->non_col_content_needs_curation)) return $this->non_col_content_needs_curation;
         $this->non_col_content_needs_curation = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NULL");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NULL");
         if($result && $row=$result->fetch_assoc()) $this->non_col_content_needs_curation = $row['count'];
         return $this->non_col_content_needs_curation;
     }
@@ -307,7 +308,7 @@ class SiteStatistics
         $this->lifedesk_taxa = 0;
         
         $latest_published_lifedesk_resources = $this->latest_published_lifedesk_resources();
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id IN (".implode($latest_published_lifedesk_resources, ",").")");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id IN (".implode($latest_published_lifedesk_resources, ",").")");
         if($result && $row=$result->fetch_assoc()) $this->lifedesk_taxa = $row['count'];
         return $this->lifedesk_taxa;
     }
@@ -318,7 +319,7 @@ class SiteStatistics
         $this->lifedesk_data_objects = 0;
         
         $latest_published_lifedesk_resources = $this->latest_published_lifedesk_resources();
-        $result = $this->mysqli->query("SELECT COUNT(DISTINCT(do.id)) count FROM data_objects_harvest_events dohe  JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE dohe.harvest_event_id IN (".implode($latest_published_lifedesk_resources, ",").") AND do.published=1");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(do.id)) count FROM data_objects_harvest_events dohe  JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE dohe.harvest_event_id IN (".implode($latest_published_lifedesk_resources, ",").") AND do.published=1");
         if($result && $row=$result->fetch_assoc()) $this->lifedesk_data_objects = $row['count'];
         return $this->lifedesk_data_objects;
     }
@@ -327,7 +328,7 @@ class SiteStatistics
     public function latest_published_lifedesk_resources()
     {
         $resource_ids = array();
-        $result = $this->mysqli->query("SELECT r.id, max(he.id) max FROM resources r JOIN harvest_events he  ON (r.id=he.resource_id) WHERE r.accesspoint_url LIKE '%lifedesks.org%' AND he.published_at IS NOT NULL GROUP BY r.id");
+        $result = $this->mysqli_slave->query("SELECT r.id, max(he.id) max FROM resources r JOIN harvest_events he  ON (r.id=he.resource_id) WHERE r.accesspoint_url LIKE '%lifedesks.org%' AND he.published_at IS NOT NULL GROUP BY r.id");
         while($result && $row=$result->fetch_assoc())
         {
             $resource_ids[] = $row['max'];
@@ -346,7 +347,7 @@ class SiteStatistics
         if(isset($this->total_data_objects)) return $this->total_data_objects;
         $this->total_data_objects = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible'));
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible'));
         if($result && $row=$result->fetch_assoc()) $this->total_data_objects = $row['count'];
         return $this->total_data_objects;
     }
@@ -356,7 +357,7 @@ class SiteStatistics
         if(isset($this->unvetted_visible_data_objects)) return $this->unvetted_visible_data_objects;
         $this->unvetted_visible_data_objects = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND vetted_id=".Vetted::find('Unknown'));
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND vetted_id=".Vetted::find('Unknown'));
         if($result && $row=$result->fetch_assoc()) $this->unvetted_visible_data_objects = $row['count'];
         return $this->unvetted_visible_data_objects;
     }
@@ -366,7 +367,7 @@ class SiteStatistics
         if(isset($this->untrusted_visible_data_objects)) return $this->untrusted_visible_data_objects;
         $this->untrusted_visible_data_objects = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND vetted_id=".Vetted::find('Untrusted'));
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND vetted_id=".Vetted::find('Untrusted'));
         if($result && $row=$result->fetch_assoc()) $this->untrusted_visible_data_objects = $row['count'];
         return $this->untrusted_visible_data_objects;
     }
@@ -376,7 +377,7 @@ class SiteStatistics
         if(isset($this->invisible_unvetted_data_objects)) return $this->invisible_unvetted_data_objects;
         $this->invisible_unvetted_data_objects = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('invisible')." AND vetted_id=".Vetted::find('Unknown'));
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('invisible')." AND vetted_id=".Vetted::find('Unknown'));
         if($result && $row=$result->fetch_assoc()) $this->invisible_unvetted_data_objects = $row['count'];
         return $this->invisible_unvetted_data_objects;
     }
@@ -386,7 +387,7 @@ class SiteStatistics
         if(isset($this->invisible_untrusted_data_objects)) return $this->invisible_untrusted_data_objects;
         $this->invisible_untrusted_data_objects = 0;
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('invisible')." AND vetted_id=".Vetted::find('Untrusted'));
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('invisible')." AND vetted_id=".Vetted::find('Untrusted'));
         if($result && $row=$result->fetch_assoc()) $this->invisible_untrusted_data_objects = $row['count'];
         return $this->invisible_untrusted_data_objects;
     }
@@ -400,7 +401,7 @@ class SiteStatistics
         $result = $this->mysqli_eol->query("SELECT DISTINCT data_object_id  FROM users_data_objects");
         while($result && $row=$result->fetch_assoc()) $data_object_ids[] = $row['data_object_id'];
         
-        $result = $this->mysqli->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND id IN (".implode($data_object_ids, ",").")");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND id IN (".implode($data_object_ids, ",").")");
         if($result && $row=$result->fetch_assoc()) $this->user_submitted_data_objects = $row['count'];
         return $this->user_submitted_data_objects;
     }

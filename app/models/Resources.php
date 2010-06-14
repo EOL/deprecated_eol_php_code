@@ -45,9 +45,12 @@ class Resource extends MysqlBase
         $mysqli->delete("DELETE hehe FROM harvest_events he STRAIGHT_JOIN harvest_events_hierarchy_entries hehe ON (he.id=hehe.harvest_event_id) WHERE he.resource_id=$id");
         
         // DWC hierarchy
-        $mysqli->delete("DELETE her FROM hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->dwc_hierarchy_id");
-        $mysqli->delete("DELETE s FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->hierarchy_id AND s.hierarchy_id=$resource->dwc_hierarchy_id");
-        $mysqli->delete("DELETE he FROM hierarchy_entries he WHERE he.hierarchy_id=$resource->dwc_hierarchy_id");
+        if($resource->dwc_hierarchy_id)
+        {
+            $mysqli->delete("DELETE her FROM hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->dwc_hierarchy_id");
+            $mysqli->delete("DELETE s FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.hierarchy_id=$resource->hierarchy_id AND s.hierarchy_id=$resource->dwc_hierarchy_id");
+            $mysqli->delete("DELETE he FROM hierarchy_entries he WHERE he.hierarchy_id=$resource->dwc_hierarchy_id");
+        }
         
         $mysqli->delete("DELETE FROM harvest_events WHERE resource_id=$id");
         $mysqli->delete("DELETE FROM resources WHERE id=$id");
