@@ -246,7 +246,22 @@ class WikipediaHarvester
             }else echo "   no data object\n";
             
             $taxon = new SchemaTaxon($taxon_params);
+            $mini_doc = SchemaDocument::get_taxon_xml(array($taxon));
+            $mini_doc_xml = simplexml_load_string($mini_doc, null, LIBXML_NOCDATA);
+            $taxon_xml = $mini_doc_xml->taxon[0];
+            echo($mini_doc);
             print_r($taxon);
+            
+            $wikipedia_resource = Resource::wikipedia();
+            $parsed_taxon = SchemaParser::read_taxon_xml($taxon_xml, $wikipedia_resource);
+            list($hierarchy_entry, $new_data_object) = SchemaConnection::force_wikipedia_taxon($parsed_taxon);
+            if(@!$new_data_object->id) return false;
+            
+            $GLOBALS['db_connection']->update("UPDATE data_objects SET published=0 WHERE guid='$new_data_object->guid' AND id!=$new_data_object->id");
+            $GLOBALS['db_connection']->update("UPDATE data_objects SET published=1, vetted_id=". Vetted::insert('trusted') .", visibility_id=". Visibility::insert('visible') ." WHERE id=$new_data_object->id");
+            $GLOBALS['db_connection']->update("UPDATE data_objects_hierarchy_entries dohe JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.published=1, tc.published=1 WHERE dohe.data_object_id=$new_data_object->id");
+            $GLOBALS['db_connection']->insert("INSERT IGNORE INTO data_objects_taxon_concepts VALUES ($hierarchy_entry->taxon_concept_id, $new_data_object->id)");
+            $GLOBALS['db_connection']->insert("INSERT IGNORE INTO data_objects_table_of_contents (SELECT doii.data_object_id, ii.toc_id FROM data_objects_info_items doii JOIN info_items ii ON (doii.info_item_id=ii.id) where doii.data_object_id=$new_data_object->id)");
         }
     }
 }

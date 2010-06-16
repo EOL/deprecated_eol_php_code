@@ -72,6 +72,11 @@ class Resource extends MysqlBase
         return false;
     }
     
+    public static function wikipedia()
+    {
+        return new Resource(self::find_by_title('Wikipedia'));
+    }
+    
     public function resource_file_path()
     {
         return CONTENT_RESOURCE_LOCAL_PATH . $this->id . ".xml";

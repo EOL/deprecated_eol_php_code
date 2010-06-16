@@ -162,6 +162,41 @@ class SchemaConnection extends MysqlBase
             }
         }
     }
+    
+    static function force_wikipedia_taxon($t)
+    {
+        $wikipedia_resource = Resource::wikipedia();
+        $last_wikipedia_harvest = new HarvestEvent($wikipedia_resource->most_recent_published_harvest_event_id());
+        $content_manager = new ContentManager(false);
+        
+        $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($t, $wikipedia_resource->hierarchy_id);
+        if(@!$hierarchy_entry->id) return false;
+        
+        $last_wikipedia_harvest->add_hierarchy_entry($hierarchy_entry, 'inserted');
+        
+        foreach($t['data_objects'] as &$d)
+        {
+            list($data_object, $status) = DataObject::find_and_compare($wikipedia_resource, $d, $content_manager);
+            if(@!$data_object->id) return false;
+            
+            $hierarchy_entry->add_data_object($data_object->id, $d);
+            $last_wikipedia_harvest->add_data_object($data_object, $status);
+            
+            if(@$d->info_items_ids)
+            {
+                $data_object->delete_info_items();
+                foreach($d->info_items_ids as &$id)
+                {
+                    $data_object->add_info_item($id);
+                    unset($id);
+                }
+            }
+            
+            return array($hierarchy_entry, $data_object);
+        }
+        
+        return false;
+    }
 }
 
 ?>

@@ -8,6 +8,14 @@ class Collection extends MysqlBase
         parent::initialize($param);
     }
     
+    public function agent()
+    {
+        if(@$this->agent) return $this->agent;
+        
+        $this->agent = new Agent($this->agent_id);
+        return $this->agent;
+    }
+    
     public function add_mapping($name_string, $foreign_key)
     {
         $name_id = Name::insert($name_string);

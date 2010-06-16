@@ -246,7 +246,7 @@ class DataObject extends MysqlBase
                     // This data object is equivalent (each field is identical) to the object in the last harvest with the same guid
                     // So we can reference the old object and don't need to create a new one
                     $status = "Unchanged";
-                    if($row["harvest_event_id"] == $resource->harvest_event->id) $status = "Reused";
+                    if($row["harvest_event_id"] == @$resource->harvest_event->id) $status = "Reused";
                     
                     return array($existing_data_object, "Unchanged");
                 }else
