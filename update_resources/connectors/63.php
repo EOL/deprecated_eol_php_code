@@ -7,20 +7,18 @@ Partner provided a non EOL-compliant XML file for all their species.
 Connector parses this XML and generates the EOL-compliant XML.
 
 Some dataObject.dc:identifier will be blank
-
 */
 
 /*
+Note:
 BCA-coleoptv4p3-t239
-identical text descriptions in one <taxon>; one with identifier, the other doesn't.
+this id has identical text descriptions in one <taxon>; one with identifier, the other doesn't.
 */
 
 $timestart = microtime(1);
 
 //http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=BCA-coleoptv4p3s-t82
 //http://www.inotaxa.org/jsp/display.jsp?context=ElementID&taxmlitid=BCA-coleoptv4p3-3313
-
-//exit;
 
 /* good sample for preview
 next 9
