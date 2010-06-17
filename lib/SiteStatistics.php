@@ -39,6 +39,11 @@ class SiteStatistics
         //$stats['date_created'] =                                    date('Y-m-d');
         //$stats['time_created'] =                                    date('H:i:s');
         
+        /* will enable once the migration to add these 2 fields in page_stats_taxa table is made.
+        $stats['data_objects_count_per_category'] =                 $this->data_object_count_per_subject();
+        $stats['content_partners_count_per_category'] =             $this->content_partner_count_per_subject();
+        */
+
         $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
         //$this->delete_old_records_from('page_stats_taxa');
     }
@@ -498,6 +503,114 @@ class SiteStatistics
         // }
     }
     
+
+
+    ////////////////////////////////////
+    ////////////////////////////////////  data objects count per SPM category
+    ////////////////////////////////////
+    
+    public function data_object_count_per_subject()
+    {    
+        print"Start compute dataObject count per subject... \n";        
+        if(isset($this->data_object_count_per_subject)) return $this->data_object_count_per_subject;
+        $this->data_object_count_per_subject = "";
+    
+        $subjects = $this->get_info_items();
+        $arr_count = array();
+        while($subjects && $row=$subjects->fetch_assoc()) 
+        {   
+            $id = intval($row["id"]);
+            print "$id of $subjects->num_rows" . "\n";
+            $sql="SELECT   Count(do.id) total FROM data_objects do JOIN data_objects_info_items doii ON do.id = doii.data_object_id WHERE doii.info_item_id = $id AND do.published AND do.vetted_id != " . Vetted::find('Untrusted') . "";
+            $rset = $this->mysqli->query($sql);
+            while($rset && $row2=$rset->fetch_assoc()){$arr_count["$id"] = $row2["total"];}
+        }                
+        print_r($arr_count);        
+        print"Start adding user-submitted-text count... \n";
+        $user_data_object_ids = $this->get_user_data_object_ids();
+        $arr_count = $this->add_user_data_objects_count($arr_count,$user_data_object_ids);        
+        print_r($arr_count);        
+        print json_encode($arr_count) . "\n";        
+        $this->data_object_count_per_subject = json_encode($arr_count);        
+        return $this->data_object_count_per_subject;        
+    }
+    public function get_info_items()
+    {
+        return $this->mysqli->query("SELECT   schema_value, id FROM info_items ORDER BY id  ");
+    }
+    public function add_user_data_objects_count($arr_count,$user_data_object_ids)
+    {        
+        if(count($user_data_object_ids) > 0)
+        {
+            $sql="SELECT   ii.id, Count(ii.id) total FROM data_objects_table_of_contents dotc JOIN info_items ii ON dotc.toc_id = ii.toc_id JOIN data_objects do ON dotc.data_object_id = do.id WHERE dotc.data_object_id IN (".implode($user_data_object_ids, ",").") Group By ii.id ";              
+            $rset = $this->mysqli->query($sql);
+            $i=0;
+            while($rset && $row=$rset->fetch_assoc()) 
+            {
+                $i++; print "$i of " . $rset->num_rows . "\n";
+                $id = $row["id"];
+                if(@$arr_count["$id"]) $arr_count["$id"] += $row["total"];
+                else                   $arr_count["$id"] = $row["total"];
+            }
+        }
+        return $arr_count;
+    }
+    public function get_user_data_object_ids()
+    {
+        $mysqli2 = load_mysql_environment('slave_eol');//eol_production database     
+        $query = "SELECT   udo.data_object_id FROM users_data_objects udo join eol_data_production.data_objects do on do.id=udo.data_object_id WHERE do.published AND do.vetted_id != " . Vetted::find('Untrusted') . "";
+        $result = $mysqli2->query($query);            
+        $arr=array();
+        while($result && $row=$result->fetch_assoc()){$arr[] = $row["data_object_id"];}
+        return $arr;
+    }
+    ////////////////////////////////////
+    ////////////////////////////////////  content partners count per SPM category
+    ////////////////////////////////////
+    public function content_partner_count_per_subject()
+    {
+        print"Start compute contentPartner count per subject... \n";
+        if(isset($this->content_partner_count_per_subject)) return $this->content_partner_count_per_subject;
+        $this->content_partner_count_per_subject = "";
+        $harvests = $this->get_agents_harvest_ids();
+        $arr=array();
+        $i=0;
+        foreach ($harvests as $harvest) 
+        {
+            $i++;print "$i of " . count($harvests) . "\n";            
+            $sql="Select   data_objects_info_items.info_item_id
+            From data_objects_harvest_events
+            JOIN data_objects_info_items ON data_objects_harvest_events.data_object_id = data_objects_info_items.data_object_id
+            where data_objects_harvest_events.harvest_event_id = $harvest[harvest_id]
+            Group By data_objects_info_items.info_item_id";            
+            $rset = $this->mysqli->query($sql);            
+            while($rset && $row=$rset->fetch_assoc())
+            {
+                @$arr["$row[info_item_id]"]++; 
+            }                   
+        }
+        ksort($arr);
+        print_r($arr);
+        print json_encode($arr);        
+        $this->content_partner_count_per_subject = json_encode($arr);        
+        return $this->content_partner_count_per_subject;                
+    }
+    public function get_agents_harvest_ids()
+    {
+        $sql="Select   Max(harvest_events.id) AS latest_harvest_events_id, agents_resources.agent_id 
+        From agents_resources JOIN harvest_events ON agents_resources.resource_id = harvest_events.resource_id
+        Group By agents_resources.agent_id";
+        $rset = $this->mysqli->query($sql);
+        $arr=array();
+        while($rset && $row=$rset->fetch_assoc())
+        {
+            $arr[] = array("agent_id" => $row["agent_id"], "harvest_id" => $row["latest_harvest_events_id"]);
+        }        
+        return $arr;
+    }
+
+
+
 }
 
 ?>
