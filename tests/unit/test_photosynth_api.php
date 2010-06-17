@@ -2,7 +2,7 @@
 
 require_library('connectors/PhotosynthAPI');
 
-class test_photosynth_api extends SimpletestUnitBase
+class test_connector_photosynth_api extends SimpletestUnitBase
 {
     function testPhotosynthAPI()
     {
