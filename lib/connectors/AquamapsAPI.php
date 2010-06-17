@@ -84,7 +84,7 @@ class AquamapsAPI
         {
             //if($ctr >= 5)break;//debug to limit the no. of records
                         
-            print "$ctr ";
+            //print "$ctr ";
             
             //$sourceURL=$rec["url"]; //not used
             
@@ -148,7 +148,7 @@ class AquamapsAPI
                                                      "dc_source"=>$sourceURL)
                                 );               
         }
-        print"\n";
+        //print"\n";
         //print"<pre>";print_r($arr_scraped);print"</pre>"; //debug
         return $arr_scraped;
         
