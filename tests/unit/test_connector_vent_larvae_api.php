@@ -1,12 +1,15 @@
 <?php
 
-require_library('connectors/PhotosynthAPI');
+require_library('connectors/HydrothermalVentLarvaeAPI');
 
-class test_photosynth_api extends SimpletestUnitBase
+class test_connector_vent_larvae_api extends SimpletestUnitBase
 {
-    function testPhotosynthAPI()
+    function testVentLarvaeAPI()
     {
-        $taxa = PhotosynthAPI::get_photosynth_taxa(1, 0);
+        $path="http://www.whoi.edu/vent-larval-id/";
+        $url = $path . "MiscSpecies.htm";
+    
+        $taxa = HydrothermalVentLarvaeAPI::get_larvae_taxa($url);
         $this->assertTrue(is_array($taxa), 'Taxa should be an array');
         
         $taxon = $taxa[0];
