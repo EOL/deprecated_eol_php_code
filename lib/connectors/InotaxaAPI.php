@@ -103,9 +103,9 @@ class InotaxaAPI
                 foreach($ptm->TaxonTreatment as $tt)
                 {
                     $tt_count++; 
-                    print"\n $main_count of " . count($xml->IndividualPublication);
-                    print" | $ptm_count of " . count($main->PublicationTaxonomicMatter);
-                    print" | $tt_count of " . count($ptm->TaxonTreatment);
+                    //print"\n $main_count of " . count($xml->IndividualPublication);
+                    //print" | $ptm_count of " . count($main->PublicationTaxonomicMatter);
+                    //print" | $tt_count of " . count($ptm->TaxonTreatment);
                 
                     $taxon_identifier = @$tt["TaxonID"];
                     $dwc_ScientificName = trim($tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName);
