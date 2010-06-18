@@ -5,7 +5,7 @@ define("IMAGE_URL", "http://www.whoi.edu/vent-larval-id/");
 
 class HydrothermalVentLarvaeAPI
 {
-    public static function get_all_eol_photos()
+    public static function get_all_taxa()
     {
         $all_taxa = array();
         $used_collection_ids = array();

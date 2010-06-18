@@ -10,8 +10,10 @@ define("CACHED_MAPS_URL", "http://www.aquamaps.org/imagethumb/cached_maps");
 
 class AquamapsAPI
 {
-    public static function get_all_eol_photos()
+    public static function get_all_taxa()
     {
+        global $used_collection_ids;
+    
         $all_taxa = array();
         $used_collection_ids = array();
         
@@ -82,12 +84,9 @@ class AquamapsAPI
         $ctr=0;
         foreach($xml->RECORD as $rec)
         {
-            //if($ctr >= 5)break;//debug to limit the no. of records
-                        
-            //print "$ctr ";
-            
-            //$sourceURL=$rec["url"]; //not used
-            
+            //if($ctr >= 5)break;//debug to limit the no. of records                        
+            //print "$ctr ";            
+            //$sourceURL=$rec["url"]; //not used            
             //print $rec->SpecCode . $rec->SPECIESID; exit;
             
             if(substr($rec->SPECIESID,0,3)=="Fis")$source_dbase_link = "<a target='$rec->SpecCode' href='" . FISHBASE_URL . $rec->SpecCode . "'>FishBase</a>";

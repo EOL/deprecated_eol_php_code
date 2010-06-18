@@ -10,7 +10,7 @@ define("TAG_SEARCHED", "erja family");
 
 class PhotosynthAPI
 {
-    public static function get_all_eol_photos()
+    public static function get_all_taxa()
     {
         $all_taxa = array();
         $used_collection_ids = array();
