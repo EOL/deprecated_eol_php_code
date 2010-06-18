@@ -1,4 +1,5 @@
 <?php
+exit;
 /* connector for Photosynth
 estimated execution time: 
 
@@ -10,7 +11,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/PhotosynthAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
-$taxa = PhotosynthAPI::get_all_eol_photos();
+$taxa = PhotosynthAPI::get_all_taxa();
 $xml = SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "119.xml";
