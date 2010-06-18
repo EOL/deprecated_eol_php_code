@@ -1,5 +1,4 @@
 <?php
-
 define("SUBJECT_LIST", "Associations,Behaviour,Biology,Conservation,ConservationStatus,Cyclicity,Cytology,Description,DiagnosticDescription,Diseases,Dispersal,Distribution,Ecology,Evolution,GeneralDescription,Genetics,Growth,Habitat,Key,Legislation,LifeCycle,LifeExpectancy,Management,Migration,MolecularBiology,Morphology,Physiology,PopulationBiology,Procedures,Reproduction,RiskStatement,Size,TaxonBiology,Threats,Trends,TrophicStrategy,Uses");
 define("SOURCE_URL_PREFIX", "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=");
 define("SOURCE_IMAGE_URL_PREFIX", "http://www.inotaxa.org/jsp/display.jsp?context=Figure&taxmlitid=");
@@ -104,9 +103,9 @@ class InotaxaAPI
                 foreach($ptm->TaxonTreatment as $tt)
                 {
                     $tt_count++; 
-                    //print"\n $main_count of " . count($xml->IndividualPublication);
-                    //print" | $ptm_count of " . count($main->PublicationTaxonomicMatter);
-                    //print" | $tt_count of " . count($ptm->TaxonTreatment);
+                    print"\n $main_count of " . count($xml->IndividualPublication);
+                    print" | $ptm_count of " . count($main->PublicationTaxonomicMatter);
+                    print" | $tt_count of " . count($ptm->TaxonTreatment);
                 
                     $taxon_identifier = @$tt["TaxonID"];
                     $dwc_ScientificName = trim($tt->TaxonHeading->TaxonHeadingName->AlternateUsedInWork->TaxonName);
