@@ -6,8 +6,10 @@ class test_connector_aquamaps_api extends SimpletestUnitBase
 {
     function testAquamapsAPI()
     {
-        $path = DOC_ROOT . "/update_resources/connectors/files/AquaMaps/";
-        $url = $path . "aquamaps_species_list2.XML";
+        //$path = DOC_ROOT . "/update_resources/connectors/files/AquaMaps/";
+        //$url = $path . "aquamaps_species_list2.XML";
+        
+        $url = "http://pandanus.eol.org/public/test_resources/aquamaps_species_list2.XML";
     
         $taxa = AquaMapsAPI::get_aquamaps_taxa($url);
         $this->assertTrue(is_array($taxa), 'Taxa should be an array');

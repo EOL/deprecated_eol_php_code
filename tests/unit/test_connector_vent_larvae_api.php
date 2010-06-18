@@ -6,9 +6,8 @@ class test_connector_vent_larvae_api extends SimpletestUnitBase
 {
     function testVentLarvaeAPI()
     {
-        $path="http://www.whoi.edu/vent-larval-id/";
-        $url = $path . "MiscSpecies.htm";
-    
+        $url = "http://www.whoi.edu/vent-larval-id/MiscSpecies.htm";    
+        
         $taxa = HydrothermalVentLarvaeAPI::get_larvae_taxa($url);
         $this->assertTrue(is_array($taxa), 'Taxa should be an array');
         
