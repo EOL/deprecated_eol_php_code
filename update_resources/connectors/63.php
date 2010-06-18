@@ -1,5 +1,5 @@
 <?php
-exit;
+//exit;
 /* connector for INOTAXA
 estimated execution time: 1.3 hours
 
