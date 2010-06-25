@@ -36,13 +36,12 @@ class SiteStatistics
         $stats['pages_not_incol'] =                                 $this->total_pages_not_in_col();
         $stats['lifedesk_taxa'] =                                   $this->lifedesk_taxa();
         $stats['lifedesk_dataobject'] =                             $this->lifedesk_data_objects();
+
         //$stats['date_created'] =                                    date('Y-m-d');
         //$stats['time_created'] =                                    date('H:i:s');
         
-        /* will enable once the migration to add these 2 fields in page_stats_taxa table is made.
         $stats['data_objects_count_per_category'] =                 $this->data_object_count_per_subject();
         $stats['content_partners_count_per_category'] =             $this->content_partner_count_per_subject();
-        */
 
         $this->mysqli->insert("INSERT INTO page_stats_taxa (".implode(array_keys($stats), ",").") VALUES ('".implode($stats, "','")."')");
         //$this->delete_old_records_from('page_stats_taxa');
@@ -557,9 +556,9 @@ class SiteStatistics
     }
     public function get_user_data_object_ids()
     {
-        $mysqli2 = load_mysql_environment('slave_eol');//eol_production database     
-        $query = "SELECT   udo.data_object_id FROM users_data_objects udo join eol_data_production.data_objects do on do.id=udo.data_object_id WHERE do.published AND do.vetted_id != " . Vetted::find('Untrusted') . "";
-        $result = $mysqli2->query($query);            
+        //$mysqli2 = load_mysql_environment('slave_eol');//eol_production database     
+        $sql = "SELECT udo.data_object_id FROM users_data_objects udo join eol_data_production.data_objects do on do.id=udo.data_object_id WHERE do.published AND do.vetted_id != " . Vetted::find('Untrusted') . "";
+        $result = $this->mysqli_eol->query($sql);            
         $arr=array();
         while($result && $row=$result->fetch_assoc()){$arr[] = $row["data_object_id"];}
         return $arr;
