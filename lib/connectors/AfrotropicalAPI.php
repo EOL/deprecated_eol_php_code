@@ -1,7 +1,7 @@
 <?php
 
 
-define("PDF2TEXT_PROGRAM", LOCAL_ROOT . "/vendor/PDFtoText/pdftotext");
+define("PDF2TEXT_PROGRAM", LOCAL_ROOT . "/vendor/xpdf/pdftotext");
 define("SOURCE_URL", "http://projects.bebif.be/fruitfly/taxoninfo.html?id=");
 
 
@@ -13,9 +13,10 @@ class AfrotropicalAPI
     
         $all_taxa = array();
         $used_collection_ids = array();
-        
-        $urls = array( 0  => array( "path" => "http://128.128.175.77/eol_php_code/applications/content_server/resources/EOLexportFruitfly_fixed.xml"  , "active" => 1),
-                       1  => array( "path" => "http://128.128.175.77/eol_php_code/applications/content_server/resources/EOLexportFruitfly.xml"        , "active" => 0)
+
+        $file = DOC_ROOT . "update_resources/connectors/files/Afrotropical/EOLexportFruitfly_fixed.xml";                
+        $urls = array( 0 => array( "path" => "http://pandanus.eol.org/public/EOL_resource/EOLexportFruitfly_fixed.xml" , "active" => 0),
+                       1 => array( "path" => $file                                                                     , "active" => 1)
                      );
                 
         foreach($urls as $url)
@@ -101,7 +102,7 @@ class AfrotropicalAPI
                 )continue;
             */
             
-            print"$ctr of " . $loops . "[" . trim($t_dc->identifier) . "]" . "\n";
+            //print"$ctr of " . $loops . "[" . trim($t_dc->identifier) . "]" . "\n"; //debug
             //=============================================================================================================            
             
             $arr_objects=array();
@@ -165,7 +166,7 @@ class AfrotropicalAPI
                     
                     if(self::check_xml_if_well_formed($target))
                     {
-                        print"good xml \n";                                            
+                        //print"good xml \n";                                            
                         $pos = stripos($description,"mm.");
                         if(is_numeric($pos))
                         {
@@ -194,7 +195,7 @@ class AfrotropicalAPI
                     }
                     else
                     {
-                        print"bad xml \n";
+                        //print"bad xml \n";
                         $description = "<a target='afrotropical' href='" . trim($do->mediaURL) . "'>See " . trim($t_dc2->description) . ".</a>";
                     }
                     
@@ -259,9 +260,10 @@ class AfrotropicalAPI
                                 
         }//foreach($xml->taxon as $t)
         
-        print"\n" . sizeof($id_arr) . " \n";
+        //print"\n" . sizeof($id_arr) . " \n"; //debug - total no. of taxa
         
-        if(isset($file))unlink($file);
+        //if(isset($file))unlink($file);
+        //if(isset($target))unlink($target);
         
         return $arr_data;        
     }
