@@ -1,10 +1,9 @@
 <?php
 /* connector for Afrotropical 
 estimated execution time: 
-
 This connector reads an EOL XML and converts PDF files stored in <mediaURL> into text description objects.
-
 */
+exit;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AfrotropicalAPI');
