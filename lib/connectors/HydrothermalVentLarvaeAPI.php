@@ -10,6 +10,11 @@ class HydrothermalVentLarvaeAPI
         $all_taxa = array();
         $used_collection_ids = array();
         
+        /*
+        http://www.whoi.edu/vent-larval-id/MiscSpecies.htm
+        http://www.whoi.edu/vent-larval-id/GastSpecies.htm
+        */
+        
         $path="http://www.whoi.edu/vent-larval-id/";
         $urls = array( 0  => array( "path" => $path . "MiscSpecies.htm" , "active" => 1),  //
                        1  => array( "path" => $path . "GastSpecies.htm" , "active" => 1)   //                       
@@ -104,7 +109,7 @@ class HydrothermalVentLarvaeAPI
         $loop=0;
         foreach($arr as $r)
         {
-            //$loop++;if($loop >= 4)break; //debug to limit the no. of records
+            //$loop++;if($loop >= 5)break; //debug to limit the no. of records
                     
             $r = str_ireplace('<th','<td',$r);
             $r = str_ireplace('</th','</td',$r);
@@ -122,16 +127,14 @@ class HydrothermalVentLarvaeAPI
                     $temp = strip_tags($r2,"<a><em>");                                
                     $temp = str_ireplace(' target="_blank"',"",$temp);                
                     
-                    //<a href="Bathymargaritessymplector.htm" target="_blank">Bathymargarites symplector</a>                
-                    //if(preg_match("/\">(.*?)<\/a>/", $temp, $matches))$sciname = utf8_encode($matches[1]);
-                    
+                    // /* working but not being used anymore...
                     if(preg_match("/<em>(.*)<\/em>/ims", $temp, $matches))$sciname = strip_tags(utf8_encode($matches[1]));
-                    else $sciname="";
-                    
+                    else $sciname="";                    
                     if(preg_match("/\">(.*?)<\/a>/", $sciname, $matches))$sciname = strip_tags($matches[1]);
-                    //else $sciname="";
-                    
                     $sciname = str_ireplace("?","",$sciname);                    
+                    // */
+
+                    
                     
                     if(preg_match("/href=\"(.*?)\"/", $temp, $matches))$href = $matches[1];
                     else $href="";
@@ -194,7 +197,22 @@ class HydrothermalVentLarvaeAPI
             if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Species\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
             {$species = trim(strip_tags($matches[1]));}
             
+            /* from list page, not used anymore bec. it doesn't have authorship
             $sciname = $rec["sciname"];
+            */
+            
+            if(preg_match("/(.*?)(\.|, Family|Class|Order|Family)/ims", $species, $matches))
+            /* starts with any char and ends with "." or ", Family" or ... */
+            
+            
+            
+            {$sciname = trim($matches[1]);}            
+            $sciname = str_ireplace("?","",$sciname);                    
+            
+            $sciname = utf8_encode(str_ireplace("&eacute;","é",$sciname));                    
+                        
+            print"<hr>$sciname";            
+            
             $family = self::get_rank("Family",$species);
             $order = self::get_rank("Order",$species);
             $class = self::get_rank("Class",$species);
@@ -213,6 +231,18 @@ class HydrothermalVentLarvaeAPI
             /* get entire table
             $morphology = "<table border='0' cellspacing='0' cellpadding='5'>" . strip_tags($temp,"<tr><td><i>") . "</table>";
             */
+            
+            //get size section
+            $size="";
+            if(preg_match("/<td>Size(.*?)<\/td>/ims", $temp, $matches))
+            {$size = "Size " . trim($matches[1]);}
+            $size = "<table border='0' cellspacing='0' cellpadding='5'><tr><td>" . $size . "</td></tr></table>";
+            
+            //print"<hr>$size";
+            
+            //end size
+            
+            
 
             //get just Morphology section
             /* $beg='Morphology:'; $end1='</td>'; */
@@ -220,7 +250,7 @@ class HydrothermalVentLarvaeAPI
             $morphology="";
             if(preg_match("/Morphology:(.*?)<\/td>/ims", $temp, $matches))
             {$morphology = trim($matches[1]);}
-            $morphology = "<table border='0' cellspacing='0' cellpadding='5'>" . strip_tags($morphology,"<tr><td><i>") . "</table>";
+            $morphology = "<table border='0' cellspacing='0' cellpadding='5'><tr><td>" . strip_tags($morphology,"<tr><td><i>") . "</td></tr></table>";
 
             //print"<hr>morphology: [[$morphology]]";                
 
@@ -283,7 +313,10 @@ class HydrothermalVentLarvaeAPI
             $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "S.W. Mills");
             $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "S.E. Beaulieu");
             $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "L.S. Mullineaux");
+
             
+            //$arr_photos=array();//debug; use to exclude photos in harvest.
+                        
             $ctr++;
             $arr_scraped[]=array("id"=>$ctr,
                                  "sciname"=>$sciname,
@@ -293,11 +326,11 @@ class HydrothermalVentLarvaeAPI
                                  "dc_source"=>$sourceURL,
                                  "morphology"=>array("description"=>$morphology   ,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"Morphology","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
                                  "lookalikes"=>array("description"=>$confused_with,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#LookAlikes","title"=>"Can be confused with:","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
-                                 "size"      =>array("description"=>"Size: " . $rec["size"],"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
+                                 "size"      =>array("description"=>$size         ,"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
                                  "photos"=>$arr_photos
                                 );
                                 
-            
+            //old "size"      =>array("description"=>"Size: " . $rec["size"],"subject"=>"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size","title"=>"","dataType"=>"http://purl.org/dc/dcmitype/Text","dc_source"=>$sourceURL,"agent"=>$agent),
             //"photos"=>$arr_photos,
 
         }
@@ -384,12 +417,14 @@ class HydrothermalVentLarvaeAPI
         $license = null;
         
         $taxon["source"] = $rec["dc_source"];
+        
         $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
+                
         $taxon["family"] = ucfirst(trim(@$rec["family"]));
         $taxon["order"] = ucfirst(trim(@$rec["order"]));
         $taxon["class"] = ucfirst(trim(@$rec["class"]));
         //$taxon["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
-        if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", $taxon["scientificName"], $arr)) $taxon["genus"] = $arr[1];
+        if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $arr)) $taxon["genus"] = $arr[1];
         
         $arr = $rec["morphology"];
         if($arr["description"])
