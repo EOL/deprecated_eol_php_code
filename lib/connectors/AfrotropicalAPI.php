@@ -94,7 +94,7 @@ class AfrotropicalAPI
             //if($ctr == 5)break;//debug to limit the no. of records                        
             //if(trim($t_dc->identifier) != 136)continue;
             //if(trim($t_dc->identifier) != 1)continue;
-            if(trim($t_dc->identifier) != 7)continue;
+            //if(trim($t_dc->identifier) != 7)continue;
             //if(trim($t_dc->identifier) != 165)continue;
             /*
             if  (trim($t_dc->identifier) != 136 and trim($t_dc->identifier) != 1

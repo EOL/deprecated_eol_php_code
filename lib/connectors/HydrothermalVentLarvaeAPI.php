@@ -18,7 +18,7 @@ class HydrothermalVentLarvaeAPI
         {
             if($url["active"])
             {
-                $page_taxa = self::get_larvae_taxa($url["path"]);                                
+                $page_taxa = self::get_larvae_taxa($url["path"]); 
                 
                 /*debug
                 print"<hr>website: " . $url["path"] . "<br>";
