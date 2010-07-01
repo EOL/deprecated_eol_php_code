@@ -49,9 +49,8 @@ for ($i = $start; $i < $total_taxid_count; $i++)
     $taxid = $main_id_list[$i];
     //$taxid = "000464941632";//debug Acipitter
     //$taxid = "000000016023";//Agrilus planipennis Fairmaire, 1888 
-    //$taxid = "0AHCYFBQBTMT"; //Rana catesbeiana Shaw, 1802 
-    
-    $taxid = "0AHCYFBZUSBF";//debug Acipitter
+    $taxid = "0AHCYFBQBTMT"; //Rana catesbeiana Shaw, 1802     
+    //$taxid = "0AHCYFBZUSBF";//debug - select species id
 
     if($i % 10000 == 0) //working
     {   
@@ -133,17 +132,18 @@ function process($id)
 {   
     //global $OUT;        
     $file = "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=$id&version=EOL";
-    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
-    //       http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
+
+    /*    
+     0AHCYFBQBTMT -- Rana catesbeiana Shaw, 1802     
+     http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
+     000464942038 -- Acrocephalus scirpaceus (Hermann, 1804) 
+     http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000464942038&version=EOL
+     000455512059 -- Vipera berus LINNAEUS 1758 
+     http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000455512059&version=EOL
+    */            
     
-    //print"<hr><a href='$file'>$file</a>";
+    //print"<hr><a href='$file'>$file</a>";   
     
-    
-    /*
-    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBQBTMT&version=EOL
-    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=000457094381&version=EOL    
-    http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&cid=0AHCYFBZUSBF&version=EOL
-    */    
 
     //start process reference
         $ref="";
