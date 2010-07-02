@@ -211,7 +211,7 @@ class HydrothermalVentLarvaeAPI
             
             $sciname = utf8_encode(str_ireplace("&eacute;","é",$sciname));                    
                         
-            print"<hr>$sciname";            
+            //print"<hr>$sciname";            
             
             $family = self::get_rank("Family",$species);
             $order = self::get_rank("Order",$species);
@@ -262,15 +262,18 @@ class HydrothermalVentLarvaeAPI
             
             $photos="";
             if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Photos\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
-            {$photos = $matches[1];}            
+            {$photos_main = $matches[1];}            
 
             //print"<hr>photos: [[$photos]]<Br>"; exit;
             //http://www.whoi.edu/vent-larval-id/Images/Bathymargarites_symplector-1_web.jpg
             //http://www.whoi.edu/vent-larval-id/Images/Benthic_unknown_A_SEM_web.gif            
             
-            $photos = str_ireplace('src="' , '&arr[]=', $photos);	
-            $arr = array(); parse_str($photos);	    
+            
+            $photos = str_ireplace('src="' , '&arr[]=', $photos_main);       $arr = array();     parse_str($photos);	    
+            $photos2 = str_ireplace('onClick="' , '&arr2[]=', $photos_main); $arr2 = array();    parse_str($photos2);	    
+            
             $arr_photos=array();
+            $i=0;
             foreach($arr as $r)
             {            
                 //splits the string with "
@@ -279,12 +282,20 @@ class HydrothermalVentLarvaeAPI
                 if($keywords[0])
                 { 
                     $img = trim($keywords[0]);
+                    //print"<br>[$img]";
+                    
+                    /*
                     if(substr($img,strlen($img)-3,3)=="gif")$mimeType="image/gif";
-                    if(substr($img,strlen($img)-3,3)=="jpg")$mimeType="image/jpeg";                    
+                    if(substr($img,strlen($img)-3,3)=="jpg")$mimeType="image/jpeg";
+                    */
+                    if(is_numeric(stripos($img,".gif")))$mimeType="image/gif";
+                    if(is_numeric(stripos($img,".jpg")))$mimeType="image/jpeg";                    
                     
                     $agent=array();
-                    if(is_numeric(stripos($img,"_SEM_")))
+                    //if(is_numeric(stripos($img,"_SEM_")))
+                    if(is_numeric(stripos(@$arr2[$i],"_SEM_")))
                     {                        
+                         //print" --- [$img]";
                          $agent[]=array("role" => "photographer" , "homepage" => "http://www.whoi.edu/" , "name" => "Susan Mills");
                          $agent[]=array("role" => "photographer" , "homepage" => "http://www.whoi.edu/" , "name" => "Diane Adams");
                     }
@@ -292,6 +303,7 @@ class HydrothermalVentLarvaeAPI
                     $arr_photos[] = array("mediaURL"=>IMAGE_URL . $keywords[0],"mimeType"=>$mimeType,"dataType"=>"http://purl.org/dc/dcmitype/StillImage","description"=>$morphology,"dc_source"=>$sourceURL,"agent"=>$agent);
                 }
                 //print $keywords[0] . "<hr>";
+                $i++;
             }
             //print"<pre>";print_r($arr_photos);print"</pre>"; //debug            
             //end photos
