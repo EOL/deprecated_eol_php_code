@@ -1,6 +1,6 @@
 <?php
 /* connector for Hydrothermal Vent Larvae
-estimated execution time: 20-25 seconds
+estimated execution time: 16-20 seconds
 Connector screen scrapes the partner website.
 */
 
