@@ -1,131 +1,265 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	This defines the extension for defining EOL data objects as extensions to a Taxon core object	
+	This defines the extension for defining EOL data objects as extensions to a Taxon core object.
+    
+    This will be used by EOL content partners who will use the IPT to export their data to a format
+    that can be ingested into EOL.    
 -->
 <extension 	xmlns="http://ipt.gbif.org/extension/"
     		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    		xsi:schemaLocation="http://ipt.gbif.org/extension/ http://gbrds.gbif.org/resources/schemas/extension.xsd" 
-    
+    		xsi:schemaLocation="http://ipt.gbif.org/extension/ http://gbrds.gbif.org/resources/schemas/extension.xsd"     
 			title="EOL Data Object ver. 1" 			
 			name="EOL_DataObject" 			
 			namespace="http://www.eol.org/transfer/content/0.1/">
 			
-
-    <property 	name="ScientificName" 
-				namespace="http://rs.tdwg.org/dwc/dwcore/" 
-				qualName="http://rs.tdwg.org/dwc/dwcore/ScientificName"
+    <!--
+    The full name of the lowest level taxon to which the organism has been identified in the most recent 
+    accepted determination, specified as precisely as possible, including name-author, year or authorship, sensu or sec. 
+    (according to or following) author, and indication of uncertainty. Conceptually equivalent to a full taxonomic 
+    identification as given by the identifier (verbatim). Does not include the identifier name or date of identification.
+    -->
+    <property 	name="scientificName" 
+                namespace="http://rs.tdwg.org/dwc/terms/" 
+				qualName="http://rs.tdwg.org/dwc/terms/scientificName"				
 				required="true"/>
 
-    <property 	name="TaxonID" 
+
+    <!--
+    An identifier for the set of taxon information (data associated with the Taxon class). 
+    May be a global unique identifier or an identifier specific to the data set.
+    -->
+    <property 	name="taxonID" 
 				namespace="http://rs.tdwg.org/dwc/terms/" 
-				qualName="http://rs.tdwg.org/dwc/terms/TaxonID"				
+				qualName="http://rs.tdwg.org/dwc/terms/taxonID"				
 				required="true"/>
 
+    <!--
+    Recommended to use a globally unique identifier to unambiguously refer to the taxon.
+    e.g. FB-DiagnosticDescr-69
+    -->
     <property 	name="identifier" 
 				namespace="http://purl.org/dc/elements/1.1/" 
 				qualName="http://purl.org/dc/elements/1.1/identifier"
 				required="true"/>
 				
+    <!--
+    Describes the nature of the resource using the DCMI Type vocabulary.
+    Suggested to be anyone of these:
+        http://purl.org/dc/dcmitype/MovingImage
+        http://purl.org/dc/dcmitype/Sound
+        http://purl.org/dc/dcmitype/StillImage
+        http://purl.org/dc/dcmitype/Text
+    -->
     <property 	name="dataType" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/dataType"
 				required="true"/>
 
+    <!--
+    Describes the file format of the resource. Recommended for use with media resources, but not needed for text descriptions.
+    Suggested to be anyone of these: 
+            application/pdf, audio/mpeg, audio/x-ms-wma, audio/x-pn-realaudio, 
+            audio/x-realaudio, audio/x-wav, image/bmp, image/gif, image/jpeg, image/png, 
+            image/svg+xml, image/tiff, text/html, text/plain, text/richtext, text/rtf, 
+            text/xml, video/mp4, video/mpeg, video/quicktime, video/x-flv, video/x-ms-wmv
+    -->
     <property 	name="mimeType" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/mimeType"
 				required="true"/>
 
+    <!--
+    Examples of an agent include a person, organization, and software agent which has contributed to the creation of the resource. 
+    Strongly recommended to include the role the agent played in the creation of the resource.
+    e.g. Rainer Froese
+    -->
     <property 	name="agent" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/agent"/>
 				
+            <!--
+            e.g. http://filaman.uni-kiel.de/ifm-geomar/rfroese/#
+            -->
 		    <property 	name="agent_homepage" 
 						namespace="http://www.eol.org/transfer/content/0.1/" 
 						qualName="http://www.eol.org/transfer/content/0.1/agent_homepage"/>
+            <!--
+            e.g. http://www.fishbase.org/images/gifs/fblogo_new.gif
+            -->
 		    <property 	name="agent_logoURL" 
 						namespace="http://www.eol.org/transfer/content/0.1/" 
 						qualName="http://www.eol.org/transfer/content/0.1/agent_logoURL"/>
+            <!--
+            Suggested to be anyone of these: animator, author, compiler, composer, creator, director, editor, illustrator, 
+            photographer, project, provider, publisher, recorder, source.
+            -->
 		    <property 	name="agent_role" 
 						namespace="http://www.eol.org/transfer/content/0.1/" 
 						qualName="http://www.eol.org/transfer/content/0.1/agent_role"/>
 				
 
+    <!--
+    Date of creation of the resource.
+    e.g. 1992-04-03 00:00:00
+    -->
     <property 	name="created" 
 				namespace="http://purl.org/dc/terms/" 
 				qualName ="http://purl.org/dc/terms/created"/>
 
+    <!--
+    Date on which the resource was changed.
+    e.g. 2009-06-04 09:27:41
+    -->
     <property 	name="modified" 
 				namespace="http://purl.org/dc/terms/" 
 				qualName ="http://purl.org/dc/terms/modified"/>
 
+    <!--
+    A name given to the resource. Recommended for use with all text descriptions as well as sound and video media. 
+    Detailed captions for media should be included in the description element below.
+    e.g. Environment
+    -->
     <property 	name="title" 
 				namespace="http://purl.org/dc/elements/1.1/" 
 				qualName="http://purl.org/dc/elements/1.1/title"/>
 
+    <!--
+    Primary language of the resource. Recommended to use ISO 639-2 or ISO 639-1 codes for languages. 
+    See http://www.loc.gov/standards/iso639-2/php/code_list.php for more information on these language standards.
+    e.g. en
+    -->
     <property 	name="language" 
 				namespace="http://purl.org/dc/elements/1.1/" 
 				qualName="http://purl.org/dc/elements/1.1/language"/>
 
+    <!--
+    License under which the resource is provided. To the greatest extent possible, the Encyclopedia of Life promotes an 
+    open-source, open-access approach.
+    e.g. http://creativecommons.org/licenses/by-nc/3.0/
+    -->
     <property 	name="license" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/license"/>
 
+    <!--
+    Statement of rights associated with the resource. Creative Commons licenses require the resource to be attributed 
+    "in the manner specified by the author or licensor", and this is where that should be specified.
+    e.g. Image can be freely copied and altered, as long as original author and source are properly acknowledged.
+    -->
     <property 	name="rights" 
 				namespace="http://purl.org/dc/elements/1.1/" 
 				qualName="http://purl.org/dc/elements/1.1/rights"/>
 
+    <!--
+    A person or organization owning or managing rights over the resource.
+    e.g. WorldFish Center - FishBase
+    -->
     <property 	name="rightsHolder" 
 				namespace="http://purl.org/dc/terms/" 
 				qualName ="http://purl.org/dc/terms/rightsHolder"/>
 
+    <!--
+    A bibliographic reference for the resource. Sufficient bibliographic detail should be included to identify 
+    the resources as unambiguously as possible.
+    e.g. Holman, Harriet R. "Page, Thomas Nelson." Collier's Encyclopedia. 1987 ed.
+    -->
     <property 	name="bibliographicCitation" 
 				namespace="http://purl.org/dc/terms/" 
 				qualName ="http://purl.org/dc/terms/bibliographicCitation"/>
 
+    <!--
+    A class of entity for whom the resource is intended or useful.
+    Suggested to be anyone of these: Children, General public, Expert users
+    -->
     <property 	name="audience" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/audience"/>
 
+    <!--
+    The URL of a web page which describes the resource.
+    e.g. http://www.fishbase.org/summary/SpeciesSummary.php?id=69
+    -->
     <property 	name="source" 
 				namespace="http://purl.org/dc/elements/1.1/" 
 				qualName="http://purl.org/dc/elements/1.1/source"/>
 
+    <!--
+    The topic of the resource. Suggested to be any of the available categories in 
+    the SpeciesProfileModel (SPM) - http://rs.tdwg.org/ontology/voc/SPMInfoItems
+    e.g. http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription
+    -->
     <property 	name="subject" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/subject"/>
-				
+
+
+    <!--
+    An account of the resource. For text descriptions, the entire account should be located here. 
+    For media resources, captions should be included here. Recommended to remove all embedded HTML tags 
+    and include only plain text.
+    e.g.     
+        Color varies from brownish to greenish or gray dorsally and on upper sides, becoming pale and silvery ventrally. Lateral line light, curving upward to above the pectoral fin. Predorsal distance less than 1/3 of total length, body depth about 1/5 of total length. Peritoneum silvery.    
+    -->
     <property 	name="description" 
 				namespace="http://purl.org/dc/elements/1.1/" 
 				qualName="http://purl.org/dc/elements/1.1/description"
 				required="true"/>
 				
+
+    <!--
+    A URL reference directly to the media resource.
+    e.g. http://www.fishbase.us/images/species/Gamor_u0.gif
+    -->
     <property 	name="mediaURL" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/mediaURL"/>
 				
+    <!--
+    A URL reference directly to a thumbnail image associated with the media resource.
+    e.g. http://www.fishbase.us/images/thumbnails/gif/tn_Gamor_u0.gif
+    -->
     <property 	name="thumbnailURL" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/thumbnailURL"/>
 				
-    <property 	name="location" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/location"/>
-				
+    <!--
+    Natural language description of the locality where the resource was collected or created. Not recommended for use 
+    with text descriptions.
+    e.g. Hawaii (USA), Waianae
+    -->
+    <property 	name="locality" 
+                namespace="http://rs.tdwg.org/dwc/terms/" 
+				qualName="http://rs.tdwg.org/dwc/terms/locality"/>
 
+    <!--
+    Location of the entity in decimal WGS84 latitude and longitude (and optional altitude) as defined by 
+    the W3C Basic Geo Vocabulary. See http://www.w3.org/2003/01/geo/ for more information on this standard.
+    e.g. 55.701,12.552
+    -->
     <property 	name="lat_long" 
 				namespace="http://www.w3.org/2003/01/geo/wgs84_pos#" 
 				qualName="http://www.w3.org/2003/01/geo/wgs84_pos#/lat_long"/>				
-
-
+                
+                
+    <!--
+    A related resource that is referenced, cited, or otherwise pointed to by the described resource. 
+    Recommended to use well-formed bibliographic citations. Strongly recommended to include identifiers which unambiguously 
+    refer to the specified resource when available.
+    e.g. Muus, B.J. and J.G. Nielsen0 Sea fish. Scandinavian Fishing Year Book, Hedehusene, Denmark. 340 p.
+    -->
     <property 	name="reference" 
 				namespace="http://www.eol.org/transfer/content/0.1/" 
 				qualName="http://www.eol.org/transfer/content/0.1/reference"/>
 				
-
+            <!--
+            A Digital Object Identifier (DOI), if available.
+            -->
 		    <property 	name="reference_doi" 
 						namespace="http://www.eol.org/transfer/content/0.1/" 
 						qualName="http://www.eol.org/transfer/content/0.1/reference_doi"/>
+            <!--
+            e.g. http://www.fishbase.org/references/FBRefSummary.php?id=52093&speccode=69
+            -->
 		    <property 	name="reference_url" 
 						namespace="http://www.eol.org/transfer/content/0.1/" 
 						qualName="http://www.eol.org/transfer/content/0.1/reference_url"/>

@@ -8,6 +8,6 @@
 	{"title":"Multimedia","url":"http://gbrds.gbif.org/resources/extensions/multimedia.xml","id":6},
 	{"title":"Resource Relationship","url":"http://gbrds.gbif.org/resources/extensions/resourceRelationship.xml","id":7},
 	{"title":"Sample Attribute","url":"http://gbrds.gbif.org/resources/extensions/sampleAttribute.xml","id":8},
-	{"title":"EOL dataobject","url":"http://services.eol.org/ipt/EOLdataobject.xml","id":9}
+	{"title":"EOL dataobject","url":"http://services.eol.org/IPT/EOLdataobject.xml","id":9}
 	]
 }
