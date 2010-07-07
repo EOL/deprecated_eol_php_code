@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	This defines the extension for defining EOL data objects as extensions to a Taxon core object.
+    This defines the extension for defining EOL data objects as extensions to a Taxon core object.
     
     This will be used by EOL content partners who will use the IPT to export their data to a format
     that can be ingested into EOL.    
