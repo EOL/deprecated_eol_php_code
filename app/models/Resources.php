@@ -210,7 +210,7 @@ class Resource extends MysqlBase
     
     public function unpublish_hierarchy_entries()
     {
-        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=0 WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
+        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=".Visibility::find('invisible')." WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
     }
     
     public function unpublish_taxon_concepts()
