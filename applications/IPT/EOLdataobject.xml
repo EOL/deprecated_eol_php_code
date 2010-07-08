@@ -12,30 +12,10 @@
 			name="EOL_DataObject" 			
 			namespace="http://www.eol.org/transfer/content/0.1/">
 			
-    <!--
-    The full name of the lowest level taxon to which the organism has been identified in the most recent 
-    accepted determination, specified as precisely as possible, including name-author, year or authorship, sensu or sec. 
-    (according to or following) author, and indication of uncertainty. Conceptually equivalent to a full taxonomic 
-    identification as given by the identifier (verbatim). Does not include the identifier name or date of identification.
-    -->
-    <property 	name="scientificName" 
-                namespace="http://rs.tdwg.org/dwc/terms/" 
-				qualName="http://rs.tdwg.org/dwc/terms/scientificName"				
-				required="true"/>
 
-
-    <!--
-    An identifier for the set of taxon information (data associated with the Taxon class). 
-    May be a global unique identifier or an identifier specific to the data set.
-    -->
-    <property 	name="taxonID" 
-				namespace="http://rs.tdwg.org/dwc/terms/" 
-				qualName="http://rs.tdwg.org/dwc/terms/taxonID"				
-				required="true"/>
-
-    <!--
-    Recommended to use a globally unique identifier to unambiguously refer to the taxon.
-    e.g. FB-DiagnosticDescr-69
+    <!-- 
+    Recommended to use a globally unique identifier to unambiguously refer to the resource.
+    e.g. FB-DiagnosticDescr-69 
     -->
     <property 	name="identifier" 
 				namespace="http://purl.org/dc/elements/1.1/" 
