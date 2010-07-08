@@ -109,22 +109,18 @@ chxr=0,100,500|
 function get_comma_separated($arr,$sep)
 {
     $str="";
-    //for ($i = 0; $i < count($arr); $i++) 
     
-    if($sep != "|")
-    {
-        for ($i = 0; $i < 226; $i=$i+2) 
-        {	
-            if(@$arr[$i]) $str .= "$arr[$i]$sep";
-        }
+    
+
+    //for ($i = 0; $i < 226; $i=$i+2) 
+    for ($i = 0; $i < count($arr); $i++) 
+    {	
+        if(@$arr[$i]) $str .= "$arr[$i]$sep";
+        if($sep == ",")$i++; //if x-series then graph every other day.
     }
-    else
-    { 
-        for ($i = 0; $i < count($arr); $i++) 
-        {	
-            if(@$arr[$i]) $str .= "$arr[$i]$sep";
-        }
-    }    
+
+
+
     $str=trim($str);
     $str=substr($str,0,strlen($str)-1); //removes the last comma (,)
     
