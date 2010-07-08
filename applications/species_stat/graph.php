@@ -34,11 +34,23 @@ function get_graph($title)
     $step=5;
     if(max($arr) - min($arr) > 10)$step=10;
     if(max($arr) - min($arr) > 100)$step=100;
-    if(max($arr) - min($arr) > 1000)$step=1000;
+    if(max($arr) - min($arr) > 1000)$step=1000;    
+    if(max($arr) - min($arr) > 10000)$step=10000;
+    if(max($arr) - min($arr) > 100000)$step=100000;
+    if(max($arr) - min($arr) > 1000000)$step=1000000;
+    if(max($arr) - min($arr) > 10000000)$step=10000000;
+    if(max($arr) - min($arr) > 100000000)$step=100000000;
     
-    
-    $range1 = min($arr)-$step;
-    $range2 = max($arr)+$step;
+    if($title == "xxx Total number of pages with names from CoL")
+    {
+        $range1 = 0;
+        $range2 = 3000000;
+    }
+    else
+    {
+        $range1 = min($arr)-$step;
+        $range2 = max($arr)+$step;
+    }
     $arr = get_values_fromCSV("date");
     $date_comma_separated = get_comma_separated($arr,"|");
     //print "$comma_separated <hr> $date_comma_separated <hr>";
@@ -47,7 +59,7 @@ function get_graph($title)
     if($title=="Taxa pages")$title = "LifeDesk Stats: " . $title;
     if($title=="Data objects")$title = "LifeDesk Stats: " . $title;
 
-    /* debug
+     /* debug
     print"<hr>
     range1,range2<br>
     $range1,$range2
@@ -58,7 +70,7 @@ function get_graph($title)
     <hr>
     date_comma_sep: $date_comma_separated    
     <hr>";
-    */
+     */
     
     return "<img src='http://chart.apis.google.com/chart?chs=700x300&amp;chxt=y&amp;chxr=0,$range1,$range2&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt=''/>
     <p><a style='font-size : x-small; font-family : Arial;' href='javascript:history.go(-1)'>&lt;&lt; Back</a>";    
@@ -97,7 +109,7 @@ function get_comma_separated($arr,$sep)
 {
     $str="";
     //for ($i = 0; $i < count($arr); $i++) 
-    for ($i = 0; $i < 233; $i++) 
+    for ($i = 0; $i < 230; $i++) 
     {	
         if(@$arr[$i]) $str .= "$arr[$i]$sep";
     }
