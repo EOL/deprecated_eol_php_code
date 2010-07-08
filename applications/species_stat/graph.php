@@ -41,16 +41,17 @@ function get_graph($title)
     if(max($arr) - min($arr) > 10000000)$step=10000000;
     if(max($arr) - min($arr) > 100000000)$step=100000000;
     
-    if($title == "xxx Total number of pages with names from CoL")
-    {
-        $range1 = 0;
-        $range2 = 3000000;
-    }
-    else
-    {
+    //if($title == "Total number of pages with names from CoL")
+    //{
+    //    $range1 = 0;
+    //    $range2 = 3000000;
+    //}
+    //else
+    //{
         $range1 = min($arr)-$step;
         $range2 = max($arr)+$step;
-    }
+    //}
+    
     $arr = get_values_fromCSV("date");
     $date_comma_separated = get_comma_separated($arr,"|");
     //print "$comma_separated <hr> $date_comma_separated <hr>";
@@ -109,7 +110,7 @@ function get_comma_separated($arr,$sep)
 {
     $str="";
     //for ($i = 0; $i < count($arr); $i++) 
-    for ($i = 0; $i < 230; $i++) 
+    for ($i = 0; $i < 226; $i++) 
     {	
         if(@$arr[$i]) $str .= "$arr[$i]$sep";
     }
