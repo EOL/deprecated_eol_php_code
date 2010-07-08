@@ -110,10 +110,21 @@ function get_comma_separated($arr,$sep)
 {
     $str="";
     //for ($i = 0; $i < count($arr); $i++) 
-    for ($i = 0; $i < 226; $i++) 
-    {	
-        if(@$arr[$i]) $str .= "$arr[$i]$sep";
+    
+    if($sep != "|")
+    {
+        for ($i = 0; $i < 226; $i=$i+2) 
+        {	
+            if(@$arr[$i]) $str .= "$arr[$i]$sep";
+        }
     }
+    else
+    { 
+        for ($i = 0; $i < count($arr); $i++) 
+        {	
+            if(@$arr[$i]) $str .= "$arr[$i]$sep";
+        }
+    }    
     $str=trim($str);
     $str=substr($str,0,strlen($str)-1); //removes the last comma (,)
     
