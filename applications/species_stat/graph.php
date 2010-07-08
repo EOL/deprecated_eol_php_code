@@ -46,6 +46,19 @@ function get_graph($title)
         
     if($title=="Taxa pages")$title = "LifeDesk Stats: " . $title;
     if($title=="Data objects")$title = "LifeDesk Stats: " . $title;
+
+    /* debug
+    print"<hr>
+    range1,range2<br>
+    $range1,$range2
+    <hr>
+    title: $title
+    <hr>
+    comma_separated: $comma_separated
+    <hr>
+    date_comma_sep: $date_comma_separated    
+    <hr>";
+    */
     
     return "<img src='http://chart.apis.google.com/chart?chs=700x300&amp;chxt=y&amp;chxr=0,$range1,$range2&amp;chtt=$title&amp;cht=lc&amp;chd=t:$comma_separated&amp;chds=$range1,$range2&amp;chl=$date_comma_separated' alt=''/>
     <p><a style='font-size : x-small; font-family : Arial;' href='javascript:history.go(-1)'>&lt;&lt; Back</a>";    
@@ -83,9 +96,10 @@ chxr=0,100,500|
 function get_comma_separated($arr,$sep)
 {
     $str="";
-    for ($i = 0; $i < count($arr); $i++) 
+    //for ($i = 0; $i < count($arr); $i++) 
+    for ($i = 0; $i < 233; $i++) 
     {	
-        $str .= "$arr[$i]$sep";
+        if(@$arr[$i]) $str .= "$arr[$i]$sep";
     }
     $str=trim($str);
     $str=substr($str,0,strlen($str)-1); //removes the last comma (,)
