@@ -58,6 +58,7 @@ class TopImages
                     AND he.hierarchy_id!=129
                     AND do.data_type_id=$image_type_id
                     AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")
+                    AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")
                     ORDER BY he.id");
             echo "Memory: ".memory_get_usage()."\n";
             
@@ -102,7 +103,8 @@ class TopImages
                 JOIN data_objects do ON (ti.data_object_id=do.id)
                 WHERE he.id IN (". implode($chunk, ",") .")
                 AND do.data_type_id=$image_type_id
-                AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible')."))
+                AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")
+                AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview')."))
             UNION
             (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
                 FROM hierarchy_entries he
@@ -111,7 +113,8 @@ class TopImages
                 JOIN data_objects do ON (ti.data_object_id=do.id)
                 WHERE he.id IN (". implode($chunk, ",") .")
                 AND do.data_type_id=$image_type_id
-                AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible')."))
+                AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")
+                AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview')."))
             ORDER BY hierarchy_entry_id");
             echo "Memory: ".memory_get_usage()."\n";
             
