@@ -56,6 +56,7 @@ class TopImages
                     AND he.hierarchy_id!=105
                     AND he.hierarchy_id!=106
                     AND he.hierarchy_id!=129
+                    AND he.hierarchy_id!=394
                     AND do.data_type_id=$image_type_id
                     AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")
                     AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")

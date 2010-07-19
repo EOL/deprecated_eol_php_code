@@ -132,13 +132,14 @@ class Functions
             $attempts++;
         }
         unset($context);
+        debug("received file");
         
         return $file;
     }
     
     public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
-        debug("Grabbing $remote_url: attempt 1");
+        debug("Grabbing $remote_url: attempt 1: waiting $download_wait_time");
         
         $file = @self::fake_user_agent_http_get($remote_url);
         usleep($download_wait_time);
@@ -152,6 +153,8 @@ class Functions
             usleep($download_wait_time);
             $attempts++;
         }
+        debug("received file");
+        
         return $file;
     }
     

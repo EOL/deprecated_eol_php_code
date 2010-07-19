@@ -1,6 +1,6 @@
 <?php
 
-define("DOWNLOAD_WAIT_TIME", "500000");
+define("DOWNLOAD_WAIT_TIME", "4000000");
 include_once(dirname(__FILE__) . "/../../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
