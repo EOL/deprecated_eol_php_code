@@ -5,8 +5,8 @@ define("VIEW_URL", "http://photosynth.net/view.aspx?cid=");
 define("COLLECTION_URL", "http://photosynth.net/view.aspx?cid=");
 define("USER_URL", "http://photosynth.net/userprofilepage.aspx?user=");
 
-define("TAG_SEARCHED", "erja family");
-//define("TAG_SEARCHED", "eol");
+//define("TAG_SEARCHED", "erja family");
+define("TAG_SEARCHED", "encyclopedia of life");
 
 class PhotosynthAPI
 {
@@ -26,7 +26,7 @@ class PhotosynthAPI
             $total_pages = ceil($total / 100);
             for($i=0 ; $i<$total_pages ; $i++)
             {
-                echo "getting page $i\n";
+                //echo "getting page $i\n";
                 $page_taxa = self::get_photosynth_taxa($per_page, $i);
                 
                 if($page_taxa)
@@ -95,18 +95,37 @@ class PhotosynthAPI
         if(@!$temp_params["scientificName"] && @$taxon["trinomial"]) $taxon["scientificName"] = $taxon["trinomial"];
         if(@!$temp_params["scientificName"] && @$taxon["genus"] && @$taxon["species"] && !preg_match("/ /", $taxon["genus"]) && !preg_match("/ /", $taxon["species"])) $taxon["scientificName"] = $taxon["genus"]." ".$taxon["species"];
         if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", $taxon["scientificName"], $arr)) $taxon["genus"] = $arr[1];
-        if(@!$taxon["scientificName"] && @!$taxon["genus"] && @!$taxon["family"] && @!$taxon["order"] && @!$taxon["class"] && @!$taxon["phylum"] && @!$taxon["kingdom"]) return false;
+        if(@!$taxon["scientificName"] && @!$taxon["genus"] && @!$taxon["family"] && @!$taxon["order"] && @!$taxon["class"] && @!$taxon["phylum"] && @!$taxon["kingdom"]) return false;        
         
-        
+        /*working but weird 1st line using array()
         $data_object = array(self::get_data_object($synth, $license));
         if(!$data_object) return false;
-        $taxon["dataObjects"] = $data_object;
+        $taxon["dataObjects"] = $data_object;        
+        */
+        
+        /* to be used if you want to get only 1 image
+        $data_object = self::get_data_object($synth, $license);
+        if(!$data_object) return false;
+        $taxon["dataObjects"][] = $data_object;        
+        */
+
+        if(!($xml = @simplexml_load_file($synth->CollectionUrl))) return;
+        $ctr=0;
+        foreach($xml->Items->I as $rec)
+        {           
+            $mediaURL = str_ireplace('.dzi' , '_files/thumb.jpg', @$rec["Source"]);
+            $ctr++;
+            $data_object = self::get_data_object($synth, $license, $mediaURL, $ctr);
+            //print"<br>" . $synth->Id;
+            if(!$data_object) return false;
+            $taxon["dataObjects"][] = $data_object;        
+        }     
         
         $taxon_object = new SchemaTaxon($taxon);
         return $taxon_object;
     }
     
-    public static function get_data_object($synth, $license)
+    public static function get_data_object($synth, $license, $mediaURL, $ctr)
     {
         switch($license)
         {
@@ -129,13 +148,35 @@ class PhotosynthAPI
               return false;
         }
         $data_object_parameters = array();
-        $data_object_parameters["identifier"] = $synth->Id;
+        $data_object_parameters["identifier"] = $synth->Id . "_" . $ctr;
+        
+        // /*
         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
         $data_object_parameters["mimeType"] = "image/jpeg";
-        $data_object_parameters["title"] = $synth->Name;
-        $data_object_parameters["description"] = $synth->Description;
-        $data_object_parameters["mediaURL"] = $synth->CollectionUrl;
+        // */
+        
+        /*
+        $data_object_parameters["dataType"] = "Photosynth";
+        $data_object_parameters["mimeType"] = "application/x-silverlight-app";
+        */        
+        
+        $data_object_parameters["title"] = $synth->Name;        
+        if($synth->Description == "") $description = "<a href='$synth->CollectionUrl'>Images collection</a>";  
+        else                          $description = $synth->Description 
+            . "<br><a target='$synth->Id' href='" . COLLECTION_URL . $synth->Id . "'>Photosynth</a>"
+            . "<br><a target='dzc' href='$synth->CollectionUrl'>Images collection</a>";  
+            
+        $data_object_parameters["description"] = $description;
+        
+        /* to be used if you want to get only 1 image
+        $mediaURL = self::get_mediaURL($synth->CollectionUrl);    
+        */        
+        $data_object_parameters["mediaURL"] = $mediaURL;
+
+        /*not needed anymore
         $data_object_parameters["thumbnailURL"] = $synth->ThumbnailUrl;
+        */
+
         $data_object_parameters["source"] = COLLECTION_URL . $synth->Id;
         $data_object_parameters["license"] = $license;
         
@@ -147,6 +188,21 @@ class PhotosynthAPI
         $data_object_parameters["agents"][] = new SchemaAgent($agent_parameters);
         
         return new SchemaDataObject($data_object_parameters);
+    }
+    
+    public function get_mediaURL($url)
+    {
+        if(!($xml = @simplexml_load_file($url)))
+        {
+            print "\n <a href='$url'>$url</a> not accessible";
+            return;
+        }                
+        foreach($xml->Items->I as $rec)
+        {           
+            //print "<br>" . @$rec["Source"];
+            $mediaURL = str_ireplace('.dzi' , '_files/thumb.jpg', @$rec["Source"]);
+        }     
+        return $mediaURL;   
     }
     
     public function get_synth_tags($synth)
