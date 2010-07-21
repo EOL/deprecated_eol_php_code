@@ -1,5 +1,5 @@
 <?php
-//exit;
+exit;
 /* connector for Photosynth
 estimated execution time: 
 

@@ -1,5 +1,5 @@
 <?php
-//exit;
+exit;
 /*connector for WORMS
 
 start: Fri Jul 16 11:25AM
