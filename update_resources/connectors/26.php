@@ -1,6 +1,10 @@
 <?php
-exit;
+//exit;
 /*connector for WORMS
+
+start: Fri Jul 16 11:25AM
+end: Wed Jul 21 04:00PM
+
 estimated execution time: 112 hours
 
 Partner provides a list of their species ID's in multiple XML services. They also provided individual 
@@ -12,12 +16,17 @@ This can run on Eli's PC and just move the resource 26.xml to Beast.
 */
 $timestart = microtime(1);
 
-/*  date        ID's    bad ID's    not well formed xml
+/*  date        ID's    bad ID's    time completed
     2010-Jan-11 160115  97    
-    2010-Mar-02 137794  59          241953,139430,139596,372873,131521      
-    2010-Mar-15 167902  3679        231158,148063,148064,148077,148078,156362,156373,156391,156287,156298,156312,156323,156337,156292,156294,156309,156311,122651,156284,156301,156302,156319,156320,117650,117716,326256,326413,281017,281019,281034,281036,281051,281053,281068,281070,281083,281085,281100,281102,281117,281119,281134,281136,281151,281153,
-                                    281168,281170,281185,281187,281200,281202,281217,281219,281234,281236,281251,281253,278279,276839,218246,101138,448731,
-    2010-May-24         7986
+    2010-Mar-02 137794  59          
+    2010-Mar-15 167902  3679                                            
+    2010-May-24         7986        112 hrs
+    2010-Jul-21 188328  6845        123 hrs
+
+not well-formed XML = 102320,102337,102338,102352,102355,102369,102370,102387,102388,102419,102420,
+102437,102438,102452,102455,102469,102470,142868,145997,100558,371481,371483,371532,371534,371549,
+372454,372467,372469,372484,371650,371665,368300,368257,368259,368272,368274,368289,368291,279034,
+385873,385888,385890,386283,386297,386298,438235,438237,438014,438016,438050,438080,437694,437719
         
 http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=231158    
 
@@ -28,7 +37,7 @@ http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=231158
 2010    9572         
 */
 
-//exit;
+
 $GLOBALS['ENV_NAME'] = "slave_215";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -55,7 +64,6 @@ $main_id_list = array();
 $main_id_list = get_main_id_list();
 $total_taxid_count = count($main_id_list);
 echo "\n total taxid count = " . $total_taxid_count . "\n\n";;
-//exit;
 //====================================================================================
 $i=1;
 $bad=0;
@@ -197,7 +205,8 @@ function process($id)
 function get_main_id_list()
 {
     $url=array();
-
+    
+    // /* comment this when debugging
     $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2009.xml";    
@@ -229,9 +238,16 @@ function get_main_id_list()
     $url[]="http://127.0.0.1/mtce/WORMS/20100519/id/2009.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100519/id/2010.xml";    
 
+    $url[]="http://127.0.0.1/mtce/WORMS/20100716/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100716/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100716/id/2009.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100716/id/2010.xml";    
+
     // */
     
-    //$url[]="http://127.0.0.1/mtce/WORMS/20100104/test.xml";    
+    /* for testing
+    $url[]="http://127.0.0.1/mtce/WORMS/20100104/test.xml";    
+    */
 
     /* WORMS server can't render such requests online
     $url[]="http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=19960101&enddate=20071231";

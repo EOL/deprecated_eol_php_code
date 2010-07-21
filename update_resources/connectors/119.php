@@ -1,5 +1,5 @@
 <?php
-exit;
+//exit;
 /* connector for Photosynth
 estimated execution time: 
 
@@ -20,6 +20,6 @@ $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
 fclose($OUT);
 
-echo "time: ". Functions::time_elapsed()."\n";
+echo "\n time: ". Functions::time_elapsed();
 
 ?>
