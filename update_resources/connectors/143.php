@@ -4,7 +4,7 @@ estimated execution time: 26 mins.
 
 Connector screen scrapes the partner website.
 */
-//exit;
+exit; 
 
 $timestart = microtime(1);
 
@@ -15,7 +15,7 @@ $wrap = "\n";
 //$wrap = "<br>"; 
  
 //$resource = new Resource(2); //exit($resource->id);
-$resource_id = 888;
+$resource_id = 143;
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -43,9 +43,12 @@ $urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"      
 
                15 => array( "url" => "http://www.flowervisitors.info/files/family_names.htm"   , "active" => 0),
                16 => array( "url" => "http://www.flowervisitors.info/files/common_names.htm"   , "active" => 0)               
-               
-               
              );
+             /*
+             enabling 15 and 16 somehow will remove some taxa with gen desc.
+             need to investigate this later.
+             */
+             
 
 //$arr_name = array();
 $i=0;

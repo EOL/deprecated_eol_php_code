@@ -1,9 +1,10 @@
 <?php
-exit;
+exit; 
 /*connector for WORMS
 
 start: Fri Jul 16 11:25AM
 end: Wed Jul 21 04:00PM
+
 
 estimated execution time: 112 hours
 
@@ -16,12 +17,13 @@ This can run on Eli's PC and just move the resource 26.xml to Beast.
 */
 $timestart = microtime(1);
 
-/*  date        ID's    bad ID's    time completed
-    2010-Jan-11 160115  97    
-    2010-Mar-02 137794  59          
-    2010-Mar-15 167902  3679                                            
-    2010-May-24         7986        112 hrs
-    2010-Jul-21 188328  6845        123 hrs
+/*  connector start     connector end           ID's    bad ID's    connector completed     published in eol.org
+                        2010-Jan-11             160115  97    
+                        2010-Mar-02             137794  59          
+                        2010-Mar-15             167902  3679                                            
+                        2010-May-24             7986                112 hrs
+    2010-07-16 11:25AM  2010-07-21 04:00PM      188328  6845        123 hrs                 2010-07-22 09:34AM    
+    
 
 not well-formed XML = 102320,102337,102338,102352,102355,102369,102370,102387,102388,102419,102420,
 102437,102438,102452,102455,102469,102470,142868,145997,100558,371481,371483,371532,371534,371549,
@@ -41,8 +43,6 @@ http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=231158
 $GLOBALS['ENV_NAME'] = "slave_215";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-
 
 $bad_id=""; //not well formed XML
 // /*
