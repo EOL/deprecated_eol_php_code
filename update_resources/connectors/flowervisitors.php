@@ -14,7 +14,8 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $wrap = "\n"; 
 //$wrap = "<br>"; 
  
-$resource = new Resource(2); //exit($resource->id);
+//$resource = new Resource(2); //exit($resource->id);
+$resource_id = 888;
 
 $schema_taxa = array();
 $used_taxa = array();
@@ -40,8 +41,8 @@ $urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"      
                13 => array( "url" => "http://flowervisitors.info/insects/beetles.htm"       , "active" => 1),
                14 => array( "url" => "http://flowervisitors.info/insects/bugs.htm"          , "active" => 1),               
 
-               15 => array( "url" => "http://www.flowervisitors.info/files/family_names.htm"   , "active" => 1),
-               16 => array( "url" => "http://www.flowervisitors.info/files/common_names.htm"   , "active" => 1)               
+               15 => array( "url" => "http://www.flowervisitors.info/files/family_names.htm"   , "active" => 0),
+               16 => array( "url" => "http://www.flowervisitors.info/files/common_names.htm"   , "active" => 0)               
                
                
              );
@@ -69,7 +70,7 @@ foreach($used_taxa as $taxon_parameters)
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
