@@ -95,9 +95,13 @@ $id     = 123;  //AquaMaps
 $fld    = "auto_publish";
 $value  = 1;
 
+$id     = 138;  //Afrotropical
+$fld    = "service_type_id";
+$value  = 2;
+
 */
 
-$id     = 138;  //Afrotropical
+$id     = 143;  //Insect Visitors of Illinois Wildflowers 
 $fld    = "service_type_id";
 $value  = 2;
 
