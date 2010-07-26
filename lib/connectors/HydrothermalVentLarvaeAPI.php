@@ -96,8 +96,7 @@ class HydrothermalVentLarvaeAPI
         $str = str_ireplace('<a name="Arthropods"></a>','',$str);
         $str = str_ireplace('<a name="Miscellaneous"></a>','',$str);
 
-        //print"$str";//exit;
-             
+        //print"$str";//exit;             
 
         $arr_url_list=array();
         
@@ -132,23 +131,19 @@ class HydrothermalVentLarvaeAPI
                     else $sciname="";                    
                     if(preg_match("/\">(.*?)<\/a>/", $sciname, $matches))$sciname = strip_tags($matches[1]);
                     $sciname = str_ireplace("?","",$sciname);                    
-                    // */
-
-                    
+                    // */                    
                     
                     if(preg_match("/href=\"(.*?)\"/", $temp, $matches))$href = $matches[1];
                     else $href="";
                     
-                    $url = SPECIES_URL . $href;                                                    
-    
+                    $url = SPECIES_URL . $href;                                                        
                 }
                 elseif($i==2)
                 {
                     $size = trim(strip_tags($r2));                    
                     $arr_url_list[]=array("sciname"=>$sciname,"url"=>$url,"size"=>$size);                    
                     $sciname=""; $url=""; $size=""; //initialize for the next loop                    
-                }                
-                
+                }                                
                 $i++;    
             }                           
         }        
@@ -202,9 +197,7 @@ class HydrothermalVentLarvaeAPI
             */
             
             if(preg_match("/(.*?)(\.|, Family|Class|Order|Family)/ims", $species, $matches))
-            /* starts with any char and ends with "." or ", Family" or ... */
-            
-            
+            /* starts with any char and ends with "." or ", Family" or ... */            
             
             {$sciname = trim($matches[1]);}            
             $sciname = str_ireplace("?","",$sciname);                    
@@ -240,9 +233,7 @@ class HydrothermalVentLarvaeAPI
             
             //print"<hr>$size";
             
-            //end size
-            
-            
+            //end size            
 
             //get just Morphology section
             /* $beg='Morphology:'; $end1='</td>'; */
@@ -266,8 +257,7 @@ class HydrothermalVentLarvaeAPI
 
             //print"<hr>photos: [[$photos]]<Br>"; exit;
             //http://www.whoi.edu/vent-larval-id/Images/Bathymargarites_symplector-1_web.jpg
-            //http://www.whoi.edu/vent-larval-id/Images/Benthic_unknown_A_SEM_web.gif            
-            
+            //http://www.whoi.edu/vent-larval-id/Images/Benthic_unknown_A_SEM_web.gif                        
             
             $photos = str_ireplace('src="' , '&arr[]=', $photos_main);       $arr = array();     parse_str($photos);	    
             $photos2 = str_ireplace('onClick="' , '&arr2[]=', $photos_main); $arr2 = array();    parse_str($photos2);	    
@@ -325,7 +315,6 @@ class HydrothermalVentLarvaeAPI
             $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "S.W. Mills");
             $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "S.E. Beaulieu");
             $agent[]=array("role" => "author" , "homepage" => "http://www.whoi.edu/" , "name" => "L.S. Mullineaux");
-
             
             //$arr_photos=array();//debug; use to exclude photos in harvest.
                         
@@ -347,8 +336,7 @@ class HydrothermalVentLarvaeAPI
 
         }
         //print"<pre>";print_r($arr_scraped);print"</pre>"; //debug
-        return $arr_scraped;
-        
+        return $arr_scraped;        
     }
 
     public static function get_confusedWith_desc($str)
@@ -519,8 +507,7 @@ class HydrothermalVentLarvaeAPI
         
         //return new SchemaDataObject($data_object_parameters);
         return $data_object_parameters;
-    }
-    
+    }    
     
      public static function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false) //str = the html block
      {
