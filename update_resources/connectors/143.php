@@ -41,11 +41,11 @@ $urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"      
                13 => array( "url" => "http://flowervisitors.info/insects/beetles.htm"       , "active" => 1),
                14 => array( "url" => "http://flowervisitors.info/insects/bugs.htm"          , "active" => 1),               
 
-               15 => array( "url" => "http://www.flowervisitors.info/files/family_names.htm"   , "active" => 0),
-               16 => array( "url" => "http://www.flowervisitors.info/files/common_names.htm"   , "active" => 0)               
+               15 => array( "url" => "http://www.flowervisitors.info/files/family_names.htm"   , "active" => 1),
+               16 => array( "url" => "http://www.flowervisitors.info/files/common_names.htm"   , "active" => 1)               
              );
              /*
-             enabling 15 and 16 somehow will remove some taxa with gen desc.
+             enabling 16 somehow will remove some taxa with gen desc.
              need to investigate this later.
              */
              
@@ -226,7 +226,7 @@ function process_loop($arr,$path,$kingdom)
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
         
         //if($desc != "") 
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);                
+        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject,"not file2");                
         
     }//main loop
 
@@ -289,7 +289,7 @@ function process_file2($file)
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
         
         //if($desc != "") 
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);        
+        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject,"file2");        
     }        
 }//end function process_file2($file)
 
@@ -378,12 +378,14 @@ function process_file4($file,$type)
     {
         $i++; print "$i. "; print "$sciname $wrap";                       
 
-        $genus = substr($sciname,0,stripos($sciname," "));
-        $taxon_identifier = str_replace(" ", "_", $sciname) . "_flower_visitors";
-        $dc_identifier = str_replace(" ", "_", $sciname) . "_obj_flower_visitors";
+        $genus = substr($sciname,0,stripos($sciname," "));        
+        $taxon_identifier = str_replace(" ", "_", $sciname) . "_cn_flower_visitors";
+        //$dc_identifier = str_replace(" ", "_", $sciname) . "_obj_flower_visitors";        
+        $dc_identifier = "";
             
         $taxon_parameters = array();
-        $taxon_parameters["identifier"] = $taxon_identifier;
+        //$taxon_parameters["identifier"] = $taxon_identifier;
+        $taxon_parameters["identifier"] = "";
         $taxon_parameters["kingdom"] = $kingdom;
         if($type==15)$taxon_parameters["family"] = $sciname;
         $taxon_parameters["genus"] = $genus;
@@ -399,8 +401,6 @@ function process_file4($file,$type)
         
         $used_taxa[$taxon_identifier] = $taxon_parameters;            
         
-        
-
     }
 
     print "$wrap $wrap" . count($arr_name);
@@ -412,15 +412,14 @@ function process_file4($file,$type)
 
 
 
-function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject)
+function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject,$file_group)
 {
     global $used_taxa;
     
         $genus = substr($sciname,0,stripos($sciname," "));
-
         $taxon_identifier = str_replace(" ", "_", $sciname) . "_flower_visitors";
-        $dc_identifier = str_replace(" ", "_", $sciname) . "_obj_flower_visitors";
-
+        //$dc_identifier = str_replace(" ", "_", $sciname) . "_obj_flower_visitors";
+        $dc_identifier = "";
         
         if(@$used_taxa[$taxon_identifier])
         {
@@ -429,7 +428,9 @@ function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subje
         else
         {
             $taxon_parameters = array();
-            $taxon_parameters["identifier"] = $taxon_identifier;
+            //$taxon_parameters["identifier"] = $taxon_identifier;
+            if($file_group == "file2")$taxon_parameters["identifier"] = "";
+            else                      $taxon_parameters["identifier"] = $url;
             $taxon_parameters["kingdom"] = $kingdom;
             $taxon_parameters["genus"] = $genus;
             $taxon_parameters["scientificName"]= $sciname;        
