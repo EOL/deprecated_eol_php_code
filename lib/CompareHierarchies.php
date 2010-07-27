@@ -23,6 +23,7 @@ class CompareHierarchies
         // looking up which hierarchies might have nodes in preview mode
         // this will save time later on when we need to check published vs preview taxa
         self::lookup_preview_harvests();
+        $confirmed_exclusions = self::check_curator_assertions();
         
         $hierarchies_compared = array();
         if($default_id = Hierarchy::default_id())
@@ -62,11 +63,11 @@ class CompareHierarchies
                 if($count1 < $count2)
                 {
                     debug("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)");
-                    self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2);
+                    self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions);
                 }else
                 {
                     debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
-                    self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1);
+                    self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1, $confirmed_exclusions);
                 }
                 
                 $hierarchies_compared[$hierarchy1->id][$hierarchy2->id] = 1;
@@ -75,7 +76,7 @@ class CompareHierarchies
         }
     }
     
-    private static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2)
+    private static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array())
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
@@ -137,6 +138,12 @@ class CompareHierarchies
                 if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
                 if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
                 
+                if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
+                {
+                    debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator");
+                    continue;
+                }
+                
                 if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                 {
                     debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop");
@@ -163,6 +170,28 @@ class CompareHierarchies
             $harvest_event = new HarvestEvent($row['max']);
             if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         }
+    }
+    
+    private static function curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions = array())
+    {
+        if(isset($confirmed_exclusions[$id1]))
+        {
+            foreach($confirmed_exclusions[$id1] as $tc_id => $equivalent)
+            {
+                while(isset($superceded[$tc_id])) $tc_id = $superceded[$tc_id];
+                if($tc_id == $tc_id2) return true;
+            }
+            reset($confirmed_exclusions[$id1]);
+        }elseif(isset($confirmed_exclusions[$id2]))
+        {
+            foreach($confirmed_exclusions[$id2] as $tc_id => $equivalent)
+            {
+                while(isset($superceded[$tc_id])) $tc_id = $superceded[$tc_id];
+                if($tc_id == $tc_id1) return true;
+            }
+            reset($confirmed_exclusions[$id2]);
+        }
+        return false;
     }
     
     private static function concept_merger_effects_other_hierarchies($tc_id1, $tc_id2)
@@ -207,6 +236,23 @@ class CompareHierarchies
         }
         
         return false;
+    }
+    
+    private static function check_curator_assertions()
+    {
+        $assertions = array();
+        $result = $GLOBALS['mysqli_connection']->query("SELECT he1.id id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.taxon_concept_id tc_id2, equivalent FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=0");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $id1 = $row['id1'];
+            $id2 = $row['id2'];
+            $tc_id1 = $row['tc_id1'];
+            $tc_id2 = $row['tc_id2'];
+            $equivalent = $row['equivalent'];
+            $assertions[$id1][$tc_id2] = $equivalent;
+            $assertions[$id2][$tc_id1] = $equivalent;
+        }
+        return $assertions;
     }
     
     
@@ -322,11 +368,34 @@ class CompareHierarchies
         }
         
         fclose($SQL_FILE);
-        //echo 'loading data\n';
         $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", 'IGNORE', '', 6000000);
         
         // remove the tmp file
         @unlink($sql_filepath);
+        
+        self::insert_curator_assertions($hierarchy);
+    }
+    
+    public static function insert_curator_assertions($hierarchy)
+    {
+        // entry 1 is in target hierarchy
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
+        
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
+        
+        
+        // entry 2 is in target hierarchy
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
+        
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
     }
     
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
@@ -445,7 +514,7 @@ class CompareHierarchies
             if($entry1->$rank) $entry1_without_hierarchy = false;
             if($entry2->$rank) $entry2_without_hierarchy = false;
             
-            if($entry1->$rank && $entry2->$rank && $entry1->$rank == $entry2->$rank && !preg_match("/^(unassigned|not assigned)/i", $entry1->$rank))
+            if($entry1->$rank && $entry2->$rank && $entry1->$rank == $entry2->$rank && !preg_match("/^(unassigned|not assigned|unknown)/i", $entry1->$rank))
             {
                 $score = $weight;
                 break;
