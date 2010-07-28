@@ -249,7 +249,7 @@ function show_name_he($hierarchy_entry, $indent, $expand)
         $display .= " <small>(".implode(", ", $arr).")</small>";
     }
     
-    $display .= " <small>tc_id:".$hierarchy_entry->taxon_concept_id."</small>";
+    $display .= " <small>he_id:".$hierarchy_entry->id." ; tc_id:".$hierarchy_entry->taxon_concept_id."</small>";
     $display .= "<br>";
     
     return $display;

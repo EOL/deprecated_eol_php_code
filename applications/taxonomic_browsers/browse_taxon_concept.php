@@ -23,17 +23,21 @@ $hierarchy_entry_ids = $node->hierarchy_entry_ids();
 foreach($hierarchy_entry_ids as $id)
 {
     $hierarchy_entry = new HierarchyEntry($id);
+    $bgcolor = "#ffffff";
+    if($hierarchy_entry->published == 0) $bgcolor = "#eeeeee";
+    if($hierarchy_entry->vetted_id == Vetted::insert('unknown')) $bgcolor = "#ffffcc";
     
+    echo "<div style='background-color: $bgcolor'>";
     echo "<p align='right'><b>".$hierarchy_entry->hierarchy()->label."</b><br>hierarchy_entry_id: $hierarchy_entry->id</p>";
     
     $indent = show_ancestry_he($hierarchy_entry);
-    echo "<span style='background-color:#ccc'>";
+    echo "<b>";
     echo show_name_he($hierarchy_entry, $indent, 0);
-    echo "</span>";
-    echo "<div style='max-height: 250px; max-width: 700px; overflow: auto'>";
+    echo "</b>";
+    echo "<div style='max-height: 250px; max-width: 700px; overflow: auto;'>";
     show_children_he($hierarchy_entry, $indent+1);
     show_synonyms_he($hierarchy_entry);
-    echo "</div>";
+    echo "</div></div>";
     echo "<hr>";
 }
 

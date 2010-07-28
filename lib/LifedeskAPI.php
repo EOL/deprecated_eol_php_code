@@ -16,10 +16,10 @@ class LifeDeskAPI extends MysqlBase
         if(!$term) return array();
         
         $hierarchy_entries = array();
-        $query = "SELECT DISTINCT h.id FROM canonical_forms c JOIN names n ON (c.id=n.canonical_form_id) JOIN hierarchy_entries h ON (n.id=h.name_id) WHERE c.string='".$this->mysqli->real_escape_string($term)."'";
-        if($hierarchy_id) $query .= " AND h.hierarchy_id=$hierarchy_id";
+        $query = "SELECT DISTINCT he.id FROM canonical_forms c JOIN names n ON (c.id=n.canonical_form_id) JOIN hierarchy_entries he ON (n.id=he.name_id) JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE c.string='".$this->mysqli->real_escape_string($term)."'";
+        if($hierarchy_id) $query .= " AND he.hierarchy_id=$hierarchy_id";
         
-        $result = $this->mysqli->query($query);
+        $result = $this->mysqli->query($query ." order by hierarchy_group_version desc, id asc");
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_entries[] = new HierarchyEntry($row["id"]);
@@ -29,7 +29,7 @@ class LifeDeskAPI extends MysqlBase
         
         foreach($hierarchy_entries as $k => $v)
         {
-            if($v->hierarchy_id != 107 && $v->hierarchy_id != 147 && $v->hierarchy_id != 158) continue;
+            if($v->hierarchy_id != 107 && $v->hierarchy_id != 147 && $v->hierarchy_id != 158 && $v->hierarchy_id != 462) continue;
             $thisResult = array();
             $thisResult["name"] = $v->name()->string;
             $thisResult["canonical_form"] = $v->name()->canonical_form()->string;

@@ -346,6 +346,7 @@
             <xsd:enumeration value="illustrator"/>
             <xsd:enumeration value="photographer"/>
             <xsd:enumeration value="project"/>
+            <xsd:enumeration value="provider"/>
             <xsd:enumeration value="publisher"/>
             <xsd:enumeration value="recorder"/>
             <xsd:enumeration value="source"/>
