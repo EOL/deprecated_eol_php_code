@@ -17,6 +17,14 @@ as of April 21:
     Pages with vetted objects: 80241
     Marine pages with Wikipedia content = 5167
     Marine pages with Flickr content = 1548    
+
+as of August 2:
+    execution time: 2.10 hours
+    Names from XML: 181476
+    Names in EOL: 158889
+    Marine pages: 161323
+    Pages with objects: 80676
+    Pages with vetted objects: 80178
     
 */
 
