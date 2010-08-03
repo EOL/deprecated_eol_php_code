@@ -3,7 +3,7 @@
 estimated execution time: 16-20 seconds
 Connector screen scrapes the partner website.
 */
-
+exit;
 $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
