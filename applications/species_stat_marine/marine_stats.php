@@ -1,5 +1,7 @@
 <?php
 /* 
+    testing line endings...
+    
     This code processes the latest WORMS resource XML and generates stats for it.
     A successful run of this script will append a new record in this report: 
     http://services.eol.org/species_stat_marine/display.php    
