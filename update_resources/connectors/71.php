@@ -1,15 +1,23 @@
 <?php
 
+define('DOWNLOAD_WAIT_TIME', '2000000');  // 2 second wait after every web request
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
 require_vendor("wikipedia");
 
 
-exit;
 $resource = new Resource(71);
 
+
+// cleaning up downloaded files
+shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia/*");
+shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml");
+shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+
+
 // download latest Wikimedia Commons export
+echo "curl ".$resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2\n";
 shell_exec("curl ".$resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
 // unzip the download
 shell_exec("bunzip2 ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
@@ -18,13 +26,12 @@ shell_exec("split -b 300m ". DOC_ROOT ."update_resources/connectors/files/wikime
 
 // determine the filename of the last chunk
 $last_line = exec("ls -l ". DOC_ROOT ."update_resources/connectors/files/wikimedia");
-if(preg_match("/part_a([a-z])$/", trim($last_line), $arr)) $final_part_suffix = $arr[1];
+if(preg_match("/part_([a-z]{2})$/", trim($last_line), $arr)) $final_part_suffix = $arr[1];
 else
 {
     echo "\n\nCouldn't determine the last file to process\n$last_line\n\n";
     exit;
 }
-
 
 
 
@@ -48,12 +55,6 @@ echo "# total images: ".count($GLOBALS['data_objects'])."\n";
 get_image_urls();
 // prepare EOL Content Schema XML file and save to CONTENT_RESOURCE_LOCAL_PATH
 create_resource_file();
-
-
-// cleaning up downloaded files
-shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia/*");
-shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml");
-shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
 
 echo "end";
 
@@ -79,19 +80,35 @@ echo "end";
 function iterate_files($callback, $title = false)
 {
     global $final_part_suffix;
-    $char = ord("a");
-    while($char <= ord($final_part_suffix))
+    list($major, $minor) = str_split($final_part_suffix);
+    $ord1 = ord("a");
+    $ord2 = ord("a");
+    
+    while($ord1 <= ord($major))
     {
-        process_file(chr($char), $callback, $title);
-        $char++;
+        while($ord2 <= ord("z"))
+        {
+            process_file(chr($ord1).chr($ord2), $callback, $title);
+            
+            if($ord1 == ord($major) && $ord2 == ord($minor))
+            {
+                break;
+            }
+            $ord2++;
+            //if($ord2 == ord("b")) break;
+        }
+        
+        $ord1++;
+        $ord2 = ord("a");
+        //break;
     }
 }
 
 function process_file($part_suffix, $callback, $title = false)
 {
-    echo "Processing file $part_suffix with callback $callback\n";
+    echo "Processing file $part_suffix with callback $callback ".memory_get_usage()."\n";
     flush();
-    $FILE = fopen(DOC_ROOT ."update_resources/connectors/files/wikimedia/part_a".$part_suffix, "r");
+    $FILE = fopen(DOC_ROOT ."update_resources/connectors/files/wikimedia/part_".$part_suffix, "r");
     
     $current_page = "";
     static $page_number = 0;
@@ -202,6 +219,11 @@ function create_resource_file()
     $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", "w+");
     SchemaDocument::get_taxon_xml($all_taxa, $FILE);
     fclose($FILE);
+    
+    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml"))
+    {
+        $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=$$resource->id");
+    }
 }
 
 function get_image_urls()
@@ -227,7 +249,7 @@ function get_image_urls()
     if($search_titles)
     {
         $lookup_number++;
-        echo "Looking up $lookup_number of $total_lookups\n";
+        echo "Looking up $lookup_number of $total_lookups ".memory_get_usage()."\n";
         flush();
         lookup_image_urls($search_titles);
     }

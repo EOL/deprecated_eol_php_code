@@ -51,7 +51,7 @@ class HierarchyEntryIndexer
             $max_id = $row["max"];
         }
         
-        for($i=$start ; $i<$max_id ; $i+=$limit)
+        for($i=$start ; $i<=$max_id ; $i+=$limit)
         {
             unset($this->objects);
             unset($this->ancestries);
