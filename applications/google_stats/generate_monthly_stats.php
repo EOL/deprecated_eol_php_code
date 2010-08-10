@@ -4,6 +4,7 @@ month:      run date:       GA records      execution time:
 Feb2010     1March2010      110,679
 Mar2010     1April2010                      1.5 hrs
 Apr2010     3May2010                        1.7 hrs
+July2010    4Aug2010                
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -29,6 +30,7 @@ tables used:
 */
 
 /*
+Google reference pages:
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html#d4Ecommerce
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
