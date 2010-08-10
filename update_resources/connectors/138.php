@@ -1,9 +1,10 @@
 <?php
 /* connector for Afrotropical 
-estimated execution time: 
+estimated execution time: 41 mins.
 This connector reads an EOL XML and converts PDF files stored in <mediaURL> into text description objects.
 */
 exit;
+$timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AfrotropicalAPI');
@@ -18,5 +19,13 @@ $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
 fclose($OUT);
 
-echo "time: ". Functions::time_elapsed()."\n";
+
+//echo "time: ". Functions::time_elapsed()."\n";
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+exit("\n\n Done processing.");
+
 ?>

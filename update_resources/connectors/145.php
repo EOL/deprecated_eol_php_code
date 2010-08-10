@@ -1,6 +1,6 @@
 <?php
 /* connector for Natural History Services
-estimated execution time: 
+estimated execution time: 7 mins.
 Connector screen scrapes the partner website.
 */
 exit;

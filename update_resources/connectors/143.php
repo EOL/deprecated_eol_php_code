@@ -1,6 +1,6 @@
 <?php
 /* flowervisitors connector 
-estimated execution time: 26 mins.
+estimated execution time: 27 mins.
 
 Connector screen scrapes the partner website.
 */
@@ -20,34 +20,163 @@ $resource_id = 143;
 $schema_taxa = array();
 $used_taxa = array();
 
-
 //$file = "";
 
-$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 1),   //associations
+$arr_comnames = get_comnames();
 
-               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 1),   //gen desc
-               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 1),
-               3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 1),
-               4 => array( "url" => "http://www.flowervisitors.info/files/flies.htm"        , "active" => 1),
-               5 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 1),
-               6 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 1),
-               7 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 1),
+$urls = array( 0 => array( "url" => "http://flowervisitors.info/index.htm"                  , "active" => 1,
+                           "ancestry" => array(
+                                               "kingdom" => "Plantae",
+                                               "phylum" => "",
+                                               "class" => "",
+                                               "order" => "",
+                                               "family" => ""
+                                              )               
+                         ),   //associations
+
+
+
+
+               1 => array( "url" => "http://www.flowervisitors.info/files/lt_bee.htm"       , "active" => 1,
+                           "ancestry" => array(
+                                               "kingdom" => "Animalia",
+                                               "phylum" => "Arthropoda",
+                                               "class" => "Insecta",
+                                               "order" => "Hymenoptera",
+                                               "family" => ""
+                                              )               
+                         ),   //gen desc - without taxon dc:identifier
+               2 => array( "url" => "http://www.flowervisitors.info/files/st_bee.htm"       , "active" => 1,
+                           "ancestry" => array(
+                                               "kingdom" => "Animalia",
+                                               "phylum" => "Arthropoda",
+                                               "class" => "Insecta",
+                                               "order" => "Hymenoptera",
+                                               "family" => ""
+                                              )               
+                         ),
+               3 => array( "url" => "http://www.flowervisitors.info/files/wasps.htm"        , "active" => 1,
+                           "ancestry" => array(
+                                               "kingdom" => "Animalia",
+                                               "phylum" => "Arthropoda",
+                                               "class" => "Insecta",
+                                               "order" => "Hymenoptera",
+                                               "family" => ""
+                                              )              
+                         ),
+               4 => array( "url" => "http://www.flowervisitors.info/files/flies.htm"        , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Diptera",
+                                                "family" => ""
+                                               )               
+                         ),
+               5 => array( "url" => "http://www.flowervisitors.info/files/beetles.htm"      , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Coleoptera",
+                                                "family" => ""
+                                               )               
+                         ),
+               6 => array( "url" => "http://www.flowervisitors.info/files/plant_bugs.htm"   , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Hemiptera",
+                                                "family" => ""
+                                               )               
+                         ),
+               7 => array( "url" => "http://www.flowervisitors.info/files/lepidoptera.htm"  , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Lepidoptera",
+                                                "family" => ""
+                                               )               
+                         ),
                
-               8  => array( "url" => "http://flowervisitors.info/insects/birds.htm"         , "active" => 1),   //associations
-               9  => array( "url" => "http://flowervisitors.info/insects/bees.htm"          , "active" => 1),
-               10 => array( "url" => "http://flowervisitors.info/insects/wasps.htm"         , "active" => 1),
-               11 => array( "url" => "http://flowervisitors.info/insects/flies.htm"         , "active" => 1),   
-               12 => array( "url" => "http://flowervisitors.info/insects/moths.htm"         , "active" => 1),
-               13 => array( "url" => "http://flowervisitors.info/insects/beetles.htm"       , "active" => 1),
-               14 => array( "url" => "http://flowervisitors.info/insects/bugs.htm"          , "active" => 1),               
+               8  => array( "url" => "http://flowervisitors.info/insects/birds.htm"         , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Chordata",
+                                                "class" => "Aves",
+                                                "order" => "",
+                                                "family" => ""
+                                               )
+                          ),   //associations
+               9  => array( "url" => "http://flowervisitors.info/insects/bees.htm"          , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Hymenoptera",
+                                                "family" => ""
+                                               )
+                          ),
 
-               15 => array( "url" => "http://www.flowervisitors.info/files/family_names.htm"   , "active" => 1),
-               16 => array( "url" => "http://www.flowervisitors.info/files/common_names.htm"   , "active" => 1)               
+
+
+               10 => array( "url" => "http://flowervisitors.info/insects/wasps.htm"         , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Hymenoptera",
+                                                "family" => ""
+                                               )
+                          ),
+               11 => array( "url" => "http://flowervisitors.info/insects/flies.htm"         , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Diptera",
+                                                "family" => ""
+                                               )
+                          ),   
+
+
+
+               12 => array( "url" => "http://flowervisitors.info/insects/moths.htm"         , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Lepidoptera",
+                                                "family" => ""
+                                               )
+                          ),
+
+
+               13 => array( "url" => "http://flowervisitors.info/insects/beetles.htm"       , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Coleoptera",
+                                                "family" => ""
+                                               )
+                          ),
+
+
+
+               14 => array( "url" => "http://flowervisitors.info/insects/bugs.htm"          , "active" => 1,
+                            "ancestry" => array(
+                                                "kingdom" => "Animalia",
+                                                "phylum" => "Arthropoda",
+                                                "class" => "Insecta",
+                                                "order" => "Hemiptera",
+                                                "family" => ""
+                                               )
+                          )
+
              );
-             /*
-             enabling 16 somehow will remove some taxa with gen desc.
-             need to investigate this later.
-             */
              
 
 //$arr_name = array();
@@ -57,10 +186,9 @@ foreach($urls as $path)
     if($path["active"])
     {
         print $i . " " . $path["url"] . "$wrap $wrap";        
-        if      ($i == 0)               process_file1($path["url"]); //1 & 3
-        elseif  ($i >= 1 and $i <= 7)   process_file2($path["url"]);           
-        elseif  ($i >= 8 and $i <= 14)  process_file3($path["url"]); //1 & 3
-        elseif  ($i >= 15 and $i <= 16) process_file4($path["url"],$i); //common names
+        if      ($i == 0)               process_file1($path["url"],$path["ancestry"]); //1 & 3
+        elseif  ($i >= 1 and $i <= 7)   process_file2($path["url"],$path["ancestry"]);           
+        elseif  ($i >= 8 and $i <= 14)  process_file3($path["url"],$path["ancestry"]); //1 & 3
     }
     $i++;
 }    
@@ -93,8 +221,29 @@ exit("\n\n Done processing.");
 //######################################################################################################################
 
 
+function get_comnames()
+{
+    $urls = array( 0 => array( "url" => "http://www.flowervisitors.info/files/family_names.htm"   , "active" => 1),
+                   1 => array( "url" => "http://www.flowervisitors.info/files/common_names.htm"   , "active" => 1)               
+                 );             
+    $arr_comnames=array();
+    $i=0;
+    foreach($urls as $path)
+    {    
+        if($path["active"])
+        {
+            $arr = process_file4($path["url"],$i); //common names            
+            $arr_comnames = array_merge($arr_comnames,$arr);                                                
+        }
+        $i++;
+    }    
+    //print "<hr> total = " . sizeof($arr_comnames);
+    //print "<pre>";print_r($arr_comnames);print "</pre>";       
+    return $arr_comnames;    
+}
 
-function process_file3($file)
+
+function process_file3($file,$ancestry)
 {       
     global $wrap;
     global $used_taxa;
@@ -126,11 +275,11 @@ function process_file3($file)
     parse_str($str);	
     print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
 
-    process_loop($arr,"http://flowervisitors.info/insects/","Animalia");
+    process_loop($arr,"http://flowervisitors.info/insects/",$ancestry);
 
 }//end function process_file3($file)
 
-function process_file1($file)
+function process_file1($file,$ancestry)
 {    
     global $wrap;
     global $used_taxa;
@@ -157,11 +306,11 @@ function process_file1($file)
 
     //print $str;
     
-    process_loop($arr,"http://flowervisitors.info/","Plantae");
+    process_loop($arr,"http://flowervisitors.info/",$ancestry);
     
 }//end function process_file1($file)
 
-function process_loop($arr,$path,$kingdom)
+function process_loop($arr,$path,$ancestry)
 {
     global $wrap;
     
@@ -208,6 +357,9 @@ function process_loop($arr,$path,$kingdom)
         $pos = strripos($title,trim(substr($sciname,strripos($sciname," ")+1,strlen($sciname))));
         print "((" . $pos . "))";
         if($pos == "")$title .= " (<i>$sciname</i>)";
+        
+        $title .= " in Illinois";
+        
         //end
         
         print "$wrap $wrap x[$title][$sciname] " . " " . " $wrap"; //exit;
@@ -226,14 +378,14 @@ function process_loop($arr,$path,$kingdom)
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
         
         //if($desc != "") 
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject,"not file2");                
+        assign_variables($sciname,$ancestry,$url,$commonname,$desc,$title,$subject,"not file2");                
         
     }//main loop
 
 }//end process_loop()
 
 
-function process_file2($file)
+function process_file2($file,$ancestry)
 {
     global $wrap;
     global $used_taxa;
@@ -289,30 +441,25 @@ function process_file2($file)
         $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
         
         //if($desc != "") 
-        assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject,"file2");        
+        assign_variables($sciname,$ancestry,$url,$commonname,$desc,$title,$subject,"file2");        
     }        
 }//end function process_file2($file)
 
 function process_file4($file,$type)
 {
     global $wrap;
-    global $used_taxa;
-    //global $arr_name;
     
     $str = Functions::get_remote_file($file);
-    $str = clean_str($str);
-    
-    //print "<hr>$str<str>"; exit;
-    
+    $str = clean_str($str);    
+     
     $beg='<BLOCKQUOTE>'; $end1='</BLOCKQUOTE>'; $end2="173xxx";    
     $str = trim(parse_html($str,$beg,$end1,$end2,$end2,$end2,"",true));            
     $str = strip_tags($str,"<BR>");            
     
     $str = str_ireplace('<BR>' , '&arr[]=', $str);	
-    //print "<hr>$str<str>";
     $arr=array();	
     parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
+    //print "after parse_str recs = " . count($arr) . "$wrap $wrap";	//print_r($arr);
     
     $arr_sciname = array();
     $arr_name = array();    
@@ -324,9 +471,6 @@ function process_file4($file,$type)
         
         if(stripos($species," = ") != "")
         {
-
-            
-            //print "$i. [$species]";
             $species = "xxx" . $species . "yyy";
             
             $beg='xxx'; $end1='('; $end2="=";    
@@ -339,82 +483,46 @@ function process_file4($file,$type)
             $beg='='; $end1='yyy'; $end2="173xxx";    
             $commonname = trim(parse_html($species,$beg,$end1,$end2,$end2,$end2,"",true));            
             
-            //print "--- $sciname --- $commonname $wrap";
+            //print "<br>--- $sciname --- $commonname $wrap";
             //Anthophoridae (Anthophorini) = Anthophorine Bees 
             
             $r = explode(",",$commonname);
             for ($ctr = 0; $ctr <= sizeof($r) - 1; $ctr++) 
             {
-                $temp = trim(str_ireplace('  ', ' ', $r[$ctr]));
-                
-                if(trim($temp)=="etc.")continue;
-                
+                $temp = trim(str_ireplace('  ', ' ', $r[$ctr]));                
+                if(trim($temp)=="etc.")continue;                
                 if($tribe != "")$temp .= " ($tribe)";
-                //$name[$sciname][] = $temp;
                 $arr_name[$sciname][$temp] = 1;
                 $arr_sciname[$sciname] = 1;
-            }                    
-            
-            $kingdom = "";            
-            $url = $file;
-            $desc = "";
-            $title = "";
-            $subject = "";
-            //======================================
-            //assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject);              
-            //start assign_variables
-            
-            //end
-            
-        }
-        
+            }                                
+        }        
     }   
 
-
-    $arr_sciname = array_keys($arr_sciname);
-    
+    $arr_sciname = array_keys($arr_sciname);    
     $i=0;
+    $arr_temp=array();
     foreach($arr_sciname as $sciname)
     {
-        $i++; print "$i. "; print "$sciname $wrap";                       
-
-        $genus = substr($sciname,0,stripos($sciname," "));        
-        $taxon_identifier = str_replace(" ", "_", $sciname) . "_cn_flower_visitors";
-        //$dc_identifier = str_replace(" ", "_", $sciname) . "_obj_flower_visitors";        
-        $dc_identifier = "";
-            
-        $taxon_parameters = array();
-        //$taxon_parameters["identifier"] = $taxon_identifier;
-        $taxon_parameters["identifier"] = "";
-        $taxon_parameters["kingdom"] = $kingdom;
-        if($type==15)$taxon_parameters["family"] = $sciname;
-        $taxon_parameters["genus"] = $genus;
-        $taxon_parameters["scientificName"]= $sciname;        
-        $taxon_parameters["source"] = $url;                                
-        
+        $i++; 
+        //print "$i. "; print "$sciname $wrap";                       
         $arr_comname = array_keys($arr_name["$sciname"]);        
         $taxon_parameters["commonNames"] = array();
         foreach($arr_comname as $commonname)
         {            
-            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            $arr_temp["$sciname"][] = $commonname;
         }                
-        
-        $used_taxa[$taxon_identifier] = $taxon_parameters;            
-        
     }
-
-    print "$wrap $wrap" . count($arr_name);
-    print "<pre>";print_r($arr_name);print "</pre>";
-    
-    //exit;
-    
+    //print "<pre>";print_r($arr_temp);print "</pre>";
+    print "<hr> subtotal = " . sizeof($arr_temp);
+    return $arr_temp;
 }//end function process_file4($file)
 
 
 
-function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subject,$file_group)
+function assign_variables($sciname,$ancestry,$url,$commonname,$desc,$title,$subject,$file_group)
 {
     global $used_taxa;
+    global $arr_comnames;
     
         $genus = substr($sciname,0,stripos($sciname," "));
         $taxon_identifier = str_replace(" ", "_", $sciname) . "_flower_visitors";
@@ -428,16 +536,35 @@ function assign_variables($sciname,$kingdom,$url,$commonname,$desc,$title,$subje
         else
         {
             $taxon_parameters = array();
-            //$taxon_parameters["identifier"] = $taxon_identifier;
+            //$taxon_parameters["identifier"] = "";
             if($file_group == "file2")$taxon_parameters["identifier"] = "";
             else                      $taxon_parameters["identifier"] = $url;
-            $taxon_parameters["kingdom"] = $kingdom;
+
+            $taxon_parameters["kingdom"] = ucfirst(trim($ancestry["kingdom"]));
+            $taxon_parameters["phylum"] = ucfirst(trim($ancestry["phylum"]));       
+            $taxon_parameters["class"] = ucfirst(trim($ancestry["class"]));
+            $taxon_parameters["order"] = ucfirst(trim($ancestry["order"]));
+            $taxon_parameters["family"] = ucfirst(trim($ancestry["family"]));
+            
             $taxon_parameters["genus"] = $genus;
             $taxon_parameters["scientificName"]= $sciname;        
             $taxon_parameters["source"] = $url;        
             
             $taxon_parameters["commonNames"] = array();
-            $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            if($commonname)
+            {
+                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+            }            
+            
+            if(@$arr_comnames["$sciname"])
+            {
+                foreach($arr_comnames["$sciname"] as $commonname)
+                {
+                    $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+                }            
+            }
+
+            
             
             $taxon_parameters["dataObjects"]= array();        
             $used_taxa[$taxon_identifier] = $taxon_parameters;
@@ -489,7 +616,11 @@ function get_data_object($id, $description, $title, $url, $subject)
     
     $dataObjectParameters["source"] = $url;
 
-    $reference="Hilty, J. Editor. 2010. Insect Visitors of Illinois Wildflowers. World Wide Web electronic publication. flowervisitors.info, version (04/2010).";
+    $reference="Hilty, J. Editor. 2010. Insect Visitors of Illinois Wildflowers. World Wide Web electronic publication. flowervisitors.info, version (04/2010).
+    <br>See: <a href='http://flowervisitors.info/files/abbreviations.htm'>Abbreviations for Insect Activities</a>, 
+    <a href='http://flowervisitors.info/files/observers.htm'>Abbreviations for Scientific Observers</a>, 
+    <a href='http://flowervisitors.info/files/references.htm'>References for behavioral observations</a> 
+    ";
 
         $dataObjectParameters["references"] = array();
         $referenceParameters = array();

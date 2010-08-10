@@ -22,7 +22,8 @@ $timestart = microtime(1);
                         2010-Mar-02             137794  59          
                         2010-Mar-15             167902  3679                                            
                         2010-May-24             7986                112 hrs
-    2010-07-16 11:25AM  2010-07-21 04:00PM      188328  6845        123 hrs                 2010-07-22 09:34AM    
+    2010-07-16 11:25AM  2010-07-21 04:00PM      188328  6845        123 hrs                 2010-07-22 09:34AM  
+    2010-08-09 PM  
     
 
 not well-formed XML = 102320,102337,102338,102352,102355,102369,102370,102387,102388,102419,102420,
@@ -207,6 +208,7 @@ function get_main_id_list()
     $url=array();
     
     // /* comment this when debugging
+    /*
     $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20090605/id/2009.xml";    
@@ -227,6 +229,7 @@ function get_main_id_list()
     $url[]="http://127.0.0.1/mtce/WORMS/20100104/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100104/id/2009.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100104/id/2010.xml";        
+    */
 
     $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2007.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100226/id/2008.xml";
@@ -242,6 +245,11 @@ function get_main_id_list()
     $url[]="http://127.0.0.1/mtce/WORMS/20100716/id/2008.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100716/id/2009.xml";
     $url[]="http://127.0.0.1/mtce/WORMS/20100716/id/2010.xml";    
+
+    $url[]="http://127.0.0.1/mtce/WORMS/20100806/id/2007.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100806/id/2008.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100806/id/2009.xml";
+    $url[]="http://127.0.0.1/mtce/WORMS/20100806/id/2010.xml";    
 
     // */
     
