@@ -182,7 +182,7 @@ class DataObject extends MysqlBase
     }
     
     function cache_object(&$content_manager, &$resource)
-    {
+    {     
         if($this->data_type_id==DataType::find("http://purl.org/dc/dcmitype/StillImage"))
         {
             if(preg_match("/^http:\/\//",$this->object_url))
@@ -190,11 +190,18 @@ class DataObject extends MysqlBase
                 // TODO - hardcoded exception to make the Biopix images smaller
                 if($resource->title == "Biopix") $large_thumbnail_dimensions = "300x300";
                 else $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE;
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "content", $large_thumbnail_dimensions);
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $large_thumbnail_dimensions);
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
-        
+        if($this->data_type_id==DataType::find("http://purl.org/dc/dcmitype/MovingImage"))
+        {
+            if(preg_match("/^http:\/\//",$this->object_url))
+            {
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "video");
+                if(@!$this->object_cache_url) return false;
+            }else return false;
+        }
         return true;
     }
     
@@ -204,7 +211,7 @@ class DataObject extends MysqlBase
         {
             if(preg_match("/^http:\/\//",$this->thumbnail_url))
             {
-                $this->thumbnail_cache_url = $content_manager->grab_file($this->thumbnail_url, 0, "content");
+                $this->thumbnail_cache_url = $content_manager->grab_file($this->thumbnail_url, 0, "image");
                 if(@!$this->thumbnail_cache_url) return false;
             }else return false;
         }
