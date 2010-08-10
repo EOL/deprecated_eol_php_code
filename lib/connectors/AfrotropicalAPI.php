@@ -14,7 +14,8 @@ class AfrotropicalAPI
         $all_taxa = array();
         $used_collection_ids = array();
 
-        $file = DOC_ROOT . "update_resources/connectors/files/Afrotropical/EOLexportFruitfly_fixed.xml";                
+        //$file = DOC_ROOT . "update_resources/connectors/files/Afrotropical/EOLexportFruitfly_fixed.xml";                
+        $file = DOC_ROOT . "update_resources/connectors/files/Afrotropical/EOLexportFruitfly_2_fixed.xml";                
         $urls = array( 0 => array( "path" => "http://pandanus.eol.org/public/EOL_resource/EOLexportFruitfly_fixed.xml" , "active" => 0),
                        1 => array( "path" => $file                                                                     , "active" => 1)
                      );
