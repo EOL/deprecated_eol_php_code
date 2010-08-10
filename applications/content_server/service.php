@@ -87,7 +87,7 @@ switch($function)
         
     case "upload_content":
         $manager = new ContentManager($server_ip);
-        $new_file_path = $manager->grab_file($file_path,0,"content");
+        $new_file_path = $manager->grab_file($file_path,0,"image");
         if($new_file_path)
         {
             echo "  <file_path>$new_file_path</file_path>\n";
