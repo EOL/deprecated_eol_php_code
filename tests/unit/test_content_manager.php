@@ -41,7 +41,8 @@ class test_content_manager extends SimpletestUnitBase
     
     function testGrabContentImage()
     {
-        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "content");
+        //$file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "content");
+        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "image");
         $this->assertPattern("/^[0-9]{15}/", $file);
         
         if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
@@ -54,9 +55,23 @@ class test_content_manager extends SimpletestUnitBase
             $this->assertTrue(file_exists(CONTENT_LOCAL_PATH."/".$dir.$prefix."_orig.jpg"), "Should be an orignial size converted to jpeg");
         }else $this->assertTrue(false, "Image should match this pattern");
         
-        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "content");
+        //$file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "content");
+        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "image");
         $this->assertPattern("/^[0-9]{15}/", $file, 'Should be able to download images with no file extension');
     }
+
+    function testGrabContentVideo()
+    {
+        $file = $this->content_manager->grab_file("http://www.rkwalton.com/jump/phhe.mp4", 0, "video");
+        $this->assertPattern("/^[0-9]{15}/", $file);        
+        if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
+        {
+            $dir = $arr[1]."/".$arr[2]."/".$arr[3]."/".$arr[4]."/";
+            $prefix = $arr[5];
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH."/".$dir.$prefix.".mp4"), "Should be an mp4 file");
+        }else $this->assertTrue(false, "Image should match this pattern");        
+    }
+
 }
 
 ?>
