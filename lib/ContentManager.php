@@ -15,7 +15,8 @@ class ContentManager
     // This function will download a file and place it on the content server
     //
     // Possible types for this function
-    // content - this is for images, video, sound... main content items for the species pages
+    // image - this is for images
+    // video - this is for videos - mpg, flv, mp4, etc...
     // partner - this type means we are downloading a logo for a content partner
     // resource - this means we are downloading an XML or zipped file of the EOL schema for processing
     
@@ -23,7 +24,7 @@ class ContentManager
     {
         $new_file_path = "";
         $suffix = "";
-        if(preg_match("/\.([^\.]+)$/",$file,$arr)) $suffix = trim($arr[1]);
+        if(preg_match("/\.([^\.]+)$/",$file,$arr)) $suffix = strtolower(trim($arr[1]));
         
         // resources may need a little extra time to establish a connection
         if($type == "resource") $timeout = 60;
@@ -56,7 +57,8 @@ class ContentManager
             
             if($new_suffix)
             {
-                if($type=="content") $new_file_prefix = $this->new_content_file_name();
+                if($type=="image") $new_file_prefix = $this->new_content_file_name();
+                elseif($type=="video") $new_file_prefix = $this->new_content_file_name();
                 elseif($type=="partner") $new_file_prefix = $this->new_partner_file_name();
                 elseif($type=="resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
                 
@@ -81,13 +83,14 @@ class ContentManager
                 }
                 
                 // create thumbnails of website content and agent logos
-                if($type=="content") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
+                if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
                 elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
                 
                 // Take the substring of the new file path to return via the webservice
-                if($type=="content" && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = str_replace("/", "", $arr[1]);
+                if(($type=="image" || $type=="video") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = str_replace("/", "", $arr[1]);
                 elseif($type=="partner" && preg_match("/^".preg_quote(CONTENT_PARTNER_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = $arr[1];
                 elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/",$new_file_path,$arr))  $new_file_path = $arr[1];
+                
             }
         }
         
@@ -95,6 +98,7 @@ class ContentManager
         return $new_file_path;
     }
 
+    
     function determine_file_suffix($file_path,$suffix)
     {
         // use the Unix/Linux `file` command to determine file type
@@ -129,22 +133,28 @@ class ContentManager
     function determine_file_suffix_pc($file_path,$suffix)
     {
         $new_suffix=$suffix;
-        $arr = array('jpg','tif','flv','mov','avi','gz','tar','zip','xml','pdf','html','png','xml','gif');
+        $arr = array('jpg','tif','flv','mov','avi','gz','tar','zip','xml','pdf','html','png','xml','gif', 'mp4', 'wmv', 'mpg', 'mpeg');
         
-        if(!in_array("$suffix", $arr))
+        if(!in_array($suffix, $arr))
         {
+            $new_suffix=false;
+            // /*
             $new_suffix=false;
             $new_suffix="xml";
             
             $image = array( 
-                    0 => array(    "type" => "image/bmp"                        , "suffix" => "bmp"),
-                    1 => array(    "type" => "image/gif"                        , "suffix" => "gif"),
-                    2 => array(    "type" => "image/jpeg"                       , "suffix" => "jpg"),
-                    3 => array(    "type" => "image/png"                        , "suffix" => "png"),
-                    4 => array(    "type" => "image/svg+xml"                    , "suffix" => "svg"),
-                    5 => array(    "type" => "image/tiff"                       , "suffix" => "tif"),
-                    6 => array(    "type" => "application/x-shockwave-flash"    , "suffix" => "flv"));
-            
+                    0 => array(    "type" => "image/bmp"        , "suffix" => "bmp"),
+                    1 => array(    "type" => "image/gif"        , "suffix" => "gif"),
+                    2 => array(    "type" => "image/jpeg"       , "suffix" => "jpg"),
+                    3 => array(    "type" => "image/png"        , "suffix" => "png"),
+                    4 => array(    "type" => "image/svg+xml"    , "suffix" => "svg"),
+                    5 => array(    "type" => "image/tiff"       , "suffix" => "tif"),                    
+                    6 => array(    "type" => "video/mp4"        , "suffix" => "mp4"),
+                    7 => array(    "type" => "video/x-ms-wmv"   , "suffix" => "wmv"),
+                    8 => array(    "type" => "video/mpeg"       , "suffix" => "mpg"),
+                    9 => array(    "type" => "video/quicktime"  , "suffix" => "mov"),
+                    10 => array(   "type" => "video/x-flv"      , "suffix" => "flv")
+                          );
             $url = $file_path;
             $image_data = getimagesize($url);
             
@@ -156,8 +166,8 @@ class ContentManager
                     break;
                 }
             }
-        }
-        
+            // */
+        }        
         return $new_suffix;
     }
     
