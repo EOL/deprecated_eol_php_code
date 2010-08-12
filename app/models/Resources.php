@@ -206,9 +206,12 @@ class Resource extends MysqlBase
     
     public function unpublish_data_objects($object_guids_to_keep = null)
     {
-        $where_clause = '';
-        if($object_guids_to_keep) $where_clause = "AND do.guid NOT IN ('". implode($object_guids_to_keep,"','") ."')";
-        $this->mysqli->update("UPDATE harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.resource_id=$this->id $where_clause");
+        if($last_id = $this->most_recent_published_harvest_event_id())
+        {
+            $where_clause = '';
+            if($object_guids_to_keep) $where_clause = "AND do.guid NOT IN ('". implode($object_guids_to_keep,"','") ."')";
+            $this->mysqli->update("UPDATE harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.id=$last_id $where_clause");
+        }
     }
     
     public function unpublish_hierarchy_entries()
@@ -253,7 +256,7 @@ class Resource extends MysqlBase
                 $object_guids_to_keep = $this->vetted_object_guids();
             }
             
-            // make all objects in last harvest visible if they were in preview mode
+            // make all objects in last harvest visible if they were in vetted
             $harvest_event->make_objects_visible($object_guids_to_keep);
             
             // preserve visibilities from older versions of same objects

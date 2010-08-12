@@ -299,9 +299,9 @@ class NameTag
         $this->marked_html = $this->html;
         
         $parameters = array();
-        $name_start_index = 0;
-        $name_last_index = 0;
-        $word_list_matches = 0;
+        $name_start_index = null;
+        $name_last_index = null;
+        $word_list_matches = null;
         foreach($this->html_elements as $index => $element)
         {
             $word = $element[0];
@@ -320,7 +320,7 @@ class NameTag
             // we found the end of our potential name string
             if($parameters["return_string"])
             {
-                if(!$name_start_index)
+                if(is_null($name_start_index))
                 {
                     $name_start_index = $index;
                     $name_last_index = $index;
@@ -333,12 +333,12 @@ class NameTag
                     $parameters["return_code"] = "G".$parameters["return_code"];
                 }
                 if($word_list_matches) $name_last_index -= strlen($word_list_matches) - strlen($parameters["return_code"]);
-                                
+                
                 $this->add_tag_around_name($name_start_index, $name_last_index, $parameters["return_string"]);
                 
-                $name_start_index = 0;
-                $name_last_index = 0;
-                $word_list_matches = 0;
+                $name_start_index = null;
+                $name_last_index = null;
+                $word_list_matches = null;
             }
             
             // we found the end of our potential name string and we also found a complete uninomial
@@ -349,20 +349,20 @@ class NameTag
                 
                 $this->add_tag_around_name($name_start_index, $name_last_index, $parameters["return_string_2"]);
                 
-                $name_start_index = 0;
-                $name_last_index = 0;
-                $word_list_matches = 0;
+                $name_start_index = null;
+                $name_last_index = null;
+                $word_list_matches = null;
             }
             
             // we found the next word in our potential name string
-            if($parameters["current_string"] && !$parameters["return_string"] && $name_start_index)
+            if($parameters["current_string"] && !$parameters["return_string"] && !is_null($name_start_index))
             {
                 $name_last_index = $index;
                 $word_list_matches = $parameters["word_list_matches"];
             }
             
             // we found the first word in a potential name string
-            if($parameters["current_string"] && !$name_start_index)
+            if($parameters["current_string"] && is_null($name_start_index))
             {
                 $name_start_index = $index;
                 $name_last_index = $index;
@@ -372,9 +372,9 @@ class NameTag
             // we had a potential name string, but it really wasn't a name
             if($name_start_index && !@$parameters["current_string"] && !@$parameters["return_string"])
             {
-                $name_start_index = 0;
-                $name_last_index = 0;
-                $word_list_matches = 0;
+                $name_start_index = null;
+                $name_last_index = null;
+                $word_list_matches = null;
             }
             
             unset($parameters["return_string"]);
