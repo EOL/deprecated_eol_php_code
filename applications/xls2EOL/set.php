@@ -107,15 +107,16 @@ $id     = 145;  //Natural History Services
 $fld    = "service_type_id";
 $value  = 2;
 
-$id     = ;  //Natural History Services
+$id     = 119;  //Photosynth
 $fld    = "auto_publish";
 $value  = 1;
 
 */
 
-$id     = 119;  //Photosynth
+$id     = 145;  //Natural History Services
 $fld    = "auto_publish";
 $value  = 1;
+
 
 $query="Select resources.$fld, resources.title, resources.id From resources Where resources.id = $id";
 $result = $mysqli->query($query);    
