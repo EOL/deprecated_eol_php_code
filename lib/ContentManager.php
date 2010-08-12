@@ -122,11 +122,7 @@ class ContentManager
         elseif(preg_match("/^microsoft asf/i", $file_type))                             $new_suffix = "wmv";
         elseif(preg_match("/^mpeg sequence/i", $file_type))                             $new_suffix = "mpg";
         elseif(preg_match("/^flc animation/i", $file_type))                             $new_suffix = "flc";
-        elseif(preg_match("/^microsoft asf/", $file_type, $arr))
-        {
-            if($suffix == "wma")                                                        $new_suffix = "wma";  // audio
-            elseif($suffix == "wmv")                                                    $new_suffix = "wmv";  // video
-        }
+        elseif($suffix=="wmv" && preg_match("/^microsoft asf/i", $file_type))           $new_suffix = "wmv";
         
         // audio
         elseif(preg_match("/^riff \(little-endian\) data, wave audio/i", $file_type))   $new_suffix = "wav";
@@ -136,6 +132,7 @@ class ContentManager
         elseif(preg_match("/^flac audio/i", $file_type))                                $new_suffix = "flac";
         elseif(preg_match("/^sun\/next audio data/i", $file_type))                      $new_suffix = "au";
         elseif(preg_match("/^mpeg adts, aac/i", $file_type))                            $new_suffix = "aac";
+        elseif($suffix=="wma" && preg_match("/^microsoft asf/i", $file_type))           $new_suffix = "wma";
         
         // compressed
         elseif(preg_match("/^gzip compressed data/i", $file_type))                      $new_suffix = "gz";
@@ -148,6 +145,7 @@ class ContentManager
         elseif(preg_match("/^html( |$)/i", $file_type))                                 $new_suffix = "html";
         elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i", $file_type))          $new_suffix = "xml";
         elseif($suffix=="xml" && preg_match("/^ascii text/i", $file_type))              $new_suffix = "xml";
+        elseif($suffix=="xml" && preg_match("/^ASCII English text/i", $file_type))      $new_suffix = "xml";
         
         return $new_suffix;
     }
