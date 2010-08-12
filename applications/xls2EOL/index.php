@@ -7,7 +7,6 @@
         <br>
         <font size="2"><i>e.g. http://mydomain.org/my_spreadsheet.xls</i><br>
         <a href="eol.xls">Download</a> the EOL spreadsheet template here.<br>
-        <a href="eol_specialist_project.xls">Download</a> the spreadsheet template here for specialist projects.<br>
         </font>
     </td>
 </tr>
