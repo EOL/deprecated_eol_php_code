@@ -543,7 +543,7 @@ class Resource extends MysqlBase
         $params = array();
         if(@$provider_agent->id) $params["agent_id"] = $provider_agent->id;
         $params["label"] = $this->title;
-        $params["description"] = "From resource $this->title";
+        $params["description"] = "From resource $this->title ($this->id)";
         $hierarchy_mock = Functions::mock_object("Hierarchy", $params);
         $hierarchy_id = Hierarchy::insert($hierarchy_mock);
         

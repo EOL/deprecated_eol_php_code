@@ -109,23 +109,45 @@ class ContentManager
         
         $new_suffix = "";
         
-        if(preg_match("/^([^ ]+) image data/",$file_type,$arr))
+        // images
+        if(preg_match("/jpeg image data/i", $file_type))                                $new_suffix = "jpg";
+        elseif(preg_match("/tiff image data/i", $file_type))                            $new_suffix = "tif";
+        elseif(preg_match("/PNG image/i", $file_type))                                  $new_suffix = "png";
+        
+        // videos
+        elseif(preg_match("/^macromedia flash/i", $file_type))                          $new_suffix = "flv";
+        elseif(preg_match("/^apple quickTime/i", $file_type))                           $new_suffix = "mov";
+        elseif(preg_match("/^riff \(little-endian\) data, avi/i", $file_type))          $new_suffix = "avi";
+        elseif(preg_match("/^iso Media, mpeg v4/i", $file_type))                        $new_suffix = "mp4";
+        elseif(preg_match("/^microsoft asf/i", $file_type))                             $new_suffix = "wmv";
+        elseif(preg_match("/^mpeg sequence/i", $file_type))                             $new_suffix = "mpg";
+        elseif(preg_match("/^flc animation/i", $file_type))                             $new_suffix = "flc";
+        elseif(preg_match("/^microsoft asf/", $file_type, $arr))
         {
-            $new_suffix = $arr[1];
-            if($new_suffix == "jpeg") $new_suffix = "jpg";
-            if($new_suffix == "tiff") $new_suffix = "tif";
-        }elseif(preg_match("/^macromedia flash/i",$file_type,$arr)) $new_suffix = "flv";
-        elseif(preg_match("/^apple quickTime/i",$file_type,$arr)) $new_suffix = "mov";
-        elseif(preg_match("/^riff \(little-endian\) data, avi/i",$file_type,$arr)) $new_suffix = "avi";
-        elseif(preg_match("/^gzip compressed data/i",$file_type,$arr)) $new_suffix = "gz";
-        elseif(preg_match("/^posix tar archive/i",$file_type,$arr)) $new_suffix = "tar ";
-        elseif(preg_match("/^zip archive data/i",$file_type,$arr)) $new_suffix = "zip";
-        elseif(preg_match("/^xml( |$)/i",$file_type,$arr) || preg_match("/xml$/i",$file_type,$arr)) $new_suffix = "xml";
-        elseif(preg_match("/^pdf( |$)/i",$file_type,$arr)) $new_suffix = "pdf";
-        elseif(preg_match("/^html( |$)/i",$file_type,$arr)) $new_suffix = "html";
-        elseif(preg_match("/PNG image/i",$file_type,$arr)) $new_suffix = "png";
-        elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i",$file_type,$arr)) $new_suffix = "xml";
-        elseif($suffix=="xml" && preg_match("/^ascii text/i",$file_type,$arr)) $new_suffix = "xml";
+            if($suffix == "wma")                                                        $new_suffix = "wma";  // audio
+            elseif($suffix == "wmv")                                                    $new_suffix = "wmv";  // video
+        }
+        
+        // audio
+        elseif(preg_match("/^riff \(little-endian\) data, wave audio/i", $file_type))   $new_suffix = "wav";
+        elseif(preg_match("/^iff data, aiff audio/i", $file_type))                      $new_suffix = "aif";
+        elseif(preg_match("/mpeg adts, layer iii/i", $file_type))                       $new_suffix = "mp3";
+        elseif(preg_match("/^ogg data, vorbis audio/i", $file_type))                    $new_suffix = "ogg";
+        elseif(preg_match("/^flac audio/i", $file_type))                                $new_suffix = "flac";
+        elseif(preg_match("/^sun\/next audio data/i", $file_type))                      $new_suffix = "au";
+        elseif(preg_match("/^mpeg adts, aac/i", $file_type))                            $new_suffix = "aac";
+        
+        // compressed
+        elseif(preg_match("/^gzip compressed data/i", $file_type))                      $new_suffix = "gz";
+        elseif(preg_match("/^posix tar archive/i", $file_type))                         $new_suffix = "tar ";
+        elseif(preg_match("/^zip archive data/i", $file_type))                          $new_suffix = "zip";
+        
+        // other - xml, html, pdf
+        elseif(preg_match("/^xml( |$)/i", $file_type) || preg_match("/xml$/i", $file_type)) $new_suffix = "xml";
+        elseif(preg_match("/^pdf( |$)/i", $file_type))                                  $new_suffix = "pdf";
+        elseif(preg_match("/^html( |$)/i", $file_type))                                 $new_suffix = "html";
+        elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i", $file_type))          $new_suffix = "xml";
+        elseif($suffix=="xml" && preg_match("/^ascii text/i", $file_type))              $new_suffix = "xml";
         
         return $new_suffix;
     }

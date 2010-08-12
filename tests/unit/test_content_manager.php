@@ -62,14 +62,14 @@ class test_content_manager extends SimpletestUnitBase
 
     function testGrabContentVideo()
     {
-        $file = $this->content_manager->grab_file("http://www.rkwalton.com/jump/phhe.mp4", 0, "video");
+        $file = $this->content_manager->grab_file("http://www.crowcastle.net/preston/linux-av/legodrgn.avi", 0, "video");
         $this->assertPattern("/^[0-9]{15}/", $file);        
         if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
         {
             $dir = $arr[1]."/".$arr[2]."/".$arr[3]."/".$arr[4]."/";
             $prefix = $arr[5];
-            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH."/".$dir.$prefix.".mp4"), "Should be an mp4 file");
-        }else $this->assertTrue(false, "Image should match this pattern");        
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH."/".$dir.$prefix.".avi"), "Should be an avi file");
+        }else $this->assertTrue(false, "Video should match this pattern");        
     }
 
 }
