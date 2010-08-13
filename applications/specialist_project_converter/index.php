@@ -6,7 +6,7 @@
         <font size="2">XLS File URL: </font><input type="text" name="url" size="100" style="font-size : x-small; font-family : Arial;">
         <br>
         <font size="2"><i>e.g. http://mydomain.org/my_spreadsheet.xls</i><br>
-        <a href="eol_specialist_project.xls">Download</a> the spreadsheet template here for specialist projects.<br>
+        <a href="../xls2EOL/eol_specialist_project.xls">Download</a> the spreadsheet template here for specialist projects.<br>
         </font>
     </td>
 </tr>
