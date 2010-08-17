@@ -29,6 +29,8 @@ while($result && $row=$result->fetch_assoc())
         echo "$i: ".time_elapsed()."\n";
         flush();
         $GLOBALS['db_connection']->commit();
+        $GLOBALS['db_connection']->end_transaction();
+        $GLOBALS['db_connection']->begin_transaction();
     }
     $i++;
     
@@ -38,9 +40,8 @@ while($result && $row=$result->fetch_assoc())
     $nametag->reset($description);
     $description = $nametag->markup_html();
     
-    $description = NameLink::replace_tags_with_collection($description, 'EOLLookup::sdaf');
+    $description = NameLink::replace_tags_with_collection($description, 'EOLLookup::check_db');
     
-    echo "UPDATE data_objects SET description_linked='".$GLOBALS['db_connection']->real_escape_string($description)."' WHERE id=$id\n";
     $GLOBALS['db_connection']->query("UPDATE data_objects SET description_linked='".$GLOBALS['db_connection']->real_escape_string($description)."' WHERE id=$id");
 }
 $GLOBALS['db_connection']->end_transaction();
@@ -51,18 +52,22 @@ $GLOBALS['db_connection']->end_transaction();
 
 class EOLLookup
 {
-    public static function sdaf($name_string)
+    public static function check_db($name_string)
     {
         $name_string = trim($name_string);
         if(!$name_string) return false;
         $canonical_form = Functions::canonical_form($name_string);
         
-        $json = array();
-        $result = $GLOBALS['db_connection']->query("SELECT tc.id FROM canonical_forms cf JOIN names n ON (cf.id=n.canonical_form_id) JOIN taxon_concept_names tcn ON (n.id=tcn.name_id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) WHERE cf.string='$canonical_form' AND tcn.preferred=1 AND tcn.source_hierarchy_entry_id!=0 AND tc.published=1 AND tc.vetted_id=5 AND tc.supercedure_id=0 ORDER BY tc.id ASC LIMIT 1");
+        $min_tc_id = 0;
+        $result = $GLOBALS['db_connection']->query("SELECT tc.id FROM canonical_forms cf JOIN names n ON (cf.id=n.canonical_form_id) JOIN hierarchy_entries he ON (n.id=he.name_id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE cf.string='$canonical_form' AND tc.published=1 AND tc.vetted_id=5 AND tc.supercedure_id=0");
         if($result && $row=$result->fetch_assoc())
         {
-            $json[] = array('url' => '/pages/'. $row['id']);
+            if(!$min_tc_id || $row['id'] < $min_tc_id) $min_tc_id = $row['id'];
         }
+        
+        $json = array();
+        if($min_tc_id) $json[] = array('url' => '/pages/'. $min_tc_id);
+        
         
         return $json;
     }
