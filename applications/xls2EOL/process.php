@@ -110,9 +110,12 @@ if($validate == 'on')
     $fn = $temp . $newfile . "";    
     $fn = $temp . "process.php?fn=" . urlencode($fn) . "";    
     
+
+    
+
     print"
     <i>Transformation done.</i> <p>
-    <form name='validator_form' action='http://services.eol.org/validator/index.php/index.php' method='post'>
+    <form name='validator_form' action='http://services.eol.org/eol_php_code/applications/validator/index.php' method='post'>
     <input type='hidden' size='30' name='file_url' value='$fn'>
     <input type='submit' value='Click here to Validate >> '>
     </td>    
