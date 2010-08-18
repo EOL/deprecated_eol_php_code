@@ -153,6 +153,13 @@ class DarwinCoreArchiveHarvester
             $line = preg_replace("/".preg_quote($this->core->fields_enclosed_by, "/")."$/", "", $line);
             $fields = explode($this->core->fields_enclosed_by.$this->core->fields_terminated_by.$this->core->fields_enclosed_by, $line);
             if($fields) $all_taxa[] = $this->generate_taxon($fields, $this->core);
+            
+            if($line_num%10000==1)
+            {
+                $count = count($all_taxa);
+                print_r($all_taxa[$count-1]);
+                //if($line_num>5) return $all_taxa;
+            }
         }
         return $all_taxa;
     }
@@ -201,6 +208,12 @@ class DarwinCoreArchiveHarvester
             }
         }
         $taxon = new DarwinCoreTaxon($taxon_attributes);
+        
+        // when the acceptedNameID is set to itself - then just unset the acceptedNameID
+        if(isset($taxon->taxonID) && isset($taxon->acceptedNameUsageID) && trim($taxon->acceptedNameUsageID))
+        {
+            unset($taxon->acceptedNameUsageID);
+        }
         unset($taxon_attributes);
         return $taxon;
     }

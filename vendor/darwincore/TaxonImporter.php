@@ -38,7 +38,7 @@ class TaxonImporter
                 // $is_valid might be zero at this point so we need to check
                 if($is_valid === null) $is_valid = false;
             }
-            if($is_valid && isset($taxon->acceptedNameUsageID)) $is_valid = false;
+            if($is_valid && isset($taxon->acceptedNameUsageID) && trim($taxon->acceptedNameUsageID)!='') $is_valid = false;
             
             $taxon_id = $taxon->taxonID;
             $parent_taxon_id = @$taxon->parentNameUsageID;
@@ -80,13 +80,19 @@ class TaxonImporter
     private function begin_adding_nodes()
     {
         $this->taxon_ids_inserted = array();
-        foreach($this->children[0] as $child_taxon)
+        if(isset($this->children[0]))
         {
-            $parent_hierarchy_entry_id = 0;
-            $ancestry = "";
-            $this->mysqli->begin_transaction();
-            $this->add_hierarchy_entry($child_taxon, $parent_hierarchy_entry_id, $ancestry);
-            $this->mysqli->end_transaction();
+            foreach($this->children[0] as $child_taxon)
+            {
+                $parent_hierarchy_entry_id = 0;
+                $ancestry = "";
+                $this->mysqli->begin_transaction();
+                $this->add_hierarchy_entry($child_taxon, $parent_hierarchy_entry_id, $ancestry);
+                $this->mysqli->end_transaction();
+            }
+        }else
+        {
+            echo "THERE ARE NO ROOT TAXA\nAborting import\n";
         }
     }
     
