@@ -1,6 +1,8 @@
 <?php
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
+error_reporting(0);
+
 //$file = "../xls2EOL/eol_specialist_project.xls";
 $file = "" . $_GET["file"];
 
