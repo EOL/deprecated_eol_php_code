@@ -60,7 +60,8 @@ class Memcached
         if(@!$GLOBALS['memcached_connection'] && @$GLOBALS['ENV_MEMCACHED_SERVER'])
         {
             $memcached_connection = new Memcache;
-            $memcached_connection->connect($GLOBALS['ENV_MEMCACHED_SERVER'], 11211);
+            $success = @$memcached_connection->connect($GLOBALS['ENV_MEMCACHED_SERVER'], 11211);
+            if(!$success) return false;
             $GLOBALS['memcached_connection'] = $memcached_connection;
             if(@!$GLOBALS['memcached_connection']) return false;
         }

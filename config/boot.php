@@ -91,6 +91,11 @@ if(@$GLOBALS['ENV_MYSQL_DEBUG'] || @$GLOBALS['ENV_DEBUG']) ob_implicit_flush(tru
 if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = false;
 /* Cache is set to memory by default */
 if(!isset($GLOBALS['ENV_MEMCACHED_SERVER'])) $GLOBALS['ENV_CACHE'] = 'memory';
+elseif(!Memcached::connected())
+{
+    $GLOBALS['ENV_MEMCACHED_SERVER'] = null;
+    $GLOBALS['ENV_CACHE'] = 'memory';
+}
 
 
 /* ImageMagick */

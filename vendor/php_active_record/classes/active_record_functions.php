@@ -309,7 +309,7 @@ function is_field_in_table($field, $table)
 /* currently storing field information in memory only */
 function table_fields($table)
 {
-    if($cache = MemoryCache::get('table_fields_' . $table)) return $cache;
+    if($cache = Cache::get('table_fields_' . $table)) return $cache;
     
     $fields = array();
     
@@ -320,7 +320,7 @@ function table_fields($table)
     }
     if($result && @$result->num_rows) $result->free();
     
-    MemoryCache::set('table_fields_' . $table, $fields);
+    Cache::set('table_fields_' . $table, $fields);
     
     return $fields;
 }

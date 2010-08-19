@@ -29,7 +29,10 @@ class test_cache extends SimpletestUnitBase
             $this->assertTrue(Memcached::get('the_key') == 'yet_another_value', 'Key should exist before deleting');
             Memcached::delete('the_key');
             $this->assertFalse(Memcached::get('the_key'), 'Key deletion should work');
-        }else echo "\nYOU DO NOT HAVE MEMCACHED CONFIGURED\n";
+        }else
+        {
+            echo "YOU DO NOT HAVE MEMCACHED PROPERLY CONFIGURED OR CANNOT CONNECT: FAIL\n";
+        }
     }
     
     function testMemoryCache()
@@ -99,8 +102,8 @@ class test_cache extends SimpletestUnitBase
     function testCacheLanguages()
     {
         // we want memory cache for testing, and will revert to old value after test
-        $saved_value = @$GLOBALS['ENV_CACHE'];
-        $GLOBALS['ENV_CACHE'] = "memory";
+        //$saved_value = @$GLOBALS['ENV_CACHE'];
+        //$GLOBALS['ENV_CACHE'] = "memory";
         
         Language::insert('fr');
         Language::insert('sp');
@@ -111,10 +114,10 @@ class test_cache extends SimpletestUnitBase
         $GLOBALS['db_connection']->truncate_tables('test');
         $this->assertTrue($language_id == Language::insert('en'), 'Cache should be maintained');
         
-        MemoryCache::flush();
+        Cache::flush();
         $this->assertTrue($language_id != Language::insert('en'), 'Cache flushing should work');
         
-        $GLOBALS['ENV_CACHE'] = $saved_value;
+        //$GLOBALS['ENV_CACHE'] = $saved_value;
     }
     
     function testCacheIgnoring()
