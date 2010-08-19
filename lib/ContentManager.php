@@ -113,6 +113,7 @@ class ContentManager
         if(preg_match("/jpeg image data/i", $file_type))                                $new_suffix = "jpg";
         elseif(preg_match("/tiff image data/i", $file_type))                            $new_suffix = "tif";
         elseif(preg_match("/PNG image/i", $file_type))                                  $new_suffix = "png";
+        elseif(preg_match("/GIF image/i", $file_type))                                  $new_suffix = "gif";
         
         // videos
         elseif(preg_match("/^macromedia flash/i", $file_type))                          $new_suffix = "flv";
