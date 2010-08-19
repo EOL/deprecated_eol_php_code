@@ -43,25 +43,28 @@ class XLSParser
         $i=0;        
         foreach($arr["Scientific Name"] as $sciname)
         {
-            $taxon_identifier = $sciname;        
-            if(@$used_taxa[$taxon_identifier]) $taxon_parameters = $used_taxa[$taxon_identifier];
-            else
-            {
-                $taxon_parameters = array();
-                $taxon_parameters["identifier"] = $arr["ID"][$i];
-                $taxon_parameters["kingdom"] = ucfirst(trim($arr["Kingdom"][$i]));
-                $taxon_parameters["phylum"] = ucfirst(trim($arr["Phylum"][$i]));       
-                $taxon_parameters["class"] = ucfirst(trim($arr["Class"][$i]));
-                $taxon_parameters["order"] = ucfirst(trim($arr["Order"][$i]));
-                $taxon_parameters["family"] = ucfirst(trim($arr["Family"][$i]));        
-                $taxon_parameters["genus"] = ucfirst(trim($arr["Genus"][$i]));
-                $taxon_parameters["scientificName"]= ucfirst(trim($arr["Scientific Name"][$i]));
-                $taxon_parameters["source"] = trim($arr["Source URL"][$i]);
-                $taxon_parameters["dataObjects"]= array();        
-                $used_taxa[$taxon_identifier] = $taxon_parameters;
-            }            
-            $used_taxa[$taxon_identifier] = $taxon_parameters;                                
-            $i++;        
+            //if($sciname)
+            //{
+                $taxon_identifier = $sciname;        
+                if(@$used_taxa[$taxon_identifier]) $taxon_parameters = $used_taxa[$taxon_identifier];
+                else
+                {
+                    $taxon_parameters = array();
+                    $taxon_parameters["identifier"] = $arr["ID"][$i];
+                    $taxon_parameters["kingdom"] = ucfirst(trim($arr["Kingdom"][$i]));
+                    $taxon_parameters["phylum"] = ucfirst(trim($arr["Phylum"][$i]));       
+                    $taxon_parameters["class"] = ucfirst(trim($arr["Class"][$i]));
+                    $taxon_parameters["order"] = ucfirst(trim($arr["Order"][$i]));
+                    $taxon_parameters["family"] = ucfirst(trim($arr["Family"][$i]));        
+                    $taxon_parameters["genus"] = ucfirst(trim($arr["Genus"][$i]));
+                    $taxon_parameters["scientificName"]= ucfirst(trim($arr["Scientific Name"][$i]));
+                    $taxon_parameters["source"] = trim($arr["Source URL"][$i]);
+                    $taxon_parameters["dataObjects"]= array();        
+                    @$used_taxa[$taxon_identifier] = $taxon_parameters;
+                }            
+                @$used_taxa[$taxon_identifier] = $taxon_parameters;                                
+                $i++;                    
+            //}
         }//foreach        
                 
         foreach($used_taxa as $taxon_parameters)
