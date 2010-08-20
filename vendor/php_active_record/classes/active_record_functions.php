@@ -309,7 +309,7 @@ function is_field_in_table($field, $table)
 /* currently storing field information in memory only */
 function table_fields($table)
 {
-    if($cache = Cache::get('table_fields_' . $table)) return $cache;
+    if($cache = Cache::get('table_fields:' . $table)) return $cache;
     
     $fields = array();
     
@@ -320,7 +320,7 @@ function table_fields($table)
     }
     if($result && @$result->num_rows) $result->free();
     
-    Cache::set('table_fields_' . $table, $fields);
+    Cache::set('table_fields:' . $table, $fields);
     
     return $fields;
 }
@@ -429,6 +429,26 @@ function file_randomize($path)
     
     unlink($path);
     rename($new_file_path, $path);
+}
+
+function get_simpletest_name()
+{
+    static $test_number = 0;
+    
+    $test_name = "";
+    if(isset($GLOBALS['group_test']->_test_cases[$test_number]->_reporter->_test_stack[2]))
+    {
+        $test_name = $GLOBALS['group_test']->_test_cases[$test_number]->_reporter->_test_stack[2];
+    }else
+    {
+        $test_number++;
+        if(isset($GLOBALS['group_test']->_test_cases[$test_number]->_reporter->_test_stack[2]))
+        {
+            $test_name = $GLOBALS['group_test']->_test_cases[$test_number]->_reporter->_test_stack[2];
+        }
+    }
+    
+    return $test_name;
 }
 
 

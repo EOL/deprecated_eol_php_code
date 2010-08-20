@@ -6,8 +6,8 @@ ini_set("display_errors", 1);
 
 /* forcing the test environment and turning off caching */
 $GLOBALS['ENV_NAME'] = 'test';
-$GLOBALS['ENV_ENABLE_CACHING'] = false;
 require_once(dirname(__FILE__) . '/../config/environment.php');
+$GLOBALS['ENV_ENABLE_CACHING'] = false;
 
 require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
 require_once(DOC_ROOT . 'vendor/simpletest_extended/simpletest_unit_base.php');

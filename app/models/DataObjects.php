@@ -22,7 +22,7 @@ class DataObject extends MysqlBase
     
     public static function last()
     {
-        $result = $GLOBALS['db_connection']->query("SELECT * FROM data_objects ORDER BY id DESC limit 1");
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE * FROM data_objects ORDER BY id DESC limit 1");
         if($result && $row=$result->fetch_assoc())
         {
             return new DataObject($row);

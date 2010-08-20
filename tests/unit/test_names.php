@@ -32,8 +32,10 @@ class test_names extends SimpletestUnitBase
     
     function testInsertNameWithCaching()
     {
-        $GLOBALS['ENV_ENABLE_CACHING'] = true;
-        unset($GLOBALS['no_cache']['names']);
+        $GLOBALS["ENV_ENABLE_CACHING_SAVED"] = $GLOBALS["ENV_ENABLE_CACHING"];
+        $GLOBALS["ENV_ENABLE_CACHING"] = true;
+        $GLOBALS['no_cache']['names'] = false;
+        
         $str = "Aus bus Smith (Linnaeus 1777)";
         
         $name_id = Name::insert($str);
@@ -43,8 +45,10 @@ class test_names extends SimpletestUnitBase
         $canonical_form = $name->canonical_form();
         $this->assertTrue($name->id > 0, "Should be able to make a name object");
         $this->assertTrue($canonical_form->string == "Aus bus", "Name should have a canonical form");
+        
         $GLOBALS['no_cache']['names'] = true;
-        $GLOBALS['ENV_ENABLE_CACHING'] = false;
+        $GLOBALS["ENV_ENABLE_CACHING"] = $GLOBALS["ENV_ENABLE_CACHING_SAVED"];
+        unset($GLOBALS["ENV_ENABLE_CACHING_SAVED"]);
     }
     
 }

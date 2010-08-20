@@ -85,7 +85,7 @@ class InotaxaAPI
         if(!($xml = @simplexml_load_file($url)))
         {
             print "\n <a href='$url'>$url</a> not accessible";
-            continue;
+            return;
         }        
         $i=0;
         $sciname = array();//just for debugging        

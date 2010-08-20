@@ -2,88 +2,32 @@
 
 class Cache
 {
-    // public static function __callStatic($function, $args)
-    // {
-    //     if(@$GLOBALS['ENV_CACHE'] == "memory")
-    //     {
-    //         return call_user_func_array(array('MemoryCache', $function), $args);
-    //     }elseif(@$GLOBALS['memcached_connection'])
-    //     {
-    //         return call_user_func_array(array('Memcached', $function), $args);
-    //     }
-    //     return false;
-    // }
-    
-    public static function get()
+    public static function __callStatic($function, $args)
     {
-        $args = func_get_args();
+        if($function == "restart") return self::restart();
         if(!$GLOBALS["ENV_ENABLE_CACHING"]) return false;
         if(@$GLOBALS['ENV_CACHE'] == "memory")
         {
-            return call_user_func_array(array('MemoryCache', __FUNCTION__), $args);
+            return call_user_func_array(array('MemoryCache', $function), $args);
         }elseif(@$GLOBALS['memcached_connection'])
         {
-            return call_user_func_array(array('Memcached', __FUNCTION__), $args);
+            // making sure the key is valid
+            if(isset($args[0])) $args[0] = strtolower(str_replace(" ", "_", $args[0]));
+            $return = call_user_func_array(array('Memcached', $function), $args);
+            return $return;
         }
         return false;
     }
     
-    public static function add()
+    public static function restart()
     {
-        $args = func_get_args();
-        if(!$GLOBALS["ENV_ENABLE_CACHING"]) return false;
-        if(@$GLOBALS['ENV_CACHE'] == "memory")
+        if(@$GLOBALS['ENV_ENABLE_CACHING'])
         {
-            return call_user_func_array(array('MemoryCache', __FUNCTION__), $args);
-        }elseif(@$GLOBALS['memcached_connection'])
-        {
-            return call_user_func_array(array('Memcached', __FUNCTION__), $args);
+            // connect will close the existing connection and restart it
+            if(Memcached::connect()) $GLOBALS['ENV_CACHE'] = 'memcached';
+            else $GLOBALS['ENV_CACHE'] = 'memory';
         }
-        return false;
     }
-    
-    public static function set()
-    {
-        $args = func_get_args();
-        if(!$GLOBALS["ENV_ENABLE_CACHING"]) return false;
-        if(@$GLOBALS['ENV_CACHE'] == "memory")
-        {
-            return call_user_func_array(array('MemoryCache', __FUNCTION__), $args);
-        }elseif(@$GLOBALS['memcached_connection'])
-        {
-            return call_user_func_array(array('Memcached', __FUNCTION__), $args);
-        }
-        return false;
-    }
-    
-    public static function delete()
-    {
-        $args = func_get_args();
-        if(!$GLOBALS["ENV_ENABLE_CACHING"]) return false;
-        if(@$GLOBALS['ENV_CACHE'] == "memory")
-        {
-            return call_user_func_array(array('MemoryCache', __FUNCTION__), $args);
-        }elseif(@$GLOBALS['memcached_connection'])
-        {
-            return call_user_func_array(array('Memcached', __FUNCTION__), $args);
-        }
-        return false;
-    }
-    
-    public static function flush()
-    {
-        $args = func_get_args();
-        if(!$GLOBALS["ENV_ENABLE_CACHING"]) return false;
-        if(@$GLOBALS['ENV_CACHE'] == "memory")
-        {
-            return call_user_func_array(array('MemoryCache', __FUNCTION__), $args);
-        }elseif(@$GLOBALS['memcached_connection'])
-        {
-            return call_user_func_array(array('Memcached', __FUNCTION__), $args);
-        }
-        return false;
-    }
-    
 }
 
 ?>

@@ -79,7 +79,7 @@ class CompareHierarchies
     public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array())
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-        echo "Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n\n";
+        debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
         
         // hierarchy is the same and its 'complete' meaning its been curated and all nodes should be different taxa
         // so there no need to compare it to itself. Other hierarchies are not 'complete' such as Flickr which

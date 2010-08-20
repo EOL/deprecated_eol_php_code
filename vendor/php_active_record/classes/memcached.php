@@ -12,7 +12,7 @@ class Memcached
         return $GLOBALS['memcached_connection']->get($key);
     }
     
-    public static function add($key, $value, $expire = 10)
+    public static function add($key, $value, $expire = 600)
     {
         if(!self::connected())
         {
@@ -22,14 +22,28 @@ class Memcached
         return $GLOBALS['memcached_connection']->add($key, $value, false, $expire);
     }
     
-    public static function set($key, $value, $expire = 10)
+    public static function set($key, $value, $expire = 600)
     {
         if(!self::connected())
         {
             trigger_error("Memcached: not connected", E_WARNING);
             return false;
         }
+        if(self::get($key))
+        {
+            return self::replace($key, $value, $expire);
+        }
         return $GLOBALS['memcached_connection']->set($key, $value, false, $expire);
+    }
+    
+    public static function replace($key, $value, $expire = 600)
+    {
+        if(!self::connected())
+        {
+            trigger_error("Memcached: not connected", E_WARNING);
+            return false;
+        }
+        return $GLOBALS['memcached_connection']->replace($key, $value, false, $expire);
     }
     
     public static function delete($key, $timeout = 0)
@@ -52,20 +66,48 @@ class Memcached
             trigger_error("Memcached: not connected", E_WARNING);
             return false;
         }
-        return $GLOBALS['memcached_connection']->flush();
+        $value = $GLOBALS['memcached_connection']->flush();
+        sleep(1);
+        return $value;
+    }
+    
+    public static function connect()
+    {
+        // if there was any open connection to memcached - close it
+        self::close();
+        // caching is not enabled - so cannot connect
+        if(!@$GLOBALS['ENV_ENABLE_CACHING']) return false;
+        // memcached is not configured - so cannot connect
+        if(!@$GLOBALS['ENV_MEMCACHED_SERVER']) return false;
+        
+        $memcached_connection = new Memcache;
+        $success = @$memcached_connection->connect($GLOBALS['ENV_MEMCACHED_SERVER'], 11211);
+        if(!$success)
+        {
+            // could not connect
+            $GLOBALS['memcached_connection'] = null;
+            return false;
+        }
+        $GLOBALS['memcached_connection'] = $memcached_connection;
+        if(@!$GLOBALS['memcached_connection']) return false;
+        return true;
     }
     
     public static function connected()
     {
-        if(@!$GLOBALS['memcached_connection'] && @$GLOBALS['ENV_MEMCACHED_SERVER'])
-        {
-            $memcached_connection = new Memcache;
-            $success = @$memcached_connection->connect($GLOBALS['ENV_MEMCACHED_SERVER'], 11211);
-            if(!$success) return false;
-            $GLOBALS['memcached_connection'] = $memcached_connection;
-            if(@!$GLOBALS['memcached_connection']) return false;
-        }
+        if(@!$GLOBALS['memcached_connection']) return false;
+        $stats = @$GLOBALS['memcached_connection']->getStats();
+        if(!is_array($stats)) return false;
         return true;
+    }
+    
+    public static function close()
+    {
+        if(@$GLOBALS['memcached_connection'])
+        {
+            $GLOBALS['memcached_connection']->close();
+            unset($GLOBALS['memcached_connection']);
+        }
     }
 }
 

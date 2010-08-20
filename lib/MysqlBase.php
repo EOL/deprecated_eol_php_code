@@ -58,6 +58,7 @@ class MysqlBase
         
         $string = $GLOBALS['db_connection']->escape($string);
         $id = $GLOBALS['db_connection']->insert("INSERT INTO $table (`$field`) VALUES ('$string')");
+        Cache::set($table.':'.$field.':'.$string, $id);
         
         return $id;
     }
@@ -116,7 +117,7 @@ class MysqlBase
         if(!$string) return null;
         if(!$table) return null;
         
-        if($cache = Cache::get('find_by_ids_'.$table.'_'.$field.'_'.$string)) return $cache;
+        if($cache = Cache::get($table.':'.$field.':'.$string)) return $cache;
         
         $id = null;
         $string = $GLOBALS['db_connection']->escape($string);
@@ -124,7 +125,7 @@ class MysqlBase
         if($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];
-            if(cache_model($table)) Cache::set('find_by_ids_'.$table.'_'.$field.'_'.$string, $id);
+            if(cache_model($table)) Cache::set($table.':'.$field.':'.$string, $id);
         }
         if($result && $result->num_rows) $result->free();
         

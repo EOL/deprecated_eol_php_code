@@ -2,6 +2,22 @@
 
 class test_cache extends SimpletestUnitBase
 {
+    // save the current value of ENABLE_CACHING and force this test to use caching
+    function setUp()
+    {
+        $GLOBALS["ENV_ENABLE_CACHING_SAVED"] = $GLOBALS["ENV_ENABLE_CACHING"];
+        $GLOBALS["ENV_ENABLE_CACHING"] = true;
+        parent::setUp();
+    }
+    
+    // revert to the original value of ENABLE_CACHING
+    function tearDown()
+    {
+        parent::tearDown();
+        $GLOBALS["ENV_ENABLE_CACHING"] = $GLOBALS["ENV_ENABLE_CACHING_SAVED"];
+        unset($GLOBALS["ENV_ENABLE_CACHING_SAVED"]);
+    }
+    
     function testMemcached()
     {
         // test the Memcached connector if memcached is configured
@@ -58,9 +74,6 @@ class test_cache extends SimpletestUnitBase
     
     function testCachePassthroughClass()
     {
-        $original_value = $GLOBALS["ENV_ENABLE_CACHING"];
-        $GLOBALS["ENV_ENABLE_CACHING"] = true;
-        
         Cache::flush();
         Cache::add('the_key', 'the_value');
         $this->assertTrue(Cache::get('the_key') == 'the_value', 'Should be able to set a value in default cache');
@@ -78,15 +91,10 @@ class test_cache extends SimpletestUnitBase
         $this->assertTrue(Cache::get('the_key') == 'yet_another_value', 'Key should exist before deleting');
         Cache::delete('the_key');
         $this->assertFalse(Cache::get('the_key'), 'Key deletion should work');
-        
-        $GLOBALS["ENV_ENABLE_CACHING"] = $original_value;
     }
     
     function testCacheEnabling()
     {
-        $original_value = $GLOBALS["ENV_ENABLE_CACHING"];
-        
-        $GLOBALS["ENV_ENABLE_CACHING"] = true;
         Cache::flush();
         Cache::add('the_key', 'the_value');
         $this->assertTrue(Cache::get('the_key') == 'the_value', 'Cache should work when turned on');
@@ -95,16 +103,10 @@ class test_cache extends SimpletestUnitBase
         Cache::flush();
         Cache::add('the_key', 'the_value');
         $this->assertTrue(Cache::get('the_key') === false, 'Cache should not work when turned off');
-        
-        $GLOBALS["ENV_ENABLE_CACHING"] = $original_value;
     }
     
     function testCacheLanguages()
     {
-        // we want memory cache for testing, and will revert to old value after test
-        //$saved_value = @$GLOBALS['ENV_CACHE'];
-        //$GLOBALS['ENV_CACHE'] = "memory";
-        
         Language::insert('fr');
         Language::insert('sp');
         $language_id = Language::insert('en');
@@ -116,8 +118,6 @@ class test_cache extends SimpletestUnitBase
         
         Cache::flush();
         $this->assertTrue($language_id != Language::insert('en'), 'Cache flushing should work');
-        
-        //$GLOBALS['ENV_CACHE'] = $saved_value;
     }
     
     function testCacheIgnoring()
