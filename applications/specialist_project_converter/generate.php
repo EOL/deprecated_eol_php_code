@@ -27,9 +27,9 @@ $url    = "http://$domain" . $temp;
 
 print"
 Conversion completed. <br>&nbsp;<br>
-This is the URL of your XML file: <a href='$url'>$url</a> <br>&nbsp;<br>
+This is the URL of your XML: <a href='$url'>$url</a> <br>&nbsp;<br>
 You can use this as your resource URL in the EOL content partner registry (Resources section) or you can save your XML and store it elsewhere. <br>&nbsp;<br>
-This XML will be stored in our server for two (2) weeks then it will be deleted. <br>&nbsp;<br>
+This XML will be stored in our server for two (2) weeks then it will be removed. <br>&nbsp;<br>
 Thank you.
 ";
 
