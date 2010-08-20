@@ -6,6 +6,9 @@ class NaturalHistoryServicesAPI
 {
     public static function get_all_taxa()
     {
+        //$arr_acknowledgement = self::prepare_acknowledgement();
+        //print"<pre>page_taxa: ";print_r($arr_acknowledgement);print"</pre>";exit;
+    
         $all_taxa = array();
         $used_collection_ids = array();
         
@@ -24,8 +27,41 @@ class NaturalHistoryServicesAPI
                                                        ),
                                     "active" => 1
                                   ),  // Salticidae - Jumping Spiders
-                       1  => array( "path1" => $domain . ""          , "active" => 0)   //                       
+                       1  => array( "path1" => $domain . "wasps.html" , 
+                                    "path2" => $domain . "" , 
+                                    "path3" => $domain . "" , 
+                                    "ancestry" => array(
+                                                        "kingdom" => "Animalia",
+                                                        "phylum" => "Arthropoda",
+                                                        "class" => "Insecta",
+                                                        "order" => "Hymenoptera",
+                                                        "family" => "",
+                                                        "taxon_source_url" => $domain . "wasps.html"
+                                                       ),
+                                    "active" => 1
+                                  ),  // Other Hymenopterans
+
+                       2  => array( "path1" => $domain . "waspstwo.html" , 
+                                    "path2" => $domain . "" , 
+                                    "path3" => $domain . "" , 
+                                    "ancestry" => array(
+                                                        "kingdom" => "Animalia",
+                                                        "phylum" => "Arthropoda",
+                                                        "class" => "Insecta",
+                                                        "order" => "Hymenoptera",
+                                                        "family" => "",
+                                                        "taxon_source_url" => $domain . "waspstwo.html"
+                                                       ),
+                                    "active" => 1
+                                  ),  // Other Hymenopterans
+
+
+
+
                      );
+
+
+
         foreach($urls as $url)
         {
             if($url["active"])
@@ -260,7 +296,7 @@ class NaturalHistoryServicesAPI
         $i=0;
         foreach($arr as $r)
         {
-            //$loop++;if($loop >= 3)break; //debug to limit the no. of records                                
+            //$loop++;if($loop >= 10)break; //debug to limit the no. of records                                
             $video_url=""; $thumb_url="";                
             if(preg_match("/href=\"(.*?)\"/", $r, $matches))$video_url = $matches[1];                
             if(preg_match("/src=\"(.*?)\"/", $r, $matches))$thumb_url = $matches[1];
@@ -278,6 +314,9 @@ class NaturalHistoryServicesAPI
     public static function scrape_species_page($arr_url_list,$arr_video_info,$ancestry)
     {
         //print"<pre>";print_r($ancestry);print"</pre>"; exit;
+
+        $arr_acknowledgement = self::prepare_acknowledgement();
+        //print"<pre>";print_r($arr_acknowledgement);print"</pre>"; //exit;                
         
         $arr_scraped=array();
         $arr_photos=array();
@@ -303,15 +342,34 @@ class NaturalHistoryServicesAPI
             //if(preg_match("/<!--\s*title\s*name=\"Species\"\s*-->(.*?)<!--\s*title/ims", $html, $matches))
             if(preg_match("/<title>(.*?)<\/title/ims", $html, $matches))
             {   
+                if(is_numeric(stripos($matches[1],"xx")))continue;
+                            
                 $title = trim(strip_tags($matches[1]));
-                $piece = explode("-", $title);
-                $sciname = trim($piece[0]);
-                $desc = trim($piece[1]);                
+                
+                //special case
+                if($title == "Leaf-cutting Ants - Atta")$title="Atta sp. - Leaf-cutting Ants";                
+                if($title == "Alabgrus texanus - Braconid Wasp")$title="Alabagrus texanus - Braconid Wasp";                
+                //end special case
+                
+                $piece = self::get_strings_between_char($title,"-");
+                $sciname = trim(@$piece[0]);
+                $desc = trim(@$piece[1]);                
+
+                
+                if(in_array($sciname, array("Solitary Wasps","Solitary Wasp Video","Critters","404 Not Found")))continue;
+                
                 $ctr++;                        
                 //print"<br>$ctr. $sciname";
             }            
 
             //=============================================================================================================
+            
+            $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);
+            
+            
+            
+            
+            
             //=============================================================================================================
             //=============================================================================================================
             //=============================================================================================================
@@ -331,7 +389,7 @@ class NaturalHistoryServicesAPI
                                   "mediaURL"=>str_ireplace(".html",".mp4",$rec["video_url"]),
                                   "mimeType"=>"video/mp4",
                                   "dataType"=>"http://purl.org/dc/dcmitype/MovingImage",                                  
-                                  "description"=>$desc . "<br> <br>" . $location,
+                                  "description"=>$acknowledgement . " <br>" . $desc . " <a target='more_info' href='" . $ancestry["taxon_source_url"] . "'>More info.</a><br> <br>" . $location,
                                   "title"=>$desc,
                                   "location"=>$location,
                                   "dc_source"=>$rec["video_url"],
@@ -340,7 +398,7 @@ class NaturalHistoryServicesAPI
             $arr_sciname["$sciname"]=$sourceURL;
         }
         
-                
+                       
 
         foreach(array_keys($arr_sciname) as $sci)
         {
@@ -365,6 +423,52 @@ class NaturalHistoryServicesAPI
         
         return $arr_scraped;        
     }
+    
+
+    function get_strings_between_char($string,$delimiter)
+    {
+        $pos = stripos($string,$delimiter);    
+        if(is_numeric($pos))$arr = array(substr($string,0,$pos-1),substr($string,$pos+1,strlen($string)));
+        else $arr = array($string,"");        
+        return $arr;
+    }
+
+    public static function prepare_acknowledgement()    
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        $arr = $parser->convert_sheet_to_array("files/NaturalHistoryServices/Acknowledgments.xls");
+        $acknowledgement=array();
+        $k=0;
+        foreach($arr["sciname"] as $sciname)
+        {            
+            $sci = trim(str_ireplace(".mp4", "", $sciname));
+            for ($i=1; $i<=3; $i++)
+            {
+                if(@$arr["person" . $i][$k])$acknowledgement[$sci][]=@$arr["person" . $i][$k];
+            }
+            $k++;
+        }                
+        //print"<pre>";print_r($acknowledgement);print"</pre>";exit;
+        return $acknowledgement;
+    }
+    public static function get_acknowledgement($sciname, $arr)
+    {
+        //if(!$sciname or $sciname == "" or !@$arr["$sciname"])return;
+        if(!@$arr["$sciname"])return;
+        
+        print"<br>[[$sciname]]";
+        
+        $acknowledgement="";
+        foreach(@$arr["$sciname"] as $person)
+        {
+            if($acknowledgement) $acknowledgement .= ", " . $person;    
+            else $acknowledgement .= $person;    
+        }   
+        if($acknowledgement) return "Acknowledgments: " . $acknowledgement . "<br>";
+        else return;
+    }
+    
 
     public static function get_location($arr_video_info,$sciname)
     {
