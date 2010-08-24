@@ -39,6 +39,7 @@ class SolrAPI
         $core = $c;
         if(preg_match("/^(.*)\/$/", $core, $arr)) $core = $arr[1];
         $action_url = $server . $core;
+        if(preg_match("/^(.*)\/$/", $action_url, $arr)) $action_url = $arr[1];
         $schema = Functions::get_hashed_response($action_url . "/admin/file/?file=schema.xml");
         if($schema) return true;
         return false;
@@ -135,14 +136,19 @@ class SolrAPI
         $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
         
         $fields = array_keys(get_object_vars($this->schema_object));
-        fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");
-        
+        if($this->primary_key)
+        {
+            fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");
+        }else
+        {
+            fwrite($OUT, implode($this->file_delimiter, $fields) . "\n");
+        }
         $multi_values = array();
         
         foreach($objects as $primary_key => $attributes)
         {
             $this_attr = array();
-            $this_attr[] = $primary_key;
+            if($this->primary_key) $this_attr[] = $primary_key;
             foreach($fields as $attr)
             {
                 // this object has this attribute
@@ -175,6 +181,18 @@ class SolrAPI
             $curl .= " -F f.$field.split=true -F f.$field.separator='". $this->multi_value_delimiter ."'";
         }
         $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType=text/plain;charset=utf-8";
+        
+        echo "calling: $curl\n";
+        exec($curl);
+        $this->commit();
+    }
+    
+    public function send_from_mysql_result($outfile)
+    {
+        $fields = array_keys(get_object_vars($this->schema_object));
+        $curl = "curl ". $this->action_url ."/update/csv -F overwrite=true -F separator='\t'";
+        $curl .= " -F header=false -F fieldnames=".implode(",", $fields);
+        $curl .= " -F stream.file=$outfile -F stream.contentType=text/plain;charset=utf-8";
         
         echo "calling: $curl\n";
         exec($curl);
