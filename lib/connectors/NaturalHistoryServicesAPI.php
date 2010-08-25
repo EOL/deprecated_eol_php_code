@@ -1,14 +1,9 @@
 <?php
 define("SPECIES_URL", "http://www.rkwalton.com/");
-define("IMAGE_URL", "");
-
 class NaturalHistoryServicesAPI
 {
     public static function get_all_taxa()
-    {
-        //$arr_acknowledgement = self::prepare_acknowledgement();
-        //print"<pre>page_taxa: ";print_r($arr_acknowledgement);print"</pre>";exit;
-    
+    {    
         $all_taxa = array();
         $used_collection_ids = array();
         
@@ -54,45 +49,21 @@ class NaturalHistoryServicesAPI
                                                        ),
                                     "active" => 1
                                   ),  // Other Hymenopterans
-
-
-
-
                      );
-
-
-
         foreach($urls as $url)
         {
             if($url["active"])
             {
-                $page_taxa = self::get_NHS_taxa($url["path1"],$url["path2"],$url["path3"],$url["ancestry"]); 
-                
-                /*debug
-                print"<hr>website: " . $url["path1"] . "<br>";
-                print"page_taxa count: " . $url["path1"] . " -- " . count($page_taxa) . "<hr>";
-                */                
-                //print"<pre>page_taxa: ";print_r($page_taxa);print"</pre>";                        
-                /*
-                if($page_taxa)
-                {
-                    foreach($page_taxa as $t) $all_taxa[] = $t;
-                }
-                */
+                $page_taxa = self::get_NHS_taxa($url["path1"],$url["path2"],$url["path3"],$url["ancestry"]);                 
                 $all_taxa = array_merge($all_taxa,$page_taxa);                                    
             }
         }
-        /* debug
-        print"<hr><pre>all_taxa: ";print_r($all_taxa);print"</pre>";        
-        print"total: " . count($all_taxa);        
-        */
         return $all_taxa;
     }
     
     public static function get_NHS_taxa($url1,$url2,$url3,$ancestry)
     {
-        global $used_collection_ids;
-        
+        global $used_collection_ids;        
         $response = self::search_collections($url1,$url2,$url3,$ancestry);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
         foreach($response as $rec)
@@ -118,24 +89,12 @@ class NaturalHistoryServicesAPI
         $html = Functions::get_remote_file_fake_browser($url3);
         $html3 = self::clean_html($html);
 
-        //print $html;exit;
-        
         $arr_url_list = self::get_url_list($html1);        
-        
-        
         $arr_location_detail = self::get_location_detail($html2);        
         $arr_video_detail = self::get_video_detail($html3,$arr_location_detail);        
-        
         $arr_video_info = self::get_video_info($html2,$arr_video_detail);        
         
-        
-        //print"<pre>";print_r($arr_video_info);print"</pre>";
-        //print"<pre>";print_r($arr_video_detail);print"</pre>";
-        //print"<pre>";print_r($arr_location_detail);print"</pre>";
-        //exit;                
-        
-        $response = self::scrape_species_page($arr_url_list,$arr_video_info,$ancestry);
-        
+        $response = self::scrape_species_page($arr_url_list,$arr_video_info,$ancestry);        
         return $response;//structured array
     }        
 
@@ -143,25 +102,17 @@ class NaturalHistoryServicesAPI
     {
         $arr_location_detail=array();                
         $pos = stripos($str,"Collection Points\n</h3>");
-        if(is_numeric($pos)) 
-        {
-            //print "has location";
-        }
-        else return $arr_location_detail;
-        
+        if(!is_numeric($pos))return $arr_location_detail; //"has no location";
         $str = substr($str,$pos,strlen($str));
-        //print "<hr>$str";
         
         //start special case        
         $str = str_ireplace('<br />\n<br />' , '<br />', $str);	
         $str = str_ireplace('© Richard K. Walton' , '', $str);	
-        //end special case
-        
+        //end special case        
         
         $str = str_ireplace('<br />' , 'xxx<br />', $str);	
         $str = str_ireplace('xxx' , "&arr[]=", $str);	
         $arr = array(); parse_str($str);	            
-        //print"<pre>";print_r($arr);print"</pre>";exit;                
 
         foreach($arr as $r)
         {
@@ -172,43 +123,33 @@ class NaturalHistoryServicesAPI
             $detail = self::clean_str(strip_tags(trim(@$arr_temp[1])));
             $arr_location_detail["$id"]=$detail;
         }    
-        //print"<pre>";print_r($arr_location_detail);print"</pre>";exit;                        
         return $arr_location_detail;
-    }
-    
+    }    
     
     public static function get_video_detail($str,$arr_location_detail)
     {
         $arr_video_detail=array();                
         
         //start special case        
-        //$str = str_ireplace('117a&amp;b' , '117 a&amp;b', $str);	                
         $str = str_ireplace('&amp;' , '&', $str);	
-
         $str = str_ireplace('36 a&b' , '36a&b', $str);	        
         $str = str_ireplace('39 a&b' , '39a&b', $str);	        
         $str = str_ireplace('62 a&b' , '62a&b', $str);	        
         $str = str_ireplace('63 a&b' , '63a&b', $str);	        
         $str = str_ireplace('64 a&b' , '64a&b', $str);	        
         $str = str_ireplace('69 a&b' , '69a&b', $str);	        
-
         //end special case        
         
         $str = str_ireplace('&' , '__', $str);	                
         $str = str_ireplace('<tr' , 'xxx<tr', $str);	
         $str = str_ireplace('xxx' , "&arr[]=", $str);	
         $arr = array(); parse_str($str);	            
-        //print"<pre>";print_r($arr);print"</pre>";exit;                
         foreach($arr as $r)
         {
             $temp = str_ireplace('</td>' , '|||', $r);	
             $temp = strip_tags($temp);
-            $temp = str_ireplace('__' , '&', $temp);//1
-            
-            //print "$temp<br>";            
-            $arr_temp = explode("|||", $temp);            
-            //print"<pre>";print_r($arr_temp);print"</pre>";
-            
+            $temp = str_ireplace('__' , '&', $temp);            
+            $arr_temp = explode("|||", $temp);                        
             $id = trim($arr_temp[0]);
             $location_code = trim($arr_temp[4]);
             $arr_video_detail["$id"]=array("date_acquired"=>trim($arr_temp[2]),
@@ -217,7 +158,6 @@ class NaturalHistoryServicesAPI
                                            "location_detail"=>@$arr_location_detail["$location_code"]
                                           );            
         }
-        //print"<pre>";print_r($arr_video_detail);print"</pre>";        
         return $arr_video_detail;
     }
     
@@ -227,15 +167,6 @@ class NaturalHistoryServicesAPI
         //start special case        
         $str = str_ireplace('(R:107.108)' , '(R:107,108)', $str);	                
         $str = str_ireplace('(:' , '(', $str);	                
-        /*
-        $str = str_ireplace('36a&b' , '36 a&b', $str);	        
-        $str = str_ireplace('39a&b' , '39 a&b', $str);	        
-        $str = str_ireplace('62a&b' , '62 a&b', $str);	        
-        $str = str_ireplace('63a&b' , '63 a&b', $str);	        
-        $str = str_ireplace('64a&b' , '64 a&b', $str);	        
-        $str = str_ireplace('69a&b' , '69 a&b', $str);	        
-        */
-        //$str = str_ireplace('117a&b' , '117 a&b', $str);	         	
         $str = str_ireplace('1a&b' , '1a,1b', $str);	        
         $str = str_ireplace('9a&b' , '9a,9b', $str);	        
         $str = str_ireplace('20a&b' , '20a,20b', $str);	        
@@ -245,22 +176,15 @@ class NaturalHistoryServicesAPI
         $str = str_ireplace('<li>' , 'xxx<li>', $str);	
         $str = str_ireplace('xxx' , "&arr[]=", $str);	
         $arr = array(); parse_str($str);	            
-        //print"<pre>";print_r($arr);print"</pre>";//exit;                
         $i=0;
         foreach($arr as $r)
         {
             $sciname=""; $rec_nos=""; $i++;
             if(preg_match("/<em>(.*?)<\/em>/", $r, $matches))$sciname = $matches[1];                        
-            if(preg_match("/\((.*?)\)/", $r, $matches))$rec_nos = $matches[1];                        
-            
+            if(preg_match("/\((.*?)\)/", $r, $matches))$rec_nos = $matches[1];                                    
             $rec_nos = str_ireplace('R:' , '', $rec_nos);	
-            $rec_nos = str_ireplace('__' , '&', $rec_nos);	//2
-            
-            $arr_rec_nos = explode(",", $rec_nos);
-               
-            //print "$i. [$sciname] [$rec_nos]<br>";
-            //print"<pre>";print_r($arr_rec_nos);print"</pre>";
-            
+            $rec_nos = str_ireplace('__' , '&', $rec_nos);	//2            
+            $arr_rec_nos = explode(",", $rec_nos);                         
             //start <br> delimited locations
             $location="";
             foreach($arr_rec_nos as $rec_no)
@@ -279,11 +203,8 @@ class NaturalHistoryServicesAPI
                                    );
             
         }
-        //print"<pre>";print_r($arr_video_info);print"</pre>";
         return $arr_video_info;
     }
-    
-    
     
     public static function get_url_list($str)
     {
@@ -291,12 +212,11 @@ class NaturalHistoryServicesAPI
         $str = str_ireplace('<a href="' , 'xxx<a href="', $str);	
         $str = str_ireplace('xxx' , "&arr[]=", $str);	
         $arr = array(); parse_str($str);	            
-        //print"<pre>";print_r($arr);print"</pre>";exit;        
         $loop=0;
         $i=0;
         foreach($arr as $r)
         {
-            //$loop++;if($loop >= 10)break; //debug to limit the no. of records                                
+            //$loop++;if($loop >= 5)break; //debug to limit the no. of records                                
             $video_url=""; $thumb_url="";                
             if(preg_match("/href=\"(.*?)\"/", $r, $matches))$video_url = $matches[1];                
             if(preg_match("/src=\"(.*?)\"/", $r, $matches))$thumb_url = $matches[1];
@@ -306,80 +226,47 @@ class NaturalHistoryServicesAPI
                 $arr_url_list[]=array("video_url"=>SPECIES_URL . $video_url,"thumbnail_url"=>SPECIES_URL . $thumb_url);                    
             }            
         }                
-        //print"<pre>";print_r($arr_url_list);print"</pre>"; exit;//debug          
-        
         return $arr_url_list;
     }
 
     public static function scrape_species_page($arr_url_list,$arr_video_info,$ancestry)
     {
-        //print"<pre>";print_r($ancestry);print"</pre>"; exit;
-
         $arr_acknowledgement = self::prepare_acknowledgement();
-        //print"<pre>";print_r($arr_acknowledgement);print"</pre>"; //exit;                
-        
         $arr_scraped=array();
         $arr_photos=array();
-        $arr_sciname=array();
-        
+        $arr_sciname=array();        
         $ctr=0;
         foreach($arr_url_list as $rec)
         {
             $sourceURL=$rec["video_url"];
             $html = Functions::get_remote_file_fake_browser($sourceURL);            
             $html = self::clean_html($html);            
-            //print $html;exit;
             //=============================================================================================================
-             
-            /*
-            Per PL:
-            - use \s* for spaces in your pattern.
-            - put ? in here: (.*?) if you want your pattern to be not greedy, without ? will be greedy.
-            */ 
-            
             $species="";
             /* get string between <title> and </title> */
-            //if(preg_match("/<!--\s*title\s*name=\"Species\"\s*-->(.*?)<!--\s*title/ims", $html, $matches))
             if(preg_match("/<title>(.*?)<\/title/ims", $html, $matches))
             {   
-                if(is_numeric(stripos($matches[1],"xx")))continue;
-                            
-                $title = trim(strip_tags($matches[1]));
-                
+                if(is_numeric(stripos($matches[1],"xx")))continue;                            
+                $title = trim(strip_tags($matches[1]));                
                 //special case
                 if($title == "Leaf-cutting Ants - Atta")$title="Atta sp. - Leaf-cutting Ants";                
                 if($title == "Alabgrus texanus - Braconid Wasp")$title="Alabagrus texanus - Braconid Wasp";                
-                //end special case
-                
+                if($title == "Conomyrma Ant (ambient audio)")$title="Conomyrma - Ant (ambient audio)";                
+                //end special case                
                 $piece = self::get_strings_between_char($title,"-");
                 $sciname = trim(@$piece[0]);
                 $desc = trim(@$piece[1]);                
-
-                
-                if(in_array($sciname, array("Solitary Wasps","Solitary Wasp Video","Critters","404 Not Found")))continue;
-                
+                if($desc=="")$desc = $sciname;
+                if(in_array($sciname, array("Solitary Wasps","Solitary Wasp Video","Critters","404 Not Found")))continue;                
                 $ctr++;                        
-                //print"<br>$ctr. $sciname";
             }            
-
             //=============================================================================================================
-            
             $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);
-            
-            
-            
-            
-            
-            //=============================================================================================================
-            //=============================================================================================================
             //=============================================================================================================
             
             //text object agents
             $agent=array();
             $agent[]=array("role" => "author" , "homepage" => "http://www.rkwalton.com" , "name" => "Richard K. Walton");
-            
-            
-            //"mimeType"=>"video/mp4",
             
             $arr_temp=self::get_location($arr_video_info,$sciname);
             $location       = $arr_temp[0];
@@ -397,8 +284,6 @@ class NaturalHistoryServicesAPI
 
             $arr_sciname["$sciname"]=$sourceURL;
         }
-        
-                       
 
         foreach(array_keys($arr_sciname) as $sci)
         {
@@ -413,17 +298,8 @@ class NaturalHistoryServicesAPI
                                  "photos"=>$arr_photos["$sci"]
                                 );
         }        
-        //"dc_source"=>$arr_sciname["$sci"],
-        
-        //print"<pre>";print_r($arr_scraped);print"</pre>"; //debug
-        //exit;
-        //print"<pre>";print_r($arr_video_info);print"</pre>";
-        //exit;
-        
-        
         return $arr_scraped;        
-    }
-    
+    }    
 
     function get_strings_between_char($string,$delimiter)
     {
@@ -449,16 +325,12 @@ class NaturalHistoryServicesAPI
             }
             $k++;
         }                
-        //print"<pre>";print_r($acknowledgement);print"</pre>";exit;
         return $acknowledgement;
     }
     public static function get_acknowledgement($sciname, $arr)
     {
-        //if(!$sciname or $sciname == "" or !@$arr["$sciname"])return;
-        if(!@$arr["$sciname"])return;
-        
-        print"<br>[[$sciname]]";
-        
+        if(!@$arr["$sciname"])return;        
+        print"<br>[[$sciname]]";        
         $acknowledgement="";
         foreach(@$arr["$sciname"] as $person)
         {
@@ -467,8 +339,7 @@ class NaturalHistoryServicesAPI
         }   
         if($acknowledgement) return "Acknowledgments: " . $acknowledgement . "<br>";
         else return;
-    }
-    
+    }    
 
     public static function get_location($arr_video_info,$sciname)
     {
@@ -485,8 +356,6 @@ class NaturalHistoryServicesAPI
             
             $i++;
         }    
-        //print"<hr><pre>";print_r(array($location,$arr_video_info));print"</pre>";                       
-        //exit;
         return array($location,$arr_video_info);
     }
        
@@ -495,22 +364,15 @@ class NaturalHistoryServicesAPI
         $taxon = array();
         $taxon["commonNames"] = array();
         $license = null;
-        
-        
-        //$taxon["identifier"] = $rec["dc_source"] . "-" . ucfirst(trim($rec["sciname"]));        
         $taxon["identifier"] = "";
         $taxon["source"] = $rec["dc_source"];        
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        
+        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));        
         $taxon["kingdom"] = ucfirst(trim($rec["kingdom"]));
         $taxon["phylum"] = ucfirst(trim($rec["phylum"]));       
         $taxon["class"] = ucfirst(trim($rec["class"]));
         $taxon["order"] = ucfirst(trim($rec["order"]));
-        $taxon["family"] = ucfirst(trim($rec["family"]));
-        
-        //$taxon["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
-        if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $arr)) $taxon["genus"] = $arr[1];
-        
+        $taxon["family"] = ucfirst(trim($rec["family"]));       
+        if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $arr)) $taxon["genus"] = $arr[1];        
         $photos = $rec["photos"];
         if($photos)
         {
@@ -521,7 +383,6 @@ class NaturalHistoryServicesAPI
                 $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
             }
         }        
-        
         $taxon_object = new SchemaTaxon($taxon);
         return $taxon_object;
     }
@@ -530,21 +391,16 @@ class NaturalHistoryServicesAPI
     {
         $data_object_parameters = array();
         $data_object_parameters["identifier"] = $rec["identifier"];        
-        $data_object_parameters["source"] = $rec["dc_source"];
-        
+        $data_object_parameters["source"] = $rec["dc_source"];        
         $data_object_parameters["dataType"] = $rec["dataType"];
         $data_object_parameters["mimeType"] = @$rec["mimeType"];
-        $data_object_parameters["mediaURL"] = @$rec["mediaURL"];
-        
+        $data_object_parameters["mediaURL"] = @$rec["mediaURL"];        
         $data_object_parameters["rights"] = "Richard K. Walton - Natural History Services - Online Video";
-        $data_object_parameters["rightsHolder"] = "Richard K. Walton";
-        
+        $data_object_parameters["rightsHolder"] = "Richard K. Walton";        
         $data_object_parameters["title"] = @$rec["title"];
         $data_object_parameters["description"] = utf8_encode($rec["description"]);
-        $data_object_parameters["location"] = utf8_encode($rec["location"]);
-        
-        $data_object_parameters["license"] = 'http://creativecommons.org/licenses/by-nc/3.0/';
-        
+        $data_object_parameters["location"] = utf8_encode($rec["location"]);        
+        $data_object_parameters["license"] = 'http://creativecommons.org/licenses/by-nc/3.0/';        
         if(@$rec["subject"])
         {
             $data_object_parameters["subjects"] = array();
@@ -552,10 +408,6 @@ class NaturalHistoryServicesAPI
             $subjectParameters["label"] = @$rec["subject"];
             $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
         }
-        
-        //print_r($rec);
-        //print_r(@$rec["agent"]);exit;
-
          if(@$rec["agent"])
          {               
              $agents = array();
@@ -570,8 +422,6 @@ class NaturalHistoryServicesAPI
              }
              $data_object_parameters["agents"] = $agents;
          }
-        
-        //return new SchemaDataObject($data_object_parameters);
         return $data_object_parameters;
     }    
 
@@ -585,18 +435,15 @@ class NaturalHistoryServicesAPI
         $str = str_ireplace('&deg;' , '°', $str);	        
         $str = str_ireplace('&rsquo;' , "'", $str);	        
         $str = str_ireplace('&gt;' , ">", $str);	        
-        $str = str_ireplace('&lt;' , "<", $str);	        
-        
+        $str = str_ireplace('&lt;' , "<", $str);	                
         return $str;
     }
     
     public static function clean_str($str)
     {    
         $str = str_ireplace(array("\r", "\t", "\o"), '', $str);			
-        $str = str_ireplace(array("\n" ), ' ', $str);			
-        
+        $str = str_ireplace(array("\n" ), ' ', $str);			        
         return $str;
     }
-
 }
 ?>
