@@ -198,7 +198,9 @@ function make_DO_multimedia($taxon)
             
             if($sheet[4]['DateCreated'][$i] != '')$m .= "<dcterms:created>" . $sheet[4]['DateCreated'][$i] . "</dcterms:created>";            
             if($sheet[4]['DateModified'][$i] != '')$m .= "<dcterms:modified>" . $sheet[4]['DateModified'][$i] . "</dcterms:modified>";            
+            
             if($sheet[4]['Caption'][$i] != '')$m .= "<dc:title>" . $sheet[4]['Caption'][$i] . "</dc:title>";            
+            
             if($sheet[4]['Language'][$i] != '')$m .= "<dc:language>" . $sheet[4]['Language'][$i] . "</dc:language>";
             
             $m .= get_attribution($sheet[4]['Attribution Code'][$i]);                                                            
@@ -206,6 +208,9 @@ function make_DO_multimedia($taxon)
             if($sheet[4]['Audience'][$i]!='')$m .= "<audience>" . $sheet[4]['Audience'][$i] . "</audience>";
             
             if($sheet[4]['Source URL'][$i] != '')$m .= "<dc:source>" . $sheet[4]['Source URL'][$i] . "</dc:source>";
+            
+            if($sheet[4]['Caption'][$i] != '')$m .= "<dc:description>" . $sheet[4]['Caption'][$i] . "</dc:description>";            
+            
             if($sheet[4]['Media URL'][$i] != '')$m .= "<mediaURL>" . $sheet[4]['Media URL'][$i] . "</mediaURL>";
             if($sheet[4]['Thumbnail URL'][$i] != '')$m .= "<thumbnailURL>" . $sheet[4]['Thumbnail URL'][$i] . "</thumbnailURL>";
             if($sheet[4]['Location'][$i] != '')$m .= "<location>" . $sheet[4]['Location'][$i] . "</location>";
