@@ -6,7 +6,7 @@ class TopImages
     private $vetted_sort_orders;
     private $TOP_IMAGES_FILE;
     private $TOP_UNPUBLISHED_IMAGES;
-    private $iteration_size = 100000;
+    private $iteration_size = 70000;
     
     public function __construct()
     {
@@ -88,7 +88,7 @@ class TopImages
         $i = 0;
         unset($all_parent_ids);
         $all_parent_ids = array();
-        $chunks = array_chunk($parent_ids, 7000);
+        $chunks = array_chunk($parent_ids, 5000);
         while(list($key, $chunk) = each($chunks))
         {
             $i++;
@@ -147,7 +147,7 @@ class TopImages
         
         $start = 0;
         $stop = 0;
-        $batch_size = 100000;
+        $batch_size = 30000;
         
         $result = $this->mysqli->query("SELECT MIN(he.taxon_concept_id) min, MAX(he.taxon_concept_id) max FROM $select_table_name ti JOIN hierarchy_entries he ON (ti.hierarchy_entry_id=he.id)");
         if($result && $row=$result->fetch_assoc())

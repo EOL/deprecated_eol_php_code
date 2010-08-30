@@ -2,6 +2,7 @@
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 system("clear");
+Functions::log("Starting Update Downloadable Resources");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -33,5 +34,6 @@ while($result && $row=$result->fetch_assoc())
     }
 }
 
+Functions::log("Ended Update Downloadable Resources");
 
 ?>

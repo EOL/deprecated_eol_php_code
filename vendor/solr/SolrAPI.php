@@ -189,14 +189,18 @@ class SolrAPI
     
     public function send_from_mysql_result($outfile)
     {
-        $fields = array_keys(get_object_vars($this->schema_object));
-        $curl = "curl ". $this->action_url ."/update/csv -F overwrite=true -F separator='\t'";
-        $curl .= " -F header=false -F fieldnames=".implode(",", $fields);
-        $curl .= " -F stream.file=$outfile -F stream.contentType=text/plain;charset=utf-8";
-        
-        echo "calling: $curl\n";
-        exec($curl);
-        $this->commit();
+        if(preg_match("/(tmp\/tmp_[0-9]{5}\.file$)/", $outfile, $arr))
+        {
+             $outfile_path = $arr[1];
+             $fields = array_keys(get_object_vars($this->schema_object));
+             $curl = "curl ". $this->action_url ."/update/csv -F separator='\t'";
+             $curl .= " -F header=false -F fieldnames=".implode(",", $fields);
+             $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$outfile_path -F stream.contentType=text/plain;charset=utf-8";
+             
+             echo "calling: $curl\n";
+             exec($curl);
+             $this->commit();
+        }
     }
     
     private function doc_to_object($doc)
