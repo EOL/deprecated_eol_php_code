@@ -67,7 +67,7 @@ class HierarchyEntryIndexer
         
         if(isset($this->objects)) $this->solr->send_attributes($this->objects);
         $this->solr->commit();
-        if($optimize) $this->solr->optimize();
+        // if($optimize) $this->solr->optimize();
         
         if(!$hierarchy_id)
         {

@@ -65,36 +65,37 @@ class SolrAPI
         }
     }
     
+    /* Sample SOLR query JSON response
+      {
+          "responseHeader": {
+              "status":0,
+              "QTime":929,
+              "params": {
+                  "sort":"confidence desc,
+                   visibility_id_1 desc",
+                  "start":"10000",
+                  "q":" { !lucene } (hierarchy_id_1:105 OR hierarchy_id_2:147) AND same_concept:false",
+                  "wt":"json",
+                  "rows":"2"
+              }
+          },
+          "response": {
+              "numFound":1104982,
+              "start":10000,
+              "docs": { }
+          }
+      } */
     public function query($query)
     {
-        $response = simplexml_load_string(file_get_contents($this->action_url . "/select/?q=". str_replace(" ", "%20", $query)));
-        return @$response->result;
+        $json = json_decode(file_get_contents($this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json"));
+        return $json->response;
     }
     
     public function get_results($query)
     {
         $objects = array();
-        
-        // echo($this->action_url . "/select/?q=". str_replace(" ", "%20", $query)."\n");
-        // flush();
-        // ob_flush();
-        
-        $response = simplexml_load_string(file_get_contents($this->action_url . "/select/?q=". str_replace(" ", "%20", $query)));
-        // foreach($response->lst->int as $int)
-        // {
-        //     if($int['name'] == "QTime")
-        //     {
-        //         $qtime = (string) $int;
-        //         echo "$qtime\n";
-        //     }
-        // }
-        $count = count($response->result->doc);
-        for($i=0 ; $i<$count ; $i++)
-        {
-            $objects[] = $this->doc_to_object($response->result->doc[$i]);
-        }
-        
-        return $objects;
+        $response = $this->query($query);
+        return $response->docs;
     }
     
     public function commit()
@@ -184,7 +185,7 @@ class SolrAPI
         
         echo "calling: $curl\n";
         exec($curl);
-        $this->commit();
+        //$this->commit();
     }
     
     public function send_from_mysql_result($outfile)
@@ -199,7 +200,7 @@ class SolrAPI
              
              echo "calling: $curl\n";
              exec($curl);
-             $this->commit();
+             //$this->commit();
         }
     }
     

@@ -3,7 +3,7 @@
 class CompareHierarchies
 {
     // number of rows from each hierarchy to compare in an iteration
-    private static $iteration_size = 10000;
+    private static $solr_iteration_size = 10000;
     
     // weights
     private static $rank_priority = array(
@@ -19,6 +19,7 @@ class CompareHierarchies
     public static function begin_concept_assignment($hierarchy_id = null)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
         
         // looking up which hierarchies might have nodes in preview mode
         // this will save time later on when we need to check published vs preview taxa
@@ -55,8 +56,8 @@ class CompareHierarchies
             foreach($hierarchy_lookup_ids2 as $id2 => $count2)
             {
                 $hierarchy2 = new Hierarchy($id2);
-                //if(!in_array($hierarchy2->id, array(147))) continue;
                 
+                // already compared - skip
                 if(isset($hierarchies_compared[$hierarchy1->id][$hierarchy2->id])) continue;
                 
                 // have the smaller hierarchy as the first parameter so the comparison will be quicker
@@ -94,66 +95,78 @@ class CompareHierarchies
         $visible_id = Visibility::insert('visible');
         $preview_id = Visibility::insert('preview');
         
-        $result = $mysqli->query("SELECT he1.id id1, he1.visibility_id visibility_id1, he1.taxon_concept_id tc_id1, he2.id id2, he2.visibility_id visibility_id2, he2.taxon_concept_id tc_id2, hr.score FROM hierarchy_entry_relationships hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.relationship='name' AND he1.hierarchy_id=$hierarchy1->id AND he1.visibility_id IN ($visible_id, $preview_id) AND he2.hierarchy_id=$hierarchy2->id AND he2.visibility_id IN ($visible_id, $preview_id) AND he1.id!=he2.id AND he1.taxon_concept_id!=he2.taxon_concept_id ORDER BY he1.visibility_id ASC, he2.visibility_id  ASC, score DESC,id1 ASC, id2 ASC");
+        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
+        
+        $main_query = "relationship:name AND hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
+        echo $main_query . "&rows=1\n\n";
+        $response = $solr->query($main_query . "&rows=1");
+        $total_results = $response->numFound;
+        unset($response);
         
         $mysqli->begin_transaction();
-        
-        $rows = $result->num_rows;
-        $row_num = 0;
-        $i=0;
-        while($result && $row = $result->fetch_assoc())
+        for($i=0 ; $i<$total_results ; $i += self::$solr_iteration_size)
         {
-            $row_num++;
-            $id1 = $row['id1'];
-            $visibility_id1 = $row['visibility_id1'];
-            $tc_id1 = $row['tc_id1'];
-            $id2 = $row['id2'];
-            $visibility_id2 = $row['visibility_id2'];
-            $tc_id2 = $row['tc_id2'];
-            $score = $row['score'];
+            // the global variable which will hold all mathces for this iteration
+            $GLOBALS['hierarchy_entry_matches'] = array();
             
-            // this node in hierarchy 1 has already been matched
-            if($hierarchy1->complete && isset($entries_matched[$id2])) continue;
-            if($hierarchy2->complete && isset($entries_matched[$id1])) continue;
-            $entries_matched[$id1] = 1;
-            $entries_matched[$id2] = 1;
-            
-            // this comparison happens here instead of the query to ensure the sorting is always the same
-            // if this happened in the query and the entry was related to more than one taxa, and this function is run more than once
-            // then we'll start to get huge groups of concepts - all transitively related to one another
-            if($tc_id1 == $tc_id2) continue;
-            
-            // get all the recent supercedures withouth looking in the DB
-            while(isset($superceded[$tc_id1])) $tc_id1 = $superceded[$tc_id1];
-            while(isset($superceded[$tc_id2])) $tc_id2 = $superceded[$tc_id2];
-            
-            // if even after all recent changes we still have different concepts, merge them
-            if($tc_id1 != $tc_id2)
+            $this_query = $main_query . "&rows=".self::$solr_iteration_size."&start=$i";
+            echo "$this_query\n\n";
+            $entries = $solr->get_results($this_query);
+            foreach($entries as $entry)
             {
-                // compare visible entries to other published entries
-                if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
-                if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
+                $id1 = $entry->hierarchy_entry_id_1[0];
+                $visibility_id1 = $entry->visibility_id_1[0];
+                $tc_id1 = $entry->taxon_concept_id_1[0];
+                $id2 = $entry->hierarchy_entry_id_2[0];
+                $visibility_id2 = $entry->visibility_id_2[0];
+                $tc_id2 = $entry->taxon_concept_id_2[0];
+                $score = $entry->confidence[0];
                 
-                // compare preview entries to entries in the latest harvest events
-                if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
-                if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
+                // this node in hierarchy 1 has already been matched
+                if($hierarchy1->complete && isset($entries_matched[$id2])) continue;
+                if($hierarchy2->complete && isset($entries_matched[$id1])) continue;
+                $entries_matched[$id1] = 1;
+                $entries_matched[$id2] = 1;
                 
-                if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
+                // this comparison happens here instead of the query to ensure the sorting is always the same
+                // if this happened in the query and the entry was related to more than one taxa, and this function is run more than once
+                // then we'll start to get huge groups of concepts - all transitively related to one another
+                if($tc_id1 == $tc_id2) continue;
+                
+                // get all the recent supercedures withouth looking in the DB
+                while(isset($superceded[$tc_id1])) $tc_id1 = $superceded[$tc_id1];
+                while(isset($superceded[$tc_id2])) $tc_id2 = $superceded[$tc_id2];
+                
+                // if even after all recent changes we still have different concepts, merge them
+                if($tc_id1 != $tc_id2)
                 {
-                    debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator");
-                    continue;
+                    // compare visible entries to other published entries
+                    if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
+                    if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
+                    
+                    // compare preview entries to entries in the latest harvest events
+                    if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
+                    if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
+                    
+                    if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
+                    {
+                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator");
+                        continue;
+                    }
+                    
+                    if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
+                    {
+                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop");
+                        continue;
+                    }
+                    TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
+                    echo "TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);\n";
+                    $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
+                    
+                    static $i = 0;
+                    $i++;
+                    if($i%50==0) $mysqli->commit();
                 }
-                
-                if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
-                {
-                    debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop");
-                    continue;
-                }
-                $i++;
-                //if($i%1==0) echo "supercede_by_ids($tc_id1, $tc_id2): $score. $row_num of $rows. mem: ".memory_get_usage()."\n";
-                TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
-                $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
-                if($i%50==0) $mysqli->commit();
             }
         }
         $mysqli->end_transaction();
@@ -281,45 +294,35 @@ class CompareHierarchies
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
-        
+        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
         $start_time = microtime(true);
+        
+        $mysqli->query("CREATE TABLE IF NOT EXISTS `he_relations_tmp` (
+          `hierarchy_entry_id_1` int(10) unsigned NOT NULL,
+          `hierarchy_entry_id_2` int(10) unsigned NOT NULL,
+          `relationship` varchar(30) NOT NULL,
+          `score` double NOT NULL,
+          PRIMARY KEY  (`hierarchy_entry_id_1`,`hierarchy_entry_id_2`),
+          KEY `hierarchy_entry_id_2` (`hierarchy_entry_id_2`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        $mysqli->delete("TRUNCATE TABLE he_relations_tmp");
         
         // get a path to a tmp file which doesn't exist yet
         $sql_filepath = temp_filepath();
         $SQL_FILE = fopen($sql_filepath, "w+");
         
-        // delete all records which will conflict with this comparison session
-        if($compare_to_hierarchy)
-        {
-            $result = $mysqli->query("SELECT 1 FROM hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE (he1.hierarchy_id=$hierarchy->id AND he2.hierarchy_id=$compare_to_hierarchy->id) OR (he2.hierarchy_id=$hierarchy->id AND he1.hierarchy_id=$compare_to_hierarchy->id) LIMIT 1");
-            if($result && $row=$result->fetch_assoc())
-            {
-                $mysqli->query("DELETE r FROM hierarchy_entry_relationships r JOIN hierarchy_entries he1 ON (r.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (r.hierarchy_entry_id_2=he2.id) WHERE (he1.hierarchy_id=$hierarchy->id AND he2.hierarchy_id=$compare_to_hierarchy->id) OR (he2.hierarchy_id=$hierarchy->id AND he1.hierarchy_id=$compare_to_hierarchy->id)");
-            }
-        }else
-        {
-            // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_1) WHERE he.hierarchy_id=$hierarchy->id");
-            // $mysqli->query("DELETE r FROM hierarchy_entries he JOIN hierarchy_entry_relationships r ON (he.id=r.hierarchy_entry_id_2) WHERE he.hierarchy_id=$hierarchy->id");
-            
-            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_1', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 4000000);
-            $mysqli->delete_from_where('hierarchy_entry_relationships', 'hierarchy_entry_id_2', "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy->id", 4000000);
-        }
-        
-        
-        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
-        //$solr->optimize();
-        
-        $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=1";
+        // get the record count for the loop below
+        $query = "hierarchy_id:$hierarchy->id&rows=1";
         $response = $solr->query($query);
-        $total_results = $response['numFound'];
+        $total_results = $response->numFound;
         unset($response);
         
         $searches_this_round = 0;
         static $total_searches = 0;
         
-        for($i=0 ; $i<$total_results ; $i += self::$iteration_size)
+        for($i=0 ; $i<$total_results ; $i += self::$solr_iteration_size)
         {
-            $query = "{!lucene}hierarchy_id:$hierarchy->id&rows=".self::$iteration_size."&start=$i";
+            $query = "hierarchy_id:$hierarchy->id&rows=".self::$solr_iteration_size."&start=$i";
             
             // the global variable which will hold all mathces for this iteration
             $GLOBALS['hierarchy_entry_matches'] = array();
@@ -331,9 +334,9 @@ class CompareHierarchies
                 
                 $searches_this_round++;
                 $total_searches++;
-                if($searches_this_round % 500 == 0)
+                if($searches_this_round % 100 == 0)
                 {
-                    $time = Functions::time_elapsed();
+                    $time = time_elapsed();
                     $compare_time = microtime(true) - $start_time;
                     echo "Records: $searches_this_round of $total_results ($total_searches total)<br>\n";
                     echo "Speed:   ". round($total_searches/$time, 2) ." r/s<br>\n";
@@ -368,90 +371,48 @@ class CompareHierarchies
         }
         
         fclose($SQL_FILE);
-        $mysqli->load_data_infile($sql_filepath, "hierarchy_entry_relationships", 'IGNORE', '', 6000000);
-        
-        // remove the tmp file
+        $mysqli->load_data_infile($sql_filepath, "he_relations_tmp", 'IGNORE', '', 6000000);
         @unlink($sql_filepath);
         
         self::insert_curator_assertions($hierarchy);
-    }
-    
-    public static function insert_curator_assertions($hierarchy)
-    {
-        // entry 1 is in target hierarchy
-        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
-        unlink($outfile);
         
-        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
-        unlink($outfile);
-        
-        
-        // entry 2 is in target hierarchy
-        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
-        unlink($outfile);
-        
-        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
-        unlink($outfile);
+        $solr_indexer = new HierarchyEntryRelationshipIndexer();
+        $solr_indexer->index($hierarchy, $compare_to_hierarchy);
     }
     
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
     {
-        if($entry->name)
+        if($entry->name[0])
         {
-            $search_name = rawurlencode($entry->canonical_form);
-            $query = "{!lucene}(canonical_form_string:\"". $search_name ."\"";
+            $search_name = rawurlencode($entry->canonical_form[0]);
+            $query = "(canonical_form_string:\"". $search_name ."\"";
             if($match_synonyms) $query .= " OR synonym_canonical:\"". $search_name ."\"";
             $query .= ")";
             if($compare_to_hierarchy) $query .= " AND hierarchy_id:$compare_to_hierarchy->id";
+            // don't compare these hierarchies to themselves
+            if($hierarchy->complete) $query .= " NOT hierarchy_id:$hierarchy->id";
             $query .= "&rows=500";
             
             $matching_entries = $solr->get_results($query);
             foreach($matching_entries as $matching_entry)
             {
-                if($hierarchy->complete && $entry->hierarchy_id == $matching_entry->hierarchy_id) continue;
-                
-                static $total_comparisons = 0;
-                static $total_matches = 0;
-                static $total_bad_matches = 0;
-                $total_comparisons++;
-                
                 $score = self::compare_hierarchy_entries($entry, $matching_entry);
-                if($score) $GLOBALS['hierarchy_entry_matches'][$entry->id][$matching_entry->id] = $score;
+                if($score) $GLOBALS['hierarchy_entry_matches'][$entry->id[0]][$matching_entry->id[0]] = $score;
                 
                 $score2 = self::compare_hierarchy_entries($matching_entry, $entry);
-                if($score2) $GLOBALS['hierarchy_entry_matches'][$matching_entry->id][$entry->id] = $score2;
-                
-                // if($score)
-                // {
-                //     $total_matches++;
-                //     if($total_matches % 100 == 0)
-                //     {
-                //         echo "Good Match $total_matches of $total_comparisons (".round(($total_matches/$total_comparisons)*100, 2)."%)<table border><tr><td valign=top>". Functions::print_pre($entry, 1) ."</td><td valign=top>". Functions::print_pre($matching_entry, 1) ."</td></tr></table><hr>\n";
-                //     }
-                // }elseif(!is_null($score))
-                // {
-                //     $total_bad_matches++;
-                //     if($total_bad_matches % 10 == 0)
-                //     {
-                //         echo "Non-Match $total_bad_matches of $total_comparisons (".round(($total_bad_matches/$total_comparisons)*100, 2)."%)<table border><tr><td valign=top>". Functions::print_pre($entry, 1) ."</td><td valign=top>". Functions::print_pre($matching_entry, 1) ."</td></tr></table><hr>\n";
-                //     }
-                // }
+                if($score2) $GLOBALS['hierarchy_entry_matches'][$matching_entry->id[0]][$entry->id[0]] = $score2;
             }
         }
     }
     
     public static function compare_hierarchy_entries($entry1, $entry2)
     {
-        if($entry1->id == $entry2->id) return null;
+        if($entry1->id[0] == $entry2->id[0]) return null;
         if(self::rank_conflict($entry1, $entry2)) return null;
         
         // viruses are a pain and will not match properly right now
-        if(strtolower($entry1->kingdom) == 'virus' || strtolower($entry1->kingdom) == 'viruses') return null;
-        if(strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses') return null;
+        if(isset($entry1->kingdom) && (strtolower($entry1->kingdom[0]) == 'virus' || strtolower($entry1->kingdom[0]) == 'viruses')) return null;
+        if(isset($entry2->kingdom) && (strtolower($entry2->kingdom[0]) == 'virus' || strtolower($entry2->kingdom[0]) == 'viruses')) return null;
         
         $name_match = self::compare_names($entry1, $entry2);
         
@@ -475,17 +436,17 @@ class CompareHierarchies
     public static function rank_conflict(&$entry1, &$entry2)
     {
         // the ranks are not the same
-        if($entry1->rank_id && $entry2->rank_id && $entry1->rank_id != $entry2->rank_id) return 1;
+        if($entry1->rank_id[0] && $entry2->rank_id[0] && $entry1->rank_id[0] != $entry2->rank_id[0]) return 1;
         return 0;
     }
     
     public static function compare_names(&$entry1, &$entry2)
     {
         // names are assigned and identical
-        if($entry1->name && $entry2->name && $entry1->name == $entry2->name) return 1;
+        if($entry1->name[0] && $entry2->name[0] && $entry1->name[0] == $entry2->name[0]) return 1;
         
         // canonical_forms are assigned and identical
-        if($entry1->canonical_form && $entry2->canonical_form && $entry1->canonical_form == $entry2->canonical_form) return .5;
+        if($entry1->canonical_form[0] && $entry2->canonical_form[0] && $entry1->canonical_form[0] == $entry2->canonical_form[0]) return .5;
         
         return 0;
     }
@@ -493,12 +454,12 @@ class CompareHierarchies
     public static function compare_synonyms(&$entry1, &$entry2)
     {
         // one name is in the other's synonym list
-        if(in_array($entry1->name, $entry2->synonym)) return 1;
-        if(in_array($entry2->name, $entry1->synonym)) return 1;
+        if(in_array($entry1->name[0], $entry2->synonym)) return 1;
+        if(in_array($entry2->name[0], $entry1->synonym)) return 1;
         
         // one canonical_form is in the other's synonym list
-        if(in_array($entry1->canonical_form, $entry2->synonym_canonical)) return .5;
-        if(in_array($entry2->canonical_form, $entry1->synonym_canonical)) return .5;
+        if(in_array($entry1->canonical_form[0], $entry2->synonym_canonical)) return .5;
+        if(in_array($entry2->canonical_form[0], $entry1->synonym_canonical)) return .5;
         
         return 0;
     }
@@ -511,10 +472,14 @@ class CompareHierarchies
         $entry2_without_hierarchy = true;
         foreach(self::$rank_priority as $rank => $weight)
         {
-            if($entry1->$rank) $entry1_without_hierarchy = false;
-            if($entry2->$rank) $entry2_without_hierarchy = false;
+            $rank1 = null;
+            $rank2 = null;
+            if(isset($entry1->$rank) && $r = $entry1->$rank) $rank1 = $r[0];
+            if(isset($entry2->$rank) && $r = $entry2->$rank) $rank2 = $r[0];
+            if($rank1) $entry1_without_hierarchy = false;
+            if($rank2) $entry2_without_hierarchy = false;
             
-            if($entry1->$rank && $entry2->$rank && $entry1->$rank == $entry2->$rank && !preg_match("/^(unassigned|not assigned|unknown)/i", $entry1->$rank))
+            if($rank1 && $rank2 && $rank1 == $rank2 && !preg_match("/^(unassigned|not assigned|unknown)/i", $rank1))
             {
                 $score = $weight;
                 break;
@@ -530,11 +495,33 @@ class CompareHierarchies
             $ranks_matched_at_kingdom = array(Rank::insert('kingdom'), Rank::insert('phylum'), Rank::insert('class'), Rank::insert('order'));
             
             // fail if the match is kingdom and we have something at a lower rank
-            if(!(in_array($entry1->rank_id, $ranks_matched_at_kingdom) || in_array($entry2->rank_id, $ranks_matched_at_kingdom)) &&
-                ($entry1->rank_id == $entry2->rank_id || !$entry1->rank_id || !$entry2->rank_id)) $score = 0;
+            if(!(in_array($entry1->rank_id[0], $ranks_matched_at_kingdom) || in_array($entry2->rank_id[0], $ranks_matched_at_kingdom)) &&
+                ($entry1->rank_id[0] == $entry2->rank_id[0] || !$entry1->rank_id[0] || !$entry2->rank_id[0])) $score = 0;
         }
         
         return $score;
+    }
+    
+    public static function insert_curator_assertions($hierarchy)
+    {
+        // entry 1 is in target hierarchy
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
+        
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
+        
+        
+        // entry 2 is in target hierarchy
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
+        
+        $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        unlink($outfile);
     }
 }
 
