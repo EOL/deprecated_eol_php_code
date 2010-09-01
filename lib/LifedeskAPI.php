@@ -29,7 +29,7 @@ class LifeDeskAPI extends MysqlBase
         
         foreach($hierarchy_entries as $k => $v)
         {
-            if($v->hierarchy_id != 107 && $v->hierarchy_id != 147 && $v->hierarchy_id != 158 && $v->hierarchy_id != 462) continue;
+            if($v->hierarchy_id != 107 && $v->hierarchy_id != 147 && $v->hierarchy_id != 158 && $v->hierarchy_id != 529) continue;
             $thisResult = array();
             $thisResult["name"] = $v->name()->string;
             $thisResult["canonical_form"] = $v->name()->canonical_form()->string;
