@@ -1,17 +1,18 @@
 <?php
 /*
-month:      run date:       GA records      execution time:
-Feb2010     1March2010      110,679
-Mar2010     1April2010                      1.5 hrs
-Apr2010     3May2010                        1.7 hrs
+month:      run date:       execution time:
+Feb2010     1March2010      
+Mar2010     1April2010      1.5 hrs
+Apr2010     3May2010        1.7 hrs
 July2010    4Aug2010                
+Aug2010     1Sep2010
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 $mysqli2 = $mysqli; // to use in Beast
-//exit; //for debug
+//exit; 
 
 //$use_sql_load_infile=true;
 $use_sql_load_infile=false;
@@ -27,9 +28,7 @@ tables used:
     harvest_events
     taxa
     names
-*/
 
-/*
 Google reference pages:
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html#d4Ecommerce
@@ -67,17 +66,15 @@ echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 if($use_sql_load_infile)print" \n true";
 else print"\n false";
 
-exit;
+exit("\n -Done-");
 
 //####################################################################################################################################
 //####################################################################################################################################
 function process_parameters()
 {
     global $argv;
-
     $month = get_val_var("month");
-    $year = get_val_var("year");
-    
+    $year = get_val_var("year");    
     if($month == "")
     {
         $arg1='';   
@@ -103,7 +100,7 @@ function process_parameters()
     $arr[]=$month;
     $arr[]=$year;
     return $arr;
-}//function process_parameters()
+}
 
 function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extension)
 {
@@ -111,25 +108,20 @@ function save_to_txt2($arr,$filename,$year_month,$field_separator,$file_extensio
 	for ($i = 0; $i < count($arr); $i++) 		
 	{
 		$field = $arr[$i];
-		$str .= $field . $field_separator;    //"\t" is tab
+		$str .= $field . $field_separator; 
 	}
     //to remove last char - for field separator
-    $str = substr($str,0,strlen($str)-1);
-    
-	$str .= "\n";
-  
+    $str = substr($str,0,strlen($str)-1);    
+	$str .= "\n";  
 	$filename = "data/" . $year_month . "/" . "$filename" . "." . $file_extension;
-	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
-    
-    return "";
-    
-}//function save_to_txt2
+	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		    
+    return "";    
+}
 
 function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed)
 {
     global $mysqli2;
-      global $mysqli;
-    
+    global $mysqli;    
     //start get count_of_taxa_pages viewed during the month, etc.
     $query = "Select 
     Sum(google_analytics_page_stats.page_views) AS page_views,
@@ -144,9 +136,7 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     google_analytics_partner_taxa.agent_id = $agent_id AND
     google_analytics_partner_taxa.`year` = $year AND
     google_analytics_partner_taxa.`month` = $month ";        
-    //$mysqli2
     $result2 = $mysqli2->query($query);    
-    //print"\n $query";
     $row2 = $result2->fetch_row();            
         
     $page_views         = $row2[0];
@@ -162,17 +152,15 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
     $arr[]=intval($count_of_taxa_pages_viewed);
     $arr[]=intval($unique_page_views);
     $arr[]=intval($page_views);
-    $arr[]=floatval($time_on_page);   //this has to be floatval()
-    
-    //end get count_of_taxa_pages viewed during the month, etc.        
+    $arr[]=floatval($time_on_page);   //this has to be floatval()   
+
     return $arr;
 }
 
 function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
 {
     global $mysqli;
-    $arr=array();
-    
+    $arr=array();    
     if($agent_id == 38205)//BHL
     {           
         $query = "SELECT COUNT(DISTINCT(tc.id)) count 
@@ -205,7 +193,6 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     if($agent_id == 11 or $agent_id == 38205) $arr[] = $row2[0]; //count of taxa pages
     else                                      $arr[] = $result2->num_rows; //count of taxa pages
 
-    //dapat my inner join sa goolge_page_stats table
     $query="Select Count(google_analytics_partner_taxa.taxon_concept_id)
     From google_analytics_partner_taxa Where
     google_analytics_partner_taxa.agent_id = $agent_id AND
@@ -214,7 +201,6 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
     $result2 = $mysqli->query($query);            
     $row2 = $result2->fetch_row();                
     $arr[] = $row2[0]; //count of taxa pages viewed during the month
-
     return $arr;
 }
 
@@ -225,12 +211,9 @@ function get_sql_for_partners_with_published_data()
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
     Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
     Where 1 = 1 and harvest_events.published_at is not null 
-    and agents.id not in(11,38205) "; 
-    
-    //$query .= " and  "; 
+    and agents.id not in(11,38205) ";     
     //$query .= " and agents.id = 2 "; //debug FishBase
     $query .= " order by agents.full_name ";    
-    //$query .= " limit 2 "; //debug
     return $query;
 }
 
@@ -241,8 +224,7 @@ function save_agent_monthly_summary($year_month)
     global $use_sql_load_infile;
 
     $year =intval(substr($year_month,0,4));
-    $month=intval(substr($year_month,5,2));
-    
+    $month=intval(substr($year_month,5,2));    
     //=================================================================
     $query = get_sql_for_partners_with_published_data();
     $result = $mysqli->query($query);    
@@ -268,13 +250,13 @@ function save_agent_monthly_summary($year_month)
         $elapsed_time_in_sec = microtime(1)-$time_start;
         echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
         
-    }//end while
+    }
     //=================================================================    
     echo"\n start BHL stats summaries...\n";    
     $time_start = microtime(1);    
     $arr = get_count_of_taxa_pages_per_partner(38205,$year,$month);
-        $count_of_taxa_pages = $arr[0];
-        $count_of_taxa_pages_viewed = $arr[1];    
+    $count_of_taxa_pages = $arr[0];
+    $count_of_taxa_pages_viewed = $arr[1];    
     $arr = get_monthly_summaries_per_partner(38205,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,"\t","txt");                
     $elapsed_time_in_sec = microtime(1)-$time_start;
@@ -283,23 +265,17 @@ function save_agent_monthly_summary($year_month)
     echo"\n start COL stats summaries...\n";    
     $time_start = microtime(1);        
     $arr = get_count_of_taxa_pages_per_partner(11,$year,$month);
-        $count_of_taxa_pages = $arr[0];
-        $count_of_taxa_pages_viewed = $arr[1];
+    $count_of_taxa_pages = $arr[0];
+    $count_of_taxa_pages_viewed = $arr[1];
     $arr = get_monthly_summaries_per_partner(11,$year,$month,$count_of_taxa_pages,$count_of_taxa_pages_viewed);
     $temp = save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,"\t","txt");                
     $elapsed_time_in_sec = microtime(1)-$time_start;
     echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
-
     //=================================================================
-    //$mysqli2
-    
     if($use_sql_load_infile)$update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_summaries.txt' INTO TABLE google_analytics_partner_summaries");            
-    else                    $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_summaries.txt",          "google_analytics_partner_summaries");
-    
+    else                    $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_summaries.txt",          "google_analytics_partner_summaries");    
     //=================================================================
-
-}//end func //end start3
-
+}
 
 function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year)
 {
@@ -310,7 +286,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id        
         where tc.supercedure_id=0 and tc.published=1 
         and gaps.month=$month and gaps.year=$year ";
-        //removed and tc.vetted_id <> " . Vetted::find("untrusted") . " 
+        //removed --- and tc.vetted_id <> " . Vetted::find("untrusted") . " 
         //$query .= " LIMIT 1 "; //debug
     }
     elseif($agent_id == 11)//Catalogue of Life
@@ -321,9 +297,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         Inner Join google_analytics_page_stats gaps ON hierarchy_entries.taxon_concept_id = gaps.taxon_concept_id
         Where
         hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." 
-        and gaps.month = $month and gaps.year = $year
-        ";        
-        //print"<hr>$query<hr>"; exit;                
+        and gaps.month = $month and gaps.year = $year";        
         //$query .= " LIMIT 1 "; //debug    
     }
     else //rest of the partners
@@ -337,13 +311,11 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         join taxon_concepts tc on he.taxon_concept_id = tc.id         
         Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
         WHERE a.id = $agent_id and tc.published = 1 and tc.supercedure_id = 0
-        and gaps.month=$month and gaps.year=$year
-        ";        
+        and gaps.month=$month and gaps.year=$year";        
         //$query .= " limit 50 "; //debug     
     }
     return $query;
 }
-
 
 function save_agent_taxa($year_month)
 {
@@ -372,7 +344,6 @@ function save_agent_taxa($year_month)
     while($result && $row=$result->fetch_assoc())	
     {
         $time_start = microtime(1);
-
         $i++;
         echo"agent id = $row[id] $i of $num_rows ";
         $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth($row["id"],$month,$year);
@@ -381,14 +352,11 @@ function save_agent_taxa($year_month)
         $fields[0]="taxon_concept_id";
         $fields[1]="agent_id";
         $temp = save_to_txt($result2,"google_analytics_partner_taxa",$fields,$year_month,"\t",0,"txt");
-
         $elapsed_time_in_sec = microtime(1)-$time_start;
         echo " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
     }    
-
     //=================================================================
-    //query 3
-        
+    //query 3        
     echo"\n start BHL stats...\n";    
     $time_start = microtime(1);
     $query = get_sql_to_get_TCid_that_where_viewed_for_dmonth(38205,$month,$year);
@@ -414,7 +382,6 @@ function save_agent_taxa($year_month)
     //=================================================================
     //query 4,5 /* not needed anymore */
     //query 6,7,8
-    //$mysqli2
 
     if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'data/" . $year_month . "/google_analytics_partner_taxa.txt'     INTO TABLE google_analytics_partner_taxa");        
     else                     $update = $mysqli2->load_data_infile(             "data/" . $year_month . "/google_analytics_partner_taxa.txt",              "google_analytics_partner_taxa");    
@@ -431,48 +398,26 @@ function save_agent_taxa($year_month)
 
 }//end func //end start2
 
-/*working commented
-function get_sciname_from_tc_id($tc_id)
-{   global $mysqli;
-    $query="Select distinct names.`string` as sciname
-    From taxon_concept_names
-    Inner Join taxon_concepts ON taxon_concepts.id = taxon_concept_names.taxon_concept_id
-    Inner Join names ON taxon_concept_names.name_id = names.id
-    Where taxon_concepts.id = $tc_id and taxon_concept_names.vern = 0
-    AND taxon_concept_names.preferred=1 AND taxon_concepts.supercedure_id=0 AND taxon_concepts.published=1 limit 1 ";
-    $result = $mysqli->query($query);
-    $row = $result->fetch_row();            
-    $sciname = $row[0];
-    //print"[[$sciname -- $tc_id]]";
-    return $sciname;        
-}*/
 //############################################################################ start functions
-
 function save_eol_taxa_google_stats($month,$year)
 {
     global $mysqli2;
     global $mysqli;
     global $use_sql_load_infile;    
     
-    $year_month = $year . "_" . $month;
-    
+    $year_month = $year . "_" . $month;    
     $start_date = "$year-$month-01";
-    $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
-    
-    print"\n start day = $start_date \n end day = $end_date \n";    
-    
-    $final = array();
-    
-    require_once(DOC_ROOT . 'vendor/Google_Analytics_API_PHP/analytics_api.php');
-    
+    $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);               
+    print"\n start day = $start_date \n end day = $end_date \n";        
+    $final = array();    
+    require_once(DOC_ROOT . 'vendor/Google_Analytics_API_PHP/analytics_api.php');    
     $login = GOOGLE_ANALYTICS_API_USERNAME;
     $password = GOOGLE_ANALYTICS_API_PASSWORD;
-    $id = '';
-    
+    $id = '';    
     $api = new analytics_api();
     if($api->login($login, $password)) 
     {
-        //echo "login success <br>";
+        //login success
         if(true) 
         {
             $api->load_accounts();
@@ -480,22 +425,18 @@ function save_eol_taxa_google_stats($month,$year)
         }
         $id=$arr["www.eol.org"]["tableId"];
     
-        //print"<hr><hr>";
         // get some account summary information without a dimension
         $i=0;
         $continue=true; 
-        $start_count=1; //actual operation
-        //$start_count=30001; //debug
-        $range=10000; //actual operation
-        //$range=5000; //debug
-        
+        $start_count=1; 
+        $range=10000; 
+                
         mkdir("data/" , 0777);        
         mkdir("data/" . $year . "_" . $month , 0777);                
         
         $cr = "\n";
-        //$sep = ",";
         $sep = "\t"; //tab
-                
+                        
         $cnt = 0;
         while($continue == true)
         {
@@ -519,19 +460,10 @@ function save_eol_taxa_google_stats($month,$year)
                 // /*                
                 if(true)
                 {
-                    //newly added start 
-                    /*
-                    $visits   = number_format($count["ga:visits"]);
-                    $visitors = number_format($count["ga:visitors"]);
-                    */
-                    //newly added end
-                    
                     if($count["ga:entrances"] > 0)  $bounce_rate = number_format($count["ga:bounces"]/$count["ga:entrances"]*100,2);
-                    else                            $bounce_rate = "";
-                    
+                    else                            $bounce_rate = "";                    
                     if($count["ga:pageviews"] > 0)  $percent_exit = number_format($count["ga:exits"]/$count["ga:pageviews"]*100,2);
-                    else                            $percent_exit = "";
-                                                    
+                    else                            $percent_exit = "";                                                    
                     if($count["ga:pageviews"] - $count["ga:exits"] > 0)  
                     {
                         $secs = round($count["ga:timeOnPage"]/($count["ga:pageviews"] - $count["ga:exits"]));
@@ -539,25 +471,12 @@ function save_eol_taxa_google_stats($month,$year)
                     }
                     else $averate_time_on_page = "";
                     
-                    /* debug
-                    echo " -- " . $bounce_rate;
-                    echo " -- " . $percent_exit;
-                    echo " -- " . $averate_time_on_page;                                    
-                    print " | ga:entrances = " . $count["ga:entrances"];
-                    print " | pageviews = " . $count["ga:pageviews"] ;
-                    print " | uniquePageviews = " . $count["ga:uniquePageviews"] ;
-                    print " | exits = " . $count["ga:exits"];
-                    print " | url = " . $metric;
-                    */
-                    
                     $money_index = '';
-                    
-                    //print " | count = " . count($count) . "";
+                                        
                     $url = "http://www.eol.org" . $metric;
                     $taxon_id = parse_url($url, PHP_URL_PATH);
                     if(strval(stripos($taxon_id,"/pages/"))!= '')$taxon_id = str_ireplace("/pages/", "", $taxon_id);
                     else                                         $taxon_id = '';
-                    //print "[$taxon_id]";
                     
                     if($taxon_id > 0)
                     {                    
@@ -573,20 +492,9 @@ function save_eol_taxa_google_stats($month,$year)
                                 
                         if(!$use_sql_load_infile)$str .= "),";
                         
-                                /* 
-                                $bounce_rate . $sep . 
-                                $percent_exit . $sep . 
-                                $money_index . $sep . 
-                                date('Y-m-d H:i:s') . 
-                                */
                     }
-                }
-                //print "<hr>";
-                // */
-                
+                }                
             }//end for loop
-            
-
             
             $OUT = fopen("data/" . $year . "_" . $month . "/google_analytics_page_stats.txt", "w"); // open for writing, truncate file to zero length.
             fwrite($OUT, $str);
@@ -597,34 +505,18 @@ function save_eol_taxa_google_stats($month,$year)
                 if($str)
                 {
                     $str = str_ireplace("\t", ",", $str);                                 
-                    $str = str_ireplace("\n", "", $str);                                 
-                    
-                    $str = substr($str,0,strlen($str)-1);//to remove the last char which is a "," comma.
-                       
+                    $str = str_ireplace("\n", "", $str);                                                     
+                    $str = substr($str,0,strlen($str)-1);//to remove the last char which is a "," comma.                       
                     $update = $mysqli2->query("INSERT IGNORE INTO `google_analytics_page_stats` VALUES $str ");
-
                 }
-            }
-            
-                    $update = $mysqli2->query("select count(*) total From google_analytics_page_stats ");
-                    $rowx = $update->fetch_row();            
-                    print "\n current no of recs: " . $rowx[0];
-                    //exit;
-
-            
+            }            
+            $update = $mysqli2->query("select count(*) total From google_analytics_page_stats ");
+            $rowx = $update->fetch_row();            
+            print "\n current no of recs: " . $rowx[0];            
             echo"\n Getting data from Google Analytics... \n More, please wait... $start_count \n";
-            //exit;
-
         }//end while        
-
-        //print"ditox";   
-        //$mysqli2     
-       
     }
-    else 
-    {
-        echo "login failed \n";    
-    }
+    else echo "login failed \n";    
     return $final;
 }//function 
 
@@ -635,13 +527,10 @@ function initialize_tables_4dmonth($year,$month)
     $query="delete from `google_analytics_partner_taxa`      where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);    		
     $query="delete from `google_analytics_partner_summaries` where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
     $query="delete from `google_analytics_summaries`         where `year` = $year and `month` = $month ";  $update = $mysqli2->query($query);            
-}//function initialize_tables_4dmonth()
-
-
+}
 
 //#############################################################################################################
 /* functions of start2 */
-
 function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
 {
 	$str="";    
@@ -650,32 +539,25 @@ function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$wit
 		for ($i = 0; $i < count($fields); $i++) 		
 		{
 			$field = $fields[$i];
-			$str .= $field . $field_separator;    //"\t" is tab
+			$str .= $field . $field_separator;    
 		}
 		$str .= "\n";    
-    }
-    
+    }    
 	while($result && $row=$result->fetch_assoc())	
 	{
 		for ($i = 0; $i < count($fields); $i++) 		
 		{
 			$field = $fields[$i];
-			$str .= $row["$field"] . $field_separator;    //"\t" is tab
+			$str .= $row["$field"] . $field_separator;   
 		}
         $str .= intval(substr($year_month,0,4)) . $field_separator;
         $str .= intval(substr($year_month,5,2));//no more field separator for last item
 		$str .= "\n";
-	}
-    
+	}    
 	$filename = "data/" . $year_month . "/" . "$filename" . "." . $file_extension;
 	if($fp = fopen($filename,"a")){fwrite($fp,$str);fclose($fp);}		
-    
-    //print "\n[$i]\n";
-    
-    return "";
-    
-}//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
-
+    return "";    
+}
 
 function save_eol_monthly_summary($year,$month)
 {
@@ -691,18 +573,9 @@ function save_eol_monthly_summary($year,$month)
     {            
         $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
         $b = date("Y m d H:i:s");                        
-        //print "<br>$a -- $b<br>";            
         if($a <= $b) $tab_delim .= $value . "\t"; //tab            
     } 
     
-    /*didn't coincide with daily pageStats
-    $query="Select distinct tcn.taxon_concept_id
-    FROM taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id) JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id)
-    WHERE tcn.vern=0 AND tcn.preferred=1 AND tc.supercedure_id=0 AND tc.published=1";    
-    $result = $mysqli->query($query);           
-    $taxa_pages = $result->num_rows;    
-    */
-
     $query="SELECT COUNT(*) count FROM taxon_concepts tc WHERE tc.published=1 AND tc.supercedure_id=0";
     $result = $mysqli->query($query);           
     $row = $result->fetch_row();            
@@ -728,9 +601,5 @@ function save_eol_monthly_summary($year,$month)
     $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
     if($use_sql_load_infile) $update = $mysqli2->query("LOAD DATA LOCAL INFILE 'temp.txt' INTO TABLE google_analytics_summaries");        
     else                     $update = $mysqli2->load_data_infile(             "temp.txt",          "google_analytics_summaries");
-    //
-}//function save_eol_monthly_summary($year)
-
-
-
+}
 ?>
