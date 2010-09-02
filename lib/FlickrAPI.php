@@ -17,7 +17,7 @@ define("FLICKR_EOL_GROUP_ID", "806927@N20");
 
 class FlickrAPI
 {
-    public static function get_all_eol_photos($auth_token = "")
+    public static function get_all_eol_photos($auth_token = "", $resource_file = null)
     {
         $all_taxa = array();
         $used_image_ids = array();
@@ -30,17 +30,22 @@ class FlickrAPI
             $total = $response->photos["total"];
             
             // number of API calls to be made
-            $total_pages = ceil($total / 100);
+            $total_pages = ceil($total / $per_page);
+            $total_pages = 5;
             
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++)
             {
-                echo "getting page $i\n";
+                echo "getting page $i: ".time_elapsed()."\n";
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token);
                 
                 if($page_taxa)
                 {
-                    foreach($page_taxa as $t) $all_taxa[] = $t;
+                    foreach($page_taxa as $t)
+                    {
+                        if($resource_file) fwrite($resource_file, $t->__toXML());
+                        else $all_taxa[] = $t;
+                    }
                 }
             }
         }
@@ -261,6 +266,7 @@ class FlickrAPI
     public static function photos_get_info($photo_id, $secret, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token), 1);
+        echo "$url\n";
         return Functions::get_hashed_response($url);
     }
     
@@ -268,6 +274,7 @@ class FlickrAPI
     {
         $extras = "";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id), 1);
+        echo "$url\n";
         return Functions::get_hashed_response($url);
     }
     
