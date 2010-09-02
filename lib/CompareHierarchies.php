@@ -297,6 +297,8 @@ class CompareHierarchies
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
         $start_time = microtime(true);
         
+        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::insert('kingdom'), Rank::insert('phylum'), Rank::insert('class'), Rank::insert('order'));
+        
         $mysqli->query("CREATE TABLE IF NOT EXISTS `he_relations_tmp` (
           `hierarchy_entry_id_1` int(10) unsigned NOT NULL,
           `hierarchy_entry_id_2` int(10) unsigned NOT NULL,
@@ -371,7 +373,7 @@ class CompareHierarchies
         }
         
         fclose($SQL_FILE);
-        $mysqli->load_data_infile($sql_filepath, "he_relations_tmp", 'IGNORE', '', 6000000);
+        $mysqli->load_data_infile($sql_filepath, "he_relations_tmp", 'IGNORE', '', 500000);
         @unlink($sql_filepath);
         
         self::insert_curator_assertions($hierarchy);
@@ -382,7 +384,7 @@ class CompareHierarchies
     
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
     {
-        if($entry->name[0])
+        if(isset($entry->name) && isset($entry->canonical_form))
         {
             $search_name = rawurlencode($entry->canonical_form[0]);
             $query = "(canonical_form_string:\"". $search_name ."\"";
@@ -408,6 +410,7 @@ class CompareHierarchies
     public static function compare_hierarchy_entries($entry1, $entry2)
     {
         if($entry1->id[0] == $entry2->id[0]) return null;
+        if(!isset($entry1->name) || !isset($entry2->name)) return null;
         if(self::rank_conflict($entry1, $entry2)) return null;
         
         // viruses are a pain and will not match properly right now
@@ -454,12 +457,12 @@ class CompareHierarchies
     public static function compare_synonyms(&$entry1, &$entry2)
     {
         // one name is in the other's synonym list
-        if(in_array($entry1->name[0], $entry2->synonym)) return 1;
-        if(in_array($entry2->name[0], $entry1->synonym)) return 1;
+        if(isset($entry2->synonym) && in_array($entry1->name[0], $entry2->synonym)) return 1;
+        if(isset($entry1->synonym) && in_array($entry2->name[0], $entry1->synonym)) return 1;
         
         // one canonical_form is in the other's synonym list
-        if(in_array($entry1->canonical_form[0], $entry2->synonym_canonical)) return .5;
-        if(in_array($entry2->canonical_form[0], $entry1->synonym_canonical)) return .5;
+        if(isset($entry2->synonym_canonical) && in_array($entry1->canonical_form[0], $entry2->synonym_canonical)) return .5;
+        if(isset($entry1->synonym_canonical) && in_array($entry2->canonical_form[0], $entry1->synonym_canonical)) return .5;
         
         return 0;
     }
@@ -492,10 +495,8 @@ class CompareHierarchies
         // matched at kingdom level. Make sure a few criteria are met before succeeding
         if($score == .2)
         {
-            $ranks_matched_at_kingdom = array(Rank::insert('kingdom'), Rank::insert('phylum'), Rank::insert('class'), Rank::insert('order'));
-            
             // fail if the match is kingdom and we have something at a lower rank
-            if(!(in_array($entry1->rank_id[0], $ranks_matched_at_kingdom) || in_array($entry2->rank_id[0], $ranks_matched_at_kingdom)) &&
+            if(!(in_array($entry1->rank_id[0], $GLOBALS['ranks_matched_at_kingdom']) || in_array($entry2->rank_id[0], $GLOBALS['ranks_matched_at_kingdom'])) &&
                 ($entry1->rank_id[0] == $entry2->rank_id[0] || !$entry1->rank_id[0] || !$entry2->rank_id[0])) $score = 0;
         }
         

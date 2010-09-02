@@ -169,6 +169,7 @@ class HierarchyEntryIndexer
     private function lookup_synonyms($start, $limit, $filter = "1=1")
     {
         $sci = Language::find('scientific name');
+        $common_name_id = SynonymRelation::insert('common name');
         
         echo "\nquerying synonyms\n";
         $result = $this->mysqli->query("SELECT s.*, n.string, cf.string canonical_form FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (s.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
@@ -179,7 +180,7 @@ class HierarchyEntryIndexer
             $id = $row['hierarchy_entry_id'];
             $relation_id = $row['synonym_relation_id'];
             
-            if(($row['language_id'] && $row['language_id'] != $sci) || $relation_id == SynonymRelation::insert('common name')) $field = 'common_name';
+            if(($row['language_id'] && $row['language_id'] != $sci) || $relation_id == $common_name_id) $field = 'common_name';
             else $field = 'synonym';
             
             $this->objects[$id][$field][SolrApi::text_filter($row['string'])] = 1;

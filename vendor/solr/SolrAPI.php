@@ -185,7 +185,7 @@ class SolrAPI
         
         echo "calling: $curl\n";
         exec($curl);
-        //$this->commit();
+        $this->commit();
     }
     
     public function send_from_mysql_result($outfile)
@@ -200,7 +200,7 @@ class SolrAPI
              
              echo "calling: $curl\n";
              exec($curl);
-             //$this->commit();
+             $this->commit();
         }
     }
     
