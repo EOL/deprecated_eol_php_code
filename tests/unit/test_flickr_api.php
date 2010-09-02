@@ -7,17 +7,17 @@ class test_flickr_api extends SimpletestUnitBase
     function testPoolsGetPhotos()
     {
         $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, FLICKR_PLEARY_AUTH_TOKEN);
-        $this->assertTrue($response['stat'] == 'ok', 'pools_get_photos should return a stat of OK');
-        $this->assertTrue($response->photos['pages'] > 45000, 'EOL pool should have more than 45000 photos');
+        $this->assertTrue($response->stat == 'ok', 'pools_get_photos should return a stat of OK');
+        $this->assertTrue($response->photos->pages > 45000, 'EOL pool should have more than 45000 photos');
     }
     
     function testGetEOLPhotos()
     {
         $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 5, 1, FLICKR_PLEARY_AUTH_TOKEN, FLICKR_PLEARY_USER_ID);
-        $this->assertTrue($response->photos['total'] == 2, 'Patrick should have submitted only 2 photos');
+        $this->assertTrue($response->photos->total == 2, 'Patrick should have submitted only 2 photos');
         
         $first_photo = $response->photos->photo[0];
-        $taxa = FlickrApi::get_taxa_for_photo($first_photo["id"], $first_photo["secret"], FLICKR_PLEARY_AUTH_TOKEN);
+        $taxa = FlickrApi::get_taxa_for_photo($first_photo->id, $first_photo->secret, FLICKR_PLEARY_AUTH_TOKEN);
         $this->assertTrue(is_array($taxa), 'Taxa should be an array');
         
         $taxon = $taxa[0];
