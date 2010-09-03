@@ -58,7 +58,7 @@ class TaxonConceptIndexer
         
         if(!$hierarchy_id)
         {
-            $results = $this->solr->get_results('{!lucene}taxon_concept_id:11518645');
+            $results = $this->solr->get_results('taxon_concept_id:11518645');
             if($results) $this->solr->swap('taxon_concepts_swap', 'taxon_concepts');
         }
     }

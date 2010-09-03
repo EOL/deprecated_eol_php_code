@@ -1,7 +1,7 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = false;
+//$GLOBALS['ENV_DEBUG'] = false;
 
 // this checks to make sure we only have one instance of this script running
 // if there are more than one then it means we're still harvesting something from yesterday
@@ -12,7 +12,7 @@ Functions::log("Starting harvesting");
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    //if($resource->id != 71) continue;
+    //if($resource->id == 15) continue;
     
     echo $resource->id."\n";
     
@@ -49,5 +49,9 @@ shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=".
 // finally, clear the cache
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
+if($GLOBALS['ENV_NAME']=='production')
+{
+    shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/taxon_concept_index.php ENV_NAME=slave");
+}
 
 ?>

@@ -18,6 +18,9 @@ chmod ug+x /data/www/eol_php_code/update_resources/connectors/helpers/*
 chown nginx:nginx /data/www/eol_php_code/rake_tasks/*
 chmod ug+x /data/www/eol_php_code/rake_tasks/*
 
+chown nginx:nginx /data/www/eol_php_code/applications/solr/*
+chmod ug+x /data/www/eol_php_code/applications/solr/*
+
 chown nginx:nginx /data/www/resources/*
 chmod ug+rw /data/www/resources/*
 
