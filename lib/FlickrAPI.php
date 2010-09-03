@@ -235,11 +235,9 @@ class FlickrAPI
             if($file_json_object = self::check_cache('photosGetSizes', $photo->id))
             {
                 $sizes = $file_json_object;
-                print_r($sizes);
             }else
             {
                 $sizes = self::photos_get_sizes($photo->id);
-                print_r($sizes);
             }
             
             if(@$sizes)
