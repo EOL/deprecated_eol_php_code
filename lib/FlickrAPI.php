@@ -57,12 +57,15 @@ class FlickrAPI
         
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token);
         
+        static $count_taxa = 0;
         $page_taxa = array();
         foreach($response->photos->photo as $photo)
         {
             if(@$used_image_ids[$photo->id]) continue;
+            $count_taxa++;
+            echo "taxon $count_taxa ($photo->id): ".time_elapsed()."\n";
             
-            $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $auth_token);
+            $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token);
             if($taxa)
             {
                 foreach($taxa as $t) $page_taxa[] = $t;
@@ -74,10 +77,16 @@ class FlickrAPI
         return $page_taxa;
     }
     
-    public static function get_taxa_for_photo($photo_id, $secret, $auth_token = "")
+    public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "")
     {
-        $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
-        $photo = @$photo_response->photo;
+        if($file_json_object = self::check_cache('photosGetInfo', $photo_id, $last_update))
+        {
+            $photo = @$file_json_object->photo;
+        }else
+        {
+            $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
+            $photo = @$photo_response->photo;
+        }
         if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
         
         if($photo->visibility->ispublic != 1) return false;
@@ -222,7 +231,17 @@ class FlickrAPI
         if($photo->media == "video")
         {
             debug("getting sizes for id: ".$photo->id."\n");
-            $sizes = self::photos_get_sizes($photo->id);
+            
+            if($file_json_object = self::check_cache('photosGetSizes', $photo->id))
+            {
+                $sizes = $file_json_object;
+                print_r($sizes);
+            }else
+            {
+                $sizes = self::photos_get_sizes($photo->id);
+                print_r($sizes);
+            }
+            
             if(@$sizes)
             {
                 foreach($sizes->sizes->size as $size)
@@ -246,7 +265,9 @@ class FlickrAPI
     public static function photos_get_sizes($photo_id, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getSizes", array("photo_id" => $photo_id, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
-        return json_decode(Functions::get_remote_file($url));
+        $response = Functions::get_remote_file($url);
+        self::add_to_cache('photosGetSizes', $photo_id, $response);
+        return json_decode($response);
     }
     
     public static function people_get_info($user_id, $auth_token = "")
@@ -264,12 +285,14 @@ class FlickrAPI
     public static function photos_get_info($photo_id, $secret, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
-        return json_decode(Functions::get_remote_file($url));
+        $response = Functions::get_remote_file($url);
+        self::add_to_cache('photosGetInfo', $photo_id, $response);
+        return json_decode($response);
     }
     
     public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "", $user_id = NULL)
     {
-        $extras = "";
+        $extras = "last_update,media,url_o";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
         return json_decode(Functions::get_remote_file($url));
     }
@@ -367,6 +390,39 @@ class FlickrAPI
         }
         
         return md5($signature);
+    }
+    
+    public static function add_to_cache($dir_name, $photo_id, $photo_response)
+    {
+        $filter_dir = substr($photo_id, -2);
+        $dir_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/$dir_name/$filter_dir";
+        $file_path = "$dir_path/$photo_id.json";
+        
+        // make sure cache directory exists
+        if(!file_exists($dir_path)) mkdir($dir_path);
+        
+        // write to cache file
+        $FILE = fopen($file_path, "w+");
+        fwrite($FILE, $photo_response);
+        fclose($FILE);
+    }
+    
+    public static function check_cache($dir_name, $photo_id, $last_update = null)
+    {
+        $filter_dir = substr($photo_id, -2);
+        $file_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/$dir_name/$filter_dir/$photo_id.json";
+        if(file_exists($file_path))
+        {
+            $file_contents = file_get_contents($file_path);
+            $json_object = json_decode($file_contents);
+            if($dir_name == 'photosGetInfo' && (!$last_update || @$json_object->photo->dates->lastupdate != $last_update))
+            {
+                unlink($file_path);
+                $sizes_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/photosGetSizes/$filter_dir/$photo_id.json";
+                unlink($sizes_path);
+            }else return $json_object;
+        }
+        return false;
     }
 }
 

@@ -34,7 +34,7 @@ rename(CONTENT_RESOURCE_LOCAL_PATH . "15_temp.xml", CONTENT_RESOURCE_LOCAL_PATH 
 // set Flickr to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "15.xml"))
 {
-    $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=15");
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=15");
 }
 
 ?>
