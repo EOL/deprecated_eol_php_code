@@ -21,7 +21,7 @@ class FlickrAPI
     {
         $all_taxa = array();
         $used_image_ids = array();
-        $per_page = 100;
+        $per_page = 500;
         
         // Get metadata about the EOL Flickr pool
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, $auth_token);
@@ -417,7 +417,7 @@ class FlickrAPI
             {
                 unlink($file_path);
                 $sizes_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/photosGetSizes/$filter_dir/$photo_id.json";
-                unlink($sizes_path);
+                @unlink($sizes_path);
             }else return $json_object;
         }
         return false;

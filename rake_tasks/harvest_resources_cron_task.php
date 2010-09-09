@@ -5,7 +5,7 @@ include_once(dirname(__FILE__) . "/../config/environment.php");
 
 // this checks to make sure we only have one instance of this script running
 // if there are more than one then it means we're still harvesting something from yesterday
-if(Functions::grep_processlist('harvest_resources') > 1) exit;
+if(Functions::grep_processlist('harvest_resources') > 2) exit;
 
 
 Functions::log("Starting harvesting");
