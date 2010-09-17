@@ -70,18 +70,20 @@ class HierarchyEntry extends MysqlBase
                 TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id']);
             }else
             {
+                $old_taxon_concept_id = $row['taxon_concept_id'];
                 // if there is more than one member, just update the one entry
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
+                $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) JOIN data_objects_taxon_concepts dotc ON (dohe.data_object_id=dotc.data_object_id) SET dotc.taxon_concept_id=he.taxon_concept_id WHERE he.id=$hierarchy_entry_id AND dotc.taxon_concept_id=$old_taxon_concept_id");
                 
-                $mysqli->update("UPDATE taxon_concepts SET published=0, vetted_id=0 WHERE id IN ($taxon_concept_id, ".$row['taxon_concept_id'].")");
+                $mysqli->update("UPDATE taxon_concepts SET published=0, vetted_id=0 WHERE id IN ($taxon_concept_id, $old_taxon_concept_id)");
                 
                 $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=he.published WHERE tc.id=$taxon_concept_id AND he.published!=0");
                 $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=he.vetted_id WHERE tc.id=$taxon_concept_id AND he.vetted_id!=0");
                 
-                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=he.published WHERE tc.id=".$row['taxon_concept_id']." AND he.published!=0");
-                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=he.vetted_id WHERE tc.id=".$row['taxon_concept_id']." AND he.vetted_id!=0");
+                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=he.published WHERE tc.id=$old_taxon_concept_id AND he.published!=0");
+                $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=he.vetted_id WHERE tc.id=$old_taxon_concept_id AND he.vetted_id!=0");
             }
         }
     }

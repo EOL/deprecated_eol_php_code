@@ -222,7 +222,7 @@ function create_resource_file()
     
     if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml"))
     {
-        $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=$resource->id");
+        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=$resource->id");
     }
 }
 

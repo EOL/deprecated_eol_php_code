@@ -222,10 +222,11 @@ class WikimediaPage
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/i", $homepage) || preg_match("/;/", $homepage)) $homepage = "";
         $author = preg_replace("/<a href='(.*?)'>/", "", $author);
         $author = str_replace("</a>", "", $author);
+        $author = str_replace("©", "", $author);
         
         $agent_parameters = array();
         $agent_parameters["fullName"] = htmlspecialchars($author);
-        if(Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+        if(Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
         $agent_parameters["role"] = 'photographer';
         
         $this->agent_parameters = $agent_parameters;

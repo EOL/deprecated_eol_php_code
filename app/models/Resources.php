@@ -286,6 +286,14 @@ class Resource extends MysqlBase
                 Hierarchy::publish_default_hierarchy_concepts();
                 $this->mysqli->commit();
                 
+                // Rebuild the Solr index for this hierarchy
+                $indexer = new HierarchyEntryIndexer();
+                $indexer->index($this->hierarchy_id);
+                
+                // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+                $hierarchy = new Hierarchy($this->hierarchy_id);
+                CompareHierarchies::process_hierarchy($hierarchy, null, true);
+                
                 CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
             }
             
@@ -334,17 +342,19 @@ class Resource extends MysqlBase
                 debug("Assigning nested set values resource: $this->id");
                 Tasks::rebuild_nested_set($this->hierarchy_id);
                 debug("Finished assigning: $this->id");
-                
-                // Rebuild the Solr index for this hierarchy
-                $indexer = new HierarchyEntryIndexer();
-                $indexer->index($this->hierarchy_id);
-                
-                // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                $hierarchy = new Hierarchy($this->hierarchy_id);
-                CompareHierarchies::process_hierarchy($hierarchy, null, true);
                 $this->make_new_hierarchy_entries_preview($hierarchy);
                 
-                CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                if(!$this->auto_publish())
+                {
+                    // Rebuild the Solr index for this hierarchy
+                    $indexer = new HierarchyEntryIndexer();
+                    $indexer->index($this->hierarchy_id);
+                    
+                    // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+                    $hierarchy = new Hierarchy($this->hierarchy_id);
+                    CompareHierarchies::process_hierarchy($hierarchy, null, true);
+                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                }
                 
                 if($this->vetted())
                 {
@@ -368,6 +378,8 @@ class Resource extends MysqlBase
             if($this->auto_publish())
             {
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
+                $this->resource_status_id = ResourceStatus::insert("Publish Pending");
+                $this->publish();
             }
         }
     }

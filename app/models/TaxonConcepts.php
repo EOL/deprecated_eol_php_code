@@ -33,6 +33,7 @@ class TaxonConcept extends MysqlBase
             // updating TCN => all names linked to ID2 are getting linked to ID1
             $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
             $mysqli->update("UPDATE IGNORE top_concept_images he SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
+            $mysqli->update("UPDATE IGNORE data_objects_taxon_concepts dotc SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
             $mysqli->update("UPDATE IGNORE top_unpublished_concept_images he SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
             $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$id2");
         }

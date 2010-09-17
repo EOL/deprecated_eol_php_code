@@ -507,21 +507,21 @@ class CompareHierarchies
     {
         // entry 1 is in target hierarchy
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
         unlink($outfile);
         
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
         unlink($outfile);
         
         
         // entry 2 is in target hierarchy
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
         unlink($outfile);
         
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "hierarchy_entry_relationships");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
         unlink($outfile);
     }
 }
