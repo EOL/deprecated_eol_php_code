@@ -1,13 +1,13 @@
 <?php
 /* 
-    testing line endings...
-    
-    This code processes the latest WORMS resource XML and generates stats for it.
-    A successful run of this script will append a new record in this report: 
-    http://services.eol.org/species_stat_marine/display.php    
-    
-    2nd function of this script is to compute:
-    How many WORMS pages have wikipedia and flickr
+testing line endings...
+
+This code processes the latest WORMS resource XML and generates stats for it.
+A successful run of this script will append a new record in this report: 
+http://services.eol.org/species_stat_marine/display.php    
+
+2nd function of this script is to compute:
+How many WORMS pages have wikipedia and flickr
     
     
 as of April 21:
@@ -26,7 +26,16 @@ as of August 2:
     Names in EOL: 158889
     Marine pages: 161323
     Pages with objects: 80676
-    Pages with vetted objects: 80178
+    Pages with vetted objects: 80178    
+
+as of Sep 17:
+    Names from XML: 193013
+    Names in EOL: 167455
+    Marine pages: 169950
+    Pages with objects: 90196
+    Pages with vetted objects: 89718
+    elapsed time = 84.139336649577 min
+    elapsed time = 1.4023222774929 hr
     
 */
 
