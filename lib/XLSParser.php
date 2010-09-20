@@ -317,35 +317,39 @@ class XLSParser
     {
         $data=array();
         $i=0;
-        foreach($arr[$index] as $taxon_name)
+     
+        if(@$arr[$index])   
         {
-            $taxon_name=self::format($taxon_name);
-            $temp=array( $fld1=>@$arr[$fld1][$i],$fld2=>@$arr[$fld2][$i],
-                         $fld3=>@$arr[$fld3][$i],$fld4=>@$arr[$fld4][$i],
-                         $fld5=>@$arr[$fld5][$i],$fld6=>@$arr[$fld6][$i],
-                         $fld7=>@$arr[$fld7][$i],$fld8=>@$arr[$fld8][$i],
-                         $fld9=>@$arr[$fld9][$i],
-                         $fld10=>@$arr[$fld10][$i],$fld11=>@$arr[$fld11][$i],
-                         $fld12=>@$arr[$fld12][$i],$fld13=>@$arr[$fld13][$i],
-                         $fld14=>@$arr[$fld14][$i],$fld15=>@$arr[$fld15][$i],
-                         $fld16=>@$arr[$fld16][$i],$fld17=>@$arr[$fld17][$i],
-                         $fld18=>@$arr[$fld18][$i],$fld19=>@$arr[$fld19][$i],
-                         $fld20=>@$arr[$fld20][$i],$fld21=>@$arr[$fld21][$i],
-                         $fld22=>@$arr[$fld22][$i],$fld23=>@$arr[$fld23][$i],
-                         $fld24=>@$arr[$fld24][$i],$fld25=>@$arr[$fld25][$i],
-                         $fld26=>@$arr[$fld26][$i],$fld27=>@$arr[$fld27][$i],
-                         $fld28=>@$arr[$fld28][$i],$fld29=>@$arr[$fld29][$i],
-                         $fld30=>@$arr[$fld30][$i],$fld31=>@$arr[$fld31][$i],
-                         $fld32=>@$arr[$fld32][$i],$fld33=>@$arr[$fld33][$i],
-                         $fld34=>@$arr[$fld34][$i],$fld35=>@$arr[$fld35][$i],
-                         $fld36=>@$arr[$fld36][$i],$fld37=>@$arr[$fld37][$i],
-                         $fld38=>@$arr[$fld38][$i],$fld39=>@$arr[$fld39][$i],
-                         $fld40=>@$arr[$fld40][$i],$fld41=>@$arr[$fld41][$i],
-                         $fld42=>@$arr[$fld42][$i],$fld43=>@$arr[$fld43][$i],
-                         $fld44=>@$arr[$fld44][$i]);
-            if($number == "multiple")$data[$taxon_name][]=$temp;
-            else                     $data[$taxon_name]=$temp;
-            $i++;
+            foreach(@$arr[$index] as $taxon_name)
+            {
+                $taxon_name=self::format($taxon_name);
+                $temp=array( $fld1=>@$arr[$fld1][$i],$fld2=>@$arr[$fld2][$i],
+                             $fld3=>@$arr[$fld3][$i],$fld4=>@$arr[$fld4][$i],
+                             $fld5=>@$arr[$fld5][$i],$fld6=>@$arr[$fld6][$i],
+                             $fld7=>@$arr[$fld7][$i],$fld8=>@$arr[$fld8][$i],
+                             $fld9=>@$arr[$fld9][$i],
+                             $fld10=>@$arr[$fld10][$i],$fld11=>@$arr[$fld11][$i],
+                             $fld12=>@$arr[$fld12][$i],$fld13=>@$arr[$fld13][$i],
+                             $fld14=>@$arr[$fld14][$i],$fld15=>@$arr[$fld15][$i],
+                             $fld16=>@$arr[$fld16][$i],$fld17=>@$arr[$fld17][$i],
+                             $fld18=>@$arr[$fld18][$i],$fld19=>@$arr[$fld19][$i],
+                             $fld20=>@$arr[$fld20][$i],$fld21=>@$arr[$fld21][$i],
+                             $fld22=>@$arr[$fld22][$i],$fld23=>@$arr[$fld23][$i],
+                             $fld24=>@$arr[$fld24][$i],$fld25=>@$arr[$fld25][$i],
+                             $fld26=>@$arr[$fld26][$i],$fld27=>@$arr[$fld27][$i],
+                             $fld28=>@$arr[$fld28][$i],$fld29=>@$arr[$fld29][$i],
+                             $fld30=>@$arr[$fld30][$i],$fld31=>@$arr[$fld31][$i],
+                             $fld32=>@$arr[$fld32][$i],$fld33=>@$arr[$fld33][$i],
+                             $fld34=>@$arr[$fld34][$i],$fld35=>@$arr[$fld35][$i],
+                             $fld36=>@$arr[$fld36][$i],$fld37=>@$arr[$fld37][$i],
+                             $fld38=>@$arr[$fld38][$i],$fld39=>@$arr[$fld39][$i],
+                             $fld40=>@$arr[$fld40][$i],$fld41=>@$arr[$fld41][$i],
+                             $fld42=>@$arr[$fld42][$i],$fld43=>@$arr[$fld43][$i],
+                             $fld44=>@$arr[$fld44][$i]);
+                if($number == "multiple")$data[$taxon_name][]=$temp;
+                else                     $data[$taxon_name]=$temp;
+                $i++;
+            }        
         }
         return $data;
     }
