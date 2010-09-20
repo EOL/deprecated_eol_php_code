@@ -5,7 +5,7 @@ Feb2010     1March2010
 Mar2010     1April2010      1.5 hrs
 Apr2010     3May2010        1.7 hrs
 July2010    4Aug2010                
-Aug2010     1Sep2010
+Aug2010     1Sep2010        5 hrs
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -168,7 +168,7 @@ function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
         JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
         JOIN page_names pn on (tcn.name_id=pn.name_id)        
         where tc.supercedure_id=0 and tc.published=1 ";
-        //removed and tc.vetted_id <> " . Vetted::find("untrusted");                 
+        /* removed to have same no. from similar report: and tc.vetted_id <> " . Vetted::find("untrusted"); */
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
@@ -286,7 +286,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         Join google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id        
         where tc.supercedure_id=0 and tc.published=1 
         and gaps.month=$month and gaps.year=$year ";
-        //removed --- and tc.vetted_id <> " . Vetted::find("untrusted") . " 
+        /* removed to have same no. from similar report: and tc.vetted_id <> " . Vetted::find("untrusted") . " */
         //$query .= " LIMIT 1 "; //debug
     }
     elseif($agent_id == 11)//Catalogue of Life
@@ -435,7 +435,7 @@ function save_eol_taxa_google_stats($month,$year)
         mkdir("data/" . $year . "_" . $month , 0777);                
         
         $cr = "\n";
-        $sep = "\t"; //tab
+        $sep = "\t"; 
                         
         $cnt = 0;
         while($continue == true)
@@ -573,7 +573,7 @@ function save_eol_monthly_summary($year,$month)
     {            
         $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
         $b = date("Y m d H:i:s");                        
-        if($a <= $b) $tab_delim .= $value . "\t"; //tab            
+        if($a <= $b) $tab_delim .= $value . "\t";
     } 
     
     $query="SELECT COUNT(*) count FROM taxon_concepts tc WHERE tc.published=1 AND tc.supercedure_id=0";
