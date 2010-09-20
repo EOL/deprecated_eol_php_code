@@ -28,14 +28,7 @@ elseif(isset($_FILES["file_upload"]["type"]))
 else exit("<hr>Please enter a URL or browse a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
 if (!copy($url, $newfile))exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
 
-if($orig_url)$arr = parse_url($orig_url);
-else $arr = parse_url($url);
-
-
 $validate = get_val_var('validate');
-//print $validate; //exit;
-
-
 print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&validate=$validate'>";
 exit;
 

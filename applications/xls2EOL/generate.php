@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-//error_reporting(0);
+error_reporting(0);
 ini_set("memory_limit","1000M");
 $file = "" . $_GET["file"];
 
@@ -28,35 +28,16 @@ Thank you.
 ";
 
 
-
 $validate = get_val_var('validate');
 if($validate == 'on')
 {    
-    print"<hr>";
-    /*
-    $path_parts = pathinfo(__FILE__);
-    $temp = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];  
-    $temp = str_ireplace($path_parts["basename"], "", $temp);
-    $fn = $temp . $newfile . "";    
-    $fn = $temp . "process.php?fn=" . urlencode($fn) . "";    
-    */
-    
-    print"<p>
+    print"<hr><p>
     <form name='validator_form' action='http://services.eol.org/eol_php_code/applications/validator/index.php' method='post'>
     <input type='hidden' size='30' name='file_url' value='$url'>
     <input type='submit' value='Click here to Validate >> '>
     </td></form>
     <p><a href='javascript:history.go(-1)'> &lt;&lt; Back to menu</a>";    
-    exit;    
-    /*
-    <META HTTP-EQUIV='Refresh' Content='$secs; URL=$url_str'>    
-    exit; 
-    */
-    
-    ?>
-    <script language="javascript1.2">document.forms.validator_form.submit()</script>
-    <?php
-    exit;
+    exit;        
 }
 
 
