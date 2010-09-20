@@ -3,25 +3,12 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 //error_reporting(0);
 ini_set("memory_limit","1000M");
-//$file = "../xls2EOL/eol.xls";
 $file = "" . $_GET["file"];
 
 require_library('XLSParser');
 $parser = new XLSParser();
 
 $xml = $parser->create_eol_xml($parser,$file);
-
-/*
-foreach($arr['Taxon Name'] as $sci)
-{
-    print utf8_decode($sci) . "<br>";    
-}
-*/
-
-/* working but commented because we want to point to an XML file
-header('Content-type: text/xml');    
-print $xml;
-*/
 
 $filename = "xml/" . time() . ".xml";
 $OUT = fopen($filename, "w+");            
@@ -42,9 +29,43 @@ Thank you.
 
 
 
+$validate = get_val_var('validate');
+if($validate == 'on')
+{    
+    print"<hr>";
+    /*
+    $path_parts = pathinfo(__FILE__);
+    $temp = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];  
+    $temp = str_ireplace($path_parts["basename"], "", $temp);
+    $fn = $temp . $newfile . "";    
+    $fn = $temp . "process.php?fn=" . urlencode($fn) . "";    
+    */
+    
+    print"<p>
+    <form name='validator_form' action='http://services.eol.org/eol_php_code/applications/validator/index.php' method='post'>
+    <input type='hidden' size='30' name='file_url' value='$url'>
+    <input type='submit' value='Click here to Validate >> '>
+    </td></form>
+    <p><a href='javascript:history.go(-1)'> &lt;&lt; Back to menu</a>";    
+    exit;    
+    /*
+    <META HTTP-EQUIV='Refresh' Content='$secs; URL=$url_str'>    
+    exit; 
+    */
+    
+    ?>
+    <script language="javascript1.2">document.forms.validator_form.submit()</script>
+    <?php
+    exit;
+}
 
 
-//print"<META HTTP-EQUIV='Refresh' Content='0; URL=$filename'>";
-
+function get_val_var($v)
+{
+    if     (isset($_GET["$v"]))$var=$_GET["$v"];
+    elseif (isset($_POST["$v"]))$var=$_POST["$v"];    
+    if(isset($var)) return $var;
+    else return NULL;
+}
 
 ?>
