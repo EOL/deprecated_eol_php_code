@@ -3,28 +3,21 @@ class XLSParser
 {    
     public function convert_sheet_to_array($spreadsheet,$sheet=NULL,$startRow=NULL)
     {
-        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
-        
+        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';        
         $ext = end(explode('.', $spreadsheet));
         if    ($ext == "xls") $objReader = PHPExcel_IOFactory::createReader('Excel5');
         elseif($ext == "xlsx")$objReader = PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response        
         elseif($ext == "csv") $objReader = new PHPExcel_Reader_CSV();
-        $objPHPExcel = $objReader->load($spreadsheet);
-        
-        if($ext != "csv")$objReader->setReadDataOnly(true);        
-        
+        $objPHPExcel = $objReader->load($spreadsheet);        
+        if($ext != "csv")$objReader->setReadDataOnly(true);                
         if(is_null($sheet)) $objWorksheet = $objPHPExcel->getActiveSheet();             
-        else                $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet); 
-        
+        else                $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);         
         $highestRow = $objWorksheet->getHighestRow(); // e.g. 10
         $highestColumn = $objWorksheet->getHighestColumn(); // e.g 'F'
-        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5
-        
+        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5        
         $arr_label = array();
-        $arr_value = array();
-     
-        if(is_null($startRow))$startRow=1;
-        
+        $arr_value = array();     
+        if(is_null($startRow))$startRow=1;        
         for ($row = $startRow; $row <= $highestRow; ++$row) 
         {
             for ($col = 0; $col <= $highestColumnIndex; ++$col) 
@@ -53,16 +46,14 @@ class XLSParser
         6 = More common names (optional)
         7 = Synonyms
         */    
-
-        $taxon_info = $parser->convert_sheet_to_array($file,5);                  
+        $taxon_info = $parser->convert_sheet_to_array($file,5);                          
         
-        $text_desc      = self::prepare_data($parser->convert_sheet_to_array($file,2),"multiple","Taxon Name","Reference Code","Attribution Code","Contributor Code",
-        
+        $text_desc      = self::prepare_data($parser->convert_sheet_to_array($file,2),"multiple","Taxon Name","Reference Code","Attribution Code","Contributor Code",        
         "Audience","DateCreated","DateModified","Associations","Behaviour","Biology","Conservation",	
         "ConservationStatus","Cyclicity","Cytology","Description","DiagnosticDescription","Diseases","Dispersal","Distribution","Ecology","Evolution",
         "GeneralDescription","Genetics","Growth","Habitat","Key","Legislation","LifeCycle","LifeExpectancy","LookAlikes","Management","Migration",
         "MolecularBiology","Morphology","Physiology","PopulationBiology","Procedures","Reproduction","RiskStatement","Size","TaxonBiology","Threats","Trends",
-        "TrophicStrategy","Uses");
+        "TrophicStrategy","Uses");        
         
         $multimedia     = self::prepare_data($parser->convert_sheet_to_array($file,4,2),"multiple","Taxon Name",
         "DateCreated","DateModified","Data Type","MIME Type","Media URL","Thumbnail URL","Source URL","Caption","Language","Audience","Location","Latitude",	
@@ -87,10 +78,8 @@ class XLSParser
     {
         $schema_taxa = array();
         $used_taxa = array();
-        $i=0;        
-        
-        $references = $do_details['references'];
-        
+        $i=0;                
+        $references = $do_details['references'];        
         foreach($taxon_info["Scientific Name"] as $sciname)
         {
             $taxon_identifier = self::format($sciname);        
