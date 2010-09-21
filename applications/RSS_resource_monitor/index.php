@@ -29,26 +29,15 @@ function check_click()
 function proc()
 {
 	var number = document.getElementById('resource_id').selectedIndex;
-	//alert(document.getElementById('resource_id').options[number].value);
-	
 	document.getElementById('txt2').value = '';
 	document.getElementById('txt2').value = document.getElementById('txt').value +
-											document.getElementById('resource_id').options[number].value;
-	
+											document.getElementById('resource_id').options[number].value;	
 	document.getElementById('subscribe').href = document.getElementById('txt2').value;
-	document.getElementById('preview').href = 'right.php?url=' + document.getElementById('txt2').value;
-	
+	document.getElementById('preview').href = 'right.php?url=' + document.getElementById('txt2').value;	
 }
 </script>
 </head>
 <body>
-
-	<!--- now it becomes dynamic, see below
-	<link 	rel="alternate" 
-			type="application/rss+xml"
-    		title="Recently harvested resources" 
-			href="http://128.128.175.77/eol_php_code/applications/RSS_resource_monitoring/index.php?f=1">	
-		--->
 
 
 <?php
@@ -66,73 +55,37 @@ for ($i = 1; $i <= count($feeds) ; $i++)
 	";
 }
 
-?>
-
-
-<?php
-
 print"<table border='1'>
 <form method='get' action='process.php' id='fn'><input type='hidden' id='f' name='f'><input type='hidden' id='what' name='f_list'>
 </form>
-
 <tr><td colspan='6' align='center'>EOL Resource Monitoring - RSS Feeds<br>&nbsp;</td></tr>";
+
 $cnt=0;
 for ($i = 1; $i <= count($feeds) ; $i++) 
 {
-	
-	//<img alt='Subscribe' src='http://www.w3schools.com/rss/rss.gif' width='36' height='14'>
-
 	if($i != 5)
 	{
-		$cnt++;
-		
+		$cnt++;		
 		print"
 		<tr>
 		<td align='right'>$cnt. </td>
-		<td>" . $feeds[$i]["title"] . "	</td>
-	
+		<td>" . $feeds[$i]["title"] . "	</td>	
 		<td>
 		<a title='Subscribe' target='_top' href='http://$domain/$feed_path?f=" . $feeds[$i]["feed"] . "'>
 		<img alt='Subscribe' src='feed_icon_big.png' border='0'>	
-		</a>	
-		</td>";
-	
-		print"<td width='10'></td><td><input type='checkbox' value='$i' onClick='check_click()' id='check_$i'></td>";
-	
+		</a></td>";	
+		print"<td width='10'></td><td><input type='checkbox' value='$i' onClick='check_click()' id='check_$i'></td>";	
 		if($cnt == 1)
 		{	print"<td valign='middle' rowspan='12' align='center'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<a title='Subscribe' target='_top' href='javascript:document.forms.fn.submit()'>
 			<img alt='Subscribe' src='feed_icon_big.png' border='0'></a> Related feeds &nbsp;&nbsp;&nbsp;&nbsp;
 			<br><i><small>Click checkbox for feeds<br>you want to group</small></i>
 			</td>";
-		}
-	
+		}	
 		print"</tr>";
 	
-	}//if($i != 5)
+	}
 }
-
-
-
-/*
-print"
-	<tr>
-		<td>Content Partner Resource Status</td>
-	<td>
-	<a title='Subscribe' target='_top' href='http://$domain/$feed_path?f=5&resources_id=39'>
-	<img alt='Subscribe' src='feed_icon_big.png' border='0'>
-	</a>
-
-	<td>
-	<a target='right' href='right.php?url=" . urldecode("http://$domain/$feed_path?f=5&resources_id=39") . "'>
-	Preview</a>		
-	</td>		
-	</tr>
-";
-*/
-
-//print"</table>";
-
 
 
 $qry = "select title, id, service_type_id from resources order by title";
@@ -146,35 +99,14 @@ while($result && $row=$result->fetch_assoc())
     if($row["service_type_id"]==2)print"[**has connector]";
 }
 print"</select>
-
-	<a id='subscribe' title='Subscribe' target='_top' href=''>
-	<img alt='Subscribe' src='feed_icon_big.png' border='0'>
-
-
-</td>";
-
-	print"<td>
-	</td>";
-
-
-
-print"
+<a id='subscribe' title='Subscribe' target='_top' href=''>
+<img alt='Subscribe' src='feed_icon_big.png' border='0'>
+</td><td></td>
 <input type='hidden' id='txt' value='http://$domain/$feed_path?f=5&resources_id=' size='100'><br>
 <input type='hidden' id='txt2' size='100'>
-";
-
-print"</table>";
-
+</table>";
 ?>
 
-
-<?php
-	/*
-	<a id='preview' target='right' href=''>
-	Preview</a>		
-	";
-	*/
-?>
 <br>
 <i><font size="2">Login to www.eol.org to see onward links.</font></i>
 </body>

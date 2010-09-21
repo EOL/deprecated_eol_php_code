@@ -7,20 +7,14 @@ $feeds = array(
 				5  => array("title" => "Content Partner Resource Status"			, "feed" => "5"),
 				6  => array("title" => "Schedules for next harvest (multiple row)"	, "feed" => "6"),
 				7  => array("title" => "Schedules for next harvest (single row)"	, "feed" => "7"),
-
                 8  => array("title" => "Resources: Upload Failed"	                , "feed" => "8"),
                 9  => array("title" => "Resources: Validation Failed"	            , "feed" => "9"),
-                10 => array("title" => "Resources: Processing Failed"	            , "feed" => "10"),
-                
+                10 => array("title" => "Resources: Processing Failed"	            , "feed" => "10"),                
                 11 => array("title" => "Resources: Publish Pending"	                , "feed" => "11"),
                 12 => array("title" => "Resources: Unpublish Pending"	            , "feed" => "12"),
                 13 => array("title" => "Resources: Force Harvest"                   , "feed" => "13")
 			  );
-/*			  
-$domain = "services.eol.org";
-$domain = "eol";
-$feed_path = "eol_php_code/applications/RSS_resource_monitor/process.php";
-*/
+              
 $domain 	= $_SERVER['HTTP_HOST'];
 $temp 		= $_SERVER['SCRIPT_NAME'];
 $temp 		= trim(substr($temp,1,strlen($temp)));
