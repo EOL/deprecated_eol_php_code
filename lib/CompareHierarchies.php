@@ -482,7 +482,7 @@ class CompareHierarchies
             if($rank1) $entry1_without_hierarchy = false;
             if($rank2) $entry2_without_hierarchy = false;
             
-            if($rank1 && $rank2 && $rank1 == $rank2 && !preg_match("/^(unassigned|not assigned|unknown)/i", $rank1))
+            if($rank1 && $rank2 && $rank1 == $rank2 && !preg_match("/^(unassigned|not assigned|unknown|incertae sedis)/i", $rank1))
             {
                 $score = $weight;
                 break;
