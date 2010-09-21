@@ -83,7 +83,7 @@ class XLSParser
         return $eol_xml;
     }
 
-    public function create_specialist_project_xml($taxon_info,$text_desc,$multimedia,$common_names,$synonyms,$do_details)
+    public function create_specialist_project_xml($taxon_info,$text_desc=NULL,$multimedia=NULL,$common_names=NULL,$synonyms=NULL,$do_details=NULL)
     {
         $schema_taxa = array();
         $used_taxa = array();
