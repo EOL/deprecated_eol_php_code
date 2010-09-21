@@ -160,20 +160,20 @@ function get_monthly_summaries_per_partner($agent_id,$year,$month,$count_of_taxa
 function get_count_of_taxa_pages_per_partner($agent_id,$year,$month)
 {
     global $mysqli;
-    $arr=array();    
+    $arr=array();
     if($agent_id == 38205)//BHL
     {           
-        $query = "SELECT COUNT(DISTINCT(tc.id)) count 
-        from taxon_concepts tc 
-        JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-        JOIN page_names pn on (tcn.name_id=pn.name_id)        
+        $query = "SELECT COUNT(DISTINCT(tc.id)) count
+        from taxon_concepts tc
+        JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id)
+        JOIN page_names pn on (tcn.name_id=pn.name_id)
         where tc.supercedure_id=0 and tc.published=1 ";
         /* removed to have same no. from similar report: and tc.vetted_id <> " . Vetted::find("untrusted"); */
     }
     elseif($agent_id == 11)//Catalogue of Life
     {   
         $query = "SELECT COUNT(he.taxon_concept_id) count FROM hierarchy_entries he 
-        WHERE he.hierarchy_id=".Hierarchy::col_2009();                
+        WHERE he.hierarchy_id=".Hierarchy::default_id();
     }
     else //rest of the partners
     {   
@@ -296,7 +296,7 @@ function get_sql_to_get_TCid_that_where_viewed_for_dmonth($agent_id,$month,$year
         From hierarchy_entries
         Inner Join google_analytics_page_stats gaps ON hierarchy_entries.taxon_concept_id = gaps.taxon_concept_id
         Where
-        hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." 
+        hierarchy_entries.hierarchy_id  = ".Hierarchy::default_id()." 
         and gaps.month = $month and gaps.year = $year";        
         //$query .= " LIMIT 1 "; //debug    
     }

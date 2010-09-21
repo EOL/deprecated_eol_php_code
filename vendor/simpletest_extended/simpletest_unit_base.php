@@ -36,8 +36,6 @@ class SimpletestUnitBase extends UnitTestCase
     {
         $this->fixtures = load_fixtures('test');
     }
-    
-    
 }
 
 ?>

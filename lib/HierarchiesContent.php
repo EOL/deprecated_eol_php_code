@@ -88,7 +88,7 @@ class HierarchiesContent
             
             // continue doing this as long as we're effecting new rows
             $continue = $this->mysqli->affected_rows();
-            if($continue) echo "Continuing with $continue parents\n";
+            //if($continue) echo "Continuing with $continue parents\n";
         }
         
         // send the child_image flags to the taxon_concept_content table

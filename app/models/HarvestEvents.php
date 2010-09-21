@@ -87,7 +87,7 @@ class HarvestEvent extends MysqlBase
                 
                 // continue doing this as long as we're effecting new rows
                 $continue = $this->mysqli->affected_rows();
-                if($continue) echo "Continuing with $continue parents\n";
+                //if($continue) echo "Continuing with $continue parents\n";
             }
         }
     }
@@ -104,7 +104,7 @@ class HarvestEvent extends MysqlBase
                 
                 // continue doing this as long as we're effecting new rows
                 $continue = $this->mysqli->affected_rows();
-                if($continue) echo "Continuing with $continue parents\n";
+                //if($continue) echo "Continuing with $continue parents\n";
             }
         }
     }

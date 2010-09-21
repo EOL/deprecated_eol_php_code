@@ -244,30 +244,9 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
     //==============================================================================================
     //start COL 2009
-
-    //before 'COL 2009'
-    /* not optimized
-    $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, tc.id taxon_concept_id 
-    from 
-    taxon_concepts tc STRAIGHT_JOIN hierarchy_entries tcn on (tc.id=tcn.taxon_concept_id) 
-    where tc.supercedure_id=0 and tc.published=1 and tc.vetted_id <> " . Vetted::find("untrusted") . "    
-    and tcn.name_id in (Select distinct hierarchy_entries.name_id From hierarchy_entries 
-    where hierarchy_entries.hierarchy_id = ".Hierarchy::col_2009().")";
-    */
-    //ditox
-    /*    
-    $query = "select distinct 11 agent_id, 'Catalogue of Life' full_name, taxon_concepts.id taxon_concept_id 
-    From hierarchy_entries
-    Inner Join taxon_concepts ON hierarchy_entries.taxon_concept_id = taxon_concepts.id
-    Where
-    hierarchy_entries.hierarchy_id  = ".Hierarchy::col_2009()." AND
-    taxon_concepts.published        = 1 AND
-    taxon_concepts.vetted_id        <> " . Vetted::find("untrusted") . " AND
-    taxon_concepts.supercedure_id   = 0 ";
-    */
     $query="
     SELECT he.taxon_concept_id, 11 agent_id, 'Catalogue of Life' full_name FROM hierarchy_entries he 
-    WHERE he.hierarchy_id = ".Hierarchy::col_2009()."";
+    WHERE he.hierarchy_id = ".Hierarchy::default_id()."";
         
 
     //print"<hr>$query<hr>"; exit;    

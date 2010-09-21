@@ -83,7 +83,7 @@ class SiteStatistics
         if(isset($this->total_pages_in_col)) return $this->total_pages_in_col;
         $this->total_pages_in_col = 0;
         
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM hierarchy_entries he  WHERE he.hierarchy_id=".Hierarchy::col_2009());
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM hierarchy_entries he  WHERE he.hierarchy_id=".Hierarchy::default_id());
         if($result && $row=$result->fetch_assoc()) $this->total_pages_in_col = $row['count'];
         return $this->total_pages_in_col;
     }
@@ -186,7 +186,7 @@ class SiteStatistics
         if(isset($this->pages_in_col_no_content)) return $this->pages_in_col_no_content;
         $this->pages_in_col_no_content = 0;
         
-        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM  hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) WHERE he.hierarchy_id=".Hierarchy::col_2009()." AND tcc.text=0 AND tcc.image=0");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT(he.taxon_concept_id)) count FROM  hierarchy_entries he JOIN taxon_concept_content tcc ON (he.taxon_concept_id=tcc.taxon_concept_id) WHERE he.hierarchy_id=".Hierarchy::default_id()." AND tcc.text=0 AND tcc.image=0");
         if($result && $row=$result->fetch_assoc()) $this->pages_in_col_no_content = $row['count'];
         return $this->pages_in_col_no_content;
     }
@@ -285,7 +285,7 @@ class SiteStatistics
         if(isset($this->col_content_needs_curation)) return $this->col_content_needs_curation;
         $this->col_content_needs_curation = 0;
         
-        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NOT NULL");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::default_id().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NOT NULL");
         if($result && $row=$result->fetch_assoc()) $this->col_content_needs_curation = $row['count'];
         return $this->col_content_needs_curation;
     }
@@ -295,7 +295,7 @@ class SiteStatistics
         if(isset($this->non_col_content_needs_curation)) return $this->non_col_content_needs_curation;
         $this->non_col_content_needs_curation = 0;
         
-        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::col_2009().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NULL");
+        $result = $this->mysqli_slave->query("SELECT COUNT(DISTINCT dotc.taxon_concept_id) count FROM data_objects_taxon_concepts dotc  JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he ON (dotc.taxon_concept_id=he.taxon_concept_id AND he.hierarchy_id=".Hierarchy::default_id().") WHERE do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown')." AND he.id IS NULL");
         if($result && $row=$result->fetch_assoc()) $this->non_col_content_needs_curation = $row['count'];
         return $this->non_col_content_needs_curation;
     }
@@ -437,7 +437,7 @@ class SiteStatistics
           PRIMARY KEY  (`taxon_concept_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, count(distinct do.data_type_id), count(distinct dotoc.toc_id), he_col.id IS NOT NULL FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON (tc.id=dotc.taxon_concept_id) JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN data_objects_table_of_contents dotoc ON (do.id=dotoc.data_object_id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find("trusted")." GROUP BY tc.id");
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, count(distinct do.data_type_id), count(distinct dotoc.toc_id), he_col.id IS NOT NULL FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON (tc.id=dotc.taxon_concept_id) JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN data_objects_table_of_contents dotoc ON (do.id=dotoc.data_object_id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::default_id().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find("trusted")." GROUP BY tc.id");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_data_types');
         unlink($outfile);
         
@@ -476,7 +476,7 @@ class SiteStatistics
           PRIMARY KEY  (`taxon_concept_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, 1, he_col.id IS NOT NULL FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON (tc.id=dotc.taxon_concept_id) JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::col_2009().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown'));
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, 1, he_col.id IS NOT NULL FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON (tc.id=dotc.taxon_concept_id) JOIN data_objects do ON (dotc.data_object_id=do.id) LEFT JOIN hierarchy_entries he_col ON (tc.id=he_col.taxon_concept_id AND he_col.hierarchy_id=".Hierarchy::default_id().") WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.vetted_id=".Vetted::find('Unknown'));
         $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_curation');
         unlink($outfile);
         

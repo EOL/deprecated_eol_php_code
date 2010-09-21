@@ -37,8 +37,6 @@ class SimpletestWebBase extends WebTestCase
     {
         $this->fixtures = load_fixtures('test');
     }
-    
-    
 }
 
 ?>

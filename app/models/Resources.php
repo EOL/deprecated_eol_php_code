@@ -216,7 +216,7 @@ class Resource extends MysqlBase
     
     public function unpublish_hierarchy_entries()
     {
-        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=".Visibility::find('invisible')." WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
+        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=".Visibility::insert('invisible')." WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
     }
     
     public function unpublish_taxon_concepts()
@@ -247,57 +247,57 @@ class Resource extends MysqlBase
         if($harvest_event_id = $this->most_recent_harvest_event_id())
         {
             $harvest_event = new HarvestEvent($harvest_event_id);
-            if($harvest_event->published_at) return true;
-            if(!$harvest_event->completed_at) return false;
-            
-            $object_guids_to_keep = array();
-            if($this->title == 'Wikipedia')
+            if(!$harvest_event->published_at && $harvest_event->completed_at)
             {
-                $object_guids_to_keep = $this->vetted_object_guids();
+                $object_guids_to_keep = array();
+                if($this->title == 'Wikipedia')
+                {
+                    $object_guids_to_keep = $this->vetted_object_guids();
+                }
+                
+                // make all objects in last harvest visible if they were in vetted
+                $harvest_event->make_objects_visible($object_guids_to_keep);
+                
+                // preserve visibilities from older versions of same objects
+                // if the older versions were curated they may be invible or inappropriate and we don't want to lose that info
+                if($last_id = $this->most_recent_published_harvest_event_id()) $harvest_event->inherit_visibilities_from($last_id);
+                
+                // set published=0 for ALL objects associated with this resource
+                $this->unpublish_data_objects($object_guids_to_keep);
+                
+                // now only set published=1 for the objects in the latest harvest
+                $harvest_event->publish_objects();
+                
+                // set the harvest published_at date
+                $harvest_event->published();
+                
+                
+                if($this->hierarchy_id)
+                {
+                    // unpublish all concepts associated with this resource
+                    $this->unpublish_taxon_concepts();
+                    $this->unpublish_hierarchy_entries();
+                    
+                    // now set published=1 for all concepts in the latest harvest
+                    $harvest_event->publish_hierarchy_entries();
+                    
+                    // make sure all COL concepts are published
+                    Hierarchy::publish_default_hierarchy_concepts();
+                    $this->mysqli->commit();
+                    
+                    // Rebuild the Solr index for this hierarchy
+                    $indexer = new HierarchyEntryIndexer();
+                    $indexer->index($this->hierarchy_id);
+                    
+                    // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+                    $hierarchy = new Hierarchy($this->hierarchy_id);
+                    CompareHierarchies::process_hierarchy($hierarchy, null, true);
+                    
+                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                }
+                
+                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
             }
-            
-            // make all objects in last harvest visible if they were in vetted
-            $harvest_event->make_objects_visible($object_guids_to_keep);
-            
-            // preserve visibilities from older versions of same objects
-            // if the older versions were curated they may be invible or inappropriate and we don't want to lose that info
-            if($last_id = $this->most_recent_published_harvest_event_id()) $harvest_event->inherit_visibilities_from($last_id);
-            
-            // set published=0 for ALL objects associated with this resource
-            $this->unpublish_data_objects($object_guids_to_keep);
-            
-            // now only set published=1 for the objects in the latest harvest
-            $harvest_event->publish_objects();
-            
-            // set the harvest published_at date
-            $harvest_event->published();
-            
-            
-            if($this->hierarchy_id)
-            {
-                // unpublish all concepts associated with this resource
-                $this->unpublish_taxon_concepts();
-                $this->unpublish_hierarchy_entries();
-                
-                // now set published=1 for all concepts in the latest harvest
-                $harvest_event->publish_hierarchy_entries();
-                
-                // make sure all COL concepts are published
-                Hierarchy::publish_default_hierarchy_concepts();
-                $this->mysqli->commit();
-                
-                // Rebuild the Solr index for this hierarchy
-                $indexer = new HierarchyEntryIndexer();
-                $indexer->index($this->hierarchy_id);
-                
-                // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                $hierarchy = new Hierarchy($this->hierarchy_id);
-                CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                
-                CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
-            }
-            
-            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
         }
         $this->mysqli->end_transaction();
     }
@@ -339,6 +339,7 @@ class Resource extends MysqlBase
             
             if($this->hierarchy_id)
             {
+                $hierarchy = new Hierarchy($this->hierarchy_id);
                 debug("Assigning nested set values resource: $this->id");
                 Tasks::rebuild_nested_set($this->hierarchy_id);
                 debug("Finished assigning: $this->id");
@@ -351,7 +352,6 @@ class Resource extends MysqlBase
                     $indexer->index($this->hierarchy_id);
                     
                     // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                    $hierarchy = new Hierarchy($this->hierarchy_id);
                     CompareHierarchies::process_hierarchy($hierarchy, null, true);
                     CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 }

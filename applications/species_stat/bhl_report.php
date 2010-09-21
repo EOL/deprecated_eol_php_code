@@ -165,7 +165,7 @@ function get_eol_pages_with_do()
     do.visibility_id , do.published, tc.vetted_id as tc_vetted_id,
     dohe.harvest_event_id,
     do.id as data_object_id from 
-    ((taxon_concepts tc left join hierarchy_entries he on (tc.id=he.taxon_concept_id and he.hierarchy_id = 147 ))
+    ((taxon_concepts tc left join hierarchy_entries he on (tc.id=he.taxon_concept_id and he.hierarchy_id = ".Hierarchy::default_id()." ))
     join hierarchy_entries hent on (tc.id=hent.taxon_concept_id)
     join data_objects_hierarchy_entries dohent on (hent.id=dohent.hierarchy_entry_id) 
     join data_objects do on (dohent.data_object_id=do.id)
@@ -283,7 +283,7 @@ function get_all_pages()
     $pages_not_incol    = array();
     $all_pages          = array();
     $query = "Select taxon_concepts.id, he.id as in_col From 
-    taxon_concepts  left join hierarchy_entries he on (taxon_concepts.id=he.taxon_concept_id and he.hierarchy_id=".Hierarchy::col_2009().")
+    taxon_concepts  left join hierarchy_entries he on (taxon_concepts.id=he.taxon_concept_id and he.hierarchy_id=".Hierarchy::default_id().")
     Where taxon_concepts.published = 1 AND taxon_concepts.supercedure_id = 0 and taxon_concepts.vetted_id <> " . Vetted::find("untrusted") . "
 	";
     //$query .= " limit 1 ";    //for debug only

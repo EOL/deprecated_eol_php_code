@@ -44,7 +44,7 @@ class test_lifedesk_service extends SimpletestWebBase
     
     function prepare_test_data()
     {
-        $hierarchy_id = Hierarchy::insert(array('id' => 147, 'label' => 'Test Hierarchy'));
+        $hierarchy_id = Hierarchy::insert(array('id' => 529, 'label' => 'Test Hierarchy'));
         $name_id = Name::insert('Aus bus Linnaeus');
         $rank_id = Rank::insert('species');
         HierarchyEntry::insert(array('hierarchy_id' => $hierarchy_id, 'name_id' => $name_id, 'rank_id' => $rank_id));

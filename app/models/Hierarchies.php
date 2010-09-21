@@ -2,9 +2,6 @@
 
 class Hierarchy extends MysqlBase
 {
-    static $CatalogueOfLife = 106;
-    
-    
     function __construct($param)
     {
         $this->table_name = Functions::class_name(__FILE__);
