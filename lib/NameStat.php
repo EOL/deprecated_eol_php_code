@@ -61,9 +61,9 @@ class NameStat
         print"</table>";
     }
     
-    function sort_details($arr_details)
+    function sort_details($arr_details,$returns)
     {
-        $returns = $GLOBALS["returns"];
+     
         
         usort($arr_details, "self::cmp");
         //start limit number of returns    
@@ -81,7 +81,7 @@ class NameStat
         return $arr_details;
     }
     
-    function cmp($a, $b)
+    function cmp($a,$b)
     {
         $sort_order = $GLOBALS["sort_order"];    
         return $a["$sort_order"] < $b["$sort_order"];
