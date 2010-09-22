@@ -264,19 +264,19 @@ class Tasks extends MysqlBase
         
         
         
-        /* Common Names */
-        $result = $mysqli->query("SELECT * FROM name_languages WHERE parent_name_id IN (".implode(",",array_keys($name_ids)).") AND language_id NOT IN (0,".Language::insert("Scientific Name").",".Language::insert("Operational Taxonomic Unit").")");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $name_id = $row["name_id"];
-            $language_id = $row["language_id"];
-            if($language_id==Language::insert("Common Name") || in_array($language_id, Language::unknown())) $language_id = Language::insert("Unknown");
-            
-            $preferred = 1;
-            $result2 = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND source_hierarchy_entry_id=0 AND language_id=$language_id AND vern=1 AND preferred=1");
-            if($result2 && $row2=$result2->fetch_assoc()) $preferred = 0;
-            $mysqli->insert("INSERT IGNORE INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, 0, $language_id, 1, $preferred, NULL)");
-        }
+        // /* Common Names */
+        // $result = $mysqli->query("SELECT * FROM name_languages WHERE parent_name_id IN (".implode(",",array_keys($name_ids)).") AND language_id NOT IN (0,".Language::insert("Scientific Name").",".Language::insert("Operational Taxonomic Unit").")");
+        // while($result && $row=$result->fetch_assoc())
+        // {
+        //     $name_id = $row["name_id"];
+        //     $language_id = $row["language_id"];
+        //     if($language_id==Language::insert("Common Name") || in_array($language_id, Language::unknown())) $language_id = Language::insert("Unknown");
+        //     
+        //     $preferred = 1;
+        //     $result2 = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND source_hierarchy_entry_id=0 AND language_id=$language_id AND vern=1 AND preferred=1");
+        //     if($result2 && $row2=$result2->fetch_assoc()) $preferred = 0;
+        //     $mysqli->insert("INSERT IGNORE INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, 0, $language_id, 1, $preferred, NULL)");
+        // }
         
         unset($matching_ids);
         unset($name_ids);
