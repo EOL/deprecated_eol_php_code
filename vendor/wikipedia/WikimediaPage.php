@@ -223,6 +223,7 @@ class WikimediaPage
         $author = preg_replace("/<a href='(.*?)'>/", "", $author);
         $author = str_replace("</a>", "", $author);
         $author = str_replace("©", "", $author);
+        $author = str_replace("\xc2\xA9", "", $string); // should be the same as above
         
         $agent_parameters = array();
         $agent_parameters["fullName"] = htmlspecialchars($author);
