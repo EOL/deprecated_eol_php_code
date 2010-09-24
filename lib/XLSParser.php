@@ -218,10 +218,11 @@ class XLSParser
         $dataObjectParameters["dataType"]   = self::get_DataType(self::format(@$do['Data Type']));
         $dataObjectParameters["mimeType"]   = self::format(@$do['MIME Type']);
 
-        if(is_null($subject))$desc = self::format(@$do['Caption']);   //multimedia
+        if(is_null($subject))$desc = self::format(@$do['Caption']); //multimedia
         else                 $desc = self::format($do[$subject]);   //text description
         
-        $dataObjectParameters["description"] = $desc;
+        $dataObjectParameters["description"] = $desc;        
+        
         
         //start subject
         if($subject)
@@ -358,8 +359,46 @@ class XLSParser
     
     private function format($str)
     {
-        return utf8_encode(utf8_decode(trim($str)));
+        $str = trim($str);                
+        $str = utf8_encode(utf8_decode($str));                
+        $str = self::fix_chars($str);                
+        $str = utf8_encode(utf8_decode($str));                
+        //$str = Functions::import_decode($str);            
+        return $str;
     }
+
+
+    private function fix_chars($s)
+    {
+
+                
+        $s = str_ireplace(utf8_decode('“'), 	"'", $s);        
+        $s = str_ireplace(utf8_decode('”'), 	"'", $s);
+        $s = str_ireplace(utf8_decode('–'), 	"-", $s);
+        $s = str_ireplace(utf8_decode('’'), 	"'", $s);
+        $s = str_ireplace(utf8_decode('µ'), 	utf8_encode("&#181;"), $s);
+
+        //$s = str_replace("&#39;" , chr(39), $s);        
+
+        $arr=array("&nbsp;","&iexcl;","&cent;","&pound;","&curren;","&yen;","&brvbar;","&sect;",
+                    "&uml;","&copy;","&ordf;","&laquo;","&not;","&shy;","&reg;","&hibar;",
+                    "&deg;","&plusmn;","&sup2;","&sup3;","&acute;","&micro;","&para;","&middot;",
+                    "&cedil;","&sup1;","&ordm;","&raquo;","&frac14;","&frac12;","&frac34;","&iquest;",
+                    "&Agrave;","&Aacute;","&Acirc;","&Atilde;","&Auml;","&Aring;","&AElig;","&Ccedil;",
+                    "&Egrave;","&Eacute;","&Ecirc;","&Euml;","&Igrave;","&Iacute;","&Icirc;","&Iuml;",
+                    "&ETH;","&Ntilde;","&Ograve;","&Oacute;","&Ocirc;","&Otilde;","&Ouml;","&times;",
+                    "&Oslash;","&Ugrave;","&Uacute;","&Ucirc;","&Uuml;","&Yacute;","&THORN;","&szlig;",
+                    "&agrave;","&aacute;","&acirc;","&atilde;","&auml;","&aring;","&aelig;","&ccedil;",
+                    "&egrave;","&eacute;","&ecirc;","&euml;","&igrave;","&iacute;","&icirc;","&iuml;",
+                    "&eth;","&ntilde;","&ograve;","&oacute;","&ocirc;","&otilde;","&ouml;","&divide;",
+                    "&oslash;","&ugrave;","&uacute;","&ucirc;","&uuml;","&yacute;","&thorn;","&yuml;");
+
+        foreach($arr as $r){$s = str_replace($r, html_entity_decode($r), $s);}                
+        
+        return $s;
+    }
+
+    
 
     private function get_license($license)
     {   
