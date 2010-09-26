@@ -1,13 +1,11 @@
 <?php
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
 error_reporting(0);
 ini_set("memory_limit","1000M");
 $file = "" . $_GET["file"];
 
 require_library('XLSParser');
 $parser = new XLSParser();
-
 $xml = $parser->create_eol_xml($parser,$file);
 
 $filename = "xml/" . time() . ".xml";
@@ -27,8 +25,7 @@ This XML will be stored in our server for two (2) weeks then it will be removed.
 Thank you.
 ";
 
-
-$validate = get_val_var('validate');
+$validate = $_GET['validate'];
 if($validate == 'on')
 {    
     print"<hr><p>
@@ -39,14 +36,4 @@ if($validate == 'on')
     <p><a href='javascript:history.go(-1)'> &lt;&lt; Back to menu</a>";    
     exit;        
 }
-
-
-function get_val_var($v)
-{
-    if     (isset($_GET["$v"]))$var=$_GET["$v"];
-    elseif (isset($_POST["$v"]))$var=$_POST["$v"];    
-    if(isset($var)) return $var;
-    else return NULL;
-}
-
 ?>
