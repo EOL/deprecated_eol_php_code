@@ -49,7 +49,8 @@ class XLSParser
         $taxon_info = $parser->convert_sheet_to_array($file,5);                          
         
         $text_desc      = self::prepare_data($parser->convert_sheet_to_array($file,2),"multiple","Taxon Name","Reference Code","Attribution Code","Contributor Code",        
-        "Audience","DateCreated","DateModified","Associations","Behaviour","Biology","Conservation",	
+        "Audience","DateCreated","DateModified","Source URL",
+        "Associations","Behaviour","Biology","Conservation",	
         "ConservationStatus","Cyclicity","Cytology","Description","DiagnosticDescription","Diseases","Dispersal","Distribution","Ecology","Evolution",
         "GeneralDescription","Genetics","Growth","Habitat","Key","Legislation","LifeCycle","LifeExpectancy","LookAlikes","Management","Migration",
         "MolecularBiology","Morphology","Physiology","PopulationBiology","Procedures","Reproduction","RiskStatement","Size","TaxonBiology","Threats","Trends",
@@ -82,6 +83,7 @@ class XLSParser
         $references = $do_details['references'];        
         foreach($taxon_info["Scientific Name"] as $sciname)
         {
+            if(!trim($sciname))continue;
             $taxon_identifier = self::format($sciname);        
             if(@$used_taxa[$taxon_identifier]) $taxon_parameters = $used_taxa[$taxon_identifier];
             else
@@ -287,7 +289,6 @@ class XLSParser
         $dataObjectParameters["mediaURL"]      = self::format(@$do['Media URL']);
         $dataObjectParameters["thumbnailURL"]  = self::format(@$do['Thumbnail URL']);
         $dataObjectParameters["location"]      = self::format(@$do['Location']);
-        
 
         /*
         $dataObjectParameters["created"]       = $do->created;
@@ -303,7 +304,8 @@ class XLSParser
     $fld11=NULL,$fld12=NULL,$fld13=NULL,$fld14=NULL,$fld15=NULL,$fld16=NULL,$fld17=NULL,$fld18=NULL,$fld19=NULL,$fld20=NULL,
     $fld21=NULL,$fld22=NULL,$fld23=NULL,$fld24=NULL,$fld25=NULL,$fld26=NULL,$fld27=NULL,$fld28=NULL,$fld29=NULL,$fld30=NULL,
     $fld31=NULL,$fld32=NULL,$fld33=NULL,$fld34=NULL,$fld35=NULL,$fld36=NULL,$fld37=NULL,$fld38=NULL,$fld39=NULL,$fld40=NULL,
-    $fld41=NULL,$fld42=NULL,$fld43=NULL,$fld44=NULL)
+    $fld41=NULL,$fld42=NULL,$fld43=NULL,$fld44=NULL,$fld45=NULL
+    )
     {
         $data=array();
         $i=0;
@@ -335,7 +337,9 @@ class XLSParser
                              $fld38=>@$arr[$fld38][$i],$fld39=>@$arr[$fld39][$i],
                              $fld40=>@$arr[$fld40][$i],$fld41=>@$arr[$fld41][$i],
                              $fld42=>@$arr[$fld42][$i],$fld43=>@$arr[$fld43][$i],
-                             $fld44=>@$arr[$fld44][$i]);
+                             $fld44=>@$arr[$fld44][$i],$fld45=>@$arr[$fld45][$i]
+                             );
+                             
                 if($number == "multiple")$data[$taxon_name][]=$temp;
                 else                     $data[$taxon_name]=$temp;
                 $i++;
@@ -363,15 +367,12 @@ class XLSParser
         $str = utf8_encode(utf8_decode($str));                
         $str = self::fix_chars($str);                
         $str = utf8_encode(utf8_decode($str));                
-        //$str = Functions::import_decode($str);            
         return $str;
     }
 
 
     private function fix_chars($s)
     {
-
-                
         $s = str_ireplace(utf8_decode('“'), 	"'", $s);        
         $s = str_ireplace(utf8_decode('”'), 	"'", $s);
         $s = str_ireplace(utf8_decode('–'), 	"-", $s);
@@ -392,9 +393,7 @@ class XLSParser
                     "&egrave;","&eacute;","&ecirc;","&euml;","&igrave;","&iacute;","&icirc;","&iuml;",
                     "&eth;","&ntilde;","&ograve;","&oacute;","&ocirc;","&otilde;","&ouml;","&divide;",
                     "&oslash;","&ugrave;","&uacute;","&ucirc;","&uuml;","&yacute;","&thorn;","&yuml;");
-
-        foreach($arr as $r){$s = str_replace($r, html_entity_decode($r), $s);}                
-        
+        foreach($arr as $r){$s = str_replace($r, html_entity_decode($r), $s);}                        
         return $s;
     }
 
