@@ -83,7 +83,13 @@ class XLSParser
         $references = $do_details['references'];        
         foreach($taxon_info["Scientific Name"] as $sciname)
         {
-            if(!trim($sciname))continue;
+            if(!trim($sciname))
+            {
+                $i++;
+                continue;
+            }
+            
+            
             $taxon_identifier = self::format($sciname);        
             if(@$used_taxa[$taxon_identifier]) $taxon_parameters = $used_taxa[$taxon_identifier];
             else
