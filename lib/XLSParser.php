@@ -87,8 +87,7 @@ class XLSParser
             {
                 $i++;
                 continue;
-            }
-            
+            }            
             
             $taxon_identifier = self::format($sciname);        
             if(@$used_taxa[$taxon_identifier]) $taxon_parameters = $used_taxa[$taxon_identifier];
@@ -150,11 +149,12 @@ class XLSParser
                     }                
                 }
                 //end synonyms
-
                 
                 // ==== start data objects
-                $dataObjects = array();
-                $temp = self::prepare_text_dataObject(@$text_desc[$taxon_identifier],$do_details);
+                $dataObjects = array();                
+                $text_desc_title = $text_desc[''];
+                /* to get the title e.g. 'Associations': $text_desc_title[0]['Associations'] */                
+                $temp = self::prepare_text_dataObject(@$text_desc[$taxon_identifier],$do_details,$text_desc_title);                
                 $dataObjects = array_merge($dataObjects,$temp);                                    
                 $temp = self::prepare_media_dataObject(@$multimedia[$taxon_identifier],$do_details);
                 $dataObjects = array_merge($dataObjects,$temp);                                    
@@ -178,7 +178,7 @@ class XLSParser
         return SchemaDocument::get_taxon_xml($schema_taxa);        
     }
     
-    private function prepare_text_dataObject($arr,$do_details)
+    private function prepare_text_dataObject($arr,$do_details,$text_desc_title)
     {          
         $dataObjects = array();    
         $subjects=array("Associations","Behaviour","Biology","Conservation",	
@@ -191,8 +191,8 @@ class XLSParser
             if($arr)
             {
                 foreach($arr as $do)
-                {
-                    if(@$do[$subject])$dataObjects[] = self::get_data_object($do,$subject,$do_details); //e.g. $do['Associations'];
+                {         
+                    if(@$do[$subject])$dataObjects[] = self::get_data_object($do,$subject,$do_details,$text_desc_title); //e.g. $do['Associations'];
                 }
             }
         }
@@ -215,7 +215,7 @@ class XLSParser
         return $dataObjects;        
     }
     
-    private function get_data_object($do,$subject,$do_details)
+    private function get_data_object($do,$subject,$do_details,$text_desc_title=NULL)
     {
         $references = $do_details['references'];
         $attributions = $do_details['attributions'];        
@@ -229,8 +229,15 @@ class XLSParser
         if(is_null($subject))$desc = self::format(@$do['Caption']); //multimedia
         else                 $desc = self::format($do[$subject]);   //text description
         
-        $dataObjectParameters["description"] = $desc;        
+        $dataObjectParameters["description"] = $desc;                
         
+        //start title        
+        $title = self::format(@$text_desc_title[0][$subject]);
+        if($title != "Title if different")
+        {
+            $dataObjectParameters["title"] = $title;
+        }
+        //end title            
         
         //start subject
         if($subject)
@@ -302,8 +309,7 @@ class XLSParser
         */
     
         return $dataObjectParameters;
-    }
-        
+    }        
 
     private function prepare_data($arr,$number,$index,
     $fld1=NULL,$fld2=NULL,$fld3=NULL,$fld4=NULL,$fld5=NULL,$fld6=NULL,$fld7=NULL,$fld8=NULL,$fld9=NULL,$fld10=NULL,
@@ -376,7 +382,6 @@ class XLSParser
         return $str;
     }
 
-
     private function fix_chars($s)
     {
         $s = str_ireplace(utf8_decode('“'), 	"'", $s);        
@@ -384,9 +389,7 @@ class XLSParser
         $s = str_ireplace(utf8_decode('–'), 	"-", $s);
         $s = str_ireplace(utf8_decode('’'), 	"'", $s);
         $s = str_ireplace(utf8_decode('µ'), 	utf8_encode("&#181;"), $s);
-
-        //$s = str_replace("&#39;" , chr(39), $s);        
-
+        
         $arr=array("&nbsp;","&iexcl;","&cent;","&pound;","&curren;","&yen;","&brvbar;","&sect;",
                     "&uml;","&copy;","&ordf;","&laquo;","&not;","&shy;","&reg;","&hibar;",
                     "&deg;","&plusmn;","&sup2;","&sup3;","&acute;","&micro;","&para;","&middot;",
@@ -403,8 +406,6 @@ class XLSParser
         return $s;
     }
 
-    
-
     private function get_license($license)
     {   
         switch ($license) 
@@ -417,6 +418,7 @@ class XLSParser
         }        
         return $license;
     }
+    
     function get_DataType($datatype)
     {   
         switch ($datatype) 
