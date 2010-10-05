@@ -8,15 +8,18 @@ class AfrotropicalAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $file = DOC_ROOT . "update_resources/connectors/files/Afrotropical/EOLexportFruitfly_2_fixed.xml";                
-        $urls = array( 0 => array( "path" => "http://pandanus.eol.org/public/EOL_resource/EOLexportFruitfly_fixed.xml" , "active" => 0),
-                       1 => array( "path" => $file                                                                     , "active" => 1)
+        $file = DOC_ROOT . "update_resources/connectors/files/Afrotropical/EOLexportFruitfly_2_fixed.xml";                                            
+        $urls = array( 0 => array( "path" => "http://pandanus.eol.org/public/EOL_resource/EOLexportFruitfly_fixed.xml"          , "active" => 0),
+                       1 => array( "path" => "http://pandanus.eol.org/public/test_resources/EOLexportFruitfly_fixed_4test.xml"  , "active" => 0),
+                       2 => array( "path" => $file                                                                              , "active" => 1)
                      );                
         foreach($urls as $url)
         {
             if($url["active"])
             {
-                $page_taxa = self::get_afrotropical_taxa($url["path"],$used_collection_ids);                                
+                $arr = self::get_afrotropical_taxa($url["path"],$used_collection_ids);                                
+                $page_taxa              = $arr[0];
+                $used_collection_ids    = $arr[1];                            
                 if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                                    
             }
         }
@@ -25,7 +28,7 @@ class AfrotropicalAPI
     
     public static function get_afrotropical_taxa($url,$used_collection_ids)
     {
-        $response = self::search_collections($url);//this will output the raw (but structured) output from the external service
+        $response = self::search_collections($url);//this will output the raw (but structured) array
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -34,16 +37,16 @@ class AfrotropicalAPI
             if($taxon) $page_taxa[] = $taxon;            
             @$used_collection_ids[$rec["sciname"]] = true;
         }        
-        return $page_taxa;
+        return array($page_taxa,$used_collection_ids);        
     }    
     
-    public static function search_collections($url)//this will output the raw (but structured) output from the external service
+    function search_collections($url)//this will output the raw (but structured) array
     {        
         $response = self::parse_xml($url);
-        return $response;//structured array
+        return $response;
     }        
     
-    public static function parse_xml($url)
+    function parse_xml($url)
     {
         $arr_data=array();                
         $xml = simplexml_load_file($url);                        
@@ -57,7 +60,7 @@ class AfrotropicalAPI
             $ctr++;
             if(in_array(trim($t_dc->identifier), $id_arr))  continue;
             else $id_arr[]=trim($t_dc->identifier);            
-            //if($ctr == 5)break;//debug to limit the no. of records                        
+            if($ctr == 5)break;//debug to limit the no. of records                        
             //=============================================================================================================            
             
             $arr_objects=array();
@@ -132,7 +135,7 @@ class AfrotropicalAPI
                         //bad xml
                         $description = "<a target='afrotropical' href='" . trim($do->mediaURL) . "'>See " . trim($t_dc2->description) . ".</a>";
                     }
-                }//if(substr($mediaURL,strlen($mediaURL)-4,4) == ".pdf")
+                }
 
                 if(trim($do->dataType)=="http://purl.org/dc/dcmitype/StillImage")
                 {
@@ -168,7 +171,7 @@ class AfrotropicalAPI
                                       "description"=>$description,
                                       "mediaURL"=>$mediaURL
                                     );                                    
-            }//foreach($t->dataObject as $do)                                                    
+            }//end foreach
             
             $arr_data[]=array(  "id"           =>$ctr,
                                 "identifier"   =>trim($t_dc->identifier),   
@@ -182,40 +185,23 @@ class AfrotropicalAPI
                                 "sciname"      =>$t_dwc->ScientificName,
                                 "arr_objects"  =>$arr_objects                                 
                              );               
-
-                                
-        }//foreach($xml->taxon as $t)        
+        }
         return $arr_data;        
     }
 
-    public static function XmlIsWellFormed($xmlString, $message) 
-    {
-        libxml_use_internal_errors(true);            
-        $doc = new DOMDocument('1.0', 'utf-8');
-        $doc->loadXML($xmlString);    
-        $errors = libxml_get_errors();
-        if (empty($errors))return true;
-        $error = $errors[ 0 ];
-        if ($error->level < 3)return true;
-        $lines = explode("r", $xmlString);
-        $line = $lines[($error->line)-1];
-        $message = $error->message . ' at line ' . $error->line . ': ' . htmlentities($line);
-        return false;
-    }
-
-    public static function check_xml_if_well_formed($url)
+    function check_xml_if_well_formed($url)
     {
         if(simplexml_load_file($url))return true;     // well-formed XML
         else                         return false;    // not well-formed        
     }
     
-    public static function get_taxa_for_photo($rec)
+    function get_taxa_for_photo($rec)
     {
         $taxon = array();
         $taxon["commonNames"] = array();
         $license = null;        
         $taxon["source"] = $rec["source"];
-        $taxon["identifier"] = $rec["identifier"];
+        $taxon["identifier"] = trim($rec["identifier"]);
         $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
         $taxon["genus"] = ucfirst(trim(@$rec["genus"]));
         $taxon["family"] = ucfirst(trim(@$rec["family"]));
@@ -236,10 +222,10 @@ class AfrotropicalAPI
         return $taxon_object;
     }
     
-    public static function get_data_object($rec)
+    function get_data_object($rec)
     {
         $data_object_parameters = array();        
-        $data_object_parameters["identifier"] = trim($rec["identifier"]);        
+        $data_object_parameters["identifier"] = trim(@$rec["identifier"]);        
         $data_object_parameters["source"] = $rec["source"];        
         $data_object_parameters["dataType"] = trim($rec["dataType"]);
         $data_object_parameters["mimeType"] = trim($rec["mimeType"]);
