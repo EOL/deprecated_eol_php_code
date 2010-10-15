@@ -1,6 +1,6 @@
 <?php
 define("SPECIES_URL", "http://www.whoi.edu/vent-larval-id/");
-define("IMAGE_URL", "http://www.whoi.edu/vent-larval-id/");
+define("PHOTO_URL", "http://www.whoi.edu/vent-larval-id/");
 
 class HydrothermalVentLarvaeAPI
 {
@@ -44,7 +44,7 @@ class HydrothermalVentLarvaeAPI
     
     public static function search_collections($url)//this will output the raw (but structured) output from the external service
     {
-        $html = Functions::get_remote_file_fake_browser($url);
+        $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
         $html = self::clean_html($html);
         $arr_url_list = self::get_url_list($html);        
         $response = self::scrape_species_page($arr_url_list);
@@ -61,35 +61,30 @@ class HydrothermalVentLarvaeAPI
         $str = str_ireplace('&deg;' , '°', $str);	        
         $str = str_ireplace('&rsquo;' , "'", $str);	        
         $str = str_ireplace('&gt;' , ">", $str);	        
-        $str = str_ireplace('&lt;' , "<", $str);	        
-        
+        $str = str_ireplace('&lt;' , "<", $str);	                
         return $str;
     }
     
     public static function get_url_list($str)
     {
         $str = trim(substr($str,stripos($str,"Species Table"),strlen($str)));//start in this section of the HTML
+
         //special case corrections                    
         $str = str_ireplace('<a name="Arthropods"></a>','',$str);
         $str = str_ireplace('<a name="Miscellaneous"></a>','',$str);
 
-        $arr_url_list=array();
-        
+        $arr_url_list=array();        
         $str = str_ireplace('<tr' , 'xxx<tr', $str);	
         $str = str_ireplace('xxx' , "&arr[]=", $str);	
-        $arr = array(); parse_str($str);	    
-        
+        $arr = array(); parse_str($str);	            
         $loop=0;
         foreach($arr as $r)
         {
-            //$loop++;if($loop >= 5)break; //debug to limit the no. of records                    
             $r = str_ireplace('<th','<td',$r);
-            $r = str_ireplace('</th','</td',$r);
-        
+            $r = str_ireplace('</th','</td',$r);        
             $r = str_ireplace('<td' , 'xxx<td', $r);	
             $r = str_ireplace('xxx' , "&arr2[]=", $r);	
-            $arr2 = array(); parse_str($r);	    
-        
+            $arr2 = array(); parse_str($r);	            
             $i=0;
             foreach($arr2 as $r2)
             {
@@ -98,7 +93,7 @@ class HydrothermalVentLarvaeAPI
                     $temp = strip_tags($r2,"<a><em>");                                
                     $temp = str_ireplace(' target="_blank"',"",$temp);                
                     
-                    if(preg_match("/<em>(.*)<\/em>/ims", $temp, $matches))$sciname = strip_tags(utf8_encode($matches[1]));
+                    if(preg_match("/<em>(.*)<\/em>/ims", $temp, $matches))$sciname = strip_tags($matches[1]);
                     else $sciname="";                    
                     if(preg_match("/\">(.*?)<\/a>/", $sciname, $matches))$sciname = strip_tags($matches[1]);
                     $sciname = str_ireplace("?","",$sciname);                    
@@ -135,7 +130,7 @@ class HydrothermalVentLarvaeAPI
         foreach($arr_url_list as $rec)
         {
             $sourceURL=$rec["url"];
-            $html = Functions::get_remote_file_fake_browser($sourceURL);            
+            $html = utf8_decode(Functions::get_remote_file_fake_browser($sourceURL));            
             $html = self::clean_html($html);
             
             $species="";
@@ -147,14 +142,13 @@ class HydrothermalVentLarvaeAPI
             
             {$sciname = trim($matches[1]);}            
             $sciname = str_ireplace("?","",$sciname);                    
-            $sciname = utf8_encode(str_ireplace("&eacute;","é",$sciname));                    
+            $sciname = utf8_encode($sciname);                    
             $family = self::get_rank("Family",$species);
             $order = self::get_rank("Order",$species);
             $class = self::get_rank("Class",$species);            
 
             //=============================================================================================================
             //start morphology
-            /* $beg = '<!-- InstanceBeginEditable name="Morphology" -->'; $end1='<!-- InstanceEndEditable -->'; */            
             $temp="";
             if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Morphology\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
             {$temp = trim($matches[1]);}            
@@ -175,7 +169,6 @@ class HydrothermalVentLarvaeAPI
 
             //=============================================================================================================
             //start photos
-            /* $beg='<!-- InstanceBeginEditable name="Photos" -->'; $end1='<!-- InstanceEndEditable -->'; */
             $photos="";
             if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Photos\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
             {$photos_main = $matches[1];}            
@@ -200,7 +193,7 @@ class HydrothermalVentLarvaeAPI
                          $agent[]=array("role" => "photographer" , "homepage" => "http://www.whoi.edu/" , "name" => "Diane Adams");
                     }
                     else $agent[]=array("role" => "photographer" , "homepage" => "http://www.whoi.edu/" , "name" => "Stace Beaulieu");
-                    $arr_photos[] = array("mediaURL"=>IMAGE_URL . $keywords[0],"mimeType"=>$mimeType,"dataType"=>"http://purl.org/dc/dcmitype/StillImage","description"=>$morphology,"dc_source"=>$sourceURL,"agent"=>$agent);
+                    $arr_photos[] = array("mediaURL"=>PHOTO_URL . $keywords[0],"mimeType"=>$mimeType,"dataType"=>"http://purl.org/dc/dcmitype/StillImage","description"=>$morphology,"dc_source"=>$sourceURL,"agent"=>$agent);
                 }
                 $i++;
             }
@@ -252,7 +245,7 @@ class HydrothermalVentLarvaeAPI
             {
                 if($img = self::get_src_from_img_tag($r)) 
                 {    
-                    $r = "<img src='" . IMAGE_URL . $img . "'>";
+                    $r = "<img src='" . PHOTO_URL . $img . "'>";
                 }                
                 $str .= "<td>$r</td>";                
             }            
