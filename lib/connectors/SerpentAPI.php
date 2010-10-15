@@ -36,7 +36,7 @@ class SerpentAPI
     function compile_taxon_urls()
     {
         $taxon_urls=array();
-        $start_url = "http://archive.serpentproject.com/view/species/";
+        $start_url = SERPENT_PAGE_URL;
         $urls = self::taxon_url_extractor($start_url,'<h1 class="pagetitle">Browse by Species</h1>','<li>',1);
         return $urls;
         
