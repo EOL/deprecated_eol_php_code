@@ -1,6 +1,6 @@
 <?php
 
-define("PAGE_URL", "http://archive.serpentproject.com/view/species/");
+define("SERPENT_PAGE_URL", "http://archive.serpentproject.com/view/species/");
 
 class SerpentAPI
 {
@@ -88,7 +88,7 @@ class SerpentAPI
                           is_numeric(stripos($url,'.mov'))                 ||
                           is_numeric(stripos($url,'.avi'))                           
                         )continue;
-                    if($with_page_url) $temp = PAGE_URL . $matches[1];
+                    if($with_page_url) $temp = SERPENT_PAGE_URL . $matches[1];
                     else               $temp = $matches[1]; 
                     $urls[]=array("url"=>$temp,"sciname"=>$sciname);                    
                 }                                
@@ -100,8 +100,7 @@ class SerpentAPI
     function search_collections($url1)//this will output the raw (but structured) array
     {
         $html = Functions::get_remote_file_fake_browser($url1);
-        $html1 = utf8_decode($html);
-        
+        $html1 = utf8_decode($html);        
         $response = self::scrape_species_page($html1,$url1);        
         return $response;
     }           
@@ -396,7 +395,7 @@ class SerpentAPI
         foreach($arr_value as $r)
         {
             $r = str_ireplace('<td></td>' , "", $r);	                
-            $r = str_ireplace('<a href=' , "<a href=" . PAGE_URL, $r);	
+            $r = str_ireplace('<a href=' , "<a href=" . SERPENT_PAGE_URL, $r);	
             $arr[] = strip_tags(trim($r),"<a><td>");
         }            
         if($return_value=="reference")return $arr;
