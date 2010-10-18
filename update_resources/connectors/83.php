@@ -2,33 +2,16 @@
 exit;
 /* MorphBank connector 
 estimated execution time: 6 hours
-
 Partner provides a list of URL's and each URL will list ID's.
 Then connector uses their service to read each ID and get the information needed.
-***
-
-*/
-
-/*
-<?xml version="1.0" encoding="utf-8" ?>
-<response>
-    <url>http://services.morphbank.net/mb/request?method=search&amp;objecttype=Image&amp;limit=-1&amp;keywords=baskauf&amp;format=id</url>
-</response>
-
-http://services.morphbank.net/mb2/request?method=eol&format=id
-http://services.morphbank.net/mb3/request?method=eol&format=id
 */
 
 $timestart = microtime(1);
-
 $url_id_list = "http://www.morphbank.net/eolids.xml";
-//$url_id_list = "http://128.128.175.77/m.xml";
-
+$url_id_list = "http://127.0.0.1/eol_php_code/update_resources/connectors/files/MorphBank/m.xml";
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
-//$resource = new Resource(83); //orig ID //exit($resource->id);
 $resource_id = 83;
 
 $details_method_prefix = "http://services.morphbank.net/mb/request?method=id&format=svc&limit=2&id=";
@@ -36,28 +19,13 @@ $image_ids = array();
 
 $schema_taxa = array();
 $used_taxa = array();
-
 $wrap = "\n"; 
-//$wrap = "<br>";
 
-//get all image ids
-/* working but not being used as advised by Greg from MorphBank
-$limit_of_inventory = 25; //300000
-$inventory_method_url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&keywords=&limit=$limit_of_inventory&format=id&firstResult=100000";
-$image_id_xml = simplexml_load_file($inventory_method_url);
-foreach($image_id_xml->id as $id)
-{$image_ids[] = $id;}
-*/
-
-if($xml = simplexml_load_file($url_id_list)){}
-else{exit("$wrap Service not available.");}
-foreach($xml->url as $url)
+$url="http://services.morphbank.net/mb2/request?method=eol&format=id&limit=-1";
+if($url)
 {
     print "$wrap [$url] $wrap";   
     $url = trim($url);
-    /* used before as test
-    $url = "http://services.morphbank.net/mb/request?method=search&objecttype=Image&limit=-1&keywords=baskauf&format=id";
-    */    
     if($image_id_xml = simplexml_load_file($url)){}
     else continue;
     foreach($image_id_xml->id as $id)
@@ -66,8 +34,7 @@ foreach($xml->url as $url)
     }
 }
 $total_image_ids = count($image_ids);
-print "$wrap $wrap count of image ID's = $total_image_ids"; //exit;
-
+print "$wrap count of image ID's = $total_image_ids"; //exit;
 
 // loop through image ids
 $k=0;
@@ -109,38 +76,6 @@ foreach($image_ids as $image_id)
         $taxon_parameters["source"] = "http://www.morphbank.net/Browse/ByImage/?tsnKeywords=" . urlencode($dwc_ScientificName) . "&spKeywords=&viewKeywords=&localityKeywords=&activeSubmit=2";        
         $taxon_parameters["dataObjects"]= array();        
         $used_taxa[$taxon_identifier] = $taxon_parameters;        
-
-        /* start first dataobject - text 
-        if(isset($xml->specimen->sourceId->morphbank))
-        {    
-            $dc_identifier = trim($xml->specimen->sourceId->morphbank);            
-            $dcterms_created = trim($xml->specimen->dateCreated);  
-            $dcterms_modified = trim($xml->specimen->dateLastModified);
-            $thumbnailURL = trim($xml->specimen->thumbUrl);
-            $dc_source = trim($xml->specimen->detailPageUrl);
-            $agent_name = trim($xml->specimen->submittedBy);       
-            $image_type = trim($xml->specimen->imageType);      
-            $copyright_text = "";    
-            $license = "http://creativecommons.org/licenses/by-nc-sa/3.0/";    
-            $desc = null;
-            if($dwc->Sex)$desc .= "<br>Sex: " . $dwc->Sex;
-            if($dwc->LifeStage)$desc .= "<br>Life stage: " . $dwc->LifeStage;    
-            if($dwc->Collector)$desc .= "<br>Collector: " . $dwc->Collector;
-            if($dwc->CatalogNumber)$desc .= "<br>Catalog number: " . $dwc->CatalogNumber;
-            if($dwc->EarliestDateCollected)$desc .= "<br>Earliest date collected: " . $dwc->EarliestDateCollected;
-            if($dwc->BasisOfRecord)$desc .= "<br>Basis of record: " . $dwc->BasisOfRecord;    
-            if($dwc->InstitutionCode)$desc .= "<br>Institution code: " . $dwc->InstitutionCode;
-            if($dwcc->TypeStatus)$desc .= "<br>Type status: " . $dwcc->TypeStatus;
-            if($dwc->DateIdentified)$desc .= "<br>:Date identified " . $dwc->DateIdentified;
-            if($dwc->Country)$desc .= "<br>Country: " . $dwc->Country;
-            if($dwcg->CoordinateUncertaintyInMeters)$desc .= "<br>Coordinate uncertainty in meters: " . $dwcg->CoordinateUncertaintyInMeters;
-            if($dwc->Locality)$desc .= "<br>Locality: " . $dwc->Locality;
-            if($desc)$desc = substr($desc,4,strlen($desc));
-            $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text");       
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
-        }
-        end first dataobject - text */             
-        
     }
 
     /* start 2nd dataobject - image */         
@@ -163,10 +98,8 @@ foreach($image_ids as $image_id)
     if($xml->view->dateCreated)$desc .= "<br>Date created: " . $xml->view->dateCreated;
     if($xml->view->dateLastModified)$desc .= "<br>Date modified: " . $xml->view->dateLastModified;    
     if($xml->view->dateToPublish)$desc .= "<br>Date published: " . $xml->view->dateToPublish;    
-    if($xml->view->submittedBy)$desc .= "<br>Submitted by: " . $xml->view->submittedBy;    
-    
-    if($xml->image->copyrightText)$desc .= "<br>Copyright: " . $xml->image->copyrightText;    
-    
+    if($xml->view->submittedBy)$desc .= "<br>Submitted by: " . $xml->view->submittedBy;        
+    if($xml->image->copyrightText)$desc .= "<br>Copyright: " . $xml->image->copyrightText;     
     if($xml->view->viewAngle)$desc .= "<br>View angle: " . $xml->view->viewAngle;    
     if($xml->view->imagingTechnique)$desc .= "<br>Imaging technique: " . $xml->view->imagingTechnique;    
     if($xml->view->imagingPreparationTechnique)$desc .= "<br>Imaging preparation technique: " . $xml->view->imagingPreparationTechnique;
@@ -174,56 +107,37 @@ foreach($image_ids as $image_id)
     if($xml->view->developmentalStage)$desc .= "<br>Developmental stage: " . $xml->view->developmentalStage;    
     if($xml->view->sex)$desc .= "<br>Sex: " . $xml->view->sex;
     if($xml->view->form)$desc .= "<br>Form: " . $xml->view->form;    
-    if($desc)$desc = substr($desc,4,strlen($desc));
-        
+    if($desc)$desc = substr($desc,4,strlen($desc));        
     $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "image");       
     $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
-    /* end second dataobject - image */     
- 
+    /* end second dataobject - image */      
     
-    $used_taxa[$taxon_identifier] = $taxon_parameters;            
-    
-    
-    //if($k == 20)break;    //debug; to limit no. of records
+    $used_taxa[$taxon_identifier] = $taxon_parameters;                    
+    //if($k == 3)break; //debug
 }
-
-/*
-print "<pre>";
-print_r($used_taxa);
-print "</pre>";
-exit;
-*/
 
 foreach($used_taxa as $taxon_parameters)
 {
     $schema_taxa[] = new SchemaTaxon($taxon_parameters);
 }
-////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 print "$wrap --end-- ";
-////////////////////// ---
 
 $elapsed_time_sec = microtime(1)-$timestart;
 echo "$wrap";
 echo "elapsed time = $elapsed_time_sec sec              $wrap";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
-
 exit("$wrap$wrap Done processing.");
-//######################################################################################################################
-//######################################################################################################################
-//######################################################################################################################
-
 
 //==========================================================================================
 function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent_name ,$description, $type)
 {
-    $dataObjectParameters = array();
-    
+    $dataObjectParameters = array();    
     if($type == "text")
     {   
         $dataObjectParameters["identifier"] = "txt_" . $id;    
