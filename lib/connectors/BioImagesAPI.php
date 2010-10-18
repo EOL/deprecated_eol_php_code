@@ -1,14 +1,12 @@
 <?php
-
 define("PAGE_URL", "http://www.bioimages.org.uk/html/");
 define("IMAGE_URL", "http://www.bioimages.org.uk/");
-
 class BioImagesAPI
 {
     public static function get_all_taxa()
     {
-        /* This is can be run separately. This creates a text file (connectors\files\BioImages\bioimages.txt) that'll list each taxon URL. */        
-        $urls = self::compile_taxon_urls(); 
+        /* This creates a text file (connectors\files\BioImages\bioimages.txt) that'll list each taxon URL. */
+        $urls = self::compile_taxon_urls();
         
         /* Partner provided ancestry information on a separate spreadsheet file. */
         $ancestry = self::prepare_ancestry_info();
@@ -18,27 +16,45 @@ class BioImagesAPI
 
         $all_taxa = array();
         $used_collection_ids = array();        
-
+        
+        $i=1; $total=sizeof($urls);
         foreach($urls as $url)
         {
+            print"\n $i of $total";$i++;
             if($url["active"])
             {
-                $page_taxa = self::get_BioImages_taxa($url["path1"],$ancestry); 
+                $arr = self::get_BioImages_taxa($url["path"],$ancestry,$used_collection_ids); 
+                $page_taxa              = $arr[0];
+                $used_collection_ids    = $arr[1];                
                 $all_taxa = array_merge($all_taxa,$page_taxa);                                    
             }
         }
         return $all_taxa;
-    }
+    }    
+    
+    public static function get_BioImages_taxa($url1,$ancestry,$used_collection_ids)
+    {
+        $response = self::search_collections($url1,$ancestry);//this will output the raw (but structured) output from the external service
+        $page_taxa = array();
+        foreach($response as $rec)
+        {
+            if(@$used_collection_ids[$rec["sciname"]]) continue;
+            
+            $taxon = self::get_taxa_for_photo($rec);
+            if($taxon) $page_taxa[] = $taxon;
+            
+            $used_collection_ids[$rec["sciname"]] = true;
+        }        
+        return array($page_taxa,$used_collection_ids);
+    }    
     
     function prepare_ancestry_info()
     {
         $ancestry=array();        
         require_library('XLSParser');
-        $parser = new XLSParser();
-        
+        $parser = new XLSParser();        
         $arr_filename = array(DOC_ROOT . "update_resources/connectors/files/BioImages/Photographed Taxa.xls",
-                              DOC_ROOT . "update_resources/connectors/files/BioImages/Taxa with trophisms.xls");
-        
+                              DOC_ROOT . "update_resources/connectors/files/BioImages/Taxa with trophisms.xls");        
         foreach($arr_filename as $filename)
         {
             $arr = $parser->convert_sheet_to_array($filename);                  
@@ -52,39 +68,6 @@ class BioImagesAPI
                 $ancestry[$latin_authority] =array("Phylum"=>$arr["Phylum"][$i], "Class"=>$arr["Class"][$i], "Order"=>$arr["Order"][$i], "Family"=>$arr["Family"][$i], "ComName"=>$arr["English"][$i]);
                 $i++;        
             }
-            print sizeof($ancestry)."<br>";
-        }
-        return $ancestry;
-    }
-    
-    function compile_ancestry_info()
-    {
-        /* This scrapes the site for ancestry information. Not being used anymore. */
-        $ancestry=array();        
-        $urls = self::get_from_txt();
-        foreach($urls as $url)
-        {
-            print $url["path1"] . "<br>";
-            $html = Functions::get_remote_file_fake_browser($url["path1"]);
-            $html = strip_tags($html,"<td>");                                    
-            $html = str_ireplace('<td class="FieldTitle">','<td>', $html);	                        
-            $html = str_ireplace('<td class="FieldValue">','<td>', $html);	                        
-            $html = str_ireplace('&amp;','and', $html);	                                               
-            $html = str_ireplace('<td class="Rank">'     ,'<td class="FieldValue">', $html);	                        
-            $html = str_ireplace('<td class="Taxon">'    ,'<td class="FieldTitle">', $html);	
-            $html = str_ireplace('<td class="head">'     ,'<td class="FieldTitle">', $html);	
-            $html = str_ireplace('<td class="Subtaxon">' ,'<td class="FieldTitle">', $html);	                                   
-            $arr = self::scrape_page($html,"");            
-            $arr2 = array_keys($arr);
-            foreach($arr2 as $r2)
-            {     
-                $sn = $r2;
-                $rank = $arr[$sn];                
-                $piece = self::separate_sciname_from_vernacular($sn);
-                $sciname = trim(@$piece[0]);
-                $vernacular = trim(@$piece[1]);                                    
-                $ancestry[$sciname]=$rank;
-            }
         }
         return $ancestry;
     }
@@ -97,68 +80,58 @@ class BioImagesAPI
         $taxon_urls = self::taxon_url_extractor($start_url);
 
         //start loop to all taxon URLs
-        $i=0;
+        $i=0; $total=sizeof($taxon_urls);
         foreach($taxon_urls as $url)
         {
             $i++;
+            print"\n $i of $total";            
+            
             $arr_temp = self::taxon_url_extractor($url);    
             $taxon_urls = array_merge($taxon_urls,$arr_temp);            
-            print"[[level 1]]";
             foreach($arr_temp as $url2)
             {
                 $arr_temp2 = self::taxon_url_extractor($url2);    
                 $taxon_urls = array_merge($taxon_urls,$arr_temp2);                                
-                print"[[level 2]]";
                 foreach($arr_temp2 as $url3)
                 {
                     $arr_temp3 = self::taxon_url_extractor($url3);    
                     $taxon_urls = array_merge($taxon_urls,$arr_temp3);                                
-                    print"[[level 3]]";
                     foreach($arr_temp3 as $url4)                    
                     {
                         $arr_temp4 = self::taxon_url_extractor($url4);    
                         $taxon_urls = array_merge($taxon_urls,$arr_temp4);                                
-                        print"[[level 4]]";
                         foreach($arr_temp4 as $url5)                    
                         {
                             $arr_temp5 = self::taxon_url_extractor($url5);    
                             $taxon_urls = array_merge($taxon_urls,$arr_temp5);                                
-                            print"[[level 5]]";
                             foreach($arr_temp5 as $url6)                    
                             {
                                 $arr_temp6 = self::taxon_url_extractor($url6);    
                                 $taxon_urls = array_merge($taxon_urls,$arr_temp6);
-                                print"[[level 6]]";
                                 foreach($arr_temp6 as $url7)                    
                                 {
                                     $arr_temp7 = self::taxon_url_extractor($url7);    
                                     $taxon_urls = array_merge($taxon_urls,$arr_temp7);
-                                    print"[[level 7]]";
                                     foreach($arr_temp7 as $url8)                    
                                     {
                                         $arr_temp8 = self::taxon_url_extractor($url8);    
                                         $taxon_urls = array_merge($taxon_urls,$arr_temp8);                                    
-                                        print"[[level 8]]";
                                         foreach($arr_temp8 as $url9)                    
                                         {
                                             $arr_temp9 = self::taxon_url_extractor($url9);    
                                             $taxon_urls = array_merge($taxon_urls,$arr_temp9);
-                                            print"[[level 9]]";
                                             foreach($arr_temp9 as $url10)                    
                                             {
                                                 $arr_temp10 = self::taxon_url_extractor($url10);    
                                                 $taxon_urls = array_merge($taxon_urls,$arr_temp10);
-                                                print"[[level 10]]";
                                                 foreach($arr_temp10 as $url11)                    
                                                 {
                                                     $arr_temp11 = self::taxon_url_extractor($url11);    
                                                     $taxon_urls = array_merge($taxon_urls,$arr_temp11);
-                                                    print"[[level 11]]";
                                                     foreach($arr_temp11 as $url12)                    
                                                     {
                                                         $arr_temp12 = self::taxon_url_extractor($url12);    
                                                         $taxon_urls = array_merge($taxon_urls,$arr_temp12);
-                                                        print"[[level 12]]";
                                                         foreach($arr_temp12 as $url13)                    
                                                         {
                                                             $arr_temp13 = self::taxon_url_extractor($url13);    
@@ -175,19 +148,17 @@ class BioImagesAPI
                     }   
                 }                                
             }
-            //if($i==1)break; //use to limit to ANIMALIA
+            //use to limit to ANIMALIA -- if($i==1)break;
         }   
            
         $taxon_urls = array_unique($taxon_urls);
         self::save_to_txt($taxon_urls,"w+");//a - append, doesn't truncate | w+ - truncates
-
-        if($taxon_urls) $arr = self::get_from_txt();
-        return $arr;                
+        return;        
     }
     
     function taxon_url_extractor($url)
     {
-        $html = Functions::get_remote_file_fake_browser($url);
+        $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
         $html = strip_tags($html,"<a>");
         $html = str_ireplace('href="t' , "&arr[]=", $html);	
         $arr = array(); parse_str($html);	            
@@ -198,56 +169,30 @@ class BioImagesAPI
             if($url != "http://www.bioimages.org.uk/html/t43377.htm")$urls[$url]=1;            
         }
         return array_keys($urls);
-    }
-    
-    
-    public static function get_BioImages_taxa($url1,$ancestry)
-    {
-        global $used_collection_ids;
-        
-        $response = self::search_collections($url1,$ancestry);//this will output the raw (but structured) output from the external service
-        $page_taxa = array();
-        foreach($response as $rec)
-        {
-            if(@$used_collection_ids[$rec["sciname"]]) continue;
-            
-            $taxon = self::get_taxa_for_photo($rec);
-            if($taxon) $page_taxa[] = $taxon;
-            
-            $used_collection_ids[$rec["sciname"]] = true;
-        }        
-        return $page_taxa;
     }    
-    
-    public static function search_collections($url1,$ancestry)//this will output the raw (but structured) output from the external service
+
+    function search_collections($url1,$ancestry)
     {
-        $html = Functions::get_remote_file_fake_browser($url1);
-        $html1 = self::clean_html($html);
+        $html = utf8_decode(Functions::get_remote_file_fake_browser($url1));
+        $html1 = $html;
         $response = self::scrape_species_page($html1,$url1,$ancestry);        
         return $response;//structured array
     }           
     
-    public static function scrape_species_page($html,$species_page_url,$ancestry)
+    function scrape_species_page($html,$species_page_url,$ancestry)
     {        
         $arr_scraped=array();
         $arr_photos=array();
         $arr_sciname=array();                
-        //=============================================================================================================
+        //=============================================================================================================         
         $species="";
         if(preg_match("/<title>(.*?)<\/title/ims", $html, $matches))
         {   
-                        
-            $title = trim(strip_tags($matches[1]));
-            
-            $piece = self::separate_sciname_from_vernacular($title);
-            
-            $sciname = self::clean_sciname(@$piece[0]);
-            
-            $vernacular = trim(@$piece[1]);                            
-
-            print"<br>-- $sciname [$vernacular]<hr>";
-        }            
-
+            $title = trim(strip_tags($matches[1]));            
+            $piece = self::separate_sciname_from_vernacular($title);            
+            $sciname = self::clean_sciname(@$piece[0]);            
+            $vernacular = trim(@$piece[1]);           
+        }
         //=============================================================================================================
 
         $agent=array();
@@ -255,6 +200,7 @@ class BioImagesAPI
         //photos start =================================================================
         $arr_photos=array();
         $arr_photo_url=self::get_photos($html,'<h2 class="Recs">'); 
+
         if($arr_photo_url)
         {
             $arr_photo_urls_per_taxon = self::get_all_photo_urls_per_taxon($arr_photo_url);
@@ -295,8 +241,7 @@ class BioImagesAPI
                         "dc_source"     =>@$rec["sourceURL"],
                         "agent"         =>$agent);            
         }                
-        //photos end =================================================================
-        
+        //photos end =================================================================        
         
         //text start Description DiagnosticDescription =================================================================
         $arr_texts = self::scrape_page($html,$species_page_url);            
@@ -308,19 +253,16 @@ class BioImagesAPI
         $texts_asso = self::scrape_page_others($html,"is associated with:</p>","not reference");                    
         if($texts_asso) 
         {               
-            $texts_asso = "In Great Britain and/or Ireland:<br>" . "$sciname is associated with:<br>&nbsp;<br> $texts_asso";
+            $texts_asso = "In Great Britain and/or Ireland:<br>" . "$sciname is associated with:<br> <br> $texts_asso";
             $arr_texts["$sciname"][]=self::fill_text_array($species_page_url,"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations",$texts_asso,"Feeding and other inter-species relationships");
-        } 
-        
+        }         
         $texts_asso = self::scrape_page_others($html,"<p>Associated with","not reference");            
         if($texts_asso) 
         {   
-            $texts_asso = "In Great Britain and/or Ireland:<br>" . "Associated with $sciname:<br>&nbsp;<br> $texts_asso";
+            $texts_asso = "In Great Britain and/or Ireland:<br>" . "Associated with $sciname:<br> <br> $texts_asso";
             $arr_texts["$sciname"][]=self::fill_text_array($species_page_url,"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations",$texts_asso,"Feeding and other inter-species relationships");
-        }         
-        
-        //text end associations =================================================================        
-        
+        }                 
+        //text end associations =================================================================                
 
         //text start references =================================================================                
         $arr_ref = self::scrape_page_others($html,'<h2 class="Lit">References</h2>',"reference");            
@@ -329,25 +271,28 @@ class BioImagesAPI
         //text end references =================================================================        
         
         $arr_sciname["$sciname"]=$species_page_url;                       
-
         foreach(array_keys($arr_sciname) as $sci)
         {
-            $arr_scraped[]=array("id"=>"",
-                                 "kingdom"=>"",   
-                                 "phylum"=>@$ancestry[$sci]['Phylum'],   
-                                 "class"=>@$ancestry[$sci]['Class'],   
-                                 "order"=>@$ancestry[$sci]['Order'],   
-                                 "family"=>@$ancestry[$sci]['Family'],   
-                                 "comname"=>@$ancestry[$sci]['ComName'],
-                                 "sciname"=>$sci,
-                                 "dc_source"=>$species_page_url,   
-                                 "photos"=>@$arr_photos["$sci"],
-                                 "texts"=>@$arr_texts["$sci"],
-                                 "references"=>$arr_ref
-                                );
-        }                
+            if(@$arr_photos["$sci"] || @$arr_texts["$sci"])
+            {
+                $arr_scraped[]=array("id"=>"",
+                                     "kingdom"=>"",   
+                                     "phylum"=>@$ancestry[$sci]['Phylum'],   
+                                     "class"=>@$ancestry[$sci]['Class'],   
+                                     "order"=>@$ancestry[$sci]['Order'],   
+                                     "family"=>@$ancestry[$sci]['Family'],   
+                                     "comname"=>@$ancestry[$sci]['ComName'],
+                                     "sciname"=>$sci,
+                                     "dc_source"=>$species_page_url,   
+                                     "photos"=>@$arr_photos["$sci"],
+                                     "texts"=>@$arr_texts["$sci"],
+                                     "references"=>$arr_ref
+                                    );
+            }
+        }        
         return $arr_scraped;        
     }
+    
     function clean_sciname($sciname)
     {
         $sciname = trim($sciname);
@@ -358,12 +303,10 @@ class BioImagesAPI
             $part2 = trim(substr($sciname,$pos,strlen($sciname)));
             $sciname = trim(ucfirst(strtolower($part1)) . " " . $part2);                
         }
-        else
-        {
-            $sciname = ucfirst(strtolower($sciname));    
-        }            
+        else $sciname = ucfirst(strtolower($sciname));    
         return $sciname;    
     }
+    
     function prepare_reference($arr_ref)
     {
         $refs=array();
@@ -382,7 +325,6 @@ class BioImagesAPI
     {
         $agent[]=array("role" => "compiler" , "homepage" => "http://www.bioimages.org.uk/index.htm" , "name" => "Malcolm Storey");            
         $rights_holder = "Malcolm Storey";
-
         return          array(
                         "identifier"    =>$sourceURL,
                         "mediaURL"      =>"",
@@ -403,7 +345,6 @@ class BioImagesAPI
     function get_photos($string,$searched)
     {        
         $arr_photo_url=array();
-        
         $pos = stripos($string,$searched);
         $str = substr($string,$pos,strlen($string));
         if(is_numeric($pos))
@@ -411,10 +352,8 @@ class BioImagesAPI
             if(preg_match("/<table>(.*?)<\/table/ims", $str, $matches))
             {   
                 $str = trim($matches[1]);
-
                 $str = str_ireplace('<a href="' , "&arr[]=", $str);	
                 $arr = array(); parse_str($str);	                            
-                
                 foreach($arr as $r)
                 {                    
                     $arr_photo_url[] = PAGE_URL . substr($r,0,stripos($r,'"'));
@@ -427,13 +366,10 @@ class BioImagesAPI
     function get_all_photo_urls_per_taxon($arr)
     {
         $arr_total_url=array();
-        print"<hr>URLs to access photos per species:<br>";
+        //URLs to access photos per species
         foreach($arr as $url)
         {                    
-            print "url = $url<br>";
-
-            $html = Functions::get_remote_file_fake_browser($url);
-            $html = self::clean_html($html);
+            $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
             $arr_photo_url=self::get_photos($html,'<h2 class="Assets">');                        
             $arr_total_url = array_merge($arr_total_url,$arr_photo_url);
         }
@@ -445,10 +381,7 @@ class BioImagesAPI
         $arr_total=array();
         foreach($arr as $url)
         {                    
-            print "xx url = $url<br>";
-            $html = Functions::get_remote_file_fake_browser($url);
-            $html = self::clean_html($html);
-            
+            $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
             //special case
             $html = self::clean_str($html);
             $html = str_ireplace('<td class="FieldTitle">Date: </td><td></td>',"",$html);            
@@ -456,8 +389,7 @@ class BioImagesAPI
             $html = str_ireplace('<td class="FieldTitle">State: </td><td></td>',"",$html);
             $html = str_ireplace('<td class="FieldTitle">Record Summary: </td><td></td>',"",$html);
             $html = str_ireplace('<td class="FieldTitle">Image Reference: </td><td></td>',"",$html);
-            //end special case
-            
+            //end special case            
             $arr_scraped = self::scrape_page($html,$url);            
             if($arr_scraped)$arr_total[] = $arr_scraped;
         }   
@@ -466,62 +398,55 @@ class BioImagesAPI
     function scrape_page($html,$sourceURL)
     {
         //special case        
-        $html = self::fix_html_chars($html);
         $html = str_ireplace("&quot;","",$html);
         //end special case
         
         //for FieldTitle 
-            $str = str_ireplace('<td class="FieldTitle">' , "&arr[]=", $html);	
-            $arr = array(); parse_str($str);	                                    
-            $arr_title=array();
-            foreach($arr as $r)
-            {
-                $pos = stripos($r,'</td>');
-                if(is_numeric($pos)) $arr_title[] = trim(substr($r,0,$pos));
-            }       
+        $str = str_ireplace('<td class="FieldTitle">' , "&arr[]=", $html);	
+        $arr = array(); parse_str($str);	                                    
+        $arr_title=array();
+        foreach($arr as $r)
+        {
+            $pos = stripos($r,'</td>');
+            if(is_numeric($pos)) $arr_title[] = trim(substr($r,0,$pos));
+        }
                 
         //for FieldValue 
-            $str = str_ireplace('<td class="FieldValue">' , "&arr[]=", $html);	
-            $arr = array(); parse_str($str);	                                    
-            $arr_value=array();
-            foreach($arr as $r)
-            {
-                
-
-                $pos = stripos($r,'</td>');
-                if(is_numeric($pos)) $arr_value[] = trim(substr($r,0,$pos));
-            }
+        $str = str_ireplace('<td class="FieldValue">' , "&arr[]=", $html);	
+        $arr = array(); parse_str($str);	                                    
+        $arr_value=array();
+        foreach($arr as $r)
+        {
+            $pos = stripos($r,'</td>');
+            if(is_numeric($pos)) $arr_value[] = trim(substr($r,0,$pos));
+        }
         
         $arr=array(); $i=0;
         foreach($arr_title as $title)
         {
             $arr[$title]=$arr_value[$i];$i++;
         }        
-        
+
         $substrr = substr($html,stripos($html,'FieldTitle'),strlen($html));
         if(preg_match("/src=\"(.*?)\"/ims", $substrr, $matches)) 
         {
             $arr["url"] = str_ireplace('../../' , IMAGE_URL, $matches[1]);	        
             $arr["url"] = str_ireplace(" ","%20", $arr["url"]);	        
             $arr["sourceURL"] = $sourceURL;
-        }
-        
+        }        
         return $arr;
-
     }
+    
     function scrape_page_others($html,$searched,$return_value)
     {
-
         $pos = stripos($html,$searched);
         if(is_numeric($pos))
         {
             $html = trim(substr($html,$pos,strlen($html)));
             $pos = stripos($html,"</table>");   
-            $html = trim(substr($html,0,$pos));
-            
+            $html = trim(substr($html,0,$pos));            
             $pos = stripos($html,'<td class="FieldValue">');
-            if(!is_numeric($pos))return;
-            
+            if(!is_numeric($pos))return;            
         }
         else return;
 
@@ -560,7 +485,7 @@ class BioImagesAPI
             $str = str_ireplace('<td class="FieldRef">' , "Ref. ", $str);	                
             $str = str_ireplace('</td>' , ". ", $str);	                
             $html .= $str;
-            $html .= "<br>&nbsp;<br>";
+            $html .= "<br> <br>";
         }                            
         return $html; 
     }    
@@ -569,9 +494,7 @@ class BioImagesAPI
     {
         $string = strip_tags($string);
         $string = str_ireplace('&amp;' , "and", $string);	                
-        print("<hr>$string");
         $string = self::remove_parenthesis_if_first_char($string);
-        print("<hr>$string");
         $count = substr_count($string, '(');
         if($count == 0)
         {
@@ -585,8 +508,7 @@ class BioImagesAPI
             $vernacular = substr($string,$pos+1,strlen($string));
             $vernacular = str_ireplace(')','',$vernacular); //remove the ending parenthesis
             $arr = array($sciname,$vernacular);                   
-        }
-        
+        }        
         return $arr;
     }
     function remove_parenthesis_if_first_char($string)
@@ -600,38 +522,28 @@ class BioImagesAPI
         return $string;
     }
 
-    public static function get_taxa_for_photo($rec)
+    function get_taxa_for_photo($rec)
     {
         $taxon = array();
         $taxon["commonNames"] = array();
-        $license = null;        
-        
+        $license = null;                
         $taxon["identifier"] = "";
-        $taxon["source"] = $rec["dc_source"];        
-        
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        
+        $taxon["source"] = $rec["dc_source"];                
+        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));        
         $taxon["kingdom"] = ucfirst(trim($rec["kingdom"]));
         $taxon["phylum"] = ucfirst(trim($rec["phylum"]));       
         $taxon["class"] = ucfirst(trim($rec["class"]));
         $taxon["order"] = ucfirst(trim($rec["order"]));
-        $taxon["family"] = ucfirst(trim($rec["family"]));
-        
-        //$taxon["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
-        
-        //if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $arr)) $taxon["genus"] = $arr[1];
-        
+        $taxon["family"] = ucfirst(trim($rec["family"]));        
         if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"],@$taxon["dataObjects"],array());
-        if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"],$rec["references"]);
-        
+        if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"],$rec["references"]);        
         $taxon_object = new SchemaTaxon($taxon);
         return $taxon_object;
     }
     
     function prepare_objects($arr,$taxon_dataObjects,$references)
     {
-        $arr_SchemaDataObject=array();
-        
+        $arr_SchemaDataObject=array();        
         if($arr)
         {
             $arr_ref=array();
@@ -647,28 +559,22 @@ class BioImagesAPI
             }
         }        
         return $taxon_dataObjects;
-
     }
     
-    public static function get_data_object($rec,$references)
+    function get_data_object($rec,$references)
     {
         $data_object_parameters = array();
-        $data_object_parameters["identifier"] = $rec["identifier"];        
-        $data_object_parameters["source"] = $rec["dc_source"];
-        
-        $data_object_parameters["dataType"] = $rec["dataType"];
-        $data_object_parameters["mimeType"] = @$rec["mimeType"];
-        $data_object_parameters["mediaURL"] = @$rec["mediaURL"];
-        
-        $data_object_parameters["rights"] = @$rec["rights"];
-        $data_object_parameters["rightsHolder"] = @$rec["rights_holder"];
-        
-        $data_object_parameters["title"] = @$rec["title"];
-        $data_object_parameters["description"] = utf8_encode($rec["description"]);
-        $data_object_parameters["location"] = utf8_encode($rec["location"]);
-        
-        $data_object_parameters["license"] = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-        
+        $data_object_parameters["identifier"]   = $rec["identifier"];        
+        $data_object_parameters["source"]       = $rec["dc_source"];        
+        $data_object_parameters["dataType"]     = $rec["dataType"];
+        $data_object_parameters["mimeType"]     = @$rec["mimeType"];
+        $data_object_parameters["mediaURL"]     = @$rec["mediaURL"];        
+        $data_object_parameters["rights"]       = @$rec["rights"];
+        $data_object_parameters["rightsHolder"] = @$rec["rights_holder"];        
+        $data_object_parameters["title"]        = @$rec["title"];
+        $data_object_parameters["description"]  = utf8_encode($rec["description"]);
+        $data_object_parameters["location"]     = utf8_encode($rec["location"]);        
+        $data_object_parameters["license"]      = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
 
         //start reference
         $data_object_parameters["references"] = array();        
@@ -683,8 +589,6 @@ class BioImagesAPI
         $data_object_parameters["references"] = $ref;
         //end reference
         
-        
-        
         if(@$rec["subject"])
         {
             $data_object_parameters["subjects"] = array();
@@ -693,48 +597,24 @@ class BioImagesAPI
             $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
         }
         
-        if(@$rec["agent"])
-        {               
-         $agents = array();
-         foreach($rec["agent"] as $a)
-         {  
-             $agentParameters = array();
-             $agentParameters["role"]     = $a["role"];
-             $agentParameters["homepage"] = $a["homepage"];
-             $agentParameters["logoURL"]  = "";        
-             $agentParameters["fullName"] = $a["name"];
-             $agents[] = new SchemaAgent($agentParameters);
+         if(@$rec["agent"])
+         {               
+             $agents = array();
+             foreach($rec["agent"] as $a)
+             {  
+                 $agentParameters = array();
+                 $agentParameters["role"]     = $a["role"];
+                 $agentParameters["homepage"] = $a["homepage"];
+                 $agentParameters["logoURL"]  = "";        
+                 $agentParameters["fullName"] = $a["name"];
+                 $agents[] = new SchemaAgent($agentParameters);
+             }
+             $data_object_parameters["agents"] = $agents;
          }
-         $data_object_parameters["agents"] = $agents;
-        }        
         return $data_object_parameters;
     }    
 
-    public static function clean_html($str)
-    {
-        $str = str_ireplace('&ldquo;','',$str);//special open quote
-        $str = str_ireplace('&rdquo;','',$str);//special end quote
-        $str = str_ireplace('&micro;','µ',$str);
-        $str = str_ireplace('&mu;' , 'µ', $str);	            
-        $str = str_ireplace('&ndash;','-',$str);
-        $str = str_ireplace('&deg;' , '°', $str);	        
-        $str = str_ireplace('&rsquo;' , "'", $str);	        
-        $str = str_ireplace('&gt;' , ">", $str);	        
-        $str = str_ireplace('&lt;' , "<", $str);	                        
-        $str = str_ireplace('á' , "&aacute;", $str);
-        $str = str_ireplace('ü' , "&uuml;", $str);
-        return $str;
-    }
-    
-    function fix_html_chars($str)
-    {
-        $str = str_ireplace('&copy;' , '©', $str);	                    
-        $str = str_ireplace('&aacute;' , "á", $str);
-        $str = str_ireplace('&uuml;' , "ü", $str);
-        return $str;
-    }    
-    
-    public static function clean_str($str)
+    function clean_str($str)
     {    
         $str = str_ireplace(array("\n", "\r", "\t", "\o"), '', $str);			
         return $str;
@@ -747,19 +627,18 @@ class BioImagesAPI
     	{
     		$str .= $value . "\n";
     	}  
-        $filename = "files/BioImages/bioimages.txt";
+        $filename = DOC_ROOT . "update_resources/connectors/files/BioImages/bioimages.txt";
     	if($fp = fopen($filename,$mode))
         {   
             fwrite($fp,$str);fclose($fp);
         }	
-        else print "no text file";	    
+        // else no text file	    
         return "";    
     }
 
     function get_from_txt()
     {        
-        $filename = "files/BioImages/bioimages3.txt";
-        $filename = "files/BioImages/bioimages.txt";
+        $filename = DOC_ROOT . "update_resources/connectors/files/BioImages/bioimages.txt";        
         $fd = fopen ($filename, "r");
         $contents = fread ($fd,filesize ($filename)); fclose ($fd);        
         $splitcontents = explode("\n", $contents);
@@ -769,7 +648,7 @@ class BioImagesAPI
         {    
             if($value)
             {
-                $arr[]=array("path1" => $value , "active" => 1);
+                $arr[]=array("path" => $value , "active" => 1);
             }        
         }            
         return $arr;
