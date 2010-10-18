@@ -53,47 +53,32 @@ $all_taxa = array();
 foreach($urls as $key => $val)
 {
     echo "$val ".Functions::time_elapsed()."\n";
-    $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($val));
+    $html = Functions::get_remote_file($val);
+    
+    $kingdoms_for_section = $kingdoms[$key];
     
     static $taxa_for_this_page = 0;
     $taxa_for_this_page = 0;
     
-    if(preg_match("/<table>(<tr><td>.*<\/td><\/tr>)<\/table>/",$html,$arr))
+    if(preg_match_all("/<a class='catmenu' title=\"(.*?)\" href='Photo.asp\?PhotoId=(.*?)&amp;Photo=(.*?)'>(.*?)<\/a>/ims", $html, $matches, PREG_SET_ORDER))
     {
-        $table = $arr[1];
-        while(preg_match("/^(.*)<\/table>/",$table,$arr)) $table = $arr[1];
-        
-        $parts = explode("</tr>",$table);
-        $count = count($parts)-1;
-        foreach($parts as $key2 => $val2)
+        foreach($matches as $match)
         {
-            if($key2 == $count) break;
-            if(preg_match("/href='(Species\.asp\?Searchtext=(.*)\&amp;Category=$key)'>(.*)<\/a>/i",$val2,$arr))
+            static $total_taxa = 0;
+            echo "   taxon $taxa_for_this_page: total $total_taxa: $match[3] ".Functions::time_elapsed()."\n";
+            $taxa_for_this_page++;
+            $total_taxa++;
+            
+            
+            $searchtext_name = str_replace("-", " ", $match[3]);
+            $species_url = "http://www.biopix.com/Species.asp?Searchtext=" . urlencode($searchtext_name);
+            if($taxon = grab_images($species_url, $searchtext_name, $kingdoms_for_section))
             {
-                static $total_taxa = 0;
-                echo "   taxon $taxa_for_this_page: total $total_taxa: $arr[2] ".Functions::time_elapsed()."\n";
-                $taxa_for_this_page++;
-                $total_taxa++;
-                
-                $name = $arr[3];
-                while(preg_match("/^(.*)<\/a>/",$name,$arr2)) $name = $arr2[1];
-                
-                $url = "http://www.biopix.com/".$arr[1]."&ShowAll=1";
-                //echo "$url\n";
-                
-                if($taxon = grab_images($url, $name, $arr[2], @$kingdoms[$key]))
-                {
-                    $all_taxa[] = $taxon;
-                }
-                
-                //if($taxa_for_this_page >= 6) break;
+                $all_taxa[] = $taxon;
             }
         }
     }
-    //break;
 }
-
-//echo SchemaDocument::get_taxon_xml($all_taxa);
 
 
 
@@ -120,7 +105,7 @@ fclose($OUT);
 
 
 
-function grab_images($url, $name, $searchText, $kingdom)
+function grab_images($url, $name, $kingdom)
 {
     global $used_data;
     
@@ -136,47 +121,33 @@ function grab_images($url, $name, $searchText, $kingdom)
     }
     
     // fix becuase names were showing up as Abies-alba
-    $name = str_replace("-", " ", $searchText);
     $taxon_parameters = get_taxon($name, $kingdom, $family, $url);
     if(!$taxon_parameters) return false;
     
-    
-    if(preg_match("/<\/h1><br \/><br \/>(.*)<td class=\"bodycol3\">/", $html, $arr))
+    if(preg_match_all("/href='(Photo.asp\?PhotoId=(.*?)&amp;.*?)'><img alt='(.*?)' src/ims", $html, $matches, PREG_SET_ORDER))
     {
-        $table = $arr[1];
-        while(preg_match("/^(.*)<td class=\"bodycol3\">/", $table, $arr)) $table = $arr[1];
-        
-        $parts = explode("</table>",$table);
-        $count = count($parts)-1;
-        foreach($parts as $key2 => $val2)
+        foreach($matches as $match)
         {
-            if($key2 == $count) break;
-            if(preg_match("/href='(.*)'><img alt='(.*)' src/i", $val2, $arr))
+            $image_details_url = "http://www.biopix.com/".$match[1];
+            $photo_id = $match[2];
+            
+            if(@!$used_data[$image_details_url])
             {
-                $image_details_url = "http://www.biopix.com/".$arr[1];
-                $photo_id = 0;
-                if(preg_match("/PhotoId=([0-9]+)(&|$)/i", $image_details_url, $arr))
-                {
-                    $photo_id = $arr[1];
-                }
+                static $total_images = 0;
+                echo "      image $images_for_this_taxon: total $total_images ".Functions::time_elapsed()."\n";
+                $total_images++;
+                $images_for_this_taxon++;
                 
-                if(@!$used_data[$image_details_url])
+                if($data_object = image_detail($image_details_url, $photo_id))
                 {
-                    static $total_images = 0;
-                    echo "      image $images_for_this_taxon: total $total_images ".Functions::time_elapsed()."\n";
-                    $total_images++;
-                    $images_for_this_taxon++;
-                    
-                    if($data_object = image_detail($image_details_url, $photo_id))
-                    {
-                        $taxon_parameters["dataObjects"][] = $data_object;
-                    }
+                    $taxon_parameters["dataObjects"][] = $data_object;
                 }
             }
         }
     }
     
-    return new SchemaTaxon($taxon_parameters);
+    $taxon = new SchemaTaxon($taxon_parameters);
+    return($taxon);
 }
 
 function image_detail($url, $photo_id)
@@ -194,20 +165,15 @@ function image_detail($url, $photo_id)
     if(preg_match("/<b>Note<\/b><br \/><br \/><span class='textareasmall'>(.*?)<br \/><\/span>/", $html, $arr))
     {
         $note = $arr[1];
-        if(preg_match("/^(.*)\.$/",$note,$arr)) $note = $arr[1];
+        if(substr($note, -1) == ".") $note = substr($note, 0, -1);
     }
     
-    
-    
-    if(preg_match("/src='Temp\/([^']*)' \/><\/a>/",$html,$arr)) $image_url = "http://www.biopix.com/PhotosMedium/".rawurlencode($arr[1]);
+    if(preg_match("/src='\/PhotosMedium\/(.*?)' \/>/", $html, $arr)) $image_url = "http://www.biopix.com/PhotosMedium/".rawurlencode($arr[1]);
     
     $suffix = ".jpg";
     
-    if(preg_match("/(\.[a-z]{2,4})$/i",$image_url,$arr)) $suffix = $arr[1];
-    
+    if(preg_match("/(\.[a-z]{2,4})$/i",$image_url,$arr)) $suffix = strtolower($arr[1]);
     if(!$image_url) return false;
-    
-    
     
     if($parameters = get_data_object($image_url, $photo_id, $url, $note, $location, $suffix))
     {
@@ -237,14 +203,14 @@ function get_data_object($image_url, $photo_id, $source_url, $description, $loca
     $dataObjectParameters["mediaURL"] = $image_url;
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
     
-    $dataObjectParameters["audiences"] = array();
-    $audienceParameters = array();
-    
-    $audienceParameters["label"] = "Expert users";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
-    
-    $audienceParameters["label"] = "General public";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    // $dataObjectParameters["audiences"] = array();
+    // $audienceParameters = array();
+    // 
+    // $audienceParameters["label"] = "Expert users";
+    // $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    // 
+    // $audienceParameters["label"] = "General public";
+    // $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
     
     return $dataObjectParameters;
 }
