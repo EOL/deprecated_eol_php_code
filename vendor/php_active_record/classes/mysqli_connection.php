@@ -262,6 +262,39 @@ class MysqliConnection
         unlink($outfile);
     }
     
+    function update_where($table, $field, $select, $set, $udelay = 500000)
+    {
+        $outfile = $this->select_into_outfile($select);
+        
+        $ids = array();
+        $this->begin_transaction();
+        $FILE = fopen($outfile, "r");
+        while(!feof($FILE))
+        {
+            if($line = fgets($FILE, 4096))
+            {
+                $ids[] = trim($line);
+                if(count($ids)>=10000)
+                {
+                    $this->update("UPDATE $table SET $set WHERE $field IN (".implode(",", $ids).")");
+                    $this->commit();
+                    usleep_production($udelay);
+                    $ids = array();
+                }
+            }
+        }
+        if($ids)
+        {
+            $this->update("UPDATE $table SET $set WHERE $field IN (".implode(",", $ids).")");
+            $this->commit();
+            usleep_production($udelay);
+        }
+        fclose($FILE);
+        $this->end_transaction();
+        unlink($outfile);
+    }
+    
+    
     function truncate_tables($environment = "test")
     {
         if($GLOBALS['ENV_NAME'] != $environment) return false;
