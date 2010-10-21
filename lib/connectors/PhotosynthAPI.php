@@ -23,12 +23,7 @@ class PhotosynthAPI
             for($i=0 ; $i<$total_pages ; $i++)
             {
                 $arr = self::get_photosynth_taxa($per_page, $i, $used_collection_ids);
-                $page_taxa = $arr[0];
-                
-                print"<pre>";
-                print_r($page_taxa);
-                print"</pre>";
-                
+                $page_taxa = $arr[0];                
                 if($page_taxa)
                 {
                     foreach($page_taxa as $t) $all_taxa[] = $t;
@@ -147,7 +142,7 @@ class PhotosynthAPI
     {
         if(!($xml = @simplexml_load_file($url)))
         {
-            print "\n <a href='$url'>$url</a> not accessible";
+            // url not accessible
             return;
         }                
         foreach($xml->Items->I as $rec)
