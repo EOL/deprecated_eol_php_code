@@ -15,12 +15,20 @@ class HierarchyEntryIndexer
         
         $this->rank_labels = array();
         if($r = Rank::find('kingdom')) $this->rank_labels[$r] = 'kingdom';
+        if($r = Rank::find('regn.')) $this->rank_labels[$r] = 'kingdom';
         if($r = Rank::find('phylum')) $this->rank_labels[$r] = 'phylum';
+        if($r = Rank::find('phyl.')) $this->rank_labels[$r] = 'phylum';
         if($r = Rank::find('class')) $this->rank_labels[$r] = 'class';
+        if($r = Rank::find('cl.')) $this->rank_labels[$r] = 'class';
         if($r = Rank::find('order')) $this->rank_labels[$r] = 'order';
+        if($r = Rank::find('ord.')) $this->rank_labels[$r] = 'order';
         if($r = Rank::find('family')) $this->rank_labels[$r] = 'family';
+        if($r = Rank::find('fam.')) $this->rank_labels[$r] = 'family';
+        if($r = Rank::find('f.')) $this->rank_labels[$r] = 'family';
         if($r = Rank::find('genus')) $this->rank_labels[$r] = 'genus';
+        if($r = Rank::find('gen.')) $this->rank_labels[$r] = 'genus';
         if($r = Rank::find('species')) $this->rank_labels[$r] = 'species';
+        if($r = Rank::find('sp.')) $this->rank_labels[$r] = 'species';
     }
     
     public function index($hierarchy_id = NULL, $optimize = true)

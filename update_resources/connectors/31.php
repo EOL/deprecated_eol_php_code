@@ -90,6 +90,10 @@ $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml"))
+{
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=$resource->id");
+}
 
 
 

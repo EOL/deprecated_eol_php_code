@@ -22,6 +22,7 @@ foreach($connectors as $file)
     if($resource->id==15) continue; // Flickr
     if($resource->id==71) continue; // Wikimedia Commons
     if($resource->id==80) continue; // Wikipedia
+    if($resource->id==31) continue; // BioPix
     
     echo "$file...\n";
     shell_exec(PHP_BIN_PATH . dirname(__FILE__) . "/connectors/". $file." ENV_NAME=slave");

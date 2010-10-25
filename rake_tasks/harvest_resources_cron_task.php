@@ -12,7 +12,7 @@ Functions::log("Starting harvesting");
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    //if($resource->id == 15) continue;
+    if($resource->id == 31) continue;
     
     echo $resource->id."\n";
     
@@ -51,7 +51,7 @@ shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php ENV_NAME=". $G
 
 if($GLOBALS['ENV_NAME']=='production')
 {
-    shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/taxon_concept_index.php ENV_NAME=slave");
+    shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/taxon_concept_index.php ENV_NAME=slave > /dev/null 2>/dev/null &");
 }
 
 ?>

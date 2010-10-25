@@ -17,7 +17,7 @@ if(!$start_id && !$end_id)
 
 
 $nametag = new NameTag('');
-if($end_id) $result = $GLOBALS['db_connection']->query("SELECT id, description FROM data_objects WHERE description!='' AND (visibility_id=".Visibility::find('preview')." OR (visibility_id=".Visibility::find('visible')." AND published=1)) AND id BETWEEN $start_id AND $end_id");
+if($end_id) $result = $GLOBALS['db_connection']->query("SELECT id, description FROM data_objects WHERE description!='' AND (visibility_id=".Visibility::find('preview')." OR (visibility_id=".Visibility::find('visible')." AND published=1)) AND id BETWEEN $start_id AND $end_id AND description_linked IS NULL");
 else $result = $GLOBALS['db_connection']->query("SELECT id, description FROM data_objects WHERE id=$start_id");
 
 $i = 0;

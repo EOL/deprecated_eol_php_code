@@ -147,7 +147,7 @@ class TopImages
         
         $start = 0;
         $stop = 0;
-        $batch_size = 30000;
+        $batch_size = 15000;
         
         $result = $this->mysqli->query("SELECT MIN(he.taxon_concept_id) min, MAX(he.taxon_concept_id) max FROM $select_table_name ti JOIN hierarchy_entries he ON (ti.hierarchy_entry_id=he.id)");
         if($result && $row=$result->fetch_assoc())
