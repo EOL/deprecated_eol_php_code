@@ -1,7 +1,7 @@
 <?php
-//exit; 
+exit; 
 /* connector for Turbellarian
-estimated execution time: 2 hrs.
+estimated execution time: 18 hrs.
 This connector gets data from website and rank information from a csv file.
 */
 
