@@ -38,7 +38,6 @@ class TurbellarianAPI
     function compile_taxon_urls()
     {
         $limit=13998; 
-        $limit=6; 
         $urls=array();
         for ($i=2; $i<=$limit; $i++){$urls[] = TAXON_URL . $i;}        
 
@@ -106,7 +105,10 @@ class TurbellarianAPI
             {
                 foreach($row as $r)
                 {
-                    if( is_numeric(stripos($r,"diagnosis")) || is_numeric(stripos($r,"fig. avail.")) )
+                    if( is_numeric(stripos($r,"diagnosis"))     || 
+                        is_numeric(stripos($r,"fig. avail."))   ||
+                        is_numeric(stripos($r,"dist'n"))        
+                      )
                     {$final[]=$row;}                        
                 }    
             }        
@@ -123,7 +125,7 @@ class TurbellarianAPI
     
     function prepare_access($arr)
     {   
-        $taxon=""; $author=""; $diagnosis_href=""; $images_href=""; $literature_href="";   
+        $taxon=""; $author=""; $diagnosis_href=""; $images_href=""; $literature_href=""; $distribution_href="";   
         $i=0;
         $records = sizeof($arr);
         foreach($arr as $r)
@@ -131,22 +133,23 @@ class TurbellarianAPI
             $r = str_ireplace("|","&",$r);
             if($i==0)$taxon  = trim(strip_tags($r));
             if($i==1)$author = trim(strip_tags($r));
+         
             if( is_numeric(stripos($r,"diagnosis")) )
             {
-                $temp = strip_tags($r,"<a>");$href="";
                 if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches))$diagnosis_href = CP_DOMAIN . $matches[1];
             }            
             if( is_numeric(stripos($r,"fig. avail.")) )
             {
-                $temp = strip_tags($r,"<a>");$href="";
                 if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches))$images_href = CP_DOMAIN . $matches[1];
             }
             if( is_numeric(stripos($r,"literature")) )
             {
-                $temp = strip_tags($r,"<a>");$href="";
                 if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches))$literature_href = CP_DOMAIN . $matches[1];
             }            
-
+            if( is_numeric(stripos($r,"dist'n")) )
+            {
+                if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches))$distribution_href = CP_DOMAIN . $matches[1];
+            }                        
             $i++;
         }
         return array("taxon"        =>$taxon, 
@@ -154,6 +157,7 @@ class TurbellarianAPI
                      "diagnosis"    =>$diagnosis_href,
                      "images"       =>$images_href,
                      "literature"   =>$literature_href,
+                     "distribution" =>$distribution_href,
                      "source_url"   =>$arr[$records-1]
                     );                
                     
@@ -174,8 +178,34 @@ class TurbellarianAPI
         $agent[]=array("role" => "compiler" , "homepage" => "http://turbellaria.umaine.edu/" , "name" => "Louise Bush");        
         
         $taxa_arr=self::prepare_access($url);
+        
         $sciname = $taxa_arr["taxon_author"];
         $species_page_url = $taxa_arr["source_url"];        
+
+        //dist'n start =================================================================                
+        if($taxa_arr["distribution"])
+        {
+            $html = Functions::get_remote_file_fake_browser($taxa_arr["distribution"]);
+            $html = utf8_decode($html);
+            $arr = self::prepare_distribution($html);                        
+            $distribution     = $arr[0];
+            $distribution_ref = $arr[1];
+
+            $mimeType   = "text/html";
+            $dataType   = "http://purl.org/dc/dcmitype/Text";
+            $dc_source  = $taxa_arr["distribution"];
+            $license    = "http://creativecommons.org/licenses/by-nc-sa/2.0/";
+            $mediaURL   = "";
+            $description = $distribution;
+            $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
+            if($distribution)
+            {
+                $arr_texts["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$distribution_ref);
+            }            
+        }        
+
+        //dist'n end =================================================================
+
 
         //photos start =================================================================
         if($taxa_arr["images"])
@@ -214,13 +244,22 @@ class TurbellarianAPI
                 $license    = "http://creativecommons.org/licenses/by-nc-sa/2.0/";
                 $mediaURL   = $img;                                
                 $description = ''; $subject="";
-                $arr_photos["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent);
+                $arr_photos["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,array());
             }            
         }        
         //photos end =================================================================
         
-        //diagnosis start =================================================================        
-        
+        //text start references =================================================================
+        $arr_ref=array();
+        if($taxa_arr["literature"])
+        {
+            $html = Functions::get_remote_file_fake_browser($taxa_arr["literature"]);
+            $html = utf8_decode($html);            
+            $arr_ref = self::prepare_reference($html);
+        }
+        //text end references =================================================================        
+
+        //diagnosis start =================================================================                
         if($taxa_arr["diagnosis"])
         {
             $html = Functions::get_remote_file_fake_browser($taxa_arr["diagnosis"]);
@@ -242,20 +281,10 @@ class TurbellarianAPI
             $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription";
             if($diagnosis)
             {
-                $arr_texts["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent);
+                $arr_texts["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$arr_ref);
             }            
         }        
-        //diagnosis end =================================================================
-        
-        //text start references =================================================================
-        $arr_ref=array();
-        if($taxa_arr["literature"])
-        {
-            $html = Functions::get_remote_file_fake_browser($taxa_arr["literature"]);
-            $html = utf8_decode($html);            
-            $arr_ref = self::prepare_reference($html);
-        }
-        //text end references =================================================================        
+        //diagnosis end =================================================================        
                 
         $arr_sciname["$sciname"]=$species_page_url;                       
         foreach(array_keys($arr_sciname) as $sci)
@@ -276,7 +305,7 @@ class TurbellarianAPI
         return $arr_scraped;        
     }
 
-    function prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent)
+    function prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$reference)
     {
         return array(
                     "identifier"    =>"",
@@ -291,7 +320,8 @@ class TurbellarianAPI
                     "dc_source"     =>$dc_source,
                     "agent"         =>$agent,
                     "subject"       =>$subject,
-                    "license"       =>$license
+                    "license"       =>$license,
+                    "reference"     =>$reference
                     );                                        
     }
     
@@ -308,16 +338,70 @@ class TurbellarianAPI
         return $mimetype;
     }    
     
+    function prepare_distribution($html)
+    {
+        $html = self::clean_str($html);
+        $html = str_ireplace("&" , "|", $html);	
+        $dist=array();
+        $unique_ref=array();
+        if(preg_match("/<th>reference<\/th>(.*?)<\/table>/ims", $html, $matches))
+        {
+            $html = $matches[1];            
+            $html = str_ireplace("<tr>" , "&arr[]=", $html);	
+            $arr = array(); parse_str($html);	                        
+            foreach($arr as $r)
+            {                  
+                $r = str_ireplace("<td>" , "&arr2[]=", $r);	
+                $arr2 = array(); parse_str($r);	                                                
+                $arr_ref=array();
+                if(preg_match("/href=\"(.*?)\"/ims", $arr2[10], $matches)) 
+                {
+                    $ref_href = str_ireplace("|","&",CP_DOMAIN . $matches[1]);
+                    $html = Functions::get_remote_file_fake_browser($ref_href);
+                    $html = utf8_decode($html);            
+                    $dist_ref = self::prepare_distribution_reference($html);                    
+                }                
+                $temp=ucfirst(strip_tags($arr2[1]));
+                $dist[$temp]=array("dist"=>$temp,"ref"=>$dist_ref);
+                $unique_ref[$ref_href]=$dist_ref;
+            }              
+        }        
+        
+        $str="";
+        if($dist)
+        {
+            $str="<table>";        
+            foreach(array_keys($dist) as $d)
+            {
+                $str.="<tr valign='top'><td>$d</td><td>&nbsp;</td><td>Ref.: " . @$dist[$d]["ref"] . "</td></tr><tr><td>&nbsp;</td></tr>";                                
+            }
+            $str.="</table>";
+        }
+                
+        $refs=array();
+        foreach(array_keys($unique_ref) as $href){$refs[]=array("url"=>$href, "ref"=>$unique_ref[$href]);}        
+        return array($str,$refs);
+    }        
+    
+    function prepare_distribution_reference($html)
+    {
+        $html = self::clean_str($html);
+        $html = str_ireplace("Return to taxon listing","",$html);
+        $html = str_ireplace("&" , "|", $html);	
+        $html = str_ireplace("<td>" , "&arr[]=", $html);	
+        $arr = array(); parse_str($html);
+        return strip_tags("$arr[0] $arr[1]. $arr[3] " . trim($arr[4]));
+    }
+
     function prepare_reference($html)
     {
         $html = self::clean_str($html);
-        $html = str_ireplace(array("<td><b>Primary authority:</b></td>","<td>other taxonomic work:</td>","<td>latest authority:</td>"), "", $html);			        
+        $html = str_ireplace(array("<td><b>Primary authority:</b></td>","<td>other taxonomic work:</td>","<td>latest authority:</td>"), "", $html);			                
         $refs=array();
         if(preg_match("/<table border alt=\"table of references\">(.*?)<\/table>/ims", $html, $matches))
         {
             $html = $matches[1];
-            $html = str_ireplace('</td>' , ', ',$html);            
-            
+            $html = str_ireplace('</td>' , ', ',$html);                        
             $html = strip_tags($html,"<tr>");
             $html = str_ireplace("<tr>" , "&arr[]=", $html);	
             $arr = array(); parse_str($html);	                        
@@ -346,13 +430,13 @@ class TurbellarianAPI
         $taxon["class"] = ucfirst(trim($rec["class"]));
         $taxon["order"] = ucfirst(trim($rec["order"]));
         $taxon["family"] = ucfirst(trim($rec["family"]));        
-        if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"],@$taxon["dataObjects"],array());
-        if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"],$rec["references"]);        
+        if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"],@$taxon["dataObjects"]);
+        if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"]);        
         $taxon_object = new SchemaTaxon($taxon);
         return $taxon_object;
     }
     
-    function prepare_objects($arr,$taxon_dataObjects,$references)
+    function prepare_objects($arr,$taxon_dataObjects)
     {
         $arr_SchemaDataObject=array();        
         if($arr)
@@ -363,8 +447,7 @@ class TurbellarianAPI
             foreach($arr as $rec)
             {
                 $i++;
-                if($length == $i)$arr_ref = $references;
-                $data_object = self::get_data_object($rec,$arr_ref);
+                $data_object = self::get_data_object($rec);
                 if(!$data_object) return false;
                 $taxon_dataObjects[]= new SchemaDataObject($data_object);                     
             }
@@ -372,25 +455,25 @@ class TurbellarianAPI
         return $taxon_dataObjects;
     }
     
-    function get_data_object($rec,$references)
+    function get_data_object($rec)
     {
         $data_object_parameters = array();
-        $data_object_parameters["identifier"] = $rec["identifier"];        
-        $data_object_parameters["source"] = $rec["dc_source"];        
-        $data_object_parameters["dataType"] = $rec["dataType"];
-        $data_object_parameters["mimeType"] = @$rec["mimeType"];
-        $data_object_parameters["mediaURL"] = @$rec["mediaURL"];        
-        $data_object_parameters["rights"] = @$rec["rights"];
+        $data_object_parameters["identifier"]   = $rec["identifier"];        
+        $data_object_parameters["source"]       = $rec["dc_source"];        
+        $data_object_parameters["dataType"]     = $rec["dataType"];
+        $data_object_parameters["mimeType"]     = @$rec["mimeType"];
+        $data_object_parameters["mediaURL"]     = @$rec["mediaURL"];        
+        $data_object_parameters["rights"]       = @$rec["rights"];
         $data_object_parameters["rightsHolder"] = @$rec["rights_holder"];        
-        $data_object_parameters["title"] = @$rec["title"];
-        $data_object_parameters["description"] = utf8_encode($rec["description"]);
-        $data_object_parameters["location"] = utf8_encode($rec["location"]);        
-        $data_object_parameters["license"] = @$rec["license"];
+        $data_object_parameters["title"]        = @$rec["title"];
+        $data_object_parameters["description"]  = utf8_encode($rec["description"]);
+        $data_object_parameters["location"]     = utf8_encode($rec["location"]);        
+        $data_object_parameters["license"]      = @$rec["license"];
 
         //start reference
         $data_object_parameters["references"] = array();        
         $ref=array();
-        foreach($references as $r)
+        foreach($rec["reference"] as $r)
         {
             if(!$r["ref"])continue;
             $referenceParameters = array();
