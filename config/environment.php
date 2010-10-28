@@ -1,7 +1,7 @@
 <?php
 
 /* best to leave the PHP settings at the top in case they are overridden in another environment */
-ini_set('memory_limit', '50M');
+ini_set('memory_limit', '1000M');
 ini_set('max_execution_time', '360');
 
 /* Default Environment */
@@ -23,7 +23,7 @@ require_once(dirname(__FILE__) . '/boot.php');
 
 
 /* the 'default' hierarchy - the one which gets matched to new taxa first */
-if(!defined('DEFAULT_HIERARCHY_LABEL')) define('DEFAULT_HIERARCHY_LABEL', 'Species 2000 & ITIS Catalogue of Life: Annual Checklist 2009');
+if(!defined('DEFAULT_HIERARCHY_LABEL')) define('DEFAULT_HIERARCHY_LABEL', 'Species 2000 & ITIS Catalogue of Life: Annual Checklist 2010');
 
 
 /* MEMCACHED */
@@ -64,10 +64,14 @@ if(!defined('CONTENT_IMAGE_SMALL'))         define('CONTENT_IMAGE_SMALL',       
 /* table data which will not get cached - there are too many rows */
 $GLOBALS['no_cache']['agents']              = true;
 $GLOBALS['no_cache']['canonical_forms']     = true;
+$GLOBALS['no_cache']['content_partners']    = true;
 $GLOBALS['no_cache']['data_objects']        = true;
+$GLOBALS['no_cache']['harvest_events']      = true;
+$GLOBALS['no_cache']['hierarchies']         = true;
 $GLOBALS['no_cache']['hierarchy_entries']   = true;
 $GLOBALS['no_cache']['name_languages']      = true;
 $GLOBALS['no_cache']['names']               = true;
+$GLOBALS['no_cache']['resources']           = true;
 $GLOBALS['no_cache']['synonyms']            = true;
 $GLOBALS['no_cache']['taxa']                = true;
 $GLOBALS['no_cache']['taxon_concept_names'] = true;
