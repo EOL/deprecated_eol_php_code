@@ -97,9 +97,9 @@ class DenormalizeTables
         // $GLOBALS['db_connection']->delete("TRUNCATE TABLE taxon_concepts_exploded_tmp");
         
         # TODO - dont hardcode IDs
-        $hierarchies_to_ignore = array(399,105,106,129);
+        $hierarchies_to_ignore = array(147,399,105,106,129,394);
         
-        // do the small ones first
+        // do the big ones first
         $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count DESC");
         //$result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id FROM hierarchies h");
         while($result && $row=$result->fetch_assoc())

@@ -1,5 +1,5 @@
 <?php
-define("PDF2TEXT_PROGRAM", LOCAL_ROOT . "/vendor/xpdf/pdftotext");
+define("PDF2TEXT_PROGRAM", LOCAL_ROOT . "vendor/xpdf/pdftotext");
 define("SOURCE_URL", "http://projects.bebif.be/fruitfly/taxoninfo.html?id=");
 
 class AfrotropicalAPI

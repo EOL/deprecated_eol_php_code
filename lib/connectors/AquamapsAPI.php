@@ -60,7 +60,8 @@ class AquamapsAPI
         $ctr=0; $total=sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)
         {
-            $ctr++; print"$ctr of $total \n";
+            $ctr++; 
+            //print"$ctr of $total \n";
             if(substr($rec->SPECIESID,0,3)=="Fis")$source_dbase_link = "<a target='$rec->SpecCode' href='" . FISHBASE_URL . $rec->SpecCode . "'>FishBase</a>";
             else                                  $source_dbase_link = "<a target='$rec->SpecCode' href='" . SEALIFEBASE_URL . $rec->SpecCode . "'>SeaLifeBase</a>";
             
