@@ -44,6 +44,7 @@ class TurbellarianAPI
         $final=array();            
         foreach($urls as $url)
         {
+            print"$url \n";
             $html = self::clean_str(Functions::get_remote_file_fake_browser($url));                
             $html = utf8_decode($html);            
             $html = trim(str_ireplace('<td> </td>' , "", $html));                                                
@@ -359,10 +360,12 @@ class TurbellarianAPI
                     $ref_href = str_ireplace("|","&",CP_DOMAIN . $matches[1]);
                     $html = Functions::get_remote_file_fake_browser($ref_href);
                     $html = utf8_decode($html);            
-                    $dist_ref = self::prepare_distribution_reference($html);                    
+                    $temp_arr = self::prepare_distribution_reference($html);                    
+                    $dist_ref       = $temp_arr[0];
+                    $dist_ref_short = $temp_arr[1];                    
                 }                
                 $temp=ucfirst(strip_tags($arr2[1]));
-                $dist[$temp]=array("dist"=>$temp,"ref"=>$dist_ref);
+                $dist[$temp]=array("dist"=>$temp,"ref"=>$dist_ref,"ref_short"=>$dist_ref_short);
                 $unique_ref[$ref_href]=$dist_ref;
             }              
         }        
@@ -373,7 +376,7 @@ class TurbellarianAPI
             $str="<table>";        
             foreach(array_keys($dist) as $d)
             {
-                $str.="<tr valign='top'><td>$d</td><td>&nbsp;</td><td>Ref.: " . @$dist[$d]["ref"] . "</td></tr><tr><td>&nbsp;</td></tr>";                                
+                $str.="<tr valign='top'><td>$d</td><td>&nbsp;</td><td>Ref.: " . @$dist[$d]["ref_short"] . "</td></tr><tr><td>&nbsp;</td></tr>";                                
             }
             $str.="</table>";
         }
@@ -390,7 +393,10 @@ class TurbellarianAPI
         $html = str_ireplace("&" , "|", $html);	
         $html = str_ireplace("<td>" , "&arr[]=", $html);	
         $arr = array(); parse_str($html);
-        return strip_tags("$arr[0] $arr[1]. $arr[3] " . trim($arr[4]));
+        return array(
+                        strip_tags("$arr[0] $arr[1]. $arr[3] " . trim($arr[4])),
+                        strip_tags("$arr[0] $arr[1]" )
+                    );                            
     }
 
     function prepare_reference($html)
