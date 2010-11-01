@@ -3,6 +3,9 @@ exit;
 /* connector for Turbellarian
 estimated execution time: 18 hrs.
 This connector gets data from website and rank information from a csv file.
+
+as of       records
+Oct 1 2010  17492
 */
 
 $timestart = microtime(1);
