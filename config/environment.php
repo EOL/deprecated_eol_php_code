@@ -49,13 +49,22 @@ require_vendor('darwincore');
 
 
 /* For content downloading */
+# where content partner logos will be downloaded to (mnust be web accessible)
 if(!defined('CONTENT_PARTNER_LOCAL_PATH'))  define('CONTENT_PARTNER_LOCAL_PATH',    DOC_ROOT . 'applications/content_server/content_partners/');
+# where harvested media will be downloaded to (mnust be web accessible)
 if(!defined('CONTENT_LOCAL_PATH'))          define('CONTENT_LOCAL_PATH',            DOC_ROOT . 'applications/content_server/content/');
+# where harvested media will eb temporarily stored before being moved the above directory
 if(!defined('CONTENT_TEMP_PREFIX'))         define('CONTENT_TEMP_PREFIX',           DOC_ROOT . 'applications/content_server/tmp/');
+# where resource XML files will be downloaded to
 if(!defined('CONTENT_RESOURCE_LOCAL_PATH')) define('CONTENT_RESOURCE_LOCAL_PATH',   DOC_ROOT . 'applications/content_server/resources/');
 if(!defined('CONTENT_GNI_RESOURCE_PATH'))   define('CONTENT_GNI_RESOURCE_PATH',     DOC_ROOT . 'applications/content_server/gni_tcs_files/');
+# the default large/small size of content partner logos - larger versions will be scaled to this size using ImageMagick
 if(!defined('PARTNER_LOGO_LARGE'))          define('PARTNER_LOGO_LARGE',            '100x100');
 if(!defined('PARTNER_LOGO_SMALL'))          define('PARTNER_LOGO_SMALL',            '60x60');
+# the default sizes of downloaded images - larger versions will be scaled to this size using ImageMagick
+# large - used on species pages
+# medium - used on the homepage rotating images
+# small - used as thumbnails on species pages
 if(!defined('CONTENT_IMAGE_LARGE'))         define('CONTENT_IMAGE_LARGE',           '460x345');
 if(!defined('CONTENT_IMAGE_MEDIUM'))        define('CONTENT_IMAGE_MEDIUM',          '147x147');
 if(!defined('CONTENT_IMAGE_SMALL'))         define('CONTENT_IMAGE_SMALL',           '62x47');
