@@ -10,38 +10,43 @@
  • (optional) Memcached
 
 
-
 === Installation
 
 There are a few things you must do before using this code:
 
-1. Give write permission for the following directories to your web server user:
+ • Install the PHP PEAR package Horde/YAML
+   first install PEAR if not aleardy installed
+       http://pear.php.net/manual/en/installation.introduction.php
+   with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
+       pear channel-discover pear.horde.org
+       pear install horde/yaml
+
+ • Update in /config/environment.php the constants for:
+    WEB_ROOT        - eg: 'http://localhost/eol_php_code/'
+    PHP_BIN_PATH    - eg: '/usr/local/bin/php '  -----> NOTE: THE SPACE AFTER php IS IMPORTANT
+    MAGICK_HOME     - eg: '/usr/local/ImageMagick/'
+
+ • In /config/environment.php check the values of:
+    CONTENT_PARTNER_LOCAL_PATH
+    CONTENT_LOCAL_PATH
+    CONTENT_RESOURCE_LOCAL_PATH
+    These are the locations where media will be downloaded to for viewing on the website
+
+ • Give write permission for the following directories to your web server user:
     /temp
     /applications/content_server/content
     /applications/content_server/content_partners
     /applications/content_server/resources
     /applications/content_server/tmp
 
-2. Update in /config/environment.php the constants for:
-    WEB_ROOT        - eg: 'http://localhost/eol_php_code/'
-    PHP_BIN_PATH    - eg: '/usr/local/bin/php '  -----> NOTE: THE SPACE AFTER php IS IMPORTANT
-    MAGICK_HOME     - eg: '/usr/local/ImageMagick/'
-
-3. In same file uncomment the Memcached connection if you prefer:
+ • In same file uncomment the Memcached connection if you prefer:
     $GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
 
-4. Create other files in /config/environments/ENV_NAME.php:
+ • Create other files in /config/environments/ENV_NAME.php:
     these environment files will be loaded when boot.php is included,
     which is towards the TOP of environment.php
 
-5. Install the PHP PEAR package Horde/YAML
-    first install PEAR if not aleardy installed
-        http://pear.php.net/manual/en/installation.introduction.php
-    with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
-        pear channel-discover pear.horde.org
-        pear install horde/yaml
-
-6. Run the tests and make sure they all pass
+ • Run the tests and make sure they all pass
     see the Test section for more information
 
 
@@ -62,7 +67,6 @@ The default environment can be overridden by:
     
     calling a command line script and including the argument:
         > php script.php ENV_NAME=$ENVIRONMENT
-
 
 
 === Tests
@@ -86,3 +90,46 @@ Fixture data is turned into mock objects which can be accessed within tests as s
     e.g. $this->fixtures->agents->me->id
 
 
+=== Connecting Harvesting with eol.org Ruby on Rails codebase
+
+This PHP codebase was designed to compliment the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol). The PHP code
+is used almost entirely for harvesting content, inserting harvested content and associated metadata into the database, and working
+out differences among taxonomies so we can present all content for a single species on a single EOL page. The Rails code is used almost
+entirely for presenting the content to the world, and providing interfaces for curators to cast judgement on the validity of the content
+EOL is presenting.
+
+In order to have the website and harvesting code working together there are a few configuration options that need to be set:
+ • The config/database.yml in this codebase must be configured to connect to the same MASTER database that the Rails codebase is. This codebase will connect to the eol_data_$ENVIRONMENT database which is one of three databases that the Rails codebase connects to.
+ • In the Rails codebase there are several /config/environment/$ENVIRONMENT.rb config files. For any enviornment that you want to be connected with the PHP code base you must change a few variables:
+   # the domain of the server running the PHP code
+   $CONTENT_SERVERS = ['http://localhost']
+   
+   # corresponds to CONTENT_LOCAL_PATH - the path on the PHP server where media will be downloaded
+   $CONTENT_SERVER_CONTENT_PATH = "/.../content/"
+   
+   # corresponds to CONTENT_RESOURCE_LOCAL_PATH - the path on the PHP server where resources will be downloaded
+   $CONTENT_SERVER_RESOURCES_PATH = "/.../resources/"
+   
+   # corresponds to CONTENT_PARTNER_LOCAL_PATH - the path on the PHP server where content partner logos will be stored
+   $CONTENT_SERVER_AGENT_LOGOS_PATH = "/.../content_partners/"
+   
+   # the full URL to the PHP server to /applications/content_server/service.php which is used by the website to send uploads of content partner logos and resource XML files
+   $WEB_SERVICE_BASE_URL="http://localhost/eol_php_code/applications/content_server/service.php?"
+
+
+=== Scheduled Tasks
+
+Once connected with the Rails codebase, there are a few scheduled tasks we run to ensure that harvesting is happening every day and the 
+website has the data it need to present species pages efficiently:
+
+# every hour on the hour reset permissions on important files
+0 * * * * /data/www/eol_php_code/rake_tasks/permissions
+
+# 1pm download resource files that have connectors
+00 13 * * * /usr/local/bin/php /data/www/eol_php_code/update_resources/update_connector_resources.php > /dev/null
+
+# 10.45pm download resource files that dont have connectors
+45 22 * * * /usr/local/bin/php /data/www/eol_php_code/update_resources/update_downloadable_resources.php > /dev/null
+
+# 11.20pm do harvesting
+20 23 * * * /usr/local/bin/php /data/www/eol_php_code/rake_tasks/harvest_resources_cron_task.php > /dev/null
