@@ -43,7 +43,7 @@ class DataObjectAncestriesIndexer
     private function lookup_objects($start, $limit)
     {
         echo "\nquerying objects ($start, $limit)\n";
-        $outfile = $this->mysqli->select_into_outfile("SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at), description FROM data_objects WHERE id BETWEEN $start AND ".($start+$limit)." AND (published=1 OR visibility_id!=".Visibility::find('visible').")");
+        $outfile = $this->mysqli->select_into_outfile("SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE id BETWEEN $start AND ".($start+$limit)." AND (published=1 OR visibility_id!=".Visibility::find('visible').")");
         echo "done querying objects\n";
         
         $last_data_object_id = 0;
@@ -53,7 +53,7 @@ class DataObjectAncestriesIndexer
             if($line = fgets($RESULT, 4096))
             {
                 $line = rtrim($line, "\n");
-                if(preg_match("/^([0-9]+)\t([0-9a-z]{32})\t([0-9])\t([0-9])\t([0-9])\t([0-9])\t(.*?)\t(.*?)\t(.*)$/ims", $line, $parts))
+                if(preg_match("/^([0-9]+)\t([0-9a-z]{32})\t([0-9])\t([0-9])\t([0-9])\t([0-9])\t(.*?)\t(.*?)$/ims", $line, $parts))
                 {
                     $id = $parts[1];
                     $guid = $parts[2];
@@ -63,7 +63,7 @@ class DataObjectAncestriesIndexer
                     $published = $parts[6];
                     $data_rating = $parts[7];
                     $created_at = $parts[8];
-                    $description = str_replace("|", " ", SolrApi::text_filter($parts[9]));
+                    //$description = str_replace("|", " ", SolrApi::text_filter($parts[9]));
                     
                     $this->objects[$id]['guid'] = $guid;
                     $this->objects[$id]['data_type_id'] = $data_type_id;

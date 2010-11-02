@@ -5,7 +5,7 @@ require_library('connectors/AfrotropicalAPI');
 class test_connector_afrotropical_api extends SimpletestUnitBase
 {
     function testAfrotropicalAPI()
-    {}
+    {
         $url = "http://pandanus.eol.org/public/test_resources/EOLexportFruitfly_fixed_4test.xml";
         
         $arr = AfrotropicalAPI::get_afrotropical_taxa($url,array());
