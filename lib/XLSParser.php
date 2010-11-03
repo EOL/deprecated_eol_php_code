@@ -4,7 +4,7 @@ class XLSParser
     public function convert_sheet_to_array($spreadsheet,$sheet=NULL,$startRow=NULL)
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';        
-        $ext = end(explode('.', $spreadsheet));
+        $ext = strtolower(end(explode('.', $spreadsheet)));
         if    ($ext == "xls") $objReader = PHPExcel_IOFactory::createReader('Excel5');
         elseif($ext == "xlsx")$objReader = PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response        
         elseif($ext == "csv") $objReader = new PHPExcel_Reader_CSV();
