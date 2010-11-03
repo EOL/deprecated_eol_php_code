@@ -1343,6 +1343,27 @@ class Functions
         if($return) return $str;
         echo $str;
     }
+
+    /* Given the file path, get the MIME type */
+    public static function get_mimetype($file_path)
+    {
+        $path_info = pathinfo($file_path);
+        $extension = strtolower($path_info['extension']);                                                
+        $mimetype="";
+        $mpg=array("mpg","mpeg");        
+        if      ($extension == "wmv")         $mimetype="video/x-ms-wmv";
+        elseif  ($extension == "avi")         $mimetype="video/x-msvideo";        
+        elseif  ($extension == "mp4")         $mimetype="video/mp4";
+        elseif  ($extension == "mov")         $mimetype="video/quicktime";
+        elseif  (in_array($extension, $mpg))  $mimetype="video/mpeg";
+        elseif  ($extension == "flv")         $mimetype="video/x-flv";                
+        elseif  ($extension == "gif")         $mimetype="image/gif";        
+        elseif  ($extension == "jpg")         $mimetype="image/jpeg";        
+        return $mimetype;
+    }    
+
+
+
 }
 
 ?>
