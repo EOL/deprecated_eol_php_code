@@ -200,16 +200,16 @@ class ContentManager
     
     function create_content_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
     {
-        shell_exec("convert $file -strip -quality 80 ".$prefix."_orig.jpg");
-        shell_exec("convert $file -strip -resize ".$large_thumbnail_dimensions."\">\" ".$prefix."_large.jpg");
-        shell_exec("convert $file -strip -resize ".CONTENT_IMAGE_MEDIUM."\">\" ".$prefix."_medium.jpg");
-        shell_exec("convert $file -strip -resize ".CONTENT_IMAGE_SMALL."\">\" ".$prefix."_small.jpg");
+        shell_exec("convert $file -strip -background white -flatten -quality 80 ".$prefix."_orig.jpg");
+        shell_exec("convert $file -strip -background white -flatten -resize ".$large_thumbnail_dimensions."\">\" ".$prefix."_large.jpg");
+        shell_exec("convert $file -strip -background white -flatten -resize ".CONTENT_IMAGE_MEDIUM."\">\" ".$prefix."_medium.jpg");
+        shell_exec("convert $file -strip -background white -flatten -resize ".CONTENT_IMAGE_SMALL."\">\" ".$prefix."_small.jpg");
     }
     
     function create_agent_thumbnails($file, $prefix)
     {
-        echo shell_exec("convert $file -resize ".PARTNER_LOGO_LARGE."\">\" ".$prefix."_large.png");
-        echo shell_exec("convert $file -resize ".PARTNER_LOGO_SMALL."\">\" ".$prefix."_small.png");
+        echo shell_exec("convert $file -background white -flatten -resize ".PARTNER_LOGO_LARGE."\">\" ".$prefix."_large.png");
+        echo shell_exec("convert $file -background white -flatten -resize ".PARTNER_LOGO_SMALL."\">\" ".$prefix."_small.png");
     }
     
     function new_partner_file_name()
