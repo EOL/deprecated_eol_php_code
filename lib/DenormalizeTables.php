@@ -97,7 +97,8 @@ class DenormalizeTables
         // $GLOBALS['db_connection']->delete("TRUNCATE TABLE taxon_concepts_exploded_tmp");
         
         # TODO - dont hardcode IDs
-        $hierarchies_to_ignore = array(147,399,105,106,129,394);
+        # COL 2007, 2008, Flickr, GBIF, COL 2009, BioLib.cz, Indiana Dunes
+        $hierarchies_to_ignore = array(105,106,114,129,147,394,399);
         
         // do the big ones first
         $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count DESC");
@@ -125,6 +126,87 @@ class DenormalizeTables
         $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT he.taxon_concept_id, he_parent.taxon_concept_id FROM hierarchy_entries he LEFT JOIN hierarchy_entries he_parent ON (he.parent_id=he_parent.id) LEFT JOIN taxon_concepts_exploded tcx ON (he.taxon_concept_id=tcx.parent_id AND tcx.taxon_concept_id=he_parent.taxon_concept_id) WHERE he.hierarchy_id=$id AND tcx.taxon_concept_id IS NULL");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_exploded_tmp');
         unlink($outfile);
+    }
+    
+    public static function flatten_hierarchies()
+    {
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `hierarchy_entries_flattened_tmp`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `hierarchy_entries_flattened_tmp` (
+                  `hierarchy_entry_id` int unsigned NOT NULL,
+                  `ancestor_id` int unsigned NOT NULL,
+                  PRIMARY KEY (`hierarchy_entry_id`, `ancestor_id`),
+                  KEY `ancestor_id` (`ancestor_id`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+        $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS hierarchy_entries_flattened LIKE hierarchy_entries_flattened_tmp");
+        
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `taxon_concepts_flattened_tmp`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `taxon_concepts_flattened_tmp` (
+                  `taxon_concept_id` int unsigned NOT NULL,
+                  `ancestor_id` int unsigned NOT NULL,
+                  PRIMARY KEY (`taxon_concept_id`, `ancestor_id`),
+                  KEY `ancestor_id` (`ancestor_id`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+        $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS taxon_concepts_flattened LIKE taxon_concepts_flattened_tmp");
+        
+        $he_tmp_file_path = temp_filepath();
+        $HE_OUTFILE = fopen($he_tmp_file_path, "w+");
+        $tc_tmp_file_path = temp_filepath();
+        $TC_OUTFILE = fopen($tc_tmp_file_path, "w+");
+        self::flatten_hierarchies_recursive(0, array(), array(), $HE_OUTFILE, $TC_OUTFILE);
+        fclose($HE_OUTFILE);
+        fclose($TC_OUTFILE);
+        
+        $GLOBALS['db_connection']->load_data_infile($he_tmp_file_path, 'hierarchy_entries_flattened_tmp');
+        unlink($he_tmp_file_path);
+        $GLOBALS['db_connection']->load_data_infile($tc_tmp_file_path, 'taxon_concepts_flattened_tmp');
+        unlink($tc_tmp_file_path);
+        
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM hierarchy_entries_flattened_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $GLOBALS['db_connection']->swap_tables("hierarchy_entries_flattened", "hierarchy_entries_flattened_tmp");
+        }
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM taxon_concepts_flattened_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $GLOBALS['db_connection']->swap_tables("taxon_concepts_flattened", "taxon_concepts_flattened_tmp");
+        }
+    }
+    
+    public static function flatten_hierarchies_recursive($parent_id, $he_ancestors, $tc_ancestors, $HE_OUTFILE, $TC_OUTFILE)
+    {
+        static $count = 0;
+        $count++;
+        if($count%1000 == 0) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
+        
+        //if($count>=10000) exit;
+        $result = $GLOBALS['db_connection']->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) range FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN (".Visibility::find('visible').",".Visibility::find('preview').")");
+        while($result && $row=$result->fetch_assoc())
+        {
+            if($he_ancestors)
+            {
+                foreach($he_ancestors as $ancestor_he_id)
+                {
+                    fwrite($HE_OUTFILE, $row['id']."\t".$ancestor_he_id."\n");
+                }
+            }
+            if($tc_ancestors)
+            {
+                foreach($tc_ancestors as $ancestor_tc_id)
+                {
+                    fwrite($TC_OUTFILE, $row['taxon_concept_id']."\t".$ancestor_tc_id."\n");
+                }
+            }
+            // its not a leaf node
+            if($row['range'] > 1)
+            {
+                $child_he_ancestors = $he_ancestors;
+                $child_he_ancestors[] = $row['id'];
+                $child_tc_ancestors = $tc_ancestors;
+                $child_tc_ancestors[] = $row['taxon_concept_id'];
+                self::flatten_hierarchies_recursive($row['id'], $child_he_ancestors, $child_tc_ancestors, $HE_OUTFILE, $TC_OUTFILE);
+            }
+        }
     }
 }
 

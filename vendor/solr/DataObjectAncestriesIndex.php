@@ -12,14 +12,14 @@ class DataObjectAncestriesIndexer
     
     public function index()
     {
-        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'data_objects')) return false;
-        $this->solr = new SolrAPI(SOLR_SERVER, 'data_objects');
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'data_objects_swap')) return false;
+        $this->solr = new SolrAPI(SOLR_SERVER, 'data_objects_swap');
         
         $this->solr->delete_all_documents();
         
         $start = 0;
         $max_id = 0;
-        $limit = 30000;
+        $limit = 50000;
         $result = $this->mysqli->query("SELECT MIN(data_object_id) min, MAX(data_object_id) max FROM data_objects_taxon_concepts");
         if($result && $row=$result->fetch_assoc())
         {
@@ -32,18 +32,22 @@ class DataObjectAncestriesIndexer
             
             $this->lookup_objects($i, $limit);
             $this->lookup_ancestries($i, $limit);
+            $this->lookup_resources($i, $limit);
             
             if(isset($this->objects)) $this->solr->send_attributes($this->objects);
             //break;
         }
         $this->solr->optimize();
+        
+        $results = $this->solr->get_results('ancestor_id:1');
+        if($results) $this->solr->swap('data_objects_swap', 'data_objects');
     }
     
     
     private function lookup_objects($start, $limit)
     {
         echo "\nquerying objects ($start, $limit)\n";
-        $outfile = $this->mysqli->select_into_outfile("SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE id BETWEEN $start AND ".($start+$limit)." AND (published=1 OR visibility_id!=".Visibility::find('visible').")");
+        $outfile = $this->mysqli->select_into_outfile(" SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE id BETWEEN $start AND ".($start+$limit)." AND (published=1 OR visibility_id!=".Visibility::find('visible').")");
         echo "done querying objects\n";
         
         $last_data_object_id = 0;
@@ -109,6 +113,28 @@ class DataObjectAncestriesIndexer
                 
                 if($taxon_concept_id) $this->objects[$id]['ancestor_id'][$taxon_concept_id] = 1;
                 if($ancestor_id) $this->objects[$id]['ancestor_id'][$ancestor_id] = 1;
+            }
+        }
+        fclose($RESULT);
+        unlink($outfile);
+    }
+    
+    private function lookup_resources($start, $limit)
+    {
+        echo "\nquerying resources ($start, $limit)\n";
+        $outfile = $this->mysqli->select_into_outfile("SELECT dohe.data_object_id, he.resource_id FROM data_objects do JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id) JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE do.id BETWEEN $start AND ".($start+$limit)." AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")");
+        echo "done querying resources\n";
+        
+        $RESULT = fopen($outfile, "r");
+        while(!feof($RESULT))
+        {
+            if($line = fgets($RESULT, 4096))
+            {
+                $parts = explode("\t", rtrim($line, "\n"));
+                $id = $parts[0];
+                $resource_id = $parts[1];
+                
+                $this->objects[$id]['resource_id'] = $resource_id;
             }
         }
         fclose($RESULT);
