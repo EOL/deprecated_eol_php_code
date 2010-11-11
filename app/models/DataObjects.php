@@ -109,6 +109,7 @@ class DataObject extends MysqlBase
     {
         if(!$info_item_id) return false;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_info_items VALUES ($this->id, $info_item_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_table_of_contents (SELECT $this->id, toc_id FROM info_items WHERE id=$info_item_id AND toc_id!=0)");
     }
     
     public function references()
