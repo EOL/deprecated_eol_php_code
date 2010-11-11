@@ -15,7 +15,14 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows == 0, 'shouldnt be any top images');
         
         // harvest the resource and run all the denormalized tasks to test them
-        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/harvest_resources_cron_task.php ENV_NAME=test");
+        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/force_harvest.php -id $resource->id -now ENV_NAME=test");
+        
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be top images after harvesting and before denormalizing');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_concept_images LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be top concept images after harvesting and before denormalizing');
+        
+        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/denormalize_tables.php ENV_NAME=test");
         
         $this->check_content_after_harvesting($resource);
         

@@ -40,7 +40,7 @@ class DarwinCoreArchiveHarvester
     function cleanup()
     {
         // remove tmp dir
-        if($this->archive_directory) shell_exec("rm -fdr $this->archive_directory");
+        if($this->archive_directory) shell_exec("rm -fr $this->archive_directory");
     }
     
     function load_core_metadata()

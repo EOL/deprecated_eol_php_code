@@ -351,6 +351,7 @@ class HierarchyEntry extends MysqlBase
     {
         if(!$data_object_id) return 0;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries VALUES ($this->id, $data_object_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts VALUES ($this->taxon_concept_id, $data_object_id)");
     }
     
     public function unpublish_refs()

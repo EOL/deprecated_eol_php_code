@@ -296,6 +296,7 @@ class Resource extends MysqlBase
                     CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 }
                 
+                $harvest_event->insert_top_images();
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
             }
         }

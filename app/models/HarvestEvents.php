@@ -128,6 +128,30 @@ class HarvestEvent extends MysqlBase
         $this->mysqli->query("UPDATE (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) SET do_current.visibility_id = do_previous.visibility_id WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::insert('Invisible').", ".Visibility::insert('Inappropriate').")");
     }
     
+    public function insert_top_images()
+    {
+        // Published images go to top_images
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.published=1 AND do.visibility_id=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_images');
+        unlink($outfile);
+        
+        // Published images go to top_concept_images
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.published=1 AND do.visibility_id=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_concept_images');
+        unlink($outfile);
+        
+        // Published XOR visible images go to top_unpublished_images
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.visibility_id=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_images');
+        unlink($outfile);
+        
+        // Published XOR visible images go to top_unpublished_concept_images
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.visibility_id!=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_concept_images');
+        unlink($outfile);
+        
+    }
+    
     public function add_hierarchy_entry($hierarchy_entry, $status)
     {
         if(@!$hierarchy_entry->id) return false;

@@ -24,7 +24,7 @@ class HierarchyEntryIndexer
         if($r = Rank::find('ord.')) $this->rank_labels[$r] = 'order';
         if($r = Rank::find('family')) $this->rank_labels[$r] = 'family';
         if($r = Rank::find('fam.')) $this->rank_labels[$r] = 'family';
-        if($r = Rank::find('f.')) $this->rank_labels[$r] = 'family';
+        //if($r = Rank::find('f.')) $this->rank_labels[$r] = 'family';
         if($r = Rank::find('genus')) $this->rank_labels[$r] = 'genus';
         if($r = Rank::find('gen.')) $this->rank_labels[$r] = 'genus';
         if($r = Rank::find('species')) $this->rank_labels[$r] = 'species';

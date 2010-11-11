@@ -24,7 +24,6 @@ class HierarchyEntryRelationshipIndexer
             echo "deleting hierarchy_id_1:$hierarchy->id OR hierarchy_id_2:$hierarchy->id\n";
             $this->solr->delete("hierarchy_id_1:$hierarchy->id OR hierarchy_id_2:$hierarchy->id");
         }
-        // // // /* $this->solr->delete_all_documents(); */
         
         $start = 0;
         $max_id = 0;
