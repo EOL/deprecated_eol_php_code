@@ -382,6 +382,36 @@ class CompareHierarchies
         $solr_indexer->index($hierarchy, $compare_to_hierarchy);
     }
     
+    public static function test_compare_single_entry($hierarchy_entry_id, $compare_to_hierarchy = null)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
+        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
+        
+        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::insert('kingdom'), Rank::insert('phylum'), Rank::insert('class'), Rank::insert('order'));
+        
+        $hierarchy_entry = new HierarchyEntry($hierarchy_entry_id);
+        $hierarchy = $hierarchy_entry->hierarchy();
+        $query = "id:$hierarchy_entry_id";
+        
+        // the global variable which will hold all mathces for this iteration
+        $GLOBALS['hierarchy_entry_matches'] = array();
+        
+        $entries = $solr->get_results($query);
+        foreach($entries as $entry)
+        {
+            self::compare_entry($solr, $hierarchy, $entry, $compare_to_hierarchy, true);
+        }
+        unset($entries);
+        
+        if($GLOBALS['hierarchy_entry_matches'])
+        {
+            echo "\n$hierarchy_entry_id has matches:";
+            print_r($GLOBALS['hierarchy_entry_matches']);
+            echo "\n\n";
+        }else echo "\n$hierarchy_entry_id didn't match any other entries\n\n";
+    }
+    
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
     {
         if(isset($entry->name) && isset($entry->canonical_form))
@@ -395,6 +425,7 @@ class CompareHierarchies
             if($hierarchy->complete) $query .= " NOT hierarchy_id:$hierarchy->id";
             $query .= "&rows=500";
             
+            //echo "$query\n";
             $matching_entries = $solr->get_results($query);
             foreach($matching_entries as $matching_entry)
             {
