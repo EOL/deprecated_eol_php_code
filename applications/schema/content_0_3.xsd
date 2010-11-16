@@ -204,7 +204,7 @@
                 </xsd:annotation>
             </xsd:element>
             
-            <xsd:element ref="dcterms:rightsHolder" minOccurs="0" maxOccurs="unbounded">
+            <xsd:element ref="dcterms:rightsHolder" minOccurs="0">
                 <xsd:annotation>
                     <xsd:documentation>A person or organization owning or managing rights over the resource.</xsd:documentation>
                 </xsd:annotation>
