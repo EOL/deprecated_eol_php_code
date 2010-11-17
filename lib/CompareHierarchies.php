@@ -13,7 +13,18 @@ class CompareHierarchies
                             'phylum'    => .4,
                             'kingdom'   => .2);
     
-    
+    public static function rank_comparison_array()
+    {
+        if(!isset($GLOBALS['rank_groups']))
+        {
+            $GLOBALS['rank_groups'] = array();
+            $result = $GLOBALS['mysqli_connection']->query("SELECT id, rank_group_id FROM ranks WHERE rank_group_id!=0");
+            while($result && $row=$result->fetch_assoc())
+            {
+                $GLOBALS['rank_groups'][$row['id']] = $row['rank_group_id'];
+            }
+        }
+    }
     
     // this method will use its own transactions so commit any open transactions before using
     public static function begin_concept_assignment($hierarchy_id = null)
@@ -122,6 +133,8 @@ class CompareHierarchies
                 $tc_id2 = $entry->taxon_concept_id_2[0];
                 $score = $entry->confidence[0];
                 
+                echo "$id1 :: $id2\n";
+                
                 // this node in hierarchy 1 has already been matched
                 if($hierarchy1->complete && isset($entries_matched[$id2])) continue;
                 if($hierarchy2->complete && isset($entries_matched[$id1])) continue;
@@ -141,22 +154,22 @@ class CompareHierarchies
                 if($tc_id1 != $tc_id2)
                 {
                     // compare visible entries to other published entries
-                    if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
-                    if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
+                    if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { echo "fail1\n"; continue; }
+                    if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { echo "fail2\n"; continue; }
                     
                     // compare preview entries to entries in the latest harvest events
-                    if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) continue;
-                    if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) continue;
+                    if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) { echo "fail3\n"; continue; }
+                    if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) { echo "fail4\n"; continue; }
                     
                     if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
                     {
-                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator");
+                        echo "The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator\n";
                         continue;
                     }
                     
                     if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                     {
-                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop");
+                        echo "The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) will cause a transitive loop\n";
                         continue;
                     }
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
@@ -212,12 +225,17 @@ class CompareHierarchies
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $counts = array();
-        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id IN ($tc_id1, $tc_id2) AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$tc_id1 AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        while($result && $row=$result->fetch_assoc())
+        {
+            $hierarchy_id = $row['hierarchy_id'];
+            $counts[$hierarchy_id] = 1;
+        }
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$tc_id2 AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
             if(isset($counts[$hierarchy_id])) return true;
-            $counts[$hierarchy_id] = 1;
         }
         
         return false;
@@ -448,6 +466,7 @@ class CompareHierarchies
         if(isset($entry1->kingdom) && (strtolower($entry1->kingdom[0]) == 'virus' || strtolower($entry1->kingdom[0]) == 'viruses')) return null;
         if(isset($entry2->kingdom) && (strtolower($entry2->kingdom[0]) == 'virus' || strtolower($entry2->kingdom[0]) == 'viruses')) return null;
         
+        //echo "Comparing ".$entry1->id[0]." :: ".$entry2->id[0]."\n";
         $name_match = self::compare_names($entry1, $entry2);
         
         // synonym matching - cut the score in half and make it negative to show it was a synonym match
@@ -469,8 +488,17 @@ class CompareHierarchies
     
     public static function rank_conflict(&$entry1, &$entry2)
     {
-        // the ranks are not the same
-        if($entry1->rank_id[0] && $entry2->rank_id[0] && $entry1->rank_id[0] != $entry2->rank_id[0]) return 1;
+        self::rank_comparison_array();
+        if(isset($GLOBALS['rank_groups'][$entry1->rank_id[0]]) || isset($GLOBALS['rank_groups'][$entry2->rank_id[0]]))
+        {
+            $group1 = @$GLOBALS['rank_groups'][$entry1->rank_id[0]];
+            $group2 = @$GLOBALS['rank_groups'][$entry2->rank_id[0]];
+            if($entry1->rank_id[0] && $entry2->rank_id[0] && $group1 != $group2) return 1;
+        }else
+        {
+            // the ranks are not the same
+            if($entry1->rank_id[0] && $entry2->rank_id[0] && $entry1->rank_id[0] != $entry2->rank_id[0]) return 1;
+        }
         return 0;
     }
     

@@ -7,7 +7,7 @@ require_vendor('darwincore');
 
 
 //$uri = '/Users/pleary/Downloads/catlife.tar.gz';
-$uri = 'http://gnaclr.globalnames.org/files/7e3480237955d9f406ff38f0ffb1d7268f2902d4/index_fungorum.tar.gz';
+$uri = 'http://gnaclr.globalnames.org/files/a9995ace-f04f-49e2-8e14-4fdbc810b08a/index_fungorum.tar.gz';
 
 try
 {
