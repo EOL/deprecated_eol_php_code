@@ -28,7 +28,7 @@ foreach($hierarchy_entry_ids as $id)
     if($hierarchy_entry->vetted_id == Vetted::insert('unknown')) $bgcolor = "#ffffcc";
     
     echo "<div style='background-color: $bgcolor'>";
-    echo "<p align='right'><b>".$hierarchy_entry->hierarchy()->label."</b><br>hierarchy_entry_id: $hierarchy_entry->id</p>";
+    echo "<p align='right'><b>".$hierarchy_entry->hierarchy()->label."</b><br>hierarchy_id: $hierarchy_entry->hierarchy_id<br>hierarchy_entry_id: $hierarchy_entry->id</p>";
     
     $indent = show_ancestry_he($hierarchy_entry);
     echo "<b>";

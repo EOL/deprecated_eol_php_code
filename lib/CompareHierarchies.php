@@ -532,12 +532,23 @@ class CompareHierarchies
         $score = 0;
         $entry1_without_hierarchy = true;
         $entry2_without_hierarchy = true;
+        $entry1_first_rank = null;
+        $entry2_first_rank = null;
+        
         foreach(self::$rank_priority as $rank => $weight)
         {
             $rank1 = null;
             $rank2 = null;
-            if(isset($entry1->$rank) && $r = $entry1->$rank) $rank1 = $r[0];
-            if(isset($entry2->$rank) && $r = $entry2->$rank) $rank2 = $r[0];
+            if(isset($entry1->$rank) && $r = $entry1->$rank)
+            {
+                $rank1 = $r[0];
+                if(!$entry1_first_rank) $entry1_first_rank = $rank;
+            }
+            if(isset($entry2->$rank) && $r = $entry2->$rank)
+            {
+                $rank2 = $r[0];
+                if(!$entry2_first_rank) $entry2_first_rank = $rank;
+            }
             if($rank1) $entry1_without_hierarchy = false;
             if($rank2) $entry2_without_hierarchy = false;
             
@@ -554,8 +565,12 @@ class CompareHierarchies
         // matched at kingdom level. Make sure a few criteria are met before succeeding
         if($score == .2)
         {
+            if($entry1_first_rank == 'kingdom') return .2;
+            if($entry2_first_rank == 'kingdom') return .2;
             // fail if the match is kingdom and we have something at a lower rank
-            if(!(in_array($entry1->rank_id[0], $GLOBALS['ranks_matched_at_kingdom']) || in_array($entry2->rank_id[0], $GLOBALS['ranks_matched_at_kingdom'])) &&
+            $kingdom_match_valid_1 = in_array($entry1->rank_id[0], $GLOBALS['ranks_matched_at_kingdom']);
+            $kingdom_match_valid_2 = in_array($entry2->rank_id[0], $GLOBALS['ranks_matched_at_kingdom']);
+            if(!($kingdom_match_valid_1 || $kingdom_match_valid_2) &&
                 ($entry1->rank_id[0] == $entry2->rank_id[0] || !$entry1->rank_id[0] || !$entry2->rank_id[0])) $score = 0;
         }
         
