@@ -369,7 +369,11 @@ class XLSParser
     
     private function is_formula($cell)
     {
-        if(substr($cell,0,1)=="=")return true;
+        if(substr($cell,0,1)=="=")
+        {
+            /* to trap problems in a cell display $cell here then exit */
+            return true;
+        }        
         else return false;
     }
     
