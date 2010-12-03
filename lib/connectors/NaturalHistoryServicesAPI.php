@@ -1,5 +1,25 @@
 <?php
-define("SPECIES_URL", "http://www.rkwalton.com/");
+
+//define("NHS_DOC_1", "http://127.0.0.1/eol_php_code/update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap.xml");
+
+/*
+define("NHS_DOC_1", DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap.xml");
+define("NHS_DOC_2", DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/nhswasps_videositemap.xml");
+define("NHS_DOC_3", DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap.xml");
+*/
+
+///*
+define("NHS_DOC_1", "http://www.rkwalton.com/nhsjumpers_videositemap.xml");
+define("NHS_DOC_2", "http://www.rkwalton.com/nhswasps_videositemap.xml");
+define("NHS_DOC_3", "http://www.rkwalton.com/nhswaspstwo_videositemap.xml");
+//*/
+
+/*
+define("NHS_DOC_1", DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap_small.xml");
+define("NHS_DOC_2", DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/nhswasps_videositemap.xml");
+define("NHS_DOC_3", DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap.xml");
+*/
+
 class NaturalHistoryServicesAPI
 {
     public static function get_all_taxa()
@@ -9,9 +29,7 @@ class NaturalHistoryServicesAPI
         
         $domain="http://www.rkwalton.com/";        
         
-        $urls = array( 0  => array( "path1" => $domain . "jump.html" , 
-                                    "path2" => $domain . "jump/jsdata.html" , 
-                                    "path3" => $domain . "jump/datatable.htm" , 
+        $urls = array( 0  => array( "path1" => NHS_DOC_1 , 
                                     "ancestry" => array(
                                                         "kingdom" => "Animalia",
                                                         "phylum" => "Arthropoda",
@@ -22,9 +40,7 @@ class NaturalHistoryServicesAPI
                                                        ),
                                     "active" => 1
                                   ),  // Salticidae - Jumping Spiders
-                       1  => array( "path1" => $domain . "wasps.html" , 
-                                    "path2" => $domain . "" , 
-                                    "path3" => $domain . "" , 
+                       1  => array( "path1" => NHS_DOC_2 , 
                                     "ancestry" => array(
                                                         "kingdom" => "Animalia",
                                                         "phylum" => "Arthropoda",
@@ -36,9 +52,7 @@ class NaturalHistoryServicesAPI
                                     "active" => 1
                                   ),  // Other Hymenopterans
 
-                       2  => array( "path1" => $domain . "waspstwo.html" , 
-                                    "path2" => $domain . "" , 
-                                    "path3" => $domain . "" , 
+                       2  => array( "path1" => NHS_DOC_3 , 
                                     "ancestry" => array(
                                                         "kingdom" => "Animalia",
                                                         "phylum" => "Arthropoda",
@@ -54,17 +68,17 @@ class NaturalHistoryServicesAPI
         {
             if($url["active"])
             {
-                $page_taxa = self::get_NHS_taxa($url["path1"],$url["path2"],$url["path3"],$url["ancestry"]);                 
+                $page_taxa = self::get_NHS_taxa($url["path1"],$url["ancestry"]);                 
                 $all_taxa = array_merge($all_taxa,$page_taxa);                                    
             }
         }
         return $all_taxa;
     }
     
-    public static function get_NHS_taxa($url1,$url2,$url3,$ancestry)
+    public static function get_NHS_taxa($url1,$ancestry)
     {
         global $used_collection_ids;        
-        $response = self::search_collections($url1,$url2,$url3,$ancestry);//this will output the raw (but structured) output from the external service
+        $response = self::search_collections($url1,$ancestry);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -78,23 +92,9 @@ class NaturalHistoryServicesAPI
         return $page_taxa;
     }    
     
-    public static function search_collections($url1,$url2,$url3,$ancestry)//this will output the raw (but structured) output from the external service
+    public static function search_collections($url1,$ancestry)//this will output the raw (but structured) output from the external service
     {
-        $html = Functions::get_remote_file_fake_browser($url1);
-        $html1 = self::clean_html($html);
-        
-        $html = Functions::get_remote_file_fake_browser($url2);
-        $html2 = self::clean_html($html);
-
-        $html = Functions::get_remote_file_fake_browser($url3);
-        $html3 = self::clean_html($html);
-
-        $arr_url_list = self::get_url_list($html1);        
-        $arr_location_detail = self::get_location_detail($html2);        
-        $arr_video_detail = self::get_video_detail($html3,$arr_location_detail);        
-        $arr_video_info = self::get_video_info($html2,$arr_video_detail);        
-        
-        $response = self::scrape_species_page($arr_url_list,$arr_video_info,$ancestry);        
+        $response = self::scrape_species_page($url1,$ancestry);        
         return $response;//structured array
     }        
 
@@ -206,83 +206,46 @@ class NaturalHistoryServicesAPI
         return $arr_video_info;
     }
     
-    public static function get_url_list($str)
-    {
-        $arr_url_list=array();
-        $str = str_ireplace('<a href="' , 'xxx<a href="', $str);	
-        $str = str_ireplace('xxx' , "&arr[]=", $str);	
-        $arr = array(); parse_str($str);	            
-        $loop=0;
-        $i=0;
-        foreach($arr as $r)
-        {
-            //$loop++;if($loop >= 5)break; //debug to limit the no. of records                                
-            $video_url=""; $thumb_url="";                
-            if(preg_match("/href=\"(.*?)\"/", $r, $matches))$video_url = $matches[1];                
-            if(preg_match("/src=\"(.*?)\"/", $r, $matches))$thumb_url = $matches[1];
-            if($video_url != "" and $thumb_url != "")
-            {
-                $i++;    
-                $arr_url_list[]=array("video_url"=>SPECIES_URL . $video_url,"thumbnail_url"=>SPECIES_URL . $thumb_url);                    
-            }            
-        }                
-        return $arr_url_list;
-    }
-
-    public static function scrape_species_page($arr_url_list,$arr_video_info,$ancestry)
+    public static function scrape_species_page($url1,$ancestry)
     {
         $arr_acknowledgement = self::prepare_acknowledgement();
         $arr_scraped=array();
         $arr_photos=array();
         $arr_sciname=array();        
         $ctr=0;
-        foreach($arr_url_list as $rec)
+
+        print $url1 . "<hr>";
+        
+        $xml = simplexml_load_file($url1);
+        print "taxa count = " . count($xml) . "\n";
+                
+        foreach($xml->url as $u)
         {
-            $sourceURL=$rec["video_url"];
-            $html = Functions::get_remote_file_fake_browser($sourceURL);            
-            $html = self::clean_html($html);            
-            //=============================================================================================================
-            $species="";
-            /* get string between <title> and </title> */
-            if(preg_match("/<title>(.*?)<\/title/ims", $html, $matches))
-            {   
-                if(is_numeric(stripos($matches[1],"xx")))continue;                            
-                $title = trim(strip_tags($matches[1]));                
-                //special case
-                if($title == "Leaf-cutting Ants - Atta")$title="Atta sp. - Leaf-cutting Ants";                
-                if($title == "Alabgrus texanus - Braconid Wasp")$title="Alabagrus texanus - Braconid Wasp";                
-                if($title == "Conomyrma Ant (ambient audio)")$title="Conomyrma - Ant (ambient audio)";                
-                //end special case                
-                $piece = self::get_strings_between_char($title,"-");
-                $sciname = trim(@$piece[0]);
-                $desc = trim(@$piece[1]);                
-                if($desc=="")$desc = $sciname;
-                if(in_array($sciname, array("Solitary Wasps","Solitary Wasp Video","Critters","404 Not Found")))continue;                
-                $ctr++;                        
-            }            
+            $u_video = $u->children("http://www.google.com/schemas/sitemap-video/1.0");                                     
+            //print $u->loc;            
+            $sciname = self::get_sciname($u_video->video->title);
+            print $sciname;
+            
             //=============================================================================================================
             $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);
+            print"[$acknowledgement]";
             //=============================================================================================================
             
-            //text object agents
+            //object agents
             $agent=array();
             $agent[]=array("role" => "author" , "homepage" => "http://www.rkwalton.com" , "name" => "Richard K. Walton");
             
-            $arr_temp=self::get_location($arr_video_info,$sciname);
-            $location       = $arr_temp[0];
-            $arr_video_info = $arr_temp[1];            
-            
-            $arr_photos["$sciname"][] = array("identifier"=>$rec["video_url"],
-                                  "mediaURL"=>str_ireplace(".html",".mp4",$rec["video_url"]),
-                                  "mimeType"=>"video/mp4",
-                                  "dataType"=>"http://purl.org/dc/dcmitype/MovingImage",                                  
-                                  "description"=>$acknowledgement . " <br>" . $desc . " <a target='more_info' href='" . $ancestry["taxon_source_url"] . "'>More info.</a><br> <br>" . $location,
-                                  "title"=>$desc,
-                                  "location"=>$location,
-                                  "dc_source"=>$rec["video_url"],
-                                  "agent"=>$agent);            
+            $arr_photos["$sciname"][] = array("identifier"=>$u_video->video->content_loc,
+                                              "mediaURL"=>str_ireplace(' ','',$u_video->video->content_loc),
+                                              "mimeType"=>"video/mp4",
+                                              "dataType"=>"http://purl.org/dc/dcmitype/MovingImage",                                  
+                                              "description"=>"$acknowledgement<br>" . $u_video->video->description . " <a target='more_info' href='" . $u->loc . "'>More info.</a><br> <br>",
+                                              "title"=>$u_video->video->description,
+                                              "location"=>"",
+                                              "dc_source"=>$u_video->video->content_loc,
+                                              "agent"=>$agent);            
 
-            $arr_sciname["$sciname"]=$sourceURL;
+            $arr_sciname["$sciname"]=1;
         }
 
         foreach(array_keys($arr_sciname) as $sci)
@@ -301,19 +264,21 @@ class NaturalHistoryServicesAPI
         return $arr_scraped;        
     }    
 
-    function get_strings_between_char($string,$delimiter)
+    function get_sciname($string)
     {
-        $pos = stripos($string,$delimiter);    
-        if(is_numeric($pos))$arr = array(substr($string,0,$pos-1),substr($string,$pos+1,strlen($string)));
-        else $arr = array($string,"");        
-        return $arr;
+        $pos = stripos($string,'-');    
+        if(is_numeric($pos))return trim(substr($string,$pos+1,strlen($string)));
+        else return trim($string);
     }
 
     public static function prepare_acknowledgement()    
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        $arr = $parser->convert_sheet_to_array("files/NaturalHistoryServices/Acknowledgments.xls");
+        //$arr = $parser->convert_sheet_to_array("files/NaturalHistoryServices/Acknowledgments.xls");
+        $arr = $parser->convert_sheet_to_array(DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/Acknowledgments.xls");
+                
+        
         $acknowledgement=array();
         $k=0;
         foreach($arr["sciname"] as $sciname)
@@ -325,6 +290,7 @@ class NaturalHistoryServicesAPI
             }
             $k++;
         }                
+        //print"<pre>";print_r($acknowledgement);print"</pre>";
         return $acknowledgement;
     }
     public static function get_acknowledgement($sciname, $arr)
