@@ -1,7 +1,7 @@
 <?php
 /* connector for Natural History Services
-estimated execution time: 7 mins.
-Connector screen scrapes the partner website.
+estimated execution time: 7 mins. {Connector screen scrapes the partner website.}
+estimated execution time: 3 secs. {using customized XML}
 */
 //exit;
 $timestart = microtime(1);
@@ -18,5 +18,11 @@ $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
 fclose($OUT);
 
+$elapsed_time_sec = microtime(1)-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 exit("\n\n Done processing.");
+
 ?>
