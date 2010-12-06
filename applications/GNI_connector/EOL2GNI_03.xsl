@@ -3,29 +3,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"		
-	xmlns:eol="http://www.eol.org/transfer/content/0.3">
-	
-<!--
-<response 	
-		xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-		xmlns:dcterms="http://purl.org/dc/terms/" 
-		xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" 
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-		xmlns="http://www.eol.org/transfer/content/0.1" 
-		       http://www.eol.org/transfer/content/0.2
-			   
-		xsi:schemaLocation="http://www.eol.org/transfer/content/0.1 http://services.eol.org/schema/content_0_1.xsd">
-		                    http://www.eol.org/transfer/content/0.2
--->	
-<!--
-<xsl:output method="xml" indent="yes" encoding="utf-8"/>  	
--->
-<!--
-fn:QName()  	 
-fn:local-name-from-QName() 	 
-fn:namespace-uri-from-QName() 	 
-fn:namespace-uri-for-prefix()
--->
+	xmlns:eol="http://www.eol.org/transfer/content/0.3">	
 
 <xsl:output method="xml" indent="yes" encoding="iso-8859-1"/>  	
 <xsl:template match="/">
@@ -41,30 +19,8 @@ fn:namespace-uri-for-prefix()
             	<xsl:variable name="dwc_Genus"> <xsl:value-of select="dwc:Genus"/> </xsl:variable>            
             	<xsl:variable name="dc_source"> <xsl:value-of select="dc:source"/> </xsl:variable>
             	<xsl:variable name="dc_identifier"> <xsl:value-of select="dc:identifier"/> </xsl:variable>            
-            	<!-- use to test if variable exists
-             	<xsl:if test="boolean(string($css-style))"></xsl:if>
-            	-->            	
-            	<!--
-            	<xsl:variable name="syn_id">0</xsl:variable>	
-            	-->            	
-            	<!--
-            	<xsl:variable name="syn_id"> 
-            		<xsl:number value="position()" format="1" />
-            	</xsl:variable>
-            	<xsl:variable name="syn_id2"> 
-            		<xsl:number value="generate-id()" format="1" />
-            	</xsl:variable>
-            	-->            
-            	<!--
-            	<xsl:value-of select = "namespace-uri()" />             	
-                node.setAttribute("xmlns:eol","http://www.w3.org/2001/XMLSchema-instance")			
-            	-->                            
-                <!-- replaced bec some EOL XML like Flickr doesn't have taxon dc:identifier
-        		<TaxonName id="{dc:identifier}">						
-                -->
                 <TaxonName id="{concat($dc_identifier,'_',position())}">            
         			<Simple>            			
-        			<!-- <xsl:value-of select = "namespace-uri()" /> -->            													
         			<xsl:choose>
             			<xsl:when test="dwc:ScientificName != ''"><xsl:value-of select="dwc:ScientificName"/></xsl:when>
         				<xsl:otherwise>
@@ -97,11 +53,6 @@ fn:namespace-uri-for-prefix()
         				</xsl:otherwise>
         			</xsl:choose>																									
         			</Simple>			
-        			<!--
-        			<xsl:if test="dwc:ScientificName != ''"><Rank>Species</Rank></xsl:if>			
-        			<xsl:if test="dwc:ScientificName = ''">
-        			</xsl:if>												
-        			-->	
         			<xsl:variable name="rank_element"> 				
         			<xsl:choose>
             	    	<xsl:when test="dwc:Genus = dwc:ScientificName">Genus</xsl:when>
@@ -176,13 +127,7 @@ fn:namespace-uri-for-prefix()
     			</xsl:variable>			
             	<!-- ############################################################################################ -->
             	<xsl:for-each select="eol:synonym">            
-            		<!--
-            		<synonym><xsl:value-of select="."/></synonym>
-            		concat($syn_id2,$syn)
-            		generate-id()
-            		-->            		
             		<xsl:variable name="syn"> <xsl:value-of select="."/> </xsl:variable>            		
-            		<!-- generate-id() -->
             		<TaxonName id="{concat($dc_identifier,'_syn_',position())}">						
             			<Simple>							
             				<xsl:value-of select="."/>
