@@ -174,10 +174,10 @@ function start_timer()
     return time_elapsed();
 }
 
-function time_elapsed()
+function time_elapsed($reset = false)
 {
     static $a;
-    if(!isset($a)) $a = microtime(true);
+    if(!isset($a) || $reset) $a = microtime(true);
     return (string) round(microtime(true)-$a, 6);
 }
 
