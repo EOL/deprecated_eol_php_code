@@ -93,18 +93,19 @@ class NaturalHistoryServicesAPI
         print $url1 . "<hr>";
         
         $xml = simplexml_load_file($url1);
-        print "taxa count = " . count($xml) . "\n";
+        print "taxa count = " . count($xml) . "\n<br>";
                 
         foreach($xml->url as $u)
         {
-            $u_video = $u->children("http://www.google.com/schemas/sitemap-video/1.0");                                     
-            //print $u->loc;            
-            $sciname = self::get_sciname($u_video->video->title);
-            print $sciname;
+            $u_video = $u->children("http://www.google.com/schemas/sitemap-video/1.0");                                                 
+            $sciname = self::get_sciname($u_video->video->title);            
+            
+            if (in_array($sciname, array("Introduction to Solitary Wasps")))continue;
+            
+            print "\n" . "[$sciname]";                       
             
             //=============================================================================================================
-            $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);
-            print"[$acknowledgement]";
+            $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);            
             //=============================================================================================================
             
             //object agents
@@ -120,8 +121,7 @@ class NaturalHistoryServicesAPI
                                               "location"=>"",
                                               "dc_source"=>$u_video->video->content_loc,
                                               "agent"=>$agent);            
-
-            $arr_sciname["$sciname"]=1;
+            $arr_sciname["$sciname"]=1;            
         }
 
         foreach(array_keys($arr_sciname) as $sci)
@@ -140,9 +140,9 @@ class NaturalHistoryServicesAPI
         return $arr_scraped;        
     }    
 
-    function get_sciname($string)
+    static function get_sciname($string)
     {
-        $pos = stripos($string,'-');    
+        $pos = strripos($string,'-');    
         if(is_numeric($pos))return trim(substr($string,$pos+1,strlen($string)));
         else return trim($string);
     }
@@ -170,7 +170,6 @@ class NaturalHistoryServicesAPI
     public static function get_acknowledgement($sciname, $arr)
     {
         if(!@$arr["$sciname"])return;        
-        print"<br>[[$sciname]]";        
         $acknowledgement="";
         foreach(@$arr["$sciname"] as $person)
         {
