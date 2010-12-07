@@ -38,6 +38,8 @@ class test_functions extends SimpletestUnitBase
         $this->assertTrue(Functions::canonical_form('Homo sapiens var. sapiens') == 'Homo sapiens sapiens', 'Canonical form should be correct');
         $this->assertTrue(Functions::canonical_form('Homo sapiens Linn. var. sapiens Smith 2009') == 'Homo sapiens sapiens', 'Canonical form should be correct');
         $this->assertTrue(Functions::canonical_form('Homo sapiens Linn. var. sapiens ex von Smith 2009') == 'Homo sapiens sapiens', 'Canonical form should be correct');
+        $this->assertTrue(Functions::canonical_form('X Homo sapiens Linn. var. sapiens ex von Smith 2009') == 'Homo sapiens sapiens', 'Canonical form should be correct');
+        $this->assertTrue(Functions::canonical_form('x Homo sapiens Linn. var. sapiens ex von Smith 2009') == 'Homo sapiens sapiens', 'Canonical form should be correct');
     }
     
     function testItalicizedForm()

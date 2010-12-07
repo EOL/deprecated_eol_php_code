@@ -313,8 +313,8 @@ class Functions
         self::author_parts();
         self::junk_parts();
         
-        if(preg_match("/^X (.*)$/",$string,$arr)) $string = $arr[1];
-        $string = str_replace(" tipo veneto","",$string);
+        if(preg_match("/^X (.*)$/i",$string,$arr)) $string = $arr[1];
+        $string = str_ireplace(" tipo veneto","",$string);
         $string = str_replace("×"," ",$string);
         $string = preg_replace("/[[:space:]]+/", " ", trim($string));
         $string = preg_replace("/[[:space:]]/", " ", trim($string));

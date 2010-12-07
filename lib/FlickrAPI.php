@@ -112,7 +112,7 @@ class FlickrAPI
             if(preg_match("/^taxonomy:subspecies=(.+)$/i", $string, $arr)) $parameters["subspecies"][] = strtolower(trim($arr[1]));
             elseif(preg_match("/^taxonomy:trinomial=(.+)$/i", $string, $arr)) $parameters["trinomial"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:species=(.+)$/i", $string, $arr)) $parameters["species"][] = strtolower(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:binomial=(.+)$/i", $string, $arr)) $parameters["scientificName"][] = ucfirst(trim($arr[1]));
+            elseif(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr)) $parameters["scientificName"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:genus=(.+)$/i", $string, $arr)) $parameters["genus"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:family=(.+)$/i", $string, $arr)) $parameters["family"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:order=(.+)$/i", $string, $arr)) $parameters["order"][] = ucfirst(trim($arr[1]));

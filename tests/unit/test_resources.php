@@ -10,6 +10,7 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue(count(HarvestEvent::all()) == 0, 'There shouldnt be any events to begin with');
         $this->assertTrue(count(DataObject::all()) == 0, 'There shouldnt be any data objects to begin with');
         $this->assertTrue(count(HierarchyEntry::all()) == 0, 'There shouldnt be any hierarchy entries to begin with');
+        $this->assertTrue(count(TaxonConceptName::all()) == 0, 'There shouldnt be any taxon concept names to begin with');
         
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
         $this->assertTrue($result->num_rows == 0, 'shouldnt be any top images');

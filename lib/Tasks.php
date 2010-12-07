@@ -257,7 +257,7 @@ class Tasks extends MysqlBase
             {
                 $preferred = 0;
                 if($k2 && $v2=="preferred") $preferred = 1;
-                $mysqli->insert("INSERT IGNORE INTO taxon_concept_names VALUES ($taxon_concept_id, $k, $k2, 0, 0, $preferred, NULL)");
+                $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred) VALUES ($taxon_concept_id, $k, $k2, 0, 0, $preferred)");
             }
         }
         
