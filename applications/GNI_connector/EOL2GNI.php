@@ -1,6 +1,6 @@
 <?php
 /* 
-    in php.ini this has to be un-commented:
+    in php.ini this has to be loaded:
     extension=php_xsl.dll
 */
 
@@ -8,7 +8,8 @@ require_once(dirname(__FILE__) . '/../../config/environment.php');
 
 $url 			= $_REQUEST['url'];
 $what 			= $_REQUEST['what'];
-$download		= $_REQUEST['download'];
+if(isset($_REQUEST['download'])) $download = $_REQUEST['download'];
+else                             $download = 0;
 
 $domain = "10.19.19.226";
 $path2XMLresource = "resources";
