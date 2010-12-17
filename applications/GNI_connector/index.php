@@ -25,6 +25,7 @@
         url = 'EOL2GNI.php?url=' + URLEncode(document.getElementById('txt2').value);            
         str="";
         if(document.getElementById('what_eval').checked){str = document.getElementById('what_eval').value;}
+        if(document.getElementById('what_eval_spm').checked){str = document.getElementById('what_eval_spm').value;}
         if(document.getElementById('what_tran').checked){str = document.getElementById('what_tran').value;}    
         url += "&what=" + str;    	
     	if(process == 1)url += "&download=1"    	
@@ -119,6 +120,8 @@ print"
 </td></tr>
 <tr><td>
     <input id='what_eval' type='radio' name='what' value='evaluate'>Statistics
+    <input id='what_eval_spm' type='radio' name='what' value='evaluate_spm'>With SPM breakdown
+    
     &nbsp;&nbsp;&nbsp;
     <input id='what_tran' type='radio' name='what' value='transform' checked>Transform to GNI TCS
     &nbsp;&nbsp;&nbsp;

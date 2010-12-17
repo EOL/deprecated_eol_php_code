@@ -37,6 +37,12 @@ elseif($what == 'evaluate')
     elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.2")$xsl->load('EOL_evaluate_02.xsl');
     elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.3")$xsl->load('EOL_evaluate_03.xsl');
 }
+elseif($what == 'evaluate_spm')
+{    
+    if($namespaces[''] == "http://www.eol.org/transfer/content/0.1")    $xsl->load('EOL_evaluate_spm_01.xsl');
+    elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.2")$xsl->load('EOL_evaluate_spm_02.xsl');
+    elseif($namespaces[''] == "http://www.eol.org/transfer/content/0.3")$xsl->load('EOL_evaluate_spm_03.xsl');
+}
 $proc = new XSLTProcessor;    
 $proc->importStyleSheet($xsl);
 if($what == 'transform')
@@ -66,6 +72,7 @@ if($what == 'transform')
     //end save    
 }
 elseif($what == 'evaluate'){echo $proc->transformToXML($xml);}
+elseif($what == 'evaluate_spm'){echo $proc->transformToXML($xml);}
 
 function get_val_var($v)
 {   if(isset($_GET["$v"])){$var=$_GET["$v"];}
