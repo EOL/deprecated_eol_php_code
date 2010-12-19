@@ -7,6 +7,8 @@ class HierarchiesContent
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
+        if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
+        else $this->mysqli_slave =& $this->mysqli;
     }
     
     public function begin_process()
@@ -37,20 +39,19 @@ class HierarchiesContent
                                                 taxon_concept_content_tmp TO taxon_concept_content,
                                                 taxon_concept_content_swap TO taxon_concept_content_tmp");
         }
-        
         $this->mysqli->end_transaction();
     }
     
     public function lookup_content()
     {
         // // make sure the TC content temp table has exactly the right number of rows and reset everything to 0
-        $outfile = $GLOBALS['db_connection']->select_into_outfile('SELECT id FROM taxon_concepts');
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concept_content_tmp', null, 'SET content_level=1');
+        $outfile = $this->mysqli_slave->select_into_outfile('SELECT id FROM taxon_concepts');
+        $this->mysqli->load_data_infile($outfile, 'taxon_concept_content_tmp', null, 'SET content_level=1');
         unlink($outfile);
         
         // make sure the HE content temp table has exactly the right number of rows and reset everything to 0
-        $outfile = $GLOBALS['db_connection']->select_into_outfile('SELECT id FROM hierarchy_entries');
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'hierarchies_content_tmp', null, 'SET content_level=1');
+        $outfile = $this->mysqli_slave->select_into_outfile('SELECT id FROM hierarchy_entries');
+        $this->mysqli->load_data_infile($outfile, 'hierarchies_content_tmp', null, 'SET content_level=1');
         unlink($outfile);
         
         // update attributes for all the data types we care about
@@ -68,11 +69,11 @@ class HierarchiesContent
         // update the content_level attribute
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc SET tcc.content_level=3 WHERE tcc.text=1 OR tcc.image=1");
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc SET tcc.content_level=4 WHERE tcc.text=1 AND tcc.image=1");
-        sleep_production(60);
+        sleep_production(300);
         
         // update HE content with all the information from TC content        
-        $outfile = $GLOBALS['db_connection']->select_into_outfile('SELECT he.id, tcc.text, tcc.text_unpublished, tcc.image, tcc.image_unpublished, 0, 0, tcc.flash, tcc.youtube, 0, tcc.content_level FROM taxon_concept_content_tmp tcc JOIN hierarchy_entries he ON (tcc.taxon_concept_id=he.taxon_concept_id) WHERE tcc.text=1 OR tcc.text_unpublished=1 OR tcc.image=1 OR tcc.image_unpublished=1 OR tcc.flash=1 OR tcc.youtube=1 OR tcc.content_level>1');
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'hierarchies_content_tmp', 'REPLACE');
+        $outfile = $this->mysqli_slave->select_into_outfile('SELECT he.id, tcc.text, tcc.text_unpublished, tcc.image, tcc.image_unpublished, 0, 0, tcc.flash, tcc.youtube, 0, tcc.content_level FROM taxon_concept_content_tmp tcc JOIN hierarchy_entries he ON (tcc.taxon_concept_id=he.taxon_concept_id) WHERE tcc.text=1 OR tcc.text_unpublished=1 OR tcc.image=1 OR tcc.image_unpublished=1 OR tcc.flash=1 OR tcc.youtube=1 OR tcc.content_level>1');
+        $this->mysqli->load_data_infile($outfile, 'hierarchies_content_tmp', 'REPLACE');
         unlink($outfile);
         
         // things with images also get the child_images flag

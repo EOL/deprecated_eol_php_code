@@ -3,6 +3,10 @@
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
 
+if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $mysqli_slave = load_mysql_environment('slave');
+else $mysqli_slave = $GLOBALS['db_connection'];
+
+
 Functions::log("Starting random_hierarchy_images");
 
 $species_rank_ids_array = array();
@@ -22,7 +26,7 @@ if($id = Rank::find('nothosubspecies')) $species_rank_ids_array[] = $id;
 if($id = Rank::find('nothovariety')) $species_rank_ids_array[] = $id;
 $species_rank_ids = implode(",", $species_rank_ids_array);
 
-$outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT distinct NULL, tcc.image_object_id, he.id, he.hierarchy_id, he.taxon_concept_id, n.italicized name FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcc.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND (he.lft=he.rgt-1 OR he.rank_id IN ($species_rank_ids)) AND tcc.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
+$outfile = $mysqli_slave->select_into_outfile("SELECT distinct NULL, tcc.image_object_id, he.id, he.hierarchy_id, he.taxon_concept_id, n.italicized name FROM taxon_concepts tc JOIN taxon_concept_content tcc ON (tc.id=tcc.taxon_concept_id) JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects do ON (tcc.image_object_id=do.id) LEFT JOIN names n ON (he.name_id=n.id) WHERE tc.published=1 AND tc.vetted_id=".Vetted::insert("Trusted")." AND (he.lft=he.rgt-1 OR he.rank_id IN ($species_rank_ids)) AND tcc.image=1 AND do.vetted_id=".Vetted::insert("Trusted"));
 
 file_randomize($outfile);
 

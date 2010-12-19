@@ -125,6 +125,25 @@ time_elapsed();
 
 /* defining some functions which are needed by the boot loader */
 
+function environment_defined($environment_name)
+{
+    if(!file_exists(DOC_ROOT . 'config/database.yml'))
+    {
+        // trigger_error('Booting failure: /config/database.yml does\'t exit', E_USER_ERROR);
+        return false;
+    }
+    $environments = Horde_Yaml::loadFile(DOC_ROOT . 'config/database.yml');
+    
+    $possible_environments = array_keys($environments);
+    if(in_array($environment_name, $possible_environments))
+    {
+        return true;
+    }
+    
+    // trigger_error('Booting failure: environment `'. $environment .'` doesn\'t exit', E_USER_ERROR);
+    return false;
+}
+
 function load_mysql_environment($environment = NULL)
 {
     if(!file_exists(DOC_ROOT . 'config/database.yml'))

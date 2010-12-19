@@ -3,6 +3,7 @@
 class TopImages
 {
     private $mysqli;
+    private $mysqli_slave;
     private $vetted_sort_orders;
     private $TOP_IMAGES_FILE;
     private $TOP_UNPUBLISHED_IMAGES;
@@ -11,6 +12,8 @@ class TopImages
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
+        if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
+        else $this->mysqli_slave =& $this->mysqli;
         
         $this->vetted_sort_orders =  array();
         $this->vetted_sort_orders[Vetted::find('Trusted')] = 1;
@@ -23,7 +26,7 @@ class TopImages
         $start = 0;
         $max_id = 0;
         
-        $result = $this->mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM hierarchy_entries he");
+        $result = $this->mysqli_slave->query("SELECT MIN(id) as min, MAX(id) as max FROM hierarchy_entries he");
         if($result && $row=$result->fetch_assoc())
         {
             $start = $row["min"];
@@ -46,7 +49,7 @@ class TopImages
             $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
             
             echo "Memory: ".memory_get_usage()."\n";
-            $outfile = $this->mysqli->select_into_outfile("
+            $outfile = $this->mysqli_slave->select_into_outfile("
                 SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
                     FROM data_objects_taxon_concepts dotc
                     JOIN data_objects do ON (dotc.data_object_id=do.id)
@@ -97,7 +100,7 @@ class TopImages
             
             // searches for all images for THIS concept, same as above
             // but also searches top_images for the best from its decendants
-            $outfile = $this->mysqli->select_into_outfile("
+            $outfile = $this->mysqli_slave->select_into_outfile("
             (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
                 FROM hierarchy_entries he
                 JOIN top_images_tmp ti ON (he.id=ti.hierarchy_entry_id)
@@ -149,7 +152,7 @@ class TopImages
         $stop = 0;
         $batch_size = 15000;
         
-        $result = $this->mysqli->query("SELECT MIN(he.taxon_concept_id) min, MAX(he.taxon_concept_id) max FROM $select_table_name ti JOIN hierarchy_entries he ON (ti.hierarchy_entry_id=he.id)");
+        $result = $this->mysqli_slave->query("SELECT MIN(he.taxon_concept_id) min, MAX(he.taxon_concept_id) max FROM $select_table_name ti JOIN hierarchy_entries he ON (ti.hierarchy_entry_id=he.id)");
         if($result && $row=$result->fetch_assoc())
         {
             $start = $row['min'];
@@ -162,7 +165,7 @@ class TopImages
             
             $last_taxon_concept_id = 0;
             $top_images = array();
-            $result = $this->mysqli->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." ORDER BY he.taxon_concept_id");
+            $result = $this->mysqli_slave->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." ORDER BY he.taxon_concept_id");
             while($result && $row=$result->fetch_assoc())
             {
                 $taxon_concept_id = $row['taxon_concept_id'];
