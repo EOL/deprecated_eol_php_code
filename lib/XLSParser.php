@@ -22,7 +22,7 @@ class XLSParser
         {
             for ($col = 0; $col <= $highestColumnIndex; ++$col) 
             {
-                $cell = self::cell_value($objWorksheet, $col, $row);                       
+                $cell = self::cell_value($objWorksheet, $col, $row, $ext);                       
                 if($row==$startRow) $arr_label[]=$cell;
                 else
                 {
@@ -360,9 +360,10 @@ class XLSParser
         return $data;
     }
 
-    private function cell_value($obj, $col, $row)
+    private function cell_value($obj, $col, $row, $ext)
     {
         $cell = $obj->getCellByColumnAndRow($col, $row)->getValue();
+        if($ext == "csv") return $cell;
         if(self::is_formula($cell)) return $obj->getCellByColumnAndRow($col, $row)->getCalculatedValue();
         else return $cell;
     }    
