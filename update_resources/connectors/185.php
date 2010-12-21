@@ -1,15 +1,15 @@
 <?php
 exit; 
 /* connector for Turbellarian
-estimated execution time: 18 hrs.
-This connector gets data from website and rank information from a csv file.
+Estimated execution time: 10 hrs.
+This connector gets data from website. Ancestry information is still pending, to be provided by partner.
 
 as of       records
 Oct 1 2010  17492
+Nov 18      9780
 */
 
 $timestart = microtime(1);
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TurbellarianAPI');
 $GLOBALS['ENV_DEBUG'] = false;
