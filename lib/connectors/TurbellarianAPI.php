@@ -64,8 +64,18 @@ class TurbellarianAPI
                 $arr[]=$url;                   
                 $tbl1_arr=$arr;
                 //end get columns per taxon                 
-            }
-            //end process first table
+
+                //don't get if taxon start with lower case - it means it is the species part of the sciname
+                $first_char = trim($tbl1_arr[0]);
+                if($first_char{0} == strtolower($first_char{0}) and $first_char{0} != "("){continue;}//lower case
+                if($first_char{0} == "(")//means it is a subgenus e.g http://turbellaria.umaine.edu/turb2.php?action=1&code=5924
+                {
+                    $genus = self::get_genus($html,trim($tbl1_arr[0]));                
+                    $tbl1_arr[0] = $genus . " " . trim($tbl1_arr[0]);                
+                }
+            }            
+            //end process first table           
+            
             
             //process 2nd table
             $html2 = trim(substr($html,stripos($html,'<table alt="table of taxa">'),strlen($html)));
@@ -93,15 +103,15 @@ class TurbellarianAPI
             $i=0;
             foreach($tbl2_arr as $r)
             {
+                $r[0]=strip_tags($r[0]);
                 if(!is_numeric(stripos($r[0],"href")))$tbl2_arr[$i][0]=$tbl1_arr[0] . " " . $r[0];
                 $i++;
             }
             //end combine genus + species if applicable
             
             //add taxon in tbl1 to tbl2            
-            $tbl2_arr[]=$tbl1_arr;
-            
-            //loop to get only taxon with: diagnosis and image        
+            $tbl2_arr[]=$tbl1_arr;            
+            //loop to get only taxon with: diagnosis and image and distribution        
             foreach($tbl2_arr as $row)
             {
                 foreach($row as $r)
@@ -113,11 +123,21 @@ class TurbellarianAPI
                     {$final[]=$row;}                        
                 }    
             }        
-
-        }//end for loop
+        }//end for loop                
         return $final;                
     }    
-
+    function get_genus($html,$subgenus)
+    {        
+        $html = trim(substr($html,0,stripos($html,$subgenus)));
+        $html = str_ireplace("&","|",$html);
+        $html = str_ireplace('<a' , "&arr[]=", $html);	            
+        $arr=array();parse_str($html);	            
+        $temp = $arr[sizeof($arr)-1];
+        //href="/turb2.php?action=1|code=9606">Proxenetes |nbsp; |nbsp; |nbsp; Jensen, 1878 
+        $genus = "";
+        if(preg_match("/>(.*?)\|/ims", $temp, $matches))$genus = $matches[1];
+        return trim($genus);
+    }
     function search_collections($url)//this will output the raw (but structured) array
     {        
         $response = self::scrape_species_page($url);        
@@ -154,7 +174,7 @@ class TurbellarianAPI
             $i++;
         }
         return array("taxon"        =>$taxon, 
-                     "taxon_author" =>$taxon . " " . $author,
+                     "taxon_author" =>$taxon, // . " " . $author,
                      "diagnosis"    =>$diagnosis_href,
                      "images"       =>$images_href,
                      "literature"   =>$literature_href,
@@ -179,14 +199,15 @@ class TurbellarianAPI
         $agent[]=array("role" => "compiler" , "homepage" => "http://turbellaria.umaine.edu/" , "name" => "Louise Bush");        
         
         $taxa_arr=self::prepare_access($url);
-        
+                
         $sciname = $taxa_arr["taxon_author"];
         $species_page_url = $taxa_arr["source_url"];        
 
         //dist'n start =================================================================                
         if($taxa_arr["distribution"])
         {
-            $html = Functions::get_remote_file_fake_browser($taxa_arr["distribution"]);
+            $identifier = self::get_identifier($taxa_arr["distribution"]);
+            $html = Functions::get_remote_file_fake_browser($taxa_arr["distribution"]);            
             $html = utf8_decode($html);
             $arr = self::prepare_distribution($html);                        
             $distribution     = $arr[0];
@@ -201,12 +222,10 @@ class TurbellarianAPI
             $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
             if($distribution)
             {
-                $arr_texts["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$distribution_ref);
+                $arr_texts["$sciname"][] = self::prepare_array($identifier,$mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$distribution_ref);
             }            
         }        
-
         //dist'n end =================================================================
-
 
         //photos start =================================================================
         if($taxa_arr["images"])
@@ -245,7 +264,8 @@ class TurbellarianAPI
                 $license    = "http://creativecommons.org/licenses/by-nc-sa/2.0/";
                 $mediaURL   = $img;                                
                 $description = ''; $subject="";
-                $arr_photos["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,array());
+                $identifier=$mediaURL;
+                $arr_photos["$sciname"][] = self::prepare_array($identifier,$mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,array());
             }            
         }        
         //photos end =================================================================
@@ -263,7 +283,8 @@ class TurbellarianAPI
         //diagnosis start =================================================================                
         if($taxa_arr["diagnosis"])
         {
-            $html = Functions::get_remote_file_fake_browser($taxa_arr["diagnosis"]);
+            $identifier = self::get_identifier($taxa_arr["diagnosis"]);
+            $html = Functions::get_remote_file_fake_browser($taxa_arr["diagnosis"]);            
             $html = utf8_decode($html);
             
             $diagnosis="";
@@ -282,7 +303,7 @@ class TurbellarianAPI
             $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription";
             if($diagnosis)
             {
-                $arr_texts["$sciname"][] = self::prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$arr_ref);
+                $arr_texts["$sciname"][] = self::prepare_array($identifier,$mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$arr_ref);
             }            
         }        
         //diagnosis end =================================================================        
@@ -305,11 +326,22 @@ class TurbellarianAPI
         }                
         return $arr_scraped;        
     }
+    
+    function get_identifier($url)
+    {   
+        /* e.g. http://turbellaria.umaine.edu/turb2.php?action=16&code=5933&valid=6001 */
+        $arr = parse_url($url);
+        $identifier = $arr["query"];
+        $identifier = str_ireplace("action=","",$identifier);
+        $identifier = str_ireplace("&code=","-",$identifier);
+        $identifier = str_ireplace("&valid=","-",$identifier);        
+        return trim($identifier);        
+    }    
 
-    function prepare_array($mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$reference)
+    function prepare_array($identifier,$mediaURL,$mimeType,$rights_holder,$dataType,$dc_source,$description,$subject,$license,$agent,$reference)
     {
         return array(
-                    "identifier"    =>"",
+                    "identifier"    =>$identifier,
                     "mediaURL"      =>$mediaURL,
                     "mimeType"      =>$mimeType,                        
                     "rights"        =>"",
@@ -496,7 +528,7 @@ class TurbellarianAPI
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
             $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
-        }        
+        }                
         
         if(@$rec["agent"])
         {               
@@ -517,7 +549,7 @@ class TurbellarianAPI
 
     function clean_str($str)
     {    
-        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB","\xA0", "\xAO","\xB0", "\xa0", chr(13), chr(10), "\xaO", "0xC3", "0x20", "0x70", "0x6C", "\xc2", "\x1a"), "", $str);			
+        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB","\xA0", "\xAO","\xB0", "\xa0", chr(13), chr(10), "\xaO", "0xC3", "0x20", "0x70", "0x6C", "\xc2", "\x1a"), "", $str);
         return $str;
     }    
 }
