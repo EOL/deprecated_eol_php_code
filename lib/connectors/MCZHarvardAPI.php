@@ -102,6 +102,7 @@ class MCZHarvardAPI
         $taxon_id = $taxon["taxon_id"];        
         //=============================================================================================================
         $sciname = trim($taxon['SCIENTIFIC_NAME']);
+        if(trim($sciname) == "<>") return array();
             
         $agent=array();
         $rights_holder = "";        
