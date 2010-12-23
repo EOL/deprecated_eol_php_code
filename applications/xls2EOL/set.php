@@ -141,11 +141,15 @@ $id     = 201;  //MCZ Harvard
 $fld    = "service_type_id";
 $value  = 2;
 
-*/
-
 $id     = 33;  //AskNature
 $fld    = "service_type_id";
 $value  = 2;
+
+*/
+
+$id     = 207; //Sloan-CoML NameLink Project 
+$fld    = "resource_status_id";
+$value  = 11; //Publish Pending
 
 
 $query="Select resources.$fld, resources.title, resources.id From resources Where resources.id = $id";
