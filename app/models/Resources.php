@@ -630,6 +630,7 @@ class Resource extends MysqlBase
             if($archive_hierarchy_id != $this->dwc_hierarchy_id)
             {
                 $this->mysqli->update("UPDATE resources SET dwc_hierarchy_id=$archive_hierarchy_id WHERE id=$this->id");
+                Hierarchy::delete($this->dwc_hierarchy_id);
                 $this->dwc_hierarchy_id = $archive_hierarchy_id;
             }
         }catch(Exception $e)

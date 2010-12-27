@@ -9,6 +9,23 @@ class Hierarchy extends MysqlBase
         if(@!$this->id) return;
     }
     
+    public static function delete($id)
+    {
+        if(!$id) return false;
+        $hierarchy = new Hierarchy($id);
+        if(!$hierarchy->id) return false;
+        
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $mysqli->begin_transaction();
+        
+        $mysqli->delete("DELETE ahe FROM hierarchy_entries he JOIN agents_hierarchy_entries ahe ON (he.id=ahe.hierarchy_entry_id) WHERE he.hierarchy_id=$id");
+        $mysqli->delete("DELETE her FROM hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) WHERE he.hierarchy_id=$id");
+        $mysqli->delete("DELETE s FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.hierarchy_id=$id AND s.hierarchy_id=$id");
+        $mysqli->delete("DELETE he FROM hierarchy_entries he WHERE he.hierarchy_id=$id");
+        $mysqli->delete("DELETE FROM hierarchies WHERE id=$id");
+        
+        $mysqli->end_transaction();
+    }
     
     public function latest_group_version()
     {

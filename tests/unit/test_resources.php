@@ -69,6 +69,27 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($last_object->vetted_id == Vetted::insert('unknown'), 'Should not be vetted');
     }
     
+    function testResourceWithDWCA()
+    {
+        $resource = self::create_resource(array('vetted' => false, 'auto_publish' => false, 'dwc_archive_url' => DOC_ROOT . 'tests/fixtures/files/dwca.tar.gz'));
+        $this->assertTrue($resource->hierarchy_id == 0, 'Should not start with hierarchy');
+        $this->assertTrue($resource->dwc_hierarchy_id == 0, 'Should not start with a DWC hierarchy');
+        
+        self::harvest($resource);
+        
+        $this->assertTrue($resource->hierarchy_id != 0, 'Should have a hierarchy');
+        $this->assertTrue($resource->dwc_hierarchy_id != 0, 'Should have a DWC hierarchy');
+        
+        $first_dwc_hierarchy_id = $resource->dwc_hierarchy_id;
+        $first_dwc_hierarchy = new Hierarchy($first_dwc_hierarchy_id);
+        $this->assertTrue($first_dwc_hierarchy->id, 'Should have a DWC hierarchy');
+        
+        self::harvest($resource);
+        
+        $first_dwc_hierarchy = new Hierarchy($first_dwc_hierarchy_id);
+        $this->assertFalse(isset($first_dwc_hierarchy->id), 'First DWC hierarchy should be gone');
+    }
+    
     function testSetAutoPublish()
     {
         $resource = self::create_resource(array('title' => 'BOLD Systems Resource', 'auto_publish' => false));
