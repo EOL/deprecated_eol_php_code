@@ -3,11 +3,13 @@
 class FeedDenormalizer
 {
     private $mysqli;
+    private $mysqli_slave;
     private $iteration_size = 100000;
     
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
+        if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
     }
     
     public function begin_process()
@@ -15,7 +17,7 @@ class FeedDenormalizer
         $start = 0;
         $max_id = 0;
         
-        $result = $this->mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc");
+        $result = $this->mysqli_slave->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc");
         if($result && $row=$result->fetch_assoc())
         {
             $start = $row["min"];
@@ -45,7 +47,7 @@ class FeedDenormalizer
             $text_type_id = DataType::find("http://purl.org/dc/dcmitype/Text");
             
             echo "Memory: ".memory_get_usage()."\n";
-            $outfile = $this->mysqli->select_into_outfile("
+            $outfile = $this->mysqli_slave->select_into_outfile("
                 SELECT tcx.taxon_concept_id, tcx.parent_id, do.id data_object_id, do.data_type_id, do.created_at
                     FROM data_objects_taxon_concepts dotc
                     JOIN data_objects do ON (dotc.data_object_id=do.id)
@@ -90,7 +92,7 @@ class FeedDenormalizer
             
             // searches for all images for THIS concept, same as above
             // but also searches top_images for the best from its decendants
-            $outfile = $this->mysqli->select_into_outfile("
+            $outfile = $this->mysqli_slave->select_into_outfile("
             (SELECT tcx.taxon_concept_id, tcx.parent_id, fdo.data_object_id, fdo.data_type_id, fdo.created_at
                 FROM taxon_concepts_exploded tcx
                 JOIN feed_data_objects_tmp fdo ON (tcx.taxon_concept_id=fdo.taxon_concept_id)

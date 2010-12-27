@@ -3,6 +3,7 @@
 class HierarchiesContent
 {
     private $mysqli;
+    private $mysqli_slave;
     
     public function __construct()
     {
