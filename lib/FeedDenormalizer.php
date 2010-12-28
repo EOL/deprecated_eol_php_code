@@ -46,7 +46,6 @@ class FeedDenormalizer
             $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
             $text_type_id = DataType::find("http://purl.org/dc/dcmitype/Text");
             
-            echo "Memory: ".memory_get_usage()."\n";
             $outfile = $this->mysqli_slave->select_into_outfile("
                 SELECT tcx.taxon_concept_id, tcx.parent_id, do.id data_object_id, do.data_type_id, do.created_at
                     FROM data_objects_taxon_concepts dotc
@@ -59,7 +58,6 @@ class FeedDenormalizer
                     AND do.published=1
                     AND do.visibility_id=".Visibility::find('visible')."
                     ORDER BY tcx.taxon_concept_id");
-            echo "Memory: ".memory_get_usage()."\n";
             
             $parent_ids = $this->get_data_from_result($outfile, false);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
@@ -69,6 +67,8 @@ class FeedDenormalizer
         fclose($this->DATA_FILE);
         $this->load_data_from_files();
         
+        // wait 2 minutes for data to propegate
+        sleep(120);
         // now load data for all the parents of taxa with images
         if($all_parent_ids) $this->process_parents($all_parent_ids);
         
@@ -104,7 +104,6 @@ class FeedDenormalizer
                 JOIN feed_data_objects_tmp fdo ON  (tcx_children.taxon_concept_id=fdo.taxon_concept_id)
                 WHERE tcx.taxon_concept_id IN (". implode($chunk, ",") ."))
             ORDER BY taxon_concept_id");
-            echo "Memory: ".memory_get_usage()."\n";
             
             $parent_ids = $this->get_data_from_result($outfile);
             $all_parent_ids = array_merge($all_parent_ids, array_keys($parent_ids));
@@ -113,6 +112,8 @@ class FeedDenormalizer
         fclose($this->DATA_FILE);
         $this->load_data_from_files();
         
+        // wait 15 seconds for data to propegate
+        sleep(15);
         // get data for the next ancestor level
         if($all_parent_ids) $this->process_parents($all_parent_ids);
     }
@@ -131,7 +132,6 @@ class FeedDenormalizer
         {
             if($line = fgets($RESULT, 4096))
             {
-                if($i%2000==0) echo "Memory: ".memory_get_usage()."\n";
                 $i++;
                 $fields = explode("\t", trim($line));
                 $taxon_concept_id = $fields[0];
