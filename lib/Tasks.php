@@ -211,10 +211,93 @@ class Tasks extends MysqlBase
         }
         $result->free();
         
-        if(!$hierarchy_entry_ids) return false;
+        //This makes sure we have a scientific name, gets the canonicalFormID
+        $result = $mysqli->query("SELECT n_match.id FROM names n JOIN canonical_forms cf ON (n.canonical_form_id=cf.id) JOIN names n_match ON (cf.id=n_match.canonical_form_id) WHERE n.id IN (".implode(",",array_keys($name_ids)).") AND n_match.string=cf.string");
+        while($result && $row=$result->fetch_assoc())
+        {
+            //add the canonicalForm to the taxon_concept
+            //only adding canonicalForm - not all names with the same canonicalForm - this might be changed in the future to be more inclusive
+            $matching_ids[$row["id"]][0] = 1;
+            $name_ids[$row["id"]] = 1;
+        }
+        $result->free();
+        
+        $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern!=1");
+        
+        /* Insert the scientific names */
+        foreach($matching_ids as $name_id => $arr)
+        {
+            foreach($arr as $hierarchy_entry_id => $type)
+            {
+                $preferred = 0;
+                if($hierarchy_entry_id && $type=="preferred") $preferred = 1;
+                $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, 0, 0, $preferred)");
+            }
+        }
         
         
         
+        
+        
+        
+        
+        
+        // $common_names = array();
+        // 
+        // $result = $mysqli->query("SELECT s.id, s.hierarchy_entry_id, s.name_id, s.language_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id!=0 AND (s.synonym_relation_id=".SynonymRelation::insert('genbank common name')." OR s.synonym_relation_id=".SynonymRelation::insert('common name').") AND he.published=1 AND he.visibility_id=".Visibility::find('visible'));
+        // while($result && $row=$result->fetch_assoc())
+        // {
+        //     $synonym_id = $row["id"];
+        //     $hierarchy_entry_id = $row["hierarchy_entry_id"];
+        //     $name_id = $row["name_id"];
+        //     $language_id = $row["language_id"];
+        //     
+        //     $common_names[$synonym_id] = array($language_id, $name_id, $hierarchy_entry_id);
+        // }
+        // $result->free();
+        // 
+        // // TODO: not sure what to do here - what is the name was preferred by a curator? Should we ever delete common names? What if the hierarchy is unpublished (Col 2003)?
+        // // // $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern!=1");
+        // 
+        // /* Insert the scientific names */
+        // foreach($common_names as $synonym_id => $arr)
+        // {
+        //     $language_id = $arr[0];
+        //     $name_id = $arr[1];
+        //     $hierarchy_entry_id = $arr[2];
+        //     echo "INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, 0, $synonym_id)\n";
+        //     // $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, 0, $synonym_id)");
+        // }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        unset($matching_ids);
+        unset($common_names);
+        unset($name_ids);
+        unset($hierarchy_entry_ids);
+        
+        /* Common Names */
+        // $result = $mysqli->query("SELECT * FROM name_languages WHERE parent_name_id IN (".implode(",",array_keys($name_ids)).") AND language_id NOT IN (0,".Language::insert("Scientific Name").",".Language::insert("Operational Taxonomic Unit").")");
+        // while($result && $row=$result->fetch_assoc())
+        // {
+        //     $name_id = $row["name_id"];
+        //     $language_id = $row["language_id"];
+        //     if($language_id==Language::insert("Common Name") || in_array($language_id, Language::unknown())) $language_id = Language::insert("Unknown");
+        //     
+        //     $preferred = 1;
+        //     $result2 = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND source_hierarchy_entry_id=0 AND language_id=$language_id AND vern=1 AND preferred=1");
+        //     if($result2 && $row2=$result2->fetch_assoc()) $preferred = 0;
+        //     $mysqli->insert("INSERT IGNORE INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, 0, $language_id, 1, $preferred, NULL)");
+        // }
         
         // /* Lexical Group */
         // $result2 = $mysqli->query("SELECT l2.namebankID FROM lexicalGroups l1 JOIN lexicalGroups l2 ON (l1.lexicalGroupID=l2.lexicalGroupID) WHERE l1.namebankID IN (".implode(",",array_keys($namebankIDs)).") AND l1.lexicalGroupID!=0");
@@ -231,56 +314,6 @@ class Tasks extends MysqlBase
         //     $matching_ids[$row2["name_id"]][0] = 1;
         //     $name_ids[$row2["name_id"]] = 1;
         // }
-        
-        
-        
-        //This makes sure we have a scientific name, gets the canonicalFormID
-        $result = $mysqli->query("SELECT n_match.id FROM names n JOIN canonical_forms cf ON (n.canonical_form_id=cf.id) JOIN names n_match ON (cf.id=n_match.canonical_form_id) WHERE n.id IN (".implode(",",array_keys($name_ids)).") AND n_match.string=cf.string");
-        while($result && $row=$result->fetch_assoc())
-        {
-            //add the canonicalForm to the taxon_concept
-            //only adding canonicalForm - not all names with the same canonicalForm - this might be changed in the future to be more inclusive
-            $matching_ids[$row["id"]][0] = 1;
-            $name_ids[$row["id"]] = 1;
-        }
-        $result->free();
-        
-        
-        
-        
-        $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern!=1");
-        
-        /* Insert the scientific names */
-        foreach($matching_ids as $k => $v)
-        {
-            foreach($v as $k2 => $v2)
-            {
-                $preferred = 0;
-                if($k2 && $v2=="preferred") $preferred = 1;
-                $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred) VALUES ($taxon_concept_id, $k, $k2, 0, 0, $preferred)");
-            }
-        }
-        
-        
-        
-        
-        // /* Common Names */
-        // $result = $mysqli->query("SELECT * FROM name_languages WHERE parent_name_id IN (".implode(",",array_keys($name_ids)).") AND language_id NOT IN (0,".Language::insert("Scientific Name").",".Language::insert("Operational Taxonomic Unit").")");
-        // while($result && $row=$result->fetch_assoc())
-        // {
-        //     $name_id = $row["name_id"];
-        //     $language_id = $row["language_id"];
-        //     if($language_id==Language::insert("Common Name") || in_array($language_id, Language::unknown())) $language_id = Language::insert("Unknown");
-        //     
-        //     $preferred = 1;
-        //     $result2 = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND source_hierarchy_entry_id=0 AND language_id=$language_id AND vern=1 AND preferred=1");
-        //     if($result2 && $row2=$result2->fetch_assoc()) $preferred = 0;
-        //     $mysqli->insert("INSERT IGNORE INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, 0, $language_id, 1, $preferred, NULL)");
-        // }
-        
-        unset($matching_ids);
-        unset($name_ids);
-        unset($hierarchy_entry_ids);
     }
     
     // public static function update_taxon_concept_names($taxon_concept_id)

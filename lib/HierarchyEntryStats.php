@@ -3,10 +3,13 @@
 class HierarchyEntryStats
 {
     private $mysqli;
+    private $mysqli_slave;
     
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
+        if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
+        else $this->mysqli_slave =& $this->mysqli;
     }
     
     public function begin_process()
@@ -21,6 +24,9 @@ class HierarchyEntryStats
         
         $this->lookup_concept_content();
         $this->lookup_entry_content();
+        
+        // wait 10 minutes for the slaves to catch up
+        sleep_production(600);
         $this->start_lookup_recursive();
         
         $this->mysqli->begin_transaction();
@@ -43,11 +49,11 @@ class HierarchyEntryStats
     
     public function lookup_entry_content()
     {
-        $outfile = $this->mysqli->select_into_outfile('SELECT id FROM hierarchy_entries');
+        $outfile = $this->mysqli_slave->select_into_outfile('SELECT id FROM hierarchy_entries');
         $this->mysqli->load_data_infile($outfile, 'hierarchy_entry_stats_tmp');
         unlink($outfile);
         
-        $outfile = $this->mysqli->select_into_outfile("SELECT  he.id, tcs.text_trusted, tcs.text_untrusted, tcs.image_trusted, tcs.image_untrusted, 0,0,0,0,0,0,0,0,0 FROM hierarchy_entries he STRAIGHT_JOIN taxon_concept_stats_tmp tcs ON (he.taxon_concept_id=tcs.taxon_concept_id) WHERE he.published=1 AND he.visibility_id=". Visibility::find('visible'));
+        $outfile = $this->mysqli_slave->select_into_outfile("SELECT  he.id, tcs.text_trusted, tcs.text_untrusted, tcs.image_trusted, tcs.image_untrusted, 0,0,0,0,0,0,0,0,0 FROM hierarchy_entries he STRAIGHT_JOIN taxon_concept_stats_tmp tcs ON (he.taxon_concept_id=tcs.taxon_concept_id) WHERE he.published=1 AND he.visibility_id=". Visibility::find('visible'));
         $this->mysqli->load_data_infile($outfile, 'hierarchy_entry_stats_tmp', 'REPLACE');
         unlink($outfile);
     }
@@ -58,7 +64,7 @@ class HierarchyEntryStats
         $OUT = fopen($tmp_file_path, "w+");
         
         // find all published and visible roots - then start descending
-        $result = $this->mysqli->query("SELECT * FROM hierarchy_entries he JOIN hierarchy_entry_stats_tmp hes ON (he.id=hes.hierarchy_entry_id) WHERE he.parent_id=0 AND (he.lft!=he.rgt AND he.lft!=he.rgt-1)  AND he.published=1 AND he.visibility_id=". Visibility::find('visible'));
+        $result = $this->mysqli_slave->query("SELECT * FROM hierarchy_entries he JOIN hierarchy_entry_stats_tmp hes ON (he.id=hes.hierarchy_entry_id) WHERE he.parent_id=0 AND (he.lft!=he.rgt AND he.lft!=he.rgt-1)  AND he.published=1 AND he.visibility_id=". Visibility::find('visible'));
         while($result && $row=$result->fetch_assoc())
         {
             $this->lookup_recursive($row, $OUT);
@@ -119,7 +125,7 @@ class HierarchyEntryStats
         // if there could be descendants
         if($row['rgt'] > ($row['lft']+1))
         {
-            $result = $this->mysqli->query("SELECT * FROM hierarchy_entries he JOIN  hierarchy_entry_stats_tmp hes ON (he.id=hes.hierarchy_entry_id) WHERE he.parent_id=$id AND he.published=1 AND he.visibility_id=". Visibility::find('visible'));
+            $result = $this->mysqli_slave->query("SELECT * FROM hierarchy_entries he JOIN  hierarchy_entry_stats_tmp hes ON (he.id=hes.hierarchy_entry_id) WHERE he.parent_id=$id AND he.published=1 AND he.visibility_id=". Visibility::find('visible'));
             while($result && $child_row=$result->fetch_assoc())
             {
                 $child_stats = $this->lookup_recursive($child_row, $OUT);
@@ -146,7 +152,7 @@ class HierarchyEntryStats
     
     public function lookup_concept_content()
     {
-        $outfile = $this->mysqli->select_into_outfile('SELECT id  FROM taxon_concepts');
+        $outfile = $this->mysqli_slave->select_into_outfile('SELECT id  FROM taxon_concepts');
         $this->mysqli->load_data_infile($outfile, 'taxon_concept_stats_tmp');
         unlink($outfile);
         
@@ -156,7 +162,7 @@ class HierarchyEntryStats
         $image_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
         $text_id = DataType::find("http://purl.org/dc/dcmitype/Text");
         
-        $outfile = $this->mysqli->select_into_outfile("SELECT dttc.taxon_concept_id,  do.id data_object_id,  do.data_type_id, do.vetted_id FROM data_types_taxon_concepts dttc STRAIGHT_JOIN data_objects_taxon_concepts dotc ON (dttc.taxon_concept_id=dotc.taxon_concept_id) STRAIGHT_JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE dttc.data_type_id IN ($image_id, $text_id) AND dttc.visibility_id=$visible_id AND dttc.published=1 AND do.published=1 AND dttc.visibility_id=$visible_id AND do.vetted_id IN ($unknown_id, $trusted_id) ORDER BY taxon_concept_id");
+        $outfile = $this->mysqli_slave->select_into_outfile("SELECT dttc.taxon_concept_id,  do.id data_object_id,  do.data_type_id, do.vetted_id FROM data_types_taxon_concepts dttc STRAIGHT_JOIN data_objects_taxon_concepts dotc ON (dttc.taxon_concept_id=dotc.taxon_concept_id) STRAIGHT_JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE dttc.data_type_id IN ($image_id, $text_id) AND dttc.visibility_id=$visible_id AND dttc.published=1 AND do.published=1 AND dttc.visibility_id=$visible_id AND do.vetted_id IN ($unknown_id, $trusted_id) ORDER BY taxon_concept_id");
         $out_path = temp_filepath();
         $OUT = fopen($out_path, "w+");
         $trusted_text = 0;
