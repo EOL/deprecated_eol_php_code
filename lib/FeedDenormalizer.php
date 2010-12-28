@@ -10,6 +10,7 @@ class FeedDenormalizer
     {
         $this->mysqli =& $GLOBALS['db_connection'];
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
+        else $this->mysqli_slave =& $this->mysqli;
     }
     
     public function begin_process()
