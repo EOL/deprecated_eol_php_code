@@ -8,11 +8,17 @@ class MonthlyGoogleAnalytics
     private $mysqli;    
     public function __construct()
     {
-        //$this->mysqli_slave = load_mysql_environment('slave');
-        $this->mysqli_slave = load_mysql_environment('integration');
-
-        //$this->mysqli_local = $this->mysqli_slave        
+        /*
+        //actual operation
+        $this->mysqli =& $GLOBALS['mysqli_connection']; 
+        $this->mysqli_local = $this->mysqli;
+        */
+        
+        ///*
+        //only for development
+        $this->mysqli = load_mysql_environment('integration'); 
         $this->mysqli_local = load_mysql_environment('development');
+        //*/        
     }    
         
     function process_parameters()
@@ -98,7 +104,7 @@ class MonthlyGoogleAnalytics
             /* avoid using distinct - this is too slow           
             $query = "SELECT COUNT(DISTINCT(tc.id)) count FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) WHERE tc.supercedure_id=0 AND tc.published=1 ";
             $query .= " limit 10"; //debug            
-            $result2 = $this->mysqli_slave->query($query);            
+            $result2 = $this->mysqli->query($query);            
             $row2 = $result2->fetch_row();                
             $arr[] = $row2[0]; //count of taxa pages
             */
@@ -112,7 +118,7 @@ class MonthlyGoogleAnalytics
             {
                 if($line = fgets($FILE))
                 {
-                    $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
+                    $line = trim($line); $fields = explode("\t", $line);                    
                     $tc_id = trim($fields[0]);
                     $arr_tmp[$tc_id]='';                    
                 }                
@@ -122,8 +128,7 @@ class MonthlyGoogleAnalytics
         elseif($agent_id == 11)//Catalogue of Life
         {   
             $query = "SELECT COUNT(he.taxon_concept_id) count FROM hierarchy_entries he WHERE he.hierarchy_id=".Hierarchy::default_id();
-            $query .= " limit 10"; //debug
-            $result2 = $this->mysqli_slave->query($query);            
+            $result2 = $this->mysqli->query($query);            
             $row2 = $result2->fetch_row();                
             $arr[] = $row2[0]; //count of taxa pages
         }
@@ -140,7 +145,7 @@ class MonthlyGoogleAnalytics
             */
             
             $query="SELECT Max(he.id) latest_harvest_event_id FROM harvest_events he JOIN agents_resources ar ON ar.resource_id = he.resource_id Where ar.agent_id = $agent_id AND he.published_at Is Not Null ";
-            $result = $this->mysqli_slave->query($query);                        
+            $result = $this->mysqli->query($query);                        
             $row = $result->fetch_row();                
             $latest_harvest_event_id = $row[0];
             
@@ -151,7 +156,7 @@ class MonthlyGoogleAnalytics
             JOIN taxon_concepts tc ON he.taxon_concept_id = tc.id
             WHERE er.agent_id = $agent_id AND tc.published=1 AND tc.supercedure_id=0 AND hev.id = $latest_harvest_event_id ";        
             
-            $result = $this->mysqli_slave->query($query);            
+            $result = $this->mysqli->query($query);            
             $arr_tmp=array();
             while($result && $row=$result->fetch_assoc())
             {
@@ -162,7 +167,7 @@ class MonthlyGoogleAnalytics
         }                    
     
         $query="SELECT Count(gapt.taxon_concept_id) FROM google_analytics_partner_taxa gapt WHERE gapt.agent_id = $agent_id AND gapt.`year` = $year AND gapt.`month` = $month ";
-        $result2 = $this->mysqli_slave->query($query);            
+        $result2 = $this->mysqli->query($query);            
         $row2 = $result2->fetch_row();                
         $arr[] = $row2[0]; //count of taxa pages viewed during the month
         return $arr;
@@ -186,7 +191,7 @@ class MonthlyGoogleAnalytics
         $month=intval(substr($year_month,5,2));    
         //=================================================================
         $query = self::get_sql_for_partners_with_published_data();
-        $result = $this->mysqli_slave->query($query);    
+        $result = $this->mysqli->query($query);    
         
         //initialize txt file        
         $filename = GOOGLE_DATA_PATH . $year_month . "/google_analytics_partner_summaries.txt"; $fp = fopen($filename,"w");fclose($fp);            
@@ -250,7 +255,7 @@ class MonthlyGoogleAnalytics
             $query .= " LIMIT 1 "; //debug
             */
             $query="SELECT gaps.taxon_concept_id tc_id FROM google_analytics_page_stats gaps Where gaps.year = $year AND gaps.month = $month";
-            $result = $this->mysqli_slave->query($query);  
+            $result = $this->mysqli->query($query);  
             $arr1=array();  
             while($result && $row=$result->fetch_assoc())    
             {
@@ -281,7 +286,7 @@ class MonthlyGoogleAnalytics
             JOIN google_analytics_page_stats gaps ON he.taxon_concept_id = gaps.taxon_concept_id
             WHERE he.hierarchy_id  = ".Hierarchy::default_id()." 
             AND gaps.month = $month AND gaps.year = $year";        
-            $query .= " LIMIT 1 "; //debug    
+            $query .= " LIMIT 10000 "; //debug    
         }
         else //rest of the partners
         {   
@@ -294,12 +299,12 @@ class MonthlyGoogleAnalytics
             JOIN google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
             WHERE a.id = $agent_id AND tc.published=1 AND tc.supercedure_id=0
             AND gaps.month=$month AND gaps.year=$year";        
-            $query .= " limit 50 "; //debug     
+            $query .= " limit 5 "; //debug     
         }
         
         if($agent_id != 38205)//not for BHL -- for Catalogue of Life AND others.
         {
-            $result = $this->mysqli_slave->query($query);    
+            $result = $this->mysqli->query($query);    
             $arr=array();
             while($result && $row=$result->fetch_assoc())    
             {
@@ -312,8 +317,9 @@ class MonthlyGoogleAnalytics
         $final=array();
         foreach($arr as $tc_id)
         {
-            $final = array("agent_id"=>$agent_id, "taxon_concept_id"=>$tc_id);   
-        }               
+            $final[] = array("agent_id"=>$agent_id, "taxon_concept_id"=>$tc_id);   
+        }    
+        //print"<pre>";print_r($final);print"</pre>";//exit;
         return $final;
     }
     
@@ -326,7 +332,7 @@ class MonthlyGoogleAnalytics
         //=================================================================
         //query 2        
         $query = self::get_sql_for_partners_with_published_data();
-        $result = $this->mysqli_slave->query($query);    
+        $result = $this->mysqli->query($query);    
         
         //initialize txt file        
         $filename = GOOGLE_DATA_PATH . $year_month . "/google_analytics_partner_taxa.txt";     $fp = fopen($filename,"w");fclose($fp);            
@@ -341,8 +347,7 @@ class MonthlyGoogleAnalytics
             print"agent id = $row[id] $i of $num_rows ";
             $result2 = self::get_sql_to_get_TCid_that_WHERE_viewed_for_dmonth($row["id"],$month,$year);
             $fields=array();
-            $fields[0]="taxon_concept_id";
-            $fields[1]="agent_id";
+            $fields[]="taxon_concept_id"; $fields[]="agent_id";
             $temp = self::save_to_txt($result2,"google_analytics_partner_taxa",$fields,$year_month,"\t",0,"txt");
             $elapsed_time_in_sec = microtime(1)-$time_start;
             print " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
@@ -353,7 +358,7 @@ class MonthlyGoogleAnalytics
         $time_start = microtime(1);
         $result = self::get_sql_to_get_TCid_that_WHERE_viewed_for_dmonth(38205,$month,$year);
         $fields=array();
-        $fields[0]="taxon_concept_id"; $fields[1]="agent_id";
+        $fields[]="taxon_concept_id"; $fields[]="agent_id";
         $temp = self::save_to_txt($result, "google_analytics_partner_taxa_bhl",$fields,$year_month,"\t",0,"txt");
         $elapsed_time_in_sec = microtime(1)-$time_start;
         print " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
@@ -362,7 +367,7 @@ class MonthlyGoogleAnalytics
         $time_start = microtime(1);
         $result = self::get_sql_to_get_TCid_that_WHERE_viewed_for_dmonth(11,$month,$year);
         $fields=array();
-        $fields[0]="taxon_concept_id"; $fields[1]="agent_id";
+        $fields[]="taxon_concept_id"; $fields[]="agent_id";
         $temp = self::save_to_txt($result, "google_analytics_partner_taxa_col",$fields,$year_month,"\t",0,"txt");
         $elapsed_time_in_sec = microtime(1)-$time_start;
         print " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
@@ -414,7 +419,7 @@ class MonthlyGoogleAnalytics
             $continue=true; 
             $start_count=1; 
             $range=10000; //normal operation
-            $range=1000;  //debug  
+            $range=100; //debug  
                     
             mkdir(GOOGLE_DATA_PATH , 0777);        
             mkdir(GOOGLE_DATA_PATH . $year . "_" . $month , 0777);                
@@ -532,7 +537,7 @@ class MonthlyGoogleAnalytics
             for ($i = 0; $i < count($fields); $i++)         
             {
                 $field = $fields[$i];
-                $str .= $row["$field"] . $field_separator;   
+                $str .= $row[$field] . $field_separator;   
             }
             $str .= intval(substr($year_month,0,4)) . $field_separator;
             $str .= intval(substr($year_month,5,2));//no more field separator for last item
@@ -557,14 +562,14 @@ class MonthlyGoogleAnalytics
         } 
         
         $query="SELECT COUNT(*) count FROM taxon_concepts tc WHERE tc.published=1 AND tc.supercedure_id=0";
-        $result = $this->mysqli_slave->query($query);           
+        $result = $this->mysqli->query($query);           
         $row = $result->fetch_row();            
         $taxa_pages = $row[0];
     
         //avoid using distinct
         //$query="SELECT distinct google_analytics_page_stats.taxon_concept_id FROM google_analytics_page_stats WHERE year = $year AND month = $month ";    
         $query="SELECT google_analytics_page_stats.taxon_concept_id tc_id FROM google_analytics_page_stats WHERE year = $year AND month = $month ";    
-        $result = $this->mysqli_slave->query($query);           
+        $result = $this->mysqli->query($query);           
         $arr=array();
         while($result && $row=$result->fetch_assoc())
         {
@@ -576,7 +581,7 @@ class MonthlyGoogleAnalytics
         $query="SELECT sum(time_to_sec(google_analytics_page_stats.time_on_page)) time_on_pages
         FROM google_analytics_page_stats
         WHERE google_analytics_page_stats.`year` = $year AND google_analytics_page_stats.`month` = $month ";
-        $result = $this->mysqli_slave->query($query);           
+        $result = $this->mysqli->query($query);           
         $row = $result->fetch_row();            
         $time_on_pages = $row[0];
     
@@ -588,20 +593,6 @@ class MonthlyGoogleAnalytics
         else                    $update = $this->mysqli_local->load_data_infile(             "temp.txt",          "google_analytics_summaries");
     }    
         
-    public function generate_taxon_concept_with_bhl_links_textfile() //execution time: 5.4 mins.
-    {
-        /* This will generate the taxon_concept_with_bhl_links.txt. Run once everytime BHL data is updated. List all concepts with BHL links. */                    
-        $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt"; 
-        unlink($filename); $fp = fopen($filename,"a");        
-        $result = $this->mysqli_slave->query("SELECT DISTINCT tc.id tc_id FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) WHERE tc.supercedure_id=0 AND tc.published=1");
-        $num_rows = $this->mysqli_slave->affected_rows(); $i=0; $str="";
-        while($result && $row=$result->fetch_assoc())               
-        {               
-            $str .= $row['tc_id'] . "\n";                                                        
-            $i++; print "\n<br> $i of " . $num_rows . " [$tc_id] ";            
-        }
-        print"<hr>\n writing..."; fwrite($fp,$str); fclose($fp); print"<hr>\n saved.";
-    }     
             
 }
 ?>
