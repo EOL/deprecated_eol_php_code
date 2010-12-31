@@ -28,12 +28,11 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
 
-$timestart = microtime(1);
-$temp_time = time_elapsed();            
-
 $GLOBALS['ENV_DEBUG'] = true;
 $GLOBALS['ENV_NAME'] = "integration";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$timestart = microtime(1);
+$temp_time = time_elapsed();            
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 require_library('MonthlyGoogleAnalytics');
@@ -42,10 +41,7 @@ $run = new MonthlyGoogleAnalytics();
 require_once('google_proc.php');
 
 $arr = $run->process_parameters();//month and year parameters
-$month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";
-
-    //generate_taxon_concept_with_bhl_links_textfile
-    $run->generate_taxon_concept_with_bhl_links_textfile()
+$month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";        
 
     //empty the 4 tables for the month
     $run->initialize_tables_4dmonth($year,$month); 
@@ -68,11 +64,10 @@ $time_elapsed_sec = time_elapsed() - $temp_time;
 echo "\n elapsed time = $elapsed_time_sec sec               ";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hrs ";
-
+echo "\n";
 echo "\n elapsed time = $time_elapsed_sec sec               ";
 echo "\n elapsed time = " . $time_elapsed_sec/60 . " mins   ";
 echo "\n elapsed time = " . $time_elapsed_sec/60/60 . " hrs ";
     
 echo"\n\n Processing done. --end-- \n "; 
-exit("\n -Done-");
 ?>
