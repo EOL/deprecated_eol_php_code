@@ -180,7 +180,7 @@ class MonthlyGoogleAnalytics
         JOIN agents_resources ar ON a.id = ar.agent_id
         JOIN harvest_events he ON ar.resource_id = he.resource_id
         WHERE he.published_at is not null AND a.id not in(11,38205) ";     
-        $query .= " AND a.id = 2 "; //debug FishBase
+        //$query .= " AND a.id = 2 "; //debug FishBase
         $query .= " order by a.full_name ";    
         return $query;
     }
@@ -286,7 +286,7 @@ class MonthlyGoogleAnalytics
             JOIN google_analytics_page_stats gaps ON he.taxon_concept_id = gaps.taxon_concept_id
             WHERE he.hierarchy_id  = ".Hierarchy::default_id()." 
             AND gaps.month = $month AND gaps.year = $year";        
-            $query .= " LIMIT 10000 "; //debug    
+            //$query .= " LIMIT 10000 "; //debug    
         }
         else //rest of the partners
         {   
@@ -299,7 +299,7 @@ class MonthlyGoogleAnalytics
             JOIN google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id
             WHERE a.id = $agent_id AND tc.published=1 AND tc.supercedure_id=0
             AND gaps.month=$month AND gaps.year=$year";        
-            $query .= " limit 5 "; //debug     
+            //$query .= " limit 5 "; //debug     
         }
         
         if($agent_id != 38205)//not for BHL -- for Catalogue of Life AND others.
@@ -419,7 +419,7 @@ class MonthlyGoogleAnalytics
             $continue=true; 
             $start_count=1; 
             $range=10000; //normal operation
-            $range=100; //debug  
+            //$range=100; //debug  
                     
             mkdir(GOOGLE_DATA_PATH , 0777);        
             mkdir(GOOGLE_DATA_PATH . $year . "_" . $month , 0777);                
@@ -440,7 +440,7 @@ class MonthlyGoogleAnalytics
              
                 $cnt++;   
                 if(count($data) == 0)$continue=false;        
-                /* for debugging */ $continue=false;            
+                /* for debugging */ //$continue=false;            
                 /* for debugging */ //if($i >= 15000)$continue=false;        
     
                 $str = "";                                
