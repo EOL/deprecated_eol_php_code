@@ -1,37 +1,32 @@
 <?php
-
 //$GLOBALS['ENV_NAME'] = "slave";
-include_once(dirname(__FILE__) . "/../../config/environment.php");
 
+//error_reporting(0);
+
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_once('google_proc.php');
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$start_cnt = get_val_var('start_cnt');
+$start_cnt = ""; if(isset($_REQUEST['start_cnt'])) $start_cnt = $_REQUEST['start_cnt'];
 if(!$start_cnt)$start_cnt=1;
 
-$path = get_val_var('path');
+$path=""; if(isset($_REQUEST['path'])) $path = $_REQUEST['path'];
 
-$provider_to_process = get_val_var('provider');
-
-$agentID = get_val_var('agentID');
-$agent_id = get_val_var('agent_id');if($agent_id != "")$agentID = $agent_id;//new, to accommodate agent_id, not just agentID
+$provider_to_process = ""; if(isset($_REQUEST['provider'])) $provider_to_process = $_REQUEST['provider'];
+$agentID="";    if(isset($_REQUEST['agentID'])) $agentID = $_REQUEST['agentID'];
+$agent_id="";   if(isset($_REQUEST['agent_id'])) $agent_id = $_REQUEST['agent_id'];
+if($agent_id != "")$agentID = $agent_id;
 if($agentID != "")
 {
     $provider_to_process = get_agentName($agentID);
-    //print"[$provider_to_process]<br>";
     if($provider_to_process == "")exit("<hr><i>Data is not available for this content partner.</i><hr>");
 }
-//else exit("<hr><i>Data is not available for this content partner*.</i><hr>");
-
-
-
-$report = get_val_var('report');
-$year = get_val_var('year');
-
+//else Data is not available for this content partner
+$report=""; if(isset($_REQUEST['report'])) $report = $_REQUEST['report'];
+$year=""; if(isset($_REQUEST['year'])) $year = $_REQUEST['year'];
 if($report != "year2date" and $report != "monthly_stat")
 {
     //start - stats for entire eol
-    //exit("goes here");
     $eol_CountOfTaxaPages = getCountOfTaxaPages('',$path,"eol");
     $eol_total_taxon_id   = count_rec($path . "/query12.csv");    
     $eol_total_taxon_id--; //subtract 1 so not to count the column title
@@ -42,49 +37,37 @@ if($report != "year2date" and $report != "monthly_stat")
     $eol_total_time_on_page_seconds = @$arr[2];
     //end - stats for entire eol
 }
-
 if($report == "eol")// www.eol.org monthly report
 {    
     $comma_separated = "$path,$eol_CountOfTaxaPages,$eol_total_taxon_id,$eol_total_unique_page_views,$eol_total_page_views,$eol_total_time_on_page_seconds";    
     print eol_month_report($comma_separated);
     exit;
 }
-
 if($report == "year2date")   
 {
-    $website = get_val_var('website');    
+    $website=""; if(isset($_REQUEST['website'])) $website = $_REQUEST['website'];        
     $temp = monthly_tabular($year,NULL,$website,NULL);exit;
 }
 if($report == "monthly_stat")
-{
-    $month = get_val_var('month');
-    $website = get_val_var('website');    
-    $report_type = get_val_var('report_type');    
-    $entire_year = get_val_var('entire_year');    
+{    
+    $month="";
+    if(isset($_REQUEST['month'])) $month = $_REQUEST['month'];
+       
+    $website = $_REQUEST['website'];
+    $report_type = $_REQUEST['report_type'];
+    $entire_year = $_REQUEST['entire_year'];        
     $temp = monthly_tabular($year,$month,$website,$report_type,$entire_year);exit;
 }
-
-if($report == "save_monthly")// save monthly
+if($report == "save_monthly")
 {
-    $temp = save_monthly();
-    exit;
+    $temp = save_monthly(); exit;
 }
-
-
 $filename = $path . "/site_statistics.csv";
 $provider               = array();
 $page_views             = array();
 $unique_page_views      = array();
 $time_on_page_seconds   = array();
 $taxa_id                = array();
-
-/*
-$t_page_views           =0;
-$t_unique_page_views    =0;
-$t_time_on_page_seconds =0;
-$t_taxa_id =0;
-*/
-
 $row = 0;
 if(!($handle = fopen($filename, "r")))exit;
 while (($data = fgetcsv($handle)) !== FALSE) 
@@ -92,11 +75,8 @@ while (($data = fgetcsv($handle)) !== FALSE)
     if($row > 0)
     {    
         $num = count($data);
-        //echo "<p> $num fields in line $row: <br /></p>\n";        
         for ($c=0; $c < $num; $c++) 
-        {        
-            //echo $c+1 . "- [[" . $data[$c] . "]]<br />\n";        
-            
+        {                    
             if($c==0)$agentName                     =$data[$c];
             if($c==1)$taxon_id                      =$data[$c];
             if($c==2)$scientificName                =$data[$c];
@@ -104,61 +84,41 @@ while (($data = fgetcsv($handle)) !== FALSE)
             if($c==4)$total_page_views              =$data[$c];
             if($c==5)$total_unique_page_views       =$data[$c];
             if($c==6)$total_time_on_page_seconds    =$data[$c];                                
-        }
-        
-        
+        }        
         if($provider_to_process != "")
         {
             if($provider_to_process == trim($agentName))$continue=1;
             else                                        $continue=0;    
         }
-        else $continue=1;
-        
+        else $continue=1;        
         if($continue)
         {
-            $provider[$agentName]=true;    
-            
+            $provider[$agentName]=true;                
             $page_views["$agentName"][]           =$total_page_views;
             $unique_page_views["$agentName"][]    =$total_unique_page_views;
             $time_on_page_seconds["$agentName"][] =$total_time_on_page_seconds;        
             $taxa_id["$agentName"][]              =$taxon_id;
         }        
-        //if($row == 10)break;    
     }
     $row++;
 }
 fclose($handle);
-
-
 if($provider_to_process == "")print "Providers = " . sizeof($provider) . "<br>";
-
-//print_r($provider);
-
 $provider = array_keys($provider);
 for ($i = 0; $i < count($provider); $i++) 
 {       
     $total_page_views           = compute($provider[$i],$page_views,"sum");
     $total_unique_page_views    = compute($provider[$i],$unique_page_views,"sum");
     $total_time_on_page_seconds = compute($provider[$i],$time_on_page_seconds,"sum");
-    
-    /*
-    $total_taxon_id             = compute($provider[$i],$taxa_id,"count");
-    */
-    
-    ///*
     $temp_arr = $taxa_id[$provider[$i]];
     $temp_arr = array_unique($temp_arr);
     $total_taxon_id             = count($temp_arr);
-    //*/
-    //print_r($temp_arr);
-
+    
     //start get "Count of Taxa Pages"
     $CountOfTaxaPages = getCountOfTaxaPages($provider[$i],$path,"partner");
-    //end get "Count of Taxa Pages"
     
     //start title    
     $title = build_title_from_path($path);
-    //end title
     
     print "    
     <table border='1' cellpaddin=2 cellspacing=0>
@@ -206,16 +166,7 @@ for ($i = 0; $i < count($provider); $i++)
         " . number_format($CountOfTaxaPages) . " or " . number_format($CountOfTaxaPages/$eol_CountOfTaxaPages*100,2) . "% had content provided by " . $provider[$i] . ".
         <br>
         Of the " . number_format($eol_total_taxon_id) . " species pages viewed during the month, 
-        " . number_format($total_taxon_id) . " or " . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "% had content provided by " . $provider[$i];
-        
-        /*
-        print"
-        <br>
-        Those " . number_format($total_taxon_id) . " species pages were viewed by 
-        " . number_format($total_unique_page_views) . " distinct visitors for a total of 
-        " . number_format($total_page_views) . " page viewings during the month.";
-        */
-        
+        " . number_format($total_taxon_id) . " or " . number_format($total_taxon_id/$eol_total_taxon_id*100,2) . "% had content provided by " . $provider[$i];                
         print"
         <br>
         Visitors spent a total of " . number_format($total_time_on_page_seconds/60/60,1) . " hours on species pages with " . $provider[$i] . " content, representing 
@@ -231,20 +182,10 @@ for ($i = 0; $i < count($provider); $i++)
         else               print"<tr><td colspan=4><font size='2'> <a href='process.php?path=" . $path . "&provider=" . urlencode($provider[$i]) . "'> See entire report* &gt;&gt; </a></td></tr>";         
     }
 
-    if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path,$start_cnt,$total_taxon_id,$agentID) . "</td></tr>";
-    
-    print"</table>";
-    
+    if($provider_to_process != "")print"<tr><td colspan='4' align='center'> " . record_details($provider[$i],$path,$start_cnt,$total_taxon_id,$agentID) . "</td></tr>";    
+    print"</table>";    
     if($provider_to_process == "")print "<hr>";
 }
-
-/*
-print"    t_page_views           =  $t_page_views           <br>
-          t_unique_page_views    =  $t_unique_page_views    <br>
-          t_time_on_page_seconds =  " . $t_time_on_page_seconds/60/60 . " <br>
-          t_taxa_id =  $t_taxa_id <br> ";
-*/        
-
 function show_dropdown()
 {
     global $provider_to_process;
@@ -270,16 +211,13 @@ function get_month_list()
     $year_now = date("Y");
     $month_now = date("m") - 1;
     $date_end = date("Y-m-d", mktime(0, 0, 0, $month_now, 1, $year_now));
-
     $date_start = "2009-07-01"; 
-    $var_time = strtotime($date_start);
-    
+    $var_time = strtotime($date_start);    
     $arr=array();    
-    //print "$date_start - $date_end<hr>";
     while ($date_start != $date_end)
     {
         $var_time += 86400;
-        $date_start = date("Y-m-d", $var_time); //print "$date_start<br>";        
+        $date_start = date("Y-m-d", $var_time);
         $temp = date("Y_m", $var_time);
         $arr["$temp"]=1;
     }
@@ -290,8 +228,7 @@ function get_month_list()
 function save_monthly()
 {
     $filename = "data/monthly.csv";    
-    $temp = array("2008","2009","2010");    
-    
+    $temp = array("2008","2009","2010","2011");        
     for($i = 0; $i < count($temp) ; $i++) 
     {
         $year = $temp[$i];
@@ -304,13 +241,6 @@ function save_monthly()
             {                                
                 $needle = "$year" . "_" . "$mon"; print "$year " . $mon . " -- ";
                 $haystack = getMonthYear();
-                /*
-                print " <hr>
-                        haystack = [$haystack]  <br>
-                        needle = [$needle] <br> " . 
-                        strripos($haystack, $needle) . "
-                        <hr>"; //exit("<hr>");
-                */      
                 if(strval(strripos($haystack, $needle)) == "")
                 {
                     $api = get_from_api($mon,$year);                
@@ -331,12 +261,11 @@ function save_monthly()
             }
         }        
     }
-}//function save_monthly()
+}
 function getMonthYear()
 {    
     $filename = "data/monthly.csv";
-    if(!($handle = fopen($filename, "a+")))return "";    
-    
+    if(!($handle = fopen($filename, "a+")))return "";        
     $comma_separated='';
     while (($data = fgetcsv($handle)) !== FALSE) 
     {
@@ -345,12 +274,11 @@ function getMonthYear()
         {        
             if($c==0)$comma_separated .= trim($data[$c]) . " " ;
         }
-    }//end while
+    }
     
     if(strlen($comma_separated) > 0) $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
     
     //start build up header if no entries yet, ONCE ONLY //==========================================
-    //print "[$comma_separated]";
     if($comma_separated == "")
     {
         $arr=array();
@@ -364,38 +292,23 @@ function getMonthYear()
         $arr[]='Average Time on Page'; 
         $arr[]='Percent New Visits'; 
         $arr[]='Bounce Rate'; 
-        $arr[]='Percent Exit'; 
-        
+        $arr[]='Percent Exit';         
   		$str="";
         for ($i = 0; $i < count($arr); $i++) 		
        	{
 	       	$str .= $arr[$i] . ",";
     	}
     	$str .= "\n";            
-
         fwrite($handle,$str);
-        
-
-    }//if($comma_separated == "")    
-    //end build up header if no entries yet, ONCE ONLY //==========================================
-    
+    }
+    //end build up header if no entries yet, ONCE ONLY //==========================================    
     fclose($handle);		                
     return trim($comma_separated);
 }
 
-
-
 function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null,$entire_year=Null)
 {
-    /*
-    if($month)print"not null [$month]";
-    else print "is null [$month]";
-    */ 
-    //exit;
-    
-    //style='font-size : small;'
     print"<table cellpadding='4' cellspacing='0' border='1' >";
-
     if($month)  
     {
         $month_start = $month;
@@ -406,144 +319,95 @@ function monthly_tabular($year,$month=Null,$website=Null,$report_type=Null,$enti
         $month_start = 1;
         $exit_after_first_rec=false;   
     }
-
-    if($entire_year)
-    {
-        $exit_after_first_rec=true;    
-    }
-
+    if($entire_year) $exit_after_first_rec=true;    
     if($year < date("Y"))   $month_limit=12;
-    else                    $month_limit = date("n");
-
-    
-    
+    else                    $month_limit = date("n");    
     $tab_delim = "";    
-    $ctr=0;
-    
+    $ctr=0;    
     if($website=="both")$arr=array("eol","fishbase");
-    else                $arr=array($website);
-    
+    else                $arr=array($website);    
     foreach ($arr as &$website)
-    {
-
+    {    
+        for ($month = $month_start; $month <= $month_limit; $month++) 
+        {        
+            $tab_delim .= $year . chr(9) . $month . chr(9);        
     
-    for ($month = $month_start; $month <= $month_limit; $month++) 
-    {        
-        $tab_delim .= $year . chr(9) . $month . chr(9);        
-
-        if($report_type == "visitors_overview" or $report_type == NULL) 
-            $api = get_from_api(GetNumMonthAsString($month, $year),$year,$website);            
-                    
-        elseif(in_array($report_type, array("top_content","subcontinent","continent","country","region","city",
-                                            "visitor_type",
-                                            "content_title",
-                                            "land_pages",
-                                            "exit_pages",                                            
-                                            "referring_sites",
-                                            "referring_engines",
-                                            "referring_all",                                            
-                                            "q1","q2","q3","browser","os","flash"
-                                            )))
-            $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type,$entire_year);
-            
-        
-
-        //print"<hr><pre>";print_r($api);print"</pre>";exit;
-        
-        $month_str = date("F", mktime(0, 0, 0, $month, 1, $year));
-        
-        print"<tr bgcolor='aqua' align='center'>";        
-        $ctr++;
-        if($ctr == 1)
-        {
-            if($report_type == "visitors_overview" or $report_type == NULL) print"<td>$year</td>";
-            else
+            if($report_type == "visitors_overview" or $report_type == NULL) $api = get_from_api(GetNumMonthAsString($month, $year),$year,$website);                
+            elseif(in_array($report_type, array("top_content","subcontinent","continent","country","region","city",
+                                                "visitor_type",
+                                                "content_title",
+                                                "land_pages",
+                                                "exit_pages",                                            
+                                                "referring_sites",
+                                                "referring_engines",
+                                                "referring_all",                                            
+                                                "q1","q2","q3","browser","os","flash"
+                                                ))) $api = get_from_api_Report(GetNumMonthAsString($month, $year),$year,$website,$report_type,$entire_year);
+            $month_str = date("F", mktime(0, 0, 0, $month, 1, $year));            
+            print"<tr bgcolor='aqua' align='center'>";        
+            $ctr++;
+            if($ctr == 1)
             {
-                print"<td>$year";            
-                if(!$entire_year)print"<br>$month_str";
-                print"</td>";
+                if($report_type == "visitors_overview" or $report_type == NULL) print"<td>$year</td>";
+                else
+                {
+                    print"<td>$year";            
+                    if(!$entire_year)print"<br>$month_str";
+                    print"</td>";
+                }
+                
+                foreach($api[0] as $label => $value) 
+                {            
+                    print"<td>$label</td>";
+                }             
             }
-            
-            foreach($api[0] as $label => $value) 
+            print"</tr>";                    
+            $k=0;        
+            foreach($api as &$api2) 
             {            
-                print"<td>$label</td>";
-            }             
-        }
-        print"</tr>";                
-
-        $k=0;        
-        foreach($api as &$api2) 
-        {
-        
-            $k++;
-            if($report_type == "visitors_overview" or $report_type == NULL) print"<tr><td align='center'> " . $month_str . "</td>";        
-            else                                                            print"<tr><td align='right'> " . $k . ".</td>";                
-    
-        //foreach($api[0] as $label => $value) 
-        
-        foreach($api2 as $label => $value) 
-        {            
-
-            $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
-            //$a = "$year $month " . getlastdayofmonth(intval($month), $year) . " 23:59:59";           
-            $b = date("Y m d H:i:s");                        
-            //print "<br>$a -- $b<br>";            
-            if($a <= $b) $tab_delim .= $value . chr(9); //tab
-            
-            $unit="";
-            $align="right";
-            if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits","% New Visits"
-            ,"% Exit","% of ending the session","% Total Visits")))$unit="%";
-            if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews","Entrances","Bounces", "Exits")))$value=number_format($value);
-            if(in_array($label, array("Page","Source","Page Title","Landing Page","Exit Page"
-                ,"Source: Referring Sites"
-                ,"Source: Search Engines"
-                ,"All Traffic Sources"
-                ,"Visitor Type"                
-                ,"Continent"
-                ,"Sub-Continent"
-                ,"Country"
-                ,"Region"
-                ,"City"                  
-                ,"Browser","Operating System","Flash Versions"
-            )))$align="left";
-            
-            
-            $display="$value$unit";            
-
-            if(in_array($label, array("Page","Landing Page","Exit Page")))
-            {
-                $display=substr($value,0,50);
-                //print"[$website]";
-                if    ($website == "fishbase")$domain="www.fishbase.org";
-                elseif($website == "eol")$domain="www.eol.org";
-                $display="<a target='external' href='http://$domain" . strip_tags($value) . "'>$display</a>";
-            }
-            print"<td align='$align'>$display</td>";
-        } 
-        $tab_delim .= "\n"; //tab
-        print"</tr>";                
-        
-        }//2nd loop
-        
-        if($exit_after_first_rec)break;
-    
-    }//loop month //inner loop
-    }//outer loop    
-        
+                $k++;
+                if($report_type == "visitors_overview" or $report_type == NULL) print"<tr><td align='center'> " . $month_str . "</td>";        
+                else                                                            print"<tr><td align='right'> " . $k . ".</td>";                        
+                foreach($api2 as $label => $value) 
+                {                    
+                    $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";           
+                    $b = date("Y m d H:i:s");                        
+                    if($a <= $b) $tab_delim .= $value . chr(9); //tab                    
+                    $unit="";
+                    $align="right";
+                    if(in_array($label, array("Percent Exit","Bounce Rate","Percent New Visits","% New Visits"
+                    ,"% Exit","% of ending the session","% Total Visits")))$unit="%";
+                    if(in_array($label, array("Visits","Visitors","Pageviews","Unique Pageviews","Entrances","Bounces", "Exits")))$value=number_format($value);
+                    if(in_array($label, array("Page","Source","Page Title","Landing Page","Exit Page"
+                        ,"Source: Referring Sites"
+                        ,"Source: Search Engines"
+                        ,"All Traffic Sources"
+                        ,"Visitor Type"                
+                        ,"Continent"
+                        ,"Sub-Continent"
+                        ,"Country"
+                        ,"Region"
+                        ,"City"                  
+                        ,"Browser","Operating System","Flash Versions"
+                    )))$align="left";                                        
+                    $display="$value$unit";                    
+                    if(in_array($label, array("Page","Landing Page","Exit Page")))
+                    {
+                        $display=substr($value,0,50);
+                        if    ($website == "fishbase")$domain="www.fishbase.org";
+                        elseif($website == "eol")$domain="www.eol.org";
+                        $display="<a target='external' href='http://$domain" . strip_tags($value) . "'>$display</a>";
+                    }
+                    print"<td align='$align'>$display</td>";
+                } 
+                $tab_delim .= "\n";
+                print"</tr>";                  
+            }//2nd loop            
+            if($exit_after_first_rec)break;        
+        }//loop month //inner loop    
+    }//outer loop            
     print"</table>";
-
-    /* working ...    this shouldn't be here
-    global $mysqli;
-    $fp=fopen("temp.txt","w");fwrite($fp,$tab_delim);fclose($fp);
-    $update = $mysqli->query("LOAD DATA LOCAL INFILE 'temp.txt' INTO TABLE google_analytics_summaries");        
-    $update = $mysqli->query("delete from google_analytics_summaries where (year = " . date("Y") . " and month = " . date("n") . ") or visits = 0 ");            
-    */    
 }//function monthly_tabular($year)
-
-
-////////////////////////////////////////////////////////////////////////
-
 function getCountOfTaxaPages($provider,$path,$for)
 {
     $filename = $path . "/query9.csv";
@@ -554,58 +418,40 @@ function getCountOfTaxaPages($provider,$path,$for)
         if($row > 0)
         {    
             $num = count($data);
-            //echo "<p> $num fields in line $row: <br /></p>\n";        
             for ($c=0; $c < $num; $c++) 
             {        
-                //echo $c+1 . "- [[" . $data[$c] . "]]<br />\n";                    
                 if($c==0)$all_taxa_count      =$data[$c];
                 if($c==1)$agentName           =$data[$c];
                 if($c==2)$agent_taxa_count    =$data[$c];
-            }
-            
+            }            
             if($for == 'partner')if($provider == $agentName) return $agent_taxa_count;
             if($for == 'eol')                                return $all_taxa_count;            
-            
-            //if($row == 10)break;    
         }
         $row++;
-    }//end while
+    }
 }
-
 function compute($provider,$arr,$operation)
 {
     $arr = $arr["$provider"];        
     if($operation == "sum")     return array_sum($arr);    
     if($operation == "count")   return count($arr);    
 }
-
 function iif($condition, $true, $false)
 {
     if($condition)return $true;
     else return $false;
 }
-
-
-
 function count_rec($file)
 {
     $row = 0;    
     if(!($handle = fopen($file, "r")))return;    
     while (($data = fgetcsv($handle)) !== FALSE) 
     {
-        if($row > 0)
-        {    
-            $num = count($data);
-            //echo "<p> $num fields in line $row: <br /></p>\n";        
-            for ($c=0; $c < $num; $c++) 
-            {                        
-            }
-        }
+        if($row > 0) $num = count($data);
         $row++;
     }
     return $row;
 }
-
 function process_all_eol($file)
 {
     $page_views = 0;
@@ -613,17 +459,13 @@ function process_all_eol($file)
     $time_on_page_seconds = 0;
     $bounce_rate = 0;
     $percent_exit = 0;
-
-    $row = 0;
-        
-    if(!($handle = fopen($file, "r")))return;
-    
+    $row = 0;        
+    if(!($handle = fopen($file, "r")))return;    
     while (($data = fgetcsv($handle)) !== FALSE) 
     {
         if($row > 0)
         {    
             $num = count($data);
-            //echo "<p> $num fields in line $row: <br /></p>\n";        
             for ($c=0; $c < $num; $c++) 
             {        
                 if($c==6)$page_views += intval($data[$c]);
@@ -634,34 +476,12 @@ function process_all_eol($file)
             }
         }
         $row++;
-        //if($row==100)break;
     }    
-    
-    /*    
-    $page_views                =array_sum($page_views);
-    $unique_page_views        =array_sum($unique_page_views);
-    $time_on_page_seconds    =array_sum($time_on_page_seconds);
-    $bounce_rate            =array_sum($bounce_rate);
-    $percent_exit            =array_sum($percent_exit);
-    */
-    
-    /* working...
-    print"<hr>rows = $row<hr>
-    page_views                = " . number_format($page_views)            ."<br>
-    unique_page_views        = " . number_format($unique_page_views)        ."<br>
-    time_on_page_seconds    = " . number_format($time_on_page_seconds)    ."<br>
-    bounce_rate                = " . number_format($bounce_rate)            ."<br>
-    percent_exit            = " . number_format($percent_exit)            ."<br>    
-    ";
-    */
-    
     return "$unique_page_views,$page_views,$time_on_page_seconds";
 }
-
 function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
 {   
-    $step=100;    
-    
+    $step=100;        
     if($start_cnt == "all"){$start_cnt=1;$max_cnt=999999999;}
     else $max_cnt = $start_cnt+$step;    
 
@@ -690,8 +510,6 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
             $str .= "<a href='process.php?path=" . $path . "&provider=" . urlencode($provider) . "&start_cnt=$max_cnt'>Next $next_step</a> &nbsp;|&nbsp; 
                      <a href='process.php?path=" . $path . "&provider=" . urlencode($provider) . "&start_cnt=all'>All</a> ";
         }
-     
-        
     }
     //end paging ==============================================================
     
@@ -707,11 +525,6 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
     </tr>";
     
     $provider_cnt=0;
-    /*
-    $start_cnt=10;
-    $provider_cnt=$start_cnt;
-    */
-        
     $filename = $path . "/site_statistics.csv";
     $row = 0;
     $handle = fopen($filename, "r");
@@ -720,10 +533,8 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
         if($row > 0 )
         {    
             $num = count($data);
-            //echo "<p> $num fields in line $row: <br /></p>\n";        
             for ($c=0; $c < $num; $c++) 
             {        
-                //echo $c+1 . "- [[" . $data[$c] . "]]<br />\n";                    
                 if($c==0)$agentName                     =$data[$c];
                 if($c==1)$taxon_id                      =$data[$c];
                 if($c==2)$scientificName                =$data[$c];
@@ -732,7 +543,6 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
                 if($c==5)$total_unique_page_views       =$data[$c];
                 if($c==6)$total_time_on_page_seconds    =$data[$c];
             }            
-            //if($row == 3)break;                            
             if(trim($agentName) == trim($provider))
             {
                 $provider_cnt++;                
@@ -783,12 +593,7 @@ function get_month_year_from_path($path)
     $arr = explode("/",$path);
     $arr = explode("_",$arr[1]);
     return $arr;    
-    /*
-    $arr[0] = year  e.g. 1972
-    $arr[1] = month e.g. 07
-    */
 }
-
 
 function eol_month_report($arr)
 {
@@ -809,15 +614,11 @@ function eol_month_report($arr)
     //end get stats from google api    
 
     $str="<table border='1' cellpadding=3 cellspacing=0>
-    <tr align='center'>    
-            <td bgcolor='aqua' colspan='3'><b>$title www.eol.org Statistics</b></td>
-    </tr>
-
+    <tr align='center'><td bgcolor='aqua' colspan='3'><b>$title www.eol.org Statistics</b></td></tr>
     <tr align=''>    
             <td colspan='2' align='center'>From Google Analytics Summary Page</td>
             <td><font size='2'><i>" . "Definitions <a href='http://www.google.com/adwords/learningcenter/text/38069.html'>source</a>" . "</i></font></td>
-    </tr>
-    ";    
+    </tr>";    
     
     $label_arr=array(
             "Visits" => "",
@@ -831,7 +632,6 @@ function eol_month_report($arr)
 	        "Bounce Rate" => "The percentage of entrances on the page that result in the person immediately leaving the site.",
             "Percent Exit" => "The percentage of visitors leaving your site immediately after viewing that page."
             );
-
     
     foreach($api[0] as $label => $value) 
     {        
@@ -843,8 +643,7 @@ function eol_month_report($arr)
             <td>$label</td>
             <td align='right'>$value$unit</td>
             <td><font size='2'><i>" . $label_arr["$label"] . "</i></font></td>
-        </tr>
-        ";
+        </tr>";
     } 
 
     if($eol_total_page_views > 0)
@@ -861,10 +660,6 @@ function eol_month_report($arr)
             <td align='left'>&nbsp;" . number_format($eol_total_taxon_id/$eol_CountOfTaxaPages*100,2) . "%</td>            
         </tr>";
     }
-    else
-    {
-        //$str .= "<tr align='center'><td colspan='2'><i></i></td></tr>";
-    }    
     $str .= "</table>";    
     $str .= "<br>" . record_details_eol($path) . "";        
     return $str;
@@ -887,13 +682,10 @@ function record_details_eol($path)
     <td>Percent Exit</td>
     </tr>";
     
-    $provider_cnt=0;
-        
+    $provider_cnt=0;        
     $filename = $path . "/query10.csv";
-    $row = 0;    
-    
-    if(!($handle = fopen($filename, "r")))return;
-    
+    $row = 0;        
+    if(!($handle = fopen($filename, "r")))return;    
     while (($data = fgetcsv($handle)) !== FALSE) 
     {
         if($row > 0 )
@@ -913,27 +705,22 @@ function record_details_eol($path)
                 if($c==9)$bounce_rate           =$data[$c];
                 if($c==10)$percent_exit         =$data[$c];
             }            
-            //if($row == 3)break;                            
-
-            //if(trim($agentName) == trim($provider))
-            if(1==1)
-            {
-                $provider_cnt++;                
-                if ($provider_cnt % 2 == 0){$vcolor = 'white';}
-                else                       {$vcolor = '#ccffff';}                        
-                $str .= utf8_encode("<tr bgcolor=$vcolor>
-                    <td align='right'>" . number_format($provider_cnt) . "</td>
-                    <td align='center'>$taxon_id&nbsp;</td>
-                    <td>$url</td>
-                    <td><i>$scientificName</i> &nbsp;</td>
-                    <td>$commonNameEN &nbsp;</td>
-                    <td align='right'>" . number_format($page_views) . "</td>
-                    <td align='right'>" . number_format($unique_page_views) . "</td>
-                    <td align='right'>" . sec2hms($time_on_page_seconds ,false) . "</td>
-                    <td align='right'>" . number_format($bounce_rate,2) . "</td>
-                    <td align='right'>" . number_format($percent_exit,2) . "</td>
-                </tr>");
-            }
+            
+            $provider_cnt++;                
+            if ($provider_cnt % 2 == 0){$vcolor = 'white';}
+            else                       {$vcolor = '#ccffff';}                        
+            $str .= utf8_encode("<tr bgcolor=$vcolor>
+                <td align='right'>" . number_format($provider_cnt) . "</td>
+                <td align='center'>$taxon_id&nbsp;</td>
+                <td>$url</td>
+                <td><i>$scientificName</i> &nbsp;</td>
+                <td>$commonNameEN &nbsp;</td>
+                <td align='right'>" . number_format($page_views) . "</td>
+                <td align='right'>" . number_format($unique_page_views) . "</td>
+                <td align='right'>" . sec2hms($time_on_page_seconds ,false) . "</td>
+                <td align='right'>" . number_format($bounce_rate,2) . "</td>
+                <td align='right'>" . number_format($percent_exit,2) . "</td>
+            </tr>");            
             if($provider_cnt == 100)break; //break 2
         }                
         $row++;
@@ -942,46 +729,25 @@ function record_details_eol($path)
     return $str;        
 }
 
-
-
-
-
-
 function get_agentID($agentName)
 {
-    global $mysqli;
-    
-    $agentName = str_ireplace("'" , "''", $agentName);	
-    
-    $query="Select agents.id,agents.full_name,agents.display_name,agents.updated_at,
-    agents.created_at,agents.agent_status_id,harvest_events.id From
-    agents
-    Inner Join agents_resources ON agents.id = agents_resources.agent_id
-    Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
-    Where
-    agents.full_name = '$agentName'
-    Order By harvest_events.id Desc";
+    global $mysqli;    
+    $agentName = str_ireplace("'" , "''", $agentName);	    
+    $query="SELECT a.id, a.full_name, a.display_name, a.updated_at, a.created_at, a.agent_status_id, he.id FROM agents a JOIN agents_resources ar ON a.id = ar.agent_id JOIN harvest_events he ON ar.resource_id = he.resource_id WHERE a.full_name = '$agentName' ORDER BY he.id Desc";
     $sql = $mysqli->query($query);
     $row = $sql->fetch_row();            
     //print " [" . $row[0] . "] ";
     return $row[0];
 }
+
 function get_agentName($agentID)
 {
-    global $mysqli;
-    
-    $query="Select agents.full_name,agents.display_name,agents.updated_at,
-    agents.created_at,agents.agent_status_id,harvest_events.id From
-    agents 
-    Inner Join agents_resources ON agents.id = agents_resources.agent_id
-    Inner Join harvest_events ON agents_resources.resource_id = harvest_events.resource_id
-    Where agents.id = '$agentID'
-    Order By harvest_events.id Desc";
+    global $mysqli;    
+    $query="SELECT a.full_name, a.display_name, a.updated_at, a.created_at, a.agent_status_id, he.id FROM agents a JOIN agents_resources ar ON a.id = ar.agent_id JOIN harvest_events he ON ar.resource_id = he.resource_id WHERE a.id = '$agentID' ORDER BY he.id Desc";
     $sql = $mysqli->query($query);
     $row = $sql->fetch_row();            
     return $row[0];
 }
-
 
 function sec2hms($sec, $padHours = false) 
 {
@@ -1005,5 +771,4 @@ function hms2sec ($hms)
       $seconds += (intval($s));
       return $seconds;
 }
-
 ?>
