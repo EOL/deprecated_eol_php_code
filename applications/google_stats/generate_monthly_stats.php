@@ -29,7 +29,8 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculation
 */
 
 $GLOBALS['ENV_DEBUG'] = true;
-$GLOBALS['ENV_NAME'] = "integration";
+//$GLOBALS['ENV_NAME'] = "integration";
+$GLOBALS['ENV_NAME'] = "staging";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = microtime(1);
 $temp_time = time_elapsed();            
