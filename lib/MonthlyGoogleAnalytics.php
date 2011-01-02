@@ -8,18 +8,18 @@ class MonthlyGoogleAnalytics
     private $mysqli;    
     public function __construct()
     {
-        /*
+        ///*
         //actual operation
         $this->mysqli =& $GLOBALS['mysqli_connection']; 
         $this->mysqli_local = $this->mysqli;
-        */
+        //*/
         
-        ///*
+        /*
         //only for development
         //$this->mysqli = load_mysql_environment('integration'); 
         $this->mysqli = load_mysql_environment('staging'); 
         $this->mysqli_local = load_mysql_environment('development');
-        //*/        
+        */        
     }    
         
     function process_parameters()
@@ -103,7 +103,12 @@ class MonthlyGoogleAnalytics
         if($agent_id == 38205)//BHL
         {
             /* avoid using distinct - this is too slow           
-            $query = "SELECT COUNT(DISTINCT(tc.id)) count FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) WHERE tc.supercedure_id=0 AND tc.published=1 ";
+            $query = "SELECT COUNT(DISTINCT(tc.id)) count 
+            FROM taxon_concepts tc 
+            JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
+            JOIN page_names pn on (tcn.name_id=pn.name_id) 
+            WHERE tc.supercedure_id=0 AND tc.published=1 ";
+            
             $query .= " limit 10"; //debug            
             $result2 = $this->mysqli->query($query);            
             $row2 = $result2->fetch_row();                
