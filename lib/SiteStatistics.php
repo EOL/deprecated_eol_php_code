@@ -608,6 +608,30 @@ class SiteStatistics
         return $arr;
     }
 
+    ////////////////////////////////////
+    ////////////////////////////////////  BHL - generate text files
+    ////////////////////////////////////
+    
+    public function generate_taxon_concept_with_bhl_links_textfile() //execution time: 7 mins.
+    {
+        /* This will generate the taxon_concept_with_bhl_links.txt. Run once everytime BHL data is updated. List all concepts with BHL links. */                    
+        $timestart = microtime(1);        
+        print"\n start - generate_taxon_concept_with_bhl_links_textfile";
+        $result = $this->mysqli_slave->query("SELECT DISTINCT tc.id tc_id FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) WHERE tc.supercedure_id=0 AND tc.published=1");        
+        $str="";
+        while($result && $row=$result->fetch_assoc())               
+        {               
+            $str .= $row['tc_id'] . "\n";                                                        
+        }
+        $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt"; 
+        $fp = fopen($filename,"w"); print"<hr>\n writing..."; fwrite($fp,$str); fclose($fp); print"<hr>\n saved.";        
+        print"\n end - generate_taxon_concept_with_bhl_links_textfile";
+        
+        $elapsed_time_sec = microtime(1)-$timestart;
+        echo "\n elapsed time = $elapsed_time_sec sec               ";
+        echo "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";
+        echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hrs ";        
+    }         
 
 
 }
