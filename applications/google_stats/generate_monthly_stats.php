@@ -36,13 +36,19 @@ $timestart = microtime(1);
 $temp_time = time_elapsed();            
 
 $mysqli =& $GLOBALS['mysqli_connection'];
+
+//==========================================================================
+require_library('SiteStatistics');
+$stats = new SiteStatistics();
+$stats->generate_taxon_concept_with_bhl_links_textfile(); // 7 mins      
+//==========================================================================
+
 require_library('MonthlyGoogleAnalytics');
 $run = new MonthlyGoogleAnalytics();
-
 require_once('google_proc.php');
 
-$arr = $run->process_parameters();//month and year parameters
-$month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";        
+    $arr = $run->process_parameters();//month and year parameters
+    $month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";        
 
     //empty the 4 tables for the month
     $run->initialize_tables_4dmonth($year,$month); 
