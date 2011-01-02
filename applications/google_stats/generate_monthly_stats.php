@@ -38,9 +38,11 @@ $temp_time = time_elapsed();
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //==========================================================================
+/*
 require_library('SiteStatistics');
 $stats = new SiteStatistics();
-$stats->generate_taxon_concept_with_bhl_links_textfile(); // 7 mins      
+$stats->generate_taxon_concept_with_bhl_links_textfile(); // 24 mins      
+*/
 //==========================================================================
 
 require_library('MonthlyGoogleAnalytics');
