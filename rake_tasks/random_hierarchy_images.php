@@ -7,7 +7,7 @@ if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $mysqli
 else $mysqli_slave = $GLOBALS['db_connection'];
 
 
-$log = HarvestProcessesLog::create('Random Hierarchy Images');
+$log = HarvestProcessLog::create('Random Hierarchy Images');
 
 $species_rank_ids_array = array();
 if($id = Rank::find('species')) $species_rank_ids_array[] = $id;

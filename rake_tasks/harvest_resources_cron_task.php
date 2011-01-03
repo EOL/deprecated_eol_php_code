@@ -8,7 +8,7 @@ $GLOBALS['ENV_DEBUG'] = false;
 if(Functions::grep_processlist('harvest_resources') > 2) exit;
 
 
-$log = HarvestProcessesLog::create('Harvesting');
+$log = HarvestProcessLog::create('Harvesting');
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {

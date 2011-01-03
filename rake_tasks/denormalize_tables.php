@@ -4,17 +4,17 @@ include_once(dirname(__FILE__) . "/../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 require_library('DenormalizeTables');
 
-$log = HarvestProcessesLog::create('Denormalizing');
+$log = HarvestProcessLog::create('Denormalizing');
 
-$sub_log = HarvestProcessesLog::create('DataObjectsTaxonConcepts');
+$sub_log = HarvestProcessLog::create('DataObjectsTaxonConcepts');
 DenormalizeTables::data_objects_taxon_concepts();
 $sub_log->finished();
 
-$sub_log = HarvestProcessesLog::create('DataTypesTaxonConcepts');
+$sub_log = HarvestProcessLog::create('DataTypesTaxonConcepts');
 DenormalizeTables::data_types_taxon_concepts();
 $sub_log->finished();
 
-$sub_log = HarvestProcessesLog::create('TaxonConceptsExploded');
+$sub_log = HarvestProcessLog::create('TaxonConceptsExploded');
 DenormalizeTables::taxon_concepts_exploded();
 $sub_log->finished();
 

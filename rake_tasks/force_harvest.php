@@ -47,7 +47,7 @@ if($resource)
     
     if($opt1 == "-now" || $opt2 == "-now")
     {
-        $log = HarvestProcessesLog::create('Force Harvest');
+        $log = HarvestProcessLog::create('Force Harvest');
         echo "Harvesting $resource->title ($id)\n";
         $resource->harvest();
         $log->finished();

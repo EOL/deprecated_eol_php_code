@@ -2,7 +2,7 @@
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
-$log = HarvestProcessesLog::create('Table of Contents');
+$log = HarvestProcessLog::create('Table of Contents');
 
 $GLOBALS['db_connection']->begin_transaction();
 

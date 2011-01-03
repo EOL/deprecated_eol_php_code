@@ -5,7 +5,7 @@ $GLOBALS['ENV_DEBUG'] = false;
 require_library("HierarchyEntryStats");
 
 
-$log = HarvestProcessesLog::create('hierarchies_stats');
+$log = HarvestProcessLog::create('hierarchies_stats');
 
 $st = new HierarchyEntryStats();
 $st->begin_process();

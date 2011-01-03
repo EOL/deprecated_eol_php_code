@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__) . "/../config/environment.php");
 system("clear");
 
-$log = HarvestProcessesLog::create('Update Downloadable Resources');
+$log = HarvestProcessLog::create('Update Downloadable Resources');
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 

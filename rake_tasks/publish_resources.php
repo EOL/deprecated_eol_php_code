@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__) . "/../config/environment.php");
 //$GLOBALS['ENV_DEBUG'] = false;
 
-$log = HarvestProcessesLog::create('Publishing');
+$log = HarvestProcessLog::create('Publishing');
 
 $resources = Resource::ready_for_publishing();
 foreach($resources as $resource)

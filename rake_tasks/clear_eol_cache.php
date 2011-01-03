@@ -6,7 +6,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
-$log = HarvestProcessesLog::create('Clear Cache');
+$log = HarvestProcessLog::create('Clear Cache');
 
 // Check to see if there is an array of URLs which will clear the caches.
 // This runs every time we flush the cache daily
