@@ -68,8 +68,8 @@ class FeedDenormalizer
         fclose($this->DATA_FILE);
         $this->load_data_from_files();
         
-        // wait 2 minutes for data to propegate
-        sleep(120);
+        // wait 1 minutes for data to propegate
+        sleep_production(60);
         // now load data for all the parents of taxa with images
         if($all_parent_ids) $this->process_parents($all_parent_ids);
         
@@ -113,8 +113,8 @@ class FeedDenormalizer
         fclose($this->DATA_FILE);
         $this->load_data_from_files();
         
-        // wait 15 seconds for data to propegate
-        sleep(15);
+        // wait 5 seconds for data to propegate
+        sleep_production(5);
         // get data for the next ancestor level
         if($all_parent_ids) $this->process_parents($all_parent_ids);
     }

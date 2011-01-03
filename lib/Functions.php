@@ -1343,27 +1343,43 @@ class Functions
         if($return) return $str;
         echo $str;
     }
-
+    
     /* Given the file path, get the MIME type */
     public static function get_mimetype($file_path)
     {
         $path_info = pathinfo($file_path);
-        $extension = strtolower($path_info['extension']);                                                
+        $extension = strtolower($path_info['extension']);
         $mimetype="";
-        $mpg=array("mpg","mpeg");        
+        $mpg=array("mpg","mpeg");
         if      ($extension == "wmv")         $mimetype="video/x-ms-wmv";
-        elseif  ($extension == "avi")         $mimetype="video/x-msvideo";        
+        elseif  ($extension == "avi")         $mimetype="video/x-msvideo";
         elseif  ($extension == "mp4")         $mimetype="video/mp4";
         elseif  ($extension == "mov")         $mimetype="video/quicktime";
         elseif  (in_array($extension, $mpg))  $mimetype="video/mpeg";
-        elseif  ($extension == "flv")         $mimetype="video/x-flv";                
-        elseif  ($extension == "gif")         $mimetype="image/gif";        
-        elseif  ($extension == "jpg")         $mimetype="image/jpeg";        
+        elseif  ($extension == "flv")         $mimetype="video/x-flv";
+        elseif  ($extension == "gif")         $mimetype="image/gif";
+        elseif  ($extension == "jpg")         $mimetype="image/jpeg";
         return $mimetype;
-    }    
-
-
-
+    }
+    
+    public static function language_to_iso_code()
+    {
+        $iso_639_2_codes = array();
+        if(file_exists(DOC_ROOT . 'vendor/wikipedia/iso_639_2.txt'))
+        {
+            $lines = file(DOC_ROOT . 'vendor/wikipedia/iso_639_2.txt');
+            foreach($lines as $line)
+            {
+                $line = rtrim($line, "\n");
+                $parts = explode("\t", $line);
+                if(isset($parts[0]) && strlen($parts[0])==2 && isset($parts[1]))
+                {
+                    $iso_639_2_codes[$parts[1]] = $parts[0];
+                }
+            }
+        }
+        return $iso_639_2_codes;
+    }
 }
 
 ?>

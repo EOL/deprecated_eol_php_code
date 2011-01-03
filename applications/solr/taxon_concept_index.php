@@ -3,12 +3,11 @@
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 
-Functions::log("Starting TaxonConceptIndexer");
+$log = HarvestProcessesLog::create('TaxonConceptIndexer');
 
 $indexer = new TaxonConceptIndexer();
 $indexer->index();
 
-Functions::log("Ending TaxonConceptIndexer");
-
+$log->finished();
 
 ?>

@@ -2,7 +2,7 @@
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
-Functions::log("Starting table_of_contents");
+$log = HarvestProcessesLog::create('Table of Contents');
 
 $GLOBALS['db_connection']->begin_transaction();
 
@@ -11,6 +11,6 @@ $GLOBALS['db_connection']->insert("INSERT IGNORE INTO data_objects_table_of_cont
 
 $GLOBALS['db_connection']->end_transaction();
 
-Functions::log("Ended table_of_contents");
+$log->finished();
 
 ?>

@@ -7,7 +7,7 @@ if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $mysqli
 else $mysqli_slave = $GLOBALS['db_connection'];
 
 
-Functions::log("Starting random_hierarchy_images");
+$log = HarvestProcessesLog::create('Random Hierarchy Images');
 
 $species_rank_ids_array = array();
 if($id = Rank::find('species')) $species_rank_ids_array[] = $id;
@@ -42,6 +42,6 @@ if($result && $row=$result->fetch_assoc())
     $GLOBALS['db_connection']->swap_tables("random_hierarchy_images", "random_hierarchy_images_tmp");
 }
 
-Functions::log("Ended random_hierarchy_images");
+$log->finished();
 
 ?>

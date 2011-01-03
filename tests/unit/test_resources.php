@@ -11,6 +11,7 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue(count(DataObject::all()) == 0, 'There shouldnt be any data objects to begin with');
         $this->assertTrue(count(HierarchyEntry::all()) == 0, 'There shouldnt be any hierarchy entries to begin with');
         $this->assertTrue(count(TaxonConceptName::all()) == 0, 'There shouldnt be any taxon concept names to begin with');
+        $this->assertTrue(count(HarvestProcessesLog::all()) == 0, 'There shouldnt be any harvest logs');
         
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
         $this->assertTrue($result->num_rows == 0, 'shouldnt be any top images');
@@ -159,8 +160,8 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows > 0, 'should be taxon_concept_content after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM taxon_concept_names LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be taxon_concept_names after harvesting');
-        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM feed_data_objects LIMIT 1");
-        $this->assertTrue($result->num_rows > 0, 'should be feed_data_objects after harvesting');
+        // $result = $GLOBALS['db_connection']->query("SELECT 1 FROM feed_data_objects LIMIT 1");
+        // $this->assertTrue($result->num_rows > 0, 'should be feed_data_objects after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_objects_taxon_concepts LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be data_objects_taxon_concepts after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM data_types_taxon_concepts LIMIT 1");
@@ -171,6 +172,8 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows > 0, 'should be data_objects_info_items after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM random_hierarchy_images LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be random_hierarchy_images after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM harvest_processes_log LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be harvest_processes_log after harvesting');
         
         // make sure we have harvest events
         $events = HarvestEvent::all();
