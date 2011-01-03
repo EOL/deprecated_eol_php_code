@@ -1,0 +1,14 @@
+id,tname,tauthor,valid_id,rank_id,parent_id,worms_id
+362,Acteon melampoides,Dall,362,220,397533,159968
+361,Acteon albus,,361,220,397533,211084
+576,Natica (Notocochlis) migratoria,Powell,576,220,811489,
+397533,Acteon,"Montfort, 1810",397533,180,737331,137618
+737331,Acteonidae,"d'Orbigny, 1842",737331,140,778917,155
+778917,Acteonoidea,"d'Orbigny, 1843",778917,130,780296,382223
+780296,Heterostropha,"Fischer, 1885",780296,80,767104,14713
+767104,Heterobranchia,,767104,70,697593,14712
+697593,Gastropoda,"Cuvier, 1795",697593,60,752044,101
+752044,Mollusca,,752044,30,738303,51
+738303,Animalia,"Linnaeus, 1758",738303,10,739909,2
+739909,Biota,,739909,0,739909,1
+364,Acteon perforatus,Dall,364,220,397533,420513

@@ -1,0 +1,37 @@
+species_id,speciesname,speciesauthor,min,max,nrecords,ntaxa
+361,Acteon albus,,650,670,1,1
+362,Acteon melampoides,Dall,567,567,1,1
+364,Acteon perforatus,Dall,1472,1472,1,1
+371,Actinia troglodytes,"(Price in Johnston, 1847)",0,0,3,1
+388,Conus (Asprella) labrolineata,Lamarck,82,82,1,1
+431,Doliolina muelleri,Garstang,5,566,148,1
+439,Laevilitorina antarctica,"E.A. Smith, 1902",15,350,4,1
+446,Mactra artensis,Fischer,22,54,3,1
+449,Mactra inaequalis,Reeve,69,69,1,1
+480,Mangilia (Pleurotomella) catasarca,Dall,366,366,1,1
+487,Mardoe erdmanni,,191,870,4,1
+491,Margarita (Turcicula) bairdii,Dall,757,757,6,1
+492,Marginella (Volutella) amianta,Dall,26,27,2,1
+494,Matuta banski,Leach,18,18,1,1
+501,Metula (Agassitula) guppyi,Olsson & Bayer,140,140,1,1
+503,Metula (Minitula) minor,Olsson & Bayer,166,166,1,1
+506,Mithrax (Mithraculus) forceps,(Milne-Edwards),13,37,162,1
+513,Mitra (Costellaria) styria,Dall,155,609,4,1
+514,Mitra (Costellaria) trophonia,Dall,210,311,2,1
+517,Mitra (Turris) bairdii,Dall,966,966,1,1
+523,Molgula pigafettae,"Monniot & Monniot, 1983",121.5,121.5,1,1
+532,Munidopsis transtridens,"W. Pequegnat & L. Pequegnat, 1971",906,1422.5,7,1
+536,Murex hystricinus,Dall,465,465,1,1
+537,Murex levicula,(Dall),52,52,1,1
+552,Nassarius splendidulus,(Dunker),10,65,151,1
+553,Nassarius (Niotha) stigmaria,(Adams),32,59.5,9,1
+554,Nassarius (Niotha) variegatus,(Adams),35,48.5,4,1
+565,Nassarius (Zeuxis) vitiensis,Hombron & Jacquinot,32,146,6,1
+566,Natica (Natica) euzona,(Récluz),35,70.5,4,1
+569,Natica (Natica) lineata,Lamarck,22,22,1,1
+570,Natica (Natica) raynoldiana,Récluz,18,22,2,1
+571,Natica (Natica) simplex,(Schepman),23,300,67,1
+573,Natica (Naticarius) zonalis,Récluz,56.5,56.5,1,1
+574,Natica (Neverita) nubila,Dall,347,347,1,1
+576,Natica (Notocochlis) migratoria,Powell,95,95,1,1
+,Marginella (Volutella) amianta,,,,,
