@@ -1,6 +1,6 @@
 <?php
 
-require_library('connectors/BioimagesAPI');
+require_library('connectors/BioImagesAPI');
 
 class test_connector_bioimages_api extends SimpletestUnitBase
 {
@@ -10,7 +10,7 @@ class test_connector_bioimages_api extends SimpletestUnitBase
         $url = "http://www.bioimages.org.uk/html/t104816.htm";
         $url = "http://www.bioimages.org.uk/html/t158169.htm";
     
-        $arr = BioimagesAPI::get_bioimages_taxa($url,array(),array());
+        $arr = BioImagesAPI::get_bioimages_taxa($url,array(),array());
         $taxa = $arr[0];        
         
         $this->assertTrue(is_array($taxa), 'Taxa should be an array');        
