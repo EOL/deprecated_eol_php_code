@@ -9,6 +9,7 @@ Aug2010     1Sep2010        5 hrs
 Sep2010     7Oct2010        6.8 hrs
 Oct2010     3Nov2010        10 hrs
 Nov2010     1Dec2010        11 hrs
+Dec2010     2Jan2011        1.5 hrs {Script improved - execution time much less now}
 
 tables used:
     taxon_concepts
