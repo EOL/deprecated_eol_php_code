@@ -1,5 +1,4 @@
 <?php
-
 define("GOOGLE_DATA_PATH", DOC_ROOT . "applications/google_stats/data/");       
 define("USE_SQL_LOAD_INFILE", false);       
 
@@ -13,6 +12,11 @@ class MonthlyGoogleAnalytics
         $this->mysqli =& $GLOBALS['mysqli_connection']; 
         $this->mysqli_local = $this->mysqli;
         //*/
+        
+        /* to use slave 10.19.19.37 for reading
+        $this->mysqli_slave = load_mysql_environment('slave');
+        $this->mysqli_local =& $GLOBALS['mysqli_connection'];         
+        */        
         
         /*
         //only for development
@@ -102,18 +106,7 @@ class MonthlyGoogleAnalytics
         $arr=array();
         if($agent_id == 38205)//BHL
         {
-            /* avoid using distinct - this is too slow           
-            $query = "SELECT COUNT(DISTINCT(tc.id)) count 
-            FROM taxon_concepts tc 
-            JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-            JOIN page_names pn on (tcn.name_id=pn.name_id) 
-            WHERE tc.supercedure_id=0 AND tc.published=1 ";
-            
-            $query .= " limit 10"; //debug            
-            $result2 = $this->mysqli->query($query);            
-            $row2 = $result2->fetch_row();                
-            $arr[] = $row2[0]; //count of taxa pages
-            */
+            /* avoid using distinct - this is slow: $query = "SELECT COUNT(DISTINCT(tc.id)) count FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) WHERE tc.supercedure_id=0 AND tc.published=1 "; */
                         
             //start reading text file
             print"\n<hr>Start reading text file [taxon_concept_with_bhl_links] <br>\n";                
@@ -140,15 +133,7 @@ class MonthlyGoogleAnalytics
         }
         else //rest of the partners
         {   
-            /* avoid using 'distinct', it slows down the query. Count it in the code.
-            $query="SELECT distinct tc.id taxon_concept_id
-            FROM agents_resources er
-            JOIN harvest_events hev ON er.resource_id = hev.resource_id
-            JOIN harvest_events_hierarchy_entries hehe ON hev.id = hehe.harvest_event_id
-            JOIN hierarchy_entries he ON hehe.hierarchy_entry_id = he.id
-            JOIN taxon_concepts tc ON he.taxon_concept_id = tc.id
-            WHERE er.agent_id = $agent_id AND tc.published=1 AND tc.supercedure_id=0 ";        
-            */
+            /* avoid using 'distinct', it slows down the query. Count it in the code. */
             
             $query="SELECT Max(he.id) latest_harvest_event_id FROM harvest_events he JOIN agents_resources ar ON ar.resource_id = he.resource_id Where ar.agent_id = $agent_id AND he.published_at Is Not Null ";
             $result = $this->mysqli->query($query);                        
@@ -182,10 +167,7 @@ class MonthlyGoogleAnalytics
     function get_sql_for_partners_with_published_data()
     {
         //this query now only gets partners with a published data on the time the report was run.
-        $query="SELECT distinct a.id FROM agents a 
-        JOIN agents_resources ar ON a.id = ar.agent_id
-        JOIN harvest_events he ON ar.resource_id = he.resource_id
-        WHERE he.published_at is not null AND a.id not in(11,38205) ";     
+        $query="SELECT distinct a.id FROM agents a JOIN agents_resources ar ON a.id = ar.agent_id JOIN harvest_events he ON ar.resource_id = he.resource_id WHERE he.published_at is not null AND a.id not in(11,38205) ";     
         //$query .= " AND a.id = 2 "; //debug FishBase
         $query .= " order by a.full_name ";    
         return $query;
@@ -218,8 +200,7 @@ class MonthlyGoogleAnalytics
             $temp = self::save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,"\t","txt");                        
             
             $elapsed_time_in_sec = microtime(1)-$time_start;
-            print " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
-            
+            print " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";            
         }
         //=================================================================    
         print"\n start BHL stats summaries...\n";    
@@ -241,8 +222,7 @@ class MonthlyGoogleAnalytics
         $temp = self::save_to_txt2($arr, "google_analytics_partner_summaries",$year_month,"\t","txt");                
         $elapsed_time_in_sec = microtime(1)-$time_start;
         print " --- " . number_format($elapsed_time_in_sec/60,3) . " mins to process  \n";
-        //=================================================================        
-        
+        //=================================================================                
         if(USE_SQL_LOAD_INFILE)$update = $this->mysqli_local->query("LOAD DATA LOCAL INFILE '" . GOOGLE_DATA_PATH . $year_month . "/google_analytics_partner_summaries.txt' INTO TABLE google_analytics_partner_summaries");            
         else                   $update = $this->mysqli_local->load_data_infile(             "" . GOOGLE_DATA_PATH . $year_month . "/google_analytics_partner_summaries.txt",          "google_analytics_partner_summaries");    
         //=================================================================
@@ -252,14 +232,7 @@ class MonthlyGoogleAnalytics
     {
         if($agent_id == 38205)//BHL
         {   
-            /*
-            $query = "SELECT tc.id taxon_concept_id FROM taxon_concepts tc 
-            JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) 
-            JOIN page_names pn on (tcn.name_id=pn.name_id) 
-            JOIN google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id        
-            WHERE tc.supercedure_id=0 AND tc.published=1 AND gaps.month=$month AND gaps.year=$year ";
-            $query .= " LIMIT 1 "; //debug
-            */
+            /* this is slow and was replaced: $query = "SELECT tc.id taxon_concept_id FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) JOIN google_analytics_page_stats gaps ON tc.id = gaps.taxon_concept_id WHERE tc.supercedure_id=0 AND tc.published=1 AND gaps.month=$month AND gaps.year=$year "; */
             $query="SELECT gaps.taxon_concept_id tc_id FROM google_analytics_page_stats gaps Where gaps.year = $year AND gaps.month = $month";
             $result = $this->mysqli->query($query);  
             $arr1=array();  
