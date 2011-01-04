@@ -8,20 +8,29 @@ $GLOBALS['ENV_DEBUG'] = false;
 
 
 
-// // create new _temp file
-// $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "9999.xml", "w+");
+// create new _temp file
+$resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "9999_temp.xml", "w+");
+
+// start the resource file with the XML header
+fwrite($resource_file, SchemaDocument::xml_header());
 
 // query Flickr and write results to file
-$xml = IUCNRedlistAPI::get_taxon_xml();
+IUCNRedlistAPI::get_taxon_xml($resource_file);
 
-// // write the resource footer
-// fwrite($resource_file, $xml);
-// fclose($resource_file);
-// 
-// // set Flickr to force harvest
-// if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "9999.xml"))
-// {
-//     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=15");
-// }
+// write the resource footer
+fwrite($resource_file, SchemaDocument::xml_footer());
+fclose($resource_file);
+
+// cache the previous version and make this new version the current version
+@unlink(CONTENT_RESOURCE_LOCAL_PATH . "9999_previous.xml");
+@rename(CONTENT_RESOURCE_LOCAL_PATH . "9999.xml", CONTENT_RESOURCE_LOCAL_PATH . "9999_previous.xml");
+rename(CONTENT_RESOURCE_LOCAL_PATH . "9999_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "9999.xml");
+
+// set Flickr to force harvest
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "9999.xml"))
+{
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=9999");
+}
+
 
 ?>

@@ -6,46 +6,67 @@ class IUCNRedlistAPI
     const API_PREFIX = "http://api.iucnredlist.org/details/";    // http://api.iucnredlist.org/details/22823/0
     const SPECIES_LIST_API = "http://api.iucnredlist.org/index/all.json";
     
-    public static function get_taxon_xml()
+    public static function get_taxon_xml($resource_file = null)
     {
         $GLOBALS['language_to_iso_code'] = Functions::language_to_iso_code();
-        $taxa = self::get_all_taxa();
-        // $xml = SchemaDocument::get_taxon_xml($taxa);
-        // return $xml;
+        $taxa = self::get_all_taxa($resource_file);
+        return $taxa;
     }
     
-    public static function get_all_taxa()
+    public static function get_all_taxa($resource_file = null)
     {
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/iucn_species_list.json";
         
         // shell_exec("rm -f ". SPECIES_LIST_PATH);
         // shell_exec("curl ". SPECIES_LIST_API ." -o ". SPECIES_LIST_PATH);
         
+        $used = array();
+        $all_taxa = array();
         if(file_exists($species_list_path))
         {
             $species_list = json_decode(file_get_contents($species_list_path));
             $i = 0;
-            shuffle($species_list);
+            // shuffle($species_list);
             foreach($species_list as $species_json)
             {
-                // if($species_json->species_id != '9660') continue;
-                if($i >= 50) break;
+                if(isset($used[$species_json->species_id])) continue;
+                $used[$species_json->species_id] = 1;
+                
+                if($i < 1000) { $i++; continue; }
+                // if($species_json->species_id != '183586') continue;
+                if($i >= 1500) break;
                 $taxon = self::get_taxa_for_species($species_json);
+                
+                $taxon_xml = $taxon->__toXML();
+                $taxon_xml = preg_replace("/\xE3\xBC/", "ü", $taxon_xml);
+                $taxon_xml = preg_replace("/\xE3\xA9/", "é", $taxon_xml);
+                $taxon_xml = preg_replace("/\xE3\x80/", "À", $taxon_xml);
+                if($resource_file) fwrite($resource_file, $taxon_xml);
+                else $all_taxa[] = $taxon;
+                
                 $i++;
             }
         }
+        return $all_taxa;
     }
     
     public static function get_taxa_for_species($species_json)
     {
         $species_id = $species_json->species_id;
-        //$details_html = $GLOBALS['details_html'];
-        $details_html = utf8_decode(Functions::get_remote_file(self::API_PREFIX.$species_id));
+        echo "$species_id\n";
+        $details_html = Functions::get_remote_file(self::API_PREFIX.$species_id);
+        
+        // this is a hack to get the document to load as UTF8. Nothing else seemed to work when using DOMDocument
+        // http://www.php.net/manual/en/domdocument.loadhtml.php#95251
+        $details_html = str_replace("<!DOCTYPE html>", "<?xml encoding=\"UTF-8\">", $details_html);
+        // $FILE = fopen(DOC_ROOT . "tmp/test.html", "w+");
+        // fwrite($FILE, $details_html);
+        // fclose($FILE);
+        
         $details_html = str_replace("Downloaded on <b>", "Downloaded on ", $details_html);
         $details_html = str_replace("& ", "&amp; ", $details_html);
-        //echo "$details_html\n\n\n";
         
-        $dom_doc = new DOMDocument;
+        $dom_doc = new DOMDocument("1.0", "UTF-8");
         $dom_doc->loadHTML($details_html);
         $dom_doc->preserveWhiteSpace = false;
         $xpath = new DOMXpath($dom_doc);
@@ -129,7 +150,8 @@ class IUCNRedlistAPI
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
         $taxon = new SchemaTaxon($taxon_parameters);
-        echo $taxon->__toXML();
+        // echo $taxon->__toXML();
+        return $taxon;
     }
     
     public static function get_text_section($dom_doc, $xpath, $species_id, $div_id, $subject, $agents, $citation)
@@ -206,20 +228,41 @@ class IUCNRedlistAPI
         if(preg_match("/^<div id=\"citation\">(.*?)<\/div>$/", $citation, $arr)) $citation = htmlspecialchars_decode(trim($arr[1]));
         
         $agents = array();
-        if(preg_match("/^(.*) [0-9]{4}\. +<i>/", $citation, $arr))
+        if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr))
         {
-            $all_authors = str_replace("&amp;", ", ", $arr[1]);
-            $all_authors = str_replace("&", ", ", $arr[1]);
-            $all_authors = str_replace(" ,", ",", $all_authors);
-            $all_authors = str_replace("  ", " ", $all_authors);
-            $authors = preg_split("/(.*?,.*?,)/", $all_authors, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-            foreach($authors as $author)
+            $all_authors = $arr[1];
+            if(preg_match("/(^|, )[".UPPER."][".UPPER.LOWER."'-]+, [".UPPER."]\./", $all_authors))
             {
-                $author = trim($author);
-                if(substr($author, -1) == ",") $author = substr($author, 0, -1);
-                $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
-            }
+                $all_authors = str_replace(" and ", " ", $all_authors);
+                $all_authors = str_replace("&amp;", ", ", $all_authors);
+                $all_authors = str_replace("&", ", ", $all_authors);
+                $all_authors = str_replace(" ,", ",", $all_authors);
+                $all_authors = str_replace("  ", " ", $all_authors);
+                $authors = preg_split("/(.*?,.*?,)/", $all_authors, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                foreach($authors as $author)
+                {
+                    $author = trim($author);
+                    if(substr($author, -1) == ",") $author = substr($author, 0, -1);
+                    $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
+                }
+            }elseif(preg_match("/(^|, )[".UPPER.LOWER."'-]+( [".UPPER.LOWER."'-]+){1,3},/", $all_authors))
+            {
+                $all_authors = str_replace(" and ", " ", $all_authors);
+                $all_authors = str_replace("&amp;", ", ", $all_authors);
+                $all_authors = str_replace("&", ", ", $all_authors);
+                $all_authors = str_replace(" ,", ",", $all_authors);
+                $all_authors = str_replace("  ", " ", $all_authors);
+                $authors = explode(",", $all_authors);
+                foreach($authors as $author)
+                {
+                    $author = trim($author);
+                    $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
+                }
+            }else $agents[] = new SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
         }
+        
+        // echo "$citation\n";
+        // print_r($agents);
         
         return array($agents, $citation);
     }
