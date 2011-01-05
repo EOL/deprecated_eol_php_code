@@ -37,9 +37,19 @@ class TurbellarianAPI
 
     function compile_taxon_urls()
     {
+        ///* //normal operation
         $limit=13998; 
         $urls=array();
         for ($i=2; $i<=$limit; $i++){$urls[] = TAXON_URL . $i;}        
+        //*/
+        
+        /* //debug
+        $urls=array();
+        $urls[] = "http://turbellaria.umaine.edu/turb2.php?action=1&code=5097"; //don't get family+genus as species
+        $urls[] = "http://turbellaria.umaine.edu/turb2.php?action=1&code=5644";        
+        $urls=array();
+        $urls[] = "http://turbellaria.umaine.edu/turb2.php?action=1&code=1580";        
+        */        
 
         $final=array();            
         foreach($urls as $url)
@@ -74,8 +84,7 @@ class TurbellarianAPI
                     $tbl1_arr[0] = $genus . " " . trim($tbl1_arr[0]);                
                 }
             }            
-            //end process first table           
-            
+            //end process first table                       
             
             //process 2nd table
             $html2 = trim(substr($html,stripos($html,'<table alt="table of taxa">'),strlen($html)));
@@ -99,19 +108,26 @@ class TurbellarianAPI
             }            
             //end process 2nd table
             
+            
             //combine genus + species if applicable
             $i=0;
             foreach($tbl2_arr as $r)
             {
                 $r[0]=strip_tags($r[0]);
-                if(!is_numeric(stripos($r[0],"href")))$tbl2_arr[$i][0]=$tbl1_arr[0] . " " . $r[0];
+                if(!is_numeric(stripos($r[0],"href")))
+                {
+                    $first_char = substr($r[0],0,1);
+                    if (!ctype_upper($first_char)) $tbl2_arr[$i][0] = $tbl1_arr[0] . " " . $r[0];
+                    else $tbl2_arr[$i][0] = '';
+                }
                 $i++;
             }
             //end combine genus + species if applicable
             
+            
             //add taxon in tbl1 to tbl2            
             $tbl2_arr[]=$tbl1_arr;            
-            //loop to get only taxon with: diagnosis and image and distribution        
+            //loop to get only taxon with: diagnosis or image or distribution        
             foreach($tbl2_arr as $row)
             {
                 foreach($row as $r)
@@ -120,7 +136,9 @@ class TurbellarianAPI
                         is_numeric(stripos($r,"fig. avail."))   ||
                         is_numeric(stripos($r,"dist'n"))        
                       )
-                    {$final[]=$row;}                        
+                    {
+                        if($row[0]) $final[]=$row; //meaning, not a blank taxa
+                    }                        
                 }    
             }        
         }//end for loop                
