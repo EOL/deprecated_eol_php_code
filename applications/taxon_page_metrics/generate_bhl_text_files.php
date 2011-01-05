@@ -14,7 +14,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 require_library('SiteStatistics');
 $stats = new SiteStatistics();
 
-$stats->generate_taxon_concept_with_bhl_links_textfile();           //24 mins      
+//$stats->generate_taxon_concept_with_bhl_links_textfile();           //24 mins      
 $stats->generate_taxon_concept_with_bhl_publications_textfile();    //10 hrs single-query approach --- should be run ahead of time
        
 $elapsed_time_sec = microtime(1)-$timestart;
