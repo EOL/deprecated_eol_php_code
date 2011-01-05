@@ -889,7 +889,7 @@ class SiteStatistics
     
     public function get_content_partner_count($param_id=NULL)
     {
-        $batch=1000000; $start_limit=0;        
+        $batch=500000; $start_limit=0;        
         $sql="Select Max(harvest_events.id) he_id FROM harvest_events Where harvest_events.published_at Is Not Null Group By harvest_events.resource_id";        
         $result = $this->mysqli_slave->query($sql);            
         $latest_harvest_event_ids=array();
@@ -924,7 +924,7 @@ class SiteStatistics
     
     public function get_outlinks_count($param_id=NULL)
     {
-        $batch=1000000; $start_limit=0;
+        $batch=500000; $start_limit=0;
         while(true)
         {       
             print"\n outlinks [8 of 10] $start_limit \n";                        
@@ -955,7 +955,7 @@ class SiteStatistics
     
     public function get_common_names_count($param_id=NULL)
     {
-        $batch=1000000; $start_limit=0;        
+        $batch=500000; $start_limit=0;        
         while(true)
         {   
             print"\n common_names and its providers [4 of 10] $start_limit \n";            
@@ -991,7 +991,7 @@ class SiteStatistics
 
     public function get_synonyms_count($param_id=NULL)
     {
-        $batch=1000000; $start_limit=0;        
+        $batch=500000; $start_limit=0;        
         while(true)
         {                   
             print"\n synonyms and its providers [5 of 10] $start_limit \n";            
@@ -1055,7 +1055,7 @@ class SiteStatistics
         $untrusted_id   = Vetted::find("untrusted");
         $unreviewed_id  = Vetted::find("unknown");                
         
-        $batch=1000000; $start_limit=0;
+        $batch=500000; $start_limit=0;
         while(true)
         {       
             print"\n dataObjects, its infoItems, its references [7 of 10] $start_limit \n";            
@@ -1198,7 +1198,7 @@ class SiteStatistics
     
     function get_all_taxon_concepts($taxon_id_list)
     {
-        $batch=1000000; $start_limit=0;        
+        $batch=500000; $start_limit=0;        
         while(true)
         {                   
             print"\n get_all_taxon_concepts $start_limit \n";                        
