@@ -75,26 +75,6 @@
   </dataObject>
 </taxon>
 <taxon>
-  <dc:identifier>235y235y</dc:identifier>
-  <dwc:Order>Neuroptera</dwc:Order>
-  <dwc:Family>Mantispidae</dwc:Family>
-  <dwc:Genus>Theristria</dwc:Genus>
-  <dwc:ScientificName>Theristria bus</dwc:ScientificName>
-  <dataObject>
-    <dc:identifier>3087438151</dc:identifier>
-    <dataType>http://purl.org/dc/dcmitype/Text</dataType>
-    <mimeType>text/html</mimeType>
-    <agent homepage="http://www.flickr.com/photos/25401497@N02" role="author">Donald Hobern</agent>
-    <dcterms:created>2008-12-07 09:21:31</dcterms:created>
-    <dc:title>Theristria sp.</dc:title>
-    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
-    <dc:source>http://www.flickr.com/photos/dhobern/3087438151/</dc:source>
-    <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation</subject>
-    <dc:description><![CDATA[&lt;i&gt;Theristria&lt;/i&gt; sp., to MV light, Aranda, ACT, 5/6 December 2008]]></dc:description>
-    <location><![CDATA[&lt;i&gt;Canberra&lt;/i&gt;, Australian Capital Territory, Australia]]></location>
-  </dataObject>
-</taxon>
-<taxon>
   <dc:identifier>http://mushroomobserver.org/name/show_name/14971</dc:identifier>
   <dc:source>http://mushroomobserver.org/name/show_name/14971</dc:source>
   <dwc:Kingdom>Fungi</dwc:Kingdom>
@@ -117,6 +97,26 @@
     <audience>General public</audience>
     <dc:description xml:lang="en">Amanita friabilis (Karst.) Bas</dc:description>
     <mediaURL>http://mushroomobserver.org/images/640/28102.jpg</mediaURL>
+  </dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>235y235y</dc:identifier>
+  <dwc:Order>Neuroptera</dwc:Order>
+  <dwc:Family>Mantispidae</dwc:Family>
+  <dwc:Genus>Theristria</dwc:Genus>
+  <dwc:ScientificName>Theristria bus</dwc:ScientificName>
+  <dataObject>
+    <dc:identifier>3087438151</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+    <mimeType>text/html</mimeType>
+    <agent homepage="http://www.flickr.com/photos/25401497@N02" role="author">Donald Hobern</agent>
+    <dcterms:created>2008-12-07 09:21:31</dcterms:created>
+    <dc:title>Theristria sp.</dc:title>
+    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/dhobern/3087438151/</dc:source>
+    <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation</subject>
+    <dc:description><![CDATA[&lt;i&gt;Theristria&lt;/i&gt; sp., to MV light, Aranda, ACT, 5/6 December 2008]]></dc:description>
+    <location><![CDATA[&lt;i&gt;Canberra&lt;/i&gt;, Australian Capital Territory, Australia]]></location>
   </dataObject>
 </taxon>
 
