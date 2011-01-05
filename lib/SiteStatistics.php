@@ -760,22 +760,22 @@ class SiteStatistics
         //get the 12th month - descending order        
         $sql="Select concat(gas.`year`,'_',substr(gas.`month` / 100,3,2)) as `year_month` From google_analytics_summaries gas Order By gas.`year` Desc, gas.`month` Desc limit 11,1";
         $result = $this->mysqli_slave->query($sql);
-        print"\n[$sql]";
+        
         print "\n".$this->mysqli_slave->affected_rows();
         if($result && $row=$result->fetch_assoc()) $year_month = $row['year_month'];        
         
         $sql="Select gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views From google_analytics_page_stats gaps Where concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";        
         if($param_id)$sql .= " and gaps.taxon_concept_id = $param_id ";                
         $result = $this->mysqli_slave->query($sql);             
-        print"\n[$sql]";
+        
         
         print "\n".$this->mysqli_slave->affected_rows();   
         $arr=array();
         while($result && $row=$result->fetch_assoc())        
         {
             $tc_id = $row['taxon_concept_id'];
-            $arr[$tc_id]['pv']+=$row['page_views'];
-            $arr[$tc_id]['upv']+=$row['unique_page_views'];            
+            @$arr[$tc_id]['pv']+=$row['page_views'];
+            @$arr[$tc_id]['upv']+=$row['unique_page_views'];            
         }                
         print"<pre>";print_r($arr);print"</pre>";
         return $arr;
@@ -792,8 +792,8 @@ class SiteStatistics
             if($line = fgets($FILE))
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
-                $tc_id        = trim($fields[0]);
-                $publications = trim($fields[1]);                    
+                $tc_id        = trim(@$fields[0]);
+                $publications = trim(@$fields[1]);                    
                 $arr[$tc_id]  = $publications;
             }                
         }            
@@ -851,7 +851,7 @@ class SiteStatistics
     public function get_user_submitted_text_count($param_id=NULL)
     {   
         print"\n user_submitted_text, its providers [3 of 10]\n";        
-        $sql="SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM eol_integration.users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND do.vetted_id != " . Vetted::find('Untrusted');
+        $sql="SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM eol_production.users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND do.vetted_id != " . Vetted::find('Untrusted');
         if($param_id)$sql .= " and udo.taxon_concept_id = $param_id ";                
         $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
         $FILE = fopen($outfile, "r");
