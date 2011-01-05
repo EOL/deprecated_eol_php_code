@@ -706,9 +706,8 @@ class SiteStatistics
         
     public function create_page_metrics_table()/* prepare taxon concept totals for richness calculations */ 
     {        
-        ///*                
+        /*                
         $tc_id=206692;        
-        //$tc_id=1;        
         //$tc_id=218284; //with user-submitted-text                
         $arr_bhl                    = self::get_BHL_publications($tc_id);                
         $arr_gbif                   = self::get_GBIF_map_availability($tc_id);                
@@ -720,9 +719,9 @@ class SiteStatistics
         $arr_outlinks               = self::get_outlinks_count($tc_id);                
         $arr_content_partners       = self::get_content_partner_count($tc_id);        
         $arr_google_stats           = self::get_google_stats($tc_id); //page_views and unique_page_views                        
-        //*/                        
+        */                        
         
-        /*        
+        ///*        
         $arr_bhl                    = self::get_BHL_publications();                 //1                                
         $arr_gbif                   = self::get_GBIF_map_availability();            //2        
         $arr_user_submitted_text    = self::get_user_submitted_text_count();        //3    
@@ -733,7 +732,7 @@ class SiteStatistics
         $arr_outlinks               = self::get_outlinks_count();                   //8     
         $arr_content_partners       = self::get_content_partner_count();            //9            
         $arr_google_stats           = self::get_google_stats();                     //10
-        */        
+        //*/        
 
         /*
         print"<pre>"; 
@@ -756,28 +755,23 @@ class SiteStatistics
     
     function get_google_stats($param_id=NULL)
     {
-        print"\n BOA_biomedical_terms [10 of 10]\n";                
+        print"\n Google stats: page_views, unique_page_views [10 of 10]\n";                
         //get the 12th month - descending order        
         $sql="Select concat(gas.`year`,'_',substr(gas.`month` / 100,3,2)) as `year_month` From google_analytics_summaries gas Order By gas.`year` Desc, gas.`month` Desc limit 11,1";
-        $result = $this->mysqli_slave->query($sql);
+        $result = $this->mysqli_slave->query($sql);                
         
-        print "\n".$this->mysqli_slave->affected_rows();
-        if($result && $row=$result->fetch_assoc()) $year_month = $row['year_month'];        
-        
+        if($result && $row=$result->fetch_assoc()) $year_month = $row['year_month'];                
         $sql="Select gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views From google_analytics_page_stats gaps Where concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";        
         if($param_id)$sql .= " and gaps.taxon_concept_id = $param_id ";                
-        $result = $this->mysqli_slave->query($sql);             
-        
-        
-        print "\n".$this->mysqli_slave->affected_rows();   
+        $result = $this->mysqli_slave->query($sql);                             
+                
         $arr=array();
         while($result && $row=$result->fetch_assoc())        
         {
             $tc_id = $row['taxon_concept_id'];
             @$arr[$tc_id]['pv']+=$row['page_views'];
             @$arr[$tc_id]['upv']+=$row['unique_page_views'];            
-        }                
-        print"<pre>";print_r($arr);print"</pre>";
+        }                        
         return $arr;
     }
     
@@ -1192,7 +1186,7 @@ class SiteStatistics
         {                   
             print"\n get_all_taxon_concepts $start_limit \n";                        
             $sql="SELECT tc.id FROM taxon_concepts tc WHERE tc.published = 1 AND tc.supercedure_id = 0";
-            $sql.=" and tc.id in (1,2,3,4,5,6,206692,218284)";//debug
+            //$sql.=" and tc.id in (1,2,3,4,5,6,206692,218284)";//debug
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
             $start_limit += $batch;
