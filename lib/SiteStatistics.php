@@ -5,10 +5,10 @@ class SiteStatistics
     private $mysqli;
     
     public function __construct()
-    {                
+    {                        
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->mysqli_slave = load_mysql_environment('slave');
-        $this->mysqli_eol = load_mysql_environment('slave_eol');                                    
+        $this->mysqli_eol = load_mysql_environment('slave_eol');                                            
     }
     
     public function insert_taxa_stats()
@@ -706,56 +706,49 @@ class SiteStatistics
         
     public function create_page_metrics_table()/* prepare taxon concept totals for richness calculations */ 
     {           
+        $arr_taxa=array();
+        
         /*                        
         $tc_id=206692;             
-        //$tc_id=218284; //with user-submitted-text                
-        $arr_bhl                    = self::get_BHL_publications($tc_id);                
-        $arr_gbif                   = self::get_GBIF_map_availability($tc_id);                
-        $arr_user_submitted_text    = self::get_user_submitted_text_count($tc_id);        
-        $arr_common_names           = self::get_common_names_count($tc_id);
-        $arr_synonyms               = self::get_synonyms_count($tc_id);                
-        $arr_biomedical_terms       = self::get_biomedical_terms_availability($tc_id);
-        $arr_data_objects           = self::get_data_objects_count($tc_id);
-        $arr_outlinks               = self::get_outlinks_count($tc_id);                
-        $arr_content_partners       = self::get_content_partner_count($tc_id);        
-        $arr_google_stats           = self::get_google_stats($tc_id); //page_views and unique_page_views                        
+        $tc_id=218284; //with user-submitted-text                
+        $arr_taxa       = self::get_BHL_publications($tc_id,$arr_taxa);                
+        $arr_taxa       = self::get_GBIF_map_availability($tc_id,$arr_taxa);                
+        $arr_taxa       = self::get_user_submitted_text_count($tc_id,$arr_taxa);        
+        $arr_taxa       = self::get_common_names_count($tc_id,$arr_taxa);
+        $arr_taxa       = self::get_synonyms_count($tc_id,$arr_taxa);                
+        $arr_taxa       = self::get_biomedical_terms_availability($tc_id,$arr_taxa);
+        $arr_taxa       = self::get_data_objects_count($tc_id,$arr_taxa);
+        $arr_taxa       = self::get_outlinks_count($tc_id,$arr_taxa);                
+        $arr_taxa       = self::get_content_partner_count($tc_id,$arr_taxa);        
+        $arr_taxa       = self::get_google_stats($tc_id,$arr_taxa); //page_views and unique_page_views                        
         */                                
         
         ///*        
-        $arr_google_stats           = self::get_google_stats();                     //10
-        $arr_bhl                    = self::get_BHL_publications();                 //1                                
-        $arr_gbif                   = self::get_GBIF_map_availability();            //2        
-        $arr_user_submitted_text    = self::get_user_submitted_text_count();        //3    
-        $arr_common_names           = self::get_common_names_count();               //4
-        $arr_synonyms               = self::get_synonyms_count();                   //5 
-        $arr_biomedical_terms       = self::get_biomedical_terms_availability();    //6    
-        $arr_data_objects           = self::get_data_objects_count();               //7
-        $arr_outlinks               = self::get_outlinks_count();                   //8     
-        $arr_content_partners       = self::get_content_partner_count();            //9                    
+        $arr_taxa   = self::get_google_stats(null,$arr_taxa);                     //10
+        $arr_taxa   = self::get_BHL_publications(null,$arr_taxa);                 //1                                
+        $arr_taxa   = self::get_GBIF_map_availability(null,$arr_taxa);            //2        
+        $arr_taxa   = self::get_user_submitted_text_count(null,$arr_taxa);        //3    
+        $arr_taxa   = self::get_common_names_count(null,$arr_taxa);               //4
+        $arr_taxa   = self::get_synonyms_count(null,$arr_taxa);                   //5 
+        $arr_taxa   = self::get_biomedical_terms_availability(null,$arr_taxa);    //6    
+        $arr_taxa   = self::get_data_objects_count(null,$arr_taxa);               //7
+        $arr_taxa   = self::get_outlinks_count(null,$arr_taxa);                   //8     
+        $arr_taxa   = self::get_content_partner_count(null,$arr_taxa);            //9                    
         //*/                
 
         /*
         print"<pre>"; 
-            print_r($arr_data_objects);        
-            print_r($arr_bhl);        
-            print_r($arr_content_partners);        
-            print_r($arr_outlinks);        
-            print_r($arr_common_names);        
-            print_r($arr_synonyms);        
-            print_r($arr_biomedical_terms);        
-            print_r($arr_gbif);        
-            print_r($arr_user_submitted_text);        
-            print_r($arr_google_stats);        
+            print_r($arr_taxa);        
         print"</pre>";        
         */        
         
-        self::save_to_text_file($arr_data_objects,$arr_bhl,$arr_content_partners,$arr_outlinks,$arr_common_names,$arr_synonyms,$arr_biomedical_terms,$arr_gbif,$arr_user_submitted_text,$arr_google_stats);                      
+        self::save_to_text_file($arr_taxa);                      
         self::save_to_table();                        
     }       
     
-    function get_google_stats($param_id=NULL)
+    function get_google_stats($param_id=NULL,$arr_taxa)
     {        
-        $arr=array();         
+        
         //get the 12th month - descending order        
         $sql="Select concat(gas.`year`,'_',substr(gas.`month` / 100,3,2)) as `year_month` From google_analytics_summaries gas Order By gas.`year` Desc, gas.`month` Desc limit 11,1";
         $result = $this->mysqli_slave->query($sql);                        
@@ -781,23 +774,23 @@ class SiteStatistics
                     $page_views        = trim($fields[1]);
                     $unique_page_views = trim($fields[2]);                    
                     
-                    @$arr[$tc_id]['pv'] +=$page_views;
-                    @$arr[$tc_id]['upv']+=$unique_page_views;                                
+                    @$arr_taxa[$tc_id]['pv'] +=$page_views;
+                    @$arr_taxa[$tc_id]['upv']+=$unique_page_views;                                
                 }
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";                        
             if($num_rows < $batch)break; 
         }        
-        return $arr;             
+        return $arr_taxa;             
     }
     
-    public function get_BHL_publications($param_id=NULL)
+    public function get_BHL_publications($param_id=NULL,$arr_taxa)
     {
         print"\n BHL publications [1 of 10]\n";                
         $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_publications.txt"; 
         $FILE = fopen($filename, "r");
-        $num_rows=0; $arr=array();
+        $num_rows=0; 
         while(!feof($FILE))
         {
             if($line = fgets($FILE))
@@ -805,13 +798,13 @@ class SiteStatistics
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
                 $tc_id        = trim(@$fields[0]);
                 $publications = trim(@$fields[1]);                    
-                $arr[$tc_id]  = $publications;
+                $arr_taxa[$tc_id]['bhl'] = $publications;
             }                
         }            
-        return $arr;
+        return $arr_taxa;
     }    
     
-    public function get_biomedical_terms_availability($param_id=NULL)
+    public function get_biomedical_terms_availability($param_id=NULL,$arr_taxa)
     {        
         print"\n BOA_biomedical_terms [6 of 10]\n";                
         $BOA_agent_id = 9447;
@@ -822,46 +815,47 @@ class SiteStatistics
         if($param_id)$sql .= " and he.taxon_concept_id = $param_id ";                
         $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
         $FILE = fopen($outfile, "r");
-        $num_rows=0; $arr=array();
+        $num_rows=0; 
         while(!feof($FILE))
         {
             if($line = fgets($FILE))
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
                 $tc_id = trim($fields[0]);
-                @$arr[$tc_id]=1;                                        
+                @$arr_taxa[$tc_id]['biomed']=1;                                        
             }
         }        
         fclose($FILE);unlink($outfile);    
         print "\n num_rows: $num_rows";        
-        return $arr;                             
+        return $arr_taxa;                             
     }
     
-    public function get_GBIF_map_availability($param_id=NULL)
+    public function get_GBIF_map_availability($param_id=NULL,$arr_taxa)
     {
         print"\n GBIF_map [2 of 10]\n";        
         $sql="SELECT tc.id tc_id FROM hierarchies_content hc JOIN hierarchy_entries he ON hc.hierarchy_entry_id = he.id JOIN taxon_concepts tc ON he.taxon_concept_id = tc.id WHERE hc.map > 0 AND tc.published = 1 AND tc.supercedure_id=0 ";
         if($param_id)$sql .= " and tc.id = $param_id ";                
         $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
         $FILE = fopen($outfile, "r");
-        $num_rows=0; $arr=array();
+        $num_rows=0; 
         while(!feof($FILE))
         {
             if($line = fgets($FILE))
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
                 $tc_id = trim($fields[0]);
-                @$arr[$tc_id]=1;            
+                @$arr_taxa[$tc_id]['gbif']=1;            
             }
         }        
         fclose($FILE);unlink($outfile);
         print "\n num_rows: $num_rows";        
-        return $arr;                         
+        return $arr_taxa;                         
     }
     
-    public function get_user_submitted_text_count($param_id=NULL)
+    public function get_user_submitted_text_count($param_id=NULL,$arr_taxa)
     {   
         print"\n user_submitted_text, its providers [3 of 10]\n";        
+        //debug
         $sql="SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM eol_production.users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND do.vetted_id != " . Vetted::find('Untrusted');
         if($param_id)$sql .= " and udo.taxon_concept_id = $param_id ";                
         $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
@@ -880,14 +874,14 @@ class SiteStatistics
             }
         }                
         fclose($FILE); unlink($outfile); print "\n num_rows: $num_rows";
-        $arr=array();
-        foreach($temp as $id => $rec)   {@$arr[$id]['cnt'] = sizeof($rec);}            
-        foreach($temp2 as $id => $rec)  {@$arr[$id]['prov'] = sizeof($rec);}                    
+        
+        foreach($temp as $id => $rec)   {@$arr_taxa[$id]['ust_cnt'] = sizeof($rec);}            
+        foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['ust_prov'] = sizeof($rec);}                    
         unset($temp); unset($temp2); 
-        return $arr;                    
+        return $arr_taxa;                    
     }
     
-    public function get_content_partner_count($param_id=NULL)
+    public function get_content_partner_count($param_id=NULL,$arr_taxa)
     {
         $batch=500000; $start_limit=0;        
         $sql="Select Max(harvest_events.id) he_id FROM harvest_events Where harvest_events.published_at Is Not Null Group By harvest_events.resource_id";        
@@ -916,13 +910,13 @@ class SiteStatistics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";            
-            $arr=array(); foreach($temp as $id => $rec){@$arr[$id] = sizeof($rec);} unset($temp); 
+            foreach($temp as $id => $rec){@$arr_taxa[$id]['cp'] = sizeof($rec);} unset($temp); 
             if($num_rows < $batch)break; 
         }//while(true)           
-        return $arr;                                    
+        return $arr_taxa;                                    
     }    
     
-    public function get_outlinks_count($param_id=NULL)
+    public function get_outlinks_count($param_id=NULL,$arr_taxa)
     {
         $batch=500000; $start_limit=0;
         while(true)
@@ -947,13 +941,13 @@ class SiteStatistics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";            
-            $arr=array(); foreach($temp as $id => $rec){@$arr[$id] = sizeof($rec);} unset($temp); 
+            foreach($temp as $id => $rec){@$arr_taxa[$id]['outl'] = sizeof($rec);} unset($temp); 
             if($num_rows < $batch)break; 
         }//while(true)           
-        return $arr;                                                    
+        return $arr_taxa;                                                    
     }
     
-    public function get_common_names_count($param_id=NULL)
+    public function get_common_names_count($param_id=NULL,$arr_taxa)
     {
         $batch=500000; $start_limit=0;        
         while(true)
@@ -979,17 +973,16 @@ class SiteStatistics
                 }
             }                
             fclose($FILE);unlink($outfile);            
-            print "\n num_rows: $num_rows";
-            $arr=array();
-            foreach($temp as $id => $rec)   {@$arr[$id]['cnt'] = sizeof($rec);}            
-            foreach($temp2 as $id => $rec)  {@$arr[$id]['prov'] = sizeof($rec);}            
-            if($num_rows < $batch)break; 
+            print "\n num_rows: $num_rows";            
+            foreach($temp as $id => $rec)   {@$arr_taxa[$id]['cn_cnt'] = sizeof($rec);}            
+            foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['cn_prov'] = sizeof($rec);}            
             unset($temp); unset($temp2); 
+            if($num_rows < $batch)break;             
         }//while(true)           
-        return $arr;                                
+        return $arr_taxa;                                
     }
 
-    public function get_synonyms_count($param_id=NULL)
+    public function get_synonyms_count($param_id=NULL,$arr_taxa)
     {
         $batch=500000; $start_limit=0;        
         while(true)
@@ -1016,13 +1009,12 @@ class SiteStatistics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";                                    
-            $arr=array();
-            foreach($temp as $id => $rec) {@$arr[$id]['cnt'] = sizeof($rec);}            
-            foreach($temp2 as $id => $rec){@$arr[$id]['prov'] = sizeof($rec);}                        
+            foreach($temp as $id => $rec) {@$arr_taxa[$id]['syn_cnt'] = sizeof($rec);}            
+            foreach($temp2 as $id => $rec){@$arr_taxa[$id]['syn_prov'] = sizeof($rec);}                        
             unset($temp); unset($temp2); 
             if($num_rows < $batch)break; 
         }//while(true)                           
-        return $arr;                                
+        return $arr_taxa;                                
     }
         
     function synonym_relations_id($label)
@@ -1031,7 +1023,7 @@ class SiteStatistics
         $row=$result->fetch_assoc(); return $row['id'];                        
     }            
 
-    public function get_data_objects_count($param_id=NULL)
+    public function get_data_objects_count($param_id=NULL,$arr_taxa)
     {        
         $image_id       = DataType::find_by_label('Image');
         $sound_id       = DataType::find_by_label('Sound');
@@ -1065,7 +1057,7 @@ class SiteStatistics
             $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
-            $num_rows=0; $temp=array(); $temp2=array(); $arr=array();
+            $num_rows=0; $temp=array(); $temp2=array(); 
             while(!feof($FILE))
             {
                 if($line = fgets($FILE))
@@ -1081,23 +1073,23 @@ class SiteStatistics
                     $label = @$data_type_label[$data_type_id];
                     $words_count = str_word_count(strip_tags($description),0);            
                     
-                    @$arr[$tc_id][$label]['total']++;
-                    @$arr[$tc_id][$label]['total_w']+= $words_count;            
+                    @$arr_taxa[$tc_id][$label]['total']++;
+                    @$arr_taxa[$tc_id][$label]['total_w']+= $words_count;            
                     
                     if    ($vetted_id == $trusted_id)    
                     {
-                        @$arr[$tc_id][$label]['t']++;
-                        @$arr[$tc_id][$label]['t_w']+= $words_count;                
+                        @$arr_taxa[$tc_id][$label]['t']++;
+                        @$arr_taxa[$tc_id][$label]['t_w']+= $words_count;                
                     }
                     elseif($vetted_id == $untrusted_id)  
                     {
-                        @$arr[$tc_id][$label]['ut']++;
-                        @$arr[$tc_id][$label]['ut_w']+= $words_count;                
+                        @$arr_taxa[$tc_id][$label]['ut']++;
+                        @$arr_taxa[$tc_id][$label]['ut_w']+= $words_count;                
                     }
                     elseif($vetted_id == $unreviewed_id)    
                     {
-                        @$arr[$tc_id][$label]['ur']++;
-                        @$arr[$tc_id][$label]['ur_w']+= $words_count;
+                        @$arr_taxa[$tc_id][$label]['ur']++;
+                        @$arr_taxa[$tc_id][$label]['ur_w']+= $words_count;
                     }                                    
                     
                     $temp[$tc_id][$info_item_id]='';           
@@ -1106,15 +1098,15 @@ class SiteStatistics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";
-            foreach($temp as $id => $rec)   {@$arr[$id]['ii'] = sizeof($rec);}                       
-            foreach($temp2 as $id => $rec)  {@$arr[$id]['ref'] = sizeof($rec);}                                   
-            if($num_rows < $batch)break; 
+            foreach($temp as $id => $rec)   {@$arr_taxa[$id]['ii'] = sizeof($rec);}                       
+            foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['ref'] = sizeof($rec);}                                   
             unset($temp); unset($temp2); 
+            if($num_rows < $batch)break;             
         }//while(true)        
-        return $arr;
+        return $arr_taxa;
     }            
 
-    public function save_to_text_file($arr_data_objects,$arr_bhl,$arr_content_partners,$arr_outlinks,$arr_common_names,$arr_synonyms,$arr_biomedical_terms,$arr_gbif,$arr_user_submitted_text,$arr_google_stats)
+    public function save_to_text_file($arr_taxa)
     {
         $taxon_id_list = array();
         /* do this if u only want a list of concepts with some kind of data in it
@@ -1141,30 +1133,30 @@ class SiteStatistics
             $str .= $id . "\t";  
             foreach($objects as $object)
             {
-                $str .=   @$arr_data_objects[$id]["$object"]['total']     . "\t" 
-                        . @$arr_data_objects[$id]["$object"]['t']         . "\t"  /* trusted */
-                        . @$arr_data_objects[$id]["$object"]['ut']        . "\t"  /* untrusted */
-                        . @$arr_data_objects[$id]["$object"]['ur']        . "\t"  /* unreviewed */
-                        . @$arr_data_objects[$id]["$object"]['total_w']   . "\t"  /* w = words */
-                        . @$arr_data_objects[$id]["$object"]['t_w']       . "\t" 
-                        . @$arr_data_objects[$id]["$object"]['ut_w']      . "\t" 
-                        . @$arr_data_objects[$id]["$object"]['ur_w']      . "\t" ;
+                $str .=   @$arr_taxa[$id]["$object"]['total']     . "\t" 
+                        . @$arr_taxa[$id]["$object"]['t']         . "\t"  /* trusted */
+                        . @$arr_taxa[$id]["$object"]['ut']        . "\t"  /* untrusted */
+                        . @$arr_taxa[$id]["$object"]['ur']        . "\t"  /* unreviewed */
+                        . @$arr_taxa[$id]["$object"]['total_w']   . "\t"  /* w = words */
+                        . @$arr_taxa[$id]["$object"]['t_w']       . "\t" 
+                        . @$arr_taxa[$id]["$object"]['ut_w']      . "\t" 
+                        . @$arr_taxa[$id]["$object"]['ur_w']      . "\t" ;
             }                        
-            $str .= @$arr_data_objects[$id]["ref"]          . "\t";                        
-            $str .= @$arr_data_objects[$id]["ii"]           . "\t"; /* ii = info items */   
-            $str .= @$arr_bhl[$id]                          . "\t";            
-            $str .= @$arr_content_partners[$id]             . "\t";
-            $str .= @$arr_outlinks[$id]                     . "\t";
-            $str .= @$arr_gbif[$id]                         . "\t";
-            $str .= @$arr_biomedical_terms[$id]             . "\t";
-            $str .= @$arr_user_submitted_text[$id]["cnt"]   . "\t"; /* cnt = count */                       
-            $str .= @$arr_user_submitted_text[$id]["prov"]  . "\t"; /* prov = providers */
-            $str .= @$arr_common_names[$id]["cnt"]          . "\t";                                    
-            $str .= @$arr_common_names[$id]["prov"]         . "\t";                                                
-            $str .= @$arr_synonyms[$id]["cnt"]              . "\t";                                                
-            $str .= @$arr_synonyms[$id]["prov"]             . "\t";             
-            $str .= @$arr_google_stats[$id]["pv"]           . "\t"; /* pv = page_views */
-            $str .= @$arr_google_stats[$id]["upv"]          . "\t"; /* upv = unique_page_views */            
+            $str .= @$arr_taxa[$id]["ref"]          . "\t";                        
+            $str .= @$arr_taxa[$id]["ii"]           . "\t"; /* ii = info items */   
+            $str .= @$arr_taxa[$id]['bhl']          . "\t";            
+            $str .= @$arr_taxa[$id]['cp']           . "\t";
+            $str .= @$arr_taxa[$id]['outl']         . "\t";
+            $str .= @$arr_taxa[$id]['gbif']         . "\t";
+            $str .= @$arr_taxa[$id]['biomed']       . "\t";
+            $str .= @$arr_taxa[$id]["ust_cnt"]      . "\t"; /* cnt = count */                       
+            $str .= @$arr_taxa[$id]["ust_prov"]     . "\t"; /* prov = providers */
+            $str .= @$arr_taxa[$id]["cn_cnt"]       . "\t";                                    
+            $str .= @$arr_taxa[$id]["cn_prov"]      . "\t";                                                
+            $str .= @$arr_taxa[$id]["syn_cnt"]      . "\t";                                                
+            $str .= @$arr_taxa[$id]["syn_prov"]     . "\t";             
+            $str .= @$arr_taxa[$id]["pv"]           . "\t"; /* pv = page_views */
+            $str .= @$arr_taxa[$id]["upv"]          . "\t"; /* upv = unique_page_views */            
             $str .= "\n";                                                
             if($i % 500000 == 0)
             {
