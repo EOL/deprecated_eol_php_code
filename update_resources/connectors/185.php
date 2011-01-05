@@ -1,12 +1,13 @@
 <?php
 exit; 
 /* connector for Turbellarian
-Estimated execution time: 10 hrs.
+Estimated execution time: 10.57 hrs.
 This connector gets data from website. Ancestry information is still pending, to be provided by partner.
 
 as of       records
-Oct 1 2010  17492
-Nov 18      9780
+2010 10 01  17492
+2010 11 18  9780
+2011 01 05  9491
 */
 
 $timestart = microtime(1);
@@ -29,5 +30,4 @@ echo "elapsed time = $elapsed_time_sec sec              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 exit("\n\n Done processing.");
-
 ?>
