@@ -94,5 +94,31 @@
     <location><![CDATA[&lt;i&gt;Canberra&lt;/i&gt;, Australian Capital Territory, Australia]]></location>
   </dataObject>
 </taxon>
+<taxon>
+  <dc:identifier>http://mushroomobserver.org/name/show_name/14971</dc:identifier>
+  <dc:source>http://mushroomobserver.org/name/show_name/14971</dc:source>
+  <dwc:Kingdom>Fungi</dwc:Kingdom>
+  <dwc:Phylum>Basidiomycota</dwc:Phylum>
+  <dwc:Class>Agaricomycetes</dwc:Class>
+  <dwc:Order>Agaricales</dwc:Order>
+  <dwc:Family>Amanitaceae</dwc:Family>
+  <dwc:Genus>Amanita</dwc:Genus>
+  <dwc:ScientificName>Amanita friabilis (Karst.) Bas</dwc:ScientificName>
+  <dcterms:modified>2010-12-28 15:58:08</dcterms:modified>
+  <dataObject>
+    <dc:identifier>Image-28102</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <mimeType>image/jpeg</mimeType>
+    <agent role="photographer">Irene Andersson</agent>
+    <dcterms:created>2008-11-07 10:19:53</dcterms:created>
+    <dc:language>en</dc:language>
+    <license>http://creativecommons.org/licenses/by-sa/3.0/</license>
+    <dcterms:rightsHolder>Irene Andersson</dcterms:rightsHolder>
+    <audience>General public</audience>
+    <dc:description xml:lang="en">Amanita friabilis (Karst.) Bas</dc:description>
+    <mediaURL>http://mushroomobserver.org/images/640/28102.jpg</mediaURL>
+  </dataObject>
+</taxon>
+
 
 </response>
