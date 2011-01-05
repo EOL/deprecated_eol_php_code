@@ -812,7 +812,7 @@ class SiteStatistics
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
                 $tc_id = trim($fields[0]);
-                @$arr[$tc_id]='';                                        
+                @$arr[$tc_id]=1;                                        
             }
         }        
         fclose($FILE);unlink($outfile);    
@@ -834,7 +834,7 @@ class SiteStatistics
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
                 $tc_id = trim($fields[0]);
-                @$arr[$tc_id]='';            
+                @$arr[$tc_id]=1;            
             }
         }        
         fclose($FILE);unlink($outfile);
