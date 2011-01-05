@@ -1,7 +1,7 @@
 <?php
 $GLOBALS['ENV_DEBUG'] = false;
 //$GLOBALS['ENV_NAME'] = "integration";
-//$GLOBALS['ENV_NAME'] = "staging";
+$GLOBALS['ENV_NAME'] = "staging";
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $time_start = time_elapsed();            
