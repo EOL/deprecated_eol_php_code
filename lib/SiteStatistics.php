@@ -5,10 +5,10 @@ class SiteStatistics
     private $mysqli;
     
     public function __construct()
-    {        
+    {                
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->mysqli_slave = load_mysql_environment('slave');
-        $this->mysqli_eol = load_mysql_environment('slave_eol');        
+        $this->mysqli_eol = load_mysql_environment('slave_eol');                    
     }
     
     public function insert_taxa_stats()
@@ -645,7 +645,9 @@ class SiteStatistics
     {
         /*  This will generate the [taxon_concept_with_bhl_publications.txt]. 
             Run once everytime BHL data is updated. 
-            Assigns # of publications for every concept. */                                
+            Assigns # of publications for every concept. 
+            Should be run locally and just copy to production.
+        */                                
         
         $write_filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_publications.txt.tmp";                         
         unlink($write_filename);
