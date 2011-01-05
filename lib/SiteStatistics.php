@@ -8,7 +8,7 @@ class SiteStatistics
     {                
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->mysqli_slave = load_mysql_environment('slave');
-        $this->mysqli_eol = load_mysql_environment('slave_eol');                    
+        $this->mysqli_eol = load_mysql_environment('slave_eol');                                    
     }
     
     public function insert_taxa_stats()
@@ -705,9 +705,9 @@ class SiteStatistics
     ////////////////////////////////////  http://jira.eol.org/browse/WEB-1845
         
     public function create_page_metrics_table()/* prepare taxon concept totals for richness calculations */ 
-    {        
-        /*                
-        $tc_id=206692;        
+    {           
+        /*                        
+        $tc_id=206692;             
         //$tc_id=218284; //with user-submitted-text                
         $arr_bhl                    = self::get_BHL_publications($tc_id);                
         $arr_gbif                   = self::get_GBIF_map_availability($tc_id);                
@@ -719,9 +719,10 @@ class SiteStatistics
         $arr_outlinks               = self::get_outlinks_count($tc_id);                
         $arr_content_partners       = self::get_content_partner_count($tc_id);        
         $arr_google_stats           = self::get_google_stats($tc_id); //page_views and unique_page_views                        
-        */                        
+        */                                
         
         ///*        
+        $arr_google_stats           = self::get_google_stats();                     //10
         $arr_bhl                    = self::get_BHL_publications();                 //1                                
         $arr_gbif                   = self::get_GBIF_map_availability();            //2        
         $arr_user_submitted_text    = self::get_user_submitted_text_count();        //3    
@@ -730,9 +731,8 @@ class SiteStatistics
         $arr_biomedical_terms       = self::get_biomedical_terms_availability();    //6    
         $arr_data_objects           = self::get_data_objects_count();               //7
         $arr_outlinks               = self::get_outlinks_count();                   //8     
-        $arr_content_partners       = self::get_content_partner_count();            //9            
-        $arr_google_stats           = self::get_google_stats();                     //10
-        //*/        
+        $arr_content_partners       = self::get_content_partner_count();            //9                    
+        //*/                
 
         /*
         print"<pre>"; 
@@ -754,25 +754,42 @@ class SiteStatistics
     }       
     
     function get_google_stats($param_id=NULL)
-    {
-        print"\n Google stats: page_views, unique_page_views [10 of 10]\n";                
+    {        
+        $arr=array();         
         //get the 12th month - descending order        
         $sql="Select concat(gas.`year`,'_',substr(gas.`month` / 100,3,2)) as `year_month` From google_analytics_summaries gas Order By gas.`year` Desc, gas.`month` Desc limit 11,1";
-        $result = $this->mysqli_slave->query($sql);                
-        
-        if($result && $row=$result->fetch_assoc()) $year_month = $row['year_month'];                
-        $sql="Select gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views From google_analytics_page_stats gaps Where concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";        
-        if($param_id)$sql .= " and gaps.taxon_concept_id = $param_id ";                
-        $result = $this->mysqli_slave->query($sql);                             
-                
-        $arr=array();
-        while($result && $row=$result->fetch_assoc())        
-        {
-            $tc_id = $row['taxon_concept_id'];
-            @$arr[$tc_id]['pv']+=$row['page_views'];
-            @$arr[$tc_id]['upv']+=$row['unique_page_views'];            
-        }                        
-        return $arr;
+        $result = $this->mysqli_slave->query($sql);                        
+        if($result && $row=$result->fetch_assoc()) $year_month = $row['year_month'];                        
+
+        $batch=300000; $start_limit=0;
+        while(true)
+        {       
+            print"\n Google stats: page_views, unique_page_views [10 of 10] $start_limit \n";                        
+            $sql="Select gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views From google_analytics_page_stats gaps Where concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";                    
+            if($param_id)$sql .= " and gaps.taxon_concept_id = $param_id ";                
+            $sql .= " limit $start_limit, $batch ";                        
+            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $start_limit += $batch;
+            $FILE = fopen($outfile, "r");
+            $num_rows=0;
+            while(!feof($FILE))
+            {
+                if($line = fgets($FILE))
+                {
+                    $num_rows++; $line = trim($line); $fields = explode("\t", $line);                                        
+                    $tc_id             = trim($fields[0]);
+                    $page_views        = trim($fields[1]);
+                    $unique_page_views = trim($fields[2]);                    
+                    
+                    @$arr[$tc_id]['pv'] +=$page_views;
+                    @$arr[$tc_id]['upv']+=$unique_page_views;                                
+                }
+            }                
+            fclose($FILE);unlink($outfile);
+            print "\n num_rows: $num_rows";                        
+            if($num_rows < $batch)break; 
+        }        
+        return $arr;             
     }
     
     public function get_BHL_publications($param_id=NULL)
