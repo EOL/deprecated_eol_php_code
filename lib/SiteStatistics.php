@@ -720,9 +720,8 @@ class SiteStatistics
         self::get_outlinks_count($tc_id);                
         self::get_content_partner_count($tc_id);        
         self::get_google_stats($tc_id); //page_views and unique_page_views                        
-        */                                
+        */                                        
         
-        /*                
         self::get_BHL_publications();                 //1                                
         self::get_GBIF_map_availability();            //2        
         self::get_user_submitted_text_count();        //3    
@@ -732,8 +731,7 @@ class SiteStatistics
         self::get_data_objects_count();               //7
         self::get_outlinks_count();                   //8     
         self::get_content_partner_count();            //9                    
-        self::get_google_stats();                     //10
-        */                
+        self::get_google_stats();                     //10        
         
         self::save_to_text_file();                      
         self::save_to_table();                        
