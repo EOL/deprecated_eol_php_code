@@ -1,5 +1,5 @@
 <?php
-
+define("PAGE_METRICS_TEXT_PATH", DOC_ROOT . "applications/taxon_page_metrics/text_files/");
 class SiteStatistics
 {
     private $mysqli;
@@ -627,12 +627,12 @@ class SiteStatistics
         {               
             $str .= $row['tc_id'] . "\n";                                                        
         }
-        $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt.tmp"; 
+        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt.tmp"; 
         $fp = fopen($filename,"w"); print"\n writing..."; fwrite($fp,$str); fclose($fp); print"\n saved.";                
         
         //rename
-        unlink(DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt");
-        rename(DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt.tmp", DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt");                                        
+        unlink(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt");
+        rename(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt.tmp", PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt");                                        
         
         print"\n end - generate_taxon_concept_with_bhl_links_textfile";        
         $elapsed_time_sec = microtime(1)-$timestart;
@@ -649,13 +649,13 @@ class SiteStatistics
             Should be run locally and just copy to production.
         */                                
         
-        $write_filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_publications.txt.tmp";                         
+        $write_filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp";                         
         unlink($write_filename);
         $fp = fopen($write_filename,"a");                
         
         //start reading text file
         print"\n Start reading text file [taxon_concept_with_bhl_links] \n";                
-        $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt"; 
+        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt"; 
         $FILE = fopen($filename, "r"); $i=0; $str=""; $save_count=0;
         while(!feof($FILE))
         {
@@ -694,8 +694,8 @@ class SiteStatistics
         fclose($fp);
         
         //rename
-        unlink(DOC_ROOT . "tmp/taxon_concept_with_bhl_publications.txt");
-        rename(DOC_ROOT . "tmp/taxon_concept_with_bhl_publications.txt.tmp", DOC_ROOT . "tmp/taxon_concept_with_bhl_publications.txt");                        
+        unlink(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt");
+        rename(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp", PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt");                        
     }        
     
         
@@ -745,7 +745,6 @@ class SiteStatistics
         $sql="Select concat(gas.`year`,'_',substr(gas.`month` / 100,3,2)) as `year_month` From google_analytics_summaries gas Order By gas.`year` Desc, gas.`month` Desc limit 11,1";
         $result = $this->mysqli_slave->query($sql);                        
         if($result && $row=$result->fetch_assoc()) $year_month = $row['year_month'];                        
-
         $batch=500000; $start_limit=0;
         while(true)
         {       
@@ -775,20 +774,13 @@ class SiteStatistics
             if($num_rows < $batch)break; 
         } 
         self::save_json_to_txt($arr_taxa,"tpm_google_stats"); unset($arr_taxa);        
-    }
+    }    
     
-    function save_json_to_txt($arr,$filename)
-    {        
-        $json = json_encode($arr);        
-        $fp = fopen(DOC_ROOT . "tmp/" . $filename . ".txt","w");            
-        fwrite($fp,$json); fclose($fp);        
-    }
-    
-    public function get_BHL_publications($param_id=NULL)
+    function get_BHL_publications($param_id=NULL)
     {
         $arr_taxa=array();
         print"\n BHL publications [1 of 10]\n";                
-        $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_publications.txt"; 
+        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt"; 
         $FILE = fopen($filename, "r");
         $num_rows=0; 
         while(!feof($FILE))
@@ -804,7 +796,7 @@ class SiteStatistics
         self::save_json_to_txt($arr_taxa,"tpm_BHL"); unset($arr_taxa);        
     }    
     
-    public function get_biomedical_terms_availability($param_id=NULL)
+    function get_biomedical_terms_availability($param_id=NULL)
     {        
         $arr_taxa=array();
         print"\n BOA_biomedical_terms [6 of 10]\n";                
@@ -831,7 +823,7 @@ class SiteStatistics
         self::save_json_to_txt($arr_taxa,"tpm_biomedical_terms"); unset($arr_taxa);        
     }
     
-    public function get_GBIF_map_availability($param_id=NULL)
+    function get_GBIF_map_availability($param_id=NULL)
     {
         $arr_taxa=array();
         print"\n GBIF_map [2 of 10]\n";        
@@ -850,12 +842,11 @@ class SiteStatistics
             }
         }        
         fclose($FILE);unlink($outfile);
-        print "\n num_rows: $num_rows";        
-        
+        print "\n num_rows: $num_rows";                
         self::save_json_to_txt($arr_taxa,"tpm_GBIF"); unset($arr_taxa);        
     }
     
-    public function get_user_submitted_text_count($param_id=NULL)
+    function get_user_submitted_text_count($param_id=NULL)
     {   
         $arr_taxa=array();
         print"\n user_submitted_text, its providers [3 of 10]\n";        
@@ -877,16 +868,14 @@ class SiteStatistics
                 $temp2[$tc_id][$user_id]='';            
             }
         }                
-        fclose($FILE); unlink($outfile); print "\n num_rows: $num_rows";
-        
-        foreach($temp as $id => $rec)   {@$arr_taxa[$id]['ust_cnt'] = sizeof($rec);}            
-        foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['ust_prov'] = sizeof($rec);}                    
-        unset($temp); unset($temp2); 
-        
+        fclose($FILE); unlink($outfile); print "\n num_rows: $num_rows";        
+        foreach($temp as $id => $rec)   {@$arr_taxa[$id]['cnt'] = sizeof($rec);}            
+        foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['prov'] = sizeof($rec);}                    
+        unset($temp); unset($temp2);         
         self::save_json_to_txt($arr_taxa,"tpm_user_added_text"); unset($arr_taxa);        
     }
     
-    public function get_content_partner_count($param_id=NULL)
+    function get_content_partner_count($param_id=NULL)
     {
         $arr_taxa=array();
         $batch=500000; $start_limit=0;        
@@ -918,12 +907,11 @@ class SiteStatistics
             print "\n num_rows: $num_rows";            
             foreach($temp as $id => $rec){@$arr_taxa[$id] = sizeof($rec);} unset($temp); 
             if($num_rows < $batch)break; 
-        }//while(true)           
-        
+        }//while(true)                   
         self::save_json_to_txt($arr_taxa,"tpm_content_partners"); unset($arr_taxa);        
     }    
     
-    public function get_outlinks_count($param_id=NULL)
+    function get_outlinks_count($param_id=NULL)
     {
         $arr_taxa=array();
         $batch=500000; $start_limit=0;
@@ -951,12 +939,11 @@ class SiteStatistics
             print "\n num_rows: $num_rows";            
             foreach($temp as $id => $rec){@$arr_taxa[$id] = sizeof($rec);} unset($temp); 
             if($num_rows < $batch)break; 
-        }//while(true)           
-        
+        }//while(true)                   
         self::save_json_to_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
     }
     
-    public function get_common_names_count($param_id=NULL)
+    function get_common_names_count($param_id=NULL)
     {
         $arr_taxa=array();
         $batch=500000; $start_limit=0;        
@@ -984,16 +971,15 @@ class SiteStatistics
             }                
             fclose($FILE);unlink($outfile);            
             print "\n num_rows: $num_rows";            
-            foreach($temp as $id => $rec)   {@$arr_taxa[$id]['cn_cnt'] = sizeof($rec);}            
-            foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['cn_prov'] = sizeof($rec);}            
+            foreach($temp as $id => $rec)   {@$arr_taxa[$id]['cnt'] = sizeof($rec);}            
+            foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['prov'] = sizeof($rec);}            
             unset($temp); unset($temp2); 
             if($num_rows < $batch)break;             
-        }//while(true)           
-        
+        }//while(true)                   
         self::save_json_to_txt($arr_taxa,"tpm_common_names"); unset($arr_taxa);        
     }
 
-    public function get_synonyms_count($param_id=NULL)
+    function get_synonyms_count($param_id=NULL)
     {
         $arr_taxa=array();
         $batch=500000; $start_limit=0;        
@@ -1021,12 +1007,11 @@ class SiteStatistics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";                                    
-            foreach($temp as $id => $rec) {@$arr_taxa[$id]['syn_cnt'] = sizeof($rec);}            
-            foreach($temp2 as $id => $rec){@$arr_taxa[$id]['syn_prov'] = sizeof($rec);}                        
+            foreach($temp as $id => $rec) {@$arr_taxa[$id]['cnt'] = sizeof($rec);}            
+            foreach($temp2 as $id => $rec){@$arr_taxa[$id]['prov'] = sizeof($rec);}                        
             unset($temp); unset($temp2); 
             if($num_rows < $batch)break; 
-        }//while(true)                           
-        
+        }//while(true)                                   
         self::save_json_to_txt($arr_taxa,"tpm_synonyms"); unset($arr_taxa);        
     }
         
@@ -1036,7 +1021,7 @@ class SiteStatistics
         $row=$result->fetch_assoc(); return $row['id'];                        
     }            
 
-    public function get_data_objects_count($param_id=NULL)
+    function get_data_objects_count($param_id=NULL)
     {        
         $arr_taxa=array();
         $image_id       = DataType::find_by_label('Image');
@@ -1116,125 +1101,32 @@ class SiteStatistics
             foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['ref'] = sizeof($rec);}                                   
             unset($temp); unset($temp2); 
             if($num_rows < $batch)break;             
-        }//while(true)        
-        
+        }//while(true)                
         self::save_json_to_txt($arr_taxa,"tpm_data_objects"); unset($arr_taxa);        
     }            
-
-    function get_arr_from_json($filename)
-    {
-        $filename = DOC_ROOT . "tmp/" . $filename . ".txt";
-        $fp = fopen($filename,"r");            
-        $json = fread($fp, filesize($filename));
-        fclose($fp); unlink($filename);
-        return json_decode($json,true);                
-    }
     
-    public function save_to_text_file()
-    {
-        $taxon_id_list = array();
-        /* do this if u only want a list of concepts with some kind of data in it
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_data_objects);
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_bhl);
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_content_partners); 
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_outlinks);
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_common_names);
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_synonyms);
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_biomedical_terms); 
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_gbif);
-        $taxon_id_list = self::get_taxon_id_list($taxon_id_list, $arr_user_submitted_text);                
-        */
-        
-        $arr_google_stats   = self::get_arr_from_json("tpm_google_stats");
-        $arr_bhl            = self::get_arr_from_json("tpm_BHL");
-        $arr_biomed         = self::get_arr_from_json("tpm_biomedical_terms");
-        $arr_gbif           = self::get_arr_from_json("tpm_GBIF");
-        $arr_addedtext      = self::get_arr_from_json("tpm_user_added_text");
-        $arr_partners       = self::get_arr_from_json("tpm_content_partners");
-        $arr_outlinks       = self::get_arr_from_json("tpm_outlinks");
-        $arr_comnames       = self::get_arr_from_json("tpm_common_names");
-        $arr_synonyms       = self::get_arr_from_json("tpm_synonyms");
-        $arr_objects        = self::get_arr_from_json("tpm_data_objects");                
+    function save_to_text_file()
+    {        
+        $arr_bhl            = self::get_arr_from_json("tpm_BHL");                   print"\n -bhl";
+        $arr_biomed         = self::get_arr_from_json("tpm_biomedical_terms");      print"\n -biomed";
+        $arr_gbif           = self::get_arr_from_json("tpm_GBIF");                  print"\n -gbif";
+        $arr_addedtext      = self::get_arr_from_json("tpm_user_added_text");       print"\n -addtext";
+        $arr_partners       = self::get_arr_from_json("tpm_content_partners");      print"\n -partners";
+        $arr_outlinks       = self::get_arr_from_json("tpm_outlinks");              print"\n -outlinks";
+        $arr_comnames       = self::get_arr_from_json("tpm_common_names");          print"\n -comnames";
+        $arr_synonyms       = self::get_arr_from_json("tpm_synonyms");              print"\n -synonyms";
+        $arr_objects        = self::get_arr_from_json("tpm_data_objects");          print"\n -objects";                
+        $arr_google_stats   = self::get_arr_from_json("tpm_google_stats");          print"\n -google_stats";
         
         // do this if u want to get all concepts:
-        $taxon_id_list = self::get_all_taxon_concepts($taxon_id_list);                       
+        $taxon_id_list = array();
+        $taxon_id_list = self::get_all_taxon_concepts($taxon_id_list);                                       
         
-        $taxon_id_list = array_keys($taxon_id_list);                
-        $filename = DOC_ROOT . "tmp/taxon_concept_metrics.txt"; $fp = fopen($filename,"w");            
+        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt"; $fp = fopen($filename,"w");            
         $str=""; $i=0; $total=sizeof($taxon_id_list);
-        foreach($taxon_id_list as $id)
-        {            
-            $i++; $objects=array("image","text","video","sound","flash","youtube","iucn");//"gbif",            
-            $str .= $id . "\t";  
-            foreach($objects as $object)
-            {
-                $str .=   @$arr_objects[$id]["$object"]['total']     . "\t" 
-                        . @$arr_objects[$id]["$object"]['t']         . "\t"  /* trusted */
-                        . @$arr_objects[$id]["$object"]['ut']        . "\t"  /* untrusted */
-                        . @$arr_objects[$id]["$object"]['ur']        . "\t"  /* unreviewed */
-                        . @$arr_objects[$id]["$object"]['total_w']   . "\t"  /* w = words */
-                        . @$arr_objects[$id]["$object"]['t_w']       . "\t" 
-                        . @$arr_objects[$id]["$object"]['ut_w']      . "\t" 
-                        . @$arr_objects[$id]["$object"]['ur_w']      . "\t" ;
-            }                        
-            
-            /*
-            $str .= @$arr_bhl[$id]['bhl']          . "\t";            
-            $str .= @$arr_partners[$id]['cp']           . "\t";
-            $str .= @$arr_outlinks[$id]['outl']         . "\t";
-            $str .= @$arr_gbif[$id]['gbif']         . "\t";
-            $str .= @$arr_biomed[$id]['biomed']       . "\t";
-            */
-            
-            $str .= @$arr_objects[$id]["ref"]           . "\t";                        
-            $str .= @$arr_objects[$id]["ii"]            . "\t"; /* ii = info items */   
-            $str .= @$arr_bhl[$id]                      . "\t";            
-            $str .= @$arr_partners[$id]                 . "\t";
-            $str .= @$arr_outlinks[$id]                 . "\t";
-            $str .= @$arr_gbif[$id]                     . "\t";
-            $str .= @$arr_biomed[$id]                   . "\t";
-            $str .= @$arr_addedtext[$id]["ust_cnt"]     . "\t"; /* cnt = count */                       
-            $str .= @$arr_addedtext[$id]["ust_prov"]    . "\t"; /* prov = providers */
-            $str .= @$arr_comnames[$id]["cn_cnt"]       . "\t";                                    
-            $str .= @$arr_comnames[$id]["cn_prov"]      . "\t";                                                
-            $str .= @$arr_synonyms[$id]["syn_cnt"]      . "\t";                                                
-            $str .= @$arr_synonyms[$id]["syn_prov"]     . "\t";             
-            $str .= @$arr_google_stats[$id]["pv"]       . "\t"; /* pv = page_views */
-            $str .= @$arr_google_stats[$id]["upv"]      . "\t"; /* upv = unique_page_views */            
-            $str .= "\n";                                                
-            if($i % 500000 == 0)
-            {
-                print"\n writing... $i of $total ";
-                fwrite($fp,$str);
-                $str="";                
-            }            
-        }
-        print"\n writing... $i of $total "; fwrite($fp,$str); fclose($fp);
-    }
-    
-    function save_to_table()
-    {
-        $filename = DOC_ROOT . "tmp/taxon_concept_metrics.txt";                
-        $this->mysqli->insert("CREATE TABLE IF NOT EXISTS taxon_concept_metrics_tmp LIKE taxon_concept_metrics");
-        $this->mysqli->delete("TRUNCATE TABLE taxon_concept_metrics_tmp");
-        $this->mysqli->load_data_infile($filename, "taxon_concept_metrics_tmp");    
-        $this->mysqli->update("RENAME TABLE taxon_concept_metrics TO taxon_concept_metrics_swap,
-                                            taxon_concept_metrics_tmp TO taxon_concept_metrics,
-                                            taxon_concept_metrics_swap TO taxon_concept_metrics_tmp");
-    }
-    
-    function get_taxon_id_list($taxon_id_list, $arr)
-    {
-        if($arr)
-        {
-            foreach($arr as $id => $rec){$taxon_id_list[$id]='';}
-        }
-        return $taxon_id_list;        
-    }        
-    
-    function get_all_taxon_concepts($taxon_id_list)
-    {
-        $batch=500000; $start_limit=0;        
+        $objects=array("image","text","video","sound","flash","youtube","iucn");//"gbif",                    
+        
+        $batch=250000; $start_limit=0;        
         while(true)
         {                   
             print"\n get_all_taxon_concepts $start_limit \n";                        
@@ -1243,23 +1135,92 @@ class SiteStatistics
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
             $start_limit += $batch;
-            $FILE = fopen($outfile, "r");
-            $num_rows=0;
+            $FILE = fopen($outfile, "r"); $num_rows=0;
             while(!feof($FILE))
             {
                 if($line = fgets($FILE))
                 {
                     $num_rows++; $line = trim($line); $fields = explode("\t", $line);                                            
-                    $tc_id      = trim($fields[0]);
-                    $taxon_id_list[$tc_id]='';                                
+                    $id = trim($fields[0]);
+                    //================================================================================
+                    $i++; $str .= $id . "\t";  
+                    foreach($objects as $object)
+                    {
+                        $str .=   @$arr_objects[$id]["$object"]['total']     . "\t" 
+                                . @$arr_objects[$id]["$object"]['t']         . "\t"  /* trusted */
+                                . @$arr_objects[$id]["$object"]['ut']        . "\t"  /* untrusted */
+                                . @$arr_objects[$id]["$object"]['ur']        . "\t"  /* unreviewed */
+                                . @$arr_objects[$id]["$object"]['total_w']   . "\t"  /* w = words */
+                                . @$arr_objects[$id]["$object"]['t_w']       . "\t" 
+                                . @$arr_objects[$id]["$object"]['ut_w']      . "\t" 
+                                . @$arr_objects[$id]["$object"]['ur_w']      . "\t";
+                    }                                            
+                    
+                    $str .= @$arr_objects[$id]["ref"]       . "\t";                        
+                    $str .= @$arr_objects[$id]["ii"]        . "\t"; /* ii = info items */   
+                    $str .= @$arr_bhl[$id]                  . "\t";            
+                    $str .= @$arr_partners[$id]             . "\t";
+                    $str .= @$arr_outlinks[$id]             . "\t";
+                    $str .= @$arr_gbif[$id]                 . "\t";
+                    $str .= @$arr_biomed[$id]               . "\t";
+                    $str .= @$arr_addedtext[$id]["cnt"]     . "\t"; /* cnt = count */                       
+                    $str .= @$arr_addedtext[$id]["prov"]    . "\t"; /* prov = providers */
+                    $str .= @$arr_comnames[$id]["cnt"]      . "\t";                                    
+                    $str .= @$arr_comnames[$id]["prov"]     . "\t";                                                
+                    $str .= @$arr_synonyms[$id]["cnt"]      . "\t";                                                
+                    $str .= @$arr_synonyms[$id]["prov"]     . "\t";             
+                    $str .= @$arr_google_stats[$id]["pv"]   . "\t"; /* pv = page_views */
+                    $str .= @$arr_google_stats[$id]["upv"]  . "\t"; /* upv = unique_page_views */            
+                    $str .= "\n";                                                
+                    if($i % 50000 == 0)
+                    {
+                        print"\n writing... $i of $total ";
+                        fwrite($fp,$str);
+                        $str="";                
+                    }                                            
+                    //================================================================================                    
                 }
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";                                    
             if($num_rows < $batch)break; 
-        }//while(true)                           
-        return $taxon_id_list;                
+        }//while(true)                            
+        print"\n writing... $i of $total "; fwrite($fp,$str); fclose($fp);        
     }
+    
+    function save_to_table()
+    {
+        print"\n saving to table...";
+        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt";                
+        $this->mysqli->insert("CREATE TABLE IF NOT EXISTS taxon_concept_metrics_tmp LIKE taxon_concept_metrics");
+        $this->mysqli->delete("TRUNCATE TABLE taxon_concept_metrics_tmp");
+        $this->mysqli->load_data_infile($filename, "taxon_concept_metrics_tmp");    
+        $this->mysqli->update("RENAME TABLE taxon_concept_metrics TO taxon_concept_metrics_swap,
+                                            taxon_concept_metrics_tmp TO taxon_concept_metrics,
+                                            taxon_concept_metrics_swap TO taxon_concept_metrics_tmp");
+        print"\n table saved";                                            
+    }
+
+    function save_json_to_txt($arr,$filename)
+    {        
+        $json = json_encode($arr);        
+        $fp = fopen(PAGE_METRICS_TEXT_PATH . $filename . ".txt","w");                    
+        fwrite($fp,$json); fclose($fp);        
+    }
+    
+    function get_arr_from_json($filename)
+    {
+        $filename = PAGE_METRICS_TEXT_PATH . $filename . ".txt";        
+        $fp = fopen($filename,"r");            
+        $json = fread($fp, filesize($filename));
+        fclose($fp);
+        return json_decode($json,true);                
+    }        
+    
+    //##########################################################################################################################################################################
+    ////////////////////////////////////  - E N D - 
+    ////////////////////////////////////  Taxon Page Metrics: 
+    ////////////////////////////////////      
 
 }
 ?>
