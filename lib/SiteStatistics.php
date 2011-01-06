@@ -1126,7 +1126,7 @@ class SiteStatistics
         $batch=250000; $start_limit=0;        
         while(true)
         {                   
-            print"\n get_all_taxon_concepts $start_limit \n";                        
+            print"\n Saving... $start_limit \n";                        
             $sql="SELECT tc.id FROM taxon_concepts tc WHERE tc.published = 1 AND tc.supercedure_id = 0";
             //$sql.=" and tc.id in (1,2,3,4,5,6,206692,218284)";//debug
             $sql .= " limit $start_limit, $batch ";                        
