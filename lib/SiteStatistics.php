@@ -708,6 +708,7 @@ class SiteStatistics
     {           
         /*                        
         $tc_id=206692;             
+        $tc_id=1;             
         //$tc_id=218284; //with user-submitted-text                        
         self::get_BHL_publications($tc_id);                
         self::get_GBIF_map_availability($tc_id);                
@@ -734,7 +735,7 @@ class SiteStatistics
         self::get_google_stats();                     //10
         */                
         
-        //self::save_to_text_file();                      
+        self::save_to_text_file();                      
         self::save_to_table();                        
     }       
     
@@ -1116,14 +1117,10 @@ class SiteStatistics
         $arr_comnames       = self::get_arr_from_json("tpm_common_names");          print"\n -comnames";
         $arr_synonyms       = self::get_arr_from_json("tpm_synonyms");              print"\n -synonyms";
         $arr_objects        = self::get_arr_from_json("tpm_data_objects");          print"\n -objects";                
-        $arr_google_stats   = self::get_arr_from_json("tpm_google_stats");          print"\n -google_stats";
-        
-        // do this if u want to get all concepts:
-        $taxon_id_list = array();
-        $taxon_id_list = self::get_all_taxon_concepts($taxon_id_list);                                       
+        $arr_google_stats   = self::get_arr_from_json("tpm_google_stats");          print"\n -google_stats";        
         
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt"; $fp = fopen($filename,"w");            
-        $str=""; $i=0; $total=sizeof($taxon_id_list);
+        $str=""; $i=0; 
         $objects=array("image","text","video","sound","flash","youtube","iucn");//"gbif",                    
         
         $batch=250000; $start_limit=0;        
@@ -1174,7 +1171,7 @@ class SiteStatistics
                     $str .= "\n";                                                
                     if($i % 50000 == 0)
                     {
-                        print"\n writing... $i of $total ";
+                        print"\n writing... $i [$num_rows]";
                         fwrite($fp,$str);
                         $str="";                
                     }                                            
@@ -1185,7 +1182,7 @@ class SiteStatistics
             print "\n num_rows: $num_rows";                                    
             if($num_rows < $batch)break; 
         }//while(true)                            
-        print"\n writing... $i of $total "; fwrite($fp,$str); fclose($fp);        
+        print"\n writing... $i [$num_rows]"; fwrite($fp,$str); fclose($fp);        
     }
     
     function save_to_table()
