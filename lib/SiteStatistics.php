@@ -734,7 +734,7 @@ class SiteStatistics
         self::get_google_stats();                     //10
         */                
         
-        self::save_to_text_file();                      
+        //self::save_to_text_file();                      
         self::save_to_table();                        
     }       
     
