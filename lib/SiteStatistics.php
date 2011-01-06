@@ -734,7 +734,7 @@ class SiteStatistics
         self::get_google_stats();                     //10
         */                
         
-        self::save_to_text_file($arr_taxa);                      
+        self::save_to_text_file();                      
         self::save_to_table();                        
     }       
     
@@ -1130,7 +1130,7 @@ class SiteStatistics
         return json_decode($json,true);                
     }
     
-    public function save_to_text_file($arr_taxa)
+    public function save_to_text_file()
     {
         $taxon_id_list = array();
         /* do this if u only want a list of concepts with some kind of data in it
