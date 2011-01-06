@@ -19,7 +19,8 @@ class MCZHarvardAPI
         //start prepare CSV file
         require_library('XLSParser'); $parser = new XLSParser();                
         $images=self::prepare_table($parser->convert_sheet_to_array(LOCAL_CSV),"multiple","GUID","GUID","MEDIA_ID","MEDIA_URI","MIME_TYPE",        
-        "SPEC_LOCALITY","HIGHER_GEOG","TYPESTATUS","PARTS","COLLECTING_METHOD","COLLECTORS","IDENTIFIEDBY","created","LAST_EDIT_DATE" );                
+        "SPEC_LOCALITY","HIGHER_GEOG","TYPESTATUS","PARTS","COLLECTING_METHOD","COLLECTORS","IDENTIFIEDBY","created","LAST_EDIT_DATE",
+        "SPECIMENDETAILURL" );                
         print "images: " . sizeof($images) . "<br>\n";
         //end prepare CSV file          
         
@@ -151,7 +152,8 @@ class MCZHarvardAPI
                     collected by [COLLECTORS], identified by [IDENTIFIEDBY], GUID: [GUID] 
                     */
                                                 
-                    $dc_source     = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME'];
+                    //$dc_source     = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME']; --working but replaced by Brendan
+                    $dc_source     = $r['SPECIMENDETAILURL'];
 
                     $path_parts = pathinfo($mediaURL);
                     $dc_identifier = $path_parts['basename']; //$r['MEDIA_ID'];                            
