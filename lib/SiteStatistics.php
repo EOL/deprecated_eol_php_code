@@ -721,8 +721,7 @@ class SiteStatistics
         self::get_google_stats($tc_id); //page_views and unique_page_views                        
         */                                
         
-        ///*        
-        self::get_google_stats();                     //10
+        /*                
         self::get_BHL_publications();                 //1                                
         self::get_GBIF_map_availability();            //2        
         self::get_user_submitted_text_count();        //3    
@@ -732,7 +731,8 @@ class SiteStatistics
         self::get_data_objects_count();               //7
         self::get_outlinks_count();                   //8     
         self::get_content_partner_count();            //9                    
-        //*/                
+        self::get_google_stats();                     //10
+        */                
         
         self::save_to_text_file($arr_taxa);                      
         self::save_to_table();                        
@@ -774,9 +774,7 @@ class SiteStatistics
             print "\n num_rows: $num_rows";                        
             if($num_rows < $batch)break; 
         } 
-
-        self::save_json_to_txt($arr_taxa,"tpm_google_stats");
-        //return $arr_taxa;             
+        self::save_json_to_txt($arr_taxa,"tpm_google_stats"); unset($arr_taxa);        
     }
     
     function save_json_to_txt($arr,$filename)
@@ -803,8 +801,7 @@ class SiteStatistics
                 $arr_taxa[$tc_id] = $publications;
             }                
         }            
-        self::save_json_to_txt($arr_taxa,"tpm_BHL");
-        //return $arr_taxa;
+        self::save_json_to_txt($arr_taxa,"tpm_BHL"); unset($arr_taxa);        
     }    
     
     public function get_biomedical_terms_availability($param_id=NULL)
@@ -831,8 +828,7 @@ class SiteStatistics
         }        
         fclose($FILE);unlink($outfile);    
         print "\n num_rows: $num_rows";        
-        self::save_json_to_txt($arr_taxa,"tpm_biomedical_terms");
-        //return $arr_taxa;                             
+        self::save_json_to_txt($arr_taxa,"tpm_biomedical_terms"); unset($arr_taxa);        
     }
     
     public function get_GBIF_map_availability($param_id=NULL)
@@ -856,8 +852,7 @@ class SiteStatistics
         fclose($FILE);unlink($outfile);
         print "\n num_rows: $num_rows";        
         
-        self::save_json_to_txt($arr_taxa,"tpm_GBIF");
-        //return $arr_taxa;                         
+        self::save_json_to_txt($arr_taxa,"tpm_GBIF"); unset($arr_taxa);        
     }
     
     public function get_user_submitted_text_count($param_id=NULL)
@@ -888,8 +883,7 @@ class SiteStatistics
         foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['ust_prov'] = sizeof($rec);}                    
         unset($temp); unset($temp2); 
         
-        self::save_json_to_txt($arr_taxa,"tpm_user_added_text");
-        //return $arr_taxa;                    
+        self::save_json_to_txt($arr_taxa,"tpm_user_added_text"); unset($arr_taxa);        
     }
     
     public function get_content_partner_count($param_id=NULL)
@@ -926,8 +920,7 @@ class SiteStatistics
             if($num_rows < $batch)break; 
         }//while(true)           
         
-        self::save_json_to_txt($arr_taxa,"tpm_content_partners");
-        //return $arr_taxa;                                    
+        self::save_json_to_txt($arr_taxa,"tpm_content_partners"); unset($arr_taxa);        
     }    
     
     public function get_outlinks_count($param_id=NULL)
@@ -960,8 +953,7 @@ class SiteStatistics
             if($num_rows < $batch)break; 
         }//while(true)           
         
-        self::save_json_to_txt($arr_taxa,"tpm_outlinks");
-        //return $arr_taxa;                                                    
+        self::save_json_to_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
     }
     
     public function get_common_names_count($param_id=NULL)
@@ -998,8 +990,7 @@ class SiteStatistics
             if($num_rows < $batch)break;             
         }//while(true)           
         
-        self::save_json_to_txt($arr_taxa,"tpm_common_names");
-        //return $arr_taxa;                                
+        self::save_json_to_txt($arr_taxa,"tpm_common_names"); unset($arr_taxa);        
     }
 
     public function get_synonyms_count($param_id=NULL)
@@ -1036,8 +1027,7 @@ class SiteStatistics
             if($num_rows < $batch)break; 
         }//while(true)                           
         
-        self::save_json_to_txt($arr_taxa,"tpm_synonyms");
-        //return $arr_taxa;                                
+        self::save_json_to_txt($arr_taxa,"tpm_synonyms"); unset($arr_taxa);        
     }
         
     function synonym_relations_id($label)
@@ -1128,8 +1118,7 @@ class SiteStatistics
             if($num_rows < $batch)break;             
         }//while(true)        
         
-        self::save_json_to_txt($arr_taxa,"tpm_data_objects");
-        //return $arr_taxa;
+        self::save_json_to_txt($arr_taxa,"tpm_data_objects"); unset($arr_taxa);        
     }            
 
     function get_arr_from_json($filename)
@@ -1137,7 +1126,7 @@ class SiteStatistics
         $filename = DOC_ROOT . "tmp/" . $filename . ".txt";
         $fp = fopen($filename,"r");            
         $json = fread($fp, filesize($filename));
-        fclose($fp);
+        fclose($fp); unlink($filename);
         return json_decode($json,true);                
     }
     
