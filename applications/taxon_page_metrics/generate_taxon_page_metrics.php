@@ -15,7 +15,7 @@ $stats = new SiteStatistics();
 
 /* can only be run when the latest migrations were already run in production */
 
-$stats->create_page_metrics_table(); //1.5 hrs
+$stats->create_page_metrics_table(); //1.08 hrs
        
 $time_elapsed_sec = time_elapsed() - $time_start;
 echo "\n elapsed time = $time_elapsed_sec sec               ";
