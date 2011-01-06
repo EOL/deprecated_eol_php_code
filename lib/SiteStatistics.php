@@ -5,19 +5,10 @@ class SiteStatistics
     private $mysqli;
     
     public function __construct()
-    {                        
-        /*
+    {                                
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->mysqli_slave = load_mysql_environment('slave');
-        $this->mysqli_eol = load_mysql_environment('slave_eol');   
-        */
-                                                 
-        ///*
-        //only for development        
-        $this->mysqli_slave = load_mysql_environment('staging');        
-        $this->mysqli = load_mysql_environment('development');
-        //*/        
-        
+        $this->mysqli_eol = load_mysql_environment('slave_eol');           
     }
     
     public function insert_taxa_stats()
