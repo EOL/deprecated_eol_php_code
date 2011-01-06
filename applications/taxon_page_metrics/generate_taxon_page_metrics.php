@@ -6,7 +6,7 @@ $GLOBALS['ENV_DEBUG'] = false;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $time_start = time_elapsed();            
 
-ini_set('memory_limit', '2000M');
+ini_set('memory_limit', '2500M');
 set_time_limit(0);
 
 $mysqli =& $GLOBALS['mysqli_connection'];
