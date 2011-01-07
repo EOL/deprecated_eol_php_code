@@ -615,8 +615,7 @@ class SiteStatistics
     
     public function generate_taxon_concept_with_bhl_links_textfile() //execution time: 20 mins.
     {
-        /*  This will generate the taxon_concept_with_bhl_links.txt. 
-            Run once everytime BHL data is updated. 
+        /*  This will generate the [taxon_concept_with_bhl_links.txt].             
             Lists all concepts with BHL links. */                            
         
         $timestart = microtime(1);        
@@ -643,9 +642,8 @@ class SiteStatistics
     
     public function generate_taxon_concept_with_bhl_publications_textfile() //single-query approach --- execution time: 10hrs
     {
-        /*  This will generate the [taxon_concept_with_bhl_publications.txt]. 
-            Run once everytime BHL data is updated. 
-            Assigns # of publications for every concept. 
+        /*  This will generate the [taxon_concept_with_bhl_publications.txt].             
+            Assigns # of BHL publications for every concept. 
             Should be run locally and just copy to production.
         */                                
         
@@ -789,7 +787,7 @@ class SiteStatistics
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
                 $tc_id        = trim(@$fields[0]);
                 $publications = trim(@$fields[1]);                    
-                $arr_taxa[$tc_id] = $publications;
+                $arr_taxa[$tc_id]2 = $publications;
             }                
         }            
         self::save_json_to_txt($arr_taxa,"tpm_BHL"); unset($arr_taxa);        
