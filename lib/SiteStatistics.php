@@ -749,7 +749,7 @@ class SiteStatistics
             $sql="Select gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views From google_analytics_page_stats gaps Where concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";                    
             if($param_id)$sql .= " and gaps.taxon_concept_id = $param_id ";                
             $sql .= " limit $start_limit, $batch ";                        
-            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
             $num_rows=0;
@@ -803,7 +803,7 @@ class SiteStatistics
                
         $sql="SELECT he.taxon_concept_id tc_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON hehe.hierarchy_entry_id = he.id WHERE hehe.harvest_event_id = $latest_harvent_event_id ";
         if($param_id)$sql .= " and he.taxon_concept_id = $param_id ";                
-        $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+        $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
         $num_rows=0; 
         while(!feof($FILE))
@@ -826,7 +826,7 @@ class SiteStatistics
         print"\n GBIF_map [2 of 10]\n";        
         $sql="SELECT tc.id tc_id FROM hierarchies_content hc JOIN hierarchy_entries he ON hc.hierarchy_entry_id = he.id JOIN taxon_concepts tc ON he.taxon_concept_id = tc.id WHERE hc.map > 0 AND tc.published = 1 AND tc.supercedure_id=0 ";
         if($param_id)$sql .= " and tc.id = $param_id ";                
-        $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+        $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
         $num_rows=0; 
         while(!feof($FILE))
@@ -850,7 +850,7 @@ class SiteStatistics
         //debug
         $sql="SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM eol_production.users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND do.vetted_id != " . Vetted::find('Untrusted');
         if($param_id)$sql .= " and udo.taxon_concept_id = $param_id ";                
-        $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+        $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
         $num_rows=0; $temp=array(); $temp2=array();        
         while(!feof($FILE))
@@ -886,7 +886,7 @@ class SiteStatistics
             $sql="SELECT tc.id tc_id, ar.agent_id FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON tc.id = dotc.taxon_concept_id JOIN data_objects_harvest_events dohe ON dotc.data_object_id = dohe.data_object_id JOIN harvest_events he ON dohe.harvest_event_id = he.id JOIN agents_resources ar ON he.resource_id = ar.resource_id WHERE tc.published=1 AND tc.supercedure_id=0 and he.id in (" . implode($latest_harvest_event_ids, ",") . ")";  
             if($param_id)$sql .= " and tc.id = $param_id ";
             $sql .= " limit $start_limit, $batch ";                        
-            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
             $num_rows=0; $temp=array();
@@ -918,7 +918,7 @@ class SiteStatistics
             $sql="SELECT he.taxon_concept_id tc_id, h.agent_id FROM hierarchies h JOIN hierarchy_entries he ON h.id = he.hierarchy_id WHERE ( he.source_url != '' || ( h.outlink_uri != '' AND he.identifier != '' ) )";  
             if($param_id)$sql .= " AND he.taxon_concept_id = $param_id ";
             $sql .= " limit $start_limit, $batch ";                        
-            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
             $num_rows=0; $temp=array();
@@ -950,7 +950,7 @@ class SiteStatistics
             $sql="SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id WHERE s.synonym_relation_id in (" . self::synonym_relations_id("common name") . "," . self::synonym_relations_id("genbank common name") . ")";
             if($param_id)$sql .= " and he.taxon_concept_id = $param_id ";
             $sql .= " limit $start_limit, $batch ";                        
-            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
             $num_rows=0; $temp=array(); $temp2=array();
@@ -986,7 +986,7 @@ class SiteStatistics
             $sql="SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id JOIN hierarchies h ON s.hierarchy_id = h.id WHERE s.synonym_relation_id not in (" . self::synonym_relations_id("common name") . "," . self::synonym_relations_id("genbank common name") . ") and h.browsable=1";
             if($param_id)$sql .= " and he.taxon_concept_id = $param_id ";
             $sql .= " limit $start_limit, $batch ";                        
-            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
             $num_rows=0; $temp=array(); $temp2=array();
@@ -1050,7 +1050,7 @@ class SiteStatistics
             $sql="SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, do.vetted_id FROM data_objects_taxon_concepts dotc JOIN data_objects do ON dotc.data_object_id = do.id Left Join data_objects_info_items doii ON do.id = doii.data_object_id Left Join data_objects_refs dor ON do.id = dor.data_object_id WHERE do.published=1 and do.visibility_id=".Visibility::find("visible");
             if($param_id)$sql .= " and (dotc.taxon_concept_id = $param_id) ";
             $sql .= " limit $start_limit, $batch ";                        
-            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
             $num_rows=0; $temp=array(); $temp2=array(); 
@@ -1117,7 +1117,7 @@ class SiteStatistics
         
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt"; $fp = fopen($filename,"w");            
         $str=""; $i=0; 
-        $objects=array("image","text","video","sound","flash","youtube","iucn");//"gbif",                    
+        $data_types=array("image","text","video","sound","flash","youtube","iucn");//"gbif",
         
         $batch=250000; $start_limit=0;        
         while(true)
@@ -1126,7 +1126,7 @@ class SiteStatistics
             $sql="SELECT tc.id FROM taxon_concepts tc WHERE tc.published = 1 AND tc.supercedure_id = 0";
             //$sql.=" and tc.id in (1,2,3,4,5,6,206692,218284)";//debug
             $sql .= " limit $start_limit, $batch ";                        
-            $outfile = $this->mysqli_slave->SELECT_into_outfile($sql);
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r"); $num_rows=0;
             while(!feof($FILE))
@@ -1137,16 +1137,16 @@ class SiteStatistics
                     $id = trim($fields[0]);
                     //================================================================================
                     $i++; $str .= $id . "\t";  
-                    foreach($objects as $object)
+                    foreach($data_types as $data_type)
                     {
-                        $str .=   @$arr_objects[$id]["$object"]['total']     . "\t" 
-                                . @$arr_objects[$id]["$object"]['t']         . "\t"  /* trusted */
-                                . @$arr_objects[$id]["$object"]['ut']        . "\t"  /* untrusted */
-                                . @$arr_objects[$id]["$object"]['ur']        . "\t"  /* unreviewed */
-                                . @$arr_objects[$id]["$object"]['total_w']   . "\t"  /* w = words */
-                                . @$arr_objects[$id]["$object"]['t_w']       . "\t" 
-                                . @$arr_objects[$id]["$object"]['ut_w']      . "\t" 
-                                . @$arr_objects[$id]["$object"]['ur_w']      . "\t";
+                        $str .=   @$arr_objects[$id]["$data_type"]['total']     . "\t" 
+                                . @$arr_objects[$id]["$data_type"]['t']         . "\t"  /* trusted */
+                                . @$arr_objects[$id]["$data_type"]['ut']        . "\t"  /* untrusted */
+                                . @$arr_objects[$id]["$data_type"]['ur']        . "\t"  /* unreviewed */
+                                . @$arr_objects[$id]["$data_type"]['total_w']   . "\t"  /* w = words */
+                                . @$arr_objects[$id]["$data_type"]['t_w']       . "\t" 
+                                . @$arr_objects[$id]["$data_type"]['ut_w']      . "\t" 
+                                . @$arr_objects[$id]["$data_type"]['ur_w']      . "\t";
                     }                                            
                     
                     $str .= @$arr_objects[$id]["ref"]       . "\t";                        
