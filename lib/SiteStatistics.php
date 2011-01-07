@@ -787,7 +787,7 @@ class SiteStatistics
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);                    
                 $tc_id        = trim(@$fields[0]);
                 $publications = trim(@$fields[1]);                    
-                $arr_taxa[$tc_id]2 = $publications;
+                $arr_taxa[$tc_id] = $publications;
             }                
         }            
         self::save_json_to_txt($arr_taxa,"tpm_BHL"); unset($arr_taxa);        
