@@ -364,6 +364,18 @@ class MysqliConnection
         $this->master_mysqli->commit();
     }
     
+    function in_transaction()
+    {
+        $this->check();
+        // if @@autocommit == 1 - there is NOT a transaction
+        $result = $this->master_mysqli->query("select @@autocommit as not_in_transaction");
+        if($result && $row=$result->fetch_assoc())
+        {
+            if($row['not_in_transaction'] == 0) return true;
+        }
+        return false;
+    }
+    
     function rollback()
     {
         $this->check();
