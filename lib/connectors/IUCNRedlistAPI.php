@@ -17,8 +17,8 @@ class IUCNRedlistAPI
     {
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/iucn_species_list.json";
         
-        // shell_exec("rm -f ". SPECIES_LIST_PATH);
-        // shell_exec("curl ". SPECIES_LIST_API ." -o ". SPECIES_LIST_PATH);
+        // shell_exec("rm -f $species_list_path");
+        // shell_exec("curl ". self::SPECIES_LIST_API ." -o $species_list_path");
         
         $used = array();
         $all_taxa = array();
@@ -32,11 +32,14 @@ class IUCNRedlistAPI
                 if(isset($used[$species_json->species_id])) continue;
                 $used[$species_json->species_id] = 1;
                 
-                if($i < 1000) { $i++; continue; }
+                // if($i < 6000) { $i++; continue; }
                 // if($species_json->species_id != '183586') continue;
-                if($i >= 1500) break;
-                $taxon = self::get_taxa_for_species($species_json);
+                // if($i >= 7000) break;
                 
+                $i++;
+                echo "$species_json->species_id ($i)\n";
+                
+                $taxon = self::get_taxa_for_species($species_json);
                 $taxon_xml = $taxon->__toXML();
                 $taxon_xml = preg_replace("/\xE3\xBC/", "ü", $taxon_xml);
                 $taxon_xml = preg_replace("/\xE3\xA9/", "é", $taxon_xml);
@@ -44,7 +47,6 @@ class IUCNRedlistAPI
                 if($resource_file) fwrite($resource_file, $taxon_xml);
                 else $all_taxa[] = $taxon;
                 
-                $i++;
             }
         }
         return $all_taxa;
@@ -53,7 +55,6 @@ class IUCNRedlistAPI
     public static function get_taxa_for_species($species_json)
     {
         $species_id = $species_json->species_id;
-        echo "$species_id\n";
         $details_html = Functions::get_remote_file(self::API_PREFIX.$species_id);
         
         // this is a hack to get the document to load as UTF8. Nothing else seemed to work when using DOMDocument

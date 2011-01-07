@@ -157,11 +157,10 @@ class MysqliConnection
         }
     }
     
-    function load_data_infile($path, $table, $action = "IGNORE", $set = '', $udelay = 500000)
+    function load_data_infile($path, $table, $action = "IGNORE", $set = '', $udelay = 500000, $maximum_rows_in_file = 50000)
     {
         if($action != "REPLACE") $action = "IGNORE";
         // how many rows to split the larger file into
-        $maximum_rows_in_file = 50000;
         if($action == 'REPLACE') $maximum_rows_in_file = 20000;
         $tmp_file_path = temp_filepath();
         

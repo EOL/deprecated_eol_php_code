@@ -250,7 +250,7 @@ class Functions
         return false;
     }
     
-    public static function fake_user_agent_http_get($address)
+    public static function fake_user_agent_http_get($url)
     {
         // $agents[] = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; WOW64; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; Media Center PC 5.0)";
         // $agents[] = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
@@ -261,17 +261,27 @@ class Functions
         $agents[] = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_6; en-us) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1";
         //$agent = $agents[rand(0,(count($agents)-1))];
         $agent = $agents[0];
-
+        
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $address);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_USERAGENT, $agent);
-        $data = curl_exec($ch);
-        curl_close($ch);
-        return $data;
+        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        
+        debug("Sending get request to $url : only attempt");
+        $result = curl_exec($ch);
+        
+        if(0 == curl_errno($ch))
+        {
+            curl_close($ch);
+            return $result;
+        }
+        echo 'Curl error: ' . curl_error($ch);
+        return false;
     }
-
     
     
     public static function cmp_hierarchy_entries($a, $b)

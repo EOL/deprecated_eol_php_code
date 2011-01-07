@@ -1,8 +1,10 @@
 <?php
 
-define("DOWNLOAD_WAIT_TIME", "4000000");
+define("DOWNLOAD_WAIT_TIME", "1000000");
 include_once(dirname(__FILE__) . "/../../../config/environment.php");
-$mysqli =& $GLOBALS['mysqli_connection'];
+
+if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $mysqli = load_mysql_environment('slave');
+else $mysqli =& $GLOBALS['db_connection'];
 
 
 
@@ -18,22 +20,30 @@ if($result && $row=$result->fetch_assoc())
     
     $revision_ids = array();
     // get all DataObjects from that harvest
-    $result = $mysqli->query("SELECT do.id, do.source_url FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE dohe.harvest_event_id=$max_he_id");
-    while($result && $row=$result->fetch_assoc())
+    $outfile = $mysqli->select_into_outfile("SELECT do.id, do.source_url FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE dohe.harvest_event_id=$max_he_id");
+    $RESULT = fopen($outfile, "r");
+    while(!feof($RESULT))
     {
-        $data_object_id = $row['id'];
-        $source_url = $row['source_url'];
-        if(preg_match("/index\.php\?title=(.*?)\&oldid=([0-9]+)$/", $source_url, $arr))
+        if($line = fgets($RESULT, 4096))
         {
-            $title = str_replace("_", " ", $arr[1]);
-            $revision_ids[$arr[2]] = $data_object_id;
-            if(count($revision_ids)==50)
+            $fields = explode("\t", trim($line));
+            $data_object_id = $fields[0];
+            $source_url = $fields[1];
+            if(preg_match("/index\.php\?title=(.*?)\&oldid=([0-9]+)$/", $source_url, $arr))
             {
-                check_revisions($revision_ids);
-                $revision_ids = array();
+                $title = str_replace("_", " ", $arr[1]);
+                $revision_ids[$arr[2]] = $data_object_id;
+                // the Wikipedia API can only take 50 records at a time
+                if(count($revision_ids)==50)
+                {
+                    check_revisions($revision_ids);
+                    $revision_ids = array();
+                }
             }
         }
     }
+    fclose($RESULT);
+    unlink($outfile);
     if($revision_ids) check_revisions($revision_ids);
 }
 
