@@ -281,8 +281,8 @@ class Resource extends MysqlBase
                     // now set published=1 for all concepts in the latest harvest
                     $harvest_event->publish_hierarchy_entries();
                     
-                    // make sure all COL concepts are published
-                    Hierarchy::publish_default_hierarchy_concepts();
+                    // make sure all concepts are published
+                    Hierarchy::publish_wrongly_unpublished_concepts();
                     $this->mysqli->commit();
                     
                     // Rebuild the Solr index for this hierarchy

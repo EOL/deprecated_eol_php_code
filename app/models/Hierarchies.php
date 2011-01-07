@@ -69,22 +69,18 @@ class Hierarchy extends MysqlBase
         else return null;
     }
     
-    public function publish_default_hierarchy_concepts()
+    public static function publish_wrongly_unpublished_concepts()
     {
-        $default_hierarchy_id = self::default_id();
-        if(!$default_hierarchy_id) return false;
-        
         $entry_ids = array();
-        $result = $GLOBALS['db_connection']->query("SELECT he.id FROM hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE he.hierarchy_id=$default_hierarchy_id AND tc.published=0 AND tc.supercedure_id=0");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $entry_ids[] = $row['id'];
-        }
         
-        if($entry_ids)
-        {
-            $GLOBALS['db_connection']->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=1 WHERE he.id IN (".implode($entry_ids, ',').")");
-        }
+        // publishe all the concepts that are unpublished but have published entries
+        $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE he.published=1 AND he.visibility_id=".Visibility::find('visible')." AND tc.published=0", "published=1");
+        
+        // unpublish concepts with no entries
+        $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM taxon_concepts tc LEFT JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) WHERE tc.published=1 AND he.id IS NULL", "published=0");
+        
+        // unpublish concepts that have been superceded
+        $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT id FROM taxon_concepts tc WHERE supercedure_id!=0 AND published=1", "published=0");
     }
     
     

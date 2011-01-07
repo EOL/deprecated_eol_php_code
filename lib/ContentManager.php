@@ -71,7 +71,7 @@ class ContentManager
                 // fail if for some reason there is still no file at the new path
                 if(!file_exists($new_file_path))
                 {
-                    trigger_error("ContentManager: Unable to download file $file", E_NOTICE);
+                    trigger_error("ContentManager: Unable to download file $file", E_USER_NOTICE);
                     return false;
                 }
                 

@@ -198,6 +198,7 @@ class DenormalizeTables
                 }
             }
             // its not a leaf node
+            // leaf nodes have no children so we'll save a bunch of queries by just stopping on leaves
             if($row['range'] > 1)
             {
                 $child_he_ancestors = $he_ancestors;
