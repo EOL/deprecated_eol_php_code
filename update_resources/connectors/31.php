@@ -8,7 +8,6 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 $resource = new Resource(31);
-$resource->id = 31;
 
 
 
@@ -65,17 +64,19 @@ foreach($urls as $key => $val)
         foreach($matches as $match)
         {
             static $total_taxa = 0;
-            echo "   taxon $taxa_for_this_page: total $total_taxa: $match[3] ".Functions::time_elapsed()."\n";
+            $searchtext_name = str_replace("-", " ", $match[3]);
+            
+            echo "   taxon $taxa_for_this_page: total $total_taxa: ".ucfirst($searchtext_name)." ".Functions::time_elapsed()."\n";
             $taxa_for_this_page++;
             $total_taxa++;
             
             
-            $searchtext_name = str_replace("-", " ", $match[3]);
             $species_url = "http://www.biopix.com/Species.asp?Searchtext=" . urlencode($searchtext_name);
             if($taxon = grab_images($species_url, $searchtext_name, $kingdoms_for_section))
             {
                 $all_taxa[] = $taxon;
             }
+            // if($total_taxa > 3) break;
         }
     }
 }
@@ -119,26 +120,27 @@ function grab_images($url, $name, $kingdom)
     
     $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url));
     
-    if(preg_match("/href='Family\.asp\?[^']+'>\.\.\.see all (.*?)<\/a>/", $html, $arr))
+    if(preg_match("/href='family\.asp\?category=.*?&amp;family=(.*?)'>\.\.\. see all/ims", $html, $arr))
     {
-        $family = $arr[1];
+        $family = ucfirst($arr[1]);
     }
     
     // fix becuase names were showing up as Abies-alba
     $taxon_parameters = get_taxon($name, $kingdom, $family, $url);
     if(!$taxon_parameters) return false;
     
-    if(preg_match_all("/href='(Photo.asp\?PhotoId=(.*?)&amp;.*?)'><img alt='(.*?)' src/ims", $html, $matches, PREG_SET_ORDER))
+    if(preg_match_all("/href='(photo.asp\?photoid=(.*?)&amp;.*?)'><img alt='(.*?)'/ims", $html, $matches, PREG_SET_ORDER))
     {
         foreach($matches as $match)
         {
             $image_details_url = "http://www.biopix.com/".$match[1];
             $photo_id = $match[2];
+            $alt_name = $match[3];
             
             if(@!$used_data[$image_details_url])
             {
                 static $total_images = 0;
-                echo "      image $images_for_this_taxon: total $total_images ".Functions::time_elapsed()."\n";
+                echo "      image $images_for_this_taxon: name: $alt_name url: $image_details_url total: $total_images ".Functions::time_elapsed()."\n";
                 $total_images++;
                 $images_for_this_taxon++;
                 
@@ -155,7 +157,7 @@ function grab_images($url, $name, $kingdom)
 }
 
 function image_detail($url, $photo_id)
-{    
+{
     $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url));
     $location = "";
     $note = "";
@@ -172,7 +174,7 @@ function image_detail($url, $photo_id)
         if(substr($note, -1) == ".") $note = substr($note, 0, -1);
     }
     
-    if(preg_match("/src='\/PhotosMedium\/(.*?)' \/>/", $html, $arr)) $image_url = "http://www.biopix.com/PhotosMedium/".rawurlencode($arr[1]);
+    if(preg_match("/src=\"\/photos\/(.*?)\" \/>/", $html, $arr)) $image_url = "http://www.biopix.com/photos/".rawurlencode($arr[1]);
     
     $suffix = ".jpg";
     
@@ -207,15 +209,6 @@ function get_data_object($image_url, $photo_id, $source_url, $description, $loca
     $dataObjectParameters["mediaURL"] = $image_url;
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc/3.0/";
     
-    // $dataObjectParameters["audiences"] = array();
-    // $audienceParameters = array();
-    // 
-    // $audienceParameters["label"] = "Expert users";
-    // $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
-    // 
-    // $audienceParameters["label"] = "General public";
-    // $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
-    
     return $dataObjectParameters;
 }
 
@@ -223,7 +216,7 @@ function get_taxon($name, $taxonomy, $family, $url)
 {
     $taxon_parameters = array();
     $taxon_parameters["identifier"] = str_replace(" ", "_", $name);
-    $taxon_parameters["scientificName"] = $name;
+    $taxon_parameters["scientificName"] = ucfirst($name);
     $taxon_parameters["source"] = $url;
     $taxon_parameters["family"] = $family;
     $taxon_parameters["dataObjects"] = array();

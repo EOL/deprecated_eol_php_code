@@ -77,15 +77,18 @@ class FeedDenormalizer
         $this->end_load_data();
     }
     
-    public function process_parents($parent_ids)
+    public function process_parents($original_parent_ids)
     {
         // truncate the temporary files
         $this->DATA_FILE = fopen(DOC_ROOT . "temp/feed_data_objects.sql", "w+");
         
+        static $depth = 0;
+        $depth++;
+        
         $i = 0;
         unset($all_parent_ids);
         $all_parent_ids = array();
-        $chunks = array_chunk($parent_ids, 3000);
+        $chunks = array_chunk($original_parent_ids, 3000);
         while(list($key, $chunk) = each($chunks))
         {
             $i++;
@@ -115,6 +118,11 @@ class FeedDenormalizer
         
         // wait 5 seconds for data to propegate
         sleep_production(5);
+        
+        // we've run this process over twenty times, so we're likely in a loop caused by bad data in
+        // TaxonConcepts exploded. We'll need to stop the process as we're unlikely to get any new data by continuing.
+        if($depth >= 25) return;
+        
         // get data for the next ancestor level
         if($all_parent_ids) $this->process_parents($all_parent_ids);
     }
