@@ -260,26 +260,34 @@ class Resource extends MysqlBase
                 
                 // preserve visibilities from older versions of same objects
                 // if the older versions were curated they may be invible or inappropriate and we don't want to lose that info
-                if($last_id = $this->most_recent_published_harvest_event_id()) $harvest_event->inherit_visibilities_from($last_id);
+                if($last_id = $this->most_recent_published_harvest_event_id())
+                {
+                    $harvest_event->inherit_visibilities_from($last_id);
+                    $this->mysqli->commit();
+                }
                 
                 // set published=0 for ALL objects associated with this resource
                 $this->unpublish_data_objects($object_guids_to_keep);
                 
                 // now only set published=1 for the objects in the latest harvest
                 $harvest_event->publish_objects();
+                $this->mysqli->commit();
                 
                 // set the harvest published_at date
                 $harvest_event->published();
-                
+                $this->mysqli->commit();
                 
                 if($this->hierarchy_id)
                 {
                     // unpublish all concepts associated with this resource
                     $this->unpublish_taxon_concepts();
+                    $this->mysqli->commit();
                     $this->unpublish_hierarchy_entries();
+                    $this->mysqli->commit();
                     
                     // now set published=1 for all concepts in the latest harvest
                     $harvest_event->publish_hierarchy_entries();
+                    $this->mysqli->commit();
                     
                     // make sure all concepts are published
                     Hierarchy::publish_wrongly_unpublished_concepts();

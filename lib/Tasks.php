@@ -189,10 +189,17 @@ class Tasks extends MysqlBase
     public static function update_taxon_concept_names($taxon_concept_id)
     {
         if(!$taxon_concept_id) return false;
-        $mysqli =& $GLOBALS['mysqli_connection'];
+        $mysqli =& $GLOBALS['db_connection'];
         
         //$result = $mysqli->query("SELECT id FROM taxon_concepts WHERE id=$taxon_concept_id");
         //if(!($result && $row=$result->fetch_assoc())) return false;
+        
+        $started_new_transaction = false;
+        if(!$mysqli->in_transaction())
+        {
+            $mysqli->begin_transaction();
+            $started_new_transaction = true;
+        }
         
         $name_ids = array();
         $matching_ids = array();
@@ -244,20 +251,22 @@ class Tasks extends MysqlBase
         
         // $common_names = array();
         // 
-        // $result = $mysqli->query("SELECT s.id, s.hierarchy_entry_id, s.name_id, s.language_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id!=0 AND (s.synonym_relation_id=".SynonymRelation::insert('genbank common name')." OR s.synonym_relation_id=".SynonymRelation::insert('common name').") AND he.published=1 AND he.visibility_id=".Visibility::find('visible'));
+        // $result = $mysqli->query("SELECT s.id, s.hierarchy_entry_id, s.name_id, s.language_id, s.preferred, s.vetted_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id!=0 AND (s.synonym_relation_id=".SynonymRelation::insert('genbank common name')." OR s.synonym_relation_id=".SynonymRelation::insert('common name').") AND he.published=1 AND he.visibility_id=".Visibility::find('visible'));
         // while($result && $row=$result->fetch_assoc())
         // {
         //     $synonym_id = $row["id"];
         //     $hierarchy_entry_id = $row["hierarchy_entry_id"];
         //     $name_id = $row["name_id"];
         //     $language_id = $row["language_id"];
+        //     $preferred = $row["preferred"];
+        //     $vetted_id = $row["vetted_id"];
         //     
-        //     $common_names[$synonym_id] = array($language_id, $name_id, $hierarchy_entry_id);
+        //     $common_names[$synonym_id] = array($language_id, $name_id, $hierarchy_entry_id, $preferred, $vetted_id);
         // }
         // $result->free();
         // 
-        // // TODO: not sure what to do here - what is the name was preferred by a curator? Should we ever delete common names? What if the hierarchy is unpublished (Col 2003)?
-        // // // $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern!=1");
+        // // TODO: not sure what to do here - what if the name was preferred by a curator? Should we ever delete common names? What if the hierarchy is unpublished (Col 2007)?
+        // $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern=1 AND source_hierarchy_entry_id!=0 AND synonym_id IS NOT NULL");
         // 
         // /* Insert the scientific names */
         // foreach($common_names as $synonym_id => $arr)
@@ -265,25 +274,30 @@ class Tasks extends MysqlBase
         //     $language_id = $arr[0];
         //     $name_id = $arr[1];
         //     $hierarchy_entry_id = $arr[2];
-        //     echo "INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, 0, $synonym_id)\n";
-        //     // $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, 0, $synonym_id)");
+        //     $preferred = $arr[3];
+        //     $vetted_id = $arr[4];
+        //     // echo "INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, 0, $synonym_id)\n";
+        //     $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, vetted_id, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, $preferred, $vetted_id, $synonym_id)");
         // }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         unset($matching_ids);
         unset($common_names);
         unset($name_ids);
         unset($hierarchy_entry_ids);
+        
+        
+        
+        
+        
+        if($started_new_transaction)
+        {
+            $mysqli->end_transaction();
+        }
+        
+        
+        
+        
         
         /* Common Names */
         // $result = $mysqli->query("SELECT * FROM name_languages WHERE parent_name_id IN (".implode(",",array_keys($name_ids)).") AND language_id NOT IN (0,".Language::insert("Scientific Name").",".Language::insert("Operational Taxonomic Unit").")");

@@ -20,6 +20,9 @@ class WikipediaHarvester
     
     function begin_wikipedia_harvest()
     {
+        // delete the downloaded files
+        $this->cleanup_wikipedia_dump();
+        
         $last_part = $this->download_wikipedia_dump();
         if(!$last_part)
         {
@@ -43,8 +46,18 @@ class WikipediaHarvester
         fwrite($this->resource_file, SchemaDocument::xml_footer());
         fclose($this->resource_file);
         
-        // // delete the downloaded files
-        // $this->cleanup_wikipedia_dump();
+        @unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_previous.xml");
+        @rename(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_previous.xml");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml");
+        
+        // generate the _delete.xml file
+        $this->create_delete_file();
+        
+        // set the resource to Force Harvest
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml"))
+        {
+            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=".$this->resource->id);
+        }
     }
     
     function download_wikipedia_dump()
@@ -63,7 +76,7 @@ class WikipediaHarvester
         return $last_part;
     }
     
-    function cleanup_wikipedia_dump()
+    private function cleanup_wikipedia_dump()
     {
         // cleaning up downloaded files
         shell_exec("rm -f ".DOC_ROOT ."update_resources/connectors/files/wikipedia/*");
@@ -71,12 +84,28 @@ class WikipediaHarvester
         shell_exec("rm -f ".DOC_ROOT ."update_resources/connectors/files/wikipedia.xml.bz2");
     }
     
+    function create_delete_file()
+    {
+        // _delete.xml should have the WIKIPEDIA identifiers, not EOL data_object_ids
+        $ids = @file(DOC_ROOT . 'temp/wikipedia_deleted.txt');
+        if($ids)
+        {
+            $delete_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_delete.xml", "w+");
+            $result = $this->mysqli->query("SELECT identifier FROM data_objects WHERE id IN (". implode(",", $ids).")");
+            while($result && $row=$result->fetch_assoc())
+            {
+                fwrite($delete_file, $row['identifier']."\n");
+            }
+            fclose($delete_file);
+        }
+    }
+    
     function load_update_information()
     {
         $this->pageids_to_update = array();
         $this->pageids_to_ignore = array();
         // run the update checker to generate files containing updated/delete/unchanged records
-        shell_exec(PHP_BIN_PATH . DOC_ROOT ."update_resources/connectors/helpers/wikipedia_update_check.php");
+        shell_exec(PHP_BIN_PATH . DOC_ROOT ."update_resources/connectors/helpers/wikipedia_update_check.php ENV_NAME=". $GLOBALS['ENV_NAME']);
         $lines = file(DOC_ROOT . "temp/wikipedia_updated.txt");
         $i = 0;
         foreach($lines as $line)
@@ -262,6 +291,7 @@ class WikipediaHarvester
             $GLOBALS['db_connection']->update("UPDATE data_objects_hierarchy_entries dohe JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.published=1, tc.published=1 WHERE dohe.data_object_id=$new_data_object->id");
             $GLOBALS['db_connection']->insert("INSERT IGNORE INTO data_objects_taxon_concepts VALUES ($hierarchy_entry->taxon_concept_id, $new_data_object->id)");
             $GLOBALS['db_connection']->insert("INSERT IGNORE INTO data_objects_table_of_contents (SELECT doii.data_object_id, ii.toc_id FROM data_objects_info_items doii JOIN info_items ii ON (doii.info_item_id=ii.id) where doii.data_object_id=$new_data_object->id)");
+            return true;
         }
     }
 }
