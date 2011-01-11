@@ -270,8 +270,11 @@ class SchemaParser
                     $data_object_parameters["info_items_ids"] = array(InfoItem::insert('http://www.eol.org/voc/table_of_contents#Wikipedia'));
                 }elseif($resource->title == "IUCN Red List")
                 {
-                    // EXCEPTION - overriding the data type for IUCN text
-                    $data_object_parameters["data_type_id"] = DataType::insert('IUCN');
+                    if($data_object_parameters["object_title"] == "IUCNConservationStatus")
+                    {
+                        // EXCEPTION - overriding the data type for IUCN text
+                        $data_object_parameters["data_type_id"] = DataType::insert('IUCN');
+                    }
                 }
             }
             
