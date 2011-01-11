@@ -6,7 +6,6 @@ require_library('connectors/IUCNRedlistAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
 
-exit;
 
 // create new _temp file
 $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", "w+");
@@ -21,11 +20,11 @@ IUCNRedlistAPI::get_taxon_xml($resource_file);
 fwrite($resource_file, SchemaDocument::xml_footer());
 fclose($resource_file);
 
-// // cache the previous version and make this new version the current version
-// @unlink(CONTENT_RESOURCE_LOCAL_PATH . "211_previous.xml");
-// @rename(CONTENT_RESOURCE_LOCAL_PATH . "211.xml", CONTENT_RESOURCE_LOCAL_PATH . "211_previous.xml");
-// rename(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "211.xml");
-// 
+// cache the previous version and make this new version the current version
+@unlink(CONTENT_RESOURCE_LOCAL_PATH . "211_previous.xml");
+@rename(CONTENT_RESOURCE_LOCAL_PATH . "211.xml", CONTENT_RESOURCE_LOCAL_PATH . "211_previous.xml");
+rename(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "211.xml");
+
 // // set to force harvest
 // if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml"))
 // {

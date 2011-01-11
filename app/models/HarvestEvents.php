@@ -124,8 +124,21 @@ class HarvestEvent extends MysqlBase
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
         
-        // TODO: THIS IS ONE OF THE SLOWEST UPDATE QUERIES - SELECT NEEDS TO BE REMOVED FROM UPDATE
-        $this->mysqli->query("UPDATE (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) SET do_current.visibility_id = do_previous.visibility_id WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::insert('Invisible').", ".Visibility::insert('Inappropriate').")");
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT do_current.id, do_previous.visibility_id FROM (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::insert('Invisible').", ".Visibility::insert('Inappropriate').")");
+        
+        $FILE = fopen($outfile, "r");
+        while(!feof($FILE))
+        {
+            if($line = fgets($FILE, 4096))
+            {
+                $values = explode("\t", trim($line));
+                $data_object_id = $values[0];
+                $visibility_id = $values[1];
+                $GLOBALS['db_connection']->update("UPDATE data_objects SET visibility_id=$visibility_id WHERE id=$data_object_id");
+            }
+        }
+        fclose($FILE);
+        unlink($outfile);
     }
     
     public function insert_top_images()

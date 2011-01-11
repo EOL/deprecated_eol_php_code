@@ -33,8 +33,8 @@ class IUCNRedlistAPI
                 $used[$species_json->species_id] = 1;
                 
                 // if($i < 6000) { $i++; continue; }
-                // if($species_json->species_id != '183586') continue;
-                // if($i >= 7000) break;
+                // if($species_json->species_id != '22823') continue;  // polar bear
+                // if($i >= 100) break;
                 
                 $i++;
                 echo "$species_json->species_id ($i)\n";
@@ -60,15 +60,14 @@ class IUCNRedlistAPI
         // this is a hack to get the document to load as UTF8. Nothing else seemed to work when using DOMDocument
         // http://www.php.net/manual/en/domdocument.loadhtml.php#95251
         $details_html = str_replace("<!DOCTYPE html>", "<?xml encoding=\"UTF-8\">", $details_html);
-        // $FILE = fopen(DOC_ROOT . "tmp/test.html", "w+");
-        // fwrite($FILE, $details_html);
-        // fclose($FILE);
+        $details_html = str_replace("<meta charset=\"UTF-8\"/>", "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">", $details_html);
         
         $details_html = str_replace("Downloaded on <b>", "Downloaded on ", $details_html);
         $details_html = str_replace("& ", "&amp; ", $details_html);
         
         $dom_doc = new DOMDocument("1.0", "UTF-8");
         $dom_doc->loadHTML($details_html);
+        $dom_doc->encoding = 'UTF-8';
         $dom_doc->preserveWhiteSpace = false;
         $xpath = new DOMXpath($dom_doc);
         
@@ -214,6 +213,7 @@ class IUCNRedlistAPI
         $object_parameters['dataType'] = "http://purl.org/dc/dcmitype/Text";
         $object_parameters['mimeType'] = "text/html";
         $object_parameters['language'] = "en";
+        $object_parameters['title'] = "IUCNConservationStatus";
         $object_parameters['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $object_parameters['rights'] = "© International Union for Conservation of Nature and Natural Resources";
         $object_parameters['rightsHolder'] = "International Union for Conservation of Nature and Natural Resources";
@@ -233,34 +233,36 @@ class IUCNRedlistAPI
         if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr))
         {
             $all_authors = $arr[1];
-            if(preg_match("/(^|, )[".UPPER."][".UPPER.LOWER."'-]+, [".UPPER."]\./", $all_authors))
-            {
-                $all_authors = str_replace(" and ", " ", $all_authors);
-                $all_authors = str_replace("&amp;", ", ", $all_authors);
-                $all_authors = str_replace("&", ", ", $all_authors);
-                $all_authors = str_replace(" ,", ",", $all_authors);
-                $all_authors = str_replace("  ", " ", $all_authors);
-                $authors = preg_split("/(.*?,.*?,)/", $all_authors, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-                foreach($authors as $author)
-                {
-                    $author = trim($author);
-                    if(substr($author, -1) == ",") $author = substr($author, 0, -1);
-                    $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
-                }
-            }elseif(preg_match("/(^|, )[".UPPER.LOWER."'-]+( [".UPPER.LOWER."'-]+){1,3},/", $all_authors))
-            {
-                $all_authors = str_replace(" and ", " ", $all_authors);
-                $all_authors = str_replace("&amp;", ", ", $all_authors);
-                $all_authors = str_replace("&", ", ", $all_authors);
-                $all_authors = str_replace(" ,", ",", $all_authors);
-                $all_authors = str_replace("  ", " ", $all_authors);
-                $authors = explode(",", $all_authors);
-                foreach($authors as $author)
-                {
-                    $author = trim($author);
-                    $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
-                }
-            }else $agents[] = new SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
+            // if(preg_match("/(^|, )[".UPPER."][".UPPER.LOWER."'-]+, [".UPPER."]\./", $all_authors))
+            // {
+            //     $all_authors = str_replace(" and ", " ", $all_authors);
+            //     $all_authors = str_replace("&amp;", ", ", $all_authors);
+            //     $all_authors = str_replace("&", ", ", $all_authors);
+            //     $all_authors = str_replace(" ,", ",", $all_authors);
+            //     $all_authors = str_replace("  ", " ", $all_authors);
+            //     $authors = preg_split("/(.*?,.*?,)/", $all_authors, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+            //     foreach($authors as $author)
+            //     {
+            //         $author = trim($author);
+            //         if(substr($author, -1) == ",") $author = substr($author, 0, -1);
+            //         $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
+            //     }
+            // }elseif(preg_match("/(^|, )[".UPPER.LOWER."'-]+( [".UPPER.LOWER."'-]+){1,3},/", $all_authors))
+            // {
+            //     $all_authors = str_replace(" and ", " ", $all_authors);
+            //     $all_authors = str_replace("&amp;", ", ", $all_authors);
+            //     $all_authors = str_replace("&", ", ", $all_authors);
+            //     $all_authors = str_replace(" ,", ",", $all_authors);
+            //     $all_authors = str_replace("  ", " ", $all_authors);
+            //     $authors = explode(",", $all_authors);
+            //     foreach($authors as $author)
+            //     {
+            //         $author = trim($author);
+            //         $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
+            //     }
+            // }else 
+            
+            $agents[] = new SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
         }
         
         // echo "$citation\n";
