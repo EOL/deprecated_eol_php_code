@@ -90,7 +90,7 @@ function check_revisions($revision_ids)
     {
         $title = (string) $page['title'];
         $pageid = (int) $page['pageid'];
-        $date = (string) $page['touched'];
+        $date = (string) $page->revisions->rev['timestamp'];
         $latest_revision_id = (int) $page['lastrevid'];
         $query_revision_id = (int) $page->revisions->rev['revid'];
         $data_object_id = @$revision_ids[$query_revision_id];

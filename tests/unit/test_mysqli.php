@@ -2,6 +2,24 @@
 
 class test_mysqli extends SimpletestUnitBase
 {
+    function testInTransaction()
+    {
+        $in_transaction = $GLOBALS['db_connection']->in_transaction();
+        $this->assertTrue($in_transaction == false, 'Should not begin in transaction');
+        
+        $GLOBALS['db_connection']->begin_transaction();
+        $in_transaction = $GLOBALS['db_connection']->in_transaction();
+        $this->assertTrue($in_transaction == true, 'Should begin a transaction');
+        
+        $GLOBALS['db_connection']->commit();
+        $in_transaction = $GLOBALS['db_connection']->in_transaction();
+        $this->assertTrue($in_transaction == true, 'Commit should not end a transaction');
+        
+        $GLOBALS['db_connection']->end_transaction();
+        $in_transaction = $GLOBALS['db_connection']->in_transaction();
+        $this->assertTrue($in_transaction == false, 'Should end a transaction');
+    }
+    
     function testLoadData()
     {
         $tmp_file_path = temp_filepath();

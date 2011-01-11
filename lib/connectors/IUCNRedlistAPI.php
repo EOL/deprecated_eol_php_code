@@ -168,10 +168,11 @@ class IUCNRedlistAPI
             $section_html = trim($arr[2]);
         }
         
-        $section_html = preg_replace("/<div class=\"x_label\">(.*?)<\/div>/", "<b>\\1</b><br/>", $section_html);
+        $section_html = preg_replace("/<div class=\"x_label\">(.*?)<\/div>/", "<br/><b>\\1</b><br/>", $section_html);
         $section_html = str_replace("\n", " ", $section_html);
         $section_html = str_replace("\t", " ", $section_html);
         while(preg_match("/  /", $section_html)) $section_html = str_replace("  ", " ", $section_html);
+        $section_html = preg_replace("/^<br\/>/", "", $section_html);
         
         if($section_html)
         {
