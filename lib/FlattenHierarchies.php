@@ -1,6 +1,6 @@
 <?php
 
-class TopImages
+class FlattenHierarchies
 {
     private $mysqli;
     private $mysqli_slave;
@@ -16,9 +16,12 @@ class TopImages
         else $this->mysqli_slave =& $this->mysqli;
         
         $this->he_tmp_file_path = temp_filepath();
-        $this->HE_OUTFILE = fopen($he_tmp_file_path, "w+");
+        $this->HE_OUTFILE = fopen($this->he_tmp_file_path, "w+");
         $this->tc_tmp_file_path = temp_filepath();
-        $this->TC_OUTFILE = fopen($tc_tmp_file_path, "w+");
+        $this->TC_OUTFILE = fopen($this->tc_tmp_file_path, "w+");
+        
+        $this->visibile_id = Visibility::find('visible');
+        $this->preview_id = Visibility::find('preview');
     }
     
     public function begin_process()
@@ -45,9 +48,10 @@ class TopImages
         fclose($this->HE_OUTFILE);
         fclose($this->TC_OUTFILE);
         
-        $this->mysqli->load_data_infile($this->he_tmp_file_path, 'hierarchy_entries_flattened_tmp', "IGNORE", '', 500000, 300000)
+        // batches of 250,000 - .8 second pause in between
+        $this->mysqli->load_data_infile($this->he_tmp_file_path, 'hierarchy_entries_flattened_tmp', "IGNORE", '', 800000, 250000);
         unlink($this->he_tmp_file_path);
-        $this->mysqli->load_data_infile($this->tc_tmp_file_path, 'taxon_concepts_flattened_tmp', "IGNORE", '', 500000, 300000)
+        $this->mysqli->load_data_infile($this->tc_tmp_file_path, 'taxon_concepts_flattened_tmp', "IGNORE", '', 800000, 250000);
         unlink($this->tc_tmp_file_path);
         
         $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries_flattened_tmp LIMIT 1");
@@ -69,7 +73,7 @@ class TopImages
         if($count%1000 == 0) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
         
         //if($count>=10000) exit;
-        $result = $this->mysqli_slave->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) range FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN (".Visibility::find('visible').",".Visibility::find('preview').")");
+        $result = $this->mysqli_slave->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) range FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN ($this->visibile_id, $this->preview_id)");
         while($result && $row=$result->fetch_assoc())
         {
             if($he_ancestors)

@@ -233,40 +233,12 @@ class IUCNRedlistAPI
         if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr))
         {
             $all_authors = $arr[1];
-            // if(preg_match("/(^|, )[".UPPER."][".UPPER.LOWER."'-]+, [".UPPER."]\./", $all_authors))
-            // {
-            //     $all_authors = str_replace(" and ", " ", $all_authors);
-            //     $all_authors = str_replace("&amp;", ", ", $all_authors);
-            //     $all_authors = str_replace("&", ", ", $all_authors);
-            //     $all_authors = str_replace(" ,", ",", $all_authors);
-            //     $all_authors = str_replace("  ", " ", $all_authors);
-            //     $authors = preg_split("/(.*?,.*?,)/", $all_authors, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-            //     foreach($authors as $author)
-            //     {
-            //         $author = trim($author);
-            //         if(substr($author, -1) == ",") $author = substr($author, 0, -1);
-            //         $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
-            //     }
-            // }elseif(preg_match("/(^|, )[".UPPER.LOWER."'-]+( [".UPPER.LOWER."'-]+){1,3},/", $all_authors))
-            // {
-            //     $all_authors = str_replace(" and ", " ", $all_authors);
-            //     $all_authors = str_replace("&amp;", ", ", $all_authors);
-            //     $all_authors = str_replace("&", ", ", $all_authors);
-            //     $all_authors = str_replace(" ,", ",", $all_authors);
-            //     $all_authors = str_replace("  ", " ", $all_authors);
-            //     $authors = explode(",", $all_authors);
-            //     foreach($authors as $author)
-            //     {
-            //         $author = trim($author);
-            //         $agents[] = new SchemaAgent(array('fullName' => $author, 'role' => 'author'));
-            //     }
-            // }else 
-            
             $agents[] = new SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
         }
         
-        // echo "$citation\n";
-        // print_r($agents);
+        $element = $xpath->query("//div[@id='assessors']");
+        $assessors = trim($element->item(0)->nodeValue);
+        $agents[] = new SchemaAgent(array('fullName' => $assessors, 'role' => 'compiler'));
         
         return array($agents, $citation);
     }
