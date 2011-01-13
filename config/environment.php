@@ -12,6 +12,13 @@ define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick h
 define('MYSQL_BIN_PATH', 'mysql ');                     // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 
 
+
+/* MEMCACHED */
+//$GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
+$GLOBALS['ENV_ENABLE_CACHING'] = true;
+
+
+
 /* Initialize app - this should be towards the top of environment.php, but declare the WEB_ROOT first 
    this will load values from ./environments/ENV_NAME.php before values below
 */
@@ -26,11 +33,6 @@ require_once(dirname(__FILE__) . '/boot.php');
 if(!defined('DEFAULT_HIERARCHY_LABEL')) define('DEFAULT_HIERARCHY_LABEL', 'Species 2000 & ITIS Catalogue of Life: Annual Checklist 2010');
 
 
-/* MEMCACHED */
-//$GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
-$GLOBALS['ENV_ENABLE_CACHING'] = true;
-
-
 /* Modules needed */
 require_library('Functions');
 require_library('ContentManager');
@@ -43,6 +45,8 @@ require_library('ControllerBase');
 require_library('MysqlBase');
 require_library('NamesFunctions');
 require_library('Tasks');
+require_library('FileIterator');
+require_library('MysqliResultIterator');
 require_vendor('eol_content_schema');
 require_vendor('solr');
 require_vendor('darwincore');
