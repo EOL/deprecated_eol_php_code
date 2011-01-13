@@ -5,10 +5,10 @@ class SiteStatistics
     private $mysqli;
     
     public function __construct()
-    {                                
+    {           
         $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->mysqli_slave = load_mysql_environment('slave');
-        $this->mysqli_eol = load_mysql_environment('slave_eol');                   
+        if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
+        else $this->mysqli_slave =& $this->mysqli;
     }
     
     public function insert_taxa_stats()
@@ -402,7 +402,7 @@ class SiteStatistics
         $this->user_submitted_data_objects = 0;
         
         $data_object_ids = array();
-        $result = $this->mysqli_eol->query("SELECT DISTINCT data_object_id  FROM users_data_objects");
+        $result = $this->mysqli_slave->query("SELECT DISTINCT data_object_id  FROM eol_".$GLOBALS['ENV_NAME'].".users_data_objects");
         while($result && $row=$result->fetch_assoc()) $data_object_ids[] = $row['data_object_id'];
         
         $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM data_objects  WHERE published=1 AND visibility_id=".Visibility::find('visible')." AND id IN (".implode($data_object_ids, ",").")");
@@ -555,10 +555,9 @@ class SiteStatistics
         return $arr_count;
     }
     public function get_user_data_object_ids()
-    {
-        //$mysqli2 = load_mysql_environment('slave_eol');//eol_production database     
-        $sql = "SELECT udo.data_object_id FROM users_data_objects udo join eol_data_production.data_objects do on do.id=udo.data_object_id WHERE do.published AND do.vetted_id != " . Vetted::find('Untrusted') . "";
-        $result = $this->mysqli_eol->query($sql);            
+    {   
+        $sql = "SELECT udo.data_object_id FROM eol_".$GLOBALS['ENV_NAME'].".users_data_objects udo join data_objects do on do.id=udo.data_object_id WHERE do.published AND do.vetted_id != " . Vetted::find('Untrusted') . "";
+        $result = $this->mysqli_slave->query($sql);            
         $arr=array();
         while($result && $row=$result->fetch_assoc()){$arr[] = $row["data_object_id"];}
         return $arr;
@@ -643,9 +642,9 @@ class SiteStatistics
     {
         /*  This will generate the [taxon_concept_with_bhl_publications.txt].             
             Assigns # of BHL publications for every concept. 
-            Should be run locally and just copy to production.
-        */                                
-        
+            Should be run locally and just copy to production.  */                                
+            
+        $timestart = microtime(1);        
         $write_filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp";                         
         unlink($write_filename);
         $fp = fopen($write_filename,"a");                
@@ -680,7 +679,7 @@ class SiteStatistics
                         print"\n writing..."; fwrite($fp,$str);  print" saved.";                
                         $str=""; $save_count=0;
                     }                                              
-                    if($i >= 15)break; //debug
+                    //if($i >= 15)break; //debug
                 }
             }                
         }                    
@@ -693,6 +692,12 @@ class SiteStatistics
         //rename
         unlink(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt");
         rename(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp", PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt");                        
+        
+        print"\n end - generate_taxon_concept_with_bhl_publications_textfile";        
+        $elapsed_time_sec = microtime(1)-$timestart;
+        print "\n elapsed time = $elapsed_time_sec secs              ";
+        print "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";
+        
     }        
     
         
@@ -703,23 +708,10 @@ class SiteStatistics
 
     public function create_page_metrics_table()/* prepare taxon concept totals for richness calculations */ 
     {               
-        self::initialize_concepts_list();                        
-
-        /* //debug                                  
-        //$tc_id=218284; //with user-submitted-text                        
-        $tc_id=206692;                     
-        self::get_data_objects_count($tc_id);           //1           
-        self::get_BHL_publications($tc_id);             //2   
-        self::get_content_partner_count($tc_id);        //3
-        self::get_outlinks_count($tc_id);               //4 
-        self::get_GBIF_map_availability($tc_id);        //5        
-        self::get_biomedical_terms_availability($tc_id);//6        
-        self::get_user_submitted_text_count($tc_id);    //7    
-        self::get_common_names_count($tc_id);           //8
-        self::get_synonyms_count($tc_id);               //9 
-        self::get_google_stats($tc_id);                 //10
-        */                                                
+         //  $tc_id=218284; //with user-submitted-text    
+        $GLOBALS['test_taxon_concept_ids'] = array(206692);
         
+        self::initialize_concepts_list();                        
         self::get_data_objects_count();               //1        
         self::get_BHL_publications();                 //2
         self::get_content_partner_count();            //3                    
@@ -731,6 +723,7 @@ class SiteStatistics
         self::get_synonyms_count();                   //9
         self::get_google_stats();                     //10        
         
+        
         self::save_to_table();                        
     }       
         
@@ -738,14 +731,14 @@ class SiteStatistics
     {
         $time_start = time_elapsed();
         $sql="SELECT tc.id FROM taxon_concepts tc WHERE tc.published = 1 AND tc.supercedure_id = 0";
-        //$sql.=" and tc.id in (1,2,3,4,5,6,206692,218284)";//debug
+        if(isset($GLOBALS['test_taxon_concept_ids'])) $sql.=" and tc.id in (".implode(",", $GLOBALS['test_taxon_concept_ids']).")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);        
         if (!copy($outfile, PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt")) print "\n failed to copy $outfile...\n";        
         unlink($outfile);
         print"\n initialize_concepts_list():" . (time_elapsed()-$time_start)/60 . " mins.";
     }
     
-    function get_google_stats($param_id=NULL)
+    function get_google_stats()
     {       
         $time_start = time_elapsed(); 
         $arr_taxa=array();
@@ -758,7 +751,7 @@ class SiteStatistics
         {       
             print"\n Google stats: page_views, unique_page_views [10 of 10] $start_limit \n";                        
             $sql="Select gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views From google_analytics_page_stats gaps Where concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";                    
-            if($param_id)$sql .= " and gaps.taxon_concept_id = $param_id ";                
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and gaps.taxon_concept_id IN (".implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
@@ -795,7 +788,7 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_google_stats"); unset($arr_taxa);        
     }    
     
-    function get_BHL_publications($param_id=NULL)
+    function get_BHL_publications()
     {
         $time_start = time_elapsed();    
         $arr_taxa=array();
@@ -817,17 +810,17 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_BHL"); unset($arr_taxa);        
     }    
     
-    function get_biomedical_terms_availability($param_id=NULL)
+    function get_biomedical_terms_availability()
     {       
         $time_start = time_elapsed(); 
         $arr_taxa=array();
         print"\n BOA_biomedical_terms [6 of 10]\n";                
-        $BOA_agent_id = 9447;
+        $BOA_agent_id = Agent::find('Biology of Aging');
         $result = $this->mysqli_slave->query("SELECT Max(harvest_events.id) latest_harvent_event_id FROM harvest_events JOIN agents_resources ON agents_resources.resource_id = harvest_events.resource_id WHERE agents_resources.agent_id = $BOA_agent_id AND harvest_events.published_at Is Not Null ");
         if($result && $row=$result->fetch_assoc()) $latest_harvent_event_id = $row['latest_harvent_event_id'];
                
         $sql="SELECT he.taxon_concept_id tc_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON hehe.hierarchy_entry_id = he.id WHERE hehe.harvest_event_id = $latest_harvent_event_id ";
-        if($param_id)$sql .= " and he.taxon_concept_id = $param_id ";                
+        if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
         $num_rows=0; 
@@ -846,13 +839,13 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_biomedical_terms"); unset($arr_taxa);        
     }
     
-    function get_GBIF_map_availability($param_id=NULL)
+    function get_GBIF_map_availability()
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
         print"\n GBIF_map [5 of 10]\n";        
         $sql="SELECT tc.id tc_id FROM hierarchies_content hc JOIN hierarchy_entries he ON hc.hierarchy_entry_id = he.id JOIN taxon_concepts tc ON he.taxon_concept_id = tc.id WHERE hc.map > 0 AND tc.published = 1 AND tc.supercedure_id=0 ";
-        if($param_id)$sql .= " and tc.id = $param_id ";                
+        if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
         $num_rows=0; 
@@ -871,14 +864,13 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_GBIF"); unset($arr_taxa);        
     }
     
-    function get_user_submitted_text_count($param_id=NULL)
+    function get_user_submitted_text_count()
     {   
         $time_start = time_elapsed();
         $arr_taxa=array();
         print"\n user_submitted_text, its providers [7 of 10]\n";        
-        //debug
-        $sql="SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM eol_production.users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND do.vetted_id != " . Vetted::find('Untrusted');
-        if($param_id)$sql .= " and udo.taxon_concept_id = $param_id ";                
+        $sql="SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM eol_".$GLOBALS['ENV_NAME'].".users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND do.vetted_id != " . Vetted::find('Untrusted');
+        if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and udo.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
         $num_rows=0; $temp=array(); $temp2=array();        
@@ -912,7 +904,7 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_user_added_text"); unset($arr_taxa);        
     }
     
-    function get_content_partner_count($param_id=NULL)
+    function get_content_partner_count()
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
@@ -925,7 +917,7 @@ class SiteStatistics
         {       
             print"\n content_partners [3 of 10] $start_limit \n";
             $sql="SELECT tc.id tc_id, ar.agent_id FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON tc.id = dotc.taxon_concept_id JOIN data_objects_harvest_events dohe ON dotc.data_object_id = dohe.data_object_id JOIN harvest_events he ON dohe.harvest_event_id = he.id JOIN agents_resources ar ON he.resource_id = ar.resource_id WHERE tc.published=1 AND tc.supercedure_id=0 and he.id in (" . implode($latest_harvest_event_ids, ",") . ")";  
-            if($param_id)$sql .= " and tc.id = $param_id ";
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
@@ -950,7 +942,7 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_content_partners"); unset($arr_taxa);        
     }    
     
-    function get_outlinks_count($param_id=NULL)
+    function get_outlinks_count()
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
@@ -959,8 +951,7 @@ class SiteStatistics
         {       
             print"\n outlinks [4 of 10] $start_limit \n";                        
             $sql="SELECT he.taxon_concept_id tc_id, h.agent_id FROM hierarchies h JOIN hierarchy_entries he ON h.id = he.hierarchy_id WHERE ( he.source_url != '' || ( h.outlink_uri != '' AND he.identifier != '' ) )";  
-            if($param_id)$sql .= " AND he.taxon_concept_id = $param_id ";
-            $sql .= " limit $start_limit, $batch ";                        
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " AND he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
@@ -984,7 +975,7 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
     }
     
-    function get_common_names_count($param_id=NULL)
+    function get_common_names_count()
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
@@ -992,8 +983,8 @@ class SiteStatistics
         while(true)
         {   
             print"\n common_names and its providers [8 of 10] $start_limit \n";            
-            $sql="SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id WHERE s.synonym_relation_id in (" . self::synonym_relations_id("common name") . "," . self::synonym_relations_id("genbank common name") . ")";
-            if($param_id)$sql .= " and he.taxon_concept_id = $param_id ";
+            $sql="SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id WHERE s.synonym_relation_id in (" . SynonymRelation::find("common name") . "," . SynonymRelation::find("genbank common name") . ")";
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
@@ -1032,7 +1023,7 @@ class SiteStatistics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_common_names"); unset($arr_taxa);        
     }
 
-    function get_synonyms_count($param_id=NULL)
+    function get_synonyms_count()
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
@@ -1040,8 +1031,8 @@ class SiteStatistics
         while(true)
         {                   
             print"\n synonyms and its providers [9 of 10] $start_limit \n";            
-            $sql="SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id JOIN hierarchies h ON s.hierarchy_id = h.id WHERE s.synonym_relation_id not in (" . self::synonym_relations_id("common name") . "," . self::synonym_relations_id("genbank common name") . ") and h.browsable=1";
-            if($param_id)$sql .= " and he.taxon_concept_id = $param_id ";
+            $sql="SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id JOIN hierarchies h ON s.hierarchy_id = h.id WHERE s.synonym_relation_id not in (" . SynonymRelation::find("common name") . "," . SynonymRelation::find("genbank common name") . ") and h.browsable=1";
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
@@ -1078,15 +1069,9 @@ class SiteStatistics
                 
         print"\n get_synonyms_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_synonyms"); unset($arr_taxa);        
-    }
-        
-    function synonym_relations_id($label)
-    {
-        $result = $this->mysqli_slave->query("SELECT id FROM synonym_relations WHERE label = '$label' ");
-        $row=$result->fetch_assoc(); return $row['id'];                        
-    }            
+    }       
 
-    function get_data_objects_count($param_id=NULL)
+    function get_data_objects_count()
     {       
         $time_start = time_elapsed(); 
         $concept_data_object_counts = array();
@@ -1117,7 +1102,7 @@ class SiteStatistics
         {       
             print "\n dataObjects, its infoItems, its references [1 of 10] $start_limit \n";            
             $sql = "SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, do.vetted_id FROM data_objects_taxon_concepts dotc JOIN data_objects do ON dotc.data_object_id = do.id Left Join data_objects_info_items doii ON do.id = doii.data_object_id Left Join data_objects_refs dor ON do.id = dor.data_object_id WHERE do.published=1 and do.visibility_id=".Visibility::find("visible");
-            if($param_id) $sql .= " and (dotc.taxon_concept_id = $param_id) ";
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and dotc.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
@@ -1192,8 +1177,7 @@ class SiteStatistics
                 $new_value .= "\t".@$taxon_object_counts[$data_type]['total_w'];
                 $new_value .= "\t".@$taxon_object_counts[$data_type]['t_w'];
                 $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];
-                
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];                
             }                                
             $new_value .= "\t".@$taxon_object_counts["ref"];
             $new_value .= "\t".@$taxon_object_counts["ii"];            
