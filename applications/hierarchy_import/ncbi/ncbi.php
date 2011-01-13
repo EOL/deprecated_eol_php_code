@@ -133,7 +133,7 @@ function get_nodes()
                         "parentNameUsageID" => $parent_tax_id,
                         "taxonRank"         => $rank,
                         "taxonomicStatus"   => "valid",
-                        "vernacularNames"   => $vernacular_names));
+                        "vernacularName"    => $vernacular_names));
                 fwrite($OUT, $dwc_taxon->__toXML());
                 
                 foreach($GLOBALS['names'][$tax_id] as $name_class => $array)

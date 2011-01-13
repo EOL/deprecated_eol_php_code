@@ -29,6 +29,11 @@ require_once 'Horde/Yaml/Exception.php';
 if(strtolower(substr(php_uname(), 0, 3)) == 'win') define('SYSTEM_OS', 'Windows');
 else define('SYSTEM_OS', 'Unix');
 
+/* USING US EST as default timezone */
+if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America/New_York';
+date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);
+setlocale(LC_ALL, 'en_US.utf8');
+
 /* set the root paths */
 $root = preg_replace("/config$/", "", dirname(__FILE__));
 define('DOC_ROOT', $root);
@@ -113,12 +118,6 @@ define('LOWER','a-záááàâåãäăæčćçéèêëĕíìîïǐĭñńóòôø�
 if(!defined('DOWNLOAD_WAIT_TIME')) define('DOWNLOAD_WAIT_TIME', '300000'); //.3 seconds
 define('DOWNLOAD_ATTEMPTS', '2');
 define('DOWNLOAD_TIMEOUT_SECONDS', '10');
-
-
-/* USING US EST as default timezone */
-if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America/New_York';
-date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);
-setlocale(LC_ALL, 'en_US.utf8');
 
 // sets a static start time to base later comparisons on
 time_elapsed();

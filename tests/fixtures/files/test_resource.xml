@@ -111,7 +111,7 @@
     <mimeType>text/html</mimeType>
     <agent homepage="http://www.flickr.com/photos/25401497@N02" role="author">Donald Hobern</agent>
     <dcterms:created>2008-12-07 09:21:31</dcterms:created>
-    <dc:title>Theristria sp.</dc:title>
+    <dc:title>IUCNConservationStatus</dc:title>
     <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
     <dc:source>http://www.flickr.com/photos/dhobern/3087438151/</dc:source>
     <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation</subject>

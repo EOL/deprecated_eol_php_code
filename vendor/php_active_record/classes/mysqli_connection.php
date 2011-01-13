@@ -293,6 +293,12 @@ class MysqliConnection
         unlink($outfile);
     }
     
+    function iterate($query)
+    {
+        $result = $this->query($query);
+        $result_iterator = new MysqliResultIterator($result);
+        return $result_iterator;
+    }
     
     function truncate_tables($environment = "test")
     {

@@ -42,8 +42,13 @@ class DarwinCoreHarvester
                 
                 if($taxon_id && $valid)
                 {
+                    if($i%10000==0)
+                    {
+                        echo "Taxon: $i\n";
+                        echo "Memory: ".memory_get_usage()."\n";
+                        $mysqli->commit();
+                    }
                     $i++;
-                    //if($i >= 200000) break;
                     $GLOBALS['node_attributes'][$taxon_id]['name_id'] = $name_id;
                     $GLOBALS['node_attributes'][$taxon_id]['rank_id'] = $rank_id;
                     
@@ -88,7 +93,6 @@ class DarwinCoreHarvester
     
     private static function begin_adding_nodes(&$hierarchy, $vetted_id = 0, $published = 0)
     {
-        $mysqli =& $GLOBALS['mysqli_connection'];
         $GLOBALS['taxon_ids_inserted'] = array();
         foreach($GLOBALS['node_children'][0] as $taxon_id)
         {
@@ -100,8 +104,15 @@ class DarwinCoreHarvester
     
     function add_hierarchy_entry($taxon_id, $parent_hierarchy_entry_id, $ancestry, &$hierarchy, $vetted_id = 0, $published = 0)
     {
-        echo "Memory: ".memory_get_usage()."\n";
-        $mysqli =& $GLOBALS['mysqli_connection'];
+        static $i = 0;
+        if($i%10000==0)
+        {
+            echo "Adding Taxon: $i\n";
+            echo "Memory: ".memory_get_usage()."\n";
+            $GLOBALS['db_connection']->commit();
+        }
+        $i++;
+        
         
         // make sure this taxon has a name, otherwise skip this branch
         if(!isset($GLOBALS['node_attributes'][$taxon_id]['name_id'])) return false;

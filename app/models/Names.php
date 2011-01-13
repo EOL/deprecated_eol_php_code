@@ -23,23 +23,23 @@ class Name extends MysqlBase
         return $all;
     }
     
-    public function make_scientific()
-    {
-        $this->add_language(Language::insert("Scientific Name"), 0, 0);
-        $canonical_form = $this->canonical_form();
-        
-        if($this->canonical_form()->string != $this->string)
-        {
-            $new_name = new Name(Name::insert($this->canonical_form()->string));
-            if($new_name->id != $this->id) $new_name->make_scientific();
-            unset($new_name);
-        }
-    }
+    // public function make_scientific()
+    // {
+    //     // $this->add_language(Language::insert("Scientific Name"), 0, 0);
+    //     $canonical_form = $this->canonical_form();
+    //     
+    //     if($this->canonical_form()->string != $this->string)
+    //     {
+    //         $new_name = new Name(Name::insert($this->canonical_form()->string));
+    //         if($new_name->id != $this->id) $new_name->make_scientific();
+    //         unset($new_name);
+    //     }
+    // }
     
-    static function make_scientific_by_name_id($name_id)
-    {
-        self::add_language_by_name_id($name_id, Language::insert("Scientific Name"), 0, 0);
-    }
+    // static function make_scientific_by_name_id($name_id)
+    // {
+    //     self::add_language_by_name_id($name_id, Language::insert("Scientific Name"), 0, 0);
+    // }
     
     public function canonical_form()
     {
@@ -61,36 +61,36 @@ class Name extends MysqlBase
         return $canonical_form;
     }
     
-    public function add_language($language_id, $parent_id, $preferred)
-    {
-        $result = $this->mysqli->query("SELECT * FROM name_languages WHERE name_id=$this->id AND parent_name_id=$parent_id AND language_id=$language_id");
-        if($result && $row=$result->fetch_assoc()) return false;
-        
-        if($language_id==Language::insert("Common name") && !in_array($language_id, Language::unknown())) 
-        {
-            $result = $this->mysqli->query("SELECT * FROM name_languages WHERE name_id=$this->id AND parent_name_id=$parent_id AND language_id NOT IN (".Language::insert("Scientific Name").", ".Language::insert("Operational Taxonomic Unit").")");
-            if($result && $row=$result->fetch_assoc()) return 0;
-        }
-        
-        $this->mysqli->insert("INSERT INTO name_languages VALUES ($this->id, $language_id, $parent_id, $preferred)");
-    }
+    // public function add_language($language_id, $parent_id, $preferred)
+    // {
+    //     $result = $this->mysqli->query("SELECT * FROM name_languages WHERE name_id=$this->id AND parent_name_id=$parent_id AND language_id=$language_id");
+    //     if($result && $row=$result->fetch_assoc()) return false;
+    //     
+    //     if($language_id==Language::insert("Common name") && !in_array($language_id, Language::unknown())) 
+    //     {
+    //         $result = $this->mysqli->query("SELECT * FROM name_languages WHERE name_id=$this->id AND parent_name_id=$parent_id AND language_id NOT IN (".Language::insert("Scientific Name").", ".Language::insert("Operational Taxonomic Unit").")");
+    //         if($result && $row=$result->fetch_assoc()) return 0;
+    //     }
+    //     
+    //     $this->mysqli->insert("INSERT INTO name_languages VALUES ($this->id, $language_id, $parent_id, $preferred)");
+    // }
     
-    static function add_language_by_name_id($name_id, $language_id, $parent_id, $preferred)
-    {
-        if(!$name_id) return false;
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $result = $mysqli->query("SELECT * FROM name_languages WHERE name_id=$name_id AND parent_name_id=$parent_id AND language_id=$language_id");
-        if($result && $row=$result->fetch_assoc()) return false;
-        
-        if($language_id==Language::insert("Common name") && !in_array($language_id, Language::unknown())) 
-        {
-            $result = $mysqli->query("SELECT * FROM name_languages WHERE name_id=$name_id AND parent_name_id=$parent_id AND language_id NOT IN (".Language::insert("Scientific Name").", ".Language::insert("Operational Taxonomic Unit").")");
-            if($result && $row=$result->fetch_assoc()) return 0;
-        }
-        
-        $mysqli->insert("INSERT INTO name_languages VALUES ($name_id, $language_id, $parent_id, $preferred)");
-    }
+    // static function add_language_by_name_id($name_id, $language_id, $parent_id, $preferred)
+    // {
+    //     if(!$name_id) return false;
+    //     $mysqli =& $GLOBALS['mysqli_connection'];
+    //     
+    //     $result = $mysqli->query("SELECT * FROM name_languages WHERE name_id=$name_id AND parent_name_id=$parent_id AND language_id=$language_id");
+    //     if($result && $row=$result->fetch_assoc()) return false;
+    //     
+    //     if($language_id==Language::insert("Common name") && !in_array($language_id, Language::unknown())) 
+    //     {
+    //         $result = $mysqli->query("SELECT * FROM name_languages WHERE name_id=$name_id AND parent_name_id=$parent_id AND language_id NOT IN (".Language::insert("Scientific Name").", ".Language::insert("Operational Taxonomic Unit").")");
+    //         if($result && $row=$result->fetch_assoc()) return 0;
+    //     }
+    //     
+    //     $mysqli->insert("INSERT INTO name_languages VALUES ($name_id, $language_id, $parent_id, $preferred)");
+    // }
     
     static function unassigned_ids()
     {

@@ -10,6 +10,7 @@ require_once("TaxonImporter.php");
 
 
 $GLOBALS['DarwinCoreTaxonNamespaces'] = array();
+$GLOBALS['DarwinCoreTaxonNamespaceAbbreviations'] = array();
 $GLOBALS['DarwinCoreTaxonNamespaceAttributes'] = array();
 $GLOBALS['DarwinCoreTaxonDefaultNamespace'] = "http://rs.tdwg.org/dwc/terms/";
 
@@ -20,11 +21,13 @@ load_darwincore_namespace("http://purl.org/dc/terms/", "dcterms", dirname(__FILE
 function load_darwincore_namespace($namespace_uri, $namespace_abbreviation, $schema_uri)
 {
     // cannot reuse namespace
-    if(isset($GLOBALS['DarwinCoreTaxonNamespaces'][$namespace_abbreviation])) throw new Exception("Cannot redeclare namespace $namespace_abbreviation");
+    if(isset($GLOBALS['DarwinCoreTaxonNamespaces'][$namespace_uri])) throw new Exception("Cannot redeclare namespace $namespace_uri");
+    if(isset($GLOBALS['DarwinCoreTaxonNamespaceAbbreviations'][$namespace_abbreviation])) throw new Exception("Cannot redeclare namespace $namespace_abbreviation");
     if(isset($GLOBALS['DarwinCoreTaxonNamespaceAttributes'][$namespace_uri])) throw new Exception("Cannot assign different namespace to $namespace_uri");
     
     // set as viable namespace
     $GLOBALS['DarwinCoreTaxonNamespaces'][$namespace_uri] = $namespace_abbreviation;
+    $GLOBALS['DarwinCoreTaxonNamespaceAbbreviations'][$namespace_abbreviation] = $namespace_uri;
     fetch_schema_elements($namespace_uri, $schema_uri);
 }
 

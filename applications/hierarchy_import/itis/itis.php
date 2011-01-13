@@ -22,7 +22,7 @@ if(@$argv[1]!="-f" || !preg_match("/^itis[0-9]{6}\.tar\.gz$/i",@$argv[2]))
 
 include_once(dirname(__FILE__)."/../../../config/environment.php");
 
-$mysqli =& $GLOBALS['mysqli_connection'];
+$mysqli =& $GLOBALS['db_connection'];
 //$mysqli->truncate_tables();
 $mysqli->begin_transaction();
 
@@ -30,6 +30,8 @@ $mysqli->begin_transaction();
 
 
 $filename = $argv[2];
+
+
 
 if(preg_match("/^(itis)([0-9]{6})(\.tar)\.gz$/i",$filename,$arr))
 {
@@ -43,8 +45,6 @@ define("DOWNLOAD_ROOT",   "../downloads/");
 
 get_file_names();
 get_ranks();
-$mysqli->commit();
-get_kingdoms();
 $mysqli->commit();
 get_authors();
 $mysqli->commit();
@@ -64,7 +64,6 @@ Tasks::rebuild_nested_set($GLOBALS['hierarchy']->id);
 
 //print_r($GLOBALS['filenames']);
 //print_r($GLOBALS['ranks']);
-//print_r($GLOBALS['kingdoms']);
 //print_r($GLOBALS['authors']);
 //print_r($GLOBALS['vernaculars']);
 //print_r($GLOBALS['synonyms']);
@@ -138,28 +137,6 @@ function get_ranks()
 }
 
 
-function get_kingdoms()
-{
-    //0    kingdom_id serial not null
-    //1    kingdom_name char(10) not null
-    //2    update_date date not null
-    
-    $GLOBALS['kingdoms'] = array();
-    
-    $FILE = file(DOWNLOAD_ROOT.EXPORT_FOLDER."/".$GLOBALS['filenames']['kingdoms']);
-    foreach($FILE as $line)
-    {
-        $line_data  = explode("|", trim($line));
-        $id         = trim($line_data[0]);
-        $GLOBALS['kingdoms'][$id] = trim($line_data[1]);
-        
-        unset($line_data);
-        unset($line);
-    }
-    unset($FILE);
-}
-
-
 function get_authors()
 {
     //0    taxon_author_id serial not null
@@ -215,7 +192,7 @@ function get_vernaculars()
         if($language == "unspecified") $language = "Common name";
         
         $GLOBALS['vernaculars'][$name_tsn][] = array("name_id" => Name::insert($string), "language_id" => Language::insert($language));
-        if($i >= 1000) break;
+        // if($i >= 1000) break;
         
         unset($name_tsn);
         unset($string);
@@ -298,7 +275,7 @@ function get_names()
             $mysqli->commit();
         }
         $i++;
-        if($i >= 1000 && $i <= 202300) continue;
+        // if($i >= 1000 && $i <= 202300) continue;
         $line_data = explode("|", trim($line));
         
         $name_tsn       = trim($line_data[0]);
@@ -338,9 +315,9 @@ function get_names()
         $canonical_form = trim(utf8_encode($canonical_form));
         
         $name_id = Name::insert($name_string, $canonical_form);
-        Name::make_scientific_by_name_id($name_id);
+        // Name::make_scientific_by_name_id($name_id);
         $cf_name_id = Name::insert($canonical_form, $canonical_form);
-        Name::make_scientific_by_name_id($cf_name_id);
+        // Name::make_scientific_by_name_id($cf_name_id);
         
         $GLOBALS['names'][$name_tsn] = array(
                                             "name_id"           => $name_id,
@@ -368,27 +345,27 @@ function get_names()
         unset($line_data);
         unset($line);
         
-        if($i >= 203300) break;
+        // if($i >= 203300) break;
     }
     unset($FILE);
 }
 
 
-function add_vernaculars()
-{
-    foreach($GLOBALS['vernaculars'] as $name_tsn => $array)
-    {
-        if(@!$GLOBALS['names'][$name_tsn]) continue;
-        foreach($array as $vern_array)
-        {
-            $name = new Name($vern_array["name_id"]);
-            $name->add_language($vern_array["language_id"], $GLOBALS['names'][$name_tsn]["name_id"], 0);
-            unset($name);
-        }
-        
-        unset($array);
-    }
-}
+// function add_vernaculars()
+// {
+//     foreach($GLOBALS['vernaculars'] as $name_tsn => $array)
+//     {
+//         if(@!$GLOBALS['names'][$name_tsn]) continue;
+//         foreach($array as $vern_array)
+//         {
+//             $name = new Name($vern_array["name_id"]);
+//             // $name->add_language($vern_array["language_id"], $GLOBALS['names'][$name_tsn]["name_id"], 0);
+//             unset($name);
+//         }
+//         
+//         unset($array);
+//     }
+// }
 
 
 function add_hierarchy()
