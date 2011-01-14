@@ -35,6 +35,9 @@ if($id)
     
     show_synonyms_he($hierarchy_entry);
     
+    show_references_he($hierarchy_entry);
+    
+    
     echo "<hr>";
     show_kingdoms_he($hierarchy_entry->hierarchy_id);
     

@@ -19,6 +19,7 @@ class DarwinCoreHarvester
         $GLOBALS['node_children'] = array();
         $GLOBALS['node_attributes'] = array();
         echo "Memory: ".memory_get_usage()."\n";
+        echo "Time: ".time_elapsed()."\n\n";
         
         $reader = new XMLReader();
         $reader->open($uri, "utf-8");
@@ -44,8 +45,9 @@ class DarwinCoreHarvester
                 {
                     if($i%10000==0)
                     {
-                        echo "Taxon: $i\n";
+                        echo "Loading Taxon: $i\n";
                         echo "Memory: ".memory_get_usage()."\n";
+                        echo "Time: ".time_elapsed()."\n\n";
                         $mysqli->commit();
                     }
                     $i++;
@@ -64,6 +66,12 @@ class DarwinCoreHarvester
                         
                         if($vernacular_name_id) $GLOBALS['node_attributes'][$taxon_id]['vernacular_names'][$language_id][$vernacular_name_id] = 1;
                     }
+                    
+                    foreach($t_dwc->namePublishedIn as $r)
+                    {
+                        $ref_id = Reference::insert(Functions::import_decode($r));
+                        if($ref_id) $GLOBALS['node_attributes'][$taxon_id]['references'][$ref_id] = 1;
+                    }
                 }
                 
                 if(!$valid && $parent_id)
@@ -80,15 +88,15 @@ class DarwinCoreHarvester
         // set the nested set values
         Tasks::rebuild_nested_set($hierarchy->id);
         
-        // Rebuild the Solr index for this hierarchy
-        $indexer = new HierarchyEntryIndexer();
-        $indexer->index($hierarchy->id);
-        
-        // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-        CompareHierarchies::process_hierarchy($hierarchy, null, true);
-        
-        // Use the entry relationships to assign the proper concept IDs
-        CompareHierarchies::begin_concept_assignment($hierarchy->id);
+        // // Rebuild the Solr index for this hierarchy
+        // $indexer = new HierarchyEntryIndexer();
+        // $indexer->index($hierarchy->id);
+        // 
+        // // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+        // CompareHierarchies::process_hierarchy($hierarchy, null, true);
+        // 
+        // // Use the entry relationships to assign the proper concept IDs
+        // CompareHierarchies::begin_concept_assignment($hierarchy->id);
     }
     
     private static function begin_adding_nodes(&$hierarchy, $vetted_id = 0, $published = 0)
@@ -109,6 +117,7 @@ class DarwinCoreHarvester
         {
             echo "Adding Taxon: $i\n";
             echo "Memory: ".memory_get_usage()."\n";
+            echo "Time: ".time_elapsed()."\n\n";
             $GLOBALS['db_connection']->commit();
         }
         $i++;
@@ -154,6 +163,14 @@ class DarwinCoreHarvester
                 {
                     $hierarchy_entry->add_synonym($name_id, SynonymRelation::insert("Common name"), $language_id, 0, $vetted_id, $published);
                 }
+            }
+        }
+        
+        if(isset($taxon_attributes['references']))
+        {
+            foreach($taxon_attributes['references'] as $ref_id => $junk)
+            {
+                $hierarchy_entry->add_reference($ref_id);
             }
         }
         

@@ -271,6 +271,18 @@ function show_synonyms_he($hierarchy_entry)
     }
 }
 
+function show_references_he($hierarchy_entry)
+{
+    if($references = $hierarchy_entry->references())
+    {
+        echo "<hr>";
+        foreach($references as $r)
+        {
+            echo str_repeat('&nbsp;', 6)."$r->full_reference<br><br>";
+        }
+    }
+}
+
 function show_kingdoms_he($hierarchy_id)
 {
     global $mysqli;

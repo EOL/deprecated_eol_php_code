@@ -10,12 +10,12 @@ include_once(dirname(__FILE__) . "/../../../config/environment.php");
 // {
 //     shell_exec("rm -fr ".dirname(__FILE__)."/$dir");
 // }
-
-
-
-//  Full ITIS Data Set (Informix 7) from http://www.itis.gov/downloads/
-$latest_itis_url = "http://www.itis.gov/downloads/itis121610_v3.TAR.gz";
-
+// 
+// 
+// 
+// //  Full ITIS Data Set (Informix 7) from http://www.itis.gov/downloads/
+// $latest_itis_url = "http://www.itis.gov/downloads/itis121610_v3.TAR.gz";
+// 
 // shell_exec("curl $latest_itis_url -o ".dirname(__FILE__)."/itis.tar.gz");
 // // unzip the download
 // shell_exec("tar -zxf ".dirname(__FILE__)."/itis.tar.gz");
@@ -25,28 +25,40 @@ if(!$GLOBALS['itis_dump_dir']) exit;
 
 
 
-$GLOBALS['names'] = array();
+get_file_names();
+get_ranks();
+get_authors();
+get_locations();
+get_publications();
+get_publication_links();
+get_comments();
+get_comment_links();
+get_vernaculars();
+get_synonyms();
+
+echo "Starting to create document\n";
+echo "Memory: ".memory_get_usage()."\n";
+echo "Time: ".time_elapsed()."\n\n";
+get_names();
+echo "Memory: ".memory_get_usage()."\n";
+echo "Time: ".time_elapsed()."\n\n";
 
 
 
-// 
-// get_file_names();
-// get_ranks();
-// get_authors();
-// get_vernaculars();
-// echo "Memory: ".memory_get_usage()."\n";
-// get_synonyms();
-// echo "Memory: ".memory_get_usage()."\n";
-// get_names();
-// 
-// echo "Memory: ".memory_get_usage()."\n";
-// 
-// unset($GLOBALS['authors']);
-// unset($GLOBALS['ranks']);
-// unset($GLOBALS['vernaculars']);
-// unset($GLOBALS['synonyms']);
-// unset($GLOBALS['synonym_of']);
-// echo "Memory: ".memory_get_usage()."\n";
+
+unset($GLOBALS['authors']);
+unset($GLOBALS['ranks']);
+unset($GLOBALS['comments']);
+unset($GLOBALS['comment_links']);
+unset($GLOBALS['locations']);
+unset($GLOBALS['publications']);
+unset($GLOBALS['publication_links']);
+unset($GLOBALS['vernaculars']);
+unset($GLOBALS['synonyms']);
+unset($GLOBALS['synonym_of']);
+echo "Memory: ".memory_get_usage()."\n";
+echo "Time: ".time_elapsed()."\n\n";
+
 
 
 
@@ -144,6 +156,104 @@ function get_ranks()
     }
 }
 
+function get_publications()
+{
+    //0     pub_id_prefix char(3) not null ,
+    //1     publication_id serial not null ,
+    //2     reference_author varchar(100,1) not null ,
+    //3     title varchar(255,10),
+    //4     publication_name varchar(255,1) not null ,
+    //5     listed_pub_date date,
+    //6     actual_pub_date date not null ,
+    //7     publisher varchar(80,10),
+    //8     pub_place varchar(40,10),
+    //9     isbn varchar(16),
+    //10    issn varchar(16),
+    //11    pages varchar(15),
+    //12    pub_comment varchar(500),
+    //13    update_date date not null
+    
+    $GLOBALS['publications'] = array();
+    
+    $path = $GLOBALS['itis_dump_dir']."/".$GLOBALS['filenames']['publications'];
+    foreach(new FileIterator($path) as $line)
+    {
+        if(!$line) continue;
+        $line_data      = explode("|", $line);
+        $id_prefix      = trim($line_data[0]);
+        $id             = trim($line_data[1]);
+        $author         = trim(utf8_encode($line_data[2]));
+        $title          = trim(utf8_encode($line_data[3]));
+        $publication    = trim(utf8_encode($line_data[4]));
+        $listed_date    = trim($line_data[5]);
+        $actual_date    = trim($line_data[6]);
+        $publisher      = trim($line_data[7]);
+        $location       = trim($line_data[8]);
+        $pages          = trim($line_data[11]);
+        $comment        = trim($line_data[12]);
+        
+        $citation_order = array();
+        if($author) $citation_order[] = $author;
+        if(preg_match("/([12][0-9]{3})/", $actual_date, $arr)) $citation_order[] = $arr[1]; // year
+        if($title) $citation_order[] = $title;
+        if($publication) $citation_order[] = $publication;
+        if($pages) $citation_order[] = $pages;
+        
+        $citation = implode(". ", $citation_order);
+        $citation = str_replace("  ", " ", $citation);
+        $citation = str_replace("..", ".", $citation);
+        $citation = trim($citation);
+        
+        $GLOBALS['publications'][$id_prefix.$id] = $citation;
+    }
+}
+
+function get_publication_links()
+{
+    //0     tsn integer not null ,
+    //1     doc_id_prefix char(3) not null ,
+    //2     documentation_id integer not null ,
+    //3     original_desc_ind char(1),
+    //4     init_itis_desc_ind char(1),
+    //5     change_track_id integer,
+    //6     vernacular_name varchar(80,5),
+    //7     update_date date not null
+    
+    $GLOBALS['publication_links'] = array();
+    
+    $path = $GLOBALS['itis_dump_dir']."/".$GLOBALS['filenames']['reference_links'];
+    foreach(new FileIterator($path) as $line)
+    {
+        if(!$line) continue;
+        $line_data              = explode("|", $line);
+        $tsn                    = trim($line_data[0]);
+        $publication_id_prefix  = trim($line_data[1]);
+        $publication_id         = trim($line_data[2]);
+        
+        // only get publications, not sources or experts
+        if($publication_id_prefix == "PUB") $GLOBALS['publication_links'][$tsn][] = $publication_id_prefix.$publication_id;
+    }
+}
+
+function get_locations()
+{
+    //1     tsn integer not null ,
+    //2     geographic_value varchar(45,6) not null ,
+    //3     update_date date not null 
+    
+    $GLOBALS['locations'] = array();
+    
+    $path = $GLOBALS['itis_dump_dir']."/".$GLOBALS['filenames']['geographic_div'];
+    foreach(new FileIterator($path) as $line)
+    {
+        if(!$line) continue;
+        $line_data  = explode("|", $line);
+        $tsn        = trim($line_data[0]);
+        $location   = trim(utf8_encode($line_data[1]));
+        $GLOBALS['locations'][$tsn] = $location;
+    }
+}
+
 function get_comments()
 {
     //0     comment_id serial not null ,
@@ -160,8 +270,8 @@ function get_comments()
         if(!$line) continue;
         $line_data  = explode("|", $line);
         $id         = trim($line_data[0]);
-        $comment    = trim($line_data[2]);
-        $GLOBALS['comments'][$id] = $comment
+        $comment    = trim(utf8_encode($line_data[2]));
+        $GLOBALS['comments'][$id] = $comment;
     }
 }
 
@@ -199,7 +309,7 @@ function get_authors()
     {
         if(!$line) continue;
         $line_data  = explode("|", $line);
-        $id         = trim($line_data[0]);
+        $id         = trim(utf8_encode($line_data[0]));
         $GLOBALS['authors'][$id] = trim($line_data[1]);
     }
 }
@@ -331,18 +441,41 @@ function get_names()
         $remarks = "";
         if($comp_rating && $comp_rating != "unknown") $remarks .= "Completeness: $comp_rating. ";
         if($cred_rating && $cred_rating != "unknown") $remarks .= "Credibility: $cred_rating. ";
-        if($curr_rating && $curr_rating != "unknown") $remarks .= "Currency: $curr_rating. ";
+        // if($curr_rating && $curr_rating != "unknown") $remarks .= "Currency: $curr_rating. ";
+        
+        if(isset($GLOBALS['comment_links'][$name_tsn]))
+        {
+            foreach($GLOBALS['comment_links'][$name_tsn] as $comment_id)
+            {
+                if(@$GLOBALS['comments'][$comment_id]) $remarks .= $GLOBALS['comments'][$comment_id].". ";
+            }
+        }
+        $remarks = str_replace("..", ".", $remarks);
         $remarks = trim($remarks);
+        
+        $publications = array();
+        if(isset($GLOBALS['publication_links'][$name_tsn]))
+        {
+            foreach($GLOBALS['publication_links'][$name_tsn] as $pub_id)
+            {
+                if(@$GLOBALS['publications'][$pub_id]) $publications[] = $GLOBALS['publications'][$pub_id];
+            }
+        }
+        
         
         if(isset($GLOBALS['synonym_of'][$name_tsn]))
         {
-            $dwc_taxon = new DarwinCoreTaxon(array(
+            $params = array(
                     "taxonID"           => $name_tsn,
                     "scientificName"    => $name_string,
                     "parentNameUsageID" => $GLOBALS['synonym_of'][$name_tsn],
                     "taxonRank"         => $GLOBALS['ranks'][$rank_id],
                     "taxonRemarks"      => $remarks,
-                    "taxonomicStatus"   => $reason));
+                    "namePublishedIn"   => $publications,
+                    "taxonomicStatus"   => $reason);
+            
+            if(isset($GLOBALS['locations'][$name_tsn])) $params['dcterms:spatial'] = $GLOBALS['locations'][$name_tsn];
+            $dwc_taxon = new DarwinCoreTaxon($params);
             fwrite($OUT, $dwc_taxon->__toXML());
         }else
         {
@@ -356,14 +489,18 @@ function get_names()
                 }
             }
             
-            $dwc_taxon = new DarwinCoreTaxon(array(
+            $params = array(
                     "taxonID"           => $name_tsn,
                     "scientificName"    => $name_string,
                     "parentNameUsageID" => $parent_tsn,
                     "taxonRank"         => $GLOBALS['ranks'][$rank_id],
                     "taxonRemarks"      => $remarks,
+                    "namePublishedIn"   => $publications,
                     "taxonomicStatus"   => $validity,
-                    "vernacularName"   => $vernacular_names));
+                    "vernacularName"    => $vernacular_names);
+            
+            if(isset($GLOBALS['locations'][$name_tsn])) $params['dcterms:spatial'] = $GLOBALS['locations'][$name_tsn];
+            $dwc_taxon = new DarwinCoreTaxon($params);
             fwrite($OUT, $dwc_taxon->__toXML());
         }
     }

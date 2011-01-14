@@ -19,10 +19,11 @@ foreach($connectors as $file)
     if(!@$resource->id) continue;
     if(!$resource->ready_to_update()) continue;
     
-    // resources to skip
+    // resources to skip as they are scheduled seperately
     if($resource->id==15) continue; // Flickr
     if($resource->id==71) continue; // Wikimedia Commons
     if($resource->id==80) continue; // Wikipedia
+    if($resource->id==211) continue; // IUCN Redlist
     if($resource->id==31) continue; // BioPix
     
     echo "$file...\n";

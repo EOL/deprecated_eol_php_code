@@ -93,6 +93,13 @@ class DarwinCoreTaxon
                         elseif($lang && is_string($lang)) $xml .= "  <$tag xml:lang='".htmlspecialchars($lang)."'>".htmlspecialchars($vern)."</$tag>\n";
                         else $xml .= "  <$tag>".htmlspecialchars($vern)."</$tag>\n";
                     }
+                }else
+                {
+                    $tag = $default_ns .":". $property;
+                    foreach($value as $k => $v)
+                    {
+                        $xml .= "  <$tag>".htmlspecialchars($v)."</$tag>\n";
+                    }
                 }
             }else
             {
