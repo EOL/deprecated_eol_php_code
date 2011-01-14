@@ -1,29 +1,25 @@
 <?php
 $GLOBALS['ENV_DEBUG'] = false;
-//$GLOBALS['ENV_NAME'] = "integration";
-//$GLOBALS['ENV_NAME'] = "staging";
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$timestart = microtime(1);
-$temp_time = time_elapsed();            
+$start_time = time_elapsed();            
 
-ini_set('memory_limit', '1500M');
-set_time_limit(0);
+require_library('TaxonPageMetrics');
+$page_metrics = new TaxonPageMetrics();
 
-$mysqli =& $GLOBALS['mysqli_connection'];
-require_library('SiteStatistics');
-$stats = new SiteStatistics();
+// execution time: 6 mins
+$page_metrics->generate_taxon_concept_with_bhl_links_textfile();
 
-//$stats->generate_taxon_concept_with_bhl_links_textfile();         //24 mins      
-//$stats->generate_taxon_concept_with_bhl_publications_textfile();  //single-query approach --- should be run locally and just copy to production
-       
-$elapsed_time_sec = microtime(1)-$timestart;
-$time_elapsed_sec = time_elapsed() - $temp_time;
+/*
+// execution time: 10 hrs; will be replaced once we store taxon_concept_id in PAGE_NAMES table.
+$page_metrics->generate_taxon_concept_with_bhl_publications_textfile();
+*/
 
-echo "\n elapsed time = $elapsed_time_sec sec               ";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hrs ";
-echo "\n";
+/* work in progress
+$page_metrics->get_concepts_with_bhl_publications();
+*/
+
+$time_elapsed_sec = time_elapsed() - $start_time;
 echo "\n elapsed time = $time_elapsed_sec sec               ";
 echo "\n elapsed time = " . $time_elapsed_sec/60 . " mins   ";
 echo "\n elapsed time = " . $time_elapsed_sec/60/60 . " hrs ";
