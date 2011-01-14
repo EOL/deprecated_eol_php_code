@@ -1,7 +1,5 @@
 <?php
-
 define("SERPENT_PAGE_URL", "http://archive.serpentproject.com/view/species/");
-
 class SerpentAPI
 {
     public static function get_all_taxa()
@@ -9,8 +7,17 @@ class SerpentAPI
         $urls = self::compile_taxon_urls();  //normal operation        
         $all_taxa = array();
         $used_collection_ids = array();                
+
+        /*       
+        $urls=array();        
+        $urls[] = array("url"=>"http://archive.serpentproject.com/view/species/Alcyonidium_diaphanum.html","sciname"=>""); //has taxonomy        
+        $urls[] = array("url"=>"http://archive.serpentproject.com/view/species/Anarhichas_lupus.html","sciname"=>"");
+        */         
+
+        $total = sizeof($urls); $i=0;
         foreach($urls as $url)
         {
+            $i++; print"\n $i of $total ".$url['url'];
             $arr = self::get_Serpent_taxa($url['url'],$used_collection_ids);                             
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];            
@@ -45,7 +52,6 @@ class SerpentAPI
         foreach($urls as $url)
         {
             $i++;
-            print"$url";
             $partial_urls = self::taxon_url_extractor($url,'<h1 class="pagetitle">','<td>',0);                    
             $taxon_urls = array_merge($taxon_urls,$partial_urls);
             if($i==3)break; //use to limit
@@ -73,8 +79,8 @@ class SerpentAPI
         if(is_numeric($pos))
         {
             $html = strip_tags($html,"<a>$searched2");
-            $html = str_ireplace($searched2 , "&arr[]=", $html);	
-            $arr = array(); parse_str($html);	                        
+            $html = str_ireplace($searched2 , "&arr[]=", $html);
+            $arr = array(); parse_str($html);
             foreach($arr as $r)
             {
                 if(preg_match("/href=\"(.*?)\"/ims", $r, $matches))
@@ -142,8 +148,9 @@ class SerpentAPI
             if(@$rec['Project Partners:'])$desc.="Project Partners: " . @$rec['Project Partners:'] . " <br>";            
             if(@$rec['ROV:'])$desc.="ROV: " . @$rec['ROV:'] . " <br>";            
             if(@$rec['Deposited By:'])$desc.="Deposited By: " . @$rec['Deposited By:'] . " <br>";            
-            if(@$rec['Deposited On:'])$desc.="Deposited On: " . @$rec['Deposited On:'] . " <br>";                     
-            if(!$ancestry)$ancestry=self::parse_classification(@$rec['Classification:'],@$rec['Species:'],$sciname);            
+            if(@$rec['Deposited On:'])$desc.="Deposited On: " . @$rec['Deposited On:'] . " <br>";                                 
+            if(!$ancestry) $ancestry=self::parse_classification(@$rec['Classification:'],@$rec['Species:'],$sciname); 
+            
             $agent=array();
             $rights_holder="";            
             if(@$rec['Deposited By:'])
@@ -221,8 +228,8 @@ class SerpentAPI
     }    
     
     function parse_classification($str,$species,$sciname)
-    {
-        //Kingdom Animalia > Phylum Cnidaria (Cnidarians) > Anthozoa (Sea Anemones and Corals) > Actiniaria (Anemones) > Actinoscyphiidae (Sea anemones) > Actinoscyphia aurelia        
+    {        
+        //Kingdom Animalia -- Phylum Cnidaria (Cnidarians) -- Anthozoa (Sea Anemones and Corals) -- Actiniaria (Anemones) -- Actinoscyphiidae (Sea anemones) -- Actinoscyphia aurelia        
         if(is_numeric(stripos($str,",")))
         {
             $arr_ancestry = explode(",",$str);
@@ -232,7 +239,7 @@ class SerpentAPI
         }
         
         $ancestry=array();
-        $arr = explode(">",$str);
+        $arr = explode("--",$str);
         $ranks = array("Kingdom", "Phylum", "Class", "Order", "Family", "Genus");
         foreach($arr as $r)
         {
@@ -246,7 +253,7 @@ class SerpentAPI
                     $ancestry[$rank] = $temp;
                 }                
             }               
-        }
+        }        
         return $ancestry;
     }
     
@@ -303,27 +310,21 @@ class SerpentAPI
             
         $pos = stripos($html,'<h1 class="pagetitle">');
         $html = substr($html,$pos,strlen($html));
+        $html = str_ireplace("&gt;","--",$html);//'greater than' char has to be replaced
         
         if(preg_match("/<table(.*?)<\/table/ims", $html, $matches))$html = $matches[1];
         else return array();
         
         $html = str_ireplace("<tr>" , "&arr[]=", $html);	
-        $arr = array(); parse_str($html);	                        
+        $arr = array(); parse_str($html);                        
         foreach($arr as $rec)
-        {
+        {            
             $label="";            
             if(preg_match("/<th valign=\"top\">(.*?)<\/th>/ims", $rec, $matches))$label = $matches[1];
             $value="";
-            if(preg_match("/<td valign=\"top\">(.*?)<\/td>/ims", $rec, $matches))
-            {
-                if($label != "Deposited By:")$value = strip_tags($matches[1]);                            
-                else $value = strip_tags($matches[1],"<a>");                            
-            }            
+            if(preg_match("/<td valign=\"top\">(.*?)<\/td>/ims", $rec, $matches))$value = strip_tags($matches[1]);                
             
-            if($label == "Item Type:")
-            {
-                $item_type = $value;
-            }
+            if($label == "Item Type:") $item_type = $value;            
             $arr_details[$label]=$value;
         }          
               
@@ -356,7 +357,7 @@ class SerpentAPI
             $temp_arr = $arr_details;
             if($item_type=="Image")$temp_arr["url"] = $sourceURL . "0" . $i . "/thumbnails/medium.jpg";
             $final_arr[]=$temp_arr;
-        }
+        }        
         return $final_arr;
     }
     
@@ -418,7 +419,7 @@ class SerpentAPI
         $taxon = array();
         $taxon["commonNames"] = array();
         $license = null;                
-        $taxon["identifier"] = "";
+        $taxon["identifier"] = "serpent_" . str_replace(" ","_",ucfirst(trim($rec["sciname"])));                
         $taxon["source"] = $rec["dc_source"];                
         $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));        
         $taxon["kingdom"] = ucfirst(trim($rec["kingdom"]));
