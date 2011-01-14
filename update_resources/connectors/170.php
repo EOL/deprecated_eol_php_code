@@ -17,8 +17,6 @@ $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
 fclose($OUT);
 
-//echo "time: ". Functions::time_elapsed() ."\n";
-
 $elapsed_time_sec = microtime(1)-$timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec sec              \n";
