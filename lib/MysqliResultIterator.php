@@ -14,7 +14,7 @@ class MysqliResultIterator implements Iterator
             $this->result =& $result;
         }else
         {
-            trigger_error("FileIterator: Invalid file path or not readable: $file_path", E_USER_NOTICE);
+            trigger_error("MysqliResultIterator: Invalid file path or not readable: $file_path", E_USER_NOTICE);
         }
     }
     

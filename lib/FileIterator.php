@@ -2,12 +2,16 @@
 
 class FileIterator implements Iterator
 {
-    private $FILE;
-    private $current_line;
-    private $line_number = -1; // bit of a hack. So the first iteration sets it to 0
+    protected $FILE;
+    protected $file_path;
+    protected $current_line;
+    protected $line_number = -1; // bit of a hack. So the first iteration sets it to 0
+    protected $remove_file_on_destruct;
     
-    public function __construct($file_path)
+    public function __construct($file_path, $remove_file_on_destruct = false)
     {
+        $this->file_path = $file_path;
+        $this->remove_file_on_destruct = $remove_file_on_destruct;
         // file must exist and be readable
         if(is_readable($file_path))
         {
@@ -23,6 +27,11 @@ class FileIterator implements Iterator
         if(isset($this->FILE))
         {
             fclose($this->FILE);
+        }
+        
+        if($this->remove_file_on_destruct && $this->file_path)
+        {
+            unlink($this->file_path);
         }
     }
     
@@ -55,9 +64,9 @@ class FileIterator implements Iterator
         return $this->current() !== false;
     }
     
-    private function get_next_line()
+    protected function get_next_line()
     {
-        if(!feof($this->FILE))
+        if(isset($this->FILE) && !feof($this->FILE))
         {
             $line = fgets($this->FILE, 65535);
             $this->current_line = rtrim($line, "\r\n");

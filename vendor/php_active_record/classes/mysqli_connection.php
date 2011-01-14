@@ -111,6 +111,20 @@ class MysqliConnection
         return $result;
     }
     
+    public static function is_read_query($query)
+    {
+        return !self::is_write_query($query);
+    }
+    
+    public static function is_write_query($query)
+    {
+        if(preg_match("/^(insert|update|delete|truncate|create|drop|alter|load data)/i", trim($query), $arr))
+        {
+            return true;
+        }
+        return false;
+    }
+    
     function query($query)
     {
         if(preg_match("/^(insert|update|delete|truncate|create|drop|alter|load data)/i", trim($query), $arr))
@@ -293,11 +307,17 @@ class MysqliConnection
         unlink($outfile);
     }
     
-    function iterate($query)
+    function &iterate($query)
     {
         $result = $this->query($query);
         $result_iterator = new MysqliResultIterator($result);
         return $result_iterator;
+    }
+    
+    function &iterate_file($query)
+    {
+        $it = new MysqliResultFileIterator($query, $this);
+        return $it;
     }
     
     function truncate_tables($environment = "test")
