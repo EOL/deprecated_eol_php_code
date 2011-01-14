@@ -48,7 +48,7 @@ class VimeoAPI
     function parse_xml($rec)
     {
         $arr_data=array();                                                
-        $taxon_id   = "";
+        
         
         $kingdom="";$phylum="";$class="";$order="";$family="";$genus="";$species="";$sciname="";$commonNames=array();$license=null;
         $trinomial="";
@@ -122,6 +122,8 @@ class VimeoAPI
         if($rec->user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->user_url , $rec->user_name));                    
         $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$agent,$license,$arr_objects);
         //end data objects //----------------------------------------------------------------------------------------        
+        
+        $taxon_id   = str_ireplace(" ","_",$sciname) . "_" . $rec->id;
         
         $arr_data[]=array(  "identifier"   =>$taxon_id,
                             "source"       =>$source,
