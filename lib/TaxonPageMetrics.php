@@ -252,8 +252,9 @@ class TaxonPageMetrics
         while(true)
         {       
             print"\n outlinks [4 of 10] $start_limit \n";                        
-            $sql="SELECT he.taxon_concept_id tc_id, h.agent_id FROM hierarchies h JOIN hierarchy_entries he ON h.id = he.hierarchy_id WHERE ( he.source_url != '' || ( h.outlink_uri != '' AND he.identifier != '' ) )";  
+            $sql="SELECT he.taxon_concept_id tc_id, h.agent_id FROM hierarchies h JOIN hierarchy_entries he ON h.id = he.hierarchy_id WHERE (he.source_url != '' || ( h.outlink_uri is not null AND he.identifier != ''))";  
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " AND he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
+            $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
@@ -262,9 +263,9 @@ class TaxonPageMetrics
             {
                 if($line = fgets($FILE))
                 {
-                    $num_rows++; $line = trim($line); $fields = explode("\t", $line);                                        
-                    $tc_id      = trim($fields[0]);
-                    $agent_id   = trim($fields[1]);
+                    $num_rows++; $fields = explode("\t", $line);
+                    $tc_id      = $fields[0];
+                    $agent_id   = $fields[1];
                     $temp[$tc_id][$agent_id]='';
                 }
             }                
