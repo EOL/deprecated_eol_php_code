@@ -4,6 +4,7 @@ class test_connector_vimeo_api extends SimpletestUnitBase
 {
     function testVimeoAPI()
     {          
+        /*
         $rec = array(
             "id"            => "18761917",
             "title"         => "Anarhichas lupus",
@@ -25,6 +26,7 @@ class test_connector_vimeo_api extends SimpletestUnitBase
             "duration"  => "42",
             "width"     => "160",
             "height"    => "112");
+        */
                 
 
         $user = "user5352360"; //Eli Agbayani
