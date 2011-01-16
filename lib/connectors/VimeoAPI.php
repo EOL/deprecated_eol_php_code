@@ -153,13 +153,7 @@ class VimeoAPI
                               "license"=>$license
                             );                                    
         return $arr_objects;
-    }
-    
-    function check_xml_if_well_formed($url)
-    {
-        if(simplexml_load_file($url))return true;     // well-formed XML
-        else                         return false;    // not well-formed        
-    }
+    }    
     
     function get_taxa_for_photo($rec)
     {
