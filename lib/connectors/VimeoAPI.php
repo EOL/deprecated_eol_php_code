@@ -222,7 +222,7 @@ class VimeoAPI
     function compile_user_list()
     {
         $users=array();
-        //$users[]="user1632860"; //Peter Kuttner        
+        $users[]="user1632860"; //Peter Kuttner        
         $users[]="user5352360"; //Eli Agbayani
         return $users;
     }    
