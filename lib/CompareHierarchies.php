@@ -41,7 +41,7 @@ class CompareHierarchies
         if($default_id = Hierarchy::default_id())
         {
             $default_hierarchy = new Hierarchy($default_id);
-            if(@$default_hierarchy->id) $hierarchy_lookup_ids2 = array($default_id => 1347615);
+            if(@$default_hierarchy->id) $hierarchy_lookup_ids2 = array($default_id => 1475377);
         }
         
         $hierarchy_lookup_ids2 = array();
@@ -175,9 +175,9 @@ class CompareHierarchies
                     echo "TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);\n";
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
                     
-                    static $i = 0;
-                    $i++;
-                    if($i%50==0) $mysqli->commit();
+                    static $count = 0;
+                    $count++;
+                    if($count%50==0) $mysqli->commit();
                 }
             }
         }
