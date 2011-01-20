@@ -34,7 +34,7 @@ class BOLDSysAPI
                 {
                     $save_count++;
                     $xml = SchemaDocument::get_taxon_xml($all_taxa);
-                    $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLD/" . $save_count . ".xml";
+                    $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $save_count . ".xml";
                     $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                    
                     $all_taxa = array();
                 }                
@@ -45,7 +45,7 @@ class BOLDSysAPI
         //last write, remaining
         $save_count++;
         $xml = SchemaDocument::get_taxon_xml($all_taxa);
-        $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLD/" . $save_count . ".xml";
+        $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $save_count . ".xml";
         $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                            
         
         /* return $all_taxa; */
@@ -72,7 +72,7 @@ class BOLDSysAPI
         while(true)
         {
             $i++; print "$i ";
-            $filename = CONTENT_RESOURCE_LOCAL_PATH . "BOLD/" . $i . ".xml";
+            $filename = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $i . ".xml";
             if(!is_file($filename))
             {
                 print" - not yet ready";
@@ -88,12 +88,13 @@ class BOLDSysAPI
                 $pos2 = stripos($contents,"</response>");                    
                 $str  = substr($contents,$pos1,$pos2-$pos1);                
                 fwrite($OUT, $str);
-                //unlink($filename);
+                unlink($filename);
             }            
         }
         fwrite($OUT, "</response>");fclose($OUT);                    
     }    
     
+    /*
     function initialize_xmls()
     {        
         while(true)
@@ -104,6 +105,7 @@ class BOLDSysAPI
             else break; //nothing to delete anymore
         }        
     }    
+    */
     
         
     public static function get_boldsys_taxa($rec,$used_collection_ids)
