@@ -3,13 +3,16 @@
 class TaxonConceptIndexer
 {
     private $mysqli;
+    private $mysqli_slave;
     private $solr;
     private $objects;
     private $solr_server;
     
     public function __construct($solr_server = SOLR_SERVER)
     {
-        $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->mysqli =& $GLOBALS['db_connection'];
+        if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
+        else $this->mysqli_slave =& $this->mysqli;
         $this->solr_server = $solr_server;
     }
     
@@ -33,7 +36,7 @@ class TaxonConceptIndexer
         $max_id = 0;
         $limit = 100000;
         
-        $result = $this->mysqli->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc WHERE $filter");
+        $result = $this->mysqli_slave->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc WHERE $filter");
         if($result && $row=$result->fetch_assoc())
         {
             $start = $row["min"];
@@ -67,52 +70,41 @@ class TaxonConceptIndexer
     function lookup_names($start, $limit, $filter = "1=1")
     {
         echo "\nquerying names\n";
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.id BETWEEN $start AND ".($start+$limit)." AND tc.supercedure_id=0 AND tc.published=1");
-        echo "done querying names\n";
+        $query = " SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.id BETWEEN $start AND ".($start+$limit)." AND tc.supercedure_id=0 AND tc.published=1";
         
-        $RESULT = fopen($outfile, "r");
-        while(!feof($RESULT))
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
-            if($line = fgets($RESULT, 4096))
+            $id = $row[0];
+            $vetted_id = $row[1];
+            $preferred = $row[2];
+            $vern = $row[3];
+            $language_id = $row[4];
+            $string = $row[5];
+            
+            if($vern && $string)
             {
-                $parts = explode("\t", rtrim($line, "\n"));
-                $id = $parts[0];
-                $vetted_id = $parts[1];
-                $preferred = $parts[2];
-                $vern = $parts[3];
-                $language_id = $parts[4];
-                $string = $parts[5];
+                $attr = 'common_name';
+                if(isset($this->objects[$id][$attr][$string])) continue;
+                $name = SolrApi::text_filter($string);
                 
-                if($vern && $string)
+                if($name) $this->objects[$id][$attr][$name] = 1;
+            }elseif($string)
+            {
+                if(isset($this->objects[$id]['preferred_scientific_name'][$string])) continue;
+                $name = SolrApi::text_filter($string);
+                
+                if($preferred)
                 {
-                    $attr = 'common_name';
-                    //$name1 = SolrApi::text_filter($string, false);
-                    $name = SolrApi::text_filter($string);
-                    
-                    //if($name1) $this->objects[$id][$attr][$name1] = 1;
-                    if($name) $this->objects[$id][$attr][$name] = 1;
-                }elseif($string)
-                {
-                    //$name1 = SolrApi::text_filter($string, false);
-                    $name = SolrApi::text_filter($string);
-                    
-                    if($preferred)
-                    {
-                        //if($name1) $this->objects[$id]['preferred_scientific_name'][$name1] = 1;
-                        if($name) $this->objects[$id]['preferred_scientific_name'][$name] = 1;
-                    }
-                    
-                    //if($name1) $this->objects[$id]['scientific_name'][$name1] = 1;
-                    if($name) $this->objects[$id]['scientific_name'][$name] = 1;
+                    if($name) $this->objects[$id]['preferred_scientific_name'][$name] = 1;
                 }
                 
-                $this->objects[$id]['vetted_id'] = $vetted_id;
-                $this->objects[$id]['published'] = 1;
-                $this->objects[$id]['supercedure_id'] = 0;
+                if($name) $this->objects[$id]['scientific_name'][$name] = 1;
             }
+            
+            $this->objects[$id]['vetted_id'] = $vetted_id;
+            $this->objects[$id]['published'] = 1;
+            $this->objects[$id]['supercedure_id'] = 0;
         }
-        fclose($RESULT);
-        unlink($outfile);
         
         // if any common name is also a scientific name - then remove the common name 
         foreach($this->objects as $id => $arr)
@@ -131,50 +123,34 @@ class TaxonConceptIndexer
     function lookup_ranks($start, $limit, $filter = "1=1")
     {
         echo "\nquerying ranks\n";
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT taxon_concept_id, rank_id, hierarchy_id FROM  hierarchy_entries WHERE taxon_concept_id BETWEEN $start AND ".($start+$limit));
-        echo "done querying ranks\n";
+        $query = " SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries he WHERE taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND he.visibility_id=".Visibility::find('visible')." AND he.published=1";
         
-        $RESULT = fopen($outfile, "r");
-        while(!feof($RESULT))
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
-            if($line = fgets($RESULT, 4096))
-            {
-                $parts = explode("\t", rtrim($line, "\n"));
-                $id = $parts[0];
-                $rank_id = $parts[1];
-                $hierarchy_id = $parts[2];
-                
-                $this->objects[$id]['hierarchy_id'][$hierarchy_id] = 1;
-                if($rank_id) $this->objects[$id]['rank_id'][$rank_id] = 1;
-            }
+            $id = $row[0];
+            $rank_id = $row[1];
+            $hierarchy_id = $row[2];
+            
+            $this->objects[$id]['hierarchy_id'][$hierarchy_id] = 1;
+            if($rank_id) $this->objects[$id]['rank_id'][$rank_id] = 1;
         }
-        fclose($RESULT);
-        unlink($outfile);
     }
     
     function lookup_top_images($start, $limit, $filter = "1=1")
     {
         echo "\nquerying top_images\n";
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND ti.view_order=1 ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC");
-        echo "done querying top_images\n";
+        $query = " SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND ti.view_order=1 ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC";
         
-        $RESULT = fopen($outfile, "r");
-        while(!feof($RESULT))
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
-            if($line = fgets($RESULT, 4096))
+            $id = $row[0];
+            $data_object_id = $row[1];
+            
+            if(@!$this->objects[$id]['top_image_id'])
             {
-                $parts = explode("\t", rtrim($line, "\n"));
-                $id = $parts[0];
-                $data_object_id = $parts[1];
-                
-                if(@!$this->objects[$id]['top_image_id'])
-                {
-                    $this->objects[$id]['top_image_id'][$data_object_id] = 1;
-                }
+                $this->objects[$id]['top_image_id'][$data_object_id] = 1;
             }
         }
-        fclose($RESULT);
-        unlink($outfile);
     }
 }
 

@@ -6,7 +6,7 @@ class MysqliResultFileIterator extends FileIterator
     
     public function __construct($query, $mysqli_connection)
     {
-        $this->outfile = $GLOBALS['db_connection']->select_into_outfile($query);
+        $this->outfile = $mysqli_connection->select_into_outfile($query);
         parent::__construct($this->outfile, true);
     }
     
@@ -14,16 +14,15 @@ class MysqliResultFileIterator extends FileIterator
     {
         if(isset($this->FILE) && !feof($this->FILE))
         {
-            $line = fgets($this->FILE, 65535);
-            $line = rtrim($line, "\r\n");
+            // $line = fgets($this->FILE, 65535);
+            // $line = rtrim($line, "\r\n");
+            
+            // possibly faster but doesn't recognize both \n and \r
+            $line = stream_get_line($this->FILE, 65535, "\n");
             
             if($line && !feof($this->FILE))
             {
                 $this->current_line = explode("\t", $line);
-                
-                // // possibly faster but doesn't recognize both \n and \r
-                // $this->current_line = stream_get_line($this->FILE, 65535, "\n");
-                
                 $this->line_number += 1;
                 return $this->current_line;
             }
