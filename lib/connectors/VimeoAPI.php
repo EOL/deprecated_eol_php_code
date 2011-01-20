@@ -25,8 +25,7 @@ class VimeoAPI
                 $page_taxa              = $arr[0];
                 $used_collection_ids    = $arr[1];                            
                 if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                                                                    
-            }            
-            //break;//debug - just get 1 user.
+            }                        
         }
         return $all_taxa;
     }
@@ -47,8 +46,7 @@ class VimeoAPI
     
     function parse_xml($rec)
     {
-        $arr_data=array();                                                
-        
+        $arr_data=array();           
         
         $kingdom="";$phylum="";$class="";$order="";$family="";$genus="";$species="";$sciname="";$commonNames=array();$license=null;
         $trinomial="";
@@ -81,8 +79,7 @@ class VimeoAPI
         
         $description = str_ireplace("<br />","",$description);                
         $description = str_ireplace("&amp;nbsp;","",$description);                
-        $description = str_ireplace("&nbsp;","",$description);                                
-        $description .= " <a target='vimeo' href='" . $rec->url  . "'>Vimeo</a>";
+        $description = str_ireplace("&nbsp;","",$description);                                        
         
         foreach($tags as $tag)
         {
@@ -101,20 +98,27 @@ class VimeoAPI
             elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr))          $license        = strtolower(trim($arr[1]));
         }
         if(!$sciname && $trinomial) $sciname = $trinomial;
-        if(!$sciname && $genus && $species && !preg_match("/ /", $genus) && !preg_match("/ /", $species)) $sciname = $genus." ".$species;                
+        if(!$sciname && $genus && $species && !preg_match("/ /", $genus) && !preg_match("/ /", $species)) $sciname = $genus." ".$species;                                    
+        if(!$sciname && !$genus && !$family && !$order && !$class && !$phylum && !$kingdom) return array();        
         
-        //print"\n |$kingdom|$phylum|$class|$order|$family|$genus|$species|$sciname|$license|";//debug
-        
+        //license from Vimeo tag or description section - temporarily not being used
+        /*        
         if(!in_array(trim($license), array('cc-by', 'cc-by-sa', 'cc-by-nc', 'cc-by-nc-sa', 'public domain'))) return array();
-        $license = self::get_cc_license($license);        
-        if(!$sciname && !$genus && !$family && !$order && !$class && !$phylum && !$kingdom) return array();                        
+        $license = self::get_cc_license($license);     
+        */        
+        
+        //license from Vimeo license settings - scraped from the video page
+        if(!$license = self::get_license_from_page($rec->url)) return array();        
         
         //start data objects //----------------------------------------------------------------------------------------
         $arr_objects=array();        
         $identifier  = $rec->id;
         $dataType    = "http://purl.org/dc/dcmitype/MovingImage"; 
         $mimeType    = "video/x-flv";
-        $title       = $rec->title . " [Vimeo]";
+        if(trim($rec->title)) $title = $rec->title;        
+        else                  $title = "Vimeo video";        
+        //if(trim($rec->user_name)) $title .= " - by " . $rec->user_name;
+        
         $source      = $rec->url;        
         $mediaURL    = VIMEO_PLAYER_URL . $rec->id;                       
         
@@ -123,8 +127,7 @@ class VimeoAPI
         $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$agent,$license,$arr_objects);
         //end data objects //----------------------------------------------------------------------------------------        
         
-        $taxon_id   = str_ireplace(" ","_",$sciname) . "_" . $rec->id;
-        
+        $taxon_id   = str_ireplace(" ","_",$sciname) . "_" . $rec->id;        
         $arr_data[]=array(  "identifier"   =>$taxon_id,
                             "source"       =>$source,
                             "kingdom"      =>$kingdom,
@@ -223,7 +226,7 @@ class VimeoAPI
     {
         $users=array();
         $users[]="user1632860"; //Peter Kuttner        
-        $users[]="user5352360"; //Eli Agbayani
+        $users[]="user5352360"; //Eli Agbayani //debug
         return $users;
     }    
     
@@ -245,6 +248,16 @@ class VimeoAPI
                 return false;
         }        
     }
-            
+    
+    function get_license_from_page($video_page_url)
+    {
+        $html = Functions::get_remote_file($video_page_url);                            
+        if(preg_match("/<a href=\"http:\/\/creativecommons.org\/licenses\/(.*?)\//ims", $html, $matches))
+        {
+            return self::get_cc_license("cc-" . trim($matches[1]));            
+        }        
+        return false;
+    }
+                
 }
 ?>
