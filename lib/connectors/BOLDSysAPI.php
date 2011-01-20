@@ -7,7 +7,7 @@ class BOLDSysAPI
 {
     public static function get_all_taxa($resource_id)
     {        
-        self::initialize_xmls();
+        
         $used_collection_ids = array();        
 
         $arr_phylum = self::compile_taxon_list();
