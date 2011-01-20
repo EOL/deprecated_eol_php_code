@@ -15,9 +15,9 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {               
         // $tc_id=218284; //with user-submitted-text    
-        // $GLOBALS['test_taxon_concept_ids'] = array(218284);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692);
         
-        self::initialize_concepts_list();                        
+        self::initialize_concepts_list();                                                     
         self::get_data_objects_count();               //1        
         self::get_BHL_publications();                 //2
         self::get_content_partner_count();            //3                    
@@ -191,8 +191,9 @@ class TaxonPageMetrics
         }                
         fclose($FILE); unlink($outfile); print "\n num_rows: $num_rows";        
         foreach($temp as $id => $rec)   {@$arr_taxa[$id]['count'] = sizeof($rec);}            
+        unset($temp);
         foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['providers'] = sizeof($rec);}                    
-        unset($temp); unset($temp2);         
+        unset($temp2);         
         
         //convert associative array to a regular array        
         foreach($arr_taxa as $tc_id => $taxon_addedText_counts)
@@ -215,16 +216,17 @@ class TaxonPageMetrics
         $result = $this->mysqli_slave->query($sql);            
         $latest_harvest_event_ids=array();
         while($result && $row=$result->fetch_assoc()){$latest_harvest_event_ids[] = $row["he_id"];}               
+        $temp=array();
         while(true)
         {       
             print"\n content_partners [3 of 10] $start_limit \n";
             $sql="SELECT tc.id tc_id, ar.agent_id FROM taxon_concepts tc JOIN data_objects_taxon_concepts dotc ON tc.id = dotc.taxon_concept_id JOIN data_objects_harvest_events dohe ON dotc.data_object_id = dohe.data_object_id JOIN harvest_events he ON dohe.harvest_event_id = he.id JOIN agents_resources ar ON he.resource_id = ar.resource_id WHERE tc.published=1 AND tc.supercedure_id=0 and he.id in (" . implode($latest_harvest_event_ids, ",") . ")";  
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
-            $sql .= " limit $start_limit, $batch ";                        
+            $sql .= " limit $start_limit, $batch ";                                    
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
-            $num_rows=0; $temp=array();
+            $num_rows=0; 
             while(!feof($FILE))
             {
                 if($line = fgets($FILE))
@@ -237,52 +239,67 @@ class TaxonPageMetrics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";            
-            foreach($temp as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);} unset($temp); 
             if($num_rows < $batch)break; 
         }                           
+        foreach($temp as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);} unset($temp);         
         print"\n get_content_partner_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_content_partners"); unset($arr_taxa);        
-    }    
+    }            
     
     function get_outlinks_count()
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
         $batch=500000; $start_limit=0;
+        $temp=array();
+
         while(true)
         {       
             print"\n outlinks [4 of 10] $start_limit \n";                        
             $sql="SELECT he.taxon_concept_id tc_id, h.agent_id FROM hierarchies h JOIN hierarchy_entries he ON h.id = he.hierarchy_id WHERE (he.source_url != '' || ( h.outlink_uri is not null AND he.identifier != ''))";  
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " AND he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
-            $sql .= " limit $start_limit, $batch ";                        
+            $sql .= " limit $start_limit, $batch ";                                    
+            
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
-            $num_rows=0; $temp=array();
+            $num_rows=0; 
             while(!feof($FILE))
             {
                 if($line = fgets($FILE))
                 {
                     $num_rows++; $fields = explode("\t", $line);
                     $tc_id      = $fields[0];
-                    $agent_id   = $fields[1];
-                    $temp[$tc_id][$agent_id]='';
+                    $agent_id   = $fields[1];                    
+                    
+                    if(@$temp[$tc_id]) $temp[$tc_id] .= "_" . $agent_id;
+                    else               $temp[$tc_id] = $agent_id; 
+                    
+                    
                 }
             }                
             fclose($FILE);unlink($outfile);
-            print "\n num_rows: $num_rows";            
-            foreach($temp as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);} unset($temp); 
+            print "\n num_rows: $num_rows";                        
             if($num_rows < $batch)break; 
-        }                                   
+        } 
+        foreach($temp as $id => $rec)
+        {
+            $arr = explode("_",$rec);
+            $arr = array_unique($arr);
+            $arr_taxa[$id] = "\t".sizeof($arr);
+        }
+        unset($temp);         
+        
         print"\n get_outlinks_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
-    }
+    }    
     
     function get_common_names_count()
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
         $batch=500000; $start_limit=0;        
+        $temp=array(); $temp2=array();
         while(true)
         {   
             print"\n common_names and its providers [8 of 10] $start_limit \n";            
@@ -292,7 +309,7 @@ class TaxonPageMetrics
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
-            $num_rows=0; $temp=array(); $temp2=array();
+            $num_rows=0; 
             while(!feof($FILE))
             {
                 if($line = fgets($FILE))
@@ -307,11 +324,12 @@ class TaxonPageMetrics
             }                
             fclose($FILE);unlink($outfile);            
             print "\n num_rows: $num_rows";            
-            foreach($temp as $id => $rec)   {@$arr_taxa[$id]['count'] = sizeof($rec);}            
-            foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['providers'] = sizeof($rec);}            
-            unset($temp); unset($temp2); 
             if($num_rows < $batch)break;             
         }                   
+        foreach($temp as $id => $rec)   {@$arr_taxa[$id]['count'] = sizeof($rec);}            
+        unset($temp);
+        foreach($temp2 as $id => $rec)  {@$arr_taxa[$id]['providers'] = sizeof($rec);}            
+        unset($temp2); 
 
         //convert associative array to a regular array        
         foreach($arr_taxa as $tc_id => $taxon_comname_counts)
@@ -330,6 +348,7 @@ class TaxonPageMetrics
         $time_start = time_elapsed();
         $arr_taxa=array();
         $batch=500000; $start_limit=0;        
+        $temp=array(); $temp2=array();
         while(true)
         {                   
             print"\n synonyms and its providers [9 of 10] $start_limit \n";            
@@ -339,7 +358,7 @@ class TaxonPageMetrics
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
-            $num_rows=0; $temp=array(); $temp2=array();
+            $num_rows=0; 
             while(!feof($FILE))
             {
                 if($line = fgets($FILE))
@@ -354,11 +373,12 @@ class TaxonPageMetrics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";                                    
-            foreach($temp as $id => $rec) {@$arr_taxa[$id]['count'] = sizeof($rec);}            
-            foreach($temp2 as $id => $rec){@$arr_taxa[$id]['providers'] = sizeof($rec);}                        
-            unset($temp); unset($temp2); 
             if($num_rows < $batch)break; 
         }                                   
+        foreach($temp as $id => $rec) {@$arr_taxa[$id]['count'] = sizeof($rec);}            
+        unset($temp);
+        foreach($temp2 as $id => $rec){@$arr_taxa[$id]['providers'] = sizeof($rec);}                        
+        unset($temp2); 
 
         //convert associative array to a regular array        
         foreach($arr_taxa as $tc_id => $taxon_synonym_counts)
@@ -399,6 +419,10 @@ class TaxonPageMetrics
         $unreviewed_id  = Vetted::find("unknown");                
         
         $batch=500000; $start_limit=0;
+        
+        $concept_info_items = array();
+        $concept_references = array();
+        
         while(true)
         {       
             print "\n dataObjects, its infoItems, its references [1 of 10] $start_limit \n";            
@@ -409,8 +433,6 @@ class TaxonPageMetrics
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
             $num_rows=0;
-            $concept_info_items = array();
-            $concept_references = array();
             while(!feof($FILE))
             {
                 if($line = fgets($FILE))
@@ -453,15 +475,13 @@ class TaxonPageMetrics
             }                
             fclose($FILE);
             unlink($outfile);
-            print "\n num_rows: $num_rows";
-            
-            foreach($concept_info_items as $id => $rec) @$concept_data_object_counts[$id]['ii'] = sizeof($rec);
-            foreach($concept_references as $id => $rec) @$concept_data_object_counts[$id]['ref'] = sizeof($rec);                                
-            
-            unset($concept_info_items);
-            unset($concept_references); 
+            print "\n num_rows: $num_rows";            
             if($num_rows < $batch) break;             
         }
+        foreach($concept_info_items as $id => $rec) @$concept_data_object_counts[$id]['ii'] = sizeof($rec);
+        unset($concept_info_items);
+        foreach($concept_references as $id => $rec) @$concept_data_object_counts[$id]['ref'] = sizeof($rec);                                            
+        unset($concept_references);         
         
         //convert associative array to a regular array
         $data_type_order_in_file = array("image","text","video","sound","flash","youtube","iucn");                
