@@ -1,6 +1,6 @@
 <?php
 /* connector for Vimeo 
-estimated execution time: a few seconds
+estimated execution time: 10 seconds
 */
 
 $timestart = microtime(1);
