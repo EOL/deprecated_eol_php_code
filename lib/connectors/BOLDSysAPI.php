@@ -37,8 +37,7 @@ class BOLDSysAPI
                     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLD/" . $save_count . ".xml";
                     $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                    
                     $all_taxa = array();
-                }
-                
+                }                
             }                                    
             //if($p==1)break; //debug - get just 1 phylum
         }
@@ -72,9 +71,7 @@ class BOLDSysAPI
         
         while(true)
         {
-            $i++;
-              
-            print "$i ";
+            $i++; print "$i ";
             $filename = CONTENT_RESOURCE_LOCAL_PATH . "BOLD/" . $i . ".xml";
             if(!is_file($filename))
             {
