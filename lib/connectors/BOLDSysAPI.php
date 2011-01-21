@@ -6,16 +6,16 @@ define("SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxid=");
 class BOLDSysAPI
 {
     public static function get_all_taxa($resource_id)
-    {        
-        
+    {                
         $used_collection_ids = array();        
 
         $arr_phylum = self::compile_taxon_list();
         $total_phylum = sizeof($arr_phylum); $p=0;
         $save_count=0;
+        $all_taxa = array(); 
         foreach($arr_phylum as $phylum)
-        {
-            $all_taxa = array(); $p++;
+        {            
+            $p++;
             $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']);                        
             $num_rows = sizeof($xml->record); $i=0;
             foreach($xml->record as $rec)
@@ -30,7 +30,7 @@ class BOLDSysAPI
                 if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                
                 unset($page_taxa);                
                 
-                if(sizeof($all_taxa)==10000)
+                if(sizeof($all_taxa)==5000)
                 {
                     $save_count++;
                     $xml = SchemaDocument::get_taxon_xml($all_taxa);
@@ -39,7 +39,7 @@ class BOLDSysAPI
                     $all_taxa = array();
                 }                
             }                                    
-            //if($p==1)break; //debug - get just 1 phylum
+            //if($p==2)break; //debug - get just 1 phylum
         }
         
         //last write, remaining
@@ -71,7 +71,7 @@ class BOLDSysAPI
         
         while(true)
         {
-            $i++; print "$i ";
+            $i++; print " $i ";
             $filename = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $i . ".xml";
             if(!is_file($filename))
             {
@@ -290,19 +290,6 @@ class BOLDSysAPI
             $agents[] = new SchemaAgent($agentParameters);
         }
         $data_object_parameters["agents"] = $agents;    
-        //==========================================================================================
-        /* we're not using audience information at the moment
-        $audience = array(0 => array("Expert users"), 1 => array("General public"));        
-        $audiences = array();
-        foreach($audience as $audience)
-        {  
-            $audienceParameters = array();
-            $audienceParameters["label"]    = $audience[0];
-            $audiences[] = new SchemaAudience($audienceParameters);
-        }
-        $data_object_parameters["audiences"] = $audiences;    
-        */
-        //==========================================================================================        
         return $data_object_parameters;
     }    
 
