@@ -13,17 +13,22 @@ class VimeoAPI
         $total_users = sizeof($users); $j=0;
         foreach($users as $user)
         {
-            $j++;
-            $xml = simplexml_load_file(VIMEO_USER_SERVICE . $user . "/videos.xml");                        
-            $num_rows = sizeof($xml->video); $i=0;
-            foreach($xml->video as $rec)
-            {                               
-                $i++; print"\n [$j of $total_users] [$i of $num_rows] ";                
-                $arr = self::get_vimeo_taxa($rec,$used_collection_ids);                                
-                $page_taxa              = $arr[0];
-                $used_collection_ids    = $arr[1];                            
-                if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                                                                    
-            }                        
+            $j++;            
+            for ($page = 1; $page <= 3; $page++) 
+            {
+                $xml = simplexml_load_file(VIMEO_USER_SERVICE . $user . "/videos.xml?page=$page");                        
+                $num_rows = sizeof($xml->video); 
+                if(!$num_rows)break;
+                $i=0;
+                foreach($xml->video as $rec)
+                {                               
+                    $i++; print"\n [user $j of $total_users] [video $i of $num_rows] [page $page] ";                
+                    $arr = self::get_vimeo_taxa($rec,$used_collection_ids);                                
+                    $page_taxa              = $arr[0];
+                    $used_collection_ids    = $arr[1];                            
+                    if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                                                                    
+                }                                        
+            }            
         }
         return $all_taxa;
     }
@@ -44,14 +49,11 @@ class VimeoAPI
     
     function parse_xml($rec)
     {
-        $arr_data=array();           
-        
-        //$kingdom="";$phylum="";$class="";$order="";$family="";$genus="";$species="";$sciname="";$commonNames=array();        $license=null;$trinomial="";
-        
-        $tags = explode(",", $rec->tags);        
-        
+        $arr_data=array();                   
+        $tags = explode(",", $rec->tags);                
         $description = Functions::import_decode($rec->description);        
-        
+        $description = str_ireplace("<br />","",$description);                
+                
         $arr_sciname = array();
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches))//gets everything between brackets []
         {
@@ -88,9 +90,7 @@ class VimeoAPI
             {
                 $description = str_ireplace($str,"",trim($description));
             }
-        }                
-                
-        $description = str_ireplace("<br />","",$description);                
+        }                        
         
         //has to have an 'eol' tag
         $with_eol_tag = false;
