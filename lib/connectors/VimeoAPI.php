@@ -9,9 +9,7 @@ class VimeoAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();        
-
-        $users = self::compile_user_list();
-        
+        $users = self::compile_user_list();        
         $total_users = sizeof($users); $j=0;
         foreach($users as $user)
         {
@@ -48,98 +46,99 @@ class VimeoAPI
     {
         $arr_data=array();           
         
-        $kingdom="";$phylum="";$class="";$order="";$family="";$genus="";$species="";$sciname="";$commonNames=array();$license=null;
-        $trinomial="";
+        //$kingdom="";$phylum="";$class="";$order="";$family="";$genus="";$species="";$sciname="";$commonNames=array();        $license=null;$trinomial="";
+        
         $tags = explode(",", $rec->tags);        
         
-        $description = $rec->description;
+        $description = Functions::import_decode($rec->description);        
+        
+        $arr_sciname = array();
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches))//gets everything between brackets []
         {
             foreach($matches[1] as $tag)
             {
+                print"\n $tag";
                 $tag=trim($tag);
-                if(preg_match("/^taxonomy:subspecies=(.*)$/i", $tag, $arr))     $subspecies     = strtolower(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr))  $trinomial      = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:species=(.*)$/i", $tag, $arr))    $species        = strtolower(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))   $sciname        = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $genus          = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $family         = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $order          = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $class          = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $phylum         = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $kingdom        = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $commonNames[]  = trim($arr[1]);
-                elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr))          $license        = strtolower(trim($arr[1]));                
+                if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))   
+                {
+                    $sciname = ucfirst(trim($arr[1]));
+                    $arr_sciname[$sciname]['trinomial']   = "";
+                    $arr_sciname[$sciname]['subspecies']  = "";
+                    $arr_sciname[$sciname]['species']     = "";
+                    $arr_sciname[$sciname]['genus']       = "";
+                    $arr_sciname[$sciname]['family']      = "";
+                    $arr_sciname[$sciname]['order']       = "";
+                    $arr_sciname[$sciname]['class']       = "";
+                    $arr_sciname[$sciname]['phylum']      = "";
+                    $arr_sciname[$sciname]['kingdom']     = "";
+                    $arr_sciname[$sciname]['commonNames'] = array();                       
+                }                   
+                elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr))  $arr_sciname[$sciname]['trinomial']      = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:subspecies=(.*)$/i", $tag, $arr)) $arr_sciname[$sciname]['subspecies']     = strtolower(trim($arr[1]));                
+                elseif(preg_match("/^taxonomy:species=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['species']        = strtolower(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['genus']          = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['family']         = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['order']          = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['class']          = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['phylum']         = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['kingdom']        = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['commonNames'][]  = trim($arr[1]);                
             }
             foreach($matches[0] as $str)
             {
-                $description = str_ireplace($str,"",$description);
+                $description = str_ireplace($str,"",trim($description));
             }
         }                
-        
+                
         $description = str_ireplace("<br />","",$description);                
-        $description = str_ireplace("&amp;nbsp;","",$description);                
-        $description = str_ireplace("&nbsp;","",$description);                                        
         
-        foreach($tags as $tag)
-        {
-            $tag=trim($tag);
-            if(preg_match("/^taxonomy:subspecies=(.*)$/i", $tag, $arr))     $subspecies     = strtolower(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr))  $trinomial      = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:species=(.*)$/i", $tag, $arr))    $species        = strtolower(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))   $sciname        = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $genus          = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $family         = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $order          = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $class          = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $phylum         = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $kingdom        = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $commonNames[]  = trim($arr[1]);
-            elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr))          $license        = strtolower(trim($arr[1]));
-        }
-        if(!$sciname && $trinomial) $sciname = $trinomial;
-        if(!$sciname && $genus && $species && !preg_match("/ /", $genus) && !preg_match("/ /", $species)) $sciname = $genus." ".$species;                                    
-        if(!$sciname && !$genus && !$family && !$order && !$class && !$phylum && !$kingdom) return array();        
+        //has to have an 'eol' tag
+        $with_eol_tag = false;
+        foreach($tags as $tag){if(trim($tag)=="eol")$with_eol_tag = true;}
+        if(!$with_eol_tag)return array();        
         
-        //license from Vimeo tag or description section - temporarily not being used
+        //license from Vimeo tag or description section - was used initially
         /*        
         if(!in_array(trim($license), array('cc-by', 'cc-by-sa', 'cc-by-nc', 'cc-by-nc-sa', 'public domain'))) return array();
         $license = self::get_cc_license($license);     
         */        
         
         //license from Vimeo license settings - scraped from the video page
-        if(!$license = self::get_license_from_page($rec->url)) return array();        
+        if(!$license = self::get_license_from_page($rec->url)) return array();                
         
-        //start data objects //----------------------------------------------------------------------------------------
-        $arr_objects=array();        
-        $identifier  = $rec->id;
-        $dataType    = "http://purl.org/dc/dcmitype/MovingImage"; 
-        $mimeType    = "video/x-flv";
-        if(trim($rec->title)) $title = $rec->title;        
-        else                  $title = "Vimeo video";        
-        //if(trim($rec->user_name)) $title .= " - by " . $rec->user_name;
-        
-        $source      = $rec->url;        
-        $mediaURL    = VIMEO_PLAYER_URL . $rec->id;                       
-        
-        $agent=array();
-        if($rec->user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->user_url , $rec->user_name));                    
-        $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$agent,$license,$arr_objects);
-        //end data objects //----------------------------------------------------------------------------------------        
-        
-        $taxon_id   = str_ireplace(" ","_",$sciname) . "_" . $rec->id;        
-        $arr_data[]=array(  "identifier"   =>$taxon_id,
-                            "source"       =>$source,
-                            "kingdom"      =>$kingdom,
-                            "phylum"       =>$phylum,
-                            "class"        =>$class,
-                            "order"        =>$order,
-                            "family"       =>$family,
-                            "genus"        =>$genus,
-                            "sciname"      =>$sciname,
-                            "commonNames"  =>$commonNames, 
-                            "arr_objects"  =>$arr_objects
-                         );               
+        foreach($arr_sciname as $sciname => $temp)
+        {
+            if(!$sciname && $arr_sciname[$sciname]['trinomial']) $sciname = $arr_sciname[$sciname]['trinomial'];
+            if(!$sciname && $arr_sciname[$sciname]['genus'] && $arr_sciname[$sciname]['species'] && !preg_match("/ /", $arr_sciname[$sciname]['genus']) && !preg_match("/ /", $arr_sciname[$sciname]['species'])) $sciname = $arr_sciname[$sciname]['genus']." ".$arr_sciname[$sciname]['species'];                        
+            if(!$sciname && !$arr_sciname[$sciname]['genus'] && !$arr_sciname[$sciname]['family'] && !$arr_sciname[$sciname]['order'] && !$arr_sciname[$sciname]['class'] && !$arr_sciname[$sciname]['phylum'] && !$arr_sciname[$sciname]['kingdom']) return array();
+                        
+            //start data objects //----------------------------------------------------------------------------------------
+            $arr_objects=array();        
+            $identifier  = $rec->id . "_" . str_ireplace(" ","_",$sciname);
+            $dataType    = "http://purl.org/dc/dcmitype/MovingImage"; 
+            $mimeType    = "video/x-flv";
+            if(trim($rec->title)) $title = $rec->title;        
+            else                  $title = "Vimeo video";                
+            $source      = $rec->url;        
+            $mediaURL    = VIMEO_PLAYER_URL . $rec->id;                  
+            $agent=array();
+            if($rec->user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->user_url , $rec->user_name));                    
+            $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$agent,$license,$arr_objects);
+            //end data objects //----------------------------------------------------------------------------------------                    
+            $taxon_id   = str_ireplace(" ","_",$sciname) . "_vimeo";
+            $arr_data[]=array(  "identifier"   =>$taxon_id,
+                                "source"       =>$source,
+                                "kingdom"      =>$arr_sciname[$sciname]['kingdom'],
+                                "phylum"       =>$arr_sciname[$sciname]['phylum'],
+                                "class"        =>$arr_sciname[$sciname]['class'],
+                                "order"        =>$arr_sciname[$sciname]['order'],
+                                "family"       =>$arr_sciname[$sciname]['family'],
+                                "genus"        =>$arr_sciname[$sciname]['genus'],
+                                "sciname"      =>$sciname,
+                                "commonNames"  =>$arr_sciname[$sciname]['commonNames'], 
+                                "arr_objects"  =>$arr_objects
+                             );                   
+        }                                         
         return $arr_data;        
     }
     
