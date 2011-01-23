@@ -49,21 +49,26 @@ class VimeoAPI
     
     function parse_xml($rec)
     {
-        $arr_data=array();                   
-        $tags = explode(",", $rec->tags);                
+        $arr_data=array();                           
         $description = Functions::import_decode($rec->description);        
         $description = str_ireplace("<br />","",$description);                
-                
+
+        $license="";                
         $arr_sciname = array();
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches))//gets everything between brackets []
         {
+            $smallest_rank = self::get_smallest_rank($matches[1]);
+            print "\n smallest rank: $smallest_rank"; //exit;
+            
             foreach($matches[1] as $tag)
             {
-                print"\n $tag";
-                $tag=trim($tag);
-                if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))   
+                //print"\n tag=[[$tag]]"; 
+                $tag=trim($tag);                
+                if(is_numeric(stripos($tag,$smallest_rank)))
                 {
-                    $sciname = ucfirst(trim($arr[1]));
+                    if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr))$sciname = ucfirst(trim($arr[1]));                    
+                    print"\n [$tag][$smallest_rank] sciname = $sciname";
+                    //$arr_sciname = self::initialize(ucfirst(trim($arr[1])));                        
                     $arr_sciname[$sciname]['trinomial']   = "";
                     $arr_sciname[$sciname]['subspecies']  = "";
                     $arr_sciname[$sciname]['species']     = "";
@@ -73,18 +78,21 @@ class VimeoAPI
                     $arr_sciname[$sciname]['class']       = "";
                     $arr_sciname[$sciname]['phylum']      = "";
                     $arr_sciname[$sciname]['kingdom']     = "";
-                    $arr_sciname[$sciname]['commonNames'] = array();                       
-                }                   
-                elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr))  $arr_sciname[$sciname]['trinomial']      = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:subspecies=(.*)$/i", $tag, $arr)) $arr_sciname[$sciname]['subspecies']     = strtolower(trim($arr[1]));                
-                elseif(preg_match("/^taxonomy:species=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['species']        = strtolower(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['genus']          = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['family']         = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['order']          = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['class']          = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['phylum']         = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['kingdom']        = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['commonNames'][]  = trim($arr[1]);                
+                    $arr_sciname[$sciname]['commonNames'] = array();                               
+                    
+                }                                                    
+
+                if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr)){}       
+                elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr)){}  
+                elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['genus']     = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['family']    = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['order']     = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['class']     = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['phylum']    = ucfirst(trim($arr[1]));                
+                elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['kingdom']   = ucfirst(trim($arr[1]));                
+                
+                elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['commonNames'][]  = trim($arr[1]);                                
+                elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr))          $license = strtolower(trim($arr[1]));                                
             }
             foreach($matches[0] as $str)
             {
@@ -92,19 +100,33 @@ class VimeoAPI
             }
         }                        
         
+        print"\n license=[$license]";
+        
+        $with_eol_tag = false;        
+        $tags = explode(",", $rec->tags);                
+        foreach($tags as $tag)
+        {
+            $tag=trim($tag);
+            if(trim($tag)=="eol") $with_eol_tag = true;
+            elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr)) $license = strtolower(trim($arr[1]));
+        }        
+        
         //has to have an 'eol' tag
-        $with_eol_tag = false;
-        foreach($tags as $tag){if(trim($tag)=="eol")$with_eol_tag = true;}
         if(!$with_eol_tag)return array();        
         
-        //license from Vimeo tag or description section - was used initially
-        /*        
-        if(!in_array(trim($license), array('cc-by', 'cc-by-sa', 'cc-by-nc', 'cc-by-nc-sa', 'public domain'))) return array();
+        //license from Vimeo tag or description section
         $license = self::get_cc_license($license);     
-        */        
         
-        //license from Vimeo license settings - scraped from the video page
-        if(!$license = self::get_license_from_page($rec->url)) return array();                
+        if(!$license)           
+        {
+            //license from Vimeo license settings - scraped from the video page
+            $license = self::get_license_from_page($rec->url);            
+        }
+        
+        //has to have a valid license
+        if(!$license) return array();                
+        
+        //print"<pre>";print_r($arr_sciname);print"</pre>";
         
         foreach($arr_sciname as $sciname => $temp)
         {
@@ -138,8 +160,46 @@ class VimeoAPI
                                 "commonNames"  =>$arr_sciname[$sciname]['commonNames'], 
                                 "arr_objects"  =>$arr_objects
                              );                   
-        }                                         
+        }                                       
+        //print"<pre>";print_r($arr_data);print"</pre>";
         return $arr_data;        
+    }
+    
+    function initialize($sciname)
+    {
+        $arr_sciname[$sciname]['trinomial']   = "";
+        $arr_sciname[$sciname]['subspecies']  = "";
+        $arr_sciname[$sciname]['species']     = "";
+        $arr_sciname[$sciname]['genus']       = "";
+        $arr_sciname[$sciname]['family']      = "";
+        $arr_sciname[$sciname]['order']       = "";
+        $arr_sciname[$sciname]['class']       = "";
+        $arr_sciname[$sciname]['phylum']      = "";
+        $arr_sciname[$sciname]['kingdom']     = "";
+        $arr_sciname[$sciname]['commonNames'] = array();                               
+        return $arr_sciname;
+    }
+    
+    function get_smallest_rank($arr)
+    {        
+        $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "family" => 4, "order" => 5, "class" => 6, "phylum" => 7, "kingdom" => 8);                
+        $smallest_rank_id=9; $smallest_rank="";
+        foreach($arr as $tag)
+        {
+            if(preg_match("/^taxonomy:(.*)\=/i", $tag, $arr)) 
+            {
+                $rank = trim($arr[1]);
+                if(in_array($rank, array_keys($rank_id))) 
+                {
+                    print "\n $rank [in array]";
+                    if($rank_id[$rank] < $smallest_rank_id)
+                    {
+                        $smallest_rank_id = $rank_id[$rank]; $smallest_rank = $rank;
+                    }
+                }                
+            }
+        }            
+        return $smallest_rank;
     }
     
     function add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$agent,$license,$arr_objects)
@@ -226,6 +286,7 @@ class VimeoAPI
         $users=array();
         $users[]="user1632860"; //Peter Kuttner        
         $users[]="user5352360"; //Eli Agbayani //debug
+        $users[]="user5814509"; //Katja Schulz        
         return $users;
     }    
     
@@ -243,6 +304,12 @@ class VimeoAPI
                 return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'; break;
             case 'public domain':
                 return 'http://creativecommons.org/licenses/publicdomain/'; break;
+            case 'by-sa':
+                return 'http://creativecommons.org/licenses/by-sa/3.0/'; break;
+            case 'by-nc':
+                return 'http://creativecommons.org/licenses/by-nc/3.0/'; break;
+            case 'by-nc-sa':
+                return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'; break;                                                
             default:
                 return false;
         }        
