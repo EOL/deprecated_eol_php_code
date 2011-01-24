@@ -165,7 +165,7 @@ class MCZHarvardAPI
                         
         if(@$arr_texts[$sciname] || @$arr_photos[$sciname])
         {
-            $dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME'];
+            //$dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME'];
             $arr_scraped[]=array("identifier"=>$taxon['GUID'],
                                  "kingdom"=>$taxon['KINGDOM'],
                                  "phylum"=>$taxon['PHYLUM'],
