@@ -564,8 +564,8 @@ class TaxonPageMetrics
         if($result && $row=$result->fetch_assoc())
         {
             $this->mysqli->update("RENAME TABLE taxon_concept_metrics TO taxon_concept_metrics_swap,
-                                            taxon_concept_metrics_tmp TO taxon_concept_metrics,
-                                            taxon_concept_metrics_swap TO taxon_concept_metrics_tmp");
+                                                taxon_concept_metrics_tmp TO taxon_concept_metrics,
+                                                taxon_concept_metrics_swap TO taxon_concept_metrics_tmp");
         }
         print "\n table saved";                                       
         print "\n load_data_infile():" . (time_elapsed()-$time_start)/60 . " mins.";
@@ -706,7 +706,7 @@ class TaxonPageMetrics
                         print"\n writing..."; fwrite($fp,$str);  print" saved.";                
                         $str=""; $save_count=0;
                     }                                              
-                    if($i >= 15)break; //debug
+                    //if($i >= 15)break; //debug
                 }
             }                
         }                    
@@ -722,6 +722,7 @@ class TaxonPageMetrics
         $elapsed_time_sec = microtime(1)-$timestart;
         print "\n elapsed time = $elapsed_time_sec secs              ";
         print "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";        
+        print "\n elapsed time = " . $elapsed_time_sec/60/60 . " hrs   ";        
     }
     */
     
