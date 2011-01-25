@@ -39,10 +39,10 @@ class VimeoAPI
         $page_taxa = array();
         foreach($response as $rec)
         {
-            if(@$used_collection_ids[$rec["sciname"]]) continue;            
+            if(@$used_collection_ids[$rec["taxon_id"]]) continue;            
             $taxon = self::get_taxa_for_photo($rec);
             if($taxon) $page_taxa[] = $taxon;            
-            @$used_collection_ids[$rec["sciname"]] = true;
+            @$used_collection_ids[$rec["taxon_id"]] = true;
         }        
         return array($page_taxa,$used_collection_ids);        
     }            
@@ -154,6 +154,7 @@ class VimeoAPI
                                 "family"       =>$arr_sciname[$sciname]['family'],
                                 "genus"        =>$arr_sciname[$sciname]['genus'],
                                 "sciname"      =>$sciname,
+                                "taxon_id"     =>$rec->id,
                                 "commonNames"  =>$arr_sciname[$sciname]['commonNames'], 
                                 "arr_objects"  =>$arr_objects
                              );                   
