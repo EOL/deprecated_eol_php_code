@@ -39,10 +39,10 @@ class VimeoAPI
         $page_taxa = array();
         foreach($response as $rec)
         {
-            if(@$used_collection_ids[$rec["source"]]) continue;            
+            if(@$used_collection_ids[$rec["sciname"]]) continue;            
             $taxon = self::get_taxa_for_photo($rec);
             if($taxon) $page_taxa[] = $taxon;            
-            @$used_collection_ids[$rec["source"]] = true;
+            @$used_collection_ids[$rec["sciname"]] = true;
         }        
         return array($page_taxa,$used_collection_ids);        
     }            
@@ -58,17 +58,15 @@ class VimeoAPI
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches))//gets everything between brackets []
         {
             $smallest_rank = self::get_smallest_rank($matches[1]);
-            print "\n smallest rank: $smallest_rank"; //exit;
+            //print "\n smallest rank: $smallest_rank"; //exit;
             
             foreach($matches[1] as $tag)
             {
-                //print"\n tag=[[$tag]]"; 
                 $tag=trim($tag);                
                 if(is_numeric(stripos($tag,$smallest_rank)))
                 {
                     if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr))$sciname = ucfirst(trim($arr[1]));                    
-                    print"\n [$tag][$smallest_rank] sciname = $sciname";
-                    //$arr_sciname = self::initialize(ucfirst(trim($arr[1])));                        
+                    //print"\n [$tag][$smallest_rank] sciname = $sciname";
                     $arr_sciname[$sciname]['trinomial']   = "";
                     $arr_sciname[$sciname]['subspecies']  = "";
                     $arr_sciname[$sciname]['species']     = "";
@@ -78,8 +76,7 @@ class VimeoAPI
                     $arr_sciname[$sciname]['class']       = "";
                     $arr_sciname[$sciname]['phylum']      = "";
                     $arr_sciname[$sciname]['kingdom']     = "";
-                    $arr_sciname[$sciname]['commonNames'] = array();                               
-                    
+                    $arr_sciname[$sciname]['commonNames'] = array();                                                   
                 }                                                    
 
                 if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr)){}       
@@ -98,9 +95,7 @@ class VimeoAPI
             {
                 $description = str_ireplace($str,"",trim($description));
             }
-        }                        
-        
-        print"\n license=[$license]";
+        }                                
         
         $with_eol_tag = false;        
         $tags = explode(",", $rec->tags);                
@@ -112,21 +107,23 @@ class VimeoAPI
         }        
         
         //has to have an 'eol' tag
-        if(!$with_eol_tag)return array();        
-        
-        //license from Vimeo tag or description section
-        $license = self::get_cc_license($license);     
-        
+        if(!$with_eol_tag)return array();                
+
+        //license from Vimeo license settings - scraped from the video page
+        $license = self::get_license_from_page($rec->url);            
+                        
         if(!$license)           
         {
-            //license from Vimeo license settings - scraped from the video page
-            $license = self::get_license_from_page($rec->url);            
+            //license from Vimeo tag or description section
+            $license = self::get_cc_license($license);                             
         }
         
         //has to have a valid license
-        if(!$license) return array();                
-        
-        //print"<pre>";print_r($arr_sciname);print"</pre>";
+        if(!$license) 
+        {
+            print "\n invalid license ";   
+            return array();                
+        }
         
         foreach($arr_sciname as $sciname => $temp)
         {
@@ -136,7 +133,7 @@ class VimeoAPI
                         
             //start data objects //----------------------------------------------------------------------------------------
             $arr_objects=array();        
-            $identifier  = $rec->id . "_" . str_ireplace(" ","_",$sciname);
+            $identifier  = $rec->id;
             $dataType    = "http://purl.org/dc/dcmitype/MovingImage"; 
             $mimeType    = "video/x-flv";
             if(trim($rec->title)) $title = $rec->title;        
@@ -148,8 +145,8 @@ class VimeoAPI
             $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$agent,$license,$arr_objects);
             //end data objects //----------------------------------------------------------------------------------------                    
             $taxon_id   = str_ireplace(" ","_",$sciname) . "_vimeo";
-            $arr_data[]=array(  "identifier"   =>$taxon_id,
-                                "source"       =>$source,
+            $arr_data[]=array(  "identifier"   =>"",
+                                "source"       =>"",
                                 "kingdom"      =>$arr_sciname[$sciname]['kingdom'],
                                 "phylum"       =>$arr_sciname[$sciname]['phylum'],
                                 "class"        =>$arr_sciname[$sciname]['class'],
@@ -161,7 +158,6 @@ class VimeoAPI
                                 "arr_objects"  =>$arr_objects
                              );                   
         }                                       
-        //print"<pre>";print_r($arr_data);print"</pre>";
         return $arr_data;        
     }
     
@@ -191,7 +187,7 @@ class VimeoAPI
                 $rank = trim($arr[1]);
                 if(in_array($rank, array_keys($rank_id))) 
                 {
-                    print "\n $rank [in array]";
+                    //print "\n $rank [in array]";
                     if($rank_id[$rank] < $smallest_rank_id)
                     {
                         $smallest_rank_id = $rank_id[$rank]; $smallest_rank = $rank;
