@@ -21,7 +21,7 @@ class TaxonPageMetrics
         self::get_data_objects_count();               //1        
         self::get_BHL_publications();                 //2
         self::get_content_partner_count();            //3                    
-        //self::get_outlinks_count();                   //4     
+        self::get_outlinks_count();                   //4     
         self::get_GBIF_map_availability();            //5        
         self::get_biomedical_terms_availability();    //6            
         self::get_user_submitted_text_count();        //7    
@@ -253,6 +253,7 @@ class TaxonPageMetrics
         $batch=500000; $start_limit=0;
         $temp=array();
 
+        /*
         while(true)
         {       
             print"\n outlinks [4 of 10] $start_limit \n";                        
@@ -273,9 +274,7 @@ class TaxonPageMetrics
                     $agent_id   = $fields[1];                    
                     
                     if(@$temp[$tc_id]) $temp[$tc_id] .= "_" . $agent_id;
-                    else               $temp[$tc_id] = $agent_id; 
-                    
-                    
+                    else               $temp[$tc_id] = $agent_id;                     
                 }
             }                
             fclose($FILE);unlink($outfile);
@@ -289,6 +288,7 @@ class TaxonPageMetrics
             $arr_taxa[$id] = "\t".sizeof($arr);
         }
         unset($temp);         
+        */
         
         print"\n get_outlinks_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
