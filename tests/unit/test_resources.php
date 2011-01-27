@@ -109,10 +109,36 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($last_object->published == 0);
         $this->assertTrue($last_object->visibility_id == Visibility::insert('preview'));
         
+        // checking to make sure changed source_urls create new entries
+        $first_entry_no_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
+        $this->assertTrue($first_entry_no_source->source_url == '');
+        $this->assertTrue($first_entry_no_source->visibility_id == Visibility::find('preview'));
+        
+        $first_entry_with_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
+        $this->assertTrue($first_entry_with_source->source_url == 'http://mushroomobserver.org/name/show_name/14971');
+        $this->assertTrue($first_entry_with_source->published == 0);
+        $this->assertTrue($first_entry_with_source->visibility_id == Visibility::find('preview'));
+        
+        // changing the URL AND copying the new file to ../resources/$ID.xml
+        $resource->set_accesspoint_url(DOC_ROOT . 'tests/fixtures/files/test_resource_reharvest.xml');
+        copy($resource->accesspoint_url, $resource->resource_file_path());
+        
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0);
         $this->assertTrue($last_object->visibility_id == Visibility::insert('preview'));
+        
+        // checking to make sure changed source_urls create new entries
+        $second_entry_no_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
+        $this->assertTrue($second_entry_no_source->source_url == 'http://www.example.com/taxa/98h34jgbksfbg');
+        // when a source URL is added to a record with no source - the record is updated
+        $this->assertTrue($second_entry_no_source->id == $first_entry_no_source->id);
+        
+        $second_entry_with_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
+        $this->assertTrue($second_entry_with_source->source_url == 'http://mushroomobserver.org/');
+        // ... but we do create a new record if the source existed before and is changed
+        $this->assertTrue($second_entry_with_source->id != $first_entry_with_source->id);
+        $this->assertTrue($second_entry_with_source->guid == $first_entry_with_source->guid);
         
         $resource->set_autopublish(true);
         $resource = new Resource($resource->id);
@@ -125,6 +151,20 @@ class test_resources extends SimpletestUnitBase
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 1);
         $this->assertTrue($last_object->visibility_id == Visibility::insert('visible'));
+        
+        // making sure entries that are orphaned are not in preview mode
+        $last_entry_no_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
+        $this->assertTrue($last_entry_no_source->published == 1);
+        $this->assertTrue($last_entry_no_source->visibility_id == Visibility::insert('visible'));
+        
+        $last_entry_with_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
+        $this->assertTrue($last_entry_with_source->published == 1);
+        $this->assertTrue($last_entry_with_source->visibility_id == Visibility::insert('visible'));
+        
+        // refresh the original no-source object (the one that is orphaned)
+        $original_entry = new HierarchyEntry($first_entry_with_source->id);
+        $this->assertTrue($original_entry->visibility_id == Visibility::insert('invisible'));
+        $this->assertTrue($original_entry->published == 0);
     }
     
     
@@ -172,8 +212,8 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows > 0, 'should be data_objects_info_items after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM random_hierarchy_images LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be random_hierarchy_images after harvesting');
-        // $result = $GLOBALS['db_connection']->query("SELECT 1 FROM harvest_process_logs LIMIT 1");
-        // $this->assertTrue($result->num_rows > 0, 'should be harvest_process_logs after harvesting');
+        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM harvest_process_logs LIMIT 1");
+        $this->assertTrue($result->num_rows > 0, 'should be harvest_process_logs after harvesting');
         
         // make sure we have harvest events
         $events = HarvestEvent::all();
@@ -291,8 +331,10 @@ class test_resources extends SimpletestUnitBase
     
     private static function harvest($resource)
     {
-        // set to force harvest and harvest again
+        // set to force harvest - this will only change the status id
         shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
+        
+        // now harvest the resource
         $resource->harvest(false);
         shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/publish_resources.php ENV_NAME=test");
         shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/table_of_contents.php ENV_NAME=test");

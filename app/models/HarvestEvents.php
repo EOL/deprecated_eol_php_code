@@ -143,25 +143,25 @@ class HarvestEvent extends MysqlBase
     
     public function insert_top_images()
     {
-        $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
+        $image_type_id = DataType::insert("http://purl.org/dc/dcmitype/StillImage");
         
         // Published images go to top_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.published=1 AND do.visibility_id=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.published=1 AND do.visibility_id=".Visibility::insert('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::insert('Preview').")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_images');
         unlink($outfile);
         
         // Published images go to top_concept_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.published=1 AND do.visibility_id=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.published=1 AND do.visibility_id=".Visibility::insert('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::insert('Preview').")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_concept_images');
         unlink($outfile);
         
         // Published XOR visible images go to top_unpublished_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.visibility_id=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.visibility_id=".Visibility::insert('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::insert('Preview').")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_images');
         unlink($outfile);
         
         // Published XOR visible images go to top_unpublished_concept_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.visibility_id!=".Visibility::find('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::find('Preview').")");
+        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.visibility_id!=".Visibility::insert('visible')." AND (he.published=1 OR he.visibility_id=".Visibility::insert('Preview').")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_concept_images');
         unlink($outfile);
         

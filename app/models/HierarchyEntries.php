@@ -488,6 +488,7 @@ class HierarchyEntry extends MysqlBase
                 $params["source_url"] = $taxon['source_url'];
             }
             
+            $params["visibility_id"] = Visibility::insert('preview');
             $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
             $parent_hierarchy_entry = $hierarchy_entry;
         }
@@ -505,34 +506,83 @@ class HierarchyEntry extends MysqlBase
         if(!$force && $result = self::find($parameters)) return $result;
         
         if(@!$parameters['taxon_concept_id']) $parameters['taxon_concept_id'] = TaxonConcept::insert();
-        if(@!$parameters['guid']) $parameters['guid'] = Functions::generate_guid();
+        if(@!$parameters['guid'])
+        {
+            $previous_version_guid = self::find_guid_by_hierarchy_and_identifier($parameters);
+            if($previous_version_guid)
+            {
+                $parameters['guid'] = $previous_version_guid;
+            }else
+            {
+                $parameters['guid'] = Functions::generate_guid();
+            }
+        }
         return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
+    }
+    
+    static function find_last_by_identifier($identifier)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        # can't find entries without an identifier
+        if(!trim($identifier)) return null;
+        
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM hierarchy_entries WHERE identifier='".$mysqli->escape($identifier)."' ORDER BY id DESC LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return $row['id'];
+        }
+        return null;
+    }
+    
+    static function find_guid_by_hierarchy_and_identifier($parameters)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        if(@!$parameters['identifier']) return null;
+        
+        // look for entries with the SAME NAME and the SAME PARENT, in the SAME HIERARCHY
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id, guid
+            FROM hierarchy_entries
+            WHERE identifier='". $mysqli->escape($parameters['identifier']) ."'
+            AND hierarchy_id=". $parameters['hierarchy_id'] ."
+            ORDER BY id DESC");
+        
+        if($result && $row=$result->fetch_assoc())
+        {
+            return $row['guid'];
+        }
+        return false;
     }
     
     static function find($parameters)
     {
+        $mysqli =& $GLOBALS['mysqli_connection'];
         if(@!$parameters['name_id']) $parameters['name_id'] = 0;
         if(@!$parameters['parent_id']) $parameters['parent_id'] = 0;
         if(@!$parameters['identifier']) $parameters['identifier'] = '';
+        if(@!$parameters['source_url']) $parameters['source_url'] = '';
         
         // look for entries with the SAME NAME and the SAME PARENT, in the SAME HIERARCHY
-        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE id, identifier, guid
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id, identifier, guid, source_url
             FROM hierarchy_entries
             WHERE name_id=". $parameters['name_id'] ."
+            AND (identifier='' OR identifier='". $mysqli->escape($parameters['identifier']) ."')
             AND parent_id=". $parameters['parent_id'] ."
+            AND (source_url='' OR source_url='". $mysqli->escape($parameters['source_url']) ."')
             AND hierarchy_id=". $parameters['hierarchy_id']);
         
         // check the results for duplicates
         while($result && $row=$result->fetch_assoc())
         {
-            // each has an identifier, but they are not the same
-            if($row['identifier'] && $parameters['identifier'] && $parameters['identifier'] != $row['identifier']) continue;
-            
             // existing entry has no identifier - so reuse it and update its identifier
             if(!$row['identifier'] && $parameters['identifier'])
             {
-                $GLOBALS['db_connection']->update("UPDATE hierarchy_entries SET identifier='". $GLOBALS['db_connection']->escape($parameters['identifier']) ."' WHERE id=".$row['id']);
+                $mysqli->update("UPDATE hierarchy_entries SET identifier='". $mysqli->escape($parameters['identifier']) ."' WHERE id=".$row['id']);
             }
+            if(!$row['source_url'] && $parameters['source_url'])
+            {
+                $mysqli->update("UPDATE hierarchy_entries SET source_url='". $mysqli->escape($parameters['source_url']) ."' WHERE id=".$row['id']);
+            }
+            
             return $row['id'];
         }
         return false;

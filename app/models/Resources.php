@@ -103,6 +103,13 @@ class Resource extends MysqlBase
     {
         $auto_publish = ($value === true) ? 1 : 0;
         $this->mysqli->update("UPDATE resources SET auto_publish=$auto_publish WHERE id=$this->id");
+        $this->auto_publish = $auto_publish;
+    }
+    
+    public function set_accesspoint_url($accesspoint_url)
+    {
+        $this->mysqli->update("UPDATE resources SET accesspoint_url='".$this->mysqli->escape($accesspoint_url)."' WHERE id=$this->id");
+        $this->accesspoint_url = $accesspoint_url;
     }
     
     // will return boolean of THIS resource is ready
@@ -255,7 +262,7 @@ class Resource extends MysqlBase
                     $object_guids_to_keep = $this->vetted_object_guids();
                 }
                 
-                // make all objects in last harvest visible if they were in vetted
+                // make all objects in last harvest visible if they were in preview mode
                 $harvest_event->make_objects_visible($object_guids_to_keep);
                 
                 // preserve visibilities from older versions of same objects
@@ -344,6 +351,10 @@ class Resource extends MysqlBase
             // if there are things in preview mode in old harvest which are not in this harvest
             // then set them to be invisible
             $this->make_old_preview_objects_invisible();
+            $this->mysqli->commit();
+            
+            // do the same thing with hierarchy entries
+            $this->make_old_preview_entries_invisible();
             $this->mysqli->commit();
             
             if($this->hierarchy_id)
@@ -458,19 +469,19 @@ class Resource extends MysqlBase
     {
         if($this->harvest_event)
         {
-            $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::insert('preview') ." WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=0");
+            $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::insert('preview') ." WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=". Visibility::insert('invisible'));
             $this->make_new_hierarchy_entries_parents_preview($hierarchy);
         }
     }
     
     public function make_new_hierarchy_entries_parents_preview($hierarchy)
     {
-        $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=0 LIMIT 1");
+        $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=". Visibility::insert('invisible') ." LIMIT 1");
         while($result && $row=$result->fetch_assoc())
         {
-            $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('preview') ." WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=0");
+            $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('preview') ." WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=". Visibility::insert('invisible'));
             
-            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=0 LIMIT 1");
+            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=". Visibility::insert('invisible') ." LIMIT 1");
         }
     }
     
@@ -481,10 +492,23 @@ class Resource extends MysqlBase
             $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::insert('preview') ." AND dohe2.data_object_id IS NULL");
             if($result && $row=$result->fetch_assoc())
             {
-                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=0 WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::insert('preview') ." AND dohe2.data_object_id IS NULL");
+                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=". Visibility::insert('invisible') ." WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::insert('preview') ." AND dohe2.data_object_id IS NULL");
             }
         }
     }
+    
+    public function make_old_preview_entries_invisible()
+    {
+        if($this->harvest_event)
+        {
+            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::insert('preview') ." AND hehe2.hierarchy_entry_id IS NULL");
+            if($result && $row=$result->fetch_assoc())
+            {
+                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") SET he1.visibility_id=". Visibility::insert('invisible') ." WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::insert('preview') ." AND hehe2.hierarchy_entry_id IS NULL");
+            }
+        }
+    }
+    
     
     public function start_harvest()
     {

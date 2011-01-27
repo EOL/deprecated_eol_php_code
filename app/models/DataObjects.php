@@ -184,7 +184,7 @@ class DataObject extends MysqlBase
     
     function cache_object(&$content_manager, &$resource)
     {     
-        if($this->data_type_id==DataType::find("http://purl.org/dc/dcmitype/StillImage"))
+        if($this->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/StillImage"))
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
@@ -195,7 +195,7 @@ class DataObject extends MysqlBase
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
-        if($this->data_type_id==DataType::find("http://purl.org/dc/dcmitype/MovingImage"))
+        if($this->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/MovingImage"))
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
@@ -208,7 +208,7 @@ class DataObject extends MysqlBase
     
     function cache_thumbnail(&$content_manager)
     {
-        if($this->data_type_id!=DataType::find("http://purl.org/dc/dcmitype/StillImage") && $this->data_type_id!=DataType::find("http://purl.org/dc/dcmitype/Text"))
+        if($this->data_type_id!=DataType::insert("http://purl.org/dc/dcmitype/StillImage") && $this->data_type_id!=DataType::insert("http://purl.org/dc/dcmitype/Text"))
         {
             if(preg_match("/^http:\/\//",$this->thumbnail_url))
             {
@@ -222,10 +222,10 @@ class DataObject extends MysqlBase
     
     static function find_and_compare(&$resource, $data_object, &$content_manager)
     {
-        if($data_object->data_type_id==DataType::find("http://purl.org/dc/dcmitype/Text") && @!trim($data_object->description)) return false;
-        if($data_object->data_type_id==DataType::find("http://purl.org/dc/dcmitype/StillImage") && @!trim($data_object->object_url)) return false;
-        if($data_object->data_type_id==DataType::find("http://purl.org/dc/dcmitype/Sound") && @!trim($data_object->object_url)) return false;
-        if($data_object->data_type_id==DataType::find("http://purl.org/dc/dcmitype/MovingImage") && @!trim($data_object->object_url)) return false;
+        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/Text") && @!trim($data_object->description)) return false;
+        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/StillImage") && @!trim($data_object->object_url)) return false;
+        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/Sound") && @!trim($data_object->object_url)) return false;
+        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/MovingImage") && @!trim($data_object->object_url)) return false;
         
         $find_result = self::find($resource, $data_object);
         if(@!$find_result["exact"] && @!$find_result["similar"])
@@ -331,6 +331,20 @@ class DataObject extends MysqlBase
         
         if(@!$parameters["guid"]) $parameters["guid"] = Functions::generate_guid();
         return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
+    }
+    
+    static function find_last_by_identifier($identifier)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        # can't find objects without an identifier
+        if(!trim($identifier)) return null;
+        
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM data_objects WHERE identifier='".$mysqli->escape($identifier)."' ORDER BY id DESC LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return $row['id'];
+        }
+        return null;
     }
     
     static function find($resource, $data_object)

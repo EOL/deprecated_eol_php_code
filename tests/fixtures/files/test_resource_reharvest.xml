@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<response
+  xmlns='http://www.eol.org/transfer/content/0.2'
+  xmlns:xsd='http://www.w3.org/2001/XMLSchema'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcterms='http://purl.org/dc/terms/'
+  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'
+  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xsi:schemaLocation='http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd'>
+<taxon>
+  <dc:identifier>98h34jgbksfbg</dc:identifier>
+  <dc:source>http://www.example.com/taxa/98h34jgbksfbg</dc:source>
+  <dwc:Kingdom>Animalia</dwc:Kingdom>
+  <dwc:Phylum>Chordata</dwc:Phylum>
+  <dwc:Class>Aves</dwc:Class>
+  <dwc:Order>Passeriformes</dwc:Order>
+  <dwc:Family>Hirundinidae</dwc:Family>
+  <dwc:Genus>Delichon</dwc:Genus>
+  <dwc:ScientificName>Delichon urbica</dwc:ScientificName>
+  <commonName xml:lang='en'>some en common name</commonName>
+  <commonName xml:lang='fr'>some fr common name</commonName>
+  <commonName xml:lang='sp'>some sp common name</commonName>
+  <synonym relationship='ambiguous synonym'>some ambig syn</synonym>
+  <synonym relationship='heterotypic synonym'>some heterotypic synonym</synonym>
+  <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/346&quot;&gt;Hackett, J. D.&lt;/a&gt;</reference>
+  <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/350&quot;&gt;Nash, E. A.&lt;/a&gt;</reference>
+  <dataObject>
+    <dc:identifier>3127123681</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <mimeType>image/jpeg</mimeType>
+    <agent homepage="http://www.flickr.com/photos/58213213@N00" role="photographer">Valter Jacinto</agent>
+    <dcterms:created>2006-05-30 15:15:44</dcterms:created>
+    <dc:title>Andorinha-dos-beirais // House Martin (Delichon urbica), juvenile</dc:title>
+    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/valter/3127123681/</dc:source>
+    <dc:description>View Large-Sized &lt;a href=&quot;http://bighugelabs.com/flickr/onblack.php?id=3127123681&amp;amp;size=large&quot;&gt;[On Black]&lt;/a&gt;</dc:description>
+    <mediaURL>http://www.akamai.com/graphics/misc/rss.jpg</mediaURL>
+    <location>Faro Airport, Faro, Portugal</location>
+    <reference>&lt;span class=&quot;biblio-authors&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/211&quot;&gt;Steyskal, G. C.&lt;/a&gt;&lt;/span&gt; 
+     (1987).&amp;nbsp;&amp;nbsp;&lt;span class=&quot;biblio-title&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/node/204&quot;&gt;Neriidae&lt;/a&gt;. &lt;/span&gt; 
+    (&lt;span class=&quot;biblio_authors&quot;&gt;&lt;span id=&quot;14&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/214&quot;&gt;McAlpineJ F.&lt;/a&gt;&lt;/span&gt;, &lt;span id=&quot;14&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/215&quot;&gt;PetersonB V.&lt;/a&gt;&lt;/span&gt;, &lt;span id=&quot;14&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/216&quot;&gt;ShewellG E.&lt;/a&gt;&lt;/span&gt;, &lt;span id=&quot;14&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/217&quot;&gt;TeskeyH J.&lt;/a&gt;&lt;/span&gt;, &lt;span id=&quot;14&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/218&quot;&gt;VockerothJ R.&lt;/a&gt;&lt;/span&gt;, &lt;span id=&quot;14&quot;&gt;&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/219&quot;&gt;WoodD M.&lt;/a&gt;&lt;/span&gt;&lt;/span&gt;, Ed.).Manual of Neartic Diptera. 1, 769-771.&lt;span class=&quot;Z3988&quot; title=&quot;ctx_ver=Z39.88-2004&amp;amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;amp;rft.atitle=Neriidae&amp;amp;rft.title=Manual+of+Neartic+Diptera&amp;amp;rft.btitle=Manual+of+Neartic+Diptera&amp;amp;rft.date=1987&amp;amp;rft.volume=1&amp;amp;rft.spage=769&amp;amp;rft.epage=771&amp;amp;rft.pub=+Research++Branch%2C+Agriculture+Canada&amp;amp;rft.place=Ottawa%2C+Ontario&quot;&gt;&lt;/span&gt;</reference>
+  </dataObject>
+  <dataObject>
+    <dc:identifier>45656456356</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+    <mimeType>text/html</mimeType>
+    <agent homepage="http://www.flickr.com/photos/58213213@N00" role="author">Valter Jacinto</agent>
+    <dcterms:created>2006-05-30 15:15:44</dcterms:created>
+    <dc:title>Andorinha-dos-beirais // House Martin (Delichon urbica), juvenile</dc:title>
+    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/valter/3127123681/</dc:source>
+    <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription</subject>
+    <dc:description>View Large &lt;a href=&quot;http://bighugelabs.com/flickr/onblack.php?id=3127123681&amp;amp;size=large&quot;&gt;[On Black]&lt;/a&gt;</dc:description>
+    <location>Faro Airport, Faro, Portugal</location>
+  </dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>Блефарот</dc:identifier>
+  <dc:source>http://commons.wikimedia.org/wiki/Блефарот</dc:source>
+  <dwc:Kingdom>Animalia</dwc:Kingdom>
+  <dwc:Phylum>Arthropoda</dwc:Phylum>
+  <dwc:Class>Insecta</dwc:Class>
+  <dwc:Order>Diptera</dwc:Order>
+  <dwc:Genus>Blepharotes Duncan, 1840</dwc:Genus>
+  <dwc:ScientificName>Asilidae</dwc:ScientificName>
+  <dataObject>
+    <dc:identifier>File:Блефарот.jpg</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <agent homepage="http://commons.wikimedia.org/wiki/User:Kilom691">Kilom691</agent>
+    <dc:title>File:Блефарот.jpg</dc:title>
+    <license>http://creativecommons.org/licenses/by-sa/3.0/</license>
+    <dc:source>http://commons.wikimedia.org/wiki/File:Блефарот.jpg</dc:source>
+    <dc:description>&lt;i&gt;Blepharotes coriarius&lt;/i&gt;&lt;b&gt;Russian:&lt;/b&gt; Зоологический музей в Санкт-Петербурге. Блефарот</dc:description>
+   <mediaURL>http://www.akamai.com/graphics/misc/rss.jpg</mediaURL>
+  </dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>http://mushroomobserver.org/name/show_name/14971</dc:identifier>
+  <dc:source>http://mushroomobserver.org/</dc:source>
+  <dwc:Kingdom>Fungi</dwc:Kingdom>
+  <dwc:Phylum>Basidiomycota</dwc:Phylum>
+  <dwc:Class>Agaricomycetes</dwc:Class>
+  <dwc:Order>Agaricales</dwc:Order>
+  <dwc:Family>Amanitaceae</dwc:Family>
+  <dwc:Genus>Amanita</dwc:Genus>
+  <dwc:ScientificName>Amanita friabilis (Karst.) Bas</dwc:ScientificName>
+  <dcterms:modified>2010-12-28 15:58:08</dcterms:modified>
+  <dataObject>
+    <dc:identifier>Image-28102</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
+    <mimeType>image/jpeg</mimeType>
+    <agent role="photographer">Irene Andersson</agent>
+    <dcterms:created>2008-11-07 10:19:53</dcterms:created>
+    <dc:language>en</dc:language>
+    <license>http://creativecommons.org/licenses/by-sa/3.0/</license>
+    <dcterms:rightsHolder>Irene Andersson</dcterms:rightsHolder>
+    <audience>General public</audience>
+    <dc:description xml:lang="en">Amanita friabilis (Karst.) Bas</dc:description>
+    <mediaURL>http://mushroomobserver.org/images/640/28102.jpg</mediaURL>
+  </dataObject>
+</taxon>
+<taxon>
+  <dc:identifier>235y235y</dc:identifier>
+  <dwc:Order>Neuroptera</dwc:Order>
+  <dwc:Family>Mantispidae</dwc:Family>
+  <dwc:Genus>Theristria</dwc:Genus>
+  <dwc:ScientificName>Theristria bus</dwc:ScientificName>
+  <dataObject>
+    <dc:identifier>3087438151</dc:identifier>
+    <dataType>http://purl.org/dc/dcmitype/Text</dataType>
+    <mimeType>text/html</mimeType>
+    <agent homepage="http://www.flickr.com/photos/25401497@N02" role="author">Donald Hobern</agent>
+    <dcterms:created>2008-12-07 09:21:31</dcterms:created>
+    <dc:title>IUCNConservationStatus</dc:title>
+    <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>
+    <dc:source>http://www.flickr.com/photos/dhobern/3087438151/</dc:source>
+    <subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation</subject>
+    <dc:description><![CDATA[&lt;i&gt;Theristria&lt;/i&gt; sp., to MV light, Aranda, ACT, 5/6 December 2008]]></dc:description>
+    <location><![CDATA[&lt;i&gt;Canberra&lt;/i&gt;, Australian Capital Territory, Australia]]></location>
+  </dataObject>
+</taxon>
+
+
+</response>
