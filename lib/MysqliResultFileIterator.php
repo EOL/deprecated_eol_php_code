@@ -14,11 +14,12 @@ class MysqliResultFileIterator extends FileIterator
     {
         if(isset($this->FILE) && !feof($this->FILE))
         {
-            // $line = fgets($this->FILE, 65535);
-            // $line = rtrim($line, "\r\n");
+            $line = fgets($this->FILE, 65535);
+            $line = rtrim($line, "\r\n");
             
             // possibly faster but doesn't recognize both \n and \r
-            $line = stream_get_line($this->FILE, 65535, "\n");
+             //$line = stream_get_line($this->FILE, 65535, "\n");
+             //$line = rtrim($line, "\r\n");
             
             if($line && !feof($this->FILE))
             {
