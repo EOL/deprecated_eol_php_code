@@ -21,7 +21,7 @@ class TaxonPageMetrics
         self::get_data_objects_count();               //1        
         self::get_BHL_publications();                 //2
         self::get_content_partner_count();            //3                    
-        self::get_outlinks_count();                   //4     
+        //self::get_outlinks_count();                   //4     
         self::get_GBIF_map_availability();            //5        
         self::get_biomedical_terms_availability();    //6            
         self::get_user_submitted_text_count();        //7    
