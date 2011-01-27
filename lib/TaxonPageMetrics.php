@@ -253,7 +253,7 @@ class TaxonPageMetrics
         $batch=500000; $start_limit=0;
         $temp=array();
 
-        /*
+        ///*
         while(true)
         {       
             print"\n outlinks [4 of 10] $start_limit \n";                        
@@ -288,7 +288,7 @@ class TaxonPageMetrics
             $arr_taxa[$id] = "\t".sizeof($arr);
         }
         unset($temp);         
-        */
+        //*/
         
         print"\n get_outlinks_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
