@@ -6,7 +6,7 @@ estimated execution time: 10 seconds
 $timestart = microtime(1);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/VimeoAPI');
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = VimeoAPI::get_all_taxa();
 $xml = SchemaDocument::get_taxon_xml($taxa);
