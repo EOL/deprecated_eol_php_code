@@ -42,11 +42,14 @@ class BOLDSysAPI
             //if($p==2)break; //debug - get just 1 phylum
         }
         
-        //last write, remaining
-        $save_count++;
-        $xml = SchemaDocument::get_taxon_xml($all_taxa);
-        $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $save_count . ".xml";
-        $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                            
+        if(sizeof($all_taxa)>0)
+        {
+            //last write, remaining
+            $save_count++;
+            $xml = SchemaDocument::get_taxon_xml($all_taxa);
+            $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $save_count . ".xml";
+            $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                                        
+        }            
         
         /* return $all_taxa; */
         self::combine_all_xmls($resource_id,$save_count);        
