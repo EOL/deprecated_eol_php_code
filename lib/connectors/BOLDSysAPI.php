@@ -74,7 +74,7 @@ class BOLDSysAPI
         
         while($i <= $save_count)
         {
-            print " $i "; $i++; 
+            print " $i "; 
             $filename = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $i . ".xml";
             if(!is_file($filename))
             {
@@ -93,6 +93,7 @@ class BOLDSysAPI
                 fwrite($OUT, $str);
                 unlink($filename);
             }            
+            $i++; 
         }
         fwrite($OUT, "</response>");fclose($OUT);                    
     }    
