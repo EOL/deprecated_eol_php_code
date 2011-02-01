@@ -661,11 +661,10 @@ class TaxonPageMetrics
         
         print"\n end - generate_taxon_concept_with_bhl_links_textfile";        
         $elapsed_time_sec = microtime(1)-$timestart;
-        print "\n elapsed time = $elapsed_time_sec secs              ";
         print "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";
     }         
     
-    /* Working but will be replaced once we store taxon_concept_id in PAGE_NAMES table.
+    ///* Working but will be replaced once we store taxon_concept_id in PAGE_NAMES table.
     public function generate_taxon_concept_with_bhl_publications_textfile() //execution time: 10 hrs
     {
         // This will generate the [taxon_concept_with_bhl_publications.txt].             
@@ -720,11 +719,9 @@ class TaxonPageMetrics
         
         print"\n end - generate_taxon_concept_with_bhl_publications_textfile";        
         $elapsed_time_sec = microtime(1)-$timestart;
-        print "\n elapsed time = $elapsed_time_sec secs              ";
-        print "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";        
         print "\n elapsed time = " . $elapsed_time_sec/60/60 . " hrs   ";        
     }
-    */
+    //*/
     
 }
 ?>
