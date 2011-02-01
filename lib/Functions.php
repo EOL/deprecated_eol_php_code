@@ -119,7 +119,7 @@ class Functions
         
         $context = stream_context_create(array('http' => array('timeout' => $timeout)));
         
-        $file = @file_get_contents($remote_url, 0, $context);
+        $file = @self::fake_user_agent_http_get($remote_url);
         usleep($download_wait_time);
         
         $attempts = 1;
@@ -127,10 +127,17 @@ class Functions
         {
             debug("Grabbing $remote_url: attempt ".($attempts+1));
             
-            $file = @file_get_contents($remote_url, 0, $context);
+            $file = @self::fake_user_agent_http_get($remote_url);
             usleep($download_wait_time);
             $attempts++;
         }
+        
+        if($attempts >= DOWNLOAD_ATTEMPTS)
+        {
+            debug("failed download file");
+            return false;
+        }
+        
         unset($context);
         debug("received file");
         
@@ -236,7 +243,10 @@ class Functions
         curl_setopt($ch, CURLOPT_FAILONERROR, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_TIMEOUT,50);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
         
         debug("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
         $result = curl_exec($ch);
@@ -246,12 +256,14 @@ class Functions
             curl_close($ch);
             return $result;
         }
-        echo 'Curl error: ' . curl_error($ch);
+        echo "Curl error ($url): " . curl_error($ch);
         return false;
     }
     
     public static function fake_user_agent_http_get($url)
     {
+        if(substr($url, 0, 1) == "/") $url = "file://" . $url;
+        
         // $agents[] = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; WOW64; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; Media Center PC 5.0)";
         // $agents[] = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
         // $agents[] = "Opera/9.63 (Windows NT 6.0; U; ru) Presto/2.1.1";
@@ -270,6 +282,9 @@ class Functions
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
         curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
         
         debug("Sending get request to $url : only attempt");
         $result = curl_exec($ch);
@@ -279,7 +294,7 @@ class Functions
             curl_close($ch);
             return $result;
         }
-        echo 'Curl error: ' . curl_error($ch);
+        echo "Curl error ($url): " . curl_error($ch);
         return false;
     }
     

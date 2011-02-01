@@ -7,11 +7,28 @@ class WikimediaPage
     
     function __construct($xml)
     {
-        $this->xml = $xml;
-        $this->simple_xml = @simplexml_load_string($this->xml);
-        $this->text = (string) $this->simple_xml->revision->text;
-        $this->title = (string) $this->simple_xml->title;
-        $this->contributor = (string) $this->simple_xml->revision->contributor->username;
+        if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
+        {
+            $this->xml = $xml;
+            $this->simple_xml = @simplexml_load_string($this->xml);
+            $this->text = (string) $this->simple_xml->query->pages->page->revisions->rev;
+            $this->title = (string) $this->simple_xml->query->pages->page['title'];
+            $this->contributor = (string) $this->simple_xml->query->pages->page->revisions->rev['user'];
+        }else
+        {
+            $this->xml = $xml;
+            $this->simple_xml = @simplexml_load_string($this->xml);
+            $this->text = (string) $this->simple_xml->revision->text;
+            $this->title = (string) $this->simple_xml->title;
+            $this->contributor = (string) $this->simple_xml->revision->contributor->username;
+        }
+    }
+    
+    public static function from_api($title)
+    {
+        $api_url = "http://commons.wikimedia.org/w/api.php?action=query&format=xml&prop=revisions&titles=".urlencode($title)."&rvprop=ids|timestamp|user|content";
+        echo $api_url."\n";
+        return new WikimediaPage(Functions::get_remote_file($api_url));
     }
     
     public function information()
@@ -223,7 +240,7 @@ class WikimediaPage
         $author = preg_replace("/<a href='(.*?)'>/", "", $author);
         $author = str_replace("</a>", "", $author);
         $author = str_replace("©", "", $author);
-        $author = str_replace("\xc2\xA9", "", $string); // should be the same as above
+        $author = str_replace("\xc2\xA9", "", $author); // should be the same as above
         
         $agent_parameters = array();
         $agent_parameters["fullName"] = htmlspecialchars($author);

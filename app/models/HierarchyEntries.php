@@ -567,13 +567,14 @@ class HierarchyEntry extends MysqlBase
         if(@!$parameters['source_url']) $parameters['source_url'] = '';
         
         // look for entries with the SAME NAME and the SAME PARENT, in the SAME HIERARCHY
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id, identifier, guid, source_url
+        $query = "SELECT SQL_NO_CACHE id, identifier, guid, source_url
             FROM hierarchy_entries
             WHERE name_id=". $parameters['name_id'] ."
-            AND (identifier='' OR identifier='". $mysqli->escape($parameters['identifier']) ."')
             AND parent_id=". $parameters['parent_id'] ."
-            AND (source_url='' OR source_url='". $mysqli->escape($parameters['source_url']) ."')
-            AND hierarchy_id=". $parameters['hierarchy_id']);
+            AND hierarchy_id=". $parameters['hierarchy_id'];
+        if($parameters['identifier']) $query .= " AND (identifier='' OR identifier='". $mysqli->escape($parameters['identifier']) ."')";
+        if($parameters['source_url']) $query .= " AND (source_url='' OR source_url='". $mysqli->escape($parameters['source_url']) ."')";
+        $result = $mysqli->query($query);
         
         // check the results for duplicates
         while($result && $row=$result->fetch_assoc())

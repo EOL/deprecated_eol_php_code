@@ -84,11 +84,12 @@ function iterate_files($callback, $title = false)
     $ord1 = ord("a");
     $ord2 = ord("a");
     
+    $left_overs = "";
     while($ord1 <= ord($major))
     {
         while($ord2 <= ord("z"))
         {
-            process_file(chr($ord1).chr($ord2), $callback, $title);
+            $left_overs = process_file(chr($ord1).chr($ord2), $left_overs, $callback, $title);
             
             if($ord1 == ord($major) && $ord2 == ord($minor))
             {
@@ -104,13 +105,13 @@ function iterate_files($callback, $title = false)
     }
 }
 
-function process_file($part_suffix, $callback, $title = false)
+function process_file($part_suffix, $left_overs, $callback, $title = false)
 {
     echo "Processing file $part_suffix with callback $callback ".memory_get_usage()."\n";
     flush();
     $FILE = fopen(DOC_ROOT ."update_resources/connectors/files/wikimedia/part_".$part_suffix, "r");
     
-    $current_page = "";
+    $current_page = $left_overs;
     static $page_number = 0;
     while(!feof($FILE))
     {
@@ -147,6 +148,7 @@ function process_file($part_suffix, $callback, $title = false)
     echo "\n\n# taxa so far: ".count($GLOBALS['taxa'])."\n";
     echo "# images so far: ".count($GLOBALS['image_titles'])."\n";
     echo "# objects so far: ".count($GLOBALS['data_objects'])."\n";
+    return $current_page;
 }
 
 
@@ -175,7 +177,7 @@ function get_scientific_pages($xml)
 
 function get_media_pages($xml)
 {
-    $page = new WikimediaPage($xml);    
+    $page = new WikimediaPage($xml);
     if(@$GLOBALS['image_titles'][$page->title])
     {
         if($params = $page->data_object_parameters())

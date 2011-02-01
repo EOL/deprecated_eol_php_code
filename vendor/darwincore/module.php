@@ -34,7 +34,7 @@ function load_darwincore_namespace($namespace_uri, $namespace_abbreviation, $sch
 function fetch_schema_elements($namespace_uri, $schema_uri)
 {
     $GLOBALS['DarwinCoreTaxonNamespaceAttributes'][$namespace_uri] = array();
-    $xml = Functions::get_hashed_response($schema_uri);
+    $xml = simplexml_load_string(file_get_contents($schema_uri));
     if(!$xml) throw new Exception("Cannot access schema at $schema_uri");
     $xml_schema = $xml->children("http://www.w3.org/2001/XMLSchema");
     foreach($xml_schema->element as $e)
