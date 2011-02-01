@@ -49,10 +49,10 @@ class BOLDSysAPI
         $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                            
         
         /* return $all_taxa; */
-        self::combine_all_xmls($arr_phylum,$resource_id);        
+        self::combine_all_xmls($resource_id,$save_count);        
     }
     
-    function combine_all_xmls($arr_phylum,$resource_id)
+    function combine_all_xmls($resource_id,$save_count)
     {
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
         $OUT = fopen($old_resource_path, "w+");
@@ -69,9 +69,9 @@ class BOLDSysAPI
         fwrite($OUT, $str);
         $i=0;    
         
-        while(true)
+        while($i <= $save_count)
         {
-            $i++; print " $i ";
+            print " $i "; $i++; 
             $filename = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $i . ".xml";
             if(!is_file($filename))
             {
