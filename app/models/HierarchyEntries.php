@@ -88,17 +88,22 @@ class HierarchyEntry extends MysqlBase
         }
     }
     
-    private static function entry_move_effects_other_hierarchies($hierarchy_entry_id, $new_taxon_concept_id)
+    public static function entry_move_effects_other_hierarchies($hierarchy_entry_id, $new_taxon_concept_id)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $counts = array();
-        $result = $mysqli->query("SELECT he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE (he.id=$hierarchy_entry_id OR he.taxon_concept_id=$new_taxon_concept_id) AND h.complete=1");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.id=$hierarchy_entry_id AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        while($result && $row=$result->fetch_assoc())
+        {
+            $hierarchy_id = $row['hierarchy_id'];
+            $counts[$hierarchy_id] = 1;
+        }
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$new_taxon_concept_id AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
             if(isset($counts[$hierarchy_id])) return true;
-            $counts[$hierarchy_id] = 1;
         }
         
         return false;

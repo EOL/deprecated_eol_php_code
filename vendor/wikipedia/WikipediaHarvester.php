@@ -30,11 +30,11 @@ class WikipediaHarvester
             exit;
         }
         
-        // create new _temp file
-        $this->resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", "w+");
-        
         // find out which titles have been updated, and what the latest revision IDs are
         $this->load_update_information();
+        
+        // create new _temp file
+        $this->resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", "w+");
         
         // start the resource file with the XML header
         fwrite($this->resource_file, SchemaDocument::xml_header());

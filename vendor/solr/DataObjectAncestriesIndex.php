@@ -45,7 +45,7 @@ class DataObjectAncestriesIndexer
         $this->solr->optimize();
         
         $results = $this->solr->get_results('ancestor_id:1');
-        // if($results) $this->solr->swap('data_objects_swap', 'data_objects');
+        if($results) $this->solr->swap('data_objects_swap', 'data_objects');
     }
     
     
