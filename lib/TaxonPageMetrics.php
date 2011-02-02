@@ -15,7 +15,7 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {               
         // $tc_id=218284; //with user-submitted-text    
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921);
         
         self::initialize_concepts_list();                                                     
         self::get_data_objects_count();               //1        
@@ -250,15 +250,14 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
-        $batch=500000; $start_limit=0;
-        $temp=array();
-
-        /*
+        $batch=500000; $start_limit=0;                
         while(true)
         {       
+            $temp=array();            
             print"\n outlinks [4 of 10] $start_limit \n";                        
             $sql="SELECT he.taxon_concept_id tc_id, h.agent_id FROM hierarchies h JOIN hierarchy_entries he ON h.id = he.hierarchy_id WHERE (he.source_url != '' || ( h.outlink_uri is not null AND he.identifier != ''))";  
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " AND he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
+            $sql .= " ORDER BY he.taxon_concept_id ";
             $sql .= " limit $start_limit, $batch ";                                    
             
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -279,17 +278,16 @@ class TaxonPageMetrics
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";                        
+
+            foreach($temp as $id => $rec)
+            {
+                $arr = explode("_",$rec);
+                $arr = array_unique($arr);
+                $arr_taxa[$id] = "\t".sizeof($arr);
+            }
+            unset($temp);                                             
             if($num_rows < $batch)break; 
-        } 
-        foreach($temp as $id => $rec)
-        {
-            $arr = explode("_",$rec);
-            $arr = array_unique($arr);
-            $arr_taxa[$id] = "\t".sizeof($arr);
-        }
-        unset($temp);         
-        */
-        
+        }                         
         print"\n get_outlinks_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
     }    
@@ -569,8 +567,7 @@ class TaxonPageMetrics
         }
         print "\n table saved";                                       
         print "\n load_data_infile():" . (time_elapsed()-$time_start)/60 . " mins.";
-    }        
-    
+    }    
     
     
     
@@ -664,7 +661,7 @@ class TaxonPageMetrics
         print "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";
     }         
     
-    ///* Working but will be replaced once we store taxon_concept_id in PAGE_NAMES table.
+    // Working but will be replaced once we store taxon_concept_id in PAGE_NAMES table.
     public function generate_taxon_concept_with_bhl_publications_textfile() //execution time: 10 hrs
     {
         // This will generate the [taxon_concept_with_bhl_publications.txt].             
@@ -720,8 +717,7 @@ class TaxonPageMetrics
         print"\n end - generate_taxon_concept_with_bhl_publications_textfile";        
         $elapsed_time_sec = microtime(1)-$timestart;
         print "\n elapsed time = " . $elapsed_time_sec/60/60 . " hrs   ";        
-    }
-    //*/
+    }    
     
 }
 ?>
