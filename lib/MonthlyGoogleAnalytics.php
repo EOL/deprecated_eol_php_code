@@ -1,6 +1,7 @@
 <?php
 define("GOOGLE_DATA_PATH", DOC_ROOT . "applications/google_stats/data/");       
 define("USE_SQL_LOAD_INFILE", false);       
+define("PAGE_METRICS_TEXT_PATH", DOC_ROOT . "applications/taxon_page_metrics/text_files/");
 
 class MonthlyGoogleAnalytics
 {
@@ -109,8 +110,8 @@ class MonthlyGoogleAnalytics
             /* avoid using distinct - this is slow: $query = "SELECT COUNT(DISTINCT(tc.id)) count FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) WHERE tc.supercedure_id=0 AND tc.published=1 "; */
                         
             //start reading text file
-            print"\n<hr>Start reading text file [taxon_concept_with_bhl_links] <br>\n";                
-            $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt"; 
+            print"\n<hr>Start reading text file [taxon_concept_with_bhl_links] <br>\n";                            
+            $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt"; 
             $FILE = fopen($filename, "r"); 
             $arr_tmp=array();
             while(!feof($FILE))
@@ -242,8 +243,8 @@ class MonthlyGoogleAnalytics
                 $arr1[$tc_id]='';
             }
             //start reading text file
-            print"\n<hr>Start reading text file [taxon_concept_with_bhl_links] <br>\n";                
-            $filename = DOC_ROOT . "tmp/taxon_concept_with_bhl_links.txt"; 
+            print"\n<hr>Start reading text file [taxon_concept_with_bhl_links] <br>\n";                            
+            $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt"; 
             $FILE = fopen($filename, "r");
             $num_rows=0; $arr2=array();
             while(!feof($FILE))
