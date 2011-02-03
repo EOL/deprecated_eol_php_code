@@ -9,7 +9,7 @@ $csv = array("site_statistics.csv","query9.csv","query10.csv","query12.csv");
 
 $moreStats = get_val_var('moreStats');
 
-$temp = array("2008","2009","2010");
+$temp = array("2008","2009","2010","2011");
 for($i = 0; $i < count($temp) ; $i++) 
 {
     print"<a href='index.php?year=" . $temp[$i] . "&moreStats=$moreStats'>$temp[$i]</a> | ";
