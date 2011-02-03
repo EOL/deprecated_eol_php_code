@@ -426,7 +426,7 @@ class MonthlyGoogleAnalytics
                 $str = "";                                
                 foreach($data as $metric => $count) 
                 {                                
-                    $i++; print "$i. - ";                
+                    $i++; //print "$i. - ";                
                     // /*                
                     if(true)
                     {
