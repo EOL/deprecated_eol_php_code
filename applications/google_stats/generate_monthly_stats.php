@@ -4,12 +4,12 @@ month:      run date:       execution time:
 Feb2010     1Mar2010      
 Mar2010     1Apr2010        1.5 hrs
 Apr2010     3May2010        1.7 hrs
-July2010    4Aug2010                
 Aug2010     1Sep2010        5 hrs
 Sep2010     7Oct2010        6.8 hrs
 Oct2010     3Nov2010        10 hrs
 Nov2010     1Dec2010        11 hrs
 Dec2010     2Jan2011        1.5 hrs {Script improved - execution time much less now}
+Jan2011     3Feb2011        1.49 hrs 
 
 tables used:
     taxon_concepts
@@ -30,8 +30,6 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculation
 */
 
 $GLOBALS['ENV_DEBUG'] = true;
-//$GLOBALS['ENV_NAME'] = "integration";
-//$GLOBALS['ENV_NAME'] = "staging";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = microtime(1);
 $temp_time = time_elapsed();            
