@@ -24,6 +24,8 @@
   <synonym relationship='heterotypic synonym'>some heterotypic synonym</synonym>
   <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/346&quot;&gt;Hackett, J. D.&lt;/a&gt;</reference>
   <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/350&quot;&gt;Nash, E. A.&lt;/a&gt;</reference>
+  <reference>Carles-Tolr&amp;aacute;, M.&amp;nbsp;
+  1995.&amp;nbsp;&amp;nbsp;Nuevas citas de d&amp;iacute;pteros acalipteros para las Islas Baleares, junto con una lista preliminar de once familias (Diptera: Acalyptrata). Bolet&amp;iacute;n de la Asociaci&amp;oacute;n Espa&amp;ntilde;ola de Entomolog&amp;iacute;a. 19:253-265.</reference>
   <dataObject>
     <dc:identifier>3127123681</dc:identifier>
     <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>

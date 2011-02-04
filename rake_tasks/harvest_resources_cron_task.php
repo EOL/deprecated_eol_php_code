@@ -51,19 +51,18 @@ if($GLOBALS['ENV_NAME']=='production')
     shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/taxon_concept_index.php ENV_NAME=slave > /dev/null 2>/dev/null &");
 }
 
-if(defined('SOLR_SERVER'))
-{
-    if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
-    {
-        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
-        $solr->optimize();
-    }
-    if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
-    {
-        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
-        $solr->optimize();
-    }
-    
-}
+// if(defined('SOLR_SERVER'))
+// {
+//     if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
+//     {
+//         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
+//         $solr->optimize();
+//     }
+//     if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
+//     {
+//         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
+//         $solr->optimize();
+//     }
+// }
 
 ?>

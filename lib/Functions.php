@@ -630,7 +630,7 @@ class Functions
         if($decode)
         {
             $string = str_replace('&nbsp;',  ' ', $string);
-            $string = htmlspecialchars_decode(html_entity_decode($string));
+            $string = htmlspecialchars_decode(html_entity_decode($string, ENT_COMPAT, 'UTF-8'));
         }
         
         $string = str_replace(" ", " ", $string);
