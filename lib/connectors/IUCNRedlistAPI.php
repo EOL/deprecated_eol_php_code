@@ -17,8 +17,8 @@ class IUCNRedlistAPI
     {
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/iucn_species_list.json";
         
-        // shell_exec("rm -f $species_list_path");
-        // shell_exec("curl ". self::SPECIES_LIST_API ." -o $species_list_path");
+        shell_exec("rm -f $species_list_path");
+        shell_exec("curl ". self::SPECIES_LIST_API ." -o $species_list_path");
         
         $used = array();
         $all_taxa = array();
@@ -134,7 +134,7 @@ class IUCNRedlistAPI
         $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_assessment_information', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_range', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation);
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'range_description', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description');
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
         $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_population', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends', $agents, $citation);
@@ -154,7 +154,7 @@ class IUCNRedlistAPI
         return $taxon;
     }
     
-    public static function get_text_section($dom_doc, $xpath, $species_id, $div_id, $subject, $agents, $citation)
+    public static function get_text_section($dom_doc, $xpath, $species_id, $div_id, $subject, $agents, $citation, $title = null)
     {
         $element = $xpath->query("//div[@id='$div_id']");
         $section_html = $dom_doc->saveXML($element->item(0));
@@ -167,6 +167,7 @@ class IUCNRedlistAPI
             $section_html = trim($arr[2]);
         }
         
+        if($title) $section_title = $title;
         $section_html = preg_replace("/<div class=\"x_label\">(.*?)<\/div>/", "<br/><b>\\1</b><br/>", $section_html);
         $section_html = str_replace("\n", " ", $section_html);
         $section_html = str_replace("\t", " ", $section_html);
