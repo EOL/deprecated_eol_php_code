@@ -16,7 +16,7 @@ class ObisAPI
         $urls = array($path);//just 1 path for now                   
         foreach($urls as $url)
         {
-            $arr = self::get_obis_taxa($url,$used_collection_ids,PATH_ANCESTRY);                 
+            $arr = self::get_obis_taxa($url,$used_collection_ids);                 
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];                        
             $all_taxa = array_merge($all_taxa,$page_taxa);                                    
@@ -24,9 +24,9 @@ class ObisAPI
         return $all_taxa;
     }
     
-    public static function get_obis_taxa($url,$used_collection_ids,$url_ancestry)
+    public static function get_obis_taxa($url,$used_collection_ids)
     {        
-        $response = self::search_collections($url,$url_ancestry);//this will output the raw (but structured) output from the external service
+        $response = self::search_collections($url);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -38,13 +38,13 @@ class ObisAPI
         return array($page_taxa,$used_collection_ids);
     }    
     
-    function search_collections($url,$url_ancestry)//this will output the raw (but structured) output from the external service
+    function search_collections($url)//this will output the raw (but structured) output from the external service
     {
         require_library('XLSParser');
         $parser = new XLSParser();
         $arr = $parser->convert_sheet_to_array($url);          
         
-        $filename = $url_ancestry;
+        $filename = PATH_ANCESTRY;
         $arr_taxon_detail = $parser->convert_sheet_to_array($filename);          
         
         //id	tname	tauthor	valid_id	rank_id	parent_id	worms_id        
