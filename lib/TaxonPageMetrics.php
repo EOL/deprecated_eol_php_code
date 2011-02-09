@@ -13,13 +13,9 @@ class TaxonPageMetrics
     
     /* prepare taxon concept totals for richness calculations */ 
     public function insert_page_metrics()
-    {          
-                                            
-        $this->mysqli->swap_tables('taxon_concept_metrics', 'taxon_concept_metrics_tmp');
-        exit;        
-                    
-        // $tc_id=218284; //with user-submitted-text    
-         $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921);
+    {                          
+        // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692);
         
         self::initialize_concepts_list();                                                     
         self::get_data_objects_count();               //1        
@@ -554,9 +550,7 @@ class TaxonPageMetrics
     }    
         
     function save_to_table()
-    {
-        
-        
+    {        
         $time_start = time_elapsed();
         print "\n saving to table...";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt";                
@@ -569,10 +563,8 @@ class TaxonPageMetrics
         
         $result = $this->mysqli->query("SELECT 1 FROM taxon_concept_metrics_tmp LIMIT 1");
         if($result && $row=$result->fetch_assoc())
-        {
-            $this->mysqli->update("RENAME TABLE taxon_concept_metrics TO taxon_concept_metrics_swap,
-                                                taxon_concept_metrics_tmp TO taxon_concept_metrics,
-                                                taxon_concept_metrics_swap TO taxon_concept_metrics_tmp");
+        {                                                
+            $this->mysqli->swap_tables('taxon_concept_metrics', 'taxon_concept_metrics_tmp');                                                                                                
         }
         print "\n table saved";                                       
         print "\n load_data_infile():" . (time_elapsed()-$time_start)/60 . " mins.";
