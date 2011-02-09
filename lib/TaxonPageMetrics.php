@@ -13,9 +13,13 @@ class TaxonPageMetrics
     
     /* prepare taxon concept totals for richness calculations */ 
     public function insert_page_metrics()
-    {               
+    {          
+                                            
+        $this->mysqli->swap_tables('taxon_concept_metrics', 'taxon_concept_metrics_tmp');
+        exit;        
+                    
         // $tc_id=218284; //with user-submitted-text    
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921);
+         $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921);
         
         self::initialize_concepts_list();                                                     
         self::get_data_objects_count();               //1        
@@ -551,11 +555,16 @@ class TaxonPageMetrics
         
     function save_to_table()
     {
+        
+        
         $time_start = time_elapsed();
         print "\n saving to table...";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt";                
+        
+        $this->mysqli->delete("DROP TABLE IF EXISTS taxon_concept_metrics_tmp");
         $this->mysqli->insert("CREATE TABLE IF NOT EXISTS taxon_concept_metrics_tmp LIKE taxon_concept_metrics");
         $this->mysqli->delete("TRUNCATE TABLE taxon_concept_metrics_tmp");
+        
         $this->mysqli->load_data_infile($filename, "taxon_concept_metrics_tmp");
         
         $result = $this->mysqli->query("SELECT 1 FROM taxon_concept_metrics_tmp LIMIT 1");
