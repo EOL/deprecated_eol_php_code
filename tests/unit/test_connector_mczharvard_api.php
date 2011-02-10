@@ -36,7 +36,8 @@ class test_connector_mczharvard_api extends SimpletestUnitBase
                         "IDENTIFIEDBY" => "FitzSimons",
                         "created" => "04 dec 2008",
                         "LAST_EDIT_DATE" => "25-JUL-01",
-                        "SPECIMENDETAILURL" => "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm?collection_object_id=194811"
+                        "SPECIMENDETAILURL" => "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm?collection_object_id=194811",
+                        "AGENT" => "Allen Iverson"
                     );
     
         $arr = MCZHarvardAPI::get_MCZHarvard_taxa($taxon,$images,array());
