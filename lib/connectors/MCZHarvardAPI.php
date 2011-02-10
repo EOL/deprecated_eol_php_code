@@ -2,9 +2,11 @@
 
 define("SPECIMEN_DETAIL_URL", "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm?GUID=");
 define("MCZ_TAXON_DETAIL_URL", "http://mczbase.mcz.harvard.edu/TaxonomyResults.cfm?scientific_name=");
+define("LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //temp file       
+
 //define("REMOTE_CSV", "http://pandanus.eol.org/public/EOL_resource/MCZ_Harvard/MCZimages_small.csv");
+//define("REMOTE_CSV"  , "http://127.0.0.1/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
 define("REMOTE_CSV", "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv");
-define("LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv");       
 
 class MCZHarvardAPI
 {
@@ -20,11 +22,10 @@ class MCZHarvardAPI
         require_library('XLSParser'); $parser = new XLSParser();                
         $images=self::prepare_table($parser->convert_sheet_to_array(LOCAL_CSV),"multiple","GUID","GUID","MEDIA_ID","MEDIA_URI","MIME_TYPE",        
         "SPEC_LOCALITY","HIGHER_GEOG","TYPESTATUS","PARTS","COLLECTING_METHOD","COLLECTORS","IDENTIFIEDBY","created","LAST_EDIT_DATE",
-        "SPECIMENDETAILURL" );                
-        print "images: " . sizeof($images) . "<br>\n";
-        //end prepare CSV file          
+        "SPECIMENDETAILURL","AGENT" );                
+        print "images: " . sizeof($images) . "<br>\n"; 
         
-        unlink(LOCAL_CSV);
+        unlink(LOCAL_CSV); //delete temp file
         $i=1; $total=sizeof($taxa_arr);
         foreach($taxa_arr as $taxon)
         {
@@ -54,7 +55,7 @@ class MCZHarvardAPI
     
     function download_and_put_header_in_csv()
     {
-        $first_row="MEDIA_ID,MEDIA_URI,MIME_TYPE,subject,created,CAT_NUM,INSTITUTION_ACRONYM,COLLECTION_CDE,COLLECTION,MINIMUM_ELEVATION,MAXIMUM_ELEVATION,ORIG_ELEV_UNITS,LAST_EDIT_DATE,INDIVIDUALCOUNT,COLL_OBJ_DISPOSITION,COLLECTORS,TYPESTATUS,SEX,PARTS,VERBATIM_DATE,HIGHER_GEOG,CONTINENT_OCEAN,COUNTRY,STATE_PROV,COUNTY,FEATURE,ISLAND,ISLAND_GROUP,QUAD,SEA,SPEC_LOCALITY,MIN_ELEV_IN_M,MAX_ELEV_IN_M,DEC_LAT,DEC_LONG,DATUM,ORIG_LAT_LONG_UNITS,VERBATIMLATITUDE,VERBATIMLONGITUDE,LAT_LONG_REF_SOURCE,COORDINATEUNCERTAINTYINMETERS,GEOREFMETHOD,LAT_LONG_REMARKS,LAT_LONG_DETERMINER,SCIENTIFIC_NAME,IDENTIFIEDBY,MADE_DATE,REMARKS,HABITAT,FULL_TAXON_NAME,PHYLCLASS,KINGDOM,PHYLUM,PHYLORDER,FAMILY,GENUS,SPECIES,SUBSPECIES,INFRASPECIFIC_RANK,AUTHOR_TEXT,IDENTIFICATIONMODIFIER,NOMENCLATURAL_CODE,GUID,BASISOFRECORD,DEPTH_UNITS,MIN_DEPTH,MAX_DEPTH,COLLECTING_METHOD,COLLECTING_SOURCE,DAYOFYEAR,AGE_CLASS,ATTRIBUTES,VERIFICATIONSTATUS,SPECIMENDETAILURL,COLLECTORNUMBER,VERBATIMELEVATION,YEAR,MONTH,DAY\n";
+        $first_row="MEDIA_ID,MEDIA_URI,MIME_TYPE,subject,created,CAT_NUM,INSTITUTION_ACRONYM,COLLECTION_CDE,COLLECTION,MINIMUM_ELEVATION,MAXIMUM_ELEVATION,ORIG_ELEV_UNITS,LAST_EDIT_DATE,INDIVIDUALCOUNT,COLL_OBJ_DISPOSITION,COLLECTORS,TYPESTATUS,SEX,PARTS,VERBATIM_DATE,HIGHER_GEOG,CONTINENT_OCEAN,COUNTRY,STATE_PROV,COUNTY,FEATURE,ISLAND,ISLAND_GROUP,QUAD,SEA,SPEC_LOCALITY,MIN_ELEV_IN_M,MAX_ELEV_IN_M,DEC_LAT,DEC_LONG,DATUM,ORIG_LAT_LONG_UNITS,VERBATIMLATITUDE,VERBATIMLONGITUDE,LAT_LONG_REF_SOURCE,COORDINATEUNCERTAINTYINMETERS,GEOREFMETHOD,LAT_LONG_REMARKS,LAT_LONG_DETERMINER,SCIENTIFIC_NAME,IDENTIFIEDBY,MADE_DATE,REMARKS,HABITAT,FULL_TAXON_NAME,PHYLCLASS,KINGDOM,PHYLUM,PHYLORDER,FAMILY,GENUS,SPECIES,SUBSPECIES,INFRASPECIFIC_RANK,AUTHOR_TEXT,IDENTIFICATIONMODIFIER,NOMENCLATURAL_CODE,GUID,BASISOFRECORD,DEPTH_UNITS,MIN_DEPTH,MAX_DEPTH,COLLECTING_METHOD,COLLECTING_SOURCE,DAYOFYEAR,AGE_CLASS,ATTRIBUTES,VERIFICATIONSTATUS,SPECIMENDETAILURL,COLLECTORNUMBER,VERBATIMELEVATION,YEAR,MONTH,DAY,AGENT\n";
         $csv_body = Functions::get_remote_file_fake_browser(REMOTE_CSV);        
         $fp = fopen(LOCAL_CSV,"w+");        
         fwrite($fp,$first_row);        
@@ -103,9 +104,8 @@ class MCZHarvardAPI
         $taxon_id = $taxon["taxon_id"];        
         //=============================================================================================================
         $sciname = trim($taxon['SCIENTIFIC_NAME']);
-        if(trim($sciname) == "<>") return array();
-            
-        $agent=array();
+        if(trim($sciname) == "<>") return array();            
+        
         $rights_holder = "";        
         $reference=array();
         $arr_texts=array();
@@ -137,9 +137,15 @@ class MCZHarvardAPI
                                         && trim($r['COLLECTORS']) != "Unknown collector"
                                         )
                     {
-                        $desc.="collected by " . $r['COLLECTORS'].", ";
+                        $desc.="collected by " . $r['COLLECTORS'] . ", ";
                     }
-                    
+
+                    $agent=array();
+                    if($r['AGENT'] && trim($r['AGENT']) != "no agent")
+                    {                        
+                        $agent[] = array("role" => "photographer" , "homepage" => "" , $r['AGENT']);
+                    }                    
+                                        
                     if($r['IDENTIFIEDBY'])      $desc.="identified by " . $r['IDENTIFIEDBY'].", ";
                     if($r['GUID'])              $desc.="GUID: " . $r['GUID'].", ";                            
 
@@ -337,7 +343,7 @@ class MCZHarvardAPI
                 $agentParameters["role"]     = $a["role"];
                 $agentParameters["homepage"] = $a["homepage"];
                 $agentParameters["logoURL"]  = "";        
-                $agentParameters["fullName"] = $a["name"];
+                $agentParameters["fullName"] = $a[0];
                 $agents[] = new SchemaAgent($agentParameters);
             }
             $data_object_parameters["agents"] = $agents;
