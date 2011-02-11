@@ -188,6 +188,7 @@ function show_results_for($taxon_concept_id)
         $scores = $calc->score_for_page($taxon_concept_id);
         $name = TaxonConcept::get_name($taxon_concept_id);
         $metric = new TaxonConceptMetric($taxon_concept_id);
+        if(!isset($metric->image_total)) return;
         ?>
         <h3><a href='http://www.eol.org/pages/<?= $taxon_concept_id; ?>' target='_blank'><?= $name; ?></a></h3>
         <table class='results'>
