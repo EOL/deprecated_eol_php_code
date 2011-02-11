@@ -4,6 +4,7 @@
   
   //print_pre($_REQUEST);
   $taxon_concept_id = @$_REQUEST['taxon_concept_id'] ?: '';
+  $taxon_concept_id2 = @$_REQUEST['taxon_concept_id2'] ?: '';
   $IMAGE_BREADTH_MAX = @$_REQUEST['IMAGE_BREADTH_MAX'] ?: PageRichnessCalculator::$IMAGE_BREADTH_MAX;
   $INFO_ITEM_BREADTH_MAX = @$_REQUEST['INFO_ITEM_BREADTH_MAX'] ?: PageRichnessCalculator::$INFO_ITEM_BREADTH_MAX;
   $MAP_BREADTH_MAX = @$_REQUEST['MAP_BREADTH_MAX'] ?: PageRichnessCalculator::$MAP_BREADTH_MAX;
@@ -36,8 +37,10 @@
     table.main_table { border: 1px solid black; width: 750px; }
     table.sub_table { border: 1px solid black; }
     table.results { cellspacing:0; cellspacing:0; }
-    table.results td { width: 150px; text-align: right; }
+    table.results td { width: 120px; text-align: right; }
     table.results td.max_score { width: 40px; text-align: left; padding-left: 30px; }
+    table.dual_input td { vertical-align: top; }
+    table.dual_input td.second { padding-left: 10px; border-left: 2px black solid; }
     td.category_weight { height: 60px; font-weight: bold; text-align:center; }
   </style>
 </head>
@@ -129,12 +132,56 @@
     </tr>
   </table>
   <br/><br/>
-  PageID to evaluate: <input type='text' size='20' name='taxon_concept_id' value='<?= $taxon_concept_id ?>'/>
-  <input type='submit' value='Calculate'/>
-  <input type='hidden' name='ENV_NAME' value='<?= $GLOBALS['ENV_NAME']; ?>'/>
+  <table class='dual_input'><tr><td>
+      PageID to evaluate: <input type='text' size='20' name='taxon_concept_id' value='<?= $taxon_concept_id ?>'/>
+      <input type='submit' value='Calculate'/>
+      <input type='hidden' name='ENV_NAME' value='<?= $GLOBALS['ENV_NAME']; ?>'/>
+      <hr/>
+      <? show_results_for($taxon_concept_id); ?>
+  </td><td class='second'>
+      PageID to evaluate: <input type='text' size='20' name='taxon_concept_id2' value='<?= $taxon_concept_id2 ?>'/>
+      <input type='submit' value='Calculate'/>
+      <input type='hidden' name='ENV_NAME' value='<?= $GLOBALS['ENV_NAME']; ?>'/>
+      </form>
+      <hr/>
+      <? show_results_for($taxon_concept_id2); ?>
+  </td></tr></table>
   </form>
-  <hr/>
-  <?php
+</body>
+</html>
+<?php
+
+
+
+
+function show_results_for($taxon_concept_id)
+{
+    global $IMAGE_BREADTH_MAX;
+    global $INFO_ITEM_BREADTH_MAX;
+    global $MAP_BREADTH_MAX;
+    global $VIDEO_BREADTH_MAX;
+    global $SOUND_BREADTH_MAX;
+    global $IUCN_BREADTH_MAX;
+    global $REFERENCE_BREADTH_MAX;
+    
+    global $IMAGE_BREADTH_WEIGHT;
+    global $INFO_ITEM_BREADTH_WEIGHT;
+    global $MAP_BREADTH_WEIGHT;
+    global $VIDEO_BREADTH_WEIGHT;
+    global $SOUND_BREADTH_WEIGHT;
+    global $IUCN_BREADTH_WEIGHT;
+    global $REFERENCE_BREADTH_WEIGHT;
+    
+    global $TEXT_DEPTH_MAX;
+    global $TEXT_DEPTH_WEIGHT;
+    
+    global $PARTNERS_DIVERSITY_MAX;
+    global $PARTNERS_DIVERSITY_WEIGHT;
+    
+    global $BREADTH_WEIGHT;
+    global $DEPTH_WEIGHT;
+    global $DIVERSITY_WEIGHT;
+      
     if($taxon_concept_id)
     {
         $calc = new PageRichnessCalculator($_REQUEST);
@@ -151,50 +198,55 @@
         </table>
         <hr/>
         <table class='results'>
-          <tr><th>Stat</th><th>Value</th><th>Impact on final score</th><th>Max</th></tr>
+          <tr><th>Stat</th><th>Value</th><th>Max</th><th>Impact on Score</th><th>Max</th></tr>
           <tr><td>Images:</td><td><?= $metric->image_total; ?></td>
+            <td class='max_score'><?= $IMAGE_BREADTH_MAX; ?></td>
             <td><?= (min($metric->image_total, $IMAGE_BREADTH_MAX)/$IMAGE_BREADTH_MAX) * $IMAGE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $IMAGE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>InfoItems:</td><td><?= $metric->info_items; ?></td>
+            <td class='max_score'><?= $INFO_ITEM_BREADTH_MAX; ?></td>
             <td><?= (min($metric->info_items, $INFO_ITEM_BREADTH_MAX)/$INFO_ITEM_BREADTH_MAX) * $INFO_ITEM_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $INFO_ITEM_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>References:</td><td><?= $metric->data_object_references; ?></td>
+            <td class='max_score'><?= $REFERENCE_BREADTH_MAX; ?></td>
             <td><?= (min($metric->data_object_references, $REFERENCE_BREADTH_MAX)/$REFERENCE_BREADTH_MAX) * $REFERENCE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $REFERENCE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Maps:</td><td><?= $metric->has_GBIF_map; ?></td>
+            <td class='max_score'><?= $MAP_BREADTH_MAX; ?></td>
             <td><?= (min($metric->has_GBIF_map, $MAP_BREADTH_MAX)/$MAP_BREADTH_MAX) * $MAP_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $MAP_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Videos:</td><td><?= $metric->videos(); ?></td>
+            <td class='max_score'><?= $VIDEO_BREADTH_MAX; ?></td>
             <td><?= (min($metric->videos(), $VIDEO_BREADTH_MAX)/$VIDEO_BREADTH_MAX) * $VIDEO_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $VIDEO_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Sounds:</td><td><?= $metric->sound_total; ?></td>
+            <td class='max_score'><?= $SOUND_BREADTH_MAX; ?></td>
             <td><?= (min($metric->sound_total, $SOUND_BREADTH_MAX)/$SOUND_BREADTH_MAX) * $SOUND_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $SOUND_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>IUCN:</td><td><?= $metric->iucn_total; ?></td>
+            <td class='max_score'><?= $IUCN_BREADTH_MAX; ?></td>
             <td><?= (min($metric->iucn_total, $IUCN_BREADTH_MAX)/$IUCN_BREADTH_MAX) * $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Average #Words:</td><td><?= round($metric->average_words()); ?></td>
+            <td class='max_score'><?= $TEXT_DEPTH_MAX; ?></td>
             <td><?= round((min($metric->average_words(), $TEXT_DEPTH_MAX)/$TEXT_DEPTH_MAX) * $TEXT_DEPTH_WEIGHT * $DEPTH_WEIGHT, 4); ?></td>
             <td class='max_score'>/<?= $TEXT_DEPTH_WEIGHT * $DEPTH_WEIGHT; ?></td></tr>
           
           <tr><td>Content Partners:</td><td><?= $metric->content_partners; ?></td>
+            <td class='max_score'><?= $PARTNERS_DIVERSITY_MAX; ?></td>
             <td><?= (min($metric->content_partners, $PARTNERS_DIVERSITY_MAX)/$PARTNERS_DIVERSITY_MAX) * $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td>
             <td class='max_score'>/<?= $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td></tr>
         </table>
         <?
     }
-  
-  ?>
-</body>
-</html>
-
+}
 
 
 

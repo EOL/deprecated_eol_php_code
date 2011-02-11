@@ -38,6 +38,7 @@ class PageRichnessCalculator
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
         else $this->mysqli_slave =& $this->mysqli;
         
+        // override the default weights
         if($parameters)
         {
             foreach($parameters as $p => $v)
@@ -47,6 +48,7 @@ class PageRichnessCalculator
         }
     }
     
+    // process a single page and just return the results
     public function score_for_page($taxon_concept_id)
     {
         $query = "SELECT taxon_concept_id, image_total, text_total, text_total_words, video_total, sound_total, flash_total, youtube_total, iucn_total, data_object_references, info_items, content_partners, has_GBIF_map FROM taxon_concept_metrics WHERE taxon_concept_id=$taxon_concept_id";
@@ -57,6 +59,7 @@ class PageRichnessCalculator
         }
     }
     
+    // these are the exemplar taxa that SPG rated manually
     public function score_for_exemplars()
     {
         $exemplar_ids = array(328593, 1177464, 335326, 2866150, 1151804, 347254, 1006877, 451984, 490953, 2556370, 996711, 2873424, 1013446, 131350, 972688, 585382, 149877, 131865, 324316, 902035);
@@ -88,10 +91,12 @@ class PageRichnessCalculator
         
         echo "CALCULATIONS ARE DONE\n";
         uasort($all_scores, array('self', 'sort_by_total_score'));
-        echo "ID\tNAME\tBREADTH\tDEPTH\tDIVERSITY\tTOTAL\n";
+        echo "RANK\tID\tNAME\tBREADTH\tDEPTH\tDIVERSITY\tTOTAL\n";
+        static $num = 0;
         foreach($all_scores as $id => $scores)
         {
-            echo "$id\t" . TaxonConcept::get_name($id) ."\t";
+            $num++;
+            echo "$num\t$id\t" . TaxonConcept::get_name($id) ."\t";
             echo $scores['breadth']."\t";
             echo $scores['depth']."\t";
             echo $scores['diversity']."\t";
