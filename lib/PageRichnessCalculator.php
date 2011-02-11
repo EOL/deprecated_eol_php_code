@@ -3,28 +3,28 @@
 class PageRichnessCalculator
 {
     // breadth
-    static $IMAGE_BREADTH_MAX = 8;
-    static $INFO_ITEM_BREADTH_MAX = 14;
+    static $IMAGE_BREADTH_MAX = 20;
+    static $INFO_ITEM_BREADTH_MAX = 20;
     static $MAP_BREADTH_MAX = 1;
     static $VIDEO_BREADTH_MAX = 1;
     static $SOUND_BREADTH_MAX = 1;
     static $IUCN_BREADTH_MAX = 1;
-    static $REFERENCE_BREADTH_MAX = 10;
+    static $REFERENCE_BREADTH_MAX = 20;
     
     static $IMAGE_BREADTH_WEIGHT = .2;
-    static $INFO_ITEM_BREADTH_WEIGHT = .5;
+    static $INFO_ITEM_BREADTH_WEIGHT = .45;
     static $MAP_BREADTH_WEIGHT = .08;
-    static $VIDEO_BREADTH_WEIGHT = .08;
+    static $VIDEO_BREADTH_WEIGHT = .13;
     static $SOUND_BREADTH_WEIGHT = 0;
     static $IUCN_BREADTH_WEIGHT = .08;
     static $REFERENCE_BREADTH_WEIGHT = .06;
     
     // depth
-    static $TEXT_DEPTH_MAX = 400;
+    static $TEXT_DEPTH_MAX = 1750;
     static $TEXT_DEPTH_WEIGHT = 1;
     
     // diversity
-    static $PARTNERS_DIVERSITY_MAX = 12;
+    static $PARTNERS_DIVERSITY_MAX = 20;
     static $PARTNERS_DIVERSITY_WEIGHT = 1;
     
     // category weights
@@ -109,41 +109,40 @@ class PageRichnessCalculator
     {
         $scores = array();
         $taxon_concept_id = $row[0];
-        $image_total = min($row[1], self::$IMAGE_BREADTH_MAX);
+        $image_total = $row[1];
         $text_total = $row[2];
         $text_total_words = $row[3];
         $video_total = $row[4];
-        $sound_total = min($row[5], self::$SOUND_BREADTH_MAX);
+        $sound_total = $row[5];
         $flash_total = $row[6];
         $youtube_total = $row[7];
-        $iucn_total = min($row[8], self::$IUCN_BREADTH_MAX);
-        $data_object_references = min($row[9], self::$REFERENCE_BREADTH_MAX);
-        $info_items = min($row[10], self::$INFO_ITEM_BREADTH_MAX);
-        $content_partners = min($row[11], self::$PARTNERS_DIVERSITY_MAX);
-        $has_GBIF_map = min($row[12], self::$MAP_BREADTH_MAX);
+        $iucn_total = $row[8];
+        $data_object_references = $row[9];
+        $info_items = $row[10];
+        $content_partners = $row[11];
+        $has_GBIF_map = $row[12];
         
         $video_total += $flash_total + $youtube_total;
-        $video_total = min($video_total, self::$VIDEO_BREADTH_MAX);
         
         $words_per_text = 0;
-        if($text_total) $words_per_text = min(($text_total_words / $text_total), self::$TEXT_DEPTH_MAX);
+        if($text_total) $words_per_text = $text_total_words / $text_total;
         
         $breadth_score = 0;
-        $breadth_score += ($image_total / self::$IMAGE_BREADTH_MAX) * self::$IMAGE_BREADTH_WEIGHT;
-        $breadth_score += ($info_items / self::$INFO_ITEM_BREADTH_MAX) * self::$INFO_ITEM_BREADTH_WEIGHT;
-        $breadth_score += ($has_GBIF_map / self::$MAP_BREADTH_MAX) * self::$MAP_BREADTH_WEIGHT;
-        $breadth_score += ($video_total / self::$VIDEO_BREADTH_MAX) * self::$VIDEO_BREADTH_WEIGHT;
-        $breadth_score += ($sound_total / self::$SOUND_BREADTH_MAX) * self::$SOUND_BREADTH_WEIGHT;
-        $breadth_score += ($iucn_total / self::$IUCN_BREADTH_MAX) * self::$IUCN_BREADTH_WEIGHT;
-        $breadth_score += ($data_object_references / self::$REFERENCE_BREADTH_MAX) * self::$REFERENCE_BREADTH_WEIGHT;
+        $breadth_score += self::diminish($image_total, self::$IMAGE_BREADTH_MAX) * self::$IMAGE_BREADTH_WEIGHT;
+        $breadth_score += self::diminish($info_items, self::$INFO_ITEM_BREADTH_MAX) * self::$INFO_ITEM_BREADTH_WEIGHT;
+        $breadth_score += self::diminish($has_GBIF_map, self::$MAP_BREADTH_MAX) * self::$MAP_BREADTH_WEIGHT;
+        $breadth_score += self::diminish($video_total, self::$VIDEO_BREADTH_MAX) * self::$VIDEO_BREADTH_WEIGHT;
+        $breadth_score += self::diminish($sound_total, self::$SOUND_BREADTH_MAX) * self::$SOUND_BREADTH_WEIGHT;
+        $breadth_score += self::diminish($iucn_total, self::$IUCN_BREADTH_MAX) * self::$IUCN_BREADTH_WEIGHT;
+        $breadth_score += self::diminish($data_object_references, self::$REFERENCE_BREADTH_MAX) * self::$REFERENCE_BREADTH_WEIGHT;
         $scores['breadth'] = $breadth_score;
         
         $depth_score = 0;
-        $depth_score += ($words_per_text / self::$TEXT_DEPTH_MAX) * self::$TEXT_DEPTH_WEIGHT;
+        $depth_score += self::diminish($words_per_text, self::$TEXT_DEPTH_MAX) * self::$TEXT_DEPTH_WEIGHT;
         $scores['depth'] = $depth_score;
         
         $diversity_score = 0;
-        $diversity_score += ($content_partners / self::$PARTNERS_DIVERSITY_MAX) * self::$PARTNERS_DIVERSITY_WEIGHT;
+        $diversity_score += self::diminish($content_partners, self::$PARTNERS_DIVERSITY_MAX) * self::$PARTNERS_DIVERSITY_WEIGHT;
         $scores['diversity'] = $diversity_score;
         
         $total_score = 0;
@@ -153,6 +152,15 @@ class PageRichnessCalculator
         $scores['total'] = $total_score;
         
         return $scores;
+    }
+    
+    public static function diminish($value, $maximum)
+    {
+        // using log base 10
+        // log(1,10) == 0; log(10,10) == 10
+        // 0 becomes 0, 1 becomes 1, .1 becomes .28, .5 becomes .74
+        $value = min($value, $maximum);
+        return round(log(((($value / $maximum) * 9) + 1), 10), 4);
     }
     
     private static function sort_by_total_score($a, $b)

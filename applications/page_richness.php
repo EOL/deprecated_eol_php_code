@@ -202,47 +202,47 @@ function show_results_for($taxon_concept_id)
           <tr><th>Stat</th><th>Value</th><th>Max</th><th>Impact on Score</th><th>Max</th></tr>
           <tr><td>Images:</td><td><?= $metric->image_total; ?></td>
             <td class='max_score'><?= $IMAGE_BREADTH_MAX; ?></td>
-            <td><?= (min($metric->image_total, $IMAGE_BREADTH_MAX)/$IMAGE_BREADTH_MAX) * $IMAGE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->image_total, $IMAGE_BREADTH_MAX) * $IMAGE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $IMAGE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>InfoItems:</td><td><?= $metric->info_items; ?></td>
             <td class='max_score'><?= $INFO_ITEM_BREADTH_MAX; ?></td>
-            <td><?= (min($metric->info_items, $INFO_ITEM_BREADTH_MAX)/$INFO_ITEM_BREADTH_MAX) * $INFO_ITEM_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->info_items, $INFO_ITEM_BREADTH_MAX) * $INFO_ITEM_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $INFO_ITEM_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>References:</td><td><?= $metric->data_object_references; ?></td>
             <td class='max_score'><?= $REFERENCE_BREADTH_MAX; ?></td>
-            <td><?= (min($metric->data_object_references, $REFERENCE_BREADTH_MAX)/$REFERENCE_BREADTH_MAX) * $REFERENCE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->data_object_references, $REFERENCE_BREADTH_MAX) * $REFERENCE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $REFERENCE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Maps:</td><td><?= $metric->has_GBIF_map; ?></td>
             <td class='max_score'><?= $MAP_BREADTH_MAX; ?></td>
-            <td><?= (min($metric->has_GBIF_map, $MAP_BREADTH_MAX)/$MAP_BREADTH_MAX) * $MAP_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->has_GBIF_map, $MAP_BREADTH_MAX) * $MAP_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $MAP_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Videos:</td><td><?= $metric->videos(); ?></td>
             <td class='max_score'><?= $VIDEO_BREADTH_MAX; ?></td>
-            <td><?= (min($metric->videos(), $VIDEO_BREADTH_MAX)/$VIDEO_BREADTH_MAX) * $VIDEO_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->videos(), $VIDEO_BREADTH_MAX) * $VIDEO_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $VIDEO_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Sounds:</td><td><?= $metric->sound_total; ?></td>
             <td class='max_score'><?= $SOUND_BREADTH_MAX; ?></td>
-            <td><?= (min($metric->sound_total, $SOUND_BREADTH_MAX)/$SOUND_BREADTH_MAX) * $SOUND_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->sound_total, $SOUND_BREADTH_MAX) * $SOUND_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $SOUND_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>IUCN:</td><td><?= $metric->iucn_total; ?></td>
             <td class='max_score'><?= $IUCN_BREADTH_MAX; ?></td>
-            <td><?= (min($metric->iucn_total, $IUCN_BREADTH_MAX)/$IUCN_BREADTH_MAX) * $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->iucn_total, $IUCN_BREADTH_MAX) * $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Average #Words:</td><td><?= round($metric->average_words()); ?></td>
             <td class='max_score'><?= $TEXT_DEPTH_MAX; ?></td>
-            <td><?= round((min($metric->average_words(), $TEXT_DEPTH_MAX)/$TEXT_DEPTH_MAX) * $TEXT_DEPTH_WEIGHT * $DEPTH_WEIGHT, 4); ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->average_words(), $TEXT_DEPTH_MAX) * $TEXT_DEPTH_WEIGHT * $DEPTH_WEIGHT; ?></td>
             <td class='max_score'>/<?= $TEXT_DEPTH_WEIGHT * $DEPTH_WEIGHT; ?></td></tr>
           
           <tr><td>Content Partners:</td><td><?= $metric->content_partners; ?></td>
             <td class='max_score'><?= $PARTNERS_DIVERSITY_MAX; ?></td>
-            <td><?= (min($metric->content_partners, $PARTNERS_DIVERSITY_MAX)/$PARTNERS_DIVERSITY_MAX) * $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->content_partners, $PARTNERS_DIVERSITY_MAX) * $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td>
             <td class='max_score'>/<?= $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td></tr>
         </table>
         <?
