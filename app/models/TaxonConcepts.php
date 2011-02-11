@@ -256,6 +256,15 @@ class TaxonConcept extends MysqlBase
         return $hierarchy_entries;
     }
     
+    static function get_name($id)
+    {
+        foreach($GLOBALS['mysqli_connection']->iterate("SELECT n.string FROM hierarchy_entries he JOIN names n ON (he.name_id=n.id) WHERE he.taxon_concept_id=$id AND he.published=1 AND he.visibility_id=". Visibility::insert("visible")." LIMIT 1") as $row_num => $row)
+        {
+            return $row['string'];
+        }
+        return null;
+    }
+    
     static function insert($split_from = null)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
