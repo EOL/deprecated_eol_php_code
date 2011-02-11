@@ -1,10 +1,12 @@
 <?php
 
+require_once(DOC_ROOT . "vendor/text_statistics/TextStatistics.php");
+
 class PageRichnessCalculator
 {
     // breadth
-    static $IMAGE_BREADTH_MAX = 20;
-    static $INFO_ITEM_BREADTH_MAX = 20;
+    static $IMAGE_BREADTH_MAX = 25;
+    static $INFO_ITEM_BREADTH_MAX = 25;
     static $MAP_BREADTH_MAX = 1;
     static $VIDEO_BREADTH_MAX = 1;
     static $SOUND_BREADTH_MAX = 1;
@@ -20,17 +22,19 @@ class PageRichnessCalculator
     static $REFERENCE_BREADTH_WEIGHT = .06;
     
     // depth
-    static $TEXT_DEPTH_MAX = 1750;
-    static $TEXT_DEPTH_WEIGHT = 1;
+    static $TEXT_TOTAL_MAX = 6000;
+    static $TEXT_AVERAGE_MAX = 1000;
+    static $TEXT_TOTAL_WEIGHT = .3;
+    static $TEXT_AVERAGE_WEIGHT = .7;
     
     // diversity
-    static $PARTNERS_DIVERSITY_MAX = 20;
+    static $PARTNERS_DIVERSITY_MAX = 25;
     static $PARTNERS_DIVERSITY_WEIGHT = 1;
     
     // category weights
-    static $BREADTH_WEIGHT = .5;
+    static $BREADTH_WEIGHT = .6;
     static $DEPTH_WEIGHT = .2;
-    static $DIVERSITY_WEIGHT = .3;
+    static $DIVERSITY_WEIGHT = .2;
     
     public function __construct($parameters = null)
     {
@@ -81,7 +85,7 @@ class PageRichnessCalculator
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
             static $i=0;
-            if($i==0) echo "QUERY IS DONE\n";
+            if($i==0) echo "QUERY IS DONE (".time_elapsed().")\n";
             $i++;
             if($i%10000==0) echo "$i: ". memory_get_usage() ."\n";
             $taxon_concept_id = $row[0];
@@ -89,7 +93,7 @@ class PageRichnessCalculator
             if($this_scores['total'] >= .5) $all_scores[$taxon_concept_id] = $this_scores;
         }
         
-        echo "CALCULATIONS ARE DONE\n";
+        echo "CALCULATIONS ARE DONE (".time_elapsed().")\n";
         uasort($all_scores, array('self', 'sort_by_total_score'));
         echo "RANK\tID\tNAME\tBREADTH\tDEPTH\tDIVERSITY\tTOTAL\n";
         static $num = 0;
@@ -138,7 +142,8 @@ class PageRichnessCalculator
         $scores['breadth'] = $breadth_score;
         
         $depth_score = 0;
-        $depth_score += self::diminish($words_per_text, self::$TEXT_DEPTH_MAX) * self::$TEXT_DEPTH_WEIGHT;
+        $depth_score += self::diminish($text_total_words, self::$TEXT_TOTAL_MAX) * self::$TEXT_TOTAL_WEIGHT;
+        $depth_score += self::diminish($words_per_text, self::$TEXT_AVERAGE_MAX) * self::$TEXT_AVERAGE_WEIGHT;
         $scores['depth'] = $depth_score;
         
         $diversity_score = 0;

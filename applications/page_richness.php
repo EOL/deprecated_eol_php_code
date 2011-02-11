@@ -21,8 +21,10 @@
   $IUCN_BREADTH_WEIGHT = @$_REQUEST['IUCN_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$IUCN_BREADTH_WEIGHT;
   $REFERENCE_BREADTH_WEIGHT = @$_REQUEST['REFERENCE_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$REFERENCE_BREADTH_WEIGHT;
   
-  $TEXT_DEPTH_MAX = @$_REQUEST['TEXT_DEPTH_MAX'] ?: PageRichnessCalculator::$TEXT_DEPTH_MAX;
-  $TEXT_DEPTH_WEIGHT = @$_REQUEST['TEXT_DEPTH_WEIGHT'] ?: PageRichnessCalculator::$TEXT_DEPTH_WEIGHT;
+  $TEXT_TOTAL_MAX = @$_REQUEST['TEXT_TOTAL_MAX'] ?: PageRichnessCalculator::$TEXT_TOTAL_MAX;
+  $TEXT_AVERAGE_MAX = @$_REQUEST['TEXT_AVERAGE_MAX'] ?: PageRichnessCalculator::$TEXT_AVERAGE_MAX;
+  $TEXT_TOTAL_WEIGHT = @$_REQUEST['TEXT_TOTAL_WEIGHT'] ?: PageRichnessCalculator::$TEXT_TOTAL_WEIGHT;
+  $TEXT_AVERAGE_WEIGHT = @$_REQUEST['TEXT_AVERAGE_WEIGHT'] ?: PageRichnessCalculator::$TEXT_AVERAGE_WEIGHT;
   
   $PARTNERS_DIVERSITY_MAX = @$_REQUEST['PARTNERS_DIVERSITY_MAX'] ?: PageRichnessCalculator::$PARTNERS_DIVERSITY_MAX;
   $PARTNERS_DIVERSITY_WEIGHT = @$_REQUEST['PARTNERS_DIVERSITY_WEIGHT'] ?: PageRichnessCalculator::$PARTNERS_DIVERSITY_WEIGHT;
@@ -103,12 +105,16 @@
           </tr>
           <tr>
             <td>#Words per text:</td>
-            <td><input type='text' size='5' name='TEXT_DEPTH_MAX' value='<?= $TEXT_DEPTH_MAX; ?>'/></td>
-            <td><input type='text' size='5' name='TEXT_DEPTH_WEIGHT' value='<?= $TEXT_DEPTH_WEIGHT; ?>'/></td>
+            <td><input type='text' size='5' name='TEXT_AVERAGE_MAX' value='<?= $TEXT_AVERAGE_MAX; ?>'/></td>
+            <td><input type='text' size='5' name='TEXT_AVERAGE_WEIGHT' value='<?= $TEXT_AVERAGE_WEIGHT; ?>'/></td>
+          </tr>
+          <tr>
+            <td>#Words total:</td>
+            <td><input type='text' size='5' name='TEXT_TOTAL_MAX' value='<?= $TEXT_TOTAL_MAX; ?>'/></td>
+            <td><input type='text' size='5' name='TEXT_TOTAL_WEIGHT' value='<?= $TEXT_TOTAL_WEIGHT; ?>'/></td>
           </tr>
         </table>
       </td>
-      
       
       <td><h3 align='center'>Diversity</h3>
         <table class='sub_table'>
@@ -172,8 +178,10 @@ function show_results_for($taxon_concept_id)
     global $IUCN_BREADTH_WEIGHT;
     global $REFERENCE_BREADTH_WEIGHT;
     
-    global $TEXT_DEPTH_MAX;
-    global $TEXT_DEPTH_WEIGHT;
+    global $TEXT_TOTAL_MAX;
+    global $TEXT_AVERAGE_MAX;
+    global $TEXT_TOTAL_WEIGHT;
+    global $TEXT_AVERAGE_WEIGHT;
     
     global $PARTNERS_DIVERSITY_MAX;
     global $PARTNERS_DIVERSITY_WEIGHT;
@@ -189,6 +197,17 @@ function show_results_for($taxon_concept_id)
         $name = TaxonConcept::get_name($taxon_concept_id);
         $metric = new TaxonConceptMetric($taxon_concept_id);
         if(!isset($metric->image_total)) return;
+        
+        $statistics = new TextStatistics();
+        $grades = array();
+        $result = $GLOBALS['db_connection']->query("SELECT do.description FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE dotc.taxon_concept_id=$taxon_concept_id AND do.published=1 AND do.visibility_id=".Visibility::insert('visible')." AND do.data_type_id=".DataType::insert("http://purl.org/dc/dcmitype/Text"));
+        while($result && $row=$result->fetch_assoc())
+        {
+            $grades[] = $statistics->flesch_kincaid_grade_level($row['description']);
+        }
+        $average_grade = 0;
+        if($grades) $average_grade = round(array_sum($grades) / count($grades), 4);
+        
         ?>
         <h3><a href='http://www.eol.org/pages/<?= $taxon_concept_id; ?>' target='_blank'><?= $name; ?></a></h3>
         <table class='results'>
@@ -236,14 +255,24 @@ function show_results_for($taxon_concept_id)
             <td class='max_score'>/<?= $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Average #Words:</td><td><?= round($metric->average_words()); ?></td>
-            <td class='max_score'><?= $TEXT_DEPTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->average_words(), $TEXT_DEPTH_MAX) * $TEXT_DEPTH_WEIGHT * $DEPTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $TEXT_DEPTH_WEIGHT * $DEPTH_WEIGHT; ?></td></tr>
+            <td class='max_score'><?= $TEXT_AVERAGE_MAX; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->average_words(), $TEXT_AVERAGE_MAX) * $TEXT_AVERAGE_WEIGHT * $DEPTH_WEIGHT; ?></td>
+            <td class='max_score'>/<?= $TEXT_AVERAGE_WEIGHT * $DEPTH_WEIGHT; ?></td></tr>
+          
+          <tr><td>Total #Words:</td><td><?= round($metric->text_total_words); ?></td>
+            <td class='max_score'><?= $TEXT_TOTAL_MAX; ?></td>
+            <td><?= PageRichnessCalculator::diminish($metric->text_total_words, $TEXT_TOTAL_MAX) * $TEXT_TOTAL_WEIGHT * $DEPTH_WEIGHT; ?></td>
+            <td class='max_score'>/<?= $TEXT_TOTAL_WEIGHT * $DEPTH_WEIGHT; ?></td></tr>
           
           <tr><td>Content Partners:</td><td><?= $metric->content_partners; ?></td>
             <td class='max_score'><?= $PARTNERS_DIVERSITY_MAX; ?></td>
             <td><?= PageRichnessCalculator::diminish($metric->content_partners, $PARTNERS_DIVERSITY_MAX) * $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td>
             <td class='max_score'>/<?= $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td></tr>
+            
+          <tr><td>Reading Level:</td><td><?= $average_grade; ?></td>
+            <td class='max_score'></td>
+            <td></td>
+            <td class='max_score'></td></tr>
         </table>
         <?
     }
