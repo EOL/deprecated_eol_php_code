@@ -24,7 +24,7 @@ class MCZHarvardAPI
         "SPECIMENDETAILURL","AGENT" );                
         print "images: " . sizeof($images) . "<br>\n"; 
         
-        //unlink(LOCAL_CSV); //delete temp file
+        unlink(LOCAL_CSV); //delete temp file
         $i=1; $total=sizeof($taxa_arr);
         foreach($taxa_arr as $taxon)
         {
