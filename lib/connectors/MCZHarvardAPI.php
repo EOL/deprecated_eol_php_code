@@ -4,7 +4,6 @@ define("SPECIMEN_DETAIL_URL", "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm
 define("MCZ_TAXON_DETAIL_URL", "http://mczbase.mcz.harvard.edu/TaxonomyResults.cfm?scientific_name=");
 define("LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //temp file       
 
-//define("REMOTE_CSV", "http://pandanus.eol.org/public/EOL_resource/MCZ_Harvard/MCZimages_small.csv");
 //define("REMOTE_CSV"  , "http://127.0.0.1/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
 define("REMOTE_CSV", "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv");
 
@@ -20,18 +19,19 @@ class MCZHarvardAPI
                 
         //start prepare CSV file
         require_library('XLSParser'); $parser = new XLSParser();                
-        $images=self::prepare_table($parser->convert_sheet_to_array(LOCAL_CSV),"multiple","GUID","GUID","MEDIA_ID","MEDIA_URI","MIME_TYPE",        
+        $images=self::prepare_table($parser->convert_sheet_to_array(LOCAL_CSV),"multiple","SCIENTIFIC_NAME","GUID","MEDIA_ID","MEDIA_URI","MIME_TYPE",        
         "SPEC_LOCALITY","HIGHER_GEOG","TYPESTATUS","PARTS","COLLECTING_METHOD","COLLECTORS","IDENTIFIEDBY","created","LAST_EDIT_DATE",
         "SPECIMENDETAILURL","AGENT" );                
         print "images: " . sizeof($images) . "<br>\n"; 
         
-        unlink(LOCAL_CSV); //delete temp file
+        //unlink(LOCAL_CSV); //delete temp file
         $i=1; $total=sizeof($taxa_arr);
         foreach($taxa_arr as $taxon)
         {
             print"\n $i of $total";$i++;            
-            $taxon_id = $taxon['taxon_id'];                        
-            $arr = self::get_MCZHarvard_taxa($taxon,@$images[$taxon_id],$used_collection_ids);
+            $taxon_id = $taxon['taxon_id'];      
+            $sciname = trim($taxon['SCIENTIFIC_NAME']);                  
+            $arr = self::get_MCZHarvard_taxa($taxon,@$images[$sciname],$used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];                        
             $all_taxa = array_merge($all_taxa,$page_taxa);                                                
@@ -45,10 +45,10 @@ class MCZHarvardAPI
         $page_taxa = array();
         foreach($response as $rec)
         {
-            if(@$used_collection_ids[$rec["sciname"]]) continue;            
+            if(@$used_collection_ids[$rec["identifier"]]) continue;            
             $taxon = self::get_taxa_for_photo($rec);
             if($taxon) $page_taxa[] = $taxon;            
-            $used_collection_ids[$rec["sciname"]] = true;
+            $used_collection_ids[$rec["identifier"]] = true;
         }        
         return array($page_taxa,$used_collection_ids);
     }        
@@ -172,7 +172,7 @@ class MCZHarvardAPI
         if(@$arr_texts[$sciname] || @$arr_photos[$sciname])
         {
             //$dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME'];
-            $arr_scraped[]=array("identifier"=>$taxon['GUID'],
+            $arr_scraped[]=array("identifier"=>"MCZ_" . str_replace(" ","_",$sciname),
                                  "kingdom"=>$taxon['KINGDOM'],
                                  "phylum"=>$taxon['PHYLUM'],
                                  "class"=>$taxon['PHYLCLASS'],
