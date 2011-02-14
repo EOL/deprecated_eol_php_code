@@ -145,7 +145,7 @@ class WikimediaPage
         if($taxon_rank!='genus' && $v = @$taxonomy['genus']) $taxon_parameters['genus'] = $v;
         $taxon_parameters['scientificName'] = $taxon_name;
         //$taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
-        $taxon_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
+        //$taxon_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
         
         
         $taxon_parameters['dataObjects'] = array();
@@ -241,6 +241,7 @@ class WikimediaPage
         $author = str_replace("</a>", "", $author);
         $author = str_replace("©", "", $author);
         $author = str_replace("\xc2\xA9", "", $author); // should be the same as above
+        $author = str_replace("\xA9", "", $author); // should be the same as above
         
         $agent_parameters = array();
         $agent_parameters["fullName"] = htmlspecialchars($author);

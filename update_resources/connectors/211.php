@@ -25,11 +25,11 @@ fclose($resource_file);
 @rename(CONTENT_RESOURCE_LOCAL_PATH . "211.xml", CONTENT_RESOURCE_LOCAL_PATH . "211_previous.xml");
 rename(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "211.xml");
 
-// // set to force harvest
-// if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml"))
-// {
-//     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=211");
-// }
+// set to force harvest
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml"))
+{
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=211");
+}
 
 
 ?>
