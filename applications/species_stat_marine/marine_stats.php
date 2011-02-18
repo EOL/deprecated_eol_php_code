@@ -1,14 +1,11 @@
 <?php
 /* 
-testing line endings...
-
 This code processes the latest WORMS resource XML and generates stats for it.
 A successful run of this script will append a new record in this report: 
 http://services.eol.org/species_stat_marine/display.php    
 
 2nd function of this script is to compute:
 How many WORMS pages have wikipedia and flickr
-    
     
 as of April 21:
     execution time: 2.24 hours
@@ -20,36 +17,18 @@ as of April 21:
     Marine pages with Wikipedia content = 5167
     Marine pages with Flickr content = 1548    
 
-as of August 2:
-    execution time: 2.10 hours
-    Names from XML: 181476
-    Names in EOL: 158889
-    Marine pages: 161323
-    Pages with objects: 80676
-    Pages with vetted objects: 80178    
-
-as of Sep 17:
-    Names from XML: 193013
-    Names in EOL: 167455
-    Marine pages: 169950
-    Pages with objects: 90196
-    Pages with vetted objects: 89718
-    elapsed time = 84.139336649577 min
-    elapsed time = 1.4023222774929 hr
-    
+as of August 2:  execution time: 2.10 hrs
+as of Sep 17:    execution time: 1.40 hrs
+as of 2011 01 10 execution time: 1.66 hrs
 */
 
 $timestart = microtime(1);
 
-$wrap="\n";
-//$wrap="<br>";
-
-//$GLOBALS['ENV_NAME'] = "slave_215";
+//$GLOBALS['ENV_NAME'] = "";
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 //#####################################################################################################
-// /* use to comment the first part of the code
 
 $names = array();
 $names_in_eol = array();
@@ -60,14 +39,6 @@ $temp_names_array = array();
 
 $batch_size = 10000;
 
-//$xml = simplexml_load_file("../content_server/resources/666.xml", null, LIBXML_NOCDATA);
-//$xml = simplexml_load_file("../../../mtce/worms/txt/2009_04_09_WORMS.xml", null, LIBXML_NOCDATA);
-//$xml = simplexml_load_file("../../../mtce/worms/txt/2009_06_05_WORMS.xml", null, LIBXML_NOCDATA);
-//$xml = simplexml_load_file("http://services.eol.org/eol_php_code/applications/content_server/resources/26.xml", null, LIBXML_NOCDATA);
-//$xml = simplexml_load_file("http://10.19.19.226/resources/26.xml", null, LIBXML_NOCDATA);
-
-//on beast:
-//$file = "../../../resources/26.xml";
 $file = CONTENT_RESOURCE_LOCAL_PATH . "26.xml";
 $xml = simplexml_load_file($file , null, LIBXML_NOCDATA);
 
@@ -75,7 +46,6 @@ foreach($xml->taxon as $t)
 {
     $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
     $name = Functions::import_decode($t_dwc->ScientificName);
-    //print $name . "$wrap";    
     $names[$name] = 1;
     $temp_names_array[] = $mysqli->escape($name);
     
@@ -83,27 +53,37 @@ foreach($xml->taxon as $t)
     {
         static $batch_num;
         $batch_num++;        
-        echo "Batch $batch_num $wrap";        
-        get_stats($temp_names_array);        
+        print "Batch $batch_num \n";        
+        
+        $arr = get_stats($temp_names_array, $names_in_eol, $marine_pages, $pages_with_objects, $pages_with_vetted_objects, $mysqli);                
+        $names_in_eol               = $arr[0];
+        $marine_pages               = $arr[1]; 
+        $pages_with_objects         = $arr[2]; 
+        $pages_with_vetted_objects  = $arr[3];
+        
         $temp_names_array = array();
         //if($batch_num >= 4) break;
     }
 }
-get_stats($temp_names_array);
 
-$names_in_eol = count($names_in_eol);
-$marine_pages_count = count(array_keys($marine_pages));
-$pages_with_objects = count($pages_with_objects);
-$pages_with_vetted_objects = count($pages_with_vetted_objects);
-$names_from_xml = count($names);
+$arr = get_stats($temp_names_array, $names_in_eol, $marine_pages, $pages_with_objects, $pages_with_vetted_objects, $mysqli);
+$names_in_eol               = $arr[0];
+$marine_pages               = $arr[1]; 
+$pages_with_objects         = $arr[2]; 
+$pages_with_vetted_objects  = $arr[3];
 
-//print"<hr>";
-echo "$wrap Final numbers: $wrap";
-echo "Names from XML: ". $names_from_xml ."$wrap";
-echo "Names in EOL: ". $names_in_eol ."$wrap";
-echo "Marine pages: ". $marine_pages_count ."$wrap";
-echo "Pages with objects: ". $pages_with_objects ."$wrap";
-echo "Pages with vetted objects: ". $pages_with_vetted_objects ."$wrap";
+$names_in_eol               = count($names_in_eol);
+$marine_pages_count         = count(array_keys($marine_pages));
+$pages_with_objects         = count($pages_with_objects);
+$pages_with_vetted_objects  = count($pages_with_vetted_objects);
+$names_from_xml             = count($names);
+
+print "\n Final numbers: \n";
+print "Names from XML: ". $names_from_xml ."\n";
+print "Names in EOL: ". $names_in_eol ."\n";
+print "Marine pages: ". $marine_pages_count ."\n";
+print "Pages with objects: ". $pages_with_objects ."\n";
+print "Pages with vetted objects: ". $pages_with_vetted_objects ."\n";
 
 $date_created = date('Y-m-d');
 $time_created = date('H:i:s');
@@ -111,54 +91,24 @@ $qry = " insert into page_stats_marine(names_from_xml  ,names_in_eol  ,marine_pa
                                select $names_from_xml ,$names_in_eol ,$marine_pages_count ,$pages_with_objects ,$pages_with_vetted_objects ,'$date_created','$time_created','n' ";
 $update = $mysqli->query($qry);
 
-// */
-
-//===============================================================================
-//===============================================================================
-//===============================================================================
-//start wikipedia flickr stat -- working ok
 /*
-$marine_pages = array_keys($marine_pages);
-//$marine_pages = array(1,2,3,5,6,7,206692,333);
+//to call the Wikipedia Flickr stat
+wikipedia_flickr_stat($marine_pages,$mysqli) //working
+*/
 
-$wikipedia = count_pages_per_agent_id(38132,$marine_pages);//wikipedia = agent_id 38132
-//    print"<pre>";print_r($wikipedia);print"</pre>";
-$flickr = count_pages_per_agent_id(8246,$marine_pages);//flickr = agent_id  8246
-//    print"<pre>";print_r($flickr);print"</pre>";
-
-print"$wrap 
-Marine pages with Wikipedia content = " . count($wikipedia) . " $wrap
-Marine pages with Flickr content = " . count($flickr) . " $wrap
-";
-
-save2txt($marine_pages,"marine_pages");
-save2txt($wikipedia,"worms_with_wikipedia");
-save2txt($flickr,"worms_with_flickr");
-*/  
-//end wikipedia flickr stat
-//===============================================================================
-//===============================================================================
-//===============================================================================
 $elapsed_time_sec = microtime(1)-$timestart;
-echo "$wrap";
-echo "elapsed time = $elapsed_time_sec sec              $wrap";
-echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
+print "\n";
+print "elapsed time = $elapsed_time_sec sec              \n";
+print "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+print "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 
 exit("\n\n Done processing.");
+
 //#############################################################################################################
-//#############################################################################################################
-//#############################################################################################################
-function get_stats($names)
+
+function get_stats($names, $names_in_eol, $marine_pages, $pages_with_objects, $pages_with_vetted_objects, $mysqli)
 {
-    global $mysqli;
-    global $names_in_eol;
-    global $marine_pages;
-    global $pages_with_objects;
-    global $pages_with_vetted_objects;
     
-    global $wrap;
-    //print "<hr> names = " . count($names) . "<hr><hr> ";
 
     $ids = array();
     $result = $mysqli->query("SELECT taxon_concept_id id, n.string 
@@ -181,10 +131,10 @@ function get_stats($names)
         JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) 
         JOIN data_objects do ON (dohe.data_object_id=do.id) 
         WHERE he.taxon_concept_id IN (".implode(",", $ids).") 
-    AND do.published=1 
-    AND do.vetted_id <> " . Vetted::find("untrusted") . "
-    AND do.visibility_id = " . Visibility::find("visible") . "
-    ;");
+        AND do.published=1 
+        AND do.vetted_id <> " . Vetted::find("untrusted") . "
+        AND do.visibility_id = " . Visibility::find("visible") . "
+        ;");
 
     while($result && $row=$result->fetch_assoc())
     {
@@ -192,16 +142,18 @@ function get_stats($names)
         if($row["vetted_id"] == Vetted::find("trusted")) $pages_with_vetted_objects[$row["id"]] = 1;
     }    
     
-    print"$wrap Batch numbers: $wrap";
-    echo "names_in_eol: ".count($names_in_eol)."$wrap";
-    echo "marine_pages: ".count($marine_pages)."$wrap";
-    echo "pages_with_objects: ".count($pages_with_objects)."$wrap";
-    echo "pages_with_vetted_objects: ".count($pages_with_vetted_objects)."$wrap $wrap";        
+    print"\n Batch totals: \n";
+    print "names_in_eol: ".count($names_in_eol)."\n";
+    print "marine_pages: ".count($marine_pages)."\n";
+    print "pages_with_objects: ".count($pages_with_objects)."\n";
+    print "pages_with_vetted_objects: ".count($pages_with_vetted_objects)."\n \n";        
+        
+    return array($names_in_eol, $marine_pages, $pages_with_objects, $pages_with_vetted_objects);
 }
-function count_pages_per_agent_id($agent_id,$marine_pages)
+
+function count_pages_per_agent_id($agent_id,$marine_pages, $mysqli)
 {
-    global $mysqli;
-    global $wrap;
+    
     
     $query="Select agents.full_name, Max(harvest_events.id) latest_harvest_event_id,
     agents.id From agents
@@ -237,17 +189,34 @@ function count_pages_per_agent_id($agent_id,$marine_pages)
     
     return $return_arr;    
 }
+
+function wikipedia_flickr_stat($marine_pages,$mysqli)
+{
+    $marine_pages = array_keys($marine_pages);
+    //$marine_pages = array(1,2,3,5,6,7,206692,333); //debug
+    
+    $wikipedia = count_pages_per_agent_id(38132,$marine_pages,$mysqli);//wikipedia = agent_id 38132
+    $flickr = count_pages_per_agent_id(8246,$marine_pages,$mysqli);//flickr = agent_id  8246
+    
+    print"\n 
+    Marine pages with Wikipedia content = " . count($wikipedia) . " \n
+    Marine pages with Flickr content = " . count($flickr) . " \n
+    ";
+    
+    save2txt($marine_pages,"marine_pages");
+    save2txt($wikipedia,"worms_with_wikipedia");
+    save2txt($flickr,"worms_with_flickr");    
+}
+
 function save2txt($arr,$filename)
 {    
-	$str="";        
+    $str="";        
     foreach($arr as $id)
     {
         $str .= $id . "\n";   
     }    
-	$filename .= ".txt";
-	if($fp = fopen($filename,"w")){fwrite($fp,$str);fclose($fp);}		
+    $filename .= ".txt";
+    if($fp = fopen($filename,"w")){fwrite($fp,$str);fclose($fp);}		
     return "";    
 }
-
-
 ?>
