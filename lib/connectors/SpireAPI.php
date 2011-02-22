@@ -18,7 +18,7 @@ class SpireAPI
         $i=0;                
         foreach($GLOBALS['arr_taxa'] as $taxon => $temp)
         {
-            print "\n [$taxon] --- ";
+            //print "\n [$taxon] --- ";
             $i++;             
             $arr = self::get_spire_taxa($taxon,$used_collection_ids);                                
             $page_taxa              = $arr[0];
@@ -52,18 +52,22 @@ class SpireAPI
         $arr_ref       = array();
         
         //real count 259
+        //probs 25, 231 adb
         for ($i=1; $i<=259; $i++)//debug
         {            
+            print"\n $i ---" . SPIRE_SERVICE . $i;
             $str = Functions::get_remote_file(SPIRE_SERVICE . $i);             
             $str = str_replace('rdf:resource', 'rdf_resource', $str);  
+            
+            $str = utf8_encode($str);            
+            
             $xml = simplexml_load_string($str);                                        
             foreach($xml->ConfirmedFoodWebLink as $rec)
             {                                
                 foreach($rec->predator[0]->attributes() as $attribute => $value) 
                 {                                        
                     $arr = parse_url($value);
-                    $predator = trim($arr['fragment']);                    
-                    //print"\n counter[$i][$value]";
+                    $predator = trim(@$arr['fragment']);                    
                     $predator = str_replace("_"," ",$predator);
                 }       
                 $pred_desc = trim($rec->predator_description);                                
@@ -71,7 +75,7 @@ class SpireAPI
                 foreach($rec->prey[0]->attributes() as $attribute => $value) 
                 {                                        
                     $arr = parse_url($value);
-                    $prey = trim($arr['fragment']);            
+                    $prey = trim(@$arr['fragment']);            
                     $prey = str_replace("_"," ",$prey);        
                 }       
                 $prey_desc = trim($rec->prey_description);                                
@@ -82,9 +86,11 @@ class SpireAPI
                     $ref_num = trim($arr['fragment']);                    
                 }                                                       
                 
-                $arr_taxa[$predator]['desc']        = $pred_desc;                
-                $arr_taxa[$prey]['desc']            = $prey_desc;                
+                //debug
+                //if(in_array("Accipiter cooperii",array($predator,$prey))){print"\n problem here: [$i] [$predator][$prey]";exit;}
                 
+                $arr_taxa[$predator]['desc']        = $pred_desc;                
+                $arr_taxa[$prey]['desc']            = $prey_desc;                                
                 
                 if(!@$arr_predator[$predator]) $arr_predator[$predator][]  = $prey;
                 if(!@$arr_prey[$prey])         $arr_prey[$prey][]          = $predator;                   
@@ -111,16 +117,43 @@ class SpireAPI
                         $habitats[] = str_replace("_"," ",$habitat);
                     }
                 }                       
-                $habitats =  implode(", ", $habitats);                                
-                $reference[$ref_num]=array( "titleAndAuthors"=>trim($rec->titleAndAuthors), 
+                $habitats = implode(", ", $habitats);  
+                if($habitats=="unknown")$habitats="";
+                
+                $place = self::parse_locality(trim($rec->locality));                
+                $country = @$place["country"];
+                $state = @$place["state"];
+                $locality = @$place["locality"];                
+                
+                //debug
+                /*
+                if  (   is_numeric(stripos(trim($rec->titleAndAuthors),"Animal Diversity Web"))      ||
+                        is_numeric(stripos(trim($rec->titleAndAuthors),"Rockefeller"))      ||
+                        is_numeric(stripos(trim($rec->titleAndAuthors),"data base of food webs"))      ||                        
+                        is_numeric(stripos(trim($rec->titleAndAuthors),"foodwebs"))      ||  
+                        is_numeric(stripos(trim($rec->titleAndAuthors),"Webs on the Web"))      ||  
+                        is_numeric(stripos(trim($rec->titleAndAuthors),"NCEAS"))      ||                          
+                        is_numeric(stripos(trim($rec->titleAndAuthors),"Interaction Web Database")) ||               
+                        is_numeric(stripos(trim($rec->titleAndAuthors),"Co-Operative Web Bank"))                                                
+                    )                
+                {print"\n problem here: [$i] [trim($rec->titleAndAuthors)]";} 
+                */                               
+                
+                $titleAndAuthors = trim($rec->titleAndAuthors);
+                if($titleAndAuthors=="Animal Diversity Web")$titleAndAuthors="Myers, P., R. Espinosa, C. S. Parr, T. Jones, G. S. Hammond, and T. A. Dewey. 2006. The Animal Diversity Web (online). Accessed February 16, 2011 at http://animaldiversity.org. http://www.animaldiversity.org";
+                
+                $reference[$ref_num]=array( "titleAndAuthors"=>$titleAndAuthors, 
                                             "publicationYear"=>trim($rec->publicationYear),                                            
-                                            "locality"=>trim($rec->locality),
+                                            "place"=>trim($rec->locality),
+                                            "country"=>$country,
+                                            "state"=>$state,
+                                            "locality"=>$locality,
                                             "habitat"=>$habitats,
                                           );
             }                        
         }//main loop 1-259
         
-        
+        //for ancestry
         require_library('XLSParser');
         $parser = new XLSParser();
         $names = $parser->convert_sheet_to_array(SPIRE_PATH_ANCESTRY);          
@@ -129,7 +162,6 @@ class SpireAPI
         foreach($arr_taxa as $taxon => $temp)                
         {
             $arr_taxa[$taxon]['objects']=array("predator"=>@$arr_predator[$taxon], "prey"=>@$arr_prey[$taxon]);
-
             //start ancestry
             $key = array_search(trim($taxon), $names['tname']);
             if(strval($key) != "")
@@ -137,13 +169,38 @@ class SpireAPI
                 $parent_id = $names['parent_id'][$key];        
                 $ancestry=self::get_ancestry($key,$names);                
                 $arr_taxa[$taxon]['ancestry'] = $ancestry;                                
-            }                   
-        }                                
-        print"<pre>";print_r($arr_taxa);
-        print"</pre>";
+            } 
+        }     
+                                   
+        print"<pre>";
+            //print_r($arr_taxa);
+            //print_r($arr_ref);
+            //print_r($reference);
+        print"</pre>";        
+        
         return array($arr_taxa,$arr_ref,$reference);        
     }
 
+    function parse_locality($place)
+    {
+        $country="";$state="";$locality="";
+        //locality = Country: Canada;   State: Manitoba
+        $arr = explode(";" , $place);                                
+        foreach($arr as $rec)
+        {
+            $place = explode(":", $rec);                                
+            if(trim($place[0])=="Country")$country=trim($place[1]);
+            if(trim($place[0])=="State")$state=trim($place[1]);
+            if(trim($place[0])=="Locality")$locality=trim($place[1]);
+        }      
+        
+        if(in_array($country,array("General","unkown")))$country="";
+        if(in_array($state,array("General","unkown")))$state="";
+        if(in_array($locality,array("General","unkown")))$locality="";        
+        
+        return array("country"=>$country,"state"=>$state,"locality"=>$locality);
+    }
+    
     function get_ancestry($key,$names)
     {
         $arr=array();
@@ -209,11 +266,13 @@ class SpireAPI
     
     function get_predator_prey_associations($taxon,$type,$arr_objects)        
     {           
-        $taxon_desc = $GLOBALS['arr_taxa'][$taxon]['desc'];
+        $taxon_desc = trim($GLOBALS['arr_taxa'][$taxon]['desc']);
         if($type == 'predator')$verb = "preys on:";
         elseif($type == 'prey')$verb = "is a prey of:";
                 
-        $html="<b>$taxon ($taxon_desc) $verb</b>";
+        $html="<b>$taxon";
+        if($taxon != $taxon_desc)$html .= " ($taxon_desc)";
+        $html .= " $verb</b>";
         
         $refs      = array(); $temp_citation=array();        
         $locations = array(); $temp_location=array();        
@@ -224,8 +283,11 @@ class SpireAPI
             $citation = "";
             $ref_url = "";            
             
-            $html.="<br>&nbsp;<br> - " . $rec;            
+            $html.="<br>" . $rec;            
+            
+            /*common name removed
             if($rec != $GLOBALS['arr_taxa'][$rec]['desc']) $html.=" {" . $GLOBALS['arr_taxa'][$rec]['desc'] . "}";                                                
+            */
             
 
             //check if the taxon is in the list of taxa for all references 1-259
@@ -235,15 +297,27 @@ class SpireAPI
                 if(!isset($GLOBALS['arr_ref'][$index]))continue;                    
                 if(in_array(trim($rec),$GLOBALS['arr_ref'][$index][self::toggle_type($type)])) 
                 {                    
-                    $citation = $GLOBALS['reference'][$index]['titleAndAuthors'];                    
+                    $citation = trim($GLOBALS['reference'][$index]['titleAndAuthors']);                    
                     if(!in_array($citation,$temp_citation)) $refs[] = array("url"=>"", "ref"=>$citation);                                    
                     $temp_citation[]=$citation;                    
                     
-                    $location = $GLOBALS['reference'][$index]['locality'];
+                    //Country: State, Locality (habitat)
+                    /*                    
                     if(@$GLOBALS['reference'][$index]['habitat']) $location .= "<br>Habitat: " . $GLOBALS['reference'][$index]['habitat'];                    
+                    */
                     
-                    if(!in_array($location,$temp_location)) $locations[] = $location;
-                    $temp_location[]=$location;                                        
+                    $place = $GLOBALS['reference'][$index]['place'];
+                    $location="";
+                    if(@$GLOBALS['reference'][$index]['country']) $location .= $GLOBALS['reference'][$index]['country'];                    
+                    if(@$GLOBALS['reference'][$index]['state']) $location .= ": ".$GLOBALS['reference'][$index]['state'];                           
+                    if(@$GLOBALS['reference'][$index]['locality']) $location .= ", ".$GLOBALS['reference'][$index]['locality'];       
+                    if(@$GLOBALS['reference'][$index]['habitat']) $location .= " (".$GLOBALS['reference'][$index]['habitat'].")";                                          
+                    
+                    if(!in_array($place,$temp_location)) 
+                    {
+                        if(trim($location))$locations[] = $location;
+                    }
+                    $temp_location[]=$place;                                        
                 }
             }                           
         }                   
@@ -251,10 +325,10 @@ class SpireAPI
         $description = "";
         if($locations)
         {
-            $description .= "<b>Locations where studies were conducted:</b>";
+            $description .= "<b>Based on studies in:</b>";
             foreach($locations as $location)
             {
-                $description .= "<br>&nbsp;<br>" . $location;
+                $description .= "<br>" . $location;
             }
         }
         
@@ -264,10 +338,10 @@ class SpireAPI
         $mimeType   = "text/html";
         $dataType   = "http://purl.org/dc/dcmitype/Text";
         
-        if($type=="predator") $title = "Predators";    
-        else                  $title = "Prey";    
+        if($type=="predator") $title = "Known prey organisms";    
+        else                  $title = "Known predators";    
         $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations"; //debug
-        
+                
         $agent = array(); 
         $agent[] = array("role" => "compiler" , "homepage" => "http://spire.umbc.edu/fwc/" , "Cynthia Sims Parr");
         $agent[] = array("role" => "compiler" , "homepage" => "http://spire.umbc.edu/fwc/" , "Joel Sachs");        
@@ -275,7 +349,8 @@ class SpireAPI
         $mediaURL=""; $location="";
         $license = "http://creativecommons.org/licenses/by/3.0/";
         $rightsHolder = "SPIRE project";                    
-                
+        
+                        
         $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$agent,$license,$location,$rightsHolder,$refs,$subject,$arr_objects);                        
         return $arr_objects;                                
     }
