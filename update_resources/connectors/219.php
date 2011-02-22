@@ -1,6 +1,6 @@
 <?php
 /* connector for SPIRE
-estimated execution time: 12 mins
+estimated execution time: 10 mins
 
 Connector accesses the OWL (XML) files from remote server for most of the data and uses a spreadsheet for taxonomy info.
 */
