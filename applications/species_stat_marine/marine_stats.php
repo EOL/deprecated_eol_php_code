@@ -24,7 +24,7 @@ as of 2011 01 10 execution time: 1.66 hrs
 
 $timestart = microtime(1);
 
-//$GLOBALS['ENV_NAME'] = "";
+$GLOBALS['ENV_NAME'] = "integration";
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -40,8 +40,10 @@ $temp_names_array = array();
 $batch_size = 10000;
 
 $file = CONTENT_RESOURCE_LOCAL_PATH . "26.xml";
+print "Reading WORMS XML file... \n";
 $xml = simplexml_load_file($file , null, LIBXML_NOCDATA);
 
+print "Start loop... \n";
 foreach($xml->taxon as $t)
 {
     $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
@@ -108,8 +110,6 @@ exit("\n\n Done processing.");
 
 function get_stats($names, $names_in_eol, $marine_pages, $pages_with_objects, $pages_with_vetted_objects, $mysqli)
 {
-    
-
     $ids = array();
     $result = $mysqli->query("SELECT taxon_concept_id id, n.string 
     FROM names n 
@@ -124,9 +124,10 @@ function get_stats($names, $names_in_eol, $marine_pages, $pages_with_objects, $p
         $names_in_eol[$row["string"]] = 1;
         $marine_pages[$id] = 1;
         $ids[] = $id;
-    }    
-
-    $result = $mysqli->query("SELECT DISTINCT he.taxon_concept_id id, do.vetted_id
+    }
+    
+    //original has DISTINCT
+    $result = $mysqli->query("SELECT he.taxon_concept_id id, do.vetted_id
         FROM hierarchy_entries he 
         JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) 
         JOIN data_objects do ON (dohe.data_object_id=do.id) 
@@ -152,9 +153,7 @@ function get_stats($names, $names_in_eol, $marine_pages, $pages_with_objects, $p
 }
 
 function count_pages_per_agent_id($agent_id,$marine_pages, $mysqli)
-{
-    
-    
+{    
     $query="Select agents.full_name, Max(harvest_events.id) latest_harvest_event_id,
     agents.id From agents
     Inner Join agents_resources ON agents.id = agents_resources.agent_id
@@ -178,15 +177,13 @@ function count_pages_per_agent_id($agent_id,$marine_pages, $mysqli)
     {        
         $partner_tc_id_list[$row["id"]] = 1;
     }
-    $partner_tc_id_list = array_keys($partner_tc_id_list);
-    
+    $partner_tc_id_list = array_keys($partner_tc_id_list);    
     
     $return_arr=array();
     foreach($marine_pages as $id)
     {
         if(in_array($id, $partner_tc_id_list)) $return_arr[]=$id;               
-    }
-    
+    }    
     return $return_arr;    
 }
 
@@ -211,10 +208,7 @@ function wikipedia_flickr_stat($marine_pages,$mysqli)
 function save2txt($arr,$filename)
 {    
     $str="";        
-    foreach($arr as $id)
-    {
-        $str .= $id . "\n";   
-    }    
+    foreach($arr as $id){$str .= $id . "\n";}
     $filename .= ".txt";
     if($fp = fopen($filename,"w")){fwrite($fp,$str);fclose($fp);}		
     return "";    
