@@ -3,10 +3,8 @@
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-//=================================================================
 $filename = "saved_stats";
 $days = getDays($filename);
-//print $days . "<hr>"; //debug
 
 $query = "Select
 page_stats_taxa.id,
@@ -34,18 +32,15 @@ page_stats_taxa.pages_not_incol,
 page_stats_taxa.lifedesk_taxa,
 page_stats_taxa.lifedesk_dataobject
 From page_stats_taxa 
-where   taxa_bhl_no_text <> 0 and
-        taxa_links_no_text <> 0 and
-        with_bhl <> 0
-"; 
+where taxa_bhl_no_text != 0 and with_bhl != 0"; 
+
+/* removed filter as of 2011 02 23
+taxa_links_no_text <> 0 and
+*/
+
 if($days != "")$query .= " and concat(month(date_created),'/',day(date_created),'/',year(date_created)) not in($days) ";
-
-print "<hr>$query<hr>"; //debug
-
 $result = $mysqli->query($query);    
-
 print "<hr> num_rows = " . $result->num_rows;
-
 
 /*table fields
 $fields=array();
@@ -80,9 +75,9 @@ $temp = save_to_txt($result,$filename,",","csv");
 
 function save_to_txt($result,$filename,$field_separator,$file_extension)
 {
-	$str="";        
-	while($result && $row=$result->fetch_assoc())	
-	{        
+    $str="";        
+    while($result && $row=$result->fetch_assoc())    
+    {        
         $found = false;
         if($found){}
         else
@@ -132,35 +127,28 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
             //$arr['Pages NOT with CoL names with content that requires curation'] 
                 $arr[]= $row["vetted_unknown_published_visible_notinCol"];            
 
-
-
             //$s1="Pages with BHL links: ";
                 $arr[]= $row["with_BHL"];            
             //$s2="Pages with BHL links with no text: ";
                 $arr[]= $row["taxa_BHL_no_text"];            
             //$s3="Pages with links and no text: ";
-                $arr[]= $row["taxa_links_no_text"];            
-                
+                $arr[]= $row["taxa_links_no_text"];                            
                 
                 $arr[]= $row["lifedesk_taxa"];            
-                $arr[]= $row["lifedesk_dataobject"];            
-                                
-
-
+                $arr[]= $row["lifedesk_dataobject"];           
             //==============================================================
-    		for ($i = 0; $i < count($arr); $i++) 		
-	    	{
-		    	$str .= $arr[$i] . $field_separator;    //chr(9) is tab
-    		}
-    		$str .= "\n";            
+            for ($i = 0; $i < count($arr); $i++)         
+            {
+                $str .= $arr[$i] . $field_separator;    //chr(9) is tab
+            }
+            $str .= "\n";            
         }// not found
 
-	}
+    }
     
     $filename = "$filename" . "." . $file_extension;
-	if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}		
-    
-}//function save_to_txt($result,$filename,$fields,$year_month,$field_separator,$with_col_header,$file_extension)
+    if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}            
+}
 
 function getDays($filename)
 {    
@@ -175,7 +163,7 @@ function getDays($filename)
         {        
             if($c == 0)$comma_separated .= "'" . trim($data[$c]) . "'" . ",";
         }
-    }//end while
+    }
     $comma_separated = trim(substr($comma_separated,0,strlen($comma_separated)-1));
     
     //start build up header if no entries yet
@@ -211,30 +199,15 @@ function getDays($filename)
         $arr[]='Taxa pages'; 
         $arr[]='Data objects'; 
         
-  		$str="";
-        for ($i = 0; $i < count($arr); $i++) 		
-       	{
-	       	$str .= $arr[$i] . ",";
-    	}
-    	$str .= "\n";            
-
-	    fwrite($handle,$str);
-        
-
-    }//if($comma_separated == "")    
-    //end
-    
-    fclose($handle);		            
-    
-    
+        $str="";
+        for ($i = 0; $i < count($arr); $i++)         
+        {
+               $str .= $arr[$i] . ",";
+        }
+        $str .= "\n";            
+        fwrite($handle,$str);
+    }    
+    fclose($handle);                        
     return trim($comma_separated);
-}
-
-function get_val_var($v)
-{
-    if     (isset($_GET["$v"])){$var=$_GET["$v"];}
-    elseif (isset($_POST["$v"])){$var=$_POST["$v"];}
-    else   return NULL;                            
-    return $var;    
 }
 ?>
