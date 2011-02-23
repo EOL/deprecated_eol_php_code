@@ -29,7 +29,7 @@ while($row=$result->fetch_assoc()){print "$row[$fld] -- $row[title] -- $wrap";}
 $date_created = date('Y-m-d');
 $time_created = date('H:i:s');
 $query="insert into page_stats_marine(names_from_xml,names_in_eol,marine_pages,pages_with_objects,pages_with_vetted_objects,date_created,time_created,active) select 207877,176007,176256,107302,100912,'$date_created','$time_created','n'";
-$update = $mysqli->query($qry);
+$update = $mysqli->query($query);
 
 print "\n\n --end-- \n\n";
 ?>
