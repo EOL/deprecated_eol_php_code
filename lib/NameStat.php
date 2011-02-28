@@ -8,7 +8,7 @@ class NameStat
             $sort_key[$key]  = $row[$key_string];
             $sort_key2[$key]  = $row[$key_string2];
         }
-        array_multisort($sort_key, SORT_ASC, $sort_key2, SORT_DESC, $arr);    
+        if($arr)array_multisort($sort_key, SORT_ASC, $sort_key2, SORT_DESC, $arr);    
         return $arr;
     }    
     
