@@ -7,7 +7,7 @@ $func = new NameStat();
 
 if(!isset($_REQUEST['return']))exit;
 
-$report         = 'list';    //original functionality
+$report         = 'list';
 $returns        = $_REQUEST['return'];
 $sort_order     = $_REQUEST['sort'];
 //$vetted         = $_REQUEST['vetted'];
@@ -46,7 +46,7 @@ $arr = array_unique($arr);
 $arr = $func->array_trim($arr,$orig_lenth_of_arr);    // $orig_lenth_of_arr --- this is the length of array after explode function
 
 print "<font size='2' face='courier'>Total no. of names submitted: " . " " . count($arr) . "</font>";
-if(count($arr) == 0){exit;}
+if(count($arr) == 0)exit;
 print"<table cellpadding='3' cellspacing='0' border='1' style='font-size : small; font-family : Arial Unicode MS;'>";
 $us = "&#153;";    //unique separator
 $value_list="";
@@ -63,8 +63,6 @@ http://www.eol.org/api/search/gadus morhua
 */
 
 $arr_table=array();
-$arr = $func->clean_array($arr);
-
 foreach($arr as $sciname)
 {
     $file = $api_put_species . urlencode($sciname);
