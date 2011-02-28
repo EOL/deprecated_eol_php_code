@@ -10,17 +10,7 @@ class NameStat
         }
         array_multisort($sort_key, SORT_ASC, $sort_key2, SORT_DESC, $arr);    
         return $arr;
-    }
-    
-    function clean_array($arr)
-    {
-        $cleaned_array=array();
-        foreach($arr as $r)
-        {
-            $cleaned_array[]=trim($r);
-        }    
-        return $cleaned_array;
-    }
+    }    
     
     function show_table($arr)
     {
@@ -80,8 +70,7 @@ class NameStat
     }
     
     function cmp($a,$b)
-    {
-        
+    {        
         if(!isset($GLOBALS["sort_order"]))$GLOBALS["sort_order"]='total_objects';
         $sort_order = $GLOBALS["sort_order"];    
         return $a["$sort_order"] < $b["$sort_order"];
@@ -134,15 +123,12 @@ class NameStat
     function array_trim($a,$len) 
     {     
         $b=array();
-        $j = 0; 
-        for ($i = 0; $i < $len; $i++) 
+        foreach($a as $r)
         { 
-            if (array_key_exists($i,$a))
-            {
-                if (trim($a[$i]) != "") { $b[$j++] = $a[$i]; }         
-            }
-        }     
-        return $b; 
+            if(trim($r) != "") $b[] = trim($r); 
+        } 
+        return $b;
     }
+        
 }
 ?>
