@@ -13,7 +13,7 @@ class VimeoAPI
         $total_users = sizeof($users); $j=0;
         foreach($users as $user)
         {
-            $j++;            
+            $j++;print"\n";            
             for ($page = 1; $page <= 3; $page++) 
             {
                 $xml = simplexml_load_file(VIMEO_USER_SERVICE . $user . "/videos.xml?page=$page");                        
@@ -22,12 +22,13 @@ class VimeoAPI
                 $i=0;
                 foreach($xml->video as $rec)
                 {                               
-                    $i++; print"\n [user $j of $total_users] [video $i of $num_rows] [page $page] ";                
+                    $i++; print"\n [user $j of $total_users] [page $page] [video $i of $num_rows] ";                
                     $arr = self::get_vimeo_taxa($rec,$used_collection_ids);                                
                     $page_taxa              = $arr[0];
                     $used_collection_ids    = $arr[1];                            
                     if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                                                                    
                 }                                        
+                if($num_rows < 20)break;
             }            
         }
         return $all_taxa;
@@ -333,18 +334,22 @@ class VimeoAPI
     {
         $users=array();
         
-        //$users["user1632860"]=""; //Peter Kuttner        
-        //$users["user5352360"]=""; //Eli Agbayani //debug
-        //$users["user5814509"]=""; //Katja Schulz                        
-        //$users["user5361059"]=""; //PL        
-                
+        /* you can add users by adding them 1 by 1:
+        $users["user1632860"]=""; //Peter Kuttner        
+        $users["user5352360"]=""; //Eli Agbayani
+        $users["user5814509"]=""; //Katja Schulz                        
+        $users["user5361059"]=""; //Patrick Leary
+        $users["morphologic"]=""; //morphologic
+        //*///debug        
+        
+        /* or you can add them by getting all the members from the EOL-Vimeo group */
         $xml = simplexml_load_file(VIMEO_USER_SERVICE . "group/encyclopediaoflife/users.xml");
         foreach($xml->user as $user)
         {
             $path_parts = pathinfo($user->profile_url);            
             $user = $path_parts['filename'];            
             $users[$user] = "";
-        } 
+        }                 
         return array_keys($users);
     }    
     
