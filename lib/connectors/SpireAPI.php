@@ -24,7 +24,7 @@ class SpireAPI
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];                            
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                                 
-            //if($i > 1)break; //debug
+            //if($i > 10)break; //debug
         }                
         return $all_taxa;
     }
@@ -268,7 +268,7 @@ class SpireAPI
     {           
         $taxon_desc = trim($GLOBALS['arr_taxa'][$taxon]['desc']);
         if($type == 'predator')$verb = "preys on:";
-        elseif($type == 'prey')$verb = "is a prey of:";
+        elseif($type == 'prey')$verb = "is prey of:";
                 
         $html="<b>$taxon";
         if($taxon != $taxon_desc)$html .= " ($taxon_desc)";
@@ -332,7 +332,8 @@ class SpireAPI
             }
         }
         
-        $description .= "<br>&nbsp;<br>" . $html;
+        $description = $html . "<br>&nbsp;<br>" . $description;
+        $description .= "<br>&nbsp;<br>This list may not be complete but is based on published studies.";
         $source = "http://spire.umbc.edu/fwc/";
         $identifier = str_replace(" ","_",$taxon) . "_" . $type;
         $mimeType   = "text/html";
@@ -341,6 +342,7 @@ class SpireAPI
         if($type=="predator") $title = "Known prey organisms";    
         else                  $title = "Known predators";    
         $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations"; //debug
+        //$subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution"; //debug
                 
         $agent = array(); 
         $agent[] = array("role" => "compiler" , "homepage" => "http://spire.umbc.edu/fwc/" , "Cynthia Sims Parr");
