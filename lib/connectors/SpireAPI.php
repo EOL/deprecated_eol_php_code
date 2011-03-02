@@ -24,7 +24,7 @@ class SpireAPI
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];                            
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                                 
-            //if($i > 10)break; //debug
+            //if($i > 20)break; //debug
         }                
         return $all_taxa;
     }
@@ -325,14 +325,14 @@ class SpireAPI
         $description = "";
         if($locations)
         {
-            $description .= "<b>Based on studies in:</b>";
+            $description .= "<br>&nbsp;<br><b>Based on studies in:</b>";
             foreach($locations as $location)
             {
                 $description .= "<br>" . $location;
             }
         }
         
-        $description = $html . "<br>&nbsp;<br>" . $description;
+        $description = $html . $description;
         $description .= "<br>&nbsp;<br>This list may not be complete but is based on published studies.";
         $source = "http://spire.umbc.edu/fwc/";
         $identifier = str_replace(" ","_",$taxon) . "_" . $type;
@@ -342,7 +342,6 @@ class SpireAPI
         if($type=="predator") $title = "Known prey organisms";    
         else                  $title = "Known predators";    
         $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations"; //debug
-        //$subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution"; //debug
                 
         $agent = array(); 
         $agent[] = array("role" => "compiler" , "homepage" => "http://spire.umbc.edu/fwc/" , "Cynthia Sims Parr");
