@@ -2,7 +2,7 @@
 
 define("SPECIMEN_DETAIL_URL", "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm?GUID=");
 define("MCZ_TAXON_DETAIL_URL", "http://mczbase.mcz.harvard.edu/TaxonomyResults.cfm?scientific_name=");
-define("LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //temp file       
+define("TEMP_LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //temp file       
 
 //define("REMOTE_CSV"  , "http://127.0.0.1/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
 define("REMOTE_CSV", "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv");
@@ -14,17 +14,17 @@ class MCZHarvardAPI
         $all_taxa = array();
         $used_collection_ids = array();                          
         self::download_and_put_header_in_csv();
-        $urls = array(LOCAL_CSV);
+        $urls = array(TEMP_LOCAL_CSV);
         $taxa_arr = self::compile_taxa($urls);        
                 
         //start prepare CSV file
         require_library('XLSParser'); $parser = new XLSParser();                
-        $images=self::prepare_table($parser->convert_sheet_to_array(LOCAL_CSV),"multiple","SCIENTIFIC_NAME","GUID","MEDIA_ID","MEDIA_URI","MIME_TYPE",        
+        $images=self::prepare_table($parser->convert_sheet_to_array(TEMP_LOCAL_CSV),"multiple","SCIENTIFIC_NAME","GUID","MEDIA_ID","MEDIA_URI","MIME_TYPE",        
         "SPEC_LOCALITY","HIGHER_GEOG","TYPESTATUS","PARTS","COLLECTING_METHOD","COLLECTORS","IDENTIFIEDBY","created","LAST_EDIT_DATE",
         "SPECIMENDETAILURL","AGENT" );                
         print "images: " . sizeof($images) . "<br>\n"; 
         
-        unlink(LOCAL_CSV); //delete temp file
+        unlink(TEMP_LOCAL_CSV); //delete temp file
         $i=1; $total=sizeof($taxa_arr);
         foreach($taxa_arr as $taxon)
         {
@@ -57,7 +57,7 @@ class MCZHarvardAPI
     {
         $first_row="MEDIA_ID,MEDIA_URI,MIME_TYPE,subject,created,CAT_NUM,INSTITUTION_ACRONYM,COLLECTION_CDE,COLLECTION,MINIMUM_ELEVATION,MAXIMUM_ELEVATION,ORIG_ELEV_UNITS,LAST_EDIT_DATE,INDIVIDUALCOUNT,COLL_OBJ_DISPOSITION,COLLECTORS,TYPESTATUS,SEX,PARTS,VERBATIM_DATE,HIGHER_GEOG,CONTINENT_OCEAN,COUNTRY,STATE_PROV,COUNTY,FEATURE,ISLAND,ISLAND_GROUP,QUAD,SEA,SPEC_LOCALITY,MIN_ELEV_IN_M,MAX_ELEV_IN_M,DEC_LAT,DEC_LONG,DATUM,ORIG_LAT_LONG_UNITS,VERBATIMLATITUDE,VERBATIMLONGITUDE,LAT_LONG_REF_SOURCE,COORDINATEUNCERTAINTYINMETERS,GEOREFMETHOD,LAT_LONG_REMARKS,LAT_LONG_DETERMINER,SCIENTIFIC_NAME,IDENTIFIEDBY,MADE_DATE,REMARKS,HABITAT,FULL_TAXON_NAME,PHYLCLASS,KINGDOM,PHYLUM,PHYLORDER,FAMILY,GENUS,SPECIES,SUBSPECIES,INFRASPECIFIC_RANK,AUTHOR_TEXT,IDENTIFICATIONMODIFIER,NOMENCLATURAL_CODE,GUID,BASISOFRECORD,DEPTH_UNITS,MIN_DEPTH,MAX_DEPTH,COLLECTING_METHOD,COLLECTING_SOURCE,DAYOFYEAR,AGE_CLASS,ATTRIBUTES,VERIFICATIONSTATUS,SPECIMENDETAILURL,COLLECTORNUMBER,VERBATIMELEVATION,YEAR,MONTH,DAY,AGENT\n";
         $csv_body = Functions::get_remote_file_fake_browser(REMOTE_CSV);        
-        $fp = fopen(LOCAL_CSV,"w+");        
+        $fp = fopen(TEMP_LOCAL_CSV,"w+");        
         fwrite($fp,$first_row);        
         fwrite($fp,$csv_body);        
         fclose($fp);        
