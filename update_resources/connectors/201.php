@@ -10,7 +10,7 @@ Reminders:
 - In CSV, there are some entries that starts with '=' the equal sign - can be mistaked to be an excel formula.
 - Connector can be improved by reading the CSV using fopen() and don't use PHPExcel library.
 */
-exit;
+
 $timestart = microtime(1);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MCZHarvardAPI');
