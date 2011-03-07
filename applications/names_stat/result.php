@@ -18,6 +18,10 @@ $separator      = $_REQUEST['separator'];
 $choice         = $_REQUEST['choice'];
 $withCSV        = $_REQUEST['withCSV'];
 
+if(isset($_REQUEST['strict']))$strict=true;
+else $strict=false;
+
+
 if(trim($choice) == "")
 {
     print"<i>Please paste your list of names inside the box. <br>Select a filter and separator then click 'Submit'.</i>";
@@ -68,7 +72,7 @@ foreach($arr as $sciname)
     $file = $api_put_species . urlencode($sciname);
     $xml = Functions::get_hashed_response($file);
     print"<pre>";
-    $arr_details = $func->get_details($xml,$sciname,false);//strict search is FALSE
+    $arr_details = $func->get_details($xml,$sciname,$strict);//strict search is FALSE
     $arr_details = $func->sort_details($arr_details,$returns);
     $arr_table = array_merge($arr_details,$arr_table);    
     print"</pre>";

@@ -1,23 +1,23 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-	<title>Evaluate names</title>
+    <title>Evaluate names</title>
 
     <script language="javascript1.2">
         function proc()
         {
-        	if(document.forms.fn.choice[0].checked == true)
-        	{
-        		document.forms.fn.separator.value = 'chr(13)'
-        	}
-        	else
-        	{
-        		document.forms.fn.separator.value = ','
-        	}	
+            if(document.forms.fn.choice[0].checked == true)
+            {
+                document.forms.fn.separator.value = 'chr(13)'
+            }
+            else
+            {
+                document.forms.fn.separator.value = ','
+            }    
         }
         function proc2()
         {
-        	document.forms.fn.separator.value = ''
+            document.forms.fn.separator.value = ''
         }
     </script>
     
@@ -39,21 +39,22 @@ depending on the application, can affect the visual display of text."
 <textarea name="list" rows="10" cols="50" ></textarea>
 <table>
 <tr><td>
-# of records returned per taxa: <input style="text-align : right;" type="text" name="return" size="3" value="1"> <i>(blank for all)</i> <br>
-Sort order: <br>
-&nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="text" ># of Text objects <br>
+# of records returned per taxa: <input style="text-align : right;" type="text" name="return" size="3" value="1"> <i>(blank for all)</i><br>
+Match canonical form <input type="checkbox" name="strict"><br>
+Sort order:<br>
+&nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="text" ># of Text objects<br>
 &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="image" ># of Images<br>
-&nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="total_objects" checked ># of total objects <i>(Text + Image)</i> <br>
+&nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="total_objects" checked ># of total objects <i>(Text + Image)</i><br>
 <hr>
 </td></tr>
 <tr><td>
 Names are:
 </td></tr>
 <tr><td>
-<input onClick="proc2()"  type="radio" name="choice" value="1" checked>row separated <i>(e.g. copied from spreadsheet or database system)</i>	<br>
-<input onClick="proc2()"  type="radio" name="choice" value="2" >linefeed separated	<br>
-<input onClick="proc2()"  type="radio" name="choice" value="3" >tab separated	<br>
-<input onClick="proc2()"  type="radio" name="choice" value="4" >comma separated	<br>
+<input onClick="proc2()"  type="radio" name="choice" value="1" checked>row separated <i>(e.g. copied from spreadsheet or database system)</i><br>
+<input onClick="proc2()"  type="radio" name="choice" value="2" >linefeed separated<br>
+<input onClick="proc2()"  type="radio" name="choice" value="3" >tab separated<br>
+<input onClick="proc2()"  type="radio" name="choice" value="4" >comma separated<br>
 </td></tr>
 <tr><td>
 Specify separator: <input type="text" name="separator" size="6">
