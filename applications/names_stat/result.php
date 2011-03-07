@@ -68,7 +68,7 @@ foreach($arr as $sciname)
     $file = $api_put_species . urlencode($sciname);
     $xml = Functions::get_hashed_response($file);
     print"<pre>";
-    $arr_details = $func->get_details($xml,$sciname);  
+    $arr_details = $func->get_details($xml,$sciname,false);//strict search is FALSE
     $arr_details = $func->sort_details($arr_details,$returns);
     $arr_table = array_merge($arr_details,$arr_table);    
     print"</pre>";
