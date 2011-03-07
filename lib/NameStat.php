@@ -76,13 +76,24 @@ class NameStat
         return $a["$sort_order"] < $b["$sort_order"];
     }
     
-    function get_details($xml,$orig_sciname)
+    function get_details($xml,$orig_sciname,$strict)
     {
         $arr=array();
         foreach($xml->entry as $species)
-        {
-            $arr_do = self::get_objects_info($species->id,$species->title,$orig_sciname);        
-            $arr[]=$arr_do;
+        {            
+            if($strict)
+            {
+                if(trim($orig_sciname) == trim(Functions::canonical_form(trim($species->title))))
+                {
+                    $arr_do = self::get_objects_info($species->id,$species->title,$orig_sciname);        
+                    $arr[]=$arr_do;                
+                }                            
+            }
+            else
+            {
+                $arr_do = self::get_objects_info($species->id,$species->title,$orig_sciname);        
+                $arr[]=$arr_do;                                
+            }
         }                        
         return $arr;
     }
