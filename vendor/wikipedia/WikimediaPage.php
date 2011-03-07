@@ -124,6 +124,7 @@ class WikimediaPage
             }
         }
         
+        end($taxonomy);
         $this->taxonomy = $taxonomy;
         return $taxonomy;
     }
@@ -290,10 +291,14 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "author") $author = WikiParser::strip_syntax($val, true);
+                if($attr == "author") $author = self::convert_diacritics(WikiParser::strip_syntax($val, true));
             }
         }
-        if((!$author || !Functions::is_utf8($author)) && $this->contributor && Functions::is_utf8($this->contributor)) $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
+        if((!$author || !Functions::is_utf8($author)) && $this->contributor && Functions::is_utf8($this->contributor))
+        {
+            $this->contributor = self::convert_diacritics($this->contributor);
+            $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
+        }
         
         $this->author = $author;
         return $author;
@@ -336,6 +341,16 @@ class WikimediaPage
         }
         
         return $images;
+    }
+    
+    public static function convert_diacritics($string)
+    {
+        $string = str_replace('ä', '&amp;auml;', $string);
+        $string = str_replace('å', '&amp;aring;', $string);
+        $string = str_replace('é', '&amp;eacute;', $string);
+        $string = str_replace('ï', '&amp;iuml;', $string);
+        $string = str_replace('ö', '&amp;ouml;', $string);
+        return $string;
     }
 }
 
