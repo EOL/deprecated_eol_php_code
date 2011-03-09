@@ -21,7 +21,7 @@ class VimeoAPI
                 if(!$num_rows)break;
                 $i=0;
                 foreach($xml->video as $rec)
-                {                               
+                {                       
                     $i++; print"\n [user $j of $total_users] [page $page] [video $i of $num_rows] ";                
                     $arr = self::get_vimeo_taxa($rec,$used_collection_ids);                                
                     $page_taxa              = $arr[0];
@@ -193,6 +193,10 @@ class VimeoAPI
     
     function get_smallest_rank($match)
     {        
+        /*
+          [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
+        */
+        
         $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "family" => 4, "order" => 5, "class" => 6, "phylum" => 7, "kingdom" => 8);                
         $smallest_rank_id=9; $smallest_rank="";
         foreach($match as $tag)
@@ -210,9 +214,16 @@ class VimeoAPI
             }
         }                
         foreach($match as $tag)
-        {
+        {            
             if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr))$sciname = ucfirst(trim($arr[1]));                        
         }                
+        
+        if(!isset($sciname))
+        {
+            print"\n This needs checking...";
+            print"<pre>";print_r($match);print"</pre>";
+        }
+        
         return array("rank"=>$smallest_rank, "name"=>$sciname);
     }
     
@@ -237,12 +248,13 @@ class VimeoAPI
         $taxon["source"] = $rec["source"];
         $taxon["identifier"] = trim($rec["identifier"]);
         $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        $taxon["genus"] = ucfirst(trim(@$rec["genus"]));
-        $taxon["family"] = ucfirst(trim(@$rec["family"]));
-        $taxon["order"] = ucfirst(trim(@$rec["order"]));
-        $taxon["class"] = ucfirst(trim(@$rec["class"]));        
-        $taxon["phylum"] = ucfirst(trim(@$rec["phylum"]));
-        $taxon["kingdom"] = ucfirst(trim(@$rec["kingdom"]));                
+        
+        if($rec["sciname"]!=@$rec["family"])$taxon["family"] = ucfirst(trim(@$rec["family"]));        
+        if($rec["sciname"]!=@$rec["genus"])$taxon["genus"] = ucfirst(trim(@$rec["genus"]));        
+        if($rec["sciname"]!=@$rec["order"])$taxon["order"] = ucfirst(trim(@$rec["order"]));                
+        if($rec["sciname"]!=@$rec["class"])$taxon["class"] = ucfirst(trim(@$rec["class"]));        
+        if($rec["sciname"]!=@$rec["phylum"])$taxon["phylum"] = ucfirst(trim(@$rec["phylum"]));                        
+        if($rec["sciname"]!=@$rec["kingdom"])$taxon["kingdom"] = ucfirst(trim(@$rec["kingdom"]));
         
         //start common names
         foreach($rec["commonNames"] as $comname)
@@ -334,22 +346,24 @@ class VimeoAPI
     {
         $users=array();
         
-        /* you can add users by adding them 1 by 1:
-        $users["user1632860"]=""; //Peter Kuttner        
+        /* you can add users by adding them 1 by 1:        
         $users["user5352360"]=""; //Eli Agbayani
+        $users["user1632860"]=""; //Peter Kuttner                
         $users["user5814509"]=""; //Katja Schulz                        
         $users["user5361059"]=""; //Patrick Leary
-        $users["morphologic"]=""; //morphologic
-        //*///debug        
-        
-        /* or you can add them by getting all the members from the EOL-Vimeo group */
+        $users["morphologic"]=""; //morphologic                
+        $users["user6136460"]=""; //Ximena Miranda
+        //*///debug                        
+                
+        /* or you can include them by getting all the members from the EOL-Vimeo group */
         $xml = simplexml_load_file(VIMEO_USER_SERVICE . "group/encyclopediaoflife/users.xml");
         foreach($xml->user as $user)
         {
             $path_parts = pathinfo($user->profile_url);            
             $user = $path_parts['filename'];            
             $users[$user] = "";
-        }                 
+        } 
+        
         return array_keys($users);
     }    
     
