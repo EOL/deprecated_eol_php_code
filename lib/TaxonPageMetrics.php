@@ -15,7 +15,7 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692);
         
         self::initialize_concepts_list();                                                             
         $images_count = self::get_images_count();                       //1          
@@ -213,8 +213,44 @@ class TaxonPageMetrics
         print"\n get_user_submitted_text_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_user_added_text"); unset($arr_taxa);        
     }    
-        
+
     function get_content_partner_count()
+    {
+        $time_start = time_elapsed();
+        $arr_taxa=array();
+        $batch=500000; $start_limit=0;          
+        $temp=array();
+        while(true)
+        {       
+            print"\n content_partners [4 of 11] $start_limit \n";
+            $sql="SELECT he.taxon_concept_id tc_id, he.hierarchy_id FROM hierarchy_entries he where he.published = 1 AND he.visibility_id=".Visibility::find("visible");                        
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
+            $sql .= " limit $start_limit, $batch ";                                    
+            $outfile = $this->mysqli_slave->select_into_outfile($sql);
+            $start_limit += $batch;
+            $FILE = fopen($outfile, "r");
+            $num_rows=0; 
+            while(!feof($FILE))
+            {
+                if($line = fgets($FILE))
+                {
+                    $num_rows++; $line = trim($line); $fields = explode("\t", $line);                                        
+                    $tc_id      = trim($fields[0]);
+                    $hierarchy_id   = trim($fields[1]);
+                    $temp[$tc_id][$hierarchy_id]='';
+                }
+            }                
+            fclose($FILE);unlink($outfile);
+            print "\n num_rows: $num_rows";            
+            if($num_rows < $batch)break; 
+        }                           
+        foreach($temp as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);} unset($temp);         
+        print"\n get_content_partner_count():" . (time_elapsed()-$time_start)/60 . " mins.";
+        self::save_totals_to_cumulative_txt($arr_taxa,"tpm_content_partners"); unset($arr_taxa);        
+    }                
+    
+    /*        
+    function get_content_partner_count() == old count, counts partners which contributed actual data
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
@@ -258,6 +294,8 @@ class TaxonPageMetrics
         print"\n get_content_partner_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_content_partners"); unset($arr_taxa);        
     }            
+    */
+    
     
     function get_outlinks_count()
     {
@@ -847,8 +885,9 @@ class TaxonPageMetrics
     // Working but will be replaced once we store taxon_concept_id in PAGE_NAMES table.
     public function generate_taxon_concept_with_bhl_publications_textfile() //execution time: 5 hrs
     {
-        // This will generate the [taxon_concept_with_bhl_publications.txt].             
-        // Assigns # of BHL publications for every concept.                                                 
+        /*  This will generate the [taxon_concept_with_bhl_publications.txt].             
+            Assigns # of BHL publications for every concept.                                                 
+        */
             
         $timestart = microtime(1);        
         $write_filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp";                         
