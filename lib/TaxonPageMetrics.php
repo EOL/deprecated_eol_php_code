@@ -587,7 +587,7 @@ class TaxonPageMetrics
         $untrusted_id   = Vetted::find("untrusted");
         $unreviewed_id  = Vetted::find("unknown");                
         
-        $batch=500000; $start_limit=0;
+        $batch=100000; $start_limit=0;
         
         $concept_info_items = array();
         $concept_references = $taxon_ref_count;
