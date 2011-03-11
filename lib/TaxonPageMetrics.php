@@ -15,7 +15,7 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
         
         self::initialize_concepts_list();                                                             
         $images_count = self::get_images_count();                       //1          
@@ -27,8 +27,8 @@ class TaxonPageMetrics
         self::get_GBIF_map_availability();            //6        
         self::get_biomedical_terms_availability();    //7            
         self::get_user_submitted_text_count();        //8    
-        self::get_common_names_count();               //9
-        self::get_synonyms_count();                   //10
+        self::get_common_names_count(1);              //9
+        self::get_synonyms_count(1);                  //10
         self::get_google_stats();                     //11                
         self::save_to_table();                        
     }       
@@ -218,14 +218,15 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
-        $batch=500000; $start_limit=0;          
-        $temp=array();
-        while(true)
+        $batch=500000; $start_limit=0;                  
+        while(true)        
         {       
+            $temp=array();
             print"\n content_partners [4 of 11] $start_limit \n";
-            $sql="SELECT he.taxon_concept_id tc_id, he.hierarchy_id FROM hierarchy_entries he where he.published = 1 AND he.visibility_id=".Visibility::find("visible");                        
-            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";                
-            $sql .= " limit $start_limit, $batch ";                                    
+            $sql="SELECT he.taxon_concept_id tc_id, he.hierarchy_id FROM hierarchy_entries he where he.published = 1 AND he.visibility_id=".Visibility::find("visible");
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
+            $sql .= " ORDER BY he.taxon_concept_id";
+            $sql .= " limit $start_limit, $batch ";             
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
@@ -241,10 +242,13 @@ class TaxonPageMetrics
                 }
             }                
             fclose($FILE);unlink($outfile);
-            print "\n num_rows: $num_rows";            
+            print "\n num_rows: $num_rows";                        
+            
+            foreach($temp as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);} 
+            unset($temp);                     
             if($num_rows < $batch)break; 
         }                           
-        foreach($temp as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);} unset($temp);         
+        
         print"\n get_content_partner_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_content_partners"); unset($arr_taxa);        
     }                
@@ -343,10 +347,17 @@ class TaxonPageMetrics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_outlinks"); unset($arr_taxa);        
     }    
     
-    function get_common_names_count()
+    function get_common_names_count($enable)
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
+        
+        if(!$enable)
+        {
+            self::save_totals_to_cumulative_txt($arr_taxa,"tpm_common_names"); unset($arr_taxa);        
+            return;
+        }
+        
         $batch=500000; $start_limit=0;        
         $temp=array(); $temp2=array();
         while(true)
@@ -393,10 +404,18 @@ class TaxonPageMetrics
         self::save_totals_to_cumulative_txt($arr_taxa,"tpm_common_names"); unset($arr_taxa);        
     }
 
-    function get_synonyms_count()
+    function get_synonyms_count($enable)
     {
         $time_start = time_elapsed();
         $arr_taxa=array();
+        
+        if(!$enable)
+        {
+            self::save_totals_to_cumulative_txt($arr_taxa,"tpm_synonyms"); unset($arr_taxa);        
+            return;
+        }
+        
+        
         $batch=500000; $start_limit=0;        
         $temp=array(); $temp2=array();
         while(true)
@@ -732,7 +751,7 @@ class TaxonPageMetrics
     {        
         $time_start = time_elapsed();
         print "\n saving to table...";
-        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt";                
+        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt";                        
         
         $this->mysqli->delete("DROP TABLE IF EXISTS taxon_concept_metrics_tmp");
         $this->mysqli->insert("CREATE TABLE IF NOT EXISTS taxon_concept_metrics_tmp LIKE taxon_concept_metrics");
