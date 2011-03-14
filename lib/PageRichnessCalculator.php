@@ -5,7 +5,7 @@ require_once(DOC_ROOT . "vendor/text_statistics/TextStatistics.php");
 class PageRichnessCalculator
 {
     // breadth
-    static $IMAGE_BREADTH_MAX = 25;
+    static $IMAGE_BREADTH_MAX = 10;
     static $INFO_ITEM_BREADTH_MAX = 25;
     static $MAP_BREADTH_MAX = 1;
     static $VIDEO_BREADTH_MAX = 1;
@@ -14,18 +14,18 @@ class PageRichnessCalculator
     static $REFERENCE_BREADTH_MAX = 20;
     
     static $IMAGE_BREADTH_WEIGHT = .2;
-    static $INFO_ITEM_BREADTH_WEIGHT = .45;
-    static $MAP_BREADTH_WEIGHT = .08;
-    static $VIDEO_BREADTH_WEIGHT = .13;
-    static $SOUND_BREADTH_WEIGHT = 0;
-    static $IUCN_BREADTH_WEIGHT = .08;
+    static $INFO_ITEM_BREADTH_WEIGHT = .4;
+    static $MAP_BREADTH_WEIGHT = .15;
+    static $VIDEO_BREADTH_WEIGHT = .12;
+    static $SOUND_BREADTH_WEIGHT = .05;
+    static $IUCN_BREADTH_WEIGHT = .02;
     static $REFERENCE_BREADTH_WEIGHT = .06;
     
     // depth
     static $TEXT_TOTAL_MAX = 6000;
-    static $TEXT_AVERAGE_MAX = 1000;
-    static $TEXT_TOTAL_WEIGHT = .3;
-    static $TEXT_AVERAGE_WEIGHT = .7;
+    static $TEXT_AVERAGE_MAX = 500;
+    static $TEXT_TOTAL_WEIGHT = .7;
+    static $TEXT_AVERAGE_WEIGHT = .3;
     
     // diversity
     static $PARTNERS_DIVERSITY_MAX = 25;
@@ -33,8 +33,8 @@ class PageRichnessCalculator
     
     // category weights
     static $BREADTH_WEIGHT = .6;
-    static $DEPTH_WEIGHT = .2;
-    static $DIVERSITY_WEIGHT = .2;
+    static $DEPTH_WEIGHT = .3;
+    static $DIVERSITY_WEIGHT = .1;
     
     public function __construct($parameters = null)
     {
