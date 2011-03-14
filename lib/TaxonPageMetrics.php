@@ -15,12 +15,13 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
+        $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
         
         self::initialize_concepts_list();                                                             
         $images_count = self::get_images_count();                       //1          
-        $taxon_ref_count = self::get_taxon_ref_count();                 //                  
-        self::get_data_objects_count($images_count, $taxon_ref_count);  //2        
+        $taxon_ref_count = self::get_taxon_ref_count();                 //                          
+        self::get_data_objects_count($images_count, $taxon_ref_count);  //2                
+       
         self::get_BHL_publications();                 //3
         self::get_content_partner_count();            //4                    
         self::get_outlinks_count();                   //5     
@@ -557,6 +558,14 @@ class TaxonPageMetrics
             fclose($FILE); unlink($outfile); print "\n num_rows: $num_rows";            
             if($num_rows < $batch) break;             
         }                
+        
+        /*
+        $ref=array();
+        foreach($concept_references as $id => $rec) $ref[$id] = sizeof($rec);                                            
+        unset($concept_references);         
+        return $ref;                                     
+        */
+        
         return $concept_references;                                     
     }                        
     
@@ -587,10 +596,12 @@ class TaxonPageMetrics
         $untrusted_id   = Vetted::find("untrusted");
         $unreviewed_id  = Vetted::find("unknown");                
         
-        $batch=10000; $start_limit=0;
+        $batch=100000; $start_limit=0;
         
         $concept_info_items = array();
         $concept_references = $taxon_ref_count;
+        unset($taxon_ref_count);
+        //$concept_references = array();
         
         while(true)
         {       
@@ -659,10 +670,22 @@ class TaxonPageMetrics
             print "\n num_rows: $num_rows";            
             if($num_rows < $batch) break;             
         }
+        
         foreach($concept_info_items as $id => $rec) @$concept_data_object_counts[$id]['ii'] = sizeof($rec);
         unset($concept_info_items);
-        foreach($concept_references as $id => $rec) @$concept_data_object_counts[$id]['ref'] = sizeof($rec);                                            
+        foreach($concept_references as $id => $rec) @$concept_data_object_counts[$id]['ref'] = sizeof($rec);
         unset($concept_references);         
+        
+        /*
+        //new
+        foreach($taxon_ref_count as $key => $value)
+        {
+            @$concept_data_object_counts[$id]['ref'] += $value;
+        }
+        //end new
+        */
+
+        
         
         //convert associative array to a regular array
         $data_type_order_in_file = array("image","text","video","sound","flash","youtube","iucn");                
