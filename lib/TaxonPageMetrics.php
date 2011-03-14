@@ -619,6 +619,7 @@ class TaxonPageMetrics
                 {
                     $num_rows++;
                     $line = trim($line);
+                    print"\n[$line]";
                     $fields = explode("\t", $line);                                            
                     $tc_id          = trim($fields[0]);
                     $data_type_id   = trim($fields[1]);
