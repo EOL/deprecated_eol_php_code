@@ -587,7 +587,7 @@ class TaxonPageMetrics
         $untrusted_id   = Vetted::find("untrusted");
         $unreviewed_id  = Vetted::find("unknown");                
         
-        $batch=50000; $start_limit=0;
+        $batch=10000; $start_limit=0;
         
         $concept_info_items = array();
         $concept_references = $taxon_ref_count;
@@ -619,7 +619,7 @@ class TaxonPageMetrics
                 {
                     $num_rows++;
                     $line = trim($line);
-                    print"\n[$line]";
+
                     $fields = explode("\t", $line);                                            
                     $tc_id          = trim($fields[0]);
                     $data_type_id   = trim($fields[1]);
