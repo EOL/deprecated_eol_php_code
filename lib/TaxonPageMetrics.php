@@ -15,13 +15,11 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294);
         
         self::initialize_concepts_list();                                                             
-        $images_count = self::get_images_count();                       //1          
-        $taxon_ref_count = self::get_taxon_ref_count();                 //                          
-        self::get_data_objects_count($images_count, $taxon_ref_count);  //2                
-       
+        
+        self::get_data_objects_count();               //2                        
         self::get_BHL_publications();                 //3
         self::get_content_partner_count();            //4                    
         self::get_outlinks_count();                   //5     
@@ -523,10 +521,10 @@ class TaxonPageMetrics
         return $concept_data_object_counts;                                     
     }                
 
-    function get_taxon_ref_count()
+    function get_concept_references($concept_references)
     {            
         $time_start = time_elapsed(); 
-        $concept_references = array();        
+        //$concept_references = array();        
         $batch=500000; $start_limit=0;                
         while(true)
         {       
@@ -569,7 +567,7 @@ class TaxonPageMetrics
         return $concept_references;                                     
     }                        
     
-    function get_data_objects_count($images_count, $taxon_ref_count)
+    function get_data_objects_count()
     {               
         $time_start = time_elapsed(); 
         $concept_data_object_counts = array();
@@ -599,9 +597,7 @@ class TaxonPageMetrics
         $batch=100000; $start_limit=0;
         
         $concept_info_items = array();
-        $concept_references = $taxon_ref_count;
-        unset($taxon_ref_count);
-        //$concept_references = array();
+        $concept_references = array();
         
         while(true)
         {       
@@ -614,9 +610,9 @@ class TaxonPageMetrics
                             do.vetted_id 
             FROM data_objects_taxon_concepts dotc 
             JOIN data_objects do ON dotc.data_object_id = do.id 
-            Left Join data_objects_info_items doii ON do.id = doii.data_object_id 
-            Left Join data_objects_refs dor ON do.id = dor.data_object_id 
-            WHERE do.published=1 and do.visibility_id=".Visibility::find("visible");
+            LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id 
+            LEFT JOIN data_objects_refs dor ON do.id = dor.data_object_id 
+            WHERE do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.data_type_id <> $image_id";
             
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and dotc.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";                        
@@ -672,20 +668,13 @@ class TaxonPageMetrics
         }
         
         foreach($concept_info_items as $id => $rec) @$concept_data_object_counts[$id]['ii'] = sizeof($rec);
-        unset($concept_info_items);
+        unset($concept_info_items);        
+        
+        $concept_references = self::get_concept_references($concept_references);                 //                                  
         foreach($concept_references as $id => $rec) @$concept_data_object_counts[$id]['ref'] = sizeof($rec);
-        unset($concept_references);         
+        unset($concept_references);                 
         
-        /*
-        //new
-        foreach($taxon_ref_count as $key => $value)
-        {
-            @$concept_data_object_counts[$id]['ref'] += $value;
-        }
-        //end new
-        */
-
-        
+        $concept_images = self::get_images_count();                 
         
         //convert associative array to a regular array
         $data_type_order_in_file = array("image","text","video","sound","flash","youtube","iucn");                
@@ -697,14 +686,14 @@ class TaxonPageMetrics
             {                
                 if($data_type=="image")
                 {
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['total'];
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['t'];
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['ut'];
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['ur'];
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['total_w'];
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['t_w'];
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['ut_w'];
-                    $new_value .= "\t".@$images_count[$taxon_concept_id][$data_type]['ur_w'];                                    
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['total'];
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['t'];
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ut'];
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ur'];
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['total_w'];
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['t_w'];
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ut_w'];
+                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ur_w'];                                    
                 }
                 else
                 {
@@ -723,6 +712,7 @@ class TaxonPageMetrics
             
             $concept_data_object_counts[$taxon_concept_id] = $new_value;
         }
+        unset($concept_images);
         
         print "\n get_data_objects_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects");
