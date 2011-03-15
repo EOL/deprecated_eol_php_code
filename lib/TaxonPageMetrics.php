@@ -14,12 +14,16 @@ class TaxonPageMetrics
     /* prepare taxon concept totals for richness calculations */ 
     public function insert_page_metrics()
     {                          
-        // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294);
+        // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921);
         
         self::initialize_concepts_list();                                                             
         
-        self::get_data_objects_count();               //2                        
+        $concept_references_infoitems = self::get_data_objects_count();               //2                        
+        
+        self::get_concept_references($concept_references_infoitems);
+        unset($concept_references_infoitems);
+        
         self::get_BHL_publications();                 //3
         self::get_content_partner_count();            //4                    
         self::get_outlinks_count();                   //5     
@@ -521,8 +525,11 @@ class TaxonPageMetrics
         return $concept_data_object_counts;                                     
     }                
 
-    function get_concept_references($concept_references)
-    {            
+    function get_concept_references($concept_references_infoitems)
+    {                    
+        $concept_references = $concept_references_infoitems[0];
+        $concept_infoitems = $concept_references_infoitems[1];
+        
         $time_start = time_elapsed(); 
         //$concept_references = array();        
         $batch=500000; $start_limit=0;                
@@ -557,14 +564,26 @@ class TaxonPageMetrics
             if($num_rows < $batch) break;             
         }                
         
-        /*
-        $ref=array();
-        foreach($concept_references as $id => $rec) $ref[$id] = sizeof($rec);                                            
-        unset($concept_references);         
-        return $ref;                                     
-        */
+        //==================
+        $concept=array();
+        foreach($concept_infoitems as $id => $rec) @$concept[$id]['ii'] = sizeof($rec);
+        unset($concept_infoitems);        
+                
+        foreach($concept_references as $id => $rec) @$concept[$id]['ref'] = sizeof($rec);
+        unset($concept_references);                 
         
-        return $concept_references;                                     
+        foreach($concept as $taxon_concept_id => $taxon_object_counts)
+        {            
+            $new_value = "";            
+            $new_value .= "\t".@$taxon_object_counts["ref"];
+            $new_value .= "\t".@$taxon_object_counts["ii"];            
+            
+            $concept[$taxon_concept_id] = $new_value;
+        }
+        
+        print "\n get_concept_references():" . (time_elapsed()-$time_start)/60 . " mins.";
+        self::save_totals_to_cumulative_txt($concept, "tpm_references_infoitems");
+        unset($concept);           
     }                        
     
     function get_data_objects_count()
@@ -667,12 +686,6 @@ class TaxonPageMetrics
             if($num_rows < $batch) break;             
         }
         
-        foreach($concept_info_items as $id => $rec) @$concept_data_object_counts[$id]['ii'] = sizeof($rec);
-        unset($concept_info_items);        
-        
-        $concept_references = self::get_concept_references($concept_references);                 //                                  
-        foreach($concept_references as $id => $rec) @$concept_data_object_counts[$id]['ref'] = sizeof($rec);
-        unset($concept_references);                 
         
         $concept_images = self::get_images_count();                 
         
@@ -707,8 +720,6 @@ class TaxonPageMetrics
                     $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];                                    
                 }                
             }                                
-            $new_value .= "\t".@$taxon_object_counts["ref"];
-            $new_value .= "\t".@$taxon_object_counts["ii"];            
             
             $concept_data_object_counts[$taxon_concept_id] = $new_value;
         }
@@ -716,8 +727,12 @@ class TaxonPageMetrics
         
         print "\n get_data_objects_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects");
-        unset($concept_data_object_counts);        
-        
+        unset($concept_data_object_counts);               
+
+        $return=array();                    
+        $return[]=$concept_references;
+        $return[]=$concept_info_items;        
+        return $return;        
     }                
 
     function save_totals_to_cumulative_txt($arr,$category)
@@ -744,11 +759,12 @@ class TaxonPageMetrics
                 if(isset($arr[$tc_id])) fwrite($WRITE, $arr[$tc_id]);                                        
                 else
                 {
-                    if    ($category == "tpm_user_added_text"   ||
-                           $category == "tpm_common_names"      ||
-                           $category == "tpm_synonyms"          ||
+                    if    ($category == "tpm_user_added_text"       ||
+                           $category == "tpm_common_names"          ||
+                           $category == "tpm_synonyms"              ||
+                           $category == "tpm_references_infoitems"  ||
                            $category == "tpm_google_stats")         fwrite($WRITE, str_repeat("\t", 2));        
-                    elseif($category == "tpm_data_objects")         fwrite($WRITE, str_repeat("\t", 58));                                    
+                    elseif($category == "tpm_data_objects")         fwrite($WRITE, str_repeat("\t", 56));                                    
                     else                                            fwrite($WRITE, str_repeat("\t", 1));                            
                 }                  
                 fwrite($WRITE, "\n");
