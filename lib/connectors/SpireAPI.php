@@ -18,7 +18,6 @@ class SpireAPI
         $i=0;                
         foreach($GLOBALS['arr_taxa'] as $taxon => $temp)
         {
-            //print "\n [$taxon] --- ";
             $i++;             
             $arr = self::get_spire_taxa($taxon,$used_collection_ids);                                
             $page_taxa              = $arr[0];
@@ -66,7 +65,8 @@ class SpireAPI
             {                                
                 foreach($rec->predator[0]->attributes() as $attribute => $value) 
                 {                                        
-                    $arr = parse_url($value);
+                    $arr = parse_url($value);                    
+                    
                     $predator = trim(@$arr['fragment']);                    
                     $predator = str_replace("_"," ",$predator);
                 }       
@@ -89,7 +89,7 @@ class SpireAPI
                 //debug
                 //if(in_array("Accipiter cooperii",array($predator,$prey))){print"\n problem here: [$i] [$predator][$prey]";exit;}
                 
-                $arr_taxa[$predator]['desc']        = $pred_desc;                
+                $arr_taxa[$predator]['desc']        = $pred_desc;                                                
                 $arr_taxa[$prey]['desc']            = $prey_desc;                                
                 
                 if(!@$arr_predator[$predator]) $arr_predator[$predator][]  = $prey;
@@ -153,15 +153,19 @@ class SpireAPI
             }                        
         }//main loop 1-259
         
+        ///*
         //for ancestry
         require_library('XLSParser');
         $parser = new XLSParser();
         $names = $parser->convert_sheet_to_array(SPIRE_PATH_ANCESTRY);          
+        //*/  
                 
         $ancestry=array();
         foreach($arr_taxa as $taxon => $temp)                
         {
             $arr_taxa[$taxon]['objects']=array("predator"=>@$arr_predator[$taxon], "prey"=>@$arr_prey[$taxon]);
+            
+            
             //start ancestry
             $key = array_search(trim($taxon), $names['tname']);
             if(strval($key) != "")
@@ -170,13 +174,16 @@ class SpireAPI
                 $ancestry=self::get_ancestry($key,$names);                
                 $arr_taxa[$taxon]['ancestry'] = $ancestry;                                
             } 
-        }     
-                                   
+            
+        } 
+        
+        /*                                   
         print"<pre>";
-            //print_r($arr_taxa);
-            //print_r($arr_ref);
-            //print_r($reference);
+            print_r($arr_taxa);
+            print_r($arr_ref);
+            print_r($reference);
         print"</pre>";        
+        */
         
         return array($arr_taxa,$arr_ref,$reference);        
     }
@@ -271,7 +278,7 @@ class SpireAPI
         elseif($type == 'prey')$verb = "is prey of:";
                 
         $html="<b>$taxon";
-        if($taxon != $taxon_desc)$html .= " ($taxon_desc)";
+        if($taxon != $taxon_desc && $taxon_desc)$html .= " ($taxon_desc)";
         $html .= " $verb</b>";
         
         $refs      = array(); $temp_citation=array();        
@@ -279,7 +286,7 @@ class SpireAPI
         $habitats  = array(); $temp_habitat=array();        
         
         foreach($GLOBALS['arr_taxa'][$taxon]['objects'][$type] as $rec)        
-        {            
+        {                        
             $citation = "";
             $ref_url = "";            
             
@@ -295,7 +302,9 @@ class SpireAPI
             {
                 $index = "s_" . $i;                            
                 if(!isset($GLOBALS['arr_ref'][$index]))continue;                    
-                if(in_array(trim($rec),$GLOBALS['arr_ref'][$index][self::toggle_type($type)])) 
+                if( in_array(trim($rec),$GLOBALS['arr_ref'][$index][self::toggle_type($type)])  &&
+                    in_array(trim($taxon),$GLOBALS['arr_ref'][$index][$type])    
+                  ) 
                 {                    
                     $citation = trim($GLOBALS['reference'][$index]['titleAndAuthors']);                    
                     if(!in_array($citation,$temp_citation)) $refs[] = array("url"=>"", "ref"=>$citation);                                    
@@ -342,6 +351,7 @@ class SpireAPI
         if($type=="predator") $title = "Known prey organisms";    
         else                  $title = "Known predators";    
         $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations"; //debug
+        //$subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
                 
         $agent = array(); 
         $agent[] = array("role" => "compiler" , "homepage" => "http://spire.umbc.edu/fwc/" , "Cynthia Sims Parr");
