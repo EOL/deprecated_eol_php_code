@@ -15,11 +15,11 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1);
         
-        self::initialize_concepts_list();                                                             
-        
-        $concept_references_infoitems = self::get_data_objects_count();               //2                        
+        self::initialize_concepts_list();
+                
+        $concept_references_infoitems = self::get_data_objects_count();               //2                     
         
         self::get_concept_references($concept_references_infoitems);
         unset($concept_references_infoitems);
@@ -33,6 +33,7 @@ class TaxonPageMetrics
         self::get_common_names_count(1);              //9
         self::get_synonyms_count(1);                  //10
         self::get_google_stats();                     //11                
+
         self::save_to_table();                        
     }       
         
@@ -476,9 +477,26 @@ class TaxonPageMetrics
         while(true)
         {       
             print "\n top images count [1 of 11] $start_limit \n";                        
-            $sql="SELECT distinct tc.id tc_id, do.description, do.vetted_id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON tc.id = he.taxon_concept_id JOIN top_images ti ON he.id = ti.hierarchy_entry_id JOIN data_objects do ON ti.data_object_id = do.id WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 and do.visibility_id=".Visibility::find("visible");            
+            
+            /*            
+            $sql="SELECT distinct tc.id tc_id, do.description, do.vetted_id, do.id 
+                FROM taxon_concepts tc 
+                JOIN hierarchy_entries he ON tc.id = he.taxon_concept_id 
+                JOIN top_images ti ON he.id = ti.hierarchy_entry_id 
+                JOIN data_objects do ON ti.data_object_id = do.id 
+                WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 and do.visibility_id=".Visibility::find("visible");                            
+            */
+            
+            $sql="SELECT distinct tc.id tc_id, do.description, do.vetted_id, do.id 
+                FROM taxon_concepts tc
+                JOIN top_concept_images tci ON tc.id = tci.taxon_concept_id
+                JOIN data_objects do ON tci.data_object_id = do.id
+                WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 and do.visibility_id=".Visibility::find("visible");                            
+            
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";                        
+            
+            
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
@@ -795,7 +813,7 @@ class TaxonPageMetrics
             $this->mysqli->swap_tables('taxon_concept_metrics', 'taxon_concept_metrics_tmp');                                                                                                
         }
         print "\n table saved";                                       
-        print "\n load_data_infile():" . (time_elapsed()-$time_start)/60 . " mins.";
+        print "\n save_to_table():" . (time_elapsed()-$time_start)/60 . " mins.";
     }    
     
     
