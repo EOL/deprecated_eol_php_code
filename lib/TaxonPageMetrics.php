@@ -14,11 +14,12 @@ class TaxonPageMetrics
     /* prepare taxon concept totals for richness calculations */ 
     public function insert_page_metrics()
     {                          
-        // $tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1);
+        //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
+        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1);
         
-        self::initialize_concepts_list();
-                
+        self::initialize_concepts_list();        
+        
+        self::get_images_count();                         
         $concept_references_infoitems = self::get_data_objects_count();               //2                     
         
         self::get_concept_references($concept_references_infoitems);
@@ -540,7 +541,38 @@ class TaxonPageMetrics
             print "\n num_rows: $num_rows";            
             if($num_rows < $batch) break;             
         }        
-        return $concept_data_object_counts;                                     
+        
+        //print"\n\n<pre>";print_r($concept_data_object_counts);
+        //print"</pre>";
+        
+        //convert associative array to a regular array
+
+        $data_type="image";                
+        foreach($concept_data_object_counts as $taxon_concept_id => $taxon_object_counts)
+        {            
+            $new_value = "";                        
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['total'];
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['t'];
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['ut'];
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['ur'];
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['total_w'];
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['t_w'];
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
+            $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];                                                
+            $concept_data_object_counts[$taxon_concept_id] = $new_value;
+        }
+        
+        
+        //print"<pre>";print_r($concept_data_object_counts);
+        //print"</pre>";exit;
+        
+        print "\n get_data_objects_count():" . (time_elapsed()-$time_start)/60 . " mins.";
+        self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects_images");
+        unset($concept_data_object_counts);               
+
+        
+                
+        
     }                
 
     function get_concept_references($concept_references_infoitems)
@@ -705,43 +737,28 @@ class TaxonPageMetrics
         }
         
         
-        $concept_images = self::get_images_count();                 
+        
         
         //convert associative array to a regular array
-        $data_type_order_in_file = array("image","text","video","sound","flash","youtube","iucn");                
+        $data_type_order_in_file = array("text","video","sound","flash","youtube","iucn");                
                 
         foreach($concept_data_object_counts as $taxon_concept_id => $taxon_object_counts)
         {            
             $new_value = "";            
             foreach($data_type_order_in_file as $data_type)
             {                
-                if($data_type=="image")
-                {
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['total'];
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['t'];
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ut'];
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ur'];
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['total_w'];
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['t_w'];
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ut_w'];
-                    $new_value .= "\t".@$concept_images[$taxon_concept_id][$data_type]['ur_w'];                                    
-                }
-                else
-                {
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['total'];
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['t'];
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['ut'];
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['ur'];
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['total_w'];
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['t_w'];
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
-                    $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];                                    
-                }                
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['total'];
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['t'];
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['ut'];
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['ur'];
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['total_w'];
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['t_w'];
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
+                $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];                                    
             }                                
             
             $concept_data_object_counts[$taxon_concept_id] = $new_value;
         }
-        unset($concept_images);
         
         print "\n get_data_objects_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects");
@@ -782,7 +799,8 @@ class TaxonPageMetrics
                            $category == "tpm_synonyms"              ||
                            $category == "tpm_references_infoitems"  ||
                            $category == "tpm_google_stats")         fwrite($WRITE, str_repeat("\t", 2));        
-                    elseif($category == "tpm_data_objects")         fwrite($WRITE, str_repeat("\t", 56));                                    
+                    elseif($category == "tpm_data_objects")         fwrite($WRITE, str_repeat("\t", 48));                                    
+                    elseif($category == "tpm_data_objects_images")  fwrite($WRITE, str_repeat("\t", 8));                                    
                     else                                            fwrite($WRITE, str_repeat("\t", 1));                            
                 }                  
                 fwrite($WRITE, "\n");
