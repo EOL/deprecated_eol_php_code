@@ -15,7 +15,7 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1);
+        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
         
         self::initialize_concepts_list();        
         
@@ -569,16 +569,13 @@ class TaxonPageMetrics
         print "\n get_data_objects_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects_images");
         unset($concept_data_object_counts);               
-
-        
-                
-        
     }                
 
     function get_concept_references($concept_references_infoitems)
     {                    
         $concept_references = $concept_references_infoitems[0];
         $concept_infoitems = $concept_references_infoitems[1];
+        unset($concept_references_infoitems);
         
         $time_start = time_elapsed(); 
         //$concept_references = array();        
@@ -591,7 +588,7 @@ class TaxonPageMetrics
                 JOIN hierarchy_entries he ON tc.id = he.taxon_concept_id 
                 JOIN hierarchy_entries_refs her ON he.id = her.hierarchy_entry_id
                 WHERE tc.published = 1 AND tc.supercedure_id=0";            
-                
+                                
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";                        
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -626,8 +623,7 @@ class TaxonPageMetrics
         {            
             $new_value = "";            
             $new_value .= "\t".@$taxon_object_counts["ref"];
-            $new_value .= "\t".@$taxon_object_counts["ii"];            
-            
+            $new_value .= "\t".@$taxon_object_counts["ii"];                        
             $concept[$taxon_concept_id] = $new_value;
         }
         
