@@ -15,17 +15,23 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
+        $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
         
         self::initialize_concepts_list();        
         
         self::get_images_count();                         
         $concept_references_infoitems = self::get_data_objects_count();               //2                     
         
-        self::get_concept_references($concept_references_infoitems);
+        $concept_references_infoitems = self::get_concept_references($concept_references_infoitems);
+        
+        print"\n step 06";
+        
         unset($concept_references_infoitems);
         
         self::get_BHL_publications();                 //3
+        
+        print"\n step 07";
+        
         self::get_content_partner_count();            //4                    
         self::get_outlinks_count();                   //5     
         self::get_GBIF_map_availability();            //6        
@@ -610,14 +616,18 @@ class TaxonPageMetrics
             fclose($FILE); unlink($outfile); print "\n num_rows: $num_rows";            
             if($num_rows < $batch) break;             
         }                
-        
+        print"\n step 01";
         //==================
         $concept=array();
         foreach($concept_infoitems as $id => $rec) @$concept[$id]['ii'] = sizeof($rec);
         unset($concept_infoitems);        
+        
+        print"\n step 02";
                 
         foreach($concept_references as $id => $rec) @$concept[$id]['ref'] = sizeof($rec);
         unset($concept_references);                 
+        
+        print"\n step 03";
         
         foreach($concept as $taxon_concept_id => $taxon_object_counts)
         {            
@@ -627,9 +637,15 @@ class TaxonPageMetrics
             $concept[$taxon_concept_id] = $new_value;
         }
         
+        print"\n step 04";
+        
         print "\n get_concept_references():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($concept, "tpm_references_infoitems");
+        
+        print"\n step 05";
+        
         unset($concept);           
+        return array();
     }                        
     
     function get_data_objects_count()
@@ -760,10 +776,13 @@ class TaxonPageMetrics
         self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects");
         unset($concept_data_object_counts);               
 
-        $return=array();                    
-        $return[]=$concept_references;
-        $return[]=$concept_info_items;        
-        return $return;        
+        
+        
+        
+        $concept_references_infoitems=array();                    
+        $concept_references_infoitems[]=$concept_references;
+        $concept_references_infoitems[]=$concept_info_items;        
+        return $concept_references_infoitems;        
     }                
 
     function save_totals_to_cumulative_txt($arr,$category)
