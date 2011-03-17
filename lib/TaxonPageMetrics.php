@@ -15,7 +15,7 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        $GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
+        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
         
         self::initialize_concepts_list();        
         
