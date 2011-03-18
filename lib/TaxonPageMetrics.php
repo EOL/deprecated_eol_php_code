@@ -15,18 +15,18 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1);
+        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
         
         self::initialize_concepts_list();        
         
         self::get_images_count();                         
-        $concept_references_infoitems = self::get_data_objects_count();               //2                     
+        self::get_data_objects_count();               //2                     
         
-        $concept_references_infoitems = self::get_concept_references($concept_references_infoitems);
+        self::get_concept_references();
         
         print"\n step 06";
         
-        unset($concept_references_infoitems);
+        
         
         self::get_BHL_publications();                 //3
         
@@ -566,22 +566,20 @@ class TaxonPageMetrics
             $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
             $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];                                                
             $concept_data_object_counts[$taxon_concept_id] = $new_value;
-        }
-        
-        
+        }        
         //print"<pre>";print_r($concept_data_object_counts);
         //print"</pre>";exit;
-        
-        print "\n get_data_objects_count():" . (time_elapsed()-$time_start)/60 . " mins.";
+                
+        print "\n get_images_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects_images");
         unset($concept_data_object_counts);               
     }                
 
-    function get_concept_references($concept_references_infoitems)
+    function get_concept_references()
     {                    
-        $concept_references = $concept_references_infoitems[0];
-        $concept_infoitems = $concept_references_infoitems[1];
-        unset($concept_references_infoitems);
+        $concept_references = self::get_array_from_json_file("concept_references");
+        //print"<pre>";print_r($concept_references);print"</pre>";
+                
         
         $time_start = time_elapsed(); 
         //$concept_references = array();        
@@ -622,8 +620,13 @@ class TaxonPageMetrics
         print"\n step 01";
         //==================
         $concept=array();
-        //foreach($concept_infoitems as $id => $rec) @$concept[$id]['ii'] = sizeof($rec);
-        unset($concept_infoitems);        
+        
+        
+        $concept_info_items = self::get_array_from_json_file("concept_info_items");
+        //print"<pre>";print_r($concept_info_items);print"</pre>";
+
+        foreach($concept_info_items as $id => $rec) @$concept[$id]['ii'] = sizeof($rec);
+        unset($concept_info_items);        
         
         print"\n step 02";
                 
@@ -751,8 +754,15 @@ class TaxonPageMetrics
             if($num_rows < $batch) break;             
         }
         
+        //print"<pre>";print_r($concept_info_items);print"</pre>";        
         
+        self::save_to_json_file($concept_info_items,"concept_info_items");
+        unset($concept_info_items);
         
+        //print"<pre>";print_r($concept_references);print"</pre>";
+        
+        self::save_to_json_file($concept_references,"concept_references");        
+        unset($concept_references);
         
         //convert associative array to a regular array
         $data_type_order_in_file = array("text","video","sound","flash","youtube","iucn");                
@@ -770,23 +780,38 @@ class TaxonPageMetrics
                 $new_value .= "\t".@$taxon_object_counts[$data_type]['t_w'];
                 $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
                 $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];                                    
-            }                                
-            
+            }                                            
             $concept_data_object_counts[$taxon_concept_id] = $new_value;
         }
         
         print "\n get_data_objects_count():" . (time_elapsed()-$time_start)/60 . " mins.";
         self::save_totals_to_cumulative_txt($concept_data_object_counts, "tpm_data_objects");
-        unset($concept_data_object_counts);               
-
+        unset($concept_data_object_counts);                              
         
-        
-        
+        /*
         $concept_references_infoitems=array();                    
         $concept_references_infoitems[]=$concept_references;
         $concept_references_infoitems[]=$concept_info_items;        
         return $concept_references_infoitems;        
+        */
+        
     }                
+    
+    function save_to_json_file($arr,$filename)
+    {
+        $WRITE = fopen(PAGE_METRICS_TEXT_PATH . $filename . ".txt", "w");
+        fwrite($WRITE, json_encode($arr));
+        fclose($WRITE);        
+    }
+    function get_array_from_json_file($filename)
+    {
+        $filename = PAGE_METRICS_TEXT_PATH . $filename . ".txt";
+        $READ = fopen($filename, "r");
+        $contents = fread($READ, filesize($filename));
+        fclose($READ);                
+        return json_decode($contents,true);
+    }
+    
 
     function save_totals_to_cumulative_txt($arr,$category)
     {           
