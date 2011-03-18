@@ -613,8 +613,11 @@ class TaxonPageMetrics
                     $concept_references[$tc_id][$ref_id]='';           
                 }
             }                
+            print"\n step aaa";
             fclose($FILE); unlink($outfile); print "\n num_rows: $num_rows";            
+            print"\n step bbb";
             if($num_rows < $batch) break;             
+            print"\n step ccc";
         }                
         print"\n step 01";
         //==================
