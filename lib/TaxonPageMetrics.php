@@ -15,7 +15,7 @@ class TaxonPageMetrics
     public function insert_page_metrics()
     {                          
         //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);        
-        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
+        // $GLOBALS['test_taxon_concept_ids'] = array(206692,1);
         
         self::initialize_concepts_list();        
         
@@ -622,7 +622,7 @@ class TaxonPageMetrics
         print"\n step 01";
         //==================
         $concept=array();
-        foreach($concept_infoitems as $id => $rec) @$concept[$id]['ii'] = sizeof($rec);
+        //foreach($concept_infoitems as $id => $rec) @$concept[$id]['ii'] = sizeof($rec);
         unset($concept_infoitems);        
         
         print"\n step 02";
