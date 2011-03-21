@@ -925,13 +925,13 @@ class TaxonPageMetrics
                 if($line = fgets($FILE))
                 {
                     $num_rows++; $fields = explode("\t", $line);
-                    $tc_id      = $fields[0];
+                    $tc_id      = trim($fields[0]);                    
                     $tc_ids[$tc_id] = "";
                 }
             }                
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";                                    
-            if($num_rows < $batch)break; 
+            if($num_rows < $batch)break;             
         }                         
 
         $str="";
