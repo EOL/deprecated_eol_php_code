@@ -13,7 +13,6 @@ $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-//$resource = new Resource(93); //93 exit($resource->id);
 $resource_id = 93;
 
 $schema_taxa = array();
@@ -21,15 +20,21 @@ $used_taxa = array();
 
 //Reference
 $GLOBALS['cited_taxa_prefix'] = "http://invertebrates.si.edu/antiz/taxon_view.cfm?mode=bibliography&citation=";
-$reference_html = "files/AntarcticInvertebrates/bibliography.cfm.html";
 
+/*
+$reference_html = "http://localhost/eol_php_code/update_resources/connectors/files/AntarcticInvertebrates/bibliography.cfm.html";                       
+*/
+$reference_html = "http://pandanus.eol.org/public/content_partners/AntarcticInvertebrates/bibliography.cfm.html";
 $arr = get_references($reference_html);
 $arr_ref = $arr[0];
 $arr_taxon_ref = $arr[1];
 
+/*
 $xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm?rows=5";
 $xml_url = "http://antiz.redmon.com/admin/taxon_descriptions.cfm";
-$xml_url = "http://127.0.0.1/ai.xml";
+$xml_url = DOC_ROOT . "/update_resources/connectors/files/AntarcticInvertebrates/ai.xml";                       
+*/
+$xml_url = "http://pandanus.eol.org/public/content_partners/AntarcticInvertebrates/AI.xml";
 
 if(!($xml = @simplexml_load_file($xml_url)))
 {
@@ -55,10 +60,11 @@ foreach($xml->taxon as $rec)
     $taxon_identifier = "AI_" . $rec["ID"];
     $agent = get_agent($rec->original_description);        
     
-    
+    /* obsolete
     $source_url = "http://antiz.redmon.com/taxon_view.cfm?mode=advancedSearch&name=" . urlencode($dwc_ScientificName) . "&rank=&phylum=&match=substring&Submit=Search";
+    */       
+    $source_url = "http://invertebrates.si.edu/antiz/taxon_view.cfm?mode=advancedSearch&name=" . urlencode($dwc_ScientificName) . "&rank=&phylum=&match=substring&Submit=Search";                                                                                                                                         
     
-    //print " -- <a href='$source_url'>url</a>";    
     print "\n";    
     
     if(@$used_taxa[$taxon_identifier])
@@ -77,7 +83,6 @@ foreach($xml->taxon as $rec)
         $taxon_parameters["dataObjects"]= array();        
         $used_taxa[$taxon_identifier] = $taxon_parameters;        
 
-        // /* start first dataobject - text 
         if(isset($rec->original_description))
         {    
             $dcterms_created="";
@@ -96,17 +101,16 @@ foreach($xml->taxon as $rec)
             
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text", $source_url, $taxon_ref, $arr_ref);                   
             $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
-        }
-        // end first dataobject - text */             
-        
+        }        
     }    
+    
     /* start 2nd dataobject - image */         
     /* end second dataobject - image */          
+    
     $used_taxa[$taxon_identifier] = $taxon_parameters;                
     $k++;
-    if($k == 3)break;  //debug - to limit no. of records
+    //if($k == 3)break;  //debug - to limit no. of records
 }
-
 
 foreach($used_taxa as $taxon_parameters)
 {
@@ -133,8 +137,8 @@ exit("\n\n Done processing.");
 
 function get_references($file)
 {
-
-    $str = Functions::get_remote_file($file);            
+    $str = Functions::get_remote_file($file);                
+    
     $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);    
     $str = str_replace(array("<nobr>", "</nobr>", "taxon_view.cfm?mode=bibliography&citation=","&#776;"), '', $str);            
     
@@ -161,10 +165,7 @@ function get_references($file)
         print"\n $i of " . count($arr) . "\n";
         if(is_numeric(stripos($r,'<a href="')))
         {
-            if(preg_match("/<a href=\"(.*?)\">/", $r, $matches))$ref_num = $matches[1];
-            //print "$ref_num - $r <br>";                        
-            //print "ref_id [$ref_num] ";                        
-            
+            if(preg_match("/<a href=\"(.*?)\">/", $r, $matches))$ref_num = $matches[1];            
             $file = $GLOBALS['cited_taxa_prefix'] . $ref_num;
             $str = Functions::get_remote_file($file);                                                
             
@@ -188,7 +189,7 @@ function get_references($file)
             }                                        
             $arr_ref[$ref_num]=$str = trim(str_ireplace('View cited taxa' , "", strip_tags($r,"<em>")));                        
             $i++;
-            if($i == 3)break;//debug - to limit no. of records
+            //if($i == 3)break;//debug - to limit no. of records
         }
     }    
     return array(0 => $arr_ref, 1 => $arr_taxon_ref);
@@ -253,7 +254,6 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
     $agentParameters["homepage"] = "http://antiz.redmon.com/index.cfm";
     $agents[] = new SchemaAgent($agentParameters);
     $dataObjectParameters["agents"] = $agents;    
-
     
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();    
@@ -276,11 +276,9 @@ function get_agent($str)
     $pos = find_pos_of_this_char_by_moving_backwards($str,"(");
     if($pos != "")
     {
-        //$agent = substr($str,$pos,strlen($str)-$pos);    
         $agent = trim(substr($str,$pos,strlen($str)));    
                 
         //get end pos of agent
-        //$pos = find_pos_of_this_char_by_moving_backwards($agent,",");
         $pos = find_pos_of_this_char_by_moving_backwards($agent,")");
         if($pos != "")$agent = substr($agent,0,$pos+1);                
 
@@ -317,5 +315,4 @@ function remove_chars($str)
     $str = str_replace($arr, '', $str);    
     return $str;
 }
-
 ?>
