@@ -4,6 +4,8 @@ require_once(DOC_ROOT . "vendor/text_statistics/TextStatistics.php");
 
 class PageRichnessCalculator
 {
+    static $VETTED_FACTOR = .75;
+    
     // breadth
     static $IMAGE_BREADTH_MAX = 10;
     static $INFO_ITEM_BREADTH_MAX = 25;
@@ -55,7 +57,7 @@ class PageRichnessCalculator
     // process a single page and just return the results
     public function score_for_page($taxon_concept_id)
     {
-        $query = "SELECT taxon_concept_id, image_total, text_total, text_total_words, video_total, sound_total, flash_total, youtube_total, iucn_total, data_object_references, info_items, content_partners, has_GBIF_map FROM taxon_concept_metrics WHERE taxon_concept_id=$taxon_concept_id";
+        $query = "SELECT taxon_concept_id, image_trusted, image_unreviewed, text_trusted, text_unreviewed, text_trusted_words, text_unreviewed_words, video_trusted, video_unreviewed, sound_trusted, sound_unreviewed, flash_trusted, flash_unreviewed, youtube_trusted, youtube_unreviewed, iucn_total, data_object_references, info_items, content_partners, has_GBIF_map FROM taxon_concept_metrics WHERE taxon_concept_id=$taxon_concept_id";
         $result = $this->mysqli_slave->query($query);
         if($result && $row=$result->fetch_row())
         {
@@ -79,7 +81,7 @@ class PageRichnessCalculator
     {
         $GLOBALS['top_taxa'] = array();
         $all_scores = array();
-        $query = "SELECT taxon_concept_id, image_total, text_total, text_total_words, video_total, sound_total, flash_total, youtube_total, iucn_total, data_object_references, info_items, content_partners, has_GBIF_map FROM taxon_concept_metrics";
+        $query = "SELECT taxon_concept_id, image_trusted, image_unreviewed, text_trusted, text_unreviewed, text_trusted_words, text_unreviewed_words, video_trusted, video_unreviewed, sound_trusted, sound_unreviewed, flash_trusted, flash_unreviewed, youtube_trusted, youtube_unreviewed, iucn_total, data_object_references, info_items, content_partners, has_GBIF_map FROM taxon_concept_metrics";
         if($taxon_concept_ids) $query .= " WHERE taxon_concept_id IN (". implode($taxon_concept_ids, ",") .")";
         elseif($range) $query .= " WHERE taxon_concept_id BETWEEN $range";
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -95,17 +97,21 @@ class PageRichnessCalculator
         
         echo "CALCULATIONS ARE DONE (".time_elapsed().")\n";
         uasort($all_scores, array('self', 'sort_by_total_score'));
-        echo "RANK\tID\tNAME\tBREADTH\tDEPTH\tDIVERSITY\tTOTAL\n";
         static $num = 0;
+        $OUT = fopen(DOC_ROOT . '/tmp/richness.txt', 'w+');
+        fwrite($OUT, "RANK\tID\tNAME\tBREADTH\tDEPTH\tDIVERSITY\tTOTAL\n");
         foreach($all_scores as $id => $scores)
         {
             $num++;
-            echo "$num\t$id\t" . TaxonConcept::get_name($id) ."\t";
-            echo $scores['breadth']."\t";
-            echo $scores['depth']."\t";
-            echo $scores['diversity']."\t";
-            echo $scores['total']."\n";
+            if($num >= 2500) break;
+            $str = "$num\t$id\t" . TaxonConcept::get_name($id) ."\t";
+            $str .= $scores['breadth']."\t";
+            $str .= $scores['depth']."\t";
+            $str .= $scores['diversity']."\t";
+            $str .= $scores['total']."\n";
+            fwrite($OUT, $str);
         }
+        fclose($OUT);
         return $all_scores;
     }
     
@@ -113,23 +119,39 @@ class PageRichnessCalculator
     {
         $scores = array();
         $taxon_concept_id = $row[0];
-        $image_total = $row[1];
-        $text_total = $row[2];
-        $text_total_words = $row[3];
-        $video_total = $row[4];
-        $sound_total = $row[5];
-        $flash_total = $row[6];
-        $youtube_total = $row[7];
-        $iucn_total = $row[8];
-        $data_object_references = $row[9];
-        $info_items = $row[10];
-        $content_partners = $row[11];
-        $has_GBIF_map = $row[12];
+        $image_trusted = $row[1];
+        $image_unreviewed = $row[2];
+        $text_trusted = $row[3];
+        $text_unreviewed = $row[4];
+        $text_words_trusted = $row[5];
+        $text_words_unreviewed = $row[6];
+        $video_trusted = $row[7];
+        $video_unreviewed = $row[8];
+        $sound_trusted = $row[9];
+        $sound_unreviewed = $row[10];
+        $flash_trusted = $row[11];
+        $flash_unreviewed = $row[12];
+        $youtube_trusted = $row[13];
+        $youtube_unreviewed = $row[14];
+        $iucn_total = $row[15];
+        $data_object_references = $row[16];
+        $info_items = $row[17];
+        $content_partners = $row[18];
+        $has_GBIF_map = $row[19];
         
+        $image_total = $image_trusted + (self::$VETTED_FACTOR * $image_unreviewed);
+        $text_total = $text_trusted + (self::$VETTED_FACTOR * $text_unreviewed);
+        $text_total_words = $text_words_trusted + (self::$VETTED_FACTOR * $text_words_unreviewed);
+        $sound_total = $sound_trusted + (self::$VETTED_FACTOR * $sound_unreviewed);
+        $flash_total = $flash_trusted + (self::$VETTED_FACTOR * $flash_unreviewed);
+        $youtube_total = $youtube_trusted + (self::$VETTED_FACTOR * $youtube_unreviewed);
+        $video_total = $video_trusted + (self::$VETTED_FACTOR * $video_unreviewed);
         $video_total += $flash_total + $youtube_total;
         
+        // we need to calculate the words per text using the weighted number of words and ACTUAL number of text objects
+        // otherwise we could get a higher haverage words per text than before than before
         $words_per_text = 0;
-        if($text_total) $words_per_text = $text_total_words / $text_total;
+        if($text_total) $words_per_text = $text_total_words / ($text_trusted + $text_unreviewed);
         
         $breadth_score = 0;
         $breadth_score += self::diminish($image_total, self::$IMAGE_BREADTH_MAX) * self::$IMAGE_BREADTH_WEIGHT;
