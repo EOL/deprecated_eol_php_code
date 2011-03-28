@@ -120,6 +120,11 @@ class SolrAPI
         exec("curl ". $this->server ."admin/cores -F action=SWAP -F core=$from_core -F other=$to_core");
     }
     
+    public function reload($core)
+    {
+        exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core");
+    }
+    
     public function delete($query)
     {
         @unlink(DOC_ROOT . $this->csv_path);
@@ -223,7 +228,7 @@ class SolrAPI
     }
     
     
-    public static function text_filter($text, $convert_to_ascii = true)
+    public static function text_filter($text, $convert_to_ascii = false)
     {
         if(!Functions::is_utf8($text)) return "";
         $text = str_replace(";", " ", $text);

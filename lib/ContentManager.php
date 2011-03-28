@@ -117,7 +117,7 @@ class ContentManager
         
         // videos
         elseif(preg_match("/^macromedia flash/i", $file_type))                          $new_suffix = "flv";
-        elseif(preg_match("/^apple quickTime/i", $file_type))                           $new_suffix = "mov";
+        elseif(preg_match("/apple quicktime/i", $file_type))                            $new_suffix = "mov";
         elseif(preg_match("/^riff \(little-endian\) data, avi/i", $file_type))          $new_suffix = "avi";
         elseif(preg_match("/^iso Media, mpeg v4/i", $file_type))                        $new_suffix = "mp4";
         elseif(preg_match("/^microsoft asf/i", $file_type))                             $new_suffix = "wmv";
