@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<response>
+<url>http://services.morphbank.net/mb2/request?method=eol&amp;format=id&amp;limit=-1</url>
+</response>
