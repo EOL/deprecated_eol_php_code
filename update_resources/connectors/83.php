@@ -43,7 +43,7 @@ print "\n count of image ID's = $total_image_ids";
 $k=0;
 foreach($image_ids as $image_id)
 {
-    $k++;
+    $k++;    
     print "\n $image_id  [$k of $total_image_ids]";
     $image_details_url = $details_method_prefix . $image_id;
     if($xml = simplexml_load_file($image_details_url)){}
@@ -116,10 +116,9 @@ foreach($image_ids as $image_id)
         $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "image");
         $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
     }
-    /* end dataobject - image */
-    
+    /* end dataobject - image */    
     $used_taxa[$taxon_identifier] = $taxon_parameters;
-    //if($k == 3)break; //debug
+    //if($k == 3)break; //debug    
 }
 
 foreach($used_taxa as $taxon_parameters)
@@ -131,6 +130,12 @@ $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
+
+// set MorphBank to force harvest
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
+{
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=".$resource_id);
+}
 print "\n --end-- ";
 
 $elapsed_time_sec = microtime(1)-$timestart;
