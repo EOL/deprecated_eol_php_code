@@ -23,7 +23,7 @@ class SpireAPI
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
-            //if($i > 20)break; //debug
+            //if($i > 2)break; //debug
         }
         return $all_taxa;
     }
@@ -33,9 +33,9 @@ class SpireAPI
         $response = self::parse_xml($taxon);//this will output the raw (but structured) array
         $page_taxa = array();
         foreach($response as $rec)
-        {
+        {            
             /* exclude these taxa per CP */
-            if(in_array(trim($taxon),array("Detritivore","Detritus"))) continue;
+            if(in_array(strtolower(trim($rec["sciname"])),array("detritivore","detritus"))) continue;
             
             if(@$used_collection_ids[$rec["identifier"]]) continue;
             $taxon = self::get_taxa_for_photo($rec);
