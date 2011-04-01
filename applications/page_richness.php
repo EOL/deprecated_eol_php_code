@@ -6,35 +6,17 @@
   $taxon_concept_id = @$_REQUEST['taxon_concept_id'] ?: '';
   $taxon_concept_id2 = @$_REQUEST['taxon_concept_id2'] ?: '';
   
-  $VETTED_FACTOR = @$_REQUEST['VETTED_FACTOR'] ?: PageRichnessCalculator::$VETTED_FACTOR;
+  $variable_names = array( 'VETTED_FACTOR', 'IMAGE_BREADTH_MAX', 'INFO_ITEM_BREADTH_MAX', 'MAP_BREADTH_MAX', 'VIDEO_BREADTH_MAX',
+      'SOUND_BREADTH_MAX', 'IUCN_BREADTH_MAX', 'REFERENCE_BREADTH_MAX', 'IMAGE_BREADTH_WEIGHT',
+      'INFO_ITEM_BREADTH_WEIGHT', 'MAP_BREADTH_WEIGHT', 'VIDEO_BREADTH_WEIGHT', 'SOUND_BREADTH_WEIGHT', 'IUCN_BREADTH_WEIGHT',
+      'REFERENCE_BREADTH_WEIGHT', 'TEXT_TOTAL_MAX', 'TEXT_AVERAGE_MAX', 'TEXT_TOTAL_WEIGHT', 'TEXT_AVERAGE_WEIGHT',
+      'PARTNERS_DIVERSITY_MAX', 'PARTNERS_DIVERSITY_WEIGHT', 'BREADTH_WEIGHT', 'DEPTH_WEIGHT', 'DIVERSITY_WEIGHT');
   
-  $IMAGE_BREADTH_MAX = @$_REQUEST['IMAGE_BREADTH_MAX'] ?: PageRichnessCalculator::$IMAGE_BREADTH_MAX;
-  $INFO_ITEM_BREADTH_MAX = @$_REQUEST['INFO_ITEM_BREADTH_MAX'] ?: PageRichnessCalculator::$INFO_ITEM_BREADTH_MAX;
-  $MAP_BREADTH_MAX = @$_REQUEST['MAP_BREADTH_MAX'] ?: PageRichnessCalculator::$MAP_BREADTH_MAX;
-  $VIDEO_BREADTH_MAX = @$_REQUEST['VIDEO_BREADTH_MAX'] ?: PageRichnessCalculator::$VIDEO_BREADTH_MAX;
-  $SOUND_BREADTH_MAX = @$_REQUEST['SOUND_BREADTH_MAX'] ?: PageRichnessCalculator::$SOUND_BREADTH_MAX;
-  $IUCN_BREADTH_MAX = @$_REQUEST['IUCN_BREADTH_MAX'] ?: PageRichnessCalculator::$IUCN_BREADTH_MAX;
-  $REFERENCE_BREADTH_MAX = @$_REQUEST['REFERENCE_BREADTH_MAX'] ?: PageRichnessCalculator::$REFERENCE_BREADTH_MAX;
+  foreach($variable_names as $variable_name)
+  {
+      $$variable_name = isset($_REQUEST[$variable_name]) ? $_REQUEST[$variable_name] : TaxonConceptMetric::$$variable_name;
+  }
   
-  $IMAGE_BREADTH_WEIGHT = @$_REQUEST['IMAGE_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$IMAGE_BREADTH_WEIGHT;
-  $INFO_ITEM_BREADTH_WEIGHT = @$_REQUEST['INFO_ITEM_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$INFO_ITEM_BREADTH_WEIGHT;
-  $MAP_BREADTH_WEIGHT = @$_REQUEST['MAP_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$MAP_BREADTH_WEIGHT;
-  $VIDEO_BREADTH_WEIGHT = @$_REQUEST['VIDEO_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$VIDEO_BREADTH_WEIGHT;
-  $SOUND_BREADTH_WEIGHT = @$_REQUEST['SOUND_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$SOUND_BREADTH_WEIGHT;
-  $IUCN_BREADTH_WEIGHT = @$_REQUEST['IUCN_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$IUCN_BREADTH_WEIGHT;
-  $REFERENCE_BREADTH_WEIGHT = @$_REQUEST['REFERENCE_BREADTH_WEIGHT'] ?: PageRichnessCalculator::$REFERENCE_BREADTH_WEIGHT;
-  
-  $TEXT_TOTAL_MAX = @$_REQUEST['TEXT_TOTAL_MAX'] ?: PageRichnessCalculator::$TEXT_TOTAL_MAX;
-  $TEXT_AVERAGE_MAX = @$_REQUEST['TEXT_AVERAGE_MAX'] ?: PageRichnessCalculator::$TEXT_AVERAGE_MAX;
-  $TEXT_TOTAL_WEIGHT = @$_REQUEST['TEXT_TOTAL_WEIGHT'] ?: PageRichnessCalculator::$TEXT_TOTAL_WEIGHT;
-  $TEXT_AVERAGE_WEIGHT = @$_REQUEST['TEXT_AVERAGE_WEIGHT'] ?: PageRichnessCalculator::$TEXT_AVERAGE_WEIGHT;
-  
-  $PARTNERS_DIVERSITY_MAX = @$_REQUEST['PARTNERS_DIVERSITY_MAX'] ?: PageRichnessCalculator::$PARTNERS_DIVERSITY_MAX;
-  $PARTNERS_DIVERSITY_WEIGHT = @$_REQUEST['PARTNERS_DIVERSITY_WEIGHT'] ?: PageRichnessCalculator::$PARTNERS_DIVERSITY_WEIGHT;
-  
-  $BREADTH_WEIGHT = @$_REQUEST['BREADTH_WEIGHT'] ?: PageRichnessCalculator::$BREADTH_WEIGHT;
-  $DEPTH_WEIGHT = @$_REQUEST['DEPTH_WEIGHT'] ?: PageRichnessCalculator::$DEPTH_WEIGHT;
-  $DIVERSITY_WEIGHT = @$_REQUEST['DIVERSITY_WEIGHT'] ?: PageRichnessCalculator::$DIVERSITY_WEIGHT;
 ?>
 <html>
 <head>
@@ -168,43 +150,13 @@
 
 function show_results_for($taxon_concept_id)
 {
-    global $VETTED_FACTOR;
-    
-    global $IMAGE_BREADTH_MAX;
-    global $INFO_ITEM_BREADTH_MAX;
-    global $MAP_BREADTH_MAX;
-    global $VIDEO_BREADTH_MAX;
-    global $SOUND_BREADTH_MAX;
-    global $IUCN_BREADTH_MAX;
-    global $REFERENCE_BREADTH_MAX;
-    
-    global $IMAGE_BREADTH_WEIGHT;
-    global $INFO_ITEM_BREADTH_WEIGHT;
-    global $MAP_BREADTH_WEIGHT;
-    global $VIDEO_BREADTH_WEIGHT;
-    global $SOUND_BREADTH_WEIGHT;
-    global $IUCN_BREADTH_WEIGHT;
-    global $REFERENCE_BREADTH_WEIGHT;
-    
-    global $TEXT_TOTAL_MAX;
-    global $TEXT_AVERAGE_MAX;
-    global $TEXT_TOTAL_WEIGHT;
-    global $TEXT_AVERAGE_WEIGHT;
-    
-    global $PARTNERS_DIVERSITY_MAX;
-    global $PARTNERS_DIVERSITY_WEIGHT;
-    
-    global $BREADTH_WEIGHT;
-    global $DEPTH_WEIGHT;
-    global $DIVERSITY_WEIGHT;
-      
     if($taxon_concept_id)
     {
-        $calc = new PageRichnessCalculator($_REQUEST);
-        $scores = $calc->score_for_page($taxon_concept_id);
         $name = TaxonConcept::get_name($taxon_concept_id);
         $metric = new TaxonConceptMetric($taxon_concept_id);
+        $metric->set_weights($_REQUEST);
         if(!isset($metric->image_total)) return;
+        $scores = $metric->scores();
         
         $statistics = new TextStatistics();
         $grades = array();
@@ -219,63 +171,63 @@ function show_results_for($taxon_concept_id)
         ?>
         <h3><a href='http://www.eol.org/pages/<?= $taxon_concept_id; ?>' target='_blank'><?= $name; ?></a></h3>
         <table class='results'>
-          <tr><td>Breadth:</td><td><?= round($scores['breadth'], 4); ?></td></tr>
-          <tr><td>Depth:</td><td><?= round($scores['depth'], 4); ?></td></tr>
-          <tr><td>Diversity:</td><td><?= round($scores['diversity'], 4); ?></td></tr>
+          <tr><td>Breadth:</td><td><?= round($scores['breadth'] / $metric->BREADTH_WEIGHT, 4); ?></td></tr>
+          <tr><td>Depth:</td><td><?= round($scores['depth'] / $metric->DEPTH_WEIGHT, 4); ?></td></tr>
+          <tr><td>Diversity:</td><td><?= round($scores['diversity'] / $metric->DIVERSITY_WEIGHT, 4); ?></td></tr>
           <tr><td>Total:</td><td><?= round($scores['total'], 4); ?></td></tr>
         </table>
         <hr/>
         <table class='results'>
           <tr><th>Stat</th><th>Value</th><th>Max</th><th>Impact on Score</th><th>Max</th></tr>
-          <tr><td>Images:</td><td><?= $metric->weighted_images($VETTED_FACTOR); ?></td>
-            <td class='max_score'><?= $IMAGE_BREADTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->weighted_images($VETTED_FACTOR), $IMAGE_BREADTH_MAX) * $IMAGE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $IMAGE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
+          <tr><td>Images:</td><td><?= $metric->weighted_images(); ?></td>
+            <td class='max_score'><?= $metric->IMAGE_BREADTH_MAX; ?></td>
+            <td><?= $metric->image_score(); ?></td>
+            <td class='max_score'>/<?= $metric->IMAGE_BREADTH_WEIGHT * $metric->BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>InfoItems:</td><td><?= $metric->info_items; ?></td>
-            <td class='max_score'><?= $INFO_ITEM_BREADTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->info_items, $INFO_ITEM_BREADTH_MAX) * $INFO_ITEM_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $INFO_ITEM_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
+            <td class='max_score'><?= $metric->INFO_ITEM_BREADTH_MAX; ?></td>
+            <td><?= $metric->info_items_score(); ?></td>
+            <td class='max_score'>/<?= $metric->INFO_ITEM_BREADTH_WEIGHT * $metric->BREADTH_WEIGHT; ?></td></tr>
           
-          <tr><td>References:</td><td><?= $metric->data_object_references; ?></td>
-            <td class='max_score'><?= $REFERENCE_BREADTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->data_object_references, $REFERENCE_BREADTH_MAX) * $REFERENCE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $REFERENCE_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
+          <tr><td>References:</td><td><?= $metric->references(); ?></td>
+            <td class='max_score'><?= $metric->REFERENCE_BREADTH_MAX; ?></td>
+            <td><?= $metric->references_score(); ?></td>
+            <td class='max_score'>/<?= $metric->REFERENCE_BREADTH_WEIGHT * $metric->BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>Maps:</td><td><?= $metric->has_GBIF_map; ?></td>
-            <td class='max_score'><?= $MAP_BREADTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->has_GBIF_map, $MAP_BREADTH_MAX) * $MAP_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $MAP_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
+            <td class='max_score'><?= $metric->MAP_BREADTH_MAX; ?></td>
+            <td><?= $metric->maps_score(); ?></td>
+            <td class='max_score'>/<?= $metric->MAP_BREADTH_WEIGHT * $metric->BREADTH_WEIGHT; ?></td></tr>
           
-          <tr><td>Videos:</td><td><?= $metric->weighted_videos($VETTED_FACTOR); ?></td>
-            <td class='max_score'><?= $VIDEO_BREADTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->weighted_videos($VETTED_FACTOR), $VIDEO_BREADTH_MAX) * $VIDEO_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $VIDEO_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
+          <tr><td>Videos:</td><td><?= $metric->weighted_videos(); ?></td>
+            <td class='max_score'><?= $metric->VIDEO_BREADTH_MAX; ?></td>
+            <td><?= $metric->videos_score(); ?></td>
+            <td class='max_score'>/<?= $metric->VIDEO_BREADTH_WEIGHT * $metric->BREADTH_WEIGHT; ?></td></tr>
           
-          <tr><td>Sounds:</td><td><?= $metric->weighted_sounds($VETTED_FACTOR); ?></td>
-            <td class='max_score'><?= $SOUND_BREADTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->weighted_sounds($VETTED_FACTOR), $SOUND_BREADTH_MAX) * $SOUND_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $SOUND_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
+          <tr><td>Sounds:</td><td><?= $metric->weighted_sounds(); ?></td>
+            <td class='max_score'><?= $metric->SOUND_BREADTH_MAX; ?></td>
+            <td><?= $metric->sounds_score(); ?></td>
+            <td class='max_score'>/<?= $metric->SOUND_BREADTH_WEIGHT * $metric->BREADTH_WEIGHT; ?></td></tr>
           
           <tr><td>IUCN:</td><td><?= $metric->iucn_total; ?></td>
-            <td class='max_score'><?= $IUCN_BREADTH_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->iucn_total, $IUCN_BREADTH_MAX) * $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $IUCN_BREADTH_WEIGHT * $BREADTH_WEIGHT; ?></td></tr>
+            <td class='max_score'><?= $metric->IUCN_BREADTH_MAX; ?></td>
+            <td><?= $metric->iucn_score(); ?></td>
+            <td class='max_score'>/<?= $metric->IUCN_BREADTH_WEIGHT * $metric->BREADTH_WEIGHT; ?></td></tr>
           
-          <tr><td>Average #Words:</td><td><?= round($metric->average_words_weighted($VETTED_FACTOR)); ?></td>
-            <td class='max_score'><?= $TEXT_AVERAGE_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->average_words_weighted($VETTED_FACTOR), $TEXT_AVERAGE_MAX) * $TEXT_AVERAGE_WEIGHT * $DEPTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $TEXT_AVERAGE_WEIGHT * $DEPTH_WEIGHT; ?></td></tr>
+          <tr><td>Average #Words:</td><td><?= round($metric->average_words_weighted()); ?></td>
+            <td class='max_score'><?= $metric->TEXT_AVERAGE_MAX; ?></td>
+            <td><?= $metric->average_words_score(); ?></td>
+            <td class='max_score'>/<?= $metric->TEXT_AVERAGE_WEIGHT * $metric->DEPTH_WEIGHT; ?></td></tr>
           
-          <tr><td>Total #Words:</td><td><?= round($metric->weighted_text_words($VETTED_FACTOR)); ?></td>
-            <td class='max_score'><?= $TEXT_TOTAL_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->weighted_text_words($VETTED_FACTOR), $TEXT_TOTAL_MAX) * $TEXT_TOTAL_WEIGHT * $DEPTH_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $TEXT_TOTAL_WEIGHT * $DEPTH_WEIGHT; ?></td></tr>
+          <tr><td>Total #Words:</td><td><?= round($metric->weighted_text_words()); ?></td>
+            <td class='max_score'><?= $metric->TEXT_TOTAL_MAX; ?></td>
+            <td><?= $metric->total_words_score(); ?></td>
+            <td class='max_score'>/<?= $metric->TEXT_TOTAL_WEIGHT * $metric->DEPTH_WEIGHT; ?></td></tr>
           
-          <tr><td>Content Partners:</td><td><?= $metric->content_partners; ?></td>
-            <td class='max_score'><?= $PARTNERS_DIVERSITY_MAX; ?></td>
-            <td><?= PageRichnessCalculator::diminish($metric->content_partners, $PARTNERS_DIVERSITY_MAX) * $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td>
-            <td class='max_score'>/<?= $PARTNERS_DIVERSITY_WEIGHT * $DIVERSITY_WEIGHT; ?></td></tr>
+          <tr><td>Content Partners:</td><td><?= $metric->content_partners(); ?></td>
+            <td class='max_score'><?= $metric->PARTNERS_DIVERSITY_MAX; ?></td>
+            <td><?= $metric->content_partners_score(); ?></td>
+            <td class='max_score'>/<?= $metric->PARTNERS_DIVERSITY_WEIGHT * $metric->DIVERSITY_WEIGHT; ?></td></tr>
             
           <tr><td>Reading Level:</td><td><?= $average_grade; ?></td>
             <td class='max_score'></td>
