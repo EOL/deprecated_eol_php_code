@@ -96,12 +96,12 @@ function iterate_files($callback, $title = false)
                 break;
             }
             $ord2++;
-            //if($ord2 == ord("b")) break;
+            // if($ord2 == ord("c")) break;
         }
         
         $ord1++;
         $ord2 = ord("a");
-        //break;
+        // break;
     }
 }
 
@@ -218,12 +218,16 @@ function create_resource_file()
         $all_taxa[] = new SchemaTaxon($taxon_parameters);
     }
     
-    $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", "w+");
+    $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", "w+");
     SchemaDocument::get_taxon_xml($all_taxa, $FILE);
     fclose($FILE);
     
-    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml"))
+    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml"))
     {
+        @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
+        @rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml");
+        
         $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=$resource->id");
     }
 }

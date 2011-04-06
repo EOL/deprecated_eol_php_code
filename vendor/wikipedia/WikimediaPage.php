@@ -124,7 +124,7 @@ class WikimediaPage
             }
         }
         
-        end($taxonomy);
+        reset($taxonomy);
         $this->taxonomy = $taxonomy;
         return $taxonomy;
     }
@@ -224,7 +224,7 @@ class WikimediaPage
         $data_object_parameters["agents"] = array();
         if($a = $this->agent_parameters())
         {
-            $data_object_parameters["agents"][] = new SchemaAgent($a);
+            if(Functions::is_utf8($a['fullName'])) $data_object_parameters["agents"][] = new SchemaAgent($a);
         }
         
         return $data_object_parameters;
@@ -245,9 +245,12 @@ class WikimediaPage
         $author = str_replace("\xA9", "", $author); // should be the same as above
         
         $agent_parameters = array();
-        $agent_parameters["fullName"] = htmlspecialchars($author);
-        if(Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
-        $agent_parameters["role"] = 'photographer';
+        if($author)
+        {
+            $agent_parameters["fullName"] = htmlspecialchars($author);
+            if(Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+            $agent_parameters["role"] = 'photographer';
+        }
         
         $this->agent_parameters = $agent_parameters;
         return $agent_parameters;
@@ -294,11 +297,13 @@ class WikimediaPage
                 if($attr == "author") $author = self::convert_diacritics(WikiParser::strip_syntax($val, true));
             }
         }
-        if((!$author || !Functions::is_utf8($author)) && $this->contributor && Functions::is_utf8($this->contributor))
-        {
-            $this->contributor = self::convert_diacritics($this->contributor);
-            $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
-        }
+        
+        /* no longer considering the last editor to be the author. This was causing various bots to be deemed author */
+        // if((!$author || !Functions::is_utf8($author)) && $this->contributor && Functions::is_utf8($this->contributor))
+        // {
+        //     $this->contributor = self::convert_diacritics($this->contributor);
+        //     $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
+        // }
         
         $this->author = $author;
         return $author;
