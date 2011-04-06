@@ -157,6 +157,8 @@ class IUCNRedlistAPI
     public static function get_text_section($dom_doc, $xpath, $species_id, $div_id, $subject, $agents, $citation, $title = null)
     {
         $element = $xpath->query("//div[@id='$div_id']");
+        // the element doesn't exist. The next line was returning the entire document for some reason even if we found no match
+        if(!$element->item(0)) return null;
         $section_html = $dom_doc->saveXML($element->item(0));
         $section_title = $div_id;
         
