@@ -78,9 +78,9 @@ class PageRichnessCalculator
             $num++;
             // if($num >= 2500) break;
             $str = "$num\t$id\t" . TaxonConcept::get_name($id) ."\t";
-            $str .= $scores['breadth'] * TaxonConceptMetric::$BREADTH_WEIGHT ."\t";
-            $str .= $scores['depth'] * TaxonConceptMetric::$DEPTH_WEIGHT ."\t";
-            $str .= $scores['diversity'] * TaxonConceptMetric::$DIVERSITY_WEIGHT ."\t";
+            $str .= $scores['breadth'] / TaxonConceptMetric::$BREADTH_WEIGHT ."\t";
+            $str .= $scores['depth'] / TaxonConceptMetric::$DEPTH_WEIGHT ."\t";
+            $str .= $scores['diversity'] / TaxonConceptMetric::$DIVERSITY_WEIGHT ."\t";
             $str .= $scores['total']."\n";
             fwrite($OUT, $str);
         }

@@ -49,6 +49,7 @@ shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php ENV_NAME=". $G
 if($GLOBALS['ENV_NAME']=='production')
 {
     shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/taxon_concept_index.php ENV_NAME=slave > /dev/null 2>/dev/null &");
+    shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/data_object_ancestries_index.php ENV_NAME=slave > /dev/null 2>/dev/null &");
 }
 
 // if(defined('SOLR_SERVER'))

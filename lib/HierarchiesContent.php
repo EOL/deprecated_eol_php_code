@@ -47,12 +47,12 @@ class HierarchiesContent
     {
         // // make sure the TC content temp table has exactly the right number of rows and reset everything to 0
         $outfile = $this->mysqli_slave->select_into_outfile('SELECT id FROM taxon_concepts');
-        $this->mysqli->load_data_infile($outfile, 'taxon_concept_content_tmp', null, 'SET content_level=1');
+        $this->mysqli->load_data_infile($outfile, 'taxon_concept_content_tmp', null, 'SET content_level=1', 50000, 200000);
         unlink($outfile);
         
         // make sure the HE content temp table has exactly the right number of rows and reset everything to 0
         $outfile = $this->mysqli_slave->select_into_outfile('SELECT id FROM hierarchy_entries');
-        $this->mysqli->load_data_infile($outfile, 'hierarchies_content_tmp', null, 'SET content_level=1');
+        $this->mysqli->load_data_infile($outfile, 'hierarchies_content_tmp', null, 'SET content_level=1', 50000, 200000);
         unlink($outfile);
         
         // update attributes for all the data types we care about
@@ -60,6 +60,7 @@ class HierarchiesContent
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.image=1 WHERE dttc.data_type_id=".DataType::find_or_create_by_label('Image')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.flash=1 WHERE dttc.data_type_id=".DataType::find_or_create_by_label('Flash')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.youtube=1 WHERE dttc.data_type_id=".DataType::find_or_create_by_label('YouTube')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
+        $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.flash=1 WHERE dttc.data_type_id=".DataType::find_or_create_by_label('Video')." AND dttc.published=1 AND dttc.visibility_id=".Visibility::insert('visible')."");
         
         // update attributes for all the UNPUBLISHED data types we care about
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc JOIN data_types_taxon_concepts dttc USING (taxon_concept_id) SET tcc.text_unpublished=1 WHERE dttc.data_type_id=".DataType::find_or_create_by_label('Text')." AND (dttc.published=1 OR dttc.visibility_id!=".Visibility::insert('visible').")");
@@ -70,7 +71,7 @@ class HierarchiesContent
         // update the content_level attribute
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc SET tcc.content_level=3 WHERE tcc.text=1 OR tcc.image=1");
         $this->mysqli->query("UPDATE taxon_concept_content_tmp tcc SET tcc.content_level=4 WHERE tcc.text=1 AND tcc.image=1");
-        sleep_production(300);
+        sleep_production(240);
         
         // update HE content with all the information from TC content        
         $outfile = $this->mysqli_slave->select_into_outfile('SELECT he.id, tcc.text, tcc.text_unpublished, tcc.image, tcc.image_unpublished, 0, 0, tcc.flash, tcc.youtube, 0, tcc.content_level FROM taxon_concept_content_tmp tcc JOIN hierarchy_entries he ON (tcc.taxon_concept_id=he.taxon_concept_id) WHERE tcc.text=1 OR tcc.text_unpublished=1 OR tcc.image=1 OR tcc.image_unpublished=1 OR tcc.flash=1 OR tcc.youtube=1 OR tcc.content_level>1');
