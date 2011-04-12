@@ -1,6 +1,6 @@
 <?php
 /*connector for CONABIO
-estimated execution time: 
+estimated execution time: 11 minutes for 500 taxa
 Partner provides a list of URL's for its individual species XML.
 The connector loops to this list and compiles each XML to 1 final XML for EOL ingestion.
 */
@@ -13,6 +13,6 @@ ConabioAPI::combine_all_xmls($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 ?>
