@@ -401,6 +401,10 @@ class Resource extends MysqlBase
                 $this->resource_status_id = ResourceStatus::insert("Publish Pending");
                 $this->publish();
             }
+            
+            // // after everything is done, do some denormalizing
+            // $this->update_taxon_concepts_solr_index();
+            // $this->update_data_objects_solr_index();
         }
     }
     
@@ -430,10 +434,15 @@ class Resource extends MysqlBase
             
             $unchanged_status_id = Status::insert('Unchanged');
             // add the unchanged data objects
-            $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events (harvest_event_id, data_object_id, guid, status_id)  SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.guid=dohe.guid) WHERE do.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
+            $outfile = $this->mysqli->select_into_outfile("SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.guid=dohe.guid) WHERE do.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
+            $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_harvest_events');
+            unlink($outfile);
+            
             
             // add the unchanged taxa
-            $this->mysqli->insert("INSERT IGNORE INTO harvest_events_hierarchy_entries (harvest_event_id, hierarchy_entry_id, guid, status_id) SELECT ".$this->harvest_event->id.", hehe.hierarchy_entry_id, hehe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_hierarchy_entries dohent ON (dohe.data_object_id=dohent.data_object_id) JOIN harvest_events_hierarchy_entries hehe ON (dohent.hierarchy_entry_id=hehe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) LEFT JOIN harvest_events_hierarchy_entries hehe_current ON (hehe_current.harvest_event_id=".$this->harvest_event->id." AND hehe_current.guid=hehe.guid) WHERE do.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND hehe.harvest_event_id=$last_harvest_event_id AND hehe_current.hierarchy_entry_id IS NULL");
+            $outfile = $this->mysqli->select_into_outfile("SELECT ".$this->harvest_event->id.", hehe.hierarchy_entry_id, hehe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects_hierarchy_entries dohent ON (dohe.data_object_id=dohent.data_object_id) JOIN harvest_events_hierarchy_entries hehe ON (dohent.hierarchy_entry_id=hehe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) LEFT JOIN harvest_events_hierarchy_entries hehe_current ON (hehe_current.harvest_event_id=".$this->harvest_event->id." AND hehe_current.guid=hehe.guid) WHERE do.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND hehe.harvest_event_id=$last_harvest_event_id AND hehe_current.hierarchy_entry_id IS NULL");
+            $GLOBALS['db_connection']->load_data_infile($outfile, 'harvest_events_hierarchy_entries');
+            unlink($outfile);
             
             // at this point everything has been added EXCEPT the things we want to delete
         }
@@ -462,6 +471,66 @@ class Resource extends MysqlBase
                 Tasks::update_taxon_concept_names($row['taxon_concept_id']);
             }
             $this->mysqli->end_transaction();
+        }
+    }
+    
+    public function update_taxon_concepts_solr_index()
+    {
+        if($this->harvest_event)
+        {
+            $taxon_concept_ids = array();
+            $query = "SELECT DISTINCT he.taxon_concept_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=". $this->harvest_event->id;
+            foreach($this->mysqli->iterate_file($query) as $row_number => $row)
+            {
+                $id = $row[0];
+                $taxon_concept_ids[$id] = $id;
+            }
+            
+            if($last_id = $this->last_harvest_event_id())
+            {
+                $query = "SELECT DISTINCT he.taxon_concept_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=". $last_id;
+                foreach($this->mysqli->iterate_file($query) as $row_number => $row)
+                {
+                    $id = $row[0];
+                    $taxon_concept_ids[$id] = $id;
+                }
+            }
+            
+            print_r($taxon_concept_ids);
+            echo count($taxon_concept_ids);
+            echo " $last_id\n";
+            $indexer = new TaxonConceptIndexer();
+            $indexer->index_concepts($taxon_concept_ids);
+        }
+    }
+    
+    public function update_data_objects_solr_index()
+    {
+        if($this->harvest_event)
+        {
+            $data_object_ids = array();
+            $query = "SELECT DISTINCT data_object_id FROM data_objects_harvest_events dohe WHERE dohe.harvest_event_id=". $this->harvest_event->id;
+            foreach($this->mysqli->iterate_file($query) as $row_number => $row)
+            {
+                $id = $row[0];
+                $data_object_ids[$id] = $id;
+            }
+            
+            if($last_id = $this->last_harvest_event_id())
+            {
+                $query = "SELECT DISTINCT data_object_id FROM data_objects_harvest_events dohe WHERE dohe.harvest_event_id=". $last_id;
+                foreach($this->mysqli->iterate_file($query) as $row_number => $row)
+                {
+                    $id = $row[0];
+                    $data_object_ids[$id] = $id;
+                }
+            }
+            
+            print_r($data_object_ids);
+            echo count($data_object_ids);
+            echo " $last_id\n";
+            $indexer = new DataObjectAncestriesIndexer();
+            $indexer->index_objects($data_object_ids);
         }
     }
     

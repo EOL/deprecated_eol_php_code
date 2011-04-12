@@ -67,11 +67,33 @@ class TaxonConceptIndexer
         }
     }
     
+    public function index_concepts(&$taxon_concept_ids = array(), $optimize = true)
+    {
+        $this->solr = new SolrAPI($this->solr_server, 'taxon_concepts');
+        
+        $batches = array_chunk($taxon_concept_ids, 10000);
+        foreach($batches as $batch)
+        {
+            unset($this->objects);
+            
+            $this->lookup_names(null, null, null, $batch);
+            $this->lookup_ranks(null, null, null, $batch);
+            $this->lookup_top_images(null, null, null, $batch);
+            $this->lookup_ancestors(null, null, null, $batch);
+            
+            if(isset($this->objects)) $this->solr->send_attributes($this->objects);
+        }
+        
+        $this->solr->commit();
+        if($optimize) $this->solr->optimize();
+    }
     
-    function lookup_names($start, $limit, $filter = "1=1")
+    function lookup_names($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
     {
         echo "\nquerying names\n";
-        $query = "SELECT tc.id, tc.vetted_id, tcn.preferred,  tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.id BETWEEN $start AND ".($start+$limit)." AND tc.supercedure_id=0 AND tc.published=1";
+        $query = "SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.supercedure_id=0 AND tc.published=1 AND tc.id ";
+        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
@@ -121,10 +143,12 @@ class TaxonConceptIndexer
         }
     }
     
-    function lookup_ranks($start, $limit, $filter = "1=1")
+    function lookup_ranks($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
     {
         echo "\nquerying ranks\n";
-        $query = " SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries he WHERE taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND he.visibility_id=".Visibility::find('visible')." AND he.published=1";
+        $query = " SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries he WHERE he.visibility_id=".Visibility::find('visible')." AND he.published=1 AND taxon_concept_id ";
+        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
@@ -137,10 +161,13 @@ class TaxonConceptIndexer
         }
     }
     
-    function lookup_top_images($start, $limit, $filter = "1=1")
+    function lookup_top_images($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
     {
         echo "\nquerying top_images\n";
-        $query = " SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.taxon_concept_id BETWEEN $start AND ".($start+$limit)." AND ti.view_order=1 ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC";
+        $query = " SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.view_order=1 AND ti.taxon_concept_id ";
+        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        $query .= " ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC";
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
@@ -154,10 +181,12 @@ class TaxonConceptIndexer
         }
     }
     
-    function lookup_ancestors($start, $limit, $filter = "1=1")
+    function lookup_ancestors($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
     {
         echo "\nquerying lookup_ancestors\n";
-        $query = "SELECT taxon_concept_id id, ancestor_id FROM taxon_concepts_flattened tcf WHERE tcf.taxon_concept_id BETWEEN $start AND ".($start+$limit);
+        $query = "SELECT taxon_concept_id id, ancestor_id FROM taxon_concepts_flattened tcf WHERE tcf.taxon_concept_id ";
+        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {

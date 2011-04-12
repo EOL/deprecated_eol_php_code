@@ -104,6 +104,7 @@ class SchemaConnection extends MysqlBase
         list($data_object, $status) = DataObject::find_and_compare($this->resource, $d, $this->content_manager);
         if(@!$data_object->id) return false;
         
+        $data_object->delete_hierarchy_entries();
         $hierarchy_entry->add_data_object($data_object->id, $d);
         $this->resource->harvest_event->add_data_object($data_object, $status);
         

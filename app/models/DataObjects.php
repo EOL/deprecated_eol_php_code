@@ -112,6 +112,11 @@ class DataObject extends MysqlBase
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_table_of_contents (SELECT $this->id, toc_id FROM info_items WHERE id=$info_item_id AND toc_id!=0)");
     }
     
+    public function delete_hierarchy_entries()
+    {
+        $this->mysqli->insert("DELETE FROM data_objects_hierarchy_entries WHERE data_object_id=$this->id");
+    }
+    
     public function references()
     {
         $references = array();

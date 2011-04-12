@@ -48,12 +48,34 @@ class DataObjectAncestriesIndexer
         if($results) $this->solr->swap('data_objects_swap', 'data_objects');
     }
     
+    public function index_objects(&$data_object_ids = array(), $optimize = true)
+    {
+        $this->solr = new SolrAPI(SOLR_SERVER, 'data_objects');
+        
+        $batches = array_chunk($data_object_ids, 10000);
+        foreach($batches as $batch)
+        {
+            unset($this->objects);
+            
+            $this->lookup_objects(null, null, $batch);
+            $this->lookup_ancestries(null, null, $batch);
+            $this->lookup_resources(null, null, $batch);
+            
+            if(isset($this->objects)) $this->solr->send_attributes($this->objects);
+        }
+        
+        $this->solr->commit();
+        if($optimize) $this->solr->optimize();
+    }
     
-    private function lookup_objects($start, $limit)
+    
+    private function lookup_objects($start, $limit, &$data_object_ids = array())
     {
         echo "\nquerying objects ($start, $limit)\n";
         $last_data_object_id = 0;
-        $query = "SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE id BETWEEN $start AND ".($start+$limit)." AND (published=1 OR visibility_id!=".Visibility::find('visible').")";
+        $query = "SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE (published=1 OR visibility_id!=".Visibility::find('visible').") AND id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
@@ -92,10 +114,12 @@ class DataObjectAncestriesIndexer
         }
     }
     
-    private function lookup_ancestries($start, $limit)
+    private function lookup_ancestries($start, $limit, &$data_object_ids = array())
     {
         echo "\nquerying ancestries ($start, $limit)\n";
-        $query = "SELECT do.id, dotc.taxon_concept_id, tcf.ancestor_id FROM data_objects do LEFT JOIN (data_objects_taxon_concepts dotc LEFT JOIN taxon_concepts_flattened tcf ON (dotc.taxon_concept_id=tcf.taxon_concept_id)) ON (do.id=dotc.data_object_id) WHERE do.id BETWEEN $start AND ".($start+$limit)." AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")";
+        $query = "SELECT do.id, dotc.taxon_concept_id, tcf.ancestor_id FROM data_objects do LEFT JOIN (data_objects_taxon_concepts dotc LEFT JOIN taxon_concepts_flattened tcf ON (dotc.taxon_concept_id=tcf.taxon_concept_id)) ON (do.id=dotc.data_object_id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
@@ -108,10 +132,12 @@ class DataObjectAncestriesIndexer
         }
     }
     
-    private function lookup_resources($start, $limit)
+    private function lookup_resources($start, $limit, &$data_object_ids = array())
     {
         echo "\nquerying resources ($start, $limit)\n";
-        $query = "SELECT dohe.data_object_id, he.resource_id FROM data_objects do JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id) JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE do.id BETWEEN $start AND ".($start+$limit)." AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")";
+        $query = "SELECT dohe.data_object_id, he.resource_id FROM data_objects do JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id) JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
