@@ -29,6 +29,13 @@ class ConabioAPI
         {
             $i++;
             print "\n $i of $total";
+
+            if(!Functions::get_hashed_response($filename))
+            {
+                print "\n $filename - invalid XML";
+                continue;
+            }
+
             $contents = Functions::get_remote_file($filename);
             $contents = str_ireplace("http://creativecommons.org/licenses/by-nc-sa/2.5/mx/", "http://creativecommons.org/licenses/by-nc-sa/2.5/", $contents);
             if($contents)
