@@ -7,8 +7,12 @@ ini_set('max_execution_time', '360');
 /* Default Environment */
 if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
 
-define('WEB_ROOT', 'http://localhost/eol_php_code/');   // URL prefix of this installation
-define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
+define('WEB_ROOT', 'http://localhost/~eolit/eol_php_code/');
+define('MAGICK_HOME', '/opt/local/var/macports/sources/rsync.macports.org/release/ports/graphics/ImageMagick/');
+
+
+//define('WEB_ROOT', 'http://localhost/eol_php_code/');   // URL prefix of this installation
+//define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 define('MYSQL_BIN_PATH', 'mysql ');                     // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 
 

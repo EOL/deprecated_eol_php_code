@@ -59,6 +59,7 @@ class ContentManager
             {
                 if($type=="image") $new_file_prefix = $this->new_content_file_name();
                 elseif($type=="video") $new_file_prefix = $this->new_content_file_name();
+                elseif($type=="sound") $new_file_prefix = $this->new_content_file_name();
                 elseif($type=="partner") $new_file_prefix = $this->new_partner_file_name();
                 elseif($type=="resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
                 
@@ -87,7 +88,7 @@ class ContentManager
                 elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
                 
                 // Take the substring of the new file path to return via the webservice
-                if(($type=="image" || $type=="video") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = str_replace("/", "", $arr[1]);
+                if(($type=="image" || $type=="video" || $type=="sound") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = str_replace("/", "", $arr[1]);
                 elseif($type=="partner" && preg_match("/^".preg_quote(CONTENT_PARTNER_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = $arr[1];
                 elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/",$new_file_path,$arr))  $new_file_path = $arr[1];
                 

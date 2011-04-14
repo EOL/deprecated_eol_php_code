@@ -208,6 +208,15 @@ class DataObject extends MysqlBase
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
+        if($this->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/Sound"))
+        {
+            if(preg_match("/^http:\/\//",$this->object_url))
+            {
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "sound");
+                if(@!$this->object_cache_url) return false;
+            }else return false;
+        }
+
         return true;
     }
     
