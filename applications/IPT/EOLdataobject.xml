@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-    This defines the extension for defining EOL data objects as extensions to a Taxon core object.
-    
+    This defines the extension for defining EOL data objects as extensions to a Taxon core object.    
     This will be used by EOL content partners who will use the IPT to export their data to a format
     that can be ingested into EOL.    
 -->
@@ -10,17 +9,15 @@
     		xsi:schemaLocation="http://ipt.gbif.org/extension/ http://gbrds.gbif.org/resources/schemas/extension.xsd"     
 			title="EOL Data Object ver. 1" 			
 			name="EOL_DataObject" 			
-			namespace="http://www.eol.org/transfer/content/0.1/">
-			
+			namespace="http://www.eol.org/transfer/content/0.3/">			
                 
     <!-- 
     Recommended to use a globally unique identifier to unambiguously refer to the resource.
-    e.g. FB-DiagnosticDescr-69 
+    e.g. 21EC2020-3AEA-1069-A2DD-08002B30309D 
     -->
     <property 	name="identifier" 
 				namespace="http://purl.org/dc/elements/1.1/" 
-				qualName="http://purl.org/dc/elements/1.1/identifier"
-				required="true"/>
+				qualName="http://purl.org/dc/elements/1.1/identifier"/>
 				
     <!--
     Describes the nature of the resource using the DCMI Type vocabulary.
@@ -31,8 +28,9 @@
         http://purl.org/dc/dcmitype/Text
     -->
     <property 	name="dataType" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/dataType"
+                thesaurus="http://services.eol.org/IPT/vocabulary/EOL_datatype.xml"
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/dataType"
 				required="true"/>
 
     <!--
@@ -44,8 +42,9 @@
             text/xml, video/mp4, video/mpeg, video/quicktime, video/x-flv, video/x-ms-wmv
     -->
     <property 	name="mimeType" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/mimeType"
+                thesaurus="http://services.eol.org/IPT/vocabulary/EOL_mimetype.xml"
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/mimeType"
 				required="true"/>
 
     <!--
@@ -54,28 +53,28 @@
     e.g. Rainer Froese
     -->
     <property 	name="agent" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/agent"/>
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/agent"/>
 				
             <!--
             e.g. http://filaman.uni-kiel.de/ifm-geomar/rfroese/#
             -->
 		    <property 	name="agent_homepage" 
-						namespace="http://www.eol.org/transfer/content/0.1/" 
-						qualName="http://www.eol.org/transfer/content/0.1/agent_homepage"/>
+						namespace="http://www.eol.org/transfer/content/0.3/" 
+						qualName="http://www.eol.org/transfer/content/0.3/agent_homepage"/>
             <!--
             e.g. http://www.fishbase.org/images/gifs/fblogo_new.gif
             -->
 		    <property 	name="agent_logoURL" 
-						namespace="http://www.eol.org/transfer/content/0.1/" 
-						qualName="http://www.eol.org/transfer/content/0.1/agent_logoURL"/>
+						namespace="http://www.eol.org/transfer/content/0.3/" 
+						qualName="http://www.eol.org/transfer/content/0.3/agent_logoURL"/>
             <!--
             Suggested to be anyone of these: animator, author, compiler, composer, creator, director, editor, illustrator, 
             photographer, project, provider, publisher, recorder, source.
             -->
 		    <property 	name="agent_role" 
-						namespace="http://www.eol.org/transfer/content/0.1/" 
-						qualName="http://www.eol.org/transfer/content/0.1/agent_role"/>
+						namespace="http://www.eol.org/transfer/content/0.3/" 
+						qualName="http://www.eol.org/transfer/content/0.3/agent_role"/>
 				
 
     <!--
@@ -118,8 +117,10 @@
     e.g. http://creativecommons.org/licenses/by-nc/3.0/
     -->
     <property 	name="license" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/license"/>
+                thesaurus="http://services.eol.org/IPT/vocabulary/EOL_license.xml"                 
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/license"
+                required="true"/>
 
     <!--
     Statement of rights associated with the resource. Creative Commons licenses require the resource to be attributed 
@@ -148,14 +149,6 @@
 				qualName ="http://purl.org/dc/terms/bibliographicCitation"/>
 
     <!--
-    A class of entity for whom the resource is intended or useful.
-    Suggested to be anyone of these: Children, General public, Expert users
-    -->
-    <property 	name="audience" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/audience"/>
-
-    <!--
     The URL of a web page which describes the resource.
     e.g. http://www.fishbase.org/summary/SpeciesSummary.php?id=69
     -->
@@ -169,8 +162,9 @@
     e.g. http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription
     -->
     <property 	name="subject" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/subject"/>
+                thesaurus="http://services.eol.org/IPT/vocabulary/EOL_subject.xml"
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/subject"/>
 
 
     <!--
@@ -191,16 +185,16 @@
     e.g. http://www.fishbase.us/images/species/Gamor_u0.gif
     -->
     <property 	name="mediaURL" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/mediaURL"/>
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/mediaURL"/>
 				
     <!--
     A URL reference directly to a thumbnail image associated with the media resource.
     e.g. http://www.fishbase.us/images/thumbnails/gif/tn_Gamor_u0.gif
     -->
     <property 	name="thumbnailURL" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/thumbnailURL"/>
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/thumbnailURL"/>
 				
     <!--
     Natural language description of the locality where the resource was collected or created. Not recommended for use 
@@ -213,7 +207,8 @@
 
     <!--
     Location of the entity in decimal WGS84 latitude and longitude (and optional altitude) as defined by 
-    the W3C Basic Geo Vocabulary. See http://www.w3.org/2003/01/geo/ for more information on this standard.
+    the W3C Basic Geo Vocabulary. Latitude, longitude and optional altitude entries are comma-separated.
+    See http://www.w3.org/2003/01/geo/ for more information on this standard.
     e.g. 55.701,12.552
     -->
     <property 	name="lat_long" 
@@ -228,20 +223,20 @@
     e.g. Muus, B.J. and J.G. Nielsen0 Sea fish. Scandinavian Fishing Year Book, Hedehusene, Denmark. 340 p.
     -->
     <property 	name="reference" 
-				namespace="http://www.eol.org/transfer/content/0.1/" 
-				qualName="http://www.eol.org/transfer/content/0.1/reference"/>
+				namespace="http://www.eol.org/transfer/content/0.3/" 
+				qualName="http://www.eol.org/transfer/content/0.3/reference"/>
 				
             <!--
             A Digital Object Identifier (DOI), if available.
             -->
 		    <property 	name="reference_doi" 
-						namespace="http://www.eol.org/transfer/content/0.1/" 
-						qualName="http://www.eol.org/transfer/content/0.1/reference_doi"/>
+						namespace="http://www.eol.org/transfer/content/0.3/" 
+						qualName="http://www.eol.org/transfer/content/0.3/reference_doi"/>
             <!--
             e.g. http://www.fishbase.org/references/FBRefSummary.php?id=52093&speccode=69
             -->
 		    <property 	name="reference_url" 
-						namespace="http://www.eol.org/transfer/content/0.1/" 
-						qualName="http://www.eol.org/transfer/content/0.1/reference_url"/>
+						namespace="http://www.eol.org/transfer/content/0.3/" 
+						qualName="http://www.eol.org/transfer/content/0.3/reference_url"/>
 
 </extension>

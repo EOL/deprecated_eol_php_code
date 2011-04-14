@@ -138,10 +138,16 @@ function show_node($node, $indent, $variable)
 function show_children($node, $indent, $variable)
 {
     $children = $node->children();
-    
+    $i = 0;
     foreach($children as $k => $v)
     {
         echo show_node($v, $indent, $variable);
+        $i++;
+        if($i >= 100)
+        {
+            echo str_repeat("&nbsp;",$indent*5).".........<br>";
+            break;
+        }
     }
 }    
 
@@ -214,9 +220,16 @@ function show_ancestry_he($entry)
 function show_children_he($node, $indent)
 {
     $children = $node->children();
+    $i = 0;
     foreach($children as $k => $v)
     {
         echo show_name_he($v, $indent, 0);
+        $i++;
+        if($i >= 100)
+        {
+            echo str_repeat("&nbsp;",$indent*5).".........<br>";
+            break;
+        }
     }
 }
 

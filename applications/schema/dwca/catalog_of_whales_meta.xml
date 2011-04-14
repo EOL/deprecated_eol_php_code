@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archive xmlns="http://rs.tdwg.org/dwc/text/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://rs.tdwg.org/dwc/text/ http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd">
+    <core encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="0" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+        <files>
+            <location>taxon.txt</location>
+        </files>
+        <id index="0"/>
+        <field default="ICZN" term="http://rs.tdwg.org/dwc/terms/nomenclaturalCode"/>
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+        <field index="2" term="http://rs.tdwg.org/dwc/terms/nomenclaturalStatus"/>
+        <field index="3" term="http://rs.tdwg.org/dwc/terms/originalNameUsageID"/>
+        <field index="4" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+        <field index="5" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID"/>
+        <field index="6" term="http://rs.tdwg.org/dwc/terms/namePublishedIn"/>
+        <field index="7" term="http://rs.tdwg.org/dwc/terms/nameAccordingTo"/>
+        <field index="8" term="http://rs.tdwg.org/dwc/terms/taxonRemarks"/>
+        <field index="9" term="http://rs.tdwg.org/dwc/terms/taxonomicStatus"/>
+        <field index="10" term="http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"/>
+        <field index="11" term="http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"/>
+    </core>
+    <extension encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="0" rowType="http://rs.gbif.org/terms/1.0/Distribution">
+        <files>
+            <location>distribution.txt</location>
+        </files>
+        <coreid index="0"/>
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/locality"/>
+    </extension>
+    <extension encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="0" rowType="http://rs.gbif.org/terms/1.0/VernacularName">
+        <files>
+            <location>vernacularname.txt</location>
+        </files>
+        <coreid index="0"/>
+        <field index="1" term="http://purl.org/dc/terms/language"/>
+        <field index="2" term="http://rs.tdwg.org/dwc/terms/vernacularName"/>
+    </extension>
+    <extension encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="0" rowType="http://rs.gbif.org/terms/1.0/Reference">
+        <files>
+            <location>reference.txt</location>
+        </files>
+        <coreid index="0"/>
+        <field index="1" term="http://purl.org/dc/terms/source"/>
+        <field index="2" term="http://purl.org/dc/terms/creator"/>
+        <field index="3" term="http://purl.org/dc/terms/date"/>
+        <field index="4" term="http://rs.tdwg.org/dwc/terms/taxonRemarks"/>
+        <field index="5" term="http://purl.org/dc/terms/description"/>
+    </extension>
+    <extension encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="0" rowType="http://rs.gbif.org/terms/1.0/Specimen">
+        <files>
+            <location>specimen.txt</location>
+        </files>
+        <coreid index="0"/>
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+        <field index="2" term="http://rs.tdwg.org/dwc/terms/identificationRemarks"/>
+        <field index="3" term="http://rs.gbif.org/terms/1.0/verbatimLabel"/>
+        <field index="4" term="http://rs.tdwg.org/dwc/terms/locality"/>
+        <field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+        <field index="6" term="http://rs.tdwg.org/dwc/terms/typeStatus"/>
+    </extension>
+</archive>

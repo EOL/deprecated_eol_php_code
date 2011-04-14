@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archive xmlns="http://rs.tdwg.org/dwc/text/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xsi:schemaLocation="http://rs.tdwg.org/dwc/text/ http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd">
+    
+    <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+        <files>
+            <location>whales.txt</location>
+        </files>
+        <id index="0" term="http://rs.tdwg.org/dwc/terms/taxonID" />
+        <field index="1" term="http://purl.org/dc/terms/modified" />
+        <field index="2" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+        <field index="3" term="http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"/>
+        <field index="4" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID"/>
+        <field index="5" term="http://rs.tdwg.org/dwc/terms/originalNameUsageID"/>
+    </table>
+    
+    <table encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy='"' ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/ResourceRelationship">
+        <files>
+            <location>taxon_distribution.csv</location>
+        </files>
+        <id index="0" term="http://rs.tdwg.org/dwc/terms/resourceRelationshipID" />
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/resourceID"/>
+        <field index="2" term="http://rs.tdwg.org/dwc/terms/relatedResourceID"/>
+        <foreignKey index="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon"/>
+        <foreignKey index="2" rowType="http://rs.gbif.org/terms/1.0/Distribution"/>
+    </table>
+    
+    <table encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy='"' ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Distribution">
+        <files>
+            <location>distribution.csv</location>
+        </files>
+        <id index="0" term="http://rs.tdwg.org/dwc/terms/locationID" />
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/countryCode"/>
+        <field index="2" term="http://rs.gbif.org/terms/1.0/threatStatus"/>
+        <field index="3" term="http://rs.tdwg.org/dwc/terms/occurrenceStatus"/>
+        <foreignKey index="0" rowType="http://rs.tdwg.org/dwc/terms/Taxon"/>
+    </table>
+</archive>

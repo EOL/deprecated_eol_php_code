@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archive xmlns="http://rs.tdwg.org/dwc/text/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xsi:schemaLocation="http://rs.tdwg.org/dwc/text/ http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd">
+  <core rowType="http://rs.tdwg.org/dwc/xsd/simpledarwincore/SimpleDarwinRecord" ignoreHeaderLines="1">
+    <files>
+      <location>http://data.gbif.org/download/specimens.csv</location>
+    </files>
+    <field index="0" term="http://rs.tdwg.org/dwc/terms/catalogNumber" />
+    <field index="1" term="http://rs.tdwg.org/dwc/terms/scientificName" />
+    <field index="2" term="http://rs.tdwg.org/dwc/terms/individualCount" />
+    <!-- A constant value has no index, but applies to all rows -->
+    <field term="http://rs.tdwg.org/dwc/terms/datasetID" default="urn:lsid:tim.lsid.tdwg.org:collections:1"/>
+  </core>
+</archive>

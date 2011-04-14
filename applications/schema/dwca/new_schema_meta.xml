@@ -1,0 +1,106 @@
+<archive xmlns="http://rs.tdwg.org/dwc/text/" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://rs.tdwg.org/dwc/text/  http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd">
+
+  <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy='' ignoreHeaderLines="0" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+    <files>
+      <location>taxa.txt</location>
+    </files>
+    <id index="0" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
+    <field index="1" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+    <field index="2" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID"/>
+    <field index="3" term="http://rs.tdwg.org/dwc/terms/acceptedTaxonID"/>
+    <field index="4" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+    <field index="5" term="http://rs.tdwg.org/dwc/terms/basionymID"/>
+    <field index="6" term="http://rs.tdwg.org/dwc/terms/namePublishedIn"/>
+    <field index="7" term="http://rs.tdwg.org/dwc/terms/taxonomicStatus"/>
+    <field index="8" term="http://rs.tdwg.org/dwc/terms/taxonAccordingTo"/>
+    <field index="9" term="http://rs.tdwg.org/dwc/terms/nomenclaturalStatus"/>
+    <field index="10" term="http://rs.tdwg.org/dwc/terms/nomenclaturalCode"/>
+    <field index="11" term="http://rs.tdwg.org/dwc/terms/taxonRemarks"/>
+  </table>
+  
+  <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy='' ignoreHeaderLines="0" rowType="http://www.eol.org/schema/media_resources/MediaResource">
+    <files>
+      <location>media.txt</location>
+    </files>
+    <id index="0" term="http://www.eol.org/schema/media_resources/mediaResourceID"/>
+    <field index="1" term="http://www.eol.org/schema/media_resources/type"/>
+    <field index="2" term="http://www.eol.org/schema/media_resources/subtype"/>
+    <field index="3" term="http://www.eol.org/schema/media_resources/title"/>
+    <field index="4" term="http://www.eol.org/schema/media_resources/mediaURL"/>
+    <field index="5" term="http://www.eol.org/schema/media_resources/thumbnailURL"/>
+    <field index="6" term="http://www.eol.org/schema/media_resources/furtherInformationURL"/>
+    <field index="7" term="http://www.eol.org/schema/media_resources/created"/>
+    <field index="8" term="http://www.eol.org/schema/media_resources/modified"/>
+    <field index="9" term="http://www.eol.org/schema/media_resources/available"/>
+    <field index="10" term="http://www.eol.org/schema/media_resources/language"/>
+    <field index="11" term="http://www.eol.org/schema/media_resources/metadataLanguage"/>
+    <field index="12" term="http://www.eol.org/schema/media_resources/providerManagedID"/>
+    <field index="13" term="http://www.eol.org/schema/media_resources/rating"/>
+    <field index="14" term="http://www.eol.org/schema/media_resources/license"/>
+    <field index="15" term="http://www.eol.org/schema/media_resources/rights"/>
+    <field index="16" term="http://www.eol.org/schema/media_resources/rightsHolder"/>
+    <field index="17" term="http://www.eol.org/schema/media_resources/bibliographicCitation"/>
+    <field index="18" term="http://www.eol.org/schema/media_resources/audience"/>
+    <field index="19" term="http://www.eol.org/schema/media_resources/subject"/>
+    <field index="20" term="http://www.eol.org/schema/media_resources/publisher"/>
+    <field index="21" term="http://www.eol.org/schema/media_resources/contributor"/>
+    <field index="22" term="http://www.eol.org/schema/media_resources/creator"/>
+    <field index="23" term="http://www.eol.org/schema/media_resources/provider"/>
+    <field index="24" term="http://www.eol.org/schema/media_resources/description"/>
+    <field index="25" term="http://www.eol.org/schema/media_resources/caption"/>
+    <field index="26" term="http://www.eol.org/schema/media_resources/locality"/>
+    <field index="27" term="http://www.eol.org/schema/media_resources/latitude"/>
+    <field index="28" term="http://www.eol.org/schema/media_resources/longitude"/>
+    <field index="29" term="http://www.eol.org/schema/media_resources/altitude"/>
+    <field index="30" term="http://www.eol.org/schema/media_resources/reference"/>
+    <field index="31" term="http://www.eol.org/schema/media_resources/referenceDOI"/>
+    <field index="32" term="http://www.eol.org/schema/media_resources/referenceURL"/>
+    <field index="33" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
+    <foreignKey index="33" rowType="http://rs.tdwg.org/dwc/terms/Taxon"/>
+  </table>
+  
+  <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy='' ignoreHeaderLines="0" rowType="http://www.eol.org/schema/agents/Agent">
+    <files>
+      <location>agents.txt</location>
+    </files>
+    <id index="0" term="http://www.eol.org/schema/media_resources/agentID"/>
+    <field index="1" term="http://www.eol.org/schema/agents/name"/>
+    <field index="2" term="http://www.eol.org/schema/agents/firstName"/>
+    <field index="3" term="http://www.eol.org/schema/agents/familyName"/>
+    <field index="4" term="http://www.eol.org/schema/agents/email"/>
+    <field index="5" term="http://www.eol.org/schema/agents/homepage"/>
+    <field index="6" term="http://www.eol.org/schema/agents/logoURL"/>
+    <field index="7" term="http://www.eol.org/schema/agents/project"/>
+    <field index="8" term="http://www.eol.org/schema/agents/organization"/>
+    <field index="9" term="http://www.eol.org/schema/agents/accountName"/>
+    <field index="10" term="http://www.eol.org/schema/agents/yahooChatID"/>
+    <field index="11" term="http://www.eol.org/schema/agents/role"/>
+    <field index="12" term="http://www.eol.org/schema/agents/mediaResourceID"/>
+    <foreignKey index="12" rowType="http://www.eol.org/schema/media_resources/MediaResource"/>
+  </table>
+  
+  <table encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy='"' ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/ResourceRelationship">
+      <files>
+          <location>media_taxa.txt</location>
+      </files>
+      <id index="0" term="http://rs.tdwg.org/dwc/terms/resourceRelationshipID" />
+      <field index="1" term="http://rs.tdwg.org/dwc/terms/resourceID"/>
+      <field index="2" term="http://rs.tdwg.org/dwc/terms/relatedResourceID"/>
+      <foreignKey index="1" rowType="http://www.eol.org/schema/media_resources/MediaResource"/>
+      <foreignKey index="2" rowType="http://rs.tdwg.org/dwc/terms/Taxon"/>
+  </table>
+  
+  <table encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\n" fieldsEnclosedBy='"' ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/ResourceRelationship">
+      <files>
+          <location>media_agents.txt</location>
+      </files>
+      <id index="0" term="http://rs.tdwg.org/dwc/terms/resourceRelationshipID" />
+      <field index="1" term="http://rs.tdwg.org/dwc/terms/resourceID"/>
+      <field index="2" term="http://rs.tdwg.org/dwc/terms/relatedResourceID"/>
+      <field index="3" term="http://www.eol.org/schema/agents/role"/>
+      <foreignKey index="1" rowType="http://www.eol.org/schema/media_resources/MediaResource"/>
+      <foreignKey index="2" rowType="http://www.eol.org/schema/agents/Agent"/>
+  </table>
+</archive>
