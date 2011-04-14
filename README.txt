@@ -19,7 +19,7 @@ There are a few things you must do before using this code:
        http://pear.php.net/manual/en/installation.introduction.php
    with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
        pear channel-discover pear.horde.org
-       pear install horde/yaml (or horde/horde_yaml)
+       pear install horde/yaml 
 
  • Update in /config/environment.php the constants for:
     WEB_ROOT        - eg: 'http://localhost/eol_php_code/'
