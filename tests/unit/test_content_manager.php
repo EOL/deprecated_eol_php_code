@@ -72,6 +72,18 @@ class test_content_manager extends SimpletestUnitBase
         }else $this->assertTrue(false, "Video should match this pattern");        
     }
 
+    function testGrabContentAudio()
+    {
+        $file = $this->content_manager->grab_file("http://people.sc.fsu.edu/~jburkardt/data/wav/thermo.wav", 0, "audio");
+        $this->assertPattern("/^[0-9]{15}/", $file);
+        if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
+        {
+            $dir = $arr[1]."/".$arr[2]."/".$arr[3]."/".$arr[4]."/";
+            $prefix = $arr[5];
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH."/".$dir.$prefix.".wav"), "Should be an wav file");
+        }else $this->assertTrue(false, "Audio should match this pattern");
+    }
+
 }
 
 ?>
