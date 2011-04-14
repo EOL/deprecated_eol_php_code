@@ -212,7 +212,7 @@ class DataObject extends MysqlBase
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "sound");
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "audio");
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
