@@ -1,52 +1,51 @@
-
 === Requirements
 
- • PHP version 5.3.0 or later
- • PEAR extension manager for PHP
-    • horde/yaml PEAR package (see Installation #5)
- • ImageMagick
- • Access to an installation of Apache Solr
- • (recommended) An installation of the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol)
- • (optional) Memcached
+  PHP version 5.3.0 or later
+  PEAR extension manager for PHP
+    horde/yaml PEAR package (see Installation #5)
+  ImageMagick
+  Access to an installation of Apache Solr
+  (recommended) An installation of the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol)
+  (optional) Memcached
 
 
 === Installation
 
 There are a few things you must do before using this code:
 
- • Install the PHP PEAR package Horde/YAML
-   first install PEAR if not aleardy installed
-       http://pear.php.net/manual/en/installation.introduction.php
-   with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
-       pear channel-discover pear.horde.org
-       pear install horde/yaml 
+  Install the PHP PEAR package Horde/YAML
+    first install PEAR if not aleardy installed
+      http://pear.php.net/manual/en/installation.introduction.php
+    with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
+      pear channel-discover pear.horde.org
+      pear install horde/yaml 
 
- • Update in /config/environment.php the constants for:
+  Update in /config/environment.php the constants for:
     WEB_ROOT        - eg: 'http://localhost/eol_php_code/'
     PHP_BIN_PATH    - eg: '/usr/local/bin/php '  -----> NOTE: THE SPACE AFTER php IS IMPORTANT
     MAGICK_HOME     - eg: '/usr/local/ImageMagick/'
 
- • In /config/environment.php check the values of:
+  In /config/environment.php check the values of:
     CONTENT_PARTNER_LOCAL_PATH
     CONTENT_LOCAL_PATH
     CONTENT_RESOURCE_LOCAL_PATH
     These are the locations where media will be downloaded to for viewing on the website
 
- • Give write permission for the following directories to your web server user:
+  Give write permission for the following directories to your web server user:
     /temp
     /applications/content_server/content
     /applications/content_server/content_partners
     /applications/content_server/resources
     /applications/content_server/tmp
 
- • In same file uncomment the Memcached connection if you prefer:
+  In same file uncomment the Memcached connection if you prefer:
     $GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
 
- • Create other files in /config/environments/ENV_NAME.php:
+  Create other files in /config/environments/ENV_NAME.php:
     these environment files will be loaded when boot.php is included,
     which is towards the TOP of environment.php
 
- • Run the tests and make sure they all pass
+  Run the tests and make sure they all pass
     see the Test section for more information
 
 
@@ -59,35 +58,35 @@ The default environment is 'development' unless you change the default in enviro
 
 The default environment can be overridden by:
     
-    including this line BEFORE including environment.php:
-        $GLOBALS['ENV_NAME'] = $ENVIRONMENT;
+  including this line BEFORE including environment.php:
+    $GLOBALS['ENV_NAME'] = $ENVIRONMENT;
     
-    calling a script and including the GET parameter:
-        http://localhost/eol_php_code/.../script.php?ENV_NAME=$ENVIRONMENT
+  calling a script and including the GET parameter:
+    http://localhost/eol_php_code/.../script.php?ENV_NAME=$ENVIRONMENT
     
-    calling a command line script and including the argument:
-        > php script.php ENV_NAME=$ENVIRONMENT
+  calling a command line script and including the argument:
+    > php script.php ENV_NAME=$ENVIRONMENT
 
 
 === Tests
 
 Tests are best initiated from the command line by running:
-    > php tests/run_tests.php
+  > php tests/run_tests.php
 
 Or running a group with:
-    > php tests/run_tests.php web
-    > php tests/run_tests.php unit
+  > php tests/run_tests.php web
+  > php tests/run_tests.php unit
 
 Or running an individual test with:
-    > php tests/run_tests.php unit/test_name.php
+  > php tests/run_tests.php unit/test_name.php
 
 Fixture *.yml files can be added to /tests/fixtures. Any fields that don't match the fields in your test database will be ignored.
 Test will only use fixtures if they have a public class attribute defined:
-    public $load_fixtures = true;
+  public $load_fixtures = true;
 
 Fixture data is turned into mock objects which can be accessed within tests as such:
-    $this->fixtures->fixture_name->row_identifier->field
-    e.g. $this->fixtures->agents->me->id
+  $this->fixtures->fixture_name->row_identifier->field
+  e.g. $this->fixtures->agents->me->id
 
 
 === Connecting Harvesting with eol.org Ruby on Rails codebase
@@ -99,22 +98,22 @@ entirely for presenting the content to the world, and providing interfaces for c
 EOL is presenting.
 
 In order to have the website and harvesting code working together there are a few configuration options that need to be set:
- • The config/database.yml in this codebase must be configured to connect to the same MASTER database that the Rails codebase is. This codebase will connect to the eol_data_$ENVIRONMENT database which is one of three databases that the Rails codebase connects to.
- • In the Rails codebase there are several /config/environment/$ENVIRONMENT.rb config files. For any enviornment that you want to be connected with the PHP code base you must change a few variables:
-   # the domain of the server running the PHP code
-   $CONTENT_SERVERS = ['http://localhost']
-   
-   # corresponds to CONTENT_LOCAL_PATH - the path on the PHP server where media will be downloaded
-   $CONTENT_SERVER_CONTENT_PATH = "/.../content/"
-   
-   # corresponds to CONTENT_RESOURCE_LOCAL_PATH - the path on the PHP server where resources will be downloaded
-   $CONTENT_SERVER_RESOURCES_PATH = "/.../resources/"
-   
-   # corresponds to CONTENT_PARTNER_LOCAL_PATH - the path on the PHP server where content partner logos will be stored
-   $CONTENT_SERVER_AGENT_LOGOS_PATH = "/.../content_partners/"
-   
-   # the full URL to the PHP server to /applications/content_server/service.php which is used by the website to send uploads of content partner logos and resource XML files
-   $WEB_SERVICE_BASE_URL="http://localhost/eol_php_code/applications/content_server/service.php?"
+  The config/database.yml in this codebase must be configured to connect to the same MASTER database that the Rails codebase is. This codebase will connect to the eol_data_$ENVIRONMENT database which is one of three databases that the Rails codebase connects to.
+  In the Rails codebase there are several /config/environment/$ENVIRONMENT.rb config files. For any enviornment that you want to be connected with the PHP code base you must change a few variables:
+  # the domain of the server running the PHP code
+  $CONTENT_SERVERS = ['http://localhost']
+  
+  # corresponds to CONTENT_LOCAL_PATH - the path on the PHP server where media will be downloaded
+  $CONTENT_SERVER_CONTENT_PATH = "/.../content/"
+  
+  # corresponds to CONTENT_RESOURCE_LOCAL_PATH - the path on the PHP server where resources will be downloaded
+  $CONTENT_SERVER_RESOURCES_PATH = "/.../resources/"
+  
+  # corresponds to CONTENT_PARTNER_LOCAL_PATH - the path on the PHP server where content partner logos will be stored
+  $CONTENT_SERVER_AGENT_LOGOS_PATH = "/.../content_partners/"
+  
+  # the full URL to the PHP server to /applications/content_server/service.php which is used by the website to send uploads of content partner logos and resource XML files
+  $WEB_SERVICE_BASE_URL="http://localhost/eol_php_code/applications/content_server/service.php?"
 
 
 === Scheduled Tasks
