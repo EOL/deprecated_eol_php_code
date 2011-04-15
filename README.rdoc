@@ -121,14 +121,14 @@ In order to have the website and harvesting code working together there are a fe
 Once connected with the Rails codebase, there are a few scheduled tasks we run to ensure that harvesting is happening every day and the 
 website has the data it need to present species pages efficiently:
 
-# every hour on the hour reset permissions on important files
-0 * * * * /data/www/eol_php_code/rake_tasks/permissions
-
-# 1pm download resource files that have connectors
-00 13 * * * /usr/local/bin/php /data/www/eol_php_code/update_resources/update_connector_resources.php > /dev/null
-
-# 10.45pm download resource files that dont have connectors
-45 22 * * * /usr/local/bin/php /data/www/eol_php_code/update_resources/update_downloadable_resources.php > /dev/null
-
-# 11.20pm do harvesting
-20 23 * * * /usr/local/bin/php /data/www/eol_php_code/rake_tasks/harvest_resources_cron_task.php > /dev/null
+  # every hour on the hour reset permissions on important files
+  0 * * * * /data/www/eol_php_code/rake_tasks/permissions
+  
+  # 1pm download resource files that have connectors
+  00 13 * * * /usr/local/bin/php /data/www/eol_php_code/update_resources/update_connector_resources.php > /dev/null
+  
+  # 10.45pm download resource files that dont have connectors
+  45 22 * * * /usr/local/bin/php /data/www/eol_php_code/update_resources/update_downloadable_resources.php > /dev/null
+  
+  # 11.20pm do harvesting
+  20 23 * * * /usr/local/bin/php /data/www/eol_php_code/rake_tasks/harvest_resources_cron_task.php > /dev/null

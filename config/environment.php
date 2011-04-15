@@ -1,8 +1,9 @@
 <?php
 
 /* best to leave the PHP settings at the top in case they are overridden in another environment */
-ini_set('memory_limit', '1000M');
-ini_set('max_execution_time', '360');
+ini_set('memory_limit', '1024M'); // 1GB maximum memory usage
+ini_set('max_execution_time', '21600'); // 6 hours
+ini_set('display_errors', false);
 
 /* Default Environment */
 if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
@@ -11,26 +12,31 @@ define('WEB_ROOT', 'http://localhost/eol_php_code/');   // URL prefix of this in
 define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 define('MYSQL_BIN_PATH', 'mysql ');                     // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 
+$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_MYSQL_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG_TO_FILE'] = true;
+$GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
 
+
+/* Initialize app - this should be towards the top of environment.php, but declare the WEB_ROOT first 
+   this will load values from ./environments/ENV_NAME.php before values below
+*/
 
 /* MEMCACHED */
 //$GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
 $GLOBALS['ENV_ENABLE_CACHING'] = true;
 
 
-
-/* Initialize app - this should be towards the top of environment.php, but declare the WEB_ROOT first 
-   this will load values from ./environments/ENV_NAME.php before values below
-*/
 require_once(dirname(__FILE__) . '/boot.php');
 
-
-
+// $GLOBALS['log_file'] = fopen(DOC_ROOT . "temp/processes.log", "a+");
 
 
 
 /* the 'default' hierarchy - the one which gets matched to new taxa first */
 if(!defined('DEFAULT_HIERARCHY_LABEL')) define('DEFAULT_HIERARCHY_LABEL', 'Species 2000 & ITIS Catalogue of Life: Annual Checklist 2010');
+
+
 
 
 /* Modules needed */
@@ -47,6 +53,7 @@ require_library('NamesFunctions');
 require_library('Tasks');
 require_library('FileIterator');
 require_library('MysqliResultIterator');
+require_library('MysqliResultFileIterator');
 require_vendor('eol_content_schema');
 require_vendor('solr');
 require_vendor('darwincore');
@@ -90,6 +97,5 @@ $GLOBALS['no_cache']['synonyms']            = true;
 $GLOBALS['no_cache']['taxa']                = true;
 $GLOBALS['no_cache']['taxon_concept_names'] = true;
 $GLOBALS['no_cache']['taxon_concepts']      = true;
-
 
 ?>

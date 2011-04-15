@@ -93,6 +93,7 @@ update_resources/connectors/files/OBIS/depthenv20100825.csv
 update_resources/connectors/files/OBIS/tnames20100825.csv
 update_resources/connectors/files/PublicHealthImageLibrary/*
 !update_resources/connectors/files/PublicHealthImageLibrary/.gitignore
+update_resources/connectors/files/temp*
 update_resources/connectors/files/wikimedia/*
 !update_resources/connectors/files/wikimedia/.gitignore
 update_resources/connectors/files/wikipedia/*
