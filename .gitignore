@@ -1,10 +1,15 @@
 applications/content_server/content/*
+!applications/content_server/content/.gitignore
 applications/content_server/content_partners/*
+!applications/content_server/content_partners/.gitignore
 applications/content_server/gni_tcs_files/eol_names.xml
 applications/content_server/resources/*
+!applications/content_server/resources/.gitignore
 applications/content_server/tmp/*
+!applications/content_server/tmp/.gitignore
 applications/GNI_connector/sample.xsl
 applications/GNI_connector/XML/*
+!applications/GNI_connector/XML/.gitignore
 applications/google/output.txt
 applications/google_stats/2008.htm
 applications/google_stats/2009.htm
@@ -21,20 +26,27 @@ applications/google_stats/process_others.php
 applications/google_stats/start2 working.php
 applications/google_stats/temp.txt
 applications/hierarchy_import/downloads/*
+!applications/hierarchy_import/downloads/.gitignore
 applications/hierarchy_import/itis/out.xml
 applications/names_lookup/result v1.php
 applications/names_lookup/temp/*
+!applications/names_lookup/temp/.gitignore
 applications/names_stat/temp/*
+!applications/names_stat/temp/.gitignore
 applications/RSS_resource_monitor/backup
 applications/specialist_project_converter/temp/*.xls
 applications/specialist_project_converter/temp/*.xlsx
 applications/specialist_project_converter/xml/*.xml
 applications/species_stat/saved_stats.csv
 applications/species_stat/temp/*
+!applications/species_stat/temp/.gitignore
 applications/taxon_page_metrics/text_files/*
+!applications/taxon_page_metrics/text_files/.gitignore
 applications/urls_lookup/temp/*
+!applications/urls_lookup/temp/.gitignore
 applications/xls2EOL/eol_video.xls
 applications/xls2EOL/temp/*
+!applications/xls2EOL/temp/.gitignore
 applications/xls2EOL/test.php
 applications/xls2EOL/WhyReef-EOL(2).xls
 applications/xls2EOL/WhyReef-EOL.xls
@@ -43,10 +55,12 @@ applications/xls2EOL/xml/*.xml
 config/constants.php
 config/database.yml
 config/environments/*
+!config/environments/.gitignore
 config/old
 config/start.php
 lib/NewDenormalizedTables.php
 log/*
+!log/.gitignore
 rake_tasks/2009 12 29
 rake_tasks/denormalize_tables_saved.php
 rake_tasks/eli backup
@@ -55,6 +69,7 @@ rake_tasks/New Folder
 rake_tasks/run.bat
 rake_tasks/run.php
 temp/*
+!temp/.gitignore
 tmp/taxon_concept_with_bhl_links.txt
 tmp/tmp*
 update_resources/connectors/26 v1.php
@@ -64,9 +79,10 @@ update_resources/connectors/bad_id.txt
 update_resources/connectors/CDC - Copy.php
 update_resources/connectors/CDC.php
 update_resources/connectors/CDC2.php
-update_resources/connectors/files/*
 update_resources/connectors/files/flickr_cache/photosGetInfo/*
+!update_resources/connectors/files/flickr_cache/photosGetInfo/.gitignore
 update_resources/connectors/files/flickr_cache/photosGetSizes/*
+!update_resources/connectors/files/flickr_cache/photosGetSizes/.gitignore
 update_resources/connectors/files/NaturalHistoryServices/2010 11 29
 update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap.xml
 update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap_small.xml
@@ -76,9 +92,13 @@ update_resources/connectors/files/NaturalHistoryServices/old files used
 update_resources/connectors/files/OBIS/depthenv20100825.csv
 update_resources/connectors/files/OBIS/tnames20100825.csv
 update_resources/connectors/files/PublicHealthImageLibrary/*
+!update_resources/connectors/files/PublicHealthImageLibrary/.gitignore
 update_resources/connectors/files/wikimedia/*
+!update_resources/connectors/files/wikimedia/.gitignore
 update_resources/connectors/files/wikipedia/*
+!update_resources/connectors/files/wikipedia/.gitignore
 update_resources/connectors/files/WORMS/*
+!update_resources/connectors/files/WORMS/.gitignore
 update_resources/connectors/readmeli.txt
 update_resources/connectors/run.bat
 update_resources/connectors/set.php
