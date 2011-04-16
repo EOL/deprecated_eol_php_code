@@ -72,6 +72,7 @@ temp/*
 !temp/.gitignore
 tmp/taxon_concept_with_bhl_links.txt
 tmp/tmp*
+tmp/*.csv
 update_resources/connectors/26 v1.php
 update_resources/connectors/26pre.php
 update_resources/connectors/81 v1.php
@@ -79,6 +80,7 @@ update_resources/connectors/bad_id.txt
 update_resources/connectors/CDC - Copy.php
 update_resources/connectors/CDC.php
 update_resources/connectors/CDC2.php
+update_resources/connectors/files/FishWisePro/*.xls
 update_resources/connectors/files/flickr_cache/photosGetInfo/*
 !update_resources/connectors/files/flickr_cache/photosGetInfo/.gitignore
 update_resources/connectors/files/flickr_cache/photosGetSizes/*
@@ -93,6 +95,8 @@ update_resources/connectors/files/OBIS/depthenv20100825.csv
 update_resources/connectors/files/OBIS/tnames20100825.csv
 update_resources/connectors/files/PublicHealthImageLibrary/*
 !update_resources/connectors/files/PublicHealthImageLibrary/.gitignore
+update_resources/connectors/files/SPIRE/*.xls
+update_resources/connectors/files/Tropicos/*.dat
 update_resources/connectors/files/temp*
 update_resources/connectors/files/wikimedia/*
 !update_resources/connectors/files/wikimedia/.gitignore
