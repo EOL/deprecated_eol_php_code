@@ -30,7 +30,7 @@ class ContentManager
         if($type == "resource") $timeout = 60;
         
         $temp_file_path = CONTENT_TEMP_PREFIX.$this->unique_key.".file";
-        if(preg_match("/^http:\/\//",$file))
+        if(preg_match("/^http:\/\//",$file) || preg_match("/^https:\/\//",$file))
         {
             if($file_contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, $timeout))
             {

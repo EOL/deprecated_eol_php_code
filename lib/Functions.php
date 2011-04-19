@@ -286,6 +286,9 @@ class Functions
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
         
+        // ignores and just trusts https
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
         debug("Sending get request to $url : only attempt");
         $result = curl_exec($ch);
         

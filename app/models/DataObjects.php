@@ -191,7 +191,7 @@ class DataObject extends MysqlBase
     {     
         if($this->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/StillImage"))
         {
-            if(preg_match("/^http:\/\//",$this->object_url))
+            if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
                 // TODO - hardcoded exception to make the Biopix images smaller
                 if($resource->title == "Biopix") $large_thumbnail_dimensions = "300x300";
