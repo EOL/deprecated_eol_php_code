@@ -104,3 +104,7 @@ update_resources/connectors/readmeli.txt
 update_resources/connectors/run.bat
 update_resources/connectors/set.php
 update_resources/connectors/XML_check.php
+
+.DS_Store
+
+rake_tasks/e
