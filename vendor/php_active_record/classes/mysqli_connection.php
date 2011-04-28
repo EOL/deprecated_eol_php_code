@@ -328,9 +328,9 @@ class MysqliConnection
         $query = "";
         $this->debug("show tables from ".$this->master_database, true);
         $result = $this->master_mysqli->query("show tables from ".$this->master_database);
-        while($result && $row=$result->fetch_assoc())
+        while($result && $row=$result->fetch_row())
         {
-            $table = $row["Tables_in_".$this->master_database];
+            $table = $row[0];
             $count_results = $this->master_mysqli->query("select 1 from $table limit 1");
             if($count_results && $count_results->num_rows)
             {
