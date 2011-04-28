@@ -1,6 +1,11 @@
 <?php
 class XLSParser
 {
+    const SUBJECTS = "Associations,Behaviour,Biology,Conservation,ConservationStatus,Cyclicity,Cytology,Description,DiagnosticDescription,
+                      Diseases,Dispersal,Distribution,Ecology,Evolution,GeneralDescription,Genetics,Growth,Habitat,Key,Legislation,LifeCycle,LifeExpectancy,
+                      LookAlikes,Management,Migration,MolecularBiology,Morphology,Physiology,PopulationBiology,Procedures,Reproduction,RiskStatement,
+                      Size,TaxonBiology,Threats,Trends,TrophicStrategy,Uses";
+    
     public function convert_sheet_to_array($spreadsheet, $sheet = NULL, $startRow = NULL)
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
@@ -47,15 +52,16 @@ class XLSParser
         7 = Synonyms
         */
         $taxon_info = $parser->convert_sheet_to_array($file, 5);
-        
-        $text_desc = self::prepare_data($parser->convert_sheet_to_array($file, 2), "multiple", "Taxon Name", "Reference Code", "Attribution Code", "Contributor Code",
+        $GLOBALS['subjects_with_identical_texts'] = self::check_subjects_with_identical_texts($parser->convert_sheet_to_array($file, 2));
+
+        $text_desc = self::prepare_data($parser->convert_sheet_to_array($file, 2), "multiple", "Taxon Name", "Taxon Name", "Reference Code", "Attribution Code", "Contributor Code",
         "Audience", "DateCreated", "DateModified", "Source URL",
         "Associations", "Behaviour", "Biology", "Conservation",
         "ConservationStatus", "Cyclicity", "Cytology", "Description", "DiagnosticDescription", "Diseases", "Dispersal", "Distribution", "Ecology", "Evolution",
         "GeneralDescription", "Genetics", "Growth", "Habitat", "Key", "Legislation", "LifeCycle", "LifeExpectancy", "LookAlikes", "Management", "Migration",
         "MolecularBiology", "Morphology", "Physiology", "PopulationBiology", "Procedures", "Reproduction", "RiskStatement", "Size", "TaxonBiology", "Threats", "Trends",
         "TrophicStrategy", "Uses");
-        
+
         $multimedia     = self::prepare_data($parser->convert_sheet_to_array($file, 4, 2), "multiple", "Taxon Name",
         "DateCreated", "DateModified", "Data Type", "MIME Type", "Media URL", "Thumbnail URL", "Source URL", "Caption", "Language", "Audience", "Location", "Latitude",
         "Longitude", "Altitude", "Attribution Code", "Contributor Code", "Reference Code");
@@ -72,6 +78,20 @@ class XLSParser
         
         $eol_xml = self::create_specialist_project_xml($taxon_info, $text_desc, $multimedia, $common_names, $synonyms, $do_details);
         return $eol_xml;
+    }
+
+    function check_subjects_with_identical_texts($text_descriptions_sheet)
+    {
+        $subjects_with_identical_texts = array();
+        $subjects = explode(",",self::SUBJECTS);
+        foreach($subjects as $subject)
+        {
+            $arr_text = @array_filter($text_descriptions_sheet[$subject]);
+            if(!$arr_text) continue;
+            $arr_text_unique = array_unique($arr_text);
+            if(sizeof($arr_text) != sizeof($arr_text_unique)) $subjects_with_identical_texts[] = $subject;
+        }
+        return $subjects_with_identical_texts;
     }
 
     public function create_specialist_project_xml($taxon_info, $text_desc = NULL, $multimedia = NULL, $common_names = NULL, $synonyms = NULL, $do_details = NULL)
@@ -182,20 +202,14 @@ class XLSParser
     
     function prepare_text_dataObject($text_desc, $do_details, $text_desc_title)
     {
+        if(!$text_desc) return array();
         $dataObjects = array();
-        $subjects = array("Associations", "Behaviour", "Biology", "Conservation",
-        "ConservationStatus", "Cyclicity", "Cytology", "Description", "DiagnosticDescription", "Diseases", "Dispersal", "Distribution", "Ecology", "Evolution",
-        "GeneralDescription", "Genetics", "Growth", "Habitat", "Key", "Legislation", "LifeCycle", "LifeExpectancy", "LookAlikes", "Management", "Migration",
-        "MolecularBiology", "Morphology", "Physiology", "PopulationBiology", "Procedures", "Reproduction", "RiskStatement", "Size", "TaxonBiology", "Threats", "Trends",
-        "TrophicStrategy", "Uses");
+        $subjects = explode(",", self::SUBJECTS);
         foreach($subjects as $subject)
         {
-            if($text_desc)
+            foreach($text_desc as $do)
             {
-                foreach($text_desc as $do)
-                {
-                    if(@$do[$subject])$dataObjects[] = self::get_data_object($do, $subject, $do_details, $text_desc_title); //e.g. $do['Associations'];
-                }
+                if(@$do[$subject]) $dataObjects[] = self::get_data_object($do, $subject, $do_details, $text_desc_title); //e.g. $do['Associations'];
             }
         }
         return $dataObjects;
@@ -221,12 +235,22 @@ class XLSParser
         $contributors = $do_details['contributors'];
 
         $dataObjectParameters = array();
-        $dataObjectParameters["identifier"] = "";
-        $dataObjectParameters["dataType"]   = self::get_DataType(self::format(@$do['Data Type']));
-        $dataObjectParameters["mimeType"]   = self::format(@$do['MIME Type']);
 
-        if(is_null($subject))$desc = self::format(@$do['Caption']); //multimedia
-        else                 $desc = self::format($do[$subject]);   //text description        
+        //this is to put dc:identifier for texts under a certain subject with identical text descriptions. E.g. ID Key descriptions that are identical to multiple taxa.
+        if($subject) // meaning if text object
+        {
+            if(in_array($subject, $GLOBALS['subjects_with_identical_texts']))
+            {
+                @$GLOBALS[$subject . '_do_count']++;
+                $dataObjectParameters["identifier"] = "text_" . $subject . "_" . $GLOBALS[$subject . '_do_count'];
+            }
+        }
+        
+        $dataObjectParameters["dataType"] = self::get_DataType(self::format(@$do['Data Type']));
+        $dataObjectParameters["mimeType"] = self::format(@$do['MIME Type']);
+
+        if(is_null($subject)) $desc = self::format(@$do['Caption']); //multimedia
+        else                  $desc = self::format($do[$subject]);   //text description        
         $dataObjectParameters["description"] = $desc;
         
         //start title
