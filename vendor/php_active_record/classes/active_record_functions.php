@@ -232,7 +232,7 @@ function load_fixtures($environment = "test")
     {
         $fixture_data->$table = (object) array();
         
-        $rows = Horde_Yaml::loadFile(DOC_ROOT . "tests/fixtures/$table.yml");
+        $rows = Spyc::YAMLLoad(DOC_ROOT . "tests/fixtures/$table.yml");
         foreach($rows as $id => $row)
         {
             $fixture_data->$table->$id = (object) array();
