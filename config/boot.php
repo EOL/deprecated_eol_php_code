@@ -20,11 +20,13 @@ if(file_exists(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.p
     require_once(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php');
 }
 
-/* requiring PEAR package Horde/Yaml to import *.yml files */
-require_once 'Horde/Yaml.php';
-require_once 'Horde/Yaml/Loader.php';
-require_once 'Horde/Yaml/Node.php';
-require_once 'Horde/Yaml/Exception.php';
+// /* requiring PEAR package Horde/Yaml to import *.yml files */
+// require_once 'Horde/Yaml.php';
+// require_once 'Horde/Yaml/Loader.php';
+// require_once 'Horde/Yaml/Node.php';
+// require_once 'Horde/Yaml/Exception.php';
+
+require_once dirname(__FILE__) . '/../vendor/spyc/spyc.php';
 
 if(strtolower(substr(php_uname(), 0, 3)) == 'win') define('SYSTEM_OS', 'Windows');
 else define('SYSTEM_OS', 'Unix');
@@ -131,7 +133,7 @@ function environment_defined($environment_name)
         // trigger_error('Booting failure: /config/database.yml does\'t exit', E_USER_ERROR);
         return false;
     }
-    $environments = Horde_Yaml::loadFile(DOC_ROOT . 'config/database.yml');
+    $environments = Spyc::YAMLLoad(DOC_ROOT . 'config/database.yml');
     
     $possible_environments = array_keys($environments);
     if(in_array($environment_name, $possible_environments))
@@ -150,7 +152,7 @@ function load_mysql_environment($environment = NULL)
         trigger_error('Booting failure: /config/database.yml does\'t exit', E_USER_ERROR);
         return false;
     }
-    $environments = Horde_Yaml::loadFile(DOC_ROOT . 'config/database.yml');
+    $environments = Spyc::YAMLLoad(DOC_ROOT . 'config/database.yml');
     
     $possible_environments = array_keys($environments);
     if(!in_array($environment, $possible_environments))
