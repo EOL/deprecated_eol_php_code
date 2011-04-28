@@ -21,7 +21,8 @@ class MysqliResultFileIterator extends FileIterator
              //$line = stream_get_line($this->FILE, 65535, "\n");
              //$line = rtrim($line, "\r\n");
             
-            if($line && !feof($this->FILE))
+            // TODO: remove if ($line) because mysql results might be 0 or empty string
+            if(($line || $line == 0) && !feof($this->FILE))
             {
                 $this->current_line = explode("\t", $line);
                 $this->line_number += 1;
