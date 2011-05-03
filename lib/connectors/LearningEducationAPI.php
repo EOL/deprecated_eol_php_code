@@ -4,7 +4,6 @@ class LearningEducationAPI
 {
     public static function get_all_taxa()
     {
-        $all_taxa = array();
         $taxon["Pandea rubra"]           = "Red Paper Latern Jellyfish";
         $taxon["Jadera haematoloma"]     = "Red-Shouldered Soapberry Bug";
         $taxon["Acroporidae"]            = "Coral";
@@ -19,9 +18,7 @@ class LearningEducationAPI
         $taxon["Urocyon littoralis"]     = "Island Fox";
         $GLOBALS['hard_coded_taxon'] = $taxon;
         $GLOBALS['sound_objects'] = self::prepare_sound_objects();
-        $page_taxa = self::get_taxa();
-        $all_taxa = array_merge($all_taxa, $page_taxa);
-        return $all_taxa;
+        return self::get_taxa();
     }
     
     public static function get_taxa()
@@ -41,15 +38,12 @@ class LearningEducationAPI
     
     function prepare_sound_objects()
     {
-        $title_taxon = array_flip($GLOBALS['hard_coded_taxon']);        
         $sounds = array();
         $xml = simplexml_load_file(PODCAST_FEED);
-        //print "podcast count = " . count($xml->channel->item) . "\n";
         foreach($xml->channel->item as $item)
         {
             $item_itunes = $item->children("http://www.itunes.com/dtds/podcast-1.0.dtd");
             $title = trim($item->title);
-            //print"\n title: $title \n";
             
             /* sample RSS feed
             <item>
@@ -70,10 +64,10 @@ class LearningEducationAPI
             if($item_itunes->duration) $description .= "<br>Duration: " . $item_itunes->duration;
             if($item->pubDate) $description .= "<br>Published: " . $item->pubDate;
             $agent = array();
-            $agent[] = array("role" => "author" , "homepage" => "http://www.eol.org" , "name" => "Encyclopedia of Life");
-            $agent[] = array("role" => "project" , "homepage" => "http://www.atlantic.org/" , "name" => "Atlantic Public Media");
+            $agent[] = array("role" => "author", "homepage" => "http://www.eol.org", "name" => "Encyclopedia of Life");
+            $agent[] = array("role" => "project", "homepage" => "http://www.atlantic.org/", "name" => "Atlantic Public Media");
 
-            $sounds[$title][] = array("identifier"  => trim($item->guid) . @$title_taxon[$title],
+            $sounds[$title][] = array("identifier"  => trim($item->guid),
                                       "mediaURL"    => trim($item->enclosure["url"]),
                                       "mimeType"    => trim($item->enclosure["type"]),
                                       "dataType"    => "http://purl.org/dc/dcmitype/Sound",
@@ -89,22 +83,20 @@ class LearningEducationAPI
     function create_taxa()
     {
         $hard_coded_taxon = $GLOBALS['hard_coded_taxon'];
-        
         $taxa = array();
         foreach($hard_coded_taxon as $taxon => $title)
         {
-            //print"\n $taxon - $title\n";                      
             $title = trim($title);
-            $taxa[]=array("id"        => "",
-                          "kingdom"   => "",
-                          "phylum"    => "",
-                          "class"     => "",
-                          "order"     => "",
-                          "family"    => "",
-                          "sciname"   => $taxon,
-                          "dc_source" => "",
-                          "do_sounds" => @$GLOBALS['sound_objects'][$title]
-                         );
+            $taxa[] = array("id"        => "",
+                            "kingdom"   => "",
+                            "phylum"    => "",
+                            "class"     => "",
+                            "order"     => "",
+                            "family"    => "",
+                            "sciname"   => $taxon,
+                            "dc_source" => "",
+                            "do_sounds" => @$GLOBALS['sound_objects'][$title]
+                           );
         }
         return $taxa;
     }
@@ -112,7 +104,7 @@ class LearningEducationAPI
     function get_sciname($string)
     {
         $pos = strripos($string,'-');
-        if(is_numeric($pos))return trim(substr($string,$pos+1,strlen($string)));
+        if(is_numeric($pos)) return trim(substr($string, $pos + 1, strlen($string)));
         else return trim($string);
     }
 
@@ -129,7 +121,7 @@ class LearningEducationAPI
         $taxon["class"] = ucfirst(trim($rec["class"]));
         $taxon["order"] = ucfirst(trim($rec["order"]));
         $taxon["family"] = ucfirst(trim($rec["family"]));
-        if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $arr)) $taxon["genus"] = $arr[1];
+        if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $match)) $taxon["genus"] = $match[1];
         $sounds = $rec["do_sounds"];
         if($sounds)
         {
@@ -165,20 +157,20 @@ class LearningEducationAPI
             $subjectParameters["label"] = @$rec["subject"];
             $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
         }
-         if(@$rec["agent"])
-         {
-             $agents = array();
-             foreach($rec["agent"] as $a)
-             {
-                 $agentParameters = array();
-                 $agentParameters["role"]     = $a["role"];
-                 $agentParameters["homepage"] = $a["homepage"];
-                 $agentParameters["logoURL"]  = "";
-                 $agentParameters["fullName"] = $a["name"];
-                 $agents[] = new SchemaAgent($agentParameters);
-             }
-             $data_object_parameters["agents"] = $agents;
-         }
+        if(@$rec["agent"])
+        {
+            $agents = array();
+            foreach($rec["agent"] as $a)
+            {
+                $agentParameters = array();
+                $agentParameters["role"]     = $a["role"];
+                $agentParameters["homepage"] = $a["homepage"];
+                $agentParameters["logoURL"]  = "";
+                $agentParameters["fullName"] = $a["name"];
+                $agents[] = new SchemaAgent($agentParameters);
+            }
+            $data_object_parameters["agents"] = $agents;
+        }
         return $data_object_parameters;
     }
 }
