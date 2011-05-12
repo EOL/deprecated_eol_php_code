@@ -47,6 +47,8 @@ $list = $separator . $list;    //weird behavior - first char must be the separat
 $names = explode("$separator", $list);
 $names = array_unique($names);
 $names = array_filter($names);
+$names = array_values($names);
+$names = limit_array($names, 100); // will only process 100 names max
 
 print "<font size='2' face='courier'>Total no. of names submitted: " . " " . count($names) . "</font>";
 if(count($names) == 0) exit;
@@ -59,10 +61,17 @@ foreach($names as $sciname)
     $xml = Functions::get_hashed_response($file);
     print "<pre>";
     $taxon = $func->get_details($xml, $sciname, $strict);
-	$taxon = $func->sort_details($taxon, $returns);
+    $taxon = $func->sort_details($taxon, $returns);
     $taxa_table = array_merge($taxon, $taxa_table);
     print"</pre>";
 }
 $taxa_table = $func->sort_by_key($taxa_table, "orig_sciname", $sort_order);
 $func->show_table($taxa_table);
+
+function limit_array($arr, $limit)
+{
+    $new = array();
+    for ($i = 0; $i < $limit; $i++) if(@$arr[$i]) $new[] = $arr[$i];
+    return $new;
+}
 ?>
