@@ -235,17 +235,7 @@ class XLSParser
         $contributors = $do_details['contributors'];
 
         $dataObjectParameters = array();
-
-        //this is to put dc:identifier for texts under a certain subject with identical text descriptions. E.g. ID Key descriptions that are identical to multiple taxa.
-        if($subject) // meaning if text object
-        {
-            if(in_array($subject, $GLOBALS['subjects_with_identical_texts']))
-            {
-                @$GLOBALS[$subject . '_do_count']++;
-                $dataObjectParameters["identifier"] = "text_" . $subject . "_" . $GLOBALS[$subject . '_do_count'];
-            }
-        }
-        
+        $dataObjectParameters["identifier"] = "";
         $dataObjectParameters["dataType"] = self::get_DataType(self::format(@$do['Data Type']));
         $dataObjectParameters["mimeType"] = self::format(@$do['MIME Type']);
 
