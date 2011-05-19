@@ -1408,6 +1408,55 @@ class Functions
         }
         return $iso_639_2_codes;
     }
-}
 
+    public static function cardinal_to_ordinal($number)
+    {
+        switch(substr($number, -1))
+        {
+            case 1: $number .= "st"; break;
+            case 2: $number .= "nd"; break;
+            case 3: $number .= "rd"; break;
+            default: $number .= "th"; break;
+        }
+        return $number;
+    }
+
+    //4 functions for queueing task in connectors
+    public static function add_a_task($task, $filename)
+    {
+        $READ = fopen($filename, "a");
+        fwrite($READ, $task);
+        fclose($READ);
+    }
+
+    public static function get_a_task($filename)
+    {
+        $READ = fopen($filename, "r");
+        $line = fgets($READ);
+        fclose($READ);
+        return $line;
+    }
+
+    public static function delete_a_task($task, $filename)
+    {
+        $READ = fopen($filename, 'r');
+        $task_list = fread($READ, filesize($filename));
+        fclose($READ);
+        $task_list = str_ireplace($task, "", $task_list);
+        //saving
+        $OUT = fopen($filename, 'w');
+        fwrite($OUT, $task_list);
+        fclose($OUT);
+    }
+
+    public static function run_another_connector_instance($resource_id, $times)
+    {
+        for($i = 1; $i <= $times; $i++)
+        {
+            print "\n run " . self::cardinal_to_ordinal($i + 1) . " instance--";
+            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '.php 0 > null &');
+            sleep(5);
+        }
+    }
+}
 ?>
