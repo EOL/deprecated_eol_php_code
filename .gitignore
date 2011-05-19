@@ -89,3 +89,11 @@ update_resources/connectors/XML_check.php
 .DS_Store
 
 rake_tasks/e
+
+applications/partner_requests/images_per_resource.php
+applications/partner_requests/moth_photographers/MPG taxon index.xls
+applications/partner_requests/moth_photographers/Moth Photographers Group.xls
+applications/partner_requests/moth_photographers/index.php
+applications/partner_requests/moth_photographers/moth.txt
+
+null
