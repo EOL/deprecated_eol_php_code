@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 /*
 Steps before accepting a name from DiscoverLife
 - search the name through the API e.g. api/search/Gadus morhua

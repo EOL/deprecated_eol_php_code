@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 require_library('connectors/DiscoverLife_KeysAPI');
 class test_connector_discoverlifekeys_api extends SimpletestUnitBase
 {

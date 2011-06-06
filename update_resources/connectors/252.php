@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 /* connector for DiscoverLife ID keys
 estimated execution time: 4.27 hours
 */

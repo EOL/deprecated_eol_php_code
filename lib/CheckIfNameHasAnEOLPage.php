@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 /*
 This class API is used for content partners who don't want EOL to create a new page for their names, 
 but only get those names from them which already has an EOL page.

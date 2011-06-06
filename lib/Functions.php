@@ -1446,7 +1446,7 @@ class Functions
             $taxon["commonNames"] = array();
             foreach($rec["commonNames"] as $comname)
             {
-                $taxon["commonNames"][] = new SchemaCommonName(array("name" => $comname["name"], "language" => $comname["language"]));
+                $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname["name"], "language" => $comname["language"]));
             }
         }
         //-------------------------------------------------------------------------------------------------
@@ -1455,7 +1455,7 @@ class Functions
             $taxon["synonyms"] = array();
             foreach($rec["synonyms"] as $syn)
             {
-                $taxon["synonyms"][] = new SchemaSynonym(array("synonym" => $syn["synonym"], "relationship" => $syn["relationship"]));
+                $taxon["synonyms"][] = new \SchemaSynonym(array("synonym" => $syn["synonym"], "relationship" => $syn["relationship"]));
             }
         }
         //-------------------------------------------------------------------------------------------------
@@ -1469,11 +1469,11 @@ class Functions
         {
             foreach($rec["data_objects"] as $object)
             {
-                if($data_object = Functions::prepare_data_object_params($object)) $taxon["dataObjects"][] = new SchemaDataObject($data_object);
+                if($data_object = Functions::prepare_data_object_params($object)) $taxon["dataObjects"][] = new \SchemaDataObject($data_object);
             }
         }
         //-------------------------------------------------------------------------------------------------
-        $taxon_parameters = new SchemaTaxon($taxon);
+        $taxon_parameters = new \SchemaTaxon($taxon);
         return $taxon_parameters;
     }
 
@@ -1500,7 +1500,7 @@ class Functions
             foreach(@$rec["audience"] as $audience)
             {
                 $audienceParameters["label"] = $audience;
-                $data_object_parameters["audiences"][] = new SchemaAudience($audienceParameters);
+                $data_object_parameters["audiences"][] = new \SchemaAudience($audienceParameters);
             }
         }
         //-------------------------------------------------------------------------------------------------
@@ -1511,7 +1511,7 @@ class Functions
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = trim(@$rec["subject"]);
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         //-------------------------------------------------------------------------------------------------
         $data_object_parameters["description"]  = trim(@$rec["description"]);
@@ -1537,9 +1537,9 @@ class Functions
                 $referenceParam["fullReference"] = $ref["fullReference"];
                 foreach($attributes as $attribute)
                 {
-                    if(@$ref[$attribute]) $referenceParam["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => $attribute, "value" => trim(@$ref[$attribute])));
+                    if(@$ref[$attribute]) $referenceParam["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => $attribute, "value" => trim(@$ref[$attribute])));
                 }
-                $reference[] = new SchemaReference($referenceParam);
+                $reference[] = new \SchemaReference($referenceParam);
             }
             $taxon_or_data_object_param["references"] = $reference;
         }
@@ -1558,7 +1558,7 @@ class Functions
                 $agentParameters["homepage"] = @$agent["homepage"];
                 $agentParameters["logoURL"]  = @$agent["logoURL"];
                 $agentParameters["fullName"] = @$agent["fullName"];
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }
             $taxon_or_data_object_param["agents"] = $agents;
         }

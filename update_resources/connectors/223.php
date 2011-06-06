@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 /* connector for DiscoverLife Maps
 estimated execution time:
 */
