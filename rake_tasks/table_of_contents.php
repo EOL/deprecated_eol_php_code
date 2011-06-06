@@ -1,8 +1,9 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
-$log = HarvestProcessLog::create('Table of Contents');
+$log = HarvestProcessLog::create(array('process_name' => 'Table of Contents'));
 
 
 $outfile_no_info_items = $GLOBALS['db_connection']->select_into_outfile("SELECT dotoc.* FROM data_objects_table_of_contents dotoc LEFT JOIN data_objects_info_items doii USING (data_object_id) where doii.data_object_id IS NULL");

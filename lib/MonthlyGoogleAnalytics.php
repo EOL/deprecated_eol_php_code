@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 define("GOOGLE_DATA_PATH", DOC_ROOT . "applications/google_stats/data/");
 define("USE_SQL_LOAD_INFILE", false);
 define("PAGE_METRICS_TEXT_PATH", DOC_ROOT . "applications/taxon_page_metrics/text_files/");

@@ -1,6 +1,7 @@
 <?php
+namespace php_active_record;
 
-class ActiveRecordError extends Exception
+class ActiveRecordError extends \Exception
 {
     public static function printException(Exception $e)
     {

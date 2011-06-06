@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class ContentManager
 {
@@ -255,7 +256,7 @@ class ContentManager
         if(@!$GLOBALS['eol_content_servers']) return;
         foreach($GLOBALS['eol_content_servers'] as $content_server_ip)
         {
-            $connection = new SSH2Connection($content_server_ip, CONTENT_PARTNER_USER, CONTENT_PARTNER_PASSWORD);
+            $connection = new \SSH2Connection($content_server_ip, CONTENT_PARTNER_USER, CONTENT_PARTNER_PASSWORD);
             $connection->sync_content($year, $month, $day, $hour);
             unset($connection);
         }
@@ -266,7 +267,7 @@ class ContentManager
         if(@!$GLOBALS['eol_content_servers']) return;
         foreach($GLOBALS['eol_content_servers'] as $content_server_ip)
         {
-            $connection = new SSH2Connection($content_server_ip, CONTENT_PARTNER_USER, CONTENT_PARTNER_PASSWORD);
+            $connection = new \SSH2Connection($content_server_ip, CONTENT_PARTNER_USER, CONTENT_PARTNER_PASSWORD);
             $connection->sync_logos();
             unset($connection);
         }

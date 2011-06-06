@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 if(defined('E_DEPRECATED')) error_reporting(E_ALL & ~E_DEPRECATED);
 else error_reporting(E_ALL);
@@ -19,7 +20,7 @@ if(!$test_name && @$argv[1]) $test_name = $argv[1];
 debug('Starting tests');
 $start_time = time_elapsed();
 
-$group_test = new GroupTest('All tests');
+$group_test = new \GroupTest('All tests');
 
 // entered a test directory name
 if(preg_match("/^([a-z_]+)\/?$/i", $test_name, $arr))
@@ -42,15 +43,15 @@ if(preg_match("/^([a-z_]+)\/?$/i", $test_name, $arr))
     
     if(preg_match("/^[^\/]+\/(.*)$/", $test_name, $arr)) $test_name = $arr[1];
     
-    $test_name = $test_name;
+    $test_name = __NAMESPACE__ . '\\' . $test_name;
     $group_test->addTestCase(new $test_name());
 }else
 {
     get_tests_from_dir(DOC_ROOT . "tests/", $group_test, true);
 }
 
-if(!isset($_SERVER['HTTP_USER_AGENT'])) $group_test->run(new TextReporter());
-else $group_test->run(new HtmlReporter());
+if(!isset($_SERVER['HTTP_USER_AGENT'])) $group_test->run(new \TextReporter());
+else $group_test->run(new \HtmlReporter());
 
 $end_time = time_elapsed();
 
@@ -69,8 +70,8 @@ function get_tests_from_dir($dir, &$group_test, $recursive)
             $file = $arr[1];
             require_once($dir . $file.".php");
             
-            $file = $file;
-            $group_test->addTestCase(new $file());
+            $test_name = __NAMESPACE__ . '\\' . $file;
+            $group_test->addTestCase(new $test_name());
         }elseif($recursive && is_dir($dir .'/'. $file) && !preg_match("/^\./", $file))
         {
             get_tests_from_dir($dir .'/'. $file .'/', $group_test, false);

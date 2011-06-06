@@ -1,5 +1,5 @@
 <?php
-
+namespace php_active_record;
     /* 
         Expects:
             $file_url

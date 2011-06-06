@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class test_lifedesk_service extends SimpletestWebBase
 {
@@ -13,11 +14,10 @@ class test_lifedesk_service extends SimpletestWebBase
     function testSearch()
     {
         $this->prepare_test_data();
-        
         $this->get(WEB_ROOT . 'applications/lifedesk/service.php?function=search&search=Aus bus&ENV_NAME=test');
         $this->assertPattern('/<title>Test Hierarchy<\/title>/', 'Search should find the right hierarchy');
         $this->assertPattern('/<name>Aus bus Linnaeus<\/name>/', 'Search should find the right name');
-        $this->assertPattern('/<rank>Species<\/rank>/', 'Search should find the right rank');
+        $this->assertPattern('/<rank>species<\/rank>/', 'Search should find the right rank');
         $this->assertPattern('/<number_of_children>0<\/number_of_children>/', 'Search should find the right number of children');
     }
     
@@ -30,7 +30,7 @@ class test_lifedesk_service extends SimpletestWebBase
         $this->assertPattern('/<Simple>Aus bus Linnaeus<\/Simple>/', 'Should return the full name');
         $this->assertPattern('/<Simple>Aus bus<\/Simple>/', 'Should return the canonical name');
         $this->assertPattern('/<Rank code=\'sp\'>Species<\/Rank>/', 'Should return the canonical name');
-        $this->assertPattern('/<Name scientific=\'true\' ref=\'n1\'>Aus bus Linnaeus<\/Name>/', 'Should return the name in the TaxonConcep');
+        $this->assertPattern('/<Name scientific=\'true\' ref=\'n1\'>Aus bus Linnaeus<\/Name>/', 'Should return the name in the TaxonConcept');
     }
     
     function testDetailsMissingID()
@@ -44,10 +44,10 @@ class test_lifedesk_service extends SimpletestWebBase
     
     function prepare_test_data()
     {
-        $hierarchy_id = Hierarchy::insert(array('id' => 529, 'label' => 'Test Hierarchy'));
-        $name_id = Name::insert('Aus bus Linnaeus');
-        $rank_id = Rank::insert('species');
-        HierarchyEntry::insert(array('hierarchy_id' => $hierarchy_id, 'name_id' => $name_id, 'rank_id' => $rank_id));
+        $hierarchy = Hierarchy::find_or_create(array('label' => 'Test Hierarchy', 'browsable' => 1));
+        $name = Name::find_or_create_by_string('Aus bus Linnaeus');
+        $rank = Rank::find_or_create_by_label('species');
+        HierarchyEntry::find_or_create(array('hierarchy' => $hierarchy, 'name' => $name, 'rank' => $rank));
     }
 }
 

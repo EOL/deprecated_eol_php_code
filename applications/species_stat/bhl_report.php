@@ -144,8 +144,8 @@ function get_eol_pages_with_do()
 	
 	global $mysqli;    
 	/*
-    $image_type_id = DataType::insert("http://purl.org/dc/dcmitype/StillImage");
-    $text_type_id  = DataType::insert("http://purl.org/dc/dcmitype/Text");
+    $image_type_id = DataType::image()->id;
+    $text_type_id  = DataType::text()->id;
     $trusted_id  = Vetted::find("trusted");	
 	*/	
     $image_type_id = 1;

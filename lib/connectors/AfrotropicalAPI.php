@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 define("PDF2TEXT_PROGRAM", LOCAL_ROOT . "vendor/xpdf/pdftotext");
 define("SOURCE_URL", "http://projects.bebif.be/fruitfly/taxoninfo.html?id=");
 
@@ -215,10 +217,10 @@ class AfrotropicalAPI
             {
                 $data_object = self::get_data_object($object);
                 if(!$data_object) return false;
-                $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
+                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);                     
             }
         }        
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -241,7 +243,7 @@ class AfrotropicalAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         $data_object_parameters["title"]    = @$rec["title"]["title"];
         $data_object_parameters["language"] = @$rec["title"]["lang"];        
@@ -255,7 +257,7 @@ class AfrotropicalAPI
                 $agentParameters["homepage"] = $a["homepage"];
                 $agentParameters["logoURL"]  = $a["logoURL"];
                 $agentParameters["fullName"] = $a["fullName"];
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }
             $data_object_parameters["agents"] = $agents;
         }
@@ -266,7 +268,7 @@ class AfrotropicalAPI
             foreach($rec["audience"] as $a)
             {
                 $audienceParameters["label"] = $a;
-                $data_object_parameters["audiences"][] = new SchemaAudience($audienceParameters);            
+                $data_object_parameters["audiences"][] = new \SchemaAudience($audienceParameters);            
             }
         }         
         return $data_object_parameters;

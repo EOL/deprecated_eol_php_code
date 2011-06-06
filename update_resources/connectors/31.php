@@ -93,7 +93,7 @@ fclose($OUT);
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml"))
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=$resource->id");
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=$resource->id");
 }
 
 
@@ -152,7 +152,7 @@ function grab_images($url, $name, $kingdom)
         }
     }
     
-    $taxon = new SchemaTaxon($taxon_parameters);
+    $taxon = new \SchemaTaxon($taxon_parameters);
     return($taxon);
 }
 
@@ -183,7 +183,7 @@ function image_detail($url, $photo_id)
     
     if($parameters = get_data_object($image_url, $photo_id, $url, $note, $location, $suffix))
     {
-        return new SchemaDataObject($parameters);
+        return new \SchemaDataObject($parameters);
     }
     
     return false;

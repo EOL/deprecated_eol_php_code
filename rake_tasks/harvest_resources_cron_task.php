@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
@@ -8,7 +9,7 @@ $GLOBALS['ENV_DEBUG'] = true;
 if(Functions::grep_processlist('harvest_resources') > 2) exit;
 
 
-$log = HarvestProcessLog::create('Harvesting');
+$log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {

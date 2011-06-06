@@ -106,7 +106,7 @@ foreach($image_ids as $image_id)
             if($object->form)$desc .= "<br>Form: " . $object->form;            
             if($desc) $desc = substr($desc, 4, strlen($desc));
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent, $desc, "image");
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
         }
         /* end dataobject - image */
         $used_taxa[$taxon_identifier] = $taxon_parameters;
@@ -115,7 +115,7 @@ foreach($image_ids as $image_id)
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
@@ -126,7 +126,7 @@ fclose($OUT);
 // set MorphBank to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::insert('Force Harvest') . " WHERE id=" . $resource_id);
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::find_or_create_by_label('Force Harvest')->id . " WHERE id=" . $resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -146,7 +146,7 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
         $dataObjectParameters["mimeType"] = "text/html";
     }
@@ -175,16 +175,16 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
         $agentParameters["homepage"] = $agent["homepage"];
         $agentParameters["logoURL"]  = "";        
         $agentParameters["fullName"] = $agent[0];
-        $agents[] = new SchemaAgent($agentParameters);
+        $agents[] = new \SchemaAgent($agentParameters);
     }
     $dataObjectParameters["agents"] = $agents;    
 
     $dataObjectParameters["audiences"] = array();
     $audienceParameters = array();
     $audienceParameters["label"] = "Expert users";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
     $audienceParameters["label"] = "General public";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
     return $dataObjectParameters;
 }
 

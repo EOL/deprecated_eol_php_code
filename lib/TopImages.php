@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class TopImages
 {
@@ -16,9 +17,9 @@ class TopImages
         else $this->mysqli_slave =& $this->mysqli;
         
         $this->vetted_sort_orders =  array();
-        $this->vetted_sort_orders[Vetted::find('Trusted')] = 1;
-        $this->vetted_sort_orders[Vetted::find('Unknown')] = 2;
-        $this->vetted_sort_orders[Vetted::find('Untrusted')] = 3;
+        $this->vetted_sort_orders[Vetted::find_or_create_by_label('Trusted')->id] = 1;
+        $this->vetted_sort_orders[Vetted::find_or_create_by_label('Unknown')->id] = 2;
+        $this->vetted_sort_orders[Vetted::find_or_create_by_label('Untrusted')->id] = 3;
     }
     
     public function begin_process()
@@ -33,8 +34,8 @@ class TopImages
         $query = "SELECT DISTINCT dotc.data_object_id, do.data_rating, do.visibility_id, do.vetted_id
             FROM data_objects_taxon_concepts dotc
             JOIN data_objects do ON (dotc.data_object_id=do.id)
-            WHERE do.data_type_id=". DataType::find("http://purl.org/dc/dcmitype/StillImage") ."
-            AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').")";  //AND do.id BETWEEN 11407274 AND 11507274
+            WHERE do.data_type_id=". DataType::image()->id ."
+            AND (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.")";  //AND do.id BETWEEN 11407274 AND 11507274
         $i = 0;
         $this->image_data_objects = array();
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -108,7 +109,7 @@ class TopImages
         $this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+");
         $this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+");
         
-        $preview_id = Visibility::find('preview');
+        $preview_id = Visibility::preview()->id;
         
         $i = 0;
         while(list($taxon_concept_id, $data_object_ids) = each($this->baseline_concept_images))
@@ -311,7 +312,7 @@ class TopImages
         $top_unpublished_images = array();
         $hierarchy_entry_ids = array();
         
-        $visible_id = Visibility::find("visible");
+        $visible_id = Visibility::visible()->id;
         $RESULT = fopen($outfile, "r");
         while(!feof($RESULT))
         {
@@ -431,17 +432,7 @@ class TopImages
         echo "Update 2 of 2\n";
         $this->mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
         
-        $species_rank_ids_array = array();
-        if($id = Rank::insert('species')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('sp')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('sp.')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('subspecies')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('subsp')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('subsp.')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('variety')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('var')) $species_rank_ids_array[] = $id;
-        if($id = Rank::insert('var.')) $species_rank_ids_array[] = $id;
-        $species_rank_ids = implode(",", $species_rank_ids_array);
+        $species_rank_ids = implode(",", Rank::species_ranks_ids());
         
         // maybe also add where lft=rgt-1??
         echo "top_species_images\n";

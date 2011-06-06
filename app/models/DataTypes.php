@@ -1,40 +1,53 @@
 <?php
+namespace php_active_record;
 
-class DataType extends MysqlBase
+class DataType extends ActiveRecord
 {
-    function __construct($param)
+    public static $before_create = array(
+            'set_schema_value'
+        );
+    
+    public function set_schema_value()
     {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-        
-        $this->label = ucfirst($this->label);
+        if(@!$this->schema_value) $this->schema_value = $this->label;
     }
     
-    static function insert($string)
+    public static function image()
     {
-        $string = trim($string);
-        if(!$string) return 0;
-        
-        if($result = self::find($string)) return $result;
-        return parent::insert_fields_into(array('schema_value' => $string, 'label' => $string), Functions::class_name(__FILE__));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/StillImage', array('label' => 'Image'));
     }
     
-    static function find_or_create_by_label($string)
+    public static function sound()
     {
-        if($result = parent::find_by("label", $string, Functions::class_name(__FILE__))) return $result;
-        return parent::insert_fields_into(array('label' => $string), Functions::class_name(__FILE__));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/Sound', array('label' => 'Sound'));
     }
     
-    static function find_by_label($string)
+    public static function text()
     {
-        return parent::find_by("label", $string, Functions::class_name(__FILE__));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/Text', array('label' => 'Text'));
     }
     
-    static function find($string)
+    public static function video()
     {
-        return parent::find_by("schema_value", $string, Functions::class_name(__FILE__));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/MovingImage', array('label' => 'Video'));
     }
+    
+    public static function iucn()
+    {
+        return DataType::find_or_create_by_schema_value('IUCN', array('label' => 'IUCN'));
+    }
+    
+    public static function flash()
+    {
+        return DataType::find_or_create_by_schema_value('Flash', array('label' => 'Flash'));
+    }
+    
+    public static function youtube()
+    {
+        return DataType::find_or_create_by_schema_value('YouTube', array('label' => 'YouTube'));
+    }
+    
+    
 }
 
 ?>

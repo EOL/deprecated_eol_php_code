@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 function show_kingdoms($variable)
 {
@@ -13,7 +14,7 @@ function show_kingdoms($variable)
         //$result2 = $mysqli->query("SELECT parent_id FROM hierarchy_entries WHERE taxon_concept_id=$id AND parent_id!=0");
         //if($result2 && $row2=$result2->fetch_assoc()) continue;
 
-        $children[] = new TaxonConcept($id);
+        $children[] = TaxonConcept::find($id);
     }
 
     usort($children, "Functions::cmp_hierarchy_entries");
@@ -191,7 +192,7 @@ function show_hierarchies_he()
     $result = $mysqli->query("SELECT * FROM hierarchies");
     while($result && $row=$result->fetch_assoc())
     {
-        $hierarchy = new Hierarchy($row["id"]);
+        $hierarchy = Hierarchy::find($row["id"]);
         
         echo "<a href='?hierarchy_id=$hierarchy->id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>$hierarchy->id :: $hierarchy->label :: $hierarchy->description</a><br>\n";
     }
@@ -305,7 +306,7 @@ function show_kingdoms_he($hierarchy_id)
     $result = $mysqli->query("SELECT * FROM hierarchy_entries WHERE parent_id=0 AND hierarchy_id=$hierarchy_id");
     while($result && $row=$result->fetch_assoc())
     {
-        $kingdoms[] = new HierarchyEntry($row["id"]);
+        $kingdoms[] = HierarchyEntry::find($row["id"]);
     }
     
     @usort($kingdoms, "Functions::cmp_hierarchy_entries");

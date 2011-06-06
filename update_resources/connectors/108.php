@@ -56,7 +56,7 @@ foreach($urls as $path)
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -294,7 +294,7 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
             foreach ($arr_comname as $commonname) 
             {
                 $commonname = str_ireplace(';' , '', $commonname);
-                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+                $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => $commonname, "language" => "en"));
             }
             */
             
@@ -304,7 +304,7 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
             $arr_synonym=conv_2array($synonymy);
             foreach ($arr_synonym as $synonym) 
             {
-                $taxon_parameters["synonyms"][] = new SchemaSynonym(array("synonym" => $synonym, "relationship" => "synonym"));
+                $taxon_parameters["synonyms"][] = new \SchemaSynonym(array("synonym" => $synonym, "relationship" => "synonym"));
             }
             */
             /////////////////////////////////////////////////////////////
@@ -322,7 +322,7 @@ function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$do_c
         $type           = "text";
         $reference      = "";        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents);
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         
         //start text dataobject                
@@ -360,7 +360,7 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = $subject;
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         ///////////////////////////////////        
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
         $dataObjectParameters["mimeType"] = "text/html";        
@@ -383,7 +383,7 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
                 $agentParameters["role"]     = $g["role"];
                 $agentParameters["fullName"] = $g["name"];
                 $agentParameters["homepage"] = $g["homepage"];
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }            
             $dataObjectParameters["agents"] = $agents;    
             /////////////////////////////////////////////////////////////
@@ -410,14 +410,14 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
         $dataObjectParameters["references"] = array();
         $referenceParameters = array();
         $referenceParameters["fullReference"] = trim($reference);
-        $references[] = new SchemaReference($referenceParameters);
+        $references[] = new \SchemaReference($referenceParameters);
         $dataObjectParameters["references"] = $references;
     }    
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();        
     $audienceParameters = array();      
-    $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
-    $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+    $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
+    $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
     ///////////////////////////////////
     return $dataObjectParameters;
 }

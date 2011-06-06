@@ -197,7 +197,7 @@ foreach($urls as $path)
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -553,14 +553,14 @@ function assign_variables($sciname,$ancestry,$url,$commonname,$desc,$title,$subj
             $taxon_parameters["commonNames"] = array();
             if($commonname)
             {
-                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+                $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => $commonname, "language" => "en"));
             }            
             
             if(@$arr_comnames["$sciname"])
             {
                 foreach($arr_comnames["$sciname"] as $commonname)
                 {
-                    $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+                    $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => $commonname, "language" => "en"));
                 }            
             }
 
@@ -571,7 +571,7 @@ function assign_variables($sciname,$ancestry,$url,$commonname,$desc,$title,$subj
         }        
         //start text dataobject        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         $used_taxa[$taxon_identifier] = $taxon_parameters;                                
         
@@ -593,7 +593,7 @@ function get_data_object($id, $description, $title, $url, $subject)
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = $subject;
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         ///////////////////////////////////        
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
         $dataObjectParameters["mimeType"] = "text/html";        
@@ -625,7 +625,7 @@ function get_data_object($id, $description, $title, $url, $subject)
         $dataObjectParameters["references"] = array();
         $referenceParameters = array();
         $referenceParameters["fullReference"] = trim($reference);
-        $references[] = new SchemaReference($referenceParameters);
+        $references[] = new \SchemaReference($referenceParameters);
         $dataObjectParameters["references"] = $references;
     
     
@@ -638,13 +638,13 @@ function get_data_object($id, $description, $title, $url, $subject)
     $agentParameters["homepage"] = "http://flowervisitors.info/";
     $agentParameters["role"] = "source";
     $agentParameters["fullName"] = "John Hilty";
-    $agents[] = new SchemaAgent($agentParameters);
+    $agents[] = new \SchemaAgent($agentParameters);
     $dataObjectParameters["agents"] = $agents;    
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();        
     $audienceParameters = array();      
-    $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
-    $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+    $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
+    $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
     return $dataObjectParameters;
 }
 

@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("SPIRE_SERVICE", "http://spire.umbc.edu/ontologies/foodwebs/webs_publisher.php?published_study=");
 define("SPIRE_PATH_ANCESTRY", DOC_ROOT . "/update_resources/connectors/files/SPIRE/taxa_detail.xls");
@@ -409,9 +410,9 @@ class SpireAPI
             $referenceParameters["fullReference"] = $ref['ref'];
             if($ref['url'])
             {
-                $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $ref['url']));
+                $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => $ref['url']));
             }
-            $refs[] = new SchemaReference($referenceParameters);
+            $refs[] = new \SchemaReference($referenceParameters);
         }
         $taxon["references"] = $refs;
         //end taxon reference
@@ -419,7 +420,7 @@ class SpireAPI
         //start common names
         foreach($rec["commonNames"] as $comname)
         {
-            $taxon["commonNames"][] = new SchemaCommonName(array("name" => $comname, "language" => ""));
+            $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname, "language" => ""));
         }
         //end common names
 
@@ -429,7 +430,7 @@ class SpireAPI
             {
                 $data_object = self::get_data_object($object);
                 if(!$data_object) return false;
-                $taxon["dataObjects"][] = new SchemaDataObject($data_object);
+                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);
             }
         }
         
@@ -437,11 +438,11 @@ class SpireAPI
         $taxon["synonyms"] = array();
         foreach($rec["synonyms"] as $syn)
         {
-            $taxon["synonyms"][] = new SchemaSynonym(array("synonym" => $syn['synonym'], "relationship" => $syn['relationship']));
+            $taxon["synonyms"][] = new \SchemaSynonym(array("synonym" => $syn['synonym'], "relationship" => $syn['relationship']));
         }
         //end synonyms
         
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -467,7 +468,7 @@ class SpireAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = trim($rec["subject"]);
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         //==========================================================================================
         $agents = array();
@@ -478,7 +479,7 @@ class SpireAPI
             $agentParameters["homepage"] = $agent["homepage"];
             $agentParameters["logoURL"]  = "";
             $agentParameters["fullName"] = $agent[0];
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $data_object_parameters["agents"] = $agents;
         //==========================================================================================
@@ -489,8 +490,8 @@ class SpireAPI
             if(!$r["ref"])continue;
             $referenceParameters = array();
             $referenceParameters["fullReference"] = Functions::import_decode($r["ref"]);
-            if($r["url"])$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));
-            $ref[] = new SchemaReference($referenceParameters);
+            if($r["url"])$referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));
+            $ref[] = new \SchemaReference($referenceParameters);
         }
         $data_object_parameters["references"] = $ref;
         //==========================================================================================

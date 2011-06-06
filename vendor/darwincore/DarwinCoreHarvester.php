@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class DarwinCoreHarvester
 {
@@ -15,18 +16,18 @@ class DarwinCoreHarvester
         $mysqli =& $GLOBALS['mysqli_connection'];
         $mysqli->begin_transaction();
         
-        $valid_relation_array = array(SynonymRelation::insert("valid"), SynonymRelation::insert("accepted"));
+        $valid_relation_array = array(SynonymRelation::find_or_create_by_label("valid")->id, SynonymRelation::find_or_create_by_label("accepted")->id);
         $GLOBALS['node_children'] = array();
         $GLOBALS['node_attributes'] = array();
         echo "Memory: ".memory_get_usage()."\n";
         echo "Time: ".time_elapsed()."\n\n";
         
-        $reader = new XMLReader();
+        $reader = new \XMLReader();
         $reader->open($uri, "utf-8");
         $i = 0;
         while(@$reader->read())
         {
-            if($reader->nodeType == XMLReader::ELEMENT && $reader->name == "dwc:Taxon")
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "dwc:Taxon")
             {
                 $taxon_xml = $reader->readOuterXML();
                 $t = simplexml_load_string($taxon_xml, null, LIBXML_NOCDATA);
@@ -34,9 +35,9 @@ class DarwinCoreHarvester
                 
                 $taxon_id = Functions::import_decode($t_dwc->taxonID);
                 $parent_id = Functions::import_decode($t_dwc->parentNameUsageID);
-                $synonym_relation_id = SynonymRelation::insert(Functions::import_decode($t_dwc->taxonomicStatus));
-                $name_id = Name::insert(Functions::import_decode($t_dwc->scientificName));
-                $rank_id = Rank::insert(Functions::import_decode($t_dwc->taxonRank));
+                $synonym_relation_id = SynonymRelation::find_or_create_by_label(Functions::import_decode($t_dwc->taxonomicStatus))->id;
+                $name_id = Name::find_or_create_by_string(Functions::import_decode($t_dwc->scientificName))->id;
+                $rank_id = Rank::find_or_create_by_label(Functions::import_decode($t_dwc->taxonRank))->id;
                 
                 if(in_array($synonym_relation_id, $valid_relation_array)) $valid = true;
                 else $valid = false;
@@ -61,15 +62,15 @@ class DarwinCoreHarvester
                     foreach($t_dwc->vernacularName as $v)
                     {
                         $xml_attr = $v->attributes("http://www.w3.org/XML/1998/namespace");
-                        $vernacular_name_id = Name::insert(Functions::import_decode($v));
-                        $language_id = Language::insert(@Functions::import_decode($xml_attr["lang"]));
+                        $vernacular_name_id = Name::find_or_create_by_string(Functions::import_decode($v))->id;
+                        $language_id = Language::find_or_create_for_parser(@Functions::import_decode($xml_attr["lang"]))->id;
                         
                         if($vernacular_name_id) $GLOBALS['node_attributes'][$taxon_id]['vernacular_names'][$language_id][$vernacular_name_id] = 1;
                     }
                     
                     foreach($t_dwc->namePublishedIn as $r)
                     {
-                        $ref_id = Reference::insert(Functions::import_decode($r));
+                        $ref_id = Reference::find_or_create_by_full_reference(Functions::import_decode($r))->id;
                         if($ref_id) $GLOBALS['node_attributes'][$taxon_id]['references'][$ref_id] = 1;
                     }
                 }
@@ -140,7 +141,7 @@ class DarwinCoreHarvester
                         "rank_id"       => $taxon_attributes["rank_id"],
                         "ancestry"      => $ancestry);
         
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $hierarchy_entry = HierarchyEntry::find_or_create_by_array($params);
         $GLOBALS['taxon_ids_inserted'][$taxon_id] = 1;
         unset($params);
         
@@ -161,7 +162,7 @@ class DarwinCoreHarvester
             {
                 foreach($array as $name_id => $junk)
                 {
-                    $hierarchy_entry->add_synonym($name_id, SynonymRelation::insert("Common name"), $language_id, 0, $vetted_id, $published);
+                    $hierarchy_entry->add_synonym($name_id, SynonymRelation::find_or_create_by_label("Common name")->id, $language_id, 0, $vetted_id, $published);
                 }
             }
         }

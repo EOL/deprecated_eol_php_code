@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 define("FORM_URL", "http://photosynth.net/PhotosynthHandler.ashx");
 define("VIEW_URL", "http://photosynth.net/view.aspx?cid=");
 define("COLLECTION_URL", "http://photosynth.net/view.aspx?cid=");
@@ -76,7 +78,7 @@ class PhotosynthAPI
             elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $taxon["class"] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $taxon["phylum"] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $taxon["kingdom"] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $taxon["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
+            elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $taxon["commonNames"][] = new \SchemaCommonName(array("name" => trim($arr[1])));
             elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr))          $license = strtolower(trim($arr[1]));
         }
         if(!$license) return false;
@@ -95,7 +97,7 @@ class PhotosynthAPI
             if(!$data_object) return false;
             $taxon["dataObjects"][] = $data_object;        
         }             
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -134,8 +136,8 @@ class PhotosynthAPI
         $agent_parameters["homepage"] = USER_URL . $synth->OwnerFriendlyName;
         $agent_parameters["role"] = "photographer";
         $data_object_parameters["agents"] = array();
-        $data_object_parameters["agents"][] = new SchemaAgent($agent_parameters);        
-        return new SchemaDataObject($data_object_parameters);
+        $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);        
+        return new \SchemaDataObject($data_object_parameters);
     }
     
     public function get_mediaURL($url)

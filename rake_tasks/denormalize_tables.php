@@ -1,20 +1,21 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 require_library('DenormalizeTables');
 
-$log = HarvestProcessLog::create('Denormalizing');
+$log = HarvestProcessLog::create(array('process_name' => 'Denormalizing'));
 
-$sub_log = HarvestProcessLog::create('DataObjectsTaxonConcepts');
+$sub_log = HarvestProcessLog::create(array('process_name' => 'DataObjectsTaxonConcepts'));
 DenormalizeTables::data_objects_taxon_concepts();
 $sub_log->finished();
 
-$sub_log = HarvestProcessLog::create('DataTypesTaxonConcepts');
+$sub_log = HarvestProcessLog::create(array('process_name' => 'DataTypesTaxonConcepts'));
 DenormalizeTables::data_types_taxon_concepts();
 $sub_log->finished();
 
-$sub_log = HarvestProcessLog::create('TaxonConceptsExploded');
+$sub_log = HarvestProcessLog::create(array('process_name' => 'TaxonConceptsExploded'));
 DenormalizeTables::taxon_concepts_exploded();
 $sub_log->finished();
 

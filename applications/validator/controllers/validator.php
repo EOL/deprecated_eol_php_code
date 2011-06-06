@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class validator_controller extends ControllerBase
 {
@@ -35,7 +36,7 @@ class validator_controller extends ControllerBase
             }
         }
         
-        @render_template("validator/index", array("file_url" => $file_url, "file_upload" => $xml_upload['name'], "is_eol_schema" => $is_eol_schema, "xsd" => $xsd, "errors" => $errors, "eol_errors" => $eol_errors, "eol_warnings" => $eol_warnings));
+        render_template("validator/index", array("file_url" => @$file_url, "file_upload" => @$xml_upload['name'], "is_eol_schema" => @$is_eol_schema, "xsd" => @$xsd, "errors" => @$errors, "eol_errors" => @$eol_errors, "eol_warnings" => @$eol_warnings));
     }
 }
 

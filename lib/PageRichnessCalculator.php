@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 require_once(DOC_ROOT . "vendor/text_statistics/TextStatistics.php");
 

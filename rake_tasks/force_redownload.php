@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 $data_object_id = @$argv[1];
 

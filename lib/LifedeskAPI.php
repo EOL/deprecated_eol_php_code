@@ -1,12 +1,13 @@
 <?php
+namespace php_active_record;
 
-class LifeDeskAPI extends MysqlBase
+class LifeDeskAPI
 {
     private $api_url;
     
     function __construct()
     {
-        parent::db_connect();
+        $this->mysqli =& $GLOBALS['db_connection'];
         $this->api_url = "http://". $_SERVER["HTTP_HOST"] . $_SERVER["PHP_SELF"];
     }
     
@@ -16,36 +17,35 @@ class LifeDeskAPI extends MysqlBase
         if(!$term) return array();
         
         $hierarchy_entries = array();
-        $query = "SELECT DISTINCT he.id FROM canonical_forms c JOIN names n ON (c.id=n.canonical_form_id) JOIN hierarchy_entries he ON (n.id=he.name_id) JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE c.string='".$this->mysqli->real_escape_string($term)."'";
+        $query = "SELECT DISTINCT he.id FROM canonical_forms c JOIN names n ON (c.id=n.canonical_form_id) JOIN hierarchy_entries he ON (n.id=he.name_id) JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE c.string='".$this->mysqli->real_escape_string($term)."' AND h.browsable=1";
         if($hierarchy_id) $query .= " AND he.hierarchy_id=$hierarchy_id";
         
         $result = $this->mysqli->query($query ." order by hierarchy_group_version desc, id asc");
         while($result && $row=$result->fetch_assoc())
         {
-            $hierarchy_entries[] = new HierarchyEntry($row["id"]);
+            $hierarchy_entries[] = HierarchyEntry::find($row["id"]);
         }
         
         $results = array();
         
         foreach($hierarchy_entries as $k => $v)
         {
-            if($v->hierarchy_id != 107 && $v->hierarchy_id != 147 && $v->hierarchy_id != 158 && $v->hierarchy_id != 529) continue;
             $thisResult = array();
-            $thisResult["name"] = $v->name()->string;
-            $thisResult["canonical_form"] = $v->name()->canonical_form()->string;
+            $thisResult["name"] = $v->name->string;
+            $thisResult["canonical_form"] = $v->name->canonical_form->string;
             $thisResult["id"] = $v->id;
             $thisResult["hierarchy_id"] = $v->hierarchy_id;
             $thisResult["ancestry"] = $v->ancestry_names();
             $thisResult["ranked_ancestry"] = $v->ranked_ancestry();
-            $thisResult["rank"] = @$v->rank()->label;
+            $thisResult["rank"] = @$v->rank->label;
             $thisResult["number_of_children"] = $v->number_of_children();
             $thisResult["number_of_children_synonyms"] = $v->number_of_children_synonyms();
             
             $hierarchyInfo = array();
-            $hierarchyInfo["title"] = $v->hierarchy()->label;
-            $hierarchyInfo["description"] = $v->hierarchy()->description;
-            $hierarchyInfo["url"] = $v->hierarchy()->url;
-            $hierarchyInfo["indexed_on"] = $v->hierarchy()->indexed_on;
+            $hierarchyInfo["title"] = $v->hierarchy->label;
+            $hierarchyInfo["description"] = $v->hierarchy->description;
+            $hierarchyInfo["url"] = $v->hierarchy->url;
+            $hierarchyInfo["indexed_on"] = $v->hierarchy->indexed_on;
             
             $thisResult["metadata"] = $hierarchyInfo;
             
@@ -147,12 +147,12 @@ class LifeDeskAPI extends MysqlBase
     
     function details_tcs($id)
     {
-        $entry = new HierarchyEntry($id);
+        $entry = HierarchyEntry::find($id);
         if(@!$entry->id) return false;
         
         $nomenclaturalCode = "Zoological";
         $rankCode = "";
-        switch(strtolower($entry->rank()->label))
+        switch(strtolower($entry->rank->label))
         {
             case "kingdom":
                 $rankCode = "reg";
@@ -179,20 +179,20 @@ class LifeDeskAPI extends MysqlBase
         
         $return = "";
         $return .= "  <TaxonNames>\n";
-        $return .= "    <TaxonName id='n".$entry->name()->id."' nomenclaturalCode='$nomenclaturalCode'>\n";
-        $return .= "      <Simple>".htmlspecialchars($entry->name()->string)."</Simple>\n";
+        $return .= "    <TaxonName id='n".$entry->name->id."' nomenclaturalCode='$nomenclaturalCode'>\n";
+        $return .= "      <Simple>".htmlspecialchars($entry->name->string)."</Simple>\n";
         if($rankCode)
         {
-            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank()->label))."</Rank>\n";
+            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank->label))."</Rank>\n";
         }
         $return .= "      <CanonicalName>\n";
-        $return .= "        <Simple>".htmlspecialchars($entry->name()->canonical_form()->string)."</Simple>\n";
+        $return .= "        <Simple>".htmlspecialchars($entry->name->canonical_form->string)."</Simple>\n";
         $return .= "      </CanonicalName>\n";
-        if($agents = $entry->agents())
+        if($ahe = $entry->agents_hierarchy_entries)
         {
             $return .= "      <ProviderSpecificData>\n";
             $return .= "        <NameSources>\n";
-            foreach($agents as $k => $v)
+            foreach($ahe as $k => $v)
             {
                 $return .= "          <NameSource>\n";
                 $return .= "            <Simple>".htmlspecialchars($v->agent->display_name)."</Simple>\n";
@@ -209,10 +209,10 @@ class LifeDeskAPI extends MysqlBase
         
         $return .= "  <TaxonConcepts>\n";
         $return .= "    <TaxonConcept id='c".$entry->id."'>\n";
-        $return .= "      <Name scientific='true' ref='n".$entry->name()->id."'>".htmlspecialchars($entry->name()->string)."</Name>\n";
+        $return .= "      <Name scientific='true' ref='n".$entry->name->id."'>".htmlspecialchars($entry->name->string)."</Name>\n";
         if($rankCode)
         {
-            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank()->label))."</Rank>\n";
+            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank->label))."</Rank>\n";
         }
         $return .= "      <TaxonRelationships>\n";
         if($parent = $entry->parent())
@@ -235,7 +235,7 @@ class LifeDeskAPI extends MysqlBase
             foreach($synonyms as $k => $v)
             {
                 $relationship = "has synonym";
-                if(strtolower($v->synonym_relation()->label)=="common name") $relationship = "has vernacular";
+                if(strtolower($v->synonym_relation->label)=="common name") $relationship = "has vernacular";
                 $return .= "        <TaxonRelationship type='$relationship'>\n";
                 $return .= "          <ToTaxonConcept ref='$this->api_url?function=details_tcs&amp;sid=".$v->id."' linkType='external'/>\n";
                 $return .= "        </TaxonRelationship>\n";
@@ -255,16 +255,16 @@ class LifeDeskAPI extends MysqlBase
         $nomenclaturalCode = "Zoological";
         
         $scientific = "true";
-        if(strtolower($entry->synonym_relation()->label)=="common name") $scientific = "false";
+        if(strtolower($entry->synonym_relation->label)=="common name") $scientific = "false";
         
         $return = "";
         $return .= "  <TaxonNames>\n";
-        $return .= "    <TaxonName id='n".$entry->name()->id."' nomenclaturalCode='$nomenclaturalCode'>\n";
-        $return .= "      <Simple>".htmlspecialchars($entry->name()->string)."</Simple>\n";
+        $return .= "    <TaxonName id='n".$entry->name->id."' nomenclaturalCode='$nomenclaturalCode'>\n";
+        $return .= "      <Simple>".htmlspecialchars($entry->name->string)."</Simple>\n";
         if($scientific=="true")
         {
             $return .= "      <CanonicalName>\n";
-            $return .= "        <Simple>".htmlspecialchars($entry->name()->canonical_form()->string)."</Simple>\n";
+            $return .= "        <Simple>".htmlspecialchars($entry->name->canonical_form->string)."</Simple>\n";
             $return .= "      </CanonicalName>\n";
         }
         if($agents = $entry->agents())
@@ -289,7 +289,7 @@ class LifeDeskAPI extends MysqlBase
         $return .= "  <TaxonConcepts>\n";
         $return .= "    <TaxonConcept id='c".$entry->id."'>\n";
         $return .= "      <Name scientific='$scientific' ";
-        if(@$entry->language()->iso_639_1) $return .= "language='".$entry->language->iso_639_1."' ";
+        if(@$entry->language->iso_639_1) $return .= "language='".$entry->language->iso_639_1."' ";
         $return .= "ref='n".$entry->name->id."'>".htmlspecialchars($entry->name->string)."</Name>\n";
         $return .= "    </TaxonConcept>\n";
         $return .= "  </TaxonConcepts>\n";

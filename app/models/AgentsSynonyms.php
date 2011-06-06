@@ -1,16 +1,12 @@
 <?php
+namespace php_active_record;
 
-class AgentSynonym extends MysqlBase
+class AgentsSynonym extends ActiveRecord
 {
-    function __construct($param)
-    {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->synonym_id) return;
-        
-        $this->agent = new Agent($this->agent_id);
-        $this->agent_role = new AgentRole($this->agent_role_id);
-    }
+    public static $belongs_to = array(
+          array('agent'),
+          array('agent_role')
+        );
 }
 
 ?>

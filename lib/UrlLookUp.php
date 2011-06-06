@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 class UrlLookUp
 {
     function get_names($xml,$nameBankURL,$arr_4saving)

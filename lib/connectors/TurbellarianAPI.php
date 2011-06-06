@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("CP_DOMAIN", "http://turbellaria.umaine.edu");
 define("TAXON_URL", "http://turbellaria.umaine.edu/turb2.php?action=1&code=");
@@ -483,7 +484,7 @@ class TurbellarianAPI
         $taxon["family"] = ucfirst(trim($rec["family"]));
         if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"], @$taxon["dataObjects"]);
         if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"], @$taxon["dataObjects"]);
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
 
@@ -500,7 +501,7 @@ class TurbellarianAPI
                 $i++;
                 $data_object = self::get_data_object($rec);
                 if(!$data_object) return false;
-                $taxon_dataObjects[] = new SchemaDataObject($data_object);
+                $taxon_dataObjects[] = new \SchemaDataObject($data_object);
             }
         }
         return $taxon_dataObjects;
@@ -529,8 +530,8 @@ class TurbellarianAPI
             if(!$r["ref"])continue;
             $referenceParameters = array();
             $referenceParameters["fullReference"] = trim(utf8_encode($r["ref"]));
-            if($r["url"])$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url", "value" => trim($r["url"])));
-            $ref[] = new SchemaReference($referenceParameters);
+            if($r["url"])$referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url", "value" => trim($r["url"])));
+            $ref[] = new \SchemaReference($referenceParameters);
         }
         $data_object_parameters["references"] = $ref;
         //end reference
@@ -540,7 +541,7 @@ class TurbellarianAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
 
         if(@$rec["agent"])
@@ -553,7 +554,7 @@ class TurbellarianAPI
                 $agentParameters["homepage"] = $a["homepage"];
                 $agentParameters["logoURL"]  = "";
                 $agentParameters["fullName"] = $a["name"];
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }
             $data_object_parameters["agents"] = $agents;
         }

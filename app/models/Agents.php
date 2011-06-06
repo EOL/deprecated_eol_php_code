@@ -1,46 +1,18 @@
 <?php
+namespace php_active_record;
 
-class Agent extends MysqlBase
+class Agent extends ActiveRecord
 {
-    function __construct($param)
-    {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-    }
-    
-    public function add_resouce($resource_id, $role)
+    public function add_resouce($resource_id, $role_label)
     {
         if(!$resource_id) return 0;
-        $this->mysqli->insert("INSERT INTO agents_resources VALUES ($this->id, $resource_id, ".ResourceAgentRole::insert($role).")");
+        $resource_agent_role = ResourceAgentRole::find_or_create_by_label($role_label);
+        $this->mysqli->insert("INSERT INTO agents_resources VALUES ($this->id, $resource_id, $resource_agent_role->id)");
     }
     
     public function update_cache_url($logo_cache_url)
     {
         $this->mysqli->update("UPDATE agents SET logo_cache_url=".$this->mysqli->escape($logo_cache_url)." WHERE id=$this->id");
-    }
-    
-    static function insert($parameters)
-    {
-        if(!$parameters) return 0;
-        
-        if(@get_class($parameters)=="Agent")
-        {
-            if($result = self::find_by_mock_object($parameters)) return $result;
-            return parent::insert_object_into($parameters, Functions::class_name(__FILE__));
-        }
-        
-        return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
-    }
-    
-    static function find($string)
-    {
-        return parent::find_by("full_name", $string, Functions::class_name(__FILE__));
-    }
-    
-    static function find_by_mock_object($mock)
-    {
-        return parent::find_by_mock_obj($mock, Functions::class_name(__FILE__));
     }
 }
 

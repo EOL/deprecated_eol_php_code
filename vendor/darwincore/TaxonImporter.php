@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class TaxonImporter
 {
@@ -112,18 +113,18 @@ class TaxonImporter
             $taxon->scientificName = trim($taxon->scientificName)." ".$taxon->scientificNameAuthorship;
         }
         
-        $name_id = Name::insert($taxon->scientificName);
+        $name_id = Name::find_or_create_by_string($taxon->scientificName)->id;
         $params = array("identifier"    => $taxon->taxonID,
                         "name_id"       => $name_id,
                         "parent_id"     => $parent_hierarchy_entry_id,
                         "hierarchy_id"  => $this->hierarchy->id,
-                        "rank_id"       => Rank::insert(@$taxon->taxonRank),
+                        "rank"          => Rank::find_or_create_by_label(@$taxon->taxonRank),
                         "ancestry"      => $ancestry,
                         "vetted_id"     => $this->hierarchy_vetted_id,
                         "visibility_id" => $this->hierarchy_visibility_id,
                         "published"     => $this->hierarchy_published);
         
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $hierarchy_entry = HierarchyEntry::find_or_create_by_array($params);
         $this->taxon_ids_inserted[$taxon->taxonID] = $hierarchy_entry->id;
         unset($params);
         
@@ -134,9 +135,9 @@ class TaxonImporter
                 if(!isset($synonym_taxon->scientificName)) continue;
                 if(isset($synonym_taxon->taxonID) && isset($this->taxon_ids_inserted[$synonym_taxon->taxonID])) continue;
                 
-                $name_id = Name::insert($synonym_taxon->scientificName);
-                $synonym_relation_id = SynonymRelation::insert(@$synonym_taxon->taxonomicStatus);
-                $hierarchy_entry->add_synonym($name_id, $synonym_relation_id, 0, 0, $this->hierarchy_vetted_id, $this->hierarchy_published);
+                $name_id = Name::find_or_create_by_string($synonym_taxon->scientificName)->id;
+                $synonym_relation = SynonymRelation::find_or_create_by_label(@$synonym_taxon->taxonomicStatus);
+                $hierarchy_entry->add_synonym($name_id, @$synonym_relation->id ?: 0, 0, 0, $this->hierarchy_vetted_id, $this->hierarchy_published);
                 if(isset($synonym_taxon->taxonID)) $this->taxon_ids_inserted[$synonym_taxon->taxonID] = 1;
             }
             unset($this->synonyms[$taxon->taxonID]);
@@ -148,10 +149,10 @@ class TaxonImporter
             {
                 if(!isset($vernacular->vernacularName)) continue;
                 
-                $name_id = Name::insert($vernacular->vernacularName);
-                $language_id = Language::insert(@$vernacular->dcterms->language);
-                $synonym_relation_id = SynonymRelation::insert('common name');
-                $hierarchy_entry->add_synonym($name_id, $synonym_relation_id, $language_id, 0, $this->hierarchy_vetted_id, $this->hierarchy_published);
+                $name_id = Name::find_or_create_by_string($vernacular->vernacularName)->id;
+                $language = Language::find_or_create_for_parser(@$vernacular->dcterms->language);
+                $synonym_relation = SynonymRelation::find_or_create_by_string('common name');
+                $hierarchy_entry->add_synonym($name_id, @$synonym_relation->id ?: 0, @$language->id ?: 0, 0, $this->hierarchy_vetted_id, $this->hierarchy_published);
             }
             unset($this->vernacular_names[$taxon->taxonID]);
         }

@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 define("WORMS_TAXON_API", "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=");
 define("WORMS_ID_LIST_API", "http://www.marinespecies.org/aphia.php?p=eol&action=taxlist");
 class WormsAPI
@@ -55,7 +57,7 @@ class WormsAPI
             // step 3: Combine all XML files. This only runs when all of instances of step 2 are done
             self::combine_all_xmls($resource_id);
             // set to force harvest
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::insert('Force Harvest') . " WHERE id=" . $resource_id);
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::find_or_create_by_label('Force Harvest')->id . " WHERE id=" . $resource_id);
             // delete temp files
             self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
             self::delete_temp_files(CONTENT_RESOURCE_LOCAL_PATH . "WORMS/temp_worms_" . "batch_", "xml");

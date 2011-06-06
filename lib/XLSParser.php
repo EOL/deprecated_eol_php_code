@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 class XLSParser
 {
     const SUBJECTS = "Associations,Behaviour,Biology,Conservation,ConservationStatus,Cyclicity,Cytology,Description,DiagnosticDescription,
@@ -10,16 +12,16 @@ class XLSParser
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
         $ext = strtolower(end(explode('.', $spreadsheet)));
-        if    ($ext == "xls") $objReader = PHPExcel_IOFactory::createReader('Excel5');
-        elseif($ext == "xlsx")$objReader = PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
-        elseif($ext == "csv") $objReader = new PHPExcel_Reader_CSV();
+        if    ($ext == "xls") $objReader = \PHPExcel_IOFactory::createReader('Excel5');
+        elseif($ext == "xlsx")$objReader = \PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
+        elseif($ext == "csv") $objReader = new \PHPExcel_Reader_CSV();
         $objPHPExcel = $objReader->load($spreadsheet);
         if($ext != "csv") $objReader->setReadDataOnly(true);
         if(is_null($sheet)) $objWorksheet = $objPHPExcel->getActiveSheet();
         else                $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);
         $highestRow         = $objWorksheet->getHighestRow(); // e.g. 10
         $highestColumn      = $objWorksheet->getHighestColumn(); // e.g 'F'
-        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5
+        $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5
         $sheet_label = array();
         $sheet_value = array();
         if(is_null($startRow)) $startRow = 1;
@@ -136,10 +138,10 @@ class XLSParser
                     $referenceParameters["fullReference"] = self::format(@$references[$ref_code]['Bibliographic Citation']);
                     if(@$references[$ref_code]['URL'] || @$references[$ref_code]['ISBN'])
                     {
-                        $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => self::format(@$references[$ref_code]['URL'])));
-                        $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "isbn" , "value" => self::format(@$references[$ref_code]['ISBN'])));
+                        $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => self::format(@$references[$ref_code]['URL'])));
+                        $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "isbn" , "value" => self::format(@$references[$ref_code]['ISBN'])));
                     }
-                    $refs[] = new SchemaReference($referenceParameters);
+                    $refs[] = new \SchemaReference($referenceParameters);
                 }
                 $taxon_parameters["references"] = $refs;
                 //end taxon reference
@@ -148,7 +150,7 @@ class XLSParser
                 $taxon_parameters["commonNames"] = array();
                 if(@$taxon_info["Preferred Common Name"][$i])
                 {
-                    $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => self::format(@$taxon_info["Preferred Common Name"][$i]), "language" => self::format(@$taxon_info["Language of Common Name"][$i])));
+                    $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => self::format(@$taxon_info["Preferred Common Name"][$i]), "language" => self::format(@$taxon_info["Language of Common Name"][$i])));
                 }
                 //end preferred common names
                 
@@ -157,7 +159,7 @@ class XLSParser
                 {
                     foreach(@$common_names[$taxon_identifier] as $rec)
                     {
-                        if($rec)$taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => self::format($rec['Common Name']), "language" => self::format($rec['Language'])));
+                        if($rec)$taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => self::format($rec['Common Name']), "language" => self::format($rec['Language'])));
                     }
                 }
                 //end common names
@@ -168,7 +170,7 @@ class XLSParser
                 {
                     foreach(@$synonyms[$taxon_identifier] as $rec)
                     {
-                        $taxon_parameters["synonyms"][] = new SchemaSynonym(array("synonym" => self::format($rec['Synonym']), "relationship" => self::format($rec['Relationship'])));
+                        $taxon_parameters["synonyms"][] = new \SchemaSynonym(array("synonym" => self::format($rec['Synonym']), "relationship" => self::format($rec['Relationship'])));
                     }
                 }
                 //end synonyms
@@ -183,7 +185,7 @@ class XLSParser
                 $dataObjects = array_merge($dataObjects, $temp);
                 foreach($dataObjects as $object)
                 {
-                    $taxon_parameters["dataObjects"][] = new SchemaDataObject($object);
+                    $taxon_parameters["dataObjects"][] = new \SchemaDataObject($object);
                     unset($object);
                 }
                 //end data objects
@@ -195,9 +197,9 @@ class XLSParser
         }
         foreach($used_taxa as $taxon_parameters)
         {
-            $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+            $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
         }
-        return SchemaDocument::get_taxon_xml($schema_taxa);
+        return \SchemaDocument::get_taxon_xml($schema_taxa);
     }
     
     function prepare_text_dataObject($text_desc, $do_details, $text_desc_title)
@@ -254,7 +256,7 @@ class XLSParser
             $dataObjectParameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#" . $subject;
-            $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         //end subject
         
@@ -269,10 +271,10 @@ class XLSParser
             $referenceParameters["fullReference"] = self::format(@$references[$ref_code]['Bibliographic Citation']);
             if(@$references[$ref_code]['URL'] || @$references[$ref_code]['ISBN'])
             {
-                $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url", "value" => self::format(@$references[$ref_code]['URL'])));
-                $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "isbn" , "value" => self::format(@$references[$ref_code]['ISBN'])));
+                $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url", "value" => self::format(@$references[$ref_code]['URL'])));
+                $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "isbn" , "value" => self::format(@$references[$ref_code]['ISBN'])));
             }
-            $refs[] = new SchemaReference($referenceParameters);
+            $refs[] = new \SchemaReference($referenceParameters);
         }
         $dataObjectParameters["references"] = $refs;
         //end reference
@@ -288,7 +290,7 @@ class XLSParser
             $agentParameters["homepage"] = self::format(@$contributors[$code]['Homepage']);
             $agentParameters["logoURL"]  = self::format(@$contributors[$code]['Logo URL']);
             $agentParameters["fullName"] = self::format(@$contributors[$code]['Display Name']);
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $dataObjectParameters["agents"] = $agents;
         //end contributors
@@ -307,7 +309,7 @@ class XLSParser
         if($do['Audience'])
         {
             $audienceParameters["label"] = self::format($do['Audience']);
-            $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+            $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
         }
         //end audience
         

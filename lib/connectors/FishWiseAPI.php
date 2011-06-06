@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("FWP_SPECIES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/species.xls");
 define("FWP_IMAGES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/images.xls");
@@ -390,7 +391,7 @@ class FishWiseAPI
         {
             foreach($rec["comnames"] as $comname)
             {            
-                if($comname)$taxon["commonNames"][] = new SchemaCommonName(array("name" => $comname['CommonName'], "language" => $comname['Language']));
+                if($comname)$taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname['CommonName'], "language" => $comname['Language']));
             }
         }                                
         //end common names            
@@ -408,13 +409,13 @@ class FishWiseAPI
                 if(ucfirst(trim($rec["sciname"])) == trim($synonym['SynGenusSpecies']))continue;
                 
                 $status = self::translate_synonym(trim($synonym['SynStatus']));
-                $taxon["synonyms"][] = new SchemaSynonym(array("synonym" => $synonym['SynGenusSpecies'], "relationship" => $status));
+                $taxon["synonyms"][] = new \SchemaSynonym(array("synonym" => $synonym['SynGenusSpecies'], "relationship" => $status));
             }                
         }
         //end synonyms        
         if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"],@$taxon["dataObjects"],array());
         if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"],$rec["references"]);        
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -446,7 +447,7 @@ class FishWiseAPI
                 
                 $data_object = self::get_data_object($rec,$arr_ref);
                 if(!$data_object) return false;
-                $taxon_dataObjects[]= new SchemaDataObject($data_object);                     
+                $taxon_dataObjects[]= new \SchemaDataObject($data_object);                     
             }
         }        
         return $taxon_dataObjects;
@@ -474,8 +475,8 @@ class FishWiseAPI
         {
             $referenceParameters = array();
             $referenceParameters["fullReference"] = trim($r["ref"]);           
-            $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));      
-            $ref[] = new SchemaReference($referenceParameters);
+            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));      
+            $ref[] = new \SchemaReference($referenceParameters);
         }        
         $data_object_parameters["references"] = $ref;
         //end reference
@@ -485,7 +486,7 @@ class FishWiseAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         
         if(@$rec["agent"])
@@ -498,7 +499,7 @@ class FishWiseAPI
                 $agentParameters["homepage"] = $a["homepage"];
                 $agentParameters["logoURL"]  = "";        
                 $agentParameters["fullName"] = $a["name"];
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }
             $data_object_parameters["agents"] = $agents;
         }

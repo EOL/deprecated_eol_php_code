@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 
 
@@ -48,6 +49,7 @@ function to_singular($str)
 function to_plural($str)
 {
     if(preg_match("/^(.*)(y)$/", $str, $arr)) $str = $arr[1] . 'ies';
+    elseif(preg_match("/^(.*)(s)$/", $str, $arr)) $str = $arr[1] . 'ses';
     elseif(preg_match("/^(.*)(o)$/", $str, $arr)) $str = $arr[1] . 'oes';
     else $str .= 's';
     
@@ -232,7 +234,7 @@ function load_fixtures($environment = "test")
     {
         $fixture_data->$table = (object) array();
         
-        $rows = Spyc::YAMLLoad(DOC_ROOT . "tests/fixtures/$table.yml");
+        $rows = \Spyc::YAMLLoad(DOC_ROOT . "tests/fixtures/$table.yml");
         foreach($rows as $id => $row)
         {
             $fixture_data->$table->$id = (object) array();

@@ -1,6 +1,7 @@
 <?php
+namespace php_active_record;
 
-class TaxonConceptMetric extends MysqlBase
+class TaxonConceptMetric extends ActiveRecord
 {
     static $VETTED_FACTOR = .75;
     
@@ -38,16 +39,7 @@ class TaxonConceptMetric extends MysqlBase
     
     function __construct($param = null)
     {
-        $this->table_name = Functions::class_name(__FILE__);
-        if(is_array($param))
-        {
-            parent::initialize($param);
-        }elseif($param)
-        {
-            $result = $GLOBALS['db_connection']->query("SELECT * FROM ".$this->table_name." WHERE taxon_concept_id=$param");
-            $row = $result->fetch_assoc();
-            parent::initialize($row);
-        }
+        parent::__construct($param);
         $this->set_weights();
     }
     

@@ -40,23 +40,22 @@ if(!defined('DEFAULT_HIERARCHY_LABEL')) define('DEFAULT_HIERARCHY_LABEL', 'Speci
 
 
 /* Modules needed */
-require_library('Functions');
-require_library('ContentManager');
-require_library('SSH2Connection');
-require_library('SchemaConnection');
-require_library('SchemaParser');
-require_library('SchemaValidator');
-require_library('CompareHierarchies');
-require_library('ControllerBase');
-require_library('MysqlBase');
-require_library('NamesFunctions');
-require_library('Tasks');
-require_library('FileIterator');
-require_library('MysqliResultIterator');
-require_library('MysqliResultFileIterator');
-require_vendor('eol_content_schema');
-require_vendor('solr');
-require_vendor('darwincore');
+php_active_record\require_library('Functions');
+php_active_record\require_library('ContentManager');
+php_active_record\require_library('SSH2Connection');
+php_active_record\require_library('SchemaConnection');
+php_active_record\require_library('SchemaParser');
+php_active_record\require_library('SchemaValidator');
+php_active_record\require_library('CompareHierarchies');
+php_active_record\require_library('ControllerBase');
+php_active_record\require_library('NamesFunctions');
+php_active_record\require_library('Tasks');
+php_active_record\require_library('FileIterator');
+php_active_record\require_library('MysqliResultIterator');
+php_active_record\require_library('MysqliResultFileIterator');
+php_active_record\require_vendor('eol_content_schema');
+php_active_record\require_vendor('solr');
+php_active_record\require_vendor('darwincore');
 
 
 /* For content downloading */

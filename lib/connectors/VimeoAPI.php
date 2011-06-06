@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("VIMEO_USER_SERVICE", "http://vimeo.com/api/v2/");
 define("VIMEO_PLAYER_URL", "http://vimeo.com/moogaloop.swf?clip_id=");
@@ -259,7 +260,7 @@ class VimeoAPI
         //start common names
         foreach($rec["commonNames"] as $comname)
         {            
-            $taxon["commonNames"][] = new SchemaCommonName(array("name" => $comname, "language" => ""));
+            $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname, "language" => ""));
         }
         //end common names                        
                 
@@ -269,10 +270,10 @@ class VimeoAPI
             {
                 $data_object = self::get_data_object($object);
                 if(!$data_object) return false;
-                $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
+                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);                     
             }
         }        
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -300,7 +301,7 @@ class VimeoAPI
             $agentParameters["homepage"] = $agent["homepage"];
             $agentParameters["logoURL"]  = "";        
             $agentParameters["fullName"] = $agent[0];
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $data_object_parameters["agents"] = $agents;    
         //==========================================================================================        

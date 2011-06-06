@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 class PartnerStat
 {
     public function __construct()

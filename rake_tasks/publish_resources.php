@@ -1,9 +1,10 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 //$GLOBALS['ENV_DEBUG'] = false;
 
-$log = HarvestProcessLog::create('Publishing');
+$log = HarvestProcessLog::create(array('process_name' => 'Publishing'));
 
 $resources = Resource::ready_for_publishing();
 foreach($resources as $resource)

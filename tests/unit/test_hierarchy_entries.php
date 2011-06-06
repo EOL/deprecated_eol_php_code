@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class test_hierarchy_entries extends SimpletestUnitBase
 {
@@ -6,10 +7,10 @@ class test_hierarchy_entries extends SimpletestUnitBase
     {
         $params = array('hierarchy_id'  => 12345,
                         'identifier'    => 'abcd1234',
-                        'name_id'       => Name::insert('Homo sapiens'),
-                        'parent_id'     => Rank::insert('species'),
+                        'name_id'       => Name::find_or_create_by_string('Homo sapiens')->id,
+                        'parent_id'     => Rank::find_or_create_by_label('species')->id,
                         'source_url'    => 'http://www.example.org/abcd1234');
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $hierarchy_entry = HierarchyEntry::find_or_create($params);
         $this->assertTrue($hierarchy_entry->id == 1, "The hierarchy entry should have an id");
         
         foreach($params as $p => $value)
@@ -17,35 +18,32 @@ class test_hierarchy_entries extends SimpletestUnitBase
             $this->assertTrue($hierarchy_entry->$p == $value, "attributes should be correct");
         }
         
-        $this->assertTrue($hierarchy_entry->name()->string == 'Homo sapiens', "name string sould be correct");
+        $this->assertTrue($hierarchy_entry->name->string == 'Homo sapiens', "name string sould be correct");
     }
     
     function testDuplicateName()
     {
-        $name_id = Name::insert('Chordata');
+        $name_id = Name::find_or_create_by_string('Chordata')->id;
         $params = array('hierarchy_id'  => 12345,
                         'identifier'    => 'abcd1234',
                         'name_id'       => $name_id,
                         'parent_id'     => 0,
                         'source_url'    => 'http://www.example.org/abcd1234');
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $hierarchy_entry = HierarchyEntry::find_or_create($params);
         $this->assertTrue($hierarchy_entry->id == 1, "The hierarchy entry should have an id");
         
-        $name_id = Name::insert('Chordata');
+        $name_id = Name::find_or_create_by_string('Chordata')->id;
         $params = array('hierarchy_id'  => 98,
                         'identifier'    => 'abcd1234',
                         'name_id'       => $name_id,
                         'parent_id'     => 0,
                         'source_url'    => 'http://www.example.org/abcd1234');
-        $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+        $hierarchy_entry = HierarchyEntry::find_or_create($params);
         $this->assertTrue($hierarchy_entry->id == 2, "The hierarchy entry should have an id");
     }
     
     function testCreateFromArray()
     {
-        $resource = Functions::mock_object("Resource", array("id" => 111));
-        $hierarchy = Functions::mock_object("Hierarchy", array("id" => 222));
-        
         $name_ids = array();
         $name_ids[] = 11;
         $name_ids[] = 22;
@@ -57,11 +55,11 @@ class test_hierarchy_entries extends SimpletestUnitBase
         {
             $params = array();
             $params["name_id"] = $id;
-            $params["hierarchy_id"] = $hierarchy->id;
+            $params["hierarchy_id"] = 222;
             if($parent_hierarchy_entry) $params["parent_id"] = $parent_hierarchy_entry->id;
             $params["identifier"] = 'identifier';
             
-            $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+            $hierarchy_entry = HierarchyEntry::find_or_create($params);
             
             
             $this->assertTrue($hierarchy_entry->id > 0, "The hierarchy entry should have an id");

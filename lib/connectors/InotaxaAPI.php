@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 define("SUBJECT_LIST", "Associations,Behaviour,Biology,Conservation,ConservationStatus,Cyclicity,Cytology,Description,DiagnosticDescription,Diseases,Dispersal,Distribution,Ecology,Evolution,GeneralDescription,Genetics,Growth,Habitat,Key,Legislation,LifeCycle,LifeExpectancy,Management,Migration,MolecularBiology,Morphology,Physiology,PopulationBiology,Procedures,Reproduction,RiskStatement,Size,TaxonBiology,Threats,Trends,TrophicStrategy,Uses");
 define("SOURCE_URL_PREFIX", "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=");
 define("SOURCE_IMAGE_URL_PREFIX", "http://www.inotaxa.org/jsp/display.jsp?context=Figure&taxmlitid=");
@@ -175,7 +177,7 @@ class InotaxaAPI
                             $referenceParameters = array();
                             $referenceParameters["fullReference"] = trim($main_citation);
                             $references = array();
-                            $references[] = new SchemaReference($referenceParameters);
+                            $references[] = new \SchemaReference($referenceParameters);
                             $taxon_parameters["references"] = $references;
                         }
 
@@ -315,7 +317,7 @@ class InotaxaAPI
         }// end loop through                                        
         
         foreach($used_taxa as $taxon_parameters)
-        {$schema_taxa[] = new SchemaTaxon($taxon_parameters);}
+        {$schema_taxa[] = new \SchemaTaxon($taxon_parameters);}
         
         return $schema_taxa;            
     }//get_all_taxa
@@ -414,7 +416,7 @@ class InotaxaAPI
                 if($type == 2 and $dc_identifier != "")
                 {
                     $data_object_parameters = self::get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
-                    $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+                    $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
                     $used_taxa[$taxon] = $taxon_parameters;                    
                 }            
             }
@@ -424,7 +426,7 @@ class InotaxaAPI
         if($type == 1 and $dc_identifier != "")
         {
             $data_object_parameters = self::get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
             $used_taxa[$taxon] = $taxon_parameters;                    
         }            
     }//function process_dataobjects($arr)
@@ -441,7 +443,7 @@ class InotaxaAPI
             $dataObjectParameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = $subject;
-            $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         $description = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $description);
         $dataObjectParameters["description"] = trim($description);    
@@ -463,7 +465,7 @@ class InotaxaAPI
             {
                 $agentParameters["role"] = "author";
                 $agentParameters["fullName"] = $agent;
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }
             $dataObjectParameters["agents"] = $agents;
         }
@@ -472,7 +474,7 @@ class InotaxaAPI
         $audienceParameters = array();
     
         $audienceParameters["label"] = "Expert users";
-        $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+        $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
     
         /* bypass $ref that was passed */
         $arr = self::get_ref_from_site($dc_source);
@@ -486,8 +488,8 @@ class InotaxaAPI
             $dataObjectParameters["references"] = array();
             $referenceParameters = array();
             $referenceParameters["fullReference"] = trim($ref);
-            if($ref_url)$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $ref_url));                                
-            $references[] = new SchemaReference($referenceParameters);
+            if($ref_url)$referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => $ref_url));                                
+            $references[] = new \SchemaReference($referenceParameters);
             $dataObjectParameters["references"] = $references;
         }
         return $dataObjectParameters;

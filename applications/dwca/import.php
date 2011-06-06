@@ -18,8 +18,8 @@ try
     
     $taxa = array_merge($taxa, $vernaculars);
     
-    $hierarchy = new Hierarchy(Hierarchy::insert(array('label' => 'Index Fungorum')));
-    $importer = new TaxonImporter($hierarchy, Vetted::insert('trusted'), Visibility::insert('visible'), 1);
+    $hierarchy = Hierarchy::create(array('label' => 'Index Fungorum'));
+    $importer = new TaxonImporter($hierarchy, Vetted::trusted()->id, Visibility::visible()->id, 1);
     $importer->import_taxa($taxa);
 }catch(Exception $e)
 {

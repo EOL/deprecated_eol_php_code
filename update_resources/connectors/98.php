@@ -112,7 +112,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             if($commonname)
             {
                 $commonname = "<![CDATA[$commonname]]>";
-                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+                $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => $commonname, "language" => "en"));
             }
         }                
 
@@ -133,8 +133,8 @@ for ($i = 0; $i < count($taxa_list); $i++)
                 $referenceParameters["fullReference"] = trim($ref);                
                 //$ref = "<![CDATA[$ref]]>";                                                
                 
-                if($href)$referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $href));                                
-                $references[] = new SchemaReference($referenceParameters);
+                if($href)$referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => $href));                                
+                $references[] = new \SchemaReference($referenceParameters);
             }
             $taxon_parameters["references"] = $references;
         }    
@@ -169,7 +169,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $copyright="";
             
             $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"","");               
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                         
         }
         //end images
         
@@ -181,7 +181,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $dc_source = $url_for_skeletons;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
             $data_object_parameters = get_data_object("text",$taxon,"skeleton",$dc_source,$agent_name,$agent_role,$html_skeletons,$copyright,$image_url,$title,$subject);
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                                 
         }        
         //end skeletons
 
@@ -193,7 +193,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $dc_source = $url_for_biological_associations;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
             $data_object_parameters = get_data_object("text",$taxon,"bio_association",$dc_source,$agent_name,$agent_role,$html_biological_associations,$copyright,$image_url,$title,$subject);
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                                 
         }        
         //end biological_associations
 
@@ -205,7 +205,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
             $dc_source = $url_for_nematocysts;
             $subject="http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
             $data_object_parameters = get_data_object("text",$taxon,"nematocyst",$dc_source,$agent_name,$agent_role,$html_nematocysts,$copyright,$image_url,$title,$subject);
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                                 
         }        
         //end         
         
@@ -218,7 +218,7 @@ for ($i = 0; $i < count($taxa_list); $i++)
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -274,7 +274,7 @@ function get_data_object($type,$taxon,$text_id,$dc_source,$agent_name,$agent_rol
         
         $subjectParameters["label"] = $subject;
                 
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         //end subject            
             
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
@@ -324,7 +324,7 @@ function get_data_object($type,$taxon,$text_id,$dc_source,$agent_name,$agent_rol
             $agentParameters["homepage"] = $agent["homepage"];
             $agentParameters["logoURL"]  = "";        
             $agentParameters["fullName"] = $agent[0];
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $dataObjectParameters["agents"] = $agents;    
     }
@@ -337,7 +337,7 @@ function get_data_object($type,$taxon,$text_id,$dc_source,$agent_name,$agent_rol
     {  
         $audienceParameters = array();
         $audienceParameters["label"]    = $audience[0];
-        $audiences[] = new SchemaAudience($audienceParameters);
+        $audiences[] = new \SchemaAudience($audienceParameters);
     }
     $dataObjectParameters["audiences"] = $audiences;    
     //==========================================================================================

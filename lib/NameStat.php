@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 class NameStat
 {
     const API_PAGES = "http://www.eol.org/api/pages/";

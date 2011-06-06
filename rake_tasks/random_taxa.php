@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 exit;
 include_once(dirname(__FILE__) . "/../config/environment.php");

@@ -1,8 +1,9 @@
 <?php
+namespace php_active_record;
 
 require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
 
-class SimpletestUnitBase extends UnitTestCase
+class SimpletestUnitBase extends \UnitTestCase
 {
     function setUp()
     {

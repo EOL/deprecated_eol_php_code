@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class FlattenHierarchies
 {
@@ -20,8 +21,8 @@ class FlattenHierarchies
         $this->tc_tmp_file_path = temp_filepath();
         $this->TC_OUTFILE = fopen($this->tc_tmp_file_path, "w+");
         
-        $this->visibile_id = Visibility::find('visible');
-        $this->preview_id = Visibility::find('preview');
+        $this->visibile_id = Visibility::visible()->id;
+        $this->preview_id = Visibility::preview()->id;
     }
     
     public function begin_process()

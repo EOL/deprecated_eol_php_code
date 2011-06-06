@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 $GLOBALS["compare_taxon_weights"]["name"] = 4;
 $GLOBALS["compare_taxon_weights"]["ancestry"] = 6;

@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("CONABIO_SPECIES_LIST", "http://conabioweb.conabio.gob.mx/xmleol/EolList.xml");
 

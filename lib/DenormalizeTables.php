@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class DenormalizeTables
 {
@@ -70,7 +71,7 @@ class DenormalizeTables
         for($i=$start ; $i<$stop ; $i+=$batch_size)
         {
             echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
-            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id BETWEEN $i AND ". ($i+$batch_size));
+            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.") AND do.id BETWEEN $i AND ". ($i+$batch_size));
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_taxon_concepts_tmp');
             unlink($outfile);
         }
@@ -180,7 +181,7 @@ class DenormalizeTables
         if($count%1000 == 0) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
         
         //if($count>=10000) exit;
-        $result = $GLOBALS['db_connection']->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) range FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN (".Visibility::find('visible').",".Visibility::find('preview').")");
+        $result = $GLOBALS['db_connection']->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) range FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN (".Visibility::visible()->id.",".Visibility::preview()->id.")");
         while($result && $row=$result->fetch_assoc())
         {
             if($he_ancestors)

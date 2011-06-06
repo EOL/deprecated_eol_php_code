@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 $attr = @$argv[1];
 $id = @$argv[2];

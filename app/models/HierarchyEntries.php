@@ -1,31 +1,27 @@
 <?php
+namespace php_active_record;
 
-class HierarchyEntry extends MysqlBase
+class HierarchyEntry extends ActiveRecord
 {
-    function __construct($param)
-    {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-    }
+    public static $belongs_to = array(
+            array('name'),
+            array('taxon_concept'),
+            array('hierarchy'),
+            array('rank')
+        );
     
-    public static function all()
-    {
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        $all = array();
-        $result = $mysqli->query("SELECT * FROM hierarchy_entries");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $all[] = new HierarchyEntry($row);
-        }
-        return $all;
-    }
+    public static $has_many = array(
+            array('hierarchy_entries_refs'),
+            array('references', 'through' => 'hierarchy_entries_refs'),
+            array('agents_hierarchy_entries'),
+            array('agents', 'through' => 'agents_hierarchy_entries')
+        );
     
     public function split_from_concept_static($hierarchy_entry_id)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        $entry = new HierarchyEntry($hierarchy_entry_id);
+        $entry = HierarchyEntry::find($hierarchy_entry_id);
         if(!$entry || @!$entry->id) return null;
         
         $result = $mysqli->query("SELECT he2.id, he2.taxon_concept_id FROM hierarchy_entries he JOIN hierarchy_entries he2 USING (taxon_concept_id) WHERE he.id=$hierarchy_entry_id");
@@ -35,7 +31,7 @@ class HierarchyEntry extends MysqlBase
             // if there is only one member in the entry's concept there is no need to split it
             if($count > 1)
             {
-                $taxon_concept_id = TaxonConcept::insert();
+                $taxon_concept_id = TaxonConcept::create()->id;
                 
                 $mysqli->update("UPDATE taxon_concepts SET published=$entry->published, vetted_id=$entry->vetted_id WHERE id=$taxon_concept_id");
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
@@ -93,13 +89,13 @@ class HierarchyEntry extends MysqlBase
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $counts = array();
-        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.id=$hierarchy_entry_id AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.id=$hierarchy_entry_id AND h.complete=1 AND he.visibility_id=".Visibility::visible()->id);
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
             $counts[$hierarchy_id] = 1;
         }
-        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$new_taxon_concept_id AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$new_taxon_concept_id AND h.complete=1 AND he.visibility_id=".Visibility::visible()->id);
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
@@ -107,50 +103,6 @@ class HierarchyEntry extends MysqlBase
         }
         
         return false;
-    }
-    
-    
-    function name()
-    {
-        if(@$this->name) return $this->name;
-        
-        $this->name = new Name($this->name_id);
-        return $this->name;
-    }
-    
-    function taxon_concept()
-    {
-        if(@$this->taxon_concept) return $this->taxon_concept;
-        
-        $this->taxon_concept = new TaxonConcept($this->taxon_concept_id);
-        return $this->taxon_concept;
-    }
-    
-    function hierarchy()
-    {
-        if(@$this->hierarchy) return $this->hierarchy;
-        
-        $this->hierarchy = new Hierarchy($this->hierarchy_id);
-        return $this->hierarchy;
-    }
-    
-    function rank()
-    {
-        if(@$this->rank) return $this->rank;
-        
-        $this->rank = new Rank($this->rank_id);
-        return $this->rank;
-    }
-    
-    public function references()
-    {
-        $references = array();
-        $result = $this->mysqli->query("SELECT ref_id FROM hierarchy_entries_refs WHERE hierarchy_entry_id=$this->id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $references[] = new Reference($row["ref_id"]);
-        }
-        return $references;
     }
     
     function set_taxon_concept_id($taxon_concept_id)
@@ -161,6 +113,7 @@ class HierarchyEntry extends MysqlBase
         }else
         {
             $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$this->id");
+            $this->taxon_concept_id = $taxon_concept_id;
         }
     }
     
@@ -174,8 +127,8 @@ class HierarchyEntry extends MysqlBase
             $parent_ranked_ancestry = $parent->ranked_ancestry();
             
             if($parent_ranked_ancestry) $ancestry = $parent_ranked_ancestry."|";
-            if(@$parent->rank()->id) $ancestry .= $parent->rank()->label;
-            $ancestry .= ":".$parent->name()->string;
+            if(@$parent->rank->id) $ancestry .= $parent->rank->label;
+            $ancestry .= ":".$parent->name->string;
         }
         
         return $ancestry;
@@ -191,31 +144,16 @@ class HierarchyEntry extends MysqlBase
             $parent_ancestry_names = $parent->ancestry_names();
             
             if($parent_ancestry_names) $ancestry = $parent_ancestry_names."|";
-            $ancestry .= $parent->name()->string;
+            $ancestry .= $parent->name->string;
         }
         
         return $ancestry;
     }
     
-    function agents()
-    {
-        $agents = array();
-        
-        $result = $this->mysqli->query("SELECT * FROM agents_hierarchy_entries WHERE hierarchy_entry_id=".$this->id." ORDER BY view_order ASC");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $agents[] = new AgentHierarchyEntry($row);
-        }
-        $result->free();
-        
-        return $agents;
-    }
-    
     function parent()
     {
-        if($this->parent_id) return new HierarchyEntry($this->parent_id);
-        
-        return false;
+        if($this->parent_id) return HierarchyEntry::find($this->parent_id);
+        return NULL;
     }
     
     function taxon_concept_parents()
@@ -322,11 +260,11 @@ class HierarchyEntry extends MysqlBase
     }
     public function delete_common_names()
     {
-        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND language_id!=0 AND language_id!=". Language::insert('scientific name'));
+        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
     }
     public function delete_synonyms()
     {
-        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR language_id=". Language::insert('scientific name').")");
+        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR language_id=". Language::find_or_create_for_parser('scientific name')->id.")");
     }
     
        
@@ -342,14 +280,14 @@ class HierarchyEntry extends MysqlBase
         if(!$relation_id) $relation_id = 0;
         if(!$language_id) $language_id = 0;
         if(!$preferred) $preferred = 0;
-        Synonym::insert(array(  'name_id'               => $name_id,
-                                'synonym_relation_id'   => $relation_id,
-                                'language_id'           => $language_id,
-                                'hierarchy_entry_id'    => $this->id,
-                                'preferred'             => $preferred,
-                                'hierarchy_id'          => $this->hierarchy_id,
-                                'vetted_id'             => $vetted_id,
-                                'published'             => $published));
+        Synonym::find_or_create(array('name_id'               => $name_id,
+                                      'synonym_relation_id'   => $relation_id,
+                                      'language_id'           => $language_id,
+                                      'hierarchy_entry_id'    => $this->id,
+                                      'preferred'             => $preferred,
+                                      'hierarchy_id'          => $this->hierarchy_id,
+                                      'vetted_id'             => $vetted_id,
+                                      'published'             => $published));
     }
     
     public function add_data_object($data_object_id)
@@ -433,43 +371,43 @@ class HierarchyEntry extends MysqlBase
         $name_ids = array();
         if(@$string = $taxon['kingdom'])
         {
-            $name = new Name(Name::insert($string));
+            $name = Name::find_or_create_by_string($string);
             $name_ids["kingdom"] = $name->id;
         }
         if(@$string = $taxon['phylum'])
         {
-            $name = new Name(Name::insert($string));
+            $name = Name::find_or_create_by_string($string);
             $name_ids["phylum"] = $name->id;
         }
         if(@$string = $taxon['class'])
         {
-            $name = new Name(Name::insert($string));
+            $name = Name::find_or_create_by_string($string);
             $name_ids["class"] = $name->id;
         }
         if(@$string = $taxon['order'])
         {
-            $name = new Name(Name::insert($string));
+            $name = Name::find_or_create_by_string($string);
             $name_ids["order"] = $name->id;
         }
         if(@$string = $taxon['family'])
         {
-            $name = new Name(Name::insert($string));
+            $name = Name::find_or_create_by_string($string);
             $name_ids["family"] = $name->id;
         }
         if(@$string = $taxon['genus'])
         {
-            $name = new Name(Name::insert($string));
+            $name = Name::find_or_create_by_string($string);
             $name_ids["genus"] = $name->id;
         }
         if(@$taxon['family'] && !@$taxon['genus'] && @preg_match("/^([^ ]+) /", $taxon['scientific_name'], $arr))
         {
             $string = $arr[1];
-            $name = new Name(Name::insert($string));
+            $name = Name::find_or_create_by_string($string);
             $name_ids["genus"] = $name->id;
         }
         
         // the base level scientific_name. Unsure of the rank at this point
-        if(@$taxon['name_id']) $name_ids[] = $taxon['name_id'];
+        if(@$taxon['name']) $name_ids[] = $taxon['name']->id;
         
         $parent_hierarchy_entry = null;
         foreach($name_ids as $rank => $id)
@@ -478,12 +416,12 @@ class HierarchyEntry extends MysqlBase
             $params["name_id"] = $id;
             if($parent_hierarchy_entry)
             {
-                if($parent_hierarchy_entry->ancestry) $params["ancestry"] = $parent_hierarchy_entry->ancestry."|".$parent_hierarchy_entry->name_id;
+                if($parent_hierarchy_entry->ancestry) $params["ancestry"] = $parent_hierarchy_entry->ancestry. "|" .$parent_hierarchy_entry->name_id;
                 else $params["ancestry"] = $parent_hierarchy_entry->name_id;
             }
             
             $params["hierarchy_id"] = $hierarchy_id;
-            if($rank) $params["rank_id"] = Rank::insert($rank);
+            if($rank) $params["rank_id"] = Rank::find_or_create_by_label($rank)->id;
             if($parent_hierarchy_entry) $params["parent_id"] = $parent_hierarchy_entry->id;
             
             // if there is no rank then we have the scientific_name
@@ -493,36 +431,14 @@ class HierarchyEntry extends MysqlBase
                 $params["source_url"] = $taxon['source_url'];
             }
             
-            $params["visibility_id"] = Visibility::insert('preview');
-            $hierarchy_entry = new HierarchyEntry(HierarchyEntry::insert($params));
+            $params["visibility_id"] = Visibility::preview()->id;
+            $hierarchy_entry = HierarchyEntry::find_or_create_by_array($params);
             $parent_hierarchy_entry = $hierarchy_entry;
         }
         
         // returns the entry object for the scientific_name
         if($parent_hierarchy_entry) return $parent_hierarchy_entry;
         return 0;
-    }
-    
-    static function insert($parameters, $force = false)
-    {
-        if(!$parameters) return 0;
-        if(!is_array($parameters)) return 0;
-        
-        if(!$force && $result = self::find($parameters)) return $result;
-        
-        if(@!$parameters['taxon_concept_id']) $parameters['taxon_concept_id'] = TaxonConcept::insert();
-        if(@!$parameters['guid'])
-        {
-            $previous_version_guid = self::find_guid_by_hierarchy_and_identifier($parameters);
-            if($previous_version_guid)
-            {
-                $parameters['guid'] = $previous_version_guid;
-            }else
-            {
-                $parameters['guid'] = Functions::generate_guid();
-            }
-        }
-        return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
     }
     
     static function find_last_by_identifier($identifier)
@@ -558,7 +474,27 @@ class HierarchyEntry extends MysqlBase
         return false;
     }
     
-    static function find($parameters)
+    static function find_or_create_by_array($parameters, $force = false)
+    {
+        if(!$force && $object = self::find_by_array($parameters)) return $object;
+        
+        if(@!$parameters['taxon_concept_id']) $parameters['taxon_concept_id'] = TaxonConcept::create()->id;
+        if(@!$parameters['guid'])
+        {
+            $previous_version_guid = self::find_guid_by_hierarchy_and_identifier($parameters);
+            if($previous_version_guid)
+            {
+                $parameters['guid'] = $previous_version_guid;
+            }else
+            {
+                $parameters['guid'] = Functions::generate_guid();
+            }
+        }
+        
+        return self::create($parameters);
+    }
+    
+    static function find_by_array($parameters)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         if(@!$parameters['name_id']) $parameters['name_id'] = 0;
@@ -567,7 +503,7 @@ class HierarchyEntry extends MysqlBase
         if(@!$parameters['source_url']) $parameters['source_url'] = '';
         
         // look for entries with the SAME NAME and the SAME PARENT, in the SAME HIERARCHY
-        $query = "SELECT SQL_NO_CACHE id, identifier, guid, source_url
+        $query = "SELECT SQL_NO_CACHE *
             FROM hierarchy_entries
             WHERE name_id=". $parameters['name_id'] ."
             AND parent_id=". $parameters['parent_id'] ."
@@ -579,17 +515,23 @@ class HierarchyEntry extends MysqlBase
         // check the results for duplicates
         while($result && $row=$result->fetch_assoc())
         {
+            $hierarchy_entry = new HierarchyEntry($row);
+            $changed = false;
             // existing entry has no identifier - so reuse it and update its identifier
-            if(!$row['identifier'] && $parameters['identifier'])
+            if(!$hierarchy_entry->identifier && $parameters['identifier'])
             {
-                $mysqli->update("UPDATE hierarchy_entries SET identifier='". $mysqli->escape($parameters['identifier']) ."' WHERE id=".$row['id']);
+                $hierarchy_entry->identifier = $parameters['identifier'];
+                $changed = true;
             }
-            if(!$row['source_url'] && $parameters['source_url'])
+            // existing entry has no source_url - so reuse it and update its source_url
+            if(!$hierarchy_entry->source_url && $parameters['source_url'])
             {
-                $mysqli->update("UPDATE hierarchy_entries SET source_url='". $mysqli->escape($parameters['source_url']) ."' WHERE id=".$row['id']);
+                $hierarchy_entry->source_url = $parameters['source_url'];
+                $changed = true;
             }
             
-            return $row['id'];
+            if($changed) $hierarchy_entry->save();
+            return $hierarchy_entry;
         }
         return false;
     }

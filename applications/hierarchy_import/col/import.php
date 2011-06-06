@@ -326,7 +326,7 @@ function add_col_common_names($hierarchy_entry_id, $name_code)
     while($result && $row=$result->fetch_assoc())
     {
         $name_string = html_entity_decode(htmlspecialchars_decode(trim($row["common_name"])), ENT_COMPAT, "UTF-8");
-        $language_id = Language::insert(trim($row["language"]));
+        $language_id = Language::find_or_create_for_parser(trim($row["language"]))->id;
         
         $name_id = Name::insert($name_string);
         fwrite($GLOBALS['synonyms_file'], "NULL\t$name_id\t$common_name_id\t$language_id\t$hierarchy_entry_id\t0\t$hierarchy_id\t0\t0\n");

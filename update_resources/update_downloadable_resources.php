@@ -1,9 +1,10 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 system("clear");
 
-$log = HarvestProcessLog::create('Update Downloadable Resources');
+$log = HarvestProcessLog::create(array('process_name' => 'Update Downloadable Resources'));
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -11,11 +12,11 @@ $manager = new ContentManager();
 
 
 
-$result = $mysqli->query("SELECT id FROM resources WHERE accesspoint_url!='' AND accesspoint_url IS NOT NULL AND service_type_id=".ServiceType::insert("EOL Transfer Schema")." AND refresh_period_hours > 0");
+$result = $mysqli->query("SELECT id FROM resources WHERE accesspoint_url!='' AND accesspoint_url IS NOT NULL AND service_type_id=".ServiceType::find_or_create_by_label("EOL Transfer Schema")->id." AND refresh_period_hours > 0");
 while($result && $row=$result->fetch_assoc())
 {
     echo $row["id"]."...\n";
-    $resource = new Resource($row["id"]);
+    $resource = Resource::find($row["id"]);
     if(!$resource->id) continue;
     
     // check the file's modified date and when it was last harvested
@@ -30,7 +31,7 @@ while($result && $row=$result->fetch_assoc())
         $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource");
         if(!$new_resource_path)
         {
-            $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Upload Failed")." WHERE id=$resource->id");
+            $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label("Upload Failed")->id." WHERE id=$resource->id");
         }
     }
 }

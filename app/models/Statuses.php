@@ -1,24 +1,26 @@
 <?php
+namespace php_active_record;
 
-class Status extends MysqlBase
+class Status extends ActiveRecord
 {
-    function __construct($param)
+    public static function inserted()
     {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-        
-        $this->label = ucfirst($this->label);
+        return Status::find_or_create_by_label('Inserted');
     }
     
-    static function insert($string)
+    public static function updated()
     {
-        return parent::insert_into("label", $string, Functions::class_name(__FILE__));
+        return Status::find_or_create_by_label('Updated');
     }
     
-    static function find($string)
+    public static function unchanged()
     {
-        return parent::find_by("label", $string, Functions::class_name(__FILE__));
+        return Status::find_or_create_by_label('Unchanged');
+    }
+    
+    public static function reused()
+    {
+        return Status::find_or_create_by_label('Reused');
     }
 }
 

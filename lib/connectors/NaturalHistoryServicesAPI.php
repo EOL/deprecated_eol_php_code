@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("NHS_DOC_1", "http://www.rkwalton.com/nhsjumpers_videositemap.xml");
 define("NHS_DOC_2", "http://www.rkwalton.com/nhswasps_videositemap.xml");
@@ -201,10 +202,10 @@ class NaturalHistoryServicesAPI
             {
                 $data_object = self::get_data_object($photos);
                 if(!$data_object) return false;
-                $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
+                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);                     
             }
         }        
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -227,7 +228,7 @@ class NaturalHistoryServicesAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
          if(@$rec["agent"])
          {               
@@ -239,7 +240,7 @@ class NaturalHistoryServicesAPI
                  $agentParameters["homepage"] = $a["homepage"];
                  $agentParameters["logoURL"]  = "";        
                  $agentParameters["fullName"] = $a["name"];
-                 $agents[] = new SchemaAgent($agentParameters);
+                 $agents[] = new \SchemaAgent($agentParameters);
              }
              $data_object_parameters["agents"] = $agents;
          }

@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class DataObjectAncestriesIndexer
 {
@@ -73,7 +74,7 @@ class DataObjectAncestriesIndexer
     {
         echo "\nquerying objects ($start, $limit)\n";
         $last_data_object_id = 0;
-        $query = "SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE (published=1 OR visibility_id!=".Visibility::find('visible').") AND id ";
+        $query = "SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE (published=1 OR visibility_id!=".Visibility::visible()->id.") AND id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
         
@@ -117,7 +118,7 @@ class DataObjectAncestriesIndexer
     private function lookup_ancestries($start, $limit, &$data_object_ids = array())
     {
         echo "\nquerying ancestries ($start, $limit)\n";
-        $query = "SELECT do.id, dotc.taxon_concept_id, tcf.ancestor_id FROM data_objects do LEFT JOIN (data_objects_taxon_concepts dotc LEFT JOIN taxon_concepts_flattened tcf ON (dotc.taxon_concept_id=tcf.taxon_concept_id)) ON (do.id=dotc.data_object_id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id ";
+        $query = "SELECT do.id, dotc.taxon_concept_id, tcf.ancestor_id FROM data_objects do LEFT JOIN (data_objects_taxon_concepts dotc LEFT JOIN taxon_concepts_flattened tcf ON (dotc.taxon_concept_id=tcf.taxon_concept_id)) ON (do.id=dotc.data_object_id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.") AND do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
         
@@ -135,7 +136,7 @@ class DataObjectAncestriesIndexer
     private function lookup_resources($start, $limit, &$data_object_ids = array())
     {
         echo "\nquerying resources ($start, $limit)\n";
-        $query = "SELECT dohe.data_object_id, he.resource_id FROM data_objects do JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id) JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::find('visible').") AND do.id ";
+        $query = "SELECT dohe.data_object_id, he.resource_id FROM data_objects do JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id) JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.") AND do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
         

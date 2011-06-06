@@ -1,5 +1,8 @@
 <?php
+namespace php_active_record;
+
 require_library('connectors/SpireAPI');
+
 class test_connector_spire_api extends SimpletestUnitBase
 {
     function testSpireAPI()

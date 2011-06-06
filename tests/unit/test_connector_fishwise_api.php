@@ -1,5 +1,8 @@
 <?php
+namespace php_active_record;
+
 require_library('connectors/FishWiseAPI');
+
 class test_connector_fishwise_api extends SimpletestUnitBase
 {
     function testfishwiseAPI()

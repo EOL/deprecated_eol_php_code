@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 // system('clear');
 // define('ENVIRONMENT', 'staging_production');

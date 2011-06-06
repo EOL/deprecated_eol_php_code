@@ -1,9 +1,10 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 system("clear");
 
-$log = HarvestProcessLog::create('Update Connector Resources');
+$log = HarvestProcessLog::create(array('process_name' => 'Update Connector Resources'));
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
@@ -14,7 +15,7 @@ foreach($connectors as $file)
 {
     if(!preg_match("/^(.*)\.php$/", $file, $arr)) continue;
 
-    $resource = new Resource($arr[1]);
+    $resource = Resource::find($arr[1]);
     if(!@$resource->id) continue;
     if(!$resource->ready_to_update()) continue;
 

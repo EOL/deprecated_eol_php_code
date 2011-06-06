@@ -20,12 +20,7 @@ if(file_exists(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.p
     require_once(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php');
 }
 
-// /* requiring PEAR package Horde/Yaml to import *.yml files */
-// require_once 'Horde/Yaml.php';
-// require_once 'Horde/Yaml/Loader.php';
-// require_once 'Horde/Yaml/Node.php';
-// require_once 'Horde/Yaml/Exception.php';
-
+/* Spyc is our YAML parser */
 require_once dirname(__FILE__) . '/../vendor/spyc/spyc.php';
 
 if(strtolower(substr(php_uname(), 0, 3)) == 'win') define('SYSTEM_OS', 'Windows');
@@ -49,7 +44,6 @@ if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');
 
 
 
-require_once(DOC_ROOT . 'lib/MysqlBase.php');
 require_all_classes_recursively(DOC_ROOT . 'vendor/php_active_record/classes/');
 
 if(defined('USING_SPM') && USING_SPM)
@@ -60,8 +54,8 @@ if(defined('USING_SPM') && USING_SPM)
     require_once(DOC_ROOT . "vendor/rdf/RDFDocumentElement.php");
 }else require_all_classes_recursively(DOC_ROOT . 'app/models/');
 
-set_exception_handler(array('ActiveRecordError', 'handleException'));
-set_error_handler(array('ActiveRecordError', 'handleError'));
+set_exception_handler(array('php_active_record\ActiveRecordError', 'handleException'));
+set_error_handler(array('php_active_record\ActiveRecordError', 'handleError'));
 
 /* Should really always be set to true */
 if(!isset($GLOBALS['ENV_USE_MYSQL'])) $GLOBALS['ENV_USE_MYSQL'] = true;
@@ -80,7 +74,7 @@ if(@$GLOBALS['ENV_USE_MYSQL'])
     /* comment these 3 lines out if you are not using MySQL */
     $GLOBALS['db_connection'] = load_mysql_environment($GLOBALS['ENV_NAME']);
     $GLOBALS['mysqli_connection'] = $GLOBALS['db_connection'];
-    register_shutdown_function('shutdown_check');
+    register_shutdown_function('php_active_record\shutdown_check');
 }
 
 if((@$GLOBALS['ENV_DEBUG'] || @$GLOBALS['ENV_MYSQL_DEBUG']) && @$GLOBALS['ENV_DEBUG_TO_FILE'])
@@ -98,7 +92,7 @@ if(@$GLOBALS['ENV_MYSQL_DEBUG'] || @$GLOBALS['ENV_DEBUG']) ob_implicit_flush(tru
 if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = false;
 
 /* will try to connect to memcached, or default to using memory */
-Cache::restart();
+php_active_record\Cache::restart();
 
 
 /* ImageMagick */
@@ -122,7 +116,7 @@ define('DOWNLOAD_ATTEMPTS', '2');
 define('DOWNLOAD_TIMEOUT_SECONDS', '10');
 
 // sets a static start time to base later comparisons on
-time_elapsed();
+php_active_record\time_elapsed();
 
 /* defining some functions which are needed by the boot loader */
 
@@ -199,7 +193,7 @@ function load_mysql_environment($environment = NULL)
         $MYSQL_SOCKET   = $MASTER_MYSQL_SOCKET;
     }
     
-    return new MysqliConnection($MYSQL_SERVER, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DATABASE, $MYSQL_ENCODING, $MYSQL_PORT, $MYSQL_SOCKET, $MASTER_MYSQL_SERVER, $MASTER_MYSQL_USER, $MASTER_MYSQL_PASSWORD, $MASTER_MYSQL_DATABASE, $MASTER_MYSQL_ENCODING, $MASTER_MYSQL_PORT, $MASTER_MYSQL_SOCKET);
+    return new php_active_record\MysqliConnection($MYSQL_SERVER, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DATABASE, $MYSQL_ENCODING, $MYSQL_PORT, $MYSQL_SOCKET, $MASTER_MYSQL_SERVER, $MASTER_MYSQL_USER, $MASTER_MYSQL_PASSWORD, $MASTER_MYSQL_DATABASE, $MASTER_MYSQL_ENCODING, $MASTER_MYSQL_PORT, $MASTER_MYSQL_SOCKET);
 }
 
 function require_all_classes_recursively($dir)

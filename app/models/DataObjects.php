@@ -1,75 +1,60 @@
 <?php
+namespace php_active_record;
 
-class DataObject extends MysqlBase
+class DataObject extends ActiveRecord
 {
-    function __construct($param)
-    {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-    }
+    public static $belongs_to = array(
+            array('data_type'),
+            array('mime_type'),
+            array('language'),
+            array('license'),
+            array('vetted'),
+            array('visibility')
+        );
     
-    public static function all()
-    {
-        $all = array();
-        $result = $GLOBALS['db_connection']->query("SELECT * FROM data_objects");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $all[] = new DataObject($row);
-        }
-        return $all;
-    }
-    
-    public static function last()
-    {
-        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE * FROM data_objects ORDER BY id DESC limit 1");
-        if($result && $row=$result->fetch_assoc())
-        {
-            return new DataObject($row);
-        }
-        return null;
-    }
+    public static $has_many = array(
+            array('data_objects_info_items'),
+            array('info_items', 'through' => 'data_objects_info_items'),
+            array('data_objects_refs'),
+            array('references', 'through' => 'data_objects_refs'),
+            array('agents_data_objects'),
+            array('agents', 'through' => 'agents_data_objects')
+        );
     
     public static function delete($id)
     {
         if(!$id) return false;
         
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $mysqli->begin_transaction();
+        $GLOBALS['mysqli_connection']->begin_transaction();
         
         $where_clause = "data_object_id=$id";
         if(is_array($id)) $where_clause = "data_object_id IN (".implode($id, ',').")";
 
-        $mysqli->delete("DELETE FROM agents_data_objects WHERE $where_clause");
-        $mysqli->delete("DELETE FROM data_objects_hierarchy_entries WHERE $where_clause");
-        $mysqli->delete("DELETE FROM data_objects_refs WHERE $where_clause");
-        $mysqli->delete("DELETE FROM audiences_data_objects WHERE $where_clause");
-        $mysqli->delete("DELETE FROM data_objects_info_items WHERE $where_clause");
-        $mysqli->delete("DELETE FROM data_objects_table_of_contents WHERE $where_clause");
-        $mysqli->delete("DELETE FROM data_objects_harvest_events WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM agents_data_objects WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_hierarchy_entries WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_refs WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM audiences_data_objects WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_info_items WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_table_of_contents WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_harvest_events WHERE $where_clause");
         
         
         $where_clause = "id=$id";
         if(is_array($id)) $where_clause = "id IN (".implode($id, ',').")";
         
-        $mysqli->delete("DELETE FROM data_objects WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects WHERE $where_clause");
         
-        $mysqli->end_transaction();
+        $GLOBALS['mysqli_connection']->end_transaction();
     }
     
     public static function unpublish($id)
     {
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $mysqli->update("UPDATE data_objects SET published=0 WHERE id=$id");
+        $GLOBALS['mysqli_connection']->update("UPDATE data_objects SET published=0 WHERE id=$id");
     }
     
     public static function publish($id)
     {
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $mysqli->update("UPDATE data_objects SET published=1 WHERE id=$id");
+        $GLOBALS['mysqli_connection']->update("UPDATE data_objects SET published=1 WHERE id=$id");
     }
     
     public function unpublish_refs()
@@ -117,43 +102,6 @@ class DataObject extends MysqlBase
         $this->mysqli->insert("DELETE FROM data_objects_hierarchy_entries WHERE data_object_id=$this->id");
     }
     
-    public function references()
-    {
-        $references = array();
-        
-        $result = $this->mysqli->query("SELECT ref_id FROM data_objects_refs WHERE data_object_id=$this->id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $references[] = new Reference($row["ref_id"]);
-        }
-        
-        return $references;
-    }
-    
-    public function agents()
-    {
-        $agents = array();
-        
-        $result = $this->mysqli->query("SELECT agent_id FROM agents_data_objects WHERE data_object_id=$this->id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $agents[] = new Agent($row["agent_id"]);
-        }
-        
-        return $agents;
-    }
-    
-    public function info_items()
-    {
-        $info_items = array();
-        $result = $this->mysqli->query("SELECT info_item_id FROM data_objects_info_items WHERE data_object_id=$this->id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $info_items[] = new InfoItem($row["info_item_id"]);
-        }
-        return $info_items;
-    }
-    
     static function equivalent($data_object_1, $data_object_2)
     {
         $match = $data_object_1->equals($data_object_2);
@@ -164,7 +112,7 @@ class DataObject extends MysqlBase
     
     function equals($data_object)
     {
-        $fields = $this->get_table_fields();
+        $fields = self::table_fields();
         foreach($fields as $field)
         {
             $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url", "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id", "visibility_id", "curated", "published", "description_linked");
@@ -189,7 +137,7 @@ class DataObject extends MysqlBase
     
     function cache_object(&$content_manager, &$resource)
     {     
-        if($this->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/StillImage"))
+        if($this->is_image())
         {
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
@@ -200,7 +148,7 @@ class DataObject extends MysqlBase
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
-        if($this->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/MovingImage"))
+        if($this->is_video())
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
@@ -208,7 +156,7 @@ class DataObject extends MysqlBase
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
-        if($this->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/Sound"))
+        if($this->is_sound())
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
@@ -216,13 +164,12 @@ class DataObject extends MysqlBase
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
-
         return true;
     }
     
     function cache_thumbnail(&$content_manager)
     {
-        if($this->data_type_id!=DataType::insert("http://purl.org/dc/dcmitype/StillImage") && $this->data_type_id!=DataType::insert("http://purl.org/dc/dcmitype/Text"))
+        if($this->is_video() || $this->is_sound() || $this->is_flash() || $this->is_youtube())
         {
             if(preg_match("/^http:\/\//",$this->thumbnail_url))
             {
@@ -236,32 +183,20 @@ class DataObject extends MysqlBase
     
     static function find_and_compare(&$resource, $data_object, &$content_manager)
     {
-        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/Text") && @!trim($data_object->description)) return false;
-        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/StillImage") && @!trim($data_object->object_url)) return false;
-        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/Sound") && @!trim($data_object->object_url)) return false;
-        if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/MovingImage") && @!trim($data_object->object_url)) return false;
+        if(!$data_object->data_type) return false;
+        if($data_object->is_text() && @!trim($data_object->description)) return false;
+        if($data_object->is_image() && @!trim($data_object->object_url)) return false;
+        if($data_object->is_sound() && @!trim($data_object->object_url)) return false;
+        if($data_object->is_video() && @!trim($data_object->object_url)) return false;
         
-        $find_result = self::find($resource, $data_object);
-        if(@!$find_result["exact"] && @!$find_result["similar"])
-        {
-            // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
-            if(!$data_object->cache_object($content_manager, $resource)) return false;
-            
-            $data_object->vetted_id = Vetted::insert('unknown');
-            $data_object->visibility_id = Visibility::insert("Preview");
-            
-            return array(new DataObject(DataObject::insert($data_object)), "Inserted");
-        }
-        
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
+        $find_result = self::find_in_resource($resource, $data_object);
         if($guid = $find_result["exact"])
         {
             // Checking to see if there is an object with the same guid in the LAST harvest event for the given resource -> UNCHANGED or UPDATED
-            $result = $mysqli->query("SELECT SQL_NO_CACHE data_object_id, harvest_event_id FROM data_objects_harvest_events WHERE guid='$guid' ORDER BY harvest_event_id DESC, data_object_id DESC LIMIT 0,1");
+            $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE data_object_id, harvest_event_id FROM data_objects_harvest_events WHERE guid='$guid' ORDER BY harvest_event_id DESC, data_object_id DESC LIMIT 0,1");
             while($result && $row = $result->fetch_assoc())
             {
-                $existing_data_object = new DataObject($row["data_object_id"]);
+                $existing_data_object = DataObject::find($row["data_object_id"]);
                 
                 if(self::equivalent($existing_data_object, $data_object))
                 {
@@ -273,8 +208,8 @@ class DataObject extends MysqlBase
                     return array($existing_data_object, "Unchanged");
                 }else
                 {
-                    $data_object->vetted_id = Vetted::insert('unknown');
-                    $data_object->visibility_id = Visibility::insert("Preview");
+                    $data_object->vetted_id = Vetted::unknown()->id;
+                    $data_object->visibility_id = Visibility::preview()->id;
                     // This data object has different metadata than the object in the last harvest with the same guid
                     // So we have to create a new one with the same guid to reference for this harvest.
                     // The new one will inherit the curated, vetted, visibility info from the last object
@@ -285,7 +220,7 @@ class DataObject extends MysqlBase
                         // all new Wikipedia articles should be unvetted, even if the previous version was vetted
                         $data_object->vetted_id = $existing_data_object->vetted_id;
                     }
-                    if($existing_data_object->visibility_id != Visibility::insert("Visible") && $existing_data_object->visibility_id != NULL)
+                    if($existing_data_object->visibility_id != Visibility::visible()->id && $existing_data_object->visibility_id != NULL)
                     {
                         // if the existing object is visible - this will go on as preview
                         // otherwise this will inherit the visibility (unpublished)
@@ -298,18 +233,18 @@ class DataObject extends MysqlBase
                     elseif(!$data_object->cache_object($content_manager, $resource)) return false;
                     
                     // If the object is text and the contents have changed - set this version to curated = 0
-                    if($data_object->data_type_id == DataType::insert("http://purl.org/dc/dcmitype/Text") && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
+                    if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
                     
-                    return array(new DataObject(DataObject::insert($data_object)), "Updated");
+                    return array(DataObject::create_by_object($data_object), "Updated");
                 }
             }
         }elseif($guids = $find_result["similar"])
         {
             // See if the metedata for this object is identical to previous similar objects -> REUSED or UPDATED
-            $result = $mysqli->query("SELECT SQL_NO_CACHE data_object_id, harvest_event_id FROM data_objects_harvest_events WHERE guid IN ('".implode("','", $guids)."') ORDER BY harvest_event_id DESC, data_object_id DESC");
+            $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE data_object_id, harvest_event_id FROM data_objects_harvest_events WHERE guid IN ('".implode("','", $guids)."') ORDER BY harvest_event_id DESC, data_object_id DESC");
             while($result && $row = $result->fetch_assoc())
             {
-                $existing_data_object = new DataObject($row["data_object_id"]);
+                $existing_data_object = DataObject::find($row["data_object_id"]);
                 
                 if(self::equivalent($existing_data_object, $data_object))
                 {
@@ -323,71 +258,49 @@ class DataObject extends MysqlBase
         
         
         // Will get here if the object is similar to an existing object (description the same, image URL the same)
-        // but there is a difference - eg the identifiers are different
+        // but there is a difference - eg the identifiers are different. Or if the object is entirely new
         
-        $data_object->vetted_id = Vetted::insert('unknown');
-        $data_object->visibility_id = Visibility::insert("Preview");
+        $data_object->vetted = Vetted::unknown();
+        $data_object->visibility = Visibility::preview();
         
+        // // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
         if(!$data_object->cache_object($content_manager, $resource)) return false;
         $data_object->cache_thumbnail($content_manager);
         
-        return array(new DataObject(DataObject::insert($data_object)), "Inserted");
+        return array(DataObject::create_by_object($data_object), "Inserted");
     }
     
-    static function insert($parameters)
+    static function create_by_object($data_object)
     {
-        if(get_class($parameters)=="DataObject")
-        {
-            $data_object = $parameters;
-            if(@!$data_object->guid) $data_object->guid = Functions::generate_guid();
-            return parent::insert_object_into($data_object, Functions::class_name(__FILE__));
-        }
+        if(@!$data_object->guid) $data_object->guid = Functions::generate_guid();
         
-        if(@!$parameters["guid"]) $parameters["guid"] = Functions::generate_guid();
-        return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
+        return self::create($data_object);
     }
     
-    static function find_last_by_identifier($identifier)
+    static function find_in_resource($resource, $data_object)
     {
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        # can't find objects without an identifier
-        if(!trim($identifier)) return null;
-        
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM data_objects WHERE identifier='".$mysqli->escape($identifier)."' ORDER BY id DESC LIMIT 1");
-        if($result && $row=$result->fetch_assoc())
-        {
-            return $row['id'];
-        }
-        return null;
-    }
-    
-    static function find($resource, $data_object)
-    {
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
         $return = array("exact" => 0, "similar" => array());
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE he.resource_id=$resource->id AND do.identifier!='' AND do.identifier='".@$mysqli->escape($data_object->identifier)."' ORDER BY do.id DESC LIMIT 1");
-        if($result && $row=$result->fetch_assoc())
+        if(!$data_object->identifier)
         {
-            $return["exact"] = $row["guid"];
-            return $return;
-        }elseif(!$data_object->identifier)
-        {
-            //no identifier
-            
             $query = "SELECT SQL_NO_CACHE DISTINCT do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE he.resource_id=$resource->id AND ";
             
             $conditions = array();
-            if(@$value = $data_object->data_type_id) $conditions[] = "do.data_type_id=$value";
-            if(@$value = $data_object->mime_type_id) $conditions[] = "do.mime_type_id=$value";
-            if(@$value = $data_object->object_url) $conditions[] = "do.object_url='".$mysqli->escape($value)."'";
-            if($data_object->data_type_id==DataType::insert("http://purl.org/dc/dcmitype/Text") && @$value = $data_object->description) $conditions[] = "do.description='".$mysqli->escape($value)."'";
+            if($data_object->data_type)
+            {
+                $conditions[] = "do.data_type_id=$data_object->data_type->id";
+                if($data_object->is_text() && $data_object->description)
+                {
+                    $conditions[] = "do.description='".$GLOBALS['mysqli_connection']->escape($data_object->description)."'";
+                }
+            }
+            if($data_object->mime_type) $conditions[] = "do.mime_type_id=$data_object->mime_type->id";
+            if($data_object->object_url) $conditions[] = "do.object_url='".$GLOBALS['mysqli_connection']->escape($value)."'";
             
             $query .= implode(" AND ", $conditions);
             
             $guids = array();
-            $result = $mysqli->query($query);
+            $result = $GLOBALS['mysqli_connection']->query($query);
             while($result && $row=$result->fetch_assoc())
             {
                 $guids[] = $row["guid"];
@@ -395,9 +308,60 @@ class DataObject extends MysqlBase
             
             $return["similar"] = $guids;
             return $return;
+        }else
+        {
+            $identifier = @$GLOBALS['mysqli_connection']->escape($data_object->identifier);
+            $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE he.resource_id=$resource->id AND do.identifier!='' AND do.identifier='$identifier' ORDER BY do.id DESC LIMIT 1");
+            if($result && $row=$result->fetch_assoc())
+            {
+                $return["exact"] = $row["guid"];
+                return $return;
+            }
         }
         
         return $return;
+    }
+    
+    public function is_image()
+    {
+        if($this->data_type_id && $this->data_type_id == DataType::image()->id) return true;
+        return false;
+    }
+    
+    public function is_text()
+    {
+        if($this->data_type_id && $this->data_type_id == DataType::text()->id) return true;
+        return false;
+    }
+    
+    public function is_video()
+    {
+        if($this->data_type_id && $this->data_type_id == DataType::video()->id) return true;
+        return false;
+    }
+    
+    public function is_sound()
+    {
+        if($this->data_type_id && $this->data_type_id == DataType::sound()->id) return true;
+        return false;
+    }
+    
+    public function is_iucn()
+    {
+        if($this->data_type_id && $this->data_type_id == DataType::iucn()->id) return true;
+        return false;
+    }
+    
+    public function is_flash()
+    {
+        if($this->data_type_id && $this->data_type_id == DataType::flash()->id) return true;
+        return false;
+    }
+    
+    public function is_youtube()
+    {
+        if($this->data_type_id && $this->data_type_id == DataType::youtube()->id) return true;
+        return false;
     }
 }
 

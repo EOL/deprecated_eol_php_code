@@ -1,24 +1,26 @@
 <?php
+namespace php_active_record;
 
-class Visibility extends MysqlBase
+class Visibility extends ActiveRecord
 {
-    function __construct($param)
+    public static function visible()
     {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-        
-        $this->label = ucfirst($this->label);
+        return Visibility::find_or_create_by_label('Visible', array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
     }
     
-    static function insert($string)
+    public static function invisible()
     {
-        return parent::insert_into("label", $string, Functions::class_name(__FILE__));
+        return Visibility::find_or_create_by_label('Invisible', array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
     }
     
-    static function find($string)
+    public static function preview()
     {
-        return parent::find_by("label", $string, Functions::class_name(__FILE__));
+        return Visibility::find_or_create_by_label('Preview', array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
+    }
+    
+    public static function inappropriate()
+    {
+        return Visibility::find_or_create_by_label('Inappropriate', array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
     }
 }
 

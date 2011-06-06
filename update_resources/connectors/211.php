@@ -28,7 +28,7 @@ rename(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", CONTENT_RESOURCE_LOCAL_PATH
 // set to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml"))
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=211");
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=211");
 }
 
 

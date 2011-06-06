@@ -1,16 +1,15 @@
 <?php
+namespace php_active_record;
 
-class SchemaConnection extends MysqlBase
+class SchemaConnection
 {
     private $resource;
     private $content_manager;
     
     function __construct(&$resource)
     {
-        parent::db_connect();
-        
+        $this->mysqli =& $GLOBALS['db_connection'];
         $this->content_manager = new ContentManager(false);
-        
         $this->resource =& $resource;
     }
     
@@ -31,8 +30,8 @@ class SchemaConnection extends MysqlBase
             $hierarchy_entry->delete_common_names();
             foreach($t['common_names'] as &$c)
             {
-                $name_id = Name::insert($c['common_name']);
-                $hierarchy_entry->add_synonym($name_id, SynonymRelation::insert('common name'), $c['language_id'], 0);
+                $name = Name::find_or_create_by_string($c['name']);
+                $hierarchy_entry->add_synonym($name->id, SynonymRelation::find_or_create_by_label('common name')->id, @$c['langauge']->id ?: 0, 0);
             }
         }
         if(@$t['synonyms'])
@@ -40,7 +39,7 @@ class SchemaConnection extends MysqlBase
             $hierarchy_entry->delete_synonyms();
             foreach($t['synonyms'] as &$s)
             {
-                $hierarchy_entry->add_synonym($s->name_id, $s->synonym_relation_id, 0, 0);
+                $hierarchy_entry->add_synonym($s['name']->id, @$s['synonym_relation']->id ?: 0, 0, 0);
             }
         }
         
@@ -50,18 +49,17 @@ class SchemaConnection extends MysqlBase
             $i = 0;
             foreach($t['agents'] as &$a)
             {
-                $agent_id = Agent::insert($a);
-                
-                $agent = new Agent($agent_id);
+                $agent = Agent::find_or_create($a);
                 if($agent->logo_url && !$agent->logo_cache_url)
                 {
                     if($logo_cache_url = $this->content_manager->grab_file($agent->logo_url, 0, "partner"))
                     {
-                        $agent->update_cache_url($logo_cache_url);
+                        $agent->logo_cache_url = $logo_cache_url;
+                        $agent->save();
                     }
                 }
                 
-                $hierarchy_entry->add_agent($agent_id, $a->agent_role_id, $i);
+                $hierarchy_entry->add_agent($agent->id, @$a['agent_role']->id ?: 0, $i);
                 unset($a);
                 $i++;
             }
@@ -72,12 +70,10 @@ class SchemaConnection extends MysqlBase
             $hierarchy_entry->unpublish_refs();
             foreach($t['refs'] as &$r)
             {
-                $reference = new Reference($r->id);
-                if(@$reference->id)
+                if(@$r->id)
                 {
-                    $hierarchy_entry->add_reference($reference->id);
-                    $reference->publish();
-                    foreach($r->identifiers as $i) $reference->add_ref_identifier($i->ref_identifier_type_id, $i->identifier);
+                    $hierarchy_entry->add_reference($r->id);
+                    $r->publish();
                 }
                 unset($r);
             }
@@ -92,14 +88,17 @@ class SchemaConnection extends MysqlBase
         return $hierarchy_entry;
     }
     
-    function add_data_object($hierarchy_entry, $d)
+    function add_data_object($hierarchy_entry, $options)
     {
+        $d = $options[0];
+        $parameters = $options[1];
         // Add default values from resource
         if(@!$d->rights_statement && $this->resource->rights_statement) $d->rights_statement = $this->resource->rights_statement;
         if(@!$d->rights_holder && $this->resource->rights_holder) $d->rights_holder = $this->resource->rights_holder;
         if(@!$d->license_id && $this->resource->license_id) $d->license_id = $this->resource->license_id;
         if(@!$d->language_id && $this->resource->language_id) $d->language_id = $this->resource->language_id;
         
+        // print_r($d);
         
         list($data_object, $status) = DataObject::find_and_compare($this->resource, $d, $this->content_manager);
         if(@!$data_object->id) return false;
@@ -112,51 +111,48 @@ class SchemaConnection extends MysqlBase
         {
             $i = 0;
             $data_object->delete_agents();
-            foreach($d->agents as &$a)
+            foreach($parameters['agents'] as &$a)
             {
-                $agent_id = Agent::insert($a);
-                
-                $agent = new Agent($agent_id);
+                $agent = Agent::find_or_create($a);
                 if($agent->logo_url && !$agent->logo_cache_url)
                 {
                     if($logo_cache_url = $this->content_manager->grab_file($agent->logo_url, 0, "partner"))
                     {
-                        $agent->update_cache_url($logo_cache_url);
+                        $agent->logo_cache_url = $logo_cache_url;
+                        $agent->save();
                     }
                 }
                 
-                $data_object->add_agent($agent_id, $a->agent_role_id, $i);
+                $data_object->add_agent($agent->id, @$a['agent_role']->id ?: 0, $i);
                 unset($a);
                 $i++;
             }
             
-            foreach($d->audience_ids as &$id)
+            foreach($parameters['audiences'] as &$a)
             {
-                $data_object->add_audience($id);
-                unset($id);
+                $data_object->add_audience($a->id);
+                unset($a);
             }
             
-            if(@$d->info_items_ids)
+            if(@$parameters['info_items'])
             {
                 $data_object->delete_info_items();
-                foreach($d->info_items_ids as &$id)
+                foreach($parameters['info_items'] as &$ii)
                 {
-                    $data_object->add_info_item($id);
-                    unset($id);
+                    $data_object->add_info_item($ii->id);
+                    unset($ii);
                 }
             }
             
-            if(@$d->refs)
+            if(@$parameters['refs'])
             {
                 $data_object->unpublish_refs();
-                foreach($d->refs as &$r)
+                foreach($parameters['refs'] as &$r)
                 {
-                    $reference = new Reference($r->id);
-                    if(@$reference->id)
+                    if(@$r->id)
                     {
-                        $data_object->add_reference($reference->id);
-                        $reference->publish();
-                        foreach($r->identifiers as $i) $reference->add_ref_identifier($i->ref_identifier_type_id, $i->identifier);
+                        $data_object->add_reference($r->id);
+                        $r->publish();
                     }
                     unset($r);
                 }

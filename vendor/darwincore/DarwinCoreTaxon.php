@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class DarwinCoreTaxon
 {
@@ -41,7 +42,7 @@ class DarwinCoreTaxon
                     {
                         // the element is not from the DWN namespace, so create a new object
                         // in this instance using the namespace abbreviation
-                        if(!isset($this->$namespace_abbreviation)) $this->$namespace_abbreviation = new stdClass;
+                        if(!isset($this->$namespace_abbreviation)) $this->$namespace_abbreviation = new \stdClass;
                         $this->$namespace_abbreviation->$attribute = $value;
                     }
                 }

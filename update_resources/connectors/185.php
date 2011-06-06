@@ -26,7 +26,7 @@ fclose($OUT);
 // set Turbellarian to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::insert('Force Harvest') . " WHERE id=" . $resource_id);
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::find_or_create_by_label('Force Harvest')->id . " WHERE id=" . $resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 
 $param = @$argv[1];

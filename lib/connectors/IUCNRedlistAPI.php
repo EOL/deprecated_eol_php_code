@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class IUCNRedlistAPI
 {
@@ -109,7 +110,7 @@ class IUCNRedlistAPI
             foreach($langauge_names as $langauge_name)
             {
                 $common_name = @ucfirst(strtolower(trim($langauge_name->nodeValue)));
-                $taxon_parameters['commonNames'][] = new SchemaCommonName(array('name' => $common_name, 'language' => $language));
+                $taxon_parameters['commonNames'][] = new \SchemaCommonName(array('name' => $common_name, 'language' => $language));
             }
         }
         
@@ -118,7 +119,7 @@ class IUCNRedlistAPI
         foreach($synonyms as $synonym_node)
         {
             $synonym = trim($synonym_node->nodeValue);
-            $taxon_parameters['synonyms'][] = new SchemaSynonym(array('synonym' => $synonym, 'relationship' => 'synonym'));
+            $taxon_parameters['synonyms'][] = new \SchemaSynonym(array('synonym' => $synonym, 'relationship' => 'synonym'));
         }
         
         
@@ -149,7 +150,7 @@ class IUCNRedlistAPI
         $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_conservation_actions', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management', $agents, $citation);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $taxon = new SchemaTaxon($taxon_parameters);
+        $taxon = new \SchemaTaxon($taxon_parameters);
         // echo $taxon->__toXML();
         return $taxon;
     }
@@ -189,11 +190,11 @@ class IUCNRedlistAPI
             $object_parameters['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
             $object_parameters['rights'] = "© International Union for Conservation of Nature and Natural Resources";
             $object_parameters['source'] = "http://www.iucnredlist.org/apps/redlist/details/" . $species_id;
-            $object_parameters['subjects'] = array(new SchemaSubject(array('label' => $subject)));
+            $object_parameters['subjects'] = array(new \SchemaSubject(array('label' => $subject)));
             $object_parameters['agents'] = $agents;
             $object_parameters['bibliographicCitation'] = $citation;
             
-            return new SchemaDataObject($object_parameters);
+            return new \SchemaDataObject($object_parameters);
         }
         return null;
     }
@@ -221,9 +222,9 @@ class IUCNRedlistAPI
         $object_parameters['rights'] = "© International Union for Conservation of Nature and Natural Resources";
         $object_parameters['rightsHolder'] = "International Union for Conservation of Nature and Natural Resources";
         $object_parameters['source'] = "http://www.iucnredlist.org/apps/redlist/details/" . $species_id;
-        $object_parameters['subjects'] = array(new SchemaSubject(array('label' => 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus')));
+        $object_parameters['subjects'] = array(new \SchemaSubject(array('label' => 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus')));
         
-        return new SchemaDataObject($object_parameters);
+        return new \SchemaDataObject($object_parameters);
     }
     
     public static function get_agents_and_citation($dom_doc, $xpath)
@@ -236,12 +237,12 @@ class IUCNRedlistAPI
         if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr))
         {
             $all_authors = $arr[1];
-            $agents[] = new SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
+            $agents[] = new \SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
         }
         
         $element = $xpath->query("//div[@id='assessors']");
         $assessors = trim($element->item(0)->nodeValue);
-        $agents[] = new SchemaAgent(array('fullName' => $assessors, 'role' => 'compiler'));
+        $agents[] = new \SchemaAgent(array('fullName' => $assessors, 'role' => 'compiler'));
         
         return array($agents, $citation);
     }
