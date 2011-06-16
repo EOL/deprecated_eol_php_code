@@ -160,13 +160,13 @@ class HarvestEvent extends ActiveRecord
     public function add_hierarchy_entry($hierarchy_entry, $status)
     {
         if(@!$hierarchy_entry->id) return false;
-        $this->mysqli->insert("INSERT IGNORE INTO harvest_events_hierarchy_entries VALUES ($this->id, $hierarchy_entry->id, '$hierarchy_entry->guid', ". Status::find_or_create_by_label($status)->id .")");
+        $this->mysqli->insert("INSERT IGNORE INTO harvest_events_hierarchy_entries VALUES ($this->id, $hierarchy_entry->id, '$hierarchy_entry->guid', ". Status::find_or_create_by_translated_label($status)->id .")");
     }
     
     public function add_data_object($data_object, $status)
     {
         if(@!$data_object->id) return false;
-        $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events VALUES ($this->id, $data_object->id, '$data_object->guid', ". Status::find_or_create_by_label($status)->id .")");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events VALUES ($this->id, $data_object->id, '$data_object->guid', ". Status::find_or_create_by_translated_label($status)->id .")");
     }
 }
 

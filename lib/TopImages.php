@@ -17,9 +17,9 @@ class TopImages
         else $this->mysqli_slave =& $this->mysqli;
         
         $this->vetted_sort_orders =  array();
-        $this->vetted_sort_orders[Vetted::find_or_create_by_label('Trusted')->id] = 1;
-        $this->vetted_sort_orders[Vetted::find_or_create_by_label('Unknown')->id] = 2;
-        $this->vetted_sort_orders[Vetted::find_or_create_by_label('Untrusted')->id] = 3;
+        $this->vetted_sort_orders[Vetted::trusted()->id] = 1;
+        $this->vetted_sort_orders[Vetted::unknown()->id] = 2;
+        $this->vetted_sort_orders[Vetted::untrusted()->id] = 3;
     }
     
     public function begin_process()
@@ -168,7 +168,7 @@ class TopImages
         foreach($chunks as $chunk)
         {
             echo "$i ". memory_get_usage() ." ". time_elapsed() ."\n";
-            $query = "SELECT taxon_concept_id, id FROM hierarchy_entries FORCE INDEX (concept_published_visible) WHERE taxon_concept_id IN (". implode(",", $chunk) .")  AND ((published=1 AND visibility_id=1) OR (published=0 AND visibility_id=2))";
+            $query = "SELECT taxon_concept_id, id FROM hierarchy_entries FORCE INDEX (concept_published_visible) WHERE taxon_concept_id IN (". implode(",", $chunk) .")  AND ((published=1 AND visibility_id=". Visibility::visible()->id .") OR (published=0 AND visibility_id=". Visibility::preview()->id ."))";
             foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
             {
                 if(!isset($this->baseline_hierarchy_entry_ids[$row[0]])) $this->baseline_hierarchy_entry_ids[$row[0]] = array();

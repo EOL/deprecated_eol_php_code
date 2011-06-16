@@ -118,7 +118,7 @@ class TaxonImporter
                         "name_id"       => $name_id,
                         "parent_id"     => $parent_hierarchy_entry_id,
                         "hierarchy_id"  => $this->hierarchy->id,
-                        "rank"          => Rank::find_or_create_by_label(@$taxon->taxonRank),
+                        "rank"          => Rank::find_or_create_by_translated_label(@$taxon->taxonRank),
                         "ancestry"      => $ancestry,
                         "vetted_id"     => $this->hierarchy_vetted_id,
                         "visibility_id" => $this->hierarchy_visibility_id,
@@ -136,7 +136,7 @@ class TaxonImporter
                 if(isset($synonym_taxon->taxonID) && isset($this->taxon_ids_inserted[$synonym_taxon->taxonID])) continue;
                 
                 $name_id = Name::find_or_create_by_string($synonym_taxon->scientificName)->id;
-                $synonym_relation = SynonymRelation::find_or_create_by_label(@$synonym_taxon->taxonomicStatus);
+                $synonym_relation = SynonymRelation::find_or_create_by_translated_label(@$synonym_taxon->taxonomicStatus);
                 $hierarchy_entry->add_synonym($name_id, @$synonym_relation->id ?: 0, 0, 0, $this->hierarchy_vetted_id, $this->hierarchy_published);
                 if(isset($synonym_taxon->taxonID)) $this->taxon_ids_inserted[$synonym_taxon->taxonID] = 1;
             }
@@ -151,7 +151,7 @@ class TaxonImporter
                 
                 $name_id = Name::find_or_create_by_string($vernacular->vernacularName)->id;
                 $language = Language::find_or_create_for_parser(@$vernacular->dcterms->language);
-                $synonym_relation = SynonymRelation::find_or_create_by_string('common name');
+                $synonym_relation = SynonymRelation::find_or_create_by_translated_label('common name');
                 $hierarchy_entry->add_synonym($name_id, @$synonym_relation->id ?: 0, @$language->id ?: 0, 0, $this->hierarchy_vetted_id, $this->hierarchy_published);
             }
             unset($this->vernacular_names[$taxon->taxonID]);

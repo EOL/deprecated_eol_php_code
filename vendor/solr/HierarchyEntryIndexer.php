@@ -15,21 +15,21 @@ class HierarchyEntryIndexer
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         
         $this->rank_labels = array();
-        if($r = Rank::find_or_create_by_label('kingdom')) $this->rank_labels[$r->id] = 'kingdom';
-        if($r = Rank::find_or_create_by_label('regn.')) $this->rank_labels[$r->id] = 'kingdom';
-        if($r = Rank::find_or_create_by_label('phylum')) $this->rank_labels[$r->id] = 'phylum';
-        if($r = Rank::find_or_create_by_label('phyl.')) $this->rank_labels[$r->id] = 'phylum';
-        if($r = Rank::find_or_create_by_label('class')) $this->rank_labels[$r->id] = 'class';
-        if($r = Rank::find_or_create_by_label('cl.')) $this->rank_labels[$r->id] = 'class';
-        if($r = Rank::find_or_create_by_label('order')) $this->rank_labels[$r->id] = 'order';
-        if($r = Rank::find_or_create_by_label('ord.')) $this->rank_labels[$r->id] = 'order';
-        if($r = Rank::find_or_create_by_label('family')) $this->rank_labels[$r->id] = 'family';
-        if($r = Rank::find_or_create_by_label('fam.')) $this->rank_labels[$r->id] = 'family';
-        //if($r = Rank::find_or_create_by_label('f.')) $this->rank_labels[$r->id] = 'family';
-        if($r = Rank::find_or_create_by_label('genus')) $this->rank_labels[$r->id] = 'genus';
-        if($r = Rank::find_or_create_by_label('gen.')) $this->rank_labels[$r->id] = 'genus';
-        if($r = Rank::find_or_create_by_label('species')) $this->rank_labels[$r->id] = 'species';
-        if($r = Rank::find_or_create_by_label('sp.')) $this->rank_labels[$r->id] = 'species';
+        if($r = Rank::find_or_create_by_translated_label('kingdom')) $this->rank_labels[$r->id] = 'kingdom';
+        if($r = Rank::find_or_create_by_translated_label('regn.')) $this->rank_labels[$r->id] = 'kingdom';
+        if($r = Rank::find_or_create_by_translated_label('phylum')) $this->rank_labels[$r->id] = 'phylum';
+        if($r = Rank::find_or_create_by_translated_label('phyl.')) $this->rank_labels[$r->id] = 'phylum';
+        if($r = Rank::find_or_create_by_translated_label('class')) $this->rank_labels[$r->id] = 'class';
+        if($r = Rank::find_or_create_by_translated_label('cl.')) $this->rank_labels[$r->id] = 'class';
+        if($r = Rank::find_or_create_by_translated_label('order')) $this->rank_labels[$r->id] = 'order';
+        if($r = Rank::find_or_create_by_translated_label('ord.')) $this->rank_labels[$r->id] = 'order';
+        if($r = Rank::find_or_create_by_translated_label('family')) $this->rank_labels[$r->id] = 'family';
+        if($r = Rank::find_or_create_by_translated_label('fam.')) $this->rank_labels[$r->id] = 'family';
+        //if($r = Rank::find_or_create_by_translated_label('f.')) $this->rank_labels[$r->id] = 'family';
+        if($r = Rank::find_or_create_by_translated_label('genus')) $this->rank_labels[$r->id] = 'genus';
+        if($r = Rank::find_or_create_by_translated_label('gen.')) $this->rank_labels[$r->id] = 'genus';
+        if($r = Rank::find_or_create_by_translated_label('species')) $this->rank_labels[$r->id] = 'species';
+        if($r = Rank::find_or_create_by_translated_label('sp.')) $this->rank_labels[$r->id] = 'species';
     }
     
     public function index($hierarchy_id = NULL, $optimize = true)
@@ -178,7 +178,7 @@ class HierarchyEntryIndexer
     private function lookup_synonyms($start, $limit, $filter = "1=1")
     {
         $sci = Language::find_or_create_for_parser('scientific name')->id;
-        $common_name_id = SynonymRelation::find_or_create_by_label('common name')->id;
+        $common_name_id = SynonymRelation::find_or_create_by_translated_label('common name')->id;
         
         echo "\nquerying synonyms\n";
         $result = $this->mysqli->query("SELECT s.*, n.string, cf.string canonical_form FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (s.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");

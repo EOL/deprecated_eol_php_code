@@ -1,0 +1,10 @@
+taxonID	scientificName	parentNameUsageID
+20661726	Tetranchyroderma massiliense Swedmark, 1956	0
+32592574	Pyrocephalus rubinus	0
+32593439	Vultur gryphus	0
+32572089	Picea abies	0
+36251259	Betula pendula	0
+32585926	Rynchops niger	0
+20633468	Ursus maritimus	0
+20633154	Tachyglossus aculeatus	0
+37225314	Passer domesticus	0

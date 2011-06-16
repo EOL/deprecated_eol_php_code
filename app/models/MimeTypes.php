@@ -5,7 +5,7 @@ class MimeType extends ActiveRecord
 {
     public static function flash()
     {
-        return MimeType::find_or_create_by_label('video/x-flv');
+        return MimeType::find_or_create_by_translated_label('video/x-flv');
     }
 }
 

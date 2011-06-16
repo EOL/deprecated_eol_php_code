@@ -5,7 +5,8 @@ class test_resources extends SimpletestUnitBase
 {
     function testHarvesting()
     {
-        $this->load_fixtures();
+        $toc = TableOfContent::find_or_create_by_translated_label('Overview');
+        $ii = InfoItem::find_or_create_by_translated_label('DiagnosticDescription', array('schema_value' => 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription', 'toc_id' => $toc->id));
         $resource = self::create_resource();
         
         $this->assertTrue(count(HarvestEvent::all()) == 0, 'There shouldnt be any events to begin with');
@@ -293,7 +294,7 @@ class test_resources extends SimpletestUnitBase
                     $data_object_parameters = array();
                     //$data_object_parameters["identifier"] = Functions::import_decode($d_dc->identifier);
                     $data_object_parameters["data_type_id"] = DataType::find_or_create_by_schema_value(Functions::import_decode($d->dataType))->id;
-                    $data_object_parameters["mime_type_id"] = @MimeType::find_or_create_by_label(Functions::import_decode($d->mimeType))->id ?: 0;
+                    $data_object_parameters["mime_type_id"] = @MimeType::find_or_create_by_translated_label(Functions::import_decode($d->mimeType))->id ?: 0;
                     $data_object_parameters["object_created_at"] = Functions::import_decode($d_dcterms->created);
                     $data_object_parameters["object_modified_at"] = Functions::import_decode($d_dcterms->modified);
                     $data_object_parameters["object_title"] = Functions::import_decode($d_dc->title, 0, 0);
@@ -351,21 +352,22 @@ class test_resources extends SimpletestUnitBase
         
         // create the test resource
         $agent = Agent::find_or_create(array('full_name' => 'Test Content Partner'));
+        $user = User::find_or_create(array('display_name' => 'Test Content Partner', 'agent_id' => $agent->id));
         
         // create the content partner
-        $content_partner_id = ContentPartner::find_or_create(array('agent_id' => $agent->id, 'auto_publish' => $args['auto_publish'], 'vetted' => $args['vetted']));
+        $content_partner = ContentPartner::find_or_create(array('user_id' => $user->id, 'auto_publish' => $args['auto_publish'], 'vetted' => $args['vetted']));
         
         // create the resource
-        $attr = array(  'accesspoint_url'       => $args['file_path'],
-                        'service_type'          => ServiceType::find_or_create_by_label('EOL Transfer Schema'),
+        $attr = array(  'content_partner_id'    => $content_partner->id,
+                        'accesspoint_url'       => $args['file_path'],
+                        'service_type'          => ServiceType::find_or_create_by_translated_label('EOL Transfer Schema'),
                         'refresh_period_hours'  => 1,
                         'auto_publish'          => $args['auto_publish'],
                         'vetted'                => $args['vetted'],
                         'title'                 => $args['title'],
                         'dwc_archive_url'       => $args['dwc_archive_url'],
-                        'resource_status'       => ResourceStatus::find_or_create_by_label('Validated'));
+                        'resource_status'       => ResourceStatus::validated());
         $resource = Resource::find_or_create($attr);
-        $agent->add_resouce($resource->id, 'Data Supplier');
         
         copy($resource->accesspoint_url, $resource->resource_file_path());
         return $resource;

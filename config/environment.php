@@ -36,6 +36,10 @@ require_once(dirname(__FILE__) . '/boot.php');
 /* the 'default' hierarchy - the one which gets matched to new taxa first */
 if(!defined('DEFAULT_HIERARCHY_LABEL')) define('DEFAULT_HIERARCHY_LABEL', 'Species 2000 & ITIS Catalogue of Life: Annual Checklist 2010');
 
+/* default application language */
+if(!defined('DEFAULT_LANGUAGE_ISO_CODE')) define('DEFAULT_LANGUAGE_ISO_CODE', 'en');
+if(!defined('DEFAULT_LANGUAGE_LABEL')) define('DEFAULT_LANGUAGE_LABEL', 'English');
+
 
 
 

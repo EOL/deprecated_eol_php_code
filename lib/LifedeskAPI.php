@@ -37,7 +37,7 @@ class LifeDeskAPI
             $thisResult["hierarchy_id"] = $v->hierarchy_id;
             $thisResult["ancestry"] = $v->ancestry_names();
             $thisResult["ranked_ancestry"] = $v->ranked_ancestry();
-            $thisResult["rank"] = @$v->rank->label;
+            $thisResult["rank"] = @$v->rank->translation->label;
             $thisResult["number_of_children"] = $v->number_of_children();
             $thisResult["number_of_children_synonyms"] = $v->number_of_children_synonyms();
             
@@ -76,7 +76,7 @@ class LifeDeskAPI
                 $info["hierarchy_id"] = $parent->hierarchy_id;
                 $info["name"] = $parent->name->string;
                 $info["canonical_form"] = $parent->name->canonical_form->string;
-                $info["rank"] = $parent->rank->label;
+                $info["rank"] = $parent->rank->translation->label;
                 $info["synonyms"] = array();
                 
                 $synonyms = $parent->getSynonyms();
@@ -84,8 +84,8 @@ class LifeDeskAPI
                 {
                     $thisSynonym = array();
                     $thisSynonym["name"] = $v->name->string;
-                    $thisSynonym["type"] = $v->synonym_relation->label;
-                    $thisSynonym["language_id"] = $v->language->string;
+                    $thisSynonym["type"] = $v->synonym_relation->translation->label;
+                    $thisSynonym["language_id"] = $v->language->translation->string;
                     
                     $info["synonyms"][] = $thisSynonym;
                 }
@@ -119,7 +119,7 @@ class LifeDeskAPI
         $details["hierarchy_id"] = $hierarchy_entry->hierarchy_id;
         $details["name"] = $hierarchy_entry->name->string;
         $details["canonical_form"] = $hierarchy_entry->name->canonical_form->string;
-        $details["rank"] = $hierarchy_entry->rank->label;
+        $details["rank"] = $hierarchy_entry->rank->translation->label;
         $details["synonyms"] = array();
         
         $synonyms = $hierarchy_entry->getSynonyms();
@@ -127,8 +127,8 @@ class LifeDeskAPI
         {
             $thisSynonym = array();
             $thisSynonym["name"] = $v->name->string;
-            $thisSynonym["type"] = $v->synonym_relation->label;
-            $thisSynonym["language_id"] = $v->language->label;
+            $thisSynonym["type"] = $v->synonym_relation->translation->label;
+            $thisSynonym["language_id"] = $v->language->translation->label;
             
             $details["synonyms"][] = $thisSynonym;
         }
@@ -152,7 +152,7 @@ class LifeDeskAPI
         
         $nomenclaturalCode = "Zoological";
         $rankCode = "";
-        switch(strtolower($entry->rank->label))
+        switch(strtolower($entry->rank->translation->label))
         {
             case "kingdom":
                 $rankCode = "reg";
@@ -183,7 +183,7 @@ class LifeDeskAPI
         $return .= "      <Simple>".htmlspecialchars($entry->name->string)."</Simple>\n";
         if($rankCode)
         {
-            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank->label))."</Rank>\n";
+            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank->translation->label))."</Rank>\n";
         }
         $return .= "      <CanonicalName>\n";
         $return .= "        <Simple>".htmlspecialchars($entry->name->canonical_form->string)."</Simple>\n";
@@ -196,7 +196,7 @@ class LifeDeskAPI
             {
                 $return .= "          <NameSource>\n";
                 $return .= "            <Simple>".htmlspecialchars($v->agent->display_name)."</Simple>\n";
-                $return .= "            <Role>".htmlspecialchars($v->agent_role->label)."</Role>\n";
+                $return .= "            <Role>".htmlspecialchars($v->agent_role->translation->label)."</Role>\n";
                 $return .= "          </NameSource>\n";
             }
             $return .= "        </NameSources>\n";
@@ -235,7 +235,7 @@ class LifeDeskAPI
             foreach($synonyms as $k => $v)
             {
                 $relationship = "has synonym";
-                if(strtolower($v->synonym_relation->label)=="common name") $relationship = "has vernacular";
+                if(strtolower($v->synonym_relation->translation->label)=="common name") $relationship = "has vernacular";
                 $return .= "        <TaxonRelationship type='$relationship'>\n";
                 $return .= "          <ToTaxonConcept ref='$this->api_url?function=details_tcs&amp;sid=".$v->id."' linkType='external'/>\n";
                 $return .= "        </TaxonRelationship>\n";
@@ -255,7 +255,7 @@ class LifeDeskAPI
         $nomenclaturalCode = "Zoological";
         
         $scientific = "true";
-        if(strtolower($entry->synonym_relation->label)=="common name") $scientific = "false";
+        if(strtolower($entry->synonym_relation->translation->label)=="common name") $scientific = "false";
         
         $return = "";
         $return .= "  <TaxonNames>\n";
@@ -275,7 +275,7 @@ class LifeDeskAPI
             {
                 $return .= "          <NameSource>\n";
                 $return .= "            <Simple>".htmlspecialchars($v->agent->display_name)."</Simple>\n";
-                $return .= "            <Role>".htmlspecialchars($v->agent_role->label)."</Role>\n";
+                $return .= "            <Role>".htmlspecialchars($v->agent_role->translation->label)."</Role>\n";
                 $return .= "          </NameSource>\n";
             }
             $return .= "        </NameSources>\n";

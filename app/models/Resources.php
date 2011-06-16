@@ -4,6 +4,7 @@ namespace php_active_record;
 class Resource extends ActiveRecord
 {
     public static $belongs_to = array(
+            array('content_partner'),
             array('service_type'),
             array('resource_status'),
             array('license'),
@@ -70,14 +71,14 @@ class Resource extends ActiveRecord
     
     public function auto_publish()
     {
-        if($this->auto_publish || $this->content_partner()->auto_publish) return true;
+        if($this->auto_publish || $this->content_partner->auto_publish) return true;
         
         return false;
     }
     
     public function vetted()
     {
-        if($this->vetted || $this->content_partner()->vetted) return true;
+        if($this->vetted || $this->content_partner->vetted) return true;
         
         return false;
     }
@@ -161,13 +162,6 @@ class Resource extends ActiveRecord
         return $resources;
     }
     
-    public function content_partner()
-    {
-        if(@$this->content_partner) return $this->content_partner;
-        $this->content_partner = ContentPartner::find($this->data_supplier()->id);
-        return $this->content_partner;
-    }
-    
     public function last_harvest_event_id()
     {
         if(isset($this->last_harvest_event_id)) return $this->last_harvest_event_id;
@@ -207,13 +201,7 @@ class Resource extends ActiveRecord
     public function data_supplier()
     {
         if(@$this->data_supplier) return $this->data_supplier;
-        
-        $result = $this->mysqli->query("SELECT agent_id FROM agents_resources WHERE resource_id=$this->id AND resource_agent_role_id=".ResourceAgentRole::find_or_create_by_label("Data Supplier")->id);
-        if($result && $row=$result->fetch_assoc())
-        {
-            $this->data_supplier = Agent::find($row["agent_id"]);
-        }else $this->data_supplier = 0;
-        
+        $this->data_supplier = $this->content_partner->user->agent;
         return $this->data_supplier;
     }
     

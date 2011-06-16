@@ -317,7 +317,7 @@ class CompareHierarchies
         // reset application timer
         time_elapsed(true);
         
-        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::find_or_create_by_label('kingdom')->id, Rank::find_or_create_by_label('phylum')->id, Rank::find_or_create_by_label('class')->id, Rank::find_or_create_by_label('order')->id);
+        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::find_or_create_by_translated_label('kingdom')->id, Rank::find_or_create_by_translated_label('phylum')->id, Rank::find_or_create_by_translated_label('class')->id, Rank::find_or_create_by_translated_label('order')->id);
         
         $mysqli->delete("DROP TABLE IF EXISTS he_relations_tmp");
         $mysqli->query("CREATE TABLE IF NOT EXISTS `he_relations_tmp` (

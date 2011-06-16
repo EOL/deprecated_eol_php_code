@@ -115,7 +115,7 @@ class SchemaParser
             $attr = $s->attributes();
             if(!@$attr["relationship"]) $attr["relationship"] = 'synonym';
             $params = array("name" => Name::find_or_create_by_string($synonym),
-                            "synonym_relation" => SynonymRelation::find_or_create_by_label(trim($attr["relationship"])));
+                            "synonym_relation" => SynonymRelation::find_or_create_by_translated_label(trim($attr["relationship"])));
             $taxon_parameters["synonyms"][] = $params;
         }
         
@@ -129,7 +129,7 @@ class SchemaParser
             $params = array("full_name" => Functions::import_decode((string) $a, 0, 0),
                             "homepage" => @Functions::import_decode($attr["homepage"]),
                             "logo_url" => @Functions::import_decode($attr["logoURL"]),
-                            "agent_role" => AgentRole::find_or_create_by_label(@trim($attr["role"])));
+                            "agent_role" => AgentRole::find_or_create_by_translated_label(@trim($attr["role"])));
             $taxon_parameters["agents"][] = $params;
             unset($params);
         }
@@ -165,7 +165,7 @@ class SchemaParser
             $data_object = new DataObject();
             $data_object->identifier = Functions::import_decode($d_dc->identifier);
             $data_object->data_type = DataType::find_or_create_by_schema_value(Functions::import_decode($d->dataType));
-            $data_object->mime_type = MimeType::find_or_create_by_label(Functions::import_decode($d->mimeType));
+            $data_object->mime_type = MimeType::find_or_create_by_translated_label(Functions::import_decode($d->mimeType));
             $data_object->object_created_at = Functions::import_decode($d_dcterms->created);
             $data_object->object_modified_at = Functions::import_decode($d_dcterms->modified);
             $data_object->object_title = Functions::import_decode($d_dc->title, 0, 0);
@@ -234,7 +234,7 @@ class SchemaParser
                 $params = array("full_name" => Functions::import_decode((string) $a, 0, 0),
                                 "homepage" => @Functions::import_decode($attr["homepage"]),
                                 "logo_url" => @Functions::import_decode($attr["logoURL"]),
-                                "agent_role" => AgentRole::find_or_create_by_label(@trim($attr["role"])));
+                                "agent_role" => AgentRole::find_or_create_by_translated_label(@trim($attr["role"])));
                 $data_object_parameters["agents"][] = $params;
                 unset($params);
             }
@@ -242,7 +242,7 @@ class SchemaParser
             $data_object_parameters["audiences"] = array();
             foreach($d->audience as $a)
             {
-                $data_object_parameters["audiences"][] = Audience::find_or_create_by_label(trim((string) $a));
+                $data_object_parameters["audiences"][] = Audience::find_or_create_by_translated_label(trim((string) $a));
             }
             
             $data_object_parameters["info_items"] = array();
@@ -338,7 +338,7 @@ class SchemaParser
                 
                 foreach($t->dataObject as $d)
                 {
-                    $d_dc = $d->children("http://purl.org/dc/elements/1.1/");                
+                    $d_dc = $d->children("http://purl.org/dc/elements/1.1/");
                     
                     $identifier = Functions::import_decode($d_dc->identifier);
                     $data_type = Functions::import_decode($d->dataType);

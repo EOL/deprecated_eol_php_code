@@ -46,7 +46,7 @@ class test_lifedesk_service extends SimpletestWebBase
     {
         $hierarchy = Hierarchy::find_or_create(array('label' => 'Test Hierarchy', 'browsable' => 1));
         $name = Name::find_or_create_by_string('Aus bus Linnaeus');
-        $rank = Rank::find_or_create_by_label('species');
+        $rank = Rank::find_or_create_by_translated_label('species');
         HierarchyEntry::find_or_create(array('hierarchy' => $hierarchy, 'name' => $name, 'rank' => $rank));
     }
 }

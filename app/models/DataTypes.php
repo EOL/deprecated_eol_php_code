@@ -14,37 +14,37 @@ class DataType extends ActiveRecord
     
     public static function image()
     {
-        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/StillImage', array('label' => 'Image'));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/StillImage');
     }
     
     public static function sound()
     {
-        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/Sound', array('label' => 'Sound'));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/Sound');
     }
     
     public static function text()
     {
-        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/Text', array('label' => 'Text'));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/Text');
     }
     
     public static function video()
     {
-        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/MovingImage', array('label' => 'Video'));
+        return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/MovingImage');
     }
     
     public static function iucn()
     {
-        return DataType::find_or_create_by_schema_value('IUCN', array('label' => 'IUCN'));
+        return DataType::find_or_create_by_schema_value('IUCN');
     }
     
     public static function flash()
     {
-        return DataType::find_or_create_by_schema_value('Flash', array('label' => 'Flash'));
+        return DataType::find_or_create_by_schema_value('Flash');
     }
     
     public static function youtube()
     {
-        return DataType::find_or_create_by_schema_value('YouTube', array('label' => 'YouTube'));
+        return DataType::find_or_create_by_schema_value('YouTube');
     }
     
     

@@ -25,14 +25,14 @@ if($resource)
 {
     if($opt1 == "-download" || $opt2 == "-download")
     {
-        if($resource->accesspoint_url && $resource->service_type_id == ServiceType::find_or_create_by_label('EOL Transfer Schema')->id)
+        if($resource->accesspoint_url && $resource->service_type_id == ServiceType::find_or_create_by_translated_label('EOL Transfer Schema')->id)
         {
             echo "\nDownloading $resource->title ($id)\n";
             $manager = new ContentManager();
             $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource");
             if(!$new_resource_path)
             {
-                $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label("Upload Failed")->id ." WHERE id=$resource->id");
+                $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label("Upload Failed")->id ." WHERE id=$resource->id");
                 echo "\n$resource->title ($id) resource download failed\n\n";
                 exit;
             }
@@ -55,7 +55,7 @@ if($resource)
     }else
     {
         echo "Setting status of $resource->title ($id) to force harvest\n";
-        $mysqli->update("UPDATE resources SET resource_status_id = ". ResourceStatus::find_or_create_by_label("Force Harvest")->id ." where id=$resource->id");
+        $mysqli->update("UPDATE resources SET resource_status_id = ". ResourceStatus::find_or_create_by_translated_label("Force Harvest")->id ." where id=$resource->id");
     }
 }else echo "\nNo resource with id $id\n\n";
 

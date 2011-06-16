@@ -256,22 +256,22 @@ class HierarchyEntry extends ActiveRecord
     
     public function delete_agents()
     {
-        $this->mysqli->insert("DELETE FROM agents_hierarchy_entries WHERE hierarchy_entry_id=$this->id");
+        $this->mysqli->delete("DELETE FROM agents_hierarchy_entries WHERE hierarchy_entry_id=$this->id");
     }
     public function delete_common_names()
     {
-        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
+        $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
     }
     public function delete_synonyms()
     {
-        $this->mysqli->insert("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR language_id=". Language::find_or_create_for_parser('scientific name')->id.")");
+        $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR language_id=". Language::find_or_create_for_parser('scientific name')->id.")");
     }
     
        
     public function add_agent($agent_id, $agent_role_id, $view_order)
     {
         if(!$agent_id) return false;
-        $this->mysqli->insert("INSERT IGNORE INTO agents_hierarchy_entries VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
+        $this->mysqli->insert("INSERT IGNORE INTO agents_hierarchy_entries (hierarchy_entry_id, agent_id, agent_role_id, view_order) VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
     }
     
     public function add_synonym($name_id, $relation_id, $language_id, $preferred, $vetted_id = 0, $published = 0)
@@ -293,8 +293,8 @@ class HierarchyEntry extends ActiveRecord
     public function add_data_object($data_object_id)
     {
         if(!$data_object_id) return 0;
-        $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries VALUES ($this->id, $data_object_id)");
-        $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts VALUES ($this->taxon_concept_id, $data_object_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries (hierarchy_entry_id, data_object_id) VALUES ($this->id, $data_object_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts (taxon_concept_id, data_object_id) VALUES ($this->taxon_concept_id, $data_object_id)");
     }
     
     public function unpublish_refs()
@@ -305,7 +305,7 @@ class HierarchyEntry extends ActiveRecord
     public function add_reference($reference_id)
     {
         if(!$reference_id) return 0;
-        $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs VALUES ($this->id, $reference_id)");
+        $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs (hierarchy_entry_id, ref_id) VALUES ($this->id, $reference_id)");
     }
     
     public static function move_to_child_of($node_id, $child_of_id)
@@ -421,7 +421,7 @@ class HierarchyEntry extends ActiveRecord
             }
             
             $params["hierarchy_id"] = $hierarchy_id;
-            if($rank) $params["rank_id"] = Rank::find_or_create_by_label($rank)->id;
+            if($rank) $params["rank_id"] = Rank::find_or_create_by_translated_label($rank)->id;
             if($parent_hierarchy_entry) $params["parent_id"] = $parent_hierarchy_entry->id;
             
             // if there is no rank then we have the scientific_name

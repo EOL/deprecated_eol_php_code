@@ -3,23 +3,27 @@ namespace php_active_record;
 
 class Rank extends ActiveRecord
 {
+    public static $has_many = array(
+            array('language')
+        );
+    
     public static function species_ranks()
     {
         $species_ranks = array();
-        $species_ranks[] = Rank::find_or_create_by_label('species');
-        $species_ranks[] = Rank::find_or_create_by_label('sp');
-        $species_ranks[] = Rank::find_or_create_by_label('sp.');
-        $species_ranks[] = Rank::find_or_create_by_label('subspecies');
-        $species_ranks[] = Rank::find_or_create_by_label('subsp');
-        $species_ranks[] = Rank::find_or_create_by_label('subsp.');
-        $species_ranks[] = Rank::find_or_create_by_label('variety');
-        $species_ranks[] = Rank::find_or_create_by_label('var');
-        $species_ranks[] = Rank::find_or_create_by_label('var.');
-        $species_ranks[] = Rank::find_or_create_by_label('infraspecies');
-        $species_ranks[] = Rank::find_or_create_by_label('form');
-        $species_ranks[] = Rank::find_or_create_by_label('nothospecies');
-        $species_ranks[] = Rank::find_or_create_by_label('nothosubspecies');
-        $species_ranks[] = Rank::find_or_create_by_label('nothovariety');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('species');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('sp');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('sp.');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('subspecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('subsp');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('subsp.');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('variety');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('var');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('var.');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('infraspecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('form');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('nothospecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('nothosubspecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('nothovariety');
         return $species_ranks;
     }
     

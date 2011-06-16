@@ -8,7 +8,7 @@ class test_hierarchy_entries extends SimpletestUnitBase
         $params = array('hierarchy_id'  => 12345,
                         'identifier'    => 'abcd1234',
                         'name_id'       => Name::find_or_create_by_string('Homo sapiens')->id,
-                        'parent_id'     => Rank::find_or_create_by_label('species')->id,
+                        'parent_id'     => Rank::find_or_create_by_translated_label('species')->id,
                         'source_url'    => 'http://www.example.org/abcd1234');
         $hierarchy_entry = HierarchyEntry::find_or_create($params);
         $this->assertTrue($hierarchy_entry->id == 1, "The hierarchy entry should have an id");

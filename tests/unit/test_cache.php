@@ -108,17 +108,17 @@ class test_cache extends SimpletestUnitBase
     
     function testCacheLanguages()
     {
-        Language::find_or_create_for_parser('fr');
-        Language::find_or_create_for_parser('sp');
-        $language = Language::find_or_create_for_parser('en');
+        Language::find_or_create_by_iso_639_1('fr');
+        Language::find_or_create_by_iso_639_1('sp');
+        $language = Language::find_or_create_by_iso_639_1('en');
         $this->assertTrue($language->id > 0, 'Language should have an ID');
-        $this->assertTrue($language->id == Language::find_or_create_for_parser('en')->id, 'Language shouldnt get reinserted');
+        $this->assertTrue($language->id == Language::find_or_create_by_iso_639_1('en')->id, 'Language shouldnt get reinserted');
         
         $GLOBALS['db_connection']->truncate_tables('test');
-        $this->assertTrue($language->id == Language::find_or_create_for_parser('en')->id, 'Cache should be maintained');
+        $this->assertTrue($language->id == Language::find_or_create_by_iso_639_1('en')->id, 'Cache should be maintained');
         
         Cache::flush();
-        $this->assertTrue($language->id != Language::find_or_create_for_parser('en')->id, 'Cache flushing should work');
+        $this->assertTrue($language->id != Language::find_or_create_by_iso_639_1('en')->id, 'Cache flushing should work');
     }
     
     function testCacheIgnoring()

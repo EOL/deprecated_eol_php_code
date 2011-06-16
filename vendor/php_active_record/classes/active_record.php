@@ -167,6 +167,19 @@ class ActiveRecord
         return $return;
     }
     
+    public static function find_by_translated($attribute, $value, $args = array())
+    {
+        $translation_class_name = str_replace(__NAMESPACE__ . '\\', __NAMESPACE__ . '\\Translated', get_called_class());
+        $found_translation = call_user_func(array($translation_class_name, "find_by_$attribute"), $value);
+        if(is_null($found_translation)) return NULL;
+        
+        $association = to_singular(static::table_name());
+        if($association == 'language') $association = 'original_language';
+        $found_instance = $found_translation->$association;
+        if(is_null($found_instance)) return NULL;
+        return $found_instance;
+    }
+    
     public static function find_by($attribute, $value, $args = array())
     {
         if(!isset($attribute)) return NULL;
@@ -195,7 +208,11 @@ class ActiveRecord
         {
             $object = new $class();
             $object->initialize_from_row($row);
-            if(!@$args['find_all']) return $object;
+            if(!@$args['find_all'])
+            {
+                Cache::set("find_by_". self::table_name() ."|".$attribute."|".$value."|".serialize($args), $object);
+                return $object;
+            }
             
             $return[] = $object;
         }
@@ -210,6 +227,31 @@ class ActiveRecord
     public static function find_last_by($attribute, $value, $order = null)
     {
         
+    }
+    
+    public static function find_or_create_by_translated($attribute, $value, $args = array())
+    {
+        if(is_null($value) || $value == '') return NULL;
+        
+        // create the default language at this point as we'll need it later, and its possible we are trying to insert the default now.
+        Language::default_language();
+        if($object = self::find_by_translated($attribute, $value, $args)) return $object;
+        
+        $class = self::called_class();
+        $object = new $class();
+        foreach($args as $attr => $val)
+        {
+            if(self::is_field($attr)) $object->$attr = $val;
+        }
+        $object->save();
+        
+        $translated_class_name = self::translated_class_name();
+        $primary_key = static::$primary_key;
+        $association_foreign_key = static::foreign_key();
+        if($association_foreign_key == 'language_id') $association_foreign_key = 'original_language_id';
+        $translated_object = $translated_class_name::create(array($association_foreign_key => $object->$primary_key, $attribute => $value, 'language_id' => Language::default_language()->id));
+        
+        return $object;
     }
     
     public static function find_or_create_by($attribute, $value, $args = array())
@@ -237,6 +279,32 @@ class ActiveRecord
         foreach($args as $attr => $val)
         {
             if(self::is_field($attr)) $object->$attr = $val;
+            else
+            {
+                if($reflection = self::check_relationship('belongs_to', $attr))
+                {
+                    $association_class = __NAMESPACE__ . '\\' . to_camel_case($attr);
+                    $association_primary_key = $association_class::$primary_key;
+                    
+                    if(isset($reflection['foreign_key'])) $foreign_key = $reflection['foreign_key'];
+                    else $foreign_key = $attr . '_id';
+                    
+                    if(is_null($val))
+                    {
+                        $object->$foreign_key = NULL;
+                        $object->$attr = $val;
+                    }else
+                    {
+                        if(get_class($val) != $association_class)
+                        {
+                            trigger_error('ActiveRecord::find_or_create: Invalid attribute type: `' . $attr . '` => `' . get_class($val) . '` in '.get_last_function(1), E_USER_WARNING);
+                        }
+                        // using the primary key of the associated object to create this instance
+                        $object->$foreign_key = $val->$association_primary_key;
+                        $object->$attr = $val;
+                    }
+                }
+            }
         }
         
         $object->save();
@@ -406,6 +474,26 @@ class ActiveRecord
         $primary_key_field = static::$primary_key;
         if(isset($this->$primary_key_field) && $this->$primary_key_field) return true;
         return false;
+    }
+    
+    public function translation($language_iso_code = DEFAULT_LANGUAGE_ISO_CODE)
+    {
+        $translated_class_name = self::translated_class_name();
+        if(class_exists($translated_class_name))
+        {
+            $primary_key_field = static::$primary_key;
+            $foreign_key = self::foreign_key();
+            if($foreign_key == 'language_id') $foreign_key = 'original_language_id';
+            
+            $translation_language = Language::find_by_iso_639_1($language_iso_code);
+            if(is_null($translation_language)) return NULL;
+            $translations = $translated_class_name::find_by($foreign_key, $this->$primary_key_field, array('find_all' => true));
+            foreach($translations as $translation)
+            {
+                if($translation->language_id == $translation_language->id) return $translation;
+            }
+        }
+        return NULL;
     }
     
     
@@ -658,6 +746,11 @@ class ActiveRecord
         return $table_name;
     }
     
+    public static function translated_class_name()
+    {
+        return str_replace(__NAMESPACE__ . '\\', __NAMESPACE__ . '\\Translated', get_called_class());
+    }
+    
     public static function foreign_key()
     {
         $called_class = self::called_class();
@@ -718,7 +811,9 @@ class ActiveRecord
     public function __get($name)
     {
         if($this->is_field($name)) return isset($this->$name) ? $this->$name : NULL;
-        if($name == "mysqli") return $GLOBALS['db_connection'];
+        if($name == 'mysqli') return $GLOBALS['db_connection'];
+        
+        if($name == 'translation') return $this->translation();
         
         foreach(static::$has_one as $args)
         {
@@ -782,6 +877,7 @@ class ActiveRecord
         {
             if($reflection = self::check_relationship('belongs_to', $name))
             {
+                if($name == 'original_language') $name = 'language';
                 $association_class = __NAMESPACE__ . '\\' . to_camel_case($name);
                 $association_primary_key = $association_class::$primary_key;
                 
@@ -823,7 +919,14 @@ class ActiveRecord
     // for intercepting object static functions
     public static function __callStatic($function, $args)
     {
-        if(preg_match("/^find_by_([a-z0-9_]+)$/", $function, $arr))
+        if(preg_match("/^find_by_translated_([a-z0-9_]+)$/", $function, $arr))
+        {
+            $attribute = $arr[1];
+            $value = array_shift($args);
+            $args = @array_pop($args);
+            $args['find_all'] = false;
+            return self::find_by_translated($attribute, $value, $args);
+        }elseif(preg_match("/^find_by_([a-z0-9_]+)$/", $function, $arr))
         {
             $attribute = $arr[1];
             $value = array_shift($args);
@@ -842,6 +945,13 @@ class ActiveRecord
             $args = @array_pop($args);
             $args['find_all'] = true;
             return self::find_by(1, 1, $args);
+        }elseif(preg_match("/^find_or_create_by_translated_([a-z0-9_]+)$/", $function, $arr))
+        {
+            $attribute = $arr[1];
+            $value = array_shift($args);
+            $args = @array_pop($args);
+            $args['find_all'] = false;
+            return self::find_or_create_by_translated($attribute, $value, $args);
         }elseif(preg_match("/^find_or_create_by_([a-z0-9_]+)$/", $function, $arr))
         {
             $attribute = $arr[1];

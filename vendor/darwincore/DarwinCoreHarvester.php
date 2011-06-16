@@ -16,7 +16,7 @@ class DarwinCoreHarvester
         $mysqli =& $GLOBALS['mysqli_connection'];
         $mysqli->begin_transaction();
         
-        $valid_relation_array = array(SynonymRelation::find_or_create_by_label("valid")->id, SynonymRelation::find_or_create_by_label("accepted")->id);
+        $valid_relation_array = array(SynonymRelation::find_or_create_by_translated_label("valid")->id, SynonymRelation::find_or_create_by_translated_label("accepted")->id);
         $GLOBALS['node_children'] = array();
         $GLOBALS['node_attributes'] = array();
         echo "Memory: ".memory_get_usage()."\n";
@@ -35,9 +35,9 @@ class DarwinCoreHarvester
                 
                 $taxon_id = Functions::import_decode($t_dwc->taxonID);
                 $parent_id = Functions::import_decode($t_dwc->parentNameUsageID);
-                $synonym_relation_id = SynonymRelation::find_or_create_by_label(Functions::import_decode($t_dwc->taxonomicStatus))->id;
+                $synonym_relation_id = SynonymRelation::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonomicStatus))->id;
                 $name_id = Name::find_or_create_by_string(Functions::import_decode($t_dwc->scientificName))->id;
-                $rank_id = Rank::find_or_create_by_label(Functions::import_decode($t_dwc->taxonRank))->id;
+                $rank_id = Rank::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonRank))->id;
                 
                 if(in_array($synonym_relation_id, $valid_relation_array)) $valid = true;
                 else $valid = false;
@@ -162,7 +162,7 @@ class DarwinCoreHarvester
             {
                 foreach($array as $name_id => $junk)
                 {
-                    $hierarchy_entry->add_synonym($name_id, SynonymRelation::find_or_create_by_label("Common name")->id, $language_id, 0, $vetted_id, $published);
+                    $hierarchy_entry->add_synonym($name_id, SynonymRelation::find_or_create_by_translated_label("Common name")->id, $language_id, 0, $vetted_id, $published);
                 }
             }
         }

@@ -12,4 +12,6 @@ require_once("SchemaSubject.php");
 require_once("SchemaSynonym.php");
 require_once("SchemaTaxon.php");
 
+require_once("ContentArchiveHarvester.php");
+
 ?>

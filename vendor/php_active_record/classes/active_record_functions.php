@@ -41,6 +41,7 @@ function to_singular($str)
 {
     if(preg_match("/^(.*)(ies)$/", $str, $arr)) $str = $arr[1] . 'y';
     elseif(preg_match("/^(.*)(oes)$/", $str, $arr)) $str = $arr[1] . 'o';
+    elseif(preg_match("/^(.*)(ses)$/", $str, $arr)) $str = $arr[1] . 's';
     elseif(preg_match("/^(.*)(s)$/", $str, $arr)) $str = $arr[1];
     
     return $str;
