@@ -68,6 +68,7 @@ class ContentArchiveHarvester
         {
             $table_definition = $this->load_table_definition($core_xml);
             $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+            $this->core = $table_definition;
         }
         
         // load EXTENSIONS if they exist
@@ -128,9 +129,8 @@ class ContentArchiveHarvester
         {
             $index = (int) @$id['index'];
             $term = (string) @$id['term'];
-            $type = (string) @$id['type'];
+            if(!$term && $table_definition->row_type == 'http://rs.tdwg.org/dwc/terms/Taxon') $term = 'http://rs.tdwg.org/dwc/terms/taxonID';
             $table_definition->fields[$index] = array(  'term'      => $term,
-                                                        'type'      => $type,
                                                         'default'   => '');
             $table_definition->id = $table_definition->fields[$index];
         }
@@ -140,9 +140,8 @@ class ContentArchiveHarvester
         {
             $index = (int) @$id['index'];
             $term = (string) @$id['term'];
-            $type = (string) @$id['type'];
+            if(!$term && isset($this->core->id['term'])) $term = $this->core->id['term'];
             $table_definition->fields[$index] = array(  'term'      => $term,
-                                                        'type'      => $type,
                                                         'default'   => '');
             $table_definition->core_id = $table_definition->fields[$index];
         }
@@ -203,10 +202,8 @@ class ContentArchiveHarvester
                     else $all_rows[] = $fields;
                 }
             }
-            
             return $all_rows;
         }
-        
     }
     
     // this method uses the instance variable $this->table_iterator_index to determine which row of the file
