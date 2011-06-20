@@ -98,3 +98,5 @@ applications/partner_requests/moth_photographers/index.php
 applications/partner_requests/moth_photographers/moth.txt
 
 null
+
+update_resources/connectors/dwca_parsing.php
