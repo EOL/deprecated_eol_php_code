@@ -64,9 +64,19 @@ class Resource extends ActiveRecord
         return CONTENT_RESOURCE_LOCAL_PATH.$this->id.".xml";
     }
     
+    public function archive_path()
+    {
+        return CONTENT_RESOURCE_LOCAL_PATH . $this->id ."/";
+    }
+    
     public function resource_deletions_path()
     {
         return CONTENT_RESOURCE_LOCAL_PATH.$this->id."_delete.xml";
+    }
+    
+    public function is_translation_resource()
+    {
+        return false;
     }
     
     public function auto_publish()
@@ -312,12 +322,25 @@ class Resource extends ActiveRecord
         $this->mysqli->end_transaction();
     }
     
-    public function harvest($validate = true)
+    public function harvest_from_archive($validate = true)
+    {
+        $errors = $validate ? ContentArchiveValidator($this->archive_path()) : false;
+        if($errors)
+        {
+            print_r($errors);
+        }else
+        {
+            $connection = new ArchiveDataIngester($this);
+        }
+    }
+    
+    public function harvest($validate = true, $validate_only_welformed = false)
     {
         debug("Starting harvest of resource: $this->id");
         debug("Validating resource: $this->id");
         // set valid to true if we don't need validation
-        $valid = $validate ? $this->validate($this->resource_path()) : true;
+        if($this->is_translation_resource()) $validate_only_welformed = false;
+        $valid = $validate ? $this->validate($this->resource_path(), $validate_only_welformed) : true;
         debug("Validated resource: $this->id");
         if($valid)
         {

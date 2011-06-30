@@ -454,5 +454,12 @@ function get_simpletest_name()
     return $test_name;
 }
 
+function echo_each($array)
+{
+    while(list($key, $val) = each($array))
+    {
+        echo $val."\n";
+    }
+}
 
 ?>

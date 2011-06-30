@@ -249,19 +249,19 @@ function show_name_he($hierarchy_entry, $indent, $expand)
     $display = str_repeat("&nbsp;", $indent*2);
     if($expand) $display .= "(<a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>-</a>) ";
     else $display .= "(<a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&expand=1&ENV_NAME=".$GLOBALS['ENV_NAME']."'>+</a>) ";
-    $display .= "<small><b><u>[$hierarchy_entry->lft]</u></b></small> <a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>".$hierarchy_entry->name()->string."</a> <small><b><u>[$hierarchy_entry->rgt]</u></b></small>";
+    $display .= "<small><b><u>[$hierarchy_entry->lft]</u></b></small> <a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>".$hierarchy_entry->name->string."</a> <small><b><u>[$hierarchy_entry->rgt]</u></b></small>";
     
-    if(@$rank = $hierarchy_entry->rank()->label) $display .= " <small>($rank)</small>";
-    if($agents = $hierarchy_entry->agents())
-    {
-        $arr = array();
-        foreach($agents as $agent)
-        {
-            $arr[] = @$agent->agent->display_name;
-        }
-        
-        $display .= " <small>(".implode(", ", $arr).")</small>";
-    }
+    if(@$rank = $hierarchy_entry->rank->label) $display .= " <small>($rank)</small>";
+    // if($agents = $hierarchy_entry->agents)
+    // {
+    //     $arr = array();
+    //     foreach($agents as $agent)
+    //     {
+    //         $arr[] = @$agent->agent->display_name;
+    //     }
+    //     
+    //     $display .= " <small>(".implode(", ", $arr).")</small>";
+    // }
     
     $display .= " <small>he_id:".$hierarchy_entry->id." ; tc_id:".$hierarchy_entry->taxon_concept_id."</small>";
     $display .= "<br>";
@@ -271,30 +271,30 @@ function show_name_he($hierarchy_entry, $indent, $expand)
 
 function show_synonyms_he($hierarchy_entry)
 {
-    if($synonyms = $hierarchy_entry->synonyms())
-    {
-        echo "<hr>";
-        foreach($synonyms as $k => $v)
-        {
-            echo $v->name()->string;
-            if($v->synonym_relation_id) echo " (".$v->synonym_relation()->label.")";
-            $language = $v->language();
-            if($label = @$language->label) echo " ($label)";
-            echo "<br>";
-        }
-    }
+    // if($synonyms = $hierarchy_entry->synonyms())
+    // {
+    //     echo "<hr>";
+    //     foreach($synonyms as $k => $v)
+    //     {
+    //         echo $v->name()->string;
+    //         if($v->synonym_relation_id) echo " (".$v->synonym_relation()->label.")";
+    //         $language = $v->language();
+    //         if($label = @$language->label) echo " ($label)";
+    //         echo "<br>";
+    //     }
+    // }
 }
 
 function show_references_he($hierarchy_entry)
 {
-    if($references = $hierarchy_entry->references())
-    {
-        echo "<hr>";
-        foreach($references as $r)
-        {
-            echo str_repeat('&nbsp;', 6)."$r->full_reference<br><br>";
-        }
-    }
+    // if($references = $hierarchy_entry->references())
+    // {
+    //     echo "<hr>";
+    //     foreach($references as $r)
+    //     {
+    //         echo str_repeat('&nbsp;', 6)."$r->full_reference<br><br>";
+    //     }
+    // }
 }
 
 function show_kingdoms_he($hierarchy_id)
