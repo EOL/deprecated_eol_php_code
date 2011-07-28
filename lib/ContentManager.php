@@ -76,6 +76,16 @@ class ContentManager
                     trigger_error("ContentManager: Unable to download file $file", E_USER_NOTICE);
                     return false;
                 }
+                $sizes = array();
+                if($type == "image")
+                {
+                    $sizes = getimagesize($new_file_path);
+                    if(@!$sizes[1])
+                    {
+                        trigger_error("ContentManager: Unable to determine image dimensions $file", E_USER_NOTICE);
+                        return false;
+                    }
+                }
                 
                 if(preg_match("/^(.*)\.gz$/", $new_file_path, $arr))
                 {
@@ -85,7 +95,7 @@ class ContentManager
                 }
                 
                 // create thumbnails of website content and agent logos
-                if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
+                if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
                 elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
                 
                 // Take the substring of the new file path to return via the webservice
@@ -200,12 +210,46 @@ class ContentManager
         return @$stat["size"];
     }
     
-    function create_content_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
+    function create_content_thumbnails($file, $prefix, $sizes, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
     {
-        shell_exec("convert $file -strip -background white -flatten -quality 80 ".$prefix."_orig.jpg");
-        shell_exec("convert $file -strip -background white -flatten -resize ".$large_thumbnail_dimensions."\">\" ".$prefix."_large.jpg");
-        shell_exec("convert $file -strip -background white -flatten -resize ".CONTENT_IMAGE_MEDIUM."\">\" ".$prefix."_medium.jpg");
-        shell_exec("convert $file -strip -background white -flatten -resize ".CONTENT_IMAGE_SMALL."\">\" ".$prefix."_small.jpg");
+        $width = $sizes[0];
+        $height = $sizes[1];
+        
+        $this->reduce_original($file, $prefix);
+        $this->create_smaller_version($file, 580, 360, $prefix);
+        $this->create_smaller_version($file, 260, 190, $prefix);
+        $this->create_smaller_version($file, 98, 68, $prefix);
+        $this->create_upper_left_crop($file, $width, $height, 130, $prefix);
+        $this->create_upper_left_crop($file, $width, $height, 88, $prefix);
+    }
+    
+    function reduce_original($path, $prefix)
+    {
+        shell_exec("convert $path -strip -background white -flatten -quality 80 ".$prefix."_orig.jpg");
+    }
+    
+    function create_smaller_version($path, $new_width, $new_height, $prefix)
+    {
+        shell_exec("convert $path -strip -background white -flatten -quality 80 \
+                        -resize ".$new_width."x".$new_height."\">\" ".$prefix."_".$new_width."_".$new_height.".jpg");
+    }
+    
+    function create_upper_left_crop($path, $width, $height, $square_dimension, $prefix)
+    {
+        $min = min($width, $height);
+        $factor = $square_dimension / $min;
+        $new_width = $width * $factor;
+        $new_height = $height * $factor;
+        // $width_offset = floor(($new_width - $square_dimension) / 8);
+        // $height_offset = floor(($new_height - $square_dimension) / 8);
+        $width_offset = 0;
+        $height_offset = 0;
+        
+        $command = "convert $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
+                        -gravity NorthWest -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." \
+                        +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
+        // echo $command;
+        shell_exec($command);
     }
     
     function create_agent_thumbnails($file, $prefix)
