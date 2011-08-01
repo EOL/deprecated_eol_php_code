@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class CompareHierarchies
 {
@@ -40,7 +41,7 @@ class CompareHierarchies
         $hierarchies_compared = array();
         if($default_id = Hierarchy::default_id())
         {
-            $default_hierarchy = new Hierarchy($default_id);
+            $default_hierarchy = Hierarchy::find($default_id);
             if(@$default_hierarchy->id) $hierarchy_lookup_ids2 = array($default_id => 1475377);
         }
         
@@ -55,18 +56,18 @@ class CompareHierarchies
         // otherwise make the first loop the same as the inner loop - compare everything with everything else
         if($hierarchy_id)
         {
-            $hierarchy1 = new Hierarchy($hierarchy_id);
+            $hierarchy1 = Hierarchy::find($hierarchy_id);
             $count1 = $hierarchy1->count_entries();
             $hierarchy_lookup_ids1[$hierarchy_id] = $count1;
         }else $hierarchy_lookup_ids1 = $hierarchy_lookup_ids2;
         
         foreach($hierarchy_lookup_ids1 as $id1 => $count1)
         {
-            $hierarchy1 = new Hierarchy($id1);
+            $hierarchy1 = Hierarchy::find($id1);
             
             foreach($hierarchy_lookup_ids2 as $id2 => $count2)
             {
-                $hierarchy2 = new Hierarchy($id2);
+                $hierarchy2 = Hierarchy::find($id2);
                 
                 // already compared - skip
                 if(isset($hierarchies_compared[$hierarchy1->id][$hierarchy2->id])) continue;
@@ -103,8 +104,8 @@ class CompareHierarchies
         $entries_matched = array();
         $concepts_seen = array();
         
-        $visible_id = Visibility::insert('visible');
-        $preview_id = Visibility::insert('preview');
+        $visible_id = Visibility::visible()->id;
+        $preview_id = Visibility::preview()->id;
         
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
         
@@ -192,7 +193,7 @@ class CompareHierarchies
         $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
         while($result && $row=$result->fetch_assoc())
         {
-            $harvest_event = new HarvestEvent($row['max']);
+            $harvest_event = HarvestEvent::find($row['max']);
             if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         }
     }
@@ -224,13 +225,13 @@ class CompareHierarchies
         $mysqli =& $GLOBALS['mysqli_connection'];
         
         $counts = array();
-        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$tc_id1 AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$tc_id1 AND h.complete=1 AND he.visibility_id=".Visibility::visible()->id);
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
             $counts[$hierarchy_id] = 1;
         }
-        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$tc_id2 AND h.complete=1 AND he.visibility_id=".Visibility::insert('visible'));
+        $result = $mysqli->query("SELECT SQL_NO_CACHE he.hierarchy_id, he.taxon_concept_id FROM hierarchy_entries he JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE he.taxon_concept_id=$tc_id2 AND h.complete=1 AND he.visibility_id=".Visibility::visible()->id);
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
@@ -244,7 +245,7 @@ class CompareHierarchies
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
-        $result = $mysqli->query("SELECT 1 FROM hierarchy_entries WHERE taxon_concept_id=$taxon_concept_id AND hierarchy_id=$hierarchy_id AND visibility_id=".Visibility::insert('visible')." LIMIT 1");
+        $result = $mysqli->query("SELECT 1 FROM hierarchy_entries WHERE taxon_concept_id=$taxon_concept_id AND hierarchy_id=$hierarchy_id AND visibility_id=".Visibility::visible()->id." LIMIT 1");
         if($result && $row=$result->fetch_assoc())
         {
             return true;
@@ -316,7 +317,7 @@ class CompareHierarchies
         // reset application timer
         time_elapsed(true);
         
-        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::insert('kingdom'), Rank::insert('phylum'), Rank::insert('class'), Rank::insert('order'));
+        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::find_or_create_by_translated_label('kingdom')->id, Rank::find_or_create_by_translated_label('phylum')->id, Rank::find_or_create_by_translated_label('class')->id, Rank::find_or_create_by_translated_label('order')->id);
         
         $mysqli->delete("DROP TABLE IF EXISTS he_relations_tmp");
         $mysqli->query("CREATE TABLE IF NOT EXISTS `he_relations_tmp` (
@@ -410,9 +411,9 @@ class CompareHierarchies
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
         
-        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::insert('kingdom'), Rank::insert('phylum'), Rank::insert('class'), Rank::insert('order'));
+        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::find_or_create_by_label('kingdom')->id, Rank::find_or_create_by_label('phylum')->id, Rank::find_or_create_by_label('class')->id, Rank::find_or_create_by_label('order')->id);
         
-        $hierarchy_entry = new HierarchyEntry($hierarchy_entry_id);
+        $hierarchy_entry = HierarchyEntry::find($hierarchy_entry_id);
         $hierarchy = $hierarchy_entry->hierarchy();
         $query = "id:$hierarchy_entry_id";
         

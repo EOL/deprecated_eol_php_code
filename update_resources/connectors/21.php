@@ -106,7 +106,7 @@ foreach(@$xml->species as $species)
             $agentParameters["role"] = "author";
             $agentParameters["fullName"] = $val;
             
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
     }
     
@@ -145,11 +145,11 @@ foreach(@$xml->species as $species)
     
     foreach($dataObjects as $k => $v)
     {
-        $taxonParameters["dataObjects"][] = new SchemaDataObject($v);
+        $taxonParameters["dataObjects"][] = new \SchemaDataObject($v);
         unset($v);
     }
     
-    $taxa[] = new SchemaTaxon($taxonParameters);
+    $taxa[] = new \SchemaTaxon($taxonParameters);
 }
 
 
@@ -200,14 +200,14 @@ function get_data_object($id, $title, $description, $subject)
     
     $audienceParameters = array();
     $audienceParameters["label"] = "Expert users";
-    $v["audiences"][] = new SchemaAudience($audienceParameters);
+    $v["audiences"][] = new \SchemaAudience($audienceParameters);
     $audienceParameters["label"] = "General public";
-    $v["audiences"][] = new SchemaAudience($audienceParameters);
+    $v["audiences"][] = new \SchemaAudience($audienceParameters);
 
     $dataObjectParameters["subjects"] = array();
     $subjectParameters = array();
     $subjectParameters["label"] = $subject;
-    $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+    $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
 
     return $dataObjectParameters;
 }

@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 
 
@@ -40,6 +41,7 @@ function to_singular($str)
 {
     if(preg_match("/^(.*)(ies)$/", $str, $arr)) $str = $arr[1] . 'y';
     elseif(preg_match("/^(.*)(oes)$/", $str, $arr)) $str = $arr[1] . 'o';
+    elseif(preg_match("/^(.*)(ses)$/", $str, $arr)) $str = $arr[1] . 's';
     elseif(preg_match("/^(.*)(s)$/", $str, $arr)) $str = $arr[1];
     
     return $str;
@@ -48,6 +50,7 @@ function to_singular($str)
 function to_plural($str)
 {
     if(preg_match("/^(.*)(y)$/", $str, $arr)) $str = $arr[1] . 'ies';
+    elseif(preg_match("/^(.*)(s)$/", $str, $arr)) $str = $arr[1] . 'ses';
     elseif(preg_match("/^(.*)(o)$/", $str, $arr)) $str = $arr[1] . 'oes';
     else $str .= 's';
     
@@ -232,7 +235,7 @@ function load_fixtures($environment = "test")
     {
         $fixture_data->$table = (object) array();
         
-        $rows = Horde_Yaml::loadFile(DOC_ROOT . "tests/fixtures/$table.yml");
+        $rows = \Spyc::YAMLLoad(DOC_ROOT . "tests/fixtures/$table.yml");
         foreach($rows as $id => $row)
         {
             $fixture_data->$table->$id = (object) array();
@@ -451,5 +454,12 @@ function get_simpletest_name()
     return $test_name;
 }
 
+function echo_each($array)
+{
+    while(list($key, $val) = each($array))
+    {
+        echo $val."\n";
+    }
+}
 
 ?>

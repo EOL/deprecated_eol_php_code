@@ -1,10 +1,12 @@
 <?php
+namespace php_active_record;
 
 class test_resources extends SimpletestUnitBase
 {
     function testHarvesting()
     {
-        $this->load_fixtures();
+        $toc = TableOfContent::find_or_create_by_translated_label('Overview');
+        $ii = InfoItem::find_or_create_by_translated_label('DiagnosticDescription', array('schema_value' => 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription', 'toc_id' => $toc->id));
         $resource = self::create_resource();
         
         $this->assertTrue(count(HarvestEvent::all()) == 0, 'There shouldnt be any events to begin with');
@@ -38,7 +40,7 @@ class test_resources extends SimpletestUnitBase
         $resource = self::create_resource(array('title' => 'IUCN Red List'));
         self::harvest($resource);
         $last_object = DataObject::last();
-        $this->assertTrue($last_object->data_type_id == DataType::insert('IUCN'), 'IUCN should get a special data type');
+        $this->assertTrue($last_object->data_type_id == DataType::iucn()->id, 'IUCN should get a special data type');
     }
     
     function testWikipediaInfoItem()
@@ -46,9 +48,9 @@ class test_resources extends SimpletestUnitBase
         $resource = self::create_resource(array('title' => 'Wikipedia'));
         self::harvest($resource);
         $last_object = DataObject::last();
-        $ii = InfoItem::insert('http://www.eol.org/voc/table_of_contents#Wikipedia');
-        $do_iis = $last_object->info_items();
-        $this->assertTrue($ii == $do_iis[0]->id, 'Wikipedia should get a special TOC');
+        $ii = InfoItem::find_or_create_by_schema_value('http://www.eol.org/voc/table_of_contents#Wikipedia');
+        $do_iis = $last_object->info_items;
+        $this->assertTrue($ii->id == $do_iis[0]->id, 'Wikipedia should get a special TOC');
     }
     
     function testBOLDInfoItem()
@@ -56,9 +58,9 @@ class test_resources extends SimpletestUnitBase
         $resource = self::create_resource(array('title' => 'BOLD Systems Resource'));
         self::harvest($resource);
         $last_object = DataObject::last();
-        $ii = InfoItem::insert('http://www.eol.org/voc/table_of_contents#Barcode');
-        $do_iis = $last_object->info_items();
-        $this->assertTrue($ii == $do_iis[0]->id, 'BOLD should get a special TOC');
+        $ii = InfoItem::find_or_create_by_schema_value('http://www.eol.org/voc/table_of_contents#Barcode');
+        $do_iis = $last_object->info_items;
+        $this->assertTrue($ii->id == $do_iis[0]->id, 'BOLD should get a special TOC');
     }
     
     function testUnvettedUnpublished()
@@ -67,7 +69,7 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0, 'Should not get published');
-        $this->assertTrue($last_object->vetted_id == Vetted::insert('unknown'), 'Should not be vetted');
+        $this->assertTrue($last_object->vetted_id == Vetted::unknown()->id, 'Should not be vetted');
     }
     
     function testResourceWithDWCA()
@@ -82,12 +84,12 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($resource->dwc_hierarchy_id != 0, 'Should have a DWC hierarchy');
         
         $first_dwc_hierarchy_id = $resource->dwc_hierarchy_id;
-        $first_dwc_hierarchy = new Hierarchy($first_dwc_hierarchy_id);
+        $first_dwc_hierarchy = Hierarchy::find($first_dwc_hierarchy_id);
         $this->assertTrue($first_dwc_hierarchy->id, 'Should have a DWC hierarchy');
         
         self::harvest($resource);
         
-        $first_dwc_hierarchy = new Hierarchy($first_dwc_hierarchy_id);
+        $first_dwc_hierarchy = Hierarchy::find($first_dwc_hierarchy_id);
         $this->assertFalse(isset($first_dwc_hierarchy->id), 'First DWC hierarchy should be gone');
     }
     
@@ -97,7 +99,7 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($resource->auto_publish == 0);
         
         $resource->set_autopublish(true);
-        $resource = new Resource($resource->id);
+        $resource = Resource::find($resource->id);
         $this->assertTrue($resource->auto_publish == 1);
     }
     
@@ -107,17 +109,17 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0);
-        $this->assertTrue($last_object->visibility_id == Visibility::insert('preview'));
+        $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
         
         // checking to make sure changed source_urls create new entries
-        $first_entry_no_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
+        $first_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
         $this->assertTrue($first_entry_no_source->source_url == '');
-        $this->assertTrue($first_entry_no_source->visibility_id == Visibility::find('preview'));
+        $this->assertTrue($first_entry_no_source->visibility_id == Visibility::preview()->id);
         
-        $first_entry_with_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
+        $first_entry_with_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
         $this->assertTrue($first_entry_with_source->source_url == 'http://mushroomobserver.org/name/show_name/14971');
         $this->assertTrue($first_entry_with_source->published == 0);
-        $this->assertTrue($first_entry_with_source->visibility_id == Visibility::find('preview'));
+        $this->assertTrue($first_entry_with_source->visibility_id == Visibility::preview()->id);
         
         // changing the URL AND copying the new file to ../resources/$ID.xml
         $resource->set_accesspoint_url(DOC_ROOT . 'tests/fixtures/files/test_resource_reharvest.xml');
@@ -126,44 +128,44 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0);
-        $this->assertTrue($last_object->visibility_id == Visibility::insert('preview'));
+        $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
         
         // checking to make sure changed source_urls create new entries
-        $second_entry_no_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
+        $second_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
         $this->assertTrue($second_entry_no_source->source_url == 'http://www.example.com/taxa/98h34jgbksfbg');
         // when a source URL is added to a record with no source - the record is updated
         $this->assertTrue($second_entry_no_source->id == $first_entry_no_source->id);
         
-        $second_entry_with_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
+        $second_entry_with_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
         $this->assertTrue($second_entry_with_source->source_url == 'http://mushroomobserver.org/');
         // ... but we do create a new record if the source existed before and is changed
         $this->assertTrue($second_entry_with_source->id != $first_entry_with_source->id);
         $this->assertTrue($second_entry_with_source->guid == $first_entry_with_source->guid);
         
         $resource->set_autopublish(true);
-        $resource = new Resource($resource->id);
+        $resource = Resource::find($resource->id);
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 1);
-        $this->assertTrue($last_object->visibility_id == Visibility::insert('visible'));
+        $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
         
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 1);
-        $this->assertTrue($last_object->visibility_id == Visibility::insert('visible'));
+        $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
         
         // making sure entries that are orphaned are not in preview mode
-        $last_entry_no_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
+        $last_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
         $this->assertTrue($last_entry_no_source->published == 1);
-        $this->assertTrue($last_entry_no_source->visibility_id == Visibility::insert('visible'));
+        $this->assertTrue($last_entry_no_source->visibility_id == Visibility::visible()->id);
         
-        $last_entry_with_source = new HierarchyEntry(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
+        $last_entry_with_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('http://mushroomobserver.org/name/show_name/14971'));
         $this->assertTrue($last_entry_with_source->published == 1);
-        $this->assertTrue($last_entry_with_source->visibility_id == Visibility::insert('visible'));
+        $this->assertTrue($last_entry_with_source->visibility_id == Visibility::visible()->id);
         
         // refresh the original no-source object (the one that is orphaned)
-        $original_entry = new HierarchyEntry($first_entry_with_source->id);
-        $this->assertTrue($original_entry->visibility_id == Visibility::insert('invisible'));
+        $original_entry = HierarchyEntry::find($first_entry_with_source->id);
+        $this->assertTrue($original_entry->visibility_id == Visibility::invisible()->id);
         $this->assertTrue($original_entry->published == 0);
     }
     
@@ -181,7 +183,7 @@ class test_resources extends SimpletestUnitBase
     function check_content_after_harvesting($resource)
     {
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM hierarchy_entries LIMIT 1");
-        $this->assertTrue($result->num_rows > 0, 'should be hierarchy_entries after harvesting');
+        $this->assertTrue(HierarchyEntry::first(), 'should be hierarchy_entries after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM refs LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be refs after harvesting');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM hierarchy_entries_refs LIMIT 1");
@@ -227,8 +229,8 @@ class test_resources extends SimpletestUnitBase
         $objects = DataObject::all();
         $this->assertTrue(count($objects) > 0, 'There should be objects after harvesting');
         $this->assertTrue($objects[0]->published == 1, 'Objects should be published');
-        $this->assertTrue($objects[0]->visibility_id == Visibility::insert('visible'), 'Objects should be visible');
-        $this->assertTrue($objects[0]->vetted_id == Vetted::insert('trusted'), 'Objects should be in vetted "trusted"');
+        $this->assertTrue($objects[0]->visibility_id == Visibility::visible()->id, 'Objects should be visible');
+        $this->assertTrue($objects[0]->vetted_id == Vetted::trusted()->id, 'Objects should be in vetted "trusted"');
         $this->assertTrue($objects[0]->data_rating == 2.5, 'Objects should have the default rating');
         
         // make sure we have hierarchy entries
@@ -236,13 +238,13 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue(count($all_entries) > 0, 'There should be hierarchy entries after harvesting');
         
         // Reading the resource XML and checking every field
-        $reader = new XMLReader();
+        $reader = new \XMLReader();
         $reader->open($resource->resource_file_path());
         $i = 0;
         $j = 0;
         while(@$reader->read())
         {
-            if($reader->nodeType == XMLReader::ELEMENT && $reader->name == "taxon")
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon")
             {
                 $taxon_xml = $reader->readOuterXML();
                 $t = simplexml_load_string($taxon_xml, null, LIBXML_NOCDATA);
@@ -261,26 +263,26 @@ class test_resources extends SimpletestUnitBase
                 // $taxon_parameters["taxon_family"] = Functions::import_decode($t_dwc->Family);
                 // $taxon_parameters["taxon_genus"] = Functions::import_decode($t_dwc->Genus);
                 $taxon_parameters["scientific_name"] = Functions::import_decode($t_dwc->ScientificName);
-                $taxon_parameters["name_id"] = Name::insert(Functions::import_decode($t_dwc->ScientificName));
+                $taxon_parameters["name_id"] = Name::find_or_create_by_string(Functions::import_decode($t_dwc->ScientificName))->id;
                 
                 $hierarchy_entry = null;
                 $result = $GLOBALS['db_connection']->query("SELECT id FROM hierarchy_entries WHERE name_id=".$taxon_parameters["name_id"]." AND identifier='". $GLOBALS['db_connection']->escape($taxon_parameters["identifier"]) ."'");
                 if($result && $row=$result->fetch_assoc())
                 {
-                    $hierarchy_entry = new HierarchyEntry($row['id']);
+                    $hierarchy_entry = HierarchyEntry::find($row['id']);
                 }
                 $this->assertTrue($hierarchy_entry != null, 'should be able to find the entry for this taxon');
                 
                 $references = array();
                 foreach($t->reference as $r)
                 {
-                    $references[] = Functions::import_decode((string) $r);
+                    $references[] = Functions::import_decode((string) $r, 0, 0);
                 }
-                $taxa_refs = $hierarchy_entry->references();
+                $taxa_refs = $hierarchy_entry->references;
                 $this->assertTrue(count($references) == count($taxa_refs), 'references should be the same');
-                foreach($hierarchy_entry->references() as $ref)
+                foreach($hierarchy_entry->references as $ref)
                 {
-                    $this->assertTrue(in_array($ref->full_reference, $references), 'references should be the same');
+                    $this->assertTrue(in_array($ref->full_reference, $references), 'reference bodies should be the same');
                 }
                 
                 foreach($t->dataObject as $d)
@@ -291,13 +293,13 @@ class test_resources extends SimpletestUnitBase
                     
                     $data_object_parameters = array();
                     //$data_object_parameters["identifier"] = Functions::import_decode($d_dc->identifier);
-                    $data_object_parameters["data_type_id"] = DataType::insert(Functions::import_decode($d->dataType));
-                    $data_object_parameters["mime_type_id"] = MimeType::insert(Functions::import_decode($d->mimeType));
+                    $data_object_parameters["data_type_id"] = DataType::find_or_create_by_schema_value(Functions::import_decode($d->dataType))->id;
+                    $data_object_parameters["mime_type_id"] = @MimeType::find_or_create_by_translated_label(Functions::import_decode($d->mimeType))->id ?: 0;
                     $data_object_parameters["object_created_at"] = Functions::import_decode($d_dcterms->created);
                     $data_object_parameters["object_modified_at"] = Functions::import_decode($d_dcterms->modified);
                     $data_object_parameters["object_title"] = Functions::import_decode($d_dc->title, 0, 0);
-                    $data_object_parameters["language_id"] = Language::insert(Functions::import_decode($d_dc->language));
-                    $data_object_parameters["license_id"] = License::insert(Functions::import_decode($d->license));
+                    $data_object_parameters["language_id"] = @Language::find_or_create_for_parser(Functions::import_decode($d_dc->language))->id ?: 0;
+                    $data_object_parameters["license_id"] = License::find_or_create_for_parser(Functions::import_decode($d->license))->id;
                     $data_object_parameters["rights_statement"] = Functions::import_decode($d_dc->rights, 0, 0);
                     $data_object_parameters["rights_holder"] = Functions::import_decode($d_dcterms->rightsHolder, 0, 0);
                     $data_object_parameters["bibliographic_citation"] = Functions::import_decode($d_dcterms->bibliographicCitation, 0, 0);
@@ -308,7 +310,7 @@ class test_resources extends SimpletestUnitBase
                     $data_object_parameters["location"] = Functions::import_decode($d->location, 0, 0);
                     
                     $this->assertTrue($objects[$j]->published == 1, "DataObject ($j) should be published");
-                    $this->assertTrue($objects[$j]->vetted_id == Vetted::insert('trusted'), "DataObject ($j) should be vetted");                    
+                    $this->assertTrue($objects[$j]->vetted_id == Vetted::trusted()->id, "DataObject ($j) should be vetted");                    
                     foreach($data_object_parameters as $key => $value)
                     {
                         $test_value = $objects[$j]->$key;
@@ -349,24 +351,23 @@ class test_resources extends SimpletestUnitBase
         if(!isset($args['dwc_archive_url'])) $args['dwc_archive_url'] = '';
         
         // create the test resource
-        $agent_id = Agent::insert(array('full_name' => 'Test Content Partner'));
-        $agent = new Agent($agent_id);
+        $agent = Agent::find_or_create(array('full_name' => 'Test Content Partner'));
+        $user = User::find_or_create(array('display_name' => 'Test Content Partner', 'agent_id' => $agent->id));
         
         // create the content partner
-        $content_partner_id = ContentPartner::insert(array('id' => 101010101, 'agent_id' => $agent_id, 'auto_publish' => $args['auto_publish'], 'vetted' => $args['vetted']));
+        $content_partner = ContentPartner::find_or_create(array('user_id' => $user->id, 'auto_publish' => $args['auto_publish'], 'vetted' => $args['vetted']));
         
         // create the resource
-        $attr = array(  'accesspoint_url'       => $args['file_path'],
-                        'service_type_id'       => ServiceType::insert('EOL Transfer Schema'),
+        $attr = array(  'content_partner_id'    => $content_partner->id,
+                        'accesspoint_url'       => $args['file_path'],
+                        'service_type'          => ServiceType::find_or_create_by_translated_label('EOL Transfer Schema'),
                         'refresh_period_hours'  => 1,
                         'auto_publish'          => $args['auto_publish'],
                         'vetted'                => $args['vetted'],
                         'title'                 => $args['title'],
                         'dwc_archive_url'       => $args['dwc_archive_url'],
-                        'resource_status_id'    => ResourceStatus::insert('Validated'));
-        $resource_id = Resource::insert($attr);
-        $agent->add_resouce($resource_id, 'Data Supplier');
-        $resource = new Resource($resource_id);
+                        'resource_status'       => ResourceStatus::validated());
+        $resource = Resource::find_or_create($attr);
         
         copy($resource->accesspoint_url, $resource->resource_file_path());
         return $resource;

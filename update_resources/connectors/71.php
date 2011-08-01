@@ -207,7 +207,7 @@ function create_resource_file()
             {
                 if(isset($GLOBALS['data_objects'][$image_title]) && isset($GLOBALS['data_objects'][$image_title]['mediaURL']))
                 {
-                    $taxon_parameters["dataObjects"][] = new SchemaDataObject($GLOBALS['data_objects'][$image_title]);
+                    $taxon_parameters["dataObjects"][] = new \SchemaDataObject($GLOBALS['data_objects'][$image_title]);
                 }
             }
         }
@@ -215,7 +215,7 @@ function create_resource_file()
         unset($GLOBALS['taxa'][$taxon_title]);
         unset($GLOBALS['scientific_page_images'][$taxon_title]);
         
-        $all_taxa[] = new SchemaTaxon($taxon_parameters);
+        $all_taxa[] = new \SchemaTaxon($taxon_parameters);
     }
     
     $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", "w+");
@@ -228,7 +228,7 @@ function create_resource_file()
         @rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
         rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml");
         
-        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=$resource->id");
+        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=$resource->id");
     }
 }
 

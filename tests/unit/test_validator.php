@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class test_validator extends SimpletestUnitBase
 {

@@ -1,5 +1,8 @@
 <?php
+namespace php_active_record;
+
 require_library('connectors/VimeoAPI');
+
 class test_connector_vimeo_api extends SimpletestUnitBase
 {
     function testVimeoAPI()

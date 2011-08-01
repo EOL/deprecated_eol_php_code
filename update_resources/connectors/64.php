@@ -106,7 +106,7 @@ print count(array_keys($used_taxa));
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -159,7 +159,7 @@ function process_dataobjects($item,$type,$object_id)//$type 1 = text object; 2 =
         $agentParameters = array();
         $agentParameters["role"] = "author";
         $agentParameters["fullName"] = $item->de_author . " " . $item->de_year;        
-        $agents[] = new SchemaAgent($agentParameters);
+        $agents[] = new \SchemaAgent($agentParameters);
 
         $license          = "http://creativecommons.org/licenses/" . $item->de_license;                                           
         $dcterms_modified = $item->de_date;
@@ -179,7 +179,7 @@ function process_dataobjects($item,$type,$object_id)//$type 1 = text object; 2 =
             $agentParameters = array();
             $agentParameters["role"] = "author";
             $agentParameters["fullName"] = $item->photo_by;
-            $agents[] = new SchemaAgent($agentParameters);     
+            $agents[] = new \SchemaAgent($agentParameters);     
         }        
         $license          = "http://creativecommons.org/licenses/" . $item->im_license;                                           
         $dcterms_modified = $item->im_date;
@@ -189,16 +189,16 @@ function process_dataobjects($item,$type,$object_id)//$type 1 = text object; 2 =
     {
         $agentParameters["role"] = "source";
         $agentParameters["fullName"] = $main->contributed_by;
-        $agents[] = new SchemaAgent($agentParameters);
+        $agents[] = new \SchemaAgent($agentParameters);
     }
 
     $agentParameters["role"] = "project";
     $agentParameters["fullName"] = "Radiolaria.org";
     $agentParameters["homepage"] = "http://www.radiolaria.org/index.htm";
-    $agents[] = new SchemaAgent($agentParameters);
+    $agents[] = new \SchemaAgent($agentParameters);
     
     $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $license, $description, $subject, $title, $dc_source, $mediaURL, $dataType, $mimeType, $ref, $agents);
-    $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+    $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
     $used_taxa[$taxon] = $taxon_parameters;                            
 
 }//function process_dataobjects($arr)
@@ -216,7 +216,7 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = $subject;
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
     }
 
     //$description = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $description);
@@ -243,10 +243,10 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
     $audienceParameters = array();    
 
     $audienceParameters["label"] = "Expert users";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
 
     $audienceParameters["label"] = "General public";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
     ///////////////////////////////////
 
     ///////////////////////////////////    
@@ -256,7 +256,7 @@ function get_data_object($id, $created, $modified, $license, $description, $subj
         $dataObjectParameters["references"] = array();
         $referenceParameters = array();
         $referenceParameters["fullReference"] = trim($ref);
-        $references[] = new SchemaReference($referenceParameters);
+        $references[] = new \SchemaReference($referenceParameters);
         /*not working...
         $referenceParam["referenceIdentifiers"][] = array("label" => "label" , "value" => "value");
         */

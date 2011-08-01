@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 define("PAGE_METRICS_TEXT_PATH", DOC_ROOT . "applications/taxon_page_metrics/text_files/");
 class TaxonPageMetrics
 {

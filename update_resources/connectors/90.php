@@ -44,7 +44,7 @@ foreach($urls as $path)
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -511,14 +511,14 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
             foreach ($arr_comname as $commonname) 
             {
                 $commonname = str_ireplace(';' , '', $commonname);
-                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $commonname, "language" => "en"));
+                $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => $commonname, "language" => "en"));
             }
             /////////////////////////////////////////////////////////////
             $taxon_params["synonyms"] = array();
             $arr_synonym=conv_2array($synonymy);
             foreach ($arr_synonym as $synonym) 
             {
-                $taxon_parameters["synonyms"][] = new SchemaSynonym(array("synonym" => $synonym, "relationship" => "synonym"));
+                $taxon_parameters["synonyms"][] = new \SchemaSynonym(array("synonym" => $synonym, "relationship" => "synonym"));
             }
             /////////////////////////////////////////////////////////////
             
@@ -535,7 +535,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         $type = "text";
         $reference = $citation;        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         
         //start text dataobject                
@@ -546,7 +546,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         $type = "text";
         $reference = $citation;        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         
         //start text dataobject                
@@ -557,7 +557,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         $type = "text";
         $reference = $citation;        
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);     
         //end text dataobject                    
         
 
@@ -574,7 +574,7 @@ function assign_variables($sciname,$comname,$agent,$summary,$distribution,$synon
         $agent=$img_agent;
 
         $data_object_parameters = get_data_object($dc_identifier, $desc, $title, $url, $subject, $type, $reference, $agent, $mediaurl);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);     
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);     
         */
         //end img dataobject                    
 
@@ -610,7 +610,7 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = $subject;
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         ///////////////////////////////////        
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
         $dataObjectParameters["mimeType"] = "text/html";        
@@ -642,7 +642,7 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
             $agentParameters["homepage"] = "http://www.iucn-tftsg.org/";
             $agentParameters["role"] = "author";
             $agentParameters["fullName"] = $agent;
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
     }        
     $dataObjectParameters["agents"] = $agents;    
@@ -668,14 +668,14 @@ function get_data_object($id, $description, $title, $url, $subject, $type, $refe
         $dataObjectParameters["references"] = array();
         $referenceParameters = array();
         $referenceParameters["fullReference"] = trim($reference);
-        $references[] = new SchemaReference($referenceParameters);
+        $references[] = new \SchemaReference($referenceParameters);
         $dataObjectParameters["references"] = $references;
     }    
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();        
     $audienceParameters = array();      
-    $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
-    $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+    $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
+    $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
     ///////////////////////////////////
     return $dataObjectParameters;
 }

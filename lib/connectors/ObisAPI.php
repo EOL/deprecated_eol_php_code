@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("SPECIES_URL1", "http://www.iobis.org/OBISWEB/ObisControllerServlet?searchCategory=/AdvancedSearchServlet");
 define("SPECIES_URL2", "http://www.iobis.org/OBISWEB/ObisControllerServlet?category=all&names=data&tableName=0&searchName=");
@@ -274,7 +275,7 @@ class ObisAPI
         if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"],@$taxon["dataObjects"],array());
         if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"],$rec["references"]);
         
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }    
     function prepare_objects($arr,$taxon_dataObjects,$references)
@@ -291,7 +292,7 @@ class ObisAPI
                 if($length == $i)$arr_ref = $references;
                 $data_object = self::get_data_object($rec,$arr_ref);
                 if(!$data_object) return false;
-                $taxon_dataObjects[]= new SchemaDataObject($data_object);                     
+                $taxon_dataObjects[]= new \SchemaDataObject($data_object);                     
             }
         }        
         return $taxon_dataObjects;
@@ -319,8 +320,8 @@ class ObisAPI
         {
             $referenceParameters = array();
             $referenceParameters["fullReference"] = trim($r["ref"]);           
-            $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));      
-            $ref[] = new SchemaReference($referenceParameters);
+            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));      
+            $ref[] = new \SchemaReference($referenceParameters);
         }        
         $data_object_parameters["references"] = $ref;
         //end reference
@@ -330,7 +331,7 @@ class ObisAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }        
 
         if(@$rec["agent"])
@@ -343,7 +344,7 @@ class ObisAPI
                 $agentParameters["homepage"] = $a["homepage"];
                 $agentParameters["logoURL"]  = "";        
                 $agentParameters["fullName"] = $a["name"];
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }
             $data_object_parameters["agents"] = $agents;
         }

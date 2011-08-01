@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class test_names extends SimpletestUnitBase
 {    
@@ -21,13 +22,10 @@ class test_names extends SimpletestUnitBase
         $GLOBALS['no_cache']['names'] = true;
         $str = "Aus bus Smith (Linnaeus 1777)";
         
-        $name_id = Name::insert($str);
-        $this->assertTrue($name_id > 0, "There should be a name_id");
-        
-        $name = new Name($name_id);
-        $canonical_form = $name->canonical_form();
+        $name = Name::find_or_create_by_string($str);
+        $this->assertTrue($name->id > 0, "There should be a name_id");
         $this->assertTrue($name->id > 0, "Should be able to make a name object");
-        $this->assertTrue($canonical_form->string == "Aus bus", "Name should have a canonical form");
+        $this->assertTrue($name->canonical_form->string == "Aus bus", "Name should have a canonical form");
     }
     
     function testInsertNameWithCaching()
@@ -38,13 +36,9 @@ class test_names extends SimpletestUnitBase
         
         $str = "Aus bus Smith (Linnaeus 1777)";
         
-        $name_id = Name::insert($str);
-        $this->assertTrue($name_id > 0, "There should be a name_id");
-        
-        $name = new Name($name_id);
-        $canonical_form = $name->canonical_form();
-        $this->assertTrue($name->id > 0, "Should be able to make a name object");
-        $this->assertTrue($canonical_form->string == "Aus bus", "Name should have a canonical form");
+        $name = Name::find_or_create_by_string($str);
+        $this->assertTrue($name->id > 0, "There should be a name_id");
+        $this->assertTrue($name->canonical_form->string == "Aus bus", "Name should have a canonical form");
         
         $GLOBALS['no_cache']['names'] = true;
         $GLOBALS["ENV_ENABLE_CACHING"] = $GLOBALS["ENV_ENABLE_CACHING_SAVED"];

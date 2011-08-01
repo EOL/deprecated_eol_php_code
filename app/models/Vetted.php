@@ -1,24 +1,23 @@
 <?php
+namespace php_active_record;
 
-class Vetted extends MysqlBase
+class Vetted extends ActiveRecord
 {
-    function __construct($param)
+    static $table_name = 'vetted';
+    
+    public static function trusted()
     {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-        
-        $this->label = ucfirst($this->label);
+        return Vetted::find_or_create_by_translated_label('Trusted', array('created_at' => 'NOW()', 'updated_at' => 'NOW()', 'view_order' => 1));
     }
     
-    static function insert($string)
+    public static function unknown()
     {
-        return parent::insert_into("label", $string, Functions::class_name(__FILE__));
+        return Vetted::find_or_create_by_translated_label('Unknown', array('created_at' => 'NOW()', 'updated_at' => 'NOW()', 'view_order' => 2));
     }
     
-    static function find($string)
+    public static function untrusted()
     {
-        return parent::find_by("label", $string, Functions::class_name(__FILE__));
+        return Vetted::find_or_create_by_translated_label('Untrusted', array('created_at' => 'NOW()', 'updated_at' => 'NOW()', 'view_order' => 3));
     }
 }
 

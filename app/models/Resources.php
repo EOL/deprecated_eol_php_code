@@ -1,28 +1,26 @@
 <?php
+namespace php_active_record;
 
-class Resource extends MysqlBase
+class Resource extends ActiveRecord
 {
+    public static $belongs_to = array(
+            array('content_partner'),
+            array('service_type'),
+            array('resource_status'),
+            array('license'),
+            array('hierarchy'),
+            array('language')
+        );
+        
     public $harvest_event;
     public $last_harvest_event;
-    public $resource_path;
     public $start_harvest_time;
     public $end_harvest_time;
-    
-    function __construct($param)
-    {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-        
-        $this->harvest_event = false;
-        $this->resource_path = CONTENT_RESOURCE_LOCAL_PATH.$this->id.".xml";
-        $this->resource_deletions_path = CONTENT_RESOURCE_LOCAL_PATH.$this->id."_delete.xml";
-    }
     
     public static function delete($id)
     {
         if(!$id) return false;
-        $resource = new Resource($id);
+        $resource = Resource::find($id);
         if(!$resource->id) return false;
         
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -61,23 +59,43 @@ class Resource extends MysqlBase
         $mysqli->end_transaction();
     }
     
+    public function resource_path()
+    {
+        return CONTENT_RESOURCE_LOCAL_PATH.$this->id.".xml";
+    }
+    
+    public function archive_path()
+    {
+        return CONTENT_RESOURCE_LOCAL_PATH . $this->id ."/";
+    }
+    
+    public function resource_deletions_path()
+    {
+        return CONTENT_RESOURCE_LOCAL_PATH.$this->id."_delete.xml";
+    }
+    
+    public function is_translation_resource()
+    {
+        return false;
+    }
+    
     public function auto_publish()
     {
-        if($this->auto_publish || $this->content_partner()->auto_publish) return true;
+        if($this->auto_publish || $this->content_partner->auto_publish) return true;
         
         return false;
     }
     
     public function vetted()
     {
-        if($this->vetted || $this->content_partner()->vetted) return true;
+        if($this->vetted || $this->content_partner->vetted) return true;
         
         return false;
     }
     
     public static function wikipedia()
     {
-        return new Resource(self::find_by_title('Wikipedia'));
+        return self::find_by_title('Wikipedia');
     }
     
     public function resource_file_path()
@@ -120,7 +138,7 @@ class Resource extends MysqlBase
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE id=$this->id AND (resource_status_id=".ResourceStatus::insert("Force Harvest")." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published").")))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE id=$this->id AND (resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ".ResourceStatus::processed()->id.", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")))");
         
         if($result && $row=$result->fetch_assoc()) return true;
         return false;
@@ -133,10 +151,10 @@ class Resource extends MysqlBase
         
         $resources = array();
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::insert("Force Harvest")." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::insert("Validated")." OR resource_status_id=".ResourceStatus::insert("Validation Failed")." OR resource_status_id=".ResourceStatus::insert("Processing Failed").")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::insert("Upload Failed").", ".ResourceStatus::insert("Validated").", ".ResourceStatus::insert("Validation Failed").", ".ResourceStatus::insert("Processed").", ".ResourceStatus::insert("Processing Failed").", ".ResourceStatus::insert("Published")."))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL refresh_period_hours HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))");
         while($result && $row=$result->fetch_assoc())
         {
-            $resources[] = $resource = new Resource($row["id"]);
+            $resources[] = $resource = Resource::find($row["id"]);
         }
         
         return $resources;
@@ -146,20 +164,12 @@ class Resource extends MysqlBase
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         $resources = array();
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=". ResourceStatus::insert("Publish Pending"));
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=". ResourceStatus::publish_pending()->id);
         while($result && $row=$result->fetch_assoc())
         {
-            $resources[] = $resource = new Resource($row["id"]);
+            $resources[] = $resource = Resource::find($row["id"]);
         }
         return $resources;
-    }
-    
-    public function content_partner()
-    {
-        if(@$this->content_partner) return $this->content_partner;
-        
-        $this->content_partner = new ContentPartner(ContentPartner::find($this->data_supplier()->id));
-        return $this->content_partner;
     }
     
     public function last_harvest_event_id()
@@ -201,13 +211,7 @@ class Resource extends MysqlBase
     public function data_supplier()
     {
         if(@$this->data_supplier) return $this->data_supplier;
-        
-        $result = $this->mysqli->query("SELECT agent_id FROM agents_resources WHERE resource_id=$this->id AND resource_agent_role_id=".ResourceAgentRole::insert("Data Supplier"));
-        if($result && $row=$result->fetch_assoc())
-        {
-            $this->data_supplier = new Agent($row["agent_id"]);
-        }else $this->data_supplier = 0;
-        
+        $this->data_supplier = $this->content_partner->user->agent;
         return $this->data_supplier;
     }
     
@@ -223,7 +227,7 @@ class Resource extends MysqlBase
     
     public function unpublish_hierarchy_entries()
     {
-        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=".Visibility::insert('invisible')." WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
+        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=".Visibility::invisible()->id." WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
     }
     
     public function unpublish_taxon_concepts()
@@ -234,7 +238,7 @@ class Resource extends MysqlBase
     public function vetted_object_guids()
     {
         $guids = array();
-        $result = $this->mysqli->query("SELECT do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE do.published=1 AND do.visibility_id=".Visibility::insert('Visible')." AND do.vetted_id=".Vetted::insert('Trusted')." AND he.resource_id=$this->id");
+        $result = $this->mysqli->query("SELECT do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE do.published=1 AND do.visibility_id=".Visibility::visible()->id." AND do.vetted_id=".Vetted::trusted()->id." AND he.resource_id=$this->id");
         while($result && $row=$result->fetch_assoc())
         {
             $guids[] = $row['guid'];
@@ -244,16 +248,16 @@ class Resource extends MysqlBase
     
     public function force_publish()
     {
-        $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
+        $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::publish_pending()->id." WHERE id=$this->id");
     }
     
     public function publish()
     {
-        if($this->resource_status_id != ResourceStatus::insert("Publish Pending")) return false;
+        if($this->resource_status_id != ResourceStatus::publish_pending()->id) return false;
         $this->mysqli->begin_transaction();
         if($harvest_event_id = $this->most_recent_harvest_event_id())
         {
-            $harvest_event = new HarvestEvent($harvest_event_id);
+            $harvest_event = HarvestEvent::find($harvest_event_id);
             if(!$harvest_event->published_at && $harvest_event->completed_at)
             {
                 $object_guids_to_keep = array();
@@ -305,25 +309,38 @@ class Resource extends MysqlBase
                     $indexer->index($this->hierarchy_id);
                     
                     // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                    $hierarchy = new Hierarchy($this->hierarchy_id);
+                    $hierarchy = Hierarchy::find($this->hierarchy_id);
                     CompareHierarchies::process_hierarchy($hierarchy, null, true);
                     
                     CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 }
                 
                 $harvest_event->insert_top_images();
-                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Published").", notes='harvest published' WHERE id=$this->id");
+                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::published()->id.", notes='harvest published' WHERE id=$this->id");
             }
         }
         $this->mysqli->end_transaction();
     }
     
-    public function harvest($validate = true)
+    public function harvest_from_archive($validate = true)
+    {
+        $errors = $validate ? ContentArchiveValidator($this->archive_path()) : false;
+        if($errors)
+        {
+            print_r($errors);
+        }else
+        {
+            $connection = new ArchiveDataIngester($this);
+        }
+    }
+    
+    public function harvest($validate = true, $validate_only_welformed = false)
     {
         debug("Starting harvest of resource: $this->id");
         debug("Validating resource: $this->id");
         // set valid to true if we don't need validation
-        $valid = $validate ? $this->validate($this->resource_path) : true;
+        if($this->is_translation_resource()) $validate_only_welformed = false;
+        $valid = $validate ? $this->validate($this->resource_path(), $validate_only_welformed) : true;
         debug("Validated resource: $this->id");
         if($valid)
         {
@@ -333,7 +350,7 @@ class Resource extends MysqlBase
             
             debug("Parsing resource: $this->id");
             $connection = new SchemaConnection($this);
-            SchemaParser::parse($this->resource_path, $connection, false);
+            SchemaParser::parse($this->resource_path(), $connection, false);
             unset($connection);
             debug("Parsed resource: $this->id");
             $this->mysqli->commit();
@@ -359,7 +376,7 @@ class Resource extends MysqlBase
             
             if($this->hierarchy_id)
             {
-                $hierarchy = new Hierarchy($this->hierarchy_id);
+                $hierarchy = Hierarchy::find($this->hierarchy_id);
                 debug("Assigning nested set values resource: $this->id");
                 Tasks::rebuild_nested_set($this->hierarchy_id);
                 debug("Finished assigning: $this->id");
@@ -379,7 +396,7 @@ class Resource extends MysqlBase
                 if($this->vetted())
                 {
                     // Vet all taxon concepts associated with this resource
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=".Vetted::insert("Trusted").", tc.vetted_id=".Vetted::insert("Trusted")." WHERE hierarchy_id=$this->hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=". Vetted::trusted()->id .", tc.vetted_id=". Vetted::trusted()->id ." WHERE hierarchy_id=$this->hierarchy_id");
                 }
                 
                 // after all the resource hierarchy stuff has been taken care of - import the DWC Archive into a
@@ -397,8 +414,8 @@ class Resource extends MysqlBase
             
             if($this->auto_publish())
             {
-                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Publish Pending")." WHERE id=$this->id");
-                $this->resource_status_id = ResourceStatus::insert("Publish Pending");
+                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::publish_pending()->id." WHERE id=$this->id");
+                $this->resource_status_id = ResourceStatus::publish_pending()->id;
                 $this->publish();
             }
             
@@ -411,7 +428,7 @@ class Resource extends MysqlBase
     public function add_unchanged_data_to_harvest()
     {
         // there is no _delete file so we assume the resource is complete
-        if(!file_exists($this->resource_deletions_path)) return false;
+        if(!file_exists($this->resource_deletions_path())) return false;
         
         if($this->harvest_event)
         {
@@ -420,7 +437,7 @@ class Resource extends MysqlBase
             if(!$last_harvest_event_id) return false;
             
             $identifiers_to_delete = array();
-            $file = file($this->resource_deletions_path);
+            $file = file($this->resource_deletions_path());
             foreach($file as $line)
             {
                 $id = trim($line);
@@ -432,7 +449,7 @@ class Resource extends MysqlBase
             $identifiers_to_delete_string = "'". implode("','", $identifiers_to_delete) ."'";
             if($identifiers_to_delete_string == "''") $identifiers_to_delete_string = "'NONSENSE 9832rhjgovih'";
             
-            $unchanged_status_id = Status::insert('Unchanged');
+            $unchanged_status_id = Status::unchanged()->id;
             // add the unchanged data objects
             $outfile = $this->mysqli->select_into_outfile("SELECT ".$this->harvest_event->id.", dohe.data_object_id, dohe.guid, $unchanged_status_id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) LEFT JOIN data_objects_harvest_events dohe_current ON (dohe_current.harvest_event_id=".$this->harvest_event->id." AND dohe_current.guid=dohe.guid) WHERE do.identifier NOT IN ($identifiers_to_delete_string) AND dohe.harvest_event_id=$last_harvest_event_id AND dohe_current.data_object_id IS NULL");
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_harvest_events');
@@ -538,19 +555,19 @@ class Resource extends MysqlBase
     {
         if($this->harvest_event)
         {
-            $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::insert('preview') ." WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=". Visibility::insert('invisible'));
+            $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::preview()->id ." WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=". Visibility::invisible()->id);
             $this->make_new_hierarchy_entries_parents_preview($hierarchy);
         }
     }
     
     public function make_new_hierarchy_entries_parents_preview($hierarchy)
     {
-        $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=". Visibility::insert('invisible') ." LIMIT 1");
+        $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::preview()->id ." AND he_parents.visibility_id=". Visibility::invisible()->id ." LIMIT 1");
         while($result && $row=$result->fetch_assoc())
         {
-            $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::insert('preview') ." WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=". Visibility::insert('invisible'));
+            $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::preview()->id ." WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::preview()->id ." AND he_parents.visibility_id=". Visibility::invisible()->id);
             
-            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::insert('preview') ." AND he_parents.visibility_id=". Visibility::insert('invisible') ." LIMIT 1");
+            $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::preview()->id ." AND he_parents.visibility_id=". Visibility::invisible()->id ." LIMIT 1");
         }
     }
     
@@ -558,10 +575,10 @@ class Resource extends MysqlBase
     {
         if($this->harvest_event)
         {
-            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::insert('preview') ." AND dohe2.data_object_id IS NULL");
+            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::preview()->id ." AND dohe2.data_object_id IS NULL");
             if($result && $row=$result->fetch_assoc())
             {
-                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=". Visibility::insert('invisible') ." WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::insert('preview') ." AND dohe2.data_object_id IS NULL");
+                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=". Visibility::invisible()->id ." WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::preview()->id ." AND dohe2.data_object_id IS NULL");
             }
         }
     }
@@ -570,10 +587,10 @@ class Resource extends MysqlBase
     {
         if($this->harvest_event)
         {
-            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::insert('preview') ." AND hehe2.hierarchy_entry_id IS NULL");
+            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::preview()->id ." AND hehe2.hierarchy_entry_id IS NULL");
             if($result && $row=$result->fetch_assoc())
             {
-                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") SET he1.visibility_id=". Visibility::insert('invisible') ." WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::insert('preview') ." AND hehe2.hierarchy_entry_id IS NULL");
+                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") SET he1.visibility_id=". Visibility::invisible()->id ." WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::preview()->id ." AND hehe2.hierarchy_entry_id IS NULL");
             }
         }
     }
@@ -584,10 +601,10 @@ class Resource extends MysqlBase
         if(!$this->harvest_event)
         {
             // Set resource as 'Being Processed'
-            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Being Processed")." WHERE id=$this->id");
+            $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::being_processed()->id ." WHERE id=$this->id");
             
             // Create this harvest event
-            $this->harvest_event = new HarvestEvent(HarvestEvent::insert($this->id));
+            $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
             $this->start_harvest_time  = date('Y m d H');
         }
     }
@@ -597,7 +614,7 @@ class Resource extends MysqlBase
         if($this->harvest_event)
         {
             $this->harvest_event->completed();
-            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert("Processed").", harvested_at=NOW(), notes='harvest ended' WHERE id=$this->id");
+            $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='harvest ended' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
             
             // Make sure we set a harvest start time
@@ -633,22 +650,19 @@ class Resource extends MysqlBase
     
     public function validate()
     {
-        $validation_result = SchemaValidator::validate($this->resource_path);
+        $validation_result = SchemaValidator::validate($this->resource_path());
         if($validation_result!==true)
         {
+            echo "\n\n$this->resource_path()\n\n";
+            print_r($this);
             $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
-            $this->mysqli->update("UPDATE resources SET notes='$error_string', resource_status_id=".ResourceStatus::insert("Processing Failed")." WHERE id=$this->id");
+            $this->mysqli->update("UPDATE resources SET notes='$error_string', resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
             return false;
         }
         
         unset($validator);
         
         return true;
-    }
-    
-    public function change_status($status)
-    {
-        $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert($status)." WHERE id=$this->id");
     }
     
     public function insert_hierarchy()
@@ -661,14 +675,13 @@ class Resource extends MysqlBase
         if(@$provider_agent->id) $params["agent_id"] = $provider_agent->id;
         $params["label"] = $this->title;
         $params["description"] = "From resource $this->title ($this->id)";
-        $hierarchy_mock = Functions::mock_object("Hierarchy", $params);
-        $hierarchy_id = Hierarchy::insert($hierarchy_mock);
+        $hierarchy = Hierarchy::find_or_create($params);
         
-        $this->mysqli->insert("UPDATE resources SET hierarchy_id=$hierarchy_id WHERE id=$this->id");
+        $this->mysqli->insert("UPDATE resources SET hierarchy_id=$hierarchy->id WHERE id=$this->id");
         # TODO - get real object updating in place to take care of value updates
-        $this->hierarchy_id = $hierarchy_id;
+        $this->hierarchy_id = $hierarchy->id;
         
-        return $hierarchy_id;
+        return $hierarchy->id;
     }
     
     private function insert_dwc_hierarchy()
@@ -684,13 +697,13 @@ class Resource extends MysqlBase
         if(@$provider_agent->id) $params["agent_id"] = $provider_agent->id;
         $params["label"] = $this->title;
         $params["description"] = "From resource $this->title dwc archive";
-        $hierarchy_id = Hierarchy::insert($params);
+        $hierarchy = Hierarchy::find_or_create($params);
         
-        $this->mysqli->insert("UPDATE resources SET dwc_hierarchy_id=$hierarchy_id WHERE id=$this->id");
+        $this->mysqli->insert("UPDATE resources SET dwc_hierarchy_id=$hierarchy->id WHERE id=$this->id");
         # TODO - get real object updating in place to take care of value updates
-        $this->dwc_hierarchy_id = $hierarchy_id;
+        $this->dwc_hierarchy_id = $hierarchy->id;
         
-        return $hierarchy_id;
+        return $hierarchy->id;
     }
     
     private function import_dwc_archive()
@@ -705,9 +718,9 @@ class Resource extends MysqlBase
             $vernaculars = $dwca->get_vernaculars();
             $taxa = array_merge($taxa, $vernaculars);
             
-            $vetted_id = $this->vetted() ? Vetted::insert('trusted') : Vetted::insert('unknown');
-            $archive_hierarchy = new Hierarchy($archive_hierarchy_id);
-            $importer = new TaxonImporter($archive_hierarchy, $vetted_id, Visibility::insert('visible'), 1);
+            $vetted_id = $this->vetted() ? Vetted::trusted()->id : Vetted::unknown()->id;
+            $archive_hierarchy = Hierarchy::find($archive_hierarchy_id);
+            $importer = new TaxonImporter($archive_hierarchy, $vetted_id, Visibility::visible()->id, 1);
             $importer->import_taxa($taxa);
             
             $result = $this->mysqli->query("SELECT taxon_concept_id FROM hierarchy_entries WHERE hierarchy_id=$archive_hierarchy_id");
@@ -777,23 +790,6 @@ class Resource extends MysqlBase
     //     @unlink($rt_path);
     //     @unlink($het_path);
     // }
-    
-    static function insert($parameters)
-    {
-        if($result = self::find($parameters)) return $result;
-        return parent::insert_fields_into($parameters, Functions::class_name(__FILE__));
-    }
-    
-    static function find($parameters)
-    {
-        return 0;
-    }
-    
-    static function find_by_title($string)
-    {
-        return parent::find_by("title", $string, Functions::class_name(__FILE__));
-    }
-    
 }
 
 ?>

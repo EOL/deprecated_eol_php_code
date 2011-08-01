@@ -1,6 +1,7 @@
 <?php
+namespace php_active_record;
 
-class Tasks extends MysqlBase
+class Tasks
 {
     // public static function clean_names()
     // {
@@ -125,15 +126,15 @@ class Tasks extends MysqlBase
             
             if($i%100==0) debug("NOW COMPARING: $id - ".Functions::time_elapsed());
             
-            $concept1 = new TaxonConcept($taxon_concept_id);
-            $entry1 = new HierarchyEntry($id);
+            $concept1 = TaxonConcept::find($taxon_concept_id);
+            $entry1 = HierarchyEntry::find($id);
             
             if(!array_diff($concept1->name_ids(), Name::unassigned_ids())) continue;
             
             $result2 = $mysqli->query("SELECT id FROM hierarchy_entries WHERE taxon_concept_id=$concept1->id AND he.hierarchy_id=$compare_to_hierarchy_id");
             if($result2 && $row2=$result2->fetch_assoc()) continue;
             
-            if($canonical_form_id = $entry1->name()->canonical_form_id) $result2 = $mysqli->query("(SELECT DISTINCT he.taxon_concept_id FROM names n JOIN hierarchy_entries he ON n.id=he.name_id WHERE n.canonical_form_id=$canonical_form_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id) UNION DISTINCT (SELECT DISTINCT he.taxon_concept_id FROM names n JOIN synonyms s ON (n.id=s.name_id) JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) WHERE n.canonical_form_id=$canonical_form_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id)");
+            if($canonical_form_id = $entry1->name->canonical_form_id) $result2 = $mysqli->query("(SELECT DISTINCT he.taxon_concept_id FROM names n JOIN hierarchy_entries he ON n.id=he.name_id WHERE n.canonical_form_id=$canonical_form_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id) UNION DISTINCT (SELECT DISTINCT he.taxon_concept_id FROM names n JOIN synonyms s ON (n.id=s.name_id) JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) WHERE n.canonical_form_id=$canonical_form_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id)");
             else $result2 = $mysqli->query("(SELECT DISTINCT he.taxon_concept_id FROM hierarchy_entries he WHERE he.name_id=$entry1->name_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id) UNION DISTINCT (SELECT DISTINCT he.taxon_concept_id FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) WHERE s.name_id=$entry1->name_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id)");
             
             if(!($result2 && $result2->num_rows)) continue;
@@ -146,7 +147,7 @@ class Tasks extends MysqlBase
             
             while($result2 && $row2=$result2->fetch_assoc())
             {
-                $concept2 = new TaxonConcept($row2["taxon_concept_id"]);
+                $concept2 = TaxonConcept::find($row2["taxon_concept_id"]);
                 
                 if($concept1->id == $concept2->id) continue;
                 if(!array_diff($concept2->name_ids(), Name::unassigned_ids())) continue;
@@ -205,7 +206,7 @@ class Tasks extends MysqlBase
         $matching_ids = array();
         $hierarchy_entry_ids = array();
         
-        $result = $mysqli->query("(SELECT id, name_id, 'preferred' as type FROM hierarchy_entries WHERE taxon_concept_id=$taxon_concept_id) UNION (SELECT s.hierarchy_entry_id, s.name_id, 'synonym' as type FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id=0 AND s.synonym_relation_id!=".SynonymRelation::insert('genbank common name')." AND s.synonym_relation_id!=".SynonymRelation::insert('common name')." AND s.synonym_relation_id!=".SynonymRelation::insert('blast name')." AND s.synonym_relation_id!=".SynonymRelation::insert('genbank acronym')." AND s.synonym_relation_id!=".SynonymRelation::insert('acronym').")");
+        $result = $mysqli->query("(SELECT id, name_id, 'preferred' as type FROM hierarchy_entries WHERE taxon_concept_id=$taxon_concept_id) UNION (SELECT s.hierarchy_entry_id, s.name_id, 'synonym' as type FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id=0 AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('genbank common name')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('common name')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('blast name')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('genbank acronym')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('acronym')->id.")");
         while($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];
@@ -305,7 +306,7 @@ class Tasks extends MysqlBase
         // {
         //     $name_id = $row["name_id"];
         //     $language_id = $row["language_id"];
-        //     if($language_id==Language::insert("Common Name") || in_array($language_id, Language::unknown())) $language_id = Language::insert("Unknown");
+        //     if($language_id==Language::insert("Common Name") || in_array($language_id, Language::unknown_ids())) $language_id = Language::insert("Unknown");
         //     
         //     $preferred = 1;
         //     $result2 = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND source_hierarchy_entry_id=0 AND language_id=$language_id AND vern=1 AND preferred=1");

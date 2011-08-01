@@ -77,7 +77,7 @@ foreach($xml->taxon as $t)
             $taxonParameters["synonyms"] = array();
             foreach($t->synonym as $syn)
             {
-                $taxonParameters["synonyms"][] = new SchemaSynonym(array("synonym" => $syn, "relationship" => $url = $syn["relationship"]));                
+                $taxonParameters["synonyms"][] = new \SchemaSynonym(array("synonym" => $syn, "relationship" => $url = $syn["relationship"]));                
             }
             
             //start process dataObjects =====================================================================
@@ -92,14 +92,14 @@ foreach($xml->taxon as $t)
             }    
             foreach($dataObjects as $k => $v)
             {
-                $taxonParameters["dataObjects"][] = new SchemaDataObject($v);
+                $taxonParameters["dataObjects"][] = new \SchemaDataObject($v);
                 unset($v);
             }
             //end process dataObjects =====================================================================        
 
             ///////////////////////////////////////////////////////////////////////////////////    
             $taxa = array();
-            $taxa[] = new SchemaTaxon($taxonParameters);    
+            $taxa[] = new \SchemaTaxon($taxonParameters);    
         
             //$new_resource_xml = SchemaDocument::get_taxon_xml($taxa);
             $str='';
@@ -149,7 +149,7 @@ function get_data_object($do,$t_dc2,$t_dcterms)
     $dataObjectParameters["subjects"] = array();
     $subjectParameters = array();
     $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Evolution";
-    $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+    $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
     
     ///////////////////////////////////////////////////////////////////////
     $agents = array();
@@ -160,7 +160,7 @@ function get_data_object($do,$t_dc2,$t_dcterms)
         $agentParameters["homepage"] = $agent["homepage"];
         $agentParameters["logoURL"]  = $agent["logoURL"];        
         $agentParameters["fullName"] = Functions::import_decode($agent);            
-        $agents[] = new SchemaAgent($agentParameters);
+        $agents[] = new \SchemaAgent($agentParameters);
     }
     $dataObjectParameters["agents"] = $agents;    
     ///////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@ function get_data_object($do,$t_dc2,$t_dcterms)
     $dataObjectParameters["audiences"] = array();    
     $audienceParameters = array();  
     $audienceParameters["label"] = $do->audience;
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);  
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);  
     ///////////////////////////////////////////////////////////////////////
     
     
@@ -192,10 +192,10 @@ function get_data_object($do,$t_dc2,$t_dcterms)
         $referenceParameters["fullReference"] = $ref;
         if(@$agent["URL"] || @$agent["ISBN"])
         {
-            $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => self::format(@$agent["URL"])));                                
-            $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "isbn" , "value" => self::format(@$agent["ISBN"])));                                
+            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => self::format(@$agent["URL"])));                                
+            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "isbn" , "value" => self::format(@$agent["ISBN"])));                                
         }            
-        $refs[] = new SchemaReference($referenceParameters);
+        $refs[] = new \SchemaReference($referenceParameters);
     }
     $dataObjectParameters["references"] = $refs;
     ///////////////////////////////////////////////////////////////////////

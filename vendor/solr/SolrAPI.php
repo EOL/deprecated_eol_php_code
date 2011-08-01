@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class SolrAPI
 {
@@ -54,7 +55,7 @@ class SolrAPI
         $this->primary_key = (string) $response->uniqueKey;
         
         // create empty object that maps to each field name; will be array if multivalued
-        $this->schema_object = new stdClass();
+        $this->schema_object = new \stdClass();
         foreach($response->fields->field as $field)
         {
             $field_name = (string) $field['name'];

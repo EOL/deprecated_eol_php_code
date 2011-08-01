@@ -1,3 +1,6 @@
+<?php
+namespace php_active_record;
+?>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
@@ -21,8 +24,8 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 if($id)
 {
-    $hierarchy_entry = new HierarchyEntry($id);
-    echo "<h2>".$hierarchy_entry->hierarchy()->label."</h2>";
+    $hierarchy_entry = HierarchyEntry::find($id);
+    echo "<h2>".$hierarchy_entry->hierarchy->label."</h2>";
     
     
     $indent = show_ancestry_he($hierarchy_entry);
@@ -43,7 +46,7 @@ if($id)
     
 }elseif($hierarchy_id)
 {
-    $hierarchy = new Hierarchy($hierarchy_id);
+    $hierarchy = Hierarchy::find($hierarchy_id);
     echo "<h2>".$hierarchy->label."</h2>";
     
     show_kingdoms_he($hierarchy_id);

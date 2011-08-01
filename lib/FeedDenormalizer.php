@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class FeedDenormalizer
 {
@@ -44,8 +45,8 @@ class FeedDenormalizer
         for($i=$start ; $i<$max_id ; $i+=$this->iteration_size)
         {
             echo "Query ". (($i-$start+$this->iteration_size)/$this->iteration_size) ." of ". (ceil(($max_id-$start)/$this->iteration_size)) ."\n";
-            $image_type_id = DataType::find("http://purl.org/dc/dcmitype/StillImage");
-            $text_type_id = DataType::find("http://purl.org/dc/dcmitype/Text");
+            $image_type_id = DataType::image()->id;
+            $text_type_id = DataType::text()->id;
             
             $outfile = $this->mysqli_slave->select_into_outfile("
                 SELECT tcx.taxon_concept_id, tcx.parent_id, do.id data_object_id, do.data_type_id, do.created_at
@@ -57,7 +58,7 @@ class FeedDenormalizer
                     AND do.created_at IS NOT NULL
                     AND do.created_at!='0000-00-00 00:00:00'
                     AND do.published=1
-                    AND do.visibility_id=".Visibility::find('visible')."
+                    AND do.visibility_id=".Visibility::visible()->id."
                     ORDER BY tcx.taxon_concept_id");
             
             $parent_ids = $this->get_data_from_result($outfile, false);
@@ -135,7 +136,7 @@ class FeedDenormalizer
         $feed_objects = array();
         $taxon_concept_ids = array();
         
-        $visible_id = Visibility::find("visible");
+        $visible_id = Visibility::visible()->id;
         $RESULT = fopen($outfile, "r");
         while(!feof($RESULT))
         {

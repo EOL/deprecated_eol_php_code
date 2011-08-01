@@ -273,7 +273,7 @@ $id_with_public_barcode=array();
                 $title = "Barcode data";                
                 $dc_identifier = $main["id"] . "_barcode_data";
                 $data_object_parameters = get_data_object($dc_identifier,$do_count,$dc_source,1,$description,$title);                  
-                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+                $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);         
             }
 
             //another text object
@@ -285,7 +285,7 @@ $id_with_public_barcode=array();
                 $title="Statistics of barcoding coverage";
                 $dc_identifier = $main["id"] . "_stats";
                 $data_object_parameters = get_data_object($dc_identifier,$do_count,$dc_source,1,$description,$title);
-                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+                $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);         
             }            
             // */
             
@@ -299,7 +299,7 @@ $id_with_public_barcode=array();
                 $title="Locations of barcode samples";
                 $dc_identifier = $main["id"] . "_map";
                 $data_object_parameters = get_data_object($dc_identifier,$do_count,$dc_source,1,$description,$title);                   
-                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+                $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);         
             }            
         
         }//if($taxa)//this is synonymous to if id/url is resolvable
@@ -327,7 +327,7 @@ echo "$wrap$wrap total ids with public barcode = " . count($id_with_public_barco
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -1317,7 +1317,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$descripti
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology";
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
     }    
     /*
     $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";    
@@ -1344,7 +1344,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$descripti
         $agentParameters["homepage"] = $agent["homepage"];
         $agentParameters["logoURL"]  = "";        
         $agentParameters["fullName"] = $agent[0];
-        $agents[] = new SchemaAgent($agentParameters);
+        $agents[] = new \SchemaAgent($agentParameters);
     }
     $dataObjectParameters["agents"] = $agents;    
     //==========================================================================================
@@ -1356,7 +1356,7 @@ function get_data_object($taxid,$do_count,$dc_source,$public_barcodes,$descripti
     {  
         $audienceParameters = array();
         $audienceParameters["label"]    = $audience[0];
-        $audiences[] = new SchemaAudience($audienceParameters);
+        $audiences[] = new \SchemaAudience($audienceParameters);
     }
     $dataObjectParameters["audiences"] = $audiences;    
     //==========================================================================================

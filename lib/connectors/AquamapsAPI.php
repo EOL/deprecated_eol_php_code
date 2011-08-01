@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("SERVICE_URL", "http://www.aquamaps.org/webservice/getAMap.php?");
 define("FISHBASE_URL", "http://www.fishbase.us/summary/speciessummary.php?id=");
@@ -204,7 +205,7 @@ class AquamapsAPI
         {
             $data_object = self::get_data_object($arr);
             if(!$data_object) return false;
-            $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
+            $taxon["dataObjects"][] = new \SchemaDataObject($data_object);                     
         }                        
         $photos = $rec["photos"];
         if($photos)
@@ -213,10 +214,10 @@ class AquamapsAPI
             {
                 $data_object = self::get_data_object($photos);
                 if(!$data_object) return false;
-                $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
+                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);                     
             }
         }        
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -236,7 +237,7 @@ class AquamapsAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
          if(@$rec["agent"])
          {               
@@ -248,7 +249,7 @@ class AquamapsAPI
                  $agentParameters["homepage"] = $a["homepage"];
                  $agentParameters["logoURL"]  = "";        
                  $agentParameters["fullName"] = $a["name"];
-                 $agents[] = new SchemaAgent($agentParameters);
+                 $agents[] = new \SchemaAgent($agentParameters);
              }
              $data_object_parameters["agents"] = $agents;
          }

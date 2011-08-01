@@ -1,28 +1,41 @@
 <?php
+namespace php_active_record;
 
-class Rank extends MysqlBase
+class Rank extends ActiveRecord
 {
-    function __construct($param)
+    public static $has_many = array(
+            array('language')
+        );
+    
+    public static function species_ranks()
     {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-        
-        $this->label = ucfirst($this->label);
+        $species_ranks = array();
+        $species_ranks[] = Rank::find_or_create_by_translated_label('species');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('sp');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('sp.');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('subspecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('subsp');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('subsp.');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('variety');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('var');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('var.');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('infraspecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('form');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('nothospecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('nothosubspecies');
+        $species_ranks[] = Rank::find_or_create_by_translated_label('nothovariety');
+        return $species_ranks;
     }
     
-    static function insert($string)
+    public static function species_ranks_ids()
     {
-        $string = trim($string);
-        if(!$string) return 0;
-        
-        if($result = self::find($string)) return $result;
-        return parent::insert_fields_into(array('label' => $string, 'rank_group_id' => 0), Functions::class_name(__FILE__));
-    }
-    
-    static function find($string)
-    {
-        return parent::find_by("label", $string, Functions::class_name(__FILE__));
+        $species_ranks_ids = array();
+        $species_ranks = self::species_ranks();
+        foreach($species_ranks as $rank)
+        {
+            $species_ranks_ids[] = $rank->id;
+        }
+        return $species_ranks_ids;
     }
 }
 

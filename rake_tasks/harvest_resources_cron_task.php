@@ -1,14 +1,15 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 
 // this checks to make sure we only have one instance of this script running
 // if there are more than one then it means we're still harvesting something from yesterday
 if(Functions::grep_processlist('harvest_resources') > 2) exit;
 
 
-$log = HarvestProcessLog::create('Harvesting');
+$log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {

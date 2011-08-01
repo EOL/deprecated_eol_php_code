@@ -132,7 +132,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
         
         // /* just debug; no images for now
         $data_object_parameters = get_data_object("image",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_pic,$copyright,$image_url,"");               
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                         
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                         
         // */
         
 
@@ -148,7 +148,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
                 $agent_name = $providers;
                 $agent_role = "source";            
                 $data_object_parameters = get_data_object("text",$taxon,$do_count,$dc_source,$agent_name,$agent_role,$desc_taxa,$copyright,$image_url,$title);                           
-                $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);                                 
+                $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                                 
             }            
         }
         */
@@ -162,7 +162,7 @@ for ($i = 0; $i < count($arr_id_list); $i++)
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -202,7 +202,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
         //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement";        
         //$subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Diseases";
         
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         //end subject            
             
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
@@ -246,7 +246,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
             $agentParameters["homepage"] = $agent["homepage"];
             $agentParameters["logoURL"]  = "";        
             $agentParameters["fullName"] = $agent[0];
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $dataObjectParameters["agents"] = $agents;    
     }
@@ -259,7 +259,7 @@ function get_data_object($type,$taxon,$do_count,$dc_source,$agent_name,$agent_ro
     {  
         $audienceParameters = array();
         $audienceParameters["label"]    = $audience[0];
-        $audiences[] = new SchemaAudience($audienceParameters);
+        $audiences[] = new \SchemaAudience($audienceParameters);
     }
     $dataObjectParameters["audiences"] = $audiences;    
     //==========================================================================================

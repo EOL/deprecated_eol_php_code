@@ -1,6 +1,7 @@
 <?php
+namespace php_active_record;
 
-class MysqliResultIterator implements Iterator
+class MysqliResultIterator implements \Iterator
 {
     private $result;
     private $current_row;

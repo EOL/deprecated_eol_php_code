@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class SchemaValidator
 { 
@@ -12,7 +13,7 @@ class SchemaValidator
         libxml_use_internal_errors(true);
         libxml_clear_errors();
         
-        $reader = new XMLReader();
+        $reader = new \XMLReader();
         $reader->open($uri, 'utf8');
         if(!$only_well_formedness)
         {

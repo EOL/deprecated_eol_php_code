@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class Functions
 {
@@ -286,6 +287,9 @@ class Functions
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
         
+        // ignores and just trusts https
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
         debug("Sending get request to $url : only attempt");
         $result = curl_exec($ch);
         
@@ -543,7 +547,7 @@ class Functions
         {
             $fixture_data->$table = (object) array();
             
-            $rows = Horde_Yaml::loadFile(DOC_ROOT."tests/fixtures/$table.yml");
+            $rows = Spyc::YAMLLoad(DOC_ROOT."tests/fixtures/$table.yml");
             foreach($rows as $id => $row)
             {
                 $fixture_data->$table->$id = (object) array();
@@ -1405,6 +1409,204 @@ class Functions
         }
         return $iso_639_2_codes;
     }
-}
 
+    public static function cardinal_to_ordinal($number)
+    {
+        switch(substr($number, -1))
+        {
+            case 1: $number .= "st"; break;
+            case 2: $number .= "nd"; break;
+            case 3: $number .= "rd"; break;
+            default: $number .= "th"; break;
+        }
+        return $number;
+    }
+
+    public static function format_number_with_leading_zeros($num, $padding)
+    {
+        return str_pad($num, $padding, "0", STR_PAD_LEFT);
+    }
+
+    public static function prepare_taxon_params($rec)
+    {
+        $taxon = array();
+        $taxon["identifier"]     = trim(@$rec["identifier"]);
+        $taxon["source"]         = @$rec["source"];
+        $taxon["kingdom"]        = ucfirst(trim(@$rec["kingdom"]));
+        $taxon["phylum"]         = ucfirst(trim(@$rec["phylum"]));
+        $taxon["class"]          = ucfirst(trim(@$rec["class"]));
+        $taxon["order"]          = ucfirst(trim(@$rec["order"]));
+        $taxon["family"]         = ucfirst(trim(@$rec["family"]));
+        $taxon["genus"]          = ucfirst(trim(@$rec["genus"]));
+        $taxon["scientificName"] = ucfirst(trim(@$rec["sciname"]));
+        $taxon["rank"]           = @$rec["rank"];
+        //-------------------------------------------------------------------------------------------------
+        if(@$rec["commonNames"])
+        {
+            $taxon["commonNames"] = array();
+            foreach($rec["commonNames"] as $comname)
+            {
+                $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname["name"], "language" => $comname["language"]));
+            }
+        }
+        //-------------------------------------------------------------------------------------------------
+        if(@$rec["synonyms"])
+        {
+            $taxon["synonyms"] = array();
+            foreach($rec["synonyms"] as $syn)
+            {
+                $taxon["synonyms"][] = new \SchemaSynonym(array("synonym" => $syn["synonym"], "relationship" => $syn["relationship"]));
+            }
+        }
+        //-------------------------------------------------------------------------------------------------
+        $taxon = Functions::prepare_agent_params($rec, $taxon);
+        $taxon["created"]  = trim(@$rec["created"]);
+        $taxon["modified"] = trim(@$rec["modified"]);
+        $taxon = Functions::prepare_reference_params($rec, $taxon);
+        $taxon["additionalInformation"] = trim(@$rec["additionalInformation"]);
+        //-------------------------------------------------------------------------------------------------
+        if(@$rec["data_objects"])
+        {
+            foreach($rec["data_objects"] as $object)
+            {
+                if($data_object = Functions::prepare_data_object_params($object)) $taxon["dataObjects"][] = new \SchemaDataObject($data_object);
+            }
+        }
+        //-------------------------------------------------------------------------------------------------
+        $taxon_parameters = new \SchemaTaxon($taxon);
+        return $taxon_parameters;
+    }
+
+    public static function prepare_data_object_params($rec)
+    {
+        $data_object_parameters = array();
+        $data_object_parameters["identifier"] = trim(@$rec["identifier"]);
+        $data_object_parameters["dataType"]   = trim(@$rec["dataType"]);
+        $data_object_parameters["mimeType"]   = trim(@$rec["mimeType"]);
+        $data_object_parameters = Functions::prepare_agent_params($rec, $data_object_parameters);
+        $data_object_parameters["created"]               = trim(@$rec["created"]);
+        $data_object_parameters["modified"]              = trim(@$rec["modified"]);
+        $data_object_parameters["title"]                 = trim(@$rec["title"]);
+        $data_object_parameters["language"]              = trim(@$rec["language"]);
+        $data_object_parameters["license"]               = trim(@$rec["license"]);
+        $data_object_parameters["rights"]                = trim(@$rec["rights"]);
+        $data_object_parameters["rightsHolder"]          = trim(@$rec["rightsHolder"]);
+        $data_object_parameters["bibliographicCitation"] = trim(@$rec["bibliographicCitation"]);
+        //-------------------------------------------------------------------------------------------------
+        if(@$rec["audience"])
+        {
+            $data_object_parameters["audiences"] = array();    
+            $audienceParameters = array();  
+            foreach(@$rec["audience"] as $audience)
+            {
+                $audienceParameters["label"] = $audience;
+                $data_object_parameters["audiences"][] = new \SchemaAudience($audienceParameters);
+            }
+        }
+        //-------------------------------------------------------------------------------------------------
+        $data_object_parameters["source"] = trim(@$rec["source"]);
+        //-------------------------------------------------------------------------------------------------
+        if(trim(@$rec["subject"]))
+        {
+            $data_object_parameters["subjects"] = array();
+            $subjectParameters = array();
+            $subjectParameters["label"] = trim(@$rec["subject"]);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
+        }
+        //-------------------------------------------------------------------------------------------------
+        $data_object_parameters["description"]  = trim(@$rec["description"]);
+        $data_object_parameters["mediaURL"]     = trim(@$rec["mediaURL"]);
+        $data_object_parameters["thumbnailURL"] = trim(@$rec["thumbnailURL"]);
+        $data_object_parameters["location"]     = trim(@$rec["location"]);
+        $data_object_parameters = Functions::prepare_reference_params($rec, $data_object_parameters);
+        $data_object_parameters["additionalInformation"] = trim(@$rec["additionalInformation"]);
+        //-------------------------------------------------------------------------------------------------
+        return $data_object_parameters;
+    }
+
+    public static function prepare_reference_params($rec, $taxon_or_data_object_param)
+    {
+        if(@$rec["reference"])
+        {
+            $taxon_or_data_object_param["references"] = array();
+            $reference = array();
+            $attributes = array("bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn");
+            foreach(@$rec["reference"] as $ref)
+            {
+                $referenceParam = array();
+                $referenceParam["fullReference"] = $ref["fullReference"];
+                foreach($attributes as $attribute)
+                {
+                    if(@$ref[$attribute]) $referenceParam["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => $attribute, "value" => trim(@$ref[$attribute])));
+                }
+                $reference[] = new \SchemaReference($referenceParam);
+            }
+            $taxon_or_data_object_param["references"] = $reference;
+        }
+        return $taxon_or_data_object_param;
+    }
+
+    public static function prepare_agent_params($rec, $taxon_or_data_object_param)
+    {
+        if(@$rec["agent"])
+        {
+            $agents = array();
+            foreach(@$rec["agent"] as $agent)
+            {  
+                $agentParameters = array();
+                $agentParameters["role"]     = @$agent["role"];
+                $agentParameters["homepage"] = @$agent["homepage"];
+                $agentParameters["logoURL"]  = @$agent["logoURL"];
+                $agentParameters["fullName"] = @$agent["fullName"];
+                $agents[] = new \SchemaAgent($agentParameters);
+            }
+            $taxon_or_data_object_param["agents"] = $agents;
+        }
+        return $taxon_or_data_object_param;
+    }
+
+    //4 functions for queueing task in connectors
+    public static function add_a_task($task, $filename)
+    {
+        if($READ = fopen($filename, "a"))
+        {
+            fwrite($READ, $task);
+            fclose($READ);
+        }
+    }
+
+    public static function get_a_task($filename)
+    {
+        if($READ = fopen($filename, "r"))
+        {
+            $line = fgets($READ);
+            fclose($READ);
+            return $line;
+        }
+    }
+
+    public static function delete_a_task($task, $filename)
+    {
+        if($READ = fopen($filename, 'r'))
+        {
+            $task_list = fread($READ, filesize($filename));
+            fclose($READ);
+            $task_list = str_ireplace($task, "", $task_list);
+            //saving
+            $OUT = fopen($filename, 'w');
+            fwrite($OUT, $task_list);
+            fclose($OUT);
+        }
+    }
+
+    public static function run_another_connector_instance($resource_id, $times)
+    {
+        for($i = 1; $i <= $times; $i++)
+        {
+            print "\n run " . self::cardinal_to_ordinal($i + 1) . " instance--";
+            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '.php 0 > null &');
+            sleep(5);
+        }
+    }
+}
 ?>

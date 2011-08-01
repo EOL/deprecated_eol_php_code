@@ -1,67 +1,42 @@
 <?php
+namespace php_active_record;
 
-class Language extends MysqlBase
+class Language extends ActiveRecord
 {
-    function __construct($param)
-    {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
-        
-        $this->label = ucfirst($this->label);
-    }
-    
-    static function insert($string)
+    public static function find_or_create_for_parser($string)
     {
         $string = trim($string);
-        if(!$string) return 0;
-        $table = Functions::class_name(__FILE__);
-        
+        if(!$string) return null;
         if($cache = Cache::get('language_insert_'.$string)) return $cache;
-        $id = 0;
         
-        if($result = self::find_by_iso_639_1($string)) $id = $result;
-        elseif($result = self::find_by_iso_639_2($string)) $id = $result;
-        elseif($result = self::find_by_iso_639_3($string)) $id = $result;
-        elseif($result = self::find($string)) $id = $result;
-        else $id = parent::insert_fields_into(array('label' => $string), Functions::class_name(__FILE__));
+        if($result = self::find_by_iso_639_1($string)) $language = $result;
+        elseif($result = self::find_by_iso_639_2($string)) $language = $result;
+        elseif($result = self::find_by_iso_639_3($string)) $language = $result;
+        else $language = self::find_or_create_by_translated_label($string);
         
-        if(cache_model($table)) Cache::set('language_insert_'.$string, $id);
-        
-        return $id;
+        if(cache_model(self::table_name())) Cache::set('language_insert_'.$string, $language);
+        return $language;
     }
     
-    static function find_by_iso_639_1($string)
-    {
-        return parent::find_by("iso_639_1", $string, Functions::class_name(__FILE__));
-    }
-    
-    static function find_by_iso_639_2($string)
-    {
-        return parent::find_by("iso_639_2", $string, Functions::class_name(__FILE__));
-    }
-    
-    static function find_by_iso_639_3($string)
-    {
-        return parent::find_by("iso_639_3", $string, Functions::class_name(__FILE__));
-    }
-    
-    static function find($string)
-    {
-        return parent::find_by("label", $string, Functions::class_name(__FILE__));
-    }
-    
-    static function unknown()
+    static function unknown_ids()
     {
         $return = array();
         
-        $return[] = Language::find("Undetermined");
-        $return[] = Language::find("Unknown");
-        $return[] = Language::find("unspecified");
-        $return[] = Language::find("Miscellaneous languages");
-        $return[] = Language::find("Multiple languages");
+        $return[] = Language::find_or_create_by_translated_label("Undetermined")->id;
+        $return[] = Language::find_or_create_by_translated_label("Unknown")->id;
+        $return[] = Language::find_or_create_by_translated_label("unspecified")->id;
+        $return[] = Language::find_or_create_by_translated_label("Miscellaneous languages")->id;
+        $return[] = Language::find_or_create_by_translated_label("Multiple languages")->id;
         
         return $return;
+    }
+    
+    static function default_language()
+    {
+        if($l = Language::find_by_iso_639_1(DEFAULT_LANGUAGE_ISO_CODE)) return $l;
+        $l = Language::create(array('iso_639_1' => DEFAULT_LANGUAGE_ISO_CODE));
+        $tl = TranslatedLanguage::create(array('original_language_id' => $l->id, 'language_id' => $l->id, 'label' => DEFAULT_LANGUAGE_LABEL));
+        return $l;
     }
 }
 

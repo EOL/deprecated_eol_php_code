@@ -1,5 +1,8 @@
 <?php
+namespace php_active_record;
+
 require_library('connectors/MCZHarvardAPI');
+
 class test_connector_mczharvard_api extends SimpletestUnitBase
 {
     function testMCZHarvardAPI()

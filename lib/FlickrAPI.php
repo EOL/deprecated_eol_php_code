@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 /* for the Flickr connector */
 $GLOBALS['flickr_licenses'] = array();
@@ -119,7 +120,7 @@ class FlickrAPI
             elseif(preg_match("/^taxonomy:class=(.+)$/i", $string, $arr)) $parameters["class"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:phylum=(.+)$/i", $string, $arr)) $parameters["phylum"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:kingdom=(.+)$/i", $string, $arr)) $parameters["kingdom"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:common=(.+)$/i", $string, $arr)) $parameters["commonNames"][] = new SchemaCommonName(array("name" => trim($arr[1])));
+            elseif(preg_match("/^taxonomy:common=(.+)$/i", $string, $arr)) $parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($arr[1])));
         }
         
         $taxon_parameters = array();
@@ -175,7 +176,7 @@ class FlickrAPI
         $taxa = array();
         foreach($taxon_parameters as &$p)
         {
-            $taxa[] = new SchemaTaxon($p);
+            $taxa[] = new \SchemaTaxon($p);
         }
         
         return $taxa;
@@ -207,14 +208,14 @@ class FlickrAPI
         $agent_parameters["role"] = "photographer";
         
         $data_object_parameters["agents"] = array();
-        $data_object_parameters["agents"][] = new SchemaAgent($agent_parameters);
+        $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);
         
         if(@$photo->geoperms->ispublic = 1)
         {
             $geo_point_parameters = array();
             if(isset($photo->location->latitude)) $geo_point_parameters["latitude"] = $photo->location->latitude;
             if(isset($photo->location->longitude)) $geo_point_parameters["longitude"] = $photo->location->longitude;
-            if($geo_point_parameters) $data_object_parameters["point"] = new SchemaPoint($geo_point_parameters);
+            if($geo_point_parameters) $data_object_parameters["point"] = new \SchemaPoint($geo_point_parameters);
             
             $locations = array();
             if(isset($photo->location->locality->_content)) $locations[0] = $photo->location->locality->_content;
@@ -224,7 +225,7 @@ class FlickrAPI
             if($locations) $data_object_parameters["location"] = implode(", ", $locations);
         }
         
-        $data_objects[] = new SchemaDataObject($data_object_parameters);
+        $data_objects[] = new \SchemaDataObject($data_object_parameters);
         
         
         // If the media type is video, there should be a Video Player type. Add that as a second data object
@@ -251,7 +252,7 @@ class FlickrAPI
                         $data_object_parameters["mimeType"] = "video/x-flv";
                         $data_object_parameters["mediaURL"] = $size->source;
                         
-                        $data_objects[] = new SchemaDataObject($data_object_parameters);
+                        $data_objects[] = new \SchemaDataObject($data_object_parameters);
                     }
                 }
             }

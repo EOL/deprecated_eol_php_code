@@ -28,7 +28,7 @@
     </xsd:complexType>
     
     <xsd:complexType name="taxonBaseType">
-        <xsd:all>
+        <xsd:sequence>
             
             <xsd:element ref="dc:identifier">
                 <xsd:annotation>
@@ -349,7 +349,9 @@
             <xsd:enumeration value="provider"/>
             <xsd:enumeration value="publisher"/>
             <xsd:enumeration value="recorder"/>
+            <xsd:enumeration value="reviewer"/>
             <xsd:enumeration value="source"/>
+            <xsd:enumeration value="translator"/>
         </xsd:restriction>
     </xsd:simpleType>
     

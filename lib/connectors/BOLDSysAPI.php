@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("PHYLUM_SERVICE_URL", "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
 define("SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxid=");
@@ -247,10 +248,10 @@ class BOLDSysAPI
             {
                 $data_object = self::get_data_object($object);
                 if(!$data_object) return false;
-                $taxon["dataObjects"][] = new SchemaDataObject($data_object);                     
+                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);                     
             }
         }        
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -278,7 +279,7 @@ class BOLDSysAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology";            
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }                            
         //==========================================================================================
         $agent = array(0 => array("role" => "compiler" , "homepage" => "http://www.boldsystems.org/" , "Sujeevan Ratnasingham"),
@@ -291,7 +292,7 @@ class BOLDSysAPI
             $agentParameters["homepage"] = $agent["homepage"];
             $agentParameters["logoURL"]  = "";        
             $agentParameters["fullName"] = $agent[0];
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $data_object_parameters["agents"] = $agents;    
         return $data_object_parameters;

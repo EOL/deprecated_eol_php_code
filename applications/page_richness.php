@@ -160,7 +160,7 @@ function show_results_for($taxon_concept_id)
         
         $statistics = new TextStatistics();
         $grades = array();
-        $result = $GLOBALS['db_connection']->query("SELECT do.description FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE dotc.taxon_concept_id=$taxon_concept_id AND do.published=1 AND do.visibility_id=".Visibility::insert('visible')." AND do.data_type_id=".DataType::insert("http://purl.org/dc/dcmitype/Text"));
+        $result = $GLOBALS['db_connection']->query("SELECT do.description FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE dotc.taxon_concept_id=$taxon_concept_id AND do.published=1 AND do.visibility_id=".Visibility::visible()->id." AND do.data_type_id=".DataType::text()->id);
         while($result && $row=$result->fetch_assoc())
         {
             $grades[] = $statistics->flesch_kincaid_grade_level($row['description']);

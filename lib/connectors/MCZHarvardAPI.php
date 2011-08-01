@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define("SPECIMEN_DETAIL_URL", "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm?GUID=");
 define("MCZ_TAXON_DETAIL_URL", "http://mczbase.mcz.harvard.edu/TaxonomyResults.cfm?scientific_name=");
@@ -270,7 +271,7 @@ class MCZHarvardAPI
         $taxon["family"] = ucfirst(trim($rec["family"]));
         if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"],@$taxon["dataObjects"],array());
         if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"],$rec["references"]);        
-        $taxon_object = new SchemaTaxon($taxon);
+        $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
     
@@ -290,7 +291,7 @@ class MCZHarvardAPI
                 
                 $data_object = self::get_data_object($rec,$arr_ref);
                 if(!$data_object) return false;
-                $taxon_dataObjects[]= new SchemaDataObject($data_object);                     
+                $taxon_dataObjects[]= new \SchemaDataObject($data_object);                     
             }
         }        
         return $taxon_dataObjects;
@@ -320,8 +321,8 @@ class MCZHarvardAPI
         {
             $referenceParameters = array();
             $referenceParameters["fullReference"] = trim($r["ref"]);           
-            $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));      
-            $ref[] = new SchemaReference($referenceParameters);
+            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));      
+            $ref[] = new \SchemaReference($referenceParameters);
         }        
         $data_object_parameters["references"] = $ref;
         //end reference
@@ -331,7 +332,7 @@ class MCZHarvardAPI
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new SchemaSubject($subjectParameters);
+            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         
         if(@$rec["agent"])
@@ -344,7 +345,7 @@ class MCZHarvardAPI
                 $agentParameters["homepage"] = $a["homepage"];
                 $agentParameters["logoURL"]  = "";        
                 $agentParameters["fullName"] = $a[0];
-                $agents[] = new SchemaAgent($agentParameters);
+                $agents[] = new \SchemaAgent($agentParameters);
             }
             $data_object_parameters["agents"] = $agents;
         }

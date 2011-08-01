@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class DarwinCoreArchiveHarvester
 {
@@ -21,7 +22,7 @@ class DarwinCoreArchiveHarvester
         // currently only recognizing tarred and gzipped files
         if(!preg_match("/^(.*)\.(tgz|tar\.gz|tar\.gzip)$/", $uri, $arr)) throw new Exception("DarwinCore Archive must be tar/gzip");
         $file_contents = Functions::get_remote_file($uri);
-        if(!$file_contents) throw new Exception("Cannot access DarwinCore Archive at $uri");
+        if(!$file_contents) throw new \Exception("Cannot access DarwinCore Archive at $uri");
         $directory_name = $arr[1];
         
         // // make temp dir
@@ -60,7 +61,7 @@ class DarwinCoreArchiveHarvester
     
     function load_core_or_extension($metadata_xml)
     {
-        $extension = new stdClass;
+        $extension = new \stdClass;
         
         // attributes
         $extension->row_type = Functions::import_decode(@$metadata_xml['rowType']);

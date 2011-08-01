@@ -1,6 +1,7 @@
 <?php
+namespace php_active_record;
 
-class DarwinCoreRecordSet extends MysqlBase
+class DarwinCoreRecordSet
 {
     public static function print_taxon_xml($taxa)
     {

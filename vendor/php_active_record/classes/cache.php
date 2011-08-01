@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class Cache
 {
@@ -8,12 +9,12 @@ class Cache
         if(!$GLOBALS["ENV_ENABLE_CACHING"]) return false;
         if(@$GLOBALS['ENV_CACHE'] == "memory")
         {
-            return call_user_func_array(array('MemoryCache', $function), $args);
+            return call_user_func_array(array('php_active_record\MemoryCache', $function), $args);
         }elseif(@$GLOBALS['memcached_connection'])
         {
             // making sure the key is valid
             if(isset($args[0])) $args[0] = strtolower(str_replace(" ", "_", $args[0]));
-            $return = call_user_func_array(array('Memcached', $function), $args);
+            $return = call_user_func_array(array('php_active_record\Memcached', $function), $args);
             return $return;
         }
         return false;

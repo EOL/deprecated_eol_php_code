@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class WikipediaHarvester
 {
@@ -37,13 +38,13 @@ class WikipediaHarvester
         $this->resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", "w+");
         
         // start the resource file with the XML header
-        fwrite($this->resource_file, SchemaDocument::xml_header());
+        fwrite($this->resource_file, \SchemaDocument::xml_header());
         
         // iterate through the Wikipedia dump adding Taxa to the XML file
         $this->iterate_files($last_part, "get_scientific_pages");
         
         // write the resource footer
-        fwrite($this->resource_file, SchemaDocument::xml_footer());
+        fwrite($this->resource_file, \SchemaDocument::xml_footer());
         fclose($this->resource_file);
         
         @unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_previous.xml");
@@ -56,7 +57,7 @@ class WikipediaHarvester
         // set the resource to Force Harvest
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml"))
         {
-            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::insert('Force Harvest')." WHERE id=".$this->resource->id);
+            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=".$this->resource->id);
         }
     }
     
@@ -242,10 +243,10 @@ class WikipediaHarvester
             {
                 if($data_object_params = $page->data_object_parameters())
                 {
-                    $taxon_params['dataObjects'][] = new SchemaDataObject($data_object_params);
+                    $taxon_params['dataObjects'][] = new \SchemaDataObject($data_object_params);
                 }else echo "   no data object\n";
                 
-                $taxon = new SchemaTaxon($taxon_params);
+                $taxon = new \SchemaTaxon($taxon_params);
                 fwrite($this->resource_file, $taxon->__toXML());
             }else
             {
@@ -271,11 +272,11 @@ class WikipediaHarvester
         {
             if($data_object_params = $page->data_object_parameters())
             {
-                $taxon_params['dataObjects'][] = new SchemaDataObject($data_object_params);
+                $taxon_params['dataObjects'][] = new \SchemaDataObject($data_object_params);
             }else echo "   no data object\n";
             
-            $taxon = new SchemaTaxon($taxon_params);
-            $mini_doc = SchemaDocument::get_taxon_xml(array($taxon));
+            $taxon = new \SchemaTaxon($taxon_params);
+            $mini_doc = \SchemaDocument::get_taxon_xml(array($taxon));
             $mini_doc_xml = simplexml_load_string($mini_doc, null, LIBXML_NOCDATA);
             $taxon_xml = $mini_doc_xml->taxon[0];
             echo($mini_doc);
@@ -287,7 +288,7 @@ class WikipediaHarvester
             if(@!$new_data_object->id) return false;
             
             $GLOBALS['db_connection']->update("UPDATE data_objects SET published=0 WHERE guid='$new_data_object->guid' AND id!=$new_data_object->id");
-            $GLOBALS['db_connection']->update("UPDATE data_objects SET published=1, vetted_id=". Vetted::insert('trusted') .", visibility_id=". Visibility::insert('visible') ." WHERE id=$new_data_object->id");
+            $GLOBALS['db_connection']->update("UPDATE data_objects SET published=1, vetted_id=". Vetted::trusted()->id .", visibility_id=". Visibility::visible()->id ." WHERE id=$new_data_object->id");
             $GLOBALS['db_connection']->update("UPDATE data_objects_hierarchy_entries dohe JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.published=1, tc.published=1 WHERE dohe.data_object_id=$new_data_object->id");
             $GLOBALS['db_connection']->insert("INSERT IGNORE INTO data_objects_taxon_concepts VALUES ($hierarchy_entry->taxon_concept_id, $new_data_object->id)");
             $GLOBALS['db_connection']->insert("INSERT IGNORE INTO data_objects_table_of_contents (SELECT doii.data_object_id, ii.toc_id FROM data_objects_info_items doii JOIN info_items ii ON (doii.info_item_id=ii.id) where doii.data_object_id=$new_data_object->id)");

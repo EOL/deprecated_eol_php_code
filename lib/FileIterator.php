@@ -1,6 +1,7 @@
 <?php
+namespace php_active_record;
 
-class FileIterator implements Iterator
+class FileIterator implements \Iterator
 {
     protected $FILE;
     protected $file_path;

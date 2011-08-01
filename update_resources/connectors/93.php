@@ -100,7 +100,7 @@ foreach($xml->taxon as $rec)
             print" taxon_id = $taxon_id ";        
             
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent_name, $desc, "text", $source_url, $taxon_ref, $arr_ref);                   
-            $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);         
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);         
         }        
     }    
     
@@ -114,7 +114,7 @@ foreach($xml->taxon as $rec)
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -206,7 +206,7 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
         ///////////////////////////////////        
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
         $dataObjectParameters["mimeType"] = "text/html";        
@@ -230,8 +230,8 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
             $referenceParameters = array();
             $referenceParameters["fullReference"] = trim(utf8_encode($reference));
             $href = $GLOBALS['cited_taxa_prefix'] . $ref_id;
-            $referenceParameters["referenceIdentifiers"][] = new SchemaReferenceIdentifier(array("label" => "url" , "value" => $href));                                
-            $references[] = new SchemaReference($referenceParameters);
+            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => $href));                                
+            $references[] = new \SchemaReference($referenceParameters);
             $dataObjectParameters["references"] = $references;            
         }
     }
@@ -242,7 +242,7 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
         $agentParameters = array();
         $agentParameters["role"] = "author";
         $agentParameters["fullName"] = $agent_name;
-        $agents[] = new SchemaAgent($agentParameters);
+        $agents[] = new \SchemaAgent($agentParameters);
         $dataObjectParameters["agents"] = $agents;    
     }
 
@@ -252,16 +252,16 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
     $agentParameters["role"] = "project";
     $agentParameters["fullName"] = $agent_name;
     $agentParameters["homepage"] = "http://antiz.redmon.com/index.cfm";
-    $agents[] = new SchemaAgent($agentParameters);
+    $agents[] = new \SchemaAgent($agentParameters);
     $dataObjectParameters["agents"] = $agents;    
     
     ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();    
     $audienceParameters = array();    
     $audienceParameters["label"] = "Expert users";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
     $audienceParameters["label"] = "General public";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);    
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
     return $dataObjectParameters;
 }
 

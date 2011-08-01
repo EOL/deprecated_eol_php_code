@@ -17,7 +17,7 @@ foreach($array as $taxon)
     {
         foreach($taxon["references"] as $reference)
         {
-            $taxon_references[] = new SchemaReference($reference);
+            $taxon_references[] = new \SchemaReference($reference);
         }
     }
     $taxon["references"] = $taxon_references;
@@ -28,29 +28,29 @@ foreach($array as $taxon)
         $data_object_references = array();
         if(@is_array($data_object["references"]))
         {
-            foreach($data_object["references"] as $reference) $data_object_references[] = new SchemaReference($reference);
+            foreach($data_object["references"] as $reference) $data_object_references[] = new \SchemaReference($reference);
         }
         $data_object["references"] = $data_object_references;
         
         $data_object_subjects = array();
         if(@is_array($data_object["subjects"]))
         {
-            foreach($data_object["subjects"] as $subject) $data_object_subjects[] = new SchemaSubject($subject);
+            foreach($data_object["subjects"] as $subject) $data_object_subjects[] = new \SchemaSubject($subject);
         }
         $data_object["subjects"] = $data_object_subjects;
         
         $data_object_agents = array();
         if(@is_array($data_object["agents"]))
         {
-            foreach($data_object["agents"] as $agent) $data_object_agents[] = new SchemaAgent($agent);
+            foreach($data_object["agents"] as $agent) $data_object_agents[] = new \SchemaAgent($agent);
         }
         $data_object["agents"] = $data_object_agents;
         
-        $data_objects[] = new SchemaDataObject($data_object);
+        $data_objects[] = new \SchemaDataObject($data_object);
     }
     $taxon["dataObjects"] = $data_objects;
     
-    $all_taxa[] = new SchemaTaxon($taxon);
+    $all_taxa[] = new \SchemaTaxon($taxon);
 }
 
 

@@ -84,7 +84,7 @@ foreach($xml->taxon as $t)
             $taxonParameters["synonyms"] = array();
             foreach($t->synonym as $syn)
             {
-                $taxonParameters["synonyms"][] = new SchemaSynonym(array("synonym" => $syn, "relationship" => $url = $syn["relationship"]));                
+                $taxonParameters["synonyms"][] = new \SchemaSynonym(array("synonym" => $syn, "relationship" => $url = $syn["relationship"]));                
             }
             */
             
@@ -181,14 +181,14 @@ foreach($xml->taxon as $t)
             
             foreach($dataObjects as $k => $v)
             {
-                $taxonParameters["dataObjects"][] = new SchemaDataObject($v);
+                $taxonParameters["dataObjects"][] = new \SchemaDataObject($v);
                 unset($v);
             }
             //end process dataObjects =====================================================================        
 
             ///////////////////////////////////////////////////////////////////////////////////    
             $taxa = array();
-            $taxa[] = new SchemaTaxon($taxonParameters);    
+            $taxa[] = new \SchemaTaxon($taxonParameters);    
         
             //$new_resource_xml = SchemaDocument::get_taxon_xml($taxa);
             $str='';
@@ -312,7 +312,7 @@ function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$titl
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = $subject;
-        $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+        $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
     }
  	
     
@@ -328,7 +328,7 @@ function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$titl
             //$agentParameters["logoURL"]  = $agent["logoURL"];        
             //$agentParameters["fullName"] = Functions::import_decode($agent["name"]);            
             $agentParameters["fullName"] = utf8_encode($agent["name"]);            
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $dataObjectParameters["agents"] = $agents;    
     //}
@@ -353,10 +353,10 @@ function get_data_object($desc,$do_identifier,$subject,$dataType,$mimeType,$titl
     $audienceParameters = array();
   
     $audienceParameters["label"] = "Expert users";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
   
     $audienceParameters["label"] = "General public";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
        ///////////////////////////////////
 
     return $dataObjectParameters;

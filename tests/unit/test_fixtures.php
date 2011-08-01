@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class test_fixtures extends SimpletestUnitBase
 {
@@ -17,8 +18,8 @@ class test_fixtures extends SimpletestUnitBase
     
     function testFind()
     {
-        $data_type_id = DataType::insert($this->fixtures->data_types->sound->schema_value);
-        $this->assertTrue($data_type_id, $this->fixtures->data_types->sound->id, "Should be able to find this data type by id");
+        $data_type = DataType::find_or_create_by_schema_value($this->fixtures->data_types->sound->schema_value);
+        $this->assertTrue($data_type->id, $this->fixtures->data_types->sound->id, "Should be able to find this data type by id");
     }
 }
 

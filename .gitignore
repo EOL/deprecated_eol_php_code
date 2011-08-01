@@ -72,6 +72,8 @@ temp/*
 !temp/.gitignore
 tmp/taxon_concept_with_bhl_links.txt
 tmp/tmp*
+tmp/*.csv
+tmp/dir_*
 update_resources/connectors/26 v1.php
 update_resources/connectors/26pre.php
 update_resources/connectors/81 v1.php
@@ -79,28 +81,23 @@ update_resources/connectors/bad_id.txt
 update_resources/connectors/CDC - Copy.php
 update_resources/connectors/CDC.php
 update_resources/connectors/CDC2.php
-update_resources/connectors/files/flickr_cache/photosGetInfo/*
-!update_resources/connectors/files/flickr_cache/photosGetInfo/.gitignore
-update_resources/connectors/files/flickr_cache/photosGetSizes/*
-!update_resources/connectors/files/flickr_cache/photosGetSizes/.gitignore
-update_resources/connectors/files/NaturalHistoryServices/2010 11 29
-update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap.xml
-update_resources/connectors/files/NaturalHistoryServices/nhsjumpers_videositemap_small.xml
-update_resources/connectors/files/NaturalHistoryServices/nhswaspstwo_videositemap.xml
-update_resources/connectors/files/NaturalHistoryServices/nhswasps_videositemap.xml
-update_resources/connectors/files/NaturalHistoryServices/old files used
-update_resources/connectors/files/OBIS/depthenv20100825.csv
-update_resources/connectors/files/OBIS/tnames20100825.csv
-update_resources/connectors/files/PublicHealthImageLibrary/*
-!update_resources/connectors/files/PublicHealthImageLibrary/.gitignore
-update_resources/connectors/files/temp*
-update_resources/connectors/files/wikimedia/*
-!update_resources/connectors/files/wikimedia/.gitignore
-update_resources/connectors/files/wikipedia/*
-!update_resources/connectors/files/wikipedia/.gitignore
-update_resources/connectors/files/WORMS/*
-!update_resources/connectors/files/WORMS/.gitignore
+update_resources/connectors/files/*
 update_resources/connectors/readmeli.txt
 update_resources/connectors/run.bat
 update_resources/connectors/set.php
 update_resources/connectors/XML_check.php
+vendor/eol_content_schema_v2/extension_cache/*
+
+.DS_Store
+
+rake_tasks/e
+
+applications/partner_requests/images_per_resource.php
+applications/partner_requests/moth_photographers/MPG taxon index.xls
+applications/partner_requests/moth_photographers/Moth Photographers Group.xls
+applications/partner_requests/moth_photographers/index.php
+applications/partner_requests/moth_photographers/moth.txt
+
+null
+
+update_resources/connectors/dwca_parsing.php

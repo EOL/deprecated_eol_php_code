@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 /*
 rundate     processed   unique names    recs in GNI

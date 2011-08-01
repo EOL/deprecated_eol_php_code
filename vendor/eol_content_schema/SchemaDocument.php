@@ -1,6 +1,6 @@
 <?php
 
-class SchemaDocument extends MysqlBase
+class SchemaDocument
 {
     public static function print_taxon_xml($taxa)
     {

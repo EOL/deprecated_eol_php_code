@@ -2,24 +2,24 @@
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-$path_to_raw_file = DOC_ROOT . "update_resources/connectors/files/tol-all-content-nc.xml";
+$path_to_raw_file = DOC_ROOT . "update_resources/connectors/files/tol_new.xml";
 $path_to_updated_file = DOC_ROOT . "update_resources/connectors/files/tol-all-content-nc_updated.xml";
 $path_to_final_file = DOC_ROOT . "update_resources/connectors/files/tol-all-content-nc_final.xml";
 
 
-// convert weird characters in the file
-$file = file_get_contents($path_to_raw_file);
-$file = convert_file($file);
-
-$OUT = fopen($path_to_updated_file, "w+");
-fwrite($OUT, $file);
-fclose($OUT);
-unset($file);
+// // convert weird characters in the file
+// $file = file_get_contents($path_to_raw_file);
+// $file = convert_file($file);
+// 
+// $OUT = fopen($path_to_updated_file, "w+");
+// fwrite($OUT, $file);
+// fclose($OUT);
+// unset($file);
 
 
 
 $reader = new XMLReader();
-$reader->open($path_to_updated_file);
+$reader->open($path_to_raw_file);
 
 $OUT = fopen($path_to_final_file, "w+");
 scan_recursively($reader, $OUT);

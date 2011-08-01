@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 require_library('MysqliResultIterator');
 require_library('MysqliResultFileIterator');

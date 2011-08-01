@@ -81,7 +81,7 @@ while($row=$result->fetch_assoc())
         $taxon_parameters["source"]         = "http://www.mnh.si.edu/mna/image_info.cfm?species_id=" . $row["species_id"];
         
         $taxon_parameters["commonNames"] = array();
-        $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => trim($row["common_name"]), "language" => "en"));
+        $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($row["common_name"]), "language" => "en"));
         $other_names = trim($row["other_names"]);
         if($other_names != "")
         {
@@ -90,12 +90,12 @@ while($row=$result->fetch_assoc())
                 $r = explode(",",$other_names); //comma-separated to array $r
                 for ($i = 0; $i <= sizeof($r)-1; $i++) 
                 {
-                    $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => trim($r[$i]), "language" => "en"));           
+                    $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($r[$i]), "language" => "en"));           
                 }                        
             }
             else
             {
-                $taxon_parameters["commonNames"][] = new SchemaCommonName(array("name" => $other_names, "language" => "en"));
+                $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => $other_names, "language" => "en"));
             }
         }
 
@@ -124,7 +124,7 @@ while($row=$result->fetch_assoc())
     $title="Description";
     $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
     $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference, $subject, $title);       
-    $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+    $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
     
     //start another dataobject
     $description="";
@@ -150,7 +150,7 @@ while($row=$result->fetch_assoc())
         $title="Size in North America";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size";                
         $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference, $subject, $title);       
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
     }
     
     //end another dataobject
@@ -165,7 +165,7 @@ while($row=$result->fetch_assoc())
         $title = "Status";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus";
         $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference, $subject, $title);               
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
     }
     // */
     
@@ -180,7 +180,7 @@ while($row=$result->fetch_assoc())
         $title = "Distribution in North America";
         $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
         $data_object_parameters = get_data_object($dc_identifier, $agent_name, $dc_source, $description, $reference, $subject, $title);               
-        $taxon_parameters["dataObjects"][] = new SchemaDataObject($data_object_parameters);        	
+        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);        	
     }    
     //
     
@@ -197,7 +197,7 @@ exit;
 
 foreach($used_taxa as $taxon_parameters)
 {
-    $schema_taxa[] = new SchemaTaxon($taxon_parameters);
+    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
@@ -238,7 +238,7 @@ function get_data_object($id, $agent_name, $dc_source, $description, $reference,
     $dataObjectParameters["subjects"] = array();
     $subjectParameters = array();
     $subjectParameters["label"] = $subject;
-    $dataObjectParameters["subjects"][] = new SchemaSubject($subjectParameters);
+    $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
     ///////////////////////////////////
     
     $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
@@ -263,7 +263,7 @@ function get_data_object($id, $agent_name, $dc_source, $description, $reference,
             $agentParameters["homepage"] = $agent["homepage"];
             $agentParameters["logoURL"]  = "";        
             $agentParameters["fullName"] = $agent[0];
-            $agents[] = new SchemaAgent($agentParameters);
+            $agents[] = new \SchemaAgent($agentParameters);
         }
         $dataObjectParameters["agents"] = $agents;    
     }
@@ -274,10 +274,10 @@ function get_data_object($id, $agent_name, $dc_source, $description, $reference,
     $audienceParameters = array();
     
     $audienceParameters["label"] = "Expert users";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
     
     $audienceParameters["label"] = "General public";
-    $dataObjectParameters["audiences"][] = new SchemaAudience($audienceParameters);
+    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
     
     ///////////////////////////////////////////////////////////////////
 
@@ -286,7 +286,7 @@ function get_data_object($id, $agent_name, $dc_source, $description, $reference,
     $reference = utf8_encode($reference);
     //$reference = "<![CDATA[" . $reference . "]]>";    
     $referenceParameters["fullReference"] = $reference;    
-    $references[] = new SchemaReference($referenceParameters);        
+    $references[] = new \SchemaReference($referenceParameters);        
     $dataObjectParameters["references"] = $references;         
 
     ///////////////////////////////////////////////////////////////////

@@ -1,10 +1,12 @@
 <?php
+namespace php_active_record;
+
 /* the MODEL */
-class SpeciesStats extends MysqlBase
+class SpeciesStats
 {
     function __construct()
     {
-        parent::initialize();
+        $this->mysqli =& $GLOBALS['db_connection'];
     }    
     public function taxa_stat($taxon_concept_ids,$limit,$group)    //group 1=taxa stat; 2=data object stat
     {   
@@ -69,8 +71,8 @@ class SpeciesStats extends MysqlBase
         $vetted_untrusted_published_notVisible_uniqueGuid=0;
 
         //start main body ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        $image_type_id = DataType::insert("http://purl.org/dc/dcmitype/StillImage");
-        $text_type_id  = DataType::insert("http://purl.org/dc/dcmitype/Text");
+        $image_type_id = DataType::image()->id;
+        $text_type_id  = DataType::text()->id;
         
         $number_of_data_objects = array();
         $number_of_data_objects['vetted']['image'] = array();

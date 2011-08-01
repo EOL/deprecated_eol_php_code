@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class MysqliConnection
 {
@@ -328,9 +329,9 @@ class MysqliConnection
         $query = "";
         $this->debug("show tables from ".$this->master_database, true);
         $result = $this->master_mysqli->query("show tables from ".$this->master_database);
-        while($result && $row=$result->fetch_assoc())
+        while($result && $row=$result->fetch_row())
         {
-            $table = $row["Tables_in_".$this->master_database];
+            $table = $row[0];
             $count_results = $this->master_mysqli->query("select 1 from $table limit 1");
             if($count_results && $count_results->num_rows)
             {
@@ -470,7 +471,7 @@ class MysqliConnection
     function initialize()
     {
         mysql_debug("Connecting to host:$this->server, database:$this->database");
-        $this->mysqli = new mysqli();
+        $this->mysqli = new \mysqli();
         $this->mysqli->init();
         $this->mysqli->options(MYSQLI_OPT_LOCAL_INFILE, true);
         $this->mysqli->real_connect($this->server, $this->user, $this->password, "", $this->port, $this->socket, MYSQLI_CLIENT_COMPRESS);
@@ -495,7 +496,7 @@ class MysqliConnection
         if($this->master_server)
         {
             mysql_debug("Connecting to host:$this->master_server, database:$this->master_database");
-            $this->master_mysqli = new mysqli();
+            $this->master_mysqli = new \mysqli();
             $this->master_mysqli->init();
             $this->master_mysqli->options(MYSQLI_OPT_LOCAL_INFILE, true);
             $this->master_mysqli->real_connect($this->master_server, $this->master_user, $this->master_password, "", $this->master_port, $this->master_socket, MYSQLI_CLIENT_COMPRESS);

@@ -1,27 +1,18 @@
 <?php
+namespace php_active_record;
 
-class License extends MysqlBase
+class License extends ActiveRecord
 {
-    function __construct($param)
+    static function find_or_create_for_parser($string)
     {
-        $this->table_name = Functions::class_name(__FILE__);
-        parent::initialize($param);
-        if(@!$this->id) return;
+        if($license = self::find_by_string($string)) return $license;
+        return self::find_or_create_by_source_url($string);
     }
     
-    static function insert($string)
+    static function find_by_string($string)
     {
-        $string = trim($string);
-        if(!$string) return 0;
-        
-        if($result = self::find($string)) return $result;
-        return parent::insert_fields_into(array('source_url' => $string), Functions::class_name(__FILE__));
-    }
-    
-    static function find($string)
-    {
-        if($string == "not applicable" && $license = parent::find_by("title", $string, Functions::class_name(__FILE__))) return $license;
-        return parent::find_by("source_url", $string, Functions::class_name(__FILE__));
+        if($string == "not applicable" && $license = self::find_by_title($string)) return $license;
+        return parent::find_by_source_url($string);
     }
 }
 

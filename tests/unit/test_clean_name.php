@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 class test_clean_name extends SimpletestUnitBase
 {

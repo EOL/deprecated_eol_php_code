@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <response
-  xmlns='http://www.eol.org/transfer/content/0.2'
+  xmlns='http://www.eol.org/transfer/content/0.3'
   xmlns:xsd='http://www.w3.org/2001/XMLSchema'
   xmlns:dc='http://purl.org/dc/elements/1.1/'
   xmlns:dcterms='http://purl.org/dc/terms/'
   xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'
   xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'
   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-  xsi:schemaLocation='http://www.eol.org/transfer/content/0.2 http://services.eol.org/schema/content_0_2.xsd'>
+  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>
 <taxon>
   <dc:identifier>98h34jgbksfbg</dc:identifier>
   <dwc:Kingdom>Animalia</dwc:Kingdom>
@@ -22,7 +22,8 @@
   <commonName xml:lang='sp'>some sp common name</commonName>
   <synonym relationship='ambiguous synonym'>some ambig syn</synonym>
   <synonym relationship='heterotypic synonym'>some heterotypic synonym</synonym>
-  <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/346&quot;&gt;Hackett, J. D.&lt;/a&gt;</reference>
+  <agent homepage="http://www.eol.org/agents/23" role="publisher" logoURL="http://www.akamai.com/graphics/misc/rss.jpg">Mike Stevens</agent>
+  <reference doi="doi:10.1000/186">&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/346&quot;&gt;Hackett, J. D.&lt;/a&gt;</reference>
   <reference>&lt;a href=&quot;http://eolspecies.lifedesks.org/biblio/author/350&quot;&gt;Nash, E. A.&lt;/a&gt;</reference>
   <reference>Carles-Tolr&amp;aacute;, M.&amp;nbsp;
   1995.&amp;nbsp;&amp;nbsp;Nuevas citas de d&amp;iacute;pteros acalipteros para las Islas Baleares, junto con una lista preliminar de once familias (Diptera: Acalyptrata). Bolet&amp;iacute;n de la Asociaci&amp;oacute;n Espa&amp;ntilde;ola de Entomolog&amp;iacute;a. 19:253-265.</reference>
@@ -30,7 +31,7 @@
     <dc:identifier>3127123681</dc:identifier>
     <dataType>http://purl.org/dc/dcmitype/StillImage</dataType>
     <mimeType>image/jpeg</mimeType>
-    <agent homepage="http://www.flickr.com/photos/58213213@N00" role="photographer">Valter Jacinto</agent>
+    <agent homepage="http://www.flickr.com/photos/58213213@N00" role="photographer" logoURL="http://www.akamai.com/graphics/misc/rss.jpg">Valter Jacinto</agent>
     <dcterms:created>2006-05-30 15:15:44</dcterms:created>
     <dc:title>Andorinha-dos-beirais // House Martin (Delichon urbica), juvenile</dc:title>
     <license>http://creativecommons.org/licenses/by-nc-sa/2.0/</license>

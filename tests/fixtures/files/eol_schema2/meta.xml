@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<archive xmlns="http://rs.tdwg.org/dwc/text/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rs.tdwg.org/dwc/text/  http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd">
+    <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+        <files>
+            <location>taxa.txt</location>
+        </files>
+        <id index="0" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+        <field index="2" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID"/>
+    </table>
+    
+    
+    <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/ResourceRelationship">
+        <files>
+            <location>media_taxa.txt</location>
+        </files>
+        <id index="0" term="http://rs.tdwg.org/dwc/terms/resourceRelationshipID"/>
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/resourceID"/>
+        <field index="2" term="http://rs.tdwg.org/dwc/terms/relatedResourceID"/>
+        <foreignKey index="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon"/>
+        <foreignKey index="2" rowType="http://www.eol.org/schema/transfer#MediaResource"/>
+    </table>
+    
+    
+    <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://www.eol.org/schema/transfer#MediaResource">
+        <files>
+            <location>media.txt</location>
+        </files>
+        <id index="0" term="http://www.eol.org/schema/transfer#mediaResourceID"/>
+        <field index="1" term="http://www.eol.org/schema/transfer#type"/>
+        <field index="2" term="http://www.eol.org/schema/transfer#subtype"/>
+        <field index="3" term="http://www.eol.org/schema/transfer#title"/>
+        <field index="4" term="http://www.eol.org/schema/transfer#fileURL"/>
+        <field index="5" term="http://www.eol.org/schema/transfer#thumbnailURL"/>
+        <field index="6" term="http://www.eol.org/schema/transfer#additionalInformationURL"/>
+    </table>
+</archive>
