@@ -23,7 +23,8 @@ class NameStat
                 <td colspan='3'># of Data Objects</td>
                 <td rowspan='2'>Score</td>
                 <td rowspan='2'>Last<br>curated</td>
-                <td rowspan='2'>Overview<br>chapter<br>(word count)</td>
+                <td rowspan='2'>Overview - Brief Summary<br>(word count)</td>
+                <td rowspan='2'>Overview - Comprehensive Description<br>(word count)</td>
             </tr>
             <tr align='center'>
                 <td>Text</td>
@@ -52,6 +53,7 @@ class NameStat
                 <td align='right'>"  . $row["score"] . "&nbsp;</td>
                 <td align='right'>"  . $row["last_curated"] . "&nbsp;</td>
                 <td align='right'>"  . $row["overview_word_count"] . "&nbsp;</td>
+                <td align='right'>"  . $row["general_description_word_count"] . "&nbsp;</td>
             </tr>";
         }
         print "</table>";
@@ -128,7 +130,8 @@ class NameStat
                      "total_objects" => $total_objects,
                      "score" => $score,
                      "last_curated" => self::get_last_curation_date($id),
-                     "overview_word_count" => self::get_overview_word_count($id)
+                     "overview_word_count" => self::get_word_count($id, "brief summary"),
+                     "general_description_word_count" => self::get_word_count($id, "comprehensive description")
                     );
     }
 
@@ -140,20 +143,30 @@ class NameStat
         while($result && $row=$result->fetch_assoc()) return $row['last_curated'];
     }
 
-    function get_overview_word_count($taxon_concept_id)
+    function get_word_count($taxon_concept_id, $chapter)
     {
         $concept_data_object_counts = array();
         $text_id = DataType::find_by_label('Text');
         $trusted_id     = Vetted::find("trusted");
         $untrusted_id   = Vetted::find("untrusted");
         $unreviewed_id  = Vetted::find("unknown");
-        $brief_summary[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology");
-        $brief_summary[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Introduction");
+        if($chapter == "brief summary")
+        {
+            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology");
+            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Introduction");
+        }
+        elseif($chapter == "comprehensive description")
+        {
+            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
+            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description");
+            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology");
+        }
+        
         $query = "SELECT do.description, do.vetted_id FROM data_objects_taxon_concepts dotc JOIN data_objects do ON dotc.data_object_id = do.id LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id WHERE do.published=1
                   AND do.visibility_id=".Visibility::find("visible")."
                   AND do.data_type_id = $text_id
                   AND dotc.taxon_concept_id = $taxon_concept_id
-                  AND doii.info_item_id in (".implode(",", $brief_summary).")";
+                  AND doii.info_item_id in (".implode(",", $scope).")";
         $result = $this->mysqli_slave->query($query);
         while($result && $row=$result->fetch_assoc())
         {

@@ -58,6 +58,7 @@ $taxa_table = array();
 foreach($names as $sciname)
 {
     $file = $search_api . urlencode($sciname);
+    $file = str_replace("+", "%20", $file);
     $xml = Functions::get_hashed_response($file);
     print "<pre>";
     $taxon = $func->get_details($xml, $sciname, $strict);
