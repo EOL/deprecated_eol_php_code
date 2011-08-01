@@ -205,7 +205,20 @@ class Tasks extends MysqlBase
         $matching_ids = array();
         $hierarchy_entry_ids = array();
         
-        $result = $mysqli->query("(SELECT id, name_id, 'preferred' as type FROM hierarchy_entries WHERE taxon_concept_id=$taxon_concept_id) UNION (SELECT s.hierarchy_entry_id, s.name_id, 'synonym' as type FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id=0 AND s.synonym_relation_id!=".SynonymRelation::insert('genbank common name')." AND s.synonym_relation_id!=".SynonymRelation::insert('common name')." AND s.synonym_relation_id!=".SynonymRelation::insert('blast name')." AND s.synonym_relation_id!=".SynonymRelation::insert('genbank acronym')." AND s.synonym_relation_id!=".SynonymRelation::insert('acronym').")");
+        $result = $mysqli->query("
+        (SELECT id, name_id, 'preferred' as type FROM hierarchy_entries he WHERE taxon_concept_id=$taxon_concept_id AND ((he.published=1 AND he.visibility_id=1) OR (he.published=0 AND he.visibility_id=2)))
+        UNION
+        (SELECT s.hierarchy_entry_id, s.name_id, 'synonym' as type
+        FROM hierarchy_entries he
+        JOIN synonyms s ON (he.id=s.hierarchy_entry_id)
+        WHERE he.taxon_concept_id=$taxon_concept_id
+        AND s.language_id=0
+        AND s.synonym_relation_id!=".SynonymRelation::insert('genbank common name')."
+        AND s.synonym_relation_id!=".SynonymRelation::insert('common name')."
+        AND s.synonym_relation_id!=".SynonymRelation::insert('blast name')."
+        AND s.synonym_relation_id!=".SynonymRelation::insert('genbank acronym')."
+        AND s.synonym_relation_id!=".SynonymRelation::insert('acronym')."
+        AND ((he.published=1 AND he.visibility_id=1) OR (he.published=0 AND he.visibility_id=2)))");
         while($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];

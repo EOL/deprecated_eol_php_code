@@ -23,6 +23,7 @@ while($result && $row=$result->fetch_assoc())
     
     if($resource->id==11) continue; //biolib.cz
     if($resource->id==42) continue; //fishbase
+    if($resource->id==220) continue; //scratchpads http://diptera.myspecies.info/spm/export.xml
     //if($resource->id!=61) continue;
     
     if($resource->accesspoint_url)

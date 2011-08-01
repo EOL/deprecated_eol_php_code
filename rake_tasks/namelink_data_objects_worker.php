@@ -41,6 +41,7 @@ while($result && $row=$result->fetch_assoc())
     $description = $nametag->markup_html();
     
     $description = NameLink::replace_tags_with_collection($description, 'EOLLookup::check_db');
+    $description = preg_replace("/(<a[^>]*>[^<]*?)<a href=\"\/pages\/[0-9]+\">(.*?)<\/a>/", "$1$2", $description);
     
     $GLOBALS['db_connection']->query("UPDATE data_objects SET description_linked='".$GLOBALS['db_connection']->real_escape_string($description)."' WHERE id=$id");
 }

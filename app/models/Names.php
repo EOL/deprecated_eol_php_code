@@ -11,6 +11,15 @@ class Name extends MysqlBase
         $this->string = ucfirst($this->string);
     }
     
+    public static function is_surrogate($string)
+    {
+        if(preg_match("/(^|[^\w])(incertae sedis|incertaesedis|culture|clone|isolate|phage|sp|cf|uncultured|DNA|unclassified)([^\w]|$)/i", $string)) return true;
+        if(preg_match("/[0-9][a-z]/i", $string)) return true;
+        if(preg_match("/[a-z][0-9]/i", $string)) return true;
+        if(preg_match("/virus([^\w]|$)/i", $string)) return true;
+        return false;
+    }
+
     public static function all()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];

@@ -64,27 +64,27 @@ class PageRichnessCalculator
                 $taxon_concept_id = $row[0];
                 $this_scores = $this->calculate_score_from_row($row);
                 // if($this_scores['total'] >= .5) $all_scores[$taxon_concept_id] = $this_scores;
-                $all_scores[$taxon_concept_id] = $this_scores;
+                $all_scores[$taxon_concept_id] = $this_scores['total'];
             }
         }
         
         echo "CALCULATIONS ARE DONE (".time_elapsed().")\n";
-        uasort($all_scores, array('self', 'sort_by_total_score'));
+        // uasort($all_scores, array('self', 'sort_by_total_score'));
         static $num = 0;
-        $OUT = fopen(DOC_ROOT . '/tmp/richness.txt', 'w+');
-        fwrite($OUT, "RANK\tID\tNAME\tBREADTH\tDEPTH\tDIVERSITY\tTOTAL\n");
-        foreach($all_scores as $id => $scores)
-        {
-            $num++;
-            // if($num >= 2500) break;
-            $str = "$num\t$id\t" . TaxonConcept::get_name($id) ."\t";
-            $str .= $scores['breadth'] / TaxonConceptMetric::$BREADTH_WEIGHT ."\t";
-            $str .= $scores['depth'] / TaxonConceptMetric::$DEPTH_WEIGHT ."\t";
-            $str .= $scores['diversity'] / TaxonConceptMetric::$DIVERSITY_WEIGHT ."\t";
-            $str .= $scores['total']."\n";
-            fwrite($OUT, $str);
-        }
-        fclose($OUT);
+        // $OUT = fopen(DOC_ROOT . '/tmp/richness.txt', 'w+');
+        // fwrite($OUT, "RANK\tID\tNAME\tBREADTH\tDEPTH\tDIVERSITY\tTOTAL\n");
+        // foreach($all_scores as $id => $scores)
+        // {
+        //     $num++;
+        //     // if($num >= 2500) break;
+        //     $str = "$num\t$id\t" . TaxonConcept::get_name($id) ."\t";
+        //     $str .= $scores['breadth'] / TaxonConceptMetric::$BREADTH_WEIGHT ."\t";
+        //     $str .= $scores['depth'] / TaxonConceptMetric::$DEPTH_WEIGHT ."\t";
+        //     $str .= $scores['diversity'] / TaxonConceptMetric::$DIVERSITY_WEIGHT ."\t";
+        //     $str .= $scores['total']."\n";
+        //     fwrite($OUT, $str);
+        // }
+        // fclose($OUT);
         return $all_scores;
     }
     

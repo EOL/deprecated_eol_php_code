@@ -15,6 +15,8 @@ class IUCNRedlistAPI
     
     public static function get_all_taxa($resource_file = null)
     {
+        $GLOBALS['birdlife_names'] = self::parse_birdlife_checklist();
+        
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/iucn_species_list.json";
         
         shell_exec("rm -f $species_list_path");
@@ -125,13 +127,21 @@ class IUCNRedlistAPI
         
         
         list($agents, $citation) = self::get_agents_and_citation($dom_doc, $xpath);
+        if(preg_match("/^BirdLife International/", $citation))
+        {
+            
+            $reference_parameters = array();
+            // $reference_parameters['fullReference'] = ???;
+            $reference_parameters['referenceIdentifiers'] = array(new SchemaReferenceIdentifier(array('label' => 'url', 'value' => $birdlife_url)));
+            $taxon_parameters['references'][] = new SchemaReference($reference_parameters);
+        }
         
         $taxon_parameters['dataObjects'] = array();
         
         $section = self::get_redlist_status($dom_doc, $xpath, $species_id);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_assessment_information', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation);
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_assessment_information', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation, 'IUCN Red List Assessment');
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
         $section = self::get_text_section($dom_doc, $xpath, $species_id, 'range_description', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description');
@@ -244,6 +254,39 @@ class IUCNRedlistAPI
         $agents[] = new SchemaAgent(array('fullName' => $assessors, 'role' => 'compiler'));
         
         return array($agents, $citation);
+    }
+    
+    public static function parse_birdlife_checklist()
+    {
+        $birdlife_checklist_path = DOC_ROOT . "update_resources/connectors/files/BirdLife_Checklist_Version_4.txt";
+        $birdlife_names = array();
+        $birdlife_synonyms = array();
+        foreach(new FileIterator($birdlife_checklist_path) as $line_number => $line)
+        {
+            // echo "$line_number - $line\n";
+            if($line_number < 2) continue;
+            $columns = explode("\t", $line);
+            $scientific_name = @trim($columns[3]);
+            $synonyms = @trim($columns[21]);
+            $id = @trim($columns[24]);
+            if(!$id) continue;
+            $birdlife_names[strtolower($scientific_name)] = $id;
+            
+            if($synonyms)
+            {
+                $synonyms = explode(";", $synonyms);
+                foreach($synonyms as $synonym)
+                {
+                    $synonym = preg_replace("/\(.*?\)/", "", trim($synonym));
+                    if(!$synonym) continue;
+                    echo "$synonym\n";
+                    $birdlife_synonyms[strtolower(trim($synonym))] = $id;
+                }
+            }
+        }
+        ksort($birdlife_names);
+        ksort($birdlife_synonyms);
+        return array($birdlife_names, $birdlife_synonyms);
     }
 }
 
