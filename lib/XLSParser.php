@@ -312,8 +312,8 @@ class XLSParser
         //end audience
         
         $dataObjectParameters["source"]        = self::format(@$do['Source URL']);
-        $dataObjectParameters["mediaURL"]      = self::format(@$do['Media URL']);
-        $dataObjectParameters["thumbnailURL"]  = self::format(@$do['Thumbnail URL']);
+        $dataObjectParameters["mediaURL"]      = str_replace(" ", "%20", self::format(@$do['Media URL']));
+        $dataObjectParameters["thumbnailURL"]  = str_replace(" ", "%20", self::format(@$do['Thumbnail URL']));
         $dataObjectParameters["location"]      = self::format(@$do['Location']);
         return $dataObjectParameters;
     }
