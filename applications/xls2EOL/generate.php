@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 error_reporting(0);
 ini_set("memory_limit","1000M");

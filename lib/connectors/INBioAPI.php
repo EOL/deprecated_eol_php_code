@@ -10,8 +10,8 @@ class INBioAPI
         $all_taxa = array();
         $used_collection_ids = array();
 
-        require_vendor('eol_content_schema');
-        $harvester = new ContentArchiveHarvester(NULL, DOC_ROOT . "temp/dwca");
+        require_vendor('eol_content_schema_v2');
+        $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca");
         $tables = $harvester->tables;
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
 

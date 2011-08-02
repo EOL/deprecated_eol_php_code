@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 

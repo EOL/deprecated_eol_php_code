@@ -137,33 +137,42 @@ class NameStat
 
     function get_last_curation_date($taxon_concept_id)
     {
+        /*
         $mysqli = load_mysql_environment('slave_eol');
         $query = "SELECT last_curated_dates.last_curated FROM last_curated_dates WHERE last_curated_dates.taxon_concept_id = $taxon_concept_id ORDER BY last_curated_dates.id DESC LIMIT 1";
         $result = $mysqli->query($query);
         while($result && $row=$result->fetch_assoc()) return $row['last_curated'];
+        */
+        
+        /*
+        this will be replaced by using the actions table:
+        we'd need to search the actions table and get the maximum action date for that concept to get the last curated date
+        */        
+        
+        return null;
     }
 
     function get_word_count($taxon_concept_id, $chapter)
     {
         $concept_data_object_counts = array();
-        $text_id = DataType::find_by_label('Text');
-        $trusted_id     = Vetted::find("trusted");
-        $untrusted_id   = Vetted::find("untrusted");
-        $unreviewed_id  = Vetted::find("unknown");
+        $text_id = DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/Text')->id;
+        $trusted_id     = Vetted::trusted()->id;
+        $untrusted_id   = Vetted::untrusted()->id;
+        $unreviewed_id  = Vetted::unknown()->id;
         if($chapter == "brief summary")
         {
-            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology");
-            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Introduction");
+            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology")->id;
+            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Introduction")->id;
         }
         elseif($chapter == "comprehensive description")
         {
-            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription");
-            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description");
-            $scope[] = InfoItem::find("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology");
+            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription")->id;
+            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description")->id;
+            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology")->id;
         }
         
         $query = "SELECT do.description, do.vetted_id FROM data_objects_taxon_concepts dotc JOIN data_objects do ON dotc.data_object_id = do.id LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id WHERE do.published=1
-                  AND do.visibility_id=".Visibility::find("visible")."
+                  AND do.visibility_id=" . Visibility::visible()->id ."
                   AND do.data_type_id = $text_id
                   AND dotc.taxon_concept_id = $taxon_concept_id
                   AND doii.info_item_id in (".implode(",", $scope).")";

@@ -7,8 +7,8 @@ class test_connector_lne_podcasts_api extends SimpletestUnitBase
 {
     function testLearningEducationAPI()
     {
-        $taxon["Pandea rubra"] = "Red Paper Latern Jellyfish";
-        
+        $taxon["Pandea rubra"] = "Red Paper Lantern Jellyfish";
+
         $GLOBALS['hard_coded_taxon'] = $taxon;
         $GLOBALS['sound_objects'] = LearningEducationAPI::prepare_sound_objects();
 
