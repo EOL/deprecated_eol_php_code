@@ -8,7 +8,7 @@ ini_set("display_errors", 1);
 /* forcing the test environment and turning off caching */
 $GLOBALS['ENV_NAME'] = 'test';
 require_once(dirname(__FILE__) . '/../config/environment.php');
-$GLOBALS['ENV_ENABLE_CACHING'] = false;
+$GLOBALS['ENV_ENABLE_CACHING'] = true;
 
 require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
 require_once(DOC_ROOT . 'vendor/simpletest_extended/simpletest_unit_base.php');
@@ -18,7 +18,7 @@ $test_name = @$_GET["test"];
 if(!$test_name && @$argv[1]) $test_name = $argv[1];
 
 debug('Starting tests');
-$start_time = time_elapsed();
+$start_time = microtime(true);
 
 $group_test = new \GroupTest('All tests');
 
@@ -53,9 +53,9 @@ if(preg_match("/^([a-z_]+)\/?$/i", $test_name, $arr))
 if(!isset($_SERVER['HTTP_USER_AGENT'])) $group_test->run(new \TextReporter());
 else $group_test->run(new \HtmlReporter());
 
-$end_time = time_elapsed();
+$end_time = microtime(true);
 
-echo "Tests ran in ". ($end_time-$start_time) ." seconds\n\n";
+echo "Tests ran in ". round($end_time-$start_time, 6) ." seconds\n\n";
 
 
 

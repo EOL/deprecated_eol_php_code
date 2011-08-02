@@ -12,6 +12,15 @@ class Name extends ActiveRecord
             'create_canonical_form'
         );
     
+    public static function is_surrogate($string)
+    {
+        if(preg_match("/(^|[^\w])(incertae sedis|incertaesedis|culture|clone|isolate|phage|sp|cf|uncultured|DNA|unclassified|sect)([^\w]|$)/i", $string)) return true;
+        if(preg_match("/[0-9][a-z]/i", $string)) return true;
+        if(preg_match("/[a-z][0-9]/i", $string)) return true;
+        if(preg_match("/virus([^\w]|$)/i", $string)) return true;
+        return false;
+    }
+    
     public function create_clean_name()
     {
         if(@!$this->clean_name) $this->clean_name = Functions::clean_name($this->string);
@@ -30,6 +39,15 @@ class Name extends ActiveRecord
             $canonical_form = CanonicalForm::find_or_create_by_string($string);
             $this->canonical_form_id = $canonical_form->id;
             $this->canonical_verified = 0;
+        }
+        if(@!$this->ranked_canonical_form_id)
+        {
+            $string = Functions::ranked_canonical_form($this->string);
+            if($string)
+            {
+                $ranked_canonical_form = CanonicalForm::find_or_create_by_string($string);
+                $this->ranked_canonical_form_id = $ranked_canonical_form->id;
+            }
         }
     }
     

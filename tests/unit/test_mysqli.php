@@ -108,9 +108,11 @@ class test_mysqli extends SimpletestUnitBase
         $this->assertTrue(count(Name::all()) == 20002, 'should start with 3 names');
         
         $GLOBALS['db_connection']->delete_from_where('names', 'id', 'select id from names where id<=10002');
+        Cache::flush();
         $this->assertTrue(count(Name::all()) == 10000, 'should end up with 1 name');
         
         $GLOBALS['db_connection']->delete_from_where('names', 'id', 'select id from names');
+        Cache::flush();
         $this->assertTrue(count(Name::all()) == 0, 'should end up with 0 names');
     }
 }

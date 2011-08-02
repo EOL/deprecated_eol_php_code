@@ -206,7 +206,20 @@ class Tasks
         $matching_ids = array();
         $hierarchy_entry_ids = array();
         
-        $result = $mysqli->query("(SELECT id, name_id, 'preferred' as type FROM hierarchy_entries WHERE taxon_concept_id=$taxon_concept_id) UNION (SELECT s.hierarchy_entry_id, s.name_id, 'synonym' as type FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id=0 AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('genbank common name')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('common name')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('blast name')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('genbank acronym')->id." AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('acronym')->id.")");
+        $result = $mysqli->query("
+        (SELECT id, name_id, 'preferred' as type FROM hierarchy_entries he WHERE taxon_concept_id=$taxon_concept_id AND ((he.published=1 AND he.visibility_id=". Visibility::visible()->id .") OR (he.published=0 AND he.visibility_id=". Visibility::preview()->id .")))
+        UNION
+        (SELECT s.hierarchy_entry_id, s.name_id, 'synonym' as type
+        FROM hierarchy_entries he
+        JOIN synonyms s ON (he.id=s.hierarchy_entry_id)
+        WHERE he.taxon_concept_id=$taxon_concept_id
+        AND s.language_id=0
+        AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('genbank common name')->id."
+        AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('common name')->id."
+        AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('blast name')->id."
+        AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('genbank acronym')->id."
+        AND s.synonym_relation_id!=".SynonymRelation::find_or_create_by_translated_label('acronym')->id."
+        AND ((he.published=1 AND he.visibility_id=". Visibility::visible()->id .") OR (he.published=0 AND he.visibility_id=". Visibility::preview()->id .")))");
         while($result && $row=$result->fetch_assoc())
         {
             $id = $row["id"];

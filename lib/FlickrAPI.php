@@ -225,14 +225,14 @@ class FlickrAPI
             if($locations) $data_object_parameters["location"] = implode(", ", $locations);
         }
         
-        $data_objects[] = new \SchemaDataObject($data_object_parameters);
-        
-        
-        // If the media type is video, there should be a Video Player type. Add that as a second data object
+        // If the media type is video, there should be a Video Player type linking to the video
+        // move the image into the thumbnail and video into mediaURL
         if($photo->media == "video")
         {
             debug("getting sizes for id: ".$photo->id."\n");
             
+            $data_object_parameters["thumbnailURL"] = $data_object_parameters["mediaURL"];
+            $data_object_parameters["mediaURL"] = NULL;
             if($file_json_object = self::check_cache('photosGetSizes', $photo->id))
             {
                 $sizes = $file_json_object;
@@ -249,14 +249,19 @@ class FlickrAPI
                     {
                         $data_object_parameters["identifier"] .= "_video";
                         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/MovingImage";
-                        $data_object_parameters["mimeType"] = "video/x-flv";
+                        $data_object_parameters["mimeType"] = "application/x-shockwave-flash";
                         $data_object_parameters["mediaURL"] = $size->source;
                         
                         $data_objects[] = new \SchemaDataObject($data_object_parameters);
                     }
                 }
             }
+        }else
+        {
+            // if its not a video, its an image so add it to the list
+            $data_objects[] = new \SchemaDataObject($data_object_parameters);
         }
+        
         
         return $data_objects;
     }

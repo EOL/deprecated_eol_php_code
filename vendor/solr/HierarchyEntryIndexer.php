@@ -87,9 +87,9 @@ class HierarchyEntryIndexer
     
     private function lookup_names($start, $limit, $filter = "1=1")
     {
-        echo "\nquerying names ($start, $limit)\n";
+        debug("querying names ($start, $limit)");
         $result = $this->mysqli->query("SELECT he.*, n.string, cf.string canonical_form FROM hierarchy_entries he LEFT JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (he.name_id=n.id) WHERE he.id  BETWEEN $start AND ".($start+$limit)." AND $filter");
-        echo "done querying names\n";
+        debug("done querying names");
         
         while($result && $row=$result->fetch_assoc())
         {
@@ -111,7 +111,7 @@ class HierarchyEntryIndexer
     
     private function lookup_ancestries()
     {
-        echo "\nlooking up ancestries\n";
+        debug("looking up ancestries");
         
         $ids_to_lookup = array();
         if(@$this->objects)
@@ -136,7 +136,7 @@ class HierarchyEntryIndexer
             }
         }
         
-        echo "done looking up ancestries\n";
+        debug("done looking up ancestries");
         
         if(@$this->objects)
         {
@@ -180,9 +180,9 @@ class HierarchyEntryIndexer
         $sci = Language::find_or_create_for_parser('scientific name')->id;
         $common_name_id = SynonymRelation::find_or_create_by_translated_label('common name')->id;
         
-        echo "\nquerying synonyms\n";
+        debug("querying synonyms");
         $result = $this->mysqli->query("SELECT s.*, n.string, cf.string canonical_form FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (s.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
-        echo "done querying synonyms\n";
+        debug("done querying synonyms");
         
         while($result && $row=$result->fetch_assoc())
         {

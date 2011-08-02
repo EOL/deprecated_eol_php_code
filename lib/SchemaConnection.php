@@ -194,6 +194,53 @@ class SchemaConnection
         
         return false;
     }
+    
+    static function add_translated_taxon($t)
+    {
+        foreach($t['data_objects'] as &$d)
+        {
+            self::add_translated_data_object($d);
+            unset($d);
+        }
+        
+        //return $hierarchy_entry;
+    }
+    
+    static function add_translated_data_object($options)
+    {
+        $d = $options[0];
+        $parameters = $options[1];
+        if($d->EOLDataObjectID)
+        {
+            if($existing_data_object = DataObject::find($d->EOLDataObjectID))
+            {
+                $new_data_object = $existing_data_object;
+                $new_data_object->id = NULL;
+                // check to see if this translation exists by looking in data_object_translations
+                // if its found, check to see if its different
+                // otherwise add it, then add all associations (agents, references, hierarchy_entries)
+                // then add new agents
+                // $new_data_object_id = $GLOBALS['db_connection']->insert("INSERT INTO data_objects SELECT * FROM data_objects WHERE id=$d->EOLDataObjectID");
+                // $new_data_object = DataObject::find($new_data_object_id);
+                $new_data_object->identifier = $d->identifier;
+                $new_data_object->object_created_at = $d->object_created_at;
+                $new_data_object->object_modified_at = $d->object_modified_at;
+                $new_data_object->object_title = $d->object_title;
+                $new_data_object->language = $d->language;
+                $new_data_object->rights_statement = $d->rights_statement;
+                $new_data_object->rights_holder = $d->rights_holder;
+                $new_data_object->description = $d->description;
+                $new_data_object->location = $d->location;
+                $new_data_object->save();
+            }else
+            {
+                echo "DataObject $d->EOLDataObjectID doesn't exist\n";
+            }
+        }else
+        {
+            return false;
+        }
+    }
 }
 
 ?>

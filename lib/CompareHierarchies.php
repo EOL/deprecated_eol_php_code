@@ -110,7 +110,7 @@ class CompareHierarchies
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
         
         $main_query = "relationship:name AND hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
-        echo $main_query . "&rows=1\n\n";
+        debug($main_query . "&rows=1");
         $response = $solr->query($main_query . "&rows=1");
         $total_results = $response->numFound;
         unset($response);
@@ -122,7 +122,7 @@ class CompareHierarchies
             $GLOBALS['hierarchy_entry_matches'] = array();
             
             $this_query = $main_query . "&rows=".self::$solr_iteration_size."&start=$i";
-            echo "$this_query\n\n";
+            debug("$this_query");
             $entries = $solr->get_results($this_query);
             foreach($entries as $entry)
             {
@@ -152,28 +152,28 @@ class CompareHierarchies
                 // if even after all recent changes we still have different concepts, merge them
                 if($tc_id1 != $tc_id2)
                 {
-                    echo "$id1 :: $id2\n";
+                    debug("$id1 :: $id2");
                     // compare visible entries to other published entries
-                    if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { echo "fail1\n"; continue; }
-                    if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { echo "fail2\n"; continue; }
+                    if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("fail1"); continue; }
+                    if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("fail2"); continue; }
                     
                     // compare preview entries to entries in the latest harvest events
-                    if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) { echo "fail3\n"; continue; }
-                    if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) { echo "fail4\n"; continue; }
+                    if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("fail3"); continue; }
+                    if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("fail4"); continue; }
                     
                     if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
                     {
-                        echo "The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator\n";
+                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator");
                         continue;
                     }
                     
                     if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                     {
-                        echo "The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy\n";
+                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy");
                         continue;
                     }
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
-                    echo "TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);\n";
+                    debug("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);");
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
                     
                     static $count = 0;
@@ -363,11 +363,11 @@ class CompareHierarchies
                 {
                     $time = time_elapsed();
                     $compare_time = microtime(true) - $start_time;
-                    echo "Records: $searches_this_round of $total_results ($total_searches total)<br>\n";
-                    echo "Speed:   ". round($total_searches/$time, 2) ." r/s<br>\n";
-                    echo "Memory:  ". memory_get_usage() ."<br>\n";
-                    echo "Time:    $time s<br>\n";
-                    echo "Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s<br><br>\n\n";
+                    debug("Records: $searches_this_round of $total_results ($total_searches total)");
+                    debug("Speed:   ". round($total_searches/$time, 2) ." r/s");
+                    debug("Memory:  ". memory_get_usage());
+                    debug("Time:    $time s");
+                    debug("Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s");
                     flush();
                     @ob_flush();
                 }
@@ -427,12 +427,11 @@ class CompareHierarchies
         }
         unset($entries);
         
-        if($GLOBALS['hierarchy_entry_matches'])
-        {
-            echo "\n$hierarchy_entry_id has matches:";
-            print_r($GLOBALS['hierarchy_entry_matches']);
-            echo "\n\n";
-        }else echo "\n$hierarchy_entry_id didn't match any other entries\n\n";
+        // if($GLOBALS['hierarchy_entry_matches'])
+        // {
+        //     debug("$hierarchy_entry_id has matches:");
+        //     debug(print_r($GLOBALS['hierarchy_entry_matches'], 1));
+        // }else debug("$hierarchy_entry_id didn't match any other entries");
     }
     
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
@@ -448,7 +447,6 @@ class CompareHierarchies
             if($hierarchy->complete) $query .= " NOT hierarchy_id:$hierarchy->id";
             $query .= "&rows=500";
             
-            //echo "$query\n";
             $matching_entries = $solr->get_results($query);
             foreach($matching_entries as $matching_entry)
             {
@@ -471,7 +469,6 @@ class CompareHierarchies
         if(isset($entry1->kingdom) && (strtolower($entry1->kingdom[0]) == 'virus' || strtolower($entry1->kingdom[0]) == 'viruses')) return null;
         if(isset($entry2->kingdom) && (strtolower($entry2->kingdom[0]) == 'virus' || strtolower($entry2->kingdom[0]) == 'viruses')) return null;
         
-        //echo "Comparing ".$entry1->id[0]." :: ".$entry2->id[0]."\n";
         $name_match = self::compare_names($entry1, $entry2);
         
         // synonym matching - cut the score in half and make it negative to show it was a synonym match

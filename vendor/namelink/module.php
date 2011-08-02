@@ -25,7 +25,7 @@ define("TAXONFINDER_STOP_KEYWORD",  "asdfib3r234");
 
 
 if(!defined('UPPER')) define("UPPER","A-ZÀÂÅÅÃÄÁÆČÇÉÈÊËÍÌÎÏÑÓÒÔØÕÖÚÙÛÜßĶŘŠŞŽŒ");
-if(!defined('UPPER')) define("LOWER","a-záááàâåãäăæčćçéèêëĕíìîïǐĭñńóòôøõöŏúùûüůśšşřğžźýýÿœœ");
+if(!defined('LOWER')) define("LOWER","a-záááàâåãäăæčćçéèêëĕíìîïǐĭñńóòôøõöŏúùûüůśšşřğžźýýÿœœ");
 
 
 function canonical_form($string)

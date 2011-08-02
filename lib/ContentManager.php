@@ -141,6 +141,7 @@ class ContentManager
         elseif(preg_match("/^riff \(little-endian\) data, wave audio/i", $file_type))   $new_suffix = "wav";
         elseif(preg_match("/^iff data, aiff audio/i", $file_type))                      $new_suffix = "aif";
         elseif(preg_match("/mpeg adts, layer iii/i", $file_type))                       $new_suffix = "mp3";
+        elseif(preg_match("/^audio .* mp3/i", $file_type))                              $new_suffix = "mp3";
         elseif(preg_match("/^ogg data, vorbis audio/i", $file_type))                    $new_suffix = "ogg";
         elseif(preg_match("/^flac audio/i", $file_type))                                $new_suffix = "flac";
         elseif(preg_match("/^sun\/next audio data/i", $file_type))                      $new_suffix = "au";

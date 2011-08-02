@@ -8,11 +8,13 @@ class SimpletestWebBase extends \WebTestCase
 {
     function setUp()
     {
+        Cache::flush();
         $this->fixtures = load_fixtures('test');
     }
     
     function tearDown()
     {
+        Cache::flush();
         $GLOBALS['db_connection']->truncate_tables('test');
         
         unset($this->fixtures);

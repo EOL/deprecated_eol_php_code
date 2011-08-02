@@ -88,6 +88,7 @@ class SolrAPI
       } */
     public function query($query)
     {
+        debug("Solr query: $query");
         $json = json_decode(file_get_contents($this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json"));
         return $json->response;
     }
@@ -101,29 +102,34 @@ class SolrAPI
     
     public function commit()
     {
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml");
+        debug("Solr commit $this->action_url");
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml > /dev/null 2>/dev/null");
     }
     
     public function optimize()
     {
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml");
+        debug("Solr optimize $this->action_url");
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml > /dev/null 2>/dev/null");
     }
     
     public function delete_all_documents()
     {
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/delete.xml");
+        debug("Solr delete_all_documents $this->action_url");
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/delete.xml > /dev/null 2>/dev/null");
         $this->commit();
         $this->optimize();
     }
     
     public function swap($from_core, $to_core)
     {
-        exec("curl ". $this->server ."admin/cores -F action=SWAP -F core=$from_core -F other=$to_core");
+        debug("Solr swap $this->action_url");
+        exec("curl ". $this->server ."admin/cores -F action=SWAP -F core=$from_core -F other=$to_core  > /dev/null 2>/dev/null");
     }
     
     public function reload($core)
     {
-        exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core");
+        debug("Solr reload $this->action_url");
+        exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core  > /dev/null 2>/dev/null");
     }
     
     public function delete($query)
@@ -133,7 +139,8 @@ class SolrAPI
         fwrite($OUT, "<delete><query>$query</query></delete>");
         fclose($OUT);
         
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path");
+        debug("Solr delete $this->action_url");
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path  > /dev/null 2>/dev/null");
         $this->commit();
     }
     
@@ -187,10 +194,10 @@ class SolrAPI
         {
             $curl .= " -F f.$field.split=true -F f.$field.separator='". $this->multi_value_delimiter ."'";
         }
-        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType=text/plain;charset=utf-8";
+        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType='text/plain;charset=utf-8'";
         
-        echo "calling: $curl\n";
-        exec($curl);
+        debug("Solr send_attributes $curl");
+        exec($curl . " > /dev/null 2>/dev/null");
         $this->commit();
     }
     
@@ -202,10 +209,10 @@ class SolrAPI
              $fields = array_keys(get_object_vars($this->schema_object));
              $curl = "curl ". $this->action_url ."/update/csv -F separator='\t'";
              $curl .= " -F header=false -F fieldnames=".implode(",", $fields);
-             $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$outfile_path -F stream.contentType=text/plain;charset=utf-8";
+             $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$outfile_path -F stream.contentType='text/plain;charset=utf-8'";
              
-             echo "calling: $curl\n";
-             exec($curl);
+             debug("Solr send_from_mysql_result $this->action_url");
+             exec($curl . " > /dev/null 2>/dev/null");
              $this->commit();
         }
     }

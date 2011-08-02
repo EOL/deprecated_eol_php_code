@@ -30,7 +30,7 @@ class DenormalizeTables
         }
         for($i=$start ; $i<$stop ; $i+=$batch_size)
         {
-            echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
+            debug("Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size));
             $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT dotc.taxon_concept_id, do.data_type_id, do.visibility_id, do.published FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE do.id BETWEEN $i AND ". ($i+$batch_size));
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_types_taxon_concepts_tmp');
             unlink($outfile);
@@ -70,7 +70,7 @@ class DenormalizeTables
         }
         for($i=$start ; $i<$stop ; $i+=$batch_size)
         {
-            echo "Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size)."\n";
+            debug("Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size));
             $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.") AND do.id BETWEEN $i AND ". ($i+$batch_size));
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_taxon_concepts_tmp');
             unlink($outfile);
@@ -121,7 +121,7 @@ class DenormalizeTables
     
     public static function taxon_concept_explode_hierarchy($id)
     {
-        echo "Exploding $id\n";
+        debug("Exploding $id");
         
         // get all concept_id, parent_concept_id which wont create loops
         $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT he.taxon_concept_id, he_parent.taxon_concept_id FROM hierarchy_entries he LEFT JOIN hierarchy_entries he_parent ON (he.parent_id=he_parent.id) LEFT JOIN taxon_concepts_exploded_tmp tcx ON (he.taxon_concept_id=tcx.parent_id AND tcx.taxon_concept_id=he_parent.taxon_concept_id) WHERE he.hierarchy_id=$id AND tcx.taxon_concept_id IS NULL AND he.taxon_concept_id != he_parent.taxon_concept_id");
@@ -178,7 +178,7 @@ class DenormalizeTables
     {
         static $count = 0;
         $count++;
-        if($count%1000 == 0) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
+        if($count%1000 == 0) debug("$count: ".time_elapsed()." : ".memory_get_usage());
         
         //if($count>=10000) exit;
         $result = $GLOBALS['db_connection']->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) range FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN (".Visibility::visible()->id.",".Visibility::preview()->id.")");

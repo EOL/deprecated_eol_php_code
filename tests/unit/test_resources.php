@@ -19,14 +19,14 @@ class test_resources extends SimpletestUnitBase
         $this->assertTrue($result->num_rows == 0, 'shouldnt be any top images');
         
         // harvest the resource and run all the denormalized tasks to test them
-        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/force_harvest.php -id $resource->id -now ENV_NAME=test");
+        passthru(PHP_BIN_PATH.DOC_ROOT."rake_tasks/force_harvest.php -id $resource->id -now ENV_NAME=test");
         
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be top images after harvesting and before denormalizing');
         $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_concept_images LIMIT 1");
         $this->assertTrue($result->num_rows > 0, 'should be top concept images after harvesting and before denormalizing');
         
-        shell_exec(PHP_BIN_PATH.DOC_ROOT."rake_tasks/denormalize_tables.php ENV_NAME=test");
+        passthru(PHP_BIN_PATH.DOC_ROOT."rake_tasks/denormalize_tables.php ENV_NAME=test");
         
         $this->check_content_after_harvesting($resource);
         
@@ -334,12 +334,13 @@ class test_resources extends SimpletestUnitBase
     private static function harvest($resource)
     {
         // set to force harvest - this will only change the status id
-        shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
+        passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
         
         // now harvest the resource
         $resource->harvest(false);
-        shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/publish_resources.php ENV_NAME=test");
-        shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/table_of_contents.php ENV_NAME=test");
+        passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/publish_resources.php ENV_NAME=test");
+        passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/table_of_contents.php ENV_NAME=test");
+        Cache::flush();
     }
     
     private static function create_resource($args = array())

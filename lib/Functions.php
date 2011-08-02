@@ -386,6 +386,13 @@ class Functions
         return trim($return_string);
     }
     
+    public static function ranked_canonical_form($string)
+    {
+        require_library('RubyNameParserClient');
+        if(!isset($GLOBALS['NAME_PARSER_CLIENT'])) $GLOBALS['NAME_PARSER_CLIENT'] = new RubyNameParserClient();
+        return $GLOBALS['NAME_PARSER_CLIENT']->lookup_string($string);
+    }
+    
     public static function italicized_form($string)
     {
         $canonical_form = self::canonical_form($string);
