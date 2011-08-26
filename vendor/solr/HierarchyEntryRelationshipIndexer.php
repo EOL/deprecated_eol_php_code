@@ -27,7 +27,7 @@ class HierarchyEntryRelationshipIndexer
         
         $start = 0;
         $max_id = 0;
-        $limit = 50000;
+        $limit = 300000;
         $result = $this->mysqli->query("SELECT MAX(id) as max FROM he_relations_tmp");
         if($result && $row=$result->fetch_assoc())
         {

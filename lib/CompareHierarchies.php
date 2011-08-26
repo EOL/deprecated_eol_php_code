@@ -445,6 +445,7 @@ class CompareHierarchies
             if($compare_to_hierarchy) $query .= " AND hierarchy_id:$compare_to_hierarchy->id";
             // don't compare these hierarchies to themselves
             if($hierarchy->complete) $query .= " NOT hierarchy_id:$hierarchy->id";
+            if($hierarchy->id == 759) $query .= " NOT hierarchy_id:441";
             $query .= "&rows=500";
             
             //echo "$query\n";

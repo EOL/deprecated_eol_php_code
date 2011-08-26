@@ -38,7 +38,7 @@ class SchemaConnection extends MysqlBase
         if(@$t['synonyms'])
         {
             $hierarchy_entry->delete_synonyms();
-            foreach($t['synonyms'] as &$s)
+            foreach($t['synonyms'] as $s)
             {
                 $hierarchy_entry->add_synonym($s->name_id, $s->synonym_relation_id, 0, 0);
             }

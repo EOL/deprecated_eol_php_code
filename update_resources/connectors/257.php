@@ -4,6 +4,7 @@ Partner provides RSS feed.
 estimated execution time: just a few seconds
 */
 
+exit;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/LearningEducationAPI');

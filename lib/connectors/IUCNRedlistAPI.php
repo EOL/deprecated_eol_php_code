@@ -16,11 +16,12 @@ class IUCNRedlistAPI
     public static function get_all_taxa($resource_file = null)
     {
         $GLOBALS['birdlife_names'] = self::parse_birdlife_checklist();
+        list($GLOBALS['birdlife_names'], $GLOBALS['birdlife_synonyms']) = IUCNRedlistAPI::parse_birdlife_checklist();
         
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/iucn_species_list.json";
         
-        shell_exec("rm -f $species_list_path");
-        shell_exec("curl ". self::SPECIES_LIST_API ." -o $species_list_path");
+        // shell_exec("rm -f $species_list_path");
+        // shell_exec("curl ". self::SPECIES_LIST_API ." -o $species_list_path");
         
         $used = array();
         $all_taxa = array();
@@ -68,7 +69,7 @@ class IUCNRedlistAPI
         $details_html = str_replace("& ", "&amp; ", $details_html);
         
         $dom_doc = new DOMDocument("1.0", "UTF-8");
-        $dom_doc->loadHTML($details_html);
+        @$dom_doc->loadHTML($details_html);
         $dom_doc->encoding = 'UTF-8';
         $dom_doc->preserveWhiteSpace = false;
         $xpath = new DOMXpath($dom_doc);
@@ -124,39 +125,53 @@ class IUCNRedlistAPI
         }
         
         
+        $canonical_form = trim($taxon_parameters["scientificName"]);
+        if(preg_match("/(..*?)[A-Z0-9\(]/", $canonical_form, $arr)) $canonical_form = trim($arr[1]);
+        if(preg_match("/^(.*?) (van|d'|von|da|de|de la)$/", $canonical_form, $arr)) $canonical_form = trim($arr[1]);
+        // echo $canonical_form."\n";
         
-        
+        $birdlife_reference = null;
         list($agents, $citation) = self::get_agents_and_citation($dom_doc, $xpath);
-        if(preg_match("/^BirdLife International/", $citation))
+        if(preg_match("/^(BirdLife International.*)\. +(In:.*)$/", $citation, $arr))
         {
-            
-            $reference_parameters = array();
-            // $reference_parameters['fullReference'] = ???;
-            $reference_parameters['referenceIdentifiers'] = array(new SchemaReferenceIdentifier(array('label' => 'url', 'value' => $birdlife_url)));
-            $taxon_parameters['references'][] = new SchemaReference($reference_parameters);
+            $id = @$GLOBALS['birdlife_names'][strtolower($canonical_form)];
+            if(!$id) $id = @$GLOBALS['birdlife_synonyms'][strtolower($canonical_form)];
+            if($id)
+            {
+                echo "Birdlife: $id\n";
+                $birdlife_url = "http://www.birdlife.org/datazone/speciesfactsheet.php?id=" . $id;
+                $reference_parameters = array();
+                $reference_parameters['fullReference'] = $arr[1];
+                $reference_parameters['referenceIdentifiers'] = array(new SchemaReferenceIdentifier(array('label' => 'url', 'value' => $birdlife_url)));
+                $birdlife_reference = new SchemaReference($reference_parameters);
+                $taxon_parameters['references'] = array($birdlife_reference);
+            }else
+            {
+                echo $canonical_form."\n";
+            }
         }
         
-        $taxon_parameters['dataObjects'] = array();
         
+        $taxon_parameters['dataObjects'] = array();
         $section = self::get_redlist_status($dom_doc, $xpath, $species_id);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_assessment_information', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation, 'IUCN Red List Assessment');
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_assessment_information', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation, 'IUCN Red List Assessment', $birdlife_reference);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'range_description', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description');
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'range_description', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description', $birdlife_reference);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_population', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends', $agents, $citation);
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_population', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends', $agents, $citation, '', $birdlife_reference);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_habitat', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat', $agents, $citation);
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_habitat', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat', $agents, $citation, '', $birdlife_reference);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_threats', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats', $agents, $citation);
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_threats', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats', $agents, $citation, '', $birdlife_reference);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
-        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_conservation_actions', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management', $agents, $citation);
+        $section = self::get_text_section($dom_doc, $xpath, $species_id, 'x_conservation_actions', 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management', $agents, $citation, '', $birdlife_reference);
         if($section) $taxon_parameters['dataObjects'][] = $section;
         
         $taxon = new SchemaTaxon($taxon_parameters);
@@ -164,7 +179,7 @@ class IUCNRedlistAPI
         return $taxon;
     }
     
-    public static function get_text_section($dom_doc, $xpath, $species_id, $div_id, $subject, $agents, $citation, $title = null)
+    public static function get_text_section($dom_doc, $xpath, $species_id, $div_id, $subject, $agents, $citation, $title = null, $birdlife_reference = null)
     {
         $element = $xpath->query("//div[@id='$div_id']");
         // the element doesn't exist. The next line was returning the entire document for some reason even if we found no match
@@ -202,6 +217,7 @@ class IUCNRedlistAPI
             $object_parameters['subjects'] = array(new SchemaSubject(array('label' => $subject)));
             $object_parameters['agents'] = $agents;
             $object_parameters['bibliographicCitation'] = $citation;
+            if($birdlife_reference) $object_parameters['references'] = array($birdlife_reference);
             
             return new SchemaDataObject($object_parameters);
         }
@@ -239,7 +255,9 @@ class IUCNRedlistAPI
     public static function get_agents_and_citation($dom_doc, $xpath)
     {
         $element = $xpath->query("//div[@id='x_citation']//div[@id='citation']");
-        $citation = $dom_doc->saveXML($element->item(0));
+        $citation = trim($dom_doc->saveXML($element->item(0)));
+        $citation = str_replace("\n", " ", $citation);
+        $citation = str_replace("  ", " ", $citation);
         if(preg_match("/^<div id=\"citation\">(.*?)<\/div>$/", $citation, $arr)) $citation = htmlspecialchars_decode(trim($arr[1]));
         
         $agents = array();

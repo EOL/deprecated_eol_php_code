@@ -12,7 +12,7 @@ $log = HarvestProcessLog::create('Harvesting');
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    //if($resource->id == 31) continue;
+    // if($resource->id == 80) continue;
     
     echo $resource->id."\n";
     

@@ -246,6 +246,7 @@ class DataObject extends MysqlBase
         {
             // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
             if(!$data_object->cache_object($content_manager, $resource)) return false;
+            $data_object->cache_thumbnail($content_manager);
             
             $data_object->vetted_id = Vetted::insert('unknown');
             $data_object->visibility_id = Visibility::insert("Preview");
@@ -296,6 +297,10 @@ class DataObject extends MysqlBase
                     // Check to see if we can reuse cached object or need to download it again
                     if($data_object->object_url == $existing_data_object->object_url && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
                     elseif(!$data_object->cache_object($content_manager, $resource)) return false;
+                    
+                    if(($data_object->thumbnail_url == $existing_data_object->thumbnail_url || !$data_object->thumbnail_url) && $existing_data_object->thumbnail_cache_url) $data_object->thumbnail_cache_url = $existing_data_object->thumbnail_cache_url;
+                    else $data_object->cache_thumbnail($content_manager);
+                    
                     
                     // If the object is text and the contents have changed - set this version to curated = 0
                     if($data_object->data_type_id == DataType::insert("http://purl.org/dc/dcmitype/Text") && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
