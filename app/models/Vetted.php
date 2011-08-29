@@ -22,8 +22,9 @@ class Vetted extends ActiveRecord
     
     public static function inappropriate()
     {
-        return Vetted::find_or_create_by_translated_label('Inappropriate', array('created_at' => 'NOW()', 'updated_at' => 'NOW()', 'view_order' => 3));
+        return Vetted::find_or_create_by_translated_label('Inappropriate', array('created_at' => 'NOW()', 'updated_at' => 'NOW()', 'view_order' => 4));
     }
+    
 }
 
 ?>

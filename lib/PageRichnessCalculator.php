@@ -69,7 +69,7 @@ class PageRichnessCalculator
             }
         }
         
-        echo "CALCULATIONS ARE DONE (".time_elapsed().")\n";
+        echo "CALCULATIONS ARE DONE (".time_elapsed().") $range\n";
         // uasort($all_scores, array('self', 'sort_by_total_score'));
         static $num = 0;
         // $OUT = fopen(DOC_ROOT . '/tmp/richness.txt', 'w+');
