@@ -1,33 +1,34 @@
 <?php
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../../config/environment.php");
+// require_vendor('darwincore');
 
-
-shell_exec("curl ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz -o ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
-// unzip the download
-shell_exec("tar -zxf ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
-shell_exec("rm -f ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
-
-
+// shell_exec("curl ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz -o ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
+// // unzip the download
+// shell_exec("tar -zxf ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
+// shell_exec("rm -f ".dirname(__FILE__)."/../downloads/ncbi_taxdump.tar.gz");
+// 
+// exit;
 
 
 $GLOBALS['names'] = array();
 
-echo "Memory: ".memory_get_usage()."\n";
-get_names();
-echo "Memory: ".memory_get_usage()."\n";
-get_nodes();
-echo "Memory: ".memory_get_usage()."\n";
+// echo "Memory: ".memory_get_usage()."\n";
+// get_names();
+// echo "Memory: ".memory_get_usage()."\n";
+// get_nodes();
+// echo "Memory: ".memory_get_usage()."\n";
 
 
 $agent_params = array(  "full_name"     => "National Center for Biotechnology Information",
                         "acronym"       => "NCBI");
                             
-$agent_id = Agent::insert(Functions::mock_object("Agent", $agent_params));
-$agent_hierarchy_id = Hierarchy::find_by_agent_id($agent_id);
-if($agent_hierarchy_id)
+$agent = Agent::find_or_create_by_full_name("National Center for Biotechnology Information", array("homepage" => "http://www.ncbi.nlm.nih.gov/"));
+
+$agent_hierarchy = Hierarchy::find_last_by_agent_id($agent->id);
+if($agent_hierarchy)
 {
-    $agent_hierarchy = new Hierarchy($agent_hierarchy_id);
     $hierarchy_group_id = $agent_hierarchy->hierarchy_group_id;
     $hierarchy_group_version = $agent_hierarchy->latest_group_version()+1;
 }else
@@ -37,19 +38,19 @@ if($agent_hierarchy_id)
 }
 $hierarchy_params = array(  "label"                     => "NCBI Taxonomy",
                             "description"               => "latest export",
-                            "agent_id"                  => $agent_id,
+                            "agent_id"                  => $agent->id,
                             "hierarchy_group_id"        => $hierarchy_group_id,
                             "hierarchy_group_version"   => $hierarchy_group_version);
-$hierarchy = new Hierarchy(Hierarchy::insert(Functions::mock_object("Hierarchy", $hierarchy_params)));
+$hierarchy = Hierarchy::find_or_create($hierarchy_params);
 
 
 $uri = dirname(__FILE__) . "/out.xml";
 DarwinCoreHarvester::harvest($uri, $hierarchy);
 
 
-shell_exec("rm -f ".dirname(__FILE__)."/*.dmp");
-shell_exec("rm -f ".dirname(__FILE__)."/*.prt");
-shell_exec("rm -f ".dirname(__FILE__)."/*.txt");
+// shell_exec("rm -f ".dirname(__FILE__)."/*.dmp");
+// shell_exec("rm -f ".dirname(__FILE__)."/*.prt");
+// shell_exec("rm -f ".dirname(__FILE__)."/*.txt");
 
 
 

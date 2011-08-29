@@ -37,7 +37,7 @@ class DarwinCoreHarvester
                 $parent_id = Functions::import_decode($t_dwc->parentNameUsageID);
                 $synonym_relation_id = SynonymRelation::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonomicStatus))->id;
                 $name_id = Name::find_or_create_by_string(Functions::import_decode($t_dwc->scientificName))->id;
-                $rank_id = Rank::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonRank))->id;
+                $rank_id = @Rank::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonRank))->id;
                 
                 if(in_array($synonym_relation_id, $valid_relation_array)) $valid = true;
                 else $valid = false;
@@ -63,7 +63,7 @@ class DarwinCoreHarvester
                     {
                         $xml_attr = $v->attributes("http://www.w3.org/XML/1998/namespace");
                         $vernacular_name_id = Name::find_or_create_by_string(Functions::import_decode($v))->id;
-                        $language_id = Language::find_or_create_for_parser(@Functions::import_decode($xml_attr["lang"]))->id;
+                        $language_id = @Language::find_or_create_for_parser(@Functions::import_decode($xml_attr["lang"]))->id;
                         
                         if($vernacular_name_id) $GLOBALS['node_attributes'][$taxon_id]['vernacular_names'][$language_id][$vernacular_name_id] = 1;
                     }

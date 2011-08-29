@@ -204,6 +204,8 @@ class IUCNRedlistAPI
             $object_parameters['agents'] = $agents;
             $object_parameters['bibliographicCitation'] = $citation;
             
+            echo htmlspecialchars_decode($section_html)."\n\n";
+            
             return new \SchemaDataObject($object_parameters);
         }
         return null;

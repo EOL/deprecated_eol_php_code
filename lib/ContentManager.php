@@ -49,7 +49,7 @@ class ContentManager
                 fclose($TMP);
             }
         }
-        
+
         // if the download succeeded
         if(file_exists($temp_file_path))
         {
@@ -61,7 +61,7 @@ class ContentManager
                 if($type=="image") $new_file_prefix = $this->new_content_file_name();
                 elseif($type=="video") $new_file_prefix = $this->new_content_file_name();
                 elseif($type=="audio") $new_file_prefix = $this->new_content_file_name();
-                elseif($type=="partner") $new_file_prefix = $this->new_partner_file_name();
+                elseif($type=="partner") $new_file_prefix = $this->new_content_file_name();
                 elseif($type=="resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
                 
                 $new_file_path = $new_file_prefix.".".$new_suffix;
@@ -77,7 +77,7 @@ class ContentManager
                     return false;
                 }
                 $sizes = array();
-                if($type == "image")
+                if($type == "image" || $type == "partner")
                 {
                     $sizes = getimagesize($new_file_path);
                     if(@!$sizes[1])
@@ -96,11 +96,10 @@ class ContentManager
                 
                 // create thumbnails of website content and agent logos
                 if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
-                elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
+                elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
                 
                 // Take the substring of the new file path to return via the webservice
-                if(($type=="image" || $type=="video" || $type=="audio") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = str_replace("/", "", $arr[1]);
-                elseif($type=="partner" && preg_match("/^".preg_quote(CONTENT_PARTNER_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = $arr[1];
+                if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = str_replace("/", "", $arr[1]);
                 elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/",$new_file_path,$arr))  $new_file_path = $arr[1];
                 
             }
@@ -218,10 +217,19 @@ class ContentManager
         
         $this->reduce_original($file, $prefix);
         $this->create_smaller_version($file, 580, 360, $prefix);
-        $this->create_smaller_version($file, 260, 190, $prefix);
-        $this->create_smaller_version($file, 98, 68, $prefix);
-        $this->create_upper_left_crop($file, $width, $height, 130, $prefix);
-        $this->create_upper_left_crop($file, $width, $height, 88, $prefix);
+        $this->create_smaller_version($prefix.'_580_360.jpg', 260, 190, $prefix);
+        $this->create_smaller_version($prefix.'_580_360.jpg', 98, 68, $prefix);
+        $this->create_upper_left_crop($prefix.'_580_360.jpg', $width, $height, 130, $prefix);
+        $this->create_upper_left_crop($prefix.'_580_360.jpg', $width, $height, 88, $prefix);
+    }
+    
+    function create_agent_thumbnails($file, $prefix, $sizes, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
+    {
+        $width = $sizes[0];
+        $height = $sizes[1];
+        
+        $this->create_constrained_square_crop($file, $width, $height, 130, $prefix);
+        $this->create_constrained_square_crop($file, $width, $height, 88, $prefix);
     }
     
     function reduce_original($path, $prefix)
@@ -253,10 +261,18 @@ class ContentManager
         shell_exec($command);
     }
     
-    function create_agent_thumbnails($file, $prefix)
+    function create_constrained_square_crop($path, $width, $height, $square_dimension, $prefix)
     {
-        echo shell_exec("convert $file -background white -flatten -resize ".PARTNER_LOGO_LARGE."\">\" ".$prefix."_large.png");
-        echo shell_exec("convert $file -background white -flatten -resize ".PARTNER_LOGO_SMALL."\">\" ".$prefix."_small.png");
+        $min = max($width, $height);
+        $factor = $square_dimension / $min;
+        $new_width = $width * $factor;
+        $new_height = $height * $factor;
+
+        $command = "convert $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
+                        -bordercolor white -border ".(($square_dimension-$new_width)/2)."x".(($square_dimension-$new_height)/2)." -gravity center \
+                        +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
+        // echo $command;
+        shell_exec($command);
     }
     
     function new_partner_file_name()

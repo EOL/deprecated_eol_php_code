@@ -31,11 +31,12 @@ class TopImages
         $this->mysqli->delete("TRUNCATE TABLE top_unpublished_images_tmp");
         
         $this->all_top_images = array();
-        $query = "SELECT DISTINCT dotc.data_object_id, do.data_rating, do.visibility_id, do.vetted_id
+        $query = "SELECT DISTINCT dotc.data_object_id, do.data_rating, dohe.visibility_id, dohe.vetted_id
             FROM data_objects_taxon_concepts dotc
             JOIN data_objects do ON (dotc.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
             WHERE do.data_type_id=". DataType::image()->id ."
-            AND (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.")";  //AND do.id BETWEEN 11407274 AND 11507274
+            AND (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")";  //AND do.id BETWEEN 11407274 AND 11507274
         $i = 0;
         $this->image_data_objects = array();
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -209,17 +210,19 @@ class TopImages
             // searches for all images for THIS concept, same as above
             // but also searches top_images for the best from its decendants
             $outfile = $this->mysqli_slave->select_into_outfile("
-            (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
+            (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, dohe.visibility_id, dohe.vetted_id, do.published
                 FROM hierarchy_entries he
                 JOIN top_images_tmp ti ON (he.id=ti.hierarchy_entry_id)
                 JOIN data_objects do ON (ti.data_object_id=do.id)
+                JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
                 WHERE he.id IN (". implode($chunk, ",") ."))
             UNION
-            (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, do.visibility_id, do.vetted_id, do.published
+            (SELECT he.id hierarchy_entry_id, he.parent_id, do.id, do.data_rating, dohe.visibility_id, dohe.vetted_id, do.published
                 FROM hierarchy_entries he
                 JOIN hierarchy_entries he_children ON (he.id=he_children.parent_id)
                 JOIN top_images_tmp ti ON (he_children.id=ti.hierarchy_entry_id)
                 JOIN data_objects do ON (ti.data_object_id=do.id)
+                JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
                 WHERE he.id IN (". implode($chunk, ",") ."))
             ORDER BY hierarchy_entry_id");
             echo "Memory: ".memory_get_usage() ." ". time_elapsed() ."\n";
@@ -267,7 +270,7 @@ class TopImages
             
             $last_taxon_concept_id = 0;
             $top_images = array();
-            $result = $this->mysqli_slave->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." ORDER BY he.taxon_concept_id");
+            $result = $this->mysqli_slave->query("SELECT  he.taxon_concept_id, do.id data_object_id, v.view_order vetted_sort_order, do.data_rating FROM hierarchy_entries he JOIN $select_table_name ti ON (he.id= ti.hierarchy_entry_id) JOIN data_objects do ON (ti.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) JOIN vetted v ON (dohe.vetted_id=v.id) WHERE he.taxon_concept_id BETWEEN $i  AND ". ($i+$batch_size)." ORDER BY he.taxon_concept_id");
             while($result && $row=$result->fetch_assoc())
             {
                 $taxon_concept_id = $row['taxon_concept_id'];

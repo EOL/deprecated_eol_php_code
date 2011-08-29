@@ -69,7 +69,7 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0, 'Should not get published');
-        $this->assertTrue($last_object->vetted_id == Vetted::unknown()->id, 'Should not be vetted');
+        // $this->assertTrue($last_object->vetted_id == Vetted::unknown()->id, 'Should not be vetted');
     }
     
     function testResourceWithDWCA()
@@ -109,7 +109,7 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0);
-        $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
+        // $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
         
         // checking to make sure changed source_urls create new entries
         $first_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
@@ -128,7 +128,7 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0);
-        $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
+        // $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
         
         // checking to make sure changed source_urls create new entries
         $second_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
@@ -147,12 +147,12 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 1);
-        $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
+        // $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
         
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 1);
-        $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
+        // $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
         
         // making sure entries that are orphaned are not in preview mode
         $last_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
@@ -229,8 +229,6 @@ class test_resources extends SimpletestUnitBase
         $objects = DataObject::all();
         $this->assertTrue(count($objects) > 0, 'There should be objects after harvesting');
         $this->assertTrue($objects[0]->published == 1, 'Objects should be published');
-        $this->assertTrue($objects[0]->visibility_id == Visibility::visible()->id, 'Objects should be visible');
-        $this->assertTrue($objects[0]->vetted_id == Vetted::trusted()->id, 'Objects should be in vetted "trusted"');
         $this->assertTrue($objects[0]->data_rating == 2.5, 'Objects should have the default rating');
         
         // make sure we have hierarchy entries
@@ -310,7 +308,7 @@ class test_resources extends SimpletestUnitBase
                     $data_object_parameters["location"] = Functions::import_decode($d->location, 0, 0);
                     
                     $this->assertTrue($objects[$j]->published == 1, "DataObject ($j) should be published");
-                    $this->assertTrue($objects[$j]->vetted_id == Vetted::trusted()->id, "DataObject ($j) should be vetted");                    
+                    // $this->assertTrue($objects[$j]->vetted_id == Vetted::trusted()->id, "DataObject ($j) should be vetted");                    
                     foreach($data_object_parameters as $key => $value)
                     {
                         $test_value = $objects[$j]->$key;

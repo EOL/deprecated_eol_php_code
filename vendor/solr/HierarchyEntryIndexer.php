@@ -59,6 +59,7 @@ class HierarchyEntryIndexer
             $start = $row["min"];
             $max_id = $row["max"];
         }
+        if($start = 0) return;
         
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {

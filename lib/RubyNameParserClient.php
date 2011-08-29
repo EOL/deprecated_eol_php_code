@@ -20,7 +20,7 @@ class RubyNameParserClient
         while(!self::is_parserver_running() && $reconnect_attempts <= $maximum_attempts)
         {
             shell_exec('parserver --output=canonical_with_rank > /dev/null 2>/dev/null &');
-            sleep(5);
+            sleep(10);
             $reconnect_attempts++;
         }
         if(!self::is_parserver_running())

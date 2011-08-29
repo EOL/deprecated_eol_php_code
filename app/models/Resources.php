@@ -7,6 +7,8 @@ class Resource extends ActiveRecord
             array('content_partner'),
             array('service_type'),
             array('resource_status'),
+            array('collection'),
+            array('preview_collection', 'class_name' => 'Collection', 'foreign_key' => 'preview_collection_id'),
             array('license'),
             array('hierarchy'),
             array('language')
@@ -76,6 +78,8 @@ class Resource extends ActiveRecord
     
     public function is_translation_resource()
     {
+        // if($this->id == 6) return true;
+        // if($this->id == 279) return true;
         return false;
     }
     
@@ -238,7 +242,16 @@ class Resource extends ActiveRecord
     public function vetted_object_guids()
     {
         $guids = array();
-        $result = $this->mysqli->query("SELECT do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE do.published=1 AND do.visibility_id=".Visibility::visible()->id." AND do.vetted_id=".Vetted::trusted()->id." AND he.resource_id=$this->id");
+        $result = $this->mysqli->query("
+            SELECT do.guid
+            FROM harvest_events he
+            JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id)
+            JOIN data_objects do ON (dohe.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohent ON (do.id=dohent.data_object_id)
+            WHERE do.published=1
+            AND dohent.visibility_id=".Visibility::visible()->id."
+            AND dohent.vetted_id=".Vetted::trusted()->id."
+            AND he.resource_id=$this->id");
         while($result && $row=$result->fetch_assoc())
         {
             $guids[] = $row['guid'];
@@ -300,19 +313,19 @@ class Resource extends ActiveRecord
                     $harvest_event->publish_hierarchy_entries();
                     $this->mysqli->commit();
                     
-                    // make sure all concepts are published
-                    Hierarchy::publish_wrongly_unpublished_concepts();
-                    $this->mysqli->commit();
-                    
-                    // Rebuild the Solr index for this hierarchy
-                    $indexer = new HierarchyEntryIndexer();
-                    $indexer->index($this->hierarchy_id);
-                    
-                    // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                    $hierarchy = Hierarchy::find($this->hierarchy_id);
-                    CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                    
-                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                    // // make sure all concepts are published
+                    // Hierarchy::publish_wrongly_unpublished_concepts();
+                    // $this->mysqli->commit();
+                    // 
+                    // // Rebuild the Solr index for this hierarchy
+                    // $indexer = new HierarchyEntryIndexer();
+                    // $indexer->index($this->hierarchy_id);
+                    // 
+                    // // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+                    // $hierarchy = Hierarchy::find($this->hierarchy_id);
+                    // CompareHierarchies::process_hierarchy($hierarchy, null, true);
+                    // 
+                    // CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 }
                 
                 $harvest_event->insert_top_images();
@@ -349,10 +362,18 @@ class Resource extends ActiveRecord
             $this->start_harvest();
             
             debug("Parsing resource: $this->id");
-            $connection = new SchemaConnection($this);
-            SchemaParser::parse($this->resource_path(), $connection, false);
-            unset($connection);
-            debug("Parsed resource: $this->id");
+            if($this->is_translation_resource())
+            {
+                require_library('TranslationSchemaParser');
+                TranslationSchemaParser::parse($this->resource_path(), 'php_active_record\\SchemaConnection::add_translated_taxon', false, $this);
+            }else
+            {
+                $connection = new SchemaConnection($this);
+                SchemaParser::parse($this->resource_path(), $connection, false);
+                unset($connection);
+                debug("Parsed resource: $this->id");
+            }
+            
             $this->mysqli->commit();
             
             // if the resource only contains information to update, then check for a 
@@ -374,7 +395,7 @@ class Resource extends ActiveRecord
             $this->make_old_preview_entries_invisible();
             $this->mysqli->commit();
             
-            if($this->hierarchy_id)
+            if($this->hierarchy_id && !$this->is_translation_resource())
             {
                 $hierarchy = Hierarchy::find($this->hierarchy_id);
                 debug("Assigning nested set values resource: $this->id");
@@ -571,26 +592,44 @@ class Resource extends ActiveRecord
         }
     }
     
+    // this method will make sure that any data objects that were in the previous harvest event, which are not
+    // in this current harvest event, whose visibility id is Preview, are set to be invisible
     public function make_old_preview_objects_invisible()
     {
-        if($this->harvest_event)
+        if($this->harvest_event && $last_harvest_event_id = $this->last_harvest_event_id())
         {
-            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::preview()->id ." AND dohe2.data_object_id IS NULL");
-            if($result && $row=$result->fetch_assoc())
+            $result = $this->mysqli->query("
+                SELECT dohe1.data_object_id
+                FROM
+                    (data_objects_harvest_events dohe1
+                    JOIN data_objects_hierarchy_entries dohent ON (dohe1.data_object_id=dohent.data_object_id))
+                LEFT JOIN data_objects_harvest_events dohe2 ON (dohe1.data_object_id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.")
+                WHERE dohe1.harvest_event_id=$last_harvest_event_id
+                AND dohent.visibility_id=". Visibility::preview()->id ."
+                AND dohe2.data_object_id IS NULL");
+            while($result && $row=$result->fetch_assoc())
             {
-                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events he1 JOIN data_objects_harvest_events dohe1 ON (he1.id=dohe1.harvest_event_id) JOIN data_objects do1 ON (dohe1.data_object_id=do1.id)) LEFT JOIN data_objects_harvest_events dohe2 ON (do1.id=dohe2.data_object_id AND dohe2.harvest_event_id=".$this->harvest_event->id.") SET do1.visibility_id=". Visibility::invisible()->id ." WHERE he1.resource_id=$this->id AND he1.id!=".$this->harvest_event->id." AND do1.visibility_id=". Visibility::preview()->id ." AND dohe2.data_object_id IS NULL");
+                $this->mysqli->update("UPDATE data_objects_hierarchy_entries SET visibility_id=". Visibility::invisible()->id . " WHERE data_object_id=". $row['data_object_id']);
             }
         }
     }
     
     public function make_old_preview_entries_invisible()
     {
-        if($this->harvest_event)
+        if($this->harvest_event && $last_harvest_event_id = $this->last_harvest_event_id())
         {
-            $result = $this->mysqli->query("SELECT COUNT(*) as count FROM (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::preview()->id ." AND hehe2.hierarchy_entry_id IS NULL");
-            if($result && $row=$result->fetch_assoc())
+            $result = $this->mysqli->query("
+                SELECT hehe1.hierarchy_entry_id
+                FROM
+                    (harvest_events_hierarchy_entries hehe1
+                    JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id))
+                LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (hehe1.hierarchy_entry_id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.")
+                WHERE hehe1.harvest_event_id=$last_harvest_event_id
+                AND he1.visibility_id=". Visibility::preview()->id ."
+                AND hehe2.hierarchy_entry_id IS NULL");
+            while($result && $row=$result->fetch_assoc())
             {
-                if($row["count"]) $this->mysqli->query("UPDATE (harvest_events hevt1 JOIN harvest_events_hierarchy_entries hehe1 ON (hevt1.id=hehe1.harvest_event_id) JOIN hierarchy_entries he1 ON (hehe1.hierarchy_entry_id=he1.id)) LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (he1.id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id=".$this->harvest_event->id.") SET he1.visibility_id=". Visibility::invisible()->id ." WHERE hevt1.resource_id=$this->id AND hevt1.id!=".$this->harvest_event->id." AND he1.visibility_id=". Visibility::preview()->id ." AND hehe2.hierarchy_entry_id IS NULL");
+                $this->mysqli->update("UPDATE hierarchy_entries SET visibility_id=". Visibility::invisible()->id . " WHERE id=". $row['hierarchy_entry_id']);
             }
         }
     }
@@ -653,8 +692,8 @@ class Resource extends ActiveRecord
         $validation_result = SchemaValidator::validate($this->resource_path());
         if($validation_result!==true)
         {
-            echo "\n\n$this->resource_path()\n\n";
-            print_r($this);
+            // echo "\n\n".$this->resource_path()."\n\n";
+            // print_r($this);
             $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
             $this->mysqli->update("UPDATE resources SET notes='$error_string', resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
             return false;

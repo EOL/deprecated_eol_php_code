@@ -18,7 +18,9 @@ class DataObject extends ActiveRecord
             array('data_objects_refs'),
             array('references', 'through' => 'data_objects_refs'),
             array('agents_data_objects'),
-            array('agents', 'through' => 'agents_data_objects')
+            array('agents', 'through' => 'agents_data_objects'),
+            array('data_objects_hierarchy_entries'),
+            array('hierarchy_entries', 'through' => 'data_objects_hierarchy_entries'),
         );
     
     public static function delete($id)
@@ -79,6 +81,18 @@ class DataObject extends ActiveRecord
         $this->mysqli->insert("DELETE FROM agents_data_objects WHERE data_object_id=$this->id");
     }
     
+    public function add_translation($data_object_id, $language_id)
+    {
+        if(!$data_object_id) return false;
+        if(!$language_id) return false;
+        $this->mysqli->insert("INSERT IGNORE INTO data_object_translations VALUES (NULL, $this->id, $data_object_id, $language_id, NOW(), NOW())");
+    }
+    public function delete_translations()
+    {
+        $this->mysqli->insert("DELETE FROM data_object_translations WHERE data_object_id=$this->id");
+    }
+    
+    
     public function add_audience($audience_id)
     {
         if(!$audience_id) return false;
@@ -96,6 +110,19 @@ class DataObject extends ActiveRecord
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_info_items VALUES ($this->id, $info_item_id)");
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_table_of_contents (SELECT $this->id, toc_id FROM info_items WHERE id=$info_item_id AND toc_id!=0)");
     }
+    
+    public function delete_table_of_contents()
+    {
+        $this->mysqli->insert("DELETE FROM data_objects_table_of_contents WHERE data_object_id=$this->id");
+    }
+    public function add_table_of_contents($toc_id)
+    {
+        if(!$toc_id) return false;
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_table_of_contents ($this->id, $toc_id)");
+    }
+    
+    
+    
     
     public function delete_hierarchy_entries()
     {
@@ -215,22 +242,22 @@ class DataObject extends ActiveRecord
                     // The new one will inherit the curated, vetted, visibility info from the last object
                     $data_object->guid = $existing_data_object->guid;
                     $data_object->curated = $existing_data_object->curated;
-                    if($resource->title != "Wikipedia")
-                    {
-                        // all new Wikipedia articles should be unvetted, even if the previous version was vetted
-                        $data_object->vetted_id = $existing_data_object->vetted_id;
-                    }
-                    if($existing_data_object->visibility_id != Visibility::visible()->id && $existing_data_object->visibility_id != NULL)
-                    {
-                        // if the existing object is visible - this will go on as preview
-                        // otherwise this will inherit the visibility (unpublished)
-                        $data_object->visibility_id = $existing_data_object->visibility_id;
-                    }
+                    // if($resource->title != "Wikipedia")
+                    // {
+                    //     // all new Wikipedia articles should be unvetted, even if the previous version was vetted
+                    //     $data_object->vetted_id = $existing_data_object->vetted_id;
+                    // }
+                    // if($existing_data_object->visibility_id != Visibility::visible()->id && $existing_data_object->visibility_id != NULL)
+                    // {
+                    //     // if the existing object is visible - this will go on as preview
+                    //     // otherwise this will inherit the visibility (unpublished)
+                    //     $data_object->visibility_id = $existing_data_object->visibility_id;
+                    // }
                     $data_object->data_rating = $existing_data_object->data_rating;
                     
                     // Check to see if we can reuse cached object or need to download it again
                     if($data_object->object_url == $existing_data_object->object_url && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
-                    elseif(!$data_object->cache_object($content_manager, $resource)) return false;
+                    elseif($data_object->object_cache_url && !$data_object->cache_object($content_manager, $resource)) return false;
                     
                     // If the object is text and the contents have changed - set this version to curated = 0
                     if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
@@ -264,7 +291,7 @@ class DataObject extends ActiveRecord
         $data_object->visibility = Visibility::preview();
         
         // // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
-        if(!$data_object->cache_object($content_manager, $resource)) return false;
+        if($data_object->object_cache_url && !$data_object->cache_object($content_manager, $resource)) return false;
         $data_object->cache_thumbnail($content_manager);
         
         return array(DataObject::create_by_object($data_object), "Inserted");

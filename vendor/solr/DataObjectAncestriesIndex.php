@@ -16,8 +16,8 @@ class DataObjectAncestriesIndexer
     
     public function index()
     {
-        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'data_objects_swap')) return false;
-        $this->solr = new SolrAPI(SOLR_SERVER, 'data_objects_swap');
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'data_objects')) return false;
+        $this->solr = new SolrAPI(SOLR_SERVER, 'data_objects');
         
         $this->solr->delete_all_documents();
         
@@ -31,6 +31,7 @@ class DataObjectAncestriesIndexer
             $start = $row["min"];
             $max_id = $row["max"];
         }
+        if(!$start) $start = 0;
         
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {
@@ -38,15 +39,38 @@ class DataObjectAncestriesIndexer
             
             $this->lookup_objects($i, $limit);
             $this->lookup_ancestries($i, $limit);
+            $this->lookup_curated_ancestries($i, $limit);
+            $this->lookup_user_added_ancestries($i, $limit);
+            $this->lookup_ancestries_he($i, $limit);
+            $this->lookup_curated_ancestries_he($i, $limit);
+            $this->lookup_user_added_ancestries_he($i, $limit);
+            $this->lookup_ignores($i, $limit);
+            $this->lookup_curation($i, $limit);
             $this->lookup_resources($i, $limit);
+            $this->lookup_table_of_contents($i, $limit);
+            $this->lookup_translations($i, $limit);
+            
+            foreach($this->objects as $id => $attr)
+            {
+                if(isset($attr['trusted_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 5;
+                elseif(isset($attr['unreviewed_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 4;
+                elseif(isset($attr['untrusted_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 3;
+                elseif(isset($attr['inappropriate_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 2;
+                else $this->objects[$id]['max_vetted_weight'] = 1;
+                
+                if(isset($attr['visible_ancestor_id'])) $this->objects[$id]['max_visibility_weight'] = 4;
+                elseif(isset($attr['invisible_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 3;
+                elseif(isset($attr['preview_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 2;
+                else $this->objects[$id]['max_vetted_weight'] = 1;
+            }
             
             if(isset($this->objects)) $this->solr->send_attributes($this->objects);
             //break;
         }
-        $this->solr->optimize();
-        
-        $results = $this->solr->get_results('ancestor_id:1');
-        if($results) $this->solr->swap('data_objects_swap', 'data_objects');
+        // $this->solr->optimize();
+        // 
+        // $results = $this->solr->get_results('ancestor_id:1');
+        // if($results) $this->solr->swap('data_objects_swap', 'data_objects');
     }
     
     public function index_objects(&$data_object_ids = array(), $optimize = true)
@@ -74,80 +98,326 @@ class DataObjectAncestriesIndexer
     {
         debug("querying objects ($start, $limit)");
         $last_data_object_id = 0;
-        $query = "SELECT id, guid, data_type_id, vetted_id, visibility_id, published, data_rating, UNIX_TIMESTAMP(created_at) FROM data_objects WHERE (published=1 OR visibility_id!=".Visibility::visible()->id.") AND id ";
+        $query = "
+            SELECT do.id, do.guid, do.data_type_id, do.data_subtype_id, do.published, do.data_rating,
+                UNIX_TIMESTAMP(do.created_at), he.id, he.taxon_concept_id, dohe.vetted_id, dohe.visibility_id,
+                cuhe.id, cuhe.taxon_concept_id, cudohe.vetted_id, cudohe.visibility_id,
+                udo.taxon_concept_id, cudohe.vetted_id, cudohe.visibility_id, udo.user_id
+            FROM data_objects do
+            LEFT JOIN
+                (data_objects_hierarchy_entries dohe JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id))
+                ON (do.id=dohe.data_object_id)
+            LEFT JOIN
+                (data_objects_hierarchy_entries cudohe JOIN hierarchy_entries cuhe ON (cudohe.hierarchy_entry_id=cuhe.id))
+                ON (do.id=cudohe.data_object_id)
+            LEFT JOIN users_data_objects udo ON (do.id=udo.data_object_id)
+            WHERE (do.published=1 OR dohe.visibility_id=".Visibility::preview()->id.")
+            AND do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
-            if(isset($row[7]) && preg_match("/^[0-9a-z]{32}$/i", $row[1]))
+            $id = $row[0];
+            // first time we got this object, so svae its metadata
+            if($id != $last_data_object_id)
             {
-                $id = $row[0];
                 $guid = $row[1];
                 $data_type_id = $row[2];
-                $vetted_id = $row[3];
-                $visibility_id = $row[4];
-                $published = $row[5];
-                $data_rating = $row[6];
-                $created_at = $row[7];
-                //$description = str_replace("|", " ", SolrApi::text_filter($parts[9]));
+                $data_subtype_id = $row[3];
+                $published = $row[4];
+                $data_rating = $row[5];
+                $created_at = $row[6];
+                if($data_subtype_id == 'NULL') $data_subtype_id = 0;
                 
                 $this->objects[$id]['guid'] = $guid;
                 $this->objects[$id]['data_type_id'] = $data_type_id;
-                $this->objects[$id]['vetted_id'] = $vetted_id;
-                $this->objects[$id]['visibility_id'] = $visibility_id;
+                $this->objects[$id]['data_subtype_id'] = $data_subtype_id;
                 $this->objects[$id]['published'] = $published;
                 $this->objects[$id]['data_rating'] = $data_rating;
                 $this->objects[$id]['created_at'] = date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z";
-                //$this->objects[$id]['description'] = str_replace("|", " ", $description);
-                
-                $last_data_object_id = $id;
             }
             
-            // // this would be a partial line. DataObjects can contain newlines and MySQL SELECT INTO OUTFILE
-            // // does not escape them so one object can span many lines
-            // elseif($last_data_object_id && !preg_match("/^([0-9]+)\t([0-9a-z]{32})\t/", $line))
-            // {
-            //     //echo $last_data_object_id."\n";
-            //     //echo "$line\n\n";
-            //     //$this->objects[$last_data_object_id]['description'] .= SolrApi::text_filter($line);
-            // }
+            // HierarchyEntry bock
+            $hierarchy_entry_id = $row[7];
+            $taxon_concept_id = $row[8];
+            $vetted_id = $row[9];
+            $visibility_id = $row[10];
+            if($taxon_concept_id && $taxon_concept_id != 'NULL')
+            {
+                $this->objects[$id]['taxon_concept_id'][$taxon_concept_id] = 1;
+                $this->objects[$id]['hierarchy_entry_id'][$hierarchy_entry_id] = 1;
+            }
+            
+            // CuratedHierarchyEntry bock
+            $hierarchy_entry_id = $row[11];
+            $taxon_concept_id = $row[12];
+            $vetted_id = $row[13];
+            $visibility_id = $row[14];
+            if($taxon_concept_id && $taxon_concept_id != 'NULL')
+            {
+                $this->objects[$id]['taxon_concept_id'][$taxon_concept_id] = 1;
+                $this->objects[$id]['hierarchy_entry_id'][$hierarchy_entry_id] = 1;
+            }
+            
+            // UsersDataObject bock
+            $taxon_concept_id = $row[15];
+            $vetted_id = $row[16];
+            $visibility_id = $row[17];
+            $user_id = $row[18];
+            if($taxon_concept_id && $taxon_concept_id != 'NULL')
+            {
+                $this->objects[$id]['taxon_concept_id'][$taxon_concept_id] = 1;
+                $this->objects[$id]['added_by_user_id'] = $user_id;
+            }
+            
+            $last_data_object_id = $id;
         }
     }
     
     private function lookup_ancestries($start, $limit, &$data_object_ids = array())
     {
         debug("querying ancestries ($start, $limit)");
-        $query = "SELECT do.id, dotc.taxon_concept_id, tcf.ancestor_id FROM data_objects do LEFT JOIN (data_objects_taxon_concepts dotc LEFT JOIN taxon_concepts_flattened tcf ON (dotc.taxon_concept_id=tcf.taxon_concept_id)) ON (do.id=dotc.data_object_id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.") AND do.id ";
+        $query = "
+            SELECT do.id, he.taxon_concept_id, dohe.vetted_id, dohe.visibility_id, tcf.ancestor_id
+            FROM data_objects do
+            JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            LEFT JOIN taxon_concepts_flattened tcf ON (he.taxon_concept_id=tcf.taxon_concept_id)
+            WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
+            AND do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
+        
+        $this->add_ancestries_from_result($query, 'ancestor_id');
+    }
+    
+    private function lookup_curated_ancestries($start, $limit, &$data_object_ids = array())
+    {
+        debug("querying ancestries ($start, $limit)");
+        $query = "
+            SELECT do.id, he.taxon_concept_id, dohe.vetted_id, dohe.visibility_id, tcf.ancestor_id
+            FROM data_objects do
+            JOIN curated_data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            LEFT JOIN taxon_concepts_flattened tcf ON (he.taxon_concept_id=tcf.taxon_concept_id)
+            WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
+            AND do.id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        $this->add_ancestries_from_result($query, 'ancestor_id');
+    }
+    
+    private function lookup_user_added_ancestries($start, $limit, &$data_object_ids = array())
+    {
+        debug("querying ancestries ($start, $limit)");
+        $query = "
+            SELECT udo.data_object_id, udo.taxon_concept_id, udo.vetted_id, udo.visibility_id, tcf.ancestor_id
+            FROM users_data_objects udo
+            LEFT JOIN taxon_concepts_flattened tcf ON (udo.taxon_concept_id=tcf.taxon_concept_id)
+            WHERE udo.data_object_id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        $this->add_ancestries_from_result($query, 'ancestor_id');
+    }
+    
+    private function lookup_ancestries_he($start, $limit, &$data_object_ids = array())
+    {
+        debug("querying ancestries ($start, $limit)");
+        $query = "
+            SELECT do.id, he_concept.hierarchy_id
+            FROM data_objects do
+            JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            JOIN hierarchy_entries he_concept ON (he.taxon_concept_id=he_concept.taxon_concept_id)
+            WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
+            AND (he.published=1 OR he.visibility_id!=".Visibility::visible()->id.")
+            AND do.id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        $this->add_hierarchy_ids_from_result($query);
+    }
+    
+    private function lookup_curated_ancestries_he($start, $limit, &$data_object_ids = array())
+    {
+        debug("querying ancestries ($start, $limit)");
+        $query = "
+            SELECT do.id, he_concept.hierarchy_id
+            FROM data_objects do
+            JOIN curated_data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            JOIN hierarchy_entries he_concept ON (he.taxon_concept_id=he_concept.taxon_concept_id)
+            WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
+            AND (he.published=1 OR he.visibility_id!=".Visibility::visible()->id.")
+            AND do.id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        $this->add_hierarchy_ids_from_result($query);
+    }
+    
+    private function lookup_user_added_ancestries_he($start, $limit, &$data_object_ids = array())
+    {
+        debug("querying ancestries ($start, $limit)");
+        $query = "
+            SELECT udo.data_object_id, he_concept.hierarchy_id
+            FROM users_data_objects udo
+            JOIN hierarchy_entries he_concept ON (he_concept.taxon_concept_id=udo.taxon_concept_id)
+            WHERE udo.data_object_id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        $this->add_hierarchy_ids_from_result($query);
+    }
+    
+    private function add_ancestries_from_result($query, $field_suffix = 'ancestor_id')
+    {
+        $vetted_fields = array(
+            Vetted::trusted()->id => 'trusted_' . $field_suffix,
+            Vetted::unknown()->id => 'unreviewed_' . $field_suffix,
+            Vetted::untrusted()->id => 'untrusted_' . $field_suffix,
+            Vetted::inappropriate()->id => 'inappropriate_' . $field_suffix);
+        $visibility_fields = array(
+            Visibility::invisible()->id => 'invisible_' . $field_suffix,
+            Visibility::visible()->id => 'visible_' . $field_suffix,
+            Visibility::preview()->id => 'preview_' . $field_suffix);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
+            if(!isset($this->objects[$id])) continue;
             $taxon_concept_id = $row[1];
-            $ancestor_id = $row[2];
+            $vetted_id = $row[2];
+            $visibility_id = $row[3];
+            $ancestor_id = $row[4];
+            if($taxon_concept_id == 'NULL') $taxon_concept_id = 0;
+            if($ancestor_id == 'NULL') $ancestor_id = 0;
             
-            if($taxon_concept_id) $this->objects[$id]['ancestor_id'][$taxon_concept_id] = 1;
-            if($ancestor_id) $this->objects[$id]['ancestor_id'][$ancestor_id] = 1;
+            if($taxon_concept_id) $this->objects[$id][$field_suffix][$taxon_concept_id] = 1;
+            if($ancestor_id) $this->objects[$id][$field_suffix][$ancestor_id] = 1;
+            if($field = @$vetted_fields[$vetted_id])
+            {
+                if($taxon_concept_id) $this->objects[$id][$field][$taxon_concept_id] = 1;
+                if($ancestor_id) $this->objects[$id][$field][$ancestor_id] = 1;
+            }
+            if($field = @$visibility_fields[$visibility_id])
+            {
+                if($taxon_concept_id) $this->objects[$id][$field][$taxon_concept_id] = 1;
+                if($ancestor_id) $this->objects[$id][$field][$ancestor_id] = 1;
+            }
         }
     }
+    
+    private function add_hierarchy_ids_from_result($query)
+    {
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            if(!isset($this->objects[$id])) continue;
+            $hierarchy_id = $row[1];
+            if($hierarchy_id == 'NULL') $hierarchy_id = 0;
+            
+            if($hierarchy_id) $this->objects[$id]['hierarchy_id'][$hierarchy_id] = 1;
+        }
+    }
+    
+    
     
     private function lookup_resources($start, $limit, &$data_object_ids = array())
     {
         debug("querying resources ($start, $limit)");
-        $query = "SELECT dohe.data_object_id, he.resource_id FROM data_objects do JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id) JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.") AND do.id ";
+        $query = "
+            SELECT dohe.data_object_id, he.resource_id
+            FROM data_objects do 
+            JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id)
+            JOIN   harvest_events he ON (dohe.harvest_event_id=he.id)
+            WHERE do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
+            if(!isset($this->objects[$id])) continue;
             $resource_id = $row[1];
-            
             $this->objects[$id]['resource_id'] = $resource_id;
         }
     }
+    
+    private function lookup_ignores($start, $limit, &$data_object_ids = array())
+    {
+        $query = "
+            SELECT data_object_id, user_id
+            FROM worklist_ignored_data_objects
+            WHERE data_object_id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            if(!isset($this->objects[$id])) continue;
+            $user_id = $row[1];
+            $this->objects[$id]['ignored_by_user_id'][$user_id] = 1;
+        }
+    }
+    
+    private function lookup_curation($start, $limit, &$data_object_ids = array())
+    {
+        $query = "
+            SELECT cal.object_id, cal.user_id
+            FROM ".LOGGING_DB.".curator_activity_logs cal
+            JOIN ".LOGGING_DB.".translated_activities ta ON (cal.activity_id=ta.id)
+            WHERE ta.name IN ('trusted', 'untrusted', 'hide', 'show', 'inappropriate', 'unreviewed', 'add_association', 'add_common_name')
+            AND cal.changeable_object_type_id IN (".ChangeableObjectType::data_object()->id.", ".ChangeableObjectType::data_objects_hierarchy_entry()->id.")
+            AND cal.object_id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            if(!isset($this->objects[$id])) continue;
+            $user_id = $row[1];
+            $this->objects[$id]['curated_by_user_id'][$user_id] = 1;
+        }
+    }
+    
+    private function lookup_table_of_contents($start, $limit, &$data_object_ids = array())
+    {
+        $query = "
+            SELECT data_object_id, toc_id
+            FROM data_objects_table_of_contents
+            WHERE data_object_id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            if(!isset($this->objects[$id])) continue;
+            $toc_id = $row[1];
+            $this->objects[$id]['toc_id'][$toc_id] = 1;
+        }
+    }
+    
+    private function lookup_translations($start, $limit, &$data_object_ids = array())
+    {
+        $query = "
+            SELECT data_object_id, original_data_object_id
+            FROM data_object_translations
+            WHERE data_object_id ";
+        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
+        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            if(!isset($this->objects[$id])) continue;
+            $this->objects[$id]['is_translation'] = true;
+        }
+    }
+    
+    
+    
 }
 
 ?>

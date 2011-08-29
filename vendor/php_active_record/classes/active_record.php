@@ -581,11 +581,10 @@ class ActiveRecord
         
         $table_name = call_user_func($class_name. "::table_name");
         $association_primary_key = $class_name::$primary_key;
-        $result = $GLOBALS['db_connection']->query("SELECT * FROM `$table_name` WHERE `$association_primary_key` = " . $this->$foreign_key);
-        if($result && $row=$result->fetch_assoc())
+        $foreign_key_value = $this->$foreign_key;
+        if(is_null($foreign_key_value)) $foreign_key_value = 0;
+        if($object = $class_name::find($foreign_key_value))
         {
-            $object = new $class_name();
-            $object->initialize_from_row($row);
             return $object;
         }
         
@@ -878,6 +877,7 @@ class ActiveRecord
             if($reflection = self::check_relationship('belongs_to', $name))
             {
                 if($name == 'original_language') $name = 'language';
+                if($class_name = @$reflection['class_name']) $name = $class_name;
                 $association_class = __NAMESPACE__ . '\\' . to_camel_case($name);
                 $association_primary_key = $association_class::$primary_key;
                 

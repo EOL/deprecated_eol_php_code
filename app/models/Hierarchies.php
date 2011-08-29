@@ -36,7 +36,7 @@ class Hierarchy extends ActiveRecord
         return 0;
     }
     
-    static function find_by_agent_id($agent_id)
+    static function find_last_by_agent_id($agent_id)
     {
         return Hierarchy::find_by_agent_id($agent_id, array('order' => 'id DESC', 'limit' => 1));
     }

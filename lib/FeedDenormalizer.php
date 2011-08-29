@@ -52,13 +52,14 @@ class FeedDenormalizer
                 SELECT tcx.taxon_concept_id, tcx.parent_id, do.id data_object_id, do.data_type_id, do.created_at
                     FROM data_objects_taxon_concepts dotc
                     JOIN data_objects do ON (dotc.data_object_id=do.id)
+                    JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
                     JOIN taxon_concepts_exploded tcx ON (dotc.taxon_concept_id=tcx.taxon_concept_id)
                     WHERE tcx.taxon_concept_id BETWEEN $i AND ".($i+$this->iteration_size)."
                     AND do.data_type_id IN  ($image_type_id, $text_type_id)
                     AND do.created_at IS NOT NULL
                     AND do.created_at!='0000-00-00 00:00:00'
                     AND do.published=1
-                    AND do.visibility_id=".Visibility::visible()->id."
+                    AND dohe.visibility_id=".Visibility::visible()->id."
                     ORDER BY tcx.taxon_concept_id");
             
             $parent_ids = $this->get_data_from_result($outfile, false);

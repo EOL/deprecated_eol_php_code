@@ -7,7 +7,8 @@ class HierarchyEntry extends ActiveRecord
             array('name'),
             array('taxon_concept'),
             array('hierarchy'),
-            array('rank')
+            array('rank'),
+            array('parent', 'class_name' => 'HierarchyEntry', 'foreign_key' => 'parent_id')
         );
     
     public static $has_many = array(
@@ -293,7 +294,9 @@ class HierarchyEntry extends ActiveRecord
     public function add_data_object($data_object_id)
     {
         if(!$data_object_id) return 0;
-        $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries (hierarchy_entry_id, data_object_id) VALUES ($this->id, $data_object_id)");
+        $vetted_id = Vetted::unknown()->id;
+        $visibility_id = Visibility::preview()->id;
+        $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries (hierarchy_entry_id, data_object_id, vetted_id, visibility_id) VALUES ($this->id, $data_object_id, $vetted_id, $visibility_id)");
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts (taxon_concept_id, data_object_id) VALUES ($this->taxon_concept_id, $data_object_id)");
     }
     

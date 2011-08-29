@@ -17,11 +17,6 @@ class Visibility extends ActiveRecord
     {
         return Visibility::find_or_create_by_translated_label('Preview', array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
     }
-    
-    public static function inappropriate()
-    {
-        return Visibility::find_or_create_by_translated_label('Inappropriate', array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
-    }
 }
 
 ?>

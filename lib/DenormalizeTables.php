@@ -31,7 +31,8 @@ class DenormalizeTables
         for($i=$start ; $i<$stop ; $i+=$batch_size)
         {
             debug("Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size));
-            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT dotc.taxon_concept_id, do.data_type_id, do.visibility_id, do.published FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE do.id BETWEEN $i AND ". ($i+$batch_size));
+            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.data_type_id, dohe.visibility_id, do.published FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.") AND do.id BETWEEN $i AND ". ($i+$batch_size));
+            
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_types_taxon_concepts_tmp');
             unlink($outfile);
         }
@@ -71,7 +72,7 @@ class DenormalizeTables
         for($i=$start ; $i<$stop ; $i+=$batch_size)
         {
             debug("Inserting ".(($i-$start+$batch_size)/$batch_size)." of ".ceil(($stop-$start)/$batch_size));
-            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR do.visibility_id!=".Visibility::visible()->id.") AND do.id BETWEEN $i AND ". ($i+$batch_size));
+            $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT tc.id, do.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE (tc.supercedure_id IS NULL OR tc.supercedure_id=0) AND (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.") AND do.id BETWEEN $i AND ". ($i+$batch_size));
             $GLOBALS['db_connection']->load_data_infile($outfile, 'data_objects_taxon_concepts_tmp');
             unlink($outfile);
         }

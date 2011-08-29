@@ -32,6 +32,11 @@ class DataType extends ActiveRecord
         return DataType::find_or_create_by_schema_value('http://purl.org/dc/dcmitype/MovingImage');
     }
     
+    public static function gbif_image()
+    {
+        return DataType::find_or_create_by_schema_value('GBIF Image');
+    }
+    
     public static function iucn()
     {
         return DataType::find_or_create_by_schema_value('IUCN');
@@ -47,6 +52,30 @@ class DataType extends ActiveRecord
         return DataType::find_or_create_by_schema_value('YouTube');
     }
     
+    public static function sound_type_ids()
+    {
+        return array(DataType::sound()->id);
+    }
+
+    public static function image_type_ids()
+    {
+        return array(DataType::image()->id);
+    }
+
+    public static function video_type_ids()
+    {
+        return array(DataType::youtube()->id, DataType::flash()->id, DataType::video()->id);
+    }
+
+    public static function map_type_ids()
+    {
+        return array(DataType::gbif_image()->id);
+    }
+
+    public static function text_type_ids()
+    {
+        return array(DataType::text()->id);
+    }
     
 }
 

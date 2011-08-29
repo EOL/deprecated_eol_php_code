@@ -132,17 +132,46 @@ class SolrAPI
         exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core  > /dev/null 2>/dev/null");
     }
     
-    public function delete($query)
+    public function delete_by_ids($ids)
     {
         @unlink(DOC_ROOT . $this->csv_path);
         $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
-        fwrite($OUT, "<delete><query>$query</query></delete>");
+        fwrite($OUT, "<delete>");
+        foreach($ids as $id)
+        {
+            fwrite($OUT, "<id>$id</id>");
+        }
+        fwrite($OUT, "</delete>");
         fclose($OUT);
         
         debug("Solr delete $this->action_url");
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path  > /dev/null 2>/dev/null");
         $this->commit();
     }
+    
+    public function delete($query)
+    {
+        $this->delete_by_queries(array($query));
+    }
+    
+    public function delete_by_queries($queries)
+    {
+        @unlink(DOC_ROOT . $this->csv_path);
+        $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
+        fwrite($OUT, "<delete>");
+        foreach($queries as $query)
+        {
+            fwrite($OUT, "<query>$query</query>");
+        }
+        fwrite($OUT, "</delete>");
+        fclose($OUT);
+        
+        debug("Solr delete $this->action_url");
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path  > /dev/null 2>/dev/null");
+        $this->commit();
+    }
+    
+    
     
     public function send_attributes($objects)
     {
@@ -250,6 +279,13 @@ class SolrAPI
         if($convert_to_ascii) $text = Functions::utf8_to_ascii($text);
         while(preg_match("/  /", $text)) $text = str_replace("  ", " ", $text);
         return trim($text);
+    }
+    
+    public static function mysql_date_to_solr_date($mysql_date)
+    {
+        // echo "$mysql_date\n";
+        if(!$mysql_date) return null;
+        return date('Y-m-d', $mysql_date) . "T". date('h:i:s', $mysql_date) ."Z";
     }
 }
 

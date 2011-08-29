@@ -195,18 +195,18 @@ class SchemaConnection
         return false;
     }
     
-    static function add_translated_taxon($t)
+    static function add_translated_taxon($t, $resource)
     {
         foreach($t['data_objects'] as &$d)
         {
-            self::add_translated_data_object($d);
+            self::add_translated_data_object($d, $resource);
             unset($d);
         }
         
         //return $hierarchy_entry;
     }
     
-    static function add_translated_data_object($options)
+    static function add_translated_data_object($options, $resource)
     {
         $d = $options[0];
         $parameters = $options[1];
@@ -214,14 +214,8 @@ class SchemaConnection
         {
             if($existing_data_object = DataObject::find($d->EOLDataObjectID))
             {
-                $new_data_object = $existing_data_object;
+                $new_data_object = clone $existing_data_object;
                 $new_data_object->id = NULL;
-                // check to see if this translation exists by looking in data_object_translations
-                // if its found, check to see if its different
-                // otherwise add it, then add all associations (agents, references, hierarchy_entries)
-                // then add new agents
-                // $new_data_object_id = $GLOBALS['db_connection']->insert("INSERT INTO data_objects SELECT * FROM data_objects WHERE id=$d->EOLDataObjectID");
-                // $new_data_object = DataObject::find($new_data_object_id);
                 $new_data_object->identifier = $d->identifier;
                 $new_data_object->object_created_at = $d->object_created_at;
                 $new_data_object->object_modified_at = $d->object_modified_at;
@@ -230,8 +224,55 @@ class SchemaConnection
                 $new_data_object->rights_statement = $d->rights_statement;
                 $new_data_object->rights_holder = $d->rights_holder;
                 $new_data_object->description = $d->description;
+                $new_data_object->linked_description = null;
                 $new_data_object->location = $d->location;
-                $new_data_object->save();
+                // check to see if this translation exists by looking in data_object_translations
+                // if its found, check to see if its different
+                // otherwise add it, then add all associations (agents, references, hierarchy_entries)
+                // then add new agents
+                
+                $content_manager = new ContentManager();
+                list($data_object, $status) = DataObject::find_and_compare($resource, $new_data_object, $content_manager);
+                if(@!$data_object->id) return false;
+                
+                self::add_entries_for_translated_object($existing_data_object, $data_object, $resource);
+                $resource->harvest_event->add_data_object($data_object, $status);
+                
+                if($status!="Reused")
+                {
+                    $i = 0;
+                    $data_object->delete_agents();
+                    foreach($parameters['agents'] as &$a)
+                    {
+                        $agent = Agent::find_or_create($a);
+                        if($agent->logo_url && !$agent->logo_cache_url)
+                        {
+                            if($logo_cache_url = $this->content_manager->grab_file($agent->logo_url, 0, "partner"))
+                            {
+                                $agent->logo_cache_url = $logo_cache_url;
+                                $agent->save();
+                            }
+                        }
+                        
+                        $data_object->add_agent($agent->id, @$a['agent_role']->id ?: 0, $i);
+                        unset($a);
+                        $i++;
+                    }
+                    $data_object->delete_translations();
+                    $data_object->add_translation($existing_data_object->id, $data_object->language_id);
+                    
+                    $data_object->delete_info_items();
+                    foreach($existing_data_object->info_items as $ii)
+                    {
+                        $data_object->add_info_item($ii->id);
+                    }
+                    
+                    // audience
+                    // info items
+                    // table of contents
+                    // all related tables....
+                    
+                }
             }else
             {
                 echo "DataObject $d->EOLDataObjectID doesn't exist\n";
@@ -241,6 +282,44 @@ class SchemaConnection
             return false;
         }
     }
+    
+    static function add_entries_for_translated_object($existing_data_object, $new_data_object, $resource)
+    {
+        $new_data_object->delete_hierarchy_entries();
+        foreach($existing_data_object->hierarchy_entries as $he)
+        {
+            if($hierarchy_entry = self::lookup_existing_entry_and_ancestors($he, $resource->hierarchy_id))
+            {
+                $resource->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
+                $hierarchy_entry->add_data_object($new_data_object->id);
+            }else return false;
+        }
+        return true;
+    }
+    
+    static function lookup_existing_entry_and_ancestors($hierarchy_entry, $hierarchy_id)
+    {
+        $params = array();
+        $params["name_id"] = $hierarchy_entry->name_id;
+        $params["guid"] = $hierarchy_entry->guid;
+        $params["hierarchy_id"] = $hierarchy_id;
+        $params["rank_id"] = $hierarchy_entry->rank_id;
+        $params["ancestry"] = $hierarchy_entry->ancestry;
+        $params["taxon_concept_id"] = $hierarchy_entry->taxon_concept_id;
+        $params["parent_id"] = 0;
+        // $params["identifier"] = $taxon['identifier'];
+        // $params["source_url"] = $taxon['source_url'];
+        $params["visibility_id"] = Visibility::preview()->id;
+        if($parent = $hierarchy_entry->parent())
+        {
+            if($parent_entry = self::lookup_existing_entry_and_ancestors($parent, $hierarchy_id))
+            {
+                $params["parent_id"] = $parent_entry->id;
+            }else return false;
+        }
+        return HierarchyEntry::find_or_create_by_array($params);
+    }
+    
 }
 
 ?>

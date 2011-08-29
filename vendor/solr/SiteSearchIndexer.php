@@ -17,77 +17,92 @@ class SiteSearchIndexer
         $this->solr_server = $solr_server;
     }
     
-    public function index($optimize = true)
+    public function index($ids = array(), $optimize = false)
     {
-        $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        // $this->index_taxa();
-        // $this->index_data_objects();
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
+        $this->index_type('Collection', 'collections', 'lookup_collections', $ids);
+        $this->index_type('Community', 'communities', 'lookup_communities', $ids);
+        $this->index_type('User', 'users', 'lookup_users', $ids);
+        $this->index_type('DataObject', 'data_objects', 'lookup_objects', $ids);
+        $this->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $ids);
         if($optimize) $this->solr->optimize();
     }
     
-    public function index_data_objects()
+    // call_user_func($callback, $fields);
+    public function index_type($class_name, $table_name, $callback, &$ids = null)
     {
-        return;
-        // $this->solr->delete('resource_type:DataObject');
-        
-        $start = 0;
-        $max_id = 0;
-        $limit = 100000;
-        
-        $result = $this->mysqli_slave->query("SELECT MIN(id) as min, MAX(id) as max FROM data_objects");
-        if($result && $row=$result->fetch_assoc())
+        if($ids)
         {
-            $start = $row["min"];
-            $max_id = $row["max"];
-        }
-        $start = 11000012;
-        for($i=$start ; $i<$max_id ; $i+=$limit)
+            $batches = array_chunk($ids, 10000);
+            foreach($batches as $batch)
+            {
+                unset($this->objects);
+                echo "Looking up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                call_user_func(array($this, $callback), array('ids' => $batch));
+                echo "Looked up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                
+                // delete old ones
+                $queries = array();
+                foreach($batch as $id) $queries[] = "resource_type:$class_name AND resource_id:$id";
+                $this->solr->delete_by_queries($queries);
+                
+                // add new ones if available
+                if(isset($this->objects))
+                {
+                    if(isset($this->objects))
+                    {
+                        if($class_name == 'TaxonConcept') $this->send_concept_objects_to_solr();
+                        else $this->solr->send_attributes($this->objects);
+                    }
+                }
+            }
+        }else
         {
-            unset($this->objects);
-            echo "Looking up $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_objects($i, $limit);
-            echo "Looked up $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            $start = 0;
+            $max_id = 0;
+            $limit = 100000;
+            $result = $this->mysqli_slave->query("SELECT MIN(id) as min, MAX(id) as max FROM $table_name");
+            if($result && $row=$result->fetch_assoc())
+            {
+                $start = $row["min"];
+                $max_id = $row["max"];
+            }
             
-            if(isset($this->objects)) $this->solr->send_attributes($this->objects);
+            for($i=$start ; $i<$max_id ; $i+=$limit)
+            {
+                unset($this->objects);
+                echo "Looking up $class_name $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                call_user_func(array($this, $callback), array('start' => $i, 'limit' => $limit));
+                echo "Looked up $class_name $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                $this->solr->delete("resource_type:$class_name AND resource_id:[$i TO ". ($i + $limit) ."]");
+                
+                if(isset($this->objects))
+                {
+                    if($class_name == 'TaxonConcept') $this->send_concept_objects_to_solr();
+                    else $this->solr->send_attributes($this->objects);
+                }
+            }
         }
         
         $this->solr->commit();
     }
     
-    public function index_taxa()
+    public function index_collection($collection)
     {
-        return;
-        $this->solr->delete('resource_type:TaxonConcept');
-        
-        $this->lookup_and_cache_language_iso_codes();
-        $start = 0;
-        $max_id = 0;
-        $limit = 100000;
-        
-        $result = $this->mysqli_slave->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc");
-        if($result && $row=$result->fetch_assoc())
-        {
-            $start = $row["min"];
-            $max_id = $row["max"];
-        }
-        
-        for($i=$start ; $i<$max_id ; $i+=$limit)
-        {
-            unset($this->objects);
-            echo "Looking up $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_names($i, $limit);
-            // $this->lookup_top_images($i, $limit);
-            $this->lookup_ancestors($i, $limit);
-            $this->lookup_richness($i, $limit);
-            echo "Looked up $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            
-            if(isset($this->objects)) $this->send_objects_to_solr();
-        }
-        
-        $this->solr->commit();
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
+        $id = array($collection->id);
+        $this->index_type('Collection', 'collections', 'lookup_collections', $id);
     }
     
-    public function send_objects_to_solr()
+    public function index_taxa($params = array())
+    {
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
+        $this->lookup_names($params);
+        $this->lookup_ancestors($params);
+        $this->lookup_richness($params);
+    }
+    
+    public function send_concept_objects_to_solr()
     {
         $objects_to_send = array();
         foreach($this->objects as $id => $arr)
@@ -178,12 +193,13 @@ class SiteSearchIndexer
         $this->solr->send_attributes($objects_to_send);
     }
     
-    function lookup_names($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
+    function lookup_names($params = array())
     {
         echo "\nquerying names\n";
+        $this->lookup_and_cache_language_iso_codes();
         $query = "SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, tcn.source_hierarchy_entry_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON  (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.supercedure_id=0 AND tc.published=1 AND tc.id ";
-        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
-        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
         $preferred_scientifics = array();
         $synonyms = array();
@@ -276,12 +292,12 @@ class SiteSearchIndexer
         }
     }
     
-    function lookup_ancestors($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
+    function lookup_ancestors($params = array())
     {
         echo "\nquerying lookup_ancestors\n";
         $query = "SELECT taxon_concept_id id, ancestor_id FROM taxon_concepts_flattened tcf WHERE tcf.taxon_concept_id ";
-        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
-        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
         $began = false;
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -295,12 +311,12 @@ class SiteSearchIndexer
         }
     }
     
-    function lookup_top_images($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
+    function lookup_top_images($params = array())
     {
         echo "\nquerying top_images\n";
         $query = " SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.view_order=1 AND ti.taxon_concept_id ";
-        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
-        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         $query .= " ORDER BY v.view_order ASC, do.data_rating DESC, do.id DESC";
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -315,12 +331,12 @@ class SiteSearchIndexer
         }
     }
     
-    function lookup_richness($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
+    function lookup_richness($params = array())
     {
         echo "\nquerying richness\n";
         $query = " SELECT taxon_concept_id, richness_score FROM taxon_concept_metrics WHERE taxon_concept_id ";
-        if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
-        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
@@ -330,13 +346,14 @@ class SiteSearchIndexer
         }
     }
     
-    function lookup_objects($start, $limit, $filter = "1=1", &$data_object_ids = array())
+    function lookup_objects($params = array())
     {
-        echo "\nquerying objects ($start, $limit)\n";
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
+        echo "\nquerying objects\n";
         $last_data_object_id = 0;
         $query = "SELECT do.id, do.guid, REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '), REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '), UNIX_TIMESTAMP(do.created_at), UNIX_TIMESTAMP(do.updated_at),  l.iso_639_1, do.data_type_id FROM data_objects do LEFT JOIN languages l ON (do.language_id=l.id) LEFT JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) WHERE (do.published=1 AND do.visibility_id=1) AND dohe.data_object_id IS NOT NULL AND do.id ";
-        if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
-        else $query .= "BETWEEN $start AND ". ($start+$limit);
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
         $used_ids = array();
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -404,9 +421,151 @@ class SiteSearchIndexer
         }
     }
     
+    function lookup_users($params = array())
+    {
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
+        echo "\nquerying objects\n";
+        $last_data_object_id = 0;
+        $query = "SELECT id, username, given_name, family_name, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at) FROM users WHERE id ";
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
+        
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            $username = self::text_filter($row[1]);
+            $given_name = self::text_filter($row[2]);
+            $family_name = self::text_filter($row[3]);
+            $created_at = $row[4];
+            $updated_at = $row[5];
+            if($username == 'NULL') $username = '';
+            if($given_name == 'NULL') $given_name = '';
+            if($family_name == 'NULL') $family_name = '';
+            if($created_at == 'NULL') $created_at = 0;
+            if($updated_at == 'NULL') $updated_at = 0;
+            
+            $base = array(
+                'resource_type'             => 'User',
+                'resource_id'               => $id,
+                'resource_unique_key'       => "User_$id",
+                'language'                  => 'en',
+                'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+            $record = $base;
+            $record['keyword_type'] = 'username';
+            $record['keyword'] = $username;
+            if($record['keyword']) $this->objects[] = $record;
+            
+            $record = $base;
+            $record['keyword_type'] = 'full_name';
+            $record['keyword'] = trim($given_name ." ". $family_name);
+            if($record['keyword']) $this->objects[] = $record;
+        }
+    }
+    
+    function lookup_collections($params = array())
+    {
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
+        echo "\nquerying objects\n";
+        $last_data_object_id = 0;
+        $query = "SELECT id, name, description, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at), special_collection_id, user_id, published FROM collections WHERE id ";
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
+        
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            $name = self::text_filter($row[1]);
+            $description = self::text_filter($row[2]);
+            $created_at = $row[3];
+            $updated_at = $row[4];
+            $special_collection_id = $row[5];
+            $user_id = $row[6];
+            $published = $row[7];
+            
+            if($created_at == 'NULL') $created_at = 0;
+            if($updated_at == 'NULL') $updated_at = 0;
+            if($special_collection_id == 'NULL') $special_collection_id = 0;
+            if($user_id == 'NULL') $user_id = 0;
+            if($description == 'NULL') $description = '';
+            if($published == 'NULL') $published = null;
+            if(!$published) continue; // unpublished
+            if($special_collection_id && $user_id) continue; // users watch collection
+            
+            $base = array(
+                'resource_type'             => 'Collection',
+                'resource_id'               => $id,
+                'resource_unique_key'       => "Collection_$id",
+                'language'                  => 'en',
+                'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+            $record = $base;
+            $record['keyword_type'] = 'name';
+            $record['keyword'] = $name;
+            $this->objects[] = $record;
+            
+            if($description)
+            {
+                $record = $base;
+                $record['keyword_type'] = 'description';
+                $record['keyword'] = $description;
+                $record['full_text'] = true;
+                $this->objects[] = $record;
+            }
+        }
+    }
+    
+    function lookup_communities($params = array())
+    {
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
+        echo "\nquerying objects\n";
+        $last_data_object_id = 0;
+        $query = "SELECT c.id, c.name, c.description, UNIX_TIMESTAMP(c.created_at), UNIX_TIMESTAMP(c.updated_at), c.published FROM communities c LEFT JOIN collections coll ON (c.id=coll.community_id) WHERE c.id ";
+        if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
+        else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
+        
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            $name = self::text_filter($row[1]);
+            $description = self::text_filter($row[2]);
+            $created_at = $row[3];
+            $updated_at = $row[4];
+            $published = $row[5];
+            if($created_at == 'NULL') $created_at = 0;
+            if($updated_at == 'NULL') $updated_at = 0;
+            if($name == 'NULL') $name = '';
+            if($description == 'NULL') $description = '';
+            if($published == 'NULL') $published = null;
+            if(!$published) continue; // unpublished
+            
+            $base = array(
+                'resource_type'             => 'Community',
+                'resource_id'               => $id,
+                'resource_unique_key'       => "Community_$id",
+                'language'                  => 'en',
+                'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+            $record = $base;
+            $record['keyword_type'] = 'name';
+            $record['keyword'] = $name;
+            if($record['keyword']) $this->objects[] = $record;
+            
+            if($description)
+            {
+                $record = $base;
+                $record['keyword_type'] = 'description';
+                $record['keyword'] = $description;
+                $record['full_text'] = true;
+                if($record['keyword']) $this->objects[] = $record;
+            }
+        }
+    }
+    
+    
     function lookup_and_cache_language_iso_codes()
     {
-        echo memory_get_usage()."\n";
+        if(@$GLOBALS['language_iso_codes']) return $GLOBALS['language_iso_codes'];
         $GLOBALS['language_iso_codes'] = array();
         $query = "SELECT id, iso_639_1 FROM languages WHERE iso_639_1 != ''";
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -415,7 +574,6 @@ class SiteSearchIndexer
             $iso_639_1 = $row[1];
             $GLOBALS['language_iso_codes'][$id] = $iso_639_1;
         }
-        echo memory_get_usage()."\n";
     }
     
     public static function text_filter($text, $convert_to_ascii = false)

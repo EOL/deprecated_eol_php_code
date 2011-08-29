@@ -31,6 +31,11 @@ class Language extends ActiveRecord
         return $return;
     }
     
+    static function english()
+    {
+        return Language::find_by_iso_639_1('en');
+    }
+    
     static function default_language()
     {
         if($l = Language::find_by_iso_639_1(DEFAULT_LANGUAGE_ISO_CODE)) return $l;

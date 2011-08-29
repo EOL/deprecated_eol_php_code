@@ -42,7 +42,14 @@ class HarvestEvent extends ActiveRecord
     {
         $where_clause = '';
         if($object_guids_to_keep) $where_clause = "AND do.guid NOT IN ('". implode($object_guids_to_keep,"','") ."')";
-        $this->mysqli->query("UPDATE data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.visibility_id=". Visibility::visible()->id ." WHERE do.visibility_id=". Visibility::preview()->id ." AND dohe.harvest_event_id=$this->id $where_clause");
+        $this->mysqli->query("
+            UPDATE data_objects_harvest_events dohe
+            JOIN data_objects do ON (dohe.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohent ON (do.id=dohent.data_object_id)
+            SET dohent.visibility_id=". Visibility::visible()->id ."
+            WHERE dohent.visibility_id=". Visibility::preview()->id ."
+            AND dohe.harvest_event_id=$this->id
+            $where_clause");
     }
     
     public function publish_objects()
@@ -102,7 +109,13 @@ class HarvestEvent extends ActiveRecord
     
     public function vet_objects()
     {
-        $this->mysqli->query("UPDATE data_objects_harvest_events dohe STRAIGHT_JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.vetted_id=". Vetted::trusted()->id ." WHERE do.vetted_id=". Vetted::unknown()->id ." AND dohe.harvest_event_id=$this->id");
+        $this->mysqli->query("
+            UPDATE data_objects_harvest_events dohe
+            STRAIGHT_JOIN data_objects do ON (dohe.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohent ON (do.id=dohent.data_object_id)
+            SET dohent.vetted_id=". Vetted::trusted()->id ."
+            WHERE dohent.vetted_id=". Vetted::unknown()->id ."
+            AND dohe.harvest_event_id=$this->id");
     }
     
     
@@ -114,7 +127,19 @@ class HarvestEvent extends ActiveRecord
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
         
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT do_current.id, do_previous.visibility_id FROM (data_objects_harvest_events dohe_previous JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)) JOIN (data_objects_harvest_events dohe_current JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id)) ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id) WHERE dohe_previous.harvest_event_id=$last_harvest->id AND dohe_current.harvest_event_id=$this->id AND do_previous.visibility_id IN (".Visibility::invisible()->id.", ".Visibility::inappropriate()->id.")");
+        $outfile = $GLOBALS['db_connection']->select_into_outfile("
+            SELECT do_current.id, dohent_previous.visibility_id, dohent_previous.hierarchy_entry_id
+            FROM
+                (data_objects_harvest_events dohe_previous
+                JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)
+                JOIN data_objects_hierarchy_entries dohent_previous ON (dpo_previous.id=dohent_previous.data_object_id))
+            JOIN
+                (data_objects_harvest_events dohe_current
+                JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id))
+            ON (dohe_previous.guid=dohe_current.guid AND dohe_previous.data_object_id!=dohe_current.data_object_id)
+            WHERE dohe_previous.harvest_event_id=$last_harvest->id
+            AND dohe_current.harvest_event_id=$this->id
+            AND dohent_previous.visibility_id IN (".Visibility::invisible()->id.")");
         
         $FILE = fopen($outfile, "r");
         while(!feof($FILE))
@@ -124,7 +149,8 @@ class HarvestEvent extends ActiveRecord
                 $values = explode("\t", trim($line));
                 $data_object_id = $values[0];
                 $visibility_id = $values[1];
-                $GLOBALS['db_connection']->update("UPDATE data_objects SET visibility_id=$visibility_id WHERE id=$data_object_id");
+                $hierarchy_entry_id = $values[2];
+                $GLOBALS['db_connection']->update("UPDATE data_objects_hierarchy_entries SET visibility_id=$visibility_id WHERE data_object_id=$data_object_id AND hierarchy_entry_id=$hierarchy_entry_id");
             }
         }
         fclose($FILE);
@@ -136,22 +162,60 @@ class HarvestEvent extends ActiveRecord
         $image_type_id = DataType::image()->id;
         
         // Published images go to top_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.published=1 AND do.visibility_id=".Visibility::visible()->id." AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
+        $outfile = $this->mysqli->select_into_outfile("
+            SELECT he.id, do.id, 255
+            FROM data_objects_harvest_events dohevt
+            JOIN data_objects do ON (dohevt.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            WHERE dohevt.harvest_event_id=$this->id
+            AND do.data_type_id=$image_type_id
+            AND do.published=1
+            AND dohe.visibility_id=".Visibility::visible()->id."
+            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_images');
         unlink($outfile);
         
         // Published images go to top_concept_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.published=1 AND do.visibility_id=".Visibility::visible()->id." AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
+        $outfile = $this->mysqli->select_into_outfile("
+            SELECT he.taxon_concept_id, do.id, 255
+            FROM data_objects_harvest_events dohevt
+            JOIN data_objects do ON (dohevt.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            WHERE dohevt.harvest_event_id=$this->id
+            AND do.data_type_id=$image_type_id
+            AND do.published=1
+            AND dohe.visibility_id=".Visibility::visible()->id."
+            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_concept_images');
         unlink($outfile);
         
         // Published XOR visible images go to top_unpublished_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.visibility_id=".Visibility::preview()->id." AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
+        $outfile = $this->mysqli->select_into_outfile("
+            SELECT he.id, do.id, 255
+            FROM data_objects_harvest_events dohevt
+            JOIN data_objects do ON (dohevt.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            WHERE dohevt.harvest_event_id=$this->id
+            AND do.data_type_id=$image_type_id
+            AND dohe.visibility_id=".Visibility::preview()->id."
+            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_images');
         unlink($outfile);
         
         // Published XOR visible images go to top_unpublished_concept_images
-        $outfile = $this->mysqli->select_into_outfile("SELECT he.taxon_concept_id, do.id, 255 FROM data_objects_harvest_events dohevt JOIN data_objects do ON (dohevt.data_object_id=do.id) JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id) JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) WHERE dohevt.harvest_event_id=$this->id AND do.data_type_id=$image_type_id AND do.visibility_id!=".Visibility::preview()->id." AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
+        $outfile = $this->mysqli->select_into_outfile("
+            SELECT he.taxon_concept_id, do.id, 255
+            FROM data_objects_harvest_events dohevt
+            JOIN data_objects do ON (dohevt.data_object_id=do.id)
+            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
+            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            WHERE dohevt.harvest_event_id=$this->id
+            AND do.data_type_id=$image_type_id
+            AND dohe.visibility_id!=".Visibility::preview()->id."
+            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
         $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_concept_images');
         unlink($outfile);
         
@@ -168,6 +232,120 @@ class HarvestEvent extends ActiveRecord
         if(@!$data_object->id) return false;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events VALUES ($this->id, $data_object->id, '$data_object->guid', ". Status::find_or_create_by_translated_label($status)->id .")");
     }
+    
+    public function index_for_search()
+    {
+        $indexer = new SiteSearchIndexer();
+        $query = "SELECT data_object_id FROM data_objects_harvest_events WHERE harvest_event_id = $this->id";
+        $data_object_ids = array();
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $data_object_ids[] = $row[0];
+        print_r($data_object_ids);
+        $indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
+        
+        $query = "SELECT he.taxon_concept_id FROM harvest_events_hierarchy_entries hehe
+        JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id = $this->id";
+        $taxon_concept_ids = array();
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $taxon_concept_ids[] = $row[0];
+        print_r($taxon_concept_ids);
+        $indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
+    }
+    
+    public function create_collection()
+    {
+        if(substr($this->resource->title, -1) == 's') $collection_title = $this->resource->title.'\'s Collection';
+        else $collection_title = $this->resource->title.'\'s Collection';
+        $description = trim($this->resource->content_partner->description);
+        if($description && !preg_match("/\.$/", $description)) $description = trim($description) . ". ";
+        $description .= "Last harvested ". $this->completed_at;
+        $collection = Collection::find_or_create_by_name($collection_title, array(
+            'user_id' => $this->resource->content_partner->user->id,
+            'logo_cache_url' => $this->resource->content_partner->user->logo_cache_url,
+            'description' => $description,
+            'created_at' => 'NOW()',
+            'updated_at' => 'NOW()'));
+        // $this->mysqli->query("DELETE FROM collection_items WHERE collection_id=$collection->id")
+        if($this->published_at) $this->resource->collection_id = $collection->id;
+        else $this->resource->preview_collection_id = $collection->id;
+        $this->resource->save();
+        
+        $this->add_objects_to_collection($collection);
+        $this->add_taxa_to_collection($collection);
+        
+        $indexer = new CollectionItemIndexer();
+        $indexer->index_collection($collection->id);
+        if($this->published_at)
+        {
+            $indexer = new SiteSearchIndexer();
+            $indexer->index_collection($collection);
+        }
+    }
+    
+    private function add_objects_to_collection($collection)
+    {
+        $sound_type_ids = DataType::sound_type_ids();
+        $image_type_ids = DataType::image_type_ids();
+        $video_type_ids = DataType::video_type_ids();
+        $map_type_ids = DataType::map_type_ids();
+        $text_type_ids = DataType::text_type_ids();
+        
+        $query = "
+            SELECT do.id, do.created_at, do.object_title, do.data_type_id
+            FROM data_objects_harvest_events dohe
+            JOIN data_objects do ON (dohe.data_object_id=do.id)
+            WHERE dohe.harvest_event_id = $this->id";
+        $used_ids = array();
+        $count = 0;
+        $outfile = temp_filepath();
+        $OUT = fopen($outfile, 'w+');
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            if(isset($used_ids[$id])) continue;
+            $created_at = $row[1];
+            $object_title = trim($row[2]);
+            $data_type_id = $row[3];
+            if(in_array($data_type_id, $sound_type_ids)) $title = "Sound";
+            elseif(in_array($data_type_id, $image_type_ids)) $title = "Image";
+            elseif(in_array($data_type_id, $video_type_ids)) $title = "Video";
+            elseif(in_array($data_type_id, $map_type_ids)) $title = "Map";
+            elseif(in_array($data_type_id, $text_type_ids)) $title = "Text";
+            else $title = "Data Object";
+            
+            fwrite($OUT, "NULL\t$title\tDataObject\t$id\t$collection->id\t$created_at\t$created_at\t\tNULL\n");
+            $used_ids[$id] = true;
+        }
+        fclose($OUT);
+        $this->mysqli->load_data_infile($outfile, 'collection_items');
+        unlink($outfile);
+        // echo "$dump_path\n";
+    }
+    
+    private function add_taxa_to_collection($collection)
+    {
+        $query = "
+            SELECT he.taxon_concept_id, he.created_at, n.string
+            FROM harvest_events_hierarchy_entries hehe
+            JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id)
+            JOIN names n ON (he.name_id=n.id)
+            WHERE hehe.harvest_event_id = $this->id";
+        $used_ids = array();
+        $count = 0;
+        $outfile = temp_filepath();
+        $OUT = fopen($outfile, 'w+');
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
+        {
+            $id = $row[0];
+            if(isset($used_ids[$id])) continue;
+            $created_at = $row[1];
+            $name_string = trim($row[2]);
+            fwrite($OUT, "NULL\t$name_string\tTaxonConcept\t$id\t$collection->id\t$created_at\t$created_at\t\tNULL\n");
+            $used_ids[$id] = true;
+        }
+        fclose($OUT);
+        $this->mysqli->load_data_infile($outfile, 'collection_items');
+        unlink($outfile);
+    }
+    
 }
 
 ?>
