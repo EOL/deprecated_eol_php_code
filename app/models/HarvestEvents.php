@@ -252,20 +252,29 @@ class HarvestEvent extends ActiveRecord
     
     public function create_collection()
     {
-        if(substr($this->resource->title, -1) == 's') $collection_title = $this->resource->title.'\'s Collection';
-        else $collection_title = $this->resource->title.'\'s Collection';
+        $collection_title = $this->resource->title;
         $description = trim($this->resource->content_partner->description);
-        if($description && !preg_match("/\.$/", $description)) $description = trim($description) . ". ";
-        $description .= "Last harvested ". $this->completed_at;
-        $collection = Collection::find_or_create_by_name($collection_title, array(
+        if($description && !preg_match("/\.$/", $description)) $description = trim($description) . ".";
+        $description .= " Last indexed ". date('F j, Y', strtotime($this->completed_at));
+        $collection = Collection::find_or_create(array(
+            'name' => $collection_title,
             'user_id' => $this->resource->content_partner->user->id,
             'logo_cache_url' => $this->resource->content_partner->user->logo_cache_url,
-            'description' => $description,
+            'description' => trim($description),
             'created_at' => 'NOW()',
             'updated_at' => 'NOW()'));
         // $this->mysqli->query("DELETE FROM collection_items WHERE collection_id=$collection->id")
-        if($this->published_at) $this->resource->collection_id = $collection->id;
-        else $this->resource->preview_collection_id = $collection->id;
+        if($this->published_at)
+        {
+            $this->resource->collection_id = $collection->id;
+            $collection->published = 1;
+            $collection->save();
+        }else
+        {
+            $this->resource->preview_collection_id = $collection->id;
+            $collection->published = 0;
+            $collection->save();
+        }
         $this->resource->save();
         
         $this->add_objects_to_collection($collection);
