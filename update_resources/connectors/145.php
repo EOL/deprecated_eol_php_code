@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 /* connector for Natural History Services
 estimated execution time: 7 mins. {Connector screen scrapes the partner website.}
 estimated execution time: 3 secs. {using customized XML}
@@ -11,7 +12,7 @@ require_library('connectors/NaturalHistoryServicesAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = NaturalHistoryServicesAPI::get_all_taxa();
-$xml = SchemaDocument::get_taxon_xml($taxa);
+$xml = \SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "145.xml";
 $OUT = fopen($resource_path, "w+");

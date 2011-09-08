@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 /* connector for Learning + Education Group
 Partner provides RSS feed.
 estimated execution time: just a few seconds
@@ -10,7 +11,7 @@ require_library('connectors/LearningEducationAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = LearningEducationAPI::get_all_taxa();
-$xml = SchemaDocument::get_taxon_xml($taxa);
+$xml = \SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "257.xml";
 $OUT = fopen($resource_path, "w+");

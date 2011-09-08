@@ -1,12 +1,21 @@
 <?php
 namespace php_active_record;
-
+/* connector: 257 */
 define("PODCAST_FEED", "http://education.eol.org/podcast/newfeed");
 class LearningEducationAPI
 {
     public static function get_all_taxa()
     {
-        $taxon["Pandea rubra"]           = "Red Paper Latern Jellyfish";
+        $taxon["Dictyna"] = "Branch-tip Spiders";
+        $taxon["Cubozoa"] = "Box Jellyfish";
+        $taxon["Riftia pachyptila"] = "Riftia";
+        $taxon["Elysia chlorotica"] = "Sea Slugs";
+        $taxon["Insecta"] = "Insects of Costa Rica";
+        $taxon["Architeuthis dux"] = "Giant Squid";
+        $taxon["Ursus maritimus"] = "Polar Bears";
+        $taxon["Eichhornia crassipes"] = "Water Hyacinth";
+
+        $taxon["Pandea rubra"]           = "Red Paper Lantern Jellyfish";
         $taxon["Jadera haematoloma"]     = "Red-Shouldered Soapberry Bug";
         $taxon["Acroporidae"]            = "Coral";
         $taxon["Carcharodon carcharias"] = "Great White Shark";
@@ -18,11 +27,31 @@ class LearningEducationAPI
         $taxon["Umbilicaria mammulata"]  = "Lichens";
         $taxon["Eubalaena glacialis"]    = "Right Whale";
         $taxon["Urocyon littoralis"]     = "Island Fox";
+
+        $taxon["Thunnus thynnus"] = "Atlantic Bluefin Tuna";
+        $taxon["Dinoflagellate"] = "Dinoflagellates";
+        $taxon["Rhizophora mangle"] = "Mangroves";
+        $taxon["Oncorhynchus tshawytscha"] = "Chinook Salmon";
+        $taxon["Amblyrhynchus cristatus"] = "Marine Iguana";
+        $taxon["Trifolium repens L."] = "Four-Leaf Clover";
+        $taxon["Rana boylii"] = "Foothill Yellow-legged Frog";
+        $taxon["Cedrus libani"] = "Lebanon Cedar";
+        $taxon["Fringilla coelebs"] = "Chaffinch and Winter Wren";
+        $taxon["Troglodytes troglodytes"] = "Chaffinch and Winter Wren";
+        $taxon["Rupicapra rupicapra"] = "Chamois";
+        $taxon["Balaena mysticetus"] = "Bowhead Whale";
+        $taxon["Anoplophora glabripennis"] = "Beetles and Moths";
+        $taxon["Nebria brevicollis"] = "Beetles and Moths";
+        $taxon["Lymantria dispar"] = "Beetles and Moths";
+        $taxon["Felis silvestris grampia"] = "Scottish Wildcat";
+        $taxon["Funisia dorothea"] = "Ediacaran Fauna Fossils";
+        $taxon["Dickinsonia"] = "Ediacaran Fauna Fossils";
+        
         $GLOBALS['hard_coded_taxon'] = $taxon;
         $GLOBALS['sound_objects'] = self::prepare_sound_objects();
         return self::get_taxa();
     }
-    
+
     public static function get_taxa()
     {
         $used_collection_ids = array();
@@ -37,7 +66,7 @@ class LearningEducationAPI
         }
         return $page_taxa;
     }
-    
+
     function prepare_sound_objects()
     {
         $sounds = array();
@@ -46,7 +75,7 @@ class LearningEducationAPI
         {
             $item_itunes = $item->children("http://www.itunes.com/dtds/podcast-1.0.dtd");
             $title = trim($item->title);
-            
+
             /* sample RSS feed
             <item>
                 <title>Red Paper Latern Jellyfish</title>
@@ -61,7 +90,7 @@ class LearningEducationAPI
                 <guid>http://education.eol.org/sites/default/files/audio_files/OSAAT_redlantern_0.mp3</guid>
             </item>
             */
-            
+
             $description = $item->description;
             if($item_itunes->duration) $description .= "<br>Duration: " . $item_itunes->duration;
             if($item->pubDate) $description .= "<br>Published: " . $item->pubDate;
@@ -81,7 +110,7 @@ class LearningEducationAPI
         }
         return $sounds;
     }
-    
+
     function create_taxa()
     {
         $hard_coded_taxon = $GLOBALS['hard_coded_taxon'];
@@ -137,7 +166,7 @@ class LearningEducationAPI
         $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
-    
+
     public static function get_data_object($rec)
     {
         $data_object_parameters = array();
