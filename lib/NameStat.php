@@ -5,14 +5,14 @@ class NameStat
 {
     const API_PAGES = "http://www.eol.org/api/pages/";
     const API_PAGES_PARAMS = "?images=75&text=75&subjects=all";
-    
+
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
         else $this->mysqli_slave =& $this->mysqli;
     }
-    
+
     function show_table($taxa)
     {
         print "<table cellpadding='3' cellspacing='0' border='1' style='font-size : x-small; font-family : Arial Unicode MS;'>
@@ -31,7 +31,7 @@ class NameStat
                 <td>Image</td>
                 <td>Total</td>
             </tr>";
-        
+
         $sciname = "";
         $color = "white";
         foreach($taxa as $row)
@@ -47,18 +47,18 @@ class NameStat
                 <td>"               . utf8_decode($row["orig_sciname"]) . "</td>
                 <td>"               . utf8_decode($row["sciname"]) . "</td>
                 <td align='center'><a target='_eol' href='http://www.eol.org/pages/" . $row["tc_id"] . "'>" . $row["tc_id"] . "</a></td>
-                <td align='right'>"  . $row["text"] . "</td>
-                <td align='right'>"  . $row["image"] . "</td>
-                <td align='right'>"  . $row["total_objects"] . "</td>
-                <td align='right'>"  . $row["score"] . "&nbsp;</td>
-                <td align='right'>"  . $row["last_curated"] . "&nbsp;</td>
-                <td align='right'>"  . $row["overview_word_count"] . "&nbsp;</td>
-                <td align='right'>"  . $row["general_description_word_count"] . "&nbsp;</td>
+                <td align='right'>" . $row["text"] . "</td>
+                <td align='right'>" . $row["image"] . "</td>
+                <td align='right'>" . $row["total_objects"] . "</td>
+                <td align='right'>" . $row["score"] . "&nbsp;</td>
+                <td align='right'>" . $row["last_curated"] . "&nbsp;</td>
+                <td align='right'>" . $row["overview_word_count"] . "&nbsp;</td>
+                <td align='right'>" . $row["general_description_word_count"] . "&nbsp;</td>
             </tr>";
         }
         print "</table>";
     }
-    
+
     function sort_details($taxa_details, $returns)
     {
         usort($taxa_details, "self::cmp");
@@ -71,14 +71,14 @@ class NameStat
         }
         else return $taxa_details;
     }
-    
+
     function cmp($a, $b)
     {
         if(!isset($GLOBALS["sort_order"])) $GLOBALS["sort_order"] = 'total_objects';
         $sort_order = $GLOBALS["sort_order"];
         return $a[$sort_order] < $b[$sort_order];
     }
-    
+
     function get_details($xml, $orig_sciname, $strict)
     {
         $taxa = array();
@@ -103,7 +103,7 @@ class NameStat
         }
         return $taxa;
     }
-    
+
     function get_objects_info($id, $sciname, $orig_sciname, $score)
     {
         $sciname_4color = "";
@@ -143,12 +143,13 @@ class NameStat
         $result = $mysqli->query($query);
         while($result && $row=$result->fetch_assoc()) return $row['last_curated'];
         */
-        
+
         /*
+        TODO:
         this will be replaced by using the actions table:
         we'd need to search the actions table and get the maximum action date for that concept to get the last curated date
-        */        
-        
+        */
+
         return null;
     }
 
@@ -159,23 +160,19 @@ class NameStat
         $trusted_id     = Vetted::trusted()->id;
         $untrusted_id   = Vetted::untrusted()->id;
         $unreviewed_id  = Vetted::unknown()->id;
-        if($chapter == "brief summary")
-        {
-            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology")->id;
-            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Introduction")->id;
-        }
-        elseif($chapter == "comprehensive description")
-        {
-            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription")->id;
-            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description")->id;
-            $scope[] = InfoItem::find_or_create_by_schema_value("http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology")->id;
-        }
-        
-        $query = "SELECT do.description, do.vetted_id FROM data_objects_taxon_concepts dotc JOIN data_objects do ON dotc.data_object_id = do.id LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id WHERE do.published=1
-                  AND do.visibility_id=" . Visibility::visible()->id ."
+        if($chapter == "brief summary")                 $toc_id = TranslatedTableOfContent::find_or_create_by_label('Brief Summary')->table_of_contents_id;
+        elseif($chapter == "comprehensive description") $toc_id = TranslatedTableOfContent::find_or_create_by_label('Comprehensive Description')->table_of_contents_id;
+
+        $query = "SELECT dotoc.toc_id,do.description, dohe.vetted_id FROM data_objects_taxon_concepts dotc 
+                    JOIN data_objects do ON dotc.data_object_id = do.id 
+                    LEFT JOIN data_objects_table_of_contents dotoc ON do.id = dotoc.data_object_id 
+                    JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
+                  WHERE do.published = 1
+                  AND dohe.visibility_id =" . Visibility::visible()->id ."
                   AND do.data_type_id = $text_id
                   AND dotc.taxon_concept_id = $taxon_concept_id
-                  AND doii.info_item_id in (".implode(",", $scope).")";
+                  AND dotoc.toc_id = $toc_id";
+
         $result = $this->mysqli_slave->query($query);
         while($result && $row=$result->fetch_assoc())
         {

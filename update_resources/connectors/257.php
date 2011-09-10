@@ -8,7 +8,6 @@ estimated execution time: just a few seconds
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/LearningEducationAPI');
-$GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = LearningEducationAPI::get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);

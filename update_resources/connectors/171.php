@@ -1,29 +1,20 @@
 <?php
-exit; 
+namespace php_active_record;
 /* connector for OBIS depth range data
 estimated execution time: 1.7 hours
 This connector will use CSV files submitted by partner.
 */
 
-$timestart = microtime(1);
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$timestart = time_elapsed();
 require_library('connectors/ObisAPI');
-$GLOBALS['ENV_DEBUG'] = false;
+$resource_id = 171;
+$taxa = ObisAPI::get_all_taxa($resource_id);
 
-$taxa = ObisAPI::get_all_taxa();
-$xml = SchemaDocument::get_taxon_xml($taxa);
-
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . "171.xml";
-
-$OUT = fopen($resource_path, "w+");
-fwrite($OUT, $xml);
-fclose($OUT);
-
-$elapsed_time_sec = microtime(1)-$timestart;
+$elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
-echo "elapsed time = $elapsed_time_sec sec              \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+echo "elapsed time = $elapsed_time_sec seconds             \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 exit("\n\n Done processing.");
 ?>
