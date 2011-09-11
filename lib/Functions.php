@@ -1615,5 +1615,50 @@ class Functions
             sleep(5);
         }
     }
+    
+    public function create_work_list_from_master_file($master_file, $divisor, $destination_folder, $filename_prefix, $work_list)
+    {
+        $FILE = fopen($master_file, "r");
+        $i = 0;
+        $file_ctr = 0;
+        $str = "";
+        while(!feof($FILE))
+        {
+            if($line = fgets($FILE))
+            {
+                $i++;
+                $str .= $line;
+                print "\n$i. $line";
+                if($i == $divisor)//no. of rows per text file
+                {
+                    $file_ctr++;
+                    $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
+                    $OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w");
+                    fwrite($OUT, $str);
+                    fclose($OUT);
+                    $str = "";
+                    $i = 0;
+                }
+            }
+        }
+        //last writes
+        if($str)
+        {
+            $file_ctr++;
+            $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
+            $OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w");
+            fwrite($OUT, $str);
+            fclose($OUT);
+        }
+        //create work_list
+        $str = "";
+        for($i = 1; $i <= $file_ctr; $i++) $str .= $filename_prefix . Functions::format_number_with_leading_zeros($i, 3) . "\n";
+        if($fp = fopen($work_list, "w"))
+        {
+            fwrite($fp, $str);
+            fclose($fp);
+        }
+    }
+
 }
 ?>

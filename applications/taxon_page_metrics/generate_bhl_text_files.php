@@ -1,5 +1,5 @@
 <?php
-$GLOBALS['ENV_DEBUG'] = false;
+namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $start_time = time_elapsed();            
