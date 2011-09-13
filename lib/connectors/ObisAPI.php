@@ -189,8 +189,8 @@ class ObisAPI
                 continue;
             }
 
-            $desc .= "<br>&nbsp;<br>Note: this information has not been validated. Check this *<a target='obis_gallery' href='http://www.eol.org/content_partner/content/257'>note</a>*. Your feedback is most welcome.";
-            $species_id = $arr_csv["tname_id"];            
+            $desc .= "<br>&nbsp;<br>Note: this information has not been validated. Check this *<a target='obis_gallery' href='http://www.eol.org/content_partners/257'>note</a>*. Your feedback is most welcome.";
+            $species_id = $arr_csv["tname_id"];
 
             $identifier    = $species_id . "-env_info";
             $dataType      = "http://purl.org/dc/dcmitype/Text";

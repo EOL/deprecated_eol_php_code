@@ -1,10 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: 276 */
-class INBioAPI
+/* connector: 297 */
+class IabinAPI
 {
     private static $MAPPINGS;
-    const TAXON_SOURCE_URL = "http://darnis.inbio.ac.cr/ubis/FMPro?-DB=UBIPUB.fp3&-lay=WebAll&-error=norec.html&-Format=detail.html&-Op=eq&-Find=&id=";
 
     public static function get_all_taxa()
     {
@@ -12,7 +11,7 @@ class INBioAPI
         $all_taxa = array();
         $used_collection_ids = array();
         require_vendor('eol_content_schema_v2');
-        $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_inbio");
+        $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_iabin");
         $tables = $harvester->tables;
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_table('http://rs.gbif.org/terms/1.0/image'));
@@ -20,7 +19,12 @@ class INBioAPI
         $vernacular_names = self::get_vernacular_names($harvester->process_table('http://rs.gbif.org/terms/1.0/vernacularname'));
         $taxon_media = array();
         $media = $harvester->process_table('http://www.pliniancore.org/plic/pcfcore/PlinianCore2.3');
-        foreach($media as $m) @$taxon_media[$m['http://rs.tdwg.org/dwc/terms/taxonID']] = $m;
+        foreach($media as $m)
+        {
+            $taxon_id = $m['http://rs.tdwg.org/dwc/terms/taxonID'];
+            @$taxon_media[$taxon_id][] = $m;
+        }
+
         $taxa = $harvester->process_table('http://rs.tdwg.org/dwc/terms/Taxon');
         $i = 0;
         $total = sizeof($taxa);
@@ -34,7 +38,7 @@ class INBioAPI
             $taxon["reference"] = @$references[$taxon_id];
             $taxon["vernacular_name"] = @$vernacular_names[$taxon_id];
             $taxon["media"] = $taxon_media[$taxon_id];
-            $arr = self::get_inbio_taxa($taxon, $used_collection_ids);
+            $arr = self::get_iabin_taxa($taxon, $used_collection_ids);
             $page_taxa               = $arr[0];
             $used_collection_ids     = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
@@ -53,10 +57,13 @@ class INBioAPI
                 $images[$taxon_id]['url'][]           = $image['http://purl.org/dc/terms/identifier'];
                 $images[$taxon_id]['caption'][]       = $image['http://purl.org/dc/terms/description'];
                 $images[$taxon_id]['license'][]       = $image['http://purl.org/dc/terms/license'];
+                $images[$taxon_id]['created'][]       = $image['http://purl.org/dc/terms/created'];
+                
+                /* not available for IABIN in images
                 $images[$taxon_id]['publisher'][]     = $image['http://purl.org/dc/terms/publisher'];
                 $images[$taxon_id]['creator'][]       = $image['http://purl.org/dc/terms/creator'];
-                $images[$taxon_id]['created'][]       = $image['http://purl.org/dc/terms/created'];
                 $images[$taxon_id]['rightsHolder'][]  = $image['http://purl.org/dc/terms/rightsHolder'];
+                */
             }
         }
         return $images;
@@ -81,15 +88,22 @@ class INBioAPI
         foreach($names as $name)
         {
             $taxon_id = $name['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if($name['http://rs.tdwg.org/dwc/terms/vernacularName'])
+            if($common_names = $name['http://rs.tdwg.org/dwc/terms/vernacularName']) //comma-separated common names
             {
-                $vernacular_names[$taxon_id][] = array("name" => $name['http://rs.tdwg.org/dwc/terms/vernacularName'], "language" => self::get_language($name['http://purl.org/dc/terms/language']));
+                //remove parenthesis for this string "(Frank and Ramus"
+                if($pos = stripos($common_names, "(Frank and Ramus")) $common_names = trim(substr($common_names, 0, $pos-1));
+
+                $common_names = explode(",", $common_names); 
+                foreach($common_names as $common_name)
+                {
+                    $vernacular_names[$taxon_id][] = array("name" => trim($common_name), "language" => self::get_language($name['http://purl.org/dc/terms/language']));
+                }
             }
         }
         return $vernacular_names;
     }
 
-    public static function get_inbio_taxa($taxon, $used_collection_ids)
+    public static function get_iabin_taxa($taxon, $used_collection_ids)
     {
         $response = self::parse_xml($taxon);
         $page_taxa = array();
@@ -108,17 +122,26 @@ class INBioAPI
         $taxon_id = $taxon["id"];
         $arr_data = array();
         $arr_objects = array();
-        if($taxon["media"])
+
+        /*
+        For IABIN, $taxon["media"] can be multiple, unlike with INBIO which is only 1.
+        */
+        $taxon_texts = $taxon["media"];
+        if($taxon_texts)
         {
-            foreach($GLOBALS['fields'] as $field)
+            $mappings = self::$MAPPINGS;
+            foreach($taxon_texts as $taxon_text)
             {
-                $term = $field["term"];
-                $mappings = self::$MAPPINGS;
-                if(@$mappings[$term] && @$taxon["media"][$term])
+                foreach($GLOBALS['fields'] as $field)
                 {
-                    $arr_objects[] = self::prepare_text_objects($taxon, $term);
-                }                
+                    $term = $field["term"];
+                    if(@$mappings[$term] && @$taxon_text[$term])
+                    {
+                        $arr_objects[] = self::prepare_text_objects($taxon, $taxon_text, $term);
+                    }
+                }
             }
+
             $arr_objects = self::prepare_image_objects($taxon, $arr_objects);
             $refs = array();
             if($taxon["reference"]) $refs[] = array("fullReference" => $taxon["reference"]);
@@ -126,9 +149,8 @@ class INBioAPI
             {
                 $sciname = @$taxon["http://rs.tdwg.org/dwc/terms/scientificName"];
                 if(@$taxon["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"]) $sciname .= " " . $taxon["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"];
-                
                 $arr_data[]=array(  "identifier"   => $taxon_id,
-                                    "source"       => self::TAXON_SOURCE_URL . $taxon_id,
+                                    "source"       => "",
                                     "kingdom"      => @$taxon["http://rs.tdwg.org/dwc/terms/kingdom"],
                                     "phylum"       => @$taxon["http://rs.tdwg.org/dwc/terms/phylum"],
                                     "class"        => @$taxon["http://rs.tdwg.org/dwc/terms/class"],
@@ -156,20 +178,20 @@ class INBioAPI
           {
             if($image_url)
             {
-                $identifier     = @$taxon["image"]['url'][$i];
                 $description    = @$taxon["image"]['caption'][$i];
                 $mimeType       = "image/jpeg";
                 $dataType       = "http://purl.org/dc/dcmitype/StillImage";
                 $title          = "";
                 $subject        = "";
-                $mediaURL       = @$taxon["image"]['url'][$i]; 
+                $mediaURL       = self::get_href_from_anchor_tag(@$taxon["image"]['url'][$i]);
+                $identifier     = $mediaURL;
                 $location       = "";
                 $license_index  = @$taxon["image"]['license'][$i];
                 $license_info["CC-Attribution-NonCommercial-ShareAlike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
                 $license        = @$license_info[$license_index];
-                $rightsHolder   = @$taxon["image"]['rightsHolder'][$i];
+                $rightsHolder   = @$taxon["http://purl.org/dc/terms/rightsHolder"];
                 $created        = @$taxon["image"]['created'][$i];
-                $source         = self::TAXON_SOURCE_URL . $taxon["id"];
+                $source         = "";
                 $agent          = array();
                 if(@$taxon["image"]['creator'][$i]) $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => @$taxon["image"]['creator'][$i]);
                 if(@$taxon["image"]['publisher'][$i]) $agent[] = array("role" => "publisher", "homepage" => "", "fullName" => @$taxon["image"]['publisher'][$i]);
@@ -187,15 +209,16 @@ class INBioAPI
 
     private function get_language($lang)
     {
-        if($lang == "Ingles") return "en";
-        elseif($lang == "Español") return "es";
-        else return "es";
+        if(in_array($lang, array("English", "en"))) return "en";
+        elseif(in_array($lang, array("Español", "es"))) return "es";
+        elseif(in_array($lang, array("Portugués", "pt"))) return "pt";
+        else return "";
     }
 
-    private function prepare_text_objects($taxon, $term)
+    private function prepare_text_objects($taxon, $taxon_text, $term)
     {
         $temp = parse_url($term);
-        $description   = $taxon["media"][$term];
+        $description   = $taxon_text[$term];
         $identifier    = $taxon["id"] . str_replace("/", "_", $temp["path"]);
         $mimeType      = "text/html";
         $dataType      = "http://purl.org/dc/dcmitype/Text";
@@ -203,30 +226,28 @@ class INBioAPI
         $subject       = self::$MAPPINGS[$term];
         $mediaURL      = "";
         $location      = "";
-        $license_index = @$taxon["http://purl.org/dc/terms/license"];
-        $license_info["CC-Attribution-NonCommercial-ShareAlike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $license       = @$license_info[$license_index];
+        $license       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $rightsHolder  = @$taxon["http://purl.org/dc/terms/rightsHolder"];
-        $source        = self::TAXON_SOURCE_URL . $taxon["id"];
+        $source        = "";
         $refs          = array();
-        $agent         = self::get_agents($taxon);
-        $created       = $taxon["media"]["http://purl.org/dc/terms/created"];
+        $agent         = self::get_agents($taxon_text);
+        $created       = $taxon_text["http://purl.org/dc/terms/created"];
         $modified      = "";
         $language      = self::get_language($taxon["http://purl.org/dc/terms/language"]);
         return self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $modified, $created, $language);
     }
 
-    private function get_agents($taxon)
+    private function get_agents($taxon_text)
     {
         $agent = array();
-        if($taxon["media"]["http://purl.org/dc/terms/creator"])
+        if($taxon_text["http://purl.org/dc/terms/creator"])
         {
-            $creators = explode(",", $taxon["media"]["http://purl.org/dc/terms/creator"]);
+            $creators = explode(",", $taxon_text["http://purl.org/dc/terms/creator"]);
             foreach($creators as $creator) $agent[] = array("role" => "editor", "homepage" => "", "fullName" => trim(strip_tags($creator)));
         }
-        if($taxon["media"]["http://purl.org/dc/elements/1.1/contributor"])
+        if($taxon_text["http://purl.org/dc/elements/1.1/contributor"])
         {
-            $creators = explode(",", $taxon["media"]["http://purl.org/dc/elements/1.1/contributor"]);
+            $creators = explode(",", $taxon_text["http://purl.org/dc/elements/1.1/contributor"]);
             foreach($creators as $creator)
             {
                 $creator = trim(strip_tags(str_replace("\\", "", $creator)));
@@ -261,7 +282,6 @@ class INBioAPI
     {
         $SPM = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#";
         $EOL = "http://www.eol.org/voc/table_of_contents#";
-        
         return array(  "http://www.pliniancore.org/plic/pcfcore/scientificDescription"        => $SPM . "DiagnosticDescription",
                        "http://www.pliniancore.org/plic/pcfcore/distribution"                 => $SPM . "Distribution",
                        "http://www.pliniancore.org/plic/pcfcore/feeding"                      => $SPM . "TrophicStrategy",
@@ -308,6 +328,17 @@ class INBioAPI
         <field index="3" term="http://www.pliniancore.org/plic/pcfcore/version"/>
         <field index="6" term="http://purl.org/dc/terms/audience"/>
     */
+    }
+
+    private function get_string_between($str_left, $str_right, $string)
+    {
+        if(preg_match("/$str_left(.*?)$str_right/ims", $string, $matches)) return trim($matches[1]);
+        return;
+    }
+    
+    private function get_href_from_anchor_tag($str)
+    {
+        return self::get_string_between('href = \"', '\"', $str);
     }
 
 }

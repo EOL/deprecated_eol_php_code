@@ -15,7 +15,7 @@ class test_connector_inbio_api extends SimpletestUnitBase
       $taxon = 
       Array
       (
-        "http://rs.tdwg.org/dwc/terms/taxonID" => 1852,
+        "http://rs.tdwg.org/dwc/terms/taxonID" => 7240,
         "http://rs.tdwg.org/dwc/terms/family" => "Annonaceae",
         "http://rs.tdwg.org/dwc/terms/genus" => "Annona",
         "http://rs.tdwg.org/dwc/terms/kingdom" => "Plantae",
