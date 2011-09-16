@@ -16,88 +16,85 @@ class NaturalHistoryServicesAPI
         $all_taxa = array();
         $used_collection_ids = array();
         $domain="http://www.rkwalton.com/";
-        $urls = array(0 => array("path1" => NHS_DOC_1, "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Arachnida", "order" => "Araneae", "family" => "Salticidae",
-                        "taxon_source_url" => $domain . "jump.php"), "active" => 1),  // Salticidae - Jumping Spiders
-                      1 => array("path1" => NHS_DOC_2, "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Hymenoptera", "family" => "",
-                        "taxon_source_url" => $domain . "wasps.php"), "active" => 1),  // Other Hymenopterans
-                      2 => array("path1" => NHS_DOC_3, "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Lepidoptera", "family" => "Hesperiidae",
-                        "taxon_source_url" => $domain . "skippers.php"), "active" => 0),  // butterfly like insects
+        $urls = array(
+            0 => array("path1" => NHS_DOC_1, "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Arachnida", "order" => "Araneae", "family" => "Salticidae",
+                       "taxon_source_url" => $domain . "jump.php"), "active" => 1),  // Salticidae - Jumping Spiders
+            1 => array("path1" => NHS_DOC_2, "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Hymenoptera", "family" => "",
+                       "taxon_source_url" => $domain . "wasps.php"), "active" => 1),  // Other Hymenopterans
+            2 => array("path1" => NHS_DOC_3, "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta",
+                       "taxon_source_url" => $domain . "skippers.php"), "active" => 1),  // butterfly like insects
                      );
         foreach($urls as $url)
         {
             if($url["active"])
             {
-                $page_taxa = self::get_NHS_taxa($url["path1"],$url["ancestry"]);
-                $all_taxa = array_merge($all_taxa,$page_taxa);
+                $page_taxa = self::get_NHS_taxa($url["path1"], $url["ancestry"]);
+                $all_taxa = array_merge($all_taxa, $page_taxa);
             }
         }
         return $all_taxa;
     }
 
-    public static function get_NHS_taxa($url1,$ancestry)
+    public static function get_NHS_taxa($url1, $ancestry)
     {
         global $used_collection_ids;
-        $response = self::search_collections($url1,$ancestry);//this will output the raw (but structured) output from the external service
+        $response = self::search_collections($url1, $ancestry);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
         foreach($response as $rec)
         {
             if(@$used_collection_ids[$rec["sciname"]]) continue;
-
             $taxon = self::get_taxa_for_photo($rec);
             if($taxon) $page_taxa[] = $taxon;
-
             $used_collection_ids[$rec["sciname"]] = true;
         }
         return $page_taxa;
     }
 
-    public static function search_collections($url1,$ancestry)//this will output the raw (but structured) output from the external service
+    public static function search_collections($url1, $ancestry)//this will output the raw (but structured) output from the external service
     {
-        $response = self::scrape_species_page($url1,$ancestry);
+        $response = self::scrape_species_page($url1, $ancestry);
         return $response;
     }
 
-    public static function scrape_species_page($url1,$ancestry)
+    public static function scrape_species_page($url1, $ancestry)
     {
         $arr_acknowledgement = self::prepare_acknowledgement();
         $arr_scraped = array();
         $arr_photos = array();
         $arr_sciname = array();
         $ctr = 0;
-
         print $url1 . "\n";
-
         $xml = simplexml_load_file($url1);
         print "taxa count = " . count($xml) . "\n";
-
         foreach($xml->url as $u)
         {
             $u_video = $u->children("http://www.google.com/schemas/sitemap-video/1.0");
-            $sciname = self::get_sciname($u_video->video->title);
+            if($url1 == "http://www.rkwalton.com/nhsskippers_videositemap.xml") $string = $u_video->video->description;
+            else $string = $u_video->video->title;
+            $scientific_names = self::get_sciname($string, $url1);
+            if(!$scientific_names) continue;
+            foreach($scientific_names as $sciname)
+            {
+                $exclude = array("Spiders In The Field", "Spiders and jumping Spiders", "Introduction to Solitary Wasps");
+                if (in_array($sciname, $exclude)) continue;
+                print "\n" . "[$sciname]";
 
-            $exclude = array("Spiders In The Field", "Spiders and jumping Spiders", "Introduction to Solitary Wasps");
-            if (in_array($sciname, $exclude)) continue;
+                $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);
 
-            print "\n" . "[$sciname]";
-
-            //=============================================================================================================
-            $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);
-            //=============================================================================================================
-
-            //object agents
-            $agent = array();
-            $agent[] = array("role" => "author", "homepage" => "http://www.rkwalton.com", "name" => "Richard K. Walton");
-
-            $arr_photos["$sciname"][] = array("identifier" => $u_video->video->content_loc,
-                                              "mediaURL" => str_ireplace(' ','',$u_video->video->content_loc),
-                                              "mimeType" => "video/mp4",
-                                              "dataType" => "http://purl.org/dc/dcmitype/MovingImage",                                  
-                                              "description" => "$acknowledgement<br>" . $u_video->video->description . " <a target='more_info' href='" . $u->loc . "'>More info.</a><br> <br>",
-                                              "title" => $u_video->video->description,
-                                              "location" => "",
-                                              "dc_source" => $u_video->video->content_loc,
-                                              "agent" => $agent);
-            $arr_sciname["$sciname"] = 1;
+                //object agents
+                $agent = array();
+                $agent[] = array("role" => "author", "homepage" => "http://www.rkwalton.com", "name" => "Richard K. Walton");
+                $arr_photos["$sciname"][] = array("identifier" => $u_video->video->content_loc,
+                                                  "mediaURL" => str_ireplace(' ','',$u_video->video->content_loc),
+                                                  "mimeType" => "video/mp4",
+                                                  "dataType" => "http://purl.org/dc/dcmitype/MovingImage",                                  
+                                                  "description" => "$acknowledgement<br>" . $u_video->video->description . " <a target='more_info' href='" . $u->loc . "'>More info.</a><br> <br>",
+                                                  "title" => $u_video->video->description,
+                                                  "location" => "",
+                                                  "dc_source" => $u_video->video->content_loc,
+                                                  "agent" => $agent);
+                $arr_sciname[$sciname] = 1;
+            }
         }
 
         foreach(array_keys($arr_sciname) as $sci)
@@ -106,8 +103,8 @@ class NaturalHistoryServicesAPI
                                  "kingdom" => $ancestry["kingdom"],
                                  "phylum" => $ancestry["phylum"],
                                  "class" => $ancestry["class"],
-                                 "order" => $ancestry["order"],
-                                 "family" => $ancestry["family"],
+                                 "order" => @$ancestry["order"],
+                                 "family" => @$ancestry["family"],
                                  "sciname" => $sci,
                                  "dc_source" => $ancestry["taxon_source_url"],
                                  "photos" => $arr_photos["$sci"]
@@ -116,20 +113,37 @@ class NaturalHistoryServicesAPI
         return $arr_scraped;
     }
 
-    static function get_sciname($string)
+    static function get_sciname($string, $group)
     {
-        $pos = strripos($string,'-');
-        if(is_numeric($pos)) $string = trim(substr($string,$pos+1,strlen($string)));
-
-        $pos = stripos($string,':');
-        if(is_numeric($pos)) return trim(substr($string, 0, $pos));
-
+        $sciname = array();
+        // special chars
         $string = str_ireplace(" jumping spider video", "", $string);
+        $string = str_ireplace("_", " ", $string);
 
-        return trim($string);
+        if($group == NHS_DOC_3) //nhsskippers
+        {
+            $pos = strripos($string, ':'); // gets string after ':'
+            if(is_numeric($pos)) $string = trim(substr($string, $pos+1, strlen($string)));
+            $names = explode(",", $string); 
+            foreach($names as $name)
+            {
+                $pos = strripos($name, '-'); // gets string after '-'
+                if(is_numeric($pos)) $sciname[] = trim(substr($name, $pos+1, strlen($name)));
+            }
+        }
+        else
+        {
+            // for nhsjumpers and nhswasps
+            $pos = strripos($string, '-'); // gets string after '-'
+            if(is_numeric($pos)) $string = trim(substr($string, $pos+1, strlen($string)));
+            $pos = stripos($string, ':'); // gets string before ':'
+            if(is_numeric($pos)) $string = trim(substr($string, 0, $pos));
+            $sciname[] = trim($string);
+        }
+        return $sciname;
     }
 
-    public static function prepare_acknowledgement()    
+    public static function prepare_acknowledgement()
     {
         require_library('XLSParser');
         $parser = new XLSParser();
@@ -141,13 +155,13 @@ class NaturalHistoryServicesAPI
             $sci = trim(str_ireplace(".mp4", "", $sciname));
             for ($i = 1; $i <= 3; $i++)
             {
-                if(@$arr["person" . $i][$k])$acknowledgement[$sci][]=@$arr["person" . $i][$k];
+                if(@$arr["person" . $i][$k])$acknowledgement[$sci][] = @$arr["person" . $i][$k];
             }
             $k++;
-        }                
+        }
         return $acknowledgement;
     }
-    
+
     public static function get_acknowledgement($sciname, $arr)
     {
         if(!@$arr["$sciname"]) return;
@@ -167,13 +181,13 @@ class NaturalHistoryServicesAPI
         $taxon["commonNames"] = array();
         $license = null;
         $taxon["identifier"] = "";
-        $taxon["source"] = $rec["dc_source"];        
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));        
+        $taxon["source"] = $rec["dc_source"];
+        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
         $taxon["kingdom"] = ucfirst(trim($rec["kingdom"]));
-        $taxon["phylum"] = ucfirst(trim($rec["phylum"]));       
+        $taxon["phylum"] = ucfirst(trim($rec["phylum"]));
         $taxon["class"] = ucfirst(trim($rec["class"]));
         $taxon["order"] = ucfirst(trim($rec["order"]));
-        $taxon["family"] = ucfirst(trim($rec["family"]));       
+        $taxon["family"] = ucfirst(trim($rec["family"]));
         if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $arr)) $taxon["genus"] = $arr[1];
         $photos = $rec["photos"];
         if($photos)
@@ -216,9 +230,9 @@ class NaturalHistoryServicesAPI
              foreach($rec["agent"] as $a)
              {
                  $agentParameters = array();
-                 $agentParameters["role"]     = $a["role"];
+                 $agentParameters["role"] = $a["role"];
                  $agentParameters["homepage"] = $a["homepage"];
-                 $agentParameters["logoURL"]  = "";
+                 $agentParameters["logoURL"] = "";
                  $agentParameters["fullName"] = $a["name"];
                  $agents[] = new \SchemaAgent($agentParameters);
              }
