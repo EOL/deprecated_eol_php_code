@@ -265,9 +265,10 @@ class SolrAPI
     }
     
     
-    public static function text_filter($text, $convert_to_ascii = false)
+    public static function text_filter(&$text, $convert_to_ascii = false)
     {
         if(is_numeric($text)) return $text;
+        if(preg_match("/^[a-zA-Z0-9 \(\)-]$/", $text)) return $text;
         if(!Functions::is_utf8($text)) return "";
         $text = str_replace(";", " ", $text);
         $text = str_replace("×", " ", $text);
