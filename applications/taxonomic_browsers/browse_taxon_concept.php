@@ -1,3 +1,6 @@
+<?php
+namespace php_active_record;
+?>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
@@ -5,7 +8,6 @@
 
 
 <?php
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 include_once("functions.php");
 
@@ -14,7 +16,7 @@ $expand = @$_REQUEST["expand"];
 
 
 
-if($taxon_concept_id) $node = new TaxonConcept($taxon_concept_id);
+if($taxon_concept_id) $node = TaxonConcept::find($taxon_concept_id);
 else exit;
 
 
@@ -22,13 +24,13 @@ else exit;
 $hierarchy_entry_ids = $node->hierarchy_entry_ids();
 foreach($hierarchy_entry_ids as $id)
 {
-    $hierarchy_entry = new HierarchyEntry($id);
+    $hierarchy_entry = HierarchyEntry::find($id);
     $bgcolor = "#ffffff";
     if($hierarchy_entry->published == 0) $bgcolor = "#eeeeee";
     if($hierarchy_entry->vetted_id == Vetted::unknown()->id) $bgcolor = "#ffffcc";
     
     echo "<div style='background-color: $bgcolor'>";
-    echo "<p align='right'><b>".$hierarchy_entry->hierarchy()->label."</b><br>hierarchy_id: $hierarchy_entry->hierarchy_id<br>hierarchy_entry_id: $hierarchy_entry->id</p>";
+    echo "<p align='right'><b>".$hierarchy_entry->hierarchy->label."</b><br>hierarchy_id: $hierarchy_entry->hierarchy_id<br>hierarchy_entry_id: $hierarchy_entry->id</p>";
     
     $indent = show_ancestry_he($hierarchy_entry);
     echo "<b>";

@@ -441,8 +441,8 @@ class Resource extends ActiveRecord
             }
             
             // // after everything is done, do some denormalizing
-            // $this->update_taxon_concepts_solr_index();
-            // $this->update_data_objects_solr_index();
+            $this->update_taxon_concepts_solr_index();
+            $this->update_data_objects_solr_index();
         }
     }
     
@@ -534,7 +534,7 @@ class Resource extends ActiveRecord
                 }
             }
             
-            print_r($taxon_concept_ids);
+            // print_r($taxon_concept_ids);
             echo count($taxon_concept_ids);
             echo " $last_id\n";
             $indexer = new TaxonConceptIndexer();
@@ -564,7 +564,7 @@ class Resource extends ActiveRecord
                 }
             }
             
-            print_r($data_object_ids);
+            // print_r($data_object_ids);
             echo count($data_object_ids);
             echo " $last_id\n";
             $indexer = new DataObjectAncestriesIndexer();

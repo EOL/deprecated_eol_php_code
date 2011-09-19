@@ -249,7 +249,7 @@ class FlickrAPI
                     {
                         $data_object_parameters["identifier"] .= "_video";
                         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/MovingImage";
-                        $data_object_parameters["mimeType"] = "application/x-shockwave-flash";
+                        $data_object_parameters["mimeType"] = "video/x-flv";
                         $data_object_parameters["mediaURL"] = $size->source;
                         
                         $data_objects[] = new \SchemaDataObject($data_object_parameters);
