@@ -75,11 +75,11 @@ class CompareHierarchies
                 // have the smaller hierarchy as the first parameter so the comparison will be quicker
                 if($count1 < $count2)
                 {
-                    debug("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)");
+                    echo("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n");
                     self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions);
                 }else
                 {
-                    debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
+                    echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
                     self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1, $confirmed_exclusions);
                 }
                 
@@ -92,7 +92,7 @@ class CompareHierarchies
     public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array())
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-        debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
+        echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
         
         // hierarchy is the same and its 'complete' meaning its been curated and all nodes should be different taxa
         // so there no need to compare it to itself. Other hierarchies are not 'complete' such as Flickr which
@@ -126,13 +126,13 @@ class CompareHierarchies
             $entries = $solr->get_results($this_query);
             foreach($entries as $entry)
             {
-                $id1 = $entry->hierarchy_entry_id_1[0];
-                $visibility_id1 = $entry->visibility_id_1[0];
-                $tc_id1 = $entry->taxon_concept_id_1[0];
-                $id2 = $entry->hierarchy_entry_id_2[0];
-                $visibility_id2 = $entry->visibility_id_2[0];
-                $tc_id2 = $entry->taxon_concept_id_2[0];
-                $score = $entry->confidence[0];
+                $id1 = $entry->hierarchy_entry_id_1;
+                $visibility_id1 = $entry->visibility_id_1;
+                $tc_id1 = $entry->taxon_concept_id_1;
+                $id2 = $entry->hierarchy_entry_id_2;
+                $visibility_id2 = $entry->visibility_id_2;
+                $tc_id2 = $entry->taxon_concept_id_2;
+                $score = $entry->confidence;
                 
                 // this node in hierarchy 1 has already been matched
                 if($hierarchy1->complete && isset($entries_matched[$id2])) continue;
@@ -152,7 +152,7 @@ class CompareHierarchies
                 // if even after all recent changes we still have different concepts, merge them
                 if($tc_id1 != $tc_id2)
                 {
-                    debug("$id1 :: $id2");
+                    echo("$id1 :: $id2\n");
                     // compare visible entries to other published entries
                     if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("fail1"); continue; }
                     if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("fail2"); continue; }
@@ -163,17 +163,17 @@ class CompareHierarchies
                     
                     if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
                     {
-                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator");
+                        echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator\n");
                         continue;
                     }
                     
                     if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                     {
-                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy");
+                        echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy\n");
                         continue;
                     }
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
-                    debug("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);");
+                    echo("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);\n");
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
                     
                     static $count = 0;
@@ -355,6 +355,7 @@ class CompareHierarchies
             $entries = $solr->get_results($query);
             foreach($entries as $entry)
             {
+                if(@!$entry->rank_id) $entry->rank_id = 0;
                 self::compare_entry($solr, $hierarchy, $entry, $compare_to_hierarchy, $match_synonyms);
                 
                 $searches_this_round++;
@@ -363,11 +364,11 @@ class CompareHierarchies
                 {
                     $time = time_elapsed();
                     $compare_time = microtime(true) - $start_time;
-                    debug("Records: $searches_this_round of $total_results ($total_searches total)");
-                    debug("Speed:   ". round($total_searches/$time, 2) ." r/s");
-                    debug("Memory:  ". memory_get_usage());
-                    debug("Time:    $time s");
-                    debug("Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s");
+                    echo("Records: $searches_this_round of $total_results ($total_searches total)\n");
+                    echo("Speed:   ". round($total_searches/$time, 2) ." r/s\n");
+                    echo("Memory:  ". memory_get_usage()."\n");
+                    echo("Time:    $time s\n");
+                    echo("Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s\n");
                     flush();
                     @ob_flush();
                 }
@@ -438,7 +439,7 @@ class CompareHierarchies
     {
         if(isset($entry->name) && isset($entry->canonical_form))
         {
-            $search_name = rawurlencode($entry->canonical_form[0]);
+            $search_name = rawurlencode($entry->canonical_form);
             $query = "(canonical_form_string:\"". $search_name ."\"";
             if($match_synonyms) $query .= " OR synonym_canonical:\"". $search_name ."\"";
             $query .= ")";
@@ -450,24 +451,26 @@ class CompareHierarchies
             $matching_entries = $solr->get_results($query);
             foreach($matching_entries as $matching_entry)
             {
+                if(@!$matching_entry->rank_id) $matching_entry->rank_id = 0;
+                
                 $score = self::compare_hierarchy_entries($entry, $matching_entry);
-                if($score) $GLOBALS['hierarchy_entry_matches'][$entry->id[0]][$matching_entry->id[0]] = $score;
+                if($score) $GLOBALS['hierarchy_entry_matches'][$entry->id][$matching_entry->id] = $score;
                 
                 $score2 = self::compare_hierarchy_entries($matching_entry, $entry);
-                if($score2) $GLOBALS['hierarchy_entry_matches'][$matching_entry->id[0]][$entry->id[0]] = $score2;
+                if($score2) $GLOBALS['hierarchy_entry_matches'][$matching_entry->id][$entry->id] = $score2;
             }
         }
     }
     
     public static function compare_hierarchy_entries($entry1, $entry2)
     {
-        if($entry1->id[0] == $entry2->id[0]) return null;
+        if($entry1->id == $entry2->id) return null;
         if(!isset($entry1->name) || !isset($entry2->name)) return null;
         if(self::rank_conflict($entry1, $entry2)) return null;
         
         // viruses are a pain and will not match properly right now
-        if(isset($entry1->kingdom) && (strtolower($entry1->kingdom[0]) == 'virus' || strtolower($entry1->kingdom[0]) == 'viruses')) return null;
-        if(isset($entry2->kingdom) && (strtolower($entry2->kingdom[0]) == 'virus' || strtolower($entry2->kingdom[0]) == 'viruses')) return null;
+        if(isset($entry1->kingdom) && (strtolower($entry1->kingdom) == 'virus' || strtolower($entry1->kingdom) == 'viruses')) return null;
+        if(isset($entry2->kingdom) && (strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses')) return null;
         
         $name_match = self::compare_names($entry1, $entry2);
         
@@ -491,15 +494,16 @@ class CompareHierarchies
     public static function rank_conflict(&$entry1, &$entry2)
     {
         self::rank_comparison_array();
-        if(isset($GLOBALS['rank_groups'][$entry1->rank_id[0]]) || isset($GLOBALS['rank_groups'][$entry2->rank_id[0]]))
+        
+        if(isset($GLOBALS['rank_groups'][$entry1->rank_id]) || isset($GLOBALS['rank_groups'][$entry2->rank_id]))
         {
-            $group1 = @$GLOBALS['rank_groups'][$entry1->rank_id[0]];
-            $group2 = @$GLOBALS['rank_groups'][$entry2->rank_id[0]];
-            if($entry1->rank_id[0] && $entry2->rank_id[0] && $group1 != $group2) return 1;
+            $group1 = @$GLOBALS['rank_groups'][$entry1->rank_id];
+            $group2 = @$GLOBALS['rank_groups'][$entry2->rank_id];
+            if($entry1->rank_id && $entry2->rank_id && $group1 != $group2) return 1;
         }else
         {
             // the ranks are not the same
-            if($entry1->rank_id[0] && $entry2->rank_id[0] && $entry1->rank_id[0] != $entry2->rank_id[0]) return 1;
+            if($entry1->rank_id && $entry2->rank_id && $entry1->rank_id != $entry2->rank_id) return 1;
         }
         return 0;
     }
@@ -507,10 +511,10 @@ class CompareHierarchies
     public static function compare_names(&$entry1, &$entry2)
     {
         // names are assigned and identical
-        if($entry1->name[0] && $entry2->name[0] && $entry1->name[0] == $entry2->name[0]) return 1;
+        if($entry1->name && $entry2->name && $entry1->name == $entry2->name) return 1;
         
         // canonical_forms are assigned and identical
-        if($entry1->canonical_form[0] && $entry2->canonical_form[0] && $entry1->canonical_form[0] == $entry2->canonical_form[0]) return .5;
+        if($entry1->canonical_form && $entry2->canonical_form && $entry1->canonical_form == $entry2->canonical_form) return .5;
         
         return 0;
     }
@@ -518,12 +522,12 @@ class CompareHierarchies
     public static function compare_synonyms(&$entry1, &$entry2)
     {
         // one name is in the other's synonym list
-        if(isset($entry2->synonym) && in_array($entry1->name[0], $entry2->synonym)) return 1;
-        if(isset($entry1->synonym) && in_array($entry2->name[0], $entry1->synonym)) return 1;
+        if(isset($entry2->synonym) && in_array($entry1->name, $entry2->synonym)) return 1;
+        if(isset($entry1->synonym) && in_array($entry2->name, $entry1->synonym)) return 1;
         
         // one canonical_form is in the other's synonym list
-        if(isset($entry2->synonym_canonical) && in_array($entry1->canonical_form[0], $entry2->synonym_canonical)) return .5;
-        if(isset($entry1->synonym_canonical) && in_array($entry2->canonical_form[0], $entry1->synonym_canonical)) return .5;
+        if(isset($entry2->synonym_canonical) && in_array($entry1->canonical_form, $entry2->synonym_canonical)) return .5;
+        if(isset($entry1->synonym_canonical) && in_array($entry2->canonical_form, $entry1->synonym_canonical)) return .5;
         
         return 0;
     }
@@ -543,12 +547,12 @@ class CompareHierarchies
             $rank2 = null;
             if(isset($entry1->$rank) && $r = $entry1->$rank)
             {
-                $rank1 = $r[0];
+                $rank1 = $r;
                 if(!$entry1_first_rank) $entry1_first_rank = $rank;
             }
             if(isset($entry2->$rank) && $r = $entry2->$rank)
             {
-                $rank2 = $r[0];
+                $rank2 = $r;
                 if(!$entry2_first_rank) $entry2_first_rank = $rank;
             }
             if($rank1) $entry1_without_hierarchy = false;
@@ -570,10 +574,10 @@ class CompareHierarchies
             if($entry1_first_rank == 'kingdom') return .2;
             if($entry2_first_rank == 'kingdom') return .2;
             // fail if the match is kingdom and we have something at a lower rank
-            $kingdom_match_valid_1 = in_array($entry1->rank_id[0], $GLOBALS['ranks_matched_at_kingdom']);
-            $kingdom_match_valid_2 = in_array($entry2->rank_id[0], $GLOBALS['ranks_matched_at_kingdom']);
+            $kingdom_match_valid_1 = in_array($entry1->rank_id, $GLOBALS['ranks_matched_at_kingdom']);
+            $kingdom_match_valid_2 = in_array($entry2->rank_id, $GLOBALS['ranks_matched_at_kingdom']);
             if(!($kingdom_match_valid_1 || $kingdom_match_valid_2) &&
-                ($entry1->rank_id[0] == $entry2->rank_id[0] || !$entry1->rank_id[0] || !$entry2->rank_id[0])) $score = 0;
+                ($entry1->rank_id == $entry2->rank_id || !$entry1->rank_id || !$entry2->rank_id)) $score = 0;
         }
         
         return $score;

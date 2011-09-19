@@ -313,23 +313,24 @@ class Resource extends ActiveRecord
                     $harvest_event->publish_hierarchy_entries();
                     $this->mysqli->commit();
                     
-                    // // make sure all concepts are published
-                    // Hierarchy::publish_wrongly_unpublished_concepts();
-                    // $this->mysqli->commit();
-                    // 
-                    // // Rebuild the Solr index for this hierarchy
-                    // $indexer = new HierarchyEntryIndexer();
-                    // $indexer->index($this->hierarchy_id);
-                    // 
-                    // // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                    // $hierarchy = Hierarchy::find($this->hierarchy_id);
-                    // CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                    // 
-                    // CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                    // make sure all concepts are published
+                    Hierarchy::publish_wrongly_unpublished_concepts();
+                    $this->mysqli->commit();
+                    
+                    // Rebuild the Solr index for this hierarchy
+                    $indexer = new HierarchyEntryIndexer();
+                    $indexer->index($this->hierarchy_id);
+                    
+                    // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+                    $hierarchy = Hierarchy::find($this->hierarchy_id);
+                    CompareHierarchies::process_hierarchy($hierarchy, null, true);
+                    
+                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 }
                 
                 $harvest_event->insert_top_images();
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::published()->id.", notes='harvest published' WHERE id=$this->id");
+                $harvest_event->create_collection();
             }
         }
         $this->mysqli->end_transaction();
@@ -412,6 +413,8 @@ class Resource extends ActiveRecord
                     // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
                     CompareHierarchies::process_hierarchy($hierarchy, null, true);
                     CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                    
+                    $this->harvest_event->create_collection();
                 }
                 
                 if($this->vetted())
@@ -441,8 +444,8 @@ class Resource extends ActiveRecord
             }
             
             // // after everything is done, do some denormalizing
-            // $this->update_taxon_concepts_solr_index();
-            // $this->update_data_objects_solr_index();
+            $this->update_taxon_concepts_solr_index();
+            $this->update_data_objects_solr_index();
         }
     }
     
@@ -534,7 +537,7 @@ class Resource extends ActiveRecord
                 }
             }
             
-            print_r($taxon_concept_ids);
+            // print_r($taxon_concept_ids);
             echo count($taxon_concept_ids);
             echo " $last_id\n";
             $indexer = new TaxonConceptIndexer();
@@ -564,7 +567,7 @@ class Resource extends ActiveRecord
                 }
             }
             
-            print_r($data_object_ids);
+            // print_r($data_object_ids);
             echo count($data_object_ids);
             echo " $last_id\n";
             $indexer = new DataObjectAncestriesIndexer();
@@ -721,6 +724,47 @@ class Resource extends ActiveRecord
         $this->hierarchy_id = $hierarchy->id;
         
         return $hierarchy->id;
+    }
+    
+    // this method will potentially change the ID of the supplied collection
+    public function set_collection(&$collection, $preview = false)
+    {
+        if($collection->published == 0 || $preview)
+        {
+            if($this->preview_collection)
+            {
+                $previous_collection = $this->preview_collection;
+                $this->mysqli->query("UPDATE collections SET id = id*-1 WHERE id = $previous_collection->id");
+                $this->mysqli->query("UPDATE collection_items SET collection_id = collection_id*-1 WHERE collection_id = $previous_collection->id");
+                
+                $this->mysqli->query("UPDATE collections SET id = $previous_collection->id WHERE id = $collection->id");
+                $this->mysqli->query("UPDATE collection_items SET collection_id = $previous_collection->id WHERE collection_id = $collection->id");
+                
+                $collection->id = $previous_collection->id;
+                $this->mysqli->query("DELETE FROM collections WHERE id = -$previous_collection->id");
+                $this->mysqli->query("DELETE FROM collection_items WHERE collection_id = -$previous_collection->id");
+                
+            }
+            $this->preview_collection_id = $collection->id;
+            $this->save();
+        }else
+        {
+            if($this->collection)
+            {
+                $previous_collection = $this->collection;
+                $this->mysqli->query("UPDATE collections SET id = id*-1 WHERE id = $previous_collection->id");
+                $this->mysqli->query("UPDATE collection_items SET collection_id = collection_id*-1 WHERE collection_id = $previous_collection->id");
+                
+                $this->mysqli->query("UPDATE collections SET id = $previous_collection->id WHERE id = $collection->id");
+                $this->mysqli->query("UPDATE collection_items SET collection_id = $previous_collection->id WHERE collection_id = $collection->id");
+                
+                $collection->id = $previous_collection->id;
+                $this->mysqli->query("DELETE FROM collections WHERE id = -$previous_collection->id");
+                $this->mysqli->query("DELETE FROM collection_items WHERE collection_id = -$previous_collection->id");
+            }
+            $this->collection_id = $collection->id;
+            $this->save();
+        }
     }
     
     private function insert_dwc_hierarchy()

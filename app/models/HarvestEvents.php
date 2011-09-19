@@ -263,22 +263,22 @@ class HarvestEvent extends ActiveRecord
             'description' => trim($description),
             'created_at' => 'NOW()',
             'updated_at' => 'NOW()'));
-        // $this->mysqli->query("DELETE FROM collection_items WHERE collection_id=$collection->id")
-        if($this->published_at)
-        {
-            $this->resource->collection_id = $collection->id;
-            $collection->published = 1;
-            $collection->save();
-        }else
-        {
-            $this->resource->preview_collection_id = $collection->id;
-            $collection->published = 0;
-            $collection->save();
-        }
-        $this->resource->save();
         
         $this->add_objects_to_collection($collection);
         $this->add_taxa_to_collection($collection);
+        
+        if($this->published_at)
+        {
+            $collection->published = 1;
+            $collection->save();
+            $this->resource->set_collection($collection);
+        }else
+        {
+            $collection->published = 0;
+            $collection->save();
+            $this->resource->set_collection($collection, true);
+        }
+        
         
         $indexer = new CollectionItemIndexer();
         $indexer->index_collection($collection->id);

@@ -1,5 +1,8 @@
 <?php
+namespace php_active_record;
 
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
 define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
@@ -17,13 +20,13 @@ if(FlickrAPI::valid_auth_token(FLICKR_PLEARY_AUTH_TOKEN))
 $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "15_temp.xml", "w+");
 
 // start the resource file with the XML header
-fwrite($resource_file, SchemaDocument::xml_header());
+fwrite($resource_file, \SchemaDocument::xml_header());
 
 // query Flickr and write results to file
 FlickrAPI::get_all_eol_photos($auth_token, $resource_file);
 
 // write the resource footer
-fwrite($resource_file, SchemaDocument::xml_footer());
+fwrite($resource_file, \SchemaDocument::xml_footer());
 fclose($resource_file);
 
 // cache the previous version and make this new version the current version

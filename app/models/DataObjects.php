@@ -232,27 +232,14 @@ class DataObject extends ActiveRecord
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == @$resource->harvest_event->id) $status = "Reused";
                     
-                    return array($existing_data_object, "Unchanged");
+                    return array($existing_data_object, "Unchanged", $existing_data_object);
                 }else
                 {
-                    $data_object->vetted_id = Vetted::unknown()->id;
-                    $data_object->visibility_id = Visibility::preview()->id;
                     // This data object has different metadata than the object in the last harvest with the same guid
                     // So we have to create a new one with the same guid to reference for this harvest.
                     // The new one will inherit the curated, vetted, visibility info from the last object
                     $data_object->guid = $existing_data_object->guid;
                     $data_object->curated = $existing_data_object->curated;
-                    // if($resource->title != "Wikipedia")
-                    // {
-                    //     // all new Wikipedia articles should be unvetted, even if the previous version was vetted
-                    //     $data_object->vetted_id = $existing_data_object->vetted_id;
-                    // }
-                    // if($existing_data_object->visibility_id != Visibility::visible()->id && $existing_data_object->visibility_id != NULL)
-                    // {
-                    //     // if the existing object is visible - this will go on as preview
-                    //     // otherwise this will inherit the visibility (unpublished)
-                    //     $data_object->visibility_id = $existing_data_object->visibility_id;
-                    // }
                     $data_object->data_rating = $existing_data_object->data_rating;
                     
                     // Check to see if we can reuse cached object or need to download it again
@@ -262,7 +249,7 @@ class DataObject extends ActiveRecord
                     // If the object is text and the contents have changed - set this version to curated = 0
                     if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
                     
-                    return array(DataObject::create_by_object($data_object), "Updated");
+                    return array(DataObject::create_by_object($data_object), "Updated", $existing_data_object);
                 }
             }
         }elseif($guids = $find_result["similar"])
@@ -278,7 +265,7 @@ class DataObject extends ActiveRecord
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == $resource->harvest_event->id) $status = "Reused";
                     
-                    return array($existing_data_object, "Unchanged");
+                    return array($existing_data_object, "Unchanged", $existing_data_object);
                 }
             }
         }
@@ -287,14 +274,11 @@ class DataObject extends ActiveRecord
         // Will get here if the object is similar to an existing object (description the same, image URL the same)
         // but there is a difference - eg the identifiers are different. Or if the object is entirely new
         
-        $data_object->vetted = Vetted::unknown();
-        $data_object->visibility = Visibility::preview();
-        
         // // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
         if($data_object->object_cache_url && !$data_object->cache_object($content_manager, $resource)) return false;
         $data_object->cache_thumbnail($content_manager);
         
-        return array(DataObject::create_by_object($data_object), "Inserted");
+        return array(DataObject::create_by_object($data_object), "Inserted", null);
     }
     
     static function create_by_object($data_object)
@@ -390,6 +374,48 @@ class DataObject extends ActiveRecord
         if($this->data_type_id && $this->data_type_id == DataType::youtube()->id) return true;
         return false;
     }
+    
+    public function best_vetted()
+    {
+        $vetted_weights = array();
+        $vetted_weights[Vetted::inappropriate()->id] = 1;
+        $vetted_weights[Vetted::untrusted()->id] = 2;
+        $vetted_weights[Vetted::unknown()->id] = 3;
+        $vetted_weights[Vetted::trusted()->id] = 4;
+        $best_vetted = null;
+        if($hes = $this->data_objects_hierarchy_entries)
+        {
+            foreach($hes as $he)
+            {
+                if($he->vetted && (!$best_vetted || $weights[$he->vetted->id] > $weights[$best_vetted->id]))
+                {
+                    $best_vetted = $he->vetted;
+                }
+            }
+        }
+        return $best_vetted;
+    }
+    
+    public function best_visibility()
+    {
+        $weights = array();
+        $weights[Visibility::preview()->id] = 1;
+        $weights[Visibility::invisible()->id] = 2;
+        $weights[Visibility::visible()->id] = 3;
+        $best_visibility = null;
+        if($hes = $this->data_objects_hierarchy_entries)
+        {
+            foreach($hes as $he)
+            {
+                if($he->visibility && (!$best_visibility || $weights[$he->visibility->id] > $weights[$best_visibility->id]))
+                {
+                    $best_visibility = $he->visibility;
+                }
+            }
+        }
+        return $best_visibility;
+    }
+    
 }
 
 ?>

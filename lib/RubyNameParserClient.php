@@ -34,6 +34,7 @@ class RubyNameParserClient
         $processlist = explode("\n", shell_exec('ps -e'));
         foreach($processlist as $line)
         {
+            if(preg_match("/:[0-9]{2}:[0-9]{2} parserver$/", trim($line))) return true;
             if(preg_match("/parserver --output=canonical_with_rank$/", trim($line))) return true;
         }
         return false;
