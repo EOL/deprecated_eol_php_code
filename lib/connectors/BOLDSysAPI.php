@@ -1,126 +1,205 @@
 <?php
 namespace php_active_record;
+/* connector: 212 */
+/* Connector uses BOLDS API service for most of the info but still scrapes the nucleotides sequence - for species level taxa*/
 
 define("PHYLUM_SERVICE_URL", "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
 define("SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxid=");
 
 class BOLDSysAPI
 {
-    public static function get_all_taxa($resource_id)
-    {                
-        $used_collection_ids = array();        
-
-        $arr_phylum = self::compile_taxon_list();
-        $total_phylum = sizeof($arr_phylum); $p=0;
-        $save_count=0;
-        $all_taxa = array(); 
-        foreach($arr_phylum as $phylum)
-        {            
-            $p++;
-            $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']);                        
-            $num_rows = sizeof($xml->record); $i=0;
-            foreach($xml->record as $rec)
-            {
-                $i++; print"\n [$p of $total_phylum] [$i of $num_rows] ";
-                print $rec->taxonomy->species->taxon->name;
-                
-                $arr = self::get_boldsys_taxa($rec,$used_collection_ids);                                
-                $page_taxa              = $arr[0];
-                $used_collection_ids    = $arr[1];                            
-
-                if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);                
-                unset($page_taxa);                
-                
-                if(sizeof($all_taxa)==5000)
-                {
-                    $save_count++;
-                    $xml = SchemaDocument::get_taxon_xml($all_taxa);
-                    $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $save_count . ".xml";
-                    $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                    
-                    $all_taxa = array();
-                }                
-            }                                    
-            //if($p==2)break; //debug - get just 1 phylum
-        }
-        
-        if(sizeof($all_taxa)>0)
-        {
-            //last write, remaining
-            $save_count++;
-            $xml = SchemaDocument::get_taxon_xml($all_taxa);
-            $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $save_count . ".xml";
-            $OUT = fopen($resource_path, "w"); fwrite($OUT, $xml); fclose($OUT);                                        
-        }            
-        
-        /* return $all_taxa; */
-        self::combine_all_xmls($resource_id,$save_count);        
-    }
+    // const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
+    // const DL_SEARCH_URL         = "http://www.discoverlife.org/mp/20q?search=";
+    // const DL_MAP_URL            = "http://www.discoverlife.org/20/m?kind=";
+    // const DL_MAP_SRC            = "http://www.discoverlife.org/mp/20m?map=";
     
-    function combine_all_xmls($resource_id,$save_count)
+    private static $PHYLUM_LIST;
+
+    private static $TEMP_FILE_PATH;
+    private static $WORK_LIST;
+    private static $WORK_IN_PROGRESS_LIST;
+    private static $INITIAL_PROCESS_STATUS;
+
+    function start_process($resource_id, $call_multiple_instance)
     {
-        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-        $OUT = fopen($old_resource_path, "w+");
-        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
-        $str .= "<response\n";
-        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";           
-        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
-        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";           
-        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";           
-        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";           
-        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";           
-        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";                      
-        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
-        fwrite($OUT, $str);
-        $i=0;    
         
-        while($i <= $save_count)
+        require_library('connectors/BoldsAPI');        
+        
+        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
+        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_list.txt"; //sl - species-level taxa
+        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_in_progress_list.txt";
+        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_initial_process_status.txt";
+
+        /*
+        $url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Acanthocephala";
+        $xml = simplexml_load_file($url);                        
+        $num_rows = sizeof($xml->record); $i = 0;
+        $arr = array();
+        foreach($xml->record as $rec)
         {
-            print " $i "; 
-            $filename = CONTENT_RESOURCE_LOCAL_PATH . "temp_BOLD_" . $i . ".xml";
-            if(!is_file($filename))
-            {
-                print" - not yet ready";
-                break;
-            }
-            $READ = fopen($filename, "r");
-            $contents = fread($READ,filesize($filename));    
-            fclose($READ);                        
-    
-            if($contents)
-            {                
-                $pos1 = stripos($contents,"<taxon>");
-                $pos2 = stripos($contents,"</response>");                    
-                $str  = substr($contents,$pos1,$pos2-$pos1);                
-                fwrite($OUT, $str);
-                unlink($filename);
-            }            
-            $i++; 
+            $i++; print"\n [$i of $num_rows] ";
+            print $rec->taxonomy->species->taxon->name;
+            $arr[] = $rec;
         }
-        fwrite($OUT, "</response>");fclose($OUT);                    
-    }    
-    
-    /*
-    function initialize_xmls()
-    {        
+        self::save_to_json_file($arr,"Acanthocephala");
+
+        $xml = self::get_array_from_json_file("Acanthocephala");
+        $num_rows = sizeof($xml); $i = 0;
+        foreach($xml as $rec)
+        {
+            $i++; print"\n [$i of $num_rows] ";
+            print $rec['taxonomy']['species']['taxon']['name'];
+        }
+        exit;
+        */
+        
+        
+
+        self::$PHYLUM_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/phylum_list.txt";
+
+        if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
+        //if(true)
+        {
+            if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
+            //if(true)
+            {
+                // Divide the big list of ids into small files
+                Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                
+                self::create_master_list();
+                //exit;
+                //Functions::create_work_list_from_master_file(self::$PHYLUM_LIST, 1, self::$TEMP_FILE_PATH, "sl_batch_", self::$WORK_LIST); //orig value 1
+                
+                Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+            }
+        }
+
+        // Run multiple instances, for BOLD ideally a total of 2
         while(true)
         {
-            $i++; print "\n delete old files $i ";
-            $filename = CONTENT_RESOURCE_LOCAL_PATH . "BOLD/" . $i . ".xml";
-            if(is_file($filename)) unlink($filename);            
-            else break; //nothing to delete anymore
-        }        
-    }    
-    */
-    
+            $task = Functions::get_a_task(self::$WORK_LIST);//get a task to work on
+            if($task)
+            {
+                print "\n Process this: $task";
+                Functions::delete_a_task($task, self::$WORK_LIST);
+                Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
+                $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
+                //if(false)
+                if($call_multiple_instance)
+                {
+                    Functions::run_another_connector_instance($resource_id, 1); //call 1 other instance for a total of 2 instances running
+                    $call_multiple_instance = 0;
+                }
+                //exit;
+                self::get_all_taxa($task);
+                print "\n Task $task is done. \n";
+                Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST); //remove a task from task list
+            }
+            else
+            {
+                print "\n\n [$task] Work list done --- " . date('Y-m-d h:i:s a', time()) . "\n";
+                break;
+            }
+        }
+        if(!$task = trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
+        {
+            // Combine all XML files.
+            self::combine_all_xmls($resource_id);
+            // Set to force harvest
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+            // Delete temp files
+            self::delete_temp_files(self::$TEMP_FILE_PATH . "sl_batch_", "txt");
+            self::delete_temp_files(self::$TEMP_FILE_PATH . "sl_batch_", "xml");
+        }
+    }
+
+    function save_to_json_file($arr, $filename)
+    {
+        $WRITE = fopen($filename, "w");
+        fwrite($WRITE, json_encode($arr));
+        fclose($WRITE);
+    }
+    function get_array_from_json_file($filename)
+    {
+        $READ = fopen($filename, "r");
+        $contents = fread($READ, filesize($filename));
+        fclose($READ);
+        return json_decode($contents,true);
+    }
+
+
+    private function get_all_taxa($task)
+    {
+        $all_taxa = array();
+        $used_collection_ids = array();
+        $filename = self::$TEMP_FILE_PATH . $task . ".txt";
+
+        //exit("\n $filename");
+        $records = self::get_array_from_json_file($filename);
+        $num_rows = sizeof($records); $i = 0;
+        foreach($records as $rec)
+        {
+            $i++; print"\n [$i of $num_rows] ";
+            print $rec['taxonomy']['species']['taxon']['name'];
+            
+            //print $rec->taxonomy->species->taxon->name;
+            
+            $arr = self::get_boldsys_taxa($rec, $used_collection_ids);                                
+            $page_taxa              = $arr[0];
+            $used_collection_ids    = $arr[1];
+
+            if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
+            unset($page_taxa);
+            
+        }
+
+        /*
+        $FILE = fopen($filename, "r");
+        $i = 0; 
+        $save_count = 0; 
+        $no_eol_page = 0;
+        while(!feof($FILE))
+        {
+            if($line = fgets($FILE))
+            {
+                $arr = explode("\t", trim($line));
+                $phylum_name = $arr[0];
+                $phylum_id = $arr[1];
+                $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum_name);                        
+                $num_rows = sizeof($xml->record); $i = 0;
+                foreach($xml->record as $rec)
+                {
+                    $i++; print"\n [$i of $num_rows] ";
+                    print $rec->taxonomy->species->taxon->name;
+                    
+                    $arr = self::get_boldsys_taxa($rec, $used_collection_ids);                                
+                    $page_taxa              = $arr[0];
+                    $used_collection_ids    = $arr[1];
+
+                    if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
+                    unset($page_taxa);
+                }
+            }
+        }
+        fclose($FILE);
+        */
         
-    public static function get_boldsys_taxa($rec,$used_collection_ids)
+        $xml = \SchemaDocument::get_taxon_xml($all_taxa);
+        $resource_path = self::$TEMP_FILE_PATH . $task . ".xml";
+        $OUT = fopen($resource_path, "w"); 
+        fwrite($OUT, $xml); 
+        fclose($OUT);
+    }
+
+
+    public static function get_boldsys_taxa($rec, $used_collection_ids)
     {
         $response = self::parse_xml($rec);//this will output the raw (but structured) array
         $page_taxa = array();
         foreach($response as $rec)
         {
             if(@$used_collection_ids[$rec["sciname"]]) continue;            
-            $taxon = self::get_taxa_for_photo($rec);
+            $taxon = Functions::prepare_taxon_params($rec);
             if($taxon) $page_taxa[] = $taxon;            
             @$used_collection_ids[$rec["sciname"]] = true;
         }        
@@ -129,184 +208,137 @@ class BOLDSysAPI
     
     function get_taxon_id($rec)
     {
-        if(isset($rec->taxonomy->species->taxon->taxid))return array($rec->taxonomy->species->taxon->taxid  ,$rec->taxonomy->species->taxon->name);
-        if(isset($rec->taxonomy->genus->taxon->taxid))  return array($rec->taxonomy->genus->taxon->taxid    ,$rec->taxonomy->genus->taxon->name);
-        if(isset($rec->taxonomy->family->taxon->taxid)) return array($rec->taxonomy->family->taxon->taxid   ,$rec->taxonomy->family->taxon->name);
-        if(isset($rec->taxonomy->order->taxon->taxid))  return array($rec->taxonomy->order->taxon->taxid    ,$rec->taxonomy->order->taxon->name);
-        if(isset($rec->taxonomy->class->taxon->taxid))  return array($rec->taxonomy->class->taxon->taxid    ,$rec->taxonomy->class->taxon->name);
-        if(isset($rec->taxonomy->phylum->taxon->taxid)) return array($rec->taxonomy->phylum->taxon->taxid   ,$rec->taxonomy->phylum->taxon->name);
-        if(isset($rec->taxonomy->kingdom->taxon->taxid))return array($rec->taxonomy->kingdom->taxon->taxid  ,$rec->taxonomy->kingdom->taxon->name);
+        if(isset($rec['taxonomy']['species']['taxon']['taxid'])) return array($rec['taxonomy']['species']['taxon']['taxid'], $rec['taxonomy']['species']['taxon']['name']);
+        if(isset($rec['taxonomy']['genus']['taxon']['taxid']))   return array($rec['taxonomy']['genus']['taxon']['taxid'], $rec['taxonomy']['genus']['taxon']['name']);
+        if(isset($rec['taxonomy']['family']['taxon']['taxid']))  return array($rec['taxonomy']['family']['taxon']['taxid'], $rec['taxonomy']['family']['taxon']['name']);
+        if(isset($rec['taxonomy']['order']['taxon']['taxid']))   return array($rec['taxonomy']['order']['taxon']['taxid'], $rec['taxonomy']['order']['taxon']['name']);
+        if(isset($rec['taxonomy']['class']['taxon']['taxid']))   return array($rec['taxonomy']['class']['taxon']['taxid'], $rec['taxonomy']['class']['taxon']['name']);
+        if(isset($rec['taxonomy']['phylum']['taxon']['taxid']))  return array($rec['taxonomy']['phylum']['taxon']['taxid'], $rec['taxonomy']['phylum']['taxon']['name']);
+        if(isset($rec['taxonomy']['kingdom']['taxon']['taxid'])) return array($rec['taxonomy']['kingdom']['taxon']['taxid'], $rec['taxonomy']['kingdom']['taxon']['name']);
     }
     function parse_xml($rec)
     {
-        $arr_data=array();                                
+        $arr_data = array();                                
         $arr = self::get_taxon_id($rec);
-        $taxon_id   = $arr[0];
-        $sciname    = $arr[1];
+        $taxon_id = $arr[0];
+        $sciname  = $arr[1];
             
         //start data objects //----------------------------------------------------------------------------------------
-        $arr_objects=array();
+        $arr_objects = array();
         
         //barcode stats
-        $bold_stats="<table>";
-        if(isset($rec->stats->public_barcodes)) $bold_stats.="<tr><td>Public Records:</td>  <td align='right'>".$rec->stats->public_barcodes."</td></tr>";
-        else                                    $bold_stats.="<tr><td>Public Records:</td>  <td align='right'>0</td></tr>";
-        if(isset($rec->stats->barcodes))        $bold_stats.="<tr><td>Species:</td>         <td align='right'>".$rec->stats->barcodes."</td></tr>";
-        if(isset($rec->stats->barcoded_species))$bold_stats.="<tr><td>Species With Barcodes:</td><td align='right'>".$rec->stats->barcoded_species."</td></tr>";
-        $bold_stats.="</table>";                
+        $bold_stats = "";
+        if(isset($rec['stats']['public_barcodes'])) $bold_stats .= "Public Records: " . $rec['stats']['public_barcodes'] . "<br>";
+        else                                    $bold_stats .= "Public Records: 0<br>";
+        if(isset($rec['stats']['barcodes']))        $bold_stats .= "Species: " . $rec['stats']['barcodes'] . "<br>";
+        if(isset($rec['stats']['barcoded_species']))$bold_stats .= "Species With Barcodes: " . $rec['stats']['barcoded_species'] . "<br>";
+        $bold_stats .= "<br>";                
         $identifier  = $taxon_id . "_stats";
         $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";
         $title       = "Statistics of barcoding coverage";
         $source      = SPECIES_URL . trim($taxon_id);
         $mediaURL    = "";               
         $description = "Barcode of Life Data Systems (BOLDS) Stats <br> $bold_stats";        
-        if($bold_stats!="<table><tr></tr></table>")$arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$arr_objects);
+        
+        //same for all text objects
+        $subject      = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology"; //debug orig MolecularBiology
+        $license      = "http://creativecommons.org/licenses/by/3.0/";        
+        $rightsHolder = "Barcode of Life Data Systems";
+        //same for all objects
+        $agent = array(0 => array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Sujeevan Ratnasingham"),
+                       1 => array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Paul D.N. Hebert"));    
+        
+        if($bold_stats != "<br>") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         
         //barcode image
-        if(isset($rec->barcode_image_url))                
+        if(isset($rec['barcode_image_url']))                
         {
             $identifier  = $taxon_id . "_barcode_data";            
             $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";            
             $title       = "Barcode data";                
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
-            $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.<br><a target='barcode' href='".$rec->barcode_image_url."'><img src='http://".$rec->barcode_image_url."' height=''></a>";
-            $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$arr_objects);
+            $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.<br>
+            <a target='barcode' href='".$rec['barcode_image_url']."'><img src='http://".$rec['barcode_image_url']."' height=''></a>";
+
+            //require_library('connectors/BoldsAPI');
+            $description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true);
+            
+
+            $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }
         
-        //map 
-        if(isset($rec->map_url))                
+        //map
+        if(isset($rec['map_url']))
         {
-            $identifier  = $taxon_id . "_map";            
-            $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";            
-            $title="Locations of barcode samples";            
+            $identifier  = $taxon_id . "_map";
+            $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";
+            $title       = "Locations of barcode samples";            
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
-            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img border='0' src='".$rec->map_url."'>";                
-            $arr_objects = self::add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$arr_objects);
+            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img border='0' src='".$rec['map_url']."'>";                
+            $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }            
         //end data objects //----------------------------------------------------------------------------------------
         
-        $phylum="";$class="";$order="";$family="";$genus="";$species="";
-        if(isset($rec->taxonomy->phylum->taxon->name))   $phylum=$rec->taxonomy->phylum->taxon->name;
-        if(isset($rec->taxonomy->class->taxon->name))    $class=$rec->taxonomy->class->taxon->name;        
-        if(isset($rec->taxonomy->order->taxon->name))    $order=$rec->taxonomy->order->taxon->name;
-        if(isset($rec->taxonomy->family->taxon->name))   $family=$rec->taxonomy->family->taxon->name;
-        if(isset($rec->taxonomy->genus->taxon->name))    $genus=$rec->taxonomy->genus->taxon->name;
-        if(isset($rec->taxonomy->species->taxon->name))  $species=$rec->taxonomy->species->taxon->name;
+        $phylum = ""; $class = ""; $order = ""; $family = ""; $genus = ""; $species = "";
+        if(isset($rec['taxonomy']['phylum']['taxon']['name']))   $phylum = $rec['taxonomy']['phylum']['taxon']['name'];
+        if(isset($rec['taxonomy']['class']['taxon']['name']))    $class = $rec['taxonomy']['class']['taxon']['name'];        
+        if(isset($rec['taxonomy']['order']['taxon']['name']))    $order = $rec['taxonomy']['order']['taxon']['name'];
+        if(isset($rec['taxonomy']['family']['taxon']['name']))   $family = $rec['taxonomy']['family']['taxon']['name'];
+        if(isset($rec['taxonomy']['genus']['taxon']['name']))    $genus = $rec['taxonomy']['genus']['taxon']['name'];
+        if(isset($rec['taxonomy']['species']['taxon']['name']))  $species = $rec['taxonomy']['species']['taxon']['name'];
         
-        $arr_data[]=array(  "identifier"   =>$taxon_id,
-                            "source"       =>SPECIES_URL . trim($taxon_id),
-                            "kingdom"      =>"",
-                            "phylum"       =>$phylum,
-                            "class"        =>$class,
-                            "order"        =>$order,
-                            "family"       =>$family,
-                            "genus"        =>$genus,
-                            "sciname"      =>$species,
-                            "arr_objects"  =>$arr_objects                                 
+        $arr_data[]=array(  "identifier"   => $taxon_id,
+                            "source"       => SPECIES_URL . trim($taxon_id),
+                            "kingdom"      => "",
+                            "phylum"       => $phylum,
+                            "class"        => $class,
+                            "order"        => $order,
+                            "family"       => $family,
+                            "genus"        => $genus,
+                            "sciname"      => $species,
+                            "data_objects" => $arr_objects                                 
                          );               
         return $arr_data;        
     }
     
-    function add_objects($identifier,$dataType,$mimeType,$title,$source,$description,$mediaURL,$arr_objects)
+    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent)
     {
-        $arr_objects[]=array( "identifier"=>$identifier,
-                              "dataType"=>$dataType,
-                              "mimeType"=>$mimeType,
-                              "title"=>$title,
-                              "source"=>$source,
-                              "description"=>$description,
-                              "mediaURL"=>$mediaURL
-                            );                                    
-        return $arr_objects;
+        return array("identifier"   => $identifier,
+                     "dataType"     => $dataType,
+                     "mimeType"     => $mimeType,
+                     "title"        => $title,
+                     "source"       => $source,
+                     "description"  => $description,
+                     "mediaURL"     => $mediaURL,
+                     "license"      => $license,
+                     "rightsHolder" => $rightsHolder,
+                     "subject"      => $subject,
+                     "agent"        => $agent
+                    );
     }
 
-    function check_xml_if_well_formed($url)
+
+    private function delete_temp_files($file_path, $file_extension)
     {
-        if(simplexml_load_file($url))return true;     // well-formed XML
-        else                         return false;    // not well-formed        
-    }
-    
-    function get_taxa_for_photo($rec)
-    {
-        $taxon = array();
-        $taxon["commonNames"] = array();
-        $license = null;        
-        $taxon["source"] = $rec["source"];
-        $taxon["identifier"] = trim($rec["identifier"]);
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        $taxon["genus"] = ucfirst(trim(@$rec["genus"]));
-        $taxon["family"] = ucfirst(trim(@$rec["family"]));
-        $taxon["order"] = ucfirst(trim(@$rec["order"]));
-        $taxon["class"] = ucfirst(trim(@$rec["class"]));        
-        $taxon["phylum"] = ucfirst(trim(@$rec["phylum"]));
-        $taxon["kingdom"] = ucfirst(trim(@$rec["kingdom"]));                
-        if($rec["arr_objects"])
+        $i = 0;
+        while(true)
         {
-            foreach($rec["arr_objects"] as $object)
+            $i++;
+            $i_str = Functions::format_number_with_leading_zeros($i, 3);
+            $filename = $file_path . $i_str . "." . $file_extension;
+            if(file_exists($filename))
             {
-                $data_object = self::get_data_object($object);
-                if(!$data_object) return false;
-                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);                     
+                print "\n unlink: $filename";
+                unlink($filename);
             }
-        }        
-        $taxon_object = new \SchemaTaxon($taxon);
-        return $taxon_object;
+            else return;
+        }
     }
     
-    function get_data_object($rec)
+    private function create_master_list()
     {
-        $data_object_parameters = array();        
-        $data_object_parameters["identifier"]   = trim(@$rec["identifier"]);        
-        $data_object_parameters["source"]       = $rec["source"];        
-        $data_object_parameters["dataType"]     = trim($rec["dataType"]);
-        $data_object_parameters["mimeType"]     = trim($rec["mimeType"]);
-        $data_object_parameters["mediaURL"]     = trim(@$rec["mediaURL"]);        
-        $data_object_parameters["created"]      = trim(@$rec["created"]);        
-        
-        $data_object_parameters["description"]  = Functions::import_decode(@$rec["description"]);            
-        
-        
-        $data_object_parameters["source"]       = @$rec["source"];
-        $data_object_parameters["license"]      = "http://creativecommons.org/licenses/by/3.0/";        
-        $data_object_parameters["rightsHolder"] = "Barcode of Life Data Systems";
-        $data_object_parameters["title"]        = @trim($rec["title"]);
-        $data_object_parameters["language"]     = "en";
-        //==========================================================================================        
-        if(trim($rec["mimeType"]) == "text/html")
-        {
-            $data_object_parameters["subjects"] = array();
-            $subjectParameters = array();
-            $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology";            
-            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
-        }                            
-        //==========================================================================================
-        $agent = array(0 => array("role" => "compiler" , "homepage" => "http://www.boldsystems.org/" , "Sujeevan Ratnasingham"),
-                       1 => array("role" => "compiler" , "homepage" => "http://www.boldsystems.org/" , "Paul D.N. Hebert"));    
-        $agents = array();
-        foreach($agent as $agent)
-        {  
-            $agentParameters = array();
-            $agentParameters["role"]     = $agent["role"];
-            $agentParameters["homepage"] = $agent["homepage"];
-            $agentParameters["logoURL"]  = "";        
-            $agentParameters["fullName"] = $agent[0];
-            $agents[] = new \SchemaAgent($agentParameters);
-        }
-        $data_object_parameters["agents"] = $agents;    
-        return $data_object_parameters;
-    }    
-
-    function compile_taxon_list()
-    {
-        /*
-        $arr_phylum = array(0 => array( "name" => "Acanthocephala"   , "id" => 11),
-                            1 => array( "name" => "Annelida"         , "id" => 2),
-                            2 => array( "name" => "Arthropoda"       , "id" => 20),
-                            3 => array( "name" => "Brachiopoda"      , "id" => 9),        
-        */
-        
         //Animals
         $arr_phylum = array(0 => array( "name" => "Acanthocephala"   , "id" => 11),
                             1 => array( "name" => "Annelida"         , "id" => 2),
@@ -364,8 +396,116 @@ class BOLDSysAPI
                       7 => array( "name" => "Pyrrophycophyta"    , "id" => 317010)                        
                      );
         $arr_phylum = array_merge($arr_phylum, $temp);                                                  
-        return $arr_phylum;
-    }    
-            
+
+        /* //debug
+        $arr_phylum = array();
+        $arr_phylum[] = array( "name" => "Acanthocephala" , "id" => 11);
+        //$arr_phylum[] = array( "name" => "Annelida"       , "id" => 11);
+        */
+
+        /* not needed anymore
+        if($fp = fopen(self::$PHYLUM_LIST, "w")) 
+        foreach($arr_phylum as $phylum)
+        {
+            fwrite($fp, $phylum["name"] . "\t" . $phylum["id"] . "\n"); 
+            print "$phylum[name] $phylum[id] \n";
+        }
+        fclose($fp);
+        */
+        
+        self::count_taxa_per_phylum($arr_phylum);
+        return;
+    }
+
+    private function count_taxa_per_phylum($arr_phylum)
+    {
+        $total_phylum = sizeof($arr_phylum); 
+        $p = 0;
+        $records = array();
+        $file_count = 0;
+        foreach($arr_phylum as $phylum)
+        {            
+            $p++;
+            $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']);                        
+            $num_rows = sizeof($xml->record);
+            print"\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [$num_rows] ";            
+
+            $i = 0;
+            foreach($xml->record as $rec)
+            {
+                $i++; print"\n -- [$i of $num_rows] ";
+                print $rec['taxonomy']['species']['taxon']['name'];
+                $records[] = $rec;
+                if(sizeof($records) >= 4) //orig 10000
+                {
+                    $file_count++;                    
+                    self::save_to_json_file($records, self::$TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
+                    $records = array();
+                }                
+            }
+        }        
+        
+        //last save
+        if($records)
+        {
+            $file_count++;
+            self::save_to_json_file($records, self::$TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
+        }
+
+        //create work_list
+        $str = "";
+        for($i = 1; $i <= $file_count; $i++) $str .= "sl_batch_" . Functions::format_number_with_leading_zeros($i, 3) . "\n";
+        if($fp = fopen(self::$WORK_LIST, "w"))
+        {
+            fwrite($fp, $str);
+            fclose($fp);
+        }
+    }
+
+
+    private function combine_all_xmls($resource_id)
+    {
+        print "\n\n Start compiling all XML...\n";
+        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
+        $OUT = fopen($old_resource_path, "w");
+        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
+        $str .= "<response\n";
+        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
+        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
+        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
+        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
+        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
+        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
+        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
+        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
+        fwrite($OUT, $str);
+        $i = 0;
+        while(true)
+        {
+            $i++;
+            $i_str = Functions::format_number_with_leading_zeros($i, 3);
+            $filename = self::$TEMP_FILE_PATH . "sl_batch_" . $i_str . ".xml";
+            if(!is_file($filename))
+            {
+                print " -end compiling XML's- ";
+                break;
+            }
+            print " $i ";
+            $READ = fopen($filename, "r");
+            $contents = fread($READ, filesize($filename));
+            fclose($READ);
+            if($contents)
+            {
+                $pos1 = stripos($contents, "<taxon>");
+                $pos2 = stripos($contents, "</response>");
+                $str  = substr($contents, $pos1, $pos2 - $pos1);
+                fwrite($OUT, $str);
+            }
+        }
+        fwrite($OUT, "</response>");
+        fclose($OUT);
+        print "\n All XML compiled\n\n";
+    }
+
 }
 ?>
