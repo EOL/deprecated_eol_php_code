@@ -351,7 +351,7 @@ class SiteSearchIndexer
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
         echo "\nquerying objects\n";
         $last_data_object_id = 0;
-        $query = "SELECT do.id, do.guid, REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '), REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '), UNIX_TIMESTAMP(do.created_at), UNIX_TIMESTAMP(do.updated_at),  l.iso_639_1, do.data_type_id FROM data_objects do LEFT JOIN languages l ON (do.language_id=l.id) LEFT JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) WHERE (do.published=1 AND do.visibility_id=1) AND dohe.data_object_id IS NOT NULL AND do.id ";
+        $query = "SELECT do.id, do.guid, REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '), REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '), UNIX_TIMESTAMP(do.created_at), UNIX_TIMESTAMP(do.updated_at),  l.iso_639_1, do.data_type_id FROM data_objects do LEFT JOIN languages l ON (do.language_id=l.id) LEFT JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) WHERE (do.published=1 AND dohe.visibility_id=". Visibility::visible()->id .") AND dohe.data_object_id IS NOT NULL AND do.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         

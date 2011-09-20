@@ -328,9 +328,10 @@ class Resource extends ActiveRecord
                     CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 }
                 
-                $harvest_event->insert_top_images();
+                // $harvest_event->insert_top_images();
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::published()->id.", notes='harvest published' WHERE id=$this->id");
                 $harvest_event->create_collection();
+                $harvest_event->index_for_search();
             }
         }
         $this->mysqli->end_transaction();
