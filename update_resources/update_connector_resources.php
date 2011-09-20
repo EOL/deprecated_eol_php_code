@@ -36,7 +36,8 @@ foreach($connectors as $file)
     if($resource->id == 138) continue; // Afrotropical
     if($resource->id == 123) continue; // AquaMaps
     if($resource->id == 98) continue; // Hexacorallians
-    if($resource->id == 81) continue; // BOLD Systems
+    if($resource->id == 81) continue; // BOLD Systems - higher level taxa
+    if($resource->id == 212) continue; // BOLD Systems - species level taxa
     if($resource->id == 68) continue; // Dutch Species Catalogue
     if($resource->id == 63) continue; // INOTAXA
     if($resource->id == 26) continue; // WORMS
