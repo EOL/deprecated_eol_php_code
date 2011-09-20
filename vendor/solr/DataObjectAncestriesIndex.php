@@ -16,12 +16,14 @@ class DataObjectAncestriesIndexer
     
     public function index()
     {
+        //exit;
+        //return;
         ini_set('display_errors', true);
         
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'data_objects')) return false;
         $this->solr = new SolrAPI(SOLR_SERVER, 'data_objects');
         
-        $this->solr->delete_all_documents();
+        //$this->solr->delete_all_documents();
         
         $start = 0;
         $max_id = 0;
@@ -33,7 +35,7 @@ class DataObjectAncestriesIndexer
             $max_id = $row["max"];
         }
         if(!$start) $start = 0;
-        $start = 11300249;
+        $start = 13071166;
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {
             $this->index_next_block($i, $limit);
@@ -58,19 +60,31 @@ class DataObjectAncestriesIndexer
     public function index_next_block($start, $limit, &$data_object_ids = array())
     {
         unset($this->objects);
-        
+        echo "Looking up $start Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_objects($start, $limit);
-        $this->lookup_ancestries($start, $limit);
+        echo "after DO Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+	$this->lookup_ancestries($start, $limit);
+        echo "after ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_curated_ancestries($start, $limit);
+        echo "after c_a Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_user_added_ancestries($start, $limit);
+        echo "after uaa Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_ancestries_he($start, $limit);
+        echo "after ancestries_he Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_curated_ancestries_he($start, $limit);
+        echo "after curated ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_user_added_ancestries_he($start, $limit);
+        echo "after udo Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_ignores($start, $limit);
+        echo "after ignores Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_curation($start, $limit);
+        echo "after curation Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_resources($start, $limit);
+        echo "after resources Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_table_of_contents($start, $limit);
+        echo "after toc Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_translations($start, $limit);
+        echo "after translations Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         
         if(isset($this->objects))
         {

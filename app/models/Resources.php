@@ -79,7 +79,7 @@ class Resource extends ActiveRecord
     public function is_translation_resource()
     {
         // if($this->id == 6) return true;
-        // if($this->id == 279) return true;
+        if($this->id == 296) return true;
         return false;
     }
     
