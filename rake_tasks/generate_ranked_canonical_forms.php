@@ -25,13 +25,14 @@ if($result && $row=$result->fetch_assoc())
     $max_id = $row["max"];
 }
 
-// $start = 0;
+$start = 12845688;
+//$max_id = 49000;
 
 $count = 0;
 $GLOBALS['db_connection']->begin_transaction();
 for($i=$start ; $i<$max_id ; $i+=$limit)
 {
-    $query = "SELECT id, string FROM names WHERE id BETWEEN $i AND ". ($i+$limit);
+    $query = "SELECT id, string FROM names WHERE id BETWEEN $i AND ". ($i+$limit)." AND (ranked_canonical_form_id IS NULL OR ranked_canonical_form_id=0)";
     foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
     {
         $id = trim($row[0]);
@@ -44,7 +45,7 @@ for($i=$start ; $i<$max_id ; $i+=$limit)
             echo "       > Parsed $count names ($id : $string : $canonical_form). Time: ". time_elapsed() ."\n";
         }
         $count++;
-        // echo "------\n$string\n$canonical_form\n\n";
+        //echo "------\n$string\n$canonical_form\n\n";
         
         if(!$canonical_form)
         {
@@ -52,10 +53,11 @@ for($i=$start ; $i<$max_id ; $i+=$limit)
             continue;
         }
         
-        $canonical_form_id = CanonicalForm::insert($canonical_form);
+        $canonical_form_id = CanonicalForm::find_or_create_by_string($canonical_form)->id;
         $GLOBALS['db_connection']->query("UPDATE names SET ranked_canonical_form_id=$canonical_form_id WHERE id=$id");
     }
     $GLOBALS['db_connection']->commit();
+    echo "COMMITTING\n";
     // break;
 }
 $GLOBALS['db_connection']->end_transaction();

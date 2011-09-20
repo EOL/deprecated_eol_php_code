@@ -103,6 +103,30 @@
   </dataObject>
 </taxon>
 <taxon>
+  <dc:identifier>lmno</dc:identifier>
+  <dwc:Order>Neuroptera</dwc:Order>
+  <dwc:Genus>Theristria</dwc:Genus>
+  <dwc:ScientificName>Theristria bus</dwc:ScientificName>
+  <dataObject>
+      <dc:identifier>6133848811_video</dc:identifier>
+      <dataType>http://purl.org/dc/dcmitype/MovingImage</dataType>
+      <mimeType>video/x-flv</mimeType>
+    <agent homepage="http://www.flickr.com/photos/86548370@N00" role="photographer">Katja Schulz</agent>
+      <dcterms:created>2011-09-10 14:57:29</dcterms:created>
+      <dc:title>Yellow Paper Wasp</dc:title>
+      <license>http://creativecommons.org/licenses/by-nc/2.0/</license>
+      <dc:source>http://www.flickr.com/photos/treegrow/6133848811/</dc:source>
+      <dc:description>&lt;em&gt;Polistes flavus&lt;/em&gt;.  Joseph Wood Krutch Cactus Garden, University of Arizona Campus, Tucson, Pima County, Arizona, USA. 15 July 2008.</dc:description>
+      <mediaURL>http://www.flickr.com/apps/video/stewart.swf?v=71377&amp;photo_id=6133848811&amp;photo_secret=c9c73474fd</mediaURL>
+      <thumbnailURL>http://farm7.static.flickr.com/6153/6133848811_c9c73474fd.jpg</thumbnailURL>
+      <location>Tucson, Arizona, United States</location>
+    <geo:Point>
+      <geo:lat>32.231866</geo:lat>
+      <geo:long>-110.950981</geo:long>
+    </geo:Point>
+  </dataObject>
+</taxon>
+<taxon>
   <dc:identifier>235y235y</dc:identifier>
   <dwc:Order>Neuroptera</dwc:Order>
   <dwc:Family>Mantispidae</dwc:Family>
@@ -122,6 +146,7 @@
     <location><![CDATA[&lt;i&gt;Canberra&lt;/i&gt;, Australian Capital Territory, Australia]]></location>
   </dataObject>
 </taxon>
+
 
 
 </response>

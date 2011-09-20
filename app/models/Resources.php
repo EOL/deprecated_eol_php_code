@@ -79,7 +79,7 @@ class Resource extends ActiveRecord
     public function is_translation_resource()
     {
         // if($this->id == 6) return true;
-        // if($this->id == 279) return true;
+        if($this->id == 296) return true;
         return false;
     }
     
@@ -328,9 +328,10 @@ class Resource extends ActiveRecord
                     CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
                 }
                 
-                $harvest_event->insert_top_images();
+                // $harvest_event->insert_top_images();
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::published()->id.", notes='harvest published' WHERE id=$this->id");
                 $harvest_event->create_collection();
+                $harvest_event->index_for_search();
             }
         }
         $this->mysqli->end_transaction();
@@ -442,11 +443,8 @@ class Resource extends ActiveRecord
                 $this->resource_status_id = ResourceStatus::publish_pending()->id;
                 $this->publish();
             }
-            
-            // // after everything is done, do some denormalizing
-            $this->update_taxon_concepts_solr_index();
-            $this->update_data_objects_solr_index();
         }
+        $this->harvest_event = null;
     }
     
     public function add_unchanged_data_to_harvest()

@@ -291,11 +291,11 @@ class HierarchyEntry extends ActiveRecord
                                       'published'             => $published));
     }
     
-    public function add_data_object($data_object_id)
+    public function add_data_object($data_object_id, $vetted_id = null, $visibility_id = null)
     {
         if(!$data_object_id) return 0;
-        $vetted_id = Vetted::unknown()->id;
-        $visibility_id = Visibility::preview()->id;
+        if($vetted_id === null) $vetted_id = Vetted::unknown()->id;
+        if($visibility_id === null) $visibility_id = Visibility::preview()->id;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries (hierarchy_entry_id, data_object_id, vetted_id, visibility_id) VALUES ($this->id, $data_object_id, $vetted_id, $visibility_id)");
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts (taxon_concept_id, data_object_id) VALUES ($this->taxon_concept_id, $data_object_id)");
     }

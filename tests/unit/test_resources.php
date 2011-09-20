@@ -5,6 +5,19 @@ class test_resources extends SimpletestUnitBase
 {
     function testHarvesting()
     {
+        $solr_api = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
+        $solr_api->delete_all_documents();
+        $solr_api = new SolrAPI(SOLR_SERVER, 'site_search');
+        $solr_api->delete_all_documents();
+        $solr_api = new SolrAPI(SOLR_SERVER, 'data_objects');
+        $solr_api->delete_all_documents();
+        $solr_api = new SolrAPI(SOLR_SERVER, 'collection_items');
+        $solr_api->delete_all_documents();
+        $solr_api = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
+        $solr_api->delete_all_documents();
+        
+        
+        
         $toc = TableOfContent::find_or_create_by_translated_label('Overview');
         $ii = InfoItem::find_or_create_by_translated_label('DiagnosticDescription', array('schema_value' => 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription', 'toc_id' => $toc->id));
         $resource = self::create_resource();
@@ -21,10 +34,10 @@ class test_resources extends SimpletestUnitBase
         // harvest the resource and run all the denormalized tasks to test them
         passthru(PHP_BIN_PATH.DOC_ROOT."rake_tasks/force_harvest.php -id $resource->id -now ENV_NAME=test");
         
-        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
-        $this->assertTrue($result->num_rows > 0, 'should be top images after harvesting and before denormalizing');
-        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_concept_images LIMIT 1");
-        $this->assertTrue($result->num_rows > 0, 'should be top concept images after harvesting and before denormalizing');
+        // $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_images LIMIT 1");
+        // $this->assertTrue($result->num_rows > 0, 'should be top images after harvesting and before denormalizing');
+        // $result = $GLOBALS['db_connection']->query("SELECT 1 FROM top_concept_images LIMIT 1");
+        // $this->assertTrue($result->num_rows > 0, 'should be top concept images after harvesting and before denormalizing');
         
         passthru(PHP_BIN_PATH.DOC_ROOT."rake_tasks/denormalize_tables.php ENV_NAME=test");
         
@@ -69,7 +82,7 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0, 'Should not get published');
-        // $this->assertTrue($last_object->vetted_id == Vetted::unknown()->id, 'Should not be vetted');
+        $this->assertTrue($last_object->best_vetted() == Vetted::unknown(), 'Should not be vetted');
     }
     
     function testResourceWithDWCA()
@@ -109,7 +122,7 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0);
-        // $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
+        $this->assertTrue($last_object->best_visibility() == Visibility::preview());
         
         // checking to make sure changed source_urls create new entries
         $first_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
@@ -128,7 +141,7 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 0);
-        // $this->assertTrue($last_object->visibility_id == Visibility::preview()->id);
+        $this->assertTrue($last_object->best_visibility() == Visibility::preview());
         
         // checking to make sure changed source_urls create new entries
         $second_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
@@ -147,12 +160,12 @@ class test_resources extends SimpletestUnitBase
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 1);
-        // $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
+        $this->assertTrue($last_object->best_visibility() == Visibility::visible());
         
         self::harvest($resource);
         $last_object = DataObject::last();
         $this->assertTrue($last_object->published == 1);
-        // $this->assertTrue($last_object->visibility_id == Visibility::visible()->id);
+        $this->assertTrue($last_object->best_visibility() == Visibility::visible());
         
         // making sure entries that are orphaned are not in preview mode
         $last_entry_no_source = HierarchyEntry::find(HierarchyEntry::find_last_by_identifier('98h34jgbksfbg'));
@@ -289,8 +302,9 @@ class test_resources extends SimpletestUnitBase
                     $d_dcterms = $d->children("http://purl.org/dc/terms/");
                     $d_geo = $d->children("http://www.w3.org/2003/01/geo/wgs84_pos#");
                     
+                    if($d->dataType == 'http://purl.org/dc/dcmitype/MovingImage') $d->dataType = 'YouTube';
                     $data_object_parameters = array();
-                    //$data_object_parameters["identifier"] = Functions::import_decode($d_dc->identifier);
+                    $data_object_parameters["identifier"] = Functions::import_decode($d_dc->identifier);
                     $data_object_parameters["data_type_id"] = DataType::find_or_create_by_schema_value(Functions::import_decode($d->dataType))->id;
                     $data_object_parameters["mime_type_id"] = @MimeType::find_or_create_by_translated_label(Functions::import_decode($d->mimeType))->id ?: 0;
                     $data_object_parameters["object_created_at"] = Functions::import_decode($d_dcterms->created);
@@ -308,7 +322,7 @@ class test_resources extends SimpletestUnitBase
                     $data_object_parameters["location"] = Functions::import_decode($d->location, 0, 0);
                     
                     $this->assertTrue($objects[$j]->published == 1, "DataObject ($j) should be published");
-                    // $this->assertTrue($objects[$j]->vetted_id == Vetted::trusted()->id, "DataObject ($j) should be vetted");                    
+                    $this->assertTrue($objects[$j]->best_vetted() == Vetted::trusted(), "DataObject ($j) should be vetted");
                     foreach($data_object_parameters as $key => $value)
                     {
                         $test_value = $objects[$j]->$key;
