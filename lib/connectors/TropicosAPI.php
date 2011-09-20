@@ -1,15 +1,9 @@
 <?php
 namespace php_active_record;
-/*
-There is a pending task here. It was finally agreed upon that we will harvest the thumbnail images only from Tropicos.
-http://jira.eol.org/browse/DATA-839
-*/
-exit;
-
 /* connector: [218]  */
+
 define("TROPICOS_NAME_EXPORT_FILE", DOC_ROOT . "/update_resources/connectors/files/Tropicos/tropicos_ids.txt");
 define("TROPICOS_DOMAIN", "http://www.tropicos.org");
-define("TROPICOS_IMAGE_DETAIL_PAGE", "http://www.tropicos.org/Image/");
 define("TROPICOS_TAXON_DETAIL_PAGE", "http://www.tropicos.org/Name/");
 define("TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH", "http://www.tropicos.org/ImageScaled.aspx?imageid=");
 define("TROPICOS_API_KEY", "2810ce68-f4cf-417c-b336-234bc8928390");
@@ -31,7 +25,7 @@ class TropicosAPI
     private static $WORK_IN_PROGRESS_LIST;
     private static $INITIAL_PROCESS_STATUS;
 
-    function start_process($resource_id)
+    function start_process($resource_id, $call_multiple_instance)
     {
         self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/Tropicos/";
         self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/Tropicos/work_list.txt";
@@ -44,24 +38,11 @@ class TropicosAPI
             {
                 Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
                 // this will prepare a list of all species id
-                self::build_id_list();
-
+                self::build_id_list(); // 13 mins. execution
                 // step 1: divides the big list of ids into small files
-                self::divide_text_file(10000); //debug //original value 10000
+                self::divide_text_file(10000); //debug orig 10000, for test 5
                 Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);//remove a task from task list
             }
-
-            /*
-            sleep(5);
-            print "\n first";
-            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/218.php > /null &');
-            sleep(25);
-            print "\n second";
-            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/218.php > /null &');
-            sleep(25);
-            print "\n third";
-            */
-
         }
 
         // step 2: run multiple instances, ideally 8 instances so it is over before their daily scheduled downtime
@@ -75,6 +56,13 @@ class TropicosAPI
                 Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
                 print "$task \n";
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
+
+                if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
+                {
+                    Functions::run_another_connector_instance($resource_id, 2);
+                    $call_multiple_instance = 0;
+                }
+
                 self::get_all_taxa($task);//main task
                 print"\n Task $task is done. \n";
                 Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST);//remove a task from task list
@@ -91,8 +79,18 @@ class TropicosAPI
             // step 3: this should only run when all of instances of step 2 are done
             sleep(10); //debug orig 10
             self::combine_all_xmls($resource_id);
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_tropicos_batch_", "xml");
+            self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
             self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
+        }
+    }
+
+    private function check_server_downtime()
+    {
+        $time = date('H:i:s', time());
+        if($time >= "06:40:00" && $time <= "07:00:00")
+        {
+            print "\n\n Process stopped at [$time], will resume in 1.5 hours...";
+            sleep((60*60)+(60*30)); //sleep 1.5 hours
         }
     }
 
@@ -102,14 +100,15 @@ class TropicosAPI
         $used_collection_ids = array();
 
         $filename = self::$TEMP_FILE_PATH . $task . ".txt";
-        print "filename: [$filename]";
+        print "\nfilename: [$filename]";
         $READ = fopen($filename, "r");
         $i = 0;
         while(!feof($READ))
         {
+            self::check_server_downtime();
             if($line = fgets($READ))
             {
-                $i++;
+                $i++; print "\n$i ";
                 $line = trim($line);
                 $fields = explode("\t", $line);
                 $taxon_id = trim($fields[0]);
@@ -118,13 +117,11 @@ class TropicosAPI
                 $used_collection_ids    = $arr[1];
                 if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                 unset($page_taxa);
-                print " - valid license";
             }
             else print "\n invalid line";
-            //if($i > 10) break; //debug
         }
         fclose($READ);
-        $xml = SchemaDocument::get_taxon_xml($all_taxa);
+        $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = self::$TEMP_FILE_PATH . "temp_tropicos_" . $task . ".xml";
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
@@ -158,7 +155,8 @@ class TropicosAPI
                     $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
                     fwrite($OUT, $str);
                     fclose($OUT);
-                    $str=""; $i=0;
+                    $str = ""; 
+                    $i = 0;
                 }
             }
         }
@@ -256,9 +254,7 @@ class TropicosAPI
         foreach($response as $rec)
         {
             if(@$used_collection_ids[$rec["source"]]) continue;
-            //$taxon = self::build_taxon($rec);
             $taxon = Functions::prepare_taxon_params($rec);
-
             if($taxon) $page_taxa[] = $taxon;
             @$used_collection_ids[$rec["source"]] = true;
         }
@@ -270,19 +266,23 @@ class TropicosAPI
         $arr_data = array();
         $arr_objects = array();
 
-        //process only those with images        
         $arr_objects = self::get_images($taxon_id, $arr_objects);
+        /*
+        //process only those with images        
         if(sizeof($arr_objects) == 0)
         {
             print "\n no images --- ";
             return array();
         }
+        */
         
-        $name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY);
+        if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY))
+        {
+            print "\n lost connection \n";
+        }
         $name = json_decode($name, true);
-        print "\n $taxon_id | " . $name['ScientificNameWithAuthors'];
+        print "[$taxon_id] " . $name['ScientificNameWithAuthors'];
         $arr_objects = self::get_chromosome_count($taxon_id, $arr_objects);
-        $arr_objects = self::get_images($taxon_id, $arr_objects);
         $arr_objects = self::get_distributions($taxon_id, $arr_objects);
         if(sizeof($arr_objects) == 0) return array();
         $arr_synonyms   = self::get_synonyms($taxon_id);
@@ -330,7 +330,7 @@ class TropicosAPI
             if(!isset($rec->Reference->ReferenceId)) continue;
             $ref_url = TROPICOS_DOMAIN . "/Reference/" . trim($rec->Reference->ReferenceId);
             $citation = trim($rec->Reference->FullCitation);
-            $refs[] = array("url" => $ref_url, "ref" => $citation);
+            $refs[] = array("url" => $ref_url, "fullReference" => $citation);
         }
         return $refs;
     }
@@ -341,24 +341,34 @@ class TropicosAPI
         $with_image = 0;
         foreach($xml->Image as $rec)
         {
+            if($rec->Error)
+            {
+                print"\n no images - " . $rec->DetailUrl;
+                continue;
+            }
+            
             $with_image++;
-            if($with_image > 15) break;//max no. of images per taxon //debug
+            if($with_image > 15) break;//max no. of images per taxon //debug orig 15
 
             $description = $rec->NameText . ". " . $rec->LongDescription;
-            if($rec->PhotoLocation) $description .= " " . "Location: " . $rec->PhotoLocation . ".";
-            if($rec->PhotoDate) $description .= " " . "Photo taken: " . $rec->PhotoDate . ".";
-            if($rec->ImageKindText) $description .= " " . "Image kind: " . $rec->ImageKindText . ".";
+            if($rec->SpecimenId)    $description .= "<br>" . "SpecimenId: " . $rec->SpecimenId;
+            if($rec->SpecimenText)  $description .= "<br>" . "SpecimenText: " . $rec->SpecimenText;
+            if($rec->Caption)       $description .= "<br>" . "Caption: " . $rec->Caption;
+            if($rec->PhotoLocation) $description .= "<br>" . "Location: " . $rec->PhotoLocation;
+            if($rec->PhotoDate)     $description .= "<br>" . "Photo taken: " . $rec->PhotoDate;
+            if($rec->ImageKindText) $description .= "<br>" . "Image kind: " . $rec->ImageKindText;
 
-            $valid_license = array("http://creativecommons.org/licenses/by/3.0/",
+            $valid_licenses = array("http://creativecommons.org/licenses/by/3.0/",
                                    "http://creativecommons.org/licenses/by-sa/3.0/",
                                    "http://creativecommons.org/licenses/by-nc/3.0/",
                                    "http://creativecommons.org/licenses/by-nc-sa/3.0/",
                                    "http://creativecommons.org/licenses/publicdomain/");
-            if(!in_array(trim($rec->LicenseUrl), $valid_license))
+            if(!in_array(trim($rec->LicenseUrl), $valid_licenses))
             {
-                print"\n invalid license - " . TROPICOS_IMAGE_DETAIL_PAGE . trim($rec->ImageId);
+                print"\n invalid image license - " . $rec->DetailUrl;
                 continue;
             }
+            else print"\n valid image license - " . $rec->DetailUrl;
             $license = $rec->LicenseUrl;
 
             $agent = array();
@@ -371,9 +381,12 @@ class TropicosAPI
             $mimeType   = "image/jpeg";
             $title      = "";
             $subject    = "";
-            $source     = TROPICOS_IMAGE_DETAIL_PAGE . $rec->ImageId;
-            $mediaURL   = TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH . $rec->ImageId . "&maxwidth=600";
-
+            $source = $rec->DetailUrl; // e.g. http://www.tropicos.org/Image/40777
+            
+            /* we are not allowed to get the bigger size images, only thumbnails
+            $mediaURL   = TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH . $rec->ImageId . "&maxwidth=600"; */
+            $mediaURL = $rec->ThumbnailUrl;
+            
             $refs = array();
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
         }
@@ -409,7 +422,7 @@ class TropicosAPI
             }
            
             //this is to prevent getting duplicate references
-            if(!in_array($citation, $temp_reference)) $refs[] = array("url" => $ref_url, "ref" => $citation);
+            if(!in_array($citation, $temp_reference)) $refs[] = array("url" => $ref_url, "fullReference" => $citation);
             $temp_reference[] = $citation;
         }
 
@@ -428,7 +441,7 @@ class TropicosAPI
             $mimeType   = "text/html";
             $dataType   = "http://purl.org/dc/dcmitype/Text";
             $title      = "Chromosome Counts";
-            $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Genetics"; //debug orig Genetics
+            $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Genetics";
             $agent = array();
             $agent[] = array("role" => "source", "homepage" => "http://www.tropicos.org", "fullName" => "Tropicos");
 
@@ -467,10 +480,10 @@ class TropicosAPI
             $temp_location[] = trim($rec->Location->CountryName) . trim($rec->Location->RegionName);
             
             //this is to prevent getting duplicate references
-            if(!in_array($citation, $temp_reference)) $refs[] = array("url" => $ref_url, "ref" => $citation);
+            if(!in_array($citation, $temp_reference)) $refs[] = array("url" => $ref_url, "fullReference" => $citation);
             $temp_reference[] = $citation;
         }
-
+        
         if($with_content)
         {
             $source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
@@ -485,7 +498,8 @@ class TropicosAPI
             $location   = "";
             $license    = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
             $rightsHolder   = "";
-            $arr_objects    = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
+            $arr_objects    = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, 
+                $rightsHolder, $refs, $subject, $arr_objects);
         }
         return $arr_objects;
     }
@@ -520,7 +534,7 @@ class TropicosAPI
                               "license"      => $license,
                               "location"     => $location,
                               "rightsHolder" => $rightsHolder,
-                              "references"   => $refs,
+                              "reference"   => $refs,
                               "subject"      => $subject
                             );
         return $arr_objects;
@@ -559,9 +573,15 @@ class TropicosAPI
                 print "\n --server not accessible-- \n";
                 break;
             }
-            //if($count == 2) break; //debug
             if($count == 1300) break; // normal operation
         }
+        fclose($OUT);
+    }
+    
+    private function truncate_text_file($filename)
+    {
+        $OUT = fopen($filename, 'w');
+        fwrite($OUT, "");
         fclose($OUT);
     }
 
