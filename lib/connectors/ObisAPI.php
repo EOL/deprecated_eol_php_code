@@ -82,7 +82,7 @@ class ObisAPI
         $arr_taxa = array();
         $i = 0;
         $file = fopen($url, "r");
-        while(!feof($file))
+        while($file && !feof($file))
         {
             $line = fgets($file);
             $line = str_replace(", ", "| ", $line);

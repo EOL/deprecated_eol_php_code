@@ -442,11 +442,8 @@ class Resource extends ActiveRecord
                 $this->resource_status_id = ResourceStatus::publish_pending()->id;
                 $this->publish();
             }
-            
-            // // after everything is done, do some denormalizing
-            $this->update_taxon_concepts_solr_index();
-            $this->update_data_objects_solr_index();
         }
+        $this->harvest_event = null;
     }
     
     public function add_unchanged_data_to_harvest()

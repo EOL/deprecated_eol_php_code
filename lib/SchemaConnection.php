@@ -100,11 +100,31 @@ class SchemaConnection
         
         // print_r($d);
         
-        list($data_object, $status) = DataObject::find_and_compare($this->resource, $d, $this->content_manager);
+        list($data_object, $status, $existing_data_object) = DataObject::find_and_compare($this->resource, $d, $this->content_manager);
         if(@!$data_object->id) return false;
         
+        $vetted_id = Vetted::unknown()->id;
+        $visibility_id = Visibility::preview()->id;
+        if($existing_data_object)
+        {
+            if($existing_data_object && $this->resource->title != "Wikipedia" && $v = $existing_data_object->best_vetted())
+            {
+                // all new Wikipedia articles should be unvetted, even if the previous version was vetted
+                $vetted_id = $v->id;
+            }
+            if($existing_data_object && $v = $existing_data_object->best_visibility())
+            {
+                if($v != Visibility::visible())
+                {
+                    // if the existing object is visible - this will go on as preview
+                    // otherwise this will inherit the visibility (unpublished)
+                    $visibility_id = $v->id;
+                }
+            }
+        }
+        
         $data_object->delete_hierarchy_entries();
-        $hierarchy_entry->add_data_object($data_object->id, $d);
+        $hierarchy_entry->add_data_object($data_object->id, $vetted_id, $visibility_id);
         $this->resource->harvest_event->add_data_object($data_object, $status);
         
         if($status!="Reused")
@@ -176,7 +196,7 @@ class SchemaConnection
             list($data_object, $status) = DataObject::find_and_compare($wikipedia_resource, $d, $content_manager);
             if(@!$data_object->id) return false;
             
-            $hierarchy_entry->add_data_object($data_object->id, $d);
+            $hierarchy_entry->add_data_object($data_object->id);
             $last_wikipedia_harvest->add_data_object($data_object, $status);
             
             if(@$d->info_items_ids)
