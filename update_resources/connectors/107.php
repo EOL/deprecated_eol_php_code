@@ -89,9 +89,8 @@ function process($id)
     if(!$xml = Functions::get_hashed_response($file)) 
     {
         print "\n invalid XML";
-        return false; //invalid XML
+        return false;
     }
-
     if($contents = Functions::get_remote_file($file))
     {
         if($contents)

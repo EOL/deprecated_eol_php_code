@@ -1,5 +1,6 @@
 <?php
 namespace php_active_record;
+/* connector 185 */
 
 define("CP_DOMAIN", "http://turbellaria.umaine.edu");
 define("TAXON_URL", "http://turbellaria.umaine.edu/turb2.php?action=1&code=");
@@ -44,7 +45,7 @@ class TurbellarianAPI
     {
         $urls=array();
 
-        $limit = 13998; //hard-coded number of taxon ID
+        $limit = 13998; //hard-coded number of taxon ID //debug orig 13998
         for ($i = 2; $i <= $limit; $i++) $urls[] = TAXON_URL . $i;        
                 
         $final = array();
