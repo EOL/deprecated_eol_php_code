@@ -23,6 +23,7 @@ if(!$OUT = fopen($path, "w+")) print "\n Cannot create file $path";
 $main_id_list = array();
 $main_id_list = get_main_id_list();
 $total_taxid_count = count($main_id_list);
+
 print "\n total taxid count = " . $total_taxid_count . "\n\n";
 $i = 1;
 print "\n";
@@ -59,7 +60,7 @@ $i = 0;
 while(true)
 {
     $i++; print "$i ";
-    $file = DOC_ROOT . "/update_resources/connectors/files/britain_ireland_" . $i .".xml";
+    $file = DOC_ROOT . "/update_resources/connectors/files/britain_ireland_" . $i . ".xml";
     if (file_exists($file))
     {
         if($str = Functions::get_remote_file($file))
@@ -74,18 +75,23 @@ while(true)
 print "\n --end-- \n";
 fclose($OUT);
 
-
-$elapsed_time_sec = microtime(1)-$timestart;
+$elapsed_time_sec = microtime(1) - $timestart;
 print "\n";
-print "elapsed time = $elapsed_time_sec sec              \n";
-print "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
-print "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+print "elapsed time = $elapsed_time_sec sec                 \n";
+print "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
+print "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 exit("\n\n Done processing.");
 
 //start functions #################################################################################################
 function process($id)
 {
     $file = $id;
+    if(!$xml = Functions::get_hashed_response($file)) 
+    {
+        print "\n invalid XML";
+        return false; //invalid XML
+    }
+
     if($contents = Functions::get_remote_file($file))
     {
         if($contents)
@@ -104,26 +110,24 @@ function process($id)
 
 function get_main_id_list()
 {
-    $url[] = "http://www.habitas.org.uk/marinelife/specieslist_xml.asp";
-    print "\n URLs = " . sizeof($url) . "\n";
-    $no_of_urls = sizeof($url);
+    $urls[] = "http://www.habitas.org.uk/marinelife/specieslist_xml.asp";
+    print "\n URLs = " . sizeof($urls) . "\n";
+    $no_of_urls = sizeof($urls);
     $arr = array();
-    for ($i = 0; $i < count($url); $i++)
+    foreach($urls as $url)
     {
         $j = 0;
-        if($xml = Functions::get_hashed_response($url[$i]))
+        if($xml = Functions::get_hashed_response($url))
         {
-            $no_of_taxdetail = count($xml->taxdetail);
-            foreach($xml->id as $taxdetail)
+            foreach($xml->id as $source_url)
             {
-                $temp = @$taxdetail;
-                print "\n" . $temp;
-                $arr["$temp"]=true;
+                print "\n --> " . $source_url;
+                @$arr["$source_url"] = true;
                 $j++;
             }
             print "\n";
         }
-        print "\n" . $i+1 . " of " . $no_of_urls . " URLs | taxid count = " . $j . "\n";
+        print "\n" . " no. of urls: " . $no_of_urls . " URLs | taxid count = " . $j . "\n";
     }
     print " \n";
     $arr = array_keys($arr);
