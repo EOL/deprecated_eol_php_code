@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -11,13 +12,13 @@ $GLOBALS['ENV_DEBUG'] = false;
 $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", "w+");
 
 // start the resource file with the XML header
-fwrite($resource_file, SchemaDocument::xml_header());
+fwrite($resource_file, \SchemaDocument::xml_header());
 
 // query IUCN and write results to file
 IUCNRedlistAPI::get_taxon_xml($resource_file);
 
 // write the resource footer
-fwrite($resource_file, SchemaDocument::xml_footer());
+fwrite($resource_file, \SchemaDocument::xml_footer());
 fclose($resource_file);
 
 // cache the previous version and make this new version the current version
@@ -28,8 +29,7 @@ rename(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", CONTENT_RESOURCE_LOCAL_PATH
 // set to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml"))
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=211");
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=211");
 }
-
 
 ?>
