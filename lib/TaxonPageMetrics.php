@@ -18,8 +18,8 @@ class TaxonPageMetrics
     /* prepare taxon concept totals for richness calculations */
     public function insert_page_metrics()
     {
-        //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921);
-        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218284);
+        //$tc_id=218284; //with user-submitted-text    //array(206692,1,218294,7921,218284);
+        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921,218284);
 
         self::initialize_concepts_list();
         self::get_images_count();                     //1
@@ -124,7 +124,12 @@ class TaxonPageMetrics
         $arr_taxa=array();
         print "\n BOA_biomedical_terms [8 of 12]\n";
         $BOA_agent_id = Agent::find('Biology of Aging');
-        $result = $this->mysqli_slave->query("SELECT Max(harvest_events.id) latest_harvent_event_id FROM harvest_events JOIN agents_resources ON agents_resources.resource_id = harvest_events.resource_id WHERE agents_resources.agent_id = $BOA_agent_id AND harvest_events.published_at Is Not Null ");
+        if(!$BOA_agent_id) 
+        {
+            self::save_totals_to_cumulative_txt(array(),"tpm_biomedical_terms");
+            return;
+        }
+        $result = $this->mysqli_slave->query("SELECT Max(harvest_events.id) latest_harvent_event_id FROM harvest_events JOIN agents_resources ON agents_resources.resource_id = harvest_events.resource_id WHERE agents_resources.agent_id = $BOA_agent_id AND harvest_events.published_at Is Not Null");
         if($result && $row=$result->fetch_assoc()) $latest_harvent_event_id = $row['latest_harvent_event_id'];
         $sql = "SELECT he.taxon_concept_id tc_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON hehe.hierarchy_entry_id = he.id WHERE hehe.harvest_event_id = $latest_harvent_event_id ";
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
@@ -176,7 +181,10 @@ class TaxonPageMetrics
         $time_start = time_elapsed();
         $arr_taxa=array();
         print "\n user_submitted_text, its providers [9 of 12]\n";
-        $sql = "SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM eol_".$GLOBALS['ENV_NAME'].".users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND do.vetted_id != " . Vetted::find('Untrusted');
+
+        $sql = "SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND (udo.vetted_id IS NULL OR udo.vetted_id != " . Vetted::untrusted()->id .")";
+
+
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and udo.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
@@ -223,7 +231,7 @@ class TaxonPageMetrics
         {
             $tc_hierarchy_id = array();
             print "\n content_partners [5 of 12] $start_limit \n";
-            $sql = "SELECT he.taxon_concept_id tc_id, he.hierarchy_id FROM hierarchy_entries he where he.published = 1 AND he.visibility_id=".Visibility::find("visible");
+            $sql = "SELECT he.taxon_concept_id tc_id, he.hierarchy_id FROM hierarchy_entries he where he.published = 1 AND he.visibility_id=".Visibility::visible()->id;
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " ORDER BY he.taxon_concept_id";
             $sql .= " limit $start_limit, $batch ";
@@ -353,7 +361,16 @@ class TaxonPageMetrics
         while(true)
         {
             print "\n common_names and its providers [10 of 12] $start_limit \n";
-            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id WHERE s.synonym_relation_id in (" . SynonymRelation::find("common name") . "," . SynonymRelation::find("genbank common name") . ")";
+
+            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id 
+            FROM hierarchy_entries he 
+            JOIN synonyms s ON he.id = s.hierarchy_entry_id 
+            WHERE s.synonym_relation_id IN (" . SynonymRelation::find_by_translated('label', "common name")->id . "," . SynonymRelation::find_by_translated('label', "genbank common name")->id . ")
+            AND he.published=1 AND he.visibility_id=". Visibility::visible()->id;
+
+
+
+            
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -409,7 +426,13 @@ class TaxonPageMetrics
         while(true)
         {
             print "\n synonyms and its providers [11 of 12] $start_limit \n";
-            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id JOIN hierarchies h ON s.hierarchy_id = h.id WHERE s.synonym_relation_id not in (" . SynonymRelation::find("common name") . "," . SynonymRelation::find("genbank common name") . ") and h.browsable=1";
+            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id 
+            FROM hierarchy_entries he 
+            JOIN synonyms s ON he.id = s.hierarchy_entry_id 
+            JOIN hierarchies h ON s.hierarchy_id = h.id 
+            WHERE s.synonym_relation_id NOT IN (" . SynonymRelation::find_by_translated('label', "common name")->id . "," . SynonymRelation::find_by_translated('label', "genbank common name")->id . ")
+            AND h.browsable=1 AND he.published=1 AND he.visibility_id=". Visibility::visible()->id;
+
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -452,17 +475,23 @@ class TaxonPageMetrics
     {            
         $time_start = time_elapsed(); 
         $concept_data_object_counts = array();
-        $trusted_id     = Vetted::find("trusted");
-        $untrusted_id   = Vetted::find("untrusted");
-        $unreviewed_id  = Vetted::find("unknown");
+        $trusted_id     = Vetted::trusted()->id;
+        $untrusted_id   = Vetted::untrusted()->id;
+        $unreviewed_id  = Vetted::unknown()->id;
         $batch = 500000; 
         $start_limit = 0;
         while(true)
         {
             print "\n top images count [1 of 12] $start_limit \n";
-            $sql = "SELECT DISTINCT tc.id tc_id, do.description, do.vetted_id, do.id FROM taxon_concepts tc JOIN top_concept_images tci ON tc.id = tci.taxon_concept_id JOIN data_objects do ON tci.data_object_id = do.id WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 and do.visibility_id=".Visibility::find("visible");
+            $sql = "SELECT DISTINCT tc.id tc_id, do.description, dohe.vetted_id, do.id 
+            FROM taxon_concepts tc 
+            JOIN top_concept_images tci ON tc.id = tci.taxon_concept_id 
+            JOIN data_objects do ON tci.data_object_id = do.id 
+            JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
+            WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 and dohe.visibility_id=".Visibility::visible()->id;
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";
+            
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
@@ -582,14 +611,18 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed(); 
         $concept_data_object_counts = array();
-        $image_id       = DataType::find_by_label('Image');
-        $sound_id       = DataType::find_by_label('Sound');
-        $text_id        = DataType::find_by_label('Text');
-        $video_id       = DataType::find_by_label('Video');
-        $gbif_image_id  = DataType::find_by_label('GBIF Image');
-        $iucn_id        = DataType::find_by_label('IUCN');
-        $flash_id       = DataType::find_by_label('Flash');
-        $youtube_id     = DataType::find_by_label('YouTube');
+        
+        $gbif_image_id  = DataType::gbif_image()->id;
+        $image_id       = DataType::image()->id;
+        $text_id        = DataType::text()->id;
+        $video_id       = DataType::video()->id;
+        $sound_id       = DataType::sound()->id;
+        $flash_id       = DataType::flash()->id;
+        $youtube_id     = DataType::youtube()->id;
+        $iucn_id        = DataType::iucn()->id;
+
+
+        
         $data_type_label[$image_id]      ='image';
         $data_type_label[$sound_id]      ='sound';
         $data_type_label[$text_id]       ='text';
@@ -598,9 +631,12 @@ class TaxonPageMetrics
         $data_type_label[$iucn_id]       ='iucn';
         $data_type_label[$flash_id]      ='flash';
         $data_type_label[$youtube_id]    ='youtube';
-        $trusted_id     = Vetted::find("trusted");
-        $untrusted_id   = Vetted::find("untrusted");
-        $unreviewed_id  = Vetted::find("unknown");
+
+        $trusted_id     = Vetted::trusted()->id;
+        $untrusted_id   = Vetted::untrusted()->id;
+        $unreviewed_id  = Vetted::unknown()->id;
+
+
         $batch = 100000; 
         $start_limit = 0;
         $concept_info_items = array();
@@ -608,9 +644,16 @@ class TaxonPageMetrics
         while(true)
         {
             print "\n dataObjects, its infoItems, its references [2 of 12] $start_limit \n";
-            $sql = "SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, do.vetted_id FROM data_objects_taxon_concepts dotc JOIN data_objects do ON dotc.data_object_id = do.id LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id LEFT JOIN data_objects_refs dor ON do.id = dor.data_object_id WHERE do.published=1 AND do.visibility_id=".Visibility::find("visible")." AND do.data_type_id <> $image_id";
+            $sql = "SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, dohe.vetted_id 
+                FROM data_objects_taxon_concepts dotc 
+                JOIN data_objects do ON dotc.data_object_id = do.id 
+                LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id 
+                LEFT JOIN data_objects_refs dor ON do.id = dor.data_object_id 
+                JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
+                WHERE do.published=1 AND dohe.visibility_id=".Visibility::visible()->id." AND do.data_type_id <> $image_id";
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and dotc.taxon_concept_id IN (". implode(",", $GLOBALS['test_taxon_concept_ids']) .")";
             $sql .= " limit $start_limit, $batch ";
+
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
             $FILE = fopen($outfile, "r");
@@ -738,6 +781,8 @@ class TaxonPageMetrics
         print "\n $category --- end";
         print "\n $category:" . (time_elapsed()-$time_start)/60 . " mins.";
     }
+
+
 
     function save_to_table()
     {
