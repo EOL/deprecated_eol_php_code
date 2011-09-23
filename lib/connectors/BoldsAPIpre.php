@@ -1,13 +1,12 @@
 <?php
 namespace php_active_record;
-/* This connector assembles BOLDS' taxa list (master_list.txt) */
+/* This connector assembles BOLDS' taxa list (hl_master_list.txt) hl - higher level taxa */
 
 /* As of 2011 Aug16 in production DB
 Statistics of barcoding coverage: 178530
 Locations of barcode samples: 135839
 Barcode data: 71263 (41,341 with barcode image)
 */
-
 
 class BoldsAPIpre
 {
@@ -53,7 +52,6 @@ class BoldsAPIpre
                 Functions::delete_a_task($task, self::$WORK_LIST);
                 Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                //if(false)
                 if($call_multiple_instance)
                 {
                     Functions::run_another_connector_instance($resource_id, 1); //call 1 other instance for a total of 2 instances running
@@ -113,12 +111,13 @@ class BoldsAPIpre
 
         /*
         $taxa_groups = array("elix1", "elix2"); //debug
+        $taxa_groups = array("Animals_4"); //debug
         */
-        
+
         if($fp = fopen(self::$TG_MASTER_LIST, "w")) 
         foreach($taxa_groups as $group)
         {
-            fwrite($fp, $group . "\n"); 
+            fwrite($fp, $group . "\n");
             print "$group \n";
         }
         fclose($fp);
@@ -493,8 +492,8 @@ class BoldsAPIpre
         }    
         if($species_group == "elix2")
         {
-            $arr_phylum = array();
-            $arr_phylum[] = array( "name" => "eliboy"     , "id" => 26036);
+            $arr_family = array();
+            $arr_family[] = array( "name" => "Proteocephalidae"     , "id" => 72162);
         } 
         */
 
@@ -502,13 +501,12 @@ class BoldsAPIpre
         elseif(isset($arr_class))   $arr_taxa = $arr_class;
         elseif(isset($arr_order))   $arr_taxa = $arr_order;
         elseif(isset($arr_family))  $arr_taxa = $arr_family;
-
         $list = array_merge($arr_taxa, self::get_all_taxa_under_this_group($arr_taxa));
         print"\n All Taxa in BOLD: " . count($list);
         self::save_to_txt($list);
 
     }//get_BOLD_taxa
-    
+
     private function save_to_txt($arr)
     {
         $str = "";        
@@ -572,8 +570,10 @@ class BoldsAPIpre
                 }
             }
         }
-        return self::remove_species_level_taxa($main_name_id_list, $arr_for_deletion); //debug: to remove species level taxa
-        //return $main_name_id_list;
+        /* we won't need this anymore as we now stopped the process before hand
+        return self::remove_species_level_taxa($main_name_id_list, $arr_for_deletion); //to remove species level taxa
+        */
+        return $main_name_id_list;
     }
 
     function remove_species_level_taxa($list, $deletion)
@@ -590,16 +590,36 @@ class BoldsAPIpre
     {
         if(preg_match("/<h2>Sub-taxa<\/h2>(.*?)<\/ul>/ims", $str, $matches)) $str = $matches[1]; 
         //stops processing, doesn't go deeper if taxon is already in the species level
-        $pos = stripos($str, "Species List - Progress");
-        if(is_numeric($pos))
-        {
-            print " -stop here- ";
-            return array();
-        }    
+
+        /* use this if you want all higher-level taxa only */
+            $pos = stripos($str, "Species (");
+            if(is_numeric($pos))
+            {
+                print " -stop here- ";
+                return array();
+            }
+            //for cleaning
+            $pos = stripos($str, "taxbrowser.php?taxid=");
+            if(!is_numeric($pos))
+            {
+                print " -stop here- ";
+                return array();
+            }
+
+        /* use this if you want all taxa, including species level taxa
+            $pos = stripos($str, "taxbrowser.php?taxid=");
+            if(!is_numeric($pos))
+            {
+                print " -stop here- ";
+                return array();
+            }
+        */
+        
+        
         $final = self::get_name_id_from_array($str);
         return $final;
     }
-    
+
     private function get_name_id_from_array($str)
     {
         $str = strip_tags($str,"<a>");

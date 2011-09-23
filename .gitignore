@@ -138,3 +138,24 @@ applications/partner_requests/wiki_curated_stats_nathan.php
 lib/connectors/NatureServeAPI_eli.php
 
 update_resources/connectors/263_eli.php
+
+final_processed_HotlistAug2011_small.txt
+
+final_processed_redhotlist_small.txt
+
+applications/taxon_page_metrics/hotlist1.php
+
+applications/taxon_page_metrics/hotlist2.php
+
+applications/taxon_page_metrics/hotlist_name_lookup.php
+
+applications/taxon_page_metrics/Archive2.zip
+applications/taxon_page_metrics/final_HotlistAug2011_a.txt
+applications/taxon_page_metrics/final_HotlistAug2011_b.txt
+applications/taxon_page_metrics/final_redhotlist.txt
+applications/taxon_page_metrics/raw_HotlistAug2011_a.txt
+applications/taxon_page_metrics/raw_HotlistAug2011_b.txt
+applications/taxon_page_metrics/raw_redhotlist.txt
+applications/taxon_page_metrics/redhotlist.csv
+applications/taxon_page_metrics/spg_hotlist.txt
+applications/taxon_page_metrics/spg_redhotlist.txt
