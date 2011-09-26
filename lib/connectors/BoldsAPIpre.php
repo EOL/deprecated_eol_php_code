@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* This connector assembles BOLDS' taxa list (hl_master_list.txt) hl - higher level taxa */
+/* This connector assembles BOLDS' higher-level taxa list (hl_master_list.txt) {37 hours} */
 
 /* As of 2011 Aug16 in production DB
 Statistics of barcoding coverage: 178530

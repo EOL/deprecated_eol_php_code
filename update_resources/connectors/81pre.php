@@ -1,7 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector for BOLDS
-estimated execution time:
+
+/* This connector assembles BOLDS' higher-level taxa list (hl_master_list.txt) {37 hours}
+estimated execution time: 37 hours
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -16,7 +17,7 @@ BoldsAPIpre::start_process($resource_id, $call_multiple_instance);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes   \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 exit("\n\n Done processing.");
 ?>
