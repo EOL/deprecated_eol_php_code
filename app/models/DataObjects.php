@@ -142,7 +142,7 @@ class DataObject extends ActiveRecord
         $fields = self::table_fields();
         foreach($fields as $field)
         {
-            $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url", "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id", "visibility_id", "curated", "published", "description_linked");
+            $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url", "object_created_at", "object_modified_at", "created_at", "updated_at", "language_id", "data_rating", "vetted_id", "visibility_id", "curated", "published", "description_linked");
             if(in_array($field, $fields_to_ignore)) continue;
             
             if(@$this->$field == "0") $this->$field = 0;
@@ -244,8 +244,9 @@ class DataObject extends ActiveRecord
                     
                     // Check to see if we can reuse cached object or need to download it again
                     if($data_object->object_url == $existing_data_object->object_url && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
-                    elseif($data_object->object_cache_url && !$data_object->cache_object($content_manager, $resource)) return false;
+                    elseif(!$data_object->cache_object($content_manager, $resource)) return false;
                     
+                    if(!$data_object->thumbnail_cache_url) $data_object->cache_thumbnail($content_manager);
                     // If the object is text and the contents have changed - set this version to curated = 0
                     if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
                     
@@ -275,7 +276,7 @@ class DataObject extends ActiveRecord
         // but there is a difference - eg the identifiers are different. Or if the object is entirely new
         
         // // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
-        if($data_object->object_cache_url && !$data_object->cache_object($content_manager, $resource)) return false;
+        if(!$data_object->cache_object($content_manager, $resource)) return false;
         $data_object->cache_thumbnail($content_manager);
         
         return array(DataObject::create_by_object($data_object), "Inserted", null);
