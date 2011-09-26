@@ -38,6 +38,16 @@ class HarvestEvent extends ActiveRecord
         $this->refresh();
     }
     
+    public function previous_harvest_event()
+    {
+        $result = $this->mysqli->query("SELECT SQL_NO_CACHE MAX(id) as id FROM harvest_events WHERE resource_id = $this->resource_id AND id < $this->id");
+        if($result && $row=$result->fetch_assoc())
+        {
+            if($row["id"]) return HarvestEvent::find($row["id"]);
+        }
+        return null;
+    }
+    
     public function make_objects_visible($object_guids_to_keep = null)
     {
         $where_clause = '';

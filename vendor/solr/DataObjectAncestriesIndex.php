@@ -51,9 +51,6 @@ class DataObjectAncestriesIndexer
         $batches = array_chunk($data_object_ids, 10000);
         foreach($batches as $batch)
         {
-            // foreach($batch as $id) $queries[] = "data_object_id:$id";
-            // $this->solr->delete_by_queries($queries);
-            
             $this->index_next_block(null, null, $batch);
         }
         // $this->solr->commit();
@@ -109,7 +106,6 @@ class DataObjectAncestriesIndexer
                 foreach($data_object_ids as $id) $queries[] = "data_object_id:$id";
                 $this->solr->delete_by_queries($queries);
             }
-            // print_r($this->objects);
             $this->solr->send_attributes($this->objects);
         }
     }
