@@ -175,7 +175,7 @@ class DataObject extends ActiveRecord
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
-        if($this->is_video())
+        if($this->is_video() && $this->data_type_id != DataType::youtube()->id)
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
