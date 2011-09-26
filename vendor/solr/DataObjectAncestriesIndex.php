@@ -51,8 +51,8 @@ class DataObjectAncestriesIndexer
         $batches = array_chunk($data_object_ids, 10000);
         foreach($batches as $batch)
         {
-            foreach($batch as $id) $queries[] = "data_object_id:$id";
-            $this->solr->delete_by_queries($queries);
+            // foreach($batch as $id) $queries[] = "data_object_id:$id";
+            // $this->solr->delete_by_queries($queries);
             
             $this->index_next_block(null, null, $batch);
         }
@@ -104,6 +104,12 @@ class DataObjectAncestriesIndexer
                 elseif(isset($attr['preview_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 2;
                 else $this->objects[$id]['max_vetted_weight'] = 1;
             }
+            if($data_object_ids)
+            {
+                foreach($data_object_ids as $id) $queries[] = "data_object_id:$id";
+                $this->solr->delete_by_queries($queries);
+            }
+            // print_r($this->objects);
             $this->solr->send_attributes($this->objects);
         }
     }
