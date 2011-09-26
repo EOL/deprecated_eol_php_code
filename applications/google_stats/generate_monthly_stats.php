@@ -1,26 +1,16 @@
 <?php
+namespace php_active_record;
+
 /*
 month:      run date:       execution time:
-Feb2010     1Mar2010      
-Mar2010     1Apr2010        1.5 hrs
-Apr2010     3May2010        1.7 hrs
-Aug2010     1Sep2010        5 hrs
-Sep2010     7Oct2010        6.8 hrs
-Oct2010     3Nov2010        10 hrs
-Nov2010     1Dec2010        11 hrs
-Dec2010     2Jan2011        1.5 hrs {Script improved - execution time much less now}
-Jan2011     3Feb2011        1.49 hrs 
 
 tables used:
+    users
+    resources
     taxon_concepts
-    taxon_concept_names
-    page_names
     hierarchy_entries
-    agents
-    agents_resources
+    harvest_events_hierarchy_entries
     harvest_events
-    names
-    ???
 
 Google reference pages:
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
@@ -29,53 +19,31 @@ http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html
 http://code.google.com/apis/analytics/docs/gdata/gdataReferenceCommonCalculations.html#revenue
 */
 
-$GLOBALS['ENV_DEBUG'] = true;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$timestart = microtime(1);
 $temp_time = time_elapsed();            
-
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-//==========================================================================
 /* can be commented bec. this is ran before hand
 require_library('TaxonPageMetrics');
 $stats = new TaxonPageMetrics();
-$stats->generate_taxon_concept_with_bhl_links_textfile(); // 6 mins      
+$stats->generate_taxon_concept_with_bhl_links_textfile(); //
 */
-//==========================================================================
 
 require_library('MonthlyGoogleAnalytics');
 $run = new MonthlyGoogleAnalytics();
 require_once('google_proc.php');
+$arr = $run->process_parameters();//month and year parameters
+$month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";        
 
-    $arr = $run->process_parameters();//month and year parameters
-    $month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";        
+$run->initialize_tables_4dmonth($year,$month);  //empty the 4 tables for the month
+$run->save_eol_taxa_google_stats($month,$year); //save google analytics stats
+$run->save_agent_taxa($year_month);             //save partner stats
+$run->save_agent_monthly_summary($year_month);  //save partner summaries
+$run->save_eol_monthly_summary($year,$month);   //save eol-wide summaries
 
-    //empty the 4 tables for the month
-    $run->initialize_tables_4dmonth($year,$month); 
-
-    //save google analytics stats
-    $run->save_eol_taxa_google_stats($month,$year); 
-
-    //save partner stats
-    $run->save_agent_taxa($year_month); //start2
-
-    //save partner summaries
-    $run->save_agent_monthly_summary($year_month);                      
-
-    //save eol-wide summaries
-    $run->save_eol_monthly_summary($year,$month);
-       
-$elapsed_time_sec = microtime(1)-$timestart;
 $time_elapsed_sec = time_elapsed() - $temp_time;
-
-echo "\n elapsed time = $elapsed_time_sec sec               ";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " mins   ";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hrs ";
 echo "\n";
-echo "\n elapsed time = $time_elapsed_sec sec               ";
-echo "\n elapsed time = " . $time_elapsed_sec/60 . " mins   ";
-echo "\n elapsed time = " . $time_elapsed_sec/60/60 . " hrs ";
-    
+echo "\n elapsed time = " . $time_elapsed_sec/60 . " minutes  ";
+echo "\n elapsed time = " . $time_elapsed_sec/60/60 . " hours ";
 echo"\n\n Processing done. --end-- \n "; 
 ?>
