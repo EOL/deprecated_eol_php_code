@@ -38,6 +38,16 @@ class HarvestEvent extends ActiveRecord
         $this->refresh();
     }
     
+    public function previous_harvest_event()
+    {
+        $result = $this->mysqli->query("SELECT SQL_NO_CACHE MAX(id) as id FROM harvest_events WHERE resource_id = $this->resource_id AND id < $this->id");
+        if($result && $row=$result->fetch_assoc())
+        {
+            if($row["id"]) return HarvestEvent::find($row["id"]);
+        }
+        return null;
+    }
+    
     public function make_objects_visible($object_guids_to_keep = null)
     {
         $where_clause = '';
@@ -235,19 +245,22 @@ class HarvestEvent extends ActiveRecord
     
     public function index_for_search()
     {
-        $indexer = new SiteSearchIndexer();
+        $search_indexer = new SiteSearchIndexer();
         $query = "SELECT data_object_id FROM data_objects_harvest_events WHERE harvest_event_id = $this->id";
         $data_object_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $data_object_ids[] = $row[0];
         print_r($data_object_ids);
-        $indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
+        $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
+        
+        $object_indexer = new DataObjectAncestriesIndexer();
+        $object_indexer->index_objects($data_object_ids);
         
         $query = "SELECT he.taxon_concept_id FROM harvest_events_hierarchy_entries hehe
         JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id = $this->id";
         $taxon_concept_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $taxon_concept_ids[] = $row[0];
         print_r($taxon_concept_ids);
-        $indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
+        $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
     }
     
     public function create_collection()
