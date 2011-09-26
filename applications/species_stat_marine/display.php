@@ -54,11 +54,11 @@ if($view == 3)
         # of those pages with vetted objects: 24505 
         */
 
-        $arr['Number of names in WORMS'][$i]                             = number_format($row["names_from_xml"]);
-        $arr['Number of names in WORMS that also occur in CoLP'][$i]     = number_format($row["names_in_eol"]);
-        $arr['Number of those names with EOL species pages'][$i]         = number_format($row["marine_pages"]);
-        $arr['Number of WORMS species pages with objects'][$i]             = number_format($row["pages_with_objects"]);
-        $arr['Number of WORMS species pages with vetted objects'][$i]     = number_format($row["pages_with_vetted_objects"]);        
+        $arr['Number of names in WORMS'][$i]                            = number_format($row["names_from_xml"]);
+        $arr['# of those names with EOL pages'][$i]                     = number_format($row["names_in_eol"]);
+        $arr['Marine pages'][$i]                                        = number_format($row["marine_pages"]);
+        $arr['Number of WORMS species pages with objects'][$i]          = number_format($row["pages_with_objects"]);
+        $arr['Number of WORMS species pages with vetted objects'][$i]   = number_format($row["pages_with_vetted_objects"]);        
         
         $i++;
     }    
