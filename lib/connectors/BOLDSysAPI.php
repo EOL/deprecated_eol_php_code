@@ -8,11 +8,6 @@ define("SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxid=");
 
 class BOLDSysAPI
 {
-    // const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
-    // const DL_SEARCH_URL         = "http://www.discoverlife.org/mp/20q?search=";
-    // const DL_MAP_URL            = "http://www.discoverlife.org/20/m?kind=";
-    // const DL_MAP_SRC            = "http://www.discoverlife.org/mp/20m?map=";
-    
     private static $PHYLUM_LIST;
 
     private static $TEMP_FILE_PATH;
@@ -22,9 +17,7 @@ class BOLDSysAPI
 
     function start_process($resource_id, $call_multiple_instance)
     {
-        
         require_library('connectors/BoldsAPI');        
-        
         self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
         self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_list.txt"; //sl - species-level taxa
         self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_in_progress_list.txt";
@@ -52,8 +45,6 @@ class BOLDSysAPI
         }
         exit;
         */
-        
-        
 
         self::$PHYLUM_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/phylum_list.txt";
 
@@ -65,11 +56,9 @@ class BOLDSysAPI
             {
                 // Divide the big list of ids into small files
                 Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
-                
                 self::create_master_list();
                 //exit;
                 //Functions::create_work_list_from_master_file(self::$PHYLUM_LIST, 1, self::$TEMP_FILE_PATH, "sl_batch_", self::$WORK_LIST); //orig value 1
-                
                 Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
             }
         }
@@ -119,6 +108,7 @@ class BOLDSysAPI
         fwrite($WRITE, json_encode($arr));
         fclose($WRITE);
     }
+
     function get_array_from_json_file($filename)
     {
         $READ = fopen($filename, "r");
@@ -127,13 +117,11 @@ class BOLDSysAPI
         return json_decode($contents,true);
     }
 
-
     private function get_all_taxa($task)
     {
         $all_taxa = array();
         $used_collection_ids = array();
         $filename = self::$TEMP_FILE_PATH . $task . ".txt";
-
         //exit("\n $filename");
         $records = self::get_array_from_json_file($filename);
         $num_rows = sizeof($records); $i = 0;
@@ -141,18 +129,12 @@ class BOLDSysAPI
         {
             $i++; print"\n [$i of $num_rows] ";
             print $rec['taxonomy']['species']['taxon']['name'];
-            
-            //print $rec->taxonomy->species->taxon->name;
-            
-            $arr = self::get_boldsys_taxa($rec, $used_collection_ids);                                
+            $arr = self::get_boldsys_taxa($rec, $used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
-
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
             unset($page_taxa);
-            
         }
-
         /*
         $FILE = fopen($filename, "r");
         $i = 0; 
@@ -183,7 +165,7 @@ class BOLDSysAPI
         }
         fclose($FILE);
         */
-        
+
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = self::$TEMP_FILE_PATH . $task . ".xml";
         $OUT = fopen($resource_path, "w"); 
@@ -191,19 +173,18 @@ class BOLDSysAPI
         fclose($OUT);
     }
 
-
     public static function get_boldsys_taxa($rec, $used_collection_ids)
     {
         $response = self::parse_xml($rec);//this will output the raw (but structured) array
         $page_taxa = array();
         foreach($response as $rec)
         {
-            if(@$used_collection_ids[$rec["sciname"]]) continue;            
+            if(@$used_collection_ids[$rec["sciname"]]) continue;
             $taxon = Functions::prepare_taxon_params($rec);
-            if($taxon) $page_taxa[] = $taxon;            
+            if($taxon) $page_taxa[] = $taxon;
             @$used_collection_ids[$rec["sciname"]] = true;
-        }        
-        return array($page_taxa,$used_collection_ids);        
+        }
+        return array($page_taxa,$used_collection_ids);
     }            
     
     function get_taxon_id($rec)
@@ -218,18 +199,16 @@ class BOLDSysAPI
     }
     function parse_xml($rec)
     {
-        $arr_data = array();                                
+        $arr_data = array();
         $arr = self::get_taxon_id($rec);
         $taxon_id = $arr[0];
         $sciname  = $arr[1];
-            
         //start data objects //----------------------------------------------------------------------------------------
         $arr_objects = array();
-        
         //barcode stats
         $bold_stats = "";
         if(isset($rec['stats']['public_barcodes'])) $bold_stats .= "Public Records: " . $rec['stats']['public_barcodes'] . "<br>";
-        else                                    $bold_stats .= "Public Records: 0<br>";
+        else                                        $bold_stats .= "Public Records: 0<br>";
         if(isset($rec['stats']['barcodes']))        $bold_stats .= "Species: " . $rec['stats']['barcodes'] . "<br>";
         if(isset($rec['stats']['barcoded_species']))$bold_stats .= "Species With Barcodes: " . $rec['stats']['barcoded_species'] . "<br>";
         $bold_stats .= "<br>";                
@@ -238,24 +217,24 @@ class BOLDSysAPI
         $title       = "Statistics of barcoding coverage";
         $source      = SPECIES_URL . trim($taxon_id);
         $mediaURL    = "";               
-        $description = "Barcode of Life Data Systems (BOLDS) Stats <br> $bold_stats";        
+        $description = "Barcode of Life Data Systems (BOLDS) Stats <br> $bold_stats";
         
         //same for all text objects
-        $subject      = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology"; //debug orig MolecularBiology
+        $subject      = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology";
         $license      = "http://creativecommons.org/licenses/by/3.0/";        
         $rightsHolder = "Barcode of Life Data Systems";
+
         //same for all objects
         $agent = array(0 => array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Sujeevan Ratnasingham"),
-                       1 => array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Paul D.N. Hebert"));    
-        
+                       1 => array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Paul D.N. Hebert"));
         if($bold_stats != "<br>") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         
         //barcode image
-        if(isset($rec['barcode_image_url']))                
+        if(isset($rec['barcode_image_url']))
         {
-            $identifier  = $taxon_id . "_barcode_data";            
-            $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";            
-            $title       = "Barcode data";                
+            $identifier  = $taxon_id . "_barcode_data";
+            $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType = "text/html";
+            $title       = "Barcode data";
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
             $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.<br>
@@ -263,11 +242,9 @@ class BOLDSysAPI
 
             //require_library('connectors/BoldsAPI');
             $description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true);
-            
 
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }
-        
         //map
         if(isset($rec['map_url']))
         {
@@ -280,15 +257,13 @@ class BOLDSysAPI
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }            
         //end data objects //----------------------------------------------------------------------------------------
-        
         $phylum = ""; $class = ""; $order = ""; $family = ""; $genus = ""; $species = "";
         if(isset($rec['taxonomy']['phylum']['taxon']['name']))   $phylum = $rec['taxonomy']['phylum']['taxon']['name'];
-        if(isset($rec['taxonomy']['class']['taxon']['name']))    $class = $rec['taxonomy']['class']['taxon']['name'];        
+        if(isset($rec['taxonomy']['class']['taxon']['name']))    $class = $rec['taxonomy']['class']['taxon']['name'];
         if(isset($rec['taxonomy']['order']['taxon']['name']))    $order = $rec['taxonomy']['order']['taxon']['name'];
         if(isset($rec['taxonomy']['family']['taxon']['name']))   $family = $rec['taxonomy']['family']['taxon']['name'];
         if(isset($rec['taxonomy']['genus']['taxon']['name']))    $genus = $rec['taxonomy']['genus']['taxon']['name'];
         if(isset($rec['taxonomy']['species']['taxon']['name']))  $species = $rec['taxonomy']['species']['taxon']['name'];
-        
         $arr_data[]=array(  "identifier"   => $taxon_id,
                             "source"       => SPECIES_URL . trim($taxon_id),
                             "kingdom"      => "",
@@ -298,11 +273,11 @@ class BOLDSysAPI
                             "family"       => $family,
                             "genus"        => $genus,
                             "sciname"      => $species,
-                            "data_objects" => $arr_objects                                 
-                         );               
-        return $arr_data;        
+                            "data_objects" => $arr_objects
+                         );
+        return $arr_data;
     }
-    
+
     function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent)
     {
         return array("identifier"   => $identifier,
@@ -318,7 +293,6 @@ class BOLDSysAPI
                      "agent"        => $agent
                     );
     }
-
 
     private function delete_temp_files($file_path, $file_extension)
     {
@@ -336,14 +310,14 @@ class BOLDSysAPI
             else return;
         }
     }
-    
+
     private function create_master_list()
     {
         //Animals
         $arr_phylum = array(0 => array( "name" => "Acanthocephala"   , "id" => 11),
                             1 => array( "name" => "Annelida"         , "id" => 2),
                             2 => array( "name" => "Arthropoda"       , "id" => 20),
-                            3 => array( "name" => "Brachiopoda"      , "id" => 9),        
+                            3 => array( "name" => "Brachiopoda"      , "id" => 9),
                             4 => array( "name" => "Bryozoa"          , "id" => 7),
                             5 => array( "name" => "Chaetognatha"     , "id" => 13),
                             6 => array( "name" => "Chordata"         , "id" => 18),
@@ -356,7 +330,7 @@ class BOLDSysAPI
                             13 => array( "name" => "Mollusca"        , "id" => 23),
                             14 => array( "name" => "Nematoda"        , "id" => 19),
                             15 => array( "name" => "Onychophora"     , "id" => 10),
-                            16 => array( "name" => "Platyhelminthes" , "id" => 5),                        
+                            16 => array( "name" => "Platyhelminthes" , "id" => 5),
                             17 => array( "name" => "Porifera"        , "id" => 24818),
                             18 => array( "name" => "Rotifera"        , "id" => 16),
                             19 => array( "name" => "Sipuncula"       , "id" => 15),
@@ -390,19 +364,18 @@ class BOLDSysAPI
                       1 => array( "name" => "Ciliophora"         , "id" => 72834),
                       2 => array( "name" => "Dinozoa"            , "id" => 70855),
                       3 => array( "name" => "Heterokontophyta"   , "id" => 53944),
-                      4 => array( "name" => "Opalozoa"           , "id" => 72171),                        
+                      4 => array( "name" => "Opalozoa"           , "id" => 72171),
                       5 => array( "name" => "Straminipila"       , "id" => 23715),
-                      6 => array( "name" => "Chlorarachniophyta" , "id" => 316986),                        
-                      7 => array( "name" => "Pyrrophycophyta"    , "id" => 317010)                        
+                      6 => array( "name" => "Chlorarachniophyta" , "id" => 316986),
+                      7 => array( "name" => "Pyrrophycophyta"    , "id" => 317010)
                      );
-        $arr_phylum = array_merge($arr_phylum, $temp);                                                  
+        $arr_phylum = array_merge($arr_phylum, $temp);
 
         /* //debug
         $arr_phylum = array();
         $arr_phylum[] = array( "name" => "Acanthocephala" , "id" => 11);
         //$arr_phylum[] = array( "name" => "Annelida"       , "id" => 11);
         */
-
         /* not needed anymore
         if($fp = fopen(self::$PHYLUM_LIST, "w")) 
         foreach($arr_phylum as $phylum)
@@ -412,23 +385,22 @@ class BOLDSysAPI
         }
         fclose($fp);
         */
-        
+
         self::count_taxa_per_phylum($arr_phylum);
-        return;
     }
 
     private function count_taxa_per_phylum($arr_phylum)
     {
-        $total_phylum = sizeof($arr_phylum); 
+        $total_phylum = sizeof($arr_phylum);
         $p = 0;
         $records = array();
         $file_count = 0;
         foreach($arr_phylum as $phylum)
-        {            
+        {
             $p++;
-            $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']);                        
+            $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']);
             $num_rows = sizeof($xml->record);
-            print"\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [$num_rows] ";            
+            print"\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [$num_rows] ";
 
             $i = 0;
             foreach($xml->record as $rec)
@@ -438,20 +410,18 @@ class BOLDSysAPI
                 $records[] = $rec;
                 if(sizeof($records) >= 4) //orig 10000
                 {
-                    $file_count++;                    
+                    $file_count++;
                     self::save_to_json_file($records, self::$TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
                     $records = array();
-                }                
+                }
             }
-        }        
-        
+        }
         //last save
         if($records)
         {
             $file_count++;
             self::save_to_json_file($records, self::$TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
         }
-
         //create work_list
         $str = "";
         for($i = 1; $i <= $file_count; $i++) $str .= "sl_batch_" . Functions::format_number_with_leading_zeros($i, 3) . "\n";
@@ -461,7 +431,6 @@ class BOLDSysAPI
             fclose($fp);
         }
     }
-
 
     private function combine_all_xmls($resource_id)
     {
