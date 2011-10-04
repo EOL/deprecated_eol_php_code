@@ -51,9 +51,9 @@ function get_from_api_Report($month, $year, $website = NULL, $report, $entire_ye
         $api->load_accounts();
         $arr = $api->accounts;
         $id = $arr["$organization"]["tableId"];
-        if($report == "q1") $data = $api->data($id, 'ga:previousPagePath', 'ga:pageviews, ga:nextPagePath', false, $start_date, $end_date, 10, 1, 'ga:nextPagePath%3d%3dhttp://www.eol.org/index', false);
-        if($report == "q2") $data = $api->data($id, 'ga:pagePath', 'ga:exits, ga:uniquePageviews', false, $start_date, $end_date, 10, 1, false, false);
-        if($report == "q3") $data = $api->data($id, 'ga:pagePath', 'ga:exits, ga:pageviews'      , false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "q1") $data = $api->data($id, 'ga:previousPagePath', 'ga:pageviews,ga:nextPagePath', false, $start_date, $end_date, 10, 1, 'ga:nextPagePath%3d%3dhttp://www.eol.org/index', false);
+        if($report == "q2") $data = $api->data($id, 'ga:pagePath', 'ga:exits,ga:uniquePageviews', false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "q3") $data = $api->data($id, 'ga:pagePath', 'ga:exits,ga:pageviews'      , false, $start_date, $end_date, 10, 1, false, false);
         if($report == "browser")  
         {   $data = $api->data($id, 'ga:browser', 'ga:visits', false, $start_date, $end_date, 100, 1, false, false);
             $data2 = $api->data($id, '', 'ga:visits', false, $start_date, $end_date, 5000, 1, false, false);
@@ -66,26 +66,26 @@ function get_from_api_Report($month, $year, $website = NULL, $report, $entire_ye
         {   $data = $api->data($id, 'ga:flashVersion', 'ga:visits', false, $start_date, $end_date, 100, 1, false, false);
             $data2 = $api->data($id, '', 'ga:visits', false, $start_date, $end_date, 5000, 1, false, false);
         }        
-        if($report == "top_content")    $data = $api->data($id, 'ga:PagePath', 'ga:pageviews, ga:uniquePageviews, ga:timeOnPage, ga:bounces, ga:entrances, ga:exits', false, $start_date, $end_date, 100, 1, false, false);
-        if($report == "content_title")  $data = $api->data($id, 'ga:PageTitle', 'ga:pageviews, ga:uniquePageviews, ga:timeOnPage, ga:bounces, ga:entrances, ga:exits', false, $start_date, $end_date, 100, 1, false, false);
-        if($report == "land_pages")  $data = $api->data($id, 'ga:landingPagePath', 'ga:entrances, ga:bounces, ga:exits', false, $start_date, $end_date, 100, 1, false, false);
+        if($report == "top_content")    $data = $api->data($id, 'ga:PagePath', 'ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits', false, $start_date, $end_date, 100, 1, false, false);
+        if($report == "content_title")  $data = $api->data($id, 'ga:PageTitle', 'ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces,ga:entrances,ga:exits', false, $start_date, $end_date, 100, 1, false, false);
+        if($report == "land_pages")  $data = $api->data($id, 'ga:landingPagePath', 'ga:entrances,ga:bounces,ga:exits', false, $start_date, $end_date, 100, 1, false, false);
         if($report == "exit_pages")  
         {
-            $data = $api->data($id, 'ga:exitPagePath', 'ga:exits, ga:pageviews', false, $start_date, $end_date, 100, 1, false, false);
+            $data = $api->data($id, 'ga:exitPagePath', 'ga:exits,ga:pageviews', false, $start_date, $end_date, 100, 1, false, false);
             $data2 = $api->data($id, 'ga:PagePath', 'ga:pageviews', false, $start_date, $end_date, 5000, 1, false, false);
         }
-        if($report == "referring_sites")    $data = $api->data($id, 'ga:source', 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, 'ga:medium%3d%3dreferral', false);
-        if($report == "referring_engines")  $data = $api->data($id, 'ga:source', 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, 'ga:medium%3d%3dorganic', false);
-        if($report == "referring_all")      $data = $api->data($id, 'ga:source', 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "referring_sites")    $data = $api->data($id, 'ga:source', 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, 'ga:medium%3d%3dreferral', false);
+        if($report == "referring_engines")  $data = $api->data($id, 'ga:source', 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, 'ga:medium%3d%3dorganic', false);
+        if($report == "referring_all")      $data = $api->data($id, 'ga:source', 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
 
-        if($report == "continent")          $data = $api->data($id, 'ga:continent'   , 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
-        if($report == "subcontinent")       $data = $api->data($id, 'ga:subcontinent', 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
-        if($report == "country")            $data = $api->data($id, 'ga:country'     , 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
-        if($report == "region")             $data = $api->data($id, 'ga:region'      , 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
-        if($report == "city")               $data = $api->data($id, 'ga:city'        , 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "continent")          $data = $api->data($id, 'ga:continent'   , 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "subcontinent")       $data = $api->data($id, 'ga:subcontinent', 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "country")            $data = $api->data($id, 'ga:country'     , 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "region")             $data = $api->data($id, 'ga:region'      , 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
+        if($report == "city")               $data = $api->data($id, 'ga:city'        , 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
         if($report == "visitor_type")
         {
-            $data = $api->data($id, 'ga:visitorType', 'ga:visits, ga:newVisits, ga:pageviews, ga:timeOnSite, ga:bounces, ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
+            $data = $api->data($id, 'ga:visitorType', 'ga:visits,ga:newVisits,ga:pageviews,ga:timeOnSite,ga:bounces,ga:entrances', false, $start_date, $end_date, 10, 1, false, false);
             $data2 = $api->data($id, '', 'ga:visits', false, $start_date, $end_date, 100, 1, false, false);
         }
         $val = array();
@@ -237,7 +237,7 @@ function get_from_api($month, $year, $website = NULL)
         $temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100, 2);
         $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100, 2);
         //==============================================================
-        $data = $api->data($id, '', 'ga:timeOnPage, ga:pageviews, ga:exits', false, $start_date, $end_date, 10, 1, false, false);
+        $data = $api->data($id, '', 'ga:timeOnPage,ga:pageviews,ga:exits', false, $start_date, $end_date, 10, 1, false, false);
         $val = array();
         foreach($data as $metric => $count) $val[$metric] = $count;
         $final[0]["Average Time on Page"]   = "'" . $api->sec2hms(round($val["ga:timeOnPage"]/($val["ga:pageviews"] - $val["ga:exits"])), false) . "'";
