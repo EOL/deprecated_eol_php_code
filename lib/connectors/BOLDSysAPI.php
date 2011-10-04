@@ -1,7 +1,13 @@
 <?php
 namespace php_active_record;
 /* connector: 212 */
-/* Connector uses BOLDS API service for most of the info but still scrapes the nucleotides sequence - for species level taxa*/
+/* Connector uses BOLDS API service for most of the info but still scrapes the nucleotides sequence - for species level taxa */
+
+exit;
+/*
+Cannot run. The ['barcode_image_url'] was removed from the API service from BOLDS. 
+We need to ask them to bring it back or at least tell us the replacement.
+*/
 
 define("PHYLUM_SERVICE_URL", "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
 define("SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxid=");
@@ -17,53 +23,25 @@ class BOLDSysAPI
 
     function start_process($resource_id, $call_multiple_instance)
     {
-        require_library('connectors/BoldsAPI');        
+        require_library('connectors/BoldsAPI');
         self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
         self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_list.txt"; //sl - species-level taxa
         self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_in_progress_list.txt";
         self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_initial_process_status.txt";
 
-        /*
-        $url = "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Acanthocephala";
-        $xml = simplexml_load_file($url);                        
-        $num_rows = sizeof($xml->record); $i = 0;
-        $arr = array();
-        foreach($xml->record as $rec)
-        {
-            $i++; print"\n [$i of $num_rows] ";
-            print $rec->taxonomy->species->taxon->name;
-            $arr[] = $rec;
-        }
-        self::save_to_json_file($arr,"Acanthocephala");
-
-        $xml = self::get_array_from_json_file("Acanthocephala");
-        $num_rows = sizeof($xml); $i = 0;
-        foreach($xml as $rec)
-        {
-            $i++; print"\n [$i of $num_rows] ";
-            print $rec['taxonomy']['species']['taxon']['name'];
-        }
-        exit;
-        */
-
         self::$PHYLUM_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/phylum_list.txt";
 
         if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
-        //if(true)
         {
             if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
-            //if(true)
             {
                 // Divide the big list of ids into small files
                 Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
                 self::create_master_list();
-                //exit;
-                //Functions::create_work_list_from_master_file(self::$PHYLUM_LIST, 1, self::$TEMP_FILE_PATH, "sl_batch_", self::$WORK_LIST); //orig value 1
                 Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
             }
         }
-
-        // Run multiple instances, for BOLD ideally a total of 2
+        // Run multiple instances
         while(true)
         {
             $task = Functions::get_a_task(self::$WORK_LIST);//get a task to work on
@@ -73,13 +51,11 @@ class BOLDSysAPI
                 Functions::delete_a_task($task, self::$WORK_LIST);
                 Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                //if(false)
-                if($call_multiple_instance)
-                {
-                    Functions::run_another_connector_instance($resource_id, 1); //call 1 other instance for a total of 2 instances running
-                    $call_multiple_instance = 0;
-                }
-                //exit;
+                // if($call_multiple_instance)
+                // {
+                //     Functions::run_another_connector_instance($resource_id, 2); //call 2 other instance for a total of 3 instances running
+                //     $call_multiple_instance = 0;
+                // }
                 self::get_all_taxa($task);
                 print "\n Task $task is done. \n";
                 Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST); //remove a task from task list
@@ -98,7 +74,7 @@ class BOLDSysAPI
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // Delete temp files
             self::delete_temp_files(self::$TEMP_FILE_PATH . "sl_batch_", "txt");
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "sl_batch_", "xml");
+            //self::delete_temp_files(self::$TEMP_FILE_PATH . "sl_batch_", "xml"); //debug Don't delete it if you want to check subsets of the resource XML.
         }
     }
 
@@ -122,7 +98,6 @@ class BOLDSysAPI
         $all_taxa = array();
         $used_collection_ids = array();
         $filename = self::$TEMP_FILE_PATH . $task . ".txt";
-        //exit("\n $filename");
         $records = self::get_array_from_json_file($filename);
         $num_rows = sizeof($records); $i = 0;
         foreach($records as $rec)
@@ -135,37 +110,6 @@ class BOLDSysAPI
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
             unset($page_taxa);
         }
-        /*
-        $FILE = fopen($filename, "r");
-        $i = 0; 
-        $save_count = 0; 
-        $no_eol_page = 0;
-        while(!feof($FILE))
-        {
-            if($line = fgets($FILE))
-            {
-                $arr = explode("\t", trim($line));
-                $phylum_name = $arr[0];
-                $phylum_id = $arr[1];
-                $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum_name);                        
-                $num_rows = sizeof($xml->record); $i = 0;
-                foreach($xml->record as $rec)
-                {
-                    $i++; print"\n [$i of $num_rows] ";
-                    print $rec->taxonomy->species->taxon->name;
-                    
-                    $arr = self::get_boldsys_taxa($rec, $used_collection_ids);                                
-                    $page_taxa              = $arr[0];
-                    $used_collection_ids    = $arr[1];
-
-                    if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
-                    unset($page_taxa);
-                }
-            }
-        }
-        fclose($FILE);
-        */
-
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = self::$TEMP_FILE_PATH . $task . ".xml";
         $OUT = fopen($resource_path, "w"); 
@@ -185,8 +129,8 @@ class BOLDSysAPI
             @$used_collection_ids[$rec["sciname"]] = true;
         }
         return array($page_taxa,$used_collection_ids);
-    }            
-    
+    }
+
     function get_taxon_id($rec)
     {
         if(isset($rec['taxonomy']['species']['taxon']['taxid'])) return array($rec['taxonomy']['species']['taxon']['taxid'], $rec['taxonomy']['species']['taxon']['name']);
@@ -197,6 +141,7 @@ class BOLDSysAPI
         if(isset($rec['taxonomy']['phylum']['taxon']['taxid']))  return array($rec['taxonomy']['phylum']['taxon']['taxid'], $rec['taxonomy']['phylum']['taxon']['name']);
         if(isset($rec['taxonomy']['kingdom']['taxon']['taxid'])) return array($rec['taxonomy']['kingdom']['taxon']['taxid'], $rec['taxonomy']['kingdom']['taxon']['name']);
     }
+
     function parse_xml($rec)
     {
         $arr_data = array();
@@ -230,6 +175,7 @@ class BOLDSysAPI
         if($bold_stats != "<br>") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         
         //barcode image
+        
         if(isset($rec['barcode_image_url']))
         {
             $identifier  = $taxon_id . "_barcode_data";
@@ -373,8 +319,8 @@ class BOLDSysAPI
 
         /* //debug
         $arr_phylum = array();
-        $arr_phylum[] = array( "name" => "Acanthocephala" , "id" => 11);
-        //$arr_phylum[] = array( "name" => "Annelida"       , "id" => 11);
+        //$arr_phylum[] = array( "name" => "Chordata" , "id" => 18);
+        $arr_phylum[] = array( "name" => "Annelida"       , "id" => 11);
         */
         /* not needed anymore
         if($fp = fopen(self::$PHYLUM_LIST, "w")) 
@@ -408,7 +354,7 @@ class BOLDSysAPI
                 $i++; print"\n -- [$i of $num_rows] ";
                 print $rec['taxonomy']['species']['taxon']['name'];
                 $records[] = $rec;
-                if(sizeof($records) >= 4) //orig 10000
+                if(sizeof($records) >= 10000) //debug orig 10000
                 {
                     $file_count++;
                     self::save_to_json_file($records, self::$TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");

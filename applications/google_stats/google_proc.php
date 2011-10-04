@@ -223,7 +223,7 @@ function get_from_api($month, $year, $website = NULL)
         foreach($data as $metric => $count) $val[$metric] = $count;
         $temp_uniquePageviews = $val["ga:uniquePageviews"];
         //==============================================================
-        $data = $api->data($id, '', 'ga:bounces, ga:entrances, ga:exits, ga:newVisits, ga:pageviews, ga:timeOnPage, ga:timeOnSite, ga:visitors, ga:visits', false, $start_date, $end_date, 10, 1, false, false);
+        $data = $api->data($id, '', 'ga:bounces,ga:entrances,ga:exits,ga:newVisits,ga:pageviews,ga:timeOnPage,ga:timeOnSite,ga:visitors,ga:visits', false, $start_date, $end_date, 10, 1, false, false);
         $val = array();
         $final = array();
         foreach($data as $metric => $count) $val[$metric] = $count;
