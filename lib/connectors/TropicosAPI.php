@@ -40,12 +40,12 @@ class TropicosAPI
                 // this will prepare a list of all species id
                 self::build_id_list(); // 13 mins. execution
                 // step 1: divides the big list of ids into small files
-                self::divide_text_file(10000); //debug orig 10000, for test 5
+                self::divide_text_file(10000); //debug orig 10000, for testing use 5
                 Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);//remove a task from task list
             }
         }
 
-        // step 2: run multiple instances, ideally 8 instances so it is over before their daily scheduled downtime
+        // step 2: run multiple instances 
         while(true) //main process
         {
             $task = Functions::get_a_task(self::$WORK_LIST);//get task to work on
@@ -56,13 +56,11 @@ class TropicosAPI
                 Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
                 print "$task \n";
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-
                 if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
                 {
                     Functions::run_another_connector_instance($resource_id, 2);
                     $call_multiple_instance = 0;
                 }
-
                 self::get_all_taxa($task);//main task
                 print"\n Task $task is done. \n";
                 Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST);//remove a task from task list
@@ -81,16 +79,6 @@ class TropicosAPI
             self::combine_all_xmls($resource_id);
             self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
             self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
-        }
-    }
-
-    private function check_server_downtime()
-    {
-        $time = date('H:i:s', time());
-        if($time >= "06:40:00" && $time <= "07:00:00")
-        {
-            print "\n\n Process stopped at [$time], will resume in 1.5 hours...";
-            sleep((60*60)+(60*30)); //sleep 1.5 hours
         }
     }
 
@@ -268,18 +256,15 @@ class TropicosAPI
 
         $arr_objects = self::get_images($taxon_id, $arr_objects);
         /*
-        //process only those with images        
+        process only those with images        
         if(sizeof($arr_objects) == 0)
         {
-            print "\n no images --- ";
+            print "\n no images ";
             return array();
         }
         */
-        
-        if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY))
-        {
-            print "\n lost connection \n";
-        }
+
+        if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY)) print "\n lost connection \n";
         $name = json_decode($name, true);
         print "[$taxon_id] " . $name['ScientificNameWithAuthors'];
         $arr_objects = self::get_chromosome_count($taxon_id, $arr_objects);
@@ -382,11 +367,10 @@ class TropicosAPI
             $title      = "";
             $subject    = "";
             $source = $rec->DetailUrl; // e.g. http://www.tropicos.org/Image/40777
-            
+
             /* we are not allowed to get the bigger size images, only thumbnails
             $mediaURL   = TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH . $rec->ImageId . "&maxwidth=600"; */
             $mediaURL = $rec->ThumbnailUrl;
-            
             $refs = array();
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
         }
@@ -402,30 +386,24 @@ class TropicosAPI
         $GametophyticCount = array();
         $SporophyticCount = array();
         $IPCNReferenceID = array();
-        
         foreach($xml->ChromosomeCount as $rec)
         {
             if(!isset($rec->GametophyticCount) && !isset($rec->SporophyticCount)) continue;
             $with_content = true;
-
             $citation = trim($rec->Reference->FullCitation);
             $ref_url = TROPICOS_DOMAIN . "/Reference/" . trim($rec->Reference->ReferenceId);
-
             if($rec->GametophyticCount) $GametophyticCount["$rec->GametophyticCount"] = 1;
             if($rec->SporophyticCount) $SporophyticCount["$rec->SporophyticCount"] = 1;
-            
             if(trim($rec->IPCNReferenceID))
             {                
                 $IPCNref_url = TROPICOS_DOMAIN . "/Reference/" . trim($rec->IPCNReferenceID);
                 $index = "<a target='tropicos' href='" . $IPCNref_url . "'>" . $rec->IPCNAbbreviation . "</a>";
                 $IPCNReferenceID[$index] = 1;
             }
-           
             //this is to prevent getting duplicate references
             if(!in_array($citation, $temp_reference)) $refs[] = array("url" => $ref_url, "fullReference" => $citation);
             $temp_reference[] = $citation;
         }
-
         $description = "";
         $GametophyticCount = array_keys($GametophyticCount);
         $SporophyticCount = array_keys($SporophyticCount);
@@ -433,7 +411,6 @@ class TropicosAPI
         if($GametophyticCount) $description .= "Gametophyte chromosome count = " . implode("; ", $GametophyticCount) . "<br><br>";
         if($SporophyticCount) $description .= "Sporophyte chromosome count = " . implode("; ", $SporophyticCount) . "<br><br>";
         if($IPCNReferenceID) $description .= "IPCN Ref. = " . implode("; ", $IPCNReferenceID) . "<br><br>";
-
         if($with_content)
         {
             $source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=chromosomecounts";
@@ -442,15 +419,13 @@ class TropicosAPI
             $dataType   = "http://purl.org/dc/dcmitype/Text";
             $title      = "Chromosome Counts";
             $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Genetics";
-            $agent = array();
-            $agent[] = array("role" => "source", "homepage" => "http://www.tropicos.org", "fullName" => "Tropicos");
-
+            $agent      = array();
+            $agent[]    = array("role" => "source", "homepage" => "http://www.tropicos.org", "fullName" => "Tropicos");
             $mediaURL   = "";
             $location   = "";
-            $license      = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-            $rightsHolder = "";
-            //"Tropicos, botanical information system at the Missouri Botanical Garden - www.tropicos.org";
-            $arr_objects  = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
+            $license    = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+            $rightsHolder   = "";
+            $arr_objects    = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
         }
         return $arr_objects;
     }
@@ -463,27 +438,23 @@ class TropicosAPI
         $temp_location = array();
         $with_content = false;
         $description = "";
-
         foreach($xml->Distribution as $rec)
         {
             if(!isset($rec->Location->CountryName)) continue;
             $with_content = true;
-
             $citation = trim($rec->Reference->FullCitation);
             $ref_url = TROPICOS_DOMAIN . "/Reference/" . trim($rec->Reference->ReferenceId);
-
             //this is prevent getting duplicate distribution entry, even if API has duplicates.
             if(!in_array(trim($rec->Location->CountryName) . trim($rec->Location->RegionName), $temp_location))
             {
                 $description .= trim($rec->Location->CountryName) . " (" . trim($rec->Location->RegionName) . ")<br>";
             }
             $temp_location[] = trim($rec->Location->CountryName) . trim($rec->Location->RegionName);
-            
             //this is to prevent getting duplicate references
             if(!in_array($citation, $temp_reference)) $refs[] = array("url" => $ref_url, "fullReference" => $citation);
             $temp_reference[] = $citation;
         }
-        
+
         if($with_content)
         {
             $source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
@@ -583,6 +554,16 @@ class TropicosAPI
         $OUT = fopen($filename, 'w');
         fwrite($OUT, "");
         fclose($OUT);
+    }
+
+    private function check_server_downtime()
+    {
+        $time = date('H:i:s', time());
+        if($time >= "06:40:00" && $time <= "07:00:00")
+        {
+            print "\n\n Process stopped at [$time], will resume in 1.5 hours...";
+            sleep((60*60)+(60*30)); //sleep 1.5 hours
+        }
     }
 
 }
