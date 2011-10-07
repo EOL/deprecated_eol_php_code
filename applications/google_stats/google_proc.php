@@ -15,7 +15,9 @@ function prepare_vars($website, $month, $year, $entire_year = Null)
     {   $login = GOOGLE_ANALYTICS_API_USERNAME;
         $password = GOOGLE_ANALYTICS_API_PASSWORD;
         $organization = "www.eol.org";
-        $organization = "EOLv2";
+        $start_date = "$year-$month-01";
+        if($start_date < "2011-09-01") $organization = "EOLv1";
+        else                           $organization = "EOLv2";
     }
     elseif($website == "fishbase")
     {   $login = "celloran@cgiar.org";

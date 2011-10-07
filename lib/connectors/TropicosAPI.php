@@ -357,7 +357,7 @@ class TropicosAPI
             $license = $rec->LicenseUrl;
 
             $agent = array();
-            if(trim($rec->Photographer) != "") $agent[] = array("role" => "photographer", "homepage" => "", $rec->Photographer);
+            if(trim($rec->Photographer) != "") $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => $rec->Photographer);
 
             $rightsHolder   = $rec->Copyright;
             $location   = $rec->PhotoLocation;
