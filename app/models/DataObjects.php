@@ -149,6 +149,7 @@ class DataObject extends ActiveRecord
             if(@$data_object->$field == "0") $data_object->$field = 0;
             if(isset($this->$field) && @$data_object->$field != $this->$field)
             {
+                if(($field == 'longitude' || $field == 'latitude') && @abs($data_object->$field - $this->$field) < 1) continue;
                 debug("value: ".$data_object->$field." (<b>$field</b>) <b>DOES NOT EQUAL</b> ".$this->$field);
                 return false;
             }

@@ -28,7 +28,7 @@ class WikimediaPage
     {
         $api_url = "http://commons.wikimedia.org/w/api.php?action=query&format=xml&prop=revisions&titles=".urlencode($title)."&rvprop=ids|timestamp|user|content";
         echo $api_url."\n";
-        return new WikimediaPage(Functions::get_remote_file($api_url));
+        return new WikimediaPage(php_active_record\Functions::get_remote_file($api_url));
     }
     
     public function information()
@@ -117,7 +117,7 @@ class WikimediaPage
             $name = preg_replace("/\s*\|$/", "", trim($name));
             $name = str_replace("<small>", "", $name);
             $name = str_replace("</small>", "", $name);
-            if(!Functions::is_utf8($name) || preg_match("/\{/", $name))
+            if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{/", $name))
             {
                 $taxonomy = array();
                 break;
@@ -213,7 +213,7 @@ class WikimediaPage
         $data_object_parameters["description"] = $this->description();
         
         //if($this->description() && preg_match("/([^".UPPER.LOWER."0-9\/,\.;:'\"\(\)\[\]\{\}\|\!\?~@#\$%+_\^&\*<>=\n\r -])/ims", $this->description(), $arr))
-        if($data_object_parameters["description"] && !Functions::is_utf8($data_object_parameters["description"]))
+        if($data_object_parameters["description"] && !php_active_record\Functions::is_utf8($data_object_parameters["description"]))
         {
             $data_object_parameters["description"] = "";
             
@@ -224,7 +224,7 @@ class WikimediaPage
         $data_object_parameters["agents"] = array();
         if($a = $this->agent_parameters())
         {
-            if(Functions::is_utf8($a['fullName'])) $data_object_parameters["agents"][] = new SchemaAgent($a);
+            if(php_active_record\Functions::is_utf8($a['fullName'])) $data_object_parameters["agents"][] = new SchemaAgent($a);
         }
         
         return $data_object_parameters;
@@ -248,7 +248,7 @@ class WikimediaPage
         if($author)
         {
             $agent_parameters["fullName"] = htmlspecialchars($author);
-            if(Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+            if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
             $agent_parameters["role"] = 'photographer';
         }
         

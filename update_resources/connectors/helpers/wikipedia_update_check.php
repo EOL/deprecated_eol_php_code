@@ -1,5 +1,5 @@
 <?php
-
+namespace php_active_record;
 define("DOWNLOAD_WAIT_TIME", "1000000");
 include_once(dirname(__FILE__) . "/../../../config/environment.php");
 

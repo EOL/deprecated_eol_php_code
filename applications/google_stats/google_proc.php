@@ -223,7 +223,7 @@ function get_from_api($month, $year, $website = NULL)
         foreach($data as $metric => $count) $val[$metric] = $count;
         $temp_uniquePageviews = $val["ga:uniquePageviews"];
         //==============================================================
-        $data = $api->data($id, '', 'ga:bounces, ga:entrances, ga:exits, ga:newVisits, ga:pageviews, ga:timeOnPage, ga:timeOnSite, ga:visitors, ga:visits', false, $start_date, $end_date, 10, 1, false, false);
+        $data = $api->data($id, '', 'ga:bounces,ga:entrances,ga:exits,ga:newVisits,ga:pageviews,ga:timeOnPage,ga:timeOnSite,ga:visitors,ga:visits', false, $start_date, $end_date, 10, 1, false, false);
         $val = array();
         $final = array();
         foreach($data as $metric => $count) $val[$metric] = $count;
@@ -237,7 +237,7 @@ function get_from_api($month, $year, $website = NULL)
         $temp_bounce_rate                   = number_format($val["ga:bounces"]/$val["ga:entrances"]*100, 2);
         $temp_percent_exit                  = number_format($val["ga:exits"]/$val["ga:pageviews"]*100, 2);
         //==============================================================
-        $data = $api->data($id, '', 'ga:timeOnPage, ga:pageviews, ga:exits', false, $start_date, $end_date, 10, 1, false, false);
+        $data = $api->data($id, '', 'ga:timeOnPage,ga:pageviews,ga:exits', false, $start_date, $end_date, 10, 1, false, false);
         $val = array();
         foreach($data as $metric => $count) $val[$metric] = $count;
         $final[0]["Average Time on Page"]   = "'" . $api->sec2hms(round($val["ga:timeOnPage"]/($val["ga:pageviews"] - $val["ga:exits"])), false) . "'";

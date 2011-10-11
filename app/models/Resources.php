@@ -330,6 +330,7 @@ class Resource extends ActiveRecord
                 
                 // $harvest_event->insert_top_images();
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::published()->id.", notes='harvest published' WHERE id=$this->id");
+                $this->mysqli->commit();
                 $harvest_event->create_collection();
                 $harvest_event->index_for_search();
                 if($old_he = $harvest_event->previous_harvest_event())

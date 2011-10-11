@@ -59,7 +59,7 @@ class WikiPage
             // foreach($subdivisions as $subdivision)
             // {
             //     $subdivision = trim($subdivision);
-            //     $names[] = Functions::import_decode($subdivision, true, true);
+            //     $names[] = php_active_record\Functions::import_decode($subdivision, true, true);
             // }
         }elseif(@$taxonomy["includes"])
         {
@@ -68,7 +68,7 @@ class WikiPage
             // {
             //     $include = trim($include);
             //     $include = preg_replace("/^:/", "", $include);
-            //     $names[] = Functions::import_decode($include, true, true);
+            //     $names[] = php_active_record\Functions::import_decode($include, true, true);
             // }
         }else
         {
@@ -76,7 +76,7 @@ class WikiPage
             {
                 if(@$taxonomy[$rank] && !preg_match("/<br/",$taxonomy[$rank]))
                 {
-                    $names[] = Functions::import_decode($taxonomy[$rank], true, true);
+                    $names[] = php_active_record\Functions::import_decode($taxonomy[$rank], true, true);
                     break;
                 }
             }
@@ -148,7 +148,7 @@ class WikiPage
                     if(preg_match("/ or /ims", $value)) continue;
                     if(preg_match("/(taxobox|uncertain|\[\[|\]\]|possibly)/ims", $value)) continue;
                     if(!$value) continue;
-                    if(!Functions::is_utf8($value)) continue;
+                    if(!php_active_record\Functions::is_utf8($value)) continue;
                     
                     $taxonomy[$attribute] = $value;
                 }
@@ -198,8 +198,8 @@ class WikiPage
             {
                 $lang = $match[1];
                 $name = $match[2];
-                if($name == $taxon_name || $name == Functions::canonical_form($taxon_name)) continue;
-                if(!Functions::is_utf8($name)) continue;
+                if($name == $taxon_name || $name == php_active_record\Functions::canonical_form($taxon_name)) continue;
+                if(!php_active_record\Functions::is_utf8($name)) continue;
                 //if(isset($GLOBALS['iso_639_2_codes'][$lang])) $lang = $GLOBALS['iso_639_2_codes'][$lang];
                 
                 $common_names[] = new SchemaCommonName(array('name' => $name, 'language' => $lang));
@@ -293,7 +293,7 @@ class WikiPage
     
     public function get_page_html()
     {
-        $response = Functions::get_hashed_response_fake_browser("http://en.wikipedia.org/w/api.php?action=parse&format=xml&prop=text&oldid=$this->revision");
+        $response = php_active_record\Functions::get_hashed_response_fake_browser("http://en.wikipedia.org/w/api.php?action=parse&format=xml&prop=text&oldid=$this->revision");
         if(@$response->parse->text)
         {
             return self::wikipedia_to_eol_html($response->parse->text);
@@ -363,9 +363,9 @@ class WikiPage
         $str = "<b>".$page->title."</b><br>";
         $str .= "<a href='http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $page->title) ."&oldid=". $page->revision ."' target='wiki_page'>go to revision</a><br>";
         //$str .= "<div style='background-color:#DDDDDD;'><pre>".htmlspecialchars($page->xml)."</pre></div>\n";
-        $str .= Functions::print_pre($page->taxonomy(), 1);
-        $str .= Functions::print_pre($page->taxon_parameters(), 1);
-        $str .= Functions::print_pre($page->data_object_parameters(), 1);
+        $str .= php_active_record\Functions::print_pre($page->taxonomy(), 1);
+        $str .= php_active_record\Functions::print_pre($page->taxon_parameters(), 1);
+        $str .= php_active_record\Functions::print_pre($page->data_object_parameters(), 1);
         $str .= "<hr>";
         return $str;
     }

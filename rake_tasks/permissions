@@ -1,26 +1,26 @@
 #!/bin/bash
 
-chown nginx:nginx /data/www/eol_php_code/log/*
-chmod ug+rw /data/www/eol_php_code/log/*
+chown www:www /opt/eol_php_code/log/*
+chmod ug+rw /opt/eol_php_code/log/*
 
-chown nginx:nginx /data/www/eol_php_code/tmp/*
-chmod ug+rw /data/www/eol_php_code/tmp/*
+chown www:www /opt/eol_php_code/tmp/*
+chmod ug+rw /opt/eol_php_code/tmp/*
 
-chown nginx:nginx /data/www/eol_php_code/update_resources/*
-chmod ug+x /data/www/eol_php_code/update_resources/*
+chown www:www /opt/eol_php_code/update_resources/*
+chmod ug+x /opt/eol_php_code/update_resources/*
 
-chown nginx:nginx /data/www/eol_php_code/update_resources/connectors/*
-chmod ug+x /data/www/eol_php_code/update_resources/connectors/*
+chown www:www /opt/eol_php_code/update_resources/connectors/*
+chmod ug+x /opt/eol_php_code/update_resources/connectors/*
 
-chown nginx:nginx /data/www/eol_php_code/update_resources/connectors/helpers/*
-chmod ug+x /data/www/eol_php_code/update_resources/connectors/helpers/*
+chown www:www /opt/eol_php_code/update_resources/connectors/helpers/*
+chmod ug+x /opt/eol_php_code/update_resources/connectors/helpers/*
 
-chown nginx:nginx /data/www/eol_php_code/rake_tasks/*
-chmod ug+x /data/www/eol_php_code/rake_tasks/*
+chown www:www /opt/eol_php_code/rake_tasks/*
+chmod ug+x /opt/eol_php_code/rake_tasks/*
 
-chown nginx:nginx /data/www/eol_php_code/applications/solr/*
-chmod ug+x /data/www/eol_php_code/applications/solr/*
+chown www:www /opt/eol_php_code/applications/solr/*
+chmod ug+x /opt/eol_php_code/applications/solr/*
 
-chown nginx:nginx /data/www/resources/*
-chmod ug+rw /data/www/resources/*
+chown www:www /opt/resources/*
+chmod ug+rw /opt/resources/*
 

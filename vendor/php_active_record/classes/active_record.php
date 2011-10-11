@@ -87,8 +87,12 @@ class ActiveRecord
             }
         }
         
-        
-        if($object = self::find(NULL, 'first', array('conditions' => $attr_array))) $instance = $object;
+        $conditions_array = $attr_array;
+        foreach($conditions_array as $key => $val)
+        {
+            $conditions_array[$key] = $GLOBALS['db_connection']->escape($val);
+        }
+        if($object = self::find(NULL, 'first', array('conditions' => $conditions_array))) $instance = $object;
         else $instance = self::create($attr_array);
         
         foreach($related_objects as $attr => $val) $instance->$attr = $val;

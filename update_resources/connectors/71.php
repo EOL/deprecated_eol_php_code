@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 
 define('DOWNLOAD_WAIT_TIME', '2000000');  // 2 second wait after every web request
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -7,7 +8,7 @@ define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
 require_vendor("wikipedia");
 
 
-$resource = new Resource(71);
+$resource = Resource::find(71);
 
 
 // cleaning up downloaded files
@@ -43,9 +44,9 @@ $GLOBALS['data_objects'] = array();
 
 
 // first pass through all files to grab taxon information and determine scientific images
-iterate_files('get_scientific_pages');
+iterate_files('php_active_record\get_scientific_pages');
 // second pass to grab image information for scientific images
-iterate_files('get_media_pages');
+iterate_files('php_active_record\get_media_pages');
 
 echo "\n\n# total taxa: ".count($GLOBALS['taxa'])."\n";
 echo "# total images: ".count($GLOBALS['data_objects'])."\n";
@@ -96,7 +97,7 @@ function iterate_files($callback, $title = false)
                 break;
             }
             $ord2++;
-            // if($ord2 == ord("c")) break;
+            // if($ord2 == ord("b")) break;
         }
         
         $ord1++;
@@ -159,7 +160,7 @@ function get_scientific_pages($xml)
 {
     if(preg_match("/\{\{Taxonavigation/", $xml, $arr))
     {
-        $page = new WikimediaPage($xml);
+        $page = new \WikimediaPage($xml);
         $GLOBALS['scientific_pages'][$page->title] = 1;
         if($params = $page->taxon_parameters())
         {
@@ -177,7 +178,7 @@ function get_scientific_pages($xml)
 
 function get_media_pages($xml)
 {
-    $page = new WikimediaPage($xml);
+    $page = new \WikimediaPage($xml);
     if(@$GLOBALS['image_titles'][$page->title])
     {
         if($params = $page->data_object_parameters())
@@ -219,7 +220,7 @@ function create_resource_file()
     }
     
     $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", "w+");
-    SchemaDocument::get_taxon_xml($all_taxa, $FILE);
+    \SchemaDocument::get_taxon_xml($all_taxa, $FILE);
     fclose($FILE);
     
     if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml"))
@@ -228,7 +229,7 @@ function create_resource_file()
         @rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
         rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml");
         
-        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=$resource->id");
+        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=$resource->id");
     }
 }
 
