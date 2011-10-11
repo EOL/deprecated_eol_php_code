@@ -159,3 +159,7 @@ applications/taxon_page_metrics/raw_redhotlist.txt
 applications/taxon_page_metrics/redhotlist.csv
 applications/taxon_page_metrics/spg_hotlist.txt
 applications/taxon_page_metrics/spg_redhotlist.txt
+
+temp.txt
+
+applications/species_stat_marine/readmeli.txt
