@@ -191,6 +191,7 @@ class SchemaParser
             if($data_object->mime_type && $data_object->mime_type->equals(MimeType::flash()) && $data_object->is_video())
             {
                 $data_object->data_type = DataType::youtube();
+                $data_object->data_type_id = DataType::youtube()->id;
             }
             
             //take the taxon's source_url if none present

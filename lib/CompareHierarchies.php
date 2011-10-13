@@ -397,7 +397,7 @@ class CompareHierarchies
         }
         
         fclose($SQL_FILE);
-        $mysqli->load_data_infile($sql_filepath, "he_relations_tmp", 'IGNORE', '', 500000);
+        $mysqli->load_data_infile($sql_filepath, "he_relations_tmp", 'IGNORE', '', 500000, 500000);
         @unlink($sql_filepath);
         
         self::insert_curator_assertions($hierarchy);

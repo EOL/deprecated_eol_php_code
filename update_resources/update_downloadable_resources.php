@@ -12,7 +12,7 @@ $manager = new ContentManager();
 
 
 
-$result = $mysqli->query("SELECT id FROM resources WHERE accesspoint_url!='' AND accesspoint_url IS NOT NULL AND service_type_id=".ServiceType::find_or_create_by_label("EOL Transfer Schema")->id." AND refresh_period_hours > 0");
+$result = $mysqli->query("SELECT id FROM resources WHERE accesspoint_url!='' AND accesspoint_url IS NOT NULL AND service_type_id=".ServiceType::find_or_create_by_translated_label("EOL Transfer Schema")->id." AND refresh_period_hours > 0");
 while($result && $row=$result->fetch_assoc())
 {
     echo $row["id"]."...\n";
@@ -24,14 +24,14 @@ while($result && $row=$result->fetch_assoc())
     
     if($resource->id==11) continue; //biolib.cz
     if($resource->id==42) continue; //fishbase
-    //if($resource->id!=61) continue;
+    if($resource->id!=298) continue;
     
     if($resource->accesspoint_url)
     {
         $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource");
         if(!$new_resource_path)
         {
-            $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label("Upload Failed")->id." WHERE id=$resource->id");
+            $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label("Upload Failed")->id." WHERE id=$resource->id");
         }
     }
 }

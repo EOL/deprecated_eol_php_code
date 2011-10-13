@@ -89,6 +89,7 @@ class TaxonPageMetrics
                 $row = array($fields[0], $fields[2], $fields[4], $fields[10], $fields[12], $fields[14], $fields[16], $fields[18], $fields[20], $fields[26], 
                              $fields[28], $fields[34], $fields[36], $fields[42], $fields[44], $fields[49], $fields[57], $fields[58], $fields[60], $fields[62], 
                              $fields[59], $fields[64]);
+                print "\n count=".count($fields);
                 $scores = $run->calculate_score_from_row($row);
                 $arr_taxa[$tc_id] = "\t" . $scores['total'];
             }
@@ -1008,4 +1009,5 @@ class TaxonPageMetrics
     }
 
 }
+
 ?>

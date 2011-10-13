@@ -1,6 +1,6 @@
 <?php
 
-Functions::require_classes_from_dir(dirname(__FILE__)."/");
+php_active_record\Functions::require_classes_from_dir(dirname(__FILE__)."/");
 
 if(!defined("WIKI_PREFIX")) define("WIKI_PREFIX", "http://en.wikipedia.org/wiki/");
 if(!defined("WIKI_USER_PREFIX")) define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");

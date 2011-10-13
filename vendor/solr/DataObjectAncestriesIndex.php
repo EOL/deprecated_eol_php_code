@@ -86,6 +86,12 @@ class DataObjectAncestriesIndexer
         $this->lookup_translations($start, $limit, $data_object_ids);
         echo "after translations Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         
+        if($data_object_ids)
+        {
+            foreach($data_object_ids as $id) $queries[] = "data_object_id:$id";
+            $this->solr->delete_by_queries($queries);
+        }
+        
         if(isset($this->objects))
         {
             foreach($this->objects as $id => $attr)
@@ -100,11 +106,6 @@ class DataObjectAncestriesIndexer
                 elseif(isset($attr['invisible_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 3;
                 elseif(isset($attr['preview_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 2;
                 else $this->objects[$id]['max_vetted_weight'] = 1;
-            }
-            if($data_object_ids)
-            {
-                foreach($data_object_ids as $id) $queries[] = "data_object_id:$id";
-                $this->solr->delete_by_queries($queries);
             }
             $this->solr->send_attributes($this->objects);
         }
