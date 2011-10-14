@@ -234,6 +234,7 @@ class test_resources extends SimpletestUnitBase
         $events = HarvestEvent::all();
         $this->assertTrue(count($events) == 1, 'There should be an event after harvesting');
         $this->assertTrue($events[0]->resource_id == $resource->id, 'It should belong to the resource');
+        $this->assertTrue($events[0]->resource->resource_status_id == ResourceStatus::published()->id, 'Resource should be published');
         $this->assertTrue($events[0]->began_at != null, 'It should have a begin date');
         $this->assertTrue($events[0]->completed_at != null, 'It should have a completed date');
         $this->assertTrue($events[0]->published_at != null, 'It should have a published date');
