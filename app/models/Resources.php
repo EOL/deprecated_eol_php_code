@@ -83,20 +83,6 @@ class Resource extends ActiveRecord
         return false;
     }
     
-    public function auto_publish()
-    {
-        if($this->auto_publish || $this->content_partner->auto_publish) return true;
-        
-        return false;
-    }
-    
-    public function vetted()
-    {
-        if($this->vetted || $this->content_partner->vetted) return true;
-        
-        return false;
-    }
-    
     public static function wikipedia()
     {
         return self::find_by_title('Wikipedia');
@@ -410,7 +396,7 @@ class Resource extends ActiveRecord
                 debug("Finished assigning: $this->id");
                 $this->make_new_hierarchy_entries_preview($hierarchy);
                 
-                if(!$this->auto_publish())
+                if(!$this->auto_publish)
                 {
                     // Rebuild the Solr index for this hierarchy
                     $indexer = new HierarchyEntryIndexer();
@@ -423,7 +409,7 @@ class Resource extends ActiveRecord
                     $this->harvest_event->create_collection();
                 }
                 
-                if($this->vetted())
+                if($this->vetted)
                 {
                     // Vet all taxon concepts associated with this resource
                     $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=". Vetted::trusted()->id .", tc.vetted_id=". Vetted::trusted()->id ." WHERE hierarchy_id=$this->hierarchy_id");
@@ -434,7 +420,7 @@ class Resource extends ActiveRecord
                 $this->import_dwc_archive();
             }
             
-            if($this->vetted() && $this->harvest_event)
+            if($this->vetted && $this->harvest_event)
             {
                 // set vetted=trusted for all objects in this harvest
                 $this->harvest_event->vet_objects();
@@ -442,7 +428,7 @@ class Resource extends ActiveRecord
             
             $this->mysqli->end_transaction();
             
-            if($this->auto_publish())
+            if($this->auto_publish)
             {
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::publish_pending()->id." WHERE id=$this->id");
                 $this->resource_status_id = ResourceStatus::publish_pending()->id;
@@ -804,7 +790,7 @@ class Resource extends ActiveRecord
             $vernaculars = $dwca->get_vernaculars();
             $taxa = array_merge($taxa, $vernaculars);
             
-            $vetted_id = $this->vetted() ? Vetted::trusted()->id : Vetted::unknown()->id;
+            $vetted_id = $this->vetted ? Vetted::trusted()->id : Vetted::unknown()->id;
             $archive_hierarchy = Hierarchy::find($archive_hierarchy_id);
             $importer = new TaxonImporter($archive_hierarchy, $vetted_id, Visibility::visible()->id, 1);
             $importer->import_taxa($taxa);
