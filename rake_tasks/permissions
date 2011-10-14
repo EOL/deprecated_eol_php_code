@@ -1,26 +1,26 @@
 #!/bin/bash
 
-chown www:www /opt/eol_php_code/log/*
+chown www-data:www-data /opt/eol_php_code/log/*
 chmod ug+rw /opt/eol_php_code/log/*
 
-chown www:www /opt/eol_php_code/tmp/*
+chown www-data:www-data /opt/eol_php_code/tmp/*
 chmod ug+rw /opt/eol_php_code/tmp/*
 
-chown www:www /opt/eol_php_code/update_resources/*
+chown www-data:www-data /opt/eol_php_code/update_resources/*
 chmod ug+x /opt/eol_php_code/update_resources/*
 
-chown www:www /opt/eol_php_code/update_resources/connectors/*
+chown www-data:www-data /opt/eol_php_code/update_resources/connectors/*
 chmod ug+x /opt/eol_php_code/update_resources/connectors/*
 
-chown www:www /opt/eol_php_code/update_resources/connectors/helpers/*
+chown www-data:www-data /opt/eol_php_code/update_resources/connectors/helpers/*
 chmod ug+x /opt/eol_php_code/update_resources/connectors/helpers/*
 
-chown www:www /opt/eol_php_code/rake_tasks/*
+chown www-data:www-data /opt/eol_php_code/rake_tasks/*
 chmod ug+x /opt/eol_php_code/rake_tasks/*
 
-chown www:www /opt/eol_php_code/applications/solr/*
+chown www-data:www-data /opt/eol_php_code/applications/solr/*
 chmod ug+x /opt/eol_php_code/applications/solr/*
 
-chown www:www /opt/resources/*
+chown www-data:www-data /opt/resources/*
 chmod ug+rw /opt/resources/*
 

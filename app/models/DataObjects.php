@@ -301,14 +301,14 @@ class DataObject extends ActiveRecord
             $conditions = array();
             if($data_object->data_type)
             {
-                $conditions[] = "do.data_type_id=$data_object->data_type->id";
+                $conditions[] = "do.data_type_id=".$data_object->data_type->id;
                 if($data_object->is_text() && $data_object->description)
                 {
                     $conditions[] = "do.description='".$GLOBALS['mysqli_connection']->escape($data_object->description)."'";
                 }
             }
-            if($data_object->mime_type) $conditions[] = "do.mime_type_id=$data_object->mime_type->id";
-            if($data_object->object_url) $conditions[] = "do.object_url='".$GLOBALS['mysqli_connection']->escape($value)."'";
+            if($data_object->mime_type) $conditions[] = "do.mime_type_id=".$data_object->mime_type->id;
+            if($data_object->object_url) $conditions[] = "do.object_url='".$GLOBALS['mysqli_connection']->escape($data_object->object_url)."'";
             
             $query .= implode(" AND ", $conditions);
             
