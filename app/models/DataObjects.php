@@ -379,11 +379,11 @@ class DataObject extends ActiveRecord
     
     public function best_vetted()
     {
-        $vetted_weights = array();
-        $vetted_weights[Vetted::inappropriate()->id] = 1;
-        $vetted_weights[Vetted::untrusted()->id] = 2;
-        $vetted_weights[Vetted::unknown()->id] = 3;
-        $vetted_weights[Vetted::trusted()->id] = 4;
+        $weights = array();
+        $weights[Vetted::inappropriate()->id] = 1;
+        $weights[Vetted::untrusted()->id] = 2;
+        $weights[Vetted::unknown()->id] = 3;
+        $weights[Vetted::trusted()->id] = 4;
         $best_vetted = null;
         if($hes = $this->data_objects_hierarchy_entries)
         {

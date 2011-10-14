@@ -368,7 +368,7 @@ class test_resources extends SimpletestUnitBase
         $user = User::find_or_create(array('display_name' => 'Test Content Partner', 'agent_id' => $agent->id));
         
         // create the content partner
-        $content_partner = ContentPartner::find_or_create(array('user_id' => $user->id, 'auto_publish' => $args['auto_publish'], 'vetted' => $args['vetted']));
+        $content_partner = ContentPartner::find_or_create(array('user_id' => $user->id));
         
         // create the resource
         $attr = array(  'content_partner_id'    => $content_partner->id,
