@@ -435,6 +435,7 @@ class Resource extends ActiveRecord
             {
                 $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::publish_pending()->id." WHERE id=$this->id");
                 $this->resource_status_id = ResourceStatus::publish_pending()->id;
+                $this->harvest_event->resource->refresh();
                 $this->publish();
             }
         }
@@ -650,6 +651,7 @@ class Resource extends ActiveRecord
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='harvest ended' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
+            $this->harvest_event->resource->refresh();
             
             // Make sure we set a harvest start time
             // Compare the end time to the start time, get the number of hours difference,
