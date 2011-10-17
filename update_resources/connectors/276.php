@@ -2,7 +2,7 @@
 namespace php_active_record;
 /* connector for INBio
 Partner provides DWC-A file
-estimated execution time: 0.76 minutes
+estimated execution time: 37 seconds
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

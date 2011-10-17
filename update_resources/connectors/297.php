@@ -2,7 +2,7 @@
 namespace php_active_record;
 /* connector for Iabin
 Partner provides DWC-A file
-estimated execution time: 0.76 minutes
+estimated execution time: 2 minutes
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

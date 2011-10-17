@@ -9,6 +9,7 @@ class IabinAPI
     {
         self::$MAPPINGS = self::assign_mappings();
         $all_taxa = array();
+        $final_taxa = array();
         $used_collection_ids = array();
         require_vendor('eol_content_schema_v2');
         $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_iabin");
@@ -41,9 +42,18 @@ class IabinAPI
             $arr = self::get_iabin_taxa($taxon, $used_collection_ids);
             $page_taxa               = $arr[0];
             $used_collection_ids     = $arr[1];
-            if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
+            
+            //do in batches to speed it up.
+            if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
+            if(count($all_taxa) == 1000)
+            {
+                $final_taxa = array_merge($final_taxa, $all_taxa);
+                $all_taxa = array();
+            }
         }
-        return $all_taxa;
+        //last writes
+        $final_taxa = array_merge($final_taxa, $all_taxa);
+        return $final_taxa;
     }
 
     private function get_images($imagex)
@@ -243,15 +253,15 @@ class IabinAPI
         if($taxon_text["http://purl.org/dc/terms/creator"])
         {
             $creators = explode(",", $taxon_text["http://purl.org/dc/terms/creator"]);
-            foreach($creators as $creator) $agent[] = array("role" => "editor", "homepage" => "", "fullName" => trim(strip_tags($creator)));
+            foreach($creators as $creator) $agent[] = array("role" => "author", "homepage" => "", "fullName" => trim(strip_tags($creator)));
         }
         if($taxon_text["http://purl.org/dc/elements/1.1/contributor"])
         {
-            $creators = explode(",", $taxon_text["http://purl.org/dc/elements/1.1/contributor"]);
-            foreach($creators as $creator)
+            $contributors = explode(",", $taxon_text["http://purl.org/dc/elements/1.1/contributor"]);
+            foreach($contributors as $contributor)
             {
-                $creator = trim(strip_tags(str_replace("\\", "", $creator)));
-                if($creator) $agent[] = array("role" => "author", "homepage" => "", "fullName" => $creator);
+                $contributor = trim(strip_tags(str_replace("\\", "", $contributor)));
+                if($contributor) $agent[] = array("role" => "editor", "homepage" => "", "fullName" => $contributor);
             }
         }
         return $agent;

@@ -222,15 +222,15 @@ class INBioAPI
         if($taxon["media"]["http://purl.org/dc/terms/creator"])
         {
             $creators = explode(",", $taxon["media"]["http://purl.org/dc/terms/creator"]);
-            foreach($creators as $creator) $agent[] = array("role" => "editor", "homepage" => "", "fullName" => trim(strip_tags($creator)));
+            foreach($creators as $creator) $agent[] = array("role" => "author", "homepage" => "", "fullName" => trim(strip_tags($creator)));
         }
         if($taxon["media"]["http://purl.org/dc/elements/1.1/contributor"])
         {
-            $creators = explode(",", $taxon["media"]["http://purl.org/dc/elements/1.1/contributor"]);
-            foreach($creators as $creator)
+            $contributors = explode(",", $taxon["media"]["http://purl.org/dc/elements/1.1/contributor"]);
+            foreach($contributors as $contributor)
             {
-                $creator = trim(strip_tags(str_replace("\\", "", $creator)));
-                if($creator) $agent[] = array("role" => "author", "homepage" => "", "fullName" => $creator);
+                $contributor = trim(strip_tags(str_replace("\\", "", $contributor)));
+                if($contributor) $agent[] = array("role" => "editor", "homepage" => "", "fullName" => $contributor);
             }
         }
         return $agent;
