@@ -82,7 +82,7 @@ class test_connector_inbio_api extends SimpletestUnitBase
                     ),
             ),
 
-        "reference" => "Halling, R. & Mueller G. 2005. Common Mushrooms of the Talamanca Mountains. The New York Botanical Garden Press, N.Y. U.S.A., p. 117. </p>CABI Bioscience, Egham, UK. 2002. Disponible en línea en:<br>",
+        "reference" => array(),
         "vernacular_name" => "",
         "media" => Array
             (
@@ -91,6 +91,10 @@ class test_connector_inbio_api extends SimpletestUnitBase
                 "http://purl.org/dc/terms/created" => "10/25/2006"
             )
         );
+
+        /*
+        "reference" => "Halling, R. & Mueller G. 2005. Common Mushrooms of the Talamanca Mountains. The New York Botanical Garden Press, N.Y. U.S.A., p. 117. </p>CABI Bioscience, Egham, UK. 2002. Disponible en línea en:<br>",
+        */
  
         $arr = INBioAPI::get_inbio_taxa($taxon, array());
         $page_taxa = $arr[0];

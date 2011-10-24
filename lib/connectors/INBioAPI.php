@@ -67,10 +67,8 @@ class INBioAPI
         $references = array();
         foreach($refs as $ref)
         {
-            if($ref['http://purl.org/dc/terms/bibliographicCitation'])
-            {
-                $references[$ref['http://rs.tdwg.org/dwc/terms/taxonID']] = $ref['http://purl.org/dc/terms/bibliographicCitation'];
-            }
+            $taxon_id = $ref['http://rs.tdwg.org/dwc/terms/taxonID'];
+            if($ref['http://purl.org/dc/terms/bibliographicCitation']) $references[$taxon_id] = self::parse_references($ref['http://purl.org/dc/terms/bibliographicCitation']);
         }
         return $references;
     }
@@ -121,7 +119,8 @@ class INBioAPI
             }
             $arr_objects = self::prepare_image_objects($taxon, $arr_objects);
             $refs = array();
-            if($taxon["reference"]) $refs[] = array("fullReference" => $taxon["reference"]);
+            if($taxon["reference"]) $refs = $taxon["reference"];
+            
             if(sizeof($arr_objects))
             {
                 $sciname = @$taxon["http://rs.tdwg.org/dwc/terms/scientificName"];
@@ -144,6 +143,19 @@ class INBioAPI
             }
         }
         return $arr_data;
+    }
+
+    private function parse_references($refs)
+    {
+        if    (is_numeric(strpos($refs, "<p>"))) $refs = explode("<p>", $refs);
+        elseif(is_numeric(strpos($refs, "<P>"))) $refs = explode("<P>", $refs);
+        elseif(is_numeric(strpos($refs, "</p>"))) $refs = explode("</p>", $refs);
+        elseif(is_numeric(strpos($refs, "</P>"))) $refs = explode("</P>", $refs);
+        else $refs = explode("<p>", $refs);
+        
+        $references = array();
+        foreach($refs as $ref) $references[] = array("fullReference" => $ref);
+        return $references;
     }
 
     private function prepare_image_objects($taxon, $arr_objects)
