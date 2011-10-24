@@ -7,7 +7,7 @@ $start_time = time_elapsed();
 require_library('TaxonPageMetrics');
 $page_metrics = new TaxonPageMetrics();
 
-// execution time: 6 minutes
+// execution time: 2.4 minutes
 $page_metrics->generate_taxon_concept_with_bhl_links_textfile();
 
 // execution time: 4.97 hours --- will be replaced once we store taxon_concept_id in PAGE_NAMES table.
