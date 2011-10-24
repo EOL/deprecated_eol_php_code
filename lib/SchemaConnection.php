@@ -11,6 +11,7 @@ class SchemaConnection
         $this->mysqli =& $GLOBALS['db_connection'];
         $this->content_manager = new ContentManager(false);
         $this->resource =& $resource;
+        $this->harvested_data_object_ids = array();
     }
     
     function get_resource()
@@ -123,7 +124,10 @@ class SchemaConnection
             }
         }
         
-        $data_object->delete_hierarchy_entries();
+        // we only delete the object's entries the first time we see it, to allow for multiple taxa per object
+        if(!isset($this->harvested_data_object_ids[$data_object->id])) $data_object->delete_hierarchy_entries();
+        $this->harvested_data_object_ids[$data_object->id] = 1;
+        
         $hierarchy_entry->add_data_object($data_object->id, $vetted_id, $visibility_id);
         $this->resource->harvest_event->add_data_object($data_object, $status);
         
