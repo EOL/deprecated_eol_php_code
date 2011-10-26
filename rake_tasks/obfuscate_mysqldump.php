@@ -10,11 +10,24 @@ $fields_to_obfuscate = array(
         'family_name' => 'name',
         'identity_url' => 'url',
         'api_key' => 'password'),
+        
     'agents' => array(
         'full_name' => 'name',
         'given_name' => 'name',
         'family_name' => 'name',
-        'email' => 'email')
+        'email' => 'email'),
+        
+    'contacts' => array(
+        'name' => 'name',
+        'email' => 'email'),
+        
+    'content_partner_contacts' => array(
+        'full_name' => 'name',
+        'given_name' => 'name',
+        'family_name' => 'name',
+        'email' => 'email',
+        'telephone' => 'phone',
+        'address' => 'address')
 );
 
 $obfuscator = new MysqlDumpObfuscator();
@@ -68,9 +81,7 @@ class MysqlDumpObfuscator
     {
         if(!$obfuscated_path)
         {
-            $obfuscated_path = strstr($mysqldump_path, "/", true);
-            if($obfuscated_path) $obfuscated_path .= "/";
-            $obfuscated_path .= "obfuscated_dump.txt";
+            $obfuscated_path = dirname($mysqldump_path) . "/obfuscated_dump.txt";
         }
         
         $MYSQLDUMP = fopen($mysqldump_path, 'r');
