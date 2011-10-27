@@ -92,6 +92,7 @@ class NaturalHistoryServicesAPI
                                                   "title" => $u_video->video->description,
                                                   "location" => "",
                                                   "dc_source" => $u_video->video->content_loc,
+                                                  "thumbnailURL" => $u_video->video->thumbnail_loc,
                                                   "agent" => $agent);
                 $arr_sciname[$sciname] = 1;
             }
@@ -217,6 +218,8 @@ class NaturalHistoryServicesAPI
         $data_object_parameters["description"] = utf8_encode($rec["description"]);
         $data_object_parameters["location"] = utf8_encode($rec["location"]);
         $data_object_parameters["license"] = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $data_object_parameters["language"] = 'en';
+        $data_object_parameters["thumbnailURL"] = @$rec["thumbnailURL"];
         if(@$rec["subject"])
         {
             $data_object_parameters["subjects"] = array();
