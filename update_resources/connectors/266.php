@@ -3,6 +3,7 @@ namespace php_active_record;
 /* connector for US Fish and Wildlife Services - Endangered Species Program
 estimated execution time: 4.17 hours (taxa = 2233)
 Taxa list comes from 3 spreadsheets and content is scraped.
+Note: Due to scraping, some characters are needed to be manually removed from the generated resource XML.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
