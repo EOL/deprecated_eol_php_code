@@ -342,7 +342,8 @@ class USFishWildlifeAPI
                       "source"      => $source,
                       "description" => $description,
                       "license"     => $license,
-                      "subject"     => $subject
+                      "subject"     => $subject,
+                      "language"    => "en"
                     );
     }
 
