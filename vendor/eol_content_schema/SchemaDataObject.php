@@ -48,6 +48,7 @@ class SchemaDataObject
         $this->subjects = @$parameters["subjects"];
         $this->references = @$parameters["references"];
         $this->point = @$parameters["point"];
+        $this->additionalInformation = @$parameters["additionalInformation"];
         
         $this->description = str_replace("<img/>","",$this->description);
         $this->description = preg_replace("/<a>(.*?)<\/a>/","\\1",$this->description);
@@ -74,6 +75,7 @@ class SchemaDataObject
         $string .= "mediaURL: ".$this->mediaURL."<br>\n";
         $string .= "thumbnailURL: ".$this->thumbnailURL."<br>\n";
         $string .= "location: ".$this->location."<br>\n";
+        $string .= "additionalInformation: ".$this->additionalInformation."<br>\n";
         if(get_class($this->point)=="SchemaPoint") $string .= $this->point->__toString();
         if(is_array($this->references)) foreach($this->references as $r) $string .= $r->__toString();
         $string .= "</blockquote>\n";
@@ -104,6 +106,7 @@ class SchemaDataObject
         if($this->location) $xml .= "  <location>".htmlspecialchars($this->location)."</location>\n";
         if($this->point && get_class($this->point)=="SchemaPoint") $xml .= $this->point->__toXML();
         if(is_array($this->references)) foreach($this->references as $r) $xml .= $r->__toXML();
+        if($this->additionalInformation) $xml .= "  <additionalInformation>". $this->additionalInformation ."</additionalInformation>\n";
         $xml .= "</dataObject>\n";
         return $xml;
     }

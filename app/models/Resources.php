@@ -154,7 +154,7 @@ class Resource extends ActiveRecord
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         $resources = array();
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=". ResourceStatus::publish_pending()->id);
+        $result = $mysqli->query("SELECT SQL_NO_CACHE DISTINCT resource_id FROM harvest_events WHERE publish=1 AND published_at IS NULL");
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["id"]);
@@ -247,17 +247,24 @@ class Resource extends ActiveRecord
     
     public function force_publish()
     {
-        $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::publish_pending()->id." WHERE id=$this->id");
-    }
-    
-    public function publish()
-    {
-        if($this->resource_status_id != ResourceStatus::publish_pending()->id) return false;
-        $this->mysqli->begin_transaction();
         if($harvest_event_id = $this->most_recent_harvest_event_id())
         {
             $harvest_event = HarvestEvent::find($harvest_event_id);
             if(!$harvest_event->published_at && $harvest_event->completed_at)
+            {
+                $harvest_event->publish = 1;
+                $harvest_event->save();
+            }
+        }
+    }
+    
+    public function publish()
+    {
+        $this->mysqli->begin_transaction();
+        if($harvest_event_id = $this->most_recent_harvest_event_id())
+        {
+            $harvest_event = HarvestEvent::find($harvest_event_id);
+            if(!$harvest_event->published_at && $harvest_event->completed_at && $harvest_event->publish)
             {
                 $object_guids_to_keep = array();
                 if($this->title == 'Wikipedia')
@@ -315,9 +322,6 @@ class Resource extends ActiveRecord
                 }
                 
                 // $harvest_event->insert_top_images();
-                $this->resource_status_id = ResourceStatus::published()->id;
-                $this->notes = 'harvest published';
-                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::published()->id.", notes='harvest published' WHERE id=$this->id");
                 $this->mysqli->commit();
                 $harvest_event->resource->refresh();
                 $harvest_event->create_collection();
@@ -433,9 +437,8 @@ class Resource extends ActiveRecord
             
             if($this->auto_publish)
             {
-                $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::publish_pending()->id." WHERE id=$this->id");
-                $this->resource_status_id = ResourceStatus::publish_pending()->id;
-                $this->harvest_event->resource->refresh();
+                $this->harvest_event->publish = 1;
+                $this->harvest_event->save();
                 $this->publish();
             }
         }

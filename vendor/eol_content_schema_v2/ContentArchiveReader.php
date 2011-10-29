@@ -176,7 +176,7 @@ class ContentArchiveReader
     
     // if a callback is included, each row will be sent as an array to the callback method.
     // otherwise the entire table will be returned as an array of all rows
-    function process_table($row_type, $callback = NULL)
+    function process_table($row_type, $callback = NULL, $parameters = NULL)
     {
         if(isset($this->tables[strtolower($row_type)]))
         {
@@ -190,7 +190,7 @@ class ContentArchiveReader
                 foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                 {
                     $fields = $this->parse_table_row($table_definition, $line);
-                    if($fields && $callback) call_user_func($callback, $fields);
+                    if($fields && $callback) call_user_func($callback, $fields, $parameters);
                     elseif($fields) $all_rows[] = $fields;
                 }
             }
@@ -203,7 +203,7 @@ class ContentArchiveReader
                 foreach($lines as $line)
                 {
                     $fields = $this->parse_table_row($table_definition, $line);
-                    if($fields && $callback) call_user_func($callback, $fields);
+                    if($fields && $callback) call_user_func($callback, $fields, $parameters);
                     elseif($fields) $all_rows[] = $fields;
                 }
             }

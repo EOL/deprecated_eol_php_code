@@ -34,7 +34,7 @@ class NatureServeAPI
         }
         echo "Total Records: ". count($records) ."\n";
         
-        $chunk_size = 10;
+        $chunk_size = 3;
         shuffle($records);
         
         array_unshift($records, 'ELEMENT_GLOBAL.2.102211'); // Polar bear
@@ -54,7 +54,7 @@ class NatureServeAPI
             echo "Estimated total seconds : $estimated_total_time\n";
             echo "Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n";
             echo "Memory : ". memory_get_usage() ."\n";
-            if($i>=100) break;
+            if($i>=200) break;
         }
         
         $this->archive_builder->finalize();
@@ -64,7 +64,7 @@ class NatureServeAPI
     {
         $url = self::API_PREFIX . implode(",", $ids);
         echo "$url\n\n";
-        $details_xml = Functions::get_remote_file(self::API_PREFIX . implode(",", $ids));
+        $details_xml = Functions::get_remote_file(self::API_PREFIX . implode(",", $ids), NULL, 120);
         $xml = simplexml_load_string($details_xml);
         foreach($xml->globalSpecies as $species_record)
         {
@@ -94,7 +94,7 @@ class NatureServeAPI
         $author = (string) @$this->current_details_xml->classification->names->scientificName->nomenclaturalAuthor;
         $canonical_form = self::canonical_form($scientific_name);
         $rank = 'species';
-        if(preg_match("/(.*? .*?) (.*)/", $canonical_form, $arr)) $rank = 'infraspecies';
+        if(preg_match("/(.*? .*?) (.*)/", $canonical_form, $arr)) $rank = 'subspecies';
         $full_scientific_name = trim($scientific_name . " " . $author);
         
         $t = new \eol_schema\Taxon();
@@ -215,7 +215,7 @@ class NatureServeAPI
             {
                 $this->write_image_description("U.S. States and Canadian Provinces",
                     "conservation_map",
-                    'Conservation Map',
+                    'map',
                     $conservation_map_url);
             }
             
@@ -223,7 +223,7 @@ class NatureServeAPI
             {
                 $this->write_image_description("Range Map",
                     "range_map",
-                    'Range Map',
+                    'map',
                     (string) @$range_map->rangeMapURI,
                     array('contributor' => @trim((string) $range_map->rangeMapCompilers)));
             }

@@ -212,7 +212,7 @@ class LifeDeskAPI
         $return .= "      <Name scientific='true' ref='n".$entry->name->id."'>".htmlspecialchars($entry->name->string)."</Name>\n";
         if($rankCode)
         {
-            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank->label))."</Rank>\n";
+            $return .= "      <Rank code='$rankCode'>".ucfirst(strtolower($entry->rank->translation->label))."</Rank>\n";
         }
         $return .= "      <TaxonRelationships>\n";
         if($parent = $entry->parent())

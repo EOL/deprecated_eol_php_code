@@ -120,7 +120,7 @@ class Functions
         
         $context = stream_context_create(array('http' => array('timeout' => $timeout)));
         
-        $file = @self::fake_user_agent_http_get($remote_url);
+        $file = @self::fake_user_agent_http_get($remote_url, $timeout);
         usleep($download_wait_time);
         
         $attempts = 1;
@@ -128,7 +128,7 @@ class Functions
         {
             debug("Grabbing $remote_url: attempt ".($attempts+1));
             
-            $file = @self::fake_user_agent_http_get($remote_url);
+            $file = @self::fake_user_agent_http_get($remote_url, $timeout);
             usleep($download_wait_time);
             $attempts++;
         }
@@ -261,7 +261,7 @@ class Functions
         return false;
     }
     
-    public static function fake_user_agent_http_get($url)
+    public static function fake_user_agent_http_get($url, $timeout = 50)
     {
         if(substr($url, 0, 1) == "/") $url = "file://" . $url;
         
@@ -282,7 +282,7 @@ class Functions
         curl_setopt($ch, CURLOPT_FAILONERROR, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 5);

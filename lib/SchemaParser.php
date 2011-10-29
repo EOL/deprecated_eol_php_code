@@ -54,6 +54,7 @@ class SchemaParser
         $taxon_parameters["family"] = Functions::import_decode($t_dwc->Family);
         $taxon_parameters["genus"] = Functions::import_decode($t_dwc->Genus);
         $taxon_parameters["scientific_name"] = Functions::import_decode($t_dwc->ScientificName);
+        $taxon_parameters["rank"] = Rank::find_or_create_by_translated_label(Functions::import_decode($t->rank));
         $taxon_parameters["taxon_created_at"] = trim($t_dcterms->created);
         $taxon_parameters["taxon_modified_at"] = trim($t_dcterms->modified);
         
@@ -179,6 +180,21 @@ class SchemaParser
             $data_object->object_url = Functions::import_decode($d->mediaURL);
             $data_object->thumbnail_url = Functions::import_decode($d->thumbnailURL);
             $data_object->location = Functions::import_decode($d->location, 0, 0);
+            if($r = (string) @$d->additionalInformation->rating)
+            {
+                if((is_numeric($r)) && $r > 0 && $r <= 5)
+                {
+                    $data_object->data_rating = $r;
+                }
+            }
+            
+            if($subtype = @$d->additionalInformation->subtype)
+            {
+                if($dt = DataType::find_or_create_by_schema_value(Functions::import_decode($subtype)))
+                {
+                    $data_object->data_subtype_id = $dt->id;
+                }
+            }
             
             $data_object_parameters = array();
             if(!$data_object->language)

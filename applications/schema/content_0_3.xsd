@@ -489,6 +489,7 @@
             <xsd:enumeration value="series"/>
             <xsd:enumeration value="subseries"/>
             <xsd:enumeration value="species"/>
+            <xsd:enumeration value="infraspecies"/>
             <xsd:enumeration value="subspecies"/>
             <xsd:enumeration value="variety"/>
             <xsd:enumeration value="subvariety"/>

@@ -31,6 +31,7 @@ class SchemaTaxon
         $this->scientificName = @$parameters["scientificName"];
         $this->created = @$parameters["created"];
         $this->modified = @$parameters["modified"];
+        $this->rank = @$parameters["rank"];
         $this->commonNames = @$parameters["commonNames"];
         $this->synonyms = @$parameters["synonyms"];
         $this->references = @$parameters["references"];
@@ -51,6 +52,7 @@ class SchemaTaxon
         $string .= "scientificName: ".$this->scientificName."<br>\n";
         $string .= "created: ".$this->created."<br>\n";
         $string .= "modified: ".$this->modified."<br>\n";
+        $string .= "rank: ".$this->rank."<br>\n";
         if(is_array($this->commonNames)) foreach($this->commonNames as $c) $string .= $c->__toString();
         if(is_array($this->synonyms)) foreach($this->synonyms as $s) $string .= $s->__toString();
         if(is_array($this->references)) foreach($this->references as $r) $string .= $r->__toString();
@@ -71,6 +73,7 @@ class SchemaTaxon
         if($this->family) $xml .= "  <dwc:Family>".htmlspecialchars($this->family)."</dwc:Family>\n";
         if($this->genus) $xml .= "  <dwc:Genus>".htmlspecialchars($this->genus)."</dwc:Genus>\n";
         $xml .= "  <dwc:ScientificName>".htmlspecialchars($this->scientificName)."</dwc:ScientificName>\n";
+        if($this->rank) $xml .= "  <rank>".htmlspecialchars($this->rank)."</rank>\n";
         if(is_array($this->commonNames)) foreach($this->commonNames as $c) $xml .= $c->__toXML();
         if(is_array($this->synonyms)) foreach($this->synonyms as $s) $xml .= $s->__toXML();
         if($this->created) $xml .= "  <dcterms:created>".htmlspecialchars($this->created)."</dcterms:created>\n";

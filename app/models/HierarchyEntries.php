@@ -128,7 +128,7 @@ class HierarchyEntry extends ActiveRecord
             $parent_ranked_ancestry = $parent->ranked_ancestry();
             
             if($parent_ranked_ancestry) $ancestry = $parent_ranked_ancestry."|";
-            if(@$parent->rank->id) $ancestry .= $parent->rank->label;
+            if(@$parent->rank->id) $ancestry .= $parent->rank->translation->label;
             $ancestry .= ":".$parent->name->string;
         }
         
@@ -432,6 +432,10 @@ class HierarchyEntry extends ActiveRecord
             {
                 $params["identifier"] = $taxon['identifier'];
                 $params["source_url"] = $taxon['source_url'];
+                if($taxon['rank'] && $rank_id = @$taxon['rank']->id)
+                {
+                    $params["rank_id"] = $rank_id;
+                }
             }
             
             $params["visibility_id"] = Visibility::preview()->id;
