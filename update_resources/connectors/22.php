@@ -1,5 +1,5 @@
 <?php
-
+namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 
@@ -16,8 +16,8 @@ shell_exec("gunzip -f ".$new_resource_path);
 $new_resource_path = DOC_ROOT . "temp/22.xml";
 
 $xml = file_get_contents($new_resource_path);
-$xml = str_replace("<dc:description>", "<dc:description><![CDATA[", $xml);
-$xml = str_replace("</dc:description>", "]]></dc:description>", $xml);
+// $xml = str_replace("<dc:description>", "<dc:description><![CDATA[", $xml);
+// $xml = str_replace("</dc:description>", "]]></dc:description>", $xml);
 $xml = preg_replace("/<a>([^<]+)<\/a>/", "\\1", $xml);
 $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" . $xml;
 

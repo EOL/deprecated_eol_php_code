@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 /*  turtles website 
 http://www.iucn-tftsg.org/pub-chron/
 estimated execution time: 5-6 mins.
@@ -47,7 +48,7 @@ foreach($used_taxa as $taxon_parameters)
     $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
 ////////////////////// ---
-$new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
+$new_resource_xml = \SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);

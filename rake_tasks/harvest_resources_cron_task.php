@@ -8,12 +8,12 @@ $GLOBALS['ENV_DEBUG'] = true;
 // if there are more than one then it means we're still harvesting something from yesterday
 if(Functions::grep_processlist('harvest_resources') > 2) exit;
 
-
 $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    //if($resource->id == 31) continue;
+    if(in_array($resource->id, array(42))) continue;
+    // if(!in_array($resource->id, array(15))) continue;
     
     echo $resource->id."\n";
     
@@ -25,11 +25,8 @@ $log->finished();
 
 
 
-// clear the cache in case some images were unpublished but still referenced in denormalized tables
-shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-
 // sleep for 10 minutes to allow changes from transactions to propegate
-sleep_production(600);
+// sleep_production(300);
 
 // publish all pending resources
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". $GLOBALS['ENV_NAME']);
@@ -39,19 +36,10 @@ shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". 
 Hierarchy::publish_wrongly_unpublished_concepts();
 
 // sleep for 5 minutes to allow changes from transactions to propegate
-sleep_production(300);
+// sleep_production(300);
 
 // denormalize tables
-shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-
-// finally, clear the cache
-shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-
-if($GLOBALS['ENV_NAME']=='production')
-{
-    shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/data_object_ancestries_index.php ENV_NAME=slave");
-    shell_exec(PHP_BIN_PATH . DOC_ROOT ."applications/solr/taxon_concept_index.php ENV_NAME=slave > /dev/null 2>/dev/null &");
-}
+// shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 // if(defined('SOLR_SERVER'))
 // {

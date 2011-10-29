@@ -18,7 +18,7 @@ class Reference extends ActiveRecord
     
     public function publish()
     {
-        $this->publish = 1;
+        $this->published = 1;
         $this->visibility_id = Visibility::visible()->id;
         $this->save();
     }

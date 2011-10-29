@@ -16,7 +16,7 @@ class WikipediaHarvester
         $this->taxa_pages = array();
         $this->pageids_to_update = array();
         $this->resource_file = null;
-        $this->resource = new Resource(80);
+        $this->resource = Resource::find(80);
     }
     
     function begin_wikipedia_harvest()
@@ -57,7 +57,7 @@ class WikipediaHarvester
         // set the resource to Force Harvest
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml"))
         {
-            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=".$this->resource->id);
+            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=".$this->resource->id);
         }
     }
     
@@ -217,7 +217,7 @@ class WikipediaHarvester
             if($count && $count%1000==0) echo "taxon: $count\n";
             //if($count >= 10) return false;
             
-            $page = new WikiPage($xml);
+            $page = new \WikiPage($xml);
             if(preg_match("/wikipedia/ims", $page->title)) return false;
             if(preg_match("/taxobox/ims", $page->title)) return false;
             if(preg_match("/template/ims", $page->title)) return false;
@@ -262,7 +262,7 @@ class WikipediaHarvester
         $xml = Functions::get_hashed_response_fake_browser($api_url);
         $export_xml = simplexml_load_string($xml->query->export);
         
-        $page = new WikiPage($export_xml->page->asXML());
+        $page = new \WikiPage($export_xml->page->asXML());
         if(preg_match("/wikipedia/ims", $page->title)) return false;
         if(preg_match("/taxobox/ims", $page->title)) return false;
         if(preg_match("/template/ims", $page->title)) return false;

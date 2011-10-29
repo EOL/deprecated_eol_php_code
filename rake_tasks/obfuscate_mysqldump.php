@@ -136,35 +136,80 @@ class MysqlDumpObfuscator
     
     private function obfuscate_line_values($values, $table_fields, $fields_to_obfuscate)
     {
+        // return $values;
         $rows = array();
         $fields = array();
-        while(strlen($values))
+        $characters = str_split($values);
+        echo "splitting values\n";
+        
+        $in_string = false;
+        $in_int = false;
+        $current_field = '';
+        static $chars_to_trim = array(')', ',', ';', '\n');
+        $last_char = null;
+        
+        foreach($characters as $char)
         {
-            while(in_array(substr($values, 0, 1), array(')', ',', ';', '\n')))
+            static $fieldnum = 0;
+            $fieldnum++;
+            if($fieldnum%100000==0) echo $fieldnum." == ". memory_get_usage() ."\n";
+            if(!$in_string && !$in_int)
             {
-                $values = substr($values, 1);
-            }
-            if(!$values)
-            {
-                if($fields) $rows[] = $fields;
-                break;
+                if(in_array($char, $chars_to_trim)) continue;
+                if($char == '(')
+                {
+                    if($fields) $rows[] = $fields;
+                    // print_r($fields);
+                    $fields = array();
+                    $current_field = '';
+                    // echo "end of row\n";
+                    continue;
+                }
+                
+                if($char == "'")
+                {
+                    $in_string = true;
+                    $current_field = $char;
+                    $last_char = $char;
+                    continue;
+                }else
+                {
+                    $in_int = true;
+                    $current_field = $char;
+                    continue;
+                }
             }
             
-            // end of row
-            if(substr($values, 0, 1) == '(')
+            if($in_int)
             {
-                $values = substr($values, 1);
-                if($fields) $rows[] = $fields;
-                $fields = array();
+                if($char == "," || $char == ")")
+                {
+                    $fields[] = $current_field;
+                    $in_int = false;
+                    $current_field = '';
+                }else
+                {
+                    $current_field .= $char;
+                }
             }
             
-            // parsing row values
-            if(preg_match("/^([0-9]+|NULL|''|'.*?[^\\\\]')((,|\)).*)$/im", $values, $arr))
+            if($in_string)
             {
-                $fields[] = $arr[1];
-                $values = $arr[2];
+                if($char == "'" && $last_char != "\\")
+                {
+                    $fields[] = $current_field . "'";
+                    $in_string = false;
+                    $current_field = '';
+                }else
+                {
+                    $current_field .= $char;
+                }
             }
+            
+            if($last_char == "\\" && $char == "\\") $last_char = "";
+            else $last_char = $char;
         }
+        if($fields) $rows[] = $fields;
         
         // turning string indexed array to integer indexed array
         $field_indices_to_obfuscate = array();
@@ -181,10 +226,12 @@ class MysqlDumpObfuscator
         {
             foreach($field_indices_to_obfuscate as $field_key => $obfuscation_type)
             {
-                $values[$field_key] = "'" . call_user_func('FakeDataGenerator::' . $obfuscation_type) . "'";
+                if($values[$field_key] != "''" && $values[$field_key] != 'NULL') $values[$field_key] = "'" . call_user_func('FakeDataGenerator::' . $obfuscation_type) . "'";
             }
-            unset($new_field_value);
-            if(count($values) != $field_count) echo "Warning: field count does not match\n";
+            if(count($values) != $field_count)
+            {
+                echo "Warning: field count does not match\n";
+            }
             $values = "(" . implode($values, ",") . ")";
         }
         
