@@ -34,8 +34,9 @@ class NatureServeAPI
         }
         echo "Total Records: ". count($records) ."\n";
         
-        $chunk_size = 3;
-        shuffle($records);
+        $chunk_size = 1;
+        $this->request_timeout = 60; // seconds
+        // shuffle($records);
         
         array_unshift($records, 'ELEMENT_GLOBAL.2.102211'); // Polar bear
         array_unshift($records, 'ELEMENT_GLOBAL.2.105926'); // American Bullfrog
@@ -55,6 +56,7 @@ class NatureServeAPI
             echo "Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n";
             echo "Memory : ". memory_get_usage() ."\n";
             if($i>=200) break;
+            if($i % 10 == 0) print_r($this->archive_builder->file_columns);
         }
         
         $this->archive_builder->finalize();
@@ -63,12 +65,10 @@ class NatureServeAPI
     private function lookup_multiple_ids($ids)
     {
         $url = self::API_PREFIX . implode(",", $ids);
-        echo "$url\n\n";
-        $details_xml = Functions::get_remote_file(self::API_PREFIX . implode(",", $ids), NULL, 120);
+        $details_xml = Functions::get_remote_file(self::API_PREFIX . implode(",", $ids), NULL, $this->request_timeout);
         $xml = simplexml_load_string($details_xml);
         foreach($xml->globalSpecies as $species_record)
         {
-            echo $species_record['uid']."\n";
             $this->process_species_xml($species_record);
         }
     }
@@ -110,7 +110,6 @@ class NatureServeAPI
         $t->source = (string) @$this->current_details_xml->natureServeExplorerURI;
         $t->vernacularName =(string) @$this->current_details_xml->classification->names->natureServePrimaryGlobalCommonName;
         $this->archive_builder->write_object_to_file($t);
-        echo $t;
     }
     
     private function write_natureserve_status()
@@ -380,7 +379,6 @@ class NatureServeAPI
                 $mr->rightsHolder = @$speciesImage->imageCopyright;
                 $mr->license = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
                 $this->archive_builder->write_object_to_file($mr);
-                echo $mr;
             }
         }
     }
@@ -421,7 +419,6 @@ class NatureServeAPI
         $mr->created = @$options['created'];
         $mr->license = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         $this->archive_builder->write_object_to_file($mr);
-        echo $mr;
     }
     
     private function write_image_description($title, $id_suffix, $subtype, $fileURL, $options = array())
@@ -440,7 +437,6 @@ class NatureServeAPI
         $mr->created = @$options['created'];
         $mr->license = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         $this->archive_builder->write_object_to_file($mr);
-        echo $mr;
     }
     
     

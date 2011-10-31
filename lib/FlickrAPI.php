@@ -425,6 +425,8 @@ class FlickrAPI
         {
             $file_contents = file_get_contents($file_path);
             $json_object = json_decode($file_contents);
+            // if we're checking the cache for GetInfo and there is a later copy, then
+            // delete BOTH the GetInfo and GetSizes calls for that media
             if($dir_name == 'photosGetInfo' && (!$last_update || @$json_object->photo->dates->lastupdate != $last_update))
             {
                 unlink($file_path);
