@@ -43,7 +43,7 @@ class test_flickr_api extends SimpletestUnitBase
         $this->assertTrue($dataObject->title == 'P1030143', 'Data object should have the right title');
         $this->assertTrue($dataObject->license == 'http://creativecommons.org/licenses/by-nc-sa/2.0/', 'Data object should have the right license');
         $this->assertTrue($dataObject->source == 'http://www.flickr.com/photos/pleary/2687301130/', 'Data object should have the right source');
-        $this->assertTrue($dataObject->mediaURL == 'http://farm4.static.flickr.com/3057/2687301130_7874bc6fd3.jpg', 'Data object should have the right mediaURL');
+        $this->assertTrue($dataObject->mediaURL == 'http://farm4.static.flickr.com/3057/2687301130_c12f33ac24_o.jpg', 'Data object should have the right mediaURL');
         $this->assertTrue($dataObject->location == 'Copenhagen, Hovedstaden, Denmark', 'Data object should have the right location');
         
         $this->assertIsA($dataObject->agents[0], 'SchemaAgent', 'Data object should have an agent');

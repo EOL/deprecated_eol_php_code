@@ -323,15 +323,21 @@ class FlickrAPI
     {
         $photo_url = "http://farm".$farm.".static.flickr.com/".$server."/".$photo_id."_".$secret.".jpg";
         
-        // debug("getting sizes for id: $photo_id\n");
-        // $sizes = self::photos_get_sizes($photo_id);
-        // if(@$sizes)
-        // {
-        //     foreach($sizes->sizes->size as $size)
-        //     {
-        //         $photo_url = $size['source'];
-        //     }
-        // }
+        if($file_json_object = self::check_cache('photosGetSizes', $photo_id))
+        {
+            $sizes = $file_json_object;
+        }else
+        {
+            $sizes = self::photos_get_sizes($photo_id);
+        }
+        
+        if(@$sizes)
+        {
+            foreach($sizes->sizes->size as $size)
+            {
+                $photo_url = $size->source;
+            }
+        }
         
         return $photo_url;
     }
