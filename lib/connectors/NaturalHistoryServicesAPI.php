@@ -35,10 +35,10 @@ class NaturalHistoryServicesAPI
         return $all_taxa;
     }
 
-    public static function get_NHS_taxa($url1, $ancestry)
+    public static function get_NHS_taxa($url, $ancestry)
     {
         global $used_collection_ids;
-        $response = self::search_collections($url1, $ancestry);//this will output the raw (but structured) output from the external service
+        $response = self::search_collections($url, $ancestry);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -50,28 +50,28 @@ class NaturalHistoryServicesAPI
         return $page_taxa;
     }
 
-    public static function search_collections($url1, $ancestry)//this will output the raw (but structured) output from the external service
+    public static function search_collections($url, $ancestry)//this will output the raw (but structured) output from the external service
     {
-        $response = self::scrape_species_page($url1, $ancestry);
+        $response = self::scrape_species_page($url, $ancestry);
         return $response;
     }
 
-    public static function scrape_species_page($url1, $ancestry)
+    public static function scrape_species_page($url, $ancestry)
     {
         $arr_acknowledgement = self::prepare_acknowledgement();
         $arr_scraped = array();
         $arr_photos = array();
         $arr_sciname = array();
         $ctr = 0;
-        print $url1 . "\n";
-        $xml = simplexml_load_file($url1);
+        print $url . "\n";
+        $xml = simplexml_load_file($url);
         print "taxa count = " . count($xml) . "\n";
         foreach($xml->url as $u)
         {
             $u_video = $u->children("http://www.google.com/schemas/sitemap-video/1.0");
-            if($url1 == "http://www.rkwalton.com/nhsskippers_videositemap.xml") $string = $u_video->video->description;
+            if($url == "http://www.rkwalton.com/nhsskippers_videositemap.xml") $string = $u_video->video->description;
             else $string = $u_video->video->title;
-            $scientific_names = self::get_sciname($string, $url1);
+            $scientific_names = self::get_sciname($string, $url);
             if(!$scientific_names) continue;
             foreach($scientific_names as $sciname)
             {
@@ -81,17 +81,19 @@ class NaturalHistoryServicesAPI
 
                 $acknowledgement = self::get_acknowledgement($sciname, $arr_acknowledgement);
 
+                $description = "$acknowledgement<br>" . $u_video->video->description;
+                if($u_video->video->description) $description .= "<br>Duration: " . $u_video->video->duration . " seconds";
                 //object agents
                 $agent = array();
                 $agent[] = array("role" => "author", "homepage" => "http://www.rkwalton.com", "name" => "Richard K. Walton");
-                $arr_photos["$sciname"][] = array("identifier" => $u_video->video->content_loc,
+                $arr_photos["$sciname"][] = array("identifier" => $u_video->video->content_loc . "_" . str_replace(" ", "_", $sciname),
                                                   "mediaURL" => str_ireplace(' ','',$u_video->video->content_loc),
                                                   "mimeType" => "video/mp4",
                                                   "dataType" => "http://purl.org/dc/dcmitype/MovingImage",                                  
-                                                  "description" => "$acknowledgement<br>" . $u_video->video->description . " <a target='more_info' href='" . $u->loc . "'>More info.</a><br> <br>",
+                                                  "description" => $description,
                                                   "title" => $u_video->video->description,
                                                   "location" => "",
-                                                  "dc_source" => $u_video->video->content_loc,
+                                                  "dc_source" => $u->loc,
                                                   "thumbnailURL" => $u_video->video->thumbnail_loc,
                                                   "agent" => $agent);
                 $arr_sciname[$sciname] = 1;
@@ -193,9 +195,9 @@ class NaturalHistoryServicesAPI
         $photos = $rec["photos"];
         if($photos)
         {
-            foreach($photos as $photos)
+            foreach($photos as $photo)
             {
-                $data_object = self::get_data_object($photos);
+                $data_object = self::get_data_object($photo);
                 if(!$data_object) return false;
                 $taxon["dataObjects"][] = new \SchemaDataObject($data_object);
             }
