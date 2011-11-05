@@ -21,6 +21,7 @@ class VimeoAPI
             foreach($user["video_ids"] as $video_id)
             {
                 $xml = simplexml_load_file(VIMEO_USER_SERVICE . "video/" . trim($video_id) . ".xml");
+                print "\n" . VIMEO_USER_SERVICE . "video/" . trim($video_id) . ".xml";
                 if(sizeof($xml->video)) 
                 {
                     $i++; print "\n [user $j of $total_users] [video $i of $num_rows] ";
@@ -134,9 +135,10 @@ class VimeoAPI
             else                  $title = "Vimeo video";
             $source      = $rec->url;
             $mediaURL    = VIMEO_PLAYER_URL . $rec->id;
+            $thumbnailURL = $rec->thumbnail_large;
             $agent = array();
             if($rec->user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->user_url , $rec->user_name));
-            $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $arr_objects);
+            $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
             $taxon_id   = str_ireplace(" ", "_", $sciname) . "_vimeo";
@@ -221,17 +223,18 @@ class VimeoAPI
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
 
-    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $arr_objects)
+    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
     {
-        $arr_objects[] = array( "identifier"  => $identifier,
-                                "dataType"    => $dataType,
-                                "mimeType"    => $mimeType,
-                                "title"       => $title,
-                                "source"      => $source,
-                                "description" => $description,
-                                "mediaURL"    => $mediaURL,
-                                "agent"       => $agent,
-                                "license"     => $license
+        $arr_objects[] = array( "identifier"   => $identifier,
+                                "dataType"     => $dataType,
+                                "mimeType"     => $mimeType,
+                                "title"        => $title,
+                                "source"       => $source,
+                                "description"  => $description,
+                                "mediaURL"     => $mediaURL,
+                                "agent"        => $agent,
+                                "license"      => $license,
+                                "thumbnailURL" => $thumbnailURL
                               );
         return $arr_objects;
     }
@@ -276,6 +279,7 @@ class VimeoAPI
         $data_object_parameters["dataType"]     = trim($rec["dataType"]);
         $data_object_parameters["mimeType"]     = trim($rec["mimeType"]);
         $data_object_parameters["mediaURL"]     = trim(@$rec["mediaURL"]);
+        $data_object_parameters["thumbnailURL"]     = trim(@$rec["thumbnailURL"]);
         $data_object_parameters["created"]      = trim(@$rec["created"]);
         $data_object_parameters["description"]  = Functions::import_decode(@$rec["description"]);
         $data_object_parameters["source"]       = @$rec["source"];
