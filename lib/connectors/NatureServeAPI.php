@@ -8,6 +8,7 @@ class NatureServeAPI
     // https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=ELEMENT_GLOBAL.2.104386
     const API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=";
     const SPECIES_LIST_URL = "https://tranxfer.natureserve.org/download/longterm/EOL/gname_uid_crosswalk.xml";
+    const IMAGE_API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1/globalSpecies/images?uid=";
     
     public function __construct()
     {
@@ -15,6 +16,7 @@ class NatureServeAPI
     
     public function get_all_taxa()
     {
+        if(!file_exists(DOC_ROOT . 'tmp/natureserve')) mkdir(DOC_ROOT . 'tmp/natureserve');
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/temp/dwc_archive_test/"));
         
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/natureserve_species_list.xml";
@@ -34,9 +36,9 @@ class NatureServeAPI
         }
         echo "Total Records: ". count($records) ."\n";
         
-        $chunk_size = 1;
-        $this->request_timeout = 60; // seconds
-        // shuffle($records);
+        $chunk_size = 5;
+        $this->request_timeout = 120; // seconds
+        //shuffle($records);
         
         array_unshift($records, 'ELEMENT_GLOBAL.2.102211'); // Polar bear
         array_unshift($records, 'ELEMENT_GLOBAL.2.105926'); // American Bullfrog
@@ -49,14 +51,14 @@ class NatureServeAPI
         foreach($chunks as $chunk)
         {
             $this->lookup_multiple_ids($chunk);
+            if($i % 500 == 0) print_r($this->archive_builder->file_columns);
+            
             $i += $chunk_size;
             $estimated_total_time = (((time_elapsed() - $start_time) / $i) * count($records));
             echo "Time spent ($i records) ". time_elapsed() ."\n";
             echo "Estimated total seconds : $estimated_total_time\n";
             echo "Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n";
             echo "Memory : ". memory_get_usage() ."\n";
-            if($i>=200) break;
-            if($i % 10 == 0) print_r($this->archive_builder->file_columns);
         }
         
         $this->archive_builder->finalize();
@@ -65,7 +67,7 @@ class NatureServeAPI
     private function lookup_multiple_ids($ids)
     {
         $url = self::API_PREFIX . implode(",", $ids);
-        $details_xml = Functions::get_remote_file(self::API_PREFIX . implode(",", $ids), NULL, $this->request_timeout);
+        $details_xml = $this->lookup_with_cache($url);
         $xml = simplexml_load_string($details_xml);
         foreach($xml->globalSpecies as $species_record)
         {
@@ -73,9 +75,45 @@ class NatureServeAPI
         }
     }
     
+    private function lookup_with_cache($url, $image = false)
+    {
+        $hash = md5($url);
+        if($image) $cache_path = DOC_ROOT . "tmp/natureserve/images/$hash.xml";
+        else $cache_path = DOC_ROOT . "tmp/natureserve/$hash.xml";
+        if(file_exists($cache_path))
+        {
+            $details_xml = file_get_contents($cache_path);
+            if($image && $details_xml && preg_match("/<\/images>/", $details_xml)) return $details_xml;
+            elseif(!$image && $details_xml && preg_match("/<\/globalSpeciesList>/", $details_xml)) return $details_xml;
+            @unlink($cache_path);
+        }
+        
+        $details_xml = Functions::get_remote_file($url, NULL, $this->request_timeout);
+        $FILE = fopen($cache_path, 'w+');
+        fwrite($FILE, $details_xml);
+        fclose($FILE);
+        return $details_xml;
+    }
+    
+    private function get_images($id)
+    {
+        $url = self::IMAGE_API_PREFIX . $id;
+        $details_xml = $this->lookup_with_cache($url, true);
+        $xml = simplexml_load_string($details_xml);
+        foreach($xml->image as $image)
+        {
+            // $this->process_species_xml($species_record);
+        }
+    }
+    
+    
+    
     private function process_species_xml($details_xml)
     {
         $this->current_details_xml = $details_xml;
+        $identifier = (string) $this->current_details_xml['uid'];
+        $this->get_images($identifier);
+        /*
         $this->write_taxonomy();
         // $this->write_references();
         $this->write_natureserve_status();
@@ -86,6 +124,7 @@ class NatureServeAPI
         $this->write_management_summary();
         $this->write_population_occurrence();
         $this->write_images();
+        */
     }
     
     private function write_taxonomy()
