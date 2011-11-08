@@ -12,11 +12,14 @@ class NatureServeAPI
     
     public function __construct()
     {
+        $this->global_status_code_labels();
+        $this->national_status_code_labels();
     }
     
     public function get_all_taxa()
     {
         if(!file_exists(DOC_ROOT . 'tmp/natureserve')) mkdir(DOC_ROOT . 'tmp/natureserve');
+        if(!file_exists(DOC_ROOT . 'tmp/natureserve/images')) mkdir(DOC_ROOT . 'tmp/natureserve/images');
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/temp/dwc_archive_test/"));
         
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/natureserve_species_list.xml";
@@ -40,7 +43,15 @@ class NatureServeAPI
         $this->request_timeout = 120; // seconds
         //shuffle($records);
         
+        
+        
+        // array_unshift($records, 'ELEMENT_GLOBAL.2.104470'); // Bald eagle
+        
+        
+        
         array_unshift($records, 'ELEMENT_GLOBAL.2.102211'); // Polar bear
+        // array_unshift($records, 'ELEMENT_GLOBAL.2.106470'); // bobcat - Lynx rufus
+        // array_unshift($records, 'ELEMENT_GLOBAL.2.104731'); // striped bass - Morone saxatilis
         array_unshift($records, 'ELEMENT_GLOBAL.2.105926'); // American Bullfrog
         array_unshift($records, 'ELEMENT_GLOBAL.2.104777'); // White tailed deer
         array_unshift($records, 'ELEMENT_GLOBAL.2.100925'); // golden eagle
@@ -51,14 +62,18 @@ class NatureServeAPI
         foreach($chunks as $chunk)
         {
             $this->lookup_multiple_ids($chunk);
-            if($i % 500 == 0) print_r($this->archive_builder->file_columns);
+            // if($i % 500 == 0) print_r($this->archive_builder->file_columns);
             
             $i += $chunk_size;
-            $estimated_total_time = (((time_elapsed() - $start_time) / $i) * count($records));
-            echo "Time spent ($i records) ". time_elapsed() ."\n";
-            echo "Estimated total seconds : $estimated_total_time\n";
-            echo "Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n";
-            echo "Memory : ". memory_get_usage() ."\n";
+            if($i % 100 == 0)
+            {
+                $estimated_total_time = (((time_elapsed() - $start_time) / $i) * count($records));
+                echo "Time spent ($i records) ". time_elapsed() ."\n";
+                echo "Estimated total seconds : $estimated_total_time\n";
+                echo "Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n";
+                echo "Memory : ". memory_get_usage() ."\n";
+            }
+            // if($i >= 100) break;
         }
         
         $this->archive_builder->finalize();
@@ -87,7 +102,6 @@ class NatureServeAPI
             elseif(!$image && $details_xml && preg_match("/<\/globalSpeciesList>/", $details_xml)) return $details_xml;
             @unlink($cache_path);
         }
-        
         $details_xml = Functions::get_remote_file($url, NULL, $this->request_timeout);
         $FILE = fopen($cache_path, 'w+');
         fwrite($FILE, $details_xml);
@@ -95,36 +109,44 @@ class NatureServeAPI
         return $details_xml;
     }
     
-    private function get_images($id)
-    {
-        $url = self::IMAGE_API_PREFIX . $id;
-        $details_xml = $this->lookup_with_cache($url, true);
-        $xml = simplexml_load_string($details_xml);
-        foreach($xml->image as $image)
-        {
-            // $this->process_species_xml($species_record);
-        }
-    }
-    
-    
-    
     private function process_species_xml($details_xml)
     {
         $this->current_details_xml = $details_xml;
         $identifier = (string) $this->current_details_xml['uid'];
         $this->get_images($identifier);
-        /*
+        
         $this->write_taxonomy();
-        // $this->write_references();
+        $text = "";
+        $this->append_description($text, @$this->current_details_xml->classification->taxonomy->formalTaxonomy->taxonomicComments, 'Comments');
+        $this->write_text_description("", "taxonomic_comments", "http://www.eol.org/voc/table_of_contents#Taxonomy", $text);
+        
+        
         $this->write_natureserve_status();
-        $this->write_conservation_status_factors();
-        $this->write_distribution();
-        $this->write_ecology_and_life_history();
-        $this->write_economic_attributes();
-        $this->write_management_summary();
-        $this->write_population_occurrence();
-        $this->write_images();
-        */
+        $this->national_statuses();
+        $this->global_abundance();
+        $this->number_of_occurrences();
+        $this->trends();
+        $this->threats();
+        $this->map_images();
+        $this->global_range();
+        $this->national_range();
+        $this->endemism();
+        $this->economic_uses();
+        $this->management_summary();
+        $this->global_protection();
+        $this->management();
+        $this->taxon_biology();
+        $this->diagnostic_description();
+        $this->life_cycle();
+        $this->reproduction();
+        $this->associations();
+        $this->ecology();
+        $this->migration();
+        $this->habitat();
+        $this->trophic_strategy();
+        $this->cyclicity();
+        $this->size();
+        $this->references();
     }
     
     private function write_taxonomy()
@@ -147,303 +169,513 @@ class NatureServeAPI
         $t->scientificName = $full_scientific_name;
         $t->taxonRank = $rank;
         $t->source = (string) @$this->current_details_xml->natureServeExplorerURI;
-        $t->vernacularName =(string) @$this->current_details_xml->classification->names->natureServePrimaryGlobalCommonName;
+        // $t->source = "http://www.natureserve.org/explorer/servlet/NatureServe?loadTemplate=species_RptComprehensive.wmt&elKey=" . $t->taxonID;
+        $t->vernacularName = (string) @$this->current_details_xml->classification->names->natureServePrimaryGlobalCommonName;
         $this->archive_builder->write_object_to_file($t);
     }
     
     private function write_natureserve_status()
     {
-        if($statuc = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus)
+        $status = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus;
+        if(!$status) return;
+        $text = "";
+        
+        if($rounded_rank_code = (string) @$status->roundedRank->code)
         {
-            $status = $this->current_details_xml->conservationStatus->natureServeStatus->globalStatus;
-            $blocks = array();
-            $blocks[] = @self::description_from_block($status->rank->code, 'Global Status');
-            $blocks[] = @self::description_from_block($status->statusLastReviewed, 'Global Status Last Reviewed');
-            $blocks[] = @self::description_from_block($status->statusLastChanged, 'Global Status Last Changed');
-            if($block = @self::description_from_block($status->roundedRank->code, 'Rounded Global Status'))
-            {
-                if(@trim((string) $status->roundedRank->description)) $block .= " - ". $status->roundedRank->description;
-                $blocks[] = $block;
-            }
-            $blocks[] = @self::description_from_block($status->reasons, 'Reasons');
-            
-            if(isset($status->nationalStatuses->nationalStatus))
-            {
-                foreach($status->nationalStatuses->nationalStatus as $status)
-                {
-                    if(@trim((string) $status->rank->code))
-                    {
-                        $block = "<b>National Status:</b> ". $status['nationName'] ." - ". $status->rank->code;
-                        if(@trim((string) $status->statusLastReviewed))
-                        {
-                            $block .= " (". $status->statusLastReviewed .")";
-                        }
-                        $blocks[] = $block;
-                    }
-                }
-            }
-            
-            // array_filter removes any null or empty string values
-            if($blocks = array_filter($blocks)) 
-            {
-                $this->write_text_description("NatureServe Conservation Status",
-                    "natureserve_status",
-                    "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation",
-                    implode("<br/><br/>", $blocks));
-            }
+            $text = "<p><strong>Rounded Global Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rounded_rank_code ."</a>";
+            if($rank_description = (string) @$status->roundedRank->description) $text .= " - ". $rank_description;
+            elseif($value = @$this->global_status_code_labels[(string) $rounded_rank_code]) $text .= " - ". $value;
+            $text .= "</p>";
+        }elseif($rank_code = (string) @$status->rank->code)
+        {
+            $text .= "<p><strong>Global Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rank_code ."</a>";
+            if($rank_description = (string) @$status->roundedRank->description) $text .= " - ". $rank_description;
+            elseif($value = @$this->global_status_code_labels[(string) $rounded_rank_code]) $text .= " - ". $value;
+            $text .= "</p>";
         }
+        
+        $this->append_description($text, @$status->reasons, 'Reasons');
+        
+        static $vulnerability_codes = array('A' => 'Highly Vulnerable', 'B' => 'Moderately Vulnerable',
+            'C' => 'Not Intrinsically Vulnerable', 'U' => 'Unknown');
+        $this->append_code_description_comment($text,  @$status->conservationStatusFactors->intrinsicVulnerability,
+            'Intrinsic Vulnerability', $vulnerability_codes);
+        
+        static $specificity_codes = array('A' => 'Very Narrow', 'B' => 'Narrow', 'C' => 'Moderate', 'D' => 'Broad', 'U' => 'Unknown');
+        $this->append_code_description_comment($text,  @$status->conservationStatusFactors->environmentalSpecificity,
+            'Environmental Specificity', $specificity_codes);
+        
+        $this->append_description($text, @$status->conservationStatusFactors->otherConsiderations, 'Other Considerations');
+        $this->write_text_description("NatureServe Conservation Status", "conservation_status",
+            "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", $text,
+            array(  'creator' => @trim((string) $status->conservationStatusFactors->conservationStatusAuthors['displayValue'])));
     }
     
-    
-    private function write_conservation_status_factors()
+    private function national_statuses()
     {
-        if($conservation = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors)
+        $descriptions = array();
+        if($statuses = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->nationalStatuses)
         {
-            $blocks = array();
-            $blocks[] = @self::description_from_block($conservation->globalAbundance->description, 'Global Abundance');
-            $blocks[] = @self::description_from_block($conservation->globalAbundance->comments, 'Global Abundance Comments');
-            $blocks[] = @self::description_from_block($conservation->estimatedNumberOfOccurrences->description, 'Estimated Number of Element Occurrences');
-            $blocks[] = @self::description_from_block($conservation->estimatedNumberOfOccurrences->comments, 'Estimated Number of Element Occurrences Comments');
-            $blocks[] = @self::description_from_block($conservation->globalShortTermTrend->description, 'Global Short Term Trend');
-            $blocks[] = @self::description_from_block($conservation->globalShortTermTrend->comments, 'Global Short Term Trend Comments');
-            $blocks[] = @self::description_from_block($conservation->globalLongTermTrend->description, 'Global Long Term Trend');
-            $blocks[] = @self::description_from_block($conservation->globalLongTermTrend->comments, 'Global Long Term Trend Comments');
-            $blocks[] = @self::description_from_block($conservation->globalProtection->description, 'Global Protection');
-            $blocks[] = @self::description_from_block($conservation->globalProtection->comments, 'Global Protection Comments');
-            $blocks[] = @self::description_from_block($conservation->globalProtection->needs, 'Global Protection Needs');
-            $blocks[] = @self::description_from_block($conservation->threat->degreeOfThreat->description, 'Degree of Threat');
-            $blocks[] = @self::description_from_block($conservation->threat->scope, 'Threat Scope');
-            $blocks[] = @self::description_from_block($conservation->threat->severity, 'Threat Severity');
-            $blocks[] = @self::description_from_block($conservation->threat->immediacy, 'Threat Immediacy');
-            $blocks[] = @self::description_from_block($conservation->threat->comments, 'Threats');
-            $blocks[] = @self::description_from_block($conservation->intrinsicVulnerabity->comments, 'Intrinsic Vulnerability');
-            $blocks[] = @self::description_from_block($conservation->environmentalSpecificity->description, 'Environmental Specificy');
-            $blocks[] = @self::description_from_block($conservation->otherConsiderations, 'Other Considerations');
-            
-            // array_filter removes any null or empty string values
-            if($blocks = array_filter($blocks)) 
+            foreach($statuses->nationalStatus as $status)
             {
-                $this->write_text_description("NatureServe Conservation Status Factors",
-                    "conservation_status_factors",
-                    "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation",
-                    implode("<br/><br/>", $blocks));
+                $description = "<h5>". $status['nationName'] ."</h5>";
+                if($rounded_rank_code = (string) @$status->roundedRank->code)
+                {
+                    $description .= "<p><strong>Rounded National Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">$rounded_rank_code</a>";
+                    if($rank_description = (string) @$status->roundedRank->description) $description .= " - ". $rank_description;
+                    elseif($value = @$this->national_status_code_labels[(string) $rounded_rank_code]) $description .= " - ". $value;
+                    $description .= "</p>";
+                }elseif($rank_code = (string) @$status->rank->code)
+                {
+                    $descriptions[] .= "<p><strong>National Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">$rank_code</a>";
+                    if($rank_description = (string) @$status->roundedRank->description) $description .= " - ". $rank_description;
+                    elseif($value = @$this->national_status_code_labels[(string) $rounded_rank_code]) $description .= " - ". $value;
+                    $description .= "</p>";
+                }
+                $descriptions[] = $description;
             }
+        }
+        $descriptions = array_filter($descriptions);
+        if($descriptions)
+        {
+            $this->write_text_description("National NatureServe Conservation Status", "national_conservation_status",
+              "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus",
+              implode("", $descriptions));
         }
     }
     
-    private function write_distribution()
+    private function global_abundance()
+    {
+        $text = $this->get_code_description_comment( @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->globalAbundance);
+        $this->write_text_description("Global Abundance", "global_abundance", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#PopulationBiology", $text);
+    }
+    
+    private function number_of_occurrences()
+    {
+        static $occurrence_codes = array('Z' => '0 occurrences', 'A' => '1-5 occurrences', 'B' => '6-20 occurrences',
+            'C' => '21-80 occurrences', 'D' => '81-300 occurrences', 'E' => '>300 occurrences', 'U' => 'Unknown');
+        $text = $this->get_code_description_comment( @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->estimatedNumberOfOccurrences, 'Estimated Number of Occurrences', $occurrence_codes);
+        if($text)
+        {
+            $text = "<p>Note: For many non-migratory species, occurrences are roughly equivalent to populations.</p>" . $text;
+            $this->write_text_description("Number of Occurrences", "occurrences", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#PopulationBiology", $text);
+        }
+    }
+    
+    private function trends()
+    {
+        $text = "";
+        static $trend_codes = array(
+            'A' => 'Severely declining (decline of >70% in population size, range, area occupied, and|or number or condition of occurrences)',
+            'B' => 'Very rapidly declining (decline of 50-70%)',
+            'C' => 'Rapidly declining (decline of 30-50%)',
+            'D' => 'Declining (decline of 10-30%)',
+            'E' => 'Stable (unchanged or remaining within ±10% fluctuation)',
+            'F' => 'Increasing (increase of >10%)',
+            'U' => 'Unknown (short-term trend unknown)');
+        
+        $this->append_code_description_comment($text,  @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->globalShortTermTrend,
+            'Global Short Term Trend', $trend_codes);
+        
+        $this->append_code_description_comment($text,  @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->globalLongTermTrend,
+            'Global Long Term Trend', $trend_codes);
+        
+        $this->write_text_description("", "global_trends", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends", $text);
+    }
+    
+    private function threats()
+    {
+        $text = "";
+        static $threat_codes = array(
+            'A' => 'Very threatened throughout its range communities directly exploited or their composition and structure irreversibly threatened by man-made forces, including exotic species',
+            'B' => 'Moderately threatened throughout its range, communities provide natural resources that when exploited alter the composition and structure of the community over the long-term, but are apparently recoverable',
+            'C' => 'Not very threatened throughout its range, communities often provide natural resources that when exploited alter the composition and structure over the short-term, or communities are self-protecting because they are unsuitable for other uses',
+            'D' => 'Unthreatened throughout its range, communities may be threatened in minor portions of the range or degree of variation falls within natural variation',
+            'U' => 'Unknown (short-term trend unknown)');
+        
+        $this->append_code_description_comment($text,  @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->threat->degreeOfThreat,
+            'Degree of Threat', $threat_codes);
+        
+        $this->append_description($text, @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->threat->comments, 'Comments');
+        $this->write_text_description("", "threats", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats", $text);
+    }
+    
+    private function map_images()
+    {
+        $this->write_image_description("U.S. States and Canadian Provinces", "conservation_map", 'map',
+            (string) @$this->current_details_xml->distribution->conservationStatusMap,
+            array('description' => 'NatureServe conservation status ranks for U.S. states and Canada provinces.  See <a href="http://www.natureserve.org/explorer/ranking.htm#natsub">NatureServe Conservation Status</a> for more information about the ranks.'));
+            
+        $this->write_image_description("Range Map", "range_map", 'map',
+            (string) @$this->current_details_xml->distribution->rangeMap->rangeMapURI,
+            array('creator' => @trim((string) $this->current_details_xml->distribution->rangeMap->rangeMapCompilers),
+                  'description' => trim('New World Range Map. ' . @trim((string) $this->current_details_xml->distribution->rangeMap->rangeMapCompilers))));
+    }
+    
+    private function global_range()
     {
         if($distribution = @$this->current_details_xml->distribution)
         {
-            $blocks = array();
-            $blocks[] = @self::description_from_block($distribution->globalRange->description, 'Global Range');
-            $blocks[] = @self::description_from_block($distribution->globalRange->comments, 'Global Range Comments');
-            $blocks[] = @self::description_from_block($distribution->endemism->description, 'Endemism');
-            
-            // array_filter removes any null or empty string values
-            if($blocks = array_filter($blocks)) 
+            $text = "";
+            $range = (string) @$distribution->globalRange->description;
+            $comments = (string) @$distribution->globalRange->comments;
+            if($range && $comments) $text = "($range) $comments";
+            elseif($range) $text = $range;
+            elseif($comments) $text = $comments;
+            if($text)
             {
-                $this->write_text_description("Distribution",
-                    "distribution",
-                    "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution",
-                    implode("<br/><br/>", $blocks));
-            }
-            
-            if($conservation_map_url = @trim((string) $distribution->conservationStatusMap))
-            {
-                $this->write_image_description("U.S. States and Canadian Provinces",
-                    "conservation_map",
-                    'map',
-                    $conservation_map_url);
-            }
-            
-            if($range_map = @$distribution->rangeMap)
-            {
-                $this->write_image_description("Range Map",
-                    "range_map",
-                    'map',
-                    (string) @$range_map->rangeMapURI,
-                    array('contributor' => @trim((string) $range_map->rangeMapCompilers)));
+                $this->write_text_description("", "global_range", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution",
+                    "<p><strong>Global Range</strong>: $text");
             }
         }
     }
     
-    private function write_ecology_and_life_history()
+    private function national_range()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        if($nations = @$this->current_details_xml->distribution->nations)
         {
-            $blocks = array();
-            $blocks[] = @self::description_from_block($ecology->ecologyAndLifeHistoryDescription->shortGeneralDescription, 'Basic Description');
-            $blocks[] = @self::description_from_block($ecology->ecologyAndLifeHistoryDescription->generalDescription, 'General Description');
-            $blocks[] = @self::description_from_block($ecology->diagnosticCharacteristics, 'Diagnostic Characteristics');
-            $blocks[] = @self::description_from_block($ecology->reproductionComments, 'Reproduction Comments');
-            $blocks[] = @self::description_from_block($ecology->knownPests, 'Known Pests');
-            $blocks[] = @self::description_from_block($ecology->ecologyComments, 'Ecology Comments');
-            $blocks[] = @self::description_from_block($ecology->habitatType->description, 'Habitat Type');
-            $blocks[] = @self::description_from_block($ecology->migration->nonMigrant, 'Non-Migrant');
-            $blocks[] = @self::description_from_block($ecology->migration->locallyMigrant, 'Locally Migrant');
-            $blocks[] = @self::description_from_block($ecology->migration->longDistanceMigrant, 'Long Distance Migrant');
-            $blocks[] = @self::description_from_block($ecology->migration->mobilityAndMigrationComments, 'Mobility and Migration Comments');
-            $blocks[] = @self::description_from_block($ecology->habitats->habitatComments, 'Habitat Comments');
-            $blocks[] = @self::description_from_block($ecology->foodHabits->foodComments, 'Food Comments');
-            $blocks[] = @self::description_from_block($ecology->phenologies->phenologyComments, 'Phenology Comments');
-            $blocks[] = @self::description_from_block($ecology->length, 'Length');
-            $blocks[] = @self::description_from_block($ecology->weight, 'Weight');
-            
-            // array_filter removes any null or empty string values
-            if($blocks = array_filter($blocks))
+            $descriptions = array();
+            foreach($nations->nation as $nation)
             {
-                $this->write_text_description("Ecology and Life History",
-                    "ecology_and_life_history",
-                    "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Ecology",
-                    implode("<br/><br/>", $blocks),
-                    array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
-                            'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+                $text = "";
+                $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->origin, 'Origin');
+                $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->regularity, 'Regularity');
+                $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->currentPresenceAbsence, 'Currently');
+                $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->distributionConfidence, 'Confidence');
+                $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->population, 'Type of Residency');
+                if($text)
+                {
+                    $descriptions[] = "<h5>". $nation['nationName'] ."</h5>" . $text;
+                }
+            }
+            $descriptions = array_filter($descriptions);
+            if($descriptions)
+            {
+                $this->write_text_description("National Distribution", "national_distributions",
+                  "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", implode("", $descriptions));
             }
         }
     }
     
-    private function write_economic_attributes()
+    private function endemism()
     {
-        if($economy = @$this->current_details_xml_xml->economicAttributes)
+        if($endemism = @$this->current_details_xml->distribution->endemism)
         {
-            $blocks = array();
-            $blocks[] = @self::description_from_block($economy->economicComments, 'Economic Comments');
-            
-            // array_filter removes any null or empty string values
-            if($blocks = array_filter($blocks))
+            static $endemism_codes = array('S' => 'state|province endemic', 'N' => 'national endemic', 'M' => 'multinational distribution',
+                'MSB' => 'occurs in multiple nations, breeds in only one subnation',
+                'MNB' => 'occurs in multiple nations, breeds in multiple state|provinces of only one nation',
+                'NSB' => 'occurs in multiple subnations of only one nation, breeds in only one state|province');
+            if($text = $this->get_code_description_comment($endemism, '', $endemism_codes))
             {
-                $this->write_text_description("Economic Attributes",
-                    "economic_attributes",
-                    "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses",
-                    implode("<br/><br/>", $blocks));
+                $this->write_text_description("", "endemism", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", $text);
             }
         }
     }
     
-    private function write_management_summary()
+    private function economic_uses()
+    {
+        if($econ = @$this->current_details_xml->economicAttributes)
+        {
+            $text = "";
+            if($uses = @$econ->economicUses)
+            {
+                $all_uses = array();
+                foreach(@$uses->economicUse as $use) $all_uses[] = (string) $use;
+                if($all_uses) $text .= "<p><strong>Uses</strong>: ". implode($all_uses, ", ")."</p>";
+            }
+            $all_methods = array();
+            if($uses = @$econ->productionMethods)
+            {
+                foreach(@$uses->productionMethod as $method) $all_methods[] = (string) $method;
+                if($all_methods) $text .= "<p><strong>Production Methods</strong>: ". implode($all_methods, ", ")."</p>";
+            }
+            $this->append_description($text, @$econ->economicComments, 'Comments');
+            $this->write_text_description("Economic Uses", "economic_uses", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use", $text);
+        }
+    }
+    
+    private function management_summary()
     {
         if($management = @$this->current_details_xml->managementSummary)
         {
-            $blocks = array();
-            $blocks[] = @self::description_from_block($management->stewardshipOverview, 'Stewardship Overview');
-            $blocks[] = @self::description_from_block($management->speciesImpact, 'Species Impact');
-            $blocks[] = @self::description_from_block($management->restorationPotential, 'Restoration Potential');
-            $blocks[] = @self::description_from_block($management->preserveSelectionAndDesignConsiderations, 'Preserve Selection and Design Considerations');
-            $blocks[] = @self::description_from_block($management->managementRequirements, 'Management Requirements');
-            $blocks[] = @self::description_from_block($management->monitoringRequirements, 'Monitoring Requirements');
-            $blocks[] = @self::description_from_block($management->managementPrograms, 'Management Programs');
-            $blocks[] = @self::description_from_block($management->monitoringPrograms, 'Monitoring Programs');
-            $blocks[] = @self::description_from_block($management->managementResearchPrograms, 'Management Research Programs');
-            $blocks[] = @self::description_from_block($management->managementResearchNeeds, 'Management Research Needs');
-            $blocks[] = @self::description_from_block($management->biologicalResearchNeeds, 'Biological Research Needs');
-            $blocks[] = @self::description_from_block($management->additionalTopics, 'Additional Topics');
+            $text = "";
+            $this->append_description($text, @$management->stewardshipOverview, 'Stewardship Overview');
+            $this->append_description($text, @$management->speciesImpact, 'Species Impact');
+            $this->append_description($text, @$management->economicComments, 'Comments');
+            $this->write_text_description("", "management_summary", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement", $text,
+                array(  'creator' => @trim((string) $management->managementSummaryAuthors['displayValue']),
+                        'created' => @trim((string) $management->editionDate)));
+        }
+    }
+    
+    private function global_protection()
+    {
+        $text = "";
+        if($protection = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->globalProtection)
+        {
+            static $protection_codes = array(
+                'A' => 'No occurrences appropriately protected and managed',
+                'B' => 'Few (1-3) occurrences appropriately protected and managed',
+                'C' => 'Several (4-12) occurrences appropriately protected and managed',
+                'D' => 'many (13-40) occurrences appropriately protected and managed',
+                'E' => 'very many (>40) occurrences appropriately protected and managed',
+                'U' => 'unknown whether any occurrences appropriately protected and managed');
+            $text = $this->get_code_description_comment($protection, 'Global Protection', $protection_codes);
+            $this->append_description($text, @$protection->needs, 'Needs');
+            $this->write_text_description("", "global_protection", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management", $text);
+        }
+    }
+    
+    private function management()
+    {
+        if($management = @$this->current_details_xml->managementSummary)
+        {
+            $text = "";
+            $this->append_description($text, @$management->restorationPotential, 'Restoration Potential');
+            $this->append_description($text, @$management->preserveSelectionAndDesignConsiderations, 'Preserve Selection and Design Considerations');
+            $this->append_description($text, @$management->managementRequirements, 'Management Requirements');
+            $this->append_description($text, @$management->managementPrograms, 'Management Programs');
+            $this->append_description($text, @$management->monitoringPrograms, 'Monitoring Programs');
+            $this->append_description($text, @$management->managementResearchPrograms, 'Management Research Programs');
+            $this->append_description($text, @$management->managementResearchNeeds, 'Management Research Needs');
+            $this->append_description($text, @$management->biologicalResearchNeeds, 'Biological Research Needs');
+            $this->append_description($text, @$management->additionalTopics, 'Comments');
+            $this->write_text_description("", "management", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management", $text,
+                array(  'creator' => @trim((string) $management->managementSummaryAuthors['displayValue']),
+                        'created' => @trim((string) $management->editionDate)));
+        }
+    }
+    
+    private function taxon_biology()
+    {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $text = "";
+            $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->shortGeneralDescription);
+            $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->generalDescription);
+            $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->technicalDescription);
+            $this->write_text_description("", "ecology_life_history", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function diagnostic_description()
+    {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $text = "";
+            $this->append_description($text, @$ecology->diagnosticCharacteristics);
+            $this->write_text_description("", "diagnostic_description", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function life_cycle()
+    {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $text = "";
+            $all_durations = array();
+            if($durations = @$ecology->durations)
+            {
+                foreach(@$durations->duration as $duration) $all_durations[] = (string) $duration;
+                if($all_durations) $text .= "<p><strong>Persistence</strong>: ". implode($all_durations, ", ")."</p>";
+            }
+            $this->write_text_description("", "life_cycle", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#LifeCycle", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function reproduction()
+    {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $text = "";
+            $this->append_description($text, @$ecology->reproductionComments);
+            $this->write_text_description("", "reproduction", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Reproduction", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function associations()
+    {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $text = "";
+            $this->append_description($text, @$ecology->knownPests, 'Known Pests');
+            $this->write_text_description("", "reproduction", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function ecology()
+    {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $text = "";
+            $this->append_description($text, @$ecology->ecologyComments);
+            $this->write_text_description("", "ecology_comments", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Ecology", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function migration()
+    {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $text = "";
+            $this->append_description($text, @$ecology->migration->nonMigrant, 'Non-Migrant');
+            $this->append_description($text, @$ecology->migration->locallyMigrant, 'Locally Migrant');
+            $this->append_description($text, @$ecology->migration->longDistanceMigrant, 'Long Distance Migrant');
+            $this->append_description($text, @$ecology->migration->mobilityAndMigrationComments);
             
-            // array_filter removes any null or empty string values
-            if($blocks = array_filter($blocks))
-            {
-                $this->write_text_description("Management Summary",
-                    "management_summary",
-                    "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management",
-                    implode("<br/><br/>", $blocks),
-                    array(  'creator' => @trim((string) $management->managementSummaryAuthors['displayValue']),
-                            'created' => @trim((string) $management->editionDate)));
-            }
+            $text = str_replace("Non-Migrant</strong>: Yes", "Non-Migrant</strong>: Yes. At least some populations of this species do not make significant seasonal migrations.  Juvenile dispersal is not considered a migration.", $text);
+            $text = str_replace("Non-Migrant</strong>: No", "Non-Migrant</strong>: No. All populations of this species make significant seasonal migrations.", $text);
+            $text = str_replace("Locally Migrant</strong>: Yes", "Locally Migrant</strong>: Yes. At least some populations of this species make local extended movements (generally less than 200 km) at particular times of the year (e.g., to breeding or wintering grounds, to hibernation sites).", $text);
+            $text = str_replace("Locally Migrant</strong>: No", "Locally Migrant</strong>: No. No populations of this species make local extended movements (generally less than 200 km) at particular times of the year (e.g., to breeding or wintering grounds, to hibernation sites).", $text);
+            $text = str_replace("Long Distance Migrant</strong>: Yes", "Locally Migrant</strong>: Yes. At least some populations of this species make annual migrations of over 200 km.", $text);
+            $text = str_replace("Long Distance Migrant</strong>: No", "Locally Migrant</strong>: No. No populations of this species make annual migrations of over 200 km.", $text);
+            
+            $this->write_text_description("", "migration", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Migration", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
         }
     }
     
-    private function write_population_occurrence()
+    private function habitat()
     {
-        if($population = @$this->current_details_xml->populationOccurrence)
+        $text = "";
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
         {
-            $blocks = array();
-            foreach($population->delineations->delineation as $delineation)
-            {
-                if(@$delineation['groupName']) $blocks[] = "<b>Group Class:</b> ". $delineation['groupName'];
-                if(@$delineation['migratoryUseType']) $blocks[] = "<b>Use Class:</b> ". $delineation['migratoryUseType'];
-                if(isset($delineation->subTypes))
-                {
-                    $subtypes = array();
-                    foreach($delineation->subTypes->subType as $subtype) $subtypes[] = (string) $subtype;
-                    if($subtypes)
-                    {
-                        $blocks[] = "<b>Subtype(s):</b> " . implode(", ", $subtypes);
-                    }
-                }
-                $blocks[] = @self::description_from_block($delineation->minimumCriteriaForOccurrence, 'Minimum Criteria for an Occurrence');
-                $blocks[] = @self::description_from_block($delineation->mappingGuidance, 'Mapping Guidance');
-                if(isset($delineation->separation))
-                {
-                    $blocks[] = @self::description_from_block($delineation->separation->barriers, 'Separation Barriers');
-                    $blocks[] = @self::description_from_block($delineation->separation->distanceForUnsuitableHabitat, 'Separation Distance for Unsuitable Habitat');
-                    $blocks[] = @self::description_from_block($delineation->separation->distanceForSuitableHabitat, 'Separation Distance for Suitable Habitat');
-                    $blocks[] = @self::description_from_block($delineation->separation->alternateSeparationProcedure, 'Alternate Separation Procedure');
-                    $blocks[] = @self::description_from_block($delineation->separation->separationJustification, 'Separation Justification');
-                }
-                
-                // array_filter removes any null or empty string values
-                if($blocks = array_filter($blocks))
-                {
-                    $this->write_text_description("Population Delineation",
-                        "population_delineation",
-                        "http://rs.tdwg.org/ontology/voc/SPMInfoItems#PopulationBiology",
-                        implode("<br/><br/>", $blocks),
-                        array(  'creator' => @trim((string) $delineation->delineationAuthors['displayValue']),
-                                'created' => @trim((string) $delineation->versionDate)));
-                }
-                break;
-            }
+            static $habitat_codes = array('M' => 'Marine', 'F' => 'Freshwater', 'T' => 'Terrestrial');
+            $text = $this->get_code_description_comment(@$ecology->habitatType, 'Habitat Type', $habitat_codes);
+            $this->append_description($text, @$ecology->habitats->habitatComments, 'Comments');
+            $this->write_text_description("", "habitat", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
         }
     }
     
-    private function write_images()
+    private function trophic_strategy()
     {
-        if($images = @$this->current_details_xml->speciesImages)
+        $text = "";
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
         {
-            foreach($images->speciesImage as $speciesImage)
-            {
-                $mr = new \eol_schema\MediaResource();
-                $mr->taxonID = (string) $this->current_details_xml['uid'];
-                $mr->mediaResourceID = $mr->taxonID . "_image_" . $speciesImage->imageMetadataId;
-                $mr->type = 'http://purl.org/dc/dcmitype/StillImage';
-                $mr->language = 'en';
-                $mr->mimeType = 'image/jpeg';
-                $mr->additionalInformationURL = (string) @$this->current_details_xml->natureServeExplorerURI;
-                foreach($speciesImage->imageVersions->imageURL as $imageURL)
-                {
-                    if($imageURL['imageType'] == 'Detail') $mr->fileURL = (string) $imageURL;
-                }
-                $mr->creator = @$speciesImage->imageCreatorCredit;
-                $mr->rights = @$speciesImage->imageRights;
-                $mr->rightsHolder = @$speciesImage->imageCopyright;
-                $mr->license = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-                $this->archive_builder->write_object_to_file($mr);
-            }
+            $this->append_description($text, @$ecology->foodHabits->foodComments, 'Comments');
+            $this->write_text_description("", "food_habits", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TrophicStrategy", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
         }
     }
     
-    private function write_references()
+    private function cyclicity()
+    {
+        $text = "";
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $this->append_description($text, @$ecology->phenologies->phenologyComments, 'Comments');
+            $this->write_text_description("", "food_habits", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Cyclicity", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function size()
+    {
+        $text = "";
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        {
+            $this->append_description($text, @$ecology->length, 'Length');
+            $this->append_description($text, @$ecology->weight, 'Weight');
+            $this->write_text_description("", "size", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size", $text,
+                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        }
+    }
+    
+    private function references()
     {
         $references = array();
         if($r = (string) @$this->current_details_xml->classification->names->scientificName->conceptReference->formattedFullCitation)
         {
-            $references[trim($r)] = 1;
+            $ref_string = trim((string) $r);
+            while(preg_match("/^(.*)&lt;br&gt;$/", $ref_string, $arr)) $ref_string = $arr[1];
+            while(preg_match("/^(.*)<br>$/", $ref_string, $arr)) $ref_string = $arr[1];
+            $references[$ref_string] = 1;
         }
         if(isset($this->current_details_xml->references))
         {
             foreach($this->current_details_xml->references->citation as $reference)
             {
-                $references[trim((string) $reference)] = 1;
+                $ref_string = trim((string) $reference);
+                while(preg_match("/^(.*)&lt;br&gt;$/", $ref_string, $arr)) $ref_string = $arr[1];
+                while(preg_match("/^(.*)<br>$/", $ref_string, $arr)) $ref_string = $arr[1];
+                $references[$ref_string] = 1;
             }
         }
         // this is some kind of placeholder reference and likely is not to be displayed
         unset($references["NatureServe. Unpublished. Concept reference for taxa where a reference cannot be recorded due to insufficient BCD data for conversion; to be used as a placeholder until the correct citation is identified."]);
         unset($references["NatureServe. Unpublished. Concept reference for taxa for which no reference which describes the circumscription has been recorded; to be used as a placeholder until such a citation is identified."]);
         unset($references["NatureServe. Unpublished. Concept reference for taxa which have not yet been described; to be used as a placeholder until a citation is available which describes the circumscription of the taxon."]);
+        $this->write_references($references);
     }
+    
+    private function get_images($id)
+    {
+        $url = self::IMAGE_API_PREFIX . $id;
+        $details_xml = $this->lookup_with_cache($url, true);
+        $xml = simplexml_load_string($details_xml);
+        foreach($xml->image as $image)
+        {
+            $dc = $image->children("http://purl.org/dc/terms/");
+            if($dc->rights != 'Public Domain') continue;
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID = $id;
+            $mr->mediaResourceID = $id . "_image_" . $image->id;
+            $mr->title = $dc->title;
+            $mr->type = 'http://purl.org/dc/dcmitype/StillImage';
+            $mr->language = 'en';
+            $mr->mimeType = @$mr->mimeType ?: $dc->format;
+            $mr->description = trim($dc->description);
+            $mr->locality = $dc->coverage;
+            $mr->additionalInformationURL = $image->natureServeExplorerURI;
+            $mr->fileURL = $dc->identifier;
+            $mr->creator = $dc->creator;
+            $mr->rights = $dc->rights;
+            $mr->rightsHolder = @$mr->rightsHolder ?: $dc->rightsHolder;
+            $mr->license = 'http://creativecommons.org/licenses/publicdomain/';
+            
+            if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr))
+            {
+                $width = $arr[1];
+                if(@$dc->isVersionOf && preg_match("/&RES=([0-9]+)X/", $dc->isVersionOf, $arr))
+                {
+                    $other_width = $arr[1];
+                    if($width < $other_width) continue;
+                }
+            }else continue;
+            $this->archive_builder->write_object_to_file($mr);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     private function write_text_description($title, $id_suffix, $subject, $description, $options = array())
     {
+        if(!$description) return;
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID = (string) $this->current_details_xml['uid'];
         $mr->mediaResourceID = $mr->taxonID . "_" . $id_suffix;
@@ -456,12 +688,13 @@ class NatureServeAPI
         $mr->title = $title;
         $mr->creator = @$options['creator'];
         $mr->created = @$options['created'];
-        $mr->license = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+        $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
         $this->archive_builder->write_object_to_file($mr);
     }
     
     private function write_image_description($title, $id_suffix, $subtype, $fileURL, $options = array())
     {
+        if(!$fileURL) return;
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID = (string) $this->current_details_xml['uid'];
         $mr->mediaResourceID = $mr->taxonID . "_" . $id_suffix;
@@ -470,14 +703,26 @@ class NatureServeAPI
         $mr->language = 'en';
         $mr->mimeType = 'image/gif';
         $mr->additionalInformationURL = (string) @$this->current_details_xml->natureServeExplorerURI;
-        $mr->title = "U.S. States and Canadian Provinces";
+        $mr->title = $title;
         $mr->fileURL = $fileURL;
         $mr->creator = @$options['creator'];
         $mr->created = @$options['created'];
-        $mr->license = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+        $mr->description = @$options['description'];
+        $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
         $this->archive_builder->write_object_to_file($mr);
     }
     
+    private function write_references($references)
+    {
+        if(!$references) return;
+        foreach($references as $ref => $junk)
+        {
+            $r = new \eol_schema\Reference();
+            $r->taxonID = (string) $this->current_details_xml['uid'];
+            $r->fullReference = $ref;
+            $this->archive_builder->write_object_to_file($r);
+        }
+    }
     
     private static function description_from_block($xml, $title)
     {
@@ -488,6 +733,48 @@ class NatureServeAPI
         $description = "<b>$title:</b> ". $string;
         if(@trim((string) $xml['units'])) $description .= " ". $xml['units'];
         return $description;
+    }
+    
+    private static function append_description(&$working_text, $node, $title = null)
+    {
+        $node_text = trim((string) $node);
+        if(!$node_text) return;
+        if($node_text == 'false') $node_text = "No";
+        if($node_text == 'true') $node_text = "Yes";
+        if($title) $node_text = "<strong>$title</strong>: ". $node_text;
+        if($units = @trim((string) $node['units'])) $node_text .= " $units";
+        $node_text = "<p>$node_text</p>";
+        $working_text .= $node_text;
+        return $node_text;
+    }
+    
+    private function get_code_description_comment($node, $title = null, $codes = array())
+    {
+        $text = "";
+        $this->append_code_description_comment($text, $node, $title, $codes);
+        return $text;
+    }
+    
+    private function append_code_description_comment(&$working_text, $node, $title = null, $codes = array())
+    {
+        if(!$node) return null;
+        $node_text = (string) @$node->description;
+        $comments = (string) @$node->comments;
+        if(!$node_text && $code = (string) @$node->code)
+        {
+            $node_text = $code;
+            if($value = @$codes[$code]) $node_text .= " : $value";
+        }
+        
+        if($node_text)
+        {
+            if($title) $node_text = "<strong>$title</strong>: " . $node_text;
+            $node_text = "<p>$node_text</p>";
+            if($comments) $node_text .= "<p><strong>Comments</strong>: $comments</p>";
+            $working_text .= $node_text;
+            return $node_text;
+        }
+        return null;
     }
     
     private static function canonical_form($string)
@@ -511,6 +798,41 @@ class NatureServeAPI
         $canonical_form = str_replace(" ssp. ", " ", $canonical_form);
         $canonical_form = str_replace(" x ", " ", $canonical_form);
         return $canonical_form;
+    }
+    
+    private function global_status_code_labels()
+    {
+        if(@$this->global_status_code_labels) return $this->global_status_code_labels;
+        $this->global_status_code_labels = array();
+        $this->global_status_code_labels['GX'] = "Presumed Extinct";
+        $this->global_status_code_labels['GH'] = "Possibly Extinct";
+        $this->global_status_code_labels['G1'] = "Critically Imperiled";
+        $this->global_status_code_labels['G2'] = "Imperiled";
+        $this->global_status_code_labels['G3'] = "Vulnerable";
+        $this->global_status_code_labels['G4'] = "Apparently Secure";
+        $this->global_status_code_labels['G5'] = "Secure";
+        return $this->global_status_code_labels;
+    }
+    
+    private function national_status_code_labels()
+    {
+        if(@$this->national_status_code_labels) return $this->national_status_code_labels;
+        $this->national_status_code_labels = array();
+        $this->national_status_code_labels['NX'] = "Presumed Extirpated";
+        $this->national_status_code_labels['SX'] = $this->national_status_code_labels['NX'];
+        $this->national_status_code_labels['NH'] = "Possibly Extirpated";
+        $this->national_status_code_labels['SH'] = $this->national_status_code_labels['NH'];
+        $this->national_status_code_labels['N1'] = "Critically Imperiled";
+        $this->national_status_code_labels['S1'] = $this->national_status_code_labels['N1'];
+        $this->national_status_code_labels['N2'] = "Imperiled";
+        $this->national_status_code_labels['S2'] = $this->national_status_code_labels['N2'];
+        $this->national_status_code_labels['N3'] = "Vulnerable";
+        $this->national_status_code_labels['S3'] = $this->national_status_code_labels['N3'];
+        $this->national_status_code_labels['N4'] = "Apparently Secure";
+        $this->national_status_code_labels['S4'] = $this->national_status_code_labels['N4'];
+        $this->national_status_code_labels['N5'] = "Secure";
+        $this->national_status_code_labels['S5'] = $this->national_status_code_labels['N5'];
+        return $this->national_status_code_labels;
     }
 }
 

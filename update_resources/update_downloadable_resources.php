@@ -24,10 +24,11 @@ while($result && $row=$result->fetch_assoc())
     
     if($resource->id==11) continue; //biolib.cz
     if($resource->id==42) continue; //fishbase
-    if($resource->id!=298) continue;
+    // if($resource->id!=59) continue;
     
     if($resource->accesspoint_url)
     {
+        echo "$resource->id $resource->accesspoint_url\n";
         $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource");
         if(!$new_resource_path)
         {

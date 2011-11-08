@@ -157,7 +157,7 @@ class Resource extends ActiveRecord
         $result = $mysqli->query("SELECT SQL_NO_CACHE DISTINCT resource_id FROM harvest_events WHERE publish=1 AND published_at IS NULL");
         while($result && $row=$result->fetch_assoc())
         {
-            $resources[] = $resource = Resource::find($row["id"]);
+            $resources[] = $resource = Resource::find($row["resource_id"]);
         }
         return $resources;
     }

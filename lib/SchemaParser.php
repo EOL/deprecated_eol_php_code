@@ -268,6 +268,14 @@ class SchemaParser
                 $data_object_parameters["info_items"][] = InfoItem::find_or_create_by_schema_value(trim((string) $s));
             }
             
+            if($subject = @$d->additionalInformation->subject)
+            {
+                if($ii = InfoItem::find_or_create_by_schema_value(trim((string) $subject)))
+                {
+                    $data_object_parameters["info_items"] = array($ii);
+                }
+            }
+            
             
             // EXCEPTIONS
             if($data_object->is_text())
