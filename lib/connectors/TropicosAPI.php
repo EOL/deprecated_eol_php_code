@@ -110,16 +110,11 @@ class TropicosAPI
         }
         fclose($READ);
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
+        $xml = self::add_rating_to_image_object($xml, '1.0');
         $resource_path = self::$TEMP_FILE_PATH . "temp_tropicos_" . $task . ".xml";
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
         fclose($OUT);
-    }
-
-    function format_number($num)
-    {
-        if($num < 10) return substr(strval($num/100), 2, 2);
-        else          return strval($num);
     }
 
     function divide_text_file($divisor)
@@ -139,7 +134,7 @@ class TropicosAPI
                 if($i == $divisor)//no. of names per text file
                 {
                     $file_ctr++;
-                    $file_ctr_str = self::format_number($file_ctr);
+                    $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
                     $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
                     fwrite($OUT, $str);
                     fclose($OUT);
@@ -154,7 +149,7 @@ class TropicosAPI
         if($str)
         {
             $file_ctr++;
-            $file_ctr_str = self::format_number($file_ctr);
+            $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
             $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
             fwrite($OUT, $str);
             fclose($OUT);
@@ -164,7 +159,7 @@ class TropicosAPI
         $str = "";
         FOR($i = 1; $i <= $file_ctr; $i++)
         {
-            $str .= "batch_" . self::format_number($i) . "\n";
+            $str .= "batch_" . Functions::format_number_with_leading_zeros($i, 2) . "\n";
         }
         $filename = self::$WORK_LIST;
         if($OUT = fopen($filename, "w+"))
@@ -211,7 +206,7 @@ class TropicosAPI
         while(true)
         {
             $i++;
-            $i_str = self::format_number($i);
+            $i_str = Functions::format_number_with_leading_zeros($i, 2);
             $filename = self::$TEMP_FILE_PATH . "temp_tropicos_batch_" . $i_str . ".xml";
             if(!is_file($filename))
             {
@@ -352,10 +347,10 @@ class TropicosAPI
                                    "http://creativecommons.org/licenses/publicdomain/");
             if(!in_array(trim($rec->LicenseUrl), $valid_licenses))
             {
-                print"\n invalid image license - " . $rec->DetailUrl;
+                print"\n invalid image license - " . $rec->DetailUrl . "\n";
                 continue;
             }
-            else print"\n valid image license - " . $rec->DetailUrl;
+            else print"\n valid image license - " . $rec->DetailUrl . "\n";
             $license = $rec->LicenseUrl;
 
             $agent = array();
@@ -507,8 +502,9 @@ class TropicosAPI
                               "license"      => $license,
                               "location"     => $location,
                               "rightsHolder" => $rightsHolder,
-                              "reference"   => $refs,
-                              "subject"      => $subject
+                              "reference"    => $refs,
+                              "subject"      => $subject,
+                              "language"     => "en"
                             );
         return $arr_objects;
     }
@@ -516,7 +512,7 @@ class TropicosAPI
     function build_id_list() // 13 mins execution time
     {
         $OUT = fopen(self::$TEMP_FILE_PATH . "tropicos_ids.txt", "w");
-        $startid = 0; // debug orig value 0 
+        $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>
         //pagesize is the no. of records returned from Tropicos master list service
         $pagesize = 1000; // debug orig value 1000
         $count = 0;
@@ -547,6 +543,7 @@ class TropicosAPI
                 break;
             }
             if($count == 1300) break; // normal operation
+            //break; //debug
         }
         fclose($OUT);
     }
@@ -566,6 +563,26 @@ class TropicosAPI
             print "\n\n Process stopped at [$time], will resume in 1.5 hours...";
             sleep((60*60)+(60*30)); //sleep 1.5 hours
         }
+    }
+
+    function add_rating_to_image_object($xml_string, $rating)
+    {
+        if(!stripos($xml_string, "mediaURL")) return $xml_string;
+        print "\n this batch has mediaURL \n";
+        $xml = simplexml_load_string($xml_string);
+        foreach($xml->taxon as $taxon)
+        {
+            foreach($taxon->dataObject as $dataObject)
+            {
+                $dataObject_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
+                if(@$dataObject->mediaURL)
+                {
+                    $dataObject->addChild("additionalInformation", "");
+                    $dataObject->additionalInformation->addChild("rating", $rating);
+                }
+            }
+        }
+        return $xml->asXML();
     }
 
 }
