@@ -1,5 +1,6 @@
 <?php
-
+exit;
+/* AntWeb is now giving us a complete resource XML with <mediaURL> element for their image objects */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
