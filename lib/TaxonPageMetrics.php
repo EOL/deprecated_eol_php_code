@@ -612,22 +612,29 @@ class TaxonPageMetrics
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
             print "\n dataObjects, its infoItems, its references [2 of 13] $i \n";
-            $sql = "SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, dohe.vetted_id, udo.vetted_id
+            $sql = "SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, dohe.vetted_id, do.id
                 FROM data_objects_taxon_concepts dotc 
                 JOIN data_objects do ON dotc.data_object_id = do.id 
                 LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id 
                 LEFT JOIN data_objects_refs dor ON do.id = dor.data_object_id 
-                LEFT JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
-                LEFT JOIN users_data_objects udo on do.id = udo.data_object_id
-                WHERE do.published=1 
-                AND (
-                        dohe.visibility_id=".Visibility::visible()->id." OR
-                        udo.visibility_id=".Visibility::visible()->id."
-                    )
-                AND do.data_type_id <> $image_id";
-            
+                JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
+                WHERE do.published=1 AND dohe.visibility_id=".Visibility::visible()->id." 
+                AND do.data_type_id <> $image_id ";
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and dotc.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND dotc.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
+            $sql .= "
+                UNION
+                SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, udo.vetted_id, do.id
+                    FROM data_objects_taxon_concepts dotc 
+                    JOIN data_objects do ON dotc.data_object_id = do.id 
+                    LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id 
+                    LEFT JOIN data_objects_refs dor ON do.id = dor.data_object_id 
+                    JOIN users_data_objects udo on do.id = udo.data_object_id
+                    WHERE do.published=1 AND udo.visibility_id=".Visibility::visible()->id."
+                ";            
+            if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and dotc.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
+            else $sql .= " AND dotc.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
+            
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
             $num_rows = 0;
@@ -643,9 +650,7 @@ class TaxonPageMetrics
                     $info_item_id   = trim($fields[2]);
                     $ref_id         = trim($fields[3]);
                     $description    = trim($fields[4]);
-                    
-                    $vetted_id = $fields[5];
-                    if($vetted_id <= 0) $vetted_id = $fields[6];
+                    $vetted_id      = trim($fields[5]);
                     
                     $label = @$data_type_label[$data_type_id];
                     $words_count = str_word_count(strip_tags($description),0);
