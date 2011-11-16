@@ -261,7 +261,7 @@ class TropicosAPI
 
         if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY)) print "\n lost connection \n";
         $name = json_decode($name, true);
-        print "[$taxon_id] " . $name['ScientificNameWithAuthors'];
+        print "[$taxon_id] " . @$name['ScientificNameWithAuthors'];
         /* working but temporarily commented by Chris Freeland
         $arr_objects = self::get_chromosome_count($taxon_id, $arr_objects);
         */
