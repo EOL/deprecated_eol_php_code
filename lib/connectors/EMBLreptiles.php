@@ -21,7 +21,12 @@ class EMBLreptiles
         foreach($taxa as $taxon)
         {
             $i++;
-            $taxon["id"] = str_ireplace(" ", "_", $taxon["Species"]);
+
+            $sciname = @$taxon["Species"];
+            if($taxon["Author"]) $sciname .= " " . $taxon["Author"];
+            if($taxon["Year"]) $sciname .= " " . $taxon["Year"];
+            $taxon["id"] = str_ireplace(" ", "_", $sciname);
+
             print "\n $i of $total";
             $arr = self::get_embl_taxa($taxon, $used_collection_ids);
             $page_taxa               = $arr[0];
@@ -90,7 +95,8 @@ class EMBLreptiles
         $arr_data = array();
         $arr_objects = array();
         if($taxon["Distribution"]) $arr_objects[] = self::prepare_text_objects($taxon);
-        if(sizeof($arr_objects))
+        //if(sizeof($arr_objects)) We should get all taxa, not just those with text.
+        if(1 == 1)
         {
             $sciname = @$taxon["Species"];
             if($taxon["Author"]) $sciname .= " " . $taxon["Author"];
@@ -123,6 +129,7 @@ class EMBLreptiles
         $description = "";
         if($taxon["Continent"]) $description .= "Continent: " . $taxon["Continent"] . "<br>";
         if($taxon["Distribution"]) $description .= "Distribution: " . $taxon["Distribution"];
+        $description = str_ireplace("Type locality:", "<br>Type locality:", $description);
 
         $identifier    = $taxon["id"] . "_distribution";
         $mimeType      = "text/html";

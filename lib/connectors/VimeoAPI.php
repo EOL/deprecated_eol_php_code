@@ -141,7 +141,7 @@ class VimeoAPI
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
-            $taxon_id   = str_ireplace(" ", "_", $sciname) . "_vimeo";
+            $taxon_id   = str_ireplace(" ", "_", $sciname) . "_" . $rec->id;
             $arr_data[]=array(  "identifier"   => "",
                                 "source"       => "",
                                 "kingdom"      => $arr_sciname[$sciname]['kingdom'],
@@ -151,7 +151,7 @@ class VimeoAPI
                                 "family"       => $arr_sciname[$sciname]['family'],
                                 "genus"        => $arr_sciname[$sciname]['genus'],
                                 "sciname"      => $sciname,
-                                "taxon_id"     => $rec->id,
+                                "taxon_id"     => $taxon_id,
                                 "commonNames"  => @$arr_sciname[$sciname]['commonNames'],
                                 "arr_objects"  => $arr_objects
                              );
