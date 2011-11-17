@@ -18,7 +18,7 @@ class HierarchyEntry extends ActiveRecord
             array('agents', 'through' => 'agents_hierarchy_entries')
         );
     
-    public function split_from_concept_static($hierarchy_entry_id)
+    public function split_from_concept_static($hierarchy_entry_id, $update_caches = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
@@ -32,19 +32,28 @@ class HierarchyEntry extends ActiveRecord
             // if there is only one member in the entry's concept there is no need to split it
             if($count > 1)
             {
+                $old_taxon_concept_id = $entry->taxon_concept_id;
                 $taxon_concept_id = TaxonConcept::create()->id;
                 
                 $mysqli->update("UPDATE taxon_concepts SET published=$entry->published, vetted_id=$entry->vetted_id WHERE id=$taxon_concept_id");
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
+                
+                if($update_caches)
+                {
+                    TaxonConcept::reindex_descendants_objects($old_taxon_concept_id);
+                    TaxonConcept::reindex_for_search($taxon_concept_id);
+                    TaxonConcept::reindex_for_search($old_taxon_concept_id);
+                }
+                
                 return $taxon_concept_id;
             }
         }
         return null;
     }
     
-    public static function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false)
+    public static function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false, $update_caches = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         
@@ -64,7 +73,7 @@ class HierarchyEntry extends ActiveRecord
             if($count == 1)
             {
                 //// if there is just one member of the group, then supercede the group with the new one
-                TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id']);
+                TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id'], $update_caches);
             }else
             {
                 $old_taxon_concept_id = $row['taxon_concept_id'];
@@ -81,6 +90,14 @@ class HierarchyEntry extends ActiveRecord
                 
                 $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=he.published WHERE tc.id=$old_taxon_concept_id AND he.published!=0");
                 $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=he.vetted_id WHERE tc.id=$old_taxon_concept_id AND he.vetted_id!=0");
+                
+                if($update_caches)
+                {
+                    TaxonConcept::reindex_descendants_objects($taxon_concept_id);
+                    TaxonConcept::reindex_descendants_objects($old_taxon_concept_id);
+                    TaxonConcept::reindex_for_search($taxon_concept_id);
+                    TaxonConcept::reindex_for_search($old_taxon_concept_id);
+                }
             }
         }
     }

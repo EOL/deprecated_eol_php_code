@@ -20,11 +20,11 @@ class SiteSearchIndexer
     public function index($ids = array(), $optimize = false)
     {
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        // $this->index_type('Collection', 'collections', 'lookup_collections', $ids);
-        // $this->index_type('Community', 'communities', 'lookup_communities', $ids);
-        // $this->index_type('User', 'users', 'lookup_users', $ids);
+        $this->index_type('Collection', 'collections', 'lookup_collections', $ids);
+        $this->index_type('Community', 'communities', 'lookup_communities', $ids);
+        $this->index_type('User', 'users', 'lookup_users', $ids);
         $this->index_type('DataObject', 'data_objects', 'lookup_objects', $ids);
-        // $this->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $ids);
+        $this->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $ids);
         if($optimize) $this->solr->optimize();
     }
     

@@ -15,7 +15,7 @@ class TaxonConcept extends ActiveRecord
         self::supercede_by_ids($taxon_concept_id, $this->id);
     }
     
-    public static function supercede_by_ids($id1, $id2, $update_caches = true)
+    public static function supercede_by_ids($id1, $id2, $update_caches = false)
     {
         if($id1 == $id2) return true;
         if(!$id1 || !$id2) return false;
@@ -80,6 +80,14 @@ class TaxonConcept extends ActiveRecord
         $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
         $main_query = "ancestor_id:$taxon_concept_id&fl=data_object_id";
         return $solr->count_results($main_query);
+    }
+    
+    public static function reindex_for_search($taxon_concept_id)
+    {
+        if(!$taxon_concept_id) return false;
+        $ids = array($taxon_concept_id);
+        $search_indexer = new SiteSearchIndexer();
+        $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $ids);
     }
     
     public static function reindex_descendants($taxon_concept_id)
