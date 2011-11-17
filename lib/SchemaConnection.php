@@ -248,7 +248,7 @@ class SchemaConnection
                 $new_data_object->rights_statement = $d->rights_statement;
                 $new_data_object->rights_holder = $d->rights_holder;
                 $new_data_object->description = $d->description;
-                $new_data_object->linked_description = null;
+                $new_data_object->description_linked = null;
                 $new_data_object->location = $d->location;
                 // check to see if this translation exists by looking in data_object_translations
                 // if its found, check to see if its different

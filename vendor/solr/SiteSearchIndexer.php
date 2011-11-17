@@ -20,11 +20,11 @@ class SiteSearchIndexer
     public function index($ids = array(), $optimize = false)
     {
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        $this->index_type('Collection', 'collections', 'lookup_collections', $ids);
-        $this->index_type('Community', 'communities', 'lookup_communities', $ids);
-        $this->index_type('User', 'users', 'lookup_users', $ids);
+        // $this->index_type('Collection', 'collections', 'lookup_collections', $ids);
+        // $this->index_type('Community', 'communities', 'lookup_communities', $ids);
+        // $this->index_type('User', 'users', 'lookup_users', $ids);
         $this->index_type('DataObject', 'data_objects', 'lookup_objects', $ids);
-        $this->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $ids);
+        // $this->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $ids);
         if($optimize) $this->solr->optimize();
     }
     
@@ -36,7 +36,7 @@ class SiteSearchIndexer
             $batches = array_chunk($ids, 10000);
             foreach($batches as $batch)
             {
-                unset($this->objects);
+                $this->objects = array();
                 echo "Looking up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 call_user_func(array($this, $callback), array('ids' => $batch));
                 echo "Looked up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
@@ -49,11 +49,8 @@ class SiteSearchIndexer
                 // add new ones if available
                 if(isset($this->objects))
                 {
-                    if(isset($this->objects))
-                    {
-                        if($class_name == 'TaxonConcept') $this->send_concept_objects_to_solr();
-                        else $this->solr->send_attributes($this->objects);
-                    }
+                    if($class_name == 'TaxonConcept') $this->send_concept_objects_to_solr();
+                    else $this->solr->send_attributes($this->objects);
                 }
             }
         }else
@@ -70,11 +67,11 @@ class SiteSearchIndexer
             
             for($i=$start ; $i<$max_id ; $i+=$limit)
             {
-                unset($this->objects);
+                $this->objects = array();
                 echo "Looking up $class_name $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 call_user_func(array($this, $callback), array('start' => $i, 'limit' => $limit));
                 echo "Looked up $class_name $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-                $this->solr->delete("resource_type:$class_name AND resource_id:[$i TO ". ($i + $limit) ."]");
+                $this->solr->delete("resource_type:$class_name AND resource_id:[$i TO ". ($i + $limit - 1) ."]");
                 
                 if(isset($this->objects))
                 {
@@ -351,7 +348,7 @@ class SiteSearchIndexer
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
         echo "\nquerying objects\n";
         $last_data_object_id = 0;
-        $query = "SELECT do.id, do.guid, REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '), REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '), UNIX_TIMESTAMP(do.created_at), UNIX_TIMESTAMP(do.updated_at),  l.iso_639_1, do.data_type_id FROM data_objects do LEFT JOIN languages l ON (do.language_id=l.id) LEFT JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) WHERE (do.published=1 AND dohe.visibility_id=". Visibility::visible()->id .") AND dohe.data_object_id IS NOT NULL AND do.id ";
+        $query = "SELECT do.id, do.guid, REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '), REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '), UNIX_TIMESTAMP(do.created_at), UNIX_TIMESTAMP(do.updated_at),  l.iso_639_1, do.data_type_id FROM data_objects do LEFT JOIN languages l ON (do.language_id=l.id) LEFT JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) LEFT JOIN curated_data_objects_hierarchy_entries cdohe ON (do.id=cdohe.data_object_id) LEFT JOIN users_data_objects udo ON (do.id=udo.data_object_id) WHERE do.published=1 AND (dohe.visibility_id=". Visibility::visible()->id ." OR cdohe.visibility_id=". Visibility::visible()->id ." OR udo.visibility_id=". Visibility::visible()->id .") AND do.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
@@ -389,8 +386,8 @@ class SiteSearchIndexer
                         'keyword_type'              => 'object_title',
                         'keyword'                   => $object_title,
                         'language'                  => 'en',
-                        'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
-                        'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+                        'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                        'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
                 }
                 
                 if($description)
@@ -403,8 +400,8 @@ class SiteSearchIndexer
                         'keyword'                   => $description,
                         'full_text'                 => true,
                         'language'                  => 'en',
-                        'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
-                        'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+                        'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                        'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
                 }
                 
                 $last_data_object_id = $id;
@@ -449,8 +446,8 @@ class SiteSearchIndexer
                 'resource_id'               => $id,
                 'resource_unique_key'       => "User_$id",
                 'language'                  => 'en',
-                'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
-                'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+                'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
             $record = $base;
             $record['keyword_type'] = 'username';
             $record['keyword'] = $username;
@@ -468,7 +465,7 @@ class SiteSearchIndexer
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
         echo "\nquerying objects\n";
         $last_data_object_id = 0;
-        $query = "SELECT id, name, description, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at), special_collection_id, user_id, published FROM collections WHERE id ";
+        $query = "SELECT id, name, description, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at), special_collection_id, published FROM collections WHERE id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
@@ -480,25 +477,23 @@ class SiteSearchIndexer
             $created_at = $row[3];
             $updated_at = $row[4];
             $special_collection_id = $row[5];
-            $user_id = $row[6];
-            $published = $row[7];
+            $published = $row[6];
             
             if($created_at == 'NULL') $created_at = 0;
             if($updated_at == 'NULL') $updated_at = 0;
             if($special_collection_id == 'NULL') $special_collection_id = 0;
-            if($user_id == 'NULL') $user_id = 0;
             if($description == 'NULL') $description = '';
             if($published == 'NULL') $published = null;
             if(!$published) continue; // unpublished
-            if($special_collection_id && $user_id) continue; // users watch collection
+            if($special_collection_id == SpecialCollection::watch()->id) continue; // users watch collection
             
             $base = array(
                 'resource_type'             => 'Collection',
                 'resource_id'               => $id,
                 'resource_unique_key'       => "Collection_$id",
                 'language'                  => 'en',
-                'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
-                'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+                'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
             $record = $base;
             $record['keyword_type'] = 'name';
             $record['keyword'] = $name;
@@ -520,7 +515,7 @@ class SiteSearchIndexer
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
         echo "\nquerying objects\n";
         $last_data_object_id = 0;
-        $query = "SELECT c.id, c.name, c.description, UNIX_TIMESTAMP(c.created_at), UNIX_TIMESTAMP(c.updated_at), c.published FROM communities c LEFT JOIN collections coll ON (c.id=coll.community_id) WHERE c.id ";
+        $query = "SELECT c.id, c.name, c.description, UNIX_TIMESTAMP(c.created_at), UNIX_TIMESTAMP(c.updated_at), c.published FROM communities c WHERE c.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
@@ -544,8 +539,8 @@ class SiteSearchIndexer
                 'resource_id'               => $id,
                 'resource_unique_key'       => "Community_$id",
                 'language'                  => 'en',
-                'created_at'                => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
-                'updated_at'                => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
+                'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
+                'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
             $record = $base;
             $record['keyword_type'] = 'name';
             $record['keyword'] = $name;
