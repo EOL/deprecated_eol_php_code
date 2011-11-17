@@ -859,26 +859,30 @@ class TaxonPageMetrics
             {
                 if($line = fgets($FILE))
                 {
-                    $num_rows++; $fields = explode("\t", $line);
-                    $tc_id      = trim($fields[0]);
+                    $num_rows++; 
+                    $fields = explode("\t", $line);
+                    $tc_id = trim($fields[0]);
                     $tc_ids[$tc_id] = "";
                 }
             }
-            fclose($FILE);unlink($outfile);
+            fclose($FILE);
+            unlink($outfile);
             print "\n num_rows: $num_rows";
         }
         $str = "";
-        foreach($tc_ids as $id => $rec){$str .= $id . "\n";}
+        foreach($tc_ids as $id => $rec) $str .= $id . "\n";
         unset($tc_ids);
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt.tmp";
-        $fp = fopen($filename,"w"); print "\n writing..."; fwrite($fp,$str); fclose($fp); print "\n saved.";
+        $fp = fopen($filename,"w"); 
+        fwrite($fp, $str); 
+        fclose($fp); 
         //rename
         unlink(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt");
         rename(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt.tmp", PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt");
         print "\n end - generate_taxon_concept_with_bhl_links_textfile";
         $elapsed_time_sec = time_elapsed() - $time_start;
         print "\n elapsed time = " . $elapsed_time_sec/60 . " minutes ";
-        print "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours ";
+        print "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
     }
 
     // Working but will be replaced once we store taxon_concept_id in PAGE_NAMES table.
@@ -887,35 +891,38 @@ class TaxonPageMetrics
         /*  This will generate the [taxon_concept_with_bhl_publications.txt]. Assigns # of BHL publications for every concept. */
         $time_start = time_elapsed();
         $write_filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp";
-        unlink($write_filename);
+        if(file_exists($write_filename)) unlink($write_filename);
         //start reading text file
         print "\n Start reading text file [taxon_concept_with_bhl_links]";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt";
-        $FILE = fopen($filename, "r"); $i=0; $str=""; $save_count=0;
+        $FILE = fopen($filename, "r");
+        $i = 0; 
+        $str = ""; 
+        $save_count = 0;
         while(!feof($FILE))
         {
             if($line = fgets($FILE))
             {
-                $line = trim($line); $fields = explode("\t", $line);
+                $fields = explode("\t", trim($line));
                 if($tc_id = trim($fields[0]))
                 {
-                    $sql = "SELECT ip.title_item_id FROM taxon_concept_names tcn 
-                    JOIN page_names pn ON tcn.name_id = pn.name_id JOIN item_pages ip ON pn.item_page_id = ip.id WHERE tcn.taxon_concept_id = $tc_id ";
+                    $sql = "SELECT ip.title_item_id FROM taxon_concept_names tcn JOIN page_names pn ON tcn.name_id = pn.name_id JOIN item_pages ip ON pn.item_page_id = ip.id WHERE tcn.taxon_concept_id = $tc_id ";
                     $result = $this->mysqli_slave->query($sql);
                     $arr = array();
                     while($result && $row=$result->fetch_assoc())
                     {
                         $title_item_id = $row['title_item_id'];
-                        $arr[$title_item_id]='';
+                        $arr[$title_item_id] = '';
                     }
                     $publications = sizeof(array_keys($arr));
                     $str .= $tc_id . "\t" . $publications . "\n";
-                    $i++; print "\n $i. [$tc_id][$publications] ";
+                    $i++; 
+                    print "\n $i. [$tc_id][$publications] ";
                     //saving
                     $save_count++;
                     if($save_count == 10000)
                     {
-                        $fp = fopen($write_filename,"a"); 
+                        $fp = fopen($write_filename,"a");
                         print "\n writing...";
                         fwrite($fp,$str);
                         fclose($fp);
@@ -923,19 +930,20 @@ class TaxonPageMetrics
                         $str = "";
                         $save_count = 0;
                     }
-                    //if($i >= 15) break; //debug
                 }
             }
         }
         fclose($FILE);
         //last remaining writes
-        $fp = fopen($write_filename,"a"); print "\n writing..."; fwrite($fp,$str);  print " saved."; fclose($fp);
+        $fp = fopen($write_filename, "a");
+        fwrite($fp, $str);  
+        fclose($fp);
         //rename
         unlink(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt");
         rename(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp", PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt");
         print "\n end - generate_taxon_concept_with_bhl_publications_textfile";
         $elapsed_time_sec = time_elapsed() - $time_start;
-        print "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours   ";
+        print "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
     }
 
 }
