@@ -420,6 +420,27 @@ class Tasks
         return $current_value;
     }
     
+    public static function get_descendant_objects($taxon_concept_id)
+    {
+        $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
+        $main_query = "ancestor_id:$taxon_concept_id&fl=data_object_id";
+        $total_results = $solr->count_results($main_query);
+        
+        $data_object_ids = array();
+        $solr_iteration_size = 10000;
+        for($i=0 ; $i<$total_results ; $i += $solr_iteration_size)
+        {
+            $this_query = $main_query . "&rows=".$solr_iteration_size."&start=$i";
+            $entries = $solr->get_results($this_query);
+            foreach($entries as $entry)
+            {
+                $data_object_ids[$entry->data_object_id] = 1;
+            }
+        }
+        return array_keys($data_object_ids);
+    }
+    
+    
     
     
     

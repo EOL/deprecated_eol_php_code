@@ -15,10 +15,12 @@ class TaxonConcept extends ActiveRecord
         self::supercede_by_ids($taxon_concept_id, $this->id);
     }
     
-    public static function supercede_by_ids($id1, $id2, $update_taxon_concept_names = true)
+    public static function supercede_by_ids($id1, $id2, $update_caches = true)
     {
         if($id1 == $id2) return true;
         if(!$id1 || !$id2) return false;
+        $id1 = TaxonConcept::get_superceded_by($id1);
+        $id2 = TaxonConcept::get_superceded_by($id2);
         
         // always replace the larger ID with the smaller one
         if($id2 < $id1) list($id1, $id2) = array($id2, $id1);
@@ -29,16 +31,107 @@ class TaxonConcept extends ActiveRecord
         // ID2 is being superceded by ID1
         $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.taxon_concept_id=$id1, tc.supercedure_id=$id1 WHERE taxon_concept_id=$id2");
         
-        if($update_taxon_concept_names)
+        // updating TCN => all names linked to ID2 are getting linked to ID1
+        $mysqli->update("UPDATE IGNORE users_data_objects SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
+        $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
+        $mysqli->update("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$id2");
+        $mysqli->update("UPDATE IGNORE data_objects_taxon_concepts SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
+        $mysqli->update("DELETE FROM data_objects_taxon_concepts WHERE taxon_concept_id=$id2");
+        $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$id2");
+        $mysqli->update("UPDATE IGNORE taxon_concepts_flattened SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
+        $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE taxon_concept_id=$id2");
+        $mysqli->update("UPDATE IGNORE taxon_concepts_flattened SET ancestor_id=$id1 WHERE ancestor_id=$id2");
+        $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE ancestor_id=$id2");
+        $mysqli->update("UPDATE IGNORE collection_items SET object_id=$id1 WHERE object_id=$id2 AND object_type='TaxonConcept'");
+            
+        if($update_caches)
         {
-            // updating TCN => all names linked to ID2 are getting linked to ID1
-            $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
-            $mysqli->update("UPDATE IGNORE top_concept_images he SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
-            $mysqli->update("UPDATE IGNORE data_objects_taxon_concepts dotc SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
-            $mysqli->update("UPDATE IGNORE top_unpublished_concept_images he SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
-            $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$id2");
+            // DO THE SOLR STUFF HERE, HIERARCHICAL
+            // all descendants' DataObject
+            // all descendants' objects in SiteSearch
+            // each concept in SiteSearch
+            // CollectionItems?
+            self::reindex_descendants_objects($id1);
+            self::reindex_descendants_objects($id2);
+            self::reindex_descendants($id1);
+            self::reindex_descendants($id2);
+            self::reindex_collection_items($id1);
+        }
+        $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
+        $solr->delete("object_type:TaxonConcept AND object_id:$id2");
+        $mysqli->update("DELETE FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept'");
+    }
+    
+    public static function reindex_descendants_objects($taxon_concept_id)
+    {
+        $data_object_ids = Tasks::get_descendant_objects($taxon_concept_id);
+        if($data_object_ids)
+        {
+            $object_indexer = new DataObjectAncestriesIndexer();
+            $object_indexer->index_objects($data_object_ids);
+
+            $search_indexer = new SiteSearchIndexer();
+            $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
         }
     }
+    
+    public static function count_descendants_objects($taxon_concept_id)
+    {
+        $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
+        $main_query = "ancestor_id:$taxon_concept_id&fl=data_object_id";
+        return $solr->count_results($main_query);
+    }
+    
+    public static function reindex_descendants($taxon_concept_id)
+    {
+        $taxon_concept_ids = array();
+        $query = "SELECT taxon_concept_id FROM taxon_concepts_flattened WHERE ancestor_id = $taxon_concept_id";
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
+        {
+            $taxon_concept_ids[] = $row[0];
+        }
+        print_r($taxon_concept_ids);
+        $taxon_concept_ids[] = $taxon_concept_id;
+        $search_indexer = new SiteSearchIndexer();
+        $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
+    }
+    
+    public static function count_descendants($taxon_concept_id)
+    {
+        $result = $GLOBALS['db_connection']->query("SELECT count(*) as count FROM taxon_concepts_flattened WHERE ancestor_id = $taxon_concept_id");
+        if($result && $row = $result->fetch_assoc())
+        {
+            return $row['count'];
+        }
+        return 0;
+    }
+    
+    public static function reindex_collection_items($taxon_concept_id)
+    {
+        $taxon_concept_ids = array();
+        $query = "SELECT id FROM collection_items WHERE object_id = $taxon_concept_id AND object_type = 'TaxonConcept'";
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
+        {
+            $collection_item_ids[] = $row[0];
+        }
+        if($collection_item_ids)
+        {
+            $indexer = new CollectionItemIndexer();
+            $indexer->index_collection_items($collection_item_ids);
+        }
+    }
+    
+    public static function get_superceded_by($taxon_concept_id)
+    {
+        $result = $GLOBALS['db_connection']->query("SELECT supercedure_id FROM taxon_concepts WHERE id=$taxon_concept_id AND supercedure_id!=0");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return self::get_superceded_by($row['supercedure_id']);
+        }
+        return $taxon_concept_id;
+    }
+    
+    
     
     function rank()
     {

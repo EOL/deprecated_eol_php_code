@@ -162,7 +162,7 @@ class DataObjectAncestriesIndexer
                 $this->objects[$id]['created_at'] = date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z";
             }
             
-            // HierarchyEntry bock
+            // HierarchyEntry block
             $hierarchy_entry_id = $row[9];
             $taxon_concept_id = $row[10];
             $vetted_id = $row[10];
@@ -173,7 +173,7 @@ class DataObjectAncestriesIndexer
                 $this->objects[$id]['hierarchy_entry_id'][$hierarchy_entry_id] = 1;
             }
             
-            // CuratedHierarchyEntry bock
+            // CuratedHierarchyEntry block
             $hierarchy_entry_id = $row[13];
             $taxon_concept_id = $row[14];
             $vetted_id = $row[15];
@@ -184,7 +184,7 @@ class DataObjectAncestriesIndexer
                 $this->objects[$id]['hierarchy_entry_id'][$hierarchy_entry_id] = 1;
             }
             
-            // UsersDataObject bock
+            // UsersDataObject block
             $taxon_concept_id = $row[17];
             $vetted_id = $row[18];
             $visibility_id = $row[19];

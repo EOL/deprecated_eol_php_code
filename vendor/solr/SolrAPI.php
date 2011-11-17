@@ -100,6 +100,14 @@ class SolrAPI
         return $response->docs;
     }
     
+    public function count_results($query)
+    {
+        $response = $this->query($query . "&rows=0");
+        $total_results = $response->numFound;
+        unset($response);
+        return $total_results;
+    }
+    
     public function commit()
     {
         echo("Solr commit $this->action_url\n");
