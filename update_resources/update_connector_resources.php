@@ -41,6 +41,7 @@ foreach($connectors as $file)
     if($resource->id == 68) continue; // Dutch Species Catalogue
     if($resource->id == 63) continue; // INOTAXA
     if($resource->id == 26) continue; // WORMS
+    if($resource->id == 266) continue; // US Fish and Wildlife Services
 
     echo "$file...\n";
     shell_exec(PHP_BIN_PATH . dirname(__FILE__) . "/connectors/". $file." ENV_NAME=slave");
