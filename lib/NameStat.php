@@ -3,7 +3,7 @@ namespace php_active_record;
 
 class NameStat
 {
-    const API_PAGES = "http://www.eol.org/api/pages/";
+    const API_PAGES = "http://140.247.232.200/api/pages/";
     const API_PAGES_PARAMS = "?images=75&text=75&subjects=all";
 
     public function __construct()
@@ -44,8 +44,8 @@ class NameStat
             }
             print "
             <tr bgcolor='$color'>
-                <td>"               . utf8_decode($row["orig_sciname"]) . "</td>
-                <td>"               . utf8_decode($row["sciname"]) . "</td>
+                <td>" . utf8_decode($row["orig_sciname"]) . "</td>
+                <td>" . utf8_decode($row["sciname"]) . "</td>
                 <td align='center'><a target='_eol' href='http://www.eol.org/pages/" . $row["tc_id"] . "'>" . $row["tc_id"] . "</a></td>
                 <td align='right'>" . $row["text"] . "</td>
                 <td align='right'>" . $row["image"] . "</td>
@@ -61,7 +61,8 @@ class NameStat
 
     function sort_details($taxa_details, $returns)
     {
-        usort($taxa_details, "self::cmp");
+        if(!isset($GLOBALS["sort_order"])) $GLOBALS["sort_order"] = 'total_objects';
+        if($GLOBALS["sort_order"] != "normal") usort($taxa_details, "self::cmp");
         //start limit number of returns
         $new = array();
         if($returns > 0)
@@ -74,37 +75,43 @@ class NameStat
 
     function cmp($a, $b)
     {
-        if(!isset($GLOBALS["sort_order"])) $GLOBALS["sort_order"] = 'total_objects';
         $sort_order = $GLOBALS["sort_order"];
-        return $a[$sort_order] < $b[$sort_order];
+        if($sort_order != "normal") return $a[$sort_order] < $b[$sort_order];
     }
 
     function get_details($xml, $orig_sciname, $strict)
     {
         $taxa = array();
-        $richness = new PageRichnessCalculator();
         foreach($xml->entry as $species)
         {
-            $score = $richness->score_for_page($species->id);
-            $score = @$score['total'];
-            if($strict)
+            if($strict == 'canonical_match')
             {
                 if(strtolower(trim($orig_sciname)) == strtolower(trim(Functions::canonical_form(trim($species->title)))))
                 {
-                    $taxon_do = self::get_objects_info($species->id, $species->title, $orig_sciname, $score);
+                    print "<br>" . strtolower(trim($orig_sciname)) . " == " . strtolower(trim(Functions::canonical_form(trim($species->title)))) . " == " . $species->title . "<br>";
+                    $taxon_do = self::get_objects_info($species->id, $species->title, $orig_sciname);
+                    $taxa[] = $taxon_do;
+                }
+            }
+            elseif($strict == 'exact_string')
+            {
+                if(strtolower(trim($orig_sciname)) == strtolower(trim($species->title)))
+                {
+                    print "<br>" . strtolower(trim($orig_sciname)) . " == " . $species->title . "<br>";
+                    $taxon_do = self::get_objects_info($species->id, $species->title, $orig_sciname);
                     $taxa[] = $taxon_do;
                 }
             }
             else
             {
-                $taxon_do = self::get_objects_info($species->id, $species->title, $orig_sciname, $score);
+                $taxon_do = self::get_objects_info($species->id, $species->title, $orig_sciname);
                 $taxa[] = $taxon_do;
             }
         }
         return $taxa;
     }
 
-    function get_objects_info($id, $sciname, $orig_sciname, $score)
+    function get_objects_info($id, $sciname, $orig_sciname)
     {
         $sciname_4color = "";
         $total_objects = 0;
@@ -113,10 +120,11 @@ class NameStat
         $text = 0;
         $image = 0;
         if($xml = Functions::get_hashed_response($file))
-        {            
-            if($xml->taxon->dataObject)
+        {
+            $score = $xml->taxonConcept->additionalInformation->richness_score;
+            if($xml->dataObject)
             {
-                foreach($xml->taxon->dataObject as $object)
+                foreach($xml->dataObject as $object)
                 {
                     if      ($object->dataType == "http://purl.org/dc/dcmitype/StillImage") $image++;
                     elseif  ($object->dataType == "http://purl.org/dc/dcmitype/Text") $text++;
@@ -125,11 +133,10 @@ class NameStat
             $total_objects = $image + $text;
         }
         if($orig_sciname != $sciname_4color) $sciname_4color = $sciname;
-        
         return array($orig_sciname => 1, "orig_sciname" => $orig_sciname, "tc_id" => $id, "sciname" => $sciname, "text" => $text, "image" => $image,
                      "total_objects" => $total_objects,
                      "score" => $score,
-                     "last_curated" => self::get_last_curation_date($id),
+                     "last_curated" => '',
                      "overview_word_count" => self::get_word_count($id, "brief summary"),
                      "general_description_word_count" => self::get_word_count($id, "comprehensive description")
                     );
@@ -137,20 +144,17 @@ class NameStat
 
     function get_last_curation_date($taxon_concept_id)
     {
-        /*
+        /* Obsolete in V2
         $mysqli = load_mysql_environment('slave_eol');
         $query = "SELECT last_curated_dates.last_curated FROM last_curated_dates WHERE last_curated_dates.taxon_concept_id = $taxon_concept_id ORDER BY last_curated_dates.id DESC LIMIT 1";
         $result = $mysqli->query($query);
         while($result && $row=$result->fetch_assoc()) return $row['last_curated'];
         */
-
         /*
         TODO:
         this will be replaced by using the actions table:
         we'd need to search the actions table and get the maximum action date for that concept to get the last curated date
         */
-
-        return null;
     }
 
     function get_word_count($taxon_concept_id, $chapter)
@@ -162,17 +166,15 @@ class NameStat
         $unreviewed_id  = Vetted::unknown()->id;
         if($chapter == "brief summary")                 $toc_id = TranslatedTableOfContent::find_or_create_by_label('Brief Summary')->table_of_contents_id;
         elseif($chapter == "comprehensive description") $toc_id = TranslatedTableOfContent::find_or_create_by_label('Comprehensive Description')->table_of_contents_id;
-
         $query = "SELECT dotoc.toc_id,do.description, dohe.vetted_id FROM data_objects_taxon_concepts dotc 
-                    JOIN data_objects do ON dotc.data_object_id = do.id 
-                    LEFT JOIN data_objects_table_of_contents dotoc ON do.id = dotoc.data_object_id 
-                    JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
-                  WHERE do.published = 1
-                  AND dohe.visibility_id =" . Visibility::visible()->id ."
-                  AND do.data_type_id = $text_id
-                  AND dotc.taxon_concept_id = $taxon_concept_id
-                  AND dotoc.toc_id = $toc_id";
-
+                  JOIN data_objects do ON dotc.data_object_id = do.id LEFT JOIN data_objects_table_of_contents dotoc ON do.id = dotoc.data_object_id 
+                  JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
+                  WHERE do.published = 1 AND dohe.visibility_id =" . Visibility::visible()->id . " AND do.data_type_id = $text_id AND dotc.taxon_concept_id = $taxon_concept_id AND dotoc.toc_id = $toc_id
+                  UNION
+                  SELECT dotoc.toc_id,do.description, udo.vetted_id FROM data_objects_taxon_concepts dotc 
+                  JOIN data_objects do ON dotc.data_object_id = do.id LEFT JOIN data_objects_table_of_contents dotoc ON do.id = dotoc.data_object_id 
+                  JOIN users_data_objects udo on do.id = udo.data_object_id
+                  WHERE do.published = 1 AND udo.visibility_id =" . Visibility::visible()->id . " AND do.data_type_id = $text_id AND dotc.taxon_concept_id = $taxon_concept_id AND dotoc.toc_id = $toc_id";
         $result = $this->mysqli_slave->query($query);
         while($result && $row=$result->fetch_assoc())
         {

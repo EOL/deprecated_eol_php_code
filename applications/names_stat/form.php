@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-    <title>Evaluate names</title>
+    <title>NameStat</title>
     <script language="javascript1.2">
         function proc()
         {
@@ -21,13 +21,13 @@
     </script>
 </head>
 
-<!---
+<!--
 Values 
 8 - backspace
 9 - tab
 10 - linefeed
 13 - carriage return 
---->
+-->
 
 <body>
 <form name="fn" target="result" action="result.php" method="post">
@@ -37,11 +37,19 @@ Names statistics <font size="2"><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Limit 10
     <tr>
         <td>
         # of records returned per taxon: <input style="text-align : right;" type="text" name="return" size="3" value="1"> <i>(blank for all)</i><br>
-        Match canonical form <input type="checkbox" name="strict"><br>
-        Sort order:<br>
+        Match string type: 
+        Default <input type="radio" name="strict" value="default" checked> | 
+        Canonical form <input type="radio" name="strict" value="canonical_match"> | 
+        Exact string match<input type="radio" name="strict" value="exact_string">        
+        <br>
+        Sort by:<br>
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="normal" checked>API search result 
+        <small>
+        (e.g. <a target="api" href="http://www.eol.org/api/search/Placozoa">http://www.eol.org/api/search/Placozoa</a>)<br>
+        </small>
         &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="text" ># of Text objects<br>
         &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="image" ># of Images<br>
-        &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="total_objects" checked ># of total objects <i>(Text + Image)</i><br>
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="sort" value="total_objects"># of total objects <i>(Text + Image)</i><br>
         <hr>
         </td>
     </tr>
