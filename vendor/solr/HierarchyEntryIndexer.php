@@ -59,7 +59,7 @@ class HierarchyEntryIndexer
             $start = $row["min"];
             $max_id = $row["max"];
         }
-        if($start = 0) return;
+        if($start == 0) return;
         
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {
@@ -89,7 +89,7 @@ class HierarchyEntryIndexer
     private function lookup_names($start, $limit, $filter = "1=1")
     {
         echo("querying names ($start, $limit)\n");
-        $result = $this->mysqli->query("SELECT he.*, n.string, cf.string canonical_form FROM hierarchy_entries he LEFT JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (he.name_id=n.id) WHERE he.id  BETWEEN $start AND ".($start+$limit)." AND $filter");
+        $result = $this->mysqli->query("SELECT he.*, n.string, rcf.string canonical_form FROM hierarchy_entries he LEFT JOIN (names n LEFT JOIN canonical_forms rcf ON (n.ranked_canonical_form_id=rcf.id)) ON (he.name_id=n.id) WHERE he.id  BETWEEN $start AND ".($start+$limit)." AND $filter");
         echo("done querying names\n");
         
         while($result && $row=$result->fetch_assoc())
@@ -97,6 +97,7 @@ class HierarchyEntryIndexer
             $id = $row['id'];
             $rank_id = $row['rank_id'];
             $parent_id = $row['parent_id'];
+            $canonical_form = $row['canonical_form'];
             
             $this->objects[$id]['parent_id'] = $row['parent_id'];
             $this->objects[$id]['taxon_concept_id'] = $row['taxon_concept_id'];
@@ -105,8 +106,19 @@ class HierarchyEntryIndexer
             $this->objects[$id]['vetted_id'] = $row['vetted_id'];
             $this->objects[$id]['published'] = $row['published'];
             $this->objects[$id]['name'] = SolrApi::text_filter($row['string']);
-            $this->objects[$id]['canonical_form'] = SolrApi::text_filter($row['canonical_form']);
-            $this->objects[$id]['canonical_form_string'] = SolrApi::text_filter($row['canonical_form']);
+            if($canonical_form)
+            {
+                if(preg_match("/ sp\.?( |$)/", $canonical_form)) $canonical_form = "";
+                else
+                {
+                    while(preg_match("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
+                    {
+                        $canonical_form = preg_replace("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
+                    }
+                }
+            }
+            $this->objects[$id]['canonical_form'] = SolrApi::text_filter($canonical_form);
+            $this->objects[$id]['canonical_form_string'] = $this->objects[$id]['canonical_form'];
         }
     }
     
@@ -182,7 +194,7 @@ class HierarchyEntryIndexer
         $common_name_id = SynonymRelation::find_or_create_by_translated_label('common name')->id;
         
         echo("querying synonyms\n");
-        $result = $this->mysqli->query("SELECT s.*, n.string, cf.string canonical_form FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) JOIN (names n LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)) ON (s.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
+        $result = $this->mysqli->query("SELECT s.*, n.string, rcf.string canonical_form FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) JOIN (names n LEFT JOIN canonical_forms rcf ON (n.ranked_canonical_form_id=rcf.id)) ON (s.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
         echo("done querying synonyms\n");
         
         while($result && $row=$result->fetch_assoc())
@@ -197,7 +209,19 @@ class HierarchyEntryIndexer
             
             if($field == 'synonym' && $row['canonical_form'])
             {
-                $this->objects[$id]['synonym_canonical'][SolrApi::text_filter($row['canonical_form'])] = 1;
+                $canonical_form = $row['canonical_form'];
+                if($canonical_form)
+                {
+                    if(preg_match("/ sp\.?( |$)/", $canonical_form)) $canonical_form = "";
+                    else
+                    {
+                        while(preg_match("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
+                        {
+                            $canonical_form = preg_replace("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
+                        }
+                    }
+                }
+                if($canonical_form) $this->objects[$id]['synonym_canonical'][SolrApi::text_filter($canonical_form)] = 1;
             }
         }
     }

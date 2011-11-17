@@ -39,7 +39,7 @@ Hierarchy::publish_wrongly_unpublished_concepts();
 // sleep_production(300);
 
 // denormalize tables
-// shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 // if(defined('SOLR_SERVER'))
 // {

@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 /* connector for AmphibiaWeb 
 execution time: 30 - 35 seconds
 
@@ -12,7 +13,7 @@ $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-$resource = new Resource(21);
+$resource = Resource::find(21);
 $new_resource_path = DOC_ROOT . "temp/".$resource->id.".xml";
 
 $new_resource_xml = Functions::get_remote_file($resource->accesspoint_url);
@@ -154,7 +155,7 @@ foreach(@$xml->species as $species)
 
 
 ////////////////////// ---
-$new_resource_xml = SchemaDocument::get_taxon_xml($taxa);
+$new_resource_xml = \SchemaDocument::get_taxon_xml($taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);

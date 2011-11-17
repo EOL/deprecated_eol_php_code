@@ -148,6 +148,11 @@ class CompareHierarchies
                 // get all the recent supercedures withouth looking in the DB
                 while(isset($superceded[$tc_id1])) $tc_id1 = $superceded[$tc_id1];
                 while(isset($superceded[$tc_id2])) $tc_id2 = $superceded[$tc_id2];
+                if($tc_id1 == $tc_id2) continue;
+                
+                $tc_id1 = TaxonConcept::get_superceded_by($tc_id1);
+                $tc_id2 = TaxonConcept::get_superceded_by($tc_id2);
+                if($tc_id1 == $tc_id2) continue;
                 
                 // if even after all recent changes we still have different concepts, merge them
                 if($tc_id1 != $tc_id2)

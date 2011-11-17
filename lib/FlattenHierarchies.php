@@ -74,7 +74,7 @@ class FlattenHierarchies
         if($count%1000 == 0) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
         
         //if($count>=10000) exit;
-        $result = $this->mysqli_slave->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) range FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN ($this->visibile_id, $this->preview_id)");
+        $result = $this->mysqli_slave->query("SELECT id, parent_id, taxon_concept_id, (rgt-lft) therange FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN ($this->visibile_id, $this->preview_id)");
         while($result && $row=$result->fetch_assoc())
         {
             if($he_ancestors)
@@ -93,7 +93,7 @@ class FlattenHierarchies
             }
             // its not a leaf node
             // leaf nodes have no children so we'll save a bunch of queries by just stopping on leaves
-            if($row['range'] > 1)
+            if($row['therange'] > 1)
             {
                 $child_he_ancestors = $he_ancestors;
                 $child_he_ancestors[] = $row['id'];
