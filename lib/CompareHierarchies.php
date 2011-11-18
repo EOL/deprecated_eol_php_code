@@ -458,7 +458,6 @@ class CompareHierarchies
             $query .= "&rows=350";
             
             $matching_entries = $solr->get_results($query);
-            
             foreach($matching_entries as $matching_entry)
             {
                 if(@!$matching_entry->rank_id) $matching_entry->rank_id = 0;
