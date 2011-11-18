@@ -448,10 +448,12 @@ class CompareHierarchies
             else $search_canonical = "";
             if(preg_match("/virus$/", $search_canonical)) $search_canonical = "";
             
-            $query = "(name:\"". $search_name ."\"";
-            if($search_canonical) $query .= " OR canonical_form_string:\"". $search_canonical ."\"";
-            if($match_synonyms && $search_canonical) $query .= " OR synonym_canonical:\"". $search_canonical ."\"";
-            $query .= ")";
+            $query_bits = array();
+            if($search_canonical) $query_bits[] = "canonical_form_string:\"". $search_canonical ."\"";
+            $query_bits[] = "name:\"". $search_name ."\"";
+            if($match_synonyms && $search_canonical) $query_bits[] = "synonym_canonical:\"". $search_canonical ."\"";
+            $query = "(". implode(" OR ", $query_bits) .")";
+            
             if($compare_to_hierarchy) $query .= " AND hierarchy_id:$compare_to_hierarchy->id";
             // don't compare these hierarchies to themselves
             if($hierarchy->complete) $query .= " NOT hierarchy_id:$hierarchy->id";
