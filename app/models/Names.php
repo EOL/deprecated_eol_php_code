@@ -4,7 +4,8 @@ namespace php_active_record;
 class Name extends ActiveRecord
 {
     public static $belongs_to = array(
-            array('canonical_form')
+            array('canonical_form'),
+            array('ranked_canonical_form', 'class_name' => 'canonical_form', 'foreign_key' => 'ranked_canonical_form_id')
         );
     
     public static $before_create = array(

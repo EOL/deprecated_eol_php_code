@@ -108,12 +108,12 @@ class HierarchyEntryIndexer
             $this->objects[$id]['name'] = SolrApi::text_filter($row['string']);
             if($canonical_form)
             {
-                if(preg_match("/ sp\.?( |$)/", $canonical_form)) $canonical_form = "";
+                if(preg_match("/^(.* sp)\.?( |$)/", $canonical_form, $arr)) $canonical_form = $arr[1];
                 else
                 {
-                    while(preg_match("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
+                    while(preg_match("/ (var|convar|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
                     {
-                        $canonical_form = preg_replace("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
+                        $canonical_form = preg_replace("/ (var|convar|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
                     }
                 }
             }
@@ -212,12 +212,12 @@ class HierarchyEntryIndexer
                 $canonical_form = $row['canonical_form'];
                 if($canonical_form)
                 {
-                    if(preg_match("/ sp\.?( |$)/", $canonical_form)) $canonical_form = "";
+                    if(preg_match("/^(.* sp)\.?( |$)/", $canonical_form, $arr)) $canonical_form = $arr[1];
                     else
                     {
-                        while(preg_match("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
+                        while(preg_match("/ (var|convar|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
                         {
-                            $canonical_form = preg_replace("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
+                            $canonical_form = preg_replace("/ (var|convar|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
                         }
                     }
                 }
