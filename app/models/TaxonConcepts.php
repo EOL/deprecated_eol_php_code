@@ -43,7 +43,8 @@ class TaxonConcept extends ActiveRecord
         $mysqli->update("UPDATE IGNORE taxon_concepts_flattened SET ancestor_id=$id1 WHERE ancestor_id=$id2");
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE ancestor_id=$id2");
         $mysqli->update("UPDATE IGNORE collection_items SET object_id=$id1 WHERE object_id=$id2 AND object_type='TaxonConcept'");
-            
+        self::reindex_collection_items($id1);
+        
         if($update_caches)
         {
             // DO THE SOLR STUFF HERE, HIERARCHICAL
@@ -55,7 +56,6 @@ class TaxonConcept extends ActiveRecord
             self::reindex_descendants_objects($id2);
             self::reindex_descendants($id1);
             self::reindex_descendants($id2);
-            self::reindex_collection_items($id1);
         }
         $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
         $solr->delete("object_type:TaxonConcept AND object_id:$id2");
