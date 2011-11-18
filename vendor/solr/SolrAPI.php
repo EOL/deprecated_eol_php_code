@@ -140,7 +140,7 @@ class SolrAPI
         exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core");
     }
     
-    public function delete_by_ids($ids)
+    public function delete_by_ids($ids, $commit = true)
     {
         @unlink(DOC_ROOT . $this->csv_path);
         $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
@@ -154,15 +154,15 @@ class SolrAPI
         
         echo("Solr delete $this->action_url\n");
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path");
-        $this->commit();
+        if($commit) $this->commit();
     }
     
-    public function delete($query)
+    public function delete($query, $commit = true)
     {
-        $this->delete_by_queries(array($query));
+        $this->delete_by_queries(array($query), $commit);
     }
     
-    public function delete_by_queries($queries)
+    public function delete_by_queries($queries, $commit = true)
     {
         @unlink(DOC_ROOT . $this->csv_path);
         $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
@@ -176,7 +176,7 @@ class SolrAPI
         
         echo("Solr delete $this->action_url\n");
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path");
-        $this->commit();
+        if($commit) $this->commit();
     }
     
     

@@ -35,7 +35,7 @@ class DataObjectAncestriesIndexer
             $max_id = $row["max"];
         }
         if(!$start) $start = 0;
-        $start = 13071166;
+        
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {
             $this->index_next_block($i, $limit);
@@ -89,7 +89,7 @@ class DataObjectAncestriesIndexer
         if($data_object_ids)
         {
             foreach($data_object_ids as $id) $queries[] = "data_object_id:$id";
-            $this->solr->delete_by_queries($queries);
+            $this->solr->delete_by_queries($queries, false);
         }
         
         if(isset($this->objects))
@@ -107,6 +107,7 @@ class DataObjectAncestriesIndexer
                 elseif(isset($attr['preview_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 2;
                 else $this->objects[$id]['max_vetted_weight'] = 1;
             }
+            if(!$data_object_ids) $this->solr->delete("data_object_id:[$start TO ". ($start + $limit - 1) ."]", false);
             $this->solr->send_attributes($this->objects);
         }
     }

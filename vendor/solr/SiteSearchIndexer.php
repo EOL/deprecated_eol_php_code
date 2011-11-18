@@ -44,7 +44,7 @@ class SiteSearchIndexer
                 // delete old ones
                 $queries = array();
                 foreach($batch as $id) $queries[] = "resource_type:$class_name AND resource_id:$id";
-                $this->solr->delete_by_queries($queries);
+                $this->solr->delete_by_queries($queries, false);
                 
                 // add new ones if available
                 if(isset($this->objects))
@@ -71,7 +71,7 @@ class SiteSearchIndexer
                 echo "Looking up $class_name $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 call_user_func(array($this, $callback), array('start' => $i, 'limit' => $limit));
                 echo "Looked up $class_name $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-                $this->solr->delete("resource_type:$class_name AND resource_id:[$i TO ". ($i + $limit - 1) ."]");
+                $this->solr->delete("resource_type:$class_name AND resource_id:[$i TO ". ($i + $limit - 1) ."]", false);
                 
                 if(isset($this->objects))
                 {

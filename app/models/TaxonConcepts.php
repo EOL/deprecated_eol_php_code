@@ -19,8 +19,9 @@ class TaxonConcept extends ActiveRecord
     {
         if($id1 == $id2) return true;
         if(!$id1 || !$id2) return false;
-        $id1 = TaxonConcept::get_superceded_by($id1);
-        $id2 = TaxonConcept::get_superceded_by($id2);
+        // $id1 = TaxonConcept::get_superceded_by($id1);
+        // $id2 = TaxonConcept::get_superceded_by($id2);
+        // if($id1 == $id2) return true;
         
         // always replace the larger ID with the smaller one
         if($id2 < $id1) list($id1, $id2) = array($id2, $id1);
@@ -42,8 +43,15 @@ class TaxonConcept extends ActiveRecord
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE taxon_concept_id=$id2");
         $mysqli->update("UPDATE IGNORE taxon_concepts_flattened SET ancestor_id=$id1 WHERE ancestor_id=$id2");
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE ancestor_id=$id2");
-        $mysqli->update("UPDATE IGNORE collection_items SET object_id=$id1 WHERE object_id=$id2 AND object_type='TaxonConcept'");
-        self::reindex_collection_items($id1);
+        
+        $updating_collection_items = false;
+        $result = $mysqli->query("SELECT 1 FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept' LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            $updating_collection_items = true;
+            $mysqli->update("UPDATE IGNORE collection_items SET object_id=$id1 WHERE object_id=$id2 AND object_type='TaxonConcept'");
+            self::reindex_collection_items($id1);
+        }
         
         if($update_caches)
         {
@@ -57,9 +65,13 @@ class TaxonConcept extends ActiveRecord
             self::reindex_descendants($id1);
             self::reindex_descendants($id2);
         }
-        $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
-        $solr->delete("object_type:TaxonConcept AND object_id:$id2");
-        $mysqli->update("DELETE FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept'");
+        
+        if($updating_collection_items)
+        {
+            $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
+            $solr->delete("object_type:TaxonConcept AND object_id:$id2");
+            $mysqli->update("DELETE FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept'");
+        }
     }
     
     public static function reindex_descendants_objects($taxon_concept_id)

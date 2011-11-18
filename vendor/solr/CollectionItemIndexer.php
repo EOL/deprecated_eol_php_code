@@ -52,7 +52,7 @@ class CollectionItemIndexer
                 // delete old ones
                 $queries = array();
                 foreach($batch as $id) $queries[] = "collection_item_id:$id";
-                $this->solr->delete_by_queries($queries);
+                $this->solr->delete_by_queries($queries, false);
                 // add new ones if available
                 if(isset($this->objects)) $this->solr->send_attributes($this->objects);
             }
@@ -68,7 +68,7 @@ class CollectionItemIndexer
                 $max_id = $row["max"];
             }
             
-            // $this->solr->delete("collection_item_id:[* TO ".($start - 1)."]");
+            // $this->solr->delete("collection_item_id:[* TO ".($start - 1)."]", false);
             for($i=$start ; $i<$max_id ; $i+=$limit)
             {
                 unset($this->objects);
@@ -91,6 +91,7 @@ class CollectionItemIndexer
     
     
     function lookup_data_objects($params)
+
     {
         $sound_type_ids = DataType::sound_type_ids();
         $image_type_ids = DataType::image_type_ids();
