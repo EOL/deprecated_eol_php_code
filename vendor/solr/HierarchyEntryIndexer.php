@@ -111,9 +111,9 @@ class HierarchyEntryIndexer
                 if(preg_match("/ sp\.?( |$)/", $canonical_form)) $canonical_form = "";
                 else
                 {
-                    while(preg_match("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
+                    while(preg_match("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
                     {
-                        $canonical_form = preg_replace("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
+                        $canonical_form = preg_replace("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
                     }
                 }
             }
@@ -215,9 +215,9 @@ class HierarchyEntryIndexer
                     if(preg_match("/ sp\.?( |$)/", $canonical_form)) $canonical_form = "";
                     else
                     {
-                        while(preg_match("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
+                        while(preg_match("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", $canonical_form))
                         {
-                            $canonical_form = preg_replace("/ (var|subsp|ssp|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
+                            $canonical_form = preg_replace("/ (var|subsp|ssp|cf|f|f\.sp|c|\*)\.?( |$)/", "\\2", $canonical_form);
                         }
                     }
                 }
