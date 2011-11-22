@@ -1,6 +1,9 @@
 <?php
+namespace php_active_record;
 /* MorphBank connector
 estimated execution time: 6 hours
+set as a cron task to run every month
+
 Partner provides a list of URL's and each URL will list ID's.
 Then connector uses their service to read each ID and get the information needed.
 */
@@ -117,7 +120,7 @@ foreach($used_taxa as $taxon_parameters)
 {
     $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
 }
-$new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
+$new_resource_xml = \SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
@@ -126,7 +129,7 @@ fclose($OUT);
 // set MorphBank to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::find_or_create_by_label('Force Harvest')->id . " WHERE id=" . $resource_id);
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
