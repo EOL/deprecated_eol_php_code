@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for YouTube 
-estimated execution time: 20 seconds
+estimated execution time: 1 minute. But this will change as the number of EOL YouTube subscriptions increase.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

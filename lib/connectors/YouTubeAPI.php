@@ -23,9 +23,9 @@ class YouTubeAPI
             foreach($user["video_ids"] as $video_id)
             {
                 $record = self::build_data($video_id);
+                $i++; print "\n [user $j of $total_users] [video $i of $num_rows] ";
                 if($record) 
                 {
-                    $i++; print "\n [user $j of $total_users] [video $i of $num_rows] ";
                     $arr = self::get_youtube_taxa($record, $used_collection_ids);
                     $page_taxa              = $arr[0];
                     $used_collection_ids    = $arr[1];
@@ -320,17 +320,31 @@ class YouTubeAPI
     function assign_video_ids($user_ids)
     {
         $users = array();
+        /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
+        $exclude_users = array('PRI');
+        $user_ids = array_diff(array_values($user_ids), $exclude_users);
         foreach($user_ids as $user_id)
         {
+            $start_index = 1;
+            $max_results = 25;
             $video_ids = array();
-            $url = YOUTUBE_API . '/users/' . $user_id . '/uploads';
-            print "\n $url";
-            $xml = simplexml_load_file($url);
-            foreach($xml->entry as $entry) 
+            while(true)
             {
-                print "\n $entry->id";
-                $path_parts = pathinfo($entry->id);
-                $video_ids[] = $path_parts['basename'];
+                $url = YOUTUBE_API . '/users/' . $user_id . '/uploads';
+                $url .= "?start-index=$start_index&max-results=$max_results";
+                print "\n $url";
+                $xml = simplexml_load_file($url);
+                if($xml->entry)
+                {
+                    foreach($xml->entry as $entry) 
+                    {
+                        print "\n $entry->id";
+                        $path_parts = pathinfo($entry->id);
+                        $video_ids[] = $path_parts['basename'];
+                    }
+                }
+                else break;
+                $start_index += $max_results;
             }
             print "\n";
             $users[$user_id]["id"] = $user_id;
