@@ -18,6 +18,13 @@ define("TROPICOS_API_SERVICE", "http://services.tropicos.org/Name/");
 <a href="http://services.tropicos.org/Name/25510055/HigherTaxa?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">6</a>
 */
 
+/*
+Take note of these sample ID's which generated resource without <dwc:ScientificName> last time connector was run:
+13000069
+13000165 
+50335886
+*/
+
 class TropicosAPI
 {
     private static $TEMP_FILE_PATH;
