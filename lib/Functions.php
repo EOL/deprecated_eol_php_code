@@ -1618,17 +1618,24 @@ class Functions
 
     public static function kill_running_connectors($resource_id)
     {
-        $output = shell_exec('ps -x | grep ' . $resource_id. '.php');
+        $command = "ps -x | grep " . "'[ |/]" . $resource_id . ".php'";
+        $output = trim(shell_exec($command));
         $jobs = explode("\n", $output);
+        $jobs = array_values($jobs);
         $pids = array();
         foreach($jobs as $job) if($job) $pids[] = substr($job, 0, strpos($job, ' '));
-        $pids = array_values($pids);
         asort($pids);
-        foreach($pids as $pid)
+        if($pids)
         {
-            print "\n kill $pid ";
-            shell_exec('kill ' . $pid);        
+            print_r($jobs);
+            foreach($pids as $pid)
+            {
+                print "\n kill $pid ";
+                $x = shell_exec('kill ' . $pid);
+            }
         }
+        else print "\n That connector is not running at the moment.";
+        print "\n\n";
     }
 
     public function create_work_list_from_master_file($master_file, $divisor, $destination_folder, $filename_prefix, $work_list)
