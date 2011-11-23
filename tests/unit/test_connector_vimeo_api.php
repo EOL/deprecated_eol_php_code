@@ -33,7 +33,7 @@ class test_connector_vimeo_api extends SimpletestUnitBase
                 
 
         $user = "user5352360"; //Eli Agbayani
-        $xml = simplexml_load_file(VIMEO_USER_SERVICE . $user . "/videos.xml");                        
+        $xml = Functions::get_hashed_response(VIMEO_USER_SERVICE . $user . "/videos.xml");                        
         $num_rows = sizeof($xml->video); $i=0;
         foreach($xml->video as $rec)
         {

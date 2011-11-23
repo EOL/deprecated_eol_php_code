@@ -20,7 +20,7 @@ class VimeoAPI
             $i = 0;
             foreach($user["video_ids"] as $video_id)
             {
-                $xml = simplexml_load_file(VIMEO_USER_SERVICE . "video/" . trim($video_id) . ".xml");
+                $xml = Functions::get_hashed_response(VIMEO_USER_SERVICE . "video/" . trim($video_id) . ".xml");
                 print "\n" . VIMEO_USER_SERVICE . "video/" . trim($video_id) . ".xml";
                 if(sizeof($xml->video)) 
                 {
@@ -349,7 +349,7 @@ class VimeoAPI
         */
 
         /* or you can include them by getting all the members from the EOL-Vimeo group */
-        $xml = simplexml_load_file(VIMEO_USER_SERVICE . "group/encyclopediaoflife/users.xml");
+        $xml = Functions::get_hashed_response(VIMEO_USER_SERVICE . "group/encyclopediaoflife/users.xml");
         foreach($xml->user as $user)
         {
             $path_parts = pathinfo($user->profile_url);
