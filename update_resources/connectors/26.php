@@ -23,11 +23,12 @@ echo date('Y-m-d h:i:s a', time())."\n";
 
 if($elapsed_time_sec < 1) 
 {
-    print "\n\n";
-    print "=======================================================================\n";
-    print "Previous abnormal interruption detected. Files initialized. Retrying...\n";
-    print "=======================================================================\n";
-    WormsAPI::start_process($resource_id, $call_multiple_instance, true);
+    print "\n";
+    print "============================================================================\n";
+    print "Previous abnormal termination detected. Files initialized. PLEASE TRY AGAIN.\n";
+    print "============================================================================\n";
+    WormsAPI::initialize_text_files();
+    Functions::kill_running_connectors($resource_id);
 }
 
 exit("\n\n Done processing.");

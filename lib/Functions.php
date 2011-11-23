@@ -1615,7 +1615,22 @@ class Functions
             sleep(5);
         }
     }
-    
+
+    public static function kill_running_connectors($resource_id)
+    {
+        $output = shell_exec('ps -x | grep ' . $resource_id. '.php');
+        $jobs = explode("\n", $output);
+        $pids = array();
+        foreach($jobs as $job) if($job) $pids[] = substr($job, 0, strpos($job, ' '));
+        $pids = array_values($pids);
+        asort($pids);
+        foreach($pids as $pid)
+        {
+            print "\n kill $pid ";
+            shell_exec('kill ' . $pid);        
+        }
+    }
+
     public function create_work_list_from_master_file($master_file, $divisor, $destination_folder, $filename_prefix, $work_list)
     {
         $FILE = fopen($master_file, "r");

@@ -11,19 +11,23 @@ class WormsAPI
     private static $WORK_IN_PROGRESS_LIST;
     private static $INITIAL_PROCESS_STATUS;
 
+    function initialize_text_files()
+    {
+        $f = fopen(self::$WORK_LIST, "w"); fclose($f);
+        $f = fopen(self::$WORK_IN_PROGRESS_LIST, "w"); fclose($f);
+        $f = fopen(self::$INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        //this is not needed but just to have a clean directory
+        self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
+        self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_worms_" . "batch_", "xml");
+        self::delete_temp_files(self::$TEMP_FILE_PATH . "xmlcontent_", "xml");
+    }
+
     function start_process($resource_id, $call_multiple_instance, $initialize)
     {
         self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/WORMS/";
         self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_list.txt";
         self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_in_progress_list.txt";
         self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/WORMS/initial_process_status.txt";
-
-        if($initialize)
-        {            
-            $f = fopen(self::$WORK_LIST, "w"); fclose($f);
-            $f = fopen(self::$WORK_IN_PROGRESS_LIST, "w"); fclose($f);
-            $f = fopen(self::$INITIAL_PROCESS_STATUS, "w"); fclose($f);
-        }
 
         if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
@@ -32,7 +36,7 @@ class WormsAPI
                 Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
                 // step 1: divides the big list of ids into small files
                 $ids = self::get_id_list();
-                self::divide_text_file(10000, $ids); //original value 10000
+                self::divide_text_file(10000, $ids); //debug original value 10000
                 Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);//removes a task from task list
             }
         }
@@ -47,13 +51,11 @@ class WormsAPI
                 Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
                 
-                ///*
                 if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
                 {
                     Functions::run_another_connector_instance($resource_id, 2);
                     $call_multiple_instance = 0;
                 }
-                //*/
                 
                 self::get_all_taxa($task);
                 print "\n Task $task is done. \n";
@@ -157,6 +159,12 @@ class WormsAPI
         //append current year
         $urls = self::generate_url_list($urls);
 
+        /* debug
+        $r = array();
+        $r[] = $urls[0];
+        $urls = $r;
+        */
+        
         print "\n URLs = " . sizeof($urls) . "\n";
         $ids = array();
         $file_ctr = 0;
@@ -185,7 +193,7 @@ class WormsAPI
                         $ids[] = $id;
                     }
                 }
-                sleep(30);
+                sleep(30); //debug orig 30
             }
             else print "\n -- not being able to process \n";
         }
@@ -196,6 +204,21 @@ class WormsAPI
         $ids = array_unique($ids);
         print "\n total ids: " . sizeof($ids);
         print "\n" . sizeof($urls) . " URLs | taxid count = " . sizeof($ids) . "\n";
+
+        /* debug
+        $r = array();
+        $r[] = $ids[0];
+        $r[] = $ids[1];
+        $r[] = $ids[2];
+        $r[] = $ids[3];
+        $r[] = $ids[4];
+        $r[] = $ids[5];
+        $r[] = $ids[6];
+        $r[] = $ids[7];
+        $r[] = $ids[8];
+        $r[] = $ids[9];
+        $ids = $r;
+        */
         
         return $ids;
     }
