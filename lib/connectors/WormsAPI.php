@@ -32,7 +32,7 @@ class WormsAPI
                 Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
                 // step 1: divides the big list of ids into small files
                 $ids = self::get_id_list();
-                self::divide_text_file(3, $ids); //original value 10000
+                self::divide_text_file(10000, $ids); //original value 10000
                 Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);//removes a task from task list
             }
         }
@@ -149,18 +149,13 @@ class WormsAPI
     function get_id_list()
     {
         $urls = array();
-        $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2011_small.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2007.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2010.xml";
 
         //append current year
-        //$urls = self::generate_url_list($urls);
-
-        $r = array();
-        $r[] = $urls[0];
-        $urls = $r;
+        $urls = self::generate_url_list($urls);
 
         print "\n URLs = " . sizeof($urls) . "\n";
         $ids = array();
@@ -202,20 +197,6 @@ class WormsAPI
         print "\n total ids: " . sizeof($ids);
         print "\n" . sizeof($urls) . " URLs | taxid count = " . sizeof($ids) . "\n";
         
-        
-        $r = array();
-        $r[] = $ids[0];
-        $r[] = $ids[1];
-        $r[] = $ids[2];
-        $r[] = $ids[3];
-        $r[] = $ids[4];
-        $r[] = $ids[5];
-        $r[] = $ids[6];
-        $r[] = $ids[7];
-        $r[] = $ids[8];
-        $r[] = $ids[9];
-        
-        $ids = $r;
         return $ids;
     }
 
