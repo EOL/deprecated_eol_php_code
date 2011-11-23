@@ -64,7 +64,7 @@ class NaturalHistoryServicesAPI
         $arr_sciname = array();
         $ctr = 0;
         print $url . "\n";
-        $xml = simplexml_load_file($url);
+        $xml = Functions::get_hashed_response($url);
         print "taxa count = " . count($xml) . "\n";
         foreach($xml->url as $u)
         {

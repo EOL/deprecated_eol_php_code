@@ -48,7 +48,7 @@ class AquamapsAPIv2
     function parse_xml($url)
     {
         $arr_scraped=array();
-        $xml = simplexml_load_file($url);
+        $xml = Functions::get_hashed_response($url);
         $ctr = 0;
         $total = sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)
@@ -86,7 +86,7 @@ class AquamapsAPIv2
     {
         $param = "genus=" . $genus . "&species=" . $species;
         $fn = SERVICE_URL . $param;
-        $xml = simplexml_load_file($fn);
+        $xml = Functions::get_hashed_response($fn);
         $html = $xml->section_body;
         if($html == "")
         {

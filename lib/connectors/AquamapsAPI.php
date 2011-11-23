@@ -57,7 +57,7 @@ class AquamapsAPI
     function parse_xml($url)
     {
         $arr_scraped=array();        
-        $xml = simplexml_load_file($url);                
+        $xml = Functions::get_hashed_response($url);                
         $ctr=0; $total=sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)
         {
@@ -103,7 +103,7 @@ class AquamapsAPI
         $param2 = "genusname=" . $genus . "&speciesname=" . $species;
         //==============================================================================
         $fn = SERVICE_URL . $param;        
-        $xml = simplexml_load_file($fn);        
+        $xml = Functions::get_hashed_response($fn);        
         $html = $xml->section_body;        
         if(is_numeric(stripos($html,"has not yet been reviewed")))$review="un-reviewed";
         else                                                      $review="reviewed";        
