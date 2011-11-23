@@ -28,7 +28,7 @@ $excluded_MorphBank_IDs = prepare_excluded_ids();
 if($url_list_of_image_ids)
 {
     print "\n [$url_list_of_image_ids] \n";
-    if(!$image_id_xml = simplexml_load_file($url_list_of_image_ids)) continue;
+    if(!$image_id_xml = Functions::get_hashed_response($url_list_of_image_ids)) continue;
     foreach($image_id_xml->id as $id) $image_ids[] = $id;    
 }
 
@@ -42,7 +42,7 @@ foreach($image_ids as $image_id)
     $k++;
     print "\n $image_id [$k of $total_image_ids]";
     print "\n " . $details_method_prefix . $image_id . " \n";
-    if(!$xml = simplexml_load_file($details_method_prefix . $image_id)) continue;
+    if(!$xml = Functions::get_hashed_response($details_method_prefix . $image_id)) continue;
 
     foreach($xml->object as $object)
     {           

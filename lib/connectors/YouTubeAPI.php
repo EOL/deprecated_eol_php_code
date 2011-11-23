@@ -55,7 +55,7 @@ class YouTubeAPI
         $video = array();
         $url = YOUTUBE_API  . '/videos?q=' . $video_id . '&license=cc&v=2';
         print "\n $url";
-        $xml = simplexml_load_file($url);
+        $xml = Functions::get_hashed_response($url);
         if($xml->entry) print " -- valid license";
         else print ' -- invalid license';
         foreach($xml->entry as $e)
@@ -304,7 +304,7 @@ class YouTubeAPI
         /* or you can get them by getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
         print "\n $url \n";
-        $xml = simplexml_load_file($url);
+        $xml = Functions::get_hashed_response($url);
         foreach($xml->entry as $entry)
         {
             foreach($entry->title as $title)
@@ -333,7 +333,7 @@ class YouTubeAPI
                 $url = YOUTUBE_API . '/users/' . $user_id . '/uploads';
                 $url .= "?start-index=$start_index&max-results=$max_results";
                 print "\n $url";
-                $xml = simplexml_load_file($url);
+                $xml = Functions::get_hashed_response($url);
                 if($xml->entry)
                 {
                     foreach($xml->entry as $entry) 
