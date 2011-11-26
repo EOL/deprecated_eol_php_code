@@ -376,6 +376,7 @@ class TropicosAPI
             $mediaURL   = TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH . $rec->ImageId . "&maxwidth=600"; */
             $mediaURL = $rec->ThumbnailUrl;
             $refs = array();
+            $description .= "<br>Full sized images can be obtained by going to the <a href='$source'>original source page</a>.";
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
         }
         return $arr_objects;
