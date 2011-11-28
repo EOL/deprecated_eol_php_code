@@ -1618,7 +1618,7 @@ class Functions
 
     public static function kill_running_connectors($resource_id)
     {
-        $command = "ps -x | grep " . "'[ |/]" . $resource_id . ".php'";
+        $command = "ps -x | grep " . "'update_resources/connectors/" . $resource_id . ".php'";
         $output = trim(shell_exec($command));
         $jobs = explode("\n", $output);
         $jobs = array_values($jobs);
