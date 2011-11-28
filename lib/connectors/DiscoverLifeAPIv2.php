@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-/* connector:  */
-/* Not being used at the moment. This class will move the DL maps to the Maps tab. */
+/* connector: 223 */
+/* This class will move the DL maps to the Maps tab. */
 /*
 Steps before accepting a name from DiscoverLife
 - search the name through the API e.g. api/search/Gadus morhua
@@ -9,7 +9,7 @@ Steps before accepting a name from DiscoverLife
 - if there is multiple results, use the name with the most no. of data objects
 */
 
-class DiscoverLifeAPI
+class DiscoverLifeAPIv2
 {
     const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
     //const DL_MAP_SPECIES_LIST   = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/DiscoverLife/species_map_small2.txt";
@@ -73,7 +73,7 @@ class DiscoverLifeAPI
             // Combine all XML files.
             self::combine_all_xmls($resource_id);
             // Set to force harvest
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::insert('Force Harvest') . " WHERE id=" . $resource_id);
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // Delete temp files
             self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
             self::delete_temp_files(CONTENT_RESOURCE_LOCAL_PATH . "DiscoverLife/temp_DiscoverLife_" . "batch_", "xml");
@@ -176,13 +176,13 @@ class DiscoverLifeAPI
             */
             
             $description = "<br><a href='" . self::DL_SEARCH_URL . str_replace(" ", "+", $taxon) . $call_back . "'>Discover Life</a> 
-            -- click <a href='" . self::DL_MAP_URL . str_replace(" ", "+", $taxon) . $call_back . "'>here</a> for details, credits and terms of use.";
+            -- click <a href='" . self::DL_MAP_URL . str_replace(" ", "+", $taxon) . $call_back . "'>here</a> for details, credits, terms of use and for the latest version of the map.";
 
-            $identifier = str_replace(" ","_",$taxon) . "_distribution";
+            $identifier = str_replace(" ", "_", $taxon) . "_distribution";
             $mimeType   = "image/jpeg";
             $dataType   = "http://purl.org/dc/dcmitype/StillImage";
-            $title = "";
-            $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
+            $title = "Point Map of $taxon";
+            $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
             $agent = array();
             $agent[] = array("role" => "compiler", "homepage" => "http://www.discoverlife.org/", "fullName" => "John Pickering");
             $mediaURL = self::DL_MAP_SRC . str_replace(" ", "+", $taxon); 
