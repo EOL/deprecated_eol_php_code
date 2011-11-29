@@ -138,7 +138,11 @@ class YouTubeAPI
             $thumbnailURL = $rec['thumbnail'];
             $agent = array();
             if($rec['author']) $agent[] = array("role" => "author" , "homepage" => $rec['author_url'] , $rec['author']);
-
+            if(stripos($description, "<br>Author: ") == "")
+            {
+                $description .= "<br><br>Author: <a href='$rec[author_url]'>$rec[author]</a>";
+                $description .= "<br>Source: <a href='$rec[sourceURL]'>YouTube</a>";
+            }
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
@@ -313,6 +317,7 @@ class YouTubeAPI
                 $users[$id] = 1;
             }
         }
+
         $users = self::assign_video_ids(array_keys($users));
         return $users;
     }
