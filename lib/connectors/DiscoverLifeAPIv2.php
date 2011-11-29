@@ -184,9 +184,14 @@ class DiscoverLifeAPIv2
                 <!--<img src="http://www.discoverlife.org/DB/sat/w00/lt_cb.jpg"> sent if no map points-->
                 <!--next version: to deal with homonyms,  add &group=Highertaxon (e.g. Plantae, Fabaceae)-->
             */
-            
+
+            /* No final text yet from John Pickering...
             $description = "<br><a href='" . self::DL_SEARCH_URL . str_replace(" ", "+", $taxon) . $call_back . "'>Discover Life</a> 
             -- click <a href='" . self::DL_MAP_URL . str_replace(" ", "+", $taxon) . $call_back . "'>here</a> for details, credits, terms of use and for the latest version of the map.";
+            */
+
+            $description = "<br>Please see details, credits, terms of use and the latest version of the map at <a href='" . self::DL_MAP_URL . str_replace(" ", "+", $taxon) . $call_back . "'>Discover Life</a>.";
+            $description .= "<br>Explore <a href='" . self::DL_SEARCH_URL . str_replace(" ", "+", $taxon) . $call_back . "'><i>$taxon</i></a> in Discover Life.";
 
             $identifier = str_replace(" ", "_", $taxon) . "_distribution";
             $mimeType   = "image/jpeg";
