@@ -139,7 +139,7 @@ class EMBLreptiles
         $mediaURL      = "";
         $location      = "";
         $license       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $rightsHolder  = "The EMBL Reptile Database";
+        $rightsHolder  = "Peter Uetz";
         //$source        = $taxon["CurrentURL"];
         $source        = "";
         $refs          = array();
