@@ -650,7 +650,9 @@ class NatureServeAPI
             $mr->rights = $dc->rights;
             $mr->rightsHolder = @$mr->rightsHolder ?: $dc->rightsHolder;
             $mr->license = 'http://creativecommons.org/licenses/publicdomain/';
-            
+            if($mr->rights == 'Public Domain') $mr->rights = '';
+            if($mr->rightsHolder == 'Public Domain') $mr->rightsHolder = '';
+             
             if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr))
             {
                 $width = $arr[1];
@@ -689,6 +691,7 @@ class NatureServeAPI
         $mr->creator = @$options['creator'];
         $mr->created = @$options['created'];
         $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $mr->rightsHolder = 'NatureServe';
         $this->archive_builder->write_object_to_file($mr);
     }
     
@@ -709,6 +712,7 @@ class NatureServeAPI
         $mr->created = @$options['created'];
         $mr->description = @$options['description'];
         $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $mr->rightsHolder = 'NatureServe';
         $this->archive_builder->write_object_to_file($mr);
     }
     

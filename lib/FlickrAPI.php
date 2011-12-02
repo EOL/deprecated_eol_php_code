@@ -269,7 +269,7 @@ class FlickrAPI
     public static function photos_get_sizes($photo_id, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getSizes", array("photo_id" => $photo_id, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
-        $response = Functions::get_remote_file($url);
+        $response = Functions::get_remote_file($url, NULL, 30);
         self::add_to_cache('photosGetSizes', $photo_id, $response);
         return json_decode($response);
     }
@@ -289,7 +289,7 @@ class FlickrAPI
     public static function photos_get_info($photo_id, $secret, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
-        $response = Functions::get_remote_file($url);
+        $response = Functions::get_remote_file($url, NULL, 30);
         self::add_to_cache('photosGetInfo', $photo_id, $response);
         return json_decode($response);
     }
@@ -298,7 +298,7 @@ class FlickrAPI
     {
         $extras = "last_update,media,url_o";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
-        return json_decode(Functions::get_remote_file($url));
+        return json_decode(Functions::get_remote_file($url, NULL, 30));
     }
     
     public static function auth_get_frob()
@@ -335,6 +335,7 @@ class FlickrAPI
         {
             foreach($sizes->sizes->size as $size)
             {
+                if(preg_match("/(video|mp4)/i", $size->label)) continue;
                 $photo_url = $size->source;
             }
         }

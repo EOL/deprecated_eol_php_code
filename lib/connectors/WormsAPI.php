@@ -13,13 +13,19 @@ class WormsAPI
 
     function initialize_text_files()
     {
+        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/WORMS/";
+        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_list.txt";
+        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_in_progress_list.txt";
+        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/WORMS/initial_process_status.txt";
+        
         $f = fopen(self::$WORK_LIST, "w"); fclose($f);
         $f = fopen(self::$WORK_IN_PROGRESS_LIST, "w"); fclose($f);
         $f = fopen(self::$INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        $f = fopen(self::$TEMP_FILE_PATH . "bad_ids.txt", "w"); fclose($f);
         //this is not needed but just to have a clean directory
-        self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
-        self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_worms_" . "batch_", "xml");
-        self::delete_temp_files(self::$TEMP_FILE_PATH . "xmlcontent_", "xml");
+        self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_");
+        self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_worms_batch_");
+        self::delete_temp_files(self::$TEMP_FILE_PATH . "xmlcontent_");
     }
 
     function start_process($resource_id, $call_multiple_instance, $initialize)
@@ -113,6 +119,7 @@ class WormsAPI
     function process($id)
     {
         $file = WORMS_TAXON_API . $id;
+        echo "$file\n";
         if($contents = Functions::get_remote_file($file))
         {
             if($xml = simplexml_load_string($contents))
@@ -266,9 +273,17 @@ class WormsAPI
         }
     }
 
-    function delete_temp_files($file_path, $file_extension)
+    function delete_temp_files($file_path, $file_extension = '*')
     {
         $i = 0;
+        foreach (glob($file_path . "*." . $file_extension) as $filename)
+        {
+           unlink($filename);
+        }
+
+
+
+        return;
         while(true)
         {
             $i++;

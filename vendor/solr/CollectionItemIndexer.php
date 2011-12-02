@@ -19,6 +19,9 @@ class CollectionItemIndexer
     
     public function index_collection($collection_id, $optimize = true)
     {
+         $this->solr = new SolrAPI($this->solr_server, 'collection_items');
+        $this->solr->delete('collection_id:'. $collection_id);
+        
         $query = "SELECT id FROM collection_items WHERE collection_id = $collection_id";
         $collection_item_ids = array();
         foreach($this->mysqli->iterate_file($query) as $row_num => $row) $collection_item_ids[] = $row[0];
