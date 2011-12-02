@@ -25,7 +25,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 if($id)
 {
     $hierarchy_entry = HierarchyEntry::find($id);
-    echo "<h2>".$hierarchy_entry->hierarchy->label."</h2>";
+    echo "<h2>".$hierarchy_entry->hierarchy->label." ($hierarchy_entry->hierarchy_id)</h2>";
     
     
     $indent = show_ancestry_he($hierarchy_entry);

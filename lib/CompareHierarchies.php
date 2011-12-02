@@ -315,7 +315,7 @@ class CompareHierarchies
     
     
     // this method will use its own transactions so commit any open transactions before using
-    public static function process_hierarchy($hierarchy, $compare_to_hierarchy = null, $match_synonyms = false)
+    public static function process_hierarchy($hierarchy, $compare_to_hierarchy = null, $match_synonyms = true)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
@@ -441,7 +441,7 @@ class CompareHierarchies
         }else echo "$hierarchy_entry_id didn't match any other entries\n";
     }
     
-    public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
+    public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = true)
     {
         if(isset($entry->name))
         {

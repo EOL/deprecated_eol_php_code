@@ -7,7 +7,7 @@ $mysqli = $GLOBALS['db_connection'];
 
 
 
-/*require_library('connectors/NatureServeAPI');
+require_library('connectors/NatureServeAPI');
 unlink(DOC_ROOT . "/temp/dwc_archive_test/meta.xml");
 unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon.tab");
 unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon_working.tab");
@@ -17,7 +17,7 @@ unlink(DOC_ROOT . "/temp/dwc_archive_test/reference.tab");
 rmdir(DOC_ROOT . "/temp/dwc_archive_test/");
 $naturserveAPI = new NatureServeAPI();
 $naturserveAPI->get_all_taxa();
-*/
+
 
 
 

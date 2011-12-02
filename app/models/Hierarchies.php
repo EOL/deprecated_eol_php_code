@@ -47,6 +47,22 @@ class Hierarchy extends ActiveRecord
         else return null;
     }
     
+    static function contributors()
+    {
+        return Hierarchy::find_by_label('Encyclopedia of Life Contributors');
+    }
+    
+    static function ubio()
+    {
+        return Hierarchy::find_by_label('uBio Namebank');
+    }
+    
+    static function wikipedia()
+    {
+        return Hierarchy::find_by_label('Wikipedia');
+    }
+    
+    
     public static function publish_wrongly_unpublished_concepts()
     {
         // publishe all the concepts that are unpublished but have published entries
