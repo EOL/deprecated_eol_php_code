@@ -1621,7 +1621,7 @@ class Functions
         $myPID = getmypid();
         print "\n myPID: $myPID \n"; //this won't get killed
         $pattern = "update_resources/connectors/" . $resource_id . "|update_resources/connectors/" . $resource_id . "_next";
-        $command = "ps -x | grep " . "'[$pattern].php'";
+        $command = "ps -x | egrep " . "'($pattern).php'";
         $output = trim(shell_exec($command));
         $jobs = explode("\n", $output);
         $jobs = array_values($jobs);
