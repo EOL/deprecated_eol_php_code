@@ -11,14 +11,26 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $manager = new ContentManager();
 
 
-
+$resources = array();
 $result = $mysqli->query("SELECT id FROM resources WHERE accesspoint_url!='' AND accesspoint_url IS NOT NULL AND service_type_id=".ServiceType::find_or_create_by_translated_label("EOL Transfer Schema")->id." AND refresh_period_hours > 0");
 while($result && $row=$result->fetch_assoc())
 {
     echo $row["id"]."...\n";
     $resource = Resource::find($row["id"]);
     if(!$resource->id) continue;
-    
+    $resources[] = $resource;
+}
+
+$resources = Resource::ready_for_harvesting();
+foreach($resources as $resource)
+{
+    if(!$resource->accesspoint_url) continue;
+    if(!$resource->service_type_id != ServiceType::find_or_create_by_translated_label("EOL Transfer Schema")->id) continue;
+    if(!in_array($resource, $resources)) $resources[] = $resource;
+}
+
+foreach($resources as $resource)
+{
     // check the file's modified date and when it was last harvested
     if(!$resource->ready_to_update() && !$resource->ready_to_harvest(10)) continue;
     

@@ -1,6 +1,7 @@
 <?php
 
 $mysqldump_path = @$argv[1];
+$obfuscated_dump_path = @$argv[2];
 
 $fields_to_obfuscate = array(
     'users' => array(
@@ -31,8 +32,7 @@ $fields_to_obfuscate = array(
 );
 
 $obfuscator = new MysqlDumpObfuscator();
-$obfuscator->obfuscate_mysqldump($mysqldump_path, $fields_to_obfuscate);
-
+$obfuscator->obfuscate_mysqldump($mysqldump_path, $fields_to_obfuscate, $obfuscated_dump_path);
 
 
 
@@ -132,6 +132,8 @@ class MysqlDumpObfuscator
         
         fclose($OBFUSCATED);
         fclose($MYSQLDUMP);
+        
+        shell_exec("tar -zcf $obfuscated_path.tar.gz $obfuscated_path");
     }
     
     private function obfuscate_line_values($values, $table_fields, $fields_to_obfuscate)

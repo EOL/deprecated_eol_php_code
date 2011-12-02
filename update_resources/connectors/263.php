@@ -7,7 +7,7 @@ $mysqli = $GLOBALS['db_connection'];
 
 
 
-/*require_library('connectors/NatureServeAPI');
+require_library('connectors/NatureServeAPI');
 unlink(DOC_ROOT . "/temp/dwc_archive_test/meta.xml");
 unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon.tab");
 unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon_working.tab");
@@ -17,7 +17,7 @@ unlink(DOC_ROOT . "/temp/dwc_archive_test/reference.tab");
 rmdir(DOC_ROOT . "/temp/dwc_archive_test/");
 $naturserveAPI = new NatureServeAPI();
 $naturserveAPI->get_all_taxa();
-*/
+
 
 
 
@@ -128,7 +128,10 @@ function lookup_data_objects($media)
     $object_parameters['mimeType'] = $media['http://www.eol.org/schema/transfer#mimeType'];
     if($creator = $media['http://www.eol.org/schema/transfer#creator'])
     {
-        $object_parameters['agents'] = array(new \SchemaAgent(array('fullName' => $creator)));
+        $role = '';
+        if($object_parameters['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $role = 'photographer';
+        if($object_parameters['dataType'] == 'http://purl.org/dc/dcmitype/Text') $role = 'author';
+        $object_parameters['agents'] = array(new \SchemaAgent(array('fullName' => $creator, 'role' => $role)));
     }
     if($v = $media['http://www.eol.org/schema/transfer#created']) $object_parameters['created'] = $v;
     if($v = $media['http://www.eol.org/schema/transfer#title']) $object_parameters['title'] = $v;
