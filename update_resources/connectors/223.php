@@ -12,7 +12,7 @@ $dl = new DiscoverLifeAPIv2();
 
 $dl->initialize_text_files();
 Functions::kill_running_connectors($resource_id);
-exit;
+
 
 $dl->start_process($resource_id, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
