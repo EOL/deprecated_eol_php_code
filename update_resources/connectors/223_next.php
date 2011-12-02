@@ -1,20 +1,20 @@
 <?php
 namespace php_active_record;
 /* connector for DiscoverLife Maps
-estimated execution time:
+This script is called if the main script calls for multiple instance of the connector.
 */
 set_time_limit(0);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/DiscoverLifeAPIv2');
 $resource_id = 223;
+
+if(isset($argv[1])) $call_multiple_instance = false;
+else $call_multiple_instance = true;
+
 $dl = new DiscoverLifeAPIv2();
+$dl->start_process($resource_id, $call_multiple_instance);
 
-$dl->initialize_text_files();
-Functions::kill_running_connectors($resource_id);
-exit;
-
-$dl->start_process($resource_id, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

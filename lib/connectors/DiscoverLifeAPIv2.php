@@ -16,61 +16,57 @@ class DiscoverLifeAPIv2
     const DL_SEARCH_URL         = "http://www.discoverlife.org/mp/20q?search=";
     const DL_MAP_URL            = "http://www.discoverlife.org/20/m?kind=";
     const DL_MAP_SRC            = "http://www.discoverlife.org/mp/20m?map=";
-    private static $TEXT_FILE_FOR_DL;
 
-    private static $TEMP_FILE_PATH;
-    private static $WORK_LIST;
-    private static $WORK_IN_PROGRESS_LIST;
-    private static $INITIAL_PROCESS_STATUS;
+    public function __construct() 
+    {           
+        $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/";
+        $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/work_list.txt";
+        $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/work_in_progress_list.txt";
+        $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/initial_process_status.txt";
+        $this->TEXT_FILE_FOR_DL       = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/names_without_pages_in_eol.txt"; //report back to DiscoverLife
+    }
 
-    function initialize_text_files()
+    public function initialize_text_files()
     {
-        $f = fopen(self::$WORK_LIST, "w"); fclose($f);
-        $f = fopen(self::$WORK_IN_PROGRESS_LIST, "w"); fclose($f);
-        $f = fopen(self::$INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        $f = fopen($this->WORK_LIST, "w"); fclose($f);
+        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
+        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
         //this is not needed but just to have a clean directory
-        self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
-        self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_", "xml");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_batch_", "xml");
     }
 
     function start_process($resource_id, $call_multiple_instance)
     {
-        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/";
-        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/work_list.txt";
-        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/work_in_progress_list.txt";
-        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/initial_process_status.txt";
-
-        self::$TEXT_FILE_FOR_DL       = DOC_ROOT . "/update_resources/connectors/files/DiscoverLife/names_without_pages_in_eol.txt"; //report back to DiscoverLife
-
-        if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
+        if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
-            if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
+            if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
             {
                 // Divide the big list of ids into small files
-                Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
                 self::divide_text_file(10000); //orig value 10000 debug
-                Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
 
-        // Run multiple instances, for DiscoverLife ideally a total of 2
+        // Run multiple instances, for DiscoverLife ideally a total of 3
         while(true)
         {
-            $task = Functions::get_a_task(self::$WORK_LIST);//get a task to work on
+            $task = Functions::get_a_task($this->WORK_LIST);//get a task to work on
             if($task)
             {
                 print "\n Process this: $task";
-                Functions::delete_a_task($task, self::$WORK_LIST);
-                Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
+                Functions::delete_a_task($task, $this->WORK_LIST);
+                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                // if($call_multiple_instance)
-                // {
-                //     Functions::run_another_connector_instance($resource_id, 1); //call 1 other instance for a total of 2 instances running
-                //     $call_multiple_instance = 0;
-                // }
+                if($call_multiple_instance)
+                {
+                    Functions::run_another_connector_instance($resource_id, 2); //call 2 other instance for a total of 3 instances running
+                    $call_multiple_instance = 0;
+                }
                 self::get_all_taxa($task);
                 print "\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST); //remove a task from task list
+                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
             }
             else
             {
@@ -78,15 +74,15 @@ class DiscoverLifeAPIv2
                 break;
             }
         }
-        if(!$task = trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
+        if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Combine all XML files.
             self::combine_all_xmls($resource_id);
             // Set to force harvest
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // Delete temp files
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_", "xml");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_", "xml");
         }
     }
 
@@ -97,8 +93,8 @@ class DiscoverLifeAPIv2
         $all_taxa = array();
         $used_collection_ids = array();
         //initialize text file for DiscoverLife: save names without a page in EOL
-        self::initialize_text_file(self::$TEXT_FILE_FOR_DL);
-        $filename = self::$TEMP_FILE_PATH . $task . ".txt";
+        self::initialize_text_file($this->TEXT_FILE_FOR_DL);
+        $filename = $this->TEMP_FILE_PATH . $task . ".txt";
         $FILE = fopen($filename, "r");
         $i = 0; 
         $save_count = 0; 
@@ -140,7 +136,7 @@ class DiscoverLifeAPIv2
 
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</dataObject>", "<additionalInformation><subtype>map</subtype></additionalInformation></dataObject>", $xml);
-        $resource_path = self::$TEMP_FILE_PATH . "temp_DiscoverLife_" . $task . ".xml";
+        $resource_path = $this->TEMP_FILE_PATH . "temp_DiscoverLife_" . $task . ".xml";
         $OUT = fopen($resource_path, "w"); 
         fwrite($OUT, $xml); 
         fclose($OUT);
@@ -256,7 +252,7 @@ class DiscoverLifeAPIv2
                     print"\n";
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                    $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+                    $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = "";
@@ -270,14 +266,14 @@ class DiscoverLifeAPIv2
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-            $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+            $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
             fwrite($OUT, $str);
             fclose($OUT);
         }
         //create work_list
         $str = "";
         FOR($i = 1; $i <= $file_ctr; $i++) $str .= "batch_" . Functions::format_number_with_leading_zeros($i, 3) . "\n";
-        $filename = self::$TEMP_FILE_PATH . "work_list.txt";
+        $filename = $this->TEMP_FILE_PATH . "work_list.txt";
         if($fp = fopen($filename, "w"))
         {
             fwrite($fp, $str);
@@ -306,7 +302,7 @@ class DiscoverLifeAPIv2
         {
             $i++;
             $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = self::$TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_" . $i_str . ".xml";
+            $filename = $this->TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_" . $i_str . ".xml";
             if(!is_file($filename))
             {
                 print " -end compiling XML's- ";
@@ -340,7 +336,7 @@ class DiscoverLifeAPIv2
     private function store_name_to_text_file($name, $post_name)
     {
         /* This text file will be given to partner so they can fix their names */
-        if($fp = fopen(self::$TEXT_FILE_FOR_DL, "a"))
+        if($fp = fopen($this->TEXT_FILE_FOR_DL, "a"))
         {
             fwrite($fp, $name. "\n");
             fclose($fp);

@@ -1611,14 +1611,17 @@ class Functions
         for($i = 1; $i <= $times; $i++)
         {
             print "\n run " . self::cardinal_to_ordinal($i + 1) . " instance--";
-            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '.php 0 > null &');
+            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '_next.php 0 > null &');
             sleep(5);
         }
     }
 
     public static function kill_running_connectors($resource_id)
     {
-        $command = "ps -x | grep " . "'update_resources/connectors/" . $resource_id . ".php'";
+        $myPID = getmypid();
+        print "\n myPID: $myPID \n"; //this won't get killed
+        $pattern = "update_resources/connectors/" . $resource_id . "|update_resources/connectors/" . $resource_id . "_next";
+        $command = "ps -x | grep " . "'[$pattern].php'";
         $output = trim(shell_exec($command));
         $jobs = explode("\n", $output);
         $jobs = array_values($jobs);
@@ -1630,8 +1633,11 @@ class Functions
             print_r($jobs);
             foreach($pids as $pid)
             {
-                print "\n kill $pid ";
-                $x = shell_exec('kill ' . $pid);
+                if($pid <> $myPID)
+                {
+                    print "\n kill $pid ";
+                    shell_exec('kill ' . $pid);
+                } 
             }
         }
         else print "\n That connector is not running at the moment.";
