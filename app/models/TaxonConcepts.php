@@ -43,18 +43,18 @@ class TaxonConcept extends ActiveRecord
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE taxon_concept_id=$id2");
         $mysqli->update("UPDATE IGNORE taxon_concepts_flattened SET ancestor_id=$id1 WHERE ancestor_id=$id2");
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE ancestor_id=$id2");
-        
-        $updating_collection_items = false;
-        $result = $mysqli->query("SELECT 1 FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept' LIMIT 1");
-        if($result && $row=$result->fetch_assoc())
-        {
-            $updating_collection_items = true;
-            $mysqli->update("UPDATE IGNORE collection_items SET object_id=$id1 WHERE object_id=$id2 AND object_type='TaxonConcept'");
-            self::reindex_collection_items($id1);
-        }
-        
+                
         if($update_caches)
         {
+            $updating_collection_items = false;
+            $result = $mysqli->query("SELECT 1 FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept' LIMIT 1");
+            if($result && $row=$result->fetch_assoc())
+            {
+                $updating_collection_items = true;
+                $mysqli->update("UPDATE IGNORE collection_items SET object_id=$id1 WHERE object_id=$id2 AND object_type='TaxonConcept'");
+                self::reindex_collection_items($id1);
+            }
+            
             // DO THE SOLR STUFF HERE, HIERARCHICAL
             // all descendants' DataObject
             // all descendants' objects in SiteSearch
@@ -64,13 +64,13 @@ class TaxonConcept extends ActiveRecord
             self::reindex_descendants_objects($id2);
             self::reindex_descendants($id1);
             self::reindex_descendants($id2);
-        }
-        
-        if($updating_collection_items)
-        {
-            $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
-            $solr->delete("object_type:TaxonConcept AND object_id:$id2");
-            $mysqli->update("DELETE FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept'");
+            
+            if($updating_collection_items)
+            {
+                $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
+                $solr->delete("object_type:TaxonConcept AND object_id:$id2");
+                $mysqli->update("DELETE FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept'");
+            }
         }
     }
     
@@ -128,7 +128,7 @@ class TaxonConcept extends ActiveRecord
     
     public static function reindex_collection_items($taxon_concept_id)
     {
-        $taxon_concept_ids = array();
+        $collection_item_ids = array();
         $query = "SELECT id FROM collection_items WHERE object_id = $taxon_concept_id AND object_type = 'TaxonConcept'";
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
         {

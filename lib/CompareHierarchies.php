@@ -417,10 +417,10 @@ class CompareHierarchies
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
         
-        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::find_or_create_by_label('kingdom')->id, Rank::find_or_create_by_label('phylum')->id, Rank::find_or_create_by_label('class')->id, Rank::find_or_create_by_label('order')->id);
+        $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::find_or_create_by_translated_label('kingdom')->id, Rank::find_or_create_by_translated_label('phylum')->id, Rank::find_or_create_by_translated_label('class')->id, Rank::find_or_create_by_translated_label('order')->id);
         
         $hierarchy_entry = HierarchyEntry::find($hierarchy_entry_id);
-        $hierarchy = $hierarchy_entry->hierarchy();
+        $hierarchy = $hierarchy_entry->hierarchy;
         $query = "id:$hierarchy_entry_id";
         
         // the global variable which will hold all mathces for this iteration
@@ -433,25 +433,31 @@ class CompareHierarchies
         }
         unset($entries);
         
-        // if($GLOBALS['hierarchy_entry_matches'])
-        // {
-        //     debug("$hierarchy_entry_id has matches:");
-        //     debug(print_r($GLOBALS['hierarchy_entry_matches'], 1));
-        // }else debug("$hierarchy_entry_id didn't match any other entries");
+        if($GLOBALS['hierarchy_entry_matches'])
+        {
+            print_r($GLOBALS['hierarchy_entry_matches']);
+        }else echo "$hierarchy_entry_id didn't match any other entries\n";
     }
     
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
     {
-        if(isset($entry->name) && isset($entry->canonical_form))
+        if(isset($entry->name))
         {
-            $search_name = rawurlencode($entry->canonical_form);
-            $query = "(canonical_form_string:\"". $search_name ."\"";
-            if($match_synonyms) $query .= " OR synonym_canonical:\"". $search_name ."\"";
-            $query .= ")";
+            $search_name = rawurlencode($entry->name);
+            if($cf = @$entry->canonical_form) $search_canonical = rawurlencode($cf);
+            else $search_canonical = "";
+            if(preg_match("/virus$/", $search_canonical)) $search_canonical = "";
+            
+            $query_bits = array();
+            if($search_canonical) $query_bits[] = "canonical_form_string:\"". $search_canonical ."\"";
+            $query_bits[] = "name:\"". $search_name ."\"";
+            if($match_synonyms && $search_canonical) $query_bits[] = "synonym_canonical:\"". $search_canonical ."\"";
+            $query = "(". implode(" OR ", $query_bits) .")";
+            
             if($compare_to_hierarchy) $query .= " AND hierarchy_id:$compare_to_hierarchy->id";
             // don't compare these hierarchies to themselves
             if($hierarchy->complete) $query .= " NOT hierarchy_id:$hierarchy->id";
-            $query .= "&rows=500";
+            $query .= "&rows=350";
             
             $matching_entries = $solr->get_results($query);
             foreach($matching_entries as $matching_entry)
@@ -474,6 +480,7 @@ class CompareHierarchies
         if(self::rank_conflict($entry1, $entry2)) return null;
         
         // viruses are a pain and will not match properly right now
+        if(preg_match("/virus$/i", $entry1->name) || preg_match("/virus$/i", $entry2->name)) return null;
         if(isset($entry1->kingdom) && (strtolower($entry1->kingdom) == 'virus' || strtolower($entry1->kingdom) == 'viruses')) return null;
         if(isset($entry2->kingdom) && (strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses')) return null;
         
@@ -519,7 +526,7 @@ class CompareHierarchies
         if($entry1->name && $entry2->name && $entry1->name == $entry2->name) return 1;
         
         // canonical_forms are assigned and identical
-        if($entry1->canonical_form && $entry2->canonical_form && $entry1->canonical_form == $entry2->canonical_form) return .5;
+        if(@$entry1->canonical_form && @$entry2->canonical_form && $entry1->canonical_form == $entry2->canonical_form) return .5;
         
         return 0;
     }
@@ -531,8 +538,8 @@ class CompareHierarchies
         if(isset($entry1->synonym) && in_array($entry2->name, $entry1->synonym)) return 1;
         
         // one canonical_form is in the other's synonym list
-        if(isset($entry2->synonym_canonical) && in_array($entry1->canonical_form, $entry2->synonym_canonical)) return .5;
-        if(isset($entry1->synonym_canonical) && in_array($entry2->canonical_form, $entry1->synonym_canonical)) return .5;
+        if(isset($entry2->synonym_canonical) && @in_array($entry1->canonical_form, $entry2->synonym_canonical)) return .5;
+        if(isset($entry1->synonym_canonical) && @in_array($entry2->canonical_form, $entry1->synonym_canonical)) return .5;
         
         return 0;
     }
@@ -612,3 +619,4 @@ class CompareHierarchies
 }
 
 ?>
+

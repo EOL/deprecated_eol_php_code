@@ -19,7 +19,11 @@ $expand = @$_REQUEST["expand"];
 if($taxon_concept_id) $node = TaxonConcept::find($taxon_concept_id);
 else exit;
 
-
+if($node->supercedure_id)
+{
+    echo "Moved to $node->supercedure_id<br><br>";
+    exit;
+}
 
 $hierarchy_entry_ids = $node->hierarchy_entry_ids();
 foreach($hierarchy_entry_ids as $id)

@@ -132,7 +132,6 @@ function show_node($node, $indent, $variable)
     
     if($rank = $node->rank()) $html .= " <small><i>".$rank."</i></small>";
     if($source) $html .= str_repeat("&nbsp;", 10)."<small>($source)</small>";
-    
     return $html."<br>";
 }
 
@@ -264,6 +263,8 @@ function show_name_he($hierarchy_entry, $indent, $expand)
     // }
     
     $display .= " <small>he_id:".$hierarchy_entry->id." ; tc_id:".$hierarchy_entry->taxon_concept_id."</small>";
+    if($cf = @$hierarchy_entry->name->ranked_canonical_form->string) $display .= str_repeat("&nbsp;", 10)."<small>$cf</small>";
+    else $display .= str_repeat("&nbsp;", 10)."<small>-----</small>";
     $display .= "<br>";
     
     return $display;
@@ -271,18 +272,20 @@ function show_name_he($hierarchy_entry, $indent, $expand)
 
 function show_synonyms_he($hierarchy_entry)
 {
-    // if($synonyms = $hierarchy_entry->synonyms())
-    // {
-    //     echo "<hr>";
-    //     foreach($synonyms as $k => $v)
-    //     {
-    //         echo $v->name()->string;
-    //         if($v->synonym_relation_id) echo " (".$v->synonym_relation()->label.")";
-    //         $language = $v->language();
-    //         if($label = @$language->label) echo " ($label)";
-    //         echo "<br>";
-    //     }
-    // }
+    if($synonyms = $hierarchy_entry->synonyms())
+    {
+        echo "<hr>";
+        foreach($synonyms as $k => $v)
+        {
+            echo $v->name->string;
+            if($v->synonym_relation_id) echo " (".$v->synonym_relation->translation->label.")";
+            $language = $v->language;
+            if($label = @$language->label) echo " ($label)";
+            if($cf = @$v->name->ranked_canonical_form->string) echo str_repeat("&nbsp;", 10)."<small>$cf</small>";
+            else echo str_repeat("&nbsp;", 10)."<small>-----</small>";
+            echo "<br>";
+        }
+    }
 }
 
 function show_references_he($hierarchy_entry)
