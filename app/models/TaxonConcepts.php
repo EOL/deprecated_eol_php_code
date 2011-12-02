@@ -43,7 +43,7 @@ class TaxonConcept extends ActiveRecord
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE taxon_concept_id=$id2");
         $mysqli->update("UPDATE IGNORE taxon_concepts_flattened SET ancestor_id=$id1 WHERE ancestor_id=$id2");
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE ancestor_id=$id2");
-                
+        
         if($update_caches)
         {
             $updating_collection_items = false;

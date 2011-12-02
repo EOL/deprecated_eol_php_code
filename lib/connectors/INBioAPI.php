@@ -5,6 +5,8 @@ class INBioAPI
 {
     private static $MAPPINGS;
     const TAXON_SOURCE_URL = "http://darnis.inbio.ac.cr/ubis/FMPro?-DB=UBIPUB.fp3&-lay=WebAll&-error=norec.html&-Format=detail.html&-Op=eq&-Find=&id=";
+    const SPM = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#";
+    const EOL = "http://www.eol.org/voc/table_of_contents#";
 
     public static function get_all_taxa()
     {
@@ -40,6 +42,37 @@ class INBioAPI
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
         }
         return $all_taxa;
+    }
+
+    public static function assign_eol_subjects($xml_string)
+    {
+        if(!stripos($xml_string, "http://www.eol.org/voc/table_of_contents#")) return $xml_string;
+        print "\n this resource has http://www.eol.org/voc/table_of_contents# \n";
+        $xml = simplexml_load_string($xml_string);
+        $i = 0;
+        foreach($xml->taxon as $taxon)
+        {
+            $i++; print "$i ";
+            foreach($taxon->dataObject as $dataObject)
+            {
+                $dataObject_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
+                $eol_subjects[] = self::EOL . "SystematicsOrPhylogenetics";
+                $eol_subjects[] = self::EOL . "TypeInformation";
+                $eol_subjects[] = self::EOL . "Notes";
+                if(@$dataObject->subject)
+                {
+                    if (in_array($dataObject->subject, $eol_subjects)) 
+                    {
+                        $dataObject->addChild("additionalInformation", "");
+                        $dataObject->additionalInformation->addChild("subject", $dataObject->subject);
+                        if    ($dataObject->subject == self::EOL . "SystematicsOrPhylogenetics") $dataObject->subject = self::SPM . "Evolution";
+                        elseif($dataObject->subject == self::EOL . "TypeInformation")            $dataObject->subject = self::SPM . "DiagnosticDescription";
+                        elseif($dataObject->subject == self::EOL . "Notes")                      $dataObject->subject = self::SPM . "Description";
+                    }
+                }
+            }
+        }
+        return $xml->asXML();
     }
 
     private function get_images($imagex)
@@ -125,7 +158,6 @@ class INBioAPI
             {
                 $sciname = @$taxon["http://rs.tdwg.org/dwc/terms/scientificName"];
                 if(@$taxon["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"]) $sciname .= " " . $taxon["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"];
-                
                 $arr_data[]=array(  "identifier"   => $taxon_id,
                                     "source"       => self::TAXON_SOURCE_URL . $taxon_id,
                                     "kingdom"      => @$taxon["http://rs.tdwg.org/dwc/terms/kingdom"],
@@ -152,7 +184,7 @@ class INBioAPI
         elseif(is_numeric(strpos($refs, "</p>"))) $refs = explode("</p>", $refs);
         elseif(is_numeric(strpos($refs, "</P>"))) $refs = explode("</P>", $refs);
         else $refs = explode("<p>", $refs);
-        
+
         $references = array();
         foreach($refs as $ref) $references[] = array("fullReference" => $ref);
         return $references;
@@ -271,55 +303,46 @@ class INBioAPI
 
     private function assign_mappings()
     {
-        $SPM = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#";
-        $EOL = "http://www.eol.org/voc/table_of_contents#";
-        
-        return array(  "http://www.pliniancore.org/plic/pcfcore/scientificDescription"        => $SPM . "DiagnosticDescription",
-                       "http://www.pliniancore.org/plic/pcfcore/distribution"                 => $SPM . "Distribution",
-                       "http://www.pliniancore.org/plic/pcfcore/feeding"                      => $SPM . "TrophicStrategy",
-                       "http://www.pliniancore.org/plic/pcfcore/identificationKeys"           => $SPM . "Key",
-                       "http://www.pliniancore.org/plic/pcfcore/invasivenessData"             => $SPM . "RiskStatement",
-                       "http://www.pliniancore.org/plic/pcfcore/theUses"                      => $SPM . "Uses",
-                       "http://www.pliniancore.org/plic/pcfcore/migratoryData"                => $SPM . "Migration",
-                       "http://www.pliniancore.org/plic/pcfcore/ecologicalSignificance"       => $SPM . "Ecology",
-                       "http://www.pliniancore.org/plic/pcfcore/annualCycle"                  => $SPM . "Cyclicity",
-                       "http://www.pliniancore.org/plic/pcfcore/folklore"                     => $SPM . "TaxonBiology",
-                       "http://www.pliniancore.org/plic/pcfcore/populationBiology"            => $SPM . "PopulationBiology",
-                       "http://www.pliniancore.org/plic/pcfcore/threatStatus"                 => $SPM . "ConservationStatus",
-                       "http://www.pliniancore.org/plic/pcfcore/abstract"                     => $SPM . "Description",
-                       "http://www.pliniancore.org/plic/pcfcore/interactions"                 => $SPM . "Associations",
-                       "http://www.pliniancore.org/plic/pcfcore/territory"                    => $SPM . "Behaviour",
-                       "http://www.pliniancore.org/plic/pcfcore/behavior"                     => $SPM . "Behaviour",
-                       "http://www.pliniancore.org/plic/pcfcore/chromosomicNumberN"           => $SPM . "Cytology",
-                       "http://www.pliniancore.org/plic/pcfcore/reproduction"                 => $SPM . "Reproduction",
-                       "http://www.pliniancore.org/plic/pcfcore/theManagement"                => $SPM . "Management",
-                       "http://www.pliniancore.org/plic/pcfcore/endemicity"                   => $SPM . "Distribution",
-                       "http://www.pliniancore.org/plic/pcfcore/briefDescription"             => $SPM . "TaxonBiology",
-                       "http://www.pliniancore.org/plic/pcfcore/habit"                        => $SPM . "Morphology",
-                       "http://www.pliniancore.org/plic/pcfcore/legislation"                  => $SPM . "Legislation",
-                       "http://www.pliniancore.org/plic/pcfcore/habitat"                      => $SPM . "Habitat",
-                       "http://www.pliniancore.org/plic/pcfcore/lifeCycle"                    => $SPM . "LifeCycle",
-                       "http://www.pliniancore.org/plic/pcfcore/molecularData"                => $SPM . "MolecularBiology",
-                       "http://www.pliniancore.org/plic/pcfcore/typification"                 => $SPM . "Distribution", 
-                       "http://www.pliniancore.org/plic/pcfcore/unstructuredNaturalHistory"   => $EOL . "Notes",
-                       "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"      => $EOL . "Notes",
-                       "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"    => $EOL . "Notes",
-                       "http://iucn.org/terms/threatStatus"                                   => $SPM . "ConservationStatus",
-                       "http://rs.tdwg.org/dwc/terms/habitat"                                 => $SPM . "Habitat",
-                       "http://rs.tdwg.org/dwc/terms/establishmentMeans"                      => $SPM . "Distribution",
-                       "http://purl.org/dc/terms/abstract"                                    => $SPM . "TaxonBiology"
+        return array(  "http://www.pliniancore.org/plic/pcfcore/scientificDescription"        => self::SPM . "DiagnosticDescription",
+                       "http://www.pliniancore.org/plic/pcfcore/distribution"                 => self::SPM . "Distribution",
+                       "http://www.pliniancore.org/plic/pcfcore/feeding"                      => self::SPM . "TrophicStrategy",
+                       "http://www.pliniancore.org/plic/pcfcore/identificationKeys"           => self::SPM . "Key",
+                       "http://www.pliniancore.org/plic/pcfcore/invasivenessData"             => self::SPM . "RiskStatement",
+                       "http://www.pliniancore.org/plic/pcfcore/theUses"                      => self::SPM . "Uses",
+                       "http://www.pliniancore.org/plic/pcfcore/migratoryData"                => self::SPM . "Migration",
+                       "http://www.pliniancore.org/plic/pcfcore/ecologicalSignificance"       => self::SPM . "Ecology",
+                       "http://www.pliniancore.org/plic/pcfcore/annualCycle"                  => self::SPM . "Cyclicity",
+                       "http://www.pliniancore.org/plic/pcfcore/folklore"                     => self::SPM . "TaxonBiology",
+                       "http://www.pliniancore.org/plic/pcfcore/populationBiology"            => self::SPM . "PopulationBiology",
+                       "http://www.pliniancore.org/plic/pcfcore/threatStatus"                 => self::SPM . "ConservationStatus",
+                       "http://www.pliniancore.org/plic/pcfcore/abstract"                     => self::SPM . "Description",
+                       "http://www.pliniancore.org/plic/pcfcore/interactions"                 => self::SPM . "Associations",
+                       "http://www.pliniancore.org/plic/pcfcore/territory"                    => self::SPM . "Behaviour",
+                       "http://www.pliniancore.org/plic/pcfcore/behavior"                     => self::SPM . "Behaviour",
+                       "http://www.pliniancore.org/plic/pcfcore/chromosomicNumberN"           => self::SPM . "Cytology",
+                       "http://www.pliniancore.org/plic/pcfcore/reproduction"                 => self::SPM . "Reproduction",
+                       "http://www.pliniancore.org/plic/pcfcore/theManagement"                => self::SPM . "Management",
+                       "http://www.pliniancore.org/plic/pcfcore/endemicity"                   => self::SPM . "Distribution",
+                       "http://www.pliniancore.org/plic/pcfcore/briefDescription"             => self::SPM . "TaxonBiology",
+                       "http://www.pliniancore.org/plic/pcfcore/habit"                        => self::SPM . "Morphology",
+                       "http://www.pliniancore.org/plic/pcfcore/legislation"                  => self::SPM . "Legislation",
+                       "http://www.pliniancore.org/plic/pcfcore/habitat"                      => self::SPM . "Habitat",
+                       "http://www.pliniancore.org/plic/pcfcore/lifeCycle"                    => self::SPM . "LifeCycle",
+                       "http://iucn.org/terms/threatStatus"                                   => self::SPM . "ConservationStatus",
+                       "http://rs.tdwg.org/dwc/terms/habitat"                                 => self::SPM . "Habitat",
+                       "http://rs.tdwg.org/dwc/terms/establishmentMeans"                      => self::SPM . "Distribution",
+                       "http://purl.org/dc/terms/abstract"                                    => self::SPM . "TaxonBiology",
+                       "http://www.pliniancore.org/plic/pcfcore/molecularData"                => self::EOL . "SystematicsOrPhylogenetics", 
+                       "http://www.pliniancore.org/plic/pcfcore/typification"                 => self::EOL . "TypeInformation", 
+                       "http://www.pliniancore.org/plic/pcfcore/unstructuredNaturalHistory"   => self::EOL . "Notes",
+                       "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"      => self::EOL . "Notes",
+                       "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"    => self::EOL . "Notes"
                    );
-    /*
-        "http://www.pliniancore.org/plic/pcfcore/molecularData"                  => $EOL . "SystematicsOrPhylogenetics", 
-        "http://www.pliniancore.org/plic/pcfcore/typification"                   => $EOL . "TypeInformation", 
-        "http://www.pliniancore.org/plic/pcfcore/unstructuredNaturalHistory"     => $EOL . "Notes",
-        "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"        => $EOL . "Notes",
-        "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"      => $EOL . "Notes",
-
-        not being used:
-        <field index="3" term="http://www.pliniancore.org/plic/pcfcore/version"/>
-        <field index="6" term="http://purl.org/dc/terms/audience"/>
-    */
+        /*
+            not being used:
+            <field index="3" term="http://www.pliniancore.org/plic/pcfcore/version"/>
+            <field index="6" term="http://purl.org/dc/terms/audience"/>
+        */
     }
 
 }

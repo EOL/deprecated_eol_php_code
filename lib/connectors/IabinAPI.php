@@ -147,7 +147,7 @@ class IabinAPI
                     $term = $field["term"];
                     if(@$mappings[$term] && @$taxon_text[$term])
                     {
-                        $arr_objects[] = self::prepare_text_objects($taxon, $taxon_text, $term);
+                        if($object = self::prepare_text_objects($taxon, $taxon_text, $term)) $arr_objects[] = $object;
                     }
                 }
             }
@@ -228,7 +228,11 @@ class IabinAPI
     private function prepare_text_objects($taxon, $taxon_text, $term)
     {
         $temp = parse_url($term);
-        $description   = $taxon_text[$term];
+        $description   = trim($taxon_text[$term]);
+        
+        //to handle data problem from IABIN
+        if(in_array($description, array(". . .", ". ."))) return array();
+        
         $identifier    = $taxon["id"] . str_replace("/", "_", $temp["path"]);
         $mimeType      = "text/html";
         $dataType      = "http://purl.org/dc/dcmitype/Text";

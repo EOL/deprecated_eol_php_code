@@ -28,7 +28,7 @@ class CompareHierarchies
     }
     
     // this method will use its own transactions so commit any open transactions before using
-    public static function begin_concept_assignment($hierarchy_id = null)
+    public static function begin_concept_assignment($hierarchy_id = null, $use_synonyms_for_merging = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
@@ -76,11 +76,11 @@ class CompareHierarchies
                 if($count1 < $count2)
                 {
                     echo("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n");
-                    self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions);
+                    self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions, $use_synonyms_for_merging);
                 }else
                 {
                     echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
-                    self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1, $confirmed_exclusions);
+                    self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1, $confirmed_exclusions, $use_synonyms_for_merging);
                 }
                 
                 $hierarchies_compared[$hierarchy1->id][$hierarchy2->id] = 1;
@@ -89,7 +89,7 @@ class CompareHierarchies
         }
     }
     
-    public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array())
+    public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array(), $use_synonyms_for_merging = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
@@ -109,7 +109,9 @@ class CompareHierarchies
         
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
         
-        $main_query = "relationship:name AND hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
+        $relationships = array('relationship:name');
+        if($use_synonyms_for_merging) $relationships[] = 'relationship:syn';
+        $main_query = "(". implode(" OR ", $relationships) .") AND hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
         debug($main_query . "&rows=1");
         $response = $solr->query($main_query . "&rows=1");
         $total_results = $response->numFound;
@@ -172,9 +174,9 @@ class CompareHierarchies
                         continue;
                     }
                     
-                    if(self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
+                    if($hierarchy_id = self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                     {
-                        echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy\n");
+                        echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)\n");
                         continue;
                     }
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
@@ -240,7 +242,7 @@ class CompareHierarchies
         while($result && $row=$result->fetch_assoc())
         {
             $hierarchy_id = $row['hierarchy_id'];
-            if(isset($counts[$hierarchy_id])) return true;
+            if(isset($counts[$hierarchy_id])) return $hierarchy_id;
         }
         
         return false;
@@ -313,7 +315,7 @@ class CompareHierarchies
     
     
     // this method will use its own transactions so commit any open transactions before using
-    public static function process_hierarchy($hierarchy, $compare_to_hierarchy = null, $match_synonyms = false)
+    public static function process_hierarchy($hierarchy, $compare_to_hierarchy = null, $match_synonyms = true)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
@@ -439,7 +441,7 @@ class CompareHierarchies
         }else echo "$hierarchy_entry_id didn't match any other entries\n";
     }
     
-    public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = false)
+    public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = true)
     {
         if(isset($entry->name))
         {

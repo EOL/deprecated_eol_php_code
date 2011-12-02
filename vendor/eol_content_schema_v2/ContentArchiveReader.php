@@ -263,7 +263,7 @@ class ContentArchiveReader
         $str = str_ireplace("\\n", "\n", $str);
         $str = str_ireplace("\\r", "\r", $str);
         $str = str_ireplace("\\t", "\t", $str);
-        $str = str_ireplace("/n", null, $str);
+        if(strcasecmp($str, "/n") == 0) return null;
         return $str;
     }
     

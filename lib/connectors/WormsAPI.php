@@ -6,46 +6,59 @@ define("WORMS_TAXON_API", "http://www.marinespecies.org/aphia.php?p=eol&action=t
 define("WORMS_ID_LIST_API", "http://www.marinespecies.org/aphia.php?p=eol&action=taxlist");
 class WormsAPI
 {
-    private static $TEMP_FILE_PATH;
-    private static $WORK_LIST;
-    private static $WORK_IN_PROGRESS_LIST;
-    private static $INITIAL_PROCESS_STATUS;
-    
+    public function __construct() 
+    {           
+        $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/WORMS/";
+        $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_list.txt";
+        $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_in_progress_list.txt";
+        $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/WORMS/initial_process_status.txt";
+    }
+
+    function initialize_text_files()
+    {
+        $f = fopen($this->WORK_LIST, "w"); fclose($f);
+        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
+        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        $f = fopen($this->TEMP_FILE_PATH . "bad_ids.txt", "w"); fclose($f);
+        //this is not needed but just to have a clean directory
+        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_worms_batch_");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "xmlcontent_");
+    }
+
     function start_process($resource_id, $call_multiple_instance)
     {
-        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/WORMS/";
-        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_list.txt";
-        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_in_progress_list.txt";
-        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/WORMS/initial_process_status.txt";
-        if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
+        if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
-            if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
+            if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
             {
-                Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
                 // step 1: divides the big list of ids into small files
                 $ids = self::get_id_list();
-                self::divide_text_file(10000, $ids); //original value 10000
-                Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);//removes a task from task list
+                self::divide_text_file(10000, $ids); //debug original value 10000
+                Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);//removes a task from task list
             }
         }
         // step 2: Run multiple instances, for WORMS ideally a total of 3
         while(true)
         {
-            $task = Functions::get_a_task(self::$WORK_LIST);//get task to work on
+            $task = Functions::get_a_task($this->WORK_LIST);//get task to work on
             if($task)
             {
                 print "\n Process this: $task";
-                Functions::delete_a_task($task, self::$WORK_LIST);//remove a task from task list
-                Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
+                Functions::delete_a_task($task, $this->WORK_LIST);//remove a task from task list
+                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
+                
                 if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
                 {
                     Functions::run_another_connector_instance($resource_id, 2);
                     $call_multiple_instance = 0;
                 }
+                
                 self::get_all_taxa($task);
                 print "\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST); //remove a task from task list
+                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
             }
             else
             {
@@ -53,25 +66,27 @@ class WormsAPI
                 break;
             }
         }
-        if(!$task = trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
+        if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // step 3: Combine all XML files. This only runs when all of instances of step 2 are done
             self::combine_all_xmls($resource_id);
             // set to force harvest
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // delete temp files
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
-            self::delete_temp_files(CONTENT_RESOURCE_LOCAL_PATH . "WORMS/temp_worms_" . "batch_", "xml");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_worms_" . "batch_", "xml");
         }
         self::save_bad_ids_to_txt();
     }
 
-    public static function get_all_taxa($task)
+    public function get_all_taxa($task)
     {
-        $filename = self::$TEMP_FILE_PATH . $task . ".txt";
+        $filename = $this->TEMP_FILE_PATH . $task . ".txt";
         $READ = fopen($filename, "r");
         $i = 0;
-        $temp_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "WORMS/temp_worms_" . $task . ".xml";
+        
+        $temp_resource_path = $this->TEMP_FILE_PATH . "temp_worms_" . $task . ".xml";
+        
         $OUT = fopen($temp_resource_path, "w");
         while(!feof($READ))
         {
@@ -97,6 +112,7 @@ class WormsAPI
     function process($id)
     {
         $file = WORMS_TAXON_API . $id;
+        echo "$file\n";
         if($contents = Functions::get_remote_file($file))
         {
             if($xml = simplexml_load_string($contents))
@@ -135,6 +151,7 @@ class WormsAPI
     function get_id_list()
     {
         $urls = array();
+        //$urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2011_small.xml"; //for debug
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2007.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
@@ -143,6 +160,12 @@ class WormsAPI
         //append current year
         $urls = self::generate_url_list($urls);
 
+        /* debug
+        $r = array();
+        $r[] = $urls[0];
+        $urls = $r;
+        */
+        
         print "\n URLs = " . sizeof($urls) . "\n";
         $ids = array();
         $file_ctr = 0;
@@ -157,12 +180,12 @@ class WormsAPI
                 fclose($file_handle);
                 $file_ctr++;
                 $file_ctr_str = self::format_number($file_ctr);
-                $OUT = fopen(self::$TEMP_FILE_PATH . "xmlcontent_" . $file_ctr_str . ".xml", "w");
+                $OUT = fopen($this->TEMP_FILE_PATH . "xmlcontent_" . $file_ctr_str . ".xml", "w");
                 fwrite($OUT, $content);
                 fclose($OUT);
 
                 //start read locally and get the IDs
-                $url = self::$TEMP_FILE_PATH . "xmlcontent_" . $file_ctr_str . ".xml";
+                $url = $this->TEMP_FILE_PATH . "xmlcontent_" . $file_ctr_str . ".xml";
                 if($xml = Functions::get_hashed_response($url))
                 {
                     foreach($xml->taxdetail as $taxdetail)
@@ -171,17 +194,33 @@ class WormsAPI
                         $ids[] = $id;
                     }
                 }
-                sleep(30);
+                sleep(30); //debug orig 30
             }
             else print "\n -- not being able to process \n";
         }
 
         //delete temp XML files
-        self::delete_temp_files(self::$TEMP_FILE_PATH . "xmlcontent_", "xml");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "xmlcontent_", "xml");
 
         $ids = array_unique($ids);
         print "\n total ids: " . sizeof($ids);
         print "\n" . sizeof($urls) . " URLs | taxid count = " . sizeof($ids) . "\n";
+
+        /* debug
+        $r = array();
+        $r[] = $ids[0];
+        $r[] = $ids[1];
+        $r[] = $ids[2];
+        $r[] = $ids[3];
+        $r[] = $ids[4];
+        $r[] = $ids[5];
+        $r[] = $ids[6];
+        $r[] = $ids[7];
+        $r[] = $ids[8];
+        $r[] = $ids[9];
+        $ids = $r;
+        */
+        
         return $ids;
     }
 
@@ -200,7 +239,7 @@ class WormsAPI
             {
                 $file_ctr++;
                 $file_ctr_str = self::format_number($file_ctr);
-                $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+                $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
                 fwrite($OUT, $str);
                 fclose($OUT);
                 $str = "";
@@ -212,7 +251,7 @@ class WormsAPI
         {
             $file_ctr++;
             $file_ctr_str = self::format_number($file_ctr);
-            $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+            $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
             fwrite($OUT, $str);
             fclose($OUT);
         }
@@ -220,7 +259,7 @@ class WormsAPI
         //create work_list
         $str = "";
         FOR($i = 1; $i <= $file_ctr; $i++) $str .= "batch_" . self::format_number($i) . "\n";
-        $filename = self::$WORK_LIST;
+        $filename = $this->WORK_LIST;
         if($OUT = fopen($filename, "w"))
         {
             fwrite($OUT, $str);
@@ -228,9 +267,17 @@ class WormsAPI
         }
     }
 
-    function delete_temp_files($file_path, $file_extension)
+    function delete_temp_files($file_path, $file_extension = '*')
     {
         $i = 0;
+        foreach (glob($file_path . "*." . $file_extension) as $filename)
+        {
+           unlink($filename);
+        }
+
+
+
+        return;
         while(true)
         {
             $i++;
@@ -247,7 +294,7 @@ class WormsAPI
 
     private function save_bad_ids_to_txt()
     {
-        $OUT = fopen(self::$TEMP_FILE_PATH . "bad_ids.txt", "a");
+        $OUT = fopen($this->TEMP_FILE_PATH . "bad_ids.txt", "a");
         fwrite($OUT, "===================" . "\n");
         fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fwrite($OUT, @$GLOBALS['WORMS_bad_id'] . "\n");
@@ -275,7 +322,9 @@ class WormsAPI
         {
             $i++;
             $i_str = self::format_number($i);
-            $filename = CONTENT_RESOURCE_LOCAL_PATH . "WORMS/temp_worms_" . "batch_" . $i_str . ".xml";
+            
+            $filename = $this->TEMP_FILE_PATH . "temp_worms_" . "batch_" . $i_str . ".xml";
+            
             if(!is_file($filename))
             {
                 print " -end compiling XML's- ";

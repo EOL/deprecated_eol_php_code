@@ -48,7 +48,7 @@ class AquamapsAPIv2
     function parse_xml($url)
     {
         $arr_scraped=array();
-        $xml = simplexml_load_file($url);
+        $xml = Functions::get_hashed_response($url);
         $ctr = 0;
         $total = sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)
@@ -86,7 +86,7 @@ class AquamapsAPIv2
     {
         $param = "genus=" . $genus . "&species=" . $species;
         $fn = SERVICE_URL . $param;
-        $xml = simplexml_load_file($fn);
+        $xml = Functions::get_hashed_response($fn);
         $html = $xml->section_body;
         if($html == "")
         {
@@ -107,27 +107,15 @@ class AquamapsAPIv2
 
         $maps = array();
         //============================================================================================
-        $native_range = "";
-        if(preg_match("/=\&quot\;\s*(.*?)\&quot\;\'\>\s*Native range\s*/ims", $html, $matches))
-        {   
-            $native = trim($matches[1]) . "";
-            print "\n native: $native";
-            $description = "<a target='am $genus $species' href='$sourceURL'>Native range</a>";
+        $m2050 = "";
+        if(preg_match("/\/2050\/(.*?)&quot;/ims", $html, $matches))
+        {   $m2050 = trim($matches[1]) . "";
+            $m2050 = CACHED_MAPS_URL . "/2050/" . $m2050;
+            print "\n 2050: $m2050";
+            $description = "<a target='am $genus $species' href='$sourceURL'>Year 2050 range</a>";
             $description .= self::additional_string($genus, $species, $review, $attribution);
-            $title = "AquaMaps for $genus $species (Native range)";
-            $maps[] = array("description" => $description, "identifier" => $genus . "_" . $species . "_native", "src" => $native, "title" => $title);
-        }
-        //============================================================================================
-        $suitable = "";
-        if(preg_match("/\/suitable\/(.*?)&quot;/ims", $html, $matches))
-        {
-            $suitable = trim($matches[1]) . "";
-            $suitable = CACHED_MAPS_URL . "/suitable/" . $suitable;
-            print "\n suitable: $suitable";
-            $description = "<a target='am $genus $species' href='$sourceURL'>All suitable habitat</a>";
-            $description .= self::additional_string($genus, $species, $review, $attribution);
-            $title = "AquaMaps for $genus $species (All suitable habitat)";
-            $maps[] = array("description" => $description, "identifier" => $genus . "_" . $species . "_suitable", "src" => $suitable, "title" => $title);
+            $title = "AquaMaps for $genus $species (Year 2050 range)";            
+            $maps[] = array("description" => $description, "identifier" => $genus . "_" . $species . "_2050", "src" => $m2050, "title" => $title);
         }
         //============================================================================================
         $pointmap = "";
@@ -142,15 +130,27 @@ class AquamapsAPIv2
             $maps[] = array("description" => $description, "identifier" => $genus . "_" . $species . "_pointmap", "src" => $pointmap, "title" => $title);
         }
         //============================================================================================
-        $m2050 = "";
-        if(preg_match("/\/2050\/(.*?)&quot;/ims", $html, $matches))
-        {   $m2050 = trim($matches[1]) . "";
-            $m2050 = CACHED_MAPS_URL . "/2050/" . $m2050;
-            print "\n 2050: $m2050";
-            $description = "<a target='am $genus $species' href='$sourceURL'>Year 2050 range</a>";
+        $suitable = "";
+        if(preg_match("/\/suitable\/(.*?)&quot;/ims", $html, $matches))
+        {
+            $suitable = trim($matches[1]) . "";
+            $suitable = CACHED_MAPS_URL . "/suitable/" . $suitable;
+            print "\n suitable: $suitable";
+            $description = "<a target='am $genus $species' href='$sourceURL'>All suitable habitat</a>";
             $description .= self::additional_string($genus, $species, $review, $attribution);
-            $title = "AquaMaps for $genus $species (Year 2050 range)";            
-            $maps[] = array("description" => $description, "identifier" => $genus . "_" . $species . "_2050", "src" => $m2050, "title" => $title);
+            $title = "AquaMaps for $genus $species (All suitable habitat)";
+            $maps[] = array("description" => $description, "identifier" => $genus . "_" . $species . "_suitable", "src" => $suitable, "title" => $title);
+        }
+        //============================================================================================
+        $native_range = "";
+        if(preg_match("/=\&quot\;\s*(.*?)\&quot\;\'\>\s*Native range\s*/ims", $html, $matches))
+        {   
+            $native = trim($matches[1]) . "";
+            print "\n native: $native";
+            $description = "<a target='am $genus $species' href='$sourceURL'>Native range</a>";
+            $description .= self::additional_string($genus, $species, $review, $attribution);
+            $title = "AquaMaps for $genus $species (Native range)";
+            $maps[] = array("description" => $description, "identifier" => $genus . "_" . $species . "_native", "src" => $native, "title" => $title);
         }
         //============================================================================================
         /*
@@ -204,7 +204,7 @@ class AquamapsAPIv2
     {
         $str = "<br>Computer Generated Map of <i>$genus $species</i>";
         if($legend) $str .= " ($review)<br><img src='http://www.aquamaps.org/pic/probability1.gif'>";
-        $str .= "<br>$attribution";
+        $str .= "<br> $attribution";
         return $str;
     }
 

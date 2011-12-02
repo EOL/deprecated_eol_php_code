@@ -87,7 +87,7 @@ class PhotosynthAPI
         if(@!$temp_params["scientificName"] && @$taxon["genus"] && @$taxon["species"] && !preg_match("/ /", $taxon["genus"]) && !preg_match("/ /", $taxon["species"])) $taxon["scientificName"] = $taxon["genus"]." ".$taxon["species"];
         if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", $taxon["scientificName"], $arr)) $taxon["genus"] = $arr[1];
         if(@!$taxon["scientificName"] && @!$taxon["genus"] && @!$taxon["family"] && @!$taxon["order"] && @!$taxon["class"] && @!$taxon["phylum"] && @!$taxon["kingdom"]) return false;                
-        if(!($xml = @simplexml_load_file($synth->CollectionUrl))) return;
+        if(!($xml = Functions::get_hashed_response($synth->CollectionUrl))) return;
         $ctr=0;
         foreach($xml->Items->I as $rec)
         {           
@@ -142,7 +142,7 @@ class PhotosynthAPI
     
     public function get_mediaURL($url)
     {
-        if(!($xml = @simplexml_load_file($url)))
+        if(!($xml = Functions::get_hashed_response($url)))
         {
             // url not accessible
             return;

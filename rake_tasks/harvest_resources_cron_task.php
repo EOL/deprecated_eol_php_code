@@ -13,7 +13,7 @@ $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
     if(in_array($resource->id, array(42))) continue;
-    // if(!in_array($resource->id, array(15))) continue;
+    //if(!in_array($resource->id, array(324))) continue;
     
     echo $resource->id."\n";
     
@@ -34,25 +34,37 @@ shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". 
 
 // setting appropriate TaxonConcept publish flag
 Hierarchy::publish_wrongly_unpublished_concepts();
-
+exit;
 // sleep for 5 minutes to allow changes from transactions to propegate
 // sleep_production(300);
 
 // denormalize tables
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
-// if(defined('SOLR_SERVER'))
-// {
-//     if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
-//     {
-//         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
-//         $solr->optimize();
-//     }
-//     if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
-//     {
-//         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
-//         $solr->optimize();
-//     }
-// }
+if(defined('SOLR_SERVER'))
+{
+    if(SolrAPI::ping(SOLR_SERVER, 'site_search'))
+    {
+        $search_indexer = new SiteSearchIndexer();
+        $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects');
+        $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa');
+        
+        $solr = new SolrAPI(SOLR_SERVER, 'site_search');
+        $solr->optimize();
+    }
+    
+    if(SolrAPI::ping(SOLR_SERVER, 'data_objects'))
+    {
+        $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
+        $solr->optimize();
+    }
+    
+    if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
+    {   
+        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
+        $solr->optimize();
+    }
+
+}
 
 ?>

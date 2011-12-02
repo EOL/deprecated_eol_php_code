@@ -70,7 +70,7 @@ class LearningEducationAPI
     function prepare_sound_objects()
     {
         $sounds = array();
-        $xml = simplexml_load_file(PODCAST_FEED);
+        $xml = Functions::get_hashed_response(PODCAST_FEED);
         foreach($xml->channel->item as $item)
         {
             $item_itunes = $item->children("http://www.itunes.com/dtds/podcast-1.0.dtd");

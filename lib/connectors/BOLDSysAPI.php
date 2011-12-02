@@ -344,7 +344,7 @@ class BOLDSysAPI
         foreach($arr_phylum as $phylum)
         {
             $p++;
-            $xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']);
+            $xml = Functions::get_hashed_response(PHYLUM_SERVICE_URL . $phylum['name']);
             $num_rows = sizeof($xml->record);
             print"\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [$num_rows] ";
 

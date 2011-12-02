@@ -18,6 +18,13 @@ define("TROPICOS_API_SERVICE", "http://services.tropicos.org/Name/");
 <a href="http://services.tropicos.org/Name/25510055/HigherTaxa?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">6</a>
 */
 
+/*
+Take note of these sample ID's which generated resource without <dwc:ScientificName> last time connector was run:
+13000069
+13000165 
+50335886
+*/
+
 class TropicosAPI
 {
     private static $TEMP_FILE_PATH;
@@ -290,7 +297,7 @@ class TropicosAPI
     function get_taxonomy($taxon_id)
     {
         $taxonomy = array();
-        $xml = simplexml_load_file(TROPICOS_API_SERVICE . $taxon_id . "/HigherTaxa?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/HigherTaxa?format=xml&apikey=" . TROPICOS_API_KEY);
         foreach($xml->Name as $rec)
         {
             if($rec->Rank == "kingdom") $taxonomy['kingdom'] = $rec->ScientificNameWithAuthors;
@@ -306,7 +313,7 @@ class TropicosAPI
     function get_taxon_ref($taxon_id)
     {
         $refs = array();
-        $xml = simplexml_load_file(TROPICOS_API_SERVICE . $taxon_id . "/References?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/References?format=xml&apikey=" . TROPICOS_API_KEY);
         foreach($xml->NameReference as $rec)
         {
             if(!isset($rec->Reference->ReferenceId)) continue;
@@ -319,7 +326,7 @@ class TropicosAPI
 
     function get_images($taxon_id, $arr_objects)
     {
-        $xml = simplexml_load_file(TROPICOS_API_SERVICE . $taxon_id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY);
         $with_image = 0;
         foreach($xml->Image as $rec)
         {
@@ -369,6 +376,7 @@ class TropicosAPI
             $mediaURL   = TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH . $rec->ImageId . "&maxwidth=600"; */
             $mediaURL = $rec->ThumbnailUrl;
             $refs = array();
+            $description .= "<br>Full sized images can be obtained by going to the <a href='$source'>original source page</a>.";
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
         }
         return $arr_objects;
@@ -376,7 +384,7 @@ class TropicosAPI
 
     function get_chromosome_count($taxon_id, $arr_objects)
     {
-        $xml = simplexml_load_file(TROPICOS_API_SERVICE . $taxon_id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY);
         $refs = array();
         $temp_reference = array();
         $with_content = false;
@@ -429,7 +437,7 @@ class TropicosAPI
 
     function get_distributions($taxon_id, $arr_objects)
     {
-        $xml = simplexml_load_file(TROPICOS_API_SERVICE . $taxon_id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY);
         $refs = array();
         $temp_reference = array();
         $temp_location = array();
@@ -476,7 +484,7 @@ class TropicosAPI
     {
         $arr_synonyms = array();
         $arr = array();
-        $xml = simplexml_load_file(TROPICOS_API_SERVICE . $taxon_id . "/Synonyms?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Synonyms?format=xml&apikey=" . TROPICOS_API_KEY);
         foreach($xml->Synonym as $syn)
         {
             $synonym = trim($syn->SynonymName->ScientificNameWithAuthors);

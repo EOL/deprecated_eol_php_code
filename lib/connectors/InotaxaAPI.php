@@ -83,8 +83,8 @@ class InotaxaAPI
         */
         ///////////////////////////////        
 
-        $xml = @simplexml_load_file($url);        
-        if(!($xml = @simplexml_load_file($url)))
+        $xml = Functions::get_hashed_response($url);        
+        if(!($xml = Functions::get_hashed_response($url)))
         {
             print "\n <a href='$url'>$url</a> not accessible";
             return;

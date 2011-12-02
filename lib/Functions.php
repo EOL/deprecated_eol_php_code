@@ -1611,11 +1611,39 @@ class Functions
         for($i = 1; $i <= $times; $i++)
         {
             print "\n run " . self::cardinal_to_ordinal($i + 1) . " instance--";
-            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '.php 0 > null &');
+            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '_next.php 0 > null &');
             sleep(5);
         }
     }
-    
+
+    public static function kill_running_connectors($resource_id)
+    {
+        $myPID = getmypid();
+        print "\n myPID: $myPID \n"; //this won't get killed
+        $pattern = "update_resources/connectors/" . $resource_id . "|update_resources/connectors/" . $resource_id . "_next";
+        $command = "ps -x | egrep " . "'($pattern).php'";
+        $output = trim(shell_exec($command));
+        $jobs = explode("\n", $output);
+        $jobs = array_values($jobs);
+        $pids = array();
+        foreach($jobs as $job) if($job) $pids[] = substr($job, 0, strpos($job, ' '));
+        asort($pids);
+        if($pids)
+        {
+            print_r($jobs);
+            foreach($pids as $pid)
+            {
+                if($pid <> $myPID)
+                {
+                    print "\n kill $pid ";
+                    shell_exec('kill ' . $pid);
+                } 
+            }
+        }
+        else print "\n That connector is not running at the moment.";
+        print "\n\n";
+    }
+
     public function create_work_list_from_master_file($master_file, $divisor, $destination_folder, $filename_prefix, $work_list)
     {
         $FILE = fopen($master_file, "r");

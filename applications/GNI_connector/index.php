@@ -2,95 +2,93 @@
 <html>
 <head>
     <title>EOL2GNI Transformation</title>
-<script language="javascript1.2">
-    function proc()
-    {
-        var number = document.getElementById('resource_id').selectedIndex;
-        //alert(document.getElementById('resource_id').options[number].value);        
-        document.getElementById('txt2').value = '';
-        document.getElementById('txt2').value = document.getElementById('resource_id').options[number].value;    
-        //document.getElementById('subscribe').href = document.getElementById('txt2').value;
-        //document.getElementById('preview').href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;        
-        //document.getElementById('downl').href = document.getElementById('txt2').value;    
-    }
-    function transform(process)
-    {
-        var number = document.getElementById('resource_id').selectedIndex;    
-        if(number == 0)
-        {   alert("Select EOL resource or paste URL to proceed.");
-            return;
-        }    
-        //location.href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;
-        //top.location.href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;        
-        url = 'EOL2GNI.php?url=' + URLEncode(document.getElementById('txt2').value);            
-        str="";
-        if(document.getElementById('what_eval').checked){str = document.getElementById('what_eval').value;}
-        if(document.getElementById('what_eval_spm').checked){str = document.getElementById('what_eval_spm').value;}
-        if(document.getElementById('what_tran').checked){str = document.getElementById('what_tran').value;}    
-        url += "&what=" + str;    	
-    	if(process == 1)url += "&download=1"    	
-        window.open(url, "new_window");    
-    }    
-    
-    function erase()
-    {document.getElementById('txt2').value = '';}
-    
-    function URLEncode(url) //Function to encode URL.
-    {
-        // The Javascript escape and unescape functions do not correspond
-        // with what browsers actually do...
-        var SAFECHARS = "0123456789" + // Numeric
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + // Alphabetic
-        "abcdefghijklmnopqrstuvwxyz" +
-        "-_.!~*'()"; // RFC2396 Mark characters
-        var HEX = "0123456789ABCDEF";    
-        var plaintext = url;
-        var encoded = "";
-        for (var i = 0; i < plaintext.length; i++ ) 
-        {
-            var ch = plaintext.charAt(i);
-            if (ch == " ") 
+        <script language="javascript1.2">
+            function proc()
             {
-                encoded += "+"; // x-www-urlencoded, rather than %20
-            } 
-            else if (SAFECHARS.indexOf(ch) != -1) 
-            {
-                encoded += ch;
-            } 
-            else 
-            {
-                var charCode = ch.charCodeAt(0);
-                if (charCode > 255) 
-                {
-                    alert( "Unicode Character '"
-                    + ch
-                    + "' cannot be encoded using standard URL encoding.\n" +
-                    "(URL encoding only supports 8-bit characters.)\n" +
-                    "A space (+) will be substituted." );
-                    encoded += "+";
-                } 
-                else 
-                {
-                    encoded += "%";
-                    encoded += HEX.charAt((charCode >> 4) & 0xF);
-                    encoded += HEX.charAt(charCode & 0xF);
-                }
+                var number = document.getElementById('resource_id').selectedIndex;
+                //alert(document.getElementById('resource_id').options[number].value);
+                document.getElementById('txt2').value = '';
+                document.getElementById('txt2').value = document.getElementById('resource_id').options[number].value;
+                //document.getElementById('subscribe').href = document.getElementById('txt2').value;
+                //document.getElementById('preview').href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;
+                //document.getElementById('downl').href = document.getElementById('txt2').value;
             }
-        }
-        return encoded;
-    };    
-    
-    function check_url()
-    {
-        var number = document.getElementById('resource_id').selectedIndex;    
-        if(number == 0)
-        {    alert("Select EOL resource or paste URL to proceed.");
-            return;
-        }    
-        document.forms.validator_form.file_url.value = document.getElementById('txt2').value
-        document.forms.validator_form.submit();
-    }
-</script>
+            function transform(process)
+            {
+                var number = document.getElementById('resource_id').selectedIndex;
+                if(number == 0)
+                {   alert("Select EOL resource or paste URL to proceed.");
+                    return;
+                }    
+                //location.href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;
+                //top.location.href = 'EOL2GNI.php?url=' + document.getElementById('txt2').value;
+                url = 'EOL2GNI.php?url=' + URLEncode(document.getElementById('txt2').value);
+                str = "";
+                if(document.getElementById('what_eval').checked){str = document.getElementById('what_eval').value;}
+                if(document.getElementById('what_eval_spm').checked){str = document.getElementById('what_eval_spm').value;}
+                if(document.getElementById('what_tran').checked){str = document.getElementById('what_tran').value;}
+                url += "&what=" + str;
+                if(process == 1)url += "&download=1"
+                window.open(url, "new_window");
+            }
+            function erase()
+            {//document.getElementById('txt2').value = '';
+            }
+            function URLEncode(url) //Function to encode URL.
+            {
+                // The Javascript escape and unescape functions do not correspond
+                // with what browsers actually do...
+                var SAFECHARS = "0123456789" + // Numeric
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + // Alphabetic
+                "abcdefghijklmnopqrstuvwxyz" +
+                "-_.!~*'()"; // RFC2396 Mark characters
+                var HEX = "0123456789ABCDEF";    
+                var plaintext = url;
+                var encoded = "";
+                for (var i = 0; i < plaintext.length; i++ ) 
+                {
+                    var ch = plaintext.charAt(i);
+                    if (ch == " ") 
+                    {
+                        encoded += "+"; // x-www-urlencoded, rather than %20
+                    } 
+                    else if (SAFECHARS.indexOf(ch) != -1) 
+                    {
+                        encoded += ch;
+                    } 
+                    else 
+                    {
+                        var charCode = ch.charCodeAt(0);
+                        if (charCode > 255) 
+                        {
+                            alert( "Unicode Character '"
+                            + ch
+                            + "' cannot be encoded using standard URL encoding.\n" +
+                            "(URL encoding only supports 8-bit characters.)\n" +
+                            "A space (+) will be substituted." );
+                            encoded += "+";
+                        } 
+                        else
+                        {
+                            encoded += "%";
+                            encoded += HEX.charAt((charCode >> 4) & 0xF);
+                            encoded += HEX.charAt(charCode & 0xF);
+                        }
+                    }
+                }
+                return encoded;
+            }    
+            function check_url()
+            {
+                var number = document.getElementById('resource_id').selectedIndex;    
+                if(number == 0)
+                {    alert("Select EOL resource or paste URL to proceed.");
+                    return;
+                }    
+                document.forms.validator_form.file_url.value = document.getElementById('txt2').value
+                document.forms.validator_form.submit();
+            }
+        </script>
 </head>
 
 <body>
@@ -111,7 +109,6 @@ while($result && $row=$result->fetch_assoc())
     if($row["service_type_id"]==2)print"[**has connector]";
 }
 print"</select> n=" . $result->num_rows . "</td>";
-
 print"
 <tr><td>
     <font size='2'><i>Or paste your own EOL resource URL</i></font><br>
@@ -143,7 +140,7 @@ $path_parts = pathinfo(__FILE__);
 $temp = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];  
 $temp = str_ireplace($path_parts["basename"], "EOL2GNI.php", $temp);
 $temp .= "?url=";
-print"<i><font size='2'>$temp</font></i>";
+print "<i><font size='2'>$temp</font></i>";
 ?>
 
 </body>

@@ -13,7 +13,9 @@ class NatureServeAPI
     public function __construct()
     {
         $this->global_status_code_labels();
+        $this->global_status_qualifiers();
         $this->national_status_code_labels();
+        $this->national_status_qualifiers();
     }
     
     public function get_all_taxa()
@@ -41,7 +43,7 @@ class NatureServeAPI
         
         $chunk_size = 5;
         $this->request_timeout = 120; // seconds
-        //shuffle($records);
+        // shuffle($records);
         
         
         
@@ -182,15 +184,15 @@ class NatureServeAPI
         
         if($rounded_rank_code = (string) @$status->roundedRank->code)
         {
-            $text = "<p><strong>Rounded Global Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rounded_rank_code ."</a>";
-            if($rank_description = (string) @$status->roundedRank->description) $text .= " - ". $rank_description;
-            elseif($value = @$this->global_status_code_labels[(string) $rounded_rank_code]) $text .= " - ". $value;
+            $text = "<p><strong>Rounded Global Status Rank</strong>: ";
+            if($rank_description = (string) @$status->roundedRank->description) $text .= "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rounded_rank_code ."</a> - $rank_description";
+            elseif($value = $this->get_global_status_code_from_label((string) $rounded_rank_code)) $text .= $value;
             $text .= "</p>";
         }elseif($rank_code = (string) @$status->rank->code)
         {
-            $text .= "<p><strong>Global Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rank_code ."</a>";
-            if($rank_description = (string) @$status->roundedRank->description) $text .= " - ". $rank_description;
-            elseif($value = @$this->global_status_code_labels[(string) $rounded_rank_code]) $text .= " - ". $value;
+            $text .= "<p><strong>Global Status Rank</strong>:";
+            if($rank_description = (string) @$status->roundedRank->description) $text .= "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rank_code ."</a> - $rank_description";
+            elseif($value = $this->get_global_status_code_from_label((string) $rounded_rank_code)) $text .= $value;
             $text .= "</p>";
         }
         
@@ -221,15 +223,16 @@ class NatureServeAPI
                 $description = "<h5>". $status['nationName'] ."</h5>";
                 if($rounded_rank_code = (string) @$status->roundedRank->code)
                 {
-                    $description .= "<p><strong>Rounded National Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">$rounded_rank_code</a>";
-                    if($rank_description = (string) @$status->roundedRank->description) $description .= " - ". $rank_description;
-                    elseif($value = @$this->national_status_code_labels[(string) $rounded_rank_code]) $description .= " - ". $value;
+                    $description .= "<p><strong>Rounded National Status Rank</strong>: ";
+                    if($rank_description = (string) @$status->roundedRank->description) $description .= "<a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">$rounded_rank_code</a> - $rank_description";
+                    elseif($value = $this->get_national_status_code_from_label((string) $rounded_rank_code)) $description .= $value;
                     $description .= "</p>";
                 }elseif($rank_code = (string) @$status->rank->code)
                 {
-                    $descriptions[] .= "<p><strong>National Status Rank</strong>: <a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">$rank_code</a>";
-                    if($rank_description = (string) @$status->roundedRank->description) $description .= " - ". $rank_description;
-                    elseif($value = @$this->national_status_code_labels[(string) $rounded_rank_code]) $description .= " - ". $value;
+                    $descriptions[] .= "<p><strong>National Status Rank</strong>:";
+                    if($rank_description = (string) @$status->roundedRank->description) $description .= "<a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">$rank_code</a> - $rank_description";
+                    elseif($value = $this->get_national_status_code_from_label((string) $rounded_rank_code)) $description .= $value;
+                    
                     $description .= "</p>";
                 }
                 $descriptions[] = $description;
@@ -580,7 +583,7 @@ class NatureServeAPI
         if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
         {
             $this->append_description($text, @$ecology->phenologies->phenologyComments, 'Comments');
-            $this->write_text_description("", "food_habits", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Cyclicity", $text,
+            $this->write_text_description("", "cyclicity", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Cyclicity", $text,
                 array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
                         'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
         }
@@ -650,7 +653,9 @@ class NatureServeAPI
             $mr->rights = $dc->rights;
             $mr->rightsHolder = @$mr->rightsHolder ?: $dc->rightsHolder;
             $mr->license = 'http://creativecommons.org/licenses/publicdomain/';
-            
+            if($mr->rights == 'Public Domain') $mr->rights = '';
+            if($mr->rightsHolder == 'Public Domain') $mr->rightsHolder = '';
+             
             if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr))
             {
                 $width = $arr[1];
@@ -689,6 +694,7 @@ class NatureServeAPI
         $mr->creator = @$options['creator'];
         $mr->created = @$options['created'];
         $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $mr->rightsHolder = 'NatureServe';
         $this->archive_builder->write_object_to_file($mr);
     }
     
@@ -709,6 +715,7 @@ class NatureServeAPI
         $mr->created = @$options['created'];
         $mr->description = @$options['description'];
         $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $mr->rightsHolder = 'NatureServe';
         $this->archive_builder->write_object_to_file($mr);
     }
     
@@ -800,6 +807,50 @@ class NatureServeAPI
         return $canonical_form;
     }
     
+    public function get_global_status_code_from_label($original_label)
+    {
+        $complete_labels = array();
+        $labels = explode(",", $original_label);
+        foreach($labels as $label)
+        {
+            $label = trim($label);
+            if(preg_match_all("/([GT][0-9]|GX|GH|GU|GNR|GNA)([\?QC]{0,3})/", $label, $complete_codes, PREG_SET_ORDER))
+            {
+                // print_r($complete_codes);
+                foreach($complete_codes as $complete_code)
+                {
+                    $code = $complete_code[1];
+                    $qualifiers = str_split($complete_code[2]);
+                    if($complete_label = @$this->global_status_code_labels[$code])
+                    {
+                        $complete_qualifiers = array();
+                        foreach($qualifiers as $qualifier)
+                        {
+                            if($v = @$this->global_status_qualifiers[$qualifier]) $complete_qualifiers[] = $v;
+                        }
+                        $complete_labels[] = array('label' => $complete_label, 'qualifier' => implode(", ", $complete_qualifiers), 
+                            'code' => $complete_code[0]);
+                    }
+                }
+            }
+        }
+        if(!$complete_labels) return $original_label;
+        if(count($complete_labels) > 1)
+        {
+            foreach($complete_labels as $k => $v)
+            {
+                $complete_labels[$k] = $v['code'] .": ". $v['label'];
+                if($v['qualifier']) $complete_labels[$k] .= " - ".$v['qualifier'];
+            }
+            return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">" . $original_label . "</a> : " . 
+                implode(", ", $complete_labels);
+        }else
+        {
+            return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">" . $original_label . "</a> - " . $complete_labels[0]['label'];
+        }
+        return implode(", ", $complete_labels);
+    }
+    
     private function global_status_code_labels()
     {
         if(@$this->global_status_code_labels) return $this->global_status_code_labels;
@@ -811,7 +862,72 @@ class NatureServeAPI
         $this->global_status_code_labels['G3'] = "Vulnerable";
         $this->global_status_code_labels['G4'] = "Apparently Secure";
         $this->global_status_code_labels['G5'] = "Secure";
+        $this->global_status_code_labels['T1'] = "Infraspecific Taxon Critically Imperiled";
+        $this->global_status_code_labels['T2'] = "Infraspecific Taxon Imperiled";
+        $this->global_status_code_labels['T3'] = "Infraspecific Taxon Vulnerable";
+        $this->global_status_code_labels['T4'] = "Infraspecific Taxon Apparently Secure";
+        $this->global_status_code_labels['T5'] = "Infraspecific Taxon Secure";
+        $this->global_status_code_labels['GU'] = "Unrankable";
+        $this->global_status_code_labels['GNR'] = "Unranked";
+        $this->global_status_code_labels['GNA'] = "Not Applicable";
         return $this->global_status_code_labels;
+    }
+    
+    private function global_status_qualifiers()
+    {
+        if(@$this->global_status_qualifiers) return $this->global_status_qualifiers;
+        $this->global_status_qualifiers = array();
+        $this->global_status_qualifiers['?'] = "Inexact Numeric Rank";
+        $this->global_status_qualifiers['Q'] = "Questionable taxonomy that may reduce conservation priority";
+        $this->global_status_qualifiers['C'] = "Captive or Cultivated Only";
+        return $this->global_status_qualifiers;
+    }
+    
+    public function get_national_status_code_from_label($original_label)
+    {
+        $complete_labels = array();
+        
+        $labels = explode(",", $original_label);
+        foreach($labels as $label)
+        {
+            $label = trim($label);
+            if(preg_match_all("/([NS]([0-9]|X|H|U|NR|NA))(N$|[\?BM]{0,3})/", $label, $complete_codes, PREG_SET_ORDER))
+            {
+                // print_r($complete_codes);
+                foreach($complete_codes as $complete_code)
+                {
+                    $abbreviation = $complete_code[0];
+                    $code = $complete_code[1];
+                    $qualifiers = str_split($complete_code[3]);
+                    if($complete_label = @$this->national_status_code_labels[$code])
+                    {
+                        $complete_qualifiers = array();
+                        foreach($qualifiers as $qualifier)
+                        {
+                            if($v = @$this->national_status_qualifiers[$qualifier]) $complete_qualifiers[] = $v;
+                        }
+                        $complete_labels[] = array('label' => $complete_label, 'qualifier' => implode(", ", $complete_qualifiers), 
+                            'code' => $complete_code[0]);
+                    }
+                }
+            }
+        }
+        
+        if(!$complete_labels) return $original_label;
+        if(count($complete_labels) > 1)
+        {
+            foreach($complete_labels as $k => $v)
+            {
+                $complete_labels[$k] = $v['code'] .": ". $v['label'];
+                if($v['qualifier']) $complete_labels[$k] .= " - ".$v['qualifier'];
+            }
+            return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">" . $original_label . "</a> : " . 
+                implode(", ", $complete_labels);
+        }else
+        {
+            return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">" . $original_label . "</a> - " . $complete_labels[0]['label'];
+        }
+        return implode(", ", $complete_labels);
     }
     
     private function national_status_code_labels()
@@ -832,7 +948,24 @@ class NatureServeAPI
         $this->national_status_code_labels['S4'] = $this->national_status_code_labels['N4'];
         $this->national_status_code_labels['N5'] = "Secure";
         $this->national_status_code_labels['S5'] = $this->national_status_code_labels['N5'];
+        $this->national_status_code_labels['NU'] = "Unrankable";
+        $this->national_status_code_labels['SU'] = $this->national_status_code_labels['NU'];
+        $this->national_status_code_labels['NNR'] = "Unranked";
+        $this->national_status_code_labels['SNR'] = $this->national_status_code_labels['NNR'];
+        $this->national_status_code_labels['NNA'] = "Not Applicable";
+        $this->national_status_code_labels['SNA'] = $this->national_status_code_labels['NNA'];
         return $this->national_status_code_labels;
+    }
+    
+    private function national_status_qualifiers()
+    {
+        if(@$this->national_status_qualifiers) return $this->national_status_qualifiers;
+        $this->national_status_qualifiers = array();
+        $this->national_status_qualifiers['?'] = "Inexact Numeric Rank";
+        $this->national_status_qualifiers['B'] = "Breeding";
+        $this->national_status_qualifiers['N'] = "Nonbreeding";
+        $this->national_status_qualifiers['M'] = "Migrant";
+        return $this->national_status_qualifiers;
     }
 }
 
