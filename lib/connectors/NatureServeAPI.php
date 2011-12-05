@@ -57,6 +57,8 @@ class NatureServeAPI
         array_unshift($records, 'ELEMENT_GLOBAL.2.105926'); // American Bullfrog
         array_unshift($records, 'ELEMENT_GLOBAL.2.104777'); // White tailed deer
         array_unshift($records, 'ELEMENT_GLOBAL.2.100925'); // golden eagle
+        
+        
         $records = array_unique($records);
         $chunks = array_chunk($records, $chunk_size);
         $i = 0;
@@ -243,7 +245,8 @@ class NatureServeAPI
         {
             $this->write_text_description("National NatureServe Conservation Status", "national_conservation_status",
               "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus",
-              implode("", $descriptions));
+              implode("", $descriptions),
+              array(  'creator' => @trim((string) $this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->conservationStatusAuthors['displayValue'])));
         }
     }
     
