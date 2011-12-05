@@ -94,7 +94,6 @@ class CollectionItemIndexer
     
     
     function lookup_data_objects($params)
-
     {
         $sound_type_ids = DataType::sound_type_ids();
         $image_type_ids = DataType::image_type_ids();
@@ -170,12 +169,15 @@ class CollectionItemIndexer
     {
         echo "\nquerying lookup_taxon_concepts\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
-            ci.object_id, ci.collection_id, ci.name, tcm.richness_score
+            ci.object_id, ci.collection_id, ci.name, tcm.richness_score, n.string name_string
             FROM collection_items ci
             JOIN taxon_concept_metrics tcm ON (ci.object_id=tcm.taxon_concept_id)
+            LEFT JOIN
+                (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id AND tcn.preferred=1 AND tcn.vern=0)) ON (ci.object_id=tcn.taxon_concept_id)
             WHERE object_type='TaxonConcept' AND ci.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
+        $query .= " ORDER BY tcn.source_hierarchy_entry_id ASC";
         
         $began = false;
         $used_ids = array();
@@ -191,8 +193,10 @@ class CollectionItemIndexer
             $collection_id = $row[6];
             $title = $row[7];
             $richness_score = $row[8];
+            $name_string = $row[9];
             if($annotation == 'NULL') $annotation = '';
             if($added_by_user_id == 'NULL') $added_by_user_id = 0;
+            if($title == 'NULL') $title = $name_string;
             if($title == 'NULL') $title = 'zzz';
             if($collection_id == 'NULL') continue;
             

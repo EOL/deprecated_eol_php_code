@@ -189,7 +189,8 @@ class ContentArchiveReader
             {
                 foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                 {
-                    $fields = $this->parse_table_row($table_definition, $line);
+                    $fields = $this->parse_table_row($table_definition, $line, $parameters);
+                    if($fields == "this is the break message") break;
                     if($fields && $callback) call_user_func($callback, $fields, $parameters);
                     elseif($fields) $all_rows[] = $fields;
                 }
@@ -213,33 +214,40 @@ class ContentArchiveReader
     
     // this method uses the instance variable $this->table_iterator_index to determine which row of the file
     // it is reading. That variable must be reset before reading a new file to properly ignore the header line
-    function parse_table_row($table_definition, $line)
+    function parse_table_row($table_definition, $line, $parameters = null)
     {
         // if($this->table_iterator_index % 10000 == 0) echo "Parsing table row $this->table_iterator_index: ".memory_get_usage()."\n";
         $this->table_iterator_index++;
+        if(isset($parameters['parse_row_limit']) && $this->table_iterator_index > $parameters['parse_row_limit']) return "this is the break message";
         if($table_definition->ignore_header_lines && $this->table_iterator_index <= $table_definition->ignore_header_lines) return array();
         
         if(!trim($line)) return array();
-        $line = preg_replace("/^".preg_quote($table_definition->fields_enclosed_by, "/")."/", "", $line);
-        $line = preg_replace("/".preg_quote($table_definition->fields_enclosed_by, "/")."$/", "", $line);
-        $fields = explode($table_definition->fields_enclosed_by . $table_definition->fields_terminated_by . $table_definition->fields_enclosed_by, $line);
-        // if($this->table_iterator_index % 10000 == 2) print_r($fields);
+        if($table_definition->fields_enclosed_by)
+        {
+            $line = preg_replace("/^".preg_quote($table_definition->fields_enclosed_by, "/")."/", "", $line);
+            $line = preg_replace("/".preg_quote($table_definition->fields_enclosed_by, "/")."$/", "", $line);
+        }
         
+        $fields = explode($table_definition->fields_enclosed_by . $table_definition->fields_terminated_by . $table_definition->fields_enclosed_by, $line);
         return self::assign_field_types($table_definition, $fields);
     }
     
     static function assign_field_types($table_definition, $fields)
     {
         $row_field_types = array();
+        // unescape all fields at once
+        $fields = implode("||||", $fields);
+        $fields = self::unescape_string($fields);
+        $fields = explode("||||", $fields);
         foreach($fields as $index => $value)
         {
-            if(isset($table_definition->fields[$index]))
+            if(strcasecmp($value, "/n") == 0) $value = null;
+            if($f = @$table_definition->fields[$index])
             {
-                $value = self::unescape_string($value);
-                if($value == '' && isset($table_definition->fields[$index]['default']))
+                if($value == '' && isset($f['default']))
                 {
-                    $row_field_types[$table_definition->fields[$index]['term']] = $table_definition->fields[$index]['default'];
-                }else $row_field_types[$table_definition->fields[$index]['term']] = $value;
+                    $row_field_types[$f['term']] = $f['default'];
+                }else $row_field_types[$f['term']] = $value;
             }else
             {
                 // echo "There is no declared field for this index ($index)\n";

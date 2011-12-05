@@ -143,7 +143,7 @@ function show_children($node, $indent, $variable)
     {
         echo show_node($v, $indent, $variable);
         $i++;
-        if($i >= 100)
+        if($i >= 300)
         {
             echo str_repeat("&nbsp;",$indent*5).".........<br>";
             break;
@@ -225,7 +225,7 @@ function show_children_he($node, $indent)
     {
         echo show_name_he($v, $indent, 0);
         $i++;
-        if($i >= 100)
+        if($i >= 300)
         {
             echo str_repeat("&nbsp;",$indent*5).".........<br>";
             break;
@@ -251,18 +251,18 @@ function show_name_he($hierarchy_entry, $indent, $expand)
     $display .= "<small><b><u>[$hierarchy_entry->lft]</u></b></small> <a href='?id=$hierarchy_entry->id&taxon_concept_id=$hierarchy_entry->taxon_concept_id&ENV_NAME=".$GLOBALS['ENV_NAME']."'>".$hierarchy_entry->name->string."</a> <small><b><u>[$hierarchy_entry->rgt]</u></b></small>";
     
     if(@$rank = $hierarchy_entry->rank->label) $display .= " <small>($rank)</small>";
-    // if($agents = $hierarchy_entry->agents)
-    // {
-    //     $arr = array();
-    //     foreach($agents as $agent)
-    //     {
-    //         $arr[] = @$agent->agent->display_name;
-    //     }
-    //     
-    //     $display .= " <small>(".implode(", ", $arr).")</small>";
-    // }
+    if($agents = $hierarchy_entry->agents)
+    {
+        $arr = array();
+        foreach($agents as $agent)
+        {
+            $arr[] = $agent->full_name;
+        }
+        
+        $display .= " <small>(".implode(", ", $arr).")</small>";
+    }
     
-    $display .= " <small>he_id:".$hierarchy_entry->id." ; tc_id:".$hierarchy_entry->taxon_concept_id."</small>";
+    $display .= " <small>he_id:".$hierarchy_entry->id." ; tc_id:".$hierarchy_entry->taxon_concept_id."; id:".$hierarchy_entry->identifier." ;</small>";
     if($cf = @$hierarchy_entry->name->ranked_canonical_form->string) $display .= str_repeat("&nbsp;", 10)."<small>$cf</small>";
     else $display .= str_repeat("&nbsp;", 10)."<small>-----</small>";
     $display .= "<br>";
@@ -290,14 +290,14 @@ function show_synonyms_he($hierarchy_entry)
 
 function show_references_he($hierarchy_entry)
 {
-    // if($references = $hierarchy_entry->references())
-    // {
-    //     echo "<hr>";
-    //     foreach($references as $r)
-    //     {
-    //         echo str_repeat('&nbsp;', 6)."$r->full_reference<br><br>";
-    //     }
-    // }
+    if($references = $hierarchy_entry->references)
+    {
+        echo "<hr>";
+        foreach($references as $r)
+        {
+            echo "=> $r->full_reference<br>";
+        }
+    }
 }
 
 function show_kingdoms_he($hierarchy_id)
