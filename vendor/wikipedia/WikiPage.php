@@ -324,7 +324,9 @@ class WikiPage
         $html = preg_replace("/column-width: *[0-9]+em;/", "", $html);
         
         // update all relative paths
+        $html = preg_replace("/src=\"\/\//", "src=\"http://", $html);
         $html = preg_replace("/src=\"\//", "src=\"http://en.wikipedia.org/", $html);
+        $html = preg_replace("/href=\"\/\//", "target=\"wikipedia\" href=\"http://", $html);
         $html = preg_replace("/href=\"\//", "target=\"wikipedia\" href=\"http://en.wikipedia.org/", $html);
         
         $html = '<div id="globalWrapper"><div id="column-content"><div id="content"><div id="bodyContent">' . $html . '</div></div></div></div>';

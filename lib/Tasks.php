@@ -230,18 +230,21 @@ class Tasks
             $matching_ids[$name_id][$id] = $type;
             $hierarchy_entry_ids[$id] = 1;
         }
-        $result->free();
+        //$result->free();
         
-        //This makes sure we have a scientific name, gets the canonicalFormID
-        $result = $mysqli->query("SELECT n_match.id FROM names n JOIN canonical_forms cf ON (n.canonical_form_id=cf.id) JOIN names n_match ON (cf.id=n_match.canonical_form_id) WHERE n.id IN (".implode(",",array_keys($name_ids)).") AND n_match.string=cf.string");
-        while($result && $row=$result->fetch_assoc())
+        if($name_ids)
         {
-            //add the canonicalForm to the taxon_concept
-            //only adding canonicalForm - not all names with the same canonicalForm - this might be changed in the future to be more inclusive
-            $matching_ids[$row["id"]][0] = 1;
-            $name_ids[$row["id"]] = 1;
+            //This makes sure we have a scientific name, gets the canonicalFormID
+            $result = $mysqli->query("SELECT n_match.id FROM names n JOIN canonical_forms cf ON (n.canonical_form_id=cf.id) JOIN names n_match ON (cf.id=n_match.canonical_form_id) WHERE n.id IN (".implode(",",array_keys($name_ids)).") AND n_match.string=cf.string");
+            while($result && $row=$result->fetch_assoc())
+            {
+                //add the canonicalForm to the taxon_concept
+                //only adding canonicalForm - not all names with the same canonicalForm - this might be changed in the future to be more inclusive
+                $matching_ids[$row["id"]][0] = 1;
+                $name_ids[$row["id"]] = 1;
+            }
         }
-        $result->free();
+        //$result->free();
         
         $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern!=1");
         
@@ -395,7 +398,7 @@ class Tasks
         {
             $current_value = self::nested_set_depth_first_assign($row["id"], 0, 0, $current_value);
         }
-        $result->free();
+        // $result->free();
         
         $mysqli->end_transaction();
     }
@@ -412,7 +415,7 @@ class Tasks
         {
             $current_value = self::nested_set_depth_first_assign($row["id"], $id, $depth+1, $current_value);
         }
-        $result->free();
+        // $result->free();
         
         $mysqli->update("UPDATE hierarchy_entries SET rgt=$current_value WHERE id=$id");
         $current_value++;
@@ -475,7 +478,7 @@ class Tasks
                     $mysqli->insert("INSERT INTO hierarchy_entry_relationships VALUES ($entry2->id, $entry1->id, '', $score, '')");
                 }
             }
-            $result2->free();
+            // $result2->free();
         }
         
         $mysqli->end_transaction();

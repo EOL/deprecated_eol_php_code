@@ -21,8 +21,8 @@ while($result && $row=$result->fetch_assoc())
     $resources[] = $resource;
 }
 
-$resources = Resource::ready_for_harvesting();
-foreach($resources as $resource)
+$more_resources = Resource::ready_for_harvesting();
+foreach($more_resources as $resource)
 {
     if(!$resource->accesspoint_url) continue;
     if(!$resource->service_type_id != ServiceType::find_or_create_by_translated_label("EOL Transfer Schema")->id) continue;

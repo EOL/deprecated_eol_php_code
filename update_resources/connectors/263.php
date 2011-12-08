@@ -55,11 +55,10 @@ fclose($resource_file);
 @rename(CONTENT_RESOURCE_LOCAL_PATH . "263.xml", CONTENT_RESOURCE_LOCAL_PATH . "263_previous.xml");
 rename(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "263.xml");
 
-// // set Flickr to force harvest
-// if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "263.xml"))
-// {
-//     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=263");
-// }
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "263.xml"))
+{
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=263");
+}
 
 
 
