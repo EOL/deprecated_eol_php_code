@@ -449,6 +449,7 @@ class CompareHierarchies
             if($cf = @$entry->canonical_form) $search_canonical = rawurlencode($cf);
             else $search_canonical = "";
             if(preg_match("/virus$/", $search_canonical)) $search_canonical = "";
+            elseif(isset($entry->kingdom) && (strtolower($entry->kingdom) == 'virus' || strtolower($entry->kingdom) == 'viruses')) $search_canonical = "";
             
             $query_bits = array();
             if($search_canonical) $query_bits[] = "canonical_form_string:\"". $search_canonical ."\"";
@@ -482,14 +483,15 @@ class CompareHierarchies
         if(self::rank_conflict($entry1, $entry2)) return null;
         
         // viruses are a pain and will not match properly right now
-        if(preg_match("/virus$/i", $entry1->name) || preg_match("/virus$/i", $entry2->name)) return null;
-        if(isset($entry1->kingdom) && (strtolower($entry1->kingdom) == 'virus' || strtolower($entry1->kingdom) == 'viruses')) return null;
-        if(isset($entry2->kingdom) && (strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses')) return null;
+        $is_virus = false;
+        if(preg_match("/virus$/i", $entry1->name) || preg_match("/virus$/i", $entry2->name)) $is_virus = true;
+        if(isset($entry1->kingdom) && (strtolower($entry1->kingdom) == 'virus' || strtolower($entry1->kingdom) == 'viruses')) $is_virus = true;
+        if(isset($entry2->kingdom) && (strtolower($entry2->kingdom) == 'virus' || strtolower($entry2->kingdom) == 'viruses')) $is_virus = true;
         
-        $name_match = self::compare_names($entry1, $entry2);
+        $name_match = self::compare_names($entry1, $entry2, $is_virus);
         
         // synonym matching - cut the score in half and make it negative to show it was a synonym match
-        if(!$name_match) $name_match = self::compare_synonyms($entry1, $entry2) * -1;
+        if(!$name_match && !$is_virus) $name_match = self::compare_synonyms($entry1, $entry2) * -1;
         
         $ancestry_match = self::compare_ancestries($entry1, $entry2);
         
@@ -522,13 +524,13 @@ class CompareHierarchies
         return 0;
     }
     
-    public static function compare_names(&$entry1, &$entry2)
+    public static function compare_names(&$entry1, &$entry2, $is_virus = false)
     {
         // names are assigned and identical
         if($entry1->name && $entry2->name && $entry1->name == $entry2->name) return 1;
         
         // canonical_forms are assigned and identical
-        if(@$entry1->canonical_form && @$entry2->canonical_form && $entry1->canonical_form == $entry2->canonical_form) return .5;
+        if(!$is_virus && @$entry1->canonical_form && @$entry2->canonical_form && $entry1->canonical_form == $entry2->canonical_form) return .5;
         
         return 0;
     }
@@ -621,4 +623,3 @@ class CompareHierarchies
 }
 
 ?>
-

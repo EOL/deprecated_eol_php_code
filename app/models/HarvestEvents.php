@@ -271,11 +271,11 @@ class HarvestEvent extends ActiveRecord
         $description .= " Last indexed ". date('F j, Y', strtotime($this->completed_at));
         $collection = Collection::find_or_create(array(
             'name' => $collection_title,
-            'user_id' => $this->resource->content_partner->user->id,
             'logo_cache_url' => $this->resource->content_partner->user->logo_cache_url,
             'description' => trim($description),
             'created_at' => 'NOW()',
             'updated_at' => 'NOW()'));
+        $GLOBALS['db_connection']->insert("INSERT IGNORE INTO collections_users (collection_id, user_id) VALUES ($collection->id, ".$this->resource->content_partner->user->id.")");
         
         $this->add_objects_to_collection($collection);
         $this->add_taxa_to_collection($collection);

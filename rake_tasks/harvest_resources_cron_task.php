@@ -19,7 +19,7 @@ foreach($resources as $resource)
     if(in_array($resource->id, array(42))) continue;
     if($specified_id && $resource->id != $specified_id) continue;
     //if(!in_array($resource->id, array(324))) continue;
-    
+    // if($resource->id <= 83) continue;
     echo $resource->id."\n";
     
     $validate = true;
@@ -33,10 +33,11 @@ $log->finished();
 // publish all pending resources
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
-
 // setting appropriate TaxonConcept publish flag
 Hierarchy::publish_wrongly_unpublished_concepts();
 
+// update collection items which reference superceded concepts
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/remove_superceded_collection_items.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 if($specified_id) exit;
 

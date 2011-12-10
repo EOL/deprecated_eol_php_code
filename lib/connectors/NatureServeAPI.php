@@ -310,7 +310,7 @@ class NatureServeAPI
     {
         $this->write_image_description("U.S. States and Canadian Provinces", "conservation_map", 'map',
             (string) @$this->current_details_xml->distribution->conservationStatusMap,
-            array('description' => 'NatureServe conservation status ranks for U.S. states and Canada provinces.  See <a href="http://www.natureserve.org/explorer/ranking.htm#natsub">NatureServe Conservation Status</a> for more information about the ranks.'));
+            array('description' => '<img src="http://content60.eol.org/content/2011/12/06/23/17639.png"/><p>NatureServe conservation status ranks for U.S. states and Canada provinces.  See <a href="http://www.natureserve.org/explorer/ranking.htm#natsub">NatureServe Conservation Status</a> for more information about the ranks.</p>'));
             
         $this->write_image_description("Range Map", "range_map", 'map',
             (string) @$this->current_details_xml->distribution->rangeMap->rangeMapURI,

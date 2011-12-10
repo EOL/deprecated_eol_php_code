@@ -1,32 +1,32 @@
 <?php
-
+namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
+// print_r(image_detail('http://www.biopix.com/pig-sus-scrofa-domesticus_photo-18632.aspx', 'asdf'));
+// // print_r(get_images_for_taxon('http://www.biopix.com/pig-sus-scrofa-domesticus_photo-18632.aspx', array("kingdom" => "Animalia", "phylum" => "Chordata", "class" => "Mammalia")));
+// exit;
 
 
-
-$resource = new Resource(31);
-
-
+$resource = Resource::find(31);
 
 $urls = array();
-$urls["AlgerLaver"]         = "http://www.biopix.com/Category.asp?Category=AlgerLaver&Language=en&ShowExScan=1";
-$urls["PadderKrybdyr"]      = "http://www.biopix.com/Category.asp?Category=PadderKrybdyr&Language=en&ShowExScan=1";
-$urls["Arthropoda"]         = "http://www.biopix.com/Category.asp?Category=Arthropoda&Language=en&ShowExScan=1";
-$urls["Fugle"]              = "http://www.biopix.com/Category.asp?Category=Fugle&Language=en&ShowExScan=1";
-$urls["Sommerfugle"]        = "http://www.biopix.com/Category.asp?Category=Sommerfugle&Language=en&ShowExScan=1";
-$urls["KulturPlanter"]      = "http://www.biopix.com/Category.asp?Category=KulturPlanter&Language=en&ShowExScan=1";
-$urls["Husdyr"]             = "http://www.biopix.com/Category.asp?Category=Husdyr&Language=en&ShowExScan=1";
-$urls["Fisk"]               = "http://www.biopix.com/Category.asp?Category=Fisk&Language=en&ShowExScan=1";
-$urls["Svampe"]             = "http://www.biopix.com/Category.asp?Category=Svampe&Language=en&ShowExScan=1";
-$urls["Insekter"]           = "http://www.biopix.com/Category.asp?Category=Insekter&Language=en&ShowExScan=1";
-$urls["LavereDyr"]          = "http://www.biopix.com/Category.asp?Category=LavereDyr&Language=en&ShowExScan=1";
-$urls["Pattedyr"]           = "http://www.biopix.com/Category.asp?Category=Pattedyr&Language=en&ShowExScan=1";
-$urls["Bloeddyr"]           = "http://www.biopix.com/Category.asp?Category=Bloeddyr&Language=en&ShowExScan=1";
-$urls["Mosser"]             = "http://www.biopix.com/Category.asp?Category=Mosser&Language=en&ShowExScan=1";
-$urls["Planter"]            = "http://www.biopix.com/Category.asp?Category=Planter&Language=en&ShowExScan=1";
+$urls["AlgerLaver"]         = "http://www.biopix.com/category.aspx?category=AlgerLaver&families=0";
+$urls["PadderKrybdyr"]      = "http://www.biopix.com/category.aspx?category=PadderKrybdyr&families=0";
+$urls["Arthropoda"]         = "http://www.biopix.com/category.aspx?category=Arthropoda&families=0";
+$urls["Fugle"]              = "http://www.biopix.com/category.aspx?category=Fugle&families=0";
+$urls["Sommerfugle"]        = "http://www.biopix.com/category.aspx?category=Sommerfugle&families=0";
+$urls["KulturPlanter"]      = "http://www.biopix.com/category.aspx?category=KulturPlanter&families=0";
+$urls["Husdyr"]             = "http://www.biopix.com/category.aspx?category=Husdyr&families=0";
+$urls["Fisk"]               = "http://www.biopix.com/category.aspx?category=Fisk&families=0";
+$urls["Svampe"]             = "http://www.biopix.com/category.aspx?category=Svampe&families=0";
+$urls["Insekter"]           = "http://www.biopix.com/category.aspx?category=Insekter&families=0";
+$urls["LavereDyr"]          = "http://www.biopix.com/category.aspx?category=LavereDyr&families=0";
+$urls["Pattedyr"]           = "http://www.biopix.com/category.aspx?category=Pattedyr&families=0";
+$urls["Bloeddyr"]           = "http://www.biopix.com/category.aspx?category=Bloeddyr&families=0";
+$urls["Mosser"]             = "http://www.biopix.com/category.aspx?category=Mosser&families=0";
+$urls["Planter"]            = "http://www.biopix.com/category.aspx?category=Planter&families=0";
 
 $kingdoms = array();
 $kingdoms["AlgerLaver"]     = array();
@@ -48,52 +48,51 @@ $kingdoms["Planter"]        = array("kingdom" => "Plantae");
 $used_data = array();
 $all_taxa = array();
 
+$resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "31_temp.xml", "w+");
+fwrite($resource_file, \SchemaDocument::xml_header());
 
 foreach($urls as $key => $val)
 {
     echo "$val ".Functions::time_elapsed()."\n";
-    $html = Functions::get_remote_file($val);
+    $html = Functions::get_remote_file($val, NULL, 120);
     
     $kingdoms_for_section = $kingdoms[$key];
     
-    static $taxa_for_this_page = 0;
     $taxa_for_this_page = 0;
+    static $total_taxa = 0;
     
-    if(preg_match_all("/<a class='catmenu' title=\"(.*?)\" href='Photo.asp\?PhotoId=(.*?)&amp;Photo=(.*?)'>(.*?)<\/a>/ims", $html, $matches, PREG_SET_ORDER))
+    if(preg_match_all("/<a class='catmenu' href='([^']*?\.aspx)'>([^<].*?)<\/a>/ims", $html, $matches, PREG_SET_ORDER))
     {
         foreach($matches as $match)
         {
-            static $total_taxa = 0;
-            $searchtext_name = str_replace("-", " ", $match[3]);
-            
-            echo "   taxon $taxa_for_this_page: total $total_taxa: ".ucfirst($searchtext_name)." ".Functions::time_elapsed()."\n";
+            $url = "http://www.biopix.com/". $match[1];
+            $name = $match[2];
             $taxa_for_this_page++;
             $total_taxa++;
             
-            
-            $species_url = "http://www.biopix.com/Species.asp?Searchtext=" . urlencode($searchtext_name);
-            if($taxon = grab_images($species_url, $searchtext_name, $kingdoms_for_section))
+            echo "   taxon $taxa_for_this_page: total $total_taxa: $name: $url ".Functions::time_elapsed()."\n";
+            if($taxon = get_images_for_taxon($url, $kingdoms_for_section))
             {
                 $all_taxa[] = $taxon;
+                fwrite($resource_file, $taxon->__toXML());
             }
-            // if($total_taxa > 3) break;
+            // if($taxa_for_this_page >= 10) break;
         }
     }
 }
 
+fwrite($resource_file, \SchemaDocument::xml_footer());
+fclose($resource_file);
 
+// cache the previous version and make this new version the current version
+@unlink(CONTENT_RESOURCE_LOCAL_PATH . "31_previous.xml");
+@rename(CONTENT_RESOURCE_LOCAL_PATH . "31.xml", CONTENT_RESOURCE_LOCAL_PATH . "31_previous.xml");
+rename(CONTENT_RESOURCE_LOCAL_PATH . "31_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "31.xml");
 
-$new_resource_xml = utf8_encode(SchemaDocument::get_taxon_xml($all_taxa));
-
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
-
-$OUT = fopen($old_resource_path, "w+");
-fwrite($OUT, $new_resource_xml);
-fclose($OUT);
-
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml"))
+// set Flickr to force harvest
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "31.xml"))
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_label('Force Harvest')->id." WHERE id=$resource->id");
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=31");
 }
 
 
@@ -107,7 +106,20 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml"))
 
 
 
-
+function get_images_for_taxon($url, $kingdom)
+{
+    $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url, NULL, 120));
+    if(preg_match("/title='see all' href='species\.asp\?searchtext=([^']*?)'> *overview/", $html, $arr))
+    {
+        $taxon_url = "http://www.biopix.com/species.asp?searchtext=". $arr[1];
+        $name = ucfirst(str_replace("-", " ", $arr[1]));
+        if(preg_match("/^(.*)&amp;/", $name, $arr)) $name = $arr[1];
+        return grab_images($taxon_url, $name, $kingdom);
+    }else
+    {
+        echo "THERE IS NO LINK TO THE TAXON ON $url\n";
+    }
+}
 
 
 function grab_images($url, $name, $kingdom)
@@ -118,9 +130,9 @@ function grab_images($url, $name, $kingdom)
     static $images_for_this_taxon = 0;
     $images_for_this_taxon = 0;
     
-    $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url));
+    $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url, NULL, 120));
     
-    if(preg_match("/href='family\.asp\?category=.*?&amp;family=(.*?)'>\.\.\. see all/ims", $html, $arr))
+    if(preg_match("/href='family\.asp\?category=.*?&amp;family=(.*?)'>\.\.\. *see all/ims", $html, $arr))
     {
         $family = ucfirst($arr[1]);
     }
@@ -129,7 +141,7 @@ function grab_images($url, $name, $kingdom)
     $taxon_parameters = get_taxon($name, $kingdom, $family, $url);
     if(!$taxon_parameters) return false;
     
-    if(preg_match_all("/href='(photo.asp\?photoid=(.*?)&amp;.*?)'><img alt='(.*?)'/ims", $html, $matches, PREG_SET_ORDER))
+    if(preg_match_all("/href='(photo.aspx\?photoid=(.*?)&amp;[^']*?)'><img alt='(.*?)'/ims", $html, $matches, PREG_SET_ORDER))
     {
         foreach($matches as $match)
         {
@@ -153,28 +165,24 @@ function grab_images($url, $name, $kingdom)
     }
     
     $taxon = new \SchemaTaxon($taxon_parameters);
-    return($taxon);
+    return $taxon;
 }
 
 function image_detail($url, $photo_id)
 {
-    $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url));
+    $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url, NULL, 120));
     $location = "";
     $note = "";
     $image_url = "";
     
-    if(preg_match("/<b>Location<\/b><br \/>(.*?)<br \/>/", $html, $arr))
-    {
-        $location = $arr[1];
-    }
-    
-    if(preg_match("/<b>Note<\/b><br \/><br \/><span class='textareasmall'>(.*?)<br \/><\/span>/", $html, $arr))
+    if(preg_match("/<h1>Location<\/h1><br\/>(.*?)<br \/>/", $html, $arr)) $location = trim($arr[1]);
+    if(preg_match("/<h1>Note<\/h1><br\/><div style='height:100px'>(.*?)<\/div>/", $html, $arr))
     {
         $note = $arr[1];
         if(substr($note, -1) == ".") $note = substr($note, 0, -1);
     }
     
-    if(preg_match("/src=\"\/photos\/(.*?)\" \/>/", $html, $arr)) $image_url = "http://www.biopix.com/photos/".rawurlencode($arr[1]);
+    if(preg_match("/src='photos\/(.*?)' \/>/", $html, $arr)) $image_url = "http://www.biopix.com/photos/".rawurlencode($arr[1]);
     
     $suffix = ".jpg";
     
