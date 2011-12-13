@@ -1572,6 +1572,11 @@ class Functions
         return $taxon_or_data_object_param;
     }
 
+    public static function set_resource_status_to_force_harvest($resource_id)
+    {
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+    }
+
     //4 functions for queueing task in connectors
     public static function add_a_task($task, $filename)
     {
