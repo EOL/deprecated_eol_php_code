@@ -178,13 +178,14 @@ class TaxonPageMetrics
         $time_start = time_elapsed();
         $arr_taxa = array();
         print "\n BOA_biomedical_terms [8 of 13]\n";
-        $BOA_agent_id = Agent::find('Biology of Aging');
-        if(!$BOA_agent_id) 
+        $BOA_content_partner_id = ContentPartner::find_or_create_by_full_name('Biology of Aging')->id;
+        $BOA_content_partner_id = 39;
+        if(!$BOA_content_partner_id) 
         {
             self::save_totals_to_cumulative_txt(array(), "tpm_biomedical_terms");
             return;
         }
-        $result = $this->mysqli_slave->query("SELECT Max(harvest_events.id) latest_harvent_event_id FROM harvest_events JOIN agents_resources ON agents_resources.resource_id = harvest_events.resource_id WHERE agents_resources.agent_id = $BOA_agent_id AND harvest_events.published_at Is Not Null");
+        $result = $this->mysqli_slave->query("SELECT Max(he.id) latest_harvent_event_id FROM harvest_events he JOIN resources r ON r.id = he.resource_id WHERE r.content_partner_id = $BOA_content_partner_id AND he.published_at Is Not Null");
         if($result && $row=$result->fetch_assoc()) $latest_harvent_event_id = $row['latest_harvent_event_id'];
         $sql = "SELECT he.taxon_concept_id tc_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON hehe.hierarchy_entry_id = he.id WHERE hehe.harvest_event_id = $latest_harvent_event_id ";
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
