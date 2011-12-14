@@ -168,3 +168,5 @@ applications/species_stat_marine/readmeli.txt
 applications/taxon_page_metrics/generate_taxon_page_metrics_ok.php
 
 lib/TaxonPageMetrics_ok.php
+
+applications/partner_requests/convert_eol_to_dwca.php

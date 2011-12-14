@@ -86,6 +86,7 @@ class TropicosAPI
             self::combine_all_xmls($resource_id);
             self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
             self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
+            Functions::set_resource_status_to_force_harvest($resource_id);
         }
     }
 
