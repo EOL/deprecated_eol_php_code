@@ -25,7 +25,7 @@ $more_resources = Resource::ready_for_harvesting();
 foreach($more_resources as $resource)
 {
     if(!$resource->accesspoint_url) continue;
-    if(!$resource->service_type_id != ServiceType::find_or_create_by_translated_label("EOL Transfer Schema")->id) continue;
+    if($resource->service_type_id != ServiceType::find_or_create_by_translated_label("EOL Transfer Schema")->id) continue;
     if(!in_array($resource, $resources)) $resources[] = $resource;
 }
 
@@ -41,7 +41,7 @@ foreach($resources as $resource)
     if($resource->accesspoint_url)
     {
         echo "$resource->id $resource->accesspoint_url\n";
-        $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource");
+        $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource", NULL, 600);
         if(!$new_resource_path)
         {
             $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label("Upload Failed")->id." WHERE id=$resource->id");

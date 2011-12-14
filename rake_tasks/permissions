@@ -6,6 +6,12 @@ chmod ug+rw /opt/eol_php_code/log/*
 chown www-data:www-data /opt/eol_php_code/tmp/*
 chmod ug+rw /opt/eol_php_code/tmp/*
 
+chown www-data:www-data /opt/eol_php_code/lib/*
+chmod ug+rw /opt/eol_php_code/lib/*
+
+chown www-data:www-data /opt/eol_php_code/app/models/*
+chmod ug+rw /opt/eol_php_code/app/models/*
+
 chown www-data:www-data /opt/eol_php_code/update_resources/*
 chmod ug+x /opt/eol_php_code/update_resources/*
 
