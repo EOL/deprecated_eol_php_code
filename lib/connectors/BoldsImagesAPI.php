@@ -50,10 +50,10 @@ class BoldsImagesAPI
                 if($i == 1) continue;
                 $line = trim($line);
                 $fields = explode("\t", $line);
-                $SampleID            = $fields[0];
-                $ProcessID           = $fields[1];
-                $Taxon               = $fields[2];
-                $Orientation         = $fields[3];
+                $SampleID            = trim($fields[0]);
+                $ProcessID           = trim($fields[1]);
+                $Taxon               = trim($fields[2]);
+                $Orientation         = trim($fields[3]);
                 $Copyright_holder    = trim($fields[4]);
                 $Copyright_year      = $fields[5];
                 $Copyright           = trim($fields[6]);
@@ -67,9 +67,10 @@ class BoldsImagesAPI
                     if($rights_holder) $rights_holder .= ", " . $Copyright_institute;
                     else $rights_holder = $Copyright_institute;
                 }
-                $description = "Sample ID = " . $SampleID . "\n";
-                $description = "Process ID = " . $ProcessID . "\n";
-                $description = "Orientation = " . $Orientation . "\n";
+                $description = "";
+                if($SampleID) $description .= "Sample ID = " . $SampleID . "<br>";
+                if($ProcessID) $description .= "Process ID = " . $ProcessID . "<br>";
+                if($Orientation) $description .= "Orientation = " . $Orientation . "<br>";
                 $agent = array();
                 if($Photographer) $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => $Photographer);
                 if     (in_array($Copyright, array("CreativeCommons - Attribution Non-Commercial Share-Alike",
