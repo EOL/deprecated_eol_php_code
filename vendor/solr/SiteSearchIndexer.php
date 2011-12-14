@@ -116,9 +116,9 @@ class SiteSearchIndexer
                     'keyword_type'              => 'PreferredScientific',
                     'keyword'                   => $arr['preferred_scientifics'],
                     'ancestor_taxon_concept_id' => $ancestor_ids,
-                    'richness_score'            => 0,
                     'language'                  => 'sci',
                     'top_image_id'              => $top_image_id,
+                    'resource_weight'           => 1,
                     'richness_score'            => $richness_score);
             }
             if(isset($arr['synonyms']))
@@ -130,9 +130,9 @@ class SiteSearchIndexer
                     'keyword_type'              => 'Synonym',
                     'keyword'                   => $arr['synonyms'],
                     'ancestor_taxon_concept_id' => $ancestor_ids,
-                    'richness_score'            => 0,
                     'language'                  => 'sci',
                     'top_image_id'              => $top_image_id,
+                    'resource_weight'           => 3,
                     'richness_score'            => $richness_score);
             }
             if(isset($arr['surrogates']))
@@ -144,9 +144,9 @@ class SiteSearchIndexer
                     'keyword_type'              => 'Surrogate',
                     'keyword'                   => $arr['surrogates'],
                     'ancestor_taxon_concept_id' => $ancestor_ids,
-                    'richness_score'            => 0,
                     'language'                  => 'sci',
                     'top_image_id'              => $top_image_id,
+                    'resource_weight'           => 500,
                     'richness_score'            => $richness_score);
             }
             if(isset($arr['preferred_commons']))
@@ -160,9 +160,9 @@ class SiteSearchIndexer
                         'keyword_type'              => 'PreferredCommonName',
                         'keyword'                   => $names,
                         'ancestor_taxon_concept_id' => $ancestor_ids,
-                        'richness_score'            => 0,
                         'language'                  => $language_iso,
                         'top_image_id'              => $top_image_id,
+                        'resource_weight'           => 2,
                         'richness_score'            => $richness_score);
                 }
             }
@@ -177,9 +177,9 @@ class SiteSearchIndexer
                         'keyword_type'              => 'CommonName',
                         'keyword'                   => $names,
                         'ancestor_taxon_concept_id' => $ancestor_ids,
-                        'richness_score'            => 0,
                         'language'                  => $language_iso,
                         'top_image_id'              => $top_image_id,
+                        'resource_weight'           => 4,
                         'richness_score'            => $richness_score);
                 }
             }
@@ -371,10 +371,24 @@ class SiteSearchIndexer
                 
                 $data_types = array();
                 $data_types['DataObject'] = 1;
-                if(in_array($data_type_id, array(1))) $data_types['Image'] = 1;
-                elseif(in_array($data_type_id, array(2))) $data_types['Sound'] = 1;
-                elseif(in_array($data_type_id, array(3))) $data_types['Text'] = 1;
-                elseif(in_array($data_type_id, array(4, 7, 8))) $data_types['Video'] = 1;
+                $resource_weight = 100;
+                if(in_array($data_type_id, array(1)))
+                {
+                    $data_types['Image'] = 1;
+                    $resource_weight = 60;
+                }elseif(in_array($data_type_id, array(2)))
+                {
+                    $data_types['Sound'] = 1;
+                    $resource_weight = 70;
+                }elseif(in_array($data_type_id, array(3)))
+                {
+                    $data_types['Text'] = 1;
+                    $resource_weight = 40;
+                }elseif(in_array($data_type_id, array(4, 7, 8)))
+                {
+                    $data_types['Video'] = 1;
+                    $resource_weight = 50;
+                }
                 else continue;
                 
                 if($object_title)
@@ -386,6 +400,7 @@ class SiteSearchIndexer
                         'keyword_type'              => 'object_title',
                         'keyword'                   => $object_title,
                         'language'                  => 'en',
+                        'resource_weight'           => $resource_weight,
                         'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
                         'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
                 }
@@ -400,6 +415,7 @@ class SiteSearchIndexer
                         'keyword'                   => $description,
                         'full_text'                 => true,
                         'language'                  => 'en',
+                        'resource_weight'           => $resource_weight + 1,
                         'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
                         'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
                 }
@@ -446,6 +462,7 @@ class SiteSearchIndexer
                 'resource_id'               => $id,
                 'resource_unique_key'       => "User_$id",
                 'language'                  => 'en',
+                'resource_weight'           => 30,
                 'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
                 'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
             $record = $base;
@@ -492,6 +509,7 @@ class SiteSearchIndexer
                 'resource_id'               => $id,
                 'resource_unique_key'       => "Collection_$id",
                 'language'                  => 'en',
+                'resource_weight'           => 20,
                 'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
                 'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
             $record = $base;
@@ -539,6 +557,7 @@ class SiteSearchIndexer
                 'resource_id'               => $id,
                 'resource_unique_key'       => "Community_$id",
                 'language'                  => 'en',
+                'resource_weight'           => 10,
                 'date_created'              => date('Y-m-d', $created_at) . "T". date('h:i:s', $created_at) ."Z",
                 'date_modified'             => date('Y-m-d', $updated_at) . "T". date('h:i:s', $updated_at) ."Z");
             $record = $base;
