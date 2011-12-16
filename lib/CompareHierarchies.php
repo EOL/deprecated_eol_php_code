@@ -27,6 +27,18 @@ class CompareHierarchies
         }
     }
     
+    public static function hierarchy_ids_with_good_synonymies()
+    {
+        if(!isset($GLOBALS['hierarchy_ids_with_good_synonymies']))
+        {
+            $GLOBALS['hierarchy_ids_with_good_synonymies'] = array();
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][627] = 1; // ITIS
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][759] = 1; // NCBI
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][123] = 1; // WORMS
+            // $GLOBALS['hierarchy_ids_with_good_synonymies'][771] = 1; // COL
+        }
+    }
+    
     // this method will use its own transactions so commit any open transactions before using
     public static function begin_concept_assignment($hierarchy_id = null, $use_synonyms_for_merging = false)
     {
@@ -110,8 +122,8 @@ class CompareHierarchies
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
         
         $relationships = array('relationship:name');
-        if($use_synonyms_for_merging) $relationships[] = 'relationship:syn';
-        $main_query = "(". implode(" OR ", $relationships) .") AND hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
+        if($use_synonyms_for_merging) $relationships[] = '(relationship:syn AND confidence:[.3 TO 1])';
+        $main_query = "(". implode(" OR ", $relationships) .") AND hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=relationship asc, visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
         debug($main_query . "&rows=1");
         $response = $solr->query($main_query . "&rows=1");
         $total_results = $response->numFound;
@@ -537,13 +549,21 @@ class CompareHierarchies
     
     public static function compare_synonyms(&$entry1, &$entry2)
     {
-        // one name is in the other's synonym list
-        if(isset($entry2->synonym) && in_array($entry1->name, $entry2->synonym)) return 1;
-        if(isset($entry1->synonym) && in_array($entry2->name, $entry1->synonym)) return 1;
+        self::hierarchy_ids_with_good_synonymies();
         
-        // one canonical_form is in the other's synonym list
-        if(isset($entry2->synonym_canonical) && @in_array($entry1->canonical_form, $entry2->synonym_canonical)) return .5;
-        if(isset($entry1->synonym_canonical) && @in_array($entry2->canonical_form, $entry1->synonym_canonical)) return .5;
+        // Entry1's name in Entry2's synonymy
+        if(isset($GLOBALS['hierarchy_ids_with_good_synonymies'][$entry2->hierarchy_id]) &&
+            isset($entry2->synonym) && in_array($entry1->name, $entry2->synonym)) return 1;
+        // Entry2's name in Entry1's synonymy
+        if(isset($GLOBALS['hierarchy_ids_with_good_synonymies'][$entry1->hierarchy_id]) &&
+            isset($entry1->synonym) && in_array($entry2->name, $entry1->synonym)) return 1;
+        
+        // Entry1's canonical_form in Entry2's synonymy
+        if(isset($GLOBALS['hierarchy_ids_with_good_synonymies'][$entry2->hierarchy_id]) &&
+            isset($entry2->synonym_canonical) && @in_array($entry1->canonical_form, $entry2->synonym_canonical)) return .5;
+        // Entry2's canonical_form in Entry1's synonymy
+        if(isset($GLOBALS['hierarchy_ids_with_good_synonymies'][$entry1->hierarchy_id]) &&
+            isset($entry1->synonym_canonical) && @in_array($entry2->canonical_form, $entry1->synonym_canonical)) return .5;
         
         return 0;
     }

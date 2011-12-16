@@ -28,7 +28,7 @@ class ContentManager
         if(preg_match("/\.([^\.]+)$/",$file,$arr)) $suffix = strtolower(trim($arr[1]));
         
         // resources may need a little extra time to establish a connection
-        if($type == "resource") $timeout = 60;
+        if($type == "resource" && $timeout < 60) $timeout = 60;
         
         $temp_file_path = CONTENT_TEMP_PREFIX.$this->unique_key.".file";
         if(preg_match("/^http:\/\//",$file) || preg_match("/^https:\/\//",$file))
@@ -159,6 +159,8 @@ class ContentManager
         elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i", $file_type))          $new_suffix = "xml";
         elseif($suffix=="xml" && preg_match("/^ascii text/i", $file_type))              $new_suffix = "xml";
         elseif($suffix=="xml" && preg_match("/^ASCII English text/i", $file_type))      $new_suffix = "xml";
+        // some XML files like BibAlex's resource doesnt have an extension and just has a utf-8 descriptor
+        elseif(preg_match("/^utf-8 unicode /i", $file_type))                            $new_suffix = "xml";
         
         return $new_suffix;
     }
