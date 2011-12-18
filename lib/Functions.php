@@ -1693,5 +1693,40 @@ class Functions
         }
     }
 
+    function combine_all_eol_resource_xmls($resource_id, $files)
+    {
+        print "\n\n Start compiling all XML...";
+        $OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w");
+        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
+        $str .= "<response\n";
+        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
+        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
+        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
+        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
+        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
+        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
+        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
+        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
+        fwrite($OUT, $str);
+        foreach (glob($files) as $filename)
+        {
+            print "\n $filename ";
+            $READ = fopen($filename, "r");
+            $contents = fread($READ, filesize($filename));
+            fclose($READ);
+            if($contents) 
+            {
+                $pos1 = stripos($contents, "<taxon>");
+                $pos2 = stripos($contents, "</response>");
+                $str  = substr($contents, $pos1, $pos2-$pos1);
+                if($pos1) fwrite($OUT, $str);
+            }
+            else print "\n no contents [$filename]";
+        }
+        fwrite($OUT, "</response>");
+        fclose($OUT);
+        print"\n All XML compiled\n\n";
+    }
+
 }
 ?>

@@ -1,0 +1,322 @@
+<?php
+namespace php_active_record;
+/* connector: [42]  */
+
+class FishBaseAPI
+{
+    public function __construct() 
+    {           
+        $this->TAXON_PATH = "http://www.fishbase.us/for_eol/taxon.txt";
+        $this->TAXON_COMNAMES_PATH = "http://www.fishbase.us/for_eol/taxon_comnames.txt";
+        $this->TAXON_DATAOBJECT_PATH = "http://www.fishbase.us/for_eol/taxon_dataobject.txt";
+        $this->TAXON_DATAOBJECT_AGENT_PATH = "http://www.fishbase.us/for_eol/taxon_dataobject_agent.txt";
+        $this->TAXON_DATAOBJECT_REFERENCE_PATH = "http://www.fishbase.us/for_eol/taxon_dataobject_reference.txt";
+        $this->TAXON_REFERENCES_PATH = "http://www.fishbase.us/for_eol/taxon_references.txt";
+        $this->TAXON_SYNONYMS_PATH = "http://www.fishbase.us/for_eol/taxon_synonyms.txt";
+
+        // $this->TAXON_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_copy.txt";
+        // $this->TAXON_COMNAMES_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_comnames_copy.txt";
+        // $this->TAXON_DATAOBJECT_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_dataobject_copy.txt";
+        // $this->TAXON_DATAOBJECT_AGENT_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_dataobject_agent_copy.txt";
+        // $this->TAXON_DATAOBJECT_REFERENCE_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_dataobject_reference_copy.txt";
+        // $this->TAXON_REFERENCES_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_references_copy.txt";
+        // $this->TAXON_SYNONYMS_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_synonyms_copy.txt";
+
+        $this->TEMP_FILE_PATH = DOC_ROOT . "/update_resources/connectors/files/FishBase/";
+    }
+    
+    function get_all_taxa($resource_id)
+    {
+        $data = self::prepare_data();
+        $taxa                        = $data["taxon"]; 
+        $taxon_comnames              = $data["taxon_comnames"];
+        $taxon_references            = $data["taxon_references"];
+        $taxon_synonyms              = $data["taxon_synonyms"];
+        $taxon_dataobject            = $data["taxon_dataobject"];
+        $GLOBALS['taxon_dataobject_agent'] = $data["taxon_dataobject_agent"];
+        $GLOBALS['taxon_dataobject_reference']  = $data["taxon_dataobject_reference"];
+
+        $all_taxa = array();
+        $i = 0;
+        $total = count(array_keys($taxa));
+        $batch = 500; //debug orig 1000
+        $batch_count = 0;
+        foreach($taxa as $taxon)
+        {
+            $i++; print "\n$i of $total " . $taxon["dwc_ScientificName"] . "\n";
+            $taxon_record["taxon"] = $taxon;
+            $taxon_id = $taxon["int_id"];
+            $taxon_record["common_names"] = @$taxon_comnames[$taxon_id];
+            $taxon_record["references"] = @$taxon_references[$taxon_id];
+            $taxon_record["synonyms"] = @$taxon_synonyms[$taxon_id];
+            $taxon_record["dataobjects"] = @$taxon_dataobject[$taxon_id];
+            $arr = self::get_FishBase_taxa($taxon_record);
+            $page_taxa = $arr[0];
+            if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
+            unset($page_taxa);
+            if($i % $batch == 0)
+            {
+                $batch_count++;
+                $xml = \SchemaDocument::get_taxon_xml($all_taxa);
+                $resource_path = $this->TEMP_FILE_PATH . "FB_" . $batch_count . ".xml";
+                $OUT = fopen($resource_path, "w");
+                fwrite($OUT, $xml);
+                fclose($OUT);
+                $all_taxa = array();
+            }
+        }
+        
+        //last batch
+        $batch_count++;
+        $xml = \SchemaDocument::get_taxon_xml($all_taxa);
+        $resource_path = $this->TEMP_FILE_PATH . "FB_" . $batch_count . ".xml";
+        $OUT = fopen($resource_path, "w");
+        fwrite($OUT, $xml);
+        fclose($OUT);
+
+        Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "FB_*.xml");
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+        self::delete_temp_files($this->TEMP_FILE_PATH . "FB_*.xml");
+    }
+
+    function prepare_data()
+    {
+        //taxon
+        $fields = array("TaxonID", "dc_identifier", "dc_source", "dwc_Kingdom", "dwc_Phylum", "dwc_Class", "dwc_Order", "dwc_Family", "dwc_Genus", "dwc_ScientificName", "dcterms_created", "dcterms_modified", "int_id", "ProviderID");
+        $taxon = self::make_array($this->TAXON_PATH, $fields, "", array(0,10,11,13), "");
+
+        //taxon_comnames
+        $fields = array("commonName", "xml_lang", "int_id");
+        $taxon_comnames = self::make_array($this->TAXON_COMNAMES_PATH, $fields, "int_id");
+
+        //taxon_dataobject
+        $fields = array("TaxonID", "dc_identifier", "dataType", "mimeType", "dcterms_created", "dcterms_modified", "dc_title", "dc_language", "license", "dc_rights", "dcterms_bibliographicCitation", "dc_source", "subject", "dc_description", "mediaURL", "thumbnailURL", "location", "xml_lang", "geo_point", "lat", "long", "alt", "timestamp", "int_id", "int_do_id", "dc_rightsHolder");
+        $taxon_dataobject = self::make_array($this->TAXON_DATAOBJECT_PATH, $fields, "int_id", array(0,4,5,7,17,18,19,20,21,22));
+
+        //taxon_dataobject_agent
+        $fields = array("agent", "homepage", "logoURL", "role", "int_do_id", "timestamp");
+        $taxon_dataobject_agent = self::make_array($this->TAXON_DATAOBJECT_AGENT_PATH, $fields, "int_do_id", array(5));
+
+        //taxon_dataobject_reference
+        $fields = array("reference", "bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn", "int_do_id");
+        $taxon_dataobject_reference = self::make_array($this->TAXON_DATAOBJECT_REFERENCE_PATH, $fields, "int_do_id", array(1,2,3,4,5,7,8,9,10,12));
+
+        //taxon_references
+        $fields = array("reference", "bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn", "int_id", "timestamp", "autoctr");
+        $taxon_references = self::make_array($this->TAXON_REFERENCES_PATH, $fields, "int_id", array(1,2,3,4,5,7,8,9,10,12,14,15));
+
+        //taxon_synonyms
+        $fields = array("synonym", "author", "relationship", "int_id", "timestamp", "autoctr");
+        $taxon_synonyms = self::make_array($this->TAXON_SYNONYMS_PATH, $fields, "int_id", array(1,4,5));
+
+        return array("taxon"                        => $taxon, 
+                     "taxon_comnames"               => $taxon_comnames,
+                     "taxon_dataobject"             => $taxon_dataobject,
+                     "taxon_dataobject_agent"       => $taxon_dataobject_agent,
+                     "taxon_dataobject_reference"   => $taxon_dataobject_reference,
+                     "taxon_references"             => $taxon_references,
+                     "taxon_synonyms"               => $taxon_synonyms);
+    }
+
+    function make_array($filename, $fields, $index_key, $excluded_fields=array())
+    {
+        $data = array();
+        $READ = fopen($filename, "r");
+
+        $line = fgets($READ);
+        if(stripos($line, "\t") == "") exit("\n\n Connector terminated. Remote files are not ready.\n\n");
+        
+        $included_fields = array();
+        while(!feof($READ))
+        {
+            if($line = fgets($READ))
+            {
+                $line = trim($line);
+                $values = explode("\t", $line);
+                $i = 0;
+                $temp = array();
+                foreach($fields as $field)
+                {
+                    if(!in_array($i, $excluded_fields))
+                    {
+                        $temp[$field] = @$values[$i];
+                        $included_fields[] = $field;
+                    }
+                    $i++;
+                }
+                $data[] = $temp;
+            }
+        }
+        fclose($READ);
+
+        $included_fields = array_unique($included_fields);
+        if($index_key)
+        {
+            $included_fields = array_unique($included_fields);
+            return self::assign_key_to_table($data, $index_key, $included_fields);
+        }
+        else return $data;
+    }
+
+    function assign_key_to_table($table, $index_key, $included_fields)
+    {
+        $data = array();
+        $included_fields = array_diff($included_fields, array($index_key));
+        foreach($table as $record)
+        {
+            $index_value = $record["$index_key"];
+            $temp = array();
+            foreach($included_fields as $field)
+            {
+                $temp[$field] = $record[$field];
+            }
+            $data[$index_value][] = $temp;
+        }
+        return $data;
+    }
+
+    public static function get_FishBase_taxa($taxon_record)
+    {
+        $response = self::parse_xml($taxon_record);//this will output the raw (but structured) array
+        $page_taxa = array();
+        foreach($response as $rec)
+        {
+            $taxon = Functions::prepare_taxon_params($rec);
+            if($taxon) $page_taxa[] = $taxon;
+        }
+        return array($page_taxa);
+    }
+
+    function parse_xml($taxon_record)
+    {
+        $arr_data = array();
+        $arr_objects = array();
+        $arr_objects = self::get_images($taxon_record['dataobjects'], $arr_objects);
+        $refs = self::get_references($taxon_record['references']);
+        $synonyms = self::get_synonyms($taxon_record['synonyms']);
+        $common_names = self::get_common_names($taxon_record['common_names']);
+        $arr_data[] = array("identifier"   => $taxon_record['taxon']['dc_identifier'],
+                            "source"       => $taxon_record['taxon']['dc_source'],
+                            "kingdom"      => $taxon_record['taxon']['dwc_Kingdom'],
+                            "phylum"       => $taxon_record['taxon']['dwc_Phylum'],
+                            "class"        => $taxon_record['taxon']['dwc_Class'],
+                            "order"        => $taxon_record['taxon']['dwc_Order'],
+                            "family"       => utf8_encode($taxon_record['taxon']['dwc_Family']),
+                            "genus"        => utf8_encode($taxon_record['taxon']['dwc_Genus']),
+                            "sciname"      => utf8_encode($taxon_record['taxon']['dwc_ScientificName']),
+                            "reference"    => $refs, // formerly taxon_refs
+                            "synonyms"     => $synonyms,
+                            "commonNames"  => $common_names,
+                            "data_objects" => $arr_objects
+                           );
+        return $arr_data;
+    }
+
+    function get_images($dataobjects, $arr_objects)
+    {
+        /*
+        [] => FB-Diseases-2-19
+        [] => http://purl.org/dc/dcmitype/Text
+        [] => text/html
+        [] => 
+        [dc_language] => \N
+        [] => http://creativecommons.org/licenses/by-nc/3.0/
+        [dc_rights] => 
+        [dcterms_bibliographicCitation] => \N
+        [] => http://www.fishbase.org/Diseases/diseasesList.cfm?ID=2&StockCode=1
+        [] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Diseases
+        [] => Fish louse Infestation 1. Parasitic infestations (protozoa, worms, etc.)
+        [] => 
+        [thumbnailURL] => 
+        [] => 
+        [int_do_id] => 38
+        */
+        
+        foreach($dataobjects as $rec)
+        {
+            $agent = array();
+            foreach($GLOBALS['taxon_dataobject_agent'][$rec['int_do_id']] as $person)
+            {
+                if(trim($person['agent']) != "") $agent[] = array("role" => $person['role'], "homepage" => $person['homepage'], "fullName" => $person['agent']);
+            }
+            $refs = self::get_references(@$GLOBALS['taxon_dataobject_reference'][$rec['int_do_id']]);
+            $identifier     = $rec['dc_identifier'];
+            $description    = utf8_encode($rec['dc_description']);
+            $license        = $rec['license'];
+            $agent          = $agent;
+            $rightsHolder   = $rec['dc_rightsHolder'];
+            $rights         = $rec['dc_rights'];
+            $location       = utf8_encode($rec['location']);
+            $dataType       = $rec['dataType'];
+            $mimeType       = $rec['mimeType'];
+            $title          = $rec['dc_title'];
+            $subject        = $rec['subject'];
+            $source         = $rec['dc_source'];
+            $mediaURL       = $rec['mediaURL'];
+            $refs           = $refs;
+            $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rights, $rightsHolder, $refs, $subject, $arr_objects);
+        }
+        return $arr_objects;
+    }
+
+    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rights, $rightsHolder, $refs, $subject, $arr_objects)
+    {
+        $arr_objects[]=array( "identifier"   => $identifier,
+                              "dataType"     => $dataType,
+                              "mimeType"     => $mimeType,
+                              "title"        => $title,
+                              "source"       => $source,
+                              "description"  => $description,
+                              "mediaURL"     => $mediaURL,
+                              "agent"        => $agent,
+                              "license"      => $license,
+                              "location"     => $location,
+                              "rights"       => $rights,
+                              "rightsHolder" => $rightsHolder,
+                              "reference"    => $refs,
+                              "subject"      => $subject,
+                              "language"     => "en"
+                            );
+        return $arr_objects;
+    }
+
+    function get_references($references)
+    {
+        $refs = array();
+        if($references)
+        {
+            foreach($references as $reference) $refs[] = array("url" => $reference['url'], "fullReference" => utf8_encode($reference['reference']));
+        }
+        return $refs;
+    }
+
+    function get_synonyms($synonyms)
+    {
+        $arr_synonyms = array();
+        if($synonyms) 
+        {
+            foreach($synonyms as $name) $arr_synonyms[] = array("synonym" => utf8_encode($name['synonym']), "relationship" => $name['relationship']);
+        }
+        return $arr_synonyms;
+    }
+
+    function get_common_names($names)
+    {
+        $arr_names = array();
+        if($names) 
+        {
+            foreach($names as $name) $arr_names[] = array("name" => utf8_encode($name['commonName']), "language" => $name['xml_lang']);
+        }
+        return $arr_names;
+    }
+
+    function delete_temp_files($files)
+    {
+        foreach (glob($files) as $filename)
+        {
+           unlink($filename);
+        }
+    }
+
+}
+?>
