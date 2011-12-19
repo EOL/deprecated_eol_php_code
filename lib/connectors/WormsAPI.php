@@ -130,19 +130,13 @@ class WormsAPI
         return false;
     }
     
-    function format_number($num)
-    {
-        if($num < 10) return substr(strval($num/100), 2, 2);
-        else          return strval($num);
-    }
-
     private function generate_url_list($urls)
     {
         $year = date("Y");
         for ($month = 1; $month <= date("n"); $month++)
         {
-            $start_date = $year . self::format_number($month) . "01";
-            $end_date = $year . self::format_number($month) . "31";
+            $start_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "01";
+            $end_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "31";
             $urls[] = WORMS_ID_LIST_API . "&startdate=" . $start_date . "&enddate=" . $end_date;
         }
         return $urls;
@@ -152,6 +146,7 @@ class WormsAPI
     {
         $urls = array();
         //$urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2011_small.xml"; //for debug
+
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2007.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
@@ -179,7 +174,7 @@ class WormsAPI
                 while (!feof($file_handle)) $content .= fgets($file_handle);
                 fclose($file_handle);
                 $file_ctr++;
-                $file_ctr_str = self::format_number($file_ctr);
+                $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
                 $OUT = fopen($this->TEMP_FILE_PATH . "xmlcontent_" . $file_ctr_str . ".xml", "w");
                 fwrite($OUT, $content);
                 fclose($OUT);
@@ -238,7 +233,7 @@ class WormsAPI
             if($i == $divisor)//no. of names per text file
             {
                 $file_ctr++;
-                $file_ctr_str = self::format_number($file_ctr);
+                $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
                 $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
                 fwrite($OUT, $str);
                 fclose($OUT);
@@ -250,7 +245,7 @@ class WormsAPI
         if($str)
         {
             $file_ctr++;
-            $file_ctr_str = self::format_number($file_ctr);
+            $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
             $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
             fwrite($OUT, $str);
             fclose($OUT);
@@ -258,7 +253,7 @@ class WormsAPI
 
         //create work_list
         $str = "";
-        FOR($i = 1; $i <= $file_ctr; $i++) $str .= "batch_" . self::format_number($i) . "\n";
+        FOR($i = 1; $i <= $file_ctr; $i++) $str .= "batch_" . Functions::format_number_with_leading_zeros($i, 3) . "\n";
         $filename = $this->WORK_LIST;
         if($OUT = fopen($filename, "w"))
         {
@@ -269,26 +264,9 @@ class WormsAPI
 
     function delete_temp_files($file_path, $file_extension = '*')
     {
-        $i = 0;
         foreach (glob($file_path . "*." . $file_extension) as $filename)
         {
            unlink($filename);
-        }
-
-
-
-        return;
-        while(true)
-        {
-            $i++;
-            $i_str = self::format_number($i);
-            $filename = $file_path . $i_str . "." . $file_extension;
-            if(file_exists($filename))
-            {
-                print "\n unlink: $filename";
-                unlink($filename);
-            }
-            else return;
         }
     }
 
@@ -321,7 +299,7 @@ class WormsAPI
         while(true)
         {
             $i++;
-            $i_str = self::format_number($i);
+            $i_str = Functions::format_number_with_leading_zeros($i, 3);
             
             $filename = $this->TEMP_FILE_PATH . "temp_worms_" . "batch_" . $i_str . ".xml";
             
