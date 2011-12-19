@@ -130,9 +130,9 @@ class WormsAPI
         return false;
     }
     
-    private function generate_url_list($urls)
+    private function generate_url_list($urls, $year = 0)
     {
-        $year = date("Y");
+        if($year == 0) $year = date("Y");
         for ($month = 1; $month <= date("n"); $month++)
         {
             $start_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "01";
@@ -154,6 +154,9 @@ class WormsAPI
 
         //append current year
         $urls = self::generate_url_list($urls);
+
+        //append respective year
+        //$urls = self::generate_url_list($urls, 2010);
 
         /* debug
         $r = array();
@@ -214,6 +217,15 @@ class WormsAPI
         $r[] = $ids[8];
         $r[] = $ids[9];
         $ids = $r;
+        */
+
+        /*debug: to be used when searching for an id
+        foreach(array(582008, 582009, 582010) as $id)
+        {
+            if(in_array($id, $ids)) print "\n $id found";
+            else print "\n $id not found";
+        }
+        exit;
         */
         
         return $ids;

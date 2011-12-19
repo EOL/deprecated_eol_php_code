@@ -287,7 +287,7 @@ class TropicosAPI
                           "family"       => @$taxonomy['family'],
                           "genus"        => @$taxonomy['genus'],
                           "sciname"      => $name['ScientificNameWithAuthors'],
-                          "taxon_refs"   => $arr_taxon_ref,
+                          "reference"    => $arr_taxon_ref,
                           "synonyms"     => $arr_synonyms,
                           "commonNames"  => array(),
                           "data_objects" => $arr_objects

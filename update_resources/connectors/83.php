@@ -27,9 +27,12 @@ $excluded_MorphBank_IDs = prepare_excluded_ids();
 
 if($url_list_of_image_ids)
 {
-    print "\n [$url_list_of_image_ids] \n";
-    if(!$image_id_xml = Functions::get_hashed_response($url_list_of_image_ids)) continue;
-    foreach($image_id_xml->id as $id) $image_ids[] = $id;    
+    print "\n [url_list_of_image_ids: $url_list_of_image_ids] \n";
+    $image_id_xml = Functions::get_hashed_response($url_list_of_image_ids);
+    if($image_id_xml) 
+    {
+        foreach($image_id_xml->id as $id) $image_ids[] = $id;    
+    }
 }
 
 $total_image_ids = count($image_ids);
@@ -40,6 +43,7 @@ $k = 0;
 foreach($image_ids as $image_id)
 {
     $k++;
+    if($k % 1000 == 0) sleep(120); // might need this as MorphBank service chokes on continues request. They have not yet solved this problem. Service still chokes.
     print "\n $image_id [$k of $total_image_ids]";
     print "\n " . $details_method_prefix . $image_id . " \n";
     if(!$xml = Functions::get_hashed_response($details_method_prefix . $image_id)) continue;
