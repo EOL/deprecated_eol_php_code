@@ -4,29 +4,34 @@ namespace php_active_record;
 class EMBLreptiles
 {
     const TAXON_SOURCE_URL = "http://reptile-database.reptarium.cz/species?";
-
     public static function get_all_taxa()
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $source_data = DOC_ROOT . "update_resources/connectors/files/EMBL/reptile_DB_small.xls";
+        $source_data = DOC_ROOT . "update_resources/connectors/files/EMBL/reptile_DB_small.xls"; // use this when testing
         $source_data = DOC_ROOT . "update_resources/connectors/files/EMBL/reptile_DB.xls";
+        $references = DOC_ROOT . "update_resources/connectors/files/EMBL/references.xls";
+        $taxon_ref = DOC_ROOT . "update_resources/connectors/files/EMBL/taxon_references.xls";
+
         require_library('XLSParser');
         $parser = new XLSParser();
         $taxa = $parser->prepare_data($parser->convert_sheet_to_array($source_data), "single",
             "Species", "Species", "Author", "Year", "Family", "Comments", "Common_name", "Continent", "CurrentURL",
             "Distribution", "links", "References", "Subspecies", "Synonyms", "types", "URLcount");
+
+        $taxon_ref = $parser->prepare_data($parser->convert_sheet_to_array($taxon_ref), "single", "Species", "RefNumbers");
+        $GLOBALS['references'] = $parser->prepare_data($parser->convert_sheet_to_array($references), "single", "refnum", "author", "year", "title", "source");
+
         $i = 0;
         $total = sizeof($taxa);
         foreach($taxa as $taxon)
         {
             $i++;
-
             $sciname = @$taxon["Species"];
+            $taxon["ref_numbers"] = $taxon_ref[$sciname]["RefNumbers"];
             if($taxon["Author"]) $sciname .= " " . $taxon["Author"];
             if($taxon["Year"]) $sciname .= " " . $taxon["Year"];
             $taxon["id"] = str_ireplace(" ", "_", $sciname);
-
             print "\n $i of $total";
             $arr = self::get_embl_taxa($taxon, $used_collection_ids);
             $page_taxa               = $arr[0];
@@ -38,12 +43,19 @@ class EMBLreptiles
 
     private function get_references($refs)
     {
-        $refs = explode("\n", $refs);
+        $ref_ids = explode("\n", $refs);
         $references = array();
-        foreach($refs as $ref)
+        foreach($ref_ids as $ref_id)
         { 
-            $ref = str_ireplace("--> ", "", $ref);
-            $references[] = array("fullReference" => $ref);
+            if(@$GLOBALS['references'][$ref_id]['author'])
+            {
+                $ref = $GLOBALS['references'][$ref_id]['author'] . ". ";
+                $ref .= $GLOBALS['references'][$ref_id]['year'] . ". ";
+                $ref .= $GLOBALS['references'][$ref_id]['title'] . ". ";
+                $ref .= $GLOBALS['references'][$ref_id]['source'] . ".";
+                $ref = str_replace("..", ".", $ref);
+                $references[] = array("fullReference" => $ref);
+            }
         }
         return $references;
     }
@@ -95,7 +107,6 @@ class EMBLreptiles
         $arr_data = array();
         $arr_objects = array();
         if($taxon["Distribution"]) $arr_objects[] = self::prepare_text_objects($taxon);
-        //if(sizeof($arr_objects)) We should get all taxa, not just those with text.
         if(1 == 1)
         {
             $sciname = @$taxon["Species"];
@@ -106,7 +117,7 @@ class EMBLreptiles
             $species = trim(substr($taxon["Species"], $pos, strlen($taxon["Species"])));
             $families = explode(",", $taxon["Family"]);
             $family = $families[0];
-            $arr_data[]=array(  "identifier"   => "rdb_" . $taxon_id,
+            $arr_data[] = array("identifier"   => "rdb_" . $taxon_id,
                                 "source"       => self::TAXON_SOURCE_URL . "genus=$genus&species=$species",
                                 "kingdom"      => "",
                                 "phylum"       => "",
@@ -115,7 +126,7 @@ class EMBLreptiles
                                 "family"       => $family,
                                 "genus"        => $genus,
                                 "sciname"      => $sciname,
-                                "reference"    => self::get_references($taxon["References"]),
+                                "reference"    => self::get_references($taxon["ref_numbers"]),
                                 "synonyms"     => self::get_synonyms($taxon["Synonyms"]),
                                 "commonNames"  => self::get_vernacular_names($taxon["Common_name"]),
                                 "data_objects" => $arr_objects
@@ -130,7 +141,6 @@ class EMBLreptiles
         if($taxon["Continent"]) $description .= "Continent: " . $taxon["Continent"] . "<br>";
         if($taxon["Distribution"]) $description .= "Distribution: " . $taxon["Distribution"];
         $description = str_ireplace("Type locality:", "<br>Type locality:", $description);
-
         $identifier    = $taxon["id"] . "_distribution";
         $mimeType      = "text/html";
         $dataType      = "http://purl.org/dc/dcmitype/Text";
@@ -140,14 +150,12 @@ class EMBLreptiles
         $location      = "";
         $license       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $rightsHolder  = "Peter Uetz";
-        //$source        = $taxon["CurrentURL"];
         $source        = "";
         $refs          = array();
         $agent         = self::get_agents($taxon);
         $created       = "";
         $modified      = "";
         $language      = "en";
-        
         return self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $modified, $created, $language);
     }
 

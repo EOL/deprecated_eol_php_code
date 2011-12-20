@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector for EMBLreptiles
 SPG bought their CD. BIG exports their data from the CD to a spreadsheet.
 This connector processes the spreadsheet.
-estimated execution time: 3.8 minutes
+Estimated execution time: 6 minutes
 
 bad char in <dc:description>:
 <dc:identifier>rdb_Agama_finchi_BÖHME,_WAGNER,_MALONZA,_LÖTTERS_&amp;_KÖHLER_2005</dc:identifier>
