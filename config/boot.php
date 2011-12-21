@@ -113,7 +113,7 @@ define('LOWER','a-záááàâåãäăæčćçéèêëĕíìîïǐĭñńóòôø�
 /* file downloads should be throttled by adding delays */
 if(!defined('DOWNLOAD_WAIT_TIME')) define('DOWNLOAD_WAIT_TIME', '300000'); //.3 seconds
 define('DOWNLOAD_ATTEMPTS', '2');
-define('DOWNLOAD_TIMEOUT_SECONDS', '0');
+define('DOWNLOAD_TIMEOUT_SECONDS', '10');
 
 // sets a static start time to base later comparisons on
 php_active_record\time_elapsed();
