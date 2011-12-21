@@ -320,7 +320,7 @@ class Resource extends ActiveRecord
                     $hierarchy = Hierarchy::find($this->hierarchy_id);
                     CompareHierarchies::process_hierarchy($hierarchy, null, true);
                     
-                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id, true);
                 }
                 
                 // $harvest_event->insert_top_images();
@@ -413,7 +413,7 @@ class Resource extends ActiveRecord
                     
                     // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
                     CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id);
+                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id, true);
                     
                     $this->harvest_event->create_collection();
                 }
@@ -819,7 +819,7 @@ class Resource extends ActiveRecord
             CompareHierarchies::process_hierarchy($archive_hierarchy, null, true);
             
             // Use the entry relationships to assign the proper concept IDs
-            CompareHierarchies::begin_concept_assignment($archive_hierarchy_id);
+            CompareHierarchies::begin_concept_assignment($archive_hierarchy_id, true);
             
             // this means the resource already had a hierarchy - and we just inserted one to take its place, so
             // we now need to update resources to point to the new one now that its ready

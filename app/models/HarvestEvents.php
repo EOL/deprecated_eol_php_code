@@ -250,7 +250,7 @@ class HarvestEvent extends ActiveRecord
         $data_object_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $data_object_ids[] = $row[0];
         print_r($data_object_ids);
-        $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
+        if($data_object_ids) $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
         
         $object_indexer = new DataObjectAncestriesIndexer();
         $object_indexer->index_objects($data_object_ids);
@@ -260,7 +260,7 @@ class HarvestEvent extends ActiveRecord
         $taxon_concept_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $taxon_concept_ids[] = $row[0];
         print_r($taxon_concept_ids);
-        $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
+        if($taxon_concept_ids) $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
     }
     
     public function create_collection()

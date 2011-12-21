@@ -35,7 +35,10 @@ class CompareHierarchies
             $GLOBALS['hierarchy_ids_with_good_synonymies'][627] = 1; // ITIS
             $GLOBALS['hierarchy_ids_with_good_synonymies'][759] = 1; // NCBI
             $GLOBALS['hierarchy_ids_with_good_synonymies'][123] = 1; // WORMS
-            // $GLOBALS['hierarchy_ids_with_good_synonymies'][771] = 1; // COL
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][771] = 1; // COL 2011
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][787] = 1; // ReptileDB
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][622] = 1; // IUCN
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][636] = 1; // Tropicos
         }
     }
     
