@@ -3,62 +3,64 @@ namespace php_active_record;
 /* connector: 212 */
 /* Connector uses BOLDS API service for most of the info but still scrapes the nucleotides sequence - for species level taxa */
 
-exit;
-/*
-Cannot run. The ['barcode_image_url'] was removed from the API service from BOLDS. 
-We need to ask them to bring it back or at least tell us the replacement.
-*/
-
 define("PHYLUM_SERVICE_URL", "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
 define("SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxid=");
 
 class BOLDSysAPI
 {
     private static $PHYLUM_LIST;
+    public function __construct() 
+    {           
+        $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
+        $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_list.txt"; //sl - species-level taxa
+        $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_in_progress_list.txt";
+        $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_initial_process_status.txt";
+        $this->LOG_FILE               = DOC_ROOT . "/update_resources/connectors/files/BOLD/cannot_access_phylum.txt";
+    }
 
-    private static $TEMP_FILE_PATH;
-    private static $WORK_LIST;
-    private static $WORK_IN_PROGRESS_LIST;
-    private static $INITIAL_PROCESS_STATUS;
+    function initialize_text_files()
+    {
+        $f = fopen($this->WORK_LIST, "w"); fclose($f);
+        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
+        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        //this is not needed but just to have a clean directory
+        self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml");
+        self::initialize_text_file();
+    }
 
     function start_process($resource_id, $call_multiple_instance)
     {
         require_library('connectors/BoldsAPI');
-        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
-        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_list.txt"; //sl - species-level taxa
-        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_in_progress_list.txt";
-        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_initial_process_status.txt";
-
         self::$PHYLUM_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/phylum_list.txt";
-
-        if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
+        if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
-            if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
+            if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
             {
                 // Divide the big list of ids into small files
-                Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
                 self::create_master_list();
-                Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
         // Run multiple instances
         while(true)
         {
-            $task = Functions::get_a_task(self::$WORK_LIST);//get a task to work on
+            $task = Functions::get_a_task($this->WORK_LIST);//get a task to work on
             if($task)
             {
                 print "\n Process this: $task";
-                Functions::delete_a_task($task, self::$WORK_LIST);
-                Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
+                Functions::delete_a_task($task, $this->WORK_LIST);
+                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                // if($call_multiple_instance)
-                // {
-                //     Functions::run_another_connector_instance($resource_id, 2); //call 2 other instance for a total of 3 instances running
-                //     $call_multiple_instance = 0;
-                // }
+                if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
+                {
+                    Functions::run_another_connector_instance($resource_id, 5);
+                    $call_multiple_instance = 0;
+                }
                 self::get_all_taxa($task);
                 print "\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST); //remove a task from task list
+                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
             }
             else
             {
@@ -66,38 +68,23 @@ class BOLDSysAPI
                 break;
             }
         }
-        if(!$task = trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
+        if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Combine all XML files.
-            self::combine_all_xmls($resource_id);
+            Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "sl_batch_*.xml");
             // Set to force harvest
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // Delete temp files
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "sl_batch_", "txt");
-            //self::delete_temp_files(self::$TEMP_FILE_PATH . "sl_batch_", "xml"); //debug Don't delete it if you want to check subsets of the resource XML.
+            self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml"); //debug Don't delete it if you want to check subsets of the resource XML.
         }
-    }
-
-    function save_to_json_file($arr, $filename)
-    {
-        $WRITE = fopen($filename, "w");
-        fwrite($WRITE, json_encode($arr));
-        fclose($WRITE);
-    }
-
-    function get_array_from_json_file($filename)
-    {
-        $READ = fopen($filename, "r");
-        $contents = fread($READ, filesize($filename));
-        fclose($READ);
-        return json_decode($contents,true);
     }
 
     private function get_all_taxa($task)
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $filename = self::$TEMP_FILE_PATH . $task . ".txt";
+        $filename = $this->TEMP_FILE_PATH . $task . ".txt";
         $records = self::get_array_from_json_file($filename);
         $num_rows = sizeof($records); $i = 0;
         foreach($records as $rec)
@@ -111,7 +98,8 @@ class BOLDSysAPI
             unset($page_taxa);
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
-        $resource_path = self::$TEMP_FILE_PATH . $task . ".xml";
+        $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
+        $resource_path = $this->TEMP_FILE_PATH . $task . ".xml";
         $OUT = fopen($resource_path, "w"); 
         fwrite($OUT, $xml); 
         fclose($OUT);
@@ -148,8 +136,10 @@ class BOLDSysAPI
         $arr = self::get_taxon_id($rec);
         $taxon_id = $arr[0];
         $sciname  = $arr[1];
-        //start data objects //----------------------------------------------------------------------------------------
+ 
+        //start data objects
         $arr_objects = array();
+ 
         //barcode stats
         $bold_stats = "";
         if(isset($rec['stats']['public_barcodes'])) $bold_stats .= "Public Records: " . $rec['stats']['public_barcodes'] . "<br>";
@@ -175,7 +165,6 @@ class BOLDSysAPI
         if($bold_stats != "<br>") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         
         //barcode image
-        
         if(isset($rec['barcode_image_url']))
         {
             $identifier  = $taxon_id . "_barcode_data";
@@ -183,26 +172,32 @@ class BOLDSysAPI
             $title       = "Barcode data";
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
-            $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.<br>
-            <a target='barcode' href='".$rec['barcode_image_url']."'><img src='http://".$rec['barcode_image_url']."' height=''></a>";
-
-            //require_library('connectors/BoldsAPI');
             $description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true);
-
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }
+
         //map
         if(isset($rec['map_url']))
         {
+            /*
             $identifier  = $taxon_id . "_map";
             $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";
             $title       = "Locations of barcode samples";            
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
             $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img border='0' src='".$rec['map_url']."'>";                
+            */
+            $identifier  = $taxon_id . "_map";
+            $dataType    = "http://purl.org/dc/dcmitype/StillImage"; 
+            $mimeType    = "image/png";
+            $title       = "BOLDS: Map of specimen collection locations for <i>" . $sciname . "</i>";            
+            $source      = SPECIES_URL . trim($taxon_id);
+            $mediaURL    = $rec['map_url'];
+            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i>";                
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }            
-        //end data objects //----------------------------------------------------------------------------------------
+        //end data objects
+        
         $phylum = ""; $class = ""; $order = ""; $family = ""; $genus = ""; $species = "";
         if(isset($rec['taxonomy']['phylum']['taxon']['name']))   $phylum = $rec['taxonomy']['phylum']['taxon']['name'];
         if(isset($rec['taxonomy']['class']['taxon']['name']))    $class = $rec['taxonomy']['class']['taxon']['name'];
@@ -240,21 +235,9 @@ class BOLDSysAPI
                     );
     }
 
-    private function delete_temp_files($file_path, $file_extension)
+    function delete_temp_files($file_path, $file_extension = '*')
     {
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = $file_path . $i_str . "." . $file_extension;
-            if(file_exists($filename))
-            {
-                print "\n unlink: $filename";
-                unlink($filename);
-            }
-            else return;
-        }
+        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
     private function create_master_list()
@@ -322,15 +305,6 @@ class BOLDSysAPI
         //$arr_phylum[] = array( "name" => "Chordata" , "id" => 18);
         $arr_phylum[] = array( "name" => "Annelida"       , "id" => 11);
         */
-        /* not needed anymore
-        if($fp = fopen(self::$PHYLUM_LIST, "w")) 
-        foreach($arr_phylum as $phylum)
-        {
-            fwrite($fp, $phylum["name"] . "\t" . $phylum["id"] . "\n"); 
-            print "$phylum[name] $phylum[id] \n";
-        }
-        fclose($fp);
-        */
 
         self::count_taxa_per_phylum($arr_phylum);
     }
@@ -344,82 +318,82 @@ class BOLDSysAPI
         foreach($arr_phylum as $phylum)
         {
             $p++;
-            $xml = Functions::get_hashed_response(PHYLUM_SERVICE_URL . $phylum['name']);
-            $num_rows = sizeof($xml->record);
-            print"\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [$num_rows] ";
-
-            $i = 0;
-            foreach($xml->record as $rec)
+            //if($xml = Functions::get_hashed_response(PHYLUM_SERVICE_URL . $phylum['name']))
+            /* I used simplexml_load_file() instead of Functions::get_hashed_response because I can't overwrite the DOWNLOAD_TIMEOUT_SECONDS which was definedin boot.php.
+               Some of the XML files being loaded needs more time.
+            */
+            if($xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']))
             {
-                $i++; print"\n -- [$i of $num_rows] ";
-                print $rec['taxonomy']['species']['taxon']['name'];
-                $records[] = $rec;
-                if(sizeof($records) >= 10000) //debug orig 10000
+                $num_rows = sizeof($xml->record);
+                print"\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [$num_rows] ";
+                $i = 0;
+                foreach($xml->record as $rec)
                 {
-                    $file_count++;
-                    self::save_to_json_file($records, self::$TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
-                    $records = array();
+                    $i++; 
+                    print $rec['taxonomy']['species']['taxon']['name'];
+                    $records[] = $rec;
+                    if(sizeof($records) >= 10000) //debug orig divide into batch of 10000
+                    {
+                        $file_count++;
+                        self::save_to_json_file($records, $this->TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
+                        $records = array();
+                    }
+                    //if($i >= 20) break; //debug
                 }
             }
+            else
+            {
+                print "\n\n Cannot access: " . PHYLUM_SERVICE_URL . $phylum['name'];
+                self::log_cannot_access_phylum(PHYLUM_SERVICE_URL . $phylum['name']);
+            }
+            sleep(10);
         }
         //last save
         if($records)
         {
             $file_count++;
-            self::save_to_json_file($records, self::$TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
+            self::save_to_json_file($records, $this->TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
         }
         //create work_list
         $str = "";
         for($i = 1; $i <= $file_count; $i++) $str .= "sl_batch_" . Functions::format_number_with_leading_zeros($i, 3) . "\n";
-        if($fp = fopen(self::$WORK_LIST, "w"))
+        if($fp = fopen($this->WORK_LIST, "w"))
         {
             fwrite($fp, $str);
             fclose($fp);
         }
     }
 
-    private function combine_all_xmls($resource_id)
+    private function initialize_text_file()
     {
-        print "\n\n Start compiling all XML...\n";
-        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-        $OUT = fopen($old_resource_path, "w");
-        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
-        $str .= "<response\n";
-        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
-        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
-        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
-        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
-        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
-        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
-        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
-        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
-        fwrite($OUT, $str);
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = self::$TEMP_FILE_PATH . "sl_batch_" . $i_str . ".xml";
-            if(!is_file($filename))
-            {
-                print " -end compiling XML's- ";
-                break;
-            }
-            print " $i ";
-            $READ = fopen($filename, "r");
-            $contents = fread($READ, filesize($filename));
-            fclose($READ);
-            if($contents)
-            {
-                $pos1 = stripos($contents, "<taxon>");
-                $pos2 = stripos($contents, "</response>");
-                $str  = substr($contents, $pos1, $pos2 - $pos1);
-                fwrite($OUT, $str);
-            }
-        }
-        fwrite($OUT, "</response>");
+        $OUT = fopen($this->LOG_FILE, "a");
+        fwrite($OUT, "===================" . "\n");
+        fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fclose($OUT);
-        print "\n All XML compiled\n\n";
+    }
+
+    function log_cannot_access_phylum($line)
+    {
+        if($fp = fopen($this->LOG_FILE, "a"))
+        {
+            fwrite($fp, $line. "\n");
+            fclose($fp);
+        }
+    }
+
+    function save_to_json_file($arr, $filename)
+    {
+        $WRITE = fopen($filename, "w");
+        fwrite($WRITE, json_encode($arr));
+        fclose($WRITE);
+    }
+
+    function get_array_from_json_file($filename)
+    {
+        $READ = fopen($filename, "r");
+        $contents = fread($READ, filesize($filename));
+        fclose($READ);
+        return json_decode($contents,true);
     }
 
 }
