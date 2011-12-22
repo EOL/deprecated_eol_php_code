@@ -97,96 +97,6 @@ class Tasks
         $mysqli->end_transaction();
     }
     
-    public static function compare_hierarchies($hierarchy_id, $compare_to_hierarchy_id, $complete_hierarchy = true)
-    {
-        if(!$hierarchy_id) return false;
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $mysqli->begin_transaction();
-        
-        $result = $mysqli->query("SELECT id, taxon_concept_id, ancestry FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id AND taxon_concept_id>1299534");
-        //$result = $mysqli->query("SELECT id, taxon_concept_id, ancestry FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id AND id=16098160");
-        //$result = $mysqli->query("SELECT id, taxon_concept_id, ancestry FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id AND id=20192318");
-        //$result = $mysqli->query("SELECT id, taxon_concept_id, ancestry FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id AND taxon_concept_id=2202401");
-        
-        
-        //$result = $mysqli->query("SELECT id, taxon_concept_id, ancestry FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id AND id>=26000000 AND id<26400000");
-        
-        
-        $i = 0;
-        while($result && $row=$result->fetch_assoc())
-        {
-            if($i%1000==0) echo "$i: ".Functions::time_elapsed().": ".memory_get_usage()."\n";
-            $i++;
-            
-            $id = $row["id"];
-            $taxon_concept_id = $row["taxon_concept_id"];
-            $ancestry = $row["ancestry"];
-            if(preg_match("/^1769426(\||$)/", $ancestry)) continue;
-            
-            if($i%100==0) debug("NOW COMPARING: $id - ".Functions::time_elapsed());
-            
-            $concept1 = TaxonConcept::find($taxon_concept_id);
-            $entry1 = HierarchyEntry::find($id);
-            
-            if(!array_diff($concept1->name_ids(), Name::unassigned_ids())) continue;
-            
-            $result2 = $mysqli->query("SELECT id FROM hierarchy_entries WHERE taxon_concept_id=$concept1->id AND he.hierarchy_id=$compare_to_hierarchy_id");
-            if($result2 && $row2=$result2->fetch_assoc()) continue;
-            
-            if($canonical_form_id = $entry1->name->canonical_form_id) $result2 = $mysqli->query("(SELECT DISTINCT he.taxon_concept_id FROM names n JOIN hierarchy_entries he ON n.id=he.name_id WHERE n.canonical_form_id=$canonical_form_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id) UNION DISTINCT (SELECT DISTINCT he.taxon_concept_id FROM names n JOIN synonyms s ON (n.id=s.name_id) JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) WHERE n.canonical_form_id=$canonical_form_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id)");
-            else $result2 = $mysqli->query("(SELECT DISTINCT he.taxon_concept_id FROM hierarchy_entries he WHERE he.name_id=$entry1->name_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id) UNION DISTINCT (SELECT DISTINCT he.taxon_concept_id FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) WHERE s.name_id=$entry1->name_id AND he.hierarchy_id=$compare_to_hierarchy_id AND he.id!=$id)");
-            
-            if(!($result2 && $result2->num_rows)) continue;
-            
-            
-            $hierarchy_entries1 = $concept1->mock_hierarchy_entries();
-            $all_names1 = $concept1->mock_all_names();
-            $max_score = 0;
-            $max_score_id = 0;
-            
-            while($result2 && $row2=$result2->fetch_assoc())
-            {
-                $concept2 = TaxonConcept::find($row2["taxon_concept_id"]);
-                
-                if($concept1->id == $concept2->id) continue;
-                if(!array_diff($concept2->name_ids(), Name::unassigned_ids())) continue;
-                
-                $hierarchy_entries2 = $concept2->mock_hierarchy_entries();
-                $all_names2 = $concept2->mock_all_names();
-                
-                $score = NamesFunctions::compare_taxon_concepts($concept1, $hierarchy_entries1, $all_names1, $concept2, $hierarchy_entries2, $all_names2, $complete_hierarchy);
-                
-                $mysqli->insert("INSERT INTO taxon_concept_relationships VALUES ($concept1->id, $concept2->id, '', $score, '')");
-                $mysqli->insert("INSERT INTO taxon_concept_relationships VALUES ($concept2->id, $concept1->id, '', $score, '')");
-                
-                if($score > $max_score)
-                {
-                    $max_score = $score;
-                    $max_score_id = $concept2->id;
-                }
-                
-                unset($concept2);
-                unset($hierarchy_entries2);
-                unset($all_names2);
-            }
-            if($result2 && $result2->num_rows) $result2->free();
-            
-            if($max_score >= MATCH_SCORE_THRESHOLD)
-            {
-                TaxonConcept::supercede_by_ids($concept1->id, $max_score_id);
-                //self::update_taxon_concept_names(min($concept1->id, $concept2->id));
-            }
-            
-            unset($entry1);
-            unset($concept1);
-            unset($hierarchy_entries1);
-            unset($all_names1);
-        }
-        if($result && $result->num_rows) $result->free();
-        $mysqli->end_transaction();
-    }
-    
     public static function update_taxon_concept_names($taxon_concept_id)
     {
         if(!$taxon_concept_id) return false;
@@ -230,7 +140,6 @@ class Tasks
             $matching_ids[$name_id][$id] = $type;
             $hierarchy_entry_ids[$id] = 1;
         }
-        //$result->free();
         
         if($name_ids)
         {
@@ -244,9 +153,8 @@ class Tasks
                 $name_ids[$row["id"]] = 1;
             }
         }
-        //$result->free();
         
-        $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern!=1");
+        $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id");
         
         /* Insert the scientific names */
         foreach($matching_ids as $name_id => $arr)
@@ -264,87 +172,64 @@ class Tasks
         
         
         
+        /*
+        SELECT he.published, he.visibility, s.id, s.hierarchy_entry_id, s.name_id, s.language_id, s.preferred, s.vetted_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=206776 AND s.language_id!=0 AND (s.synonym_relation_id=9 OR s.synonym_relation_id=2)
+        */
+        
+        $common_names = array();
+        $curator_preferreds = array();
+        $preferreds = array();
+        $result = $mysqli->query("SELECT he.published, he.visibility_id, s.id, s.hierarchy_id, s.hierarchy_entry_id, s.name_id, s.language_id, s.preferred, s.vetted_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id!=0 AND (s.synonym_relation_id=".SynonymRelation::genbank_common_name()->id." OR s.synonym_relation_id=".SynonymRelation::common_name()->id.") ORDER BY s.id DESC");
+        while($result && $row=$result->fetch_assoc())
+        {
+            if($row['hierarchy_id'] == Hierarchy::wikipedia()->id) continue;
+            $curator_name = ($row['hierarchy_id'] == Hierarchy::contributors()->id);
+            $ubio_name = ($row['hierarchy_id'] == Hierarchy::ubio()->id);
+            if($curator_name || $ubio_name || $row['hierarchy_id'] == Hierarchy::contributors()->id || ($row['published'] == 1 && $row['visibility_id'] == Visibility::visible()->id))
+            {
+                $synonym_id = $row["id"];
+                $hierarchy_entry_id = $row["hierarchy_entry_id"];
+                $name_id = $row["name_id"];
+                $language_id = $row["language_id"];
+                $preferred = $row["preferred"];
+                $vetted_id = $row["vetted_id"];
+                $hierarchy_id = $row["hierarchy_id"];
+                if(isset($preferreds[$language_id])) $preferred = 0;
+                if($preferred) $preferreds[$language_id] = 1;
+                $common_names[$synonym_id] = array($language_id, $name_id, $hierarchy_entry_id, $preferred, $vetted_id, $curator_name);
+                if($curator_name && $preferred) $curator_preferreds[$language_id] = 1;
+            }
+        }
+        
+        foreach($common_names as $synonym_id => $arr)
+        {
+            $language_id = $arr[0];
+            $curator_name = $arr[5];
+            if(!$curator_name && isset($curator_preferreds[$language_id])) $common_names[$synonym_id][3] = 0;
+        }
         
         
-        // $common_names = array();
-        // 
-        // $result = $mysqli->query("SELECT s.id, s.hierarchy_entry_id, s.name_id, s.language_id, s.preferred, s.vetted_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id!=0 AND (s.synonym_relation_id=".SynonymRelation::insert('genbank common name')." OR s.synonym_relation_id=".SynonymRelation::insert('common name').") AND he.published=1 AND he.visibility_id=".Visibility::find('visible'));
-        // while($result && $row=$result->fetch_assoc())
-        // {
-        //     $synonym_id = $row["id"];
-        //     $hierarchy_entry_id = $row["hierarchy_entry_id"];
-        //     $name_id = $row["name_id"];
-        //     $language_id = $row["language_id"];
-        //     $preferred = $row["preferred"];
-        //     $vetted_id = $row["vetted_id"];
-        //     
-        //     $common_names[$synonym_id] = array($language_id, $name_id, $hierarchy_entry_id, $preferred, $vetted_id);
-        // }
-        // $result->free();
-        // 
-        // // TODO: not sure what to do here - what if the name was preferred by a curator? Should we ever delete common names? What if the hierarchy is unpublished (Col 2007)?
-        // $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern=1 AND source_hierarchy_entry_id!=0 AND synonym_id IS NOT NULL");
-        // 
-        // /* Insert the scientific names */
-        // foreach($common_names as $synonym_id => $arr)
-        // {
-        //     $language_id = $arr[0];
-        //     $name_id = $arr[1];
-        //     $hierarchy_entry_id = $arr[2];
-        //     $preferred = $arr[3];
-        //     $vetted_id = $arr[4];
-        //     // echo "INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, 0, $synonym_id)\n";
-        //     $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, vetted_id, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, $preferred, $vetted_id, $synonym_id)");
-        // }
+        // TODO: not sure what to do here - what if the name was preferred by a curator? Should we ever delete common names? What if the hierarchy is unpublished (Col 2007)?
+        // $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern=1");
         
+        /* Insert the scientific names */
+        foreach($common_names as $synonym_id => $arr)
+        {
+            $language_id = $arr[0];
+            $name_id = $arr[1];
+            $hierarchy_entry_id = $arr[2];
+            $preferred = $arr[3];
+            $vetted_id = $arr[4];
+            // echo "INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, vetted_id, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, $preferred, $vetted_id, $synonym_id)\n";
+            $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, vetted_id, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, $preferred, $vetted_id, $synonym_id)");
+        }
         
         unset($matching_ids);
         unset($common_names);
         unset($name_ids);
         unset($hierarchy_entry_ids);
         
-        
-        
-        
-        
-        if($started_new_transaction)
-        {
-            $mysqli->end_transaction();
-        }
-        
-        
-        
-        
-        
-        /* Common Names */
-        // $result = $mysqli->query("SELECT * FROM name_languages WHERE parent_name_id IN (".implode(",",array_keys($name_ids)).") AND language_id NOT IN (0,".Language::insert("Scientific Name").",".Language::insert("Operational Taxonomic Unit").")");
-        // while($result && $row=$result->fetch_assoc())
-        // {
-        //     $name_id = $row["name_id"];
-        //     $language_id = $row["language_id"];
-        //     if($language_id==Language::insert("Common Name") || in_array($language_id, Language::unknown_ids())) $language_id = Language::insert("Unknown");
-        //     
-        //     $preferred = 1;
-        //     $result2 = $mysqli->query("SELECT * FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND source_hierarchy_entry_id=0 AND language_id=$language_id AND vern=1 AND preferred=1");
-        //     if($result2 && $row2=$result2->fetch_assoc()) $preferred = 0;
-        //     $mysqli->insert("INSERT IGNORE INTO taxon_concept_names VALUES ($taxon_concept_id, $name_id, 0, $language_id, 1, $preferred, NULL)");
-        // }
-        
-        // /* Lexical Group */
-        // $result2 = $mysqli->query("SELECT l2.namebankID FROM lexicalGroups l1 JOIN lexicalGroups l2 ON (l1.lexicalGroupID=l2.lexicalGroupID) WHERE l1.namebankID IN (".implode(",",array_keys($namebankIDs)).") AND l1.lexicalGroupID!=0");
-        // while($result2 && $row2=$result2->fetch_assoc())
-        // {
-        //     $matching_ids[$row2["name_id"]][0] = 1;
-        //     $name_ids[$row2["name_id"]] = 1;
-        // }
-        // 
-        // /* Basionym Group */
-        // $result2 = $mysqli->query("SELECT b2.namebankID FROM basionymGroups b1 JOIN basionymGroups b2 ON (b1.basionymGroupID=b2.basionymGroupID) WHERE b1.namebankID IN (".implode(",",array_keys($namebankIDs)).") AND b1.basionymGroupID!=0");
-        // while($result2 && $row2=$result2->fetch_assoc())
-        // {
-        //     $matching_ids[$row2["name_id"]][0] = 1;
-        //     $name_ids[$row2["name_id"]] = 1;
-        // }
+        if($started_new_transaction) $mysqli->end_transaction();
     }
     
     // public static function update_taxon_concept_names($taxon_concept_id)
@@ -398,7 +283,6 @@ class Tasks
         {
             $current_value = self::nested_set_depth_first_assign($row["id"], 0, 0, $current_value);
         }
-        // $result->free();
         
         $mysqli->end_transaction();
     }
@@ -415,7 +299,6 @@ class Tasks
         {
             $current_value = self::nested_set_depth_first_assign($row["id"], $id, $depth+1, $current_value);
         }
-        // $result->free();
         
         $mysqli->update("UPDATE hierarchy_entries SET rgt=$current_value WHERE id=$id");
         $current_value++;
@@ -442,78 +325,6 @@ class Tasks
         }
         return array_keys($data_object_ids);
     }
-    
-    
-    
-    
-    
-    
-    /*
-    public static function compare_hierarchies_old($hierarchy_id)
-    {
-        if(!$hierarchy_id) return false;
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $mysqli->begin_transaction();
-        
-        $result = $mysqli->query("SELECT id, hierarchy_id FROM hierarchy_entries WHERE hierarchy_id=$hierarchy_id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $id = $row["id"];
-            $mysqli->delete("DELETE FROM hierarchy_entry_relationships WHERE hierarchy_entry_id_1=$id OR hierarchy_entry_id_2=$id");
-            $entry1 = new HierarchyEntry($id);
-            
-            if($canonical_form_id = $entry1->name()->canonical_form_id) $result2 = $mysqli->query("SELECT he.id, he.hierarchy_id FROM names n JOIN hierarchy_entries he ON n.id=he.name_id WHERE n.canonical_form_id=$canonical_form_id AND he.id!=$entry1->id");
-            else $result2 = $mysqli->query("SELECT he.id, he.hierarchy_id FROM hierarchy_entries he WHERE he.name_id=$entry1->name_id AND he.id!=$entry1->id");
-            
-            while($result2 && $row2=$result2->fetch_assoc())
-            {
-                $entry2 = new HierarchyEntry($row2["id"]);
-                
-                $score = NamesFunctions::compare_hierarchy_entries($entry1, $entry2);
-                
-                if($score)
-                {
-                    $mysqli->insert("INSERT INTO hierarchy_entry_relationships VALUES ($entry1->id, $entry2->id, '', $score, '')");
-                    $mysqli->insert("INSERT INTO hierarchy_entry_relationships VALUES ($entry2->id, $entry1->id, '', $score, '')");
-                }
-            }
-            // $result2->free();
-        }
-        
-        $mysqli->end_transaction();
-        
-        self::merge_related_taxa($hierarchy_id);
-    }
-    
-    public static function merge_related_taxa($hierarchy_id)
-    {
-        if(!$hierarchy_id) return false;
-        $mysqli =& $GLOBALS['mysqli_connection'];
-        
-        $mysqli->begin_transaction();
-        
-        $query1 = "SELECT her.* FROM hierarchy_entries he JOIN hierarchy_entry_relationships her ON (he.id=her.hierarchy_entry_id_1) WHERE score>=".MATCH_SCORE_THRESHOLD;
-        $query2 = "SELECT her.* FROM hierarchy_entries he JOIN hierarchy_entry_relationships her ON (he.id=her.hierarchy_entry_id_2) WHERE score>=".MATCH_SCORE_THRESHOLD;
-        $result = $mysqli->query("($query1) UNION ($query2)");
-        
-        while($result && $row=$result->fetch_assoc())
-        {
-            $taxon_1 = new HierarchyEntry($row["hierarchy_entry_id_1"]);
-            $taxon_2 = new HierarchyEntry($row["hierarchy_entry_id_2"]);
-            
-            
-            if($taxon_1->taxon_concept_id != $taxon_2->taxon_concept_id)
-            {
-                $taxon_2->set_taxon_concept_id($taxon_1->taxon_concept_id);
-                
-                self::update_taxon_concept_names($taxon_1->taxon_concept_id);
-            }
-        }
-        
-        $mysqli->end_transaction();
-    }
-    */
 }
 
 ?>
