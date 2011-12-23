@@ -194,10 +194,12 @@ class SiteSearchIndexer
     {
         echo "\nquerying names\n";
         $this->lookup_and_cache_language_iso_codes();
-        $query = "SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, tcn.source_hierarchy_entry_id, n.string FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON  (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.supercedure_id=0 AND tc.published=1 AND tc.id ";
+        $query = "SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, tcn.source_hierarchy_entry_id, n.string, tcn.vetted_id FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON  (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.supercedure_id=0 AND tc.published=1 AND tc.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
+        $untrusted_id = Vetted::untrusted()->id;
+        $inappropriate_id = Vetted::inappropriate()->id;
         $preferred_scientifics = array();
         $synonyms = array();
         $preferred_commons = array();
@@ -213,6 +215,7 @@ class SiteSearchIndexer
             $language_id = $row[4];
             $source_hierarchy_entry_id = $row[5];
             $string = $row[6];
+            $name_vetted_id = $row[7];
             
             if(!$began) echo "done querying\n";
             $began = true;
@@ -226,7 +229,7 @@ class SiteSearchIndexer
                 {
                     if(isset($this->objects[$id]['preferred_commons'][$language_iso][$string])) continue;
                     if($name = SolrApi::text_filter($string)) $this->objects[$id]['preferred_commons'][$language_iso][$name] = 1;
-                }else
+                }elseif($name_vetted_id != $untrusted_id && $vetted_id != $inappropriate_id)
                 {
                     if(isset($this->objects[$id]['commons'][$language_iso][$string])) continue;
                     if($name = SolrApi::text_filter($string)) $this->objects[$id]['commons'][$language_iso][$name] = 1;

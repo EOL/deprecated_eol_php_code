@@ -41,7 +41,7 @@ class NatureServeAPI
         }
         echo "Total Records: ". count($records) ."\n";
         
-        $chunk_size = 5;
+        $chunk_size = 1;
         $this->request_timeout = 120; // seconds
         // shuffle($records);
         
