@@ -64,25 +64,34 @@ class ContentArchiveReader
         
         $this->tables = array();
         // load the CORE if it exists
-        foreach($metadata_xml->core as $core_xml)
+        if(isset($metadata_xml->core))
         {
-            $table_definition = $this->load_table_definition($core_xml);
-            $this->tables[strtolower($table_definition->row_type)] = $table_definition;
-            $this->core = $table_definition;
+            foreach($metadata_xml->core as $core_xml)
+            {
+                $table_definition = $this->load_table_definition($core_xml);
+                $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+                $this->core = $table_definition;
+            }
         }
         
         // load EXTENSIONS if they exist
-        foreach($metadata_xml->extension as $extension_xml)
+        if(isset($metadata_xml->extension))
         {
-            $table_definition = $this->load_table_definition($extension_xml);
-            $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+            foreach($metadata_xml->extension as $extension_xml)
+            {
+                $table_definition = $this->load_table_definition($extension_xml);
+                $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+            }
         }
         
         // load TABLES if they exist
-        foreach($metadata_xml->table as $table_xml)
+        if(isset($metadata_xml->table))
         {
-            $table_definition = $this->load_table_definition($table_xml);
-            $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+            foreach($metadata_xml->table as $table_xml)
+            {
+                $table_definition = $this->load_table_definition($table_xml);
+                $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+            }
         }
     }
     
@@ -224,11 +233,16 @@ class ContentArchiveReader
         if(!trim($line)) return array();
         if($table_definition->fields_enclosed_by)
         {
-            $line = preg_replace("/^".preg_quote($table_definition->fields_enclosed_by, "/")."/", "", $line);
-            $line = preg_replace("/".preg_quote($table_definition->fields_enclosed_by, "/")."$/", "", $line);
+            $enclosure = preg_quote($table_definition->fields_enclosed_by, "/");
+            $terminate = preg_quote($table_definition->fields_terminated_by, "/");
+            $line = preg_replace("/((^|$terminate)$enclosure"."[^$enclosure]*)$terminate([^$enclosure]*$enclosure($terminate|$))/", "\\1|+|+|\\3", $line);
+            $line = preg_replace("/(^|$terminate)$enclosure/", $table_definition->fields_terminated_by, $line);
+            $line = preg_replace("/$enclosure($terminate|$)/", $table_definition->fields_terminated_by, $line);
         }
         
-        $fields = explode($table_definition->fields_enclosed_by . $table_definition->fields_terminated_by . $table_definition->fields_enclosed_by, $line);
+        $fields = explode($table_definition->fields_terminated_by, $line);
+        foreach($fields as &$field) $field = str_replace("|+|+|", $table_definition->fields_terminated_by, $field);
+        
         return self::assign_field_types($table_definition, $fields);
     }
     
