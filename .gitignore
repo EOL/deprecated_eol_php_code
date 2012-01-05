@@ -170,3 +170,7 @@ applications/taxon_page_metrics/generate_taxon_page_metrics_ok.php
 lib/TaxonPageMetrics_ok.php
 
 applications/partner_requests/convert_eol_to_dwca.php
+
+applications/partner_requests/paddy_taxa_rank.php
+
+applications/partner_requests/DiscoverLife_EOL_tc_list.php
