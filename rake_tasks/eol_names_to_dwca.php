@@ -2,7 +2,7 @@
 namespace php_active_record;
 /*
 This script will generate a DWCA of all names in EOL.
-execution time: 
+execution time: 2.62 hours
 */
 
 require_once(dirname(__FILE__) ."/../config/environment.php");

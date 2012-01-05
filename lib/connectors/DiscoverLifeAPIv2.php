@@ -103,7 +103,6 @@ class DiscoverLifeAPIv2
         {
             if($line = fgets($FILE))
             {
-                sleep(1);
                 $name = trim($line);
                 $i++;
                 //Filter names. Process only those who already have a page in EOL. Report back to DiscoverLife names not found in EOL
