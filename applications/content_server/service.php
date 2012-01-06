@@ -101,6 +101,22 @@ switch($function)
             echo "  <error type='fatal'>Upload failed</error>\n";
         }
         break;
+        
+    case "admin_upload":
+        $manager = new ContentManager($server_ip);
+        $new_file_path = $manager->grab_file($file_path,0,"upload");
+        if($new_file_path)
+        {
+            echo "  <file_path>$new_file_path</file_path>\n";
+            if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})/", $new_file_path, $arr))
+            {
+                ContentManager::sync_to_content_servers($arr[1], $arr[2], $arr[3], $arr[4]);
+            }
+        }else
+        {
+            echo "  <error type='fatal'>Upload failed</error>\n";
+        }
+        break;
 }
 
 echo "</response>";
