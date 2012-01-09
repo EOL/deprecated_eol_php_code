@@ -42,6 +42,11 @@ class HierarchyEntry extends ActiveRecord
                 
                 if($update_caches)
                 {
+                    require_library('FlattenHierarchies');
+                    $he = new FlattenHierarchies();
+                    $he->flatten_hierarchies_from_concept_id($taxon_concept_id);
+                    $he->flatten_hierarchies_from_concept_id($old_taxon_concept_id);
+
                     TaxonConcept::reindex_descendants_objects($old_taxon_concept_id);
                     TaxonConcept::reindex_for_search($taxon_concept_id);
                     TaxonConcept::reindex_for_search($old_taxon_concept_id);
@@ -93,6 +98,11 @@ class HierarchyEntry extends ActiveRecord
                 
                 if($update_caches)
                 {
+                    require_library('FlattenHierarchies');
+                    $he = new FlattenHierarchies();
+                    $he->flatten_hierarchies_from_concept_id($taxon_concept_id);
+                    $he->flatten_hierarchies_from_concept_id($old_taxon_concept_id);
+                    
                     TaxonConcept::reindex_descendants_objects($taxon_concept_id);
                     TaxonConcept::reindex_descendants_objects($old_taxon_concept_id);
                     TaxonConcept::reindex_for_search($taxon_concept_id);
