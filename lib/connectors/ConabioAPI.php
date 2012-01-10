@@ -1,5 +1,6 @@
 <?php
 namespace php_active_record;
+/* connector: [100]  */
 define("CONABIO_SPECIES_LIST", "http://conabioweb.conabio.gob.mx/xmleol/EolList.xml");
 class ConabioAPI
 {
@@ -26,20 +27,24 @@ class ConabioAPI
         {
             $i++;
             print "\n $i of $total";
-            if(!Functions::get_hashed_response($filename))
+            $contents = Functions::get_remote_file($filename);
+            if($xml = simplexml_load_string($contents))
+            {
+                $contents = str_ireplace("http://creativecommons.org/licenses/by-nc-sa/2.5/mx/", "http://creativecommons.org/licenses/by-nc-sa/2.5/", $contents);
+                if($contents)
+                {
+                    $pos1 = stripos($contents, "<taxon>");
+                    $pos2 = stripos($contents, "</response>");
+                    $str  = substr($contents, $pos1, $pos2-$pos1);
+                    fwrite($OUT, $str);
+                }
+            }
+            else
             {
                 print "\n $filename - invalid XML";
                 continue;
             }
-            $contents = Functions::get_remote_file($filename);
-            $contents = str_ireplace("http://creativecommons.org/licenses/by-nc-sa/2.5/mx/", "http://creativecommons.org/licenses/by-nc-sa/2.5/", $contents);
-            if($contents)
-            {
-                $pos1 = stripos($contents, "<taxon>");
-                $pos2 = stripos($contents, "</response>");
-                $str  = substr($contents, $pos1, $pos2-$pos1);
-                fwrite($OUT, $str);
-            }
+            //if($i >= 5) break; //debug
         }
         fwrite($OUT, "</response>");
         fclose($OUT);
