@@ -47,6 +47,14 @@ class SerpentAPI
         $taxon_urls = array();
         $start_url = SERPENT_PAGE_URL;
         $urls = self::taxon_url_extractor($start_url, '<h1 class="pagetitle">Browse by Species</h1>', '<li>', 1);
+        
+        //for debug
+        // $urls = array();
+        // $urls[] = Array("url" => "http://archive.serpentproject.com/view/species/Alcyonidium_diaphanum.html",
+        //                 "sciname" => "Browse by Species");
+        // $urls[] = Array("url" => "http://archive.serpentproject.com/view/species/Caryophyllia_smithii.html",
+        //                 "sciname" => "Browse by Species");
+        
         return $urls;
         
         /* Continue if you want to get individual URLs per data object. */
@@ -152,7 +160,15 @@ class SerpentAPI
             if(@$rec['ROV:']) $desc.="ROV: " . @$rec['ROV:'] . " <br>";
             if(@$rec['Deposited By:']) $desc.="Deposited By: " . @$rec['Deposited By:'] . " <br>";
             if(@$rec['Deposited On:']) $desc.="Deposited On: " . @$rec['Deposited On:'] . " <br>";
-            if(!$ancestry) $ancestry=self::parse_classification(@$rec['Classification:'], @$rec['Species:'], $sciname);
+            if(!$ancestry) 
+            {
+                if(preg_match_all("/Kingdom /ims", @$rec['Classification:'], $matches))
+                {
+                    // Should only get the ancestry if there is only 1 ancestry displayed. 
+                    // There is no clear assignment of taxon and classification when displaying multiple ancestry and taxa.
+                    if(count($matches[0]) == 1) $ancestry = self::parse_classification(@$rec['Classification:'], @$rec['Species:'], $sciname);
+                }
+            }
             $agent=array();
             $rights_holder="";
             if(@$rec['Deposited By:'])
