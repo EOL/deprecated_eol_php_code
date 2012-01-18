@@ -5,10 +5,10 @@ This script will generate a DWCA of all names in EOL.
 execution time: 2.62 hours
 */
 
+//$GLOBALS['ENV_NAME'] = 'v2staging';
+
 require_once(dirname(__FILE__) ."/../config/environment.php");
 $GLOBALS['mysqli'] =& $GLOBALS['mysqli_connection'];
-//$GLOBALS['mysqli'] = load_mysql_environment('v2staging');
-//$GLOBALS['mysqli'] = load_mysql_environment('mbl_slave');
 
 set_time_limit(0);
 $timestart = time_elapsed();
