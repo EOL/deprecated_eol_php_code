@@ -1,22 +1,38 @@
 <?php
 namespace php_active_record;
-exit;
 /* North American Mammals 
 estimated execution time: 1-2 minutes
-Connector will not be ran from BEAST because data is coming from provider's MDB.
 */
 $timestart = microtime(1);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+/*
 $mysqli =& $GLOBALS['mysqli_connection'];
+$query = "SELECT s.species_id, g.genus_name, concat(g.genus_name,' ',s.species_name) AS `sci_name`, f.family_name, o.order_name, s.avg_length, 
+s.avg_length_sp, s.range_length, s.range_length_sp, s.avg_weight, s.avg_weight_sp, s.range_weight, s.range_weight_sp, s.conservation_status_notes, 
+s.conservation_status_notes_sp, s.common_name, s.common_name_sp, s.other_names, s.other_names_sp, s.refs, s.refs_sp, s.links, s.links_sp, 
+s.dimorphism, s.dimorphism_sp, s.legend, s.legend_sp, s.refs, s.refs_sp, s.adaptation, s.adaptation_sp, cs.conservation_status_id, 
+cs.conservation_status_title, cs.conservation_status_title_sp, cs.conservation_status_abbrev 
+From nam_species s 
+LEFT JOIN nam_genus g ON s.genus_id = g.genus_id 
+LEFT Join nam_family f ON g.family_id = f.Family_ID 
+LEFT Join nam_orders o ON f.order_id = o.order_id 
+LEFT Join nam_conservation_status cs ON s.conservation_status_id = cs.id";
+$result = $mysqli->query($query);
+print "\n" . $result->num_rows . "\n";
+*/
+
+$text_file = DOC_ROOT . "/update_resources/connectors/files/NorthAmericanMammals/data_from_sql_export.txt";
+require_library('connectors/FishBaseAPI');
+$fields = array("species_id", "genus_name", "sci_name", "family_name", "order_name", "avg_length", "avg_length_sp", "range_length", "range_length_sp", "avg_weight", "avg_weight_sp", "range_weight", "range_weight_sp", "conservation_status_notes", "conservation_status_notes_sp", "common_name", "common_name_sp", "other_names", "other_names_sp", "refs", "refs_sp", "links", "links_sp", "dimorphism", "dimorphism_sp", "legend", "legend_sp", "refs(2)", "refs_sp(2)", "adaptation", "adaptation_sp", "conservation_status_id", "conservation_status_title", "conservation_status_title_sp", "conservation_status_abbrev");
+$taxa = FishBaseAPI::make_array($text_file, $fields, "", array(), "");
+
 $resource_id = 85; //for North American Mammals
 $schema_taxa = array();
 $used_taxa = array();
-$query = "SELECT s.species_id, g.genus_name, concat(g.genus_name,' ',s.species_name) AS `sci_name`, f.family_name, o.order_name, s.avg_length, s.avg_length_sp, s.range_length, s.range_length_sp, s.avg_weight, s.avg_weight_sp, s.range_weight, s.range_weight_sp, s.conservation_status_notes, s.conservation_status_notes_sp, s.common_name, s.common_name_sp, s.other_names, s.other_names_sp, s.refs, s.refs_sp, s.links, s.links_sp, s.dimorphism, s.dimorphism_sp, s.legend, s.legend_sp, s.refs, s.refs_sp, s.adaptation, s.adaptation_sp, cs.conservation_status_id, cs.conservation_status_title, cs.conservation_status_title_sp, cs.conservation_status_abbrev From nam_species s JOIN nam_genus g ON s.genus_id = g.genus_id LEFT Join nam_family f ON g.family_id = f.Family_ID LEFT Join nam_orders o ON f.order_id = o.order_id LEFT Join nam_conservation_status cs ON s.conservation_status_id = cs.id ";
-//$query .= " limit 20 ";   //debug
-$result = $mysqli->query($query);
-print "\n" . $result->num_rows . "\n";
+
 $ctr = 0;
-while($row=$result->fetch_assoc())
+foreach($taxa as $row)
 {
     $ctr++; 
     print "$ctr - ";
@@ -78,6 +94,8 @@ while($row=$result->fetch_assoc())
     if($data_object_params = get_size($row["dimorphism_sp"], $row["avg_length_sp"], $row["range_length_sp"], $row["avg_weight_sp"], $row["range_weight_sp"], $refs_sp, "es", $taxon_identifier, $dc_source_sp)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
     if($data_object_params = get_ConservationStatus($row["conservation_status_notes"], $refs, "en", $taxon_identifier, $dc_source)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
     if($data_object_params = get_ConservationStatus($row["conservation_status_notes_sp"], $refs_sp, "es", $taxon_identifier, $dc_source_sp)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
+
+    /* they removed their distribution maps from their site
     $url = "http://www.mnh.si.edu/mna/thumbnails/maps/" . str_repeat("0", 3-strlen($row["species_id"])) . $row["species_id"] . ".gif";
     $handle = fopen($url, "r");
     if($handle)
@@ -89,6 +107,8 @@ while($row=$result->fetch_assoc())
         $data_object_params = get_data_object($dc_identifier, $dc_source, $description, $refs, $subject, $title, "en");
         $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);
     }
+    */
+    
     $used_taxa[$taxon_identifier] = $taxon_parameters;
 }
 
@@ -105,8 +125,6 @@ echo "elapsed time = $elapsed_time_sec seconds             \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 exit("\n\n Done processing.");
-
-//######################################################################################################################
 
 function get_ConservationStatus($conservation_status_notes, $reference, $language, $taxon_identifier, $dc_source)
 {
@@ -212,12 +230,12 @@ function get_data_object($id, $dc_source, $description, $reference, $subject, $t
     //$dataObjectParameters["created"] = $created;
     //$dataObjectParameters["modified"] = $modified;
     $dataObjectParameters["rightsHolder"] = "Smithsonian Institution";
-    ///////////////////////////////////    
+
     $dataObjectParameters["subjects"] = array();
     $subjectParameters = array();
     $subjectParameters["label"] = $subject;
     $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
-    ///////////////////////////////////
+
     $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
     $dataObjectParameters["mimeType"] = "text/html";        
     $dataObjectParameters["language"] = $language;
@@ -241,21 +259,21 @@ function get_data_object($id, $dc_source, $description, $reference, $subject, $t
         }
         $dataObjectParameters["agents"] = $agents;    
     }
-    ///////////////////////////////////
+
     $dataObjectParameters["audiences"] = array();    
     $audienceParameters = array();
     $audienceParameters["label"] = "Expert users";
     $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
     $audienceParameters["label"] = "General public";
     $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
-    ///////////////////////////////////////////////////////////////////
+
     $references = array();
     $referenceParameters = array();    
     $reference = utf8_encode($reference);
     $referenceParameters["fullReference"] = $reference;    
     $references[] = new \SchemaReference($referenceParameters);        
     $dataObjectParameters["references"] = $references;         
-    ///////////////////////////////////////////////////////////////////
+  
     return $dataObjectParameters;
 }
 

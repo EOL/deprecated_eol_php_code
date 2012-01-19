@@ -1,5 +1,6 @@
 <?php
 namespace php_active_record;
+/* connector: 68 */
 define("DUTCH_SPECIES_LIST", "http://www.nederlandsesoorten.nl/eol/EolList.xml");
 define("TAXON_SERVICE", "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&version=EOL&cid=");
 
@@ -28,19 +29,23 @@ class DutchSpeciesCatalogueAPI
         {
             $i++;
             print "\n $i of $total";
-            if(!Functions::get_hashed_response($filename))
+            sleep(2);
+            $contents = Functions::get_remote_file($filename);
+            if($xml = simplexml_load_string($contents))
+            {
+                $contents = str_ireplace("http://creativecommons.org/licenses/by-nc-sa/2.5/mx/", "http://creativecommons.org/licenses/by-nc-sa/2.5/", $contents);
+                if($contents)
+                {
+                    $pos1 = stripos($contents, "<taxon>");
+                    $pos2 = stripos($contents, "</response>");
+                    $str  = substr($contents, $pos1, $pos2-$pos1);
+                    fwrite($OUT, $str);
+                }
+            }
+            else
             {
                 print "\n $filename - invalid XML";
                 continue;
-            }
-            $contents = Functions::get_remote_file($filename);
-            $contents = str_ireplace("http://creativecommons.org/licenses/by-nc-sa/2.5/mx/", "http://creativecommons.org/licenses/by-nc-sa/2.5/", $contents);
-            if($contents)
-            {
-                $pos1 = stripos($contents, "<taxon>");
-                $pos2 = stripos($contents, "</response>");
-                $str  = substr($contents, $pos1, $pos2-$pos1);
-                fwrite($OUT, $str);
             }
         }
         fwrite($OUT, "</response>");
