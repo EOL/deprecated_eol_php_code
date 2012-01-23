@@ -13,6 +13,8 @@ $file = "http://www.marlin.ac.uk/downloads/EOL/EOL.xml";
 //$contents = Functions::get_remote_file($file); this one, operation times out
 $contents = file_get_contents($file);
 $contents = str_ireplace("No text entered", "", $contents);  
+$contents = str_ireplace("<![CDATA[", "", $contents);  
+$contents = str_ireplace("]]>", "", $contents);  
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $OUT = fopen($resource_path, "w");
 fwrite($OUT, $contents);
