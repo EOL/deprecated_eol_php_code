@@ -269,11 +269,12 @@ class TropicosAPI
 
         if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY)) print "\n lost connection \n";
         $name = json_decode($name, true);
-        print "[$taxon_id] " . @$name['ScientificNameWithAuthors'];
+        $sciname = "" . @$name['ScientificNameWithAuthors'];
+        print "[$taxon_id] " . $sciname;
         /* working but temporarily commented by Chris Freeland
         $arr_objects = self::get_chromosome_count($taxon_id, $arr_objects);
         */
-        $arr_objects = self::get_distributions($taxon_id, $arr_objects);
+        $arr_objects = self::get_distributions($taxon_id, $arr_objects, $sciname);
         if(sizeof($arr_objects) == 0) return array();
         $arr_synonyms   = self::get_synonyms($taxon_id);
         $arr_taxon_ref  = self::get_taxon_ref($taxon_id);
@@ -286,7 +287,7 @@ class TropicosAPI
                           "order"        => @$taxonomy['order'],
                           "family"       => @$taxonomy['family'],
                           "genus"        => @$taxonomy['genus'],
-                          "sciname"      => $name['ScientificNameWithAuthors'],
+                          "sciname"      => $sciname,
                           "reference"    => $arr_taxon_ref,
                           "synonyms"     => $arr_synonyms,
                           "commonNames"  => array(),
@@ -436,7 +437,7 @@ class TropicosAPI
         return $arr_objects;
     }
 
-    function get_distributions($taxon_id, $arr_objects)
+    function get_distributions($taxon_id, $arr_objects, $sciname)
     {
         $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY);
         $refs = array();
@@ -463,6 +464,7 @@ class TropicosAPI
 
         if($with_content)
         {
+            $description = "<i>$sciname</i>: <br>" . $description;
             $source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
             $identifier = $taxon_id . "_distribution";
             $mimeType   = "text/html";
