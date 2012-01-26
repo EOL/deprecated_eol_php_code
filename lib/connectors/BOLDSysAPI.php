@@ -149,7 +149,7 @@ class BOLDSysAPI
         $bold_stats .= "<br>";                
         $identifier  = $taxon_id . "_stats";
         $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";
-        $title       = "Statistics of barcoding coverage";
+        $title       = "Statistics of barcoding coverage: $sciname";
         $source      = SPECIES_URL . trim($taxon_id);
         $mediaURL    = "";               
         $description = "Barcode of Life Data Systems (BOLDS) Stats <br> $bold_stats";
@@ -169,7 +169,7 @@ class BOLDSysAPI
         {
             $identifier  = $taxon_id . "_barcode_data";
             $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType = "text/html";
-            $title       = "Barcode data";
+            $title       = "Barcode data: $sciname";
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
             $description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true);
@@ -182,7 +182,7 @@ class BOLDSysAPI
             /*
             $identifier  = $taxon_id . "_map";
             $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";
-            $title       = "Locations of barcode samples";            
+            $title       = "Locations of barcode samples: $sciname";            
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
             $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img border='0' src='".$rec['map_url']."'>";                
