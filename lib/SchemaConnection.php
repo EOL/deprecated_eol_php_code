@@ -161,6 +161,7 @@ class SchemaConnection
             if(@$parameters['info_items'])
             {
                 $data_object->delete_info_items();
+                $data_object->delete_table_of_contents();
                 foreach($parameters['info_items'] as &$ii)
                 {
                     $data_object->add_info_item($ii->id);
