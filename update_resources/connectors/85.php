@@ -7,7 +7,6 @@ $timestart = microtime(1);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 /*
-$mysqli =& $GLOBALS['mysqli_connection'];
 $query = "SELECT s.species_id, g.genus_name, concat(g.genus_name,' ',s.species_name) AS `sci_name`, f.family_name, o.order_name, s.avg_length, 
 s.avg_length_sp, s.range_length, s.range_length_sp, s.avg_weight, s.avg_weight_sp, s.range_weight, s.range_weight_sp, s.conservation_status_notes, 
 s.conservation_status_notes_sp, s.common_name, s.common_name_sp, s.other_names, s.other_names_sp, s.refs, s.refs_sp, s.links, s.links_sp, 
@@ -18,8 +17,9 @@ LEFT JOIN nam_genus g ON s.genus_id = g.genus_id
 LEFT Join nam_family f ON g.family_id = f.Family_ID 
 LEFT Join nam_orders o ON f.order_id = o.order_id 
 LEFT Join nam_conservation_status cs ON s.conservation_status_id = cs.id";
-$result = $mysqli->query($query);
-print "\n" . $result->num_rows . "\n";
+
+We've requested the partner to provide us with just a text dump of the result of the query above, but it seems they'll just
+continue providing us with the Access MDB.
 */
 
 $text_file = DOC_ROOT . "/update_resources/connectors/files/NorthAmericanMammals/data_from_sql_export.txt";
@@ -85,11 +85,18 @@ foreach($taxa as $row)
     $refs = utf8_decode(str_ireplace("", "", $refs));
     $refs_sp = str_ireplace("", "", $row["refs_sp"]);
     $refs_sp = utf8_decode(str_ireplace("", "", $refs_sp));
+
+    if(trim($refs) != "") $refs = "Original description: " . $refs;
+    if(trim($refs_sp) != "") $refs_sp = "Original description: " . $refs_sp;
+
     $legend = str_ireplace("", "", $row["legend"]);
     $legend_sp = str_ireplace("", "", $row["legend_sp"]);
 
     if($data_object_params = get_GeneralDescription($legend, $adaptation, $row["links"], $refs, "en", $taxon_identifier, $dc_source)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
     if($data_object_params = get_GeneralDescription($legend_sp, $adaptation_sp, $row["links_sp"], $refs_sp, "es", $taxon_identifier, $dc_source_sp)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
+    // suggested by Leo, no refs for the other text objects
+    $refs = array();
+    $refs_sp = array();
     if($data_object_params = get_size($row["dimorphism"], $row["avg_length"], $row["range_length"], $row["avg_weight"], $row["range_weight"], $refs, "en", $taxon_identifier, $dc_source)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
     if($data_object_params = get_size($row["dimorphism_sp"], $row["avg_length_sp"], $row["range_length_sp"], $row["avg_weight_sp"], $row["range_weight_sp"], $refs_sp, "es", $taxon_identifier, $dc_source_sp)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
     if($data_object_params = get_ConservationStatus($row["conservation_status_notes"], $refs, "en", $taxon_identifier, $dc_source)) {$taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_params);}
@@ -214,10 +221,17 @@ function get_GeneralDescription($legend, $adaptation, $links, $reference, $langu
     }
     if($links != "")
     {
-        if    ($language == "en") $description .= "<br><br>Links:<br>" . str_ireplace("<br><br>", "<br>", $links);
-        elseif($language == "es") $description .= "<br><br>Enlaces:<br>" . str_ireplace("<br><br>", "<br>", $links);
+        // remove the double qoutes around 'links'
+        $links = str_replace('""', '"', trim($links));
+        $links = substr($links, 1, strlen($links)-2);
+        if    ($language == "en") $links = "<br><br>Links:<br>" . str_ireplace("<br><br>", "<br>", $links);
+        elseif($language == "es") $links = "<br><br>Enlaces:<br>" . str_ireplace("<br><br>", "<br>", $links);
+        $description .= $links;
     }
-    $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+    //$subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
+    $subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology";
+    // re-mapped so it will show in Brief Summary and not in Comprehensive Description
+
     return get_data_object($dc_identifier, $dc_source, $description, $reference, $subject, $title, $language);
 }
 
@@ -267,12 +281,15 @@ function get_data_object($id, $dc_source, $description, $reference, $subject, $t
     $audienceParameters["label"] = "General public";
     $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
 
-    $references = array();
-    $referenceParameters = array();    
-    $reference = utf8_encode($reference);
-    $referenceParameters["fullReference"] = $reference;    
-    $references[] = new \SchemaReference($referenceParameters);        
-    $dataObjectParameters["references"] = $references;         
+    if($reference) 
+    {
+      $references = array();
+      $referenceParameters = array();    
+      $reference = utf8_encode($reference);
+      $referenceParameters["fullReference"] = $reference;    
+      $references[] = new \SchemaReference($referenceParameters);        
+      $dataObjectParameters["references"] = $references;         
+    }
   
     return $dataObjectParameters;
 }
