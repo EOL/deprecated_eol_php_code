@@ -168,6 +168,8 @@ class MCZHarvardAPI
         if(@$arr_texts[$sciname] || @$arr_photos[$sciname])
         {
             //$dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME'];
+            
+            if(self::has_invalid_names($taxon, $sciname)) return array();
             $arr_scraped[]=array("identifier" => "MCZ_" . str_replace(" ", "_",$sciname),
                                  "kingdom" => $taxon['KINGDOM'],
                                  "phylum" => $taxon['PHYLUM'],
@@ -183,6 +185,19 @@ class MCZHarvardAPI
                                 );                
         }                    
         return $arr_scraped;        
+    }
+
+    function has_invalid_names($taxon, $sciname)
+    {
+      $ranks = array('KINGDOM', 'PHYLUM', 'PHYLCLASS', 'PHYLORDER', 'FAMILY', 'GENUS');
+      foreach($ranks as $rank)
+      {
+        $name = trim($taxon[$rank]);
+        if(strpos($name, " ") > 0) return true;
+      }
+      // hard coded to be sure not to get wrong name, caused by unbalanced csv file.
+      if(strpos($sciname, "Bonaccorso") > 0) return true;       
+      return false;
     }
 
     function fill_data_object($dc_identifier, $desc, $subject, $title, $agent, $rights_holder, $mediaURL, $mimeType, $dataType, $dc_source, $date_created, $date_modified, $location)
