@@ -1,4 +1,5 @@
 <?php
+namespace php_active_record;
 /* connector for AskNature - Biomimicry
 This connector re-maps the SPM and title of the external resource XML.
 estimated execution time: 5 secs.
@@ -150,7 +151,8 @@ function get_data_object($do,$t_dc2,$t_dcterms)
     $subjectParameters = array();
     $subjectParameters["label"] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Evolution";
     $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
-    
+
+    $dataObjectParameters["additionalInformation"] = "<subject>http://www.eol.org/voc/table_of_contents#FunctionalAdaptations</subject>";
     ///////////////////////////////////////////////////////////////////////
     $agents = array();
     foreach($do->agent as $agent)
