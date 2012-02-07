@@ -842,7 +842,7 @@ class TaxonPageMetrics
     }
     */
 
-    public function generate_taxon_concept_with_bhl_links_textfile($batch_size = 500000) //execution time: 6 minutes
+    public function generate_taxon_concept_with_bhl_links_textfile($batch_size = 500000) //execution time: 17 minutes
     {
         /*  This will generate the [taxon_concept_with_bhl_links.txt]. Lists all concepts with BHL links. */
         $time_start = time_elapsed();
@@ -887,7 +887,7 @@ class TaxonPageMetrics
     }
 
     // Working but will be replaced once we store taxon_concept_id in PAGE_NAMES table.
-    public function generate_taxon_concept_with_bhl_publications_textfile() //execution time: 1.80 hrs
+    public function generate_taxon_concept_with_bhl_publications_textfile() //execution time: 11 hours
     {
         /*  This will generate the [taxon_concept_with_bhl_publications.txt]. Assigns # of BHL publications for every concept. */
         $time_start = time_elapsed();
@@ -897,8 +897,8 @@ class TaxonPageMetrics
         print "\n Start reading text file [taxon_concept_with_bhl_links]";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt";
         $FILE = fopen($filename, "r");
-        $i = 0; 
-        $str = ""; 
+        $i = 0;
+        $str = "";
         $save_count = 0;
         while(!feof($FILE))
         {
@@ -907,21 +907,15 @@ class TaxonPageMetrics
                 $fields = explode("\t", trim($line));
                 if($tc_id = trim($fields[0]))
                 {
-                    $sql = "SELECT ip.title_item_id FROM taxon_concept_names tcn JOIN page_names pn ON tcn.name_id = pn.name_id JOIN item_pages ip ON pn.item_page_id = ip.id WHERE tcn.taxon_concept_id = $tc_id ";
+                    $sql = "SELECT COUNT(DISTINCT ip.title_item_id) count FROM taxon_concept_names tcn JOIN page_names pn ON tcn.name_id = pn.name_id JOIN item_pages ip ON pn.item_page_id = ip.id WHERE tcn.taxon_concept_id = $tc_id ";
                     $result = $this->mysqli_slave->query($sql);
-                    $arr = array();
-                    while($result && $row=$result->fetch_assoc())
-                    {
-                        $title_item_id = $row['title_item_id'];
-                        $arr[$title_item_id] = '';
-                    }
-                    $publications = sizeof(array_keys($arr));
+                    if($result && $row=$result->fetch_assoc()) $publications = $row['count'];
                     $str .= $tc_id . "\t" . $publications . "\n";
-                    $i++; 
+                    $i++;
                     print "\n $i. [$tc_id][$publications] ";
                     //saving
                     $save_count++;
-                    if($save_count == 10000)
+                    if($save_count == 1000)
                     {
                         $fp = fopen($write_filename,"a");
                         print "\n writing...";
@@ -937,7 +931,7 @@ class TaxonPageMetrics
         fclose($FILE);
         //last remaining writes
         $fp = fopen($write_filename, "a");
-        fwrite($fp, $str);  
+        fwrite($fp, $str);
         fclose($fp);
         //rename
         unlink(PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt");
