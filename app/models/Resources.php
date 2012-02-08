@@ -332,6 +332,7 @@ class Resource extends ActiveRecord
                 {
                     $old_he->index_for_search();
                 }
+                $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::published()->id ." WHERE id=$this->id");
             }
         }
         $this->mysqli->end_transaction();

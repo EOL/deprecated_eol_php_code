@@ -14,8 +14,8 @@ $resource_id = 26;
 
 $worms = new WormsAPI();
 $worms->initialize_text_files();
-Functions::kill_running_connectors($resource_id);
-$worms->start_process($resource_id, true);
+// Functions::kill_running_connectors($resource_id);
+$worms->start_process($resource_id, false);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

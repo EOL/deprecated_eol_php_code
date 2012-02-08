@@ -32,6 +32,7 @@ class HierarchyEntry extends ActiveRecord
             // if there is only one member in the entry's concept there is no need to split it
             if($count > 1)
             {
+                $mysqli->begin_transaction();
                 $old_taxon_concept_id = $entry->taxon_concept_id;
                 $taxon_concept_id = TaxonConcept::create()->id;
                 
@@ -39,7 +40,7 @@ class HierarchyEntry extends ActiveRecord
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
-                
+                Tasks::update_taxon_concept_names($taxon_concept_id);
                 if($update_caches)
                 {
                     require_library('FlattenHierarchies');
@@ -52,6 +53,7 @@ class HierarchyEntry extends ActiveRecord
                     TaxonConcept::reindex_for_search($old_taxon_concept_id);
                 }
                 
+                $mysqli->end_transaction();
                 return $taxon_concept_id;
             }
         }
@@ -81,6 +83,7 @@ class HierarchyEntry extends ActiveRecord
                 TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id'], $update_caches);
             }else
             {
+                $mysqli->begin_transaction();
                 $old_taxon_concept_id = $row['taxon_concept_id'];
                 // if there is more than one member, just update the one entry
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
@@ -108,6 +111,7 @@ class HierarchyEntry extends ActiveRecord
                     TaxonConcept::reindex_for_search($taxon_concept_id);
                     TaxonConcept::reindex_for_search($old_taxon_concept_id);
                 }
+                $mysqli->end_transaction();
             }
         }
     }

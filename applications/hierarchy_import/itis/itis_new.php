@@ -1,39 +1,53 @@
 <?php
-
+namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../../config/environment.php");
 
 
 
+/*
+shell_exec("rm -f ".dirname(__FILE__)."/itis.tar.gz");
+if($dir = dump_directory_path())
+{
+    shell_exec("rm -fr ".dirname(__FILE__)."/$dir");
+}
 
-// shell_exec("rm -f ".dirname(__FILE__)."/itis.tar.gz");
-// if($dir = dump_directory_path())
-// {
-//     shell_exec("rm -fr ".dirname(__FILE__)."/$dir");
-// }
-// 
-// 
-// 
-// //  Full ITIS Data Set (Informix 7) from http://www.itis.gov/downloads/
-// $latest_itis_url = "http://www.itis.gov/downloads/itis121610_v3.TAR.gz";
-// 
-// shell_exec("curl $latest_itis_url -o ".dirname(__FILE__)."/itis.tar.gz");
-// // unzip the download
-// shell_exec("tar -zxf ".dirname(__FILE__)."/itis.tar.gz");
+
+
+//  Full ITIS Data Set (Informix 7) from http://www.itis.gov/downloads/
+$latest_itis_url = "http://www.itis.gov/downloads/itisInformix.tar.gz";
+
+shell_exec("curl $latest_itis_url -o ".dirname(__FILE__)."/itis.tar.gz");
+// unzip the download
+shell_exec("tar -zxf ".dirname(__FILE__)."/itis.tar.gz");
+exit;
+*/
+
 
 $GLOBALS['itis_dump_dir'] = dump_directory_path();
 if(!$GLOBALS['itis_dump_dir']) exit;
 
 
+$GLOBALS['all_statuses'] = array();
 
+echo "Getting file names...\n";
 get_file_names();
+echo "Getting ranks...\n";
 get_ranks();
+echo "Getting authors...\n";
 get_authors();
+echo "Getting locations...\n";
 get_locations();
+echo "Getting publications...\n";
 get_publications();
+echo "Getting publication links...\n";
 get_publication_links();
+echo "Getting comments...\n";
 get_comments();
+echo "Getting comment links...\n";
 get_comment_links();
+echo "Getting vernaculars...\n";
 get_vernaculars();
+echo "Getting synonyms...\n";
 get_synonyms();
 
 echo "Starting to create document\n";
@@ -44,7 +58,7 @@ echo "Memory: ".memory_get_usage()."\n";
 echo "Time: ".time_elapsed()."\n\n";
 
 
-
+print_r($GLOBALS['all_statuses']);
 
 unset($GLOBALS['authors']);
 unset($GLOBALS['ranks']);
@@ -62,16 +76,13 @@ echo "Time: ".time_elapsed()."\n\n";
 
 
 
-$agent_params = array(  "full_name"     => "Integrated Taxonomic Information System",
-                        "acronym"       => "ITIS");
-                            
-$agent_id = Agent::insert(Functions::mock_object("Agent", $agent_params));
-$agent_hierarchy_id = Hierarchy::find_by_agent_id($agent_id);
-if($agent_hierarchy_id)
+$agent = Agent::find_or_create_by_full_name("Integrated Taxonomic Information System", array("acronym" => "ITIS"));
+
+$agent_hierarchy = Hierarchy::find_last_by_agent_id($agent->id);
+if($agent_hierarchy)
 {
-    $agent_hierarchy = new Hierarchy($agent_hierarchy_id);
     $hierarchy_group_id = $agent_hierarchy->hierarchy_group_id;
-    $hierarchy_group_version = $agent_hierarchy->latest_group_version() + 1;
+    $hierarchy_group_version = $agent_hierarchy->latest_group_version()+1;
     
     $hierarchy_params = array(
         "agent_id"                  => $agent_hierarchy->agent_id,
@@ -92,7 +103,7 @@ if($agent_hierarchy_id)
     $hierarchy_params = array(
         "label"                     => "Integrated Taxonomic Information System (ITIS)",
         "description"               => "latest export",
-        "agent_id"                  => $agent_id,
+        "agent_id"                  => $agent->id,
         "url"                       => "http://www.itis.gov/",
         "outlink_uri"               => "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=%%ID%%",
         "complete"                  => 1,
@@ -100,7 +111,7 @@ if($agent_hierarchy_id)
         "hierarchy_group_version"   => $hierarchy_group_version);
 }
 
-$hierarchy = new Hierarchy(Hierarchy::insert(Functions::mock_object("Hierarchy", $hierarchy_params)));
+$hierarchy = Hierarchy::find_or_create($hierarchy_params);
 
 
 $uri = dirname(__FILE__) . "/out.xml";
@@ -418,6 +429,7 @@ function get_names()
         $author_id      = trim($line_data[18]);
         $rank_id        = trim($line_data[21]);
         
+        
         if(!$parent_tsn) $parent_tsn = 0;
         
         $name_string = $name_part_1;
@@ -474,6 +486,7 @@ function get_names()
                     "namePublishedIn"   => $publications,
                     "taxonomicStatus"   => $reason);
             
+            @$GLOBALS['all_statuses']['synonyms'][$validity] += 1;
             if(isset($GLOBALS['locations'][$name_tsn])) $params['dcterms:spatial'] = $GLOBALS['locations'][$name_tsn];
             $dwc_taxon = new DarwinCoreTaxon($params);
             fwrite($OUT, $dwc_taxon->__toXML());
@@ -499,6 +512,7 @@ function get_names()
                     "taxonomicStatus"   => $validity,
                     "vernacularName"    => $vernacular_names);
             
+            @$GLOBALS['all_statuses']['valids'][$validity] += 1;
             if(isset($GLOBALS['locations'][$name_tsn])) $params['dcterms:spatial'] = $GLOBALS['locations'][$name_tsn];
             $dwc_taxon = new DarwinCoreTaxon($params);
             fwrite($OUT, $dwc_taxon->__toXML());

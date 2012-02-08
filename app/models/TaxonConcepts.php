@@ -28,6 +28,7 @@ class TaxonConcept extends ActiveRecord
         
         $mysqli =& $GLOBALS['mysqli_connection'];
         
+        $mysqli->begin_transaction();
         // at this point ID2 is the one going away
         // ID2 is being superceded by ID1
         $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.taxon_concept_id=$id1, tc.supercedure_id=$id1 WHERE taxon_concept_id=$id2");
@@ -72,6 +73,7 @@ class TaxonConcept extends ActiveRecord
                 $mysqli->update("DELETE FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept'");
             }
         }
+        $mysqli->end_transaction();
     }
     
     public static function reindex_descendants_objects($taxon_concept_id)

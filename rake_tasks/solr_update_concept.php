@@ -21,6 +21,7 @@ if($confirmed == 'confirmed')
     foreach($taxon_concept_ids as $tc_id)
     {
         $taxon_concept = TaxonConcept::find($tc_id);
+        Tasks::update_taxon_concept_names($tc_id);        
         
         require_library('FlattenHierarchies');
         $he = new FlattenHierarchies();

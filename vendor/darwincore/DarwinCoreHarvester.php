@@ -35,7 +35,7 @@ class DarwinCoreHarvester
                 
                 $taxon_id = Functions::import_decode($t_dwc->taxonID);
                 $parent_id = Functions::import_decode($t_dwc->parentNameUsageID);
-                $synonym_relation_id = SynonymRelation::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonomicStatus))->id;
+                $synonym_relation_id = @SynonymRelation::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonomicStatus))->id;
                 $name_id = Name::find_or_create_by_string(Functions::import_decode($t_dwc->scientificName))->id;
                 $rank_id = @Rank::find_or_create_by_translated_label(Functions::import_decode($t_dwc->taxonRank))->id;
                 

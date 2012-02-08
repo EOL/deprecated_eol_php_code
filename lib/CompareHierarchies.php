@@ -39,6 +39,7 @@ class CompareHierarchies
             $GLOBALS['hierarchy_ids_with_good_synonymies'][787] = 1; // ReptileDB
             $GLOBALS['hierarchy_ids_with_good_synonymies'][622] = 1; // IUCN
             $GLOBALS['hierarchy_ids_with_good_synonymies'][636] = 1; // Tropicos
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][143] = 1; // Fishbase
         }
     }
     
@@ -124,9 +125,7 @@ class CompareHierarchies
         
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
         
-        $relationships = array('relationship:name');
-        if($use_synonyms_for_merging) $relationships[] = '(relationship:syn AND confidence:[.3 TO 1])';
-        $main_query = "(". implode(" OR ", $relationships) .") AND hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=relationship asc, visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
+        $main_query = "hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=relationship asc, visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
         debug($main_query . "&rows=1");
         $response = $solr->query($main_query . "&rows=1");
         $total_results = $response->numFound;
@@ -143,6 +142,12 @@ class CompareHierarchies
             $entries = $solr->get_results($this_query);
             foreach($entries as $entry)
             {
+                if($entry->relationship == 'syn')
+                {
+                    if(!$use_synonyms_for_merging) continue;
+                    if($entry->confidence < .25) continue;
+                }
+                
                 $id1 = $entry->hierarchy_entry_id_1;
                 $visibility_id1 = $entry->visibility_id_1;
                 $tc_id1 = $entry->taxon_concept_id_1;

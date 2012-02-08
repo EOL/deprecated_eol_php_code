@@ -308,6 +308,7 @@ class Tasks
     
     public static function get_descendant_objects($taxon_concept_id)
     {
+        /*
         $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
         $main_query = "ancestor_id:$taxon_concept_id&fl=data_object_id";
         $total_results = $solr->count_results($main_query);
@@ -323,6 +324,27 @@ class Tasks
                 $data_object_ids[$entry->data_object_id] = 1;
             }
         }
+        */
+        
+        $data_object_ids = array();
+        $result = $GLOBALS['mysqli_connection']->query("(SELECT dohe.data_object_id FROM hierarchy_entries he JOIN hierarchy_entries_flattened hef ON (he.id=hef.ancestor_id) JOIN hierarchy_entries he_descendants ON (hef.hierarchy_entry_id=he_descendants.id) JOIN hierarchy_entries he_concept ON (he_descendants.taxon_concept_id=he_concept.taxon_concept_id) JOIN data_objects_hierarchy_entries dohe ON (he_concept.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id) UNION (SELECT dohe.data_object_id FROM hierarchy_entries he JOIN data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id)");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $data_object_ids[$row['data_object_id']] = 1;
+        }
+        
+        $result = $GLOBALS['mysqli_connection']->query("(SELECT dohe.data_object_id FROM hierarchy_entries he JOIN hierarchy_entries_flattened hef ON (he.id=hef.ancestor_id) JOIN hierarchy_entries he_descendants ON (hef.hierarchy_entry_id=he_descendants.id) JOIN hierarchy_entries he_concept ON (he_descendants.taxon_concept_id=he_concept.taxon_concept_id) JOIN curated_data_objects_hierarchy_entries dohe ON (he_concept.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id) UNION (SELECT dohe.data_object_id FROM hierarchy_entries he JOIN curated_data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id)");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $data_object_ids[$row['data_object_id']] = 1;
+        }
+        
+        $result = $GLOBALS['mysqli_connection']->query("(SELECT udo.data_object_id FROM hierarchy_entries he JOIN hierarchy_entries_flattened hef ON (he.id=hef.ancestor_id) JOIN hierarchy_entries he_concept ON (hef.hierarchy_entry_id=he_concept.id) JOIN users_data_objects udo ON (he_concept.taxon_concept_id=udo.taxon_concept_id) WHERE he.taxon_concept_id=$taxon_concept_id) UNION (SELECT udo.data_object_id FROM users_data_objects udo WHERE udo.taxon_concept_id=$taxon_concept_id)");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $data_object_ids[$row['data_object_id']] = 1;
+        }
+        
         return array_keys($data_object_ids);
     }
 }

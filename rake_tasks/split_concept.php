@@ -44,9 +44,10 @@ if($he->taxon_concept_id != $bad_he->taxon_concept_id)
     exit;
 }
 
-if($confirmed == 'confirmed')
+if($confirmed == 'confirmed' || $confirmed == 'force')
 {
-    $force_move_if_disallowed = false;
+    if($confirmed == 'force') $force_move_if_disallowed = true;
+    else $force_move_if_disallowed = false;
     $update_caches = false;
     $user_id = 13;  # 13 is Patrick's user ID
     
@@ -76,6 +77,8 @@ if($confirmed == 'confirmed')
     echo "\n\nTaxonConcept1: $tc_to->id\n";
     echo "Descendant Objects:  $descendant_objects\n";
     echo "Descendant Concepts: $descendants\n";
+
+    echo "\n\nDon't forget to solr_update_concept.php\n\n";
 }
 
 ?>
