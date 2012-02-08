@@ -250,12 +250,12 @@ class LifeDeskAPI
     
     function details_tcs_synonym($id)
     {
-        $entry = new Synonym($id);
+        $entry = Synonym::find($id);
         
         $nomenclaturalCode = "Zoological";
         
         $scientific = "true";
-        if(strtolower($entry->synonym_relation->translation->label)=="common name") $scientific = "false";
+        if($entry->synonym_relation && $entry->synonym_relation->translation && strtolower($entry->synonym_relation->translation->label)=="common name") $scientific = "false";
         
         $return = "";
         $return .= "  <TaxonNames>\n";
@@ -267,7 +267,7 @@ class LifeDeskAPI
             $return .= "        <Simple>".htmlspecialchars($entry->name->canonical_form->string)."</Simple>\n";
             $return .= "      </CanonicalName>\n";
         }
-        if($agents = $entry->agents())
+        if($agents = $entry->agents)
         {
             $return .= "      <ProviderSpecificData>\n";
             $return .= "        <NameSources>\n";

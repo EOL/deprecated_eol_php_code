@@ -348,6 +348,7 @@ class DataObjectAncestriesIndexer
             WHERE do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
+        $query .= " GROUP BY do.id";
         
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {

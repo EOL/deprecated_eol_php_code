@@ -32,6 +32,7 @@ foreach($hierarchy_entry_ids as $id)
     $bgcolor = "#ffffff";
     if($hierarchy_entry->published == 0) $bgcolor = "#eeeeee";
     if($hierarchy_entry->vetted_id == Vetted::unknown()->id) $bgcolor = "#ffffcc";
+    if($hierarchy_entry->visibility_id == Visibility::invisible()->id) $bgcolor .= "; border:5px solid #990000; padding: 10px;";
     
     echo "<div style='background-color: $bgcolor'>";
     echo "<p align='right'><b>".$hierarchy_entry->hierarchy->label."</b><br>hierarchy_id: $hierarchy_entry->hierarchy_id<br>hierarchy_entry_id: $hierarchy_entry->id</p>";

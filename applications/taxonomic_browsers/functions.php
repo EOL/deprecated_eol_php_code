@@ -265,6 +265,7 @@ function show_name_he($hierarchy_entry, $indent, $expand)
     $display .= " <small>he_id:".$hierarchy_entry->id." ; tc_id:".$hierarchy_entry->taxon_concept_id."; id:".$hierarchy_entry->identifier." ;</small>";
     if($cf = @$hierarchy_entry->name->ranked_canonical_form->string) $display .= str_repeat("&nbsp;", 10)."<small>$cf</small>";
     else $display .= str_repeat("&nbsp;", 10)."<small>-----</small>";
+    if($r = @$hierarchy_entry->rank->translation->label) $display .= str_repeat("&nbsp;", 10)."<small>$r</small>";
     $display .= "<br>";
     
     return $display;
