@@ -17,7 +17,7 @@ class test_flickr_api extends SimpletestUnitBase
         $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 5, 1, FLICKR_PLEARY_AUTH_TOKEN, FLICKR_PLEARY_USER_ID);
         $this->assertTrue($response->photos->total == 2, 'Patrick should have submitted only 2 photos');
         
-        $first_photo = $response->photos->photo[0];
+        $first_photo = $response->photos->photo[1];
         $taxa = FlickrApi::get_taxa_for_photo($first_photo->id, $first_photo->secret, FLICKR_PLEARY_AUTH_TOKEN);
         $this->assertTrue(is_array($taxa), 'Taxa should be an array');
         
@@ -43,7 +43,7 @@ class test_flickr_api extends SimpletestUnitBase
         $this->assertTrue($dataObject->title == 'P1030143', 'Data object should have the right title');
         $this->assertTrue($dataObject->license == 'http://creativecommons.org/licenses/by-nc-sa/2.0/', 'Data object should have the right license');
         $this->assertTrue($dataObject->source == 'http://www.flickr.com/photos/pleary/2687301130/', 'Data object should have the right source');
-        $this->assertTrue($dataObject->mediaURL == 'http://farm4.static.flickr.com/3057/2687301130_c12f33ac24_o.jpg', 'Data object should have the right mediaURL');
+        $this->assertTrue($dataObject->mediaURL == 'http://farm4.staticflickr.com/3057/2687301130_c12f33ac24_o.jpg', 'Data object should have the right mediaURL');
         $this->assertTrue($dataObject->location == 'Copenhagen, Hovedstaden, Denmark', 'Data object should have the right location');
         
         $this->assertIsA($dataObject->agents[0], 'SchemaAgent', 'Data object should have an agent');

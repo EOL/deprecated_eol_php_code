@@ -32,7 +32,7 @@ class SchemaConnection
             foreach($t['common_names'] as &$c)
             {
                 $name = Name::find_or_create_by_string($c['name']);
-                $hierarchy_entry->add_synonym($name->id, SynonymRelation::find_or_create_by_translated_label('common name')->id, @$c['langauge']->id ?: 0, 0);
+                $hierarchy_entry->add_synonym($name->id, SynonymRelation::find_or_create_by_translated_label('common name')->id, @$c['language']->id ?: 0, 0);
             }
         }
         if(@$t['synonyms'])

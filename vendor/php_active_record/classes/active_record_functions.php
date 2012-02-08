@@ -384,13 +384,13 @@ function temp_filepath($relative_from_root = false, $extension = 'file')
     return $filepath;
 }
 
-function create_temp_dir()
+function create_temp_dir($prefix = 'dir')
 {
-    $filepath = DOC_ROOT ."tmp/dir_". random_digits(5);
+    $filepath = DOC_ROOT ."tmp/". $prefix ."_". random_digits(5);
     // make sure the name is unique
     while(glob($filepath))
     {
-        $filepath = DOC_ROOT ."tmp/dir_". random_digits(5);
+        $filepath = DOC_ROOT ."tmp/". $prefix ."_". random_digits(5);
     }
     mkdir($filepath);
     return $filepath;
@@ -459,6 +459,14 @@ function echo_each($array)
     while(list($key, $val) = each($array))
     {
         echo $val."\n";
+    }
+}
+
+function merge_arrays(&$from_array, &$to_array)
+{
+    foreach($from_array as $key => $val)
+    {
+        $to_array[] = $val;
     }
 }
 

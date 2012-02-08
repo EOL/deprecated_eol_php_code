@@ -20,7 +20,7 @@ class DarwinCoreArchiveHarvester
     function load_archive($uri)
     {
         // currently only recognizing tarred and gzipped files
-        if(!preg_match("/^(.*)\.(tgz|tar\.gz|tar\.gzip)$/", $uri, $arr)) throw new Exception("DarwinCore Archive must be tar/gzip");
+        if(!preg_match("/^(.*)\.(tgz|tar\.gz|tar\.gzip)$/", $uri, $arr)) throw new \Exception("DarwinCore Archive must be tar/gzip");
         $file_contents = Functions::get_remote_file($uri);
         if(!$file_contents) throw new \Exception("Cannot access DarwinCore Archive at $uri");
         $directory_name = $arr[1];
@@ -49,7 +49,7 @@ class DarwinCoreArchiveHarvester
         $metadata_xml = Functions::get_hashed_response($this->archive_directory."/meta.xml");
         
         $this->core = $this->load_core_or_extension($metadata_xml->core);
-        if(strcasecmp($this->core->row_type, "http://rs.tdwg.org/dwc/terms/Taxon") != 0) throw new Exception("Core row type must be http://rs.tdwg.org/dwc/terms/Taxon (".$this->core->row_type.")");
+        if(strcasecmp($this->core->row_type, "http://rs.tdwg.org/dwc/terms/Taxon") != 0) throw new \Exception("Core row type must be http://rs.tdwg.org/dwc/terms/Taxon (".$this->core->row_type.")");
         
         $this->extensions = array();
         foreach($metadata_xml->extension as $extension_xml)

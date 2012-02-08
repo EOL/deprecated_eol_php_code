@@ -177,11 +177,11 @@ class Tasks
         */
         
         $common_names = array();
-        $curator_preferreds = array();
-        $preferreds = array();
-        $result = $mysqli->query("SELECT he.published, he.visibility_id, s.id, s.hierarchy_id, s.hierarchy_entry_id, s.name_id, s.language_id, s.preferred, s.vetted_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id!=0 AND (s.synonym_relation_id=".SynonymRelation::genbank_common_name()->id." OR s.synonym_relation_id=".SynonymRelation::common_name()->id.") ORDER BY s.id DESC");
+        $preferred_in_language = array();
+        $result = $mysqli->query("SELECT he.published, he.visibility_id, s.id, s.hierarchy_id, s.hierarchy_entry_id, s.name_id, s.language_id, s.preferred, s.vetted_id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id) JOIN vetted v ON (s.vetted_id=v.id) WHERE he.taxon_concept_id=$taxon_concept_id AND s.language_id!=0 AND (s.synonym_relation_id=".SynonymRelation::genbank_common_name()->id." OR s.synonym_relation_id=".SynonymRelation::common_name()->id.") ORDER BY s.language_id, (s.hierarchy_id=".Hierarchy::contributors()->id.") DESC, v.view_order ASC, s.preferred DESC, s.id DESC");
         while($result && $row=$result->fetch_assoc())
         {
+            // skipping Wikipedia common names entirely
             if($row['hierarchy_id'] == Hierarchy::wikipedia()->id) continue;
             $curator_name = ($row['hierarchy_id'] == Hierarchy::contributors()->id);
             $ubio_name = ($row['hierarchy_id'] == Hierarchy::ubio()->id);
@@ -194,32 +194,43 @@ class Tasks
                 $preferred = $row["preferred"];
                 $vetted_id = $row["vetted_id"];
                 $hierarchy_id = $row["hierarchy_id"];
-                if(isset($preferreds[$language_id])) $preferred = 0;
-                if($preferred) $preferreds[$language_id] = 1;
-                $common_names[$synonym_id] = array($language_id, $name_id, $hierarchy_entry_id, $preferred, $vetted_id, $curator_name);
-                if($curator_name && $preferred) $curator_preferreds[$language_id] = 1;
+                if(isset($preferred_in_language[$language_id])) $preferred = 0;
+                if($preferred && $curator_name && ($vetted_id == Vetted::trusted()->id || $vetted_id == Vetted::unknown()->id))
+                {
+                    $preferred_in_language[$language_id] = 1;
+                }else $preferred = 0;
+                $common_names[] = array(
+                    'synonym_id' => $synonym_id,
+                    'language_id' => $language_id,
+                    'name_id' => $name_id,
+                    'hierarchy_entry_id' => $hierarchy_entry_id,
+                    'preferred' => $preferred,
+                    'vetted_id' => $vetted_id,
+                    'is_curator_name' => $curator_name);
             }
         }
         
-        foreach($common_names as $synonym_id => $arr)
+        // if there was no preferred name
+        foreach($common_names as $key => $arr)
         {
-            $language_id = $arr[0];
-            $curator_name = $arr[5];
-            if(!$curator_name && isset($curator_preferreds[$language_id])) $common_names[$synonym_id][3] = 0;
+            if(@!$preferred_in_language[$arr['language_id']] &&
+              ($arr['vetted_id'] == Vetted::trusted()->id || $arr['vetted_id'] == Vetted::unknown()->id))
+            {
+                $common_names[$key]['preferred'] = 1;
+                $preferred_in_language[$arr['language_id']] = 1;
+            }
         }
         
         
-        // TODO: not sure what to do here - what if the name was preferred by a curator? Should we ever delete common names? What if the hierarchy is unpublished (Col 2007)?
-        // $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$taxon_concept_id AND vern=1");
-        
-        /* Insert the scientific names */
-        foreach($common_names as $synonym_id => $arr)
+        /* Insert the common names */
+        foreach($common_names as $key => $arr)
         {
-            $language_id = $arr[0];
-            $name_id = $arr[1];
-            $hierarchy_entry_id = $arr[2];
-            $preferred = $arr[3];
-            $vetted_id = $arr[4];
+            $synonym_id = $arr['synonym_id'];
+            $language_id = $arr['language_id'];
+            $name_id = $arr['name_id'];
+            $hierarchy_entry_id = $arr['hierarchy_entry_id'];
+            $preferred = $arr['preferred'];
+            $vetted_id = $arr['vetted_id'];
             // echo "INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, vetted_id, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, $preferred, $vetted_id, $synonym_id)\n";
             $mysqli->insert("INSERT IGNORE INTO taxon_concept_names (taxon_concept_id, name_id, source_hierarchy_entry_id, language_id, vern, preferred, vetted_id, synonym_id) VALUES ($taxon_concept_id, $name_id, $hierarchy_entry_id, $language_id, 1, $preferred, $vetted_id, $synonym_id)");
         }

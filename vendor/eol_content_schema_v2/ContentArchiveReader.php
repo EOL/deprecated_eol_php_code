@@ -121,7 +121,8 @@ class ContentArchiveReader
         $table_definition->fields_enclosed_by = self::convert_escaped_chars($table_definition->fields_enclosed_by);
         
         // file location
-        $table_definition->file_uri = (string) $metadata_xml->files->location;
+        $table_definition->location = (string) $metadata_xml->files->location;
+        $table_definition->file_uri = $table_definition->location;
         // the URI is relative so add the path to the temp directory
         if(strpos($table_definition->file_uri, "/") === false)
         {
@@ -196,8 +197,10 @@ class ContentArchiveReader
             // rows are on newlines, so we can stream the file with an iterator
             if($table_definition->lines_terminated_by == "\n")
             {
+                $parameters['archive_table_definition'] =& $table_definition;
                 foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                 {
+                    $parameters['archive_line_number'] = $line_number;
                     $fields = $this->parse_table_row($table_definition, $line, $parameters);
                     if($fields == "this is the break message") break;
                     if($fields && $callback) call_user_func($callback, $fields, $parameters);

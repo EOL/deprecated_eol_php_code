@@ -106,12 +106,12 @@ class IUCNRedlistAPI
         foreach($common_name_languages as $language_list)
         {
             $language = $language_list->nodeValue;
-            $langauge_names = $xpath->query("//ul[@id='common_names']/li[@class='x_lang' and div = '$language']//li[@class='name']");
+            $language_names = $xpath->query("//ul[@id='common_names']/li[@class='x_lang' and div = '$language']//li[@class='name']");
             
             if(isset($GLOBALS['language_to_iso_code'][$language])) $language = $GLOBALS['language_to_iso_code'][$language];
-            foreach($langauge_names as $langauge_name)
+            foreach($language_names as $language_name)
             {
-                $common_name = @ucfirst(strtolower(trim($langauge_name->nodeValue)));
+                $common_name = @ucfirst(strtolower(trim($language_name->nodeValue)));
                 $taxon_parameters['commonNames'][] = new \SchemaCommonName(array('name' => $common_name, 'language' => $language));
             }
         }

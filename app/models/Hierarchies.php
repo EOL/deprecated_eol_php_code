@@ -49,7 +49,7 @@ class Hierarchy extends ActiveRecord
     
     static function contributors()
     {
-        return Hierarchy::find_by_label('Encyclopedia of Life Contributors');
+        return Hierarchy::find_or_create_by_label('Encyclopedia of Life Contributors');
     }
     
     static function ubio()

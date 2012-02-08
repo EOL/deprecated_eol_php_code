@@ -15,10 +15,26 @@ class Name extends ActiveRecord
     
     public static function is_surrogate($string)
     {
-        if(preg_match("/(^|[^\w])(incertae sedis|incertaesedis|culture|clone|isolate|phage|sp|cf|uncultured|DNA|unclassified|sect)([^\w]|$)/i", $string)) return true;
+        $red_flag_words = array('incertae sedis', 'incertaesedis', 'culture', 'clone', 'isolate',
+                                'phage', 'sp', 'cf', 'uncultured', 'DNA', 'unclassified', 'sect',
+                                'ß', 'str', 'biovar', 'type', 'strain', 'serotype', 'hybrid',
+                                'cultivar', 'x', '×', 'pop', 'group', 'environmental', 'sample',
+                                'endosymbiont', 'a', 'b', 'c', 'd', 'species', 'complex',
+                                'unassigned', 'n', 'gen', 'auct', 'non', 'aff');
+        if(preg_match("/(^|[^\w])(". implode("|", $red_flag_words) .")([^\w]|$)/i", $string)) return true;
+        if(preg_match("/(_|'|\")/i", $string)) return true;
         if(preg_match("/[0-9][a-z]/i", $string)) return true;
         if(preg_match("/[a-z][0-9]/i", $string)) return true;
+        if(preg_match("/[a-z]-[0-9]/i", $string)) return true;
+        if(preg_match("/ [0-9]{1,3}$/", $string)) return true;
+        if(preg_match("/(^|[^\w])[0-9]{1,3}-[0-9]{1,3}(^|[^\w])/", $string)) return true;
+        if(preg_match("/[0-9]{5,}/", $string)) return true;
+        if(preg_match("/[03456789][0-9]{3}/", $string)) return true; // years should start with 1 or 2
+        if(preg_match("/1[02345][0-9]{2}/", $string)) return true; // 1600 - 1900
+        if(preg_match("/2[1-9][0-9]{2}/", $string)) return true; // 1600 - 1900
         if(preg_match("/virus([^\w]|$)/i", $string)) return true;
+        
+        
         return false;
     }
     
@@ -37,14 +53,15 @@ class Name extends ActiveRecord
         if(@!$this->canonical_form_id)
         {
             $string = Functions::canonical_form($this->string);
-            $canonical_form = CanonicalForm::find_or_create_by_string($string);
-            $this->canonical_form_id = $canonical_form->id;
-            $this->canonical_verified = 0;
+            if($canonical_form = CanonicalForm::find_or_create_by_string($string))
+            {
+                $this->canonical_form_id = $canonical_form->id;
+                $this->canonical_verified = 0;
+            }
         }
         if(@!$this->ranked_canonical_form_id)
         {
-            $string = Functions::ranked_canonical_form($this->string);
-            if($string)
+            if($string = Functions::ranked_canonical_form($this->string))
             {
                 $ranked_canonical_form = CanonicalForm::find_or_create_by_string($string);
                 $this->ranked_canonical_form_id = $ranked_canonical_form->id;
