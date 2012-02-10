@@ -6,7 +6,7 @@ include_once(dirname(__FILE__) . "/../config/environment.php");
 $collection_id = @$argv[1];
 $confirmed = @$argv[2];
 
-if(!$collection_id || !is_numeric($collection_id) || ($confirmed && $confirmed != 'confirmed'))
+if(!$collection_id || !is_numeric($collection_id) || ($confirmed && ($confirmed != 'confirmed' && substr($confirmed, 0, 8) != 'ENV_NAME')))
 {
     echo "\n\n\treindex_solr_collection.php [collection_id] [confirmed]\n\n";
     exit;
