@@ -6,6 +6,139 @@ class Taxon extends DarwinCoreExtensionBase
     const EXTENSION_URL = 'http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd';
     const ROW_TYPE = 'http://rs.tdwg.org/dwc/terms/Taxon';
     
+    public static function validation_rules()
+    {
+        static $rules = array();
+        if(!$rules)
+        {
+            // these rules apply to individual fields
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonID',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Taxa must have identifiers'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/scientificName',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Taxa should have scientificNames'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonRank',
+                'validation_function'   => 'eol_schema\Taxon::valid_rank',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Taxa should have a valid rank'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonomicStatus',
+                'validation_function'   => 'eol_schema\Taxon::valid_taxon_status',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Taxa should have a valid taxonomicStatus'));
+            
+            // these rules apply to entire rows
+            $rules[] = new ContentArchiveRowValidationRule(array(
+                'validation_function'   => 'eol_schema\Taxon::validate_presence_of_any_name',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Taxa should contain a scientificName or minimally a kingdom, phylum, class, order, family or genus'));
+        }
+        return $rules;
+    }
+    
+    public static function valid_taxon_status($v)
+    {
+        if($v && !in_array($v, array(
+            'accepted',
+            'valid',
+            'current',
+            'heterotypicSynonym',
+            'homotypicSynonym',
+            'misapplied',
+            'proParteSynonym',
+            'synonym')))
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public static function valid_rank($v)
+    {
+        if($v && !in_array($v, array(
+            'kingdom',
+            'regnum',
+            'subkingdom',
+            'subregnum',
+            'division',
+            'phylum',
+            'divisio',
+            'subdivision',
+            'subphylum',
+            'subdivisio',
+            'class',
+            'classis',
+            'subclass',
+            'subclassis',
+            'order',
+            'ordo',
+            'suborder',
+            'subordo',
+            'family',
+            'familia',
+            'subfamily',
+            'subfamilia',
+            'tribe',
+            'tribus',
+            'subtribe',
+            'subtribus',
+            'genus',
+            'subgenus',
+            'section',
+            'sectio',
+            'subsection',
+            'subsectio',
+            'series',
+            'subseries',
+            'species',
+            'subspecies',
+            'variety',
+            'varietas',
+            'subvariety',
+            'subvarietas',
+            'form',
+            'forma',
+            'subform',
+            'subforma')))
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public static function validate_presence_of_any_name($fields)
+    {
+        if(@!$fields['http://rs.tdwg.org/dwc/terms/scientificName'] &&
+           @!$fields['http://rs.tdwg.org/dwc/terms/kingdom'] &&
+           @!$fields['http://rs.tdwg.org/dwc/terms/phylum'] &&
+           @!$fields['http://rs.tdwg.org/dwc/terms/class'] &&
+           @!$fields['http://rs.tdwg.org/dwc/terms/order'] &&
+           @!$fields['http://rs.tdwg.org/dwc/terms/family'] &&
+           @!$fields['http://rs.tdwg.org/dwc/terms/genus'])
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    
+    
+    
+    
+    
+    /*
+        Taxon is special in that it doesn't have an extension and allows fields from various schemas.
+        This method helps it load the URIs of the properties Taxon should contain.
+    */
     protected function load_extension()
     {
         if(isset($GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties']))
@@ -37,6 +170,25 @@ class Taxon extends DarwinCoreExtensionBase
             $this->accepted_properties[] = $property;
             $this->accepted_properties_by_name[$property['name']] = $property;
             $this->accepted_properties_by_uri[$property['uri']] = $property;
+            
+            // add ac:furthurInformationURL
+            $property = array();
+            $property['name'] = 'furtherInformationURL';
+            $property['namespace'] = 'http://rs.tdwg.org/ac/terms';
+            $property['uri'] = "http://rs.tdwg.org/ac/terms/furtherInformationURL";
+            $this->accepted_properties[] = $property;
+            $this->accepted_properties_by_name[$property['name']] = $property;
+            $this->accepted_properties_by_uri[$property['uri']] = $property;
+            
+            // add eol:referenceID
+            $property = array();
+            $property['name'] = 'referenceID';
+            $property['namespace'] = 'http://eol.org/schema/media';
+            $property['uri'] = "http://eol.org/schema/media/referenceID";
+            $this->accepted_properties[] = $property;
+            $this->accepted_properties_by_name[$property['name']] = $property;
+            $this->accepted_properties_by_uri[$property['uri']] = $property;
+            
             
             $schema_xml = self::download_extension(static::EXTENSION_URL);
             $xml = simplexml_load_string($schema_xml);

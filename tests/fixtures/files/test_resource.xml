@@ -20,6 +20,8 @@
   <commonName xml:lang='en'>some en common name</commonName>
   <commonName xml:lang='fr'>some fr common name</commonName>
   <commonName xml:lang='sp'>some sp common name</commonName>
+  <commonName xml:lang="en">Rueppell's Snake-eyed Skink</commonName>
+  <commonName xml:lang="ar">ﺪﻓﺎﻧ ﻕﺰﻣ</commonName>
   <synonym relationship='ambiguous synonym'>some ambig syn</synonym>
   <synonym relationship='heterotypic synonym'>some heterotypic synonym</synonym>
   <agent homepage="http://www.eol.org/agents/23" role="publisher" logoURL="http://www.akamai.com/graphics/misc/rss.jpg">Mike Stevens</agent>
