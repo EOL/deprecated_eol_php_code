@@ -221,7 +221,7 @@ class DataObject extends ActiveRecord
         if($guid = $find_result["exact"])
         {
             // Checking to see if there is an object with the same guid in the LAST harvest event for the given resource -> UNCHANGED or UPDATED
-            $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE data_object_id, harvest_event_id FROM data_objects_harvest_events WHERE guid='$guid' ORDER BY harvest_event_id DESC, data_object_id DESC LIMIT 0,1");
+            $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE dohe.data_object_id, dohe.harvest_event_id FROM data_objects_harvest_events dohe JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE dohe.guid='$guid' AND he.resource_id=$resource->id ORDER BY harvest_event_id DESC, data_object_id DESC LIMIT 0,1");
             while($result && $row = $result->fetch_assoc())
             {
                 $existing_data_object = DataObject::find($row["data_object_id"]);
@@ -257,7 +257,7 @@ class DataObject extends ActiveRecord
         }elseif($guids = $find_result["similar"])
         {
             // See if the metedata for this object is identical to previous similar objects -> REUSED or UPDATED
-            $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE data_object_id, harvest_event_id FROM data_objects_harvest_events WHERE guid IN ('".implode("','", $guids)."') ORDER BY harvest_event_id DESC, data_object_id DESC");
+            $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE data_object_id, harvest_event_id FROM data_objects_harvest_events dohe JOIN harvest_events he ON (dohe.harvest_event_id=he.id) WHERE guid IN ('".implode("','", $guids)."') AND he.resource_id=$resource->id ORDER BY harvest_event_id DESC, data_object_id DESC");
             while($result && $row = $result->fetch_assoc())
             {
                 $existing_data_object = DataObject::find($row["data_object_id"]);
