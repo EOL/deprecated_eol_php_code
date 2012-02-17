@@ -803,12 +803,12 @@ class TaxonPageMetrics
         $time_start = time_elapsed();
         print "\n saving to table...";
         $filename = PAGE_METRICS_TEXT_PATH . $this->table . ".txt";
-        $this->mysqli_slave->delete("DROP TABLE IF EXISTS " . $this->table . "_tmp");
-        $this->mysqli_slave->insert("CREATE TABLE IF NOT EXISTS " . $this->table . "_tmp LIKE " . $this->table); //debug taxon_concept_metrics_copy
-        $this->mysqli_slave->delete("TRUNCATE TABLE " . $this->table . "_tmp");
-        $this->mysqli_slave->load_data_infile($filename, $this->table . "_tmp");
-        $result = $this->mysqli_slave->query("SELECT 1 FROM " . $this->table . "_tmp LIMIT 1");
-        if($result && $row=$result->fetch_assoc()) $this->mysqli_slave->swap_tables($this->table, $this->table . '_tmp'); //debug taxon_concept_metrics_copy                                                                                               
+        $this->mysqli->delete("DROP TABLE IF EXISTS " . $this->table . "_tmp");
+        $this->mysqli->insert("CREATE TABLE IF NOT EXISTS " . $this->table . "_tmp LIKE " . $this->table); //debug taxon_concept_metrics_copy
+        $this->mysqli->delete("TRUNCATE TABLE " . $this->table . "_tmp");
+        $this->mysqli->load_data_infile($filename, $this->table . "_tmp");
+        $result = $this->mysqli->query("SELECT 1 FROM " . $this->table . "_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc()) $this->mysqli->swap_tables($this->table, $this->table . '_tmp'); //debug taxon_concept_metrics_copy                                                                                               
         print "\n table saved \n save_to_table():" . (time_elapsed()-$time_start)/60 . " minutes";
         print "\n" . date("Y-m-d H:i:s");
     }
