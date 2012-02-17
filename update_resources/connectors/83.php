@@ -6,9 +6,8 @@ set as a cron task to run every month
 
 Partner provides a list of URL's and each URL will list ID's.
 Then connector uses their service to read each ID and get the information needed.
-*/
 
-/* Temporarily not being used, but maybe revived, depends on MorphBank
+Not being used anymore, but maybe revived, depends on MorphBank
 $url_list_of_group_ids = "http://www.morphbank.net/eolids.xml";
 */
 
@@ -21,35 +20,30 @@ $image_ids = array();
 $schema_taxa = array();
 $used_taxa = array();
 $url_list_of_image_ids = "http://services.morphbank.net/mb3/request?method=eol&format=id&limit=-1";
-
 /* Excludes MorphBank IDs as suggested by BioImages Vanderbuilt */
 $excluded_MorphBank_IDs = prepare_excluded_ids();
-
 if($url_list_of_image_ids)
 {
     print "\n [url_list_of_image_ids: $url_list_of_image_ids] \n";
     $image_id_xml = Functions::get_hashed_response($url_list_of_image_ids);
     if($image_id_xml) 
     {
-        foreach($image_id_xml->id as $id) $image_ids[] = $id;    
+        foreach($image_id_xml->id as $id) $image_ids[] = $id;
     }
 }
-
 $total_image_ids = count($image_ids);
 print "\n count of image ID's = $total_image_ids";
-
 /* loop through image ids */
 $k = 0;
 foreach($image_ids as $image_id)
 {
     $k++;
-    if($k % 1000 == 0) sleep(120); // might need this as MorphBank service chokes on continues request. They have not yet solved this problem. Service still chokes.
+    if($k % 5000 == 0) sleep(60); // might need this as MorphBank service chokes on continues request. They have not yet solved this problem. Service still chokes.
     print "\n $image_id [$k of $total_image_ids]";
     print "\n " . $details_method_prefix . $image_id . " \n";
     if(!$xml = Functions::get_hashed_response($details_method_prefix . $image_id)) continue;
-
     foreach($xml->object as $object)
-    {           
+    {
         if(!$object["type"] == "Image") break;
         $dwc = $object->children("http://rs.tdwg.org/dwc/dwcore/");
         $dwc_Kingdom = trim($dwc->Kingdom);
@@ -76,8 +70,6 @@ foreach($image_ids as $image_id)
             $taxon_parameters["dataObjects"] = array();
             $used_taxa[$taxon_identifier] = $taxon_parameters;
         }
-
-        /* start dataobject - image */
         if(!in_array(trim($object->sourceId->morphbank), $excluded_MorphBank_IDs))
         {
             $dc_identifier = trim($object->sourceId->morphbank);
@@ -85,19 +77,15 @@ foreach($image_ids as $image_id)
             $dcterms_modified = trim($object->dateLastModified);
             $thumbnailURL = trim($object->thumbUrl);
             $dc_source = trim($object->detailPageUrl);
-
             $agent = array();
             $agent[] = array("role" => "source", "homepage" => "http://www.morphbank.net/?id=" . $object->submittedBy->userId, trim($object->submittedBy->uin));
-
             $image_type = trim($object->imageType);
             $copyright_text = trim($object->copyrightText);
             $license_text = trim($object->creativeCommons);
-
             $license = null;
             if(preg_match("/(http:\/\/creativecommons\.org\/licenses\/[^\/]+\/[^\/]+\/)/", $license_text, $arr)){$license = $arr[1];}
             if(stripos($license, "publicdomain") != "") $license = "http://creativecommons.org/licenses/publicdomain/";
             if(!$license) continue;
-
             $desc = null;
             if($object->dateCreated)$desc .= "<br>Date created: " . $object->dateCreated;
             if($object->dateLastModified)$desc .= "<br>Date modified: " . $object->dateLastModified;
@@ -115,7 +103,6 @@ foreach($image_ids as $image_id)
             $data_object_parameters = get_data_object($dc_identifier, $dcterms_created, $dcterms_modified, $copyright_text, $license, $agent, $desc, "image");
             $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);
         }
-        /* end dataobject - image */
         $used_taxa[$taxon_identifier] = $taxon_parameters;
     }
 }
@@ -129,20 +116,17 @@ $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
-
 // set MorphBank to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
 {
     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
 }
-
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours  \n";
 exit("\n\n Done processing.");
 
-//==========================================================================================
 function get_data_object($id, $created, $modified, $rightsHolder, $license, $agent, $description, $type)
 {
     $dataObjectParameters = array();
@@ -165,7 +149,6 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
         $dataObjectParameters["thumbnailURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=thumb";
         $dataObjectParameters["mediaURL"] = "http://www.morphbank.net/?id=" . $id . "&imgType=jpg";
     }
-
     $dataObjectParameters["description"] = $description;
     $dataObjectParameters["created"] = $created;
     $dataObjectParameters["modified"] = $modified;
@@ -173,7 +156,6 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
     $dataObjectParameters["language"] = "en";
     $dataObjectParameters["license"] = $license;
     $dataObjectParameters["source"] = "http://www.morphbank.net/?id=" . $id;
-
     $agents = array();
     foreach($agent as $agent)
     {  
@@ -185,7 +167,6 @@ function get_data_object($id, $created, $modified, $rightsHolder, $license, $age
         $agents[] = new \SchemaAgent($agentParameters);
     }
     $dataObjectParameters["agents"] = $agents;    
-
     $dataObjectParameters["audiences"] = array();
     $audienceParameters = array();
     $audienceParameters["label"] = "Expert users";
