@@ -1,13 +1,9 @@
 <?php
 namespace php_active_record;
-
-/* This is the old version of the TaxonPageMetrics. */
-
 define("PAGE_METRICS_TEXT_PATH", DOC_ROOT . "applications/taxon_page_metrics/text_files/");
 class TaxonPageMetrics
 {
     private $mysqli;
-
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
@@ -22,26 +18,34 @@ class TaxonPageMetrics
             $this->min_taxon_concept_id = $row['min'];
             $this->max_taxon_concept_id = $row['max'];
         }
+
+        print "\n" . date("Y-m-d H:i:s");
+        print "\n min: " . $this->min_taxon_concept_id;
+        print "\n max: " . $this->max_taxon_concept_id;
+        print "\n\n";
+        
+        $this->table = "taxon_concept_metrics";
     }
 
     /* prepare taxon concept totals for richness calculations */
     public function insert_page_metrics()
     {
-        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921,218284,328450,213726);
+        //$GLOBALS['test_taxon_concept_ids'] = array(206692,1,218294,7921,218284,328450,213726); //debug
         self::initialize_concepts_list();
-        self::get_images_count();                     //1
-        self::get_data_objects_count();               //2
-        self::get_concept_references();               //3
-        self::get_BHL_publications();                 //4
-        self::get_content_partner_count();            //5
-        self::get_outlinks_count();                   //6
-        self::get_GBIF_map_availability();            //7
-        self::get_biomedical_terms_availability();    //8
-        self::get_user_submitted_text_count();        //9
-        self::get_common_names_count();              //10
-        self::get_synonyms_count();                  //11
-        self::get_google_stats();                    //12
-        self::get_richness_score();                  //13
+        self::get_images_count();                   //1
+        self::get_data_objects_count();             //2
+        self::get_concept_references();             //3
+        self::get_BHL_publications();               //4
+        self::get_content_partner_count();          //5
+        self::get_outlinks_count();                 //6
+        self::get_GBIF_map_availability();          //7
+        self::get_biomedical_terms_availability();  //8
+        self::get_user_submitted_text_count();      //9
+        self::get_common_names_count();             //10
+        self::get_synonyms_count();                 //11
+        self::get_google_stats();                   //12
+        self::get_richness_score();                 //13
+        self::get_maps_count();                     //14
         self::save_to_table();
     }
 
@@ -51,19 +55,40 @@ class TaxonPageMetrics
         $sql = "SELECT tc.id FROM taxon_concepts tc WHERE tc.published = 1 AND tc.supercedure_id = 0";
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql.=" and tc.id in (" . implode(",", $GLOBALS['test_taxon_concept_ids']).")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
-        if (!copy($outfile, PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt")) print "\n failed to copy $outfile...\n";
+        if (!copy($outfile, PAGE_METRICS_TEXT_PATH . $this->table . ".txt")) print "\n failed to copy $outfile...\n";
         unlink($outfile);
         print "\n initialize_concepts_list():" . (time_elapsed()-$time_start)/60 . " minutes";
     }
 
+    function get_maps_count()
+    {
+        print "\n Maps count: [14 of 14] \n";
+        $time_start = time_elapsed(); 
+        $concept_data_object_maps = self::get_array_from_json_file("map_counts");
+        //convert associative array to a regular array
+        $data_type="image";
+        foreach($concept_data_object_maps as $taxon_concept_id => $taxon_object_counts)
+        {
+            $new_value = "";
+            $new_value .= "\t" . @$taxon_object_counts[$data_type]['total'];
+            $new_value .= "\t" . @$taxon_object_counts[$data_type]['t'];
+            $new_value .= "\t" . @$taxon_object_counts[$data_type]['ut'];
+            $new_value .= "\t" . @$taxon_object_counts[$data_type]['ur'];
+            $concept_data_object_maps[$taxon_concept_id] = $new_value;
+        }
+        print "\n get_images_count():" . (time_elapsed()-$time_start)/60 . " minutes";
+        self::save_totals_to_cumulative_txt($concept_data_object_maps, "tpm_map_counts");
+        unset($concept_data_object_maps);
+    }
+
     function get_richness_score()
     {
-        print "\n Richness score: [13 of 13] \n";
+        print "\n Richness score: [13 of 14] \n";
         $time_start = time_elapsed();
         require_library('PageRichnessCalculator');
         $run = new PageRichnessCalculator();
         $arr_taxa = array();
-        $READ = fopen(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt", "r");
+        $READ = fopen(PAGE_METRICS_TEXT_PATH . $this->table . ".txt", "r");
         while(!feof($READ))
         {
             if($line = fgets($READ))
@@ -97,7 +122,6 @@ class TaxonPageMetrics
                 $row = array($fields[0], $fields[2], $fields[4], $fields[10], $fields[12], $fields[14], $fields[16], $fields[18], $fields[20], $fields[26], 
                              $fields[28], $fields[34], $fields[36], $fields[42], $fields[44], $fields[49], $fields[57], $fields[58], $fields[60], $fields[62], 
                              $fields[59], $fields[64]);
-                //print "\n $tc_id count=" . count($fields);
                 $scores = $run->calculate_score_from_row($row);
                 $arr_taxa[$tc_id] = "\t" . $scores['total'];
             }
@@ -116,9 +140,8 @@ class TaxonPageMetrics
         if($result && $row=$result->fetch_assoc()) $year_month = $row['year_month'];
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
-            print "\n Google stats: page_views, unique_page_views [12 of 13] $i \n";
-            $sql = "SELECT gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views FROM google_analytics_page_stats gaps 
-            WHERE concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";
+            print "\n Google stats: page_views, unique_page_views [12 of 14] $i \n";
+            $sql = "SELECT gaps.taxon_concept_id, gaps.page_views, gaps.unique_page_views FROM google_analytics_page_stats gaps WHERE concat(gaps.year,'_',substr(gaps.month/100,3,2)) >= '$year_month'";
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and gaps.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND gaps.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -155,7 +178,7 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         $arr_taxa = array();
-        print "\n BHL publications [4 of 13]\n";
+        print "\n BHL publications [4 of 14]\n";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt";
         $FILE = fopen($filename, "r");
         $num_rows=0;
@@ -177,9 +200,9 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         $arr_taxa = array();
-        print "\n BOA_biomedical_terms [8 of 13]\n";
+        print "\n BOA_biomedical_terms [8 of 14]\n";
         $BOA_content_partner_id = ContentPartner::find_or_create_by_full_name('Biology of Aging')->id;
-        $BOA_content_partner_id = 39;
+        //$BOA_content_partner_id = 39;
         if(!$BOA_content_partner_id) 
         {
             self::save_totals_to_cumulative_txt(array(), "tpm_biomedical_terms");
@@ -211,7 +234,7 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         $arr_taxa = array();
-        print "\n GBIF_map [7 of 13]\n";
+        print "\n GBIF_map [7 of 14]\n";
         $sql = "SELECT tc.id tc_id FROM hierarchies_content hc JOIN hierarchy_entries he ON hc.hierarchy_entry_id = he.id JOIN taxon_concepts tc ON he.taxon_concept_id = tc.id WHERE hc.map > 0 AND tc.published = 1 AND tc.supercedure_id=0 ";
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -236,8 +259,11 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         $arr_taxa = array();
-        print "\n user_submitted_text, its providers [9 of 13]\n";
-        $sql = "SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id FROM users_data_objects udo JOIN data_objects do ON udo.data_object_id = do.id WHERE do.published=1 AND (udo.vetted_id IS NULL OR udo.vetted_id != " . Vetted::untrusted()->id .")";
+        print "\n user_submitted_text, its providers [9 of 14]\n";
+        $sql = "SELECT udo.taxon_concept_id tc_id, udo.data_object_id do_id, udo.user_id 
+        FROM users_data_objects udo 
+        JOIN data_objects do ON udo.data_object_id = do.id 
+        WHERE do.published=1 AND udo.vetted_id != " . Vetted::untrusted()->id . " ";
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and udo.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
@@ -281,7 +307,7 @@ class TaxonPageMetrics
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
             $tc_hierarchy_id = array();
-            print "\n content_partners [5 of 13] $i \n";
+            print "\n content_partners [5 of 14] $i \n";
             $sql = "SELECT he.taxon_concept_id tc_id, he.hierarchy_id FROM hierarchy_entries he where he.published = 1 AND he.visibility_id=".Visibility::visible()->id;
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND he.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
@@ -301,7 +327,6 @@ class TaxonPageMetrics
             }
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";
-
             foreach($tc_hierarchy_id as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);}
             unset($tc_hierarchy_id);
         }
@@ -316,7 +341,7 @@ class TaxonPageMetrics
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
             $temp = array();
-            print "\n outlinks [6 of 13] $i \n";
+            print "\n outlinks [6 of 14] $i \n";
             $sql = "SELECT he.taxon_concept_id tc_id, h.agent_id FROM hierarchies h JOIN hierarchy_entries he ON h.id = he.hierarchy_id WHERE (he.source_url != '' || ( h.outlink_uri is not null AND he.identifier != ''))";
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " AND he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND he.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
@@ -363,12 +388,8 @@ class TaxonPageMetrics
         $tc_hierarchy_id = array();
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
-            print "\n common_names and its providers [10 of 13] $i \n";
-            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id 
-            FROM hierarchy_entries he 
-            JOIN synonyms s ON he.id = s.hierarchy_entry_id 
-            WHERE s.synonym_relation_id IN (" . SynonymRelation::find_by_translated('label', "common name")->id . "," . SynonymRelation::find_by_translated('label', "genbank common name")->id . ")
-            AND he.published=1 AND he.visibility_id=". Visibility::visible()->id;
+            print "\n common_names and its providers [10 of 14] $i \n";
+            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id WHERE s.synonym_relation_id IN (" . SynonymRelation::find_by_translated('label', "common name")->id . "," . SynonymRelation::find_by_translated('label', "genbank common name")->id . ") AND he.published=1 AND he.visibility_id=". Visibility::visible()->id;
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND he.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -419,13 +440,8 @@ class TaxonPageMetrics
         $tc_hierarchy_id = array();
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
-            print "\n synonyms and its providers [11 of 13] $i \n";
-            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id 
-            FROM hierarchy_entries he 
-            JOIN synonyms s ON he.id = s.hierarchy_entry_id 
-            JOIN hierarchies h ON s.hierarchy_id = h.id 
-            WHERE s.synonym_relation_id NOT IN (" . SynonymRelation::find_by_translated('label', "common name")->id . "," . SynonymRelation::find_by_translated('label', "genbank common name")->id . ")
-            AND h.browsable=1 AND he.published=1 AND he.visibility_id=". Visibility::visible()->id;
+            print "\n synonyms and its providers [11 of 14] $i \n";
+            $sql = "SELECT he.taxon_concept_id tc_id, s.name_id, s.hierarchy_id h_id FROM hierarchy_entries he JOIN synonyms s ON he.id = s.hierarchy_entry_id JOIN hierarchies h ON s.hierarchy_id = h.id WHERE s.synonym_relation_id NOT IN (" . SynonymRelation::find_by_translated('label', "common name")->id . "," . SynonymRelation::find_by_translated('label', "genbank common name")->id . ") AND h.browsable=1 AND he.published=1 AND he.visibility_id=". Visibility::visible()->id;
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND he.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -463,7 +479,7 @@ class TaxonPageMetrics
     }
 
     function get_images_count($batch_size = 500000)
-    {            
+    {
         $time_start = time_elapsed(); 
         $concept_data_object_counts = array();
         $trusted_id     = Vetted::trusted()->id;
@@ -471,13 +487,12 @@ class TaxonPageMetrics
         $unreviewed_id  = Vetted::unknown()->id;
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
-            print "\n top images count [1 of 13] $i \n";
-            $sql = "SELECT DISTINCT tc.id tc_id, do.description, dohe.vetted_id, do.id 
-            FROM taxon_concepts tc 
+            print "\n top images count [1 of 14] $i \n";
+            $sql = "SELECT DISTINCT tc.id tc_id, do.description, dohe.vetted_id, do.id FROM taxon_concepts tc 
             JOIN top_concept_images tci ON tc.id = tci.taxon_concept_id 
             JOIN data_objects do ON tci.data_object_id = do.id 
-            JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
-            WHERE tc.published=1 AND tc.supercedure_id=0 AND do.published=1 and dohe.visibility_id=".Visibility::visible()->id;
+            JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id 
+            WHERE do.data_subtype_id IS NULL AND tc.published=1 AND tc.supercedure_id=0 AND do.published=1 and dohe.visibility_id=".Visibility::visible()->id;
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND tc.id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
@@ -545,7 +560,7 @@ class TaxonPageMetrics
         //$concept_references = array();
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
-            print "\n taxon ref count [3 of 13] $i \n";
+            print "\n taxon ref count [3 of 14] $i \n";
             $sql = "SELECT tc.id tc_id, her.ref_id FROM taxon_concepts tc JOIN hierarchy_entries he ON tc.id = he.taxon_concept_id JOIN hierarchy_entries_refs her ON he.id = her.hierarchy_entry_id WHERE tc.published = 1 AND tc.supercedure_id=0";
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND tc.id BETWEEN $i AND ". ($i + $batch_size);
@@ -589,8 +604,12 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed(); 
         $concept_data_object_counts = array();
+        $concept_data_object_maps = array();
+        $concept_info_items = array();
+        $concept_references = array();
         $gbif_image_id  = DataType::gbif_image()->id;
         $image_id       = DataType::image()->id;
+        $map_id         = DataType::map()->id;
         $text_id        = DataType::text()->id;
         $video_id       = DataType::video()->id;
         $sound_id       = DataType::sound()->id;
@@ -608,24 +627,22 @@ class TaxonPageMetrics
         $trusted_id     = Vetted::trusted()->id;
         $untrusted_id   = Vetted::untrusted()->id;
         $unreviewed_id  = Vetted::unknown()->id;
-        $concept_info_items = array();
-        $concept_references = array();
         for($i = $this->min_taxon_concept_id; $i <= $this->max_taxon_concept_id; $i += $batch_size)
         {
-            print "\n dataObjects, its infoItems, its references [2 of 13] $i \n";
-            $sql = "SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, dohe.vetted_id, do.id
+            print "\n dataObjects, its infoItems, its references [2 of 14] $i \n";
+            $sql = "SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, dohe.vetted_id, do.data_subtype_id
                 FROM data_objects_taxon_concepts dotc 
                 JOIN data_objects do ON dotc.data_object_id = do.id 
                 LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id 
                 LEFT JOIN data_objects_refs dor ON do.id = dor.data_object_id 
                 JOIN data_objects_hierarchy_entries dohe on do.id = dohe.data_object_id
-                WHERE do.published=1 AND dohe.visibility_id=".Visibility::visible()->id." 
-                AND do.data_type_id <> $image_id ";
+                WHERE do.published=1 AND dohe.visibility_id=".Visibility::visible()->id . " AND dohe.vetted_id != $untrusted_id ";
+                //." AND do.data_type_id <> $image_id "; this has to be removed to count maps
             if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and dotc.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
             else $sql .= " AND dotc.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
             $sql .= "
                 UNION
-                SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, udo.vetted_id, do.id
+                SELECT dotc.taxon_concept_id tc_id, do.data_type_id, doii.info_item_id, dor.ref_id, do.description, udo.vetted_id, do.data_subtype_id
                     FROM data_objects_taxon_concepts dotc 
                     JOIN data_objects do ON dotc.data_object_id = do.id 
                     LEFT JOIN data_objects_info_items doii ON do.id = doii.data_object_id 
@@ -652,40 +669,57 @@ class TaxonPageMetrics
                     $ref_id         = trim($fields[3]);
                     $description    = trim($fields[4]);
                     $vetted_id      = trim($fields[5]);
+                    $data_subtype_id = trim($fields[6]);
                     
                     $label = @$data_type_label[$data_type_id];
-                    $words_count = str_word_count(strip_tags($description),0);
-                    @$concept_data_object_counts[$tc_id][$label]['total']++;
-                    @$concept_data_object_counts[$tc_id][$label]['total_w']+= $words_count;
-                    if($vetted_id == $trusted_id)
+                    if($data_subtype_id != $map_id)
                     {
-                        @$concept_data_object_counts[$tc_id][$label]['t']++;
-                        @$concept_data_object_counts[$tc_id][$label]['t_w']+= $words_count;
+                      $words_count = str_word_count(strip_tags($description),0);
+                      @$concept_data_object_counts[$tc_id][$label]['total']++;
+                      @$concept_data_object_counts[$tc_id][$label]['total_w']+= $words_count;
+                      if($vetted_id == $trusted_id)
+                      {
+                          @$concept_data_object_counts[$tc_id][$label]['t']++;
+                          @$concept_data_object_counts[$tc_id][$label]['t_w']+= $words_count;
+                      }
+                      elseif($vetted_id == $untrusted_id)
+                      {
+                          @$concept_data_object_counts[$tc_id][$label]['ut']++;
+                          @$concept_data_object_counts[$tc_id][$label]['ut_w']+= $words_count;
+                      }
+                      elseif($vetted_id == $unreviewed_id)
+                      {
+                          @$concept_data_object_counts[$tc_id][$label]['ur']++;
+                          @$concept_data_object_counts[$tc_id][$label]['ur_w']+= $words_count;
+                      }
+                      $concept_info_items[$tc_id][$info_item_id]='';
+                      $concept_references[$tc_id][$ref_id]='';
                     }
-                    elseif($vetted_id == $untrusted_id)
+                    else
                     {
-                        @$concept_data_object_counts[$tc_id][$label]['ut']++;
-                        @$concept_data_object_counts[$tc_id][$label]['ut_w']+= $words_count;
+                        @$concept_data_object_maps[$tc_id][$label]['total']++;
+                        if    ($vetted_id == $trusted_id) @$concept_data_object_maps[$tc_id][$label]['t']++;
+                        elseif($vetted_id == $untrusted_id) @$concept_data_object_maps[$tc_id][$label]['ut']++;
+                        elseif($vetted_id == $unreviewed_id) @$concept_data_object_maps[$tc_id][$label]['ur']++;
                     }
-                    elseif($vetted_id == $unreviewed_id)
-                    {
-                        @$concept_data_object_counts[$tc_id][$label]['ur']++;
-                        @$concept_data_object_counts[$tc_id][$label]['ur_w']+= $words_count;
-                    }
-                    $concept_info_items[$tc_id][$info_item_id]='';
-                    $concept_references[$tc_id][$ref_id]='';
+
                 }
             }
             fclose($FILE);
             unlink($outfile);
             print "\n num_rows: $num_rows";
         }
-        self::save_to_json_file($concept_info_items,"concept_info_items");
+        self::save_to_json_file($concept_info_items, "concept_info_items");
         unset($concept_info_items);
-        self::save_to_json_file($concept_references,"concept_references");
+        self::save_to_json_file($concept_references, "concept_references");
         unset($concept_references);
+
+        //save map data to be accessed later
+        self::save_to_json_file($concept_data_object_maps, "map_counts");
+        unset($concept_data_object_maps);        
+
         //convert associative array to a regular array
-        $data_type_order_in_file = array("text","video","sound","flash","youtube","iucn");
+        $data_type_order_in_file = array("text", "video", "sound", "flash", "youtube", "iucn");
         foreach($concept_data_object_counts as $taxon_concept_id => $taxon_object_counts)
         {
             $new_value = "";
@@ -707,7 +741,7 @@ class TaxonPageMetrics
         unset($concept_data_object_counts);
     }
 
-    function save_to_json_file($arr,$filename)
+    function save_to_json_file($arr, $filename)
     {
         $WRITE = fopen(PAGE_METRICS_TEXT_PATH . $filename . ".txt", "w");
         fwrite($WRITE, json_encode($arr));
@@ -720,16 +754,16 @@ class TaxonPageMetrics
         $READ = fopen($filename, "r");
         $contents = fread($READ, filesize($filename));
         fclose($READ);
-        return json_decode($contents,true);
+        return json_decode($contents, true);
     }
 
     function save_totals_to_cumulative_txt($arr, $category)
     {
         // expects $arr to equal "\t#" or "\t#\t#\t#"
         $time_start = time_elapsed(); print "\n $category --- start";
-        rename(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt", PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt.tmp");
-        $WRITE = fopen(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt", "a");
-        $READ = fopen(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt.tmp", "r");
+        rename(PAGE_METRICS_TEXT_PATH . $this->table . ".txt", PAGE_METRICS_TEXT_PATH . $this->table . ".txt.tmp");
+        $WRITE = fopen(PAGE_METRICS_TEXT_PATH . $this->table . ".txt", "a");
+        $READ = fopen(PAGE_METRICS_TEXT_PATH . $this->table . ".txt.tmp", "r");
         $num_rows = 0;
         $str = "";
         while(!feof($READ))
@@ -751,6 +785,7 @@ class TaxonPageMetrics
                            $category == "tpm_google_stats")         fwrite($WRITE, str_repeat("\t", 2));
                     elseif($category == "tpm_data_objects")         fwrite($WRITE, str_repeat("\t", 48));
                     elseif($category == "tpm_data_objects_images")  fwrite($WRITE, str_repeat("\t", 8));
+                    elseif($category == "tpm_map_counts")           fwrite($WRITE, str_repeat("\t", 4));
                     else                                            fwrite($WRITE, str_repeat("\t", 1));
                 }
                 fwrite($WRITE, "\n");
@@ -767,80 +802,16 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         print "\n saving to table...";
-        $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt";
-        $this->mysqli->delete("DROP TABLE IF EXISTS taxon_concept_metrics_tmp");
-        $this->mysqli->insert("CREATE TABLE IF NOT EXISTS taxon_concept_metrics_tmp LIKE taxon_concept_metrics"); //debug taxon_concept_metrics_copy
-        $this->mysqli->delete("TRUNCATE TABLE taxon_concept_metrics_tmp");
-        $this->mysqli->load_data_infile($filename, "taxon_concept_metrics_tmp");
-        $result = $this->mysqli->query("SELECT 1 FROM taxon_concept_metrics_tmp LIMIT 1");
-        if($result && $row=$result->fetch_assoc()) $this->mysqli->swap_tables('taxon_concept_metrics', 'taxon_concept_metrics_tmp'); //debug taxon_concept_metrics_copy                                                                                               
+        $filename = PAGE_METRICS_TEXT_PATH . $this->table . ".txt";
+        $this->mysqli_slave->delete("DROP TABLE IF EXISTS " . $this->table . "_tmp");
+        $this->mysqli_slave->insert("CREATE TABLE IF NOT EXISTS " . $this->table . "_tmp LIKE " . $this->table); //debug taxon_concept_metrics_copy
+        $this->mysqli_slave->delete("TRUNCATE TABLE " . $this->table . "_tmp");
+        $this->mysqli_slave->load_data_infile($filename, $this->table . "_tmp");
+        $result = $this->mysqli_slave->query("SELECT 1 FROM " . $this->table . "_tmp LIMIT 1");
+        if($result && $row=$result->fetch_assoc()) $this->mysqli_slave->swap_tables($this->table, $this->table . '_tmp'); //debug taxon_concept_metrics_copy                                                                                               
         print "\n table saved \n save_to_table():" . (time_elapsed()-$time_start)/60 . " minutes";
+        print "\n" . date("Y-m-d H:i:s");
     }
-
-    /* work in progress - or may use a different approach altogether when we store taxon_concept_id in PAGE_NAMES table.
-    public function get_concepts_with_bhl_publications()
-    {
-        $start = 0;
-        $max_id = 9;
-        $iteration_size = 10000;
-        
-        // $result = $mysqli->query("SELECT min(id) min, max(id) max FROM taxon_concepts WHERE supercedure_id=0 AND published=1");
-        // if($result && $row=$result->fetch_assoc())
-        // {
-        //     $start = $row['min'];
-        //     $max_id = $row['max'];
-        // }
-        
-        $file_path = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links_test.txt";
-        $OUT = fopen($file_path, "w+");
-        for($i=$start ; $i<$max_id ; $i+=$iteration_size)
-        {
-            $outfile = $this->mysqli_slave->select_into_outfile("
-                SELECT tcn.taxon_concept_id, ip.title_item_id
-                FROM taxon_concept_names tcn
-                JOIN page_names pn ON (tcn.name_id=pn.name_id)
-                JOIN item_pages ip ON (pn.item_page_id=ip.id)
-                WHERE tcn.taxon_concept_id BETWEEN $i AND ".($i+$iteration_size)."
-                ORDER BY tcn.taxon_concept_id");
-            
-            $previous_taxon_concept_id = 0;
-            $this_concepts_items = array();
-            //$it = new FileIterator($outfile);
-            foreach(array(1,2,3) as $val)
-            {
-                $columns = explode("\t", $line);
-                $taxon_concept_id = $columns[0];
-                $title_item_id = $columns[1];
-                
-                // we're on a new concept
-                if($taxon_concept_id != $previous_taxon_concept_id)
-                {
-                    // write this concepts items to file
-                    if($this_concepts_items)
-                    {
-                        fwrite($OUT, "$previous_taxon_concept_id\t". count($this_concepts_items) ."\n");
-                    }
-                    
-                    // reset item counter
-                    $this_concepts_items = array();
-                }
-                
-                // add this item to the counter
-                $this_concepts_items[$title_item_id] = 1;
-            }
-            
-            // write the items for the last concept
-            if($this_concepts_items)
-            {
-                fwrite($OUT, "$previous_taxon_concept_id\t". count($this_concepts_items) ."\n");
-            }
-            
-            // remove the mysql result file
-            unlink($outfile);
-        }
-        fclose($OUT);
-    }
-    */
 
     public function generate_taxon_concept_with_bhl_links_textfile($batch_size = 500000) //execution time: 17 minutes
     {
@@ -852,7 +823,7 @@ class TaxonPageMetrics
         {
             print "\n generate_taxon_concept_with_bhl_links_textfile -- $i \n";
             $sql = "SELECT DISTINCT tc.id tc_id FROM taxon_concepts tc JOIN taxon_concept_names tcn on (tc.id=tcn.taxon_concept_id) JOIN page_names pn on (tcn.name_id=pn.name_id) WHERE tc.supercedure_id=0 AND tc.published=1";
-            $sql .= " AND tc.id BETWEEN $i AND ". ($i + $batch_size);
+            $sql .= " AND tc.id BETWEEN $i AND " . ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
             $num_rows = 0;
@@ -874,7 +845,7 @@ class TaxonPageMetrics
         foreach($tc_ids as $id => $rec) $str .= $id . "\n";
         unset($tc_ids);
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt.tmp";
-        $fp = fopen($filename,"w"); 
+        $fp = fopen($filename, "w"); 
         fwrite($fp, $str); 
         fclose($fp); 
         //rename
@@ -917,7 +888,7 @@ class TaxonPageMetrics
                     $save_count++;
                     if($save_count == 1000)
                     {
-                        $fp = fopen($write_filename,"a");
+                        $fp = fopen($write_filename, "a");
                         print "\n writing...";
                         fwrite($fp,$str);
                         fclose($fp);
