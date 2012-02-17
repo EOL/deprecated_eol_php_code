@@ -1,10 +1,10 @@
 <?php
 namespace php_active_record;
 /* connector: [349] */
+define("TUCANES_SOURCE_URL", "http://www.siac.net.co/sib/catalogoespecies/especie.do?method=displayAAT&idBuscar=");
 class TucanesAPI
 {
     private static $MAPPINGS;
-
     public static function get_all_taxa()
     {
         self::$MAPPINGS = self::assign_mappings();
@@ -148,7 +148,7 @@ class TucanesAPI
             {
                 $sciname = @$taxon["http://rs.tdwg.org/dwc/terms/scientificName"];
                 $arr_data[]=array(  "identifier"   => $taxon_id,
-                                    "source"       => "",
+                                    "source"       => TUCANES_SOURCE_URL . $taxon_id,
                                     "kingdom"      => @$taxon["http://rs.tdwg.org/dwc/terms/kingdom"],
                                     "phylum"       => @$taxon["http://rs.tdwg.org/dwc/terms/phylum"],
                                     "class"        => @$taxon["http://rs.tdwg.org/dwc/terms/class"],
@@ -187,7 +187,7 @@ class TucanesAPI
                 $license        = "http://creativecommons.org/licenses/by-nc-sa/2.5/";
                 $rightsHolder   = @$taxon["image"]['rightsHolder'][$i];
                 $created        = @$taxon["image"]['created'][$i];
-                $source         = "";
+                $source         = TUCANES_SOURCE_URL . @$taxon["id"];
                 $agent          = array();
                 if(@$taxon["image"]['creator'][$i]) $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => @$taxon["image"]['creator'][$i]);
                 if(@$taxon["image"]['publisher'][$i]) $agent[] = array("role" => "publisher", "homepage" => "", "fullName" => @$taxon["image"]['publisher'][$i]);
@@ -227,7 +227,7 @@ class TucanesAPI
         $location      = "";
         $license       = "http://creativecommons.org/licenses/by-nc-sa/2.5/";
         $rightsHolder  = @$taxon["http://purl.org/dc/terms/rightsHolder"];
-        $source        = "";
+        $source        = TUCANES_SOURCE_URL . $taxon["id"];
         $refs          = array();
         $agent         = self::get_agents($taxon_text);
         $created       = $taxon_text["http://purl.org/dc/terms/created"];
