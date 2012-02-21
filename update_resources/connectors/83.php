@@ -33,6 +33,7 @@ if($url_list_of_image_ids)
 }
 $total_image_ids = count($image_ids);
 print "\n count of image ID's = $total_image_ids";
+if($total_image_ids == 0) exit("\n Program will terminate. MorphBank service not ready.");
 /* loop through image ids */
 $k = 0;
 foreach($image_ids as $image_id)
