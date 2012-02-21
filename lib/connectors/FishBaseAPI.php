@@ -1,30 +1,22 @@
 <?php
 namespace php_active_record;
 /* connector: [42]  */
-
 class FishBaseAPI
 {
-    public function __construct() 
-    {           
-        $this->TAXON_PATH = "http://www.fishbase.us/for_eol/taxon.txt";
-        $this->TAXON_COMNAMES_PATH = "http://www.fishbase.us/for_eol/taxon_comnames.txt";
-        $this->TAXON_DATAOBJECT_PATH = "http://www.fishbase.us/for_eol/taxon_dataobject.txt";
-        $this->TAXON_DATAOBJECT_AGENT_PATH = "http://www.fishbase.us/for_eol/taxon_dataobject_agent.txt";
-        $this->TAXON_DATAOBJECT_REFERENCE_PATH = "http://www.fishbase.us/for_eol/taxon_dataobject_reference.txt";
-        $this->TAXON_REFERENCES_PATH = "http://www.fishbase.us/for_eol/taxon_references.txt";
-        $this->TAXON_SYNONYMS_PATH = "http://www.fishbase.us/for_eol/taxon_synonyms.txt";
-
-        // $this->TAXON_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_copy.txt";
-        // $this->TAXON_COMNAMES_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_comnames_copy.txt";
-        // $this->TAXON_DATAOBJECT_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_dataobject_copy.txt";
-        // $this->TAXON_DATAOBJECT_AGENT_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_dataobject_agent_copy.txt";
-        // $this->TAXON_DATAOBJECT_REFERENCE_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_dataobject_reference_copy.txt";
-        // $this->TAXON_REFERENCES_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_references_copy.txt";
-        // $this->TAXON_SYNONYMS_PATH = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/taxon_synonyms_copy.txt";
-
-        $this->TEMP_FILE_PATH = DOC_ROOT . "/update_resources/connectors/files/FishBase/";
+    public function __construct()
+    {
+        // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase.zip";
+        $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
+        $this->TAXON_PATH                       = "";
+        $this->TAXON_COMNAMES_PATH              = "";
+        $this->TAXON_DATAOBJECT_PATH            = "";
+        $this->TAXON_DATAOBJECT_AGENT_PATH      = "";
+        $this->TAXON_DATAOBJECT_REFERENCE_PATH  = "";
+        $this->TAXON_REFERENCES_PATH            = "";
+        $this->TAXON_SYNONYMS_PATH              = "";
+        $this->TEMP_FILE_PATH                   = "";
     }
-    
+
     function get_all_taxa($resource_id)
     {
         $data = self::prepare_data();
@@ -35,15 +27,14 @@ class FishBaseAPI
         $taxon_dataobject            = $data["taxon_dataobject"];
         $GLOBALS['taxon_dataobject_agent'] = $data["taxon_dataobject_agent"];
         $GLOBALS['taxon_dataobject_reference']  = $data["taxon_dataobject_reference"];
-
         $all_taxa = array();
         $i = 0;
         $total = count(array_keys($taxa));
-        $batch = 500; //debug orig 1000
+        $batch = 1000; //debug orig 1000
         $batch_count = 0;
         foreach($taxa as $taxon)
         {
-            $i++; print "\n$i of $total " . $taxon["dwc_ScientificName"] . "\n";
+            $i++; print "\n$i of $total " . $taxon["dwc_ScientificName"];
             $taxon_record["taxon"] = $taxon;
             $taxon_id = $taxon["int_id"];
             $taxon_record["common_names"] = @$taxon_comnames[$taxon_id];
@@ -65,7 +56,6 @@ class FishBaseAPI
                 $all_taxa = array();
             }
         }
-        
         //last batch
         $batch_count++;
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
@@ -73,43 +63,67 @@ class FishBaseAPI
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
         fclose($OUT);
-
         Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "FB_*.xml");
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
         self::delete_temp_files($this->TEMP_FILE_PATH . "FB_*.xml");
     }
 
+    function load_zip_contents()
+    {
+        $this->TEMP_FILE_PATH = create_temp_dir() . "/";
+        print "\n " . $this->TEMP_FILE_PATH;
+        if($file_contents = Functions::get_remote_file($this->fishbase_data, DOWNLOAD_WAIT_TIME, 999999))
+        {
+            $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
+            $TMP = fopen($temp_file_path, "w");
+            fwrite($TMP, $file_contents);
+            fclose($TMP);
+            $output = shell_exec("tar -xzf $temp_file_path -C $this->TEMP_FILE_PATH");
+            $this->TAXON_PATH                       = $this->TEMP_FILE_PATH . "/taxon.txt";
+            $this->TAXON_COMNAMES_PATH              = $this->TEMP_FILE_PATH . "/taxon_comnames.txt";
+            $this->TAXON_DATAOBJECT_PATH            = $this->TEMP_FILE_PATH . "/taxon_dataobject.txt";
+            $this->TAXON_DATAOBJECT_AGENT_PATH      = $this->TEMP_FILE_PATH . "/taxon_dataobject_agent.txt";
+            $this->TAXON_DATAOBJECT_REFERENCE_PATH  = $this->TEMP_FILE_PATH . "/taxon_dataobject_reference.txt";
+            $this->TAXON_REFERENCES_PATH            = $this->TEMP_FILE_PATH . "/taxon_references.txt";
+            $this->TAXON_SYNONYMS_PATH              = $this->TEMP_FILE_PATH . "/taxon_synonyms.txt";
+        }
+        else exit("\n\n Connector terminated. Remote files are not ready.\n\n");
+        // remove tmp dir
+        // if($this->TEMP_FILE_PATH) shell_exec("rm -fr $this->TEMP_FILE_PATH");
+    }
+
     function prepare_data()
     {
+        self::load_zip_contents();
         //taxon
         $fields = array("TaxonID", "dc_identifier", "dc_source", "dwc_Kingdom", "dwc_Phylum", "dwc_Class", "dwc_Order", "dwc_Family", "dwc_Genus", "dwc_ScientificName", "dcterms_created", "dcterms_modified", "int_id", "ProviderID");
         $taxon = self::make_array($this->TAXON_PATH, $fields, "", array(0,10,11,13), "");
-
+        print "\n taxa";
         //taxon_comnames
         $fields = array("commonName", "xml_lang", "int_id");
         $taxon_comnames = self::make_array($this->TAXON_COMNAMES_PATH, $fields, "int_id");
-
+        print "\n comnames";
         //taxon_dataobject
         $fields = array("TaxonID", "dc_identifier", "dataType", "mimeType", "dcterms_created", "dcterms_modified", "dc_title", "dc_language", "license", "dc_rights", "dcterms_bibliographicCitation", "dc_source", "subject", "dc_description", "mediaURL", "thumbnailURL", "location", "xml_lang", "geo_point", "lat", "long", "alt", "timestamp", "int_id", "int_do_id", "dc_rightsHolder");
         $taxon_dataobject = self::make_array($this->TAXON_DATAOBJECT_PATH, $fields, "int_id", array(0,4,5,7,17,18,19,20,21,22));
-
+        print "\n dataobject";
         //taxon_dataobject_agent
         $fields = array("agent", "homepage", "logoURL", "role", "int_do_id", "timestamp");
         $taxon_dataobject_agent = self::make_array($this->TAXON_DATAOBJECT_AGENT_PATH, $fields, "int_do_id", array(5));
-
+        print "\n agents";
         //taxon_dataobject_reference
         $fields = array("reference", "bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn", "int_do_id");
         $taxon_dataobject_reference = self::make_array($this->TAXON_DATAOBJECT_REFERENCE_PATH, $fields, "int_do_id", array(1,2,3,4,5,7,8,9,10,12));
-
+        print "\n dataObject references";
         //taxon_references
         $fields = array("reference", "bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn", "int_id", "timestamp", "autoctr");
         $taxon_references = self::make_array($this->TAXON_REFERENCES_PATH, $fields, "int_id", array(1,2,3,4,5,7,8,9,10,12,14,15));
-
+        print "\n taxon references";
         //taxon_synonyms
         $fields = array("synonym", "author", "relationship", "int_id", "timestamp", "autoctr");
         $taxon_synonyms = self::make_array($this->TAXON_SYNONYMS_PATH, $fields, "int_id", array(1,4,5));
-
-        return array("taxon"                        => $taxon, 
+        print "\n synonyms \n";
+        return array("taxon"                        => $taxon,
                      "taxon_comnames"               => $taxon_comnames,
                      "taxon_dataobject"             => $taxon_dataobject,
                      "taxon_dataobject_agent"       => $taxon_dataobject_agent,
@@ -122,10 +136,8 @@ class FishBaseAPI
     {
         $data = array();
         $READ = fopen($filename, "r");
-
         $line = fgets($READ);
         if(stripos($line, "\t") == "") exit("\n\n Connector terminated. Remote files are not ready.\n\n");
-        
         $included_fields = array();
         while(!feof($READ))
         {
@@ -148,7 +160,6 @@ class FishBaseAPI
             }
         }
         fclose($READ);
-
         $included_fields = array_unique($included_fields);
         if($index_key)
         {
@@ -166,10 +177,7 @@ class FishBaseAPI
         {
             $index_value = $record["$index_key"];
             $temp = array();
-            foreach($included_fields as $field)
-            {
-                $temp[$field] = $record[$field];
-            }
+            foreach($included_fields as $field) $temp[$field] = $record[$field];
             $data[$index_value][] = $temp;
         }
         return $data;
@@ -214,24 +222,6 @@ class FishBaseAPI
 
     function get_images($dataobjects, $arr_objects)
     {
-        /*
-        [] => FB-Diseases-2-19
-        [] => http://purl.org/dc/dcmitype/Text
-        [] => text/html
-        [] => 
-        [dc_language] => \N
-        [] => http://creativecommons.org/licenses/by-nc/3.0/
-        [dc_rights] => 
-        [dcterms_bibliographicCitation] => \N
-        [] => http://www.fishbase.org/Diseases/diseasesList.cfm?ID=2&StockCode=1
-        [] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Diseases
-        [] => Fish louse Infestation 1. Parasitic infestations (protozoa, worms, etc.)
-        [] => 
-        [thumbnailURL] => 
-        [] => 
-        [int_do_id] => 38
-        */
-        
         foreach($dataobjects as $rec)
         {
             $agent = array();
@@ -312,10 +302,7 @@ class FishBaseAPI
 
     function delete_temp_files($files)
     {
-        foreach (glob($files) as $filename)
-        {
-           unlink($filename);
-        }
+        foreach (glob($files) as $filename) unlink($filename);
     }
 
 }
