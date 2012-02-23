@@ -9,13 +9,13 @@ define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/dep
 define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/spenv_small.csv");
 */
 
-// define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data.csv");
-// define("OBIS_ANCESTRY_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825.csv");
+define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data.csv");
+define("OBIS_ANCESTRY_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825.csv");
 
-///* to use small dataset
+/* to use small dataset
 define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data_small.csv");
 define("OBIS_ANCESTRY_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825_small.csv");
-//*/
+*/
 
 define("OBIS_RANK_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/rank.xls");
 define("OBIS_DATA_PATH", DOC_ROOT . "/update_resources/connectors/files/OBIS/");
