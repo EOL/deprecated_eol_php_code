@@ -74,7 +74,7 @@ class EOLStats
         //Page Richness Statistics 
         $time_start = time_elapsed();
         $stats['rich_pages'] = $this->rich_pages(); // % of all pages (total number of taxon concepts) that are rich - with a score of 40 or more
-        $hotlist = self::get_hotlist();
+        $hotlist = self::get_hotlist_v2();
         $stats['hotlist_pages'] = count($hotlist);
         $stats['rich_hotlist_pages'] = $this->get_rich_pages($hotlist); // % pages on the hotlist that are rich - The official version of the hotlist (names & EOL ids) is now maintained here:
         $collection_ids = array(10675, 10667);
@@ -481,11 +481,35 @@ class EOLStats
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
+    public function get_hotlist_v2()
+    {
+        require_vendor('google_api');
+        $spreadsheet_tables_api = new \google_api\GoogleSpreadsheetsAPI($GLOBALS['GOOGLE_USERNAME'], $GLOBALS['GOOGLE_PASSWORD'], @$_SESSION['GOOGLE_AUTH_TOKEN'], 'Hotlist Spreadsheet Reader');
+
+        $response = $spreadsheet_tables_api->get_spreadsheets();
+        foreach($response->entry as $entry)
+        {
+            if($entry->title == "SPG Hotlist Official Version")
+            {
+                $URL_for_spreadsheet = $entry->content['src'];
+                $spreadsheet_repsonse = $spreadsheet_tables_api->get_response($URL_for_spreadsheet);
+                $sheet_url = $spreadsheet_repsonse->entry->link[0]['href'];
+                $worksheet_repsonse = $spreadsheet_tables_api->get_response($sheet_url);
+                $taxon_concept_ids = array();
+                foreach($worksheet_repsonse->entry as $entry)
+                {
+                    $id = (int) $entry->content;
+                    if($id) @$taxon_concept_ids[$id] = '';
+                }
+                return array_keys($taxon_concept_ids);
+            }
+        }
+        return array();
+    }
+
     public function get_hotlist()
     {
         $filename = "http://dl.dropbox.com/u/7597512/SPG/SPG%20Hotlist%20Official%20Version.tsv";
-        // $filename = "https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key=0AvGmk5nsoeBldE9aWEtIMlc1WjJUTzZzb21kUGhBb2c%20&exportFormat=tsv";
-        // $filename = "https://docs.google.com/spreadsheet/ccc?key=0AvGmk5nsoeBldE9aWEtIMlc1WjJUTzZzb21kUGhBb2c";
         $data = array();
         $READ = fopen($filename, "r");
         while(!feof($READ))
@@ -494,13 +518,13 @@ class EOLStats
             {
                 $line = trim($line);
                 $fields = explode("\t", $line);
-                $data[$fields[1]] = '';
+                @$data[$fields[1]] = '';
             }
         }
         fclose($READ);
         $data = array_keys($data);
-        array_pop($data);
-        return $data; // delete last element, it is not an ID but a label string 'ID'.
+        array_pop($data); // delete last element, it is not an ID but a label string 'ID'.
+        return $data;
     }
 
     public function rich_pages()
