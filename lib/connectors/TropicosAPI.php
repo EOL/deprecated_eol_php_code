@@ -376,7 +376,9 @@ class TropicosAPI
 
             /* we are not allowed to get the bigger size images, only thumbnails
             $mediaURL   = TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH . $rec->ImageId . "&maxwidth=600"; */
-            $mediaURL = $rec->ThumbnailUrl;
+            if($rec->DetailJpgUrl == 'http://www.tropicos.org/images/imageprotected.jpg') $mediaURL = $rec->ThumbnailUrl;
+            else                                                                          $mediaURL = $rec->DetailJpgUrl;
+
             $refs = array();
             $description .= "<br>Full sized images can be obtained by going to the <a href='$source'>original source page</a>.";
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);

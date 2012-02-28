@@ -51,6 +51,11 @@ class DataType extends ActiveRecord
     {
         return DataType::find_or_create_by_schema_value('YouTube');
     }
+
+    public static function map()
+    {
+        return DataType::find_or_create_by_schema_value('Map');
+    }
     
     public static function sound_type_ids()
     {

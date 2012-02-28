@@ -14,7 +14,7 @@ $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
 
 $file = 'http://localhost/~eolit/eol_php_code/applications/content_server/resources/amphib_dump.xml';
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
-$new_resource_xml = file_get_contents($file);
+$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 999999);
 $new_resource_xml = utf8_encode($new_resource_xml);
 
 // These may look like the same wrong characters - but they are several different wrong characters
@@ -139,6 +139,7 @@ $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
+Functions::set_resource_status_to_force_harvest($resource_id);
 shell_exec("rm ".$new_resource_path);
 $elapsed_time_sec = microtime(1)-$timestart;
 echo "\n";

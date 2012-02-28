@@ -23,7 +23,7 @@ $resource_id = 218;
 if(isset($argv[1])) $call_multiple_instance = false;
 else $call_multiple_instance = true;
 
-TropicosAPI::start_process($resource_id, $call_multiple_instance);
+TropicosAPI::start_process($resource_id, false);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";

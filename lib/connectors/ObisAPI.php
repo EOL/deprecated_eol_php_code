@@ -5,20 +5,20 @@ define("GOOGLE_CHART_DOMAIN", "http://chart.apis.google.com/");
 define("OBIS_SPECIES_PAGE", "http://www.iobis.org/mapper/?taxon_id=");
 
 /* from 1st version of the connector
-define("OBIS_DATA_FILE"    , DOC_ROOT . "/update_resources/connectors/files/OBIS/depthenv20100825_small.csv");
-define("OBIS_DATA_FILE"    , DOC_ROOT . "/update_resources/connectors/files/OBIS/spenv_small.csv");
+define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/depthenv20100825_small.csv");
+define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/spenv_small.csv");
 */
 
-define("OBIS_DATA_FILE"    , DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS data.csv");
-define("OBIS_ANCESTRY_FILE"  , DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825.csv");
+define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data.csv");
+define("OBIS_ANCESTRY_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825.csv");
 
 /* to use small dataset
-define("OBIS_DATA_FILE"    , DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS data_small.csv");
-define("OBIS_ANCESTRY_FILE"  , DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825_small.csv");
+define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data_small.csv");
+define("OBIS_ANCESTRY_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825_small.csv");
 */
 
-define("OBIS_RANK_FILE"      , DOC_ROOT . "/update_resources/connectors/files/OBIS/rank.xls");
-define("OBIS_DATA_PATH"      , DOC_ROOT . "/update_resources/connectors/files/OBIS/");
+define("OBIS_RANK_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/rank.xls");
+define("OBIS_DATA_PATH", DOC_ROOT . "/update_resources/connectors/files/OBIS/");
 
 class ObisAPI
 {
@@ -236,7 +236,8 @@ class ObisAPI
                      "source"      => $source,
                      "description" => $description,
                      "license"     => $license,
-                     "subject"     => $subject
+                     "subject"     => $subject,
+                     "language"    => "en"
                     );
     }
     
