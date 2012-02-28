@@ -1,0 +1,6 @@
+<?php
+
+$GLOBALS['GOOGLE_USERNAME'] = '';
+$GLOBALS['GOOGLE_PASSWORD'] = '';
+
+?>

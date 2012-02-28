@@ -3,7 +3,7 @@ namespace php_active_record;
 
 class ActiveRecordError extends \Exception
 {
-    public static function printException(Exception $e)
+    public static function printException(\Exception $e)
     {
         if(@$GLOBALS['ENV_DEBUG_TO_FILE'])
         {
@@ -17,7 +17,7 @@ class ActiveRecordError extends \Exception
              "<pre>". $e->getTraceAsString() ."</pre>\n";
     }
     
-    public static function handleException(Exception $e)
+    public static function handleException(\Exception $e)
     {
         //static::printException($e);
         self::printException($e);
