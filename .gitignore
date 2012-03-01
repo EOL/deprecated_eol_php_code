@@ -88,6 +88,7 @@ update_resources/connectors/run.bat
 update_resources/connectors/set.php
 update_resources/connectors/XML_check.php
 vendor/eol_content_schema_v2/extension_cache/*
+vendor/google_api/config.php
 
 .DS_Store
 
