@@ -4,13 +4,6 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-// print_r(image_detail('http://www.biopix.com/pig-sus-scrofa-domesticus_photo-18632.aspx', 'asdf'));
-// // print_r(get_images_for_taxon('http://www.biopix.com/pig-sus-scrofa-domesticus_photo-18632.aspx', array("kingdom" => "Animalia", "phylum" => "Chordata", "class" => "Mammalia")));
-// exit;
-
-
-$resource = Resource::find(31);
-
 $urls = array();
 $urls["AlgerLaver"]         = "http://www.biopix.com/category.aspx?category=AlgerLaver&families=0";
 $urls["PadderKrybdyr"]      = "http://www.biopix.com/category.aspx?category=PadderKrybdyr&families=0";
@@ -90,7 +83,7 @@ fclose($resource_file);
 rename(CONTENT_RESOURCE_LOCAL_PATH . "31_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "31.xml");
 
 // set Flickr to force harvest
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "31.xml"))
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "31.xml") > 600)
 {
     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=31");
 }
@@ -109,7 +102,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "31.xml"))
 function get_images_for_taxon($url, $kingdom)
 {
     $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url, NULL, 120));
-    if(preg_match("/title='see all' href='species\.asp\?searchtext=([^']*?)'> *overview/", $html, $arr))
+    if(preg_match("/href='ssspecies.aspx\?species=(.*?)&amp;[^']+' title='Slideshow'>/", $html, $arr))
     {
         $taxon_url = "http://www.biopix.com/species.asp?searchtext=". $arr[1];
         $name = ucfirst(str_replace("-", " ", $arr[1]));
@@ -130,6 +123,7 @@ function grab_images($url, $name, $kingdom)
     static $images_for_this_taxon = 0;
     $images_for_this_taxon = 0;
     
+    $url = str_replace(" ", "%20", $url);
     $html = preg_replace("/(\n|\r|\t)/", " ", Functions::get_remote_file($url, NULL, 120));
     
     if(preg_match("/href='family\.asp\?category=.*?&amp;family=(.*?)'>\.\.\. *see all/ims", $html, $arr))

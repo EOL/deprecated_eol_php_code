@@ -27,7 +27,7 @@ fclose($resource_file);
 rename(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "211.xml");
 
 // set to force harvest
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml"))
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml") > 600)
 {
     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=211");
 }

@@ -11,7 +11,7 @@ require_library('connectors/USFishWildlifeAPI');
 $resource_id = 266;
 USFishWildlifeAPI::get_all_taxa_keys($resource_id);
 // set to force harvest
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
 {
     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
 }

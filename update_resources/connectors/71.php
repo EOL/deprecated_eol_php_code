@@ -223,7 +223,7 @@ function create_resource_file()
     \SchemaDocument::get_taxon_xml($all_taxa, $FILE);
     fclose($FILE);
     
-    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml"))
+    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml") > 600)
     {
         @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
         @rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
