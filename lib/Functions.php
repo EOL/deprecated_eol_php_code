@@ -1574,7 +1574,7 @@ class Functions
 
     public static function set_resource_status_to_force_harvest($resource_id)
     {
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
     }
 
     //4 functions for queueing task in connectors
