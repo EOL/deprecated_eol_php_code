@@ -43,7 +43,7 @@ class HydrothermalVentLarvaeAPI
 
     public static function search_collections($url)//this will output the raw (but structured) output from the external service
     {
-        $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
+        if(!$html = utf8_decode(Functions::get_remote_file_fake_browser($url))) exit("\n\n Content partner's server is down, connector will now terminate.\n");
         $html = self::clean_html($html);
         $arr_url_list = self::get_url_list($html);        
         $response = self::scrape_species_page($arr_url_list);
@@ -129,7 +129,7 @@ class HydrothermalVentLarvaeAPI
         foreach($arr_url_list as $rec)
         {
             $sourceURL = $rec["url"];
-            $html = utf8_decode(Functions::get_remote_file_fake_browser($sourceURL));
+            if(!$html = utf8_decode(Functions::get_remote_file_fake_browser($sourceURL))) exit("\n\n Content partner's server is down, connector will now terminate.\n");
             $html = self::clean_html($html);
 
             $species = "";

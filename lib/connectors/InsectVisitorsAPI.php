@@ -97,7 +97,7 @@ class InsectVisitorsAPI
     function process_gen_desc($url, $ancestry, $type)
     {
         print "\n\n file: $url \n";
-        $html = Functions::get_remote_file($url);
+        if(!$html = Functions::get_remote_file($url)) exit("\n\n Content partner's server is down, connector will now terminate.\n");
         $html = str_ireplace("&amp;", "and", $html);
         $html = self::clean_str($html);
         if(preg_match("/<BLOCKQUOTE>(.*?)<\/BLOCKQUOTE>/ims", $html, $match))
@@ -141,7 +141,7 @@ class InsectVisitorsAPI
 
     function process_birds($url, $ancestry, $type)
     {
-        $html = Functions::get_remote_file($url);
+        if(!$html = Functions::get_remote_file($url)) exit("\n\n Content partner's server is down, connector will now terminate.\n");
         /*HREF="birds/hummingbird.htm" NAME="hummingbird">Archilochus colubris</A><BR></B><FONT COLOR="#000000">(Ruby-Throated Hummingbird)</FONT></FONT></FONT></TD>*/
         if(preg_match_all("/href=\"$type(.*?)<\/td>/ims", $html, $matches))
         {
@@ -166,7 +166,7 @@ class InsectVisitorsAPI
 
     function process_insects($url, $ancestry)
     {
-        $html = Functions::get_remote_file($url);
+        if(!$html = Functions::get_remote_file($url)) exit("\n\n Content partner's server is down, connector will now terminate.\n");
         /*<a href="plants/velvetleaf.htm" name="velvetleaf">Abutilon theophrastii (Velvet Leaf)</a>*/
         if(preg_match_all("/href=\"plants(.*?)<\/a>/ims", $html, $matches))
         {
@@ -202,7 +202,7 @@ class InsectVisitorsAPI
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
             print "\n $url -- $taxon_name";
-            $html = Functions::get_remote_file($url);
+            if(!$html = Functions::get_remote_file($url)) exit("\n\n Content partner's server is down, connector will now terminate.\n");
             if(preg_match("/<B>(.*?)<BLOCKQUOTE>/ims", $html, $match))
             {
                 $title = strip_tags(self::clean_str($match[1]), "<BR>");
@@ -224,7 +224,7 @@ class InsectVisitorsAPI
         $urls = array("http://www.illinoiswildflowers.info/flower_insects/files/family_names.htm", "http://www.illinoiswildflowers.info/flower_insects/files/common_names.htm");
         foreach($urls as $url)
         {
-            $html = Functions::get_remote_file($url);
+            if(!$html = Functions::get_remote_file($url)) exit("\n\n Content partner's server is down, connector will now terminate.\n");
             $html = str_ireplace("</FONT></FONT></FONT>", "<U>", $html); // so that last block is included in preg_match_all
             $html = str_ireplace("etc.", "", $html);
             if(preg_match_all("/<\/U>(.*?)<U>/ims", $html, $matches))

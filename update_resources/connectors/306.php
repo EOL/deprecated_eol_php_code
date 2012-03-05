@@ -34,9 +34,9 @@ fwrite($OUT, $xml);
 fclose($OUT);
 
 // set to force harvest
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 25000)
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+    Functions::set_resource_status_to_force_harvest($resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

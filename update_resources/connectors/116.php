@@ -1,23 +1,17 @@
 <?php
+namespace php_active_record;
 /* connector for Ascidians
-estimated execution time: 10-13 mins.
-
+estimated execution time: 9 minutes.
 Connector screen scrapes the partner website.
-
 */
-exit;//it can run in Beast but not too often for the data in website to change, maybe 3-4 updates in a year.
 
-$timestart = microtime(1);
+//it can run on Beast but not too often for the data in website to change, maybe 3-4 updates in a year.
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$mysqli =& $GLOBALS['mysqli_connection'];
+$timestart = time_elapsed();
 
-$not_found=0;
-$wrap = "\n"; 
-//$wrap = "<br>"; 
- 
-$resource = new Resource(116);//The Dutch Ascidians Homepage 
-//exit($resource->id);
+
+$resource_id = 116;//The Dutch Ascidians Homepage 
 $url_list=array();
 
 $schema_taxa = array();
@@ -50,14 +44,17 @@ $urls = array( 0  => array( "url" => $path . "didemnidae/didemnidae.htm"        
                15 => array( "url" => $path . "styelidae/styelidae.htm"                  ,"family"=>"Styelidae"          , "active" => 1),   //                
                16 => array( "url" => $path . "thaliacea/thaliacea.htm"                  ,"family"=>"Thaliacea (Salps)"  , "active" => 1)
              );
+
+
+        
 $do_count=0;
 $i=0;
 foreach($urls as $path)
 {    
     if($path["active"])
     {        
-        print $i+1 . ". " . $path["url"] . "$wrap";        
-        process_file1($path["url"],$i,$path["family"]); 
+        print $i+1 . ". " . $path["url"] . "\n";        
+        process_file1($path["url"], $i, $path["family"]); 
         /*
         process_file1 will assemble the $url_list array:
         [141] => Array
@@ -83,39 +80,25 @@ foreach($urls as $path)
     $i++;
 }    
 
-print"<pre>";print_r($url_list);print"</pre>";
-
-
-//start - 2nd part is loop through the $url_list and extract the image dataobject
+//2nd part is loop through the $url_list and extract the image dataobject
 process_file2($url_list);
-//end - 2nd part is loop through the $url_list and extract the image dataobject
 
-
-foreach($used_taxa as $taxon_parameters)
-{
-    $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
-}
-////////////////////// ---
-$new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
-$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
+foreach($used_taxa as $taxon_parameters) $schema_taxa[] = new \SchemaTaxon($taxon_parameters);
+$new_resource_xml = \SchemaDocument::get_taxon_xml($schema_taxa);
+$old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
 $OUT = fopen($old_resource_path, "w+");
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
-////////////////////// ---
-$elapsed_time_sec = microtime(1)-$timestart;
-echo "$wrap";
-echo "elapsed time = $elapsed_time_sec sec              $wrap";
-echo "elapsed time = " . $elapsed_time_sec/60 . " min   $wrap";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr $wrap";
-
+$elapsed_time_sec = time_elapsed()-$timestart;
+echo "\n";
+echo "elapsed time = $elapsed_time_sec sec              \n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 exit("\n\n Done processing.");
-//######################################################################################################################
-//######################################################################################################################
-//######################################################################################################################
+
 function process_file2($url_list)
 {        
 
-    global $wrap;
     global $used_taxa;
     
     //start first get a unique list of scinames    
@@ -137,7 +120,7 @@ function process_file2($url_list)
             }
         }    
     }        
-    print"$wrap Unique sciname list: $wrap<pre>";print_r($unique_sciname);print"<pre>";
+    print"\n Unique sciname list: \n<pre>";print_r($unique_sciname);print"<pre>";
     //exit;
     //end first get a unique list of scinames    
     
@@ -155,7 +138,7 @@ function process_file2($url_list)
             $desc = "image caption";
             
             if($sciname == "")print "jjj";            
-            print "$i. $sciname $wrap";
+            print "$i. $sciname \n";
             //print "$desc";                      
             
             $dc_source = $arr["url"];
@@ -167,7 +150,7 @@ function process_file2($url_list)
             $dc_rights = "";
             
     
-            assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$family);
+            assign_variables($sciname, $desc, $arr_agents, $dc_rights, $dc_source, $family);
                                     
         }        
     }//main loop
@@ -176,9 +159,8 @@ function process_file2($url_list)
         
 }//end function process_file2($file)
 
-function proc_species_page($url,$sciname,$family)
+function proc_species_page($url, $sciname, $family)
 {
-    global $wrap;
     global $url_list;
     
     $url_list[] = array("sciname"=>$sciname,"family"=>$family,"url"=>$url);
@@ -192,19 +174,19 @@ function proc_species_page($url,$sciname,$family)
     $str = strip_tags($str,"<a>");
     //print"<hr>$str";
     
-    $str = str_ireplace('<a href="' , 'xxx<a href="', $str);	
-    $str = str_ireplace('xxx' , "&arr[]=", $str);	
+    $str = str_ireplace('<a href="' , 'xxx<a href="', $str);    
+    $str = str_ireplace('xxx' , "&arr[]=", $str);   
     $str=trim($str);
-    $arr=array();	
-    parse_str($str);	
-    print "after parse_str recs = " . count($arr) . "$wrap $wrap";	
+    $arr=array();   
+    parse_str($str);    
+    print "after parse_str recs = " . count($arr) . "\n \n";    
     //print"<pre>";print_r($arr);print"</pre>";
     //exit;
     
     foreach($arr as $temp_url)
     {
         $temp = get_href_from_anchor_tag(trim($temp_url));
-        //print "$temp $wrap";
+        //print "$temp \n";
         if(substr($temp,0,2)!=".." and substr($temp,0,4)!="http" and substr($temp,0,4)!="file")
         {
             $url_list[] = array("sciname"=>$sciname,"family"=>$family,"url"=>$first_part_of_url . "/" . $temp);
@@ -225,57 +207,36 @@ function proc_species_page($url,$sciname,$family)
    
     return;
 }
-function process_file1($file,$doc_id,$family)
+function process_file1($file, $doc_id, $family)
 {        
-    global $wrap;
     global $used_taxa;
     global $url_list;
     
-    print "$wrap";    
+    print "\n";    
     $str = Functions::get_remote_file($file);        
-    
- 
-    /*
-    $str = str_ireplace('<td height="26">&nbsp;</td>','<td height="26"></td>',$str);
-    $str = str_ireplace('<td height="30" colspan="5">&nbsp;</td>','<td height="30" colspan="5"></td>',$str);
-    */
-    
-
-
-    
-    //print "<hr>$str"; exit;
-    
     $beg='<table'; $end1='</table>';
-    $str = $beg . " " . trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"")) . " " . $end1;            
-    
-    $species_url_arr = get_tabular_data($str,$file);
-      
+    $str = $beg . " " . trim(parse_html($str, $beg, $end1, $end1, $end1, $end1,"")) . " " . $end1;            
+    $species_url_arr = get_tabular_data($str, $file);
     print"<pre>";print_r($species_url_arr);print"</pre>";//exit;//this is count of thumbnails in the thumbnail summary
-    
     $i=0;
     foreach($species_url_arr as $str)
     {
         $i++;
         print"$i. ";
-        //if($i >= 5)break; //debug        //ditox                
-        //if(in_array($i,array(1,3)))        
-        if(true)
-        {   
-            if($str["active"])
-            {
-                $temp = proc_species_page($str["url"],$str["caption"],$family);
-                print $str["url"];
-            }
-            else print "inactive";
-        }   
-        print"$wrap";     
+        //if($i >= 5) break; //debug
+        if($str["active"])
+        {
+            $temp = proc_species_page($str["url"], $str["caption"], $family);
+        }
+        else print "inactive";
+        print"\n";     
     }//main loop    
     
     
     //print"<pre>";print_r($url_list);print"</pre>";
     //exit;            
 }//end function process_file1($file)
-function get_tabular_data($str,$file)
+function get_tabular_data($str, $file)
 {
     /*
     <table>
@@ -291,7 +252,6 @@ function get_tabular_data($str,$file)
         </tr>
     </table>
     */
-    global $wrap;
 
     $str = str_ireplace("&" , "___", $str);    
         
@@ -308,9 +268,9 @@ function get_tabular_data($str,$file)
         
     $str=trim($str);
     
-    $arr=array();	
-    parse_str($str);	
-    //print "after parse_str recs = " . count($arr) . "$wrap $wrap";
+    $arr=array();   
+    parse_str($str);    
+    //print "after parse_str recs = " . count($arr) . "\n \n";
     $arr_tr = $arr;
     
     print"<pre>";print_r($arr);print"</pre>";//exit;
@@ -324,11 +284,11 @@ function get_tabular_data($str,$file)
         $i++;
         
         $tr = str_ireplace("<td" , "xxx<td"     , $tr);
-        $tr = str_ireplace('xxx' , "&arr[]=" , $tr);	    
+        $tr = str_ireplace('xxx' , "&arr[]=" , $tr);        
         $arr=array();
-        parse_str($tr);	
+        parse_str($tr); 
          /*        
-        print "after parse_str recs = " . count($arr) . "$wrap $wrap";                
+        print "after parse_str recs = " . count($arr) . "\n \n";                
         print"<pre>";print_r($arr);print"</pre>";        
         exit;
          */
@@ -355,7 +315,7 @@ function get_tabular_data($str,$file)
             else                              $active=true;
         }
         
-        print strlen(trim($sciname)) . " -- [$sciname] $active $wrap";
+        print strlen(trim($sciname)) . " -- [$sciname] $active \n";
         
         $url = strip_tags($img_url[$i],"<a>");
         $url = get_href_from_anchor_tag($url);        
@@ -375,174 +335,105 @@ function get_tabular_data($str,$file)
 
 
 
-function assign_variables($sciname,$desc,$arr_agents,$dc_rights,$dc_source,$family)
+function assign_variables($sciname, $desc, $arr_agents, $dc_rights, $dc_source, $family)
 {
     global $species_list;
     global $used_taxa;
     global $keys_url;
-    global $wrap;
-    global $not_found;    
-    
     global $url_list;
-        
-        $taxon_identifier   = str_ireplace(" ", "_", $sciname) . "_ascidians";
-        $source_url         = $dc_source;            
-        $do_identifier      = str_ireplace(" ", "_", $sciname) . "_ascidians_object";            
 
-
-        if(@$used_taxa[$taxon_identifier])
+    $taxon_identifier   = str_ireplace(" ", "_", $sciname) . "_ascidians";
+    $source_url         = $dc_source;            
+    $do_identifier      = str_ireplace(" ", "_", $sciname) . "_ascidians_object";            
+    if(@$used_taxa[$taxon_identifier]) $taxon_parameters = $used_taxa[$taxon_identifier];
+    else
+    {
+        $taxon_parameters = array();
+        $taxon_parameters["identifier"] = $taxon_identifier;
+        $taxon_parameters["family"] = $family;
+        $taxon_parameters["scientificName"]= $sciname;                    
+        $taxon_parameters["source"] = $source_url;
+        $taxon_parameters["dataObjects"]= array();        
+        $used_taxa[$taxon_identifier] = $taxon_parameters;
+    }        
+    foreach($url_list as $rec)
+    {
+        if($rec["sciname"] == $sciname)
         {
-            $taxon_parameters = $used_taxa[$taxon_identifier];
-        }
-        else
-        {
-            $taxon_parameters = array();
-            $taxon_parameters["identifier"] = $taxon_identifier;
-            
-            /*
-            $taxon_parameters["kingdom"] = trim(@$species_list["$sciname"]["Kingdom"]);
-            $taxon_parameters["class"] = trim(@$species_list["$sciname"]["Class"]);
-            $taxon_parameters["order"] = trim(@$species_list["$sciname"]["Order"]);
-            $taxon_parameters["genus"] = trim(@$species_list["$sciname"]["Genus"]);
-            */
-            $taxon_parameters["family"] = $family;
-            
-                        
-            $taxon_parameters["scientificName"]= $sciname;                    
-            $taxon_parameters["source"] = $source_url;
-
-            /*
-            $taxon_parameters["commonNames"] = array();
-            $arr_comname=conv_2array($comname);
-            foreach ($arr_comname as $commonname) 
-            {
-                $commonname = str_ireplace(';' , '', $commonname);
-                $taxon_parameters["commonNames"][] = new \SchemaCommonName(array("name" => $commonname, "language" => "en"));
-            }
-            */
-            
-            /////////////////////////////////////////////////////////////
-            /*
-            $taxon_params["synonyms"] = array();
-            $arr_synonym=conv_2array($synonymy);
-            foreach ($arr_synonym as $synonym) 
-            {
-                $taxon_parameters["synonyms"][] = new \SchemaSynonym(array("synonym" => $synonym, "relationship" => "synonym"));
-            }
-            */
-            /////////////////////////////////////////////////////////////
-            
-            $taxon_parameters["dataObjects"]= array();        
-            $used_taxa[$taxon_identifier] = $taxon_parameters;
-        }        
-        
-        //start text dataobject                
-        /*
-        $dc_identifier  = $do_identifier;
-        $desc           = $desc;
-        $title          = "Physical Description";
-        $subject        = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description";
-        $type           = "text";
-        $reference      = "";        
-        $data_object_parameters = get_data_object($dc_identifier, $desc, $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents);
-        $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);     
-        */
-        //end text dataobject                    
-        
-        //start text dataobject                
-        //end text dataobject                            
-
-        //start img dataobject                
-        
-        foreach($url_list as $rec)
-        {
-            if($rec["sciname"] == $sciname)
-            {
-                $arr = parse_image_detail_page($rec["url"]);
-                $desc           = $arr[0];
-                $mediaurl       = $arr[1];
-                $reference      = $arr[2];
-                if($mediaurl=="")continue;
-                //exit;
-                
-                $dc_identifier  = $rec["url"];
-                $source_url     = $rec["url"];                
-                
-                $type           = "image";
-                $title          = "";
-                $subject        = "";
-                $data_object_parameters =  
-                get_data_object($dc_identifier, $desc,        $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents, $mediaurl);                
-                $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                 
-            }            
-        }
-        
-
-        //end img dataobject                            
-        
-        $used_taxa[$taxon_identifier] = $taxon_parameters;                                
-        
+            $arr = parse_image_detail_page($rec["url"]);
+            $desc           = $arr[0];
+            $mediaurl       = $arr[1];
+            $reference      = $arr[2];
+            if($mediaurl=="")continue;
+            $dc_identifier  = $rec["url"];
+            $source_url     = $rec["url"];                
+            $type           = "image";
+            $title          = "";
+            $subject        = "";
+            $data_object_parameters =  
+            get_data_object($dc_identifier, $desc,        $dc_rights, $title, $source_url, $subject, $type, $reference, $arr_agents, $mediaurl);                
+            $taxon_parameters["dataObjects"][] = new \SchemaDataObject($data_object_parameters);                 
+        }            
+    }
+    $used_taxa[$taxon_identifier] = $taxon_parameters;                                
     return "";        
 }
 
 function parse_image_detail_page($url)
 {
-    global $wrap;
-    
-    $caption    ="";
-    $media_url  ="";
-    $reference  ="";
+    $caption    = "";
+    $media_url  = "";
+    $reference  = "";
     
     /* for testing
     $url = "http://www.ascidians.com/families/didemnidae/Didemnum_lahilei/didemnumlahilei11.htm";
+    $url = "http://www.ascidians.com/families/didemnidae/Didemnum_pink/didemnummorphpink.htm";
+    $url = "http://www.ascidians.com/families/perophoridae/Perophora_%20namei/perophoranamei.htm";
     */
-    //$url="http://www.ascidians.com/families/didemnidae/Didemnum_pink/didemnummorphpink.htm";
-    //$url="http://www.ascidians.com/families/perophoridae/Perophora_%20namei/perophoranamei.htm";
 
-    $url = str_ireplace(' ', '%20', $url);	    
-    
+    $url = str_ireplace(' ', '%20', $url);      
     $str = Functions::get_remote_file($url);               
     
     //filter "photograph by"
     if(is_numeric(stripos($str,"photograph by")))return array("","","");    
-    
+
     //caption
     $beg='Locality:'; $end1='</p>';
-    $caption = $beg . " " . strip_tags(trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true)));
-    
+    $caption = $beg . " " . strip_tags(trim(parse_html($str, $beg, $end1, $end1, $end1, $end1,"",true)));
+
     //reference
     $beg='localities mentioned):'; $end1="</p>"; 
-    $reference = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));    
-    if(is_numeric(stripos($reference,"…")))$reference="";    
-    if(is_numeric(stripos($reference,"...")))$reference="";    
-    if(is_numeric(stripos($reference,"&#133;")))$reference="";        
-    
+    $reference = trim(parse_html($str, $beg, $end1, $end1, $end1, $end1,"",true));
+    if(is_numeric(stripos($reference,"…")))$reference="";
+    if(is_numeric(stripos($reference,"...")))$reference="";
+    if(is_numeric(stripos($reference,"&#133;")))$reference="";
+
     //if($reference != "")$reference .= ". <a href='http://www.ascidians.com/literature.htm' target='ascidians literature'>Literature for identification</a>";
 
-    $caption = strip_tags(clean_str($caption));    
-    $reference = strip_tags(clean_str($reference));    
-    
-    $caption .= ". $reference";    
-    
-    print"$wrap caption = $caption";
-    print"$wrap reference = $reference";
-    
+    $caption = strip_tags(clean_str($caption));
+    $reference = strip_tags(clean_str($reference));
+
+    $caption .= ". $reference";
+
+    print"\n caption = $caption";
+    print"\n reference = $reference";
+
     //media_url
     $beg='<img src="'; $end1='"';
-    $media_url = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",true));    
+    $media_url = trim(parse_html($str, $beg, $end1, $end1, $end1, $end1,"",true));
     $media_url = substr($url,0,strrpos($url, "/")) . "/" . $media_url;
-    
-    
-    print"<hr>$wrap media_url=$media_url";
+
+
+    print"<hr>\n media_url=$media_url";
     //exit;//debug
-    
-    return array($caption,$media_url,$reference);
+
+    return array($caption, $media_url, $reference);
 }
 
 function conv_2array($list)
-{    
-    $list = str_ireplace('and ', ',', $list);	    
-    $arr = explode(",",$list);        
+{
+    $list = str_ireplace('and ', ',', $list);   
+    $arr = explode(",", $list);
     for ($i = 0; $i < count($arr); $i++) 
     {
         $arr[$i]=trim($arr[$i]);
@@ -552,61 +443,42 @@ function conv_2array($list)
 }
 
 function get_data_object($id, $description, $dc_rights, $title, $url, $subject, $type, $reference, $arr_agents, $mediaurl=NULL)
-{     
+{ 
     $dataObjectParameters = array();
-    
+
     if($type == "text")
     {   
-        $dataObjectParameters["identifier"] = $id;    
+        $dataObjectParameters["identifier"] = $id;
         $dataObjectParameters["title"] = $title;
-        ///////////////////////////////////    
         $dataObjectParameters["subjects"] = array();
         $subjectParameters = array();
         $subjectParameters["label"] = $subject;
         $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
-        ///////////////////////////////////        
-        $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
-        $dataObjectParameters["mimeType"] = "text/html";        
+        $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
+        $dataObjectParameters["mimeType"] = "text/html";
     }
     else
     {
-        $dataObjectParameters["identifier"] = $id;    
+        $dataObjectParameters["identifier"] = $id;
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
-        
         $dataObjectParameters["mimeType"] = "image/jpeg";
         $dataObjectParameters["mediaURL"] = $mediaurl;
     }
-
-            /////////////////////////////////////////////////////////////
-            
-            foreach ($arr_agents as $g)
-            {        
-                $agentParameters = array();            
-                $agentParameters["role"]     = $g["role"];
-                $agentParameters["fullName"] = $g["name"];
-                $agentParameters["homepage"] = $g["homepage"];
-                $agents[] = new \SchemaAgent($agentParameters);
-            }            
-            $dataObjectParameters["agents"] = $agents;    
-            /////////////////////////////////////////////////////////////
-
-    ///////////////////////////////////
-    ///////////////////////////////////
-    
+    foreach ($arr_agents as $g)
+    {
+        $agentParameters = array();            
+        $agentParameters["role"]     = $g["role"];
+        $agentParameters["fullName"] = $g["name"];
+        $agentParameters["homepage"] = $g["homepage"];
+        $agents[] = new \SchemaAgent($agentParameters);
+    }            
+    $dataObjectParameters["agents"] = $agents;    
     $dataObjectParameters["description"] = $description;        
-    //$dataObjectParameters["created"] = $created;
-    //$dataObjectParameters["modified"] = $modified;    
-    
     $dataObjectParameters["language"] = "en";        
     $dataObjectParameters["source"] = $url;    
-
-    //$dataObjectParameters["rights"] = "Copyright 2009 IUCN Tortoise and Freshwater Turtle Specialist Group";
-	$dataObjectParameters["rights"] = $dc_rights;
-	
+    $dataObjectParameters["rights"] = $dc_rights;
     $dataObjectParameters["rightsHolder"] = "";
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-    
-    ///////////////////////////////////
     if($reference != "")
     {
         $dataObjectParameters["references"] = array();
@@ -615,140 +487,119 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
         $references[] = new \SchemaReference($referenceParameters);
         $dataObjectParameters["references"] = $references;
     }    
-    ///////////////////////////////////
     $dataObjectParameters["audiences"] = array();        
     $audienceParameters = array();      
     $audienceParameters["label"] = "Expert users";      $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
     $audienceParameters["label"] = "General public";    $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);    
-    ///////////////////////////////////
     return $dataObjectParameters;
 }
 
 function clean_str($str)
-{    
-    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);			
+{
+    $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);           
     return $str;
 }
-function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_match=false)	//str = the html block
+function parse_html($str, $beg, $end1, $end2, $end3, $end4, $all=NULL, $exit_on_first_match=false) //str = the html block
 {
-    //PRINT "[$all]"; exit;
-	$beg_len = strlen(trim($beg));
-	$end1_len = strlen(trim($end1));
-	$end2_len = strlen(trim($end2));
-	$end3_len = strlen(trim($end3));	
-	$end4_len = strlen(trim($end4));		
-	//print "[[$str]]";
-
-	$str = trim($str); 	
-	$str = $str . "|||";	
-	$len = strlen($str);	
-	$arr = array(); $k=0;	
-	for ($i = 0; $i < $len; $i++) 
-	{
-        if(strtolower(substr($str,$i,$beg_len)) == strtolower($beg))
-		{	
-			$i=$i+$beg_len;
-			$pos1 = $i;			
-			//print substr($str,$i,10) . "<br>";									
-			$cont = 'y';
-			while($cont == 'y')
-			{
-				if(	strtolower(substr($str,$i,$end1_len)) == strtolower($end1) or 
-					strtolower(substr($str,$i,$end2_len)) == strtolower($end2) or 
-					strtolower(substr($str,$i,$end3_len)) == strtolower($end3) or 
-					strtolower(substr($str,$i,$end4_len)) == strtolower($end4) or 
-					substr($str,$i,3) == '|||' )
-				{
-					$pos2 = $i - 1; 					
-					$cont = 'n';					
-					$arr[$k] = substr($str,$pos1,$pos2-$pos1+1);																				
-					//print "$arr[$k] $wrap";					                    
-					$k++;
-				}
-				$i++;
-			}//end while
-			$i--;			
-            
-            //start exit on first occurrence of $beg
-            if($exit_on_first_match)break;
-            //end exit on first occurrence of $beg
-            
-		}		
-	}//end outer loop
-    if($all == "")	
+    $beg_len = strlen(trim($beg));
+    $end1_len = strlen(trim($end1));
+    $end2_len = strlen(trim($end2));
+    $end3_len = strlen(trim($end3));    
+    $end4_len = strlen(trim($end4));        
+    $str = trim($str);  
+    $str = $str . "|||";    
+    $len = strlen($str);    
+    $arr = array(); $k=0;   
+    for ($i = 0; $i < $len; $i++) 
     {
-        $id='';
-	    for ($j = 0; $j < count($arr); $j++){$id = $arr[$j];}		
+        if(strtolower(substr($str, $i, $beg_len)) == strtolower($beg))
+        {   
+            $i=$i+$beg_len;
+            $pos1 = $i;         
+            //print substr($str, $i,10) . "<br>";                                    
+            $cont = 'y';
+            while($cont == 'y')
+            {
+                if( strtolower(substr($str, $i, $end1_len)) == strtolower($end1) or 
+                    strtolower(substr($str, $i, $end2_len)) == strtolower($end2) or 
+                    strtolower(substr($str, $i, $end3_len)) == strtolower($end3) or 
+                    strtolower(substr($str, $i, $end4_len)) == strtolower($end4) or 
+                    substr($str, $i,3) == '|||' )
+                {
+                    $pos2 = $i - 1;
+                    $cont = 'n';
+                    $arr[$k] = substr($str, $pos1, $pos2-$pos1+1);                                                                                
+                    $k++;
+                }
+                $i++;
+            }//end while
+            $i--;
+            if($exit_on_first_match)break;
+        }
+    }
+    if($all == "")
+    {
+        $id = '';
+        for ($j = 0; $j < count($arr); $j++) $id = $arr[$j];
         return $id;
     }
-    elseif($all == "all") return $arr;	
-}//end function
+    elseif($all == "all") return $arr;
+}
 
-function remove_tag_with_this_needle($str,$needle)
+function remove_tag_with_this_needle($str, $needle)
 {
-    $pos = stripos($str,$needle); //get pos of needle   
+    $pos = stripos($str, $needle); //get pos of needle   
     if($pos != "")
-    {        
+    {
         $char="";
         $accumulate=""; $start_get=false;
         while ($char != "<") //get pos of < start tag
         {
             $pos--;
-            $char = substr($str,$pos,1);
-        
+            $char = substr($str, $pos,1);
             if($char == " ")$start_get = true;
             if($start_get)$accumulate .= $char;                
         }
-        //print "pos_of_start_tag [$pos]<br>";
         $pos_of_start_tag = $pos;
-    
         //now determine what type of tag it is
         $accumulate = substr($accumulate,0,strlen($accumulate)-1);
         $accumulate = reverse_str($accumulate);
-        //print "<hr>$str<hr>$accumulate";               
-    
         //now find the pos of the end tag e.g. </div
         $char="";
         $pos = $pos_of_start_tag;
         $end_tag = "</" . $accumulate . ">";
-        //print "<br>end tag is " . $end_tag;
         while ($char != $end_tag )
         {   
             $pos++;  
-            $char = substr($str,$pos,strlen($end_tag));                
+            $char = substr($str, $pos,strlen($end_tag));                
         }    
-        //print"<hr>pos of end tag [$pos]<hr>";       
         $pos_of_end_tag = $pos;
-        $str = remove_substr_from_this_position($str,$pos_of_start_tag,$pos_of_end_tag,strlen($end_tag));    
-        if(stripos($str,$needle) != "")$str = remove_tag_with_this_needle($str,$needle);    
-    
+        $str = remove_substr_from_this_position($str, $pos_of_start_tag, $pos_of_end_tag,strlen($end_tag));    
+        if(stripos($str, $needle) != "")$str = remove_tag_with_this_needle($str, $needle);    
     }    
     return trim(clean_str($str));
 }
-function remove_substr_from_this_position($str,$startpos,$endpos,$len_of_end_tag)
+
+function remove_substr_from_this_position($str, $startpos, $endpos, $len_of_end_tag)
 {
-    $str1 = substr($str,0,$startpos);
-    $str2 = substr($str,$endpos+$len_of_end_tag,strlen($str));
+    $str1 = substr($str,0, $startpos);
+    $str2 = substr($str, $endpos+$len_of_end_tag,strlen($str));
     return $str1 . $str2;
 }
+
 function reverse_str($str)
 {
     $accumulate="";
     $length = strlen($str)-1;
-    for ($i = $length; $i >= 0; $i--) 
-    {
-        $accumulate .= substr($str,$i,1);
-    }    
+    for ($i = $length; $i >= 0; $i--) $accumulate .= substr($str, $i,1);
     return trim($accumulate);
 }
-
-
-
 
 function get_href_from_anchor_tag($str)
 {
     $beg='href="'; $end1='"';
-    $temp = trim(parse_html($str,$beg,$end1,$end1,$end1,$end1,"",false));
+    $temp = trim(parse_html($str, $beg, $end1, $end1, $end1, $end1,"",false));
     return $temp;
 }
+
 ?>
