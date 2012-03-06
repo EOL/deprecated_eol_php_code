@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-/* [81pre] */
-/* This connector scrapes the site and assembles BOLDS' higher-level taxa list (hl_master_list.txt)
+/* [rake_tasks/generate_BOLD_higher_level_taxa.php] */
+/* This script scrapes the site and assembles BOLDS' higher-level taxa list (hl_master_list.txt)
    estimated execution time: 9 days */
 
 /* As of 2011 Aug16 in production DB

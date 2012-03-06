@@ -185,12 +185,21 @@ class TucanesAPI
                 $identifier     = $mediaURL;
                 $location       = "";
                 $license        = "http://creativecommons.org/licenses/by-nc-sa/2.5/";
-                $rightsHolder   = @$taxon["image"]['rightsHolder'][$i];
+
+                // commented -- DATA-953 on March 5
+                // $rightsHolder   = @$taxon["image"]['rightsHolder'][$i];
+                $rightsHolder = "Instituto de Investigación de Recursos Biológicos Alexander von Humboldt";
+
                 $created        = @$taxon["image"]['created'][$i];
                 $source         = TUCANES_SOURCE_URL . @$taxon["id"];
-                $agent          = array();
-                if(@$taxon["image"]['creator'][$i]) $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => @$taxon["image"]['creator'][$i]);
-                if(@$taxon["image"]['publisher'][$i]) $agent[] = array("role" => "publisher", "homepage" => "", "fullName" => @$taxon["image"]['publisher'][$i]);
+
+                $agent = array();
+                $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => "Robin Schielle");
+
+                // commented -- DATA-953 on March 5
+                // if(@$taxon["image"]['creator'][$i]) $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => @$taxon["image"]['creator'][$i]);
+                // if(@$taxon["image"]['publisher'][$i]) $agent[] = array("role" => "publisher", "homepage" => "", "fullName" => @$taxon["image"]['publisher'][$i]);
+
                 $refs           = array();
                 $modified       = "";
                 $language       = "";
@@ -226,7 +235,11 @@ class TucanesAPI
         $mediaURL      = "";
         $location      = "";
         $license       = "http://creativecommons.org/licenses/by-nc-sa/2.5/";
-        $rightsHolder  = @$taxon["http://purl.org/dc/terms/rightsHolder"];
+
+        // commented -- DATA-953 on March 5
+        //$rightsHolder  = @$taxon["http://purl.org/dc/terms/rightsHolder"];
+        $rightsHolder = "Instituto de Investigación de Recursos Biológicos Alexander von Humboldt";
+
         $source        = TUCANES_SOURCE_URL . $taxon["id"];
         $refs          = array();
         $agent         = self::get_agents($taxon_text);
