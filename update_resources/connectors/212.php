@@ -10,6 +10,8 @@ $timestart = time_elapsed();
 require_library('connectors/BOLDSysAPI');
 $resource_id = 212;
 
+if(!file_exists(DOC_ROOT . "update_resources/connectors/files/BOLD")) mkdir($folder , 0777);
+
 $bolds = new BOLDSysAPI();
 $bolds->initialize_text_files();
 //Functions::kill_running_connectors($resource_id);
