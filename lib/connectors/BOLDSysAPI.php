@@ -73,7 +73,7 @@ class BOLDSysAPI
             // Combine all XML files.
             Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "sl_batch_*.xml");
             // Set to force harvest
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+            Functions::set_resource_status_to_force_harvest($resource_id);
             // Delete temp files
             self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
             self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml"); //debug Don't delete it if you want to check subsets of the resource XML.

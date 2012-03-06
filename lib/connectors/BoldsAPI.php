@@ -1,47 +1,54 @@
 <?php
 namespace php_active_record;
 /* connector: 81 */
-/* Connector scrapes data from BOLDS website - for higher level taxa */
+/* Connector scrapes data from BOLDS website - for higher level taxa 
+It is assumed that this file has already been created: DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt"
+*/
 
 class BoldsAPI
 {
     const SPECIES_SERVICE_URL = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
-    
-    private static $TEMP_FILE_PATH;
-    private static $WORK_LIST;
-    private static $WORK_IN_PROGRESS_LIST;
-    private static $INITIAL_PROCESS_STATUS;
+    public function __construct()
+    {
+        $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
+        $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_list.txt"; //hl - higher level taxa
+        $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_in_progress_list.txt";
+        $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
+        $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
+    }
 
-    private static $MASTER_LIST;
+    function initialize_text_files()
+    {
+        $f = fopen($this->WORK_LIST, "w"); fclose($f);
+        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
+        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        //this is not needed but just to have a clean directory
+        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
+    }
 
     function start_process($resource_id, $call_multiple_instance)
     {
-        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
-        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_list.txt"; //hl - higher level taxa
-        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_in_progress_list.txt";
-        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
-
-        self::$MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
-        if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
+        if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
-            if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
+            if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
             {
                 // Divide the big list of ids into small files
-                Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
-                Functions::create_work_list_from_master_file(self::$MASTER_LIST, 5000, self::$TEMP_FILE_PATH, "batch_", self::$WORK_LIST); //debug orig value 5000
-                Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
+                Functions::create_work_list_from_master_file($this->MASTER_LIST, 5000, $this->TEMP_FILE_PATH, "batch_", $this->WORK_LIST); //debug orig value 5000
+                Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
 
         // Run multiple instances, for Bolds ideally a total of 2
         while(true)
         {
-            $task = Functions::get_a_task(self::$WORK_LIST);//get a task to work on
+            $task = Functions::get_a_task($this->WORK_LIST);//get a task to work on
             if($task)
             {
                 print "\n Process this: $task";
-                Functions::delete_a_task($task, self::$WORK_LIST);
-                Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
+                Functions::delete_a_task($task, $this->WORK_LIST);
+                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
                 if($call_multiple_instance)
                 {
@@ -50,7 +57,7 @@ class BoldsAPI
                 }
                 self::get_all_taxa($task);
                 print "Task $task is done. \n";
-                Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST); //remove a task from task list
+                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
             }
             else
             {
@@ -58,15 +65,15 @@ class BoldsAPI
                 break;
             }
         }
-        if(!$task = trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
+        if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Combine all XML files.
             self::combine_all_xmls($resource_id);
             // Set to force harvest
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+            Functions::set_resource_status_to_force_harvest($resource_id);
             // Delete temp files
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
         }
     }
 
@@ -74,7 +81,7 @@ class BoldsAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $filename = self::$TEMP_FILE_PATH . $task . ".txt";
+        $filename = $this->TEMP_FILE_PATH . $task . ".txt";
         $FILE = fopen($filename, "r");
         $i = 0;
         $save_count = 0;
@@ -97,7 +104,7 @@ class BoldsAPI
         fclose($FILE);
 
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
-        $resource_path = self::$TEMP_FILE_PATH . "temp_Bolds_" . $task . ".xml";
+        $resource_path = $this->TEMP_FILE_PATH . "temp_Bolds_" . $task . ".xml";
         $OUT = fopen($resource_path, "w"); 
         fwrite($OUT, $xml); 
         fclose($OUT);
@@ -324,7 +331,7 @@ class BoldsAPI
         {
             $i++;
             $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = self::$TEMP_FILE_PATH . "temp_Bolds_" . "batch_" . $i_str . ".xml";
+            $filename = $this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_" . $i_str . ".xml";
             if(!is_file($filename))
             {
                 print " -end compiling XML's- ";
@@ -347,31 +354,16 @@ class BoldsAPI
         print "\n All XML compiled\n\n";
     }
 
-    private function delete_temp_files($file_path, $file_extension)
+    function delete_temp_files($file_path, $file_extension = '*')
     {
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = $file_path . $i_str . "." . $file_extension;
-            if(file_exists($filename))
-            {
-                print "\n unlink: $filename";
-                unlink($filename);
-            }
-            else return;
-        }
+        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
     private function get_str_from_anchor_tag($str)
     {
         if(preg_match("/\">(.*?)<\/a>/ims", $str, $matches)) return $matches[1];
     }
-    private function get_href_from_anchor_tag($str)
-    {
-        if(preg_match("/href=\"(.*?)\"/ims", $str, $matches)) return $matches[1];
-    }
+
     private function get_title_from_anchor_tag($str)
     {
         if(preg_match("/<a title=\"(.*?)\"/ims", $str, $matches)) return $matches[1];

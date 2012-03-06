@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* This connector assembles BOLDS' higher-level taxa list (hl_master_list.txt) {37 hours} */
+/* [81pre] */
+/* This connector scrapes the site and assembles BOLDS' higher-level taxa list (hl_master_list.txt)
+   estimated execution time: 9 days */
 
 /* As of 2011 Aug16 in production DB
 Statistics of barcoding coverage: 178530
@@ -11,46 +13,50 @@ Barcode data: 71263 (41,341 with barcode image)
 class BoldsAPIpre
 {
     const SPECIES_SERVICE_URL = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
+    public function __construct()
+    {
+        $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
+        $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_work_list.txt";
+        $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_work_in_progress_list.txt";
+        $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_initial_process_status.txt";
+        $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
+        $this->TG_MASTER_LIST         = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_master_list.txt";
+    }
 
-    private static $TEMP_FILE_PATH;
-    private static $WORK_LIST;
-    private static $WORK_IN_PROGRESS_LIST;
-    private static $INITIAL_PROCESS_STATUS;
-
-    private static $MASTER_LIST;
-    private static $TG_MASTER_LIST;
+    function initialize_text_files()
+    {
+        $f = fopen($this->WORK_LIST, "w"); fclose($f);
+        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
+        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        $f = fopen($this->MASTER_LIST, "w"); fclose($f);
+        $f = fopen($this->TG_MASTER_LIST, "w"); fclose($f);
+        //this is not needed but just to have a clean directory
+        self::delete_temp_files($this->TEMP_FILE_PATH . "tg_batch_", "txt");
+    }
 
     function start_process($resource_id, $call_multiple_instance)
     {
-        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
-        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_work_list.txt";
-        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_work_in_progress_list.txt";
-        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_initial_process_status.txt";
-
-        self::$MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
-        self::$TG_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/tg_master_list.txt";
-
-        if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
+        if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
-            if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
+            if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
             {
-                if($fp = fopen(self::$MASTER_LIST, "w")) fclose($fp);
-                Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                if($fp = fopen($this->MASTER_LIST, "w")) fclose($fp);
+                Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
                 self::create_taxa_group_list();
-                Functions::create_work_list_from_master_file(self::$TG_MASTER_LIST, 1, self::$TEMP_FILE_PATH, "tg_batch_", self::$WORK_LIST); //orig value 1
-                Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
+                Functions::create_work_list_from_master_file($this->TG_MASTER_LIST, 1, $this->TEMP_FILE_PATH, "tg_batch_", $this->WORK_LIST); //orig value 1
+                Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
 
         // Run multiple instances, for Bolds ideally a total of 2
         while(true)
         {
-            $task = Functions::get_a_task(self::$WORK_LIST);//get a task to work on
+            $task = Functions::get_a_task($this->WORK_LIST);//get a task to work on
             if($task)
             {
                 print "\n Process this: $task";
-                Functions::delete_a_task($task, self::$WORK_LIST);
-                Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
+                Functions::delete_a_task($task, $this->WORK_LIST);
+                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
                 if($call_multiple_instance)
                 {
@@ -59,7 +65,7 @@ class BoldsAPIpre
                 }
                 self::build_taxa_group_list($task);
                 print "\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST); //remove a task from task list
+                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
             }
             else
             {
@@ -67,16 +73,16 @@ class BoldsAPIpre
                 break;
             }
         }
-        if(!$task = trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
+        if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Delete temp files
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "tg_batch_", "txt");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "tg_batch_", "txt");
         }
     }
 
     private function build_taxa_group_list($task)
     {
-        $FILE = fopen(self::$TEMP_FILE_PATH . $task . ".txt", "r");
+        $FILE = fopen($this->TEMP_FILE_PATH . $task . ".txt", "r");
         $i = 0; 
         $save_count = 0; 
         $no_eol_page = 0;
@@ -111,10 +117,10 @@ class BoldsAPIpre
 
         /*
         $taxa_groups = array("elix1", "elix2"); //debug
-        $taxa_groups = array("Animals_4"); //debug
+        //$taxa_groups = array("Animals_4"); //debug
         */
 
-        if($fp = fopen(self::$TG_MASTER_LIST, "w")) 
+        if($fp = fopen($this->TG_MASTER_LIST, "w")) 
         foreach($taxa_groups as $group)
         {
             fwrite($fp, $group . "\n");
@@ -123,21 +129,9 @@ class BoldsAPIpre
         fclose($fp);
     }
 
-    private function delete_temp_files($file_path, $file_extension)
+    function delete_temp_files($file_path, $file_extension = '*')
     {
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = $file_path . $i_str . "." . $file_extension;
-            if(file_exists($filename))
-            {
-                print "\n unlink: $filename";
-                unlink($filename);
-            }
-            else return;
-        }
+        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
     private function get_BOLD_taxa($species_group)
@@ -510,8 +504,8 @@ class BoldsAPIpre
     private function save_to_txt($arr)
     {
         $str = "";        
-        foreach ($arr as $value) $str .= $value["id"] . "\t" . $value["name"] . "\n";
-        if($fp = fopen(self::$MASTER_LIST, "a"))
+        foreach ($arr as $value) $str .= trim($value["id"]) . "\t" . trim($value["name"]) . "\n";
+        if($fp = fopen($this->MASTER_LIST, "a"))
         {
             fwrite($fp,$str);
             fclose($fp);
