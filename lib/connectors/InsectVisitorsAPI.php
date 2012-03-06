@@ -195,7 +195,7 @@ class InsectVisitorsAPI
     {
         foreach($GLOBALS['taxon'] as $taxon_name => $value)
         {
-            if(@$value['association_title'] != "") continue;
+            if(@$value['association'] != "" || @$value['gendesc'] != "") continue;
 
             $url = $this->path . '/insects/' . $value['html'];
             if($type == 'insects') $url = str_ireplace("/insects/", "/", $url);
