@@ -556,9 +556,7 @@ class MonthlyGoogleAnalytics
 
     function send_email_notification($year, $month)
     {
-        print "\n\nWaiting (10 minutes)... for slaves to catch-up before sending the notification emails \n\n";
-        sleep(600);
-        print "\nTesting if stats for the month were successfully generated: ";
+        print "\nTesting if stats for the month were successfully saved on 4 tables: ";
         $result = $this->mysqli->query("SELECT g.month FROM google_analytics_page_stats g WHERE g.`year` = $year AND g.`month` = $month LIMIT 1");
         if($result->num_rows == 0) return;
         $result = $this->mysqli->query("SELECT g.month FROM google_analytics_partner_summaries g WHERE g.`year` = $year AND g.`month` = $month LIMIT 1");
@@ -568,8 +566,9 @@ class MonthlyGoogleAnalytics
         $result = $this->mysqli->query("SELECT g.month FROM google_analytics_summaries g WHERE g.`year` = $year AND g.`month` = $month LIMIT 1");
         if($result->num_rows == 0) return;
         print "OK \n\n";
+        print "\n\nWaiting (10 minutes)... for slaves to catch-up before sending the notification emails \n\n";
+        sleep(600);
         file_get_contents("http://eol-app-maint1.rc.fas.harvard.edu/content_cron_tasks/send_monthly_partner_stats_notification");
-        print "Emails sent";
     }
 }
 ?>
