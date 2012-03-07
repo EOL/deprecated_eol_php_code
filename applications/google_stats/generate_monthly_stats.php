@@ -40,6 +40,7 @@ $run->save_eol_taxa_google_stats($month,$year); //save google analytics stats
 $run->save_agent_taxa($year_month);             //save partner stats
 $run->save_agent_monthly_summary($year_month);  //save partner summaries
 $run->save_eol_monthly_summary($year,$month);   //save eol-wide summaries
+$run->send_email_notification($year, $month);
 
 $time_elapsed_sec = time_elapsed() - $temp_time;
 echo "\n";

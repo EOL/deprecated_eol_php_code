@@ -398,7 +398,7 @@ class MonthlyGoogleAnalytics
             $continue = true; 
             $start_count = 1; 
             $range = 10000; //debug normal operation 10000
-            mkdir(GOOGLE_DATA_PATH , 0777);
+            if(!file_exists(GOOGLE_DATA_PATH)) mkdir(GOOGLE_DATA_PATH , 0777);
             mkdir(GOOGLE_DATA_PATH . $year . "_" . $month , 0777);
             $cr = "\n";
             $sep = "\t";
@@ -552,6 +552,24 @@ class MonthlyGoogleAnalytics
         fclose($fp);
         if(USE_SQL_LOAD_INFILE) $update = $this->mysqli_local->query("LOAD DATA LOCAL INFILE '" . $filename . "' INTO TABLE google_analytics_summaries");
         else                    $update = $this->mysqli_local->load_data_infile($filename, "google_analytics_summaries");
+    }
+
+    function send_email_notification($year, $month)
+    {
+        print "\n\nWaiting (10 minutes)... for slaves to catch-up before sending the notification emails \n\n";
+        sleep(600);
+        print "\nTesting if stats for the month were successfully generated: ";
+        $result = $this->mysqli->query("SELECT g.month FROM google_analytics_page_stats g WHERE g.`year` = $year AND g.`month` = $month LIMIT 1");
+        if($result->num_rows == 0) return;
+        $result = $this->mysqli->query("SELECT g.month FROM google_analytics_partner_summaries g WHERE g.`year` = $year AND g.`month` = $month LIMIT 1");
+        if($result->num_rows == 0) return;
+        $result = $this->mysqli->query("SELECT g.month FROM google_analytics_partner_taxa g WHERE g.`year` = $year AND g.`month` = $month LIMIT 1");
+        if($result->num_rows == 0) return;
+        $result = $this->mysqli->query("SELECT g.month FROM google_analytics_summaries g WHERE g.`year` = $year AND g.`month` = $month LIMIT 1");
+        if($result->num_rows == 0) return;
+        print "OK \n\n";
+        file_get_contents("http://eol-app-maint1.rc.fas.harvard.edu/content_cron_tasks/send_monthly_partner_stats_notification");
+        print "Emails sent";
     }
 }
 ?>
