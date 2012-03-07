@@ -369,7 +369,7 @@ class BoldsAPI
         if(preg_match("/<a title=\"(.*?)\"/ims", $str, $matches)) return $matches[1];
     }
 
-    public function check_if_with_content($taxid, $dc_source, $public_barcodes, $species_level)
+    public function check_if_with_content($taxid, $dc_source, $public_barcodes, $species_level, $barcode_image_url = false)
     {
         /*            
         Ratnasingham S, Hebert PDN. Compilers. 2009. BOLD : Barcode of Life Data System.
@@ -380,7 +380,7 @@ class BoldsAPI
         $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
         if($species_level)
         {
-            if(self::barcode_image_available($src))
+            if($barcode_image_url || self::barcode_image_available($src))
             {
                 $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.
                 <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
@@ -459,6 +459,7 @@ class BoldsAPI
 
     private function get_text_dna_sequence($url)
     {
+        print "\n\n access: $url \n"; 
         $str = Functions::get_remote_file($url);
         if(preg_match("/\.\.\/temp\/(.*?)fasta\.fas/ims", $str, $matches)) $folder = $matches[1];
         $str = "";
@@ -466,6 +467,7 @@ class BoldsAPI
         {
             $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
             $str = Functions::get_remote_file($url);
+            print "\n\n access: $url \n"; 
         }
 
         //start get only 2 sequence 

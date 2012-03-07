@@ -55,7 +55,7 @@ class BOLDSysAPI
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
                 if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
                 {
-                    Functions::run_another_connector_instance($resource_id, 5);
+                    Functions::run_another_connector_instance($resource_id, 2);
                     $call_multiple_instance = 0;
                 }
                 self::get_all_taxa($task);
@@ -172,7 +172,7 @@ class BOLDSysAPI
             $title       = "Barcode data: $sciname";
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
-            $description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true);
+            $description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true, "http://".$rec['barcode_image_url']);
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }
 
@@ -322,6 +322,7 @@ class BOLDSysAPI
             /* I used simplexml_load_file() instead of Functions::get_hashed_response because I can't overwrite the DOWNLOAD_TIMEOUT_SECONDS which was definedin boot.php.
                Some of the XML files being loaded needs more time.
             */
+            print "\n\nphylum service: " . PHYLUM_SERVICE_URL . $phylum['name'] . "\n";
             if($xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']))
             {
                 $num_rows = sizeof($xml->record);

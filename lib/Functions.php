@@ -1616,7 +1616,7 @@ class Functions
         for($i = 1; $i <= $times; $i++)
         {
             print "\n run " . self::cardinal_to_ordinal($i + 1) . " instance--";
-            shell_exec('php ' . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '_next.php 0 > null &');
+            shell_exec(PHP_BIN_PATH . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '_next.php 0 > null &');
             sleep(5);
         }
     }
