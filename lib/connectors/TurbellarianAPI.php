@@ -12,7 +12,6 @@ class TurbellarianAPI
         $urls = self::compile_taxon_urls();
         $all_taxa = array();
         $used_collection_ids = array();
-        
         $i = 1; 
         $total = sizeof($urls);
         foreach($urls as $url)
@@ -44,10 +43,8 @@ class TurbellarianAPI
     function compile_taxon_urls()
     {
         $urls=array();
-
         $limit = 13998; //hard-coded number of taxon ID //debug orig 13998
-        for ($i = 2; $i <= $limit; $i++) $urls[] = TAXON_URL . $i;        
-                
+        for ($i = 2; $i <= $limit; $i++) $urls[] = TAXON_URL . $i;
         $final = array();
         foreach($urls as $url)
         {
@@ -130,10 +127,7 @@ class TurbellarianAPI
                     if( is_numeric(stripos($r, "diagnosis"))   ||
                         is_numeric(stripos($r, "fig. avail.")) ||
                         is_numeric(stripos($r, "dist'n"))
-                      )
-                    {
-                        if($row[0]) $final[] = $row; //meaning, not a blank taxa
-                    }
+                      ) if($row[0]) $final[] = $row; //meaning, not a blank taxa
                 }
             }
         }//end for loop
@@ -176,22 +170,10 @@ class TurbellarianAPI
             if($i==0) $taxon  = trim(strip_tags($r));
             if($i==1) $author = trim(strip_tags($r));
 
-            if(is_numeric(stripos($r, "diagnosis")))
-            {
-                if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $diagnosis_href = CP_DOMAIN . $matches[1];
-            }
-            if(is_numeric(stripos($r, "fig. avail.")))
-            {
-                if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $images_href = CP_DOMAIN . $matches[1];
-            }
-            if( is_numeric(stripos($r, "literature")))
-            {
-                if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $literature_href = CP_DOMAIN . $matches[1];
-            }
-            if( is_numeric(stripos($r, "dist'n")))
-            {
-                if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $distribution_href = CP_DOMAIN . $matches[1];
-            }
+            if(is_numeric(stripos($r, "diagnosis"))) if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $diagnosis_href = CP_DOMAIN . $matches[1];
+            if(is_numeric(stripos($r, "fig. avail."))) if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $images_href = CP_DOMAIN . $matches[1];
+            if( is_numeric(stripos($r, "literature"))) if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $literature_href = CP_DOMAIN . $matches[1];
+            if( is_numeric(stripos($r, "dist'n"))) if(preg_match("/href=\"(.*?)\"/ims", "xxx".$r, $matches)) $distribution_href = CP_DOMAIN . $matches[1];
             $i++;
         }
         return array("taxon"        => $taxon,
@@ -208,17 +190,13 @@ class TurbellarianAPI
         $arr_scraped = array();
         $arr_photos = array();
         $arr_sciname = array();
-
         $rights_holder = "National Science Foundation - Turbellarian Taxonomic Database";
-
         $agent = array();
         $agent[] = array("role" => "compiler", "homepage" => "http://turbellaria.umaine.edu/", "name" => "Seth Tyler");
         $agent[] = array("role" => "compiler", "homepage" => "http://turbellaria.umaine.edu/", "name" => "Steve Schilling");
         $agent[] = array("role" => "compiler", "homepage" => "http://turbellaria.umaine.edu/", "name" => "Matt Hooge");
         $agent[] = array("role" => "compiler", "homepage" => "http://turbellaria.umaine.edu/", "name" => "Louise Bush");
-
         $taxa_arr = self::prepare_access($url);
-
         $sciname = $taxa_arr["taxon"];
         $species_page_url = $taxa_arr["source_url"];
 
@@ -239,11 +217,7 @@ class TurbellarianAPI
             $mediaURL    = "";
             $description = $distribution;
             $subject     = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
-            if($distribution)
-            {
-                $arr_texts["$sciname"][] = self::prepare_array($identifier, $mediaURL, $mimeType, $rights_holder, $dataType, $dc_source, $description,
-                                                               $subject, $license, $agent, $distribution_ref);
-            }
+            if($distribution) $arr_texts["$sciname"][] = self::prepare_array($identifier, $mediaURL, $mimeType, $rights_holder, $dataType, $dc_source, $description, $subject, $license, $agent, $distribution_ref);
         }
         //distribution end =================================================================
 
@@ -287,8 +261,7 @@ class TurbellarianAPI
                 $description = '';
                 $subject = "";
                 $identifier = $mediaURL;
-                $arr_photos["$sciname"][] = self::prepare_array($identifier, $mediaURL, $mimeType, $rights_holder, $dataType, $dc_source,
-                                                                $description, $subject, $license, $agent, array());
+                $arr_photos["$sciname"][] = self::prepare_array($identifier, $mediaURL, $mimeType, $rights_holder, $dataType, $dc_source, $description, $subject, $license, $agent, array());
             }
         }
         //photos end =================================================================
@@ -316,9 +289,7 @@ class TurbellarianAPI
             {
                 if(preg_match("/<hr>(.*?)<hr>/ims", $html, $matches)) $diagnosis = self::clean_str(str_ireplace(";", ";<br>", $matches[1]));
             }
-
             $diagnosis = strip_tags($diagnosis, "<br>");
-
             $mimeType    = "text/html";
             $dataType    = "http://purl.org/dc/dcmitype/Text";
             $dc_source   = $taxa_arr["diagnosis"];
@@ -326,11 +297,7 @@ class TurbellarianAPI
             $mediaURL    = "";
             $description = $diagnosis;
             $subject     = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription";
-            if($diagnosis)
-            {
-                $arr_texts["$sciname"][] = self::prepare_array($identifier, $mediaURL, $mimeType, $rights_holder, $dataType, $dc_source,
-                                                               $description, $subject, $license, $agent, $arr_ref);
-            }
+            if($diagnosis) $arr_texts["$sciname"][] = self::prepare_array($identifier, $mediaURL, $mimeType, $rights_holder, $dataType, $dc_source, $description, $subject, $license, $agent, $arr_ref);
         }
         //diagnosis end =================================================================
                 
@@ -394,12 +361,12 @@ class TurbellarianAPI
         {
             $html = $matches[1];
             $html = str_ireplace("<tr>", "&arr[]=", $html);
-            $arr = array(); 
+            $arr = array();
             parse_str($html);
             foreach($arr as $r)
             {
                 $r = str_ireplace("<td>", "&arr2[]=", $r);
-                $arr2 = array(); 
+                $arr2 = array();
                 parse_str($r);
                 $arr_ref=array();
                 if(preg_match("/href=\"(.*?)\"/ims", $arr2[10], $matches))
@@ -428,7 +395,7 @@ class TurbellarianAPI
             }
         }
         $refs = array();
-        foreach(array_keys($unique_ref) as $href) $refs[] = array("url" => $href, "ref" => str_ireplace("|", "&", $unique_ref[$href]));        
+        foreach(array_keys($unique_ref) as $href) $refs[] = array("url" => $href, "ref" => str_ireplace("|", "&", $unique_ref[$href]));
         return array($str, $refs);
     }
 
@@ -449,21 +416,21 @@ class TurbellarianAPI
     function prepare_reference($html)
     {
         $html = self::clean_str($html);
-        $html = str_ireplace(array("<td><b>Primary authority:</b></td>","<td>other taxonomic work:</td>","<td>latest authority:</td>"), "", $html);
-        $refs=array();
+        $html = str_ireplace(array("<td><b>Primary authority:</b></td>", "<td>other taxonomic work:</td>", "<td>latest authority:</td>"), "", $html);
+        $refs = array();
         if(preg_match("/<table border alt=\"table of references\">(.*?)<\/table>/ims", $html, $matches))
         {
             $html = $matches[1];
-            $html = str_ireplace('</td>' , ', ',$html);
+            $html = str_ireplace('</td>', ', ', $html);
             $html = strip_tags($html, "<tr>");
-            $html = str_ireplace("<tr>" , "&arr[]=", $html);
+            $html = str_ireplace("<tr>", "&arr[]=", $html);
             $arr = array(); parse_str($html);
             foreach($arr as $r)
             {
-                $ref = str_ireplace('</tr>' , '', $r);
+                $ref = str_ireplace('</tr>', '', $r);
                 $ref = strip_tags($ref);
-                $ref = str_ireplace(", ," , "."   ,$ref);
-                $ref = trim(str_ireplace(".," , "."   ,$ref));
+                $ref = str_ireplace(", ,", ".", $ref);
+                $ref = trim(str_ireplace(".,", ".", $ref));
                 if(substr($ref,strlen($ref)-1,1) == ",") $ref = substr($ref, 0, strlen($ref)-1) . ".";//replace last char if "," to "."
                 $refs[] = array("url" => "", "ref" => $ref);
             }
