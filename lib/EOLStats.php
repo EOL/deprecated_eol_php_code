@@ -550,7 +550,7 @@ class EOLStats
 
     public function content_partners_with_published_resources($vetted = null)
     {
-        $sql = "SELECT COUNT(distinct cp.id) count FROM harvest_events he JOIN resources r ON (he.resource_id=r.id) JOIN content_partners cp ON (r.content_partner_id=cp.id) WHERE he.published_at IS NOT NULL";
+        $sql = "SELECT COUNT(distinct cp.id) count FROM harvest_events he JOIN resources r ON (he.resource_id=r.id) JOIN content_partners cp ON (r.content_partner_id=cp.id) WHERE he.published_at IS NOT NULL and cp.public=1";
         if($vetted) $sql .= " AND r.vetted = $vetted ";
         $result = $this->mysqli_slave->query($sql);
         if($result && $row=$result->fetch_assoc()) return $row['count'];
@@ -558,7 +558,7 @@ class EOLStats
 
     public function content_partners()
     {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM content_partners");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM content_partners WHERE public = 1");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
@@ -576,7 +576,7 @@ class EOLStats
     {
         $sql = "SELECT COUNT(distinct r.id) count FROM harvest_events he 
         JOIN resources r ON (he.resource_id=r.id) JOIN content_partners cp ON (r.content_partner_id=cp.id) 
-        WHERE he.published_at IS NOT NULL ";
+        WHERE he.published_at IS NOT NULL AND cp.public=1 ";
         if($vetted != "x") $sql .= " AND r.vetted = $vetted ";
         $result = $this->mysqli_slave->query($sql);
         if($result && $row=$result->fetch_assoc()) return $row['count'];
