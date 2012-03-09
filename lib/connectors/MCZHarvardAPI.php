@@ -6,7 +6,7 @@ define("SPECIMEN_DETAIL_URL", "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm
 define("MCZ_TAXON_DETAIL_URL", "http://mczbase.mcz.harvard.edu/TaxonomyResults.cfm?scientific_name=");
 define("TEMP_LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //just a temporary file
 define("REMOTE_CSV", "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv");
-//define("REMOTE_CSV"  , "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
+//define("REMOTE_CSV", "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
 
 class MCZHarvardAPI
 {
@@ -58,11 +58,14 @@ class MCZHarvardAPI
     function download_and_put_header_in_csv()
     {
         $first_row="MEDIA_ID, MEDIA_URI, MIME_TYPE, subject, created, CAT_NUM, INSTITUTION_ACRONYM, COLLECTION_CDE, COLLECTION, MINIMUM_ELEVATION, MAXIMUM_ELEVATION, ORIG_ELEV_UNITS, LAST_EDIT_DATE, INDIVIDUALCOUNT, COLL_OBJ_DISPOSITION, COLLECTORS, TYPESTATUS, SEX, PARTS, VERBATIM_DATE, HIGHER_GEOG, CONTINENT_OCEAN, COUNTRY, STATE_PROV, COUNTY, FEATURE, ISLAND, ISLAND_GROUP, QUAD, SEA, SPEC_LOCALITY, MIN_ELEV_IN_M, MAX_ELEV_IN_M, DEC_LAT, DEC_LONG, DATUM, ORIG_LAT_LONG_UNITS, VERBATIMLATITUDE, VERBATIMLONGITUDE, LAT_LONG_REF_SOURCE, COORDINATEUNCERTAINTYINMETERS, GEOREFMETHOD, LAT_LONG_REMARKS, LAT_LONG_DETERMINER, SCIENTIFIC_NAME, IDENTIFIEDBY, MADE_DATE, REMARKS, HABITAT, FULL_TAXON_NAME, PHYLCLASS, KINGDOM, PHYLUM, PHYLORDER, FAMILY, GENUS, SPECIES, SUBSPECIES, INFRASPECIFIC_RANK, AUTHOR_TEXT, IDENTIFICATIONMODIFIER, NOMENCLATURAL_CODE, GUID, BASISOFRECORD, DEPTH_UNITS, MIN_DEPTH, MAX_DEPTH, COLLECTING_METHOD, COLLECTING_SOURCE, DAYOFYEAR, AGE_CLASS, ATTRIBUTES, VERIFICATIONSTATUS, SPECIMENDETAILURL, COLLECTORNUMBER, VERBATIMELEVATION, YEAR, MONTH, DAY, AGENT\n";
-        $csv_body = Functions::get_remote_file(REMOTE_CSV);
-        $fp = fopen(TEMP_LOCAL_CSV, "w+");
-        fwrite($fp, $first_row);
-        fwrite($fp, $csv_body);
-        fclose($fp);
+        if($csv_body = Functions::get_remote_file(REMOTE_CSV))
+        {
+            $fp = fopen(TEMP_LOCAL_CSV, "w+");
+            fwrite($fp, $first_row);
+            fwrite($fp, $csv_body);
+            fclose($fp);
+        }
+        else exit("\n\nRemote server is not available. Connector will now terminate.\n");
     }
 
     function compile_taxa($urls)

@@ -25,11 +25,10 @@ class AvibaseAPI
     {
         print "\n taxonomy: [$taxonomy]";
         $taxa = self::prepare_data($taxonomy);
+        $taxa = self::get_synonyms($taxa);
         $all_taxa = array();
         $i = 0;
         $total = count($taxa);
-        $batch = 500; //debug orig 1000
-        $batch_count = 0;
         foreach($taxa as $key => $value)
         {
             $i++; 
@@ -42,7 +41,7 @@ class AvibaseAPI
                                             "id"      => $value["id"]);
             $taxon_record["common_names"] = array();
             $taxon_record["references"] = array();
-            $taxon_record["synonyms"] = array();
+            $taxon_record["synonyms"] = @$value['synonyms'];
             $taxon_record["dataobjects"] = array();
             $arr = self::get_avibase_taxa($taxon_record);
             $page_taxa = $arr[0];
@@ -76,6 +75,9 @@ class AvibaseAPI
         'pal', // palearctic
         'wpa'  // western palearctic
         );
+        
+        // $regions = array('cam'); //debug
+        
         if($for_testing) $regions = array('cam');
         $service_url = 'http://avibase.bsc-eoc.org/checklist.jsp?';
         $taxa = array();
@@ -153,6 +155,7 @@ class AvibaseAPI
                 }
                 $taxa = self::get_taxa($taxa, $family, $block);
                 $i++;
+                // break; //debug just get 1 family block
             }
         }
         return $taxa;
@@ -195,6 +198,45 @@ class AvibaseAPI
         return $taxa;
     }
 
+    function get_synonyms($taxa)
+    {
+        print "\n\nstart getting synonyms...";
+        $i = 0;
+        $total = count($taxa);
+        foreach($taxa as $taxon => $value)
+        {
+            $i++;
+            // if(!in_array($taxon, array('Ortalis vetula', 'Ortalis ruficauda', 'Ortalis poliocephala'))) continue; //debug
+            print "\n $i of $total $taxon";
+            if(isset($taxa[$taxon]['synonyms'])) continue;
+            $url = AVIBASE_SOURCE_URL . $value['id'];
+            $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 999999);
+            $taxa[$taxon]['synonyms'] = self::scrape_synonyms($html, $taxon);
+        }
+        /* with synonyms - debug
+        print_r($taxa['Ortalis poliocephala']);
+        print_r($taxa['Ortalis ruficauda']);
+        print_r($taxa['Ortalis vetula']);
+        */
+        return $taxa;
+    }
+
+    function scrape_synonyms($html, $taxon)
+    {
+        $synonyms = array();
+        if(preg_match("/Latin\:(.*?)<br>/ims", $html, $match))
+        {
+            $html = trim(strip_tags(trim($match[1])));
+            $names = explode(",", $html);
+            foreach($names as $name)
+            {
+                $name = trim($name);
+                if($taxon != $name) $synonyms[] = array("synonym" => $name, "relationship" => 'synonym');
+            } 
+        }
+        return $synonyms;
+    }
+
     public static function get_avibase_taxa($taxon_record)
     {
         $response = self::parse_xml($taxon_record);//this will output the raw (but structured) array
@@ -212,7 +254,7 @@ class AvibaseAPI
         $arr_data = array();
         $arr_objects = array();
         $refs = array();
-        $synonyms = array();
+        $synonyms = $taxon_record['synonyms'];
         $common_names = array();
         $arr_data[] = array("identifier"   => $taxon_record['taxon']['id'],
                             "source"       => AVIBASE_SOURCE_URL . $taxon_record['taxon']['id'],

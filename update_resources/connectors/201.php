@@ -20,11 +20,13 @@ $GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = MCZHarvardAPI::get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);
-
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . "201.xml";
+$resource_id = 201;
+$resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
 fclose($OUT);
+
+Functions::set_resource_status_to_force_harvest($resource_id);
 
 $elapsed_time_sec = microtime(1)-$timestart;
 echo "\n";
