@@ -2,15 +2,6 @@
 namespace php_active_record;
 /* connector for Tropicos
 estimated execution time:
-
-last run: 2011 06 14
-taxon               = 80680
-dwc:ScientificName  = 80680
-synonym             = 130746
-dataObjects         = 370963
-texts               = 71545
-images              = 299418
-
 Note: Tropicos web service goes down 7-8am Eastern
 */
 
@@ -20,10 +11,14 @@ $timestart = time_elapsed();
 require_library('connectors/TropicosAPI');
 $resource_id = 218;
 
-if(isset($argv[1])) $call_multiple_instance = false;
-else $call_multiple_instance = true;
+$folder = DOC_ROOT . "update_resources/connectors/files/Tropicos";
+if(!file_exists($folder)) mkdir($folder , 0777);
 
-TropicosAPI::start_process($resource_id, false);
+$tropicos = new TropicosAPI();
+$tropicos->initialize_text_files();
+//Functions::kill_running_connectors($resource_id);
+$tropicos->start_process($resource_id, false);
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";

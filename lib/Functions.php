@@ -1621,6 +1621,35 @@ class Functions
         }
     }
 
+    public static function process_work_list($class)
+    {
+        while(true)
+        {
+            $task = Functions::get_a_task($class->WORK_LIST); //get task to work on
+            if($task)
+            {
+                print "\n Process this: $task";
+                Functions::delete_a_task($task, $class->WORK_LIST); //remove a task from task list
+                Functions::add_a_task($task, $class->WORK_IN_PROGRESS_LIST);
+                print "$task \n";
+                $task = str_ireplace("\n", "", $task); //remove carriage return got from text file
+                if($class->call_multiple_instance) //call other instances of the connector
+                {
+                    Functions::run_another_connector_instance($class->resource_id, $class->connectors_to_run);
+                    $class->call_multiple_instance = 0;
+                }
+                $class::get_all_taxa($task, $class->TEMP_FILE_PATH); //main connector body
+                print"\n Task $task is done. \n";
+                Functions::delete_a_task("$task\n", $class->WORK_IN_PROGRESS_LIST);//remove a task from task list
+            }
+            else
+            {
+                print "\n\n [$task] Work list done or list hasn't been created yet " . date('Y-m-d h:i:s a', time());
+                break;
+            }
+        }
+    }
+
     public static function kill_running_connectors($resource_id)
     {
         $myPID = getmypid();

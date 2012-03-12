@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for Avibase - Howard & Moore
-estimated execution time: 9 minutes
+estimated execution time: 9 minutes (8.5 hours with synonyms)
 Connector scrapes the Avibase site.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

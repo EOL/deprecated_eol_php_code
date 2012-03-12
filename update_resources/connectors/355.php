@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for Avibase - IOC World Bird Names
-estimated execution time: 3 minutes
+estimated execution time: 3 minutes (9 hours with synonyms)
 Connector scrapes the Avibase site.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

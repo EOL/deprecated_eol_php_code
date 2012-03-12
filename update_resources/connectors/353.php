@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for Avibase
-estimated execution time: 20 minutes
+estimated execution time: 20 minutes (10 hours with synonyms)
 Connector scrapes the Avibase site.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

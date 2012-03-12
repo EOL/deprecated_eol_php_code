@@ -29,8 +29,12 @@ class BOLDSysAPI
         self::initialize_text_file();
     }
 
-    function start_process($resource_id, $call_multiple_instance)
+    function start_process($resource_id, $call_multiple_instance, $connectors_to_run = 1)
     {
+        $this->resource_id = $resource_id; 
+        $this->call_multiple_instance = $call_multiple_instance; 
+        $this->connectors_to_run = $connectors_to_run;
+
         require_library('connectors/BoldsAPI');
         self::$PHYLUM_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/phylum_list.txt";
         if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
@@ -43,31 +47,7 @@ class BOLDSysAPI
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
-        // Run multiple instances
-        while(true)
-        {
-            $task = Functions::get_a_task($this->WORK_LIST);//get a task to work on
-            if($task)
-            {
-                print "\n Process this: $task";
-                Functions::delete_a_task($task, $this->WORK_LIST);
-                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
-                $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
-                {
-                    Functions::run_another_connector_instance($resource_id, 2);
-                    $call_multiple_instance = 0;
-                }
-                self::get_all_taxa($task);
-                print "\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
-            }
-            else
-            {
-                print "\n\n [$task] Work list done --- " . date('Y-m-d h:i:s a', time()) . "\n";
-                break;
-            }
-        }
+        Functions::process_work_list($this);
         if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Combine all XML files.
@@ -80,11 +60,11 @@ class BOLDSysAPI
         }
     }
 
-    private function get_all_taxa($task)
+    function get_all_taxa($task, $temp_file_path)
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $filename = $this->TEMP_FILE_PATH . $task . ".txt";
+        $filename = $temp_file_path . $task . ".txt";
         $records = self::get_array_from_json_file($filename);
         $num_rows = sizeof($records); $i = 0;
         foreach($records as $rec)
@@ -99,7 +79,7 @@ class BOLDSysAPI
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
-        $resource_path = $this->TEMP_FILE_PATH . $task . ".xml";
+        $resource_path = $temp_file_path . $task . ".xml";
         $OUT = fopen($resource_path, "w"); 
         fwrite($OUT, $xml); 
         fclose($OUT);

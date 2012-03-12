@@ -1,6 +1,16 @@
 <?php
 namespace php_active_record;
 /* connector: [218]  */
+/*
+<a href="http://services.tropicos.org/Name/25510055/ChromosomeCounts?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">1</a>
+<a href="http://services.tropicos.org/Name/25510055/Images?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">2</a>
+<a href="http://services.tropicos.org/Name/25510055/Distributions?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">3</a>
+<a href="http://services.tropicos.org/Name/25510055/Synonyms?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">4</a>
+<a href="http://services.tropicos.org/Name/25510055/References?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">5</a>
+<a href="http://services.tropicos.org/Name/25510055/HigherTaxa?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">6</a>
+
+Take note of these sample ID's which generated resource without <dwc:ScientificName> last time connector was run: 13000069 13000165 50335886
+*/
 
 define("TROPICOS_NAME_EXPORT_FILE", DOC_ROOT . "/update_resources/connectors/files/Tropicos/tropicos_ids.txt");
 define("TROPICOS_DOMAIN", "http://www.tropicos.org");
@@ -9,93 +19,61 @@ define("TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH", "http://www.tropicos.org/ImageSc
 define("TROPICOS_API_KEY", "2810ce68-f4cf-417c-b336-234bc8928390");
 define("TROPICOS_API_SERVICE", "http://services.tropicos.org/Name/");
 
-/*
-<a href="http://services.tropicos.org/Name/25510055/ChromosomeCounts?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">1</a>
-<a href="http://services.tropicos.org/Name/25510055/Images?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">2</a>
-<a href="http://services.tropicos.org/Name/25510055/Distributions?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">3</a>
-<a href="http://services.tropicos.org/Name/25510055/Synonyms?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">4</a>
-<a href="http://services.tropicos.org/Name/25510055/References?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">5</a>
-<a href="http://services.tropicos.org/Name/25510055/HigherTaxa?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">6</a>
-*/
-
-/*
-Take note of these sample ID's which generated resource without <dwc:ScientificName> last time connector was run:
-13000069
-13000165 
-50335886
-*/
-
 class TropicosAPI
 {
-    private static $TEMP_FILE_PATH;
-    private static $WORK_LIST;
-    private static $WORK_IN_PROGRESS_LIST;
-    private static $INITIAL_PROCESS_STATUS;
+    public function __construct() 
+    {           
+        $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/Tropicos/";
+        $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/Tropicos/work_list.txt"; //sl - species-level taxa
+        $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/Tropicos/work_in_progress_list.txt";
+        $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/Tropicos/initial_process_status.txt";
+    }
 
-    function start_process($resource_id, $call_multiple_instance)
+    function initialize_text_files()
     {
-        self::$TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/Tropicos/";
-        self::$WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/Tropicos/work_list.txt";
-        self::$WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/Tropicos/work_in_progress_list.txt";
-        self::$INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/Tropicos/initial_process_status.txt";
+        $f = fopen($this->WORK_LIST, "w"); fclose($f);
+        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
+        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        //this is not needed but just to have a clean directory
+        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml");
+        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+    }
 
-        if(!trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
+    function start_process($resource_id, $call_multiple_instance, $connectors_to_run = 1)
+    {
+        $this->resource_id = $resource_id;
+        $this->call_multiple_instance = $call_multiple_instance;
+        $this->connectors_to_run = $connectors_to_run;
+        if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
-            if(!trim(Functions::get_a_task(self::$INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
+            if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
             {
-                Functions::add_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);
-                // this will prepare a list of all species id
-                self::build_id_list(); // 13 mins. execution
-                // step 1: divides the big list of ids into small files
+                Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
+                // this will prepare a list of all species id; 13 mins. execution
+                self::build_id_list();
+                // divides the big list of ids into small files
                 self::divide_text_file(10000); //debug orig 10000, for testing use 5
-                Functions::delete_a_task("Initial process start", self::$INITIAL_PROCESS_STATUS);//remove a task from task list
+                Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);//remove a task from task list
             }
         }
-
-        // step 2: run multiple instances 
-        while(true) //main process
-        {
-            $task = Functions::get_a_task(self::$WORK_LIST);//get task to work on
-            if($task)
-            {
-                print "\n Process this: $task";
-                Functions::delete_a_task($task, self::$WORK_LIST);//remove a task from task list
-                Functions::add_a_task($task, self::$WORK_IN_PROGRESS_LIST);
-                print "$task \n";
-                $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
-                {
-                    Functions::run_another_connector_instance($resource_id, 2);
-                    $call_multiple_instance = 0;
-                }
-                self::get_all_taxa($task);//main task
-                print"\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", self::$WORK_IN_PROGRESS_LIST);//remove a task from task list
-            }
-            else
-            {
-                print "\n\n [$task] Work list done or list hasn't been created yet " . date('Y-m-d h:i:s a', time());
-                break;
-            }
-        }
-
-        if(!$task = trim(Functions::get_a_task(self::$WORK_IN_PROGRESS_LIST)))//don't do this if there are task(s) in progress
+        Functions::process_work_list($this);
+        if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are task(s) in progress
         {
             // step 3: this should only run when all of instances of step 2 are done
             sleep(10); //debug orig 10
             self::combine_all_xmls($resource_id);
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
-            self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
+            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
+            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
             Functions::set_resource_status_to_force_harvest($resource_id);
         }
     }
 
-    public static function get_all_taxa($task)
+    function get_all_taxa($task, $temp_file_path)
     {
         $all_taxa = array();
         $used_collection_ids = array();
 
-        $filename = self::$TEMP_FILE_PATH . $task . ".txt";
+        $filename = $temp_file_path . $task . ".txt";
         print "\nfilename: [$filename]";
         $READ = fopen($filename, "r");
         $i = 0;
@@ -114,12 +92,12 @@ class TropicosAPI
                 if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                 unset($page_taxa);
             }
-            else print "\n invalid line";
+            else print "\n Task list: end-of-file";
         }
         fclose($READ);
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = self::add_rating_to_image_object($xml, '1.0');
-        $resource_path = self::$TEMP_FILE_PATH . "temp_tropicos_" . $task . ".xml";
+        $resource_path = $temp_file_path . "temp_tropicos_" . $task . ".xml";
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
         fclose($OUT);
@@ -143,7 +121,7 @@ class TropicosAPI
                 {
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
-                    $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+                    $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = ""; 
@@ -158,7 +136,7 @@ class TropicosAPI
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
-            $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+            $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
             fwrite($OUT, $str);
             fclose($OUT);
         }
@@ -169,7 +147,7 @@ class TropicosAPI
         {
             $str .= "batch_" . Functions::format_number_with_leading_zeros($i, 2) . "\n";
         }
-        $filename = self::$WORK_LIST;
+        $filename = $this->WORK_LIST;
         if($OUT = fopen($filename, "w+"))
         {
             fwrite($OUT, $str);
@@ -215,7 +193,7 @@ class TropicosAPI
         {
             $i++;
             $i_str = Functions::format_number_with_leading_zeros($i, 2);
-            $filename = self::$TEMP_FILE_PATH . "temp_tropicos_batch_" . $i_str . ".xml";
+            $filename = $this->TEMP_FILE_PATH . "temp_tropicos_batch_" . $i_str . ".xml";
             if(!is_file($filename))
             {
                 print " -end compiling XML's- ";
@@ -524,7 +502,7 @@ class TropicosAPI
 
     function build_id_list() // 13 mins execution time
     {
-        $OUT = fopen(self::$TEMP_FILE_PATH . "tropicos_ids.txt", "w");
+        $OUT = fopen($this->TEMP_FILE_PATH . "tropicos_ids.txt", "w");
         $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>
         //pagesize is the no. of records returned from Tropicos master list service
         $pagesize = 1000; // debug orig value 1000
