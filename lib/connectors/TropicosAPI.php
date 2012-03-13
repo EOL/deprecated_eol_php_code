@@ -96,7 +96,7 @@ class TropicosAPI
         }
         fclose($READ);
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
-        $xml = self::add_rating_to_image_object($xml, '1.0');
+        // $xml = self::add_rating_to_image_object($xml, '1.0');
         $resource_path = $temp_file_path . "temp_tropicos_" . $task . ".xml";
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
@@ -352,14 +352,20 @@ class TropicosAPI
             $subject    = "";
             $source = $rec->DetailUrl; // e.g. http://www.tropicos.org/Image/40777
 
-            /* we are not allowed to get the bigger size images, only thumbnails
-            $mediaURL   = TROPICOS_IMAGE_LOCATION_LOW_BANDWIDTH . $rec->ImageId . "&maxwidth=600"; */
-            if($rec->DetailJpgUrl == 'http://www.tropicos.org/images/imageprotected.jpg') $mediaURL = $rec->ThumbnailUrl;
-            else                                                                          $mediaURL = $rec->DetailJpgUrl;
+            if($rec->DetailJpgUrl == 'http://www.tropicos.org/images/imageprotected.jpg') 
+            {
+                $mediaURL = $rec->ThumbnailUrl;
+                $additionalInformation = '<rating>1.0</rating>';
+            }
+            else
+            {
+                $mediaURL = $rec->DetailJpgUrl;
+                $additionalInformation = '<rating>2.0</rating>';
+            }
 
             $refs = array();
             $description .= "<br>Full sized images can be obtained by going to the <a href='$source'>original source page</a>.";
-            $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
+            $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $additionalInformation, $arr_objects);
         }
         return $arr_objects;
     }
@@ -412,7 +418,7 @@ class TropicosAPI
             $location   = "";
             $license    = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
             $rightsHolder   = "";
-            $arr_objects    = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects);
+            $arr_objects    = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $additionalInformation='', $arr_objects);
         }
         return $arr_objects;
     }
@@ -458,7 +464,7 @@ class TropicosAPI
             $license    = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
             $rightsHolder   = "";
             $arr_objects    = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, 
-                $rightsHolder, $refs, $subject, $arr_objects);
+                $rightsHolder, $refs, $subject, $additionalInformation='', $arr_objects);
         }
         return $arr_objects;
     }
@@ -480,7 +486,7 @@ class TropicosAPI
         return $arr_synonyms;
     }
 
-    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $arr_objects)
+    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject, $additionalInformation='', $arr_objects)
     {
         $arr_objects[]=array( "identifier"   => $identifier,
                               "dataType"     => $dataType,
@@ -495,7 +501,8 @@ class TropicosAPI
                               "rightsHolder" => $rightsHolder,
                               "reference"    => $refs,
                               "subject"      => $subject,
-                              "language"     => "en"
+                              "language"     => "en",
+                              "additionalInformation" => $additionalInformation
                             );
         return $arr_objects;
     }
@@ -503,7 +510,7 @@ class TropicosAPI
     function build_id_list() // 13 mins execution time
     {
         $OUT = fopen($this->TEMP_FILE_PATH . "tropicos_ids.txt", "w");
-        $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>
+        $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>; 1201245 with thumbnail size images
         //pagesize is the no. of records returned from Tropicos master list service
         $pagesize = 1000; // debug orig value 1000
         $count = 0;
