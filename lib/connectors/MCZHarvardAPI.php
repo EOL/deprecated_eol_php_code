@@ -6,7 +6,7 @@ define("SPECIMEN_DETAIL_URL", "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm
 define("MCZ_TAXON_DETAIL_URL", "http://mczbase.mcz.harvard.edu/TaxonomyResults.cfm?scientific_name=");
 define("TEMP_LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //just a temporary file
 define("REMOTE_CSV", "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv");
-//define("REMOTE_CSV", "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
+// define("REMOTE_CSV", "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
 
 class MCZHarvardAPI
 {
@@ -75,13 +75,13 @@ class MCZHarvardAPI
         $taxa_arr = array();
         foreach($urls as $url)
         {
-            $arr=self::prepare_table($parser->convert_sheet_to_array($url), "single", "GUID", "GUID", "SCIENTIFIC_NAME", "FULL_TAXON_NAME", "PHYLCLASS", "KINGDOM", "PHYLUM", "PHYLORDER", "FAMILY", "GENUS", "SPECIES", "SUBSPECIES", "INFRASPECIFIC_RANK", "AUTHOR_TEXT");
+            $arr = self::prepare_table($parser->convert_sheet_to_array($url), "single", "GUID", "GUID", "SCIENTIFIC_NAME", "FULL_TAXON_NAME", "PHYLCLASS", "KINGDOM", "PHYLUM", "PHYLORDER", "FAMILY", "GENUS", "SPECIES", "SUBSPECIES", "INFRASPECIFIC_RANK", "AUTHOR_TEXT");
             foreach($arr as $taxon_id => $rec)
             {
                 if(!@$taxa_arr[$taxon_id])
                 {
-                    $rec["taxon_id"]=$taxon_id;
-                    $taxa_arr[$taxon_id]=$rec;
+                    $rec["taxon_id"] = $taxon_id;
+                    $taxa_arr[$taxon_id] = $rec;
                 }
             }
             print "\n";
@@ -100,9 +100,9 @@ class MCZHarvardAPI
 
     function prepare_species_page($taxon, $taxon_images)
     {
-        $arr_scraped=array();
-        $arr_photos=array();
-        $arr_sciname=array();
+        $arr_scraped = array();
+        $arr_photos = array();
+        $arr_sciname = array();
         $taxon_id = $taxon["taxon_id"];
 
         $sciname = trim($taxon['SCIENTIFIC_NAME']);
@@ -130,26 +130,18 @@ class MCZHarvardAPI
 
                     $desc = "";
                     $typestatus = substr($r['TYPESTATUS'], 0, stripos($r['TYPESTATUS'], " "));
-                    if($typestatus)             $desc.=$typestatus.", ";
-                    if($r['PARTS'])             $desc.=$r['PARTS'].", ";
-                    if($r['COLLECTING_METHOD']) $desc.=$r['COLLECTING_METHOD'].", ";
+                    if($typestatus)             $desc .= $typestatus.", ";
+                    if($r['PARTS'])             $desc .= $r['PARTS'].", ";
+                    if($r['COLLECTING_METHOD']) $desc .= $r['COLLECTING_METHOD'].", ";
 
                     if($r['COLLECTORS'] && trim($r['COLLECTORS']) != "no agent" 
                                         && trim($r['COLLECTORS']) != "Unknown collector"
-                                        )
-                    {
-                        $desc.="collected by " . $r['COLLECTORS'] . ", ";
-                    }
+                                        ) $desc .= "collected by " . $r['COLLECTORS'] . ", ";
 
                     $agent=array();
-                    if($r['AGENT'] && trim($r['AGENT']) != "no agent")
-                    {
-                        $agent[] = array("role" => "photographer", "homepage" => "", $r['AGENT']);
-                    }
-
-                    if($r['IDENTIFIEDBY'])      $desc.="identified by " . $r['IDENTIFIEDBY'].", ";
-                    if($r['GUID'])              $desc.="GUID: " . $r['GUID'].", ";
-
+                    if($r['AGENT'] && trim($r['AGENT']) != "no agent") $agent[] = array("role" => "photographer", "homepage" => "", $r['AGENT']);
+                    if($r['IDENTIFIEDBY'])      $desc .= "identified by " . $r['IDENTIFIEDBY'].", ";
+                    if($r['GUID'])              $desc .= "GUID: " . $r['GUID'].", ";
                     $date_created = $r['created'];
                     $date_modified = $r['LAST_EDIT_DATE'];
 
@@ -159,11 +151,11 @@ class MCZHarvardAPI
                     collected by [COLLECTORS], identified by [IDENTIFIEDBY], GUID: [GUID] 
                     */
                                                 
-                    //$dc_source     = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME']; --working but replaced by Brendan
-                    $dc_source     = $r['SPECIMENDETAILURL'];
+                    //$dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME']; --working but replaced by Brendan
+                    $dc_source = $r['SPECIMENDETAILURL'];
                     $path_parts = pathinfo($mediaURL);
                     $dc_identifier = $path_parts['basename']; //$r['MEDIA_ID'];                            
-                    $arr_photos[$sciname][] = self::fill_data_object($dc_identifier,$desc,"", "",$agent,$rights_holder,$mediaURL,$mimeType,$dataType,$dc_source,$date_created,$date_modified,$location);
+                    $arr_photos[$sciname][] = self::fill_data_object($dc_identifier, $desc, "", "", $agent, $rights_holder, $mediaURL, $mimeType, $dataType, $dc_source, $date_created, $date_modified, $location);
                 }
             }
         }
@@ -173,7 +165,7 @@ class MCZHarvardAPI
             //$dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME'];
             
             if(self::has_invalid_names($taxon, $sciname)) return array();
-            $arr_scraped[]=array("identifier" => "MCZ_" . str_replace(" ", "_",$sciname),
+            $arr_scraped[]=array("identifier" => "MCZ_" . str_replace(" ", "_", $sciname),
                                  "kingdom" => $taxon['KINGDOM'],
                                  "phylum" => $taxon['PHYLUM'],
                                  "class" => $taxon['PHYLCLASS'],
@@ -181,13 +173,13 @@ class MCZHarvardAPI
                                  "family" => $taxon['FAMILY'],
                                  "genus" => $taxon['GENUS'],
                                  "sciname" => $sciname . " " . $taxon['AUTHOR_TEXT'],
-                                 "dc_source" => $dc_source,   
+                                 "dc_source" => $dc_source,
                                  "texts" => @$arr_texts[$sciname],
                                  "photos" => @$arr_photos[$sciname],
                                  "references" => $reference
-                                );                
-        }                    
-        return $arr_scraped;        
+                                );
+        }
+        return $arr_scraped;
     }
 
     function has_invalid_names($taxon, $sciname)
@@ -199,7 +191,7 @@ class MCZHarvardAPI
         if(strpos($name, " ") > 0) return true;
       }
       // hard coded to be sure not to get wrong name, caused by unbalanced csv file.
-      if(strpos($sciname, "Bonaccorso") > 0) return true;       
+      if(strpos($sciname, "Bonaccorso") > 0) return true;
       return false;
     }
 
@@ -296,6 +288,7 @@ class MCZHarvardAPI
         $data_object_parameters["description"]  = utf8_encode($rec["description"]);
         $data_object_parameters["location"]     = utf8_encode($rec["location"]);
         $data_object_parameters["license"]      = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+        $data_object_parameters["additionalInformation"] = '<rating>2.0</rating>';
         //start reference
         $data_object_parameters["references"] = array();
         $ref = array();
@@ -316,14 +309,14 @@ class MCZHarvardAPI
             $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
         if(@$rec["agent"])
-        {               
+        {
             $agents = array();
             foreach($rec["agent"] as $a)
             {  
                 $agentParameters = array();
                 $agentParameters["role"]     = $a["role"];
                 $agentParameters["homepage"] = $a["homepage"];
-                $agentParameters["logoURL"]  = "";        
+                $agentParameters["logoURL"]  = "";
                 $agentParameters["fullName"] = $a[0];
                 $agents[] = new \SchemaAgent($agentParameters);
             }
@@ -331,6 +324,6 @@ class MCZHarvardAPI
         }
         return $data_object_parameters;
     }
-    
+
 }
 ?>
