@@ -301,9 +301,23 @@ class YouTubeAPI
         $users = array();
         /* you can add users by adding them here
         $users["ile1731"] = ""; 
-        $users["ytile173"] = ""; 
+        $users["ile173"] = ""; 
         */
         $users['EncyclopediaOfLife'] = 1;
+        
+        /* as of 3-14-12: This is the same list that is taken from the API below. 
+        This is just a safeguard that when the API suddenly changes that EOL won't lose all their YouTube contributors */
+        $users['jenhammock1']        = 1;
+        $users['PRI']                = 1;
+        $users['treegrow']           = 1;
+        $users['soapberrybug']       = 1;
+        $users['heliam']             = 1;
+        $users['smithsonianNMNH']    = 1;
+        $users['robmutch1']          = 1;
+        $users['NESCentMedia']       = 1;
+        $users['TuftsEnvStudies']    = 1;
+        $users['censusofmarinelife'] = 1;
+        $users['lubaro1977']         = 1;
 
         /* or you can get them by getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
@@ -313,7 +327,8 @@ class YouTubeAPI
         {
             foreach($entry->title as $title)
             {
-                $id = str_replace('Activity of : ', '', $title);
+                $arr = explode(":", $title); //explode string -- 'Activity of : {user_id}'
+                $id = trim($arr[1]);
                 $users[$id] = 1;
             }
         }
