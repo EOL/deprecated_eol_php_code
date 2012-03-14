@@ -194,7 +194,7 @@ class TucanesAPI
                 $source         = TUCANES_SOURCE_URL . @$taxon["id"];
 
                 $agent = array();
-                $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => "Robin Schielle");
+                $agent[] = array("role" => "creator", "homepage" => "", "fullName" => "Robin Schielle");
 
                 // commented -- DATA-953 on March 5
                 // if(@$taxon["image"]['creator'][$i]) $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => @$taxon["image"]['creator'][$i]);
