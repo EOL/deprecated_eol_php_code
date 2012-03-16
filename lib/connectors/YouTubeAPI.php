@@ -52,6 +52,9 @@ class YouTubeAPI
 
     function build_data($video_id)
     {
+        //special case
+        if(substr($video_id, 0, 1) == "-") $video_id = "/" . trim(substr($video_id, 1, strlen($video_id)));
+        
         $video = array();
         $url = YOUTUBE_API  . '/videos?q=' . $video_id . '&license=cc&v=2';
         print "\n $url";
