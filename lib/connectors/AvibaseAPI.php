@@ -4,8 +4,8 @@ namespace php_active_record;
 define("AVIBASE_SOURCE_URL", "http://avibase.bsc-eoc.org/species.jsp?avibaseid=");
 class AvibaseAPI
 {
-    public function __construct() 
-    {           
+    public function __construct()
+    {
         $this->ancestry = array("kingdom" => "Animalia", "phylum" => "Chordata", "class" => "Aves");
         $this->family_list = self::generate_family_list();
         $this->checklists = array("sibleymonroe", //Sibley &amp; Monroe 1996
@@ -19,13 +19,14 @@ class AvibaseAPI
                                   "aou"           //American Ornithologist Union 7th edition (including 51st suppl.)
                                  );
         $this->TEMP_FILE_PATH = DOC_ROOT . "/update_resources/connectors/files/Avibase/";
+        $this->languages = self::generate_language_list(); // for common names
     }
 
     function get_all_taxa($resource_id, $taxonomy)
     {
         print "\n taxonomy: [$taxonomy]";
         $taxa = self::prepare_data($taxonomy);
-        $taxa = self::get_synonyms($taxa);
+        $taxa = self::get_names($taxa);
         $all_taxa = array();
         $i = 0;
         $total = count($taxa);
@@ -39,7 +40,7 @@ class AvibaseAPI
                                             "class"   => $this->ancestry["class"],
                                             "order"   => $this->family_list[$taxonomy][$value["family"]],
                                             "id"      => $value["id"]);
-            $taxon_record["common_names"] = array();
+            $taxon_record["common_names"] = @$value['common_names'];
             $taxon_record["references"] = array();
             $taxon_record["synonyms"] = @$value['synonyms'];
             $taxon_record["dataobjects"] = array();
@@ -76,7 +77,7 @@ class AvibaseAPI
         'wpa'  // western palearctic
         );
         
-        // $regions = array('cam'); //debug
+        // $regions = array('nam'); //debug
         
         if($for_testing) $regions = array('cam');
         $service_url = 'http://avibase.bsc-eoc.org/checklist.jsp?';
@@ -155,7 +156,7 @@ class AvibaseAPI
                 }
                 $taxa = self::get_taxa($taxa, $family, $block);
                 $i++;
-                // break; //debug just get 1 family block
+                //if($i == 2) break; //debug
             }
         }
         return $taxa;
@@ -173,7 +174,7 @@ class AvibaseAPI
         }
         return "";
     }
-    
+
     function get_family($html)
     {
         if(preg_match("/<b>(.*?)<\/b>/ims", $html, $matches)) return $matches[1];
@@ -198,27 +199,51 @@ class AvibaseAPI
         return $taxa;
     }
 
-    function get_synonyms($taxa)
+    function get_names($taxa)
     {
-        print "\n\nstart getting synonyms...";
+        print "\n\nstart getting synonyms and common names...";
         $i = 0;
         $total = count($taxa);
         foreach($taxa as $taxon => $value)
         {
             $i++;
-            // if(!in_array($taxon, array('Ortalis vetula', 'Ortalis ruficauda', 'Ortalis poliocephala'))) continue; //debug
+            //if(!in_array($taxon, array('Ortalis vetula', 'Ortalis ruficauda', 'Ortalis poliocephala'))) continue; //debug for synonyms
+            //if(!in_array($taxon, array('Numida meleagris'))) continue; //debug for common names
             print "\n $i of $total $taxon";
             if(isset($taxa[$taxon]['synonyms'])) continue;
             $url = AVIBASE_SOURCE_URL . $value['id'];
             $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 999999);
+            $taxa[$taxon]['common_names'] = self::scrape_common_names($html, $taxon);
             $taxa[$taxon]['synonyms'] = self::scrape_synonyms($html, $taxon);
         }
-        /* with synonyms - debug
-        print_r($taxa['Ortalis poliocephala']);
-        print_r($taxa['Ortalis ruficauda']);
-        print_r($taxa['Ortalis vetula']);
-        */
         return $taxa;
+    }
+
+    function scrape_common_names($html)
+    {
+        $common_names = array();
+        if(preg_match("/<b>Other synonyms<\/b>(.*?)<\/table>/ims", $html, $match))
+        {
+            $html = $match[1] . "<br>";
+            $html = str_ireplace("<br><b>" , "&rows[]=", $html);
+            $rows = array();
+            parse_str($html);
+            foreach($rows as $rec)
+            {
+                $rec = strip_tags($rec);
+                if($rec = explode(":", $rec))
+                {
+                    $lang = trim($rec[0]);
+                    $names = explode(",", $rec[1]);
+                    foreach($names as $name) 
+                    {
+                        if($lang != 'Latin') $common_names[] = array("name" => trim($name), "language" => $this->languages[$lang]);
+                    }
+                }
+            }
+            if(preg_match_all("/<br><b>(.*?)<br>/ims", $html, $matches)){}
+        }
+        return $common_names;
     }
 
     function scrape_synonyms($html, $taxon)
@@ -252,10 +277,6 @@ class AvibaseAPI
     private function parse_xml($taxon_record)
     {
         $arr_data = array();
-        $arr_objects = array();
-        $refs = array();
-        $synonyms = $taxon_record['synonyms'];
-        $common_names = array();
         $arr_data[] = array("identifier"   => $taxon_record['taxon']['id'],
                             "source"       => AVIBASE_SOURCE_URL . $taxon_record['taxon']['id'],
                             "kingdom"      => $taxon_record['taxon']['kingdom'],
@@ -265,12 +286,197 @@ class AvibaseAPI
                             "family"       => $taxon_record['taxon']['family'],
                             "genus"        => "",
                             "sciname"      => $taxon_record['taxon']['sciname'],
-                            "reference"    => $refs,
-                            "synonyms"     => $synonyms,
-                            "commonNames"  => $common_names,
-                            "data_objects" => $arr_objects
+                            "reference"    => array(),
+                            "synonyms"     => $taxon_record['synonyms'],
+                            "commonNames"  => $taxon_record['common_names'],
+                            "data_objects" => array()
                            );
         return $arr_data;
+    }
+    
+    function generate_language_list()
+    {
+        //http://www.loc.gov/standards/iso639-2/php/code_list.php
+        //http://www.rssboard.org/rss-language-codes
+        $lang = array();
+        $lang['Czech'] = 'cs';
+        $lang['German'] = 'de';
+        $lang['French'] = 'fr';
+        $lang['Spanish'] = 'es';
+        $lang['Spanish (Colombia)'] = 'es-co';
+        $lang['Spanish (Honduras)'] = 'es-hn';
+        $lang['Spanish (Nicaragua)'] = 'es-ni';
+        $lang['Spanish (Costa Rica)'] = 'es-cr';
+        $lang['Spanish (Mexico)'] = 'es-mx';
+        $lang['Spanish (Venezuela)'] = 'es-ve';
+        $lang['Spanish (Argentine)'] = 'es-ar';
+        $lang['Spanish (Chile)'] = 'es-cl';
+        $lang['Spanish (Ecuador)'] = 'es-ec';
+        $lang['Dutch'] = 'nl';
+        $lang['Polish'] = 'pl';
+        $lang['Portuguese (Brazil)'] = 'pt-br';
+        $lang['Portuguese'] = 'pt-pt';
+        $lang['Estonian'] = 'et';        
+        $lang['Slovak'] = 'sk';
+        $lang['Chinese'] = 'cn';
+        $lang['Finnish'] = 'fi';
+        $lang['Italian'] = 'it';
+        $lang['Japanese'] = 'ja';
+        $lang['Mayan languages'] = 'myn';
+        $lang['Norwegian'] = 'no';
+        $lang['Russian'] = 'ru';
+        $lang['Swedish'] = 'sv';
+        $lang['Afrikaans'] = 'af';
+        $lang['Bulgarian'] = 'bg';
+        $lang['Catalan'] = 'ca';
+        $lang['Welsh'] = 'cy';
+        $lang['English'] = 'en';
+        $lang['Spanish (Dominican Rep.)'] = 'es-do';
+        $lang['Basque'] = 'eu';
+        $lang['Faroese'] = 'fo';
+        $lang['Friulian'] = 'fur';
+        $lang['Irish'] = 'ga';
+        $lang['Haitian Creole French'] = 'ht';
+        $lang['Croatian'] = 'hr';
+        $lang['Icelandic'] = 'is';
+        $lang['Cornish'] = 'kw';
+        $lang['Lithuanian'] = 'lt';
+        $lang['Malagasy'] = 'mg';
+        $lang['Maltese'] = 'mt';
+        $lang['Occitan'] = 'oc';
+        $lang['Romanian'] = 'ro';
+        $lang['Romany'] = 'rom';
+        $lang['Ojibwa'] = 'oj';
+        $lang['Gaelic'] = 'gd';
+        $lang['Galician'] = 'gl';
+        $lang['Inuktitut'] = 'iu';
+        $lang['Khakas'] = '';
+        $lang['Kazakh'] = 'kk';
+        $lang['Greenlandic'] = 'kl';
+        $lang['Mongolian'] = 'mn';
+        $lang['Tuvinian'] = 'tyv';
+        $lang['Araucanian'] = '';
+        $lang['Mapundungun'] = '';
+        $lang['Azerbaijani'] = 'az';
+        $lang['Valencian'] = 'ca';
+        $lang['Greek (Cypriot)'] = 'el';
+        $lang['Chinese (Taiwan)'] = 'zh-tw';
+        $lang['Kirghiz'] = 'ky';
+        $lang['Spanish (Bolivia)'] = 'es-bo';
+        $lang['Modenese'] = '';
+        $lang['Creoles and Pidgins, French-based (Other)'] = 'cpf';
+        $lang['Karelian'] = 'krl';
+        $lang['Maori'] = 'mi';
+        $lang['Rennell'] = '';
+        $lang['Rotokas'] = '';
+        $lang['Naasioi'] = '';
+        $lang['Tai'] = 'tai';
+        $lang['Aymara'] = 'ay';
+        $lang['Reggiano'] = '';
+        $lang['Somali'] = '';
+        $lang['Uzbek'] = '';
+        $lang['Aragonese'] = 'an';
+        $lang['Corsican'] = 'co';
+        $lang['Kurmanji'] = '';
+        $lang['Sicilian'] = 'scn';
+        $lang['Karachay-Balkar'] = 'krc';
+        $lang['Napoletano-calabrese'] = '';
+        $lang['Aymara'] = 'ay';
+        $lang['Sicilian'] = 'scn';
+        $lang['Biellese'] = '';
+        $lang['Piemontese'] = '';
+        $lang['Kanuri'] = 'kr';
+        $lang['Ossetian'] = 'os';
+        $lang['Walloon'] = 'wa';
+        $lang['Lombard'] = '';
+        $lang['Delaware'] = 'del';
+        $lang['Bolognese'] = '';
+        $lang['Amharic'] = 'am';
+        $lang['Mamasa'] = '';
+        $lang['Bengali'] = 'bn';
+        $lang['Tibetan'] = 'bo';
+        $lang['Bosnian'] = 'bs';
+        $lang['Napulitano'] = '';
+        $lang['Paduan'] = '';
+        $lang['Ligurian'] = '';
+        $lang['Moksha'] = 'mdf';
+        $lang['Flemish'] = 'nl';
+        $lang['Quechua'] = 'qu';
+        $lang['Tamil'] = 'ta';
+        $lang['Tatar'] = 'tt';
+        $lang['Venetian'] = '';
+        $lang['Wolof'] = 'wo';
+        $lang['Kalmyk'] = 'xal';
+        $lang['Tamil'] = 'ta';
+        $lang['Thai'] = 'th';
+        $lang['Vietnamese'] = 'vi';
+        $lang['Cebuano'] = 'ceb';
+        $lang['Hawaiian'] = 'haw';
+        $lang['Indonesian'] = 'id';
+        $lang['Malay'] = 'ms';
+        $lang['Palauan'] = 'pau';
+        $lang['Spanish (Paraguay)'] = 'es-py';
+        $lang['Spanish (Uruguay)'] = 'es-uy';
+        $lang['Guarani'] = 'gn';
+        $lang['Guadeloupean Creole French'] = '';
+        $lang['Limburgish'] = 'li';
+        $lang['Shor'] = '';
+        $lang['Moldavian'] = 'ro';
+        $lang['Emiliano-romagnolo'] = '';
+        $lang['Persian'] = 'fa';
+        $lang['Gujarati'] = 'gu';
+        $lang['Hindi'] = 'hi';
+        $lang['Brescian'] = '';
+        $lang['Georgian'] = '';
+        $lang['Ladin'] = 'lad';
+        $lang['Marathi'] = 'mr';
+        $lang['Punjabi'] = 'pa';
+        $lang['Sanskrit'] = 'sa';
+        $lang['Arabic'] = 'ar';
+        $lang['Catalan (Balears)'] = 'ca';
+        $lang['Armenian'] = 'hy';
+        $lang['Georgian'] = 'ka';
+        $lang['Asturian'] = 'ast';
+        $lang['Chuvash'] = 'cv';
+        $lang['Georgian'] = 'ka';
+        $lang['Kashmiri'] = 'ks';
+        $lang['Korean'] = 'ko';
+        $lang['Sardinian'] = 'sc';
+        $lang['Northern Sami'] = 'se';
+        $lang['Slovenian'] = 'sl';
+        $lang['Albanian'] = 'sq';
+        $lang['Siswant'] = '';
+        $lang['Turkmen'] = 'tk';
+        $lang['Turkish'] = 'tr';
+        $lang['Ukrainian'] = 'uk';
+        $lang['Sorbian, Upper'] = 'hsb';
+        $lang['Sorbian, Lower'] = 'dsb';
+        $lang['Belarusian'] = 'be';
+        $lang['Breton'] = 'br';
+        $lang['Danish'] = 'da';
+        $lang['Greek'] = 'el';
+        $lang['Esperanto'] = 'eo';
+        $lang['Spanish (Cuba)'] = '';
+        $lang['Frisian'] = 'fy';
+        $lang['Manx'] = 'gv';
+        $lang['Hebrew'] = 'he';
+        $lang['Hungarian'] = 'hu';
+        $lang['Kwangali'] = '';
+        $lang['Ladino'] = 'lad';
+        $lang['Latvian'] = 'lv';
+        $lang['Macedonian'] = 'mk';
+        $lang['Sotho, Northern'] = 'nso';
+        $lang['Sotho, Southern'] = 'st';
+        $lang['Romansh'] = 'rm';
+        $lang['Scots'] = 'sco';
+        $lang['Shona'] = 'sn';
+        $lang['Serbian'] = 'sr';
+        $lang['Swahili'] = 'sw';
+        $lang['Tswana'] = 'tn';
+        $lang['Tsonga'] = 'ts';
+        $lang['Xhosa'] = 'xh';
+        $lang['Zulu'] = 'zu';
+        return $lang;
     }
 
     function generate_family_list()
