@@ -268,6 +268,7 @@ class WikiPage
         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
         $data_object_parameters["mimeType"] = "text/html";
         $data_object_parameters["title"] = $this->title;
+        $data_object_parameters["language"] = 'en';
         $data_object_parameters["license"] = "http://creativecommons.org/licenses/by-sa/3.0/";
         $data_object_parameters["source"] = "http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $this->title) ."&oldid=". $this->revision;
         $data_object_parameters["subjects"] = array(new SchemaSubject(array("label" => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription")));
