@@ -14,6 +14,7 @@ class YouTubeAPI
         $used_collection_ids = array();
         $usernames_of_subscribers = self::get_subscriber_usernames();
         $user_video_ids = self::get_upload_videos_from_usernames($usernames_of_subscribers);
+        print_r($user_video_ids);
         $total_users = count($usernames_of_subscribers);
         $user_index = 0;
         foreach($usernames_of_subscribers as $username)
@@ -53,41 +54,48 @@ class YouTubeAPI
         return array($page_taxa, $used_collection_ids);
     }
 
-    function build_data($video_id)
+    public static function build_data($video_id)
     {
+        $url = YOUTUBE_API  . '/videos/' . $video_id . '?v=2&alt=json';
+        $raw_json = Functions::get_remote_file($url);
+        $json_object = json_decode($raw_json);
+        if(!@$json_object->entry->id)
+        {
+            echo "$url -- invalid response\n";
+            return;
+        }
+        $license = @$json_object->entry->{'media$group'}->{'media$license'}->href;
+        if(!$license || !preg_match("/^http:\/\/creativecommons.org\/licenses\//", $license))
+        {
+            echo "$url -- invalid license\n";
+            return;
+        }
+        
+        
+        $thumbnailURL = @$json_object->entry->{'media$group'}->{'media$thumbnail'}[1]->url;
+        $mediaURL = @$json_object->entry->{'media$group'}->{'media$content'}[0]->url;
+        
+        // For a while we used the API URL for the identifier (not sure why). Just 
+        // trying to preserve that so I don't lose all curation/rating information
+        // for the existing objects. Really we just need to use the video ID: -ravHVw8K4U
         // video IDs starting with '-' must have the - tuened into /
         // eg: -ravHVw8K4U becomes /ravHVw8K4U
-        if(substr($video_id, 0, 1) == "-") $video_id = "/" . trim(substr($video_id, 1, strlen($video_id)));
-        
-        $video = array();
-        $url = YOUTUBE_API  . '/videos?q=' . $video_id . '&license=cc&v=2';
-        $xml = Functions::get_hashed_response($url);
-        // if(!@$xml->entry) echo " -- invalid license\n";
-        
-        foreach($xml->entry as $e)
-        {
-            $e_media = $e->children("http://search.yahoo.com/mrss/");
-            $thumbnail_attributes = $e_media->group->thumbnail[0]->attributes();
-            if($thumbnail_attributes['url']) $thumbnail = (string) $thumbnail_attributes['url'];
-            
-            $content_attributes = $e_media->group->content[0]->attributes();
-            if($content_attributes['url']) $mediaURL = (string) $content_attributes['url'];
-            
-            return array("id"            => $url,
-                         "author"        => trim($e->author->name),
-                         "author_uri"    => trim($e->author->uri),
-                         "author_detail" => (string) $e->author->uri,
-                         "author_url"    => "http://www.youtube.com/user/" . trim($e->author->name),
-                         "media_title"   => trim($e_media->group->title),
-                         "description"   => trim($e_media->group->description),
-                         "thumbnail"     => $thumbnail,
-                         "sourceURL"     => 'http://youtu.be/' . $video_id,
-                         "mediaURL"      => $mediaURL,
-                         "video_id"      => $video_id );
-        }
+        $identifier_video_id = $video_id;
+        if(substr($identifier_video_id, 0, 1) == "-") $identifier_video_id = "/" . trim(substr($identifier_video_id, 1));
+        return array("id"            => YOUTUBE_API  . '/videos?q=' . $identifier_video_id . '&license=cc&v=2',
+                     "author"        => $json_object->entry->author[0]->name->{'$t'},
+                     "author_uri"    => $json_object->entry->author[0]->uri->{'$t'},
+                     "author_detail" => $json_object->entry->author[0]->uri->{'$t'},
+                     "author_url"    => "http://www.youtube.com/user/" . $json_object->entry->author[0]->name->{'$t'},
+                     "media_title"   => $json_object->entry->title->{'$t'},
+                     "description"   => str_replace("\r\n", "<br/>", trim($json_object->entry->{'media$group'}->{'media$description'}->{'$t'})),
+                     "thumbnail"     => $json_object->entry->{'media$group'}->{'media$thumbnail'}[1]->url,
+                     "sourceURL"     => 'http://youtu.be/' . $video_id,
+                     "mediaURL"      => $json_object->entry->{'media$group'}->{'media$content'}[0]->url,
+                     "video_id"      => $video_id );
     }
 
-    function parse_xml($rec)
+    private static function parse_xml($rec)
     {
         $arr_data = array();
         $description = Functions::import_decode($rec['description']);
@@ -172,7 +180,7 @@ class YouTubeAPI
         return $arr_data;
     }
 
-    function initialize($sciname, $arr_sciname=NULL)
+    private static function initialize($sciname, $arr_sciname=NULL)
     {
         $arr_sciname[$sciname]['binomial']    = "";
         $arr_sciname[$sciname]['trinomial']   = "";
@@ -188,7 +196,7 @@ class YouTubeAPI
         return $arr_sciname;
     }
 
-    function is_multiple_taxa_video($arr)
+    private static function is_multiple_taxa_video($arr)
     {
         $taxa=array();
         foreach($arr as $tag)
@@ -203,7 +211,7 @@ class YouTubeAPI
         return 0;
     }
 
-    function get_smallest_rank($match)
+    private static function get_smallest_rank($match)
     {
         $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "family" => 4, "order" => 5, "class" => 6, "phylum" => 7, "kingdom" => 8);
         $smallest_rank_id = 9;
@@ -232,7 +240,7 @@ class YouTubeAPI
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
 
-    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
+    private static function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
     {
         $arr_objects[] = array( "identifier"   => $identifier,
                                 "dataType"     => $dataType,
@@ -248,7 +256,7 @@ class YouTubeAPI
         return $arr_objects;
     }
 
-    function get_taxa_for_photo($rec)
+    private static function get_taxa_for_photo($rec)
     {
         $taxon = array();
         $taxon["source"] = $rec["source"];
@@ -274,7 +282,7 @@ class YouTubeAPI
         return $taxon_object;
     }
 
-    function get_data_object($rec)
+    private static function get_data_object($rec)
     {
         $data_object_parameters = array();
         $data_object_parameters["identifier"]   = trim(@$rec["identifier"]);
@@ -304,7 +312,7 @@ class YouTubeAPI
         return $data_object_parameters;
     }
 
-    function get_subscriber_usernames()
+    private static function get_subscriber_usernames()
     {
         $usernames_of_subscribers = array();
         $usernames_of_subscribers['EncyclopediaOfLife'] = 1;
@@ -345,7 +353,7 @@ class YouTubeAPI
         return array_keys($usernames_of_subscribers);
     }
 
-    function get_upload_videos_from_usernames($usernames)
+    public static function get_upload_videos_from_usernames($usernames)
     {
         $max_results = 50;
         $user_video_ids = array();
