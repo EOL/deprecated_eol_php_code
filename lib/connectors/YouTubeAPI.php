@@ -12,19 +12,21 @@ class YouTubeAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $users = self::compile_user_list();
-        $total_users = sizeof($users); 
-        $j = 0;
-        foreach($users as $user)
+        $usernames_of_subscribers = self::get_subscriber_usernames();
+        $user_video_ids = self::get_upload_videos_from_usernames($usernames_of_subscribers);
+        $total_users = count($usernames_of_subscribers);
+        $user_index = 0;
+        foreach($usernames_of_subscribers as $username)
         {
-            $j++; 
-            $num_rows = count($user["video_ids"]);
-            $i = 0;
-            foreach($user["video_ids"] as $video_id)
+            $user_index++;
+            if(@!$user_video_ids[$username]) continue;
+            $number_of_user_videos = count($user_video_ids[$username]);
+            $video_index = 0;
+            foreach($user_video_ids[$username] as $video_id)
             {
-                $record = self::build_data($video_id);
-                $i++; print "\n [user $j of $total_users] [video $i of $num_rows] ";
-                if($record) 
+                $video_index++;
+                echo "[user $user_index of $total_users] [video $video_index of $number_of_user_videos]\n";
+                if($record = self::build_data($video_id))
                 {
                     $arr = self::get_youtube_taxa($record, $used_collection_ids);
                     $page_taxa              = $arr[0];
@@ -38,7 +40,8 @@ class YouTubeAPI
 
     public static function get_youtube_taxa($record, $used_collection_ids)
     {
-        $response = self::parse_xml($record);//this will output the raw (but structured) array
+        //this will output the raw (but structured) array
+        $response = self::parse_xml($record);
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -52,34 +55,36 @@ class YouTubeAPI
 
     function build_data($video_id)
     {
-        //special case
+        // video IDs starting with '-' must have the - tuened into /
+        // eg: -ravHVw8K4U becomes /ravHVw8K4U
         if(substr($video_id, 0, 1) == "-") $video_id = "/" . trim(substr($video_id, 1, strlen($video_id)));
         
         $video = array();
         $url = YOUTUBE_API  . '/videos?q=' . $video_id . '&license=cc&v=2';
-        print "\n $url";
         $xml = Functions::get_hashed_response($url);
-        if($xml->entry) print " -- valid license";
-        else print ' -- invalid license';
+        // if(!@$xml->entry) echo " -- invalid license\n";
+        
         foreach($xml->entry as $e)
         {
             $e_media = $e->children("http://search.yahoo.com/mrss/");
-            foreach($e_media->group->thumbnail[0]->attributes() as $field => $value) if($field == 'url') $thumbnail = $value; 
-            foreach($e_media->group->content[0]->attributes() as $field => $value) if($field == 'url') $mediaURL = $value; 
-            $video = array(  "id"            => $url,
-                             "author"        => trim($e->author->name),
-                             "author_uri"    => trim($e->author->uri),
-                             "author_detail" => $e->author->uri, //get_author_detail(trim($e->author->uri)),
-                             "author_url"    => "http://www.youtube.com/user/" . trim($e->author->name),
-                             "media_title"   => trim($e_media->group->title),
-                             "description"   => trim($e_media->group->description),
-                             "thumbnail"     => $thumbnail,
-                             "sourceURL"     => 'http://youtu.be/' . $video_id,
-                             "mediaURL"      => $mediaURL,
-                             "video_id"      => $video_id
-                            );
+            $thumbnail_attributes = $e_media->group->thumbnail[0]->attributes();
+            if($thumbnail_attributes['url']) $thumbnail = (string) $thumbnail_attributes['url'];
+            
+            $content_attributes = $e_media->group->content[0]->attributes();
+            if($content_attributes['url']) $mediaURL = (string) $content_attributes['url'];
+            
+            return array("id"            => $url,
+                         "author"        => trim($e->author->name),
+                         "author_uri"    => trim($e->author->uri),
+                         "author_detail" => (string) $e->author->uri,
+                         "author_url"    => "http://www.youtube.com/user/" . trim($e->author->name),
+                         "media_title"   => trim($e_media->group->title),
+                         "description"   => trim($e_media->group->description),
+                         "thumbnail"     => $thumbnail,
+                         "sourceURL"     => 'http://youtu.be/' . $video_id,
+                         "mediaURL"      => $mediaURL,
+                         "video_id"      => $video_id );
         }
-        return $video;
     }
 
     function parse_xml($rec)
@@ -299,82 +304,73 @@ class YouTubeAPI
         return $data_object_parameters;
     }
 
-    function compile_user_list()
+    function get_subscriber_usernames()
     {
-        $users = array();
-        /* you can add users by adding them here
-        $users["ile1731"] = ""; 
-        $users["ile173"] = ""; 
-        */
-        $users['EncyclopediaOfLife'] = 1;
+        $usernames_of_subscribers = array();
+        $usernames_of_subscribers['EncyclopediaOfLife'] = 1;
         
-        /* as of 3-14-12: This is the same list that is taken from the API below. 
-        This is just a safeguard that when the API suddenly changes that EOL won't lose all their YouTube contributors */
-        $users['jenhammock1']        = 1;
-        $users['PRI']                = 1;
-        $users['treegrow']           = 1;
-        $users['soapberrybug']       = 1;
-        $users['heliam']             = 1;
-        $users['smithsonianNMNH']    = 1;
-        $users['robmutch1']          = 1;
-        $users['NESCentMedia']       = 1;
-        $users['TuftsEnvStudies']    = 1;
-        $users['censusofmarinelife'] = 1;
-        $users['lubaro1977']         = 1;
+        /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
+        $usernames_of_people_to_ignore = array('PRI');
+        
+        // /* as of 3-14-12: This is the same list that is taken from the API below. 
+        // This is just a safeguard that when the API suddenly changes that EOL won't lose all their YouTube contributors */
+        // $usernames_of_subscribers['jenhammock1']        = 1;
+        // $usernames_of_subscribers['PRI']                = 1;
+        // $usernames_of_subscribers['treegrow']           = 1;
+        // $usernames_of_subscribers['soapberrybug']       = 1;
+        // $usernames_of_subscribers['heliam']             = 1;
+        // $usernames_of_subscribers['smithsonianNMNH']    = 1;
+        // $usernames_of_subscribers['robmutch1']          = 1;
+        // $usernames_of_subscribers['NESCentMedia']       = 1;
+        // $usernames_of_subscribers['TuftsEnvStudies']    = 1;
+        // $usernames_of_subscribers['censusofmarinelife'] = 1;
+        // $usernames_of_subscribers['lubaro1977']         = 1;
 
         /* or you can get them by getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
-        print "\n $url \n";
         $xml = Functions::get_hashed_response($url);
         foreach($xml->entry as $entry)
         {
             foreach($entry->title as $title)
             {
-                $arr = explode(":", $title); //explode string -- 'Activity of : {user_id}'
-                $id = trim($arr[1]);
-                $users[$id] = 1;
+                if(preg_match("/^Activity of: (.*)$/", $title, $arr))
+                {
+                    if(!in_array($arr[1], $usernames_of_people_to_ignore))
+                    {
+                        $usernames_of_subscribers[$arr[1]] = 1;
+                    }
+                }
             }
         }
-
-        $users = self::assign_video_ids(array_keys($users));
-        return $users;
+        return array_keys($usernames_of_subscribers);
     }
 
-    function assign_video_ids($user_ids)
+    function get_upload_videos_from_usernames($usernames)
     {
-        $users = array();
-        /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
-        $exclude_users = array('PRI');
-        $user_ids = array_diff(array_values($user_ids), $exclude_users);
-        foreach($user_ids as $user_id)
+        $max_results = 50;
+        $user_video_ids = array();
+        foreach($usernames as $username)
         {
+            echo "Getting video list for $username...\n";
             $start_index = 1;
-            $max_results = 25;
-            $video_ids = array();
             while(true)
             {
-                $url = YOUTUBE_API . '/users/' . $user_id . '/uploads';
-                $url .= "?start-index=$start_index&max-results=$max_results";
-                print "\n $url";
+                $url = YOUTUBE_API . '/users/' . $username . '/uploads?';
+                $url .= "start-index=$start_index&max-results=$max_results";
                 $xml = Functions::get_hashed_response($url);
                 if($xml->entry)
                 {
                     foreach($xml->entry as $entry) 
                     {
-                        print "\n $entry->id";
-                        $path_parts = pathinfo($entry->id);
-                        $video_ids[] = $path_parts['basename'];
+                        $user_video_pathinfo = pathinfo($entry->id);
+                        $user_video_ids[$username][] = $user_video_pathinfo['basename'];
                     }
                 }
                 else break;
                 $start_index += $max_results;
             }
-            print "\n";
-            $users[$user_id]["id"] = $user_id;
-            $users[$user_id]["video_ids"] = $video_ids;
         }
-        return $users;
+        return $user_video_ids;
     }
-
 }
 ?>

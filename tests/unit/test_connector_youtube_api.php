@@ -4,14 +4,12 @@ require_library('connectors/YouTubeAPI');
 class test_connector_youtube_api extends SimpletestUnitBase
 {
     function testYouTubeAPI()
-    {          
+    {
         $yt = new YouTubeAPI();
-        $users['ile1731'] = 1;
-        $users = $yt->assign_video_ids(array_keys($users));
-        foreach($users as $user)
+        $users = $yt->get_upload_videos_from_usernames(array('ile1731'));
+        foreach($users as $username => $video_ids)
         {
-            $num_rows = count($user["video_ids"]);
-            foreach($user["video_ids"] as $video_id)
+            foreach($video_ids as $video_id)
             {
                 $record = $yt->build_data($video_id);
                 if($record) 
