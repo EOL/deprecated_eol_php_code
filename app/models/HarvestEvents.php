@@ -231,6 +231,20 @@ class HarvestEvent extends ActiveRecord
         
     }
     
+    public function add_taxon_from_harvest($parameters = array())
+    {
+        $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($taxon_parameters, $this->resource->hierarchy_id);
+        if(@!$hierarchy_entry->id) return false;
+        $this->hierarchy_entry_ids[$taxon_parameters["identifier"]] = $hierarchy_entry->id;
+        $this->resource->add_hierarchy_entry($hierarchy_entry, 'inserted');
+        
+        $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($t, $this->resource->hierarchy_id);
+        if(@!$hierarchy_entry->id) return false;
+        
+        $this->resource->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
+        
+    }
+    
     public function add_hierarchy_entry($hierarchy_entry, $status)
     {
         if(@!$hierarchy_entry->id) return false;

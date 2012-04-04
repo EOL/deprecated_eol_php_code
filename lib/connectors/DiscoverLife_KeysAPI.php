@@ -11,7 +11,7 @@ Steps before accepting a name from DiscoverLife
 class DiscoverLife_KeysAPI
 {
     const DL_SEARCH_URL     = "http://www.discoverlife.org/mp/20q?search=";
-    const API_URL           = "http://www.eol.org/api/search/";
+    const API_URL           = "http://eol.org/api/search/";
     const TEXT_FILE_FOR_DL  = "/update_resources/connectors/files/DiscoverLife/names_without_pages_in_eol"; //report back to DiscoverLife
     const TEMP_FILE_PATH    = "/update_resources/connectors/files/DiscoverLife/";
     const ID_KEYS_FILE      = "ID keys spreadsheet 30March2011.txt";

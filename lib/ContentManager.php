@@ -12,7 +12,6 @@ class ContentManager
         $this->unique_key = Functions::generate_guid();
     }
     
-    
     // This function will download a file and place it on the content server
     //
     // Possible types for this function
@@ -23,25 +22,77 @@ class ContentManager
     
     function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
     {
-        $new_file_path = "";
-        $suffix = "";
-        if(preg_match("/\.([^\.]+)$/",$file,$arr)) $suffix = strtolower(trim($arr[1]));
+        if($temp_file_path = self::download_temp_file_and_assign_extension($file, $this->unique_key, ($type == "resource"), $timeout))
+        {
+            $suffix = null;
+            if(preg_match("/\.(.*)$/", $temp_file_path, $arr)) $suffix = strtolower(trim($arr[1]));
+            if(!$suffix) return;
+            
+            // Move into place in the /content or /resources folder
+            if($type=="image") $new_file_prefix = $this->new_content_file_name();
+            elseif($type=="video") $new_file_prefix = $this->new_content_file_name();
+            elseif($type=="audio") $new_file_prefix = $this->new_content_file_name();
+            elseif($type=="upload") $new_file_prefix = $this->new_content_file_name();
+            elseif($type=="partner") $new_file_prefix = $this->new_content_file_name();
+            elseif($type=="resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
+            $new_file_path = $new_file_prefix . "." . $suffix;
+            
+            // copy temporary file into its new home
+            copy($temp_file_path, $new_file_path);
+            // fail if for some reason there is still no file at the new path
+            if(!file_exists($new_file_path))
+            {
+                if(file_exists($temp_file_path)) unlink($temp_file_path);
+                trigger_error("ContentManager: Unable to download file $file", E_USER_NOTICE);
+                return false;
+            }
+            $sizes = array();
+            if($type == "image" || $type == "partner")
+            {
+                $sizes = getimagesize($new_file_path);
+                if(@!$sizes[1])
+                {
+                    trigger_error("ContentManager: Unable to determine image dimensions $file", E_USER_NOTICE);
+                    return false;
+                }
+            }
+                
+            // create thumbnails of website content and agent logos
+            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
+            elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
+            
+            // Take the substring of the new file path to return via the webservice
+            if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr)) $new_file_path = str_replace("/", "", $arr[1]);
+            elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
+        }
+        
+        if(file_exists($temp_file_path)) unlink($temp_file_path);
+        return $new_file_path;
+    }
+    
+    function download_temp_file_and_assign_extension($file_path_or_uri, $unique_key = null, $is_resource = false, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
+    {
+        $suffix = null;
+        if(preg_match("/\.([^\.]+)$/", $file_path_or_uri, $arr)) $suffix = strtolower(trim($arr[1]));
         
         // resources may need a little extra time to establish a connection
-        if($type == "resource" && $timeout < 60) $timeout = 60;
+        if($is_resource && $timeout < 60) $timeout = 60;
         
-        $temp_file_path = CONTENT_TEMP_PREFIX.$this->unique_key.".file";
-        if(preg_match("/^http:\/\//",$file) || preg_match("/^https:\/\//",$file))
+        if(!$unique_key) $unique_key = Functions::generate_guid();
+        $temp_file_path = CONTENT_TEMP_PREFIX . $unique_key . ".file";
+        if(preg_match("/^http:\/\//", $file_path_or_uri) || preg_match("/^https:\/\//", $file_path_or_uri) || preg_match("/^\//", $file_path_or_uri))
         {
-            if($file_contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, $timeout))
+            if($file_contents = Functions::get_remote_file($file_path_or_uri, DOWNLOAD_WAIT_TIME, $timeout))
             {
                 // if this is a resource then update the old references to the schema
                 // there were a few temporary locations for the schema which were being used by early providers
                 // and not all of them have been updated
-                if($type=="resource")
+                if($is_resource)
                 {
-                    $file_contents = str_replace("http://www.eol.org/transfer/data/0.1", "http://www.eol.org/transfer/content/0.1", $file_contents);
-                    $file_contents = str_replace("http://services.eol.org/development/pleary/xml/content4.xsd", "http://services.eol.org/schema/content_0_1.xsd", $file_contents);
+                    $file_contents = str_replace("http://www.eol.org/transfer/data/0.1",
+                                                 "http://www.eol.org/transfer/content/0.1", $file_contents);
+                    $file_contents = str_replace("http://services.eol.org/development/pleary/xml/content4.xsd",
+                                                 "http://services.eol.org/schema/content_0_1.xsd", $file_contents);
                 }
                 
                 $TMP = fopen($temp_file_path,"w+");
@@ -49,69 +100,53 @@ class ContentManager
                 fclose($TMP);
             }
         }
-
+        return self::give_temp_file_right_extension($temp_file_path, $suffix, $unique_key);
+    }
+    
+    public static function give_temp_file_right_extension($temp_file_path, $original_suffix, $unique_key)
+    {
         // if the download succeeded
         if(file_exists($temp_file_path))
         {
-            if(SYSTEM_OS == "Windows") $new_suffix = $this->determine_file_suffix_pc($temp_file_path,$suffix);
-            else $new_suffix = $this->determine_file_suffix($temp_file_path,$suffix);
+            if(SYSTEM_OS == "Windows") $new_suffix = self::determine_file_suffix_pc($temp_file_path, $original_suffix);
+            else $new_suffix = self::determine_file_suffix($temp_file_path, $original_suffix);
             
             if($new_suffix)
             {
-                if($type=="image") $new_file_prefix = $this->new_content_file_name();
-                elseif($type=="video") $new_file_prefix = $this->new_content_file_name();
-                elseif($type=="audio") $new_file_prefix = $this->new_content_file_name();
-                elseif($type=="upload") $new_file_prefix = $this->new_content_file_name();
-                elseif($type=="partner") $new_file_prefix = $this->new_content_file_name();
-                elseif($type=="resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
-                
-                $new_file_path = $new_file_prefix.".".$new_suffix;
-                
-                // copy temporary file into its new home
-                //shell_exec("cp ".$temp_file_path." ".$new_file_path);
-                copy($temp_file_path, $new_file_path);
+                $new_temp_file_path = CONTENT_TEMP_PREFIX . $unique_key . "." . $new_suffix;
+                // copy temporary file from $PATH.file to $PATH.tar.gz for example
+                rename($temp_file_path, $new_temp_file_path);
                 
                 // fail if for some reason there is still no file at the new path
-                if(!file_exists($new_file_path))
+                if(!file_exists($new_temp_file_path))
                 {
-                    trigger_error("ContentManager: Unable to download file $file", E_USER_NOTICE);
+                    if(file_exists($temp_file_path)) unlink($temp_file_path);
+                    trigger_error("ContentManager: Unable to download file $file_path_or_uri", E_USER_NOTICE);
                     return false;
                 }
-                $sizes = array();
-                if($type == "image" || $type == "partner")
+                if(preg_match("/^(.*)\.(gz|gzip)$/", $new_temp_file_path, $arr))
                 {
-                    $sizes = getimagesize($new_file_path);
-                    if(@!$sizes[1])
-                    {
-                        trigger_error("ContentManager: Unable to determine image dimensions $file", E_USER_NOTICE);
-                        return false;
-                    }
+                    shell_exec("gunzip -f $new_temp_file_path");
+                    $new_temp_file_path = $arr[1];
+                    return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
                 }
-                
-                if(preg_match("/^(.*)\.gz$/", $new_file_path, $arr))
+                if(preg_match("/^(.*)\.(tar)$/", $new_temp_file_path, $arr))
                 {
-                    shell_exec("mv ".$new_file_path." ".$arr[1].".xml.gz");
-                    shell_exec("gunzip -f ".$arr[1].".xml.gz");
-                    $new_file_path = $arr[1].".xml";
+                    $archive_directory = $arr[1];
+                    @unlink($archive_directory);
+                    @rmdir($archive_directory);
+                    mkdir($archive_directory);
+                    
+                    shell_exec("tar -xzf $new_temp_file_path -C $archive_directory");
+                    if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
+                    $new_temp_file_path = $archive_directory;
                 }
-                
-                // create thumbnails of website content and agent logos
-                if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
-                elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
-                
-                // Take the substring of the new file path to return via the webservice
-                if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/",$new_file_path,$arr)) $new_file_path = str_replace("/", "", $arr[1]);
-                elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/",$new_file_path,$arr))  $new_file_path = $arr[1];
-                
+                if(file_exists($new_temp_file_path)) return $new_temp_file_path;
             }
         }
-        
-        if(file_exists($temp_file_path)) unlink($temp_file_path);
-        return $new_file_path;
     }
-
     
-    function determine_file_suffix($file_path,$suffix)
+    public static function determine_file_suffix($file_path, $suffix)
     {
         // use the Unix/Linux `file` command to determine file type
         $stat = strtolower(shell_exec("file ".$file_path));
@@ -146,29 +181,29 @@ class ContentManager
         elseif(preg_match("/^flac audio/i", $file_type))                                $new_suffix = "flac";
         elseif(preg_match("/^sun\/next audio data/i", $file_type))                      $new_suffix = "au";
         elseif(preg_match("/^mpeg adts, aac/i", $file_type))                            $new_suffix = "aac";
-        elseif($suffix=="wma" && preg_match("/^microsoft asf/i", $file_type))           $new_suffix = "wma";
+        elseif($suffix == "wma" && preg_match("/^microsoft asf/i", $file_type))         $new_suffix = "wma";
         
         // compressed
         elseif(preg_match("/^gzip compressed data/i", $file_type))                      $new_suffix = "gz";
-        elseif(preg_match("/^posix tar archive/i", $file_type))                         $new_suffix = "tar ";
+        elseif(preg_match("/^posix tar archive/i", $file_type))                         $new_suffix = "tar";
         elseif(preg_match("/^zip archive data/i", $file_type))                          $new_suffix = "zip";
         
         // other - xml, html, pdf
         elseif(preg_match("/^xml( |$)/i", $file_type) || preg_match("/xml$/i", $file_type)) $new_suffix = "xml";
         elseif(preg_match("/^pdf( |$)/i", $file_type))                                  $new_suffix = "pdf";
         elseif(preg_match("/^html( |$)/i", $file_type))                                 $new_suffix = "html";
-        elseif($suffix=="xml" && preg_match("/^utf-8 unicode /i", $file_type))          $new_suffix = "xml";
-        elseif($suffix=="xml" && preg_match("/^ascii text/i", $file_type))              $new_suffix = "xml";
-        elseif($suffix=="xml" && preg_match("/^ASCII English text/i", $file_type))      $new_suffix = "xml";
+        elseif($suffix == "xml" && preg_match("/^utf-8 unicode /i", $file_type))        $new_suffix = "xml";
+        elseif($suffix == "xml" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "xml";
+        elseif($suffix == "xml" && preg_match("/^ASCII English text/i", $file_type))    $new_suffix = "xml";
         // some XML files like BibAlex's resource doesnt have an extension and just has a utf-8 descriptor
         elseif(preg_match("/^utf-8 unicode /i", $file_type))                            $new_suffix = "xml";
         
         return $new_suffix;
     }
     
-    function determine_file_suffix_pc($file_path,$suffix)
+    public static function determine_file_suffix_pc($file_path, $suffix)
     {
-        $new_suffix=$suffix;
+        $new_suffix = $suffix;
         $arr = array('jpg','tif','flv','mov','avi','gz','tar','zip','xml','pdf','html','png','xml','gif', 'mp4', 'wmv', 'mpg', 'mpeg');
         
         if(!in_array($suffix, $arr))
@@ -184,7 +219,7 @@ class ContentManager
                     2 => array(    "type" => "image/jpeg"       , "suffix" => "jpg"),
                     3 => array(    "type" => "image/png"        , "suffix" => "png"),
                     4 => array(    "type" => "image/svg+xml"    , "suffix" => "svg"),
-                    5 => array(    "type" => "image/tiff"       , "suffix" => "tif"),                    
+                    5 => array(    "type" => "image/tiff"       , "suffix" => "tif"),
                     6 => array(    "type" => "video/mp4"        , "suffix" => "mp4"),
                     7 => array(    "type" => "video/x-ms-wmv"   , "suffix" => "wmv"),
                     8 => array(    "type" => "video/mpeg"       , "suffix" => "mpg"),

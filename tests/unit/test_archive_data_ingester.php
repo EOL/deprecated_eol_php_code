@@ -1,0 +1,329 @@
+<?php
+namespace php_active_record;
+require_vendor('eol_content_schema_v2');
+require_library('ArchiveDataIngester');
+require_library('ContentArchiveValidator');
+
+/*
+    test common names / languages
+    
+    test standard media
+    test w/ taxonID
+    test w/ scientificName
+    test w/ vernacular name
+    test lat/long/alt
+    
+    test creator
+    test multiple creators
+    test agentID
+    test multiple agentIDs
+    test reference
+    test multiple references
+*/
+
+class test_archive_data_ingester extends SimpletestUnitBase
+{
+    function setUp()
+    {
+        parent::setUp();
+        $this->archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/1/";
+        if(!file_exists($this->archive_directory)) mkdir($this->archive_directory);
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->archive_directory));
+    }
+    
+    function tearDown()
+    {
+        // delete the contents of the created archive
+        $files_in_archive = read_dir($this->archive_directory);
+        foreach($files_in_archive as $file)
+        {
+            if(substr($file, 0, 1) == '.') continue;
+            unlink($this->archive_directory . $file);
+        }
+        rmdir($this->archive_directory);
+        unset($this->archive_builder);
+        parent::tearDown();
+    }
+    
+    function testImportTaxonAdjacency()
+    {
+        $resource = self::create_resource();
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = "123456";
+        $t->kingdom = "Animalia";
+        $t->phylum = "Chordata";
+        $t->class = "Mammalia";
+        $t->order = "Carnivora";
+        $t->family = "Ursidae";
+        $t->genus = "Ursus";
+        $t->scientificName = "Ursus maritimus Phipps, 1774";
+        $t->taxonRank = "species";
+        $t->furtherInformationURL = "http://some.url";
+        $this->archive_builder->write_object_to_file($t);
+        $this->archive_builder->finalize();
+        
+        $harvest_event = $this->harvest($resource);
+        // verify the basics
+        $species = HierarchyEntry::find_by_identifier($t->taxonID);
+        $this->assertEqual($species->name->string, $t->scientificName);
+        $this->assertEqual($species->rank, Rank::find_or_create_by_translated_label('species'));
+        $this->assertEqual($species->source_url, $t->furtherInformationURL);
+        $this->assertEqual($species->hierarchy_id, $resource->hierarchy_id);
+        
+        // now check the parents
+        $genus = $species->parent();
+        $this->assertEqual($genus->name->string, $t->genus);
+        $this->assertEqual($genus->rank, Rank::find_or_create_by_translated_label('genus'));
+        $family = $genus->parent();
+        $this->assertEqual($family->name->string, $t->family);
+        $this->assertEqual($family->rank, Rank::find_or_create_by_translated_label('family'));
+        $order = $family->parent();
+        $this->assertEqual($order->name->string, $t->order);
+        $this->assertEqual($order->rank, Rank::find_or_create_by_translated_label('order'));
+        $class = $order->parent();
+        $this->assertEqual($class->name->string, $t->class);
+        $this->assertEqual($class->rank, Rank::find_or_create_by_translated_label('class'));
+        $phylum = $class->parent();
+        $this->assertEqual($phylum->name->string, $t->phylum);
+        $this->assertEqual($phylum->rank, Rank::find_or_create_by_translated_label('phylum'));
+        $kingdom = $phylum->parent();
+        $this->assertEqual($kingdom->name->string, $t->kingdom);
+        $this->assertEqual($kingdom->rank, Rank::find_or_create_by_translated_label('kingdom'));
+    }
+    
+    function testImportTaxonParentChild()
+    {
+        $resource = self::create_resource();
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = "111";
+        $t->scientificName = "Animalia";
+        $t->taxonRank = "kingdom";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "222";
+        $t->scientificName = "Chordata";
+        $t->taxonRank = "phylum";
+        $t->parentNameUsageID = "111";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "333";
+        $t->scientificName = "Mammalia";
+        $t->taxonRank = "class";
+        $t->parentNameUsageID = "222";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "444";
+        $t->scientificName = "Carnivora";
+        $t->taxonRank = "order";
+        $t->parentNameUsageID = "333";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "555";
+        $t->scientificName = "Ursidae";
+        $t->taxonRank = "family";
+        $t->parentNameUsageID = "444";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "666";
+        $t->scientificName = "Ursus";
+        $t->taxonRank = "genus";
+        $t->parentNameUsageID = "555";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "777";
+        $t->scientificName = "Ursus maritimus Phipps, 1774";
+        $t->taxonRank = "species";
+        $t->parentNameUsageID = "666";
+        $this->archive_builder->write_object_to_file($t);
+        $this->archive_builder->finalize();
+        $harvest_event = $this->harvest($resource);
+        
+        // check the species
+        $species = HierarchyEntry::find_by_identifier(777);
+        $this->assertEqual($species->name->string, 'Ursus maritimus Phipps, 1774');
+        $this->assertEqual($species->rank, Rank::find_or_create_by_translated_label('species'));
+        
+        // now check the parents
+        $genus = $species->parent();
+        $this->assertEqual($genus->name->string, 'Ursus');
+        $this->assertEqual($genus->rank, Rank::find_or_create_by_translated_label('genus'));
+        $this->assertEqual($genus->identifier, 666);
+        $family = $genus->parent();
+        $this->assertEqual($family->name->string, 'Ursidae');
+        $this->assertEqual($family->rank, Rank::find_or_create_by_translated_label('family'));
+        $this->assertEqual($family->identifier, 555);
+        $order = $family->parent();
+        $this->assertEqual($order->name->string, 'Carnivora');
+        $this->assertEqual($order->rank, Rank::find_or_create_by_translated_label('order'));
+        $this->assertEqual($order->identifier, 444);
+        $class = $order->parent();
+        $this->assertEqual($class->name->string, 'Mammalia');
+        $this->assertEqual($class->rank, Rank::find_or_create_by_translated_label('class'));
+        $this->assertEqual($class->identifier, 333);
+        $phylum = $class->parent();
+        $this->assertEqual($phylum->name->string, 'Chordata');
+        $this->assertEqual($phylum->rank, Rank::find_or_create_by_translated_label('phylum'));
+        $this->assertEqual($phylum->identifier, 222);
+        $kingdom = $phylum->parent();
+        $this->assertEqual($kingdom->name->string, 'Animalia');
+        $this->assertEqual($kingdom->rank, Rank::find_or_create_by_translated_label('kingdom'));
+        $this->assertEqual($kingdom->identifier, 111);
+    }
+    
+    function testImportTaxonSynonyms()
+    {
+        $resource = self::create_resource();
+        
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = "777";
+        $t->scientificName = "Ursus maritimus Phipps, 1774";
+        $t->taxonRank = "species";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "777_canonical";
+        $t->scientificName = "Ursus maritimus";
+        $t->parentNameUsageID = null;
+        $t->acceptedNameUsageID = "777";
+        $t->taxonomicStatus = "canonical form";
+        $this->archive_builder->write_object_to_file($t);
+        $t->taxonID = "777_synonym";
+        $t->scientificName = "Ursus maritimus Syn";
+        $t->parentNameUsageID = null;
+        $t->acceptedNameUsageID = "777";
+        $t->taxonomicStatus = null;
+        $this->archive_builder->write_object_to_file($t);
+        $this->archive_builder->finalize();
+        $harvest_event = $this->harvest($resource);
+        
+        // check the species
+        $species = HierarchyEntry::find_by_identifier(777);
+        $synonyms = $species->synonyms;
+        $this->assertEqual(count($synonyms), 2);
+        $this->assertEqual($synonyms[0]->name->string, "Ursus maritimus");
+        $this->assertEqual($synonyms[0]->synonym_relation, SynonymRelation::find_or_create_by_translated_label('canonical form'));
+        $this->assertEqual($synonyms[1]->name->string, "Ursus maritimus Syn");
+        // synonym should be the default status
+        $this->assertEqual($synonyms[1]->synonym_relation, SynonymRelation::find_or_create_by_translated_label('synonym'));
+    }
+    
+    function testImportTaxonReferencesByString()
+    {
+        $resource = self::create_resource();
+        
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = "777";
+        $t->scientificName = "Ursus maritimus Phipps, 1774";
+        $t->taxonRank = "species";
+        $t->namePublishedIn = "This is a sample reference||And another one too";
+        $this->archive_builder->write_object_to_file($t);
+        $this->archive_builder->finalize();
+        $harvest_event = $this->harvest($resource);
+        
+        // check the species
+        $species = HierarchyEntry::find_by_identifier(777);
+        $references = $species->references;
+        $this->assertEqual(count($references), 2);
+        $this->assertEqual($references[0]->full_reference, "This is a sample reference");
+        $this->assertEqual($references[1]->full_reference, "And another one too");
+    }
+    
+    function testImportTaxonReferencesByID()
+    {
+        $resource = self::create_resource();
+        
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = "777";
+        $t->scientificName = "Ursus maritimus Phipps, 1774";
+        $t->taxonRank = "species";
+        $t->referenceID = "11;22,33";
+        $this->archive_builder->write_object_to_file($t);
+        $r = new \eol_schema\Reference();
+        $r->identifier = "11";
+        $r->full_reference = "This is another sample reference";
+        $this->archive_builder->write_object_to_file($r);
+        $r = new \eol_schema\Reference();
+        $r->identifier = "22";
+        $r->title = "Some title";
+        $r->pages = "101-150";
+        $r->pageStart = "101";
+        $r->pageEnd = "150";
+        $r->volume = "v1";
+        $r->edition = "September";
+        $r->publisher = "Some publisher";
+        $r->authorList = "Helm, Danko";
+        $r->editorList = "Robertson, Manuel";
+        $r->language = "fr";
+        $r->uri = "http://some.uri";
+        $r->doi = "10.1000/182";
+        $this->archive_builder->write_object_to_file($r);
+        $r = new \eol_schema\Reference();
+        $r->identifier = "33";
+        $r->full_reference = "Third reference";
+        $this->archive_builder->write_object_to_file($r);
+        $this->archive_builder->finalize();
+        $harvest_event = $this->harvest($resource);
+        
+        // check the species
+        $species = HierarchyEntry::find_by_identifier(777);
+        $references = $species->references;
+        $this->assertEqual(count($references), 3);
+        $this->assertEqual($references[0]->full_reference, "This is another sample reference");
+        $this->assertEqual($references[0]->provider_mangaed_id, "11");
+        $this->assertEqual($references[1]->provider_mangaed_id, "22");
+        $this->assertEqual($references[1]->title, "Some title");
+        $this->assertEqual($references[1]->pages, "101-150");
+        $this->assertEqual($references[1]->page_start, "101");
+        $this->assertEqual($references[1]->page_end, "150");
+        $this->assertEqual($references[1]->volume, "v1");
+        $this->assertEqual($references[1]->edition, "September");
+        $this->assertEqual($references[1]->publisher, "Some publisher");
+        $this->assertEqual($references[1]->authors, "Helm, Danko");
+        $this->assertEqual($references[1]->editors, "Robertson, Manuel");
+        $this->assertEqual($references[1]->language->id, Language::find_or_create_for_parser('fr')->id);
+        $this->assertEqual(count($references[1]->ref_identifiers), 2);
+        $this->assertEqual($references[1]->ref_identifiers[0]->ref_identifier_type->label, 'uri');
+        $this->assertEqual($references[1]->ref_identifiers[0]->identifier, 'http://some.uri');
+        $this->assertEqual($references[1]->ref_identifiers[1]->ref_identifier_type->label, 'doi');
+        $this->assertEqual($references[1]->ref_identifiers[1]->identifier, '10.1000/182');
+        $this->assertEqual($references[2]->full_reference, "Third reference");
+        $this->assertEqual($references[2]->provider_mangaed_id, "33");
+    }
+    
+    
+    
+    
+    
+    
+    
+    private function harvest($resource)
+    {
+        $he = HarvestEvent::create(array('resource_id' => $resource->id));
+        $ingester = new ArchiveDataIngester($he);
+        print_r($ingester->parse(false));
+        return $he;
+    }
+    
+    private static function create_resource($args = array())
+    {
+        if(!isset($args['auto_publish'])) $args['auto_publish'] = 1;
+        if(!isset($args['vetted'])) $args['vetted'] = 1;
+        if(!isset($args['title'])) $args['title'] = 'Test Resource';
+        if(!isset($args['dwc_archive_url'])) $args['dwc_archive_url'] = '';
+        
+        // create the test resource
+        $agent = Agent::find_or_create(array('full_name' => 'Test Content Partner'));
+        $user = User::find_or_create(array('display_name' => 'Test Content Partner', 'agent_id' => $agent->id));
+        
+        // create the content partner
+        $content_partner = ContentPartner::find_or_create(array('user_id' => $user->id));
+        $hierarchy = Hierarchy::find_or_create(array('agent_id' => $agent->id, 'label' => 'Test Content Partner Hierarchy'));
+        
+        // create the resource
+        $attr = array(  'content_partner_id'    => $content_partner->id,
+                        'service_type'          => ServiceType::find_or_create_by_translated_label('EOL Transfer Schema'),
+                        'refresh_period_hours'  => 1,
+                        'auto_publish'          => $args['auto_publish'],
+                        'vetted'                => $args['vetted'],
+                        'title'                 => $args['title'],
+                        'dwc_archive_url'       => $args['dwc_archive_url'],
+                        'hierarchy_id'          => $hierarchy->id,
+                        'resource_status'       => ResourceStatus::validated());
+        $resource = Resource::find_or_create($attr);
+        return $resource;
+    }
+}
+
+?>

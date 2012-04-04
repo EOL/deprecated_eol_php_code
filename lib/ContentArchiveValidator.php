@@ -50,7 +50,7 @@ class ContentArchiveValidator
     public function validate_row($row, $parameters)
     {
         static $i = 0;
-        // if($i % 1000 == 0)
+        // if($i % 10000 == 0)
         // {
         //     echo "i: $i\n";
         //     echo "time: ". time_elapsed() ."\n";

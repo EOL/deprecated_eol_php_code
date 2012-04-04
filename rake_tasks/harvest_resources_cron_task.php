@@ -10,7 +10,17 @@ if(!is_numeric($specified_id)) $specified_id = null;
 
 // this checks to make sure we only have one instance of this script running
 // if there are more than one then it means we're still harvesting something from yesterday
-if(Functions::grep_processlist('harvest_resources') > 2) exit;
+if(Functions::grep_processlist('harvest_resources') > 2)
+{
+    $to      = 'pleary@mbl.edu';
+    $subject = 'Skipped Harvest';
+    $message = 'We just skipped a scheduled harvest due to a previous one running long.';
+    $headers = 'From: pleary@eol.org' . "\r\n" .
+        'Reply-To: pleary@eol.org' . "\r\n" .
+        'X-Mailer: PHP/' . phpversion();
+    mail($to, $subject, $message, $headers);
+    exit;
+}
 
 $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();

@@ -13,6 +13,34 @@ class DarwinCoreExtensionBase
         $this->assign_properties($parameters);
     }
     
+    // to be defined by extending classes
+    public static function validate_by_hash($fields)
+    {
+        $errors = array();
+        $rules = static::validation_rules();
+        // get the field name and validation rule(s) for that field
+        foreach($rules as $rule)
+        {
+            if(get_class($rule) == 'eol_schema\ContentArchiveFieldValidationRule')
+            {
+                $success_or_error = $rule->validate(@$fields[$rule->field_uri]);
+            }elseif(get_class($rule) == 'eol_schema\ContentArchiveRowValidationRule')
+            {
+                $success_or_error = $rule->validate($fields);
+            }
+            if(get_parent_class($success_or_error) == 'eol_schema\ContentArchiveErrorBase')
+            {
+                $errors[] = $success_or_error;
+            }
+        }
+        return $errors;
+    }
+    
+    public static function validation_rules()
+    {
+        return array();
+    }
+    
     protected function assign_properties($parameters)
     {
         while(list($property_name, $value) = each($parameters))
@@ -109,11 +137,24 @@ class DarwinCoreExtensionBase
     
     public function __toString()
     {
+        // $string = get_called_class()."\n(\n";
+        // $properties = $this->assigned_properties();
+        // foreach($properties as $p)
+        // {
+        //     $string .= "\t[". $p['property']['name'] ."] => ".$p['value']."\n";
+        // }
+        // $string .= ")\n";
+        // return $string;
+        
         $string = get_called_class()."\n(\n";
-        $properties = $this->assigned_properties();
-        foreach($properties as $p)
+        foreach($this as $key => $value)
         {
-            $string .= "\t[". $p['property']['name'] ."] => ".$p['value']."\n";
+            if(in_array($key, array('accepted_properties', 'accepted_properties_by_name', 'accepted_properties_by_uri'))) continue;
+            if(!$value) continue;
+            if(@$this->accepted_properties_by_uri[$key] || @!$this->accepted_properties_by_name[$key])
+            {
+                $string .= "\t[$key] => $value\n";
+            }
         }
         $string .= ")\n";
         return $string;
