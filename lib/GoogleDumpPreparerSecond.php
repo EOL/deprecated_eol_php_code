@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 
-class GoogleDumpPreparer
+class GoogleDumpPreparerSecond
 {
     private $mysqli;
     
