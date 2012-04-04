@@ -36,6 +36,7 @@ class dwc_validator_controller extends ControllerBase
                     if(substr($file, 0, 1) == '.') continue;
                     unlink($temp_dir ."/". $file);
                 }
+                @unlink($temp_dir ."/._meta.xml");
                 rmdir($temp_dir);
             }else $errors[] = "There was a problem with the uploaded file";
         }
