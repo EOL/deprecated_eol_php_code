@@ -137,7 +137,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
                     
-                    shell_exec("tar -xzf $new_temp_file_path -C $archive_directory");
+                    shell_exec("tar -xf $new_temp_file_path -C $archive_directory");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                 }
@@ -186,6 +186,7 @@ class ContentManager
         // compressed
         elseif(preg_match("/^gzip compressed data/i", $file_type))                      $new_suffix = "gz";
         elseif(preg_match("/^posix tar archive/i", $file_type))                         $new_suffix = "tar";
+        elseif(preg_match("/^tar archive/i", $file_type))                               $new_suffix = "tar";
         elseif(preg_match("/^zip archive data/i", $file_type))                          $new_suffix = "zip";
         
         // other - xml, html, pdf
