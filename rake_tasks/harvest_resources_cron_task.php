@@ -16,10 +16,10 @@ $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    if(in_array($resource->id, array(42))) continue;
+    // if(in_array($resource->id, array(42))) continue;
     if($specified_id && $resource->id != $specified_id) continue;
-    //if(!in_array($resource->id, array(324))) continue;
-    // if($resource->id <= 83) continue;
+    // if(!in_array($resource->id, array(324))) continue;
+    // if($resource->id < 197) continue;
     echo $resource->id."\n";
     
     $validate = true;
@@ -57,22 +57,26 @@ if(defined('SOLR_SERVER'))
         $solr->optimize();
     }
     
-    if(SolrAPI::ping(SOLR_SERVER, 'data_objects'))
+    // Only optimize the indices on Saturday which is our lowest traffic day
+    if(date('w') == 6)
     {
-        $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
-        $solr->optimize();
-    }
-    
-    if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
-    {   
-        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
-        $solr->optimize();
-    }
-    
-    if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
-    {
-        $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
-        $solr->optimize();
+        if(SolrAPI::ping(SOLR_SERVER, 'data_objects'))
+        {
+            $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
+            $solr->optimize();
+        }
+        
+        if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
+        {   
+            $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
+            $solr->optimize();
+        }
+        
+        if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
+        {
+            $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
+            $solr->optimize();
+        }
     }
 }
 
