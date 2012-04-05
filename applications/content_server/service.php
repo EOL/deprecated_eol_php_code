@@ -81,13 +81,17 @@ switch($function)
                     $warnings_as_string = array();
                     foreach($e as $error)
                     {
-                        $errors_as_string[] = "Error in $error->file on line $error->line field $error->uri: $error->message [\"$error->value\"]";
+                        $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
+                        if($error->value) $this_error_string .= " [value was \"$error->value\"]";
+                        $errors_as_string[] = $this_error_string;
                     }
                     if($w = $validator->warnings())
                     {
                         foreach($w as $warning)
                         {
-                            $warnings_as_string[] = "Warning in $warning->file on line $warning->line field $warning->uri: $warning->message [\"$warning->value\"]";
+                            $this_warning_string = "<b>Warning</b> in $warning->file on line $warning->line field $warning->uri: $warning->message";
+                            if($warning->value) $this_warning_string .= " [value was \"$warning->value\"]";
+                            $warnings_as_string[] = $this_warning_string;
                         }
                     }
                     echo "  <status>Validation failed</status>\n";
