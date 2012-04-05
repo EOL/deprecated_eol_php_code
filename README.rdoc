@@ -1,8 +1,6 @@
 === Requirements
 
   PHP version 5.3.0 or later
-  PEAR extension manager for PHP
-    horde/yaml PEAR package (see Installation #5)
   ImageMagick
   Access to an installation of Apache Solr
   (recommended) An installation of the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol)
@@ -12,13 +10,6 @@
 === Installation
 
 There are a few things you must do before using this code:
-
-  Install the PHP PEAR package Horde/YAML
-    first install PEAR if not aleardy installed
-      http://pear.php.net/manual/en/installation.introduction.php
-    with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
-      pear channel-discover pear.horde.org
-      pear install horde/yaml 
 
   Update in /config/environment.php the constants for:
     WEB_ROOT        - eg: 'http://localhost/eol_php_code/'
@@ -37,6 +28,7 @@ There are a few things you must do before using this code:
     /applications/content_server/content_partners
     /applications/content_server/resources
     /applications/content_server/tmp
+    /vendor/eol_content_schema_v2/extension_cache
 
   In same file uncomment the Memcached connection if you prefer:
     $GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
