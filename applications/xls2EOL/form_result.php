@@ -32,10 +32,6 @@ elseif(isset($_FILES["file_upload_new"]["type"]))
     if(preg_match("/\/(tmp\/dwca_[0-9]+)\./", $dwca_url, $arr))
     {
         echo $arr[1];
-        require_vendor('eol_content_schema_v2');
-        require_library('ArchiveDataIngester');
-        require_library('ContentArchiveValidator');
-        
         $archive = new ContentArchiveReader(null, DOC_ROOT . $arr[1]);
         $validator = new ContentArchiveValidator($archive);
         $validator->get_validation_errors();

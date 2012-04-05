@@ -26,15 +26,27 @@ class ContentManager
         {
             $suffix = null;
             if(preg_match("/\.(.*)$/", $temp_file_path, $arr)) $suffix = strtolower(trim($arr[1]));
-            if(!$suffix) return;
+            if(!$suffix)
+            {
+                // this would be a DwC-A resource
+                if($type == "resource")
+                {
+                    $resource_archive_directory = $this->new_resource_file_name($resource_id);
+                    // first delete the archive directory that currently exists
+                    recursive_rmdir($resource_archive_directory);
+                    // move the temp, uncompressed directory to its new home with the resources
+                    rename($temp_file_path, $resource_archive_directory);
+                    return $resource_archive_directory;
+                }else return;
+            }
             
             // Move into place in the /content or /resources folder
-            if($type=="image") $new_file_prefix = $this->new_content_file_name();
-            elseif($type=="video") $new_file_prefix = $this->new_content_file_name();
-            elseif($type=="audio") $new_file_prefix = $this->new_content_file_name();
-            elseif($type=="upload") $new_file_prefix = $this->new_content_file_name();
-            elseif($type=="partner") $new_file_prefix = $this->new_content_file_name();
-            elseif($type=="resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
+            if($type == "image") $new_file_prefix = $this->new_content_file_name();
+            elseif($type == "video") $new_file_prefix = $this->new_content_file_name();
+            elseif($type == "audio") $new_file_prefix = $this->new_content_file_name();
+            elseif($type == "upload") $new_file_prefix = $this->new_content_file_name();
+            elseif($type == "partner") $new_file_prefix = $this->new_content_file_name();
+            elseif($type == "resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
             $new_file_path = $new_file_prefix . "." . $suffix;
             
             // copy temporary file into its new home

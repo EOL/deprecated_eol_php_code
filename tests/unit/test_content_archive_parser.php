@@ -1,8 +1,6 @@
 <?php
 namespace php_active_record;
 
-require_vendor('eol_content_schema_v2');
-
 class test_content_archive_parser extends SimpletestUnitBase
 {    
     function testParse()

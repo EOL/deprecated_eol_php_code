@@ -57,9 +57,12 @@ php_active_record\require_library('Tasks');
 php_active_record\require_library('FileIterator');
 php_active_record\require_library('MysqliResultIterator');
 php_active_record\require_library('MysqliResultFileIterator');
+php_active_record\require_library('ArchiveDataIngester');
+php_active_record\require_library('ContentArchiveValidator');
 php_active_record\require_vendor('eol_content_schema');
 php_active_record\require_vendor('solr');
 php_active_record\require_vendor('darwincore');
+php_active_record\require_vendor('eol_content_schema_v2');
 
 
 /* For content downloading */

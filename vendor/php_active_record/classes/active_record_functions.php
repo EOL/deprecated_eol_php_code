@@ -470,4 +470,14 @@ function merge_arrays(&$from_array, &$to_array)
     }
 }
 
+function recursive_rmdir($dir)
+{
+    foreach(glob($dir . '/*') as $file)
+    {
+        if(is_dir($file)) recursive_rmdir($file);
+        else unlink($file);
+    }
+    rmdir($dir);
+}
+
 ?>

@@ -17,9 +17,6 @@ class dwc_validator_controller extends ControllerBase
         
         if($dwca_file)
         {
-            require_vendor('eol_content_schema_v2');
-            require_library('ArchiveDataIngester');
-            require_library('ContentArchiveValidator');
             if($temp_dir = ContentManager::download_temp_file_and_assign_extension($dwca_file))
             {
                 if(file_exists($temp_dir . "/meta.xml"))

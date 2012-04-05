@@ -11,7 +11,6 @@ class IabinAPI
         $all_taxa = array();
         $final_taxa = array();
         $used_collection_ids = array();
-        require_vendor('eol_content_schema_v2');
         $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_iabin");
         $tables = $harvester->tables;
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;

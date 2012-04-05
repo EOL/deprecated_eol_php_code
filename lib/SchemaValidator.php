@@ -10,6 +10,33 @@ class SchemaValidator
         if($xsd = self::get_schema_location($uri)) $schema_location = $xsd;
         else return array("There was no XSD defined in this XML file");
         
+        // we have had problems in the past with Services being unavailable, so
+        // instead of checking there just use the local schemas which are the same
+        if($schema_location == 'http://services.eol.org/schema/content_0_1.xsd')
+        {
+            $schema_location = WEB_ROOT . 'applications/schema/content_0_1.xsd';
+        }
+        if($schema_location == 'http://services.eol.org/schema/content_0_2.xsd')
+        {
+            $schema_location = WEB_ROOT . 'applications/schema/content_0_2.xsd';
+        }
+        if($schema_location == 'http://services.eol.org/schema/content_0_3.xsd')
+        {
+            $schema_location = WEB_ROOT . 'applications/schema/content_0_3.xsd';
+        }
+        if($schema_location == 'http://services.eol.org/schema/content_0_3_18.xsd')
+        {
+            $schema_location = WEB_ROOT . 'applications/schema/content_0_3_18.xsd';
+        }
+        if($schema_location == 'http://services.eol.org/schema/content_0_4.xsd')
+        {
+            $schema_location = WEB_ROOT . 'applications/schema/content_0_4.xsd';
+        }
+        if($schema_location == 'http://services.eol.org/schema/content_1_0.xsd')
+        {
+            $schema_location = WEB_ROOT . 'applications/schema/content_1_0.xsd';
+        }
+        
         libxml_use_internal_errors(true);
         libxml_clear_errors();
         
