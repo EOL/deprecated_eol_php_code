@@ -26,7 +26,7 @@ class YouTubeAPI
             foreach($user_video_ids[$username] as $video_id)
             {
                 $video_index++;
-                echo "[user $user_index of $total_users] [video $video_index of $number_of_user_videos]\n";
+                if($GLOBALS['ENV_DEBUG']) echo "[user $user_index of $total_users] [video $video_index of $number_of_user_videos]\n";
                 if($record = self::build_data($video_id))
                 {
                     $arr = self::get_youtube_taxa($record, $used_collection_ids);
@@ -61,13 +61,13 @@ class YouTubeAPI
         $json_object = json_decode($raw_json);
         if(!@$json_object->entry->id)
         {
-            echo "$url -- invalid response\n";
+            if($GLOBALS['ENV_DEBUG']) echo "$url -- invalid response\n";
             return;
         }
         $license = @$json_object->entry->{'media$group'}->{'media$license'}->href;
         if(!$license || !preg_match("/^http:\/\/creativecommons.org\/licenses\//", $license))
         {
-            echo "$url -- invalid license\n";
+            if($GLOBALS['ENV_DEBUG']) echo "$url -- invalid license\n";
             return;
         }
         
@@ -359,7 +359,7 @@ class YouTubeAPI
         $user_video_ids = array();
         foreach($usernames as $username)
         {
-            echo "Getting video list for $username...\n";
+            if($GLOBALS['ENV_DEBUG']) echo "Getting video list for $username...\n";
             $start_index = 1;
             while(true)
             {

@@ -24,7 +24,6 @@ class AvibaseAPI
 
     function get_all_taxa($resource_id, $taxonomy)
     {
-        print "\n taxonomy: [$taxonomy]";
         $taxa = self::prepare_data($taxonomy);
         $taxa = self::get_names($taxa);
         $all_taxa = array();
@@ -87,11 +86,11 @@ class AvibaseAPI
             foreach($regions as $region)
             {
                 $url = $service_url . '&region=' . $region . '&list=' . $checklist;
-                print "\n $url";
+                // print "\n $url";
                 $taxa = self::get_taxa_from_html($url, $taxa, $taxonomy);
             }
         }
-        print"\n total: " . count($taxa) . "\n";
+        // print"\n total: " . count($taxa) . "\n";
         return $taxa;
     }
 

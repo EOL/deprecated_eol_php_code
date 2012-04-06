@@ -44,7 +44,7 @@ class SchemaValidator
         $reader->open($uri, 'utf8');
         if(!$only_well_formedness)
         {
-            if(@!$reader->setSchema($schema_location)) return array("The specified schema could not be loaded or contained errors");
+            if(@!$reader->setSchema($schema_location)) return array("The specified schema could not be loaded or contained errors: $schema_location");
         }
         libxml_clear_errors();
         

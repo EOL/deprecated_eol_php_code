@@ -91,11 +91,11 @@ class CompareHierarchies
                 // have the smaller hierarchy as the first parameter so the comparison will be quicker
                 if($count1 < $count2)
                 {
-                    echo("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n");
                     self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions, $use_synonyms_for_merging);
                 }else
                 {
-                    echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
                     self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1, $confirmed_exclusions, $use_synonyms_for_merging);
                 }
                 
@@ -108,7 +108,7 @@ class CompareHierarchies
     public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array(), $use_synonyms_for_merging = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-        echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
+        if($GLOBALS['ENV_DEBUG']) echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
         
         // hierarchy is the same and its 'complete' meaning its been curated and all nodes should be different taxa
         // so there no need to compare it to itself. Other hierarchies are not 'complete' such as Flickr which
@@ -179,7 +179,7 @@ class CompareHierarchies
                 // if even after all recent changes we still have different concepts, merge them
                 if($tc_id1 != $tc_id2)
                 {
-                    echo("$id1 :: $id2\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("$id1 :: $id2\n");
                     // compare visible entries to other published entries
                     if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("fail1"); continue; }
                     if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("fail2"); continue; }
@@ -190,17 +190,17 @@ class CompareHierarchies
                     
                     if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
                     {
-                        echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator\n");
+                        if($GLOBALS['ENV_DEBUG']) echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator\n");
                         continue;
                     }
                     
                     if($hierarchy_id = self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                     {
-                        echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)\n");
+                        if($GLOBALS['ENV_DEBUG']) echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)\n");
                         continue;
                     }
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
-                    echo("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);\n");
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
                     
                     static $count = 0;
@@ -391,11 +391,11 @@ class CompareHierarchies
                 {
                     $time = time_elapsed();
                     $compare_time = microtime(true) - $start_time;
-                    echo("Records: $searches_this_round of $total_results ($total_searches total)\n");
-                    echo("Speed:   ". round($total_searches/$time, 2) ." r/s\n");
-                    echo("Memory:  ". memory_get_usage()."\n");
-                    echo("Time:    $time s\n");
-                    echo("Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("Records: $searches_this_round of $total_results ($total_searches total)\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("Speed:   ". round($total_searches/$time, 2) ." r/s\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("Memory:  ". memory_get_usage()."\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("Time:    $time s\n");
+                    if($GLOBALS['ENV_DEBUG']) echo("Left:    ". round(($total_results * $compare_time/$searches_this_round) - $compare_time, 2) ." s\n");
                     flush();
                     @ob_flush();
                 }
@@ -458,7 +458,7 @@ class CompareHierarchies
         if($GLOBALS['hierarchy_entry_matches'])
         {
             print_r($GLOBALS['hierarchy_entry_matches']);
-        }else echo "$hierarchy_entry_id didn't match any other entries\n";
+        }else if($GLOBALS['ENV_DEBUG']) echo "$hierarchy_entry_id didn't match any other entries\n";
     }
     
     public static function compare_entry(&$solr, &$hierarchy, &$entry, &$compare_to_hierarchy = null, $match_synonyms = true)

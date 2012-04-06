@@ -131,7 +131,7 @@ class FlattenHierarchies
     {
         static $count = 0;
         $count++;
-        if($count%1000 == 0) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
+        if($count%1000 == 0 && $GLOBALS['ENV_DEBUG']) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
         
         //if($count>=10000) exit;
         $query = "SELECT id, parent_id, taxon_concept_id, (rgt-lft) therange FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN ($this->visibile_id, $this->preview_id)";

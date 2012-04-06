@@ -46,9 +46,9 @@ class DarwinCoreHarvester
                 {
                     if($i%10000==0)
                     {
-                        echo "Loading Taxon: $i\n";
-                        echo "Memory: ".memory_get_usage()."\n";
-                        echo "Time: ".time_elapsed()."\n\n";
+                        if($GLOBALS['ENV_DEBUG']) echo "Loading Taxon: $i\n";
+                        if($GLOBALS['ENV_DEBUG']) echo "Memory: ".memory_get_usage()."\n";
+                        if($GLOBALS['ENV_DEBUG']) echo "Time: ".time_elapsed()."\n\n";
                         $mysqli->commit();
                     }
                     $i++;

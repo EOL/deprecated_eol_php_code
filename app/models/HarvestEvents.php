@@ -263,7 +263,7 @@ class HarvestEvent extends ActiveRecord
         $query = "SELECT data_object_id FROM data_objects_harvest_events WHERE harvest_event_id = $this->id";
         $data_object_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $data_object_ids[] = $row[0];
-        print_r($data_object_ids);
+        if($GLOBALS['ENV_DEBUG']) print_r($data_object_ids);
         if($data_object_ids) $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
         
         $object_indexer = new DataObjectAncestriesIndexer();
@@ -273,7 +273,7 @@ class HarvestEvent extends ActiveRecord
         JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id = $this->id";
         $taxon_concept_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $taxon_concept_ids[] = $row[0];
-        print_r($taxon_concept_ids);
+        if($GLOBALS['ENV_DEBUG']) print_r($taxon_concept_ids);
         if($taxon_concept_ids) $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
     }
     

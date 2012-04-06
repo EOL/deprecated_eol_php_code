@@ -88,9 +88,9 @@ class HierarchyEntryIndexer
     
     private function lookup_names($start, $limit, $filter = "1=1")
     {
-        echo("querying names ($start, $limit)\n");
+        if($GLOBALS['ENV_DEBUG']) echo("querying names ($start, $limit)\n");
         $result = $this->mysqli->query("SELECT he.*, n.string, rcf.string canonical_form FROM hierarchy_entries he LEFT JOIN (names n LEFT JOIN canonical_forms rcf ON (n.ranked_canonical_form_id=rcf.id)) ON (he.name_id=n.id) WHERE he.id  BETWEEN $start AND ".($start+$limit)." AND $filter");
-        echo("done querying names\n");
+        if($GLOBALS['ENV_DEBUG']) echo("done querying names\n");
         
         while($result && $row=$result->fetch_assoc())
         {
@@ -124,7 +124,7 @@ class HierarchyEntryIndexer
     
     private function lookup_ancestries()
     {
-        echo("looking up ancestries\n");
+        if($GLOBALS['ENV_DEBUG']) echo("looking up ancestries\n");
         
         $ids_to_lookup = array();
         if(@$this->objects)
@@ -149,7 +149,7 @@ class HierarchyEntryIndexer
             }
         }
         
-        echo("done looking up ancestries\n");
+        if($GLOBALS['ENV_DEBUG']) echo("done looking up ancestries\n");
         
         if(@$this->objects)
         {
@@ -193,9 +193,9 @@ class HierarchyEntryIndexer
         $sci = Language::find_or_create_for_parser('scientific name')->id;
         $common_name_id = SynonymRelation::find_or_create_by_translated_label('common name')->id;
         
-        echo("querying synonyms\n");
+        if($GLOBALS['ENV_DEBUG']) echo("querying synonyms\n");
         $result = $this->mysqli->query("SELECT s.*, n.string, rcf.string canonical_form FROM synonyms s JOIN hierarchy_entries he ON (s.hierarchy_entry_id=he.id) JOIN (names n LEFT JOIN canonical_forms rcf ON (n.ranked_canonical_form_id=rcf.id)) ON (s.name_id=n.id) WHERE he.id BETWEEN $start AND ".($start+$limit)." AND $filter");
-        echo("done querying synonyms\n");
+        if($GLOBALS['ENV_DEBUG']) echo("done querying synonyms\n");
         
         while($result && $row=$result->fetch_assoc())
         {

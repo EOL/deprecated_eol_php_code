@@ -2,21 +2,21 @@ development:
   host:     localhost
   username: test
   password: test
-  database: eol_data_development
+  database: eol_development
   encoding: utf8
   
 test:
   host:     localhost
   username: test
   password: test
-  database: eol_data_test
+  database: eol_test
   encoding: latin1
   
 integration:
   host:     localhost
   username: test
   password: test
-  database: eol_data_integration
+  database: eol_integration
   encoding: utf8
   
 production:
@@ -28,5 +28,5 @@ production:
   master_host:     localhost
   master_username: test
   master_password: test
-  master_database: eol_data
+  master_database: eol_production
   master_encoding: latin1

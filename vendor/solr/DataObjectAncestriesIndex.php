@@ -60,33 +60,33 @@ class DataObjectAncestriesIndexer
     public function index_next_block($start, $limit, &$data_object_ids = array())
     {
         unset($this->objects);
-        echo "Looking up $start Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+        if($GLOBALS['ENV_DEBUG']) echo "Looking up $start Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->lookup_objects($start, $limit, $data_object_ids);
-        echo "after DO Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+        if($GLOBALS['ENV_DEBUG']) echo "after DO Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         if(isset($this->objects))
         {
             $this->lookup_ancestries($start, $limit, $data_object_ids);
-            echo "after ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_curated_ancestries($start, $limit, $data_object_ids);
-            echo "after c_a Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after c_a Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_user_added_ancestries($start, $limit, $data_object_ids);
-            echo "after uaa Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after uaa Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_ancestries_he($start, $limit, $data_object_ids);
-            echo "after ancestries_he Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after ancestries_he Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_curated_ancestries_he($start, $limit, $data_object_ids);
-            echo "after curated ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after curated ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_user_added_ancestries_he($start, $limit, $data_object_ids);
-            echo "after udo Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after udo Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_ignores($start, $limit, $data_object_ids);
-            echo "after ignores Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after ignores Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_curation($start, $limit, $data_object_ids);
-            echo "after curation Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after curation Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_resources($start, $limit, $data_object_ids);
-            echo "after resources Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after resources Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_table_of_contents($start, $limit, $data_object_ids);
-            echo "after toc Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after toc Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_translations($start, $limit, $data_object_ids);
-            echo "after translations Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "after translations Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         }
         
         if(isset($this->objects))

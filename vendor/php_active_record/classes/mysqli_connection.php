@@ -198,7 +198,7 @@ class MysqliConnection
                 if($line_counter >= $maximum_rows_in_file)
                 {
                     $batch++;
-                    echo "Committing ".$batch*$maximum_rows_in_file." : ".time_elapsed()."\n";
+                    if($GLOBALS['ENV_DEBUG']) echo "Committing ".$batch*$maximum_rows_in_file." : ".time_elapsed()."\n";
                     @$this->update("LOAD DATA LOCAL INFILE '".str_replace("\\", "/", $tmp_file_path)."' $action INTO TABLE `$table` FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' $set");
                     $this->commit();
                     usleep_production($udelay);

@@ -110,34 +110,39 @@ class SolrAPI
     
     public function commit()
     {
-        echo("Solr commit $this->action_url\n");
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml");
+        if($GLOBALS['ENV_DEBUG']) echo("Solr commit $this->action_url\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml $extra_bit");
     }
     
     public function optimize()
     {
-        echo("Solr optimize $this->action_url\n");
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml");
+        if($GLOBALS['ENV_DEBUG']) echo("Solr optimize $this->action_url\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml $extra_bit");
     }
     
     public function delete_all_documents()
     {
-        echo("Solr delete_all_documents $this->action_url\n");
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/delete.xml");
+        if($GLOBALS['ENV_DEBUG']) echo("Solr delete_all_documents $this->action_url\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/delete.xml $extra_bit");
         $this->commit();
         $this->optimize();
     }
     
     public function swap($from_core, $to_core)
     {
-        echo("Solr swap $this->action_url\n");
-        exec("curl ". $this->server ."admin/cores -F action=SWAP -F core=$from_core -F other=$to_core");
+        if($GLOBALS['ENV_DEBUG']) echo("Solr swap $this->action_url\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec("curl ". $this->server ."admin/cores -F action=SWAP -F core=$from_core -F other=$to_core $extra_bit");
     }
     
     public function reload($core)
     {
-        echo("Solr reload $this->action_url\n");
-        exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core");
+        if($GLOBALS['ENV_DEBUG']) echo("Solr reload $this->action_url\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core $extra_bit");
     }
     
     public function delete_by_ids($ids, $commit = true)
@@ -152,8 +157,9 @@ class SolrAPI
         fwrite($OUT, "</delete>");
         fclose($OUT);
         
-        echo("Solr delete $this->action_url\n");
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path");
+        if($GLOBALS['ENV_DEBUG']) echo("Solr delete $this->action_url\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path $extra_bit");
         if($commit) $this->commit();
     }
     
@@ -174,8 +180,9 @@ class SolrAPI
         fwrite($OUT, "</delete>");
         fclose($OUT);
         
-        echo("Solr delete $this->action_url\n");
-        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path");
+        if($GLOBALS['ENV_DEBUG']) echo("Solr delete $this->action_url\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path $extra_bit");
         if($commit) $this->commit();
     }
     
@@ -233,8 +240,9 @@ class SolrAPI
         }
         $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType='text/plain;charset=utf-8'";
         
-        echo("Solr send_attributes $curl\n");
-        exec($curl);
+        if($GLOBALS['ENV_DEBUG']) echo("Solr send_attributes $curl\n");
+        if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+        exec($curl . $extra_bit);
         $this->commit();
     }
     
@@ -248,8 +256,9 @@ class SolrAPI
              $curl .= " -F header=false -F fieldnames=".implode(",", $fields);
              $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$outfile_path -F stream.contentType='text/plain;charset=utf-8'";
              
-             echo("Solr send_from_mysql_result $this->action_url\n");
-             exec($curl);
+             if($GLOBALS['ENV_DEBUG']) echo("Solr send_from_mysql_result $this->action_url\n");
+             if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
+             exec($curl . $extra_bit);
              $this->commit();
         }
     }

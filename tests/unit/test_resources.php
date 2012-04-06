@@ -48,6 +48,19 @@ class test_resources extends SimpletestUnitBase
         @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml");
     }
     
+    function testResourceDefaults()
+    {
+        $resource = self::create_resource(array('language_id' => 0));
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->language_id == 0, 'Languages by default should be null');
+        
+        $resource = self::create_resource(array('language_id' => Language::default_language()->id));
+        self::harvest($resource);
+        $last_object = DataObject::last();
+        $this->assertTrue($last_object->language_id == Language::default_language()->id, 'Languages by default should be null');
+    }
+    
     function testIUCNDataType()
     {
         $resource = self::create_resource(array('title' => 'IUCN Red List'));
@@ -364,6 +377,7 @@ class test_resources extends SimpletestUnitBase
         if(!isset($args['title'])) $args['title'] = 'Test Resource';
         if(!isset($args['file_path'])) $args['file_path'] = DOC_ROOT . 'tests/fixtures/files/test_resource.xml';
         if(!isset($args['dwc_archive_url'])) $args['dwc_archive_url'] = '';
+        if(!isset($args['language_id'])) $args['language_id'] = 0;
         
         // create the test resource
         $agent = Agent::find_or_create(array('full_name' => 'Test Content Partner'));
@@ -381,6 +395,7 @@ class test_resources extends SimpletestUnitBase
                         'vetted'                => $args['vetted'],
                         'title'                 => $args['title'],
                         'dwc_archive_url'       => $args['dwc_archive_url'],
+                        'language_id'           => $args['language_id'],
                         'resource_status'       => ResourceStatus::validated());
         $resource = Resource::find_or_create($attr);
         

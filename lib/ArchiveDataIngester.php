@@ -62,7 +62,7 @@ class ArchiveDataIngester
     public function read_taxon($row)
     {
         static $i = 0;
-        if($i % 500 == 0)
+        if($i % 500 == 0 && $GLOBALS['ENV_DEBUG'])
         {
             echo "Loading taxon $i: ".memory_get_usage()."\n";
         }
@@ -108,7 +108,7 @@ class ArchiveDataIngester
         static $i = 0;
         if($i % 500 == 0)
         {
-            echo "Inserting taxon $i: ".memory_get_usage()."\n";
+            if($GLOBALS['ENV_DEBUG']) echo "Inserting taxon $i: ".memory_get_usage()."\n";
         }
         $i++;
         // make sure this taxon has a name, otherwise skip this branch
