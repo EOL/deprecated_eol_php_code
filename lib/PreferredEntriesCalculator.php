@@ -47,7 +47,12 @@ class PreferredEntriesCalculator
     
     private function lookup_block($start, $limit)
     {
-        $query = "SELECT tc.id taxon_concept_id, he.id hierarchy_entry_id, he.visibility_id, he.vetted_id, v.view_order vetted_view_order, h.id hierarchy_id, h.browsable FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) JOIN hierarchies h ON (he.hierarchy_id=h.id) JOIN vetted v ON (he.vetted_id=v.id) WHERE tc.id BETWEEN $start AND ". ($start+$limit) ." AND he.published=1";
+        $query = "SELECT tc.id taxon_concept_id, he.id hierarchy_entry_id, he.visibility_id, he.vetted_id, v.view_order vetted_view_order, h.id hierarchy_id, h.browsable
+            FROM taxon_concepts tc
+            JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id)
+            JOIN hierarchies h ON (he.hierarchy_id=h.id)
+            JOIN vetted v ON (he.vetted_id=v.id)
+            WHERE tc.id BETWEEN $start AND ". ($start+$limit) ." AND he.published=1";
         static $j = 0;
         $all_entries = array();
         foreach($this->mysqli->iterate_file($query) as $row_num => $row)
@@ -72,10 +77,27 @@ class PreferredEntriesCalculator
                 'hierarchy_id' => $hierarchy_id,
                 'browsable' => $browsable);
         }
-        $this->sort_and_insert_best_entries($all_entries);
+        $curated_best_entries = $this->lookup_curated_best_entries($start, $limit);
+        $this->sort_and_insert_best_entries($all_entries, $curated_best_entries);
     }
     
-    private function sort_and_insert_best_entries($all_entries)
+    private function lookup_curated_best_entries($start, $limit)
+    {
+        $curated_best_entries = array();
+        $query = "SELECT c.taxon_concept_id, c.hierarchy_entry_id
+            FROM curated_taxon_concept_preferred_entries c
+            JOIN hierarchy_entries he ON (c.hierarchy_entry_id=he.id)
+            WHERE c.taxon_concept_id BETWEEN $start AND ". ($start+$limit) ." AND he.published=1 AND he.visibility_id=". Visibility::visible()->id;
+        foreach($this->mysqli->iterate_file($query) as $row_num => $row)
+        {
+            $taxon_concept_id = $row[0];
+            $hierarchy_entry_id = $row[1];
+            $curated_best_entries[$taxon_concept_id] = $hierarchy_entry_id;
+        }
+        return $curated_best_entries;
+    }
+    
+    private function sort_and_insert_best_entries($all_entries, $curated_entries)
     {
         $best_entry_for_concept = array();
         foreach($all_entries as $taxon_concept_id => $concept_entries)
@@ -97,6 +119,15 @@ class PreferredEntriesCalculator
             usort($concept_entries, array("php_active_record\PreferredEntriesCalculator", "sort_preferred_entries"));
             $first = array_shift($concept_entries);
             $best_entry_for_concept[$taxon_concept_id] = $first['hierarchy_entry_id'];
+        }
+        foreach($curated_entries as $taxon_concept_id => $hierarchy_entry_id)
+        {
+            // its possible to have a saved curated entry for a concept that no longer exits
+            // so make sure we are setting the preferred value for a concept that we know about
+            if($best_entry_for_concept[$taxon_concept_id])
+            {
+                $best_entry_for_concept[$taxon_concept_id] = $hierarchy_entry_id;
+            }
         }
         $this->insert_best_entries($best_entry_for_concept);
     }
