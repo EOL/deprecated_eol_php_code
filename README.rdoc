@@ -4,6 +4,7 @@
   ImageMagick
   Access to an installation of Apache Solr
   (recommended) An installation of the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol)
+  'biodiversity' Ruby gem
   (optional) Memcached
 
 
@@ -29,6 +30,12 @@ There are a few things you must do before using this code:
     /applications/content_server/resources
     /applications/content_server/tmp
     /vendor/eol_content_schema_v2/extension_cache
+
+  Install the biodiversity Ruby gem:
+    you must fist have Ruby and Rubygems installed, then:
+    gem install biodiversity
+      OR
+    sudo gem install biodiversity
 
   In same file uncomment the Memcached connection if you prefer:
     $GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
@@ -96,13 +103,10 @@ In order to have the website and harvesting code working together there are a fe
   $CONTENT_SERVERS = ['http://localhost']
   
   # corresponds to CONTENT_LOCAL_PATH - the path on the PHP server where media will be downloaded
-  $CONTENT_SERVER_CONTENT_PATH = "/.../content/"
+  $CONTENT_SERVER_CONTENT_PATH = "/eol_php_code/applications/content_server/content/"
   
   # corresponds to CONTENT_RESOURCE_LOCAL_PATH - the path on the PHP server where resources will be downloaded
-  $CONTENT_SERVER_RESOURCES_PATH = "/.../resources/"
-  
-  # corresponds to CONTENT_PARTNER_LOCAL_PATH - the path on the PHP server where content partner logos will be stored
-  $CONTENT_SERVER_AGENT_LOGOS_PATH = "/.../content_partners/"
+  $CONTENT_SERVER_RESOURCES_PATH = "/eol_php_code/applications/content_server/resources/"
   
   # the full URL to the PHP server to /applications/content_server/service.php which is used by the website to send uploads of content partner logos and resource XML files
   $WEB_SERVICE_BASE_URL="http://localhost/eol_php_code/applications/content_server/service.php?"

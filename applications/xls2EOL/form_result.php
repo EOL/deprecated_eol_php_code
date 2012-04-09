@@ -3,6 +3,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $url = get_val_var('url');
+$url_new = get_val_var('url_new');
 $orig_url = $url;
 
 $parts = pathinfo($url);
@@ -11,10 +12,11 @@ $extension = @$parts['extension'];
 $newfile = "temp/" . time() . "." . $extension;
 
 if($url != ""){}//URL is pasted.
-elseif(isset($_FILES["file_upload_new"]["type"]))
+elseif($url_new != ""){}//URL is pasted.
+elseif($_FILES["file_upload_new"]["type"])
 {
-    if($_FILES["file_upload_new"]["type"] == "application/vnd.ms-excel" ||
-       $_FILES["file_upload_new"]["type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    if(in_array($_FILES["file_upload_new"]["type"],
+        array("application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream")))
     {
         if ($_FILES["file_upload_new"]["error"] > 0){}
         else
@@ -54,11 +56,10 @@ elseif(isset($_FILES["file_upload_new"]["type"]))
     }
     
     exit;
-}elseif(isset($_FILES["file_upload"]["type"]))
-{   
-    if($_FILES["file_upload"]["type"] == "application/vnd.ms-excel" or
-       $_FILES["file_upload"]["type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
-      ) 
+}elseif($_FILES["file_upload"]["type"])
+{
+    if(in_array($_FILES["file_upload"]["type"],
+        array("application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream")))
     {
         if ($_FILES["file_upload"]["error"] > 0){}
         else
@@ -81,6 +82,7 @@ function excel_extension($type)
 {
     if      ($type == "application/vnd.ms-excel")return "xls";
     elseif  ($type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")return "xlsx";
+    elseif  ($type == "application/octet-stream") return "xls";
 }
 function get_val_var($v)
 {

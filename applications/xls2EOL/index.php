@@ -16,6 +16,7 @@
         style="font-size : x-small; font-family : Arial;">
     </td>
 </tr>
+<!--
 <tr align="center">
     <td>
         <font size="2">NEW! XLS File URL: </font><input type="text" name="url_new" size="100" style="font-size : x-small; font-family : Arial;">
@@ -31,6 +32,7 @@
         style="font-size : x-small; font-family : Arial;">
     </td>
 </tr>
+-->
 <tr align="center">
     <td>    
         <input type="submit" value="Convert to EOL-compliant XML">
