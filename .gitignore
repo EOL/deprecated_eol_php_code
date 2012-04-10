@@ -70,11 +70,9 @@ rake_tasks/run.bat
 rake_tasks/run.php
 temp/*
 !temp/.gitignore
-tmp/taxon_concept_with_bhl_links.txt
-tmp/tmp*
-tmp/*.csv
-tmp/dir_*
-tmp/natureserve
+tmp/*
+!tmp/.gitignore
+!tmp/cache
 update_resources/connectors/26 v1.php
 update_resources/connectors/26pre.php
 update_resources/connectors/81 v1.php
