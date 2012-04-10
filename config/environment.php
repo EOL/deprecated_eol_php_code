@@ -22,8 +22,6 @@ $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
    this will load values from ./environments/ENV_NAME.php before values below
 */
 
-/* MEMCACHED */
-//$GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
 $GLOBALS['ENV_ENABLE_CACHING'] = true;
 
 
