@@ -5,26 +5,29 @@ ini_set('memory_limit', '1024M'); // 1GB maximum memory usage
 ini_set('max_execution_time', '21600'); // 6 hours
 ini_set('display_errors', false);
 
+
 /* Default Environment */
 if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
-
-define('WEB_ROOT', 'http://localhost/eol_php_code/');   // URL prefix of this installation
-define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
-define('MYSQL_BIN_PATH', 'mysql ');                     // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
-
-$GLOBALS['ENV_DEBUG'] = true;
-$GLOBALS['ENV_MYSQL_DEBUG'] = true;
-$GLOBALS['ENV_DEBUG_TO_FILE'] = true;
-$GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
+// passing in the CLI arguments
+set_and_load_proper_environment($argv);
 
 
-/* Initialize app - this should be towards the top of environment.php, but declare the WEB_ROOT first 
-   this will load values from ./environments/ENV_NAME.php before values below
+if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://localhost/eol_php_code/');  // URL prefix of this installation
+if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');              // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
+
+if(!isset($GLOBALS['ENV_DEBUG'])) $GLOBALS['ENV_DEBUG'] = true;
+if(!isset($GLOBALS['ENV_MYSQL_DEBUG'])) $GLOBALS['ENV_MYSQL_DEBUG'] = true;
+if(!isset($GLOBALS['ENV_DEBUG_TO_FILE'])) $GLOBALS['ENV_DEBUG_TO_FILE'] = true;
+if(!isset($GLOBALS['ENV_DEBUG_FILE_FLUSH'])) $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
+
+if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = true;
+
+
+
+/* Initialize app - this should be towards the top of environment.php,
+   but declare the WEB_ROOT and caching settings first.
+   This will load values from ./environments/ENV_NAME.php before values below
 */
-
-$GLOBALS['ENV_ENABLE_CACHING'] = true;
-
-
 require_once(dirname(__FILE__) . '/boot.php');
 
 // $GLOBALS['log_file'] = fopen(DOC_ROOT . "temp/processes.log", "a+");
@@ -84,6 +87,9 @@ if(!defined('CONTENT_IMAGE_LARGE'))         define('CONTENT_IMAGE_LARGE',       
 if(!defined('CONTENT_IMAGE_MEDIUM'))        define('CONTENT_IMAGE_MEDIUM',          '147x147');
 if(!defined('CONTENT_IMAGE_SMALL'))         define('CONTENT_IMAGE_SMALL',           '62x47');
 
+// this mat not be needed anymore
+if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
+
 
 /* table data which will not get cached - there are too many rows */
 $GLOBALS['no_cache']['agents']              = true;
@@ -101,5 +107,42 @@ $GLOBALS['no_cache']['synonyms']            = true;
 $GLOBALS['no_cache']['taxa']                = true;
 $GLOBALS['no_cache']['taxon_concept_names'] = true;
 $GLOBALS['no_cache']['taxon_concepts']      = true;
+
+
+
+/* Set your working development environment 
+   if a web request and there is a paremeter ENV_NAME=$ENV that gets priority
+   if a CLI request and there is an argument ENV_NAME=$ENV that gets second priority
+   if a constant ENVIRONMENT exists that gets third priority
+*/
+function set_and_load_proper_environment($argv = NULL)
+{
+    if(isset($_REQUEST['ENV_NAME'])) $GLOBALS['ENV_NAME'] = $_REQUEST['ENV_NAME'];
+    elseif(isset($argv) && $match = in_array_regex('ENV_NAME=(.+)', $argv)) $GLOBALS['ENV_NAME'] = $match[1];
+    elseif(defined('ENVIRONMENT')) $GLOBALS['ENV_NAME'] = ENVIRONMENT;
+    if(!isset($GLOBALS['ENV_NAME']))
+    {
+        // Environments are currently only used to configure the proper MySQL connection as defined in database.yml
+        $GLOBALS['ENV_NAME'] = 'development';
+    }
+
+    /* Override with any settings from /config/environments/ENVIRONMENT.php */
+    if(file_exists(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php'))
+    {
+        require_once(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php');
+    }
+}
+
+/* finds the first instance of $needle in $haystack and returns the resulting match array */
+function in_array_regex($needle, $haystack)
+{
+    if(!is_array($haystack)) return false;
+    foreach($haystack as $element)
+    {
+        if(preg_match('/^'. str_replace('/', '\/', $needle) .'$/', $element, $arr)) return $arr;
+    }
+    return false;
+}
+
 
 ?>

@@ -26,7 +26,14 @@ class ActiveRecordError extends \Exception
     public static function handleError($errno, $errstr, $errfile, $errline)
     {
         $replevel = error_reporting();
-        if( ($errno & error_reporting()) == 0 || !$errno) return true;
+        
+        // this would be nice to default it to all errors in the test ENV,
+        // but then this bypasses suppressing errors with @ so we end up
+        // seeing some notices that were intended to be hidden
+        // if($GLOBALS['ENV_NAME'] == 'test') $replevel = 22527;
+        
+        // bitwise comparison of error number and error reporting level
+        if( ($errno & $replevel) == 0 || !$errno) return true;
         
         $error_types = array (
             E_ERROR              => 'Error',

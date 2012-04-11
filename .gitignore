@@ -56,6 +56,9 @@ config/constants.php
 config/database.yml
 config/environments/*
 !config/environments/.gitignore
+!config/environments/development_sample.php
+!config/environments/test_sample.php
+!config/environments/production_sample.php
 config/old
 config/start.php
 lib/NewDenormalizedTables.php

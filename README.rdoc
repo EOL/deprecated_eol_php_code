@@ -5,17 +5,17 @@
   Access to an installation of Apache Solr
   (recommended) An installation of the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol)
   'biodiversity' Ruby gem
-  (optional) Memcached
 
 
 === Installation
 
 There are a few things you must do before using this code:
 
+  Ensure you have a working web server with PHP support.
+  Ensure there is an available php.ini configuration file with desired settings.
+
   Update in /config/environment.php the constants for:
     WEB_ROOT        - eg: 'http://localhost/eol_php_code/'
-    PHP_BIN_PATH    - eg: '/usr/local/bin/php '  -----> NOTE: THE SPACE AFTER php IS IMPORTANT
-    MAGICK_HOME     - eg: '/usr/local/ImageMagick/'
 
   In /config/environment.php check the values of:
     CONTENT_PARTNER_LOCAL_PATH
@@ -24,21 +24,17 @@ There are a few things you must do before using this code:
     These are the locations where media will be downloaded to for viewing on the website
 
   Give write permission for the following directories to your web server user:
+    /log
     /temp
-    /applications/content_server/content
-    /applications/content_server/content_partners
-    /applications/content_server/resources
+    /applications/content_server/content (or changed value of CONTENT_LOCAL_PATH)
+    /applications/content_server/content_partners (or changed value of CONTENT_PARTNER_LOCAL_PATH)
+    /applications/content_server/resources (or changed value of CONTENT_RESOURCE_LOCAL_PATH)
     /applications/content_server/tmp
     /vendor/eol_content_schema_v2/extension_cache
 
   Install the biodiversity Ruby gem:
-    you must fist have Ruby and Rubygems installed, then:
-    gem install biodiversity
-      OR
-    sudo gem install biodiversity
-
-  In same file uncomment the Memcached connection if you prefer:
-    $GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
+    you must fist have Ruby and Rubygems installed, then see https://github.com/GlobalNamesArchitecture/biodiversity
+    for installation
 
   Create other files in /config/environments/ENV_NAME.php:
     these environment files will be loaded when boot.php is included,

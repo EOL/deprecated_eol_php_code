@@ -7,6 +7,11 @@ class test_flickr_api extends SimpletestUnitBase
 {
     function testPoolsGetPhotos()
     {
+        if(!defined('FLICKR_API_KEY') || FLICKR_API_KEY == 'xxx')
+        {
+            echo "      **SKIPPING FLICKR TEST. NEED TO DEFINE FLICKR_API_KEY, FLICKR_EOL_GROUP_ID ETC.**\n";
+            return;
+        }
         $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, FLICKR_PLEARY_AUTH_TOKEN);
         $this->assertTrue($response->stat == 'ok', 'pools_get_photos should return a stat of OK');
         $this->assertTrue($response->photos->pages > 45000, 'EOL pool should have more than 45000 photos');
@@ -14,6 +19,11 @@ class test_flickr_api extends SimpletestUnitBase
     
     function testGetEOLPhotos()
     {
+        if(!defined('FLICKR_API_KEY') || FLICKR_API_KEY == 'xxx')
+        {
+            echo "      **SKIPPING FLICKR TEST. NEED TO DEFINE FLICKR_API_KEY, FLICKR_EOL_GROUP_ID ETC.**\n";
+            return;
+        }
         $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 5, 1, FLICKR_PLEARY_AUTH_TOKEN, FLICKR_PLEARY_USER_ID);
         $this->assertTrue($response->photos->total == 2, 'Patrick should have submitted only 2 photos');
         
