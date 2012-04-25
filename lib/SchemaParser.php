@@ -202,6 +202,10 @@ class SchemaParser
                 $xml_attr = $d_dc->description->attributes("http://www.w3.org/XML/1998/namespace");
                 $data_object->language = Language::find_or_create_for_parser(@Functions::import_decode($xml_attr["lang"]));
             }
+            if(!$data_object->language && $resource->language)
+            {
+                $data_object->language = $resource->language;
+            }
             
             //TODO - update this
             if($data_object->mime_type && $data_object->mime_type->equals(MimeType::flash()) && $data_object->is_video())

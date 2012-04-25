@@ -15,7 +15,8 @@ class HierarchyEntry extends ActiveRecord
             array('hierarchy_entries_refs'),
             array('references', 'through' => 'hierarchy_entries_refs'),
             array('agents_hierarchy_entries'),
-            array('agents', 'through' => 'agents_hierarchy_entries')
+            array('agents', 'through' => 'agents_hierarchy_entries'),
+            array('synonyms')
         );
     
     public function split_from_concept_static($hierarchy_entry_id, $update_caches = false)

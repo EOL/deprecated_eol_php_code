@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml
+packageId="eml.1.1" system="knb"
+xmlns:eml="eml://ecoinformatics.org/eml-2.1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.0 eml.xsd">
+<dataset id="choreutidae:version:1.0">
+<title>Choreutidae Classification</title>
+<creator id="7" scope="document">
+<individualName>
+<givenName>Jadranka</givenName>
+<surName>Rota</surName>
+</individualName>
+<electronicMailAddress>jadranka.rota@gmail.com</electronicMailAddress>
+</creator>
+<metadataProvider>
+<organizationName>Encyclopedia of Life: LifeDesks (http://www.lifedesks.org)</organizationName>
+</metadataProvider>
+<pubDate>2010-05-26T14:56:51+00:00</pubDate>
+<abstract>&amp;lt;p&amp;gt;based on Heppner and Duckworth and new genera published since&amp;lt;/p&amp;gt;</abstract>
+<intellectualRights>Creative Commons: by-nc-sa</intellectualRights>
+<distribution>
+<online>
+<url function="download">http://choreutidae.lifedesks.org/classification.tar.gz</url>
+</online>
+</distribution>
+<contact>
+<references>7</references>
+</contact>
+<publisher>
+<organizationName>The Marine Biological Laboratory</organizationName>
+</publisher>
+</dataset>
+<additionalMetadata>
+<metadata>
+<citation>&amp;lt;p&amp;gt;Rota, Jadranka. 2010. The global Choreutidae classification.&amp;lt;/p&amp;gt;</citation>
+</metadata>
+</additionalMetadata>
+</eml:eml>

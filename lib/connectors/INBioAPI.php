@@ -13,7 +13,6 @@ class INBioAPI
         self::$MAPPINGS = self::assign_mappings();
         $all_taxa = array();
         $used_collection_ids = array();
-        require_vendor('eol_content_schema_v2');
         $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_inbio");
         $tables = $harvester->tables;
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;

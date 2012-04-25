@@ -9,8 +9,8 @@ e.g. DicoverLife Maps and Keys, US Fish and Wildlife Service - Endangered Specie
 */
 class CheckIfNameHasAnEOLPage
 {
-    const API_SEARCH = "http://www.eol.org/api/search/";
-    const API_PAGES = "http://www.eol.org/api/pages/";
+    const API_SEARCH = "http://eol.org/api/search/";
+    const API_PAGES = "http://eol.org/api/pages/";
     const API_PAGES_PARAMS = "?images=75&text=75&subjects=all";
 
     function check_if_name_has_EOL_page($scientific_name)

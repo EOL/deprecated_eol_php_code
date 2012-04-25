@@ -37,9 +37,9 @@ class SiteSearchIndexer
             foreach($batches as $batch)
             {
                 $this->objects = array();
-                echo "Looking up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looking up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 call_user_func(array($this, $callback), array('ids' => $batch));
-                echo "Looked up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looked up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 
                 // delete old ones
                 $queries = array();
@@ -68,9 +68,9 @@ class SiteSearchIndexer
             for($i=$start ; $i<$max_id ; $i+=$limit)
             {
                 $this->objects = array();
-                echo "Looking up $class_name $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looking up $class_name $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 call_user_func(array($this, $callback), array('start' => $i, 'limit' => $limit));
-                echo "Looked up $class_name $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looked up $class_name $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 $this->solr->delete("resource_type:$class_name AND resource_id:[$i TO ". ($i + $limit - 1) ."]", false);
                 
                 if(isset($this->objects))
@@ -186,13 +186,13 @@ class SiteSearchIndexer
             unset($this->objects[$id]);
         }
         // print_r($objects_to_send);
-        echo "Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+        if($GLOBALS['ENV_DEBUG']) echo "Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         $this->solr->send_attributes($objects_to_send);
     }
     
     function lookup_names($params = array())
     {
-        echo "\nquerying names\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying names\n";
         $this->lookup_and_cache_language_iso_codes();
         $query = "SELECT tc.id, tc.vetted_id, tcn.preferred, tcn.vern, tcn.language_id, tcn.source_hierarchy_entry_id, n.string, tcn.vetted_id FROM taxon_concepts tc LEFT JOIN (taxon_concept_names tcn JOIN names n ON  (tcn.name_id=n.id)) ON (tc.id=tcn.taxon_concept_id) WHERE tc.supercedure_id=0 AND tc.published=1 AND tc.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
@@ -217,7 +217,7 @@ class SiteSearchIndexer
             $string = $row[6];
             $name_vetted_id = $row[7];
             
-            if(!$began) echo "done querying\n";
+            if(!$began && $GLOBALS['ENV_DEBUG']) echo "done querying\n";
             $began = true;
             
             if(!$string) continue;
@@ -294,7 +294,7 @@ class SiteSearchIndexer
     
     function lookup_ancestors($params = array())
     {
-        echo "\nquerying lookup_ancestors\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_ancestors\n";
         $query = "SELECT taxon_concept_id id, ancestor_id FROM taxon_concepts_flattened tcf WHERE tcf.taxon_concept_id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
@@ -306,14 +306,14 @@ class SiteSearchIndexer
             $ancestor_id = $row[1];
             $this->objects[$id]['ancestor_taxon_concept_id'][$ancestor_id] = 1;
             
-            if(!$began) echo "done querying\n";
+            if(!$began && $GLOBALS['ENV_DEBUG']) echo "done querying\n";
             $began = true;
         }
     }
     
     function lookup_top_images($params = array())
     {
-        echo "\nquerying top_images\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying top_images\n";
         $query = " SELECT ti.taxon_concept_id id, ti.data_object_id FROM top_concept_images ti JOIN data_objects do ON (ti.data_object_id=do.id) JOIN vetted v ON (do.vetted_id=v.id) WHERE ti.view_order=1 AND ti.taxon_concept_id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
@@ -333,7 +333,7 @@ class SiteSearchIndexer
     
     function lookup_richness($params = array())
     {
-        echo "\nquerying richness\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying richness\n";
         $query = " SELECT taxon_concept_id, richness_score FROM taxon_concept_metrics WHERE taxon_concept_id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
@@ -349,7 +349,7 @@ class SiteSearchIndexer
     function lookup_objects($params = array())
     {
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        echo "\nquerying objects\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying objects\n";
         $last_data_object_id = 0;
         $query = "SELECT do.id, do.guid, REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '), REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '), UNIX_TIMESTAMP(do.created_at), UNIX_TIMESTAMP(do.updated_at),  l.iso_639_1, do.data_type_id FROM data_objects do LEFT JOIN languages l ON (do.language_id=l.id) LEFT JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) LEFT JOIN curated_data_objects_hierarchy_entries cdohe ON (do.id=cdohe.data_object_id) LEFT JOIN users_data_objects udo ON (do.id=udo.data_object_id) WHERE do.published=1 AND (dohe.visibility_id=". Visibility::visible()->id ." OR cdohe.visibility_id=". Visibility::visible()->id ." OR udo.visibility_id=". Visibility::visible()->id .") AND do.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
@@ -440,7 +440,7 @@ class SiteSearchIndexer
     function lookup_users($params = array())
     {
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        echo "\nquerying objects\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying objects\n";
         $last_data_object_id = 0;
         $query = "SELECT id, username, given_name, family_name, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at) FROM users WHERE id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
@@ -483,7 +483,7 @@ class SiteSearchIndexer
     function lookup_collections($params = array())
     {
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        echo "\nquerying objects\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying objects\n";
         $last_data_object_id = 0;
         $query = "SELECT id, name, description, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at), special_collection_id, published FROM collections WHERE id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
@@ -534,7 +534,7 @@ class SiteSearchIndexer
     function lookup_communities($params = array())
     {
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        echo "\nquerying objects\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying objects\n";
         $last_data_object_id = 0;
         $query = "SELECT c.id, c.name, c.description, UNIX_TIMESTAMP(c.created_at), UNIX_TIMESTAMP(c.updated_at), c.published FROM communities c WHERE c.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";

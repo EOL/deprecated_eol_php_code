@@ -194,6 +194,7 @@ class FlickrAPI
         $data_object_parameters["description"] = $photo->description->_content;
         $data_object_parameters["mediaURL"] = self::photo_url($photo->id, $photo->secret, $photo->server, $photo->farm);
         $data_object_parameters["license"] = @$GLOBALS["flickr_licenses"][$photo->license];
+        $data_object_parameters["language"] = 'en';
         if(isset($photo->dates->taken)) $data_object_parameters["created"] = $photo->dates->taken;
         
         foreach($photo->urls->url as $url)

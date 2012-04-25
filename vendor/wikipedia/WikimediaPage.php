@@ -201,16 +201,25 @@ class WikimediaPage
         }
         if(!isset($data_object_parameters["license"]))
         {
-            echo "LICENSE: $this->title\n";
-            print_r($licenses);
-            return false;
+            echo "DEFAULT LICENSE: $this->title\n";
+            if(!$licenses) $data_object_parameters["license"] = "http://creativecommons.org/licenses/by-sa/3.0/";
+            else
+            {
+                echo "LICENSE: $this->title\n";
+                print_r($licenses);
+                return false;
+            }
         }
         
         $data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
+        # unfortunately we have to alter the identifier to make strings with different cases look different
+        # so I'm just adding up the ascii values of the strings and appending that to the identifier
+        $data_object_parameters["identifier"] .= "_" . array_sum(array_map('ord', str_split($data_object_parameters["identifier"])));
         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
         $data_object_parameters["title"] = $this->title;
         $data_object_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
         $data_object_parameters["description"] = $this->description();
+        $data_object_parameters["language"] = 'en';
         
         //if($this->description() && preg_match("/([^".UPPER.LOWER."0-9\/,\.;:'\"\(\)\[\]\{\}\|\!\?~@#\$%+_\^&\*<>=\n\r -])/ims", $this->description(), $arr))
         if($data_object_parameters["description"] && !php_active_record\Functions::is_utf8($data_object_parameters["description"]))

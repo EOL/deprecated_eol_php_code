@@ -20,6 +20,8 @@ namespace php_active_record;
         <td colspan="2" align="center">
             <br/>
             <input type="submit" value="Submit">
+            <br/><br/>
+            You might also want to try our <a href='../dwc_validator/index.php'>DarwinCore Archive validator</a>
         </td>
     </tr>
 </table>

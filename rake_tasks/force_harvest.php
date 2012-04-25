@@ -49,12 +49,12 @@ if($resource)
     if($opt1 == "-now" || $opt2 == "-now")
     {
         $log = HarvestProcessLog::create(array('process_name' => 'Force Harvest'));
-        echo "Harvesting $resource->title ($id)\n";
+        if($GLOBALS['ENV_DEBUG']) echo "Harvesting $resource->title ($id)\n";
         $resource->harvest();
         $log->finished();
     }else
     {
-        echo "Setting status of $resource->title ($id) to force harvest\n";
+        if($GLOBALS['ENV_DEBUG']) echo "Setting status of $resource->title ($id) to force harvest\n";
         $mysqli->update("UPDATE resources SET resource_status_id = ". ResourceStatus::find_or_create_by_translated_label("Force Harvest")->id ." where id=$resource->id");
     }
 }else echo "\nNo resource with id $id\n\n";

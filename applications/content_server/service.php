@@ -66,18 +66,53 @@ switch($function)
         }
         
         $manager = new ContentManager($server_ip);
-        $new_file_path = $manager->grab_file($file_path,$resource_id,"resource");
+        $new_file_path = $manager->grab_file($file_path, $resource_id, "resource");
         if($new_file_path)
         {
-            $validator = new SchemaValidator();
-            $validation_result = $validator->validate(CONTENT_RESOURCE_LOCAL_PATH.$new_file_path);
-            if($validation_result!="true")
+            if(is_dir($new_file_path))
             {
-                echo "  <status>Validation failed</status>\n";
-                echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $validation_result))."</error>\n";
+                $archive = new ContentArchiveReader(null, $new_file_path);
+                $validator = new ContentArchiveValidator($archive);
+                $validator->get_validation_errors();
+                
+                if($e = $validator->errors())
+                {
+                    $errors_as_string = array();
+                    $warnings_as_string = array();
+                    foreach($e as $error)
+                    {
+                        $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
+                        if($error->value) $this_error_string .= " [value was \"$error->value\"]";
+                        $errors_as_string[] = $this_error_string;
+                    }
+                    if($w = $validator->warnings())
+                    {
+                        foreach($w as $warning)
+                        {
+                            $this_warning_string = "<b>Warning</b> in $warning->file on line $warning->line field $warning->uri: $warning->message";
+                            if($warning->value) $this_warning_string .= " [value was \"$warning->value\"]";
+                            $warnings_as_string[] = $this_warning_string;
+                        }
+                    }
+                    echo "  <status>Validation failed</status>\n";
+                    echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $errors_as_string))."</error>\n";
+                    // if($warnings_as_string) echo "  <warning type='validation'>".htmlspecialchars(implode("<br>", $warnings_as_string))."</error>\n";
+                }else
+                {
+                    echo "  <status>Validated</status>\n";
+                }
             }else
             {
-                echo "  <status>Validated</status>\n";
+                $validator = new SchemaValidator();
+                $validation_result = $validator->validate(CONTENT_RESOURCE_LOCAL_PATH . $new_file_path);
+                if($validation_result != "true")
+                {
+                    echo "  <status>Validation failed</status>\n";
+                    echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $validation_result))."</error>\n";
+                }else
+                {
+                    echo "  <status>Validated</status>\n";
+                }
             }
         }else
         {

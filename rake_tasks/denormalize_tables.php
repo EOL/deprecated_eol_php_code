@@ -25,6 +25,7 @@ shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/flatten_hierarchies.php ENV_NAME="
 shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/top_images.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 // shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/random_hierarchy_images.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 // shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/feeds.php ENV_NAME=". $GLOBALS['ENV_NAME']);
+shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/create_preferred_entries.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 $log->finished();
 

@@ -1,25 +1,5 @@
 <?php
 
-/* Set your working development environment 
-   if a web request and there is a paremeter ENV_NAME=$ENV that gets priority
-   if a CLI request and there is an argument ENV_NAME=$ENV that gets second priority
-   if a constant ENVIRONMENT exists that gets third priority
-*/
-if(isset($_REQUEST['ENV_NAME'])) $GLOBALS['ENV_NAME'] = $_REQUEST['ENV_NAME'];
-elseif(isset($argv) && $match = in_array_regex('ENV_NAME=(.+)', $argv)) $GLOBALS['ENV_NAME'] = $match[1];
-elseif(defined('ENVIRONMENT')) $GLOBALS['ENV_NAME'] = ENVIRONMENT;
-if(!isset($GLOBALS['ENV_NAME']))
-{
-    // Environments are currently only used to configure the proper MySQL connection as defined in database.yml
-    $GLOBALS['ENV_NAME'] = 'development';
-}
-
-/* Override with any settings from /config/environments/ENVIRONMENT.php */
-if(file_exists(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php'))
-{
-    require_once(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php');
-}
-
 /* Spyc is our YAML parser */
 require_once dirname(__FILE__) . '/../vendor/spyc/spyc.php';
 
@@ -210,17 +190,6 @@ function require_all_classes_recursively($dir)
        }
        closedir($handle);
     }
-}
-
-/* finds the first instance of $needle in $haystack and returns the resulting match array */
-function in_array_regex($needle, $haystack)
-{
-    if(!is_array($haystack)) return false;
-    foreach($haystack as $element)
-    {
-        if(preg_match('/^'. str_replace('/', '\/', $needle) .'$/', $element, $arr)) return $arr;
-    }
-    return false;
 }
 
 ?>

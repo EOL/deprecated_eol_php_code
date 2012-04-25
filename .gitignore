@@ -56,6 +56,9 @@ config/constants.php
 config/database.yml
 config/environments/*
 !config/environments/.gitignore
+!config/environments/development_sample.php
+!config/environments/test_sample.php
+!config/environments/production_sample.php
 config/old
 config/start.php
 lib/NewDenormalizedTables.php
@@ -70,11 +73,9 @@ rake_tasks/run.bat
 rake_tasks/run.php
 temp/*
 !temp/.gitignore
-tmp/taxon_concept_with_bhl_links.txt
-tmp/tmp*
-tmp/*.csv
-tmp/dir_*
-tmp/natureserve
+tmp/*
+!tmp/.gitignore
+!tmp/cache
 update_resources/connectors/26 v1.php
 update_resources/connectors/26pre.php
 update_resources/connectors/81 v1.php
@@ -88,6 +89,7 @@ update_resources/connectors/run.bat
 update_resources/connectors/set.php
 update_resources/connectors/XML_check.php
 vendor/eol_content_schema_v2/extension_cache/*
+!vendor/eol_content_schema_v2/extension_cache/.gitignore
 vendor/google_api/config.php
 
 .DS_Store

@@ -101,7 +101,11 @@ class TaxonImporter
     {
         static $i=0;
         $i++;
-        if($i%500==0) { echo "Memory: ".memory_get_usage()." : $i\n"; print_r($taxon); }
+        if($i%500 == 0 && $GLOBALS['ENV_DEBUG'])
+        {
+            echo "Memory: ".memory_get_usage()." : $i\n";
+            print_r($taxon);
+        }
         
         // make sure this taxon has a name, otherwise skip this branch
         if(!isset($taxon->scientificName)) return false;

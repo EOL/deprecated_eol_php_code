@@ -1,8 +1,5 @@
 <?php
 namespace php_active_record;
-require_vendor('eol_content_schema_v2');
-require_library('ArchiveDataIngester');
-require_library('ContentArchiveValidator');
 
 class test_archive_validator extends SimpletestUnitBase
 {
@@ -231,7 +228,7 @@ class test_archive_validator extends SimpletestUnitBase
     }
     
     
-    function validate()
+    private function validate()
     {
         $archive = new ContentArchiveReader(null, $this->archive_directory);
         $validator = new ContentArchiveValidator($archive);

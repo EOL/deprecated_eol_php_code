@@ -1,0 +1,8 @@
+TaxonID	dc:source	ScientificName	HigherTaxonID	TaxonRank	TaxonomicStatus
+choreutidae:tid:42	http://choreutidae.lifedesks.org/pages/42	Choreutoidea	/N		
+choreutidae:tid:43	http://choreutidae.lifedesks.org/pages/43	Choreutidae	choreutidae:tid:42	family	
+choreutidae:tid:60	http://choreutidae.lifedesks.org/pages/60	Brenthiinae	choreutidae:tid:43		
+choreutidae:tid:45	http://choreutidae.lifedesks.org/pages/45	Millieriinae	choreutidae:tid:43		
+choreutidae:tid:44	http://choreutidae.lifedesks.org/pages/44	Choreutinae	choreutidae:tid:43		
+choreutidae:tid:58	http://choreutidae.lifedesks.org/pages/58	Tortyra Walker	choreutidae:tid:44		
+

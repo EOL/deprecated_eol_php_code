@@ -15,7 +15,7 @@ Leo provides 3 spreadsheets
 
 class USFishWildlifeAPI
 {
-    const API_URL               = "http://www.eol.org/api/search/";
+    const API_URL               = "http://eol.org/api/search/";
     const TEXT_FILE_FOR_PARTNER = "/update_resources/connectors/files/USFWS/names_without_pages_in_eol.txt"; //report back to USFWL
     const TEMP_FILE_PATH        = "/update_resources/connectors/files/USFWS/";
     const TAXA_LIST_FILE        = "FWS complete18 May 2011 removed duplicate rows.xls";

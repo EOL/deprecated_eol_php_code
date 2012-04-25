@@ -6,6 +6,10 @@ class Reference extends ActiveRecord
     static $table_name = 'refs';
     static $foreign_key = 'ref_id';
     
+    public static $belongs_to = array(
+            array('language')
+        );
+    
     public static $has_many = array(
             array('ref_identifiers')
         );

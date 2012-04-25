@@ -33,7 +33,6 @@ fwrite($resource_file, \SchemaDocument::xml_header());
 
 
 
-require_vendor('eol_content_schema_v2');
 $archive = new ContentArchiveReader(null, DOC_ROOT . "/temp/dwc_archive_test/");
 
 $GLOBALS['data_objects'] = array();

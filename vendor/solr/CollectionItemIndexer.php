@@ -25,7 +25,6 @@ class CollectionItemIndexer
         $query = "SELECT id FROM collection_items WHERE collection_id = $collection_id";
         $collection_item_ids = array();
         foreach($this->mysqli->iterate_file($query) as $row_num => $row) $collection_item_ids[] = $row[0];
-        print_r($collection_item_ids);
         if($collection_item_ids)
         {
             $this->index_collection_items($collection_item_ids);
@@ -44,13 +43,13 @@ class CollectionItemIndexer
                 unset($this->objects);
                 static $num_batch = 0;
                 $num_batch++;
-                echo "Looking up $num_batch of $count .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looking up $num_batch of $count .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 $this->lookup_data_objects(array('ids' => $batch));
                 $this->lookup_taxon_concepts(array('ids' => $batch));
                 $this->lookup_users(array('ids' => $batch));
                 $this->lookup_collections(array('ids' => $batch));
                 $this->lookup_communities(array('ids' => $batch));
-                echo "Looked up $num_batch of $count .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looked up $num_batch of $count .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 
                 // delete old ones
                 $queries = array();
@@ -75,13 +74,13 @@ class CollectionItemIndexer
             for($i=$start ; $i<$max_id ; $i+=$limit)
             {
                 unset($this->objects);
-                echo "Looking up $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looking up $i : $limit .. max: $max_id .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 $this->lookup_data_objects(array('start' => $i, 'limit' => $limit));
                 $this->lookup_taxon_concepts(array('start' => $i, 'limit' => $limit));
                 $this->lookup_users(array('start' => $i, 'limit' => $limit));
                 $this->lookup_collections(array('start' => $i, 'limit' => $limit));
                 $this->lookup_communities(array('start' => $i, 'limit' => $limit));
-                echo "Looked up $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Looked up $i : $limit Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 $this->solr->delete("collection_item_id:[$i TO ". ($i + $limit - 1) ."]");
                 
                 if(isset($this->objects)) $this->solr->send_attributes($this->objects);
@@ -101,7 +100,7 @@ class CollectionItemIndexer
         $map_type_ids = DataType::map_type_ids();
         $text_type_ids = DataType::text_type_ids();
         
-        echo "\nquerying lookup_data_objects\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_data_objects\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
             ci.object_id, ci.collection_id, do.object_title, do.data_type_id, do.data_rating, ttoc.label
             FROM collection_items ci
@@ -167,11 +166,11 @@ class CollectionItemIndexer
     
     function lookup_taxon_concepts($params)
     {
-        echo "\nquerying lookup_taxon_concepts\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_taxon_concepts\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
             ci.object_id, ci.collection_id, ci.name, tcm.richness_score, n.string name_string
             FROM collection_items ci
-            JOIN taxon_concept_metrics tcm ON (ci.object_id=tcm.taxon_concept_id)
+            LEFT JOIN taxon_concept_metrics tcm ON (ci.object_id=tcm.taxon_concept_id)
             LEFT JOIN
                 (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id AND tcn.preferred=1 AND tcn.vern=0)) ON (ci.object_id=tcn.taxon_concept_id)
             WHERE object_type='TaxonConcept' AND ci.id ";
@@ -198,6 +197,7 @@ class CollectionItemIndexer
             if($added_by_user_id == 'NULL') $added_by_user_id = 0;
             if($title == 'NULL') $title = $name_string;
             if($title == 'NULL') $title = 'zzz';
+            if($richness_score == 'NULL') $richness_score = 0;
             if($collection_id == 'NULL') continue;
             
             $this->objects[$collection_item_id] = array(
@@ -217,7 +217,7 @@ class CollectionItemIndexer
     
     function lookup_users($params)
     {
-        echo "\nquerying lookup_users\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_users\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
             ci.object_id, ci.collection_id, u.username
             FROM collection_items ci
@@ -260,7 +260,7 @@ class CollectionItemIndexer
     
     function lookup_communities($params)
     {
-        echo "\nquerying lookup_communities\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_communities\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
             ci.object_id, ci.collection_id, c.name
             FROM collection_items ci
@@ -303,7 +303,7 @@ class CollectionItemIndexer
     
     function lookup_collections($params)
     {
-        echo "\nquerying lookup_collections\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_collections\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
             ci.object_id, ci.collection_id, c.name
             FROM collection_items ci

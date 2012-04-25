@@ -1,0 +1,6 @@
+URL:::http://choreutidae.lifedesks.org
+UNIXTIMEUPDATED:::1274885811
+VERSION:::1.0
+CITATION:::&lt;p&gt;Rota, Jadranka. 2010. The global Choreutidae classification.&lt;/p&gt;
+DESCRIPTION:::&lt;p&gt;based on Heppner and Duckworth and new genera published since&lt;/p&gt;
+LICENSE:::by-nc-sa

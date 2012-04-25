@@ -15,13 +15,14 @@ class Name extends ActiveRecord
     
     public static function is_surrogate($string)
     {
-        $red_flag_words = array('incertae sedis', 'incertaesedis', 'culture', 'clone', 'isolate',
+        $red_flag_words = array('incertae', 'sedis', 'incertaesedis', 'culture', 'clone', 'isolate',
                                 'phage', 'sp', 'cf', 'uncultured', 'DNA', 'unclassified', 'sect',
                                 'ß', 'str', 'biovar', 'type', 'strain', 'serotype', 'hybrid',
                                 'cultivar', 'x', '×', 'pop', 'group', 'environmental', 'sample',
-                                'endosymbiont', 'a', 'b', 'c', 'd', 'species', 'complex',
+                                'endosymbiont', 'species', 'complex',
                                 'unassigned', 'n', 'gen', 'auct', 'non', 'aff');
         if(preg_match("/(^|[^\w])(". implode("|", $red_flag_words) .")([^\w]|$)/i", $string)) return true;
+        if(preg_match("/ [abcd] /i", $string)) return true;
         if(preg_match("/(_|'|\")/i", $string)) return true;
         if(preg_match("/[0-9][a-z]/i", $string)) return true;
         if(preg_match("/[a-z][0-9]/i", $string)) return true;
@@ -33,8 +34,6 @@ class Name extends ActiveRecord
         if(preg_match("/1[02345][0-9]{2}/", $string)) return true; // 1600 - 1900
         if(preg_match("/2[1-9][0-9]{2}/", $string)) return true; // 1600 - 1900
         if(preg_match("/virus([^\w]|$)/i", $string)) return true;
-        
-        
         return false;
     }
     

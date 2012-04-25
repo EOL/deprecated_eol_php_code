@@ -231,6 +231,20 @@ class HarvestEvent extends ActiveRecord
         
     }
     
+    public function add_taxon_from_harvest($parameters = array())
+    {
+        $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($taxon_parameters, $this->resource->hierarchy_id);
+        if(@!$hierarchy_entry->id) return false;
+        $this->hierarchy_entry_ids[$taxon_parameters["identifier"]] = $hierarchy_entry->id;
+        $this->resource->add_hierarchy_entry($hierarchy_entry, 'inserted');
+        
+        $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($t, $this->resource->hierarchy_id);
+        if(@!$hierarchy_entry->id) return false;
+        
+        $this->resource->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
+        
+    }
+    
     public function add_hierarchy_entry($hierarchy_entry, $status)
     {
         if(@!$hierarchy_entry->id) return false;
@@ -249,7 +263,7 @@ class HarvestEvent extends ActiveRecord
         $query = "SELECT data_object_id FROM data_objects_harvest_events WHERE harvest_event_id = $this->id";
         $data_object_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $data_object_ids[] = $row[0];
-        print_r($data_object_ids);
+        if($GLOBALS['ENV_DEBUG']) print_r($data_object_ids);
         if($data_object_ids) $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
         
         $object_indexer = new DataObjectAncestriesIndexer();
@@ -259,7 +273,7 @@ class HarvestEvent extends ActiveRecord
         JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id = $this->id";
         $taxon_concept_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $taxon_concept_ids[] = $row[0];
-        print_r($taxon_concept_ids);
+        if($GLOBALS['ENV_DEBUG']) print_r($taxon_concept_ids);
         if($taxon_concept_ids) $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
     }
     

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archive xmlns="http://rs.tdwg.org/dwc/text/" 
+	     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	     xsi:schemaLocation="http://rs.tdwg.org/dwc/text/ http://rs.tdwg.org/dwc/text/tdwg_dwc_text.xsd">
+<core encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+<files>
+<location>DarwinCore.txt</location>
+</files>
+<id index="0" term="http://rs.tdwg.org/dwc/terms/taxonID"></id>
+<field index="1" term="http://purl.org/dc/terms/source"></field>
+<field index="2" term="http://rs.tdwg.org/dwc/terms/scientificName"></field>
+<field index="3" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID"></field>
+<field index="4" term="http://rs.tdwg.org/dwc/terms/taxonRank"></field>
+<field index="5" term="http://rs.tdwg.org/dwc/terms/taxonomicStatus"></field>
+</core>
+<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/ipt/terms/1.0/VernacularName">
+<files>
+<location>VernacularName.txt</location>
+</files>
+<coreid index="0" term="http://rs.tdwg.org/dwc/terms/taxonID"></coreid>
+<field index="1" term="http://rs.tdwg.org/dwc/terms/vernacularName"></field>
+<field index="2" term="http://purl.org/dc/terms/language"></field>
+</extension>
+</archive>

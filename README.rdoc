@@ -1,29 +1,21 @@
 === Requirements
 
   PHP version 5.3.0 or later
-  PEAR extension manager for PHP
-    horde/yaml PEAR package (see Installation #5)
   ImageMagick
   Access to an installation of Apache Solr
   (recommended) An installation of the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol)
-  (optional) Memcached
+  'biodiversity' Ruby gem
 
 
 === Installation
 
 There are a few things you must do before using this code:
 
-  Install the PHP PEAR package Horde/YAML
-    first install PEAR if not aleardy installed
-      http://pear.php.net/manual/en/installation.introduction.php
-    with pear installed run these two commands (see http://railsforphp.com/2008/01/08/php-meet-yaml for more details):
-      pear channel-discover pear.horde.org
-      pear install horde/yaml 
+  Ensure you have a working web server with PHP support.
+  Ensure there is an available php.ini configuration file with desired settings.
 
   Update in /config/environment.php the constants for:
     WEB_ROOT        - eg: 'http://localhost/eol_php_code/'
-    PHP_BIN_PATH    - eg: '/usr/local/bin/php '  -----> NOTE: THE SPACE AFTER php IS IMPORTANT
-    MAGICK_HOME     - eg: '/usr/local/ImageMagick/'
 
   In /config/environment.php check the values of:
     CONTENT_PARTNER_LOCAL_PATH
@@ -32,14 +24,17 @@ There are a few things you must do before using this code:
     These are the locations where media will be downloaded to for viewing on the website
 
   Give write permission for the following directories to your web server user:
+    /log
     /temp
-    /applications/content_server/content
-    /applications/content_server/content_partners
-    /applications/content_server/resources
+    /applications/content_server/content (or changed value of CONTENT_LOCAL_PATH)
+    /applications/content_server/content_partners (or changed value of CONTENT_PARTNER_LOCAL_PATH)
+    /applications/content_server/resources (or changed value of CONTENT_RESOURCE_LOCAL_PATH)
     /applications/content_server/tmp
+    /vendor/eol_content_schema_v2/extension_cache
 
-  In same file uncomment the Memcached connection if you prefer:
-    $GLOBALS['ENV_MEMCACHED_SERVER'] = 'localhost';
+  Install the biodiversity Ruby gem:
+    you must fist have Ruby and Rubygems installed, then see https://github.com/GlobalNamesArchitecture/biodiversity
+    for installation
 
   Create other files in /config/environments/ENV_NAME.php:
     these environment files will be loaded when boot.php is included,
@@ -104,13 +99,10 @@ In order to have the website and harvesting code working together there are a fe
   $CONTENT_SERVERS = ['http://localhost']
   
   # corresponds to CONTENT_LOCAL_PATH - the path on the PHP server where media will be downloaded
-  $CONTENT_SERVER_CONTENT_PATH = "/.../content/"
+  $CONTENT_SERVER_CONTENT_PATH = "/eol_php_code/applications/content_server/content/"
   
   # corresponds to CONTENT_RESOURCE_LOCAL_PATH - the path on the PHP server where resources will be downloaded
-  $CONTENT_SERVER_RESOURCES_PATH = "/.../resources/"
-  
-  # corresponds to CONTENT_PARTNER_LOCAL_PATH - the path on the PHP server where content partner logos will be stored
-  $CONTENT_SERVER_AGENT_LOGOS_PATH = "/.../content_partners/"
+  $CONTENT_SERVER_RESOURCES_PATH = "/eol_php_code/applications/content_server/resources/"
   
   # the full URL to the PHP server to /applications/content_server/service.php which is used by the website to send uploads of content partner logos and resource XML files
   $WEB_SERVICE_BASE_URL="http://localhost/eol_php_code/applications/content_server/service.php?"

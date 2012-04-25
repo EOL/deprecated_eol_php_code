@@ -4,6 +4,7 @@ namespace php_active_record;
 if(defined('E_DEPRECATED')) error_reporting(E_ALL & ~E_DEPRECATED);
 else error_reporting(E_ALL);
 ini_set("display_errors", 1);
+$GLOBALS['ENV_DEBUG'] = false;
 
 /* forcing the test environment and turning off caching */
 $GLOBALS['ENV_NAME'] = 'test';

@@ -74,7 +74,10 @@ class MysqlDumpObfuscator
 {
     public function __construct()
     {
-        
+        $this->tables_to_ignore = array('page_names_tmp', 'taxon_concept_names_saved_again', 'taxon_concept_names_saved', 'top_images_tmp',
+            'top_unpublished_concept_images_tmp', 'top_unpublished_images_tmp', 'data_objects_taxon_concepts_tmp', 'data_types_taxon_concepts_tmp', 
+            'error_logs', 'feed_data_objects_tmp', 'hierarchy_entries_flattened_tmp', 'hierarchy_entry_stats_tmp', 'item_pages_tmp', 'random_hierarchy_images_tmp',
+            'taxon_concept_content_tmp', 'taxon_concepts_exploded_tmp', 'taxon_concepts_flattened_tmp', 'top_concept_images');
     }
     
     public function obfuscate_mysqldump($mysqldump_path, $fields_to_obfuscate, $obfuscated_path = null)
@@ -125,6 +128,7 @@ class MysqlDumpObfuscator
                     $modified_line = $arr[1] . $this->obfuscate_line_values($values, $this->current_table_fields, $fields_to_obfuscate[$this->current_table_name]) . "\n";
                 }
                 
+                if(in_array($this->current_table_name, $this->tables_to_ignore)) continue;
                 if($modified_line !== null) fwrite($OBFUSCATED, $modified_line);
                 else fwrite($OBFUSCATED, $line);
             }
@@ -133,7 +137,7 @@ class MysqlDumpObfuscator
         fclose($OBFUSCATED);
         fclose($MYSQLDUMP);
         
-        shell_exec("tar -zcf $obfuscated_path.tar.gz $obfuscated_path");
+        // shell_exec("tar -zcf $obfuscated_path.tar.gz $obfuscated_path");
     }
     
     private function obfuscate_line_values($values, $table_fields, $fields_to_obfuscate)

@@ -6,7 +6,6 @@ class test_connector_avibase_api extends SimpletestUnitBase
     function testAvibaseAPI()
     {
         $taxonomy = "ioc";
-        print "\n taxonomy: [$taxonomy]";
         $avibase = new AvibaseAPI();
         $taxa = $avibase->prepare_data($taxonomy, true);
         $all_taxa = array();

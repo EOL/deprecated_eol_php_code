@@ -1,3 +1,6 @@
 col:
     id: 1
     label: 'Species 2000 & ITIS Catalogue of Life: Annual Checklist 2009'
+contributors:
+    id: 2
+    label: 'Encyclopedia of Life Contributors'
