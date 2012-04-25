@@ -1,208 +1,89 @@
 <?php
 namespace php_active_record;
 /* connector: 257 */
+
 define("PODCAST_FEED", "http://education.eol.org/podcast/newfeed");
+define("PODCAST_DETAILS_PAGE", "http://education.eol.org/podcast/");
+
 class LearningEducationAPI
 {
     public static function get_all_taxa()
     {
-        $taxon["Dictyna"] = "Branch-tip Spiders";
-        $taxon["Cubozoa"] = "Box Jellyfish";
-        $taxon["Riftia pachyptila"] = "Riftia";
-        $taxon["Elysia chlorotica"] = "Sea Slugs";
-        $taxon["Insecta"] = "Insects of Costa Rica";
-        $taxon["Architeuthis dux"] = "Giant Squid";
-        $taxon["Ursus maritimus"] = "Polar Bears";
-        $taxon["Eichhornia crassipes"] = "Water Hyacinth";
-
-        $taxon["Pandea rubra"]           = "Red Paper Lantern Jellyfish";
-        $taxon["Jadera haematoloma"]     = "Red-Shouldered Soapberry Bug";
-        $taxon["Acroporidae"]            = "Coral";
-        $taxon["Carcharodon carcharias"] = "Great White Shark";
-        $taxon["Holothuroidea"]          = "Sea Cucumbers";
-        $taxon["Cinchona pubescens"]     = "Quinine Tree";
-        $taxon["Solenopsis invicta"]     = "E.O. Wilson";
-        $taxon["Paraponera clavata"]     = "E.O. Wilson";
-        $taxon["Xanthoparmelia plittii"] = "Lichens";
-        $taxon["Umbilicaria mammulata"]  = "Lichens";
-        $taxon["Eubalaena glacialis"]    = "Right Whale";
-        $taxon["Urocyon littoralis"]     = "Island Fox";
-
-        $taxon["Thunnus thynnus"] = "Atlantic Bluefin Tuna";
-        $taxon["Dinoflagellate"] = "Dinoflagellates";
-        $taxon["Rhizophora mangle"] = "Mangroves";
-        $taxon["Oncorhynchus tshawytscha"] = "Chinook Salmon";
-        $taxon["Amblyrhynchus cristatus"] = "Marine Iguana";
-        $taxon["Trifolium repens L."] = "Four-Leaf Clover";
-        $taxon["Rana boylii"] = "Foothill Yellow-legged Frog";
-        $taxon["Cedrus libani"] = "Lebanon Cedar";
-        $taxon["Fringilla coelebs"] = "Chaffinch and Winter Wren";
-        $taxon["Troglodytes troglodytes"] = "Chaffinch and Winter Wren";
-        $taxon["Rupicapra rupicapra"] = "Chamois";
-        $taxon["Balaena mysticetus"] = "Bowhead Whale";
-        $taxon["Anoplophora glabripennis"] = "Beetles and Moths";
-        $taxon["Nebria brevicollis"] = "Beetles and Moths";
-        $taxon["Lymantria dispar"] = "Beetles and Moths";
-        $taxon["Felis silvestris grampia"] = "Scottish Wildcat";
-        $taxon["Funisia dorothea"] = "Ediacaran Fauna Fossils";
-        $taxon["Dickinsonia"] = "Ediacaran Fauna Fossils";
+        $podcast_taxon_names = self::all_podcast_scientific_names();
+        $podcast_data_objects = self::all_podcast_data_objects();
         
-        $GLOBALS['hard_coded_taxon'] = $taxon;
-        $GLOBALS['sound_objects'] = self::prepare_sound_objects();
-        return self::get_taxa();
-    }
-
-    public static function get_taxa()
-    {
-        $used_collection_ids = array();
-        $response = self::create_taxa();//this will output the raw (but structured) output from the external service
-        $page_taxa = array();
-        foreach($response as $rec)
+        $all_taxa = array();
+        foreach($podcast_data_objects as $title => $data_object)
         {
-            if(@$used_collection_ids[$rec["sciname"]]) continue;
-            $taxon = self::get_taxa_for_photo($rec);
-            if($taxon) $page_taxa[] = $taxon;
-            $used_collection_ids[$rec["sciname"]] = true;
+            if($scientific_names = @$podcast_taxon_names[$title])
+            {
+                foreach($scientific_names as $scientific_name)
+                {
+                    $taxon_parameters = array();
+                    $taxon_parameters["scientificName"] = ucfirst(trim($scientific_name));
+                    if(preg_match("/^([^ ]+) /", $taxon_parameters["scientificName"], $arr)) $taxon_parameters["genus"] = $arr[1];
+                    $taxon_parameters["dataObjects"][] = $data_object;
+                    $all_taxa[] = new \SchemaTaxon($taxon_parameters);
+                }
+            }
         }
-        return $page_taxa;
+        return $all_taxa;
     }
-
-    function prepare_sound_objects()
+    
+    public static function all_podcast_scientific_names()
     {
-        $sounds = array();
+        $podcast_taxa = array();
+        $details_page_html = Functions::get_remote_file(PODCAST_DETAILS_PAGE);
+        if(preg_match_all("/<a href=\".*?\"><h2>(.*?)<\/h2><\/a> *?<h3 style=\"font-style:italic;margin:0 0 3px 0;\">(.*?)<\/h3>/ims", $details_page_html, $matches, PREG_SET_ORDER))
+        {
+            foreach($matches as $match)
+            {
+                $podcast_title = trim($match[1]);
+                if($podcast_title == "One Species at a Time") continue;
+                // turning commas into ands
+                $match[2] = str_replace(", ", " and ", $match[2]);
+                $match[2] = str_replace("variety", "var.", $match[2]);
+                // splitting on ands
+                $taxon_names = explode(" and ", $match[2]);
+                $podcast_taxa[$podcast_title] = $taxon_names;
+            }
+        }
+        return $podcast_taxa;
+    }
+    
+    public static function all_podcast_data_objects()
+    {
+        $podcast_data_objects = array();
         $xml = Functions::get_hashed_response(PODCAST_FEED);
         foreach($xml->channel->item as $item)
         {
+            $data_object_parameters = array();
             $item_itunes = $item->children("http://www.itunes.com/dtds/podcast-1.0.dtd");
-            $title = trim($item->title);
-
-            /* sample RSS feed
-            <item>
-                <title>Red Paper Latern Jellyfish</title>
-                <link>http://education.eol.org/podcast/red-paper-latern-jellyfish-0</link>
-                <description>&lt;p&gt;Vacuumed up from</description>
-                <enclosure url="http://education.eol.org/sites/default/files/audio_files/OSAAT_redlantern_0.mp3" length="3997603" type="audio/mpeg" />
-                <itunes:duration>5:33</itunes:duration>
-                <itunes:author />
-                <itunes:subtitle>Vacuumed up from its habi</itunes:subtitle>
-                <itunes:summary>Vacuumed up from</itunes:summary>
-                <pubDate>Thu, 21 Apr 2011 16:35:07 +0000</pubDate>
-                <guid>http://education.eol.org/sites/default/files/audio_files/OSAAT_redlantern_0.mp3</guid>
-            </item>
-            */
-
             $description = $item->description;
             if($item_itunes->duration) $description .= "<br>Duration: " . $item_itunes->duration;
             if($item->pubDate) $description .= "<br>Published: " . $item->pubDate;
-            $agent = array();
-            $agent[] = array("role" => "author", "homepage" => "http://www.eol.org", "name" => "Encyclopedia of Life");
-            $agent[] = array("role" => "project", "homepage" => "http://www.atlantic.org/", "name" => "Atlantic Public Media");
-
-            $sounds[$title][] = array("identifier"  => trim($item->guid),
-                                      "mediaURL"    => trim($item->enclosure["url"]),
-                                      "mimeType"    => trim($item->enclosure["type"]),
-                                      "dataType"    => "http://purl.org/dc/dcmitype/Sound",
-                                      "description" => $description,
-                                      "title"       => trim($item->title),
-                                      "location"    => "",
-                                      "dc_source"   => trim($item->link),
-                                      "agent"       => $agent);
-        }
-        return $sounds;
-    }
-
-    function create_taxa()
-    {
-        $hard_coded_taxon = $GLOBALS['hard_coded_taxon'];
-        $taxa = array();
-        foreach($hard_coded_taxon as $taxon => $title)
-        {
-            $title = trim($title);
-            $taxa[] = array("id"        => "",
-                            "kingdom"   => "",
-                            "phylum"    => "",
-                            "class"     => "",
-                            "order"     => "",
-                            "family"    => "",
-                            "sciname"   => $taxon,
-                            "dc_source" => "",
-                            "do_sounds" => @$GLOBALS['sound_objects'][$title]
-                           );
-        }
-        return $taxa;
-    }
-
-    function get_sciname($string)
-    {
-        $pos = strripos($string,'-');
-        if(is_numeric($pos)) return trim(substr($string, $pos + 1, strlen($string)));
-        else return trim($string);
-    }
-
-    public static function get_taxa_for_photo($rec)
-    {
-        $taxon = array();
-        $taxon["commonNames"] = array();
-        $license = null;
-        $taxon["identifier"] = "";
-        $taxon["source"] = $rec["dc_source"];
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        $taxon["kingdom"] = ucfirst(trim($rec["kingdom"]));
-        $taxon["phylum"] = ucfirst(trim($rec["phylum"]));
-        $taxon["class"] = ucfirst(trim($rec["class"]));
-        $taxon["order"] = ucfirst(trim($rec["order"]));
-        $taxon["family"] = ucfirst(trim($rec["family"]));
-        if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", ucfirst(trim($rec["sciname"])), $match)) $taxon["genus"] = $match[1];
-        $sounds = $rec["do_sounds"];
-        if($sounds)
-        {
-            foreach($sounds as $sound)
-            {
-                $data_object = self::get_data_object($sound);
-                if(!$data_object) return false;
-                $taxon["dataObjects"][] = new \SchemaDataObject($data_object);
-            }
-        }
-        $taxon_object = new \SchemaTaxon($taxon);
-        return $taxon_object;
-    }
-
-    public static function get_data_object($rec)
-    {
-        $data_object_parameters = array();
-        $data_object_parameters["identifier"] = $rec["identifier"];
-        $data_object_parameters["source"] = $rec["dc_source"];
-        $data_object_parameters["dataType"] = $rec["dataType"];
-        $data_object_parameters["mimeType"] = @$rec["mimeType"];
-        $data_object_parameters["mediaURL"] = @$rec["mediaURL"];
-        $data_object_parameters["rights"] = "";
-        $data_object_parameters["rightsHolder"] = "Encyclopedia of Life";
-        $data_object_parameters["title"] = @$rec["title"];
-        $data_object_parameters["description"] = $rec["description"];
-        $data_object_parameters["location"] = $rec["location"];
-        $data_object_parameters["license"] = 'http://creativecommons.org/licenses/by-nc/3.0/';
-        if(@$rec["subject"])
-        {
-            $data_object_parameters["subjects"] = array();
-            $subjectParameters = array();
-            $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
-        }
-        if(@$rec["agent"])
-        {
+            
+            $title = trim($item->title);
+            $data_object_parameters["identifier"] = trim($item->guid);
+            $data_object_parameters["source"] = trim($item->link);
+            $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/Sound";
+            $data_object_parameters["mimeType"] = trim($item->enclosure["type"]);
+            $data_object_parameters["mediaURL"] = trim($item->enclosure["url"]);
+            $data_object_parameters["rightsHolder"] = "Encyclopedia of Life";
+            $data_object_parameters["title"] = trim($item->title);
+            $data_object_parameters["description"] = $description;
+            $data_object_parameters["license"] = 'http://creativecommons.org/licenses/by-nc/3.0/';
+            
+            // add agents
             $agents = array();
-            foreach($rec["agent"] as $a)
-            {
-                $agentParameters = array();
-                $agentParameters["role"]     = $a["role"];
-                $agentParameters["homepage"] = $a["homepage"];
-                $agentParameters["logoURL"]  = "";
-                $agentParameters["fullName"] = $a["name"];
-                $agents[] = new \SchemaAgent($agentParameters);
-            }
+            $agents[] = new \SchemaAgent(array("role" => "author", "homepage" => "http://www.eol.org", "fullName" => "Encyclopedia of Life"));
+            $agents[] = new \SchemaAgent(array("role" => "project", "homepage" => "http://www.atlantic.org/", "fullName" => "Atlantic Public Media"));
             $data_object_parameters["agents"] = $agents;
+            
+            // create object
+            $podcast_data_objects[$title] = new \SchemaDataObject($data_object_parameters);
         }
-        return $data_object_parameters;
+        return $podcast_data_objects;
     }
 }
 ?>
