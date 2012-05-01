@@ -2,63 +2,106 @@
 namespace php_active_record;
 /* connectors: [353, 354, 355]  */
 define("AVIBASE_SOURCE_URL", "http://avibase.bsc-eoc.org/species.jsp?avibaseid=");
+define("AVIBASE_SERVICE_URL", "http://avibase.bsc-eoc.org/checklist.jsp?");
+
 class AvibaseAPI
 {
-    public function __construct()
+    public function __construct($resource_id, $checklist_name, $for_testing = false)
     {
-        $this->ancestry = array("kingdom" => "Animalia", "phylum" => "Chordata", "class" => "Aves");
-        $this->family_list = self::generate_family_list();
-        $this->checklists = array("sibleymonroe", //Sibley &amp; Monroe 1996
-                                  "howardmoore",  //Howard &amp; Moore 3rd edition (corrigenda 8)
-                                  "clements5",    //Clements 5th edition (updated 2005)
-                                  "clements",     //Clements 6th edition (updated 2011)
-                                  "cinfo",        //Commission internationale pour les noms français d'oiseaux (CINFO 1993, rev. 2009)
-                                  "ioc",          //IOC World Bird Names (2011)
-                                  "ebird",        //eBird 1.05 (2010)
-                                  "hbw",          //Handbooks of the Birds of the World
-                                  "aou"           //American Ornithologist Union 7th edition (including 51st suppl.)
-                                 );
-        $this->TEMP_FILE_PATH = DOC_ROOT . "/update_resources/connectors/files/Avibase/";
-        $this->languages = self::generate_language_list(); // for common names
+        $this->resource_id = $resource_id;
+        $this->checklist_name = $checklist_name;
+        $this->for_testing = $for_testing;
+        // "sibleymonroe", //Sibley &amp; Monroe 1996
+        // "howardmoore",  //Howard &amp; Moore 3rd edition (corrigenda 8)
+        // "clements5",    //Clements 5th edition (updated 2005)
+        // "clements",     //Clements 6th edition (updated 2011)
+        // "cinfo",        //Commission internationale pour les noms français d'oiseaux (CINFO 1993, rev. 2009)
+        // "ioc",          //IOC World Bird Names (2011)
+        // "ebird",        //eBird 1.05 (2010)
+        // "hbw",          //Handbooks of the Birds of the World
+        // "aou"           //American Ornithologist Union 7th edition (including 51st suppl.)
     }
 
-    function get_all_taxa($resource_id, $taxonomy)
+    function get_all_taxa()
     {
-        $taxa = self::prepare_data($taxonomy);
-        $taxa = self::get_names($taxa);
-        $all_taxa = array();
-        $i = 0;
-        $total = count($taxa);
-        foreach($taxa as $key => $value)
+        // Get the complete list of names for each geographic region in the current checklist
+        $this->prepare_list_of_family_taxa();
+        
+        // Get all the common names and synonyms from screen scraping the taxon pages
+        $this->prepare_common_names_and_synonymy();
+        
+        // start to create the resource
+        return $this->prepare_resource();
+    }
+    
+    function prepare_resource()
+    {
+        $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id ."_temp.xml", "w+");
+        fwrite($resource_file, \SchemaDocument::xml_header());
+        
+        $language_iso_codes = self::language_iso_codes();
+        $avibaseids_added = array();
+        foreach($this->names_in_families as $taxon_name => $metadata)
         {
-            $i++; 
-            $taxon_record["taxon"] = array( "sciname" => $key, 
-                                            "family"  => $value["family"], 
-                                            "kingdom" => $this->ancestry["kingdom"],
-                                            "phylum"  => $this->ancestry["phylum"],
-                                            "class"   => $this->ancestry["class"],
-                                            "order"   => $this->family_list[$taxonomy][$value["family"]],
-                                            "id"      => $value["id"]);
-            $taxon_record["common_names"] = @$value['common_names'];
-            $taxon_record["references"] = array();
-            $taxon_record["synonyms"] = @$value['synonyms'];
-            $taxon_record["dataobjects"] = array();
-            $arr = self::get_avibase_taxa($taxon_record);
-            $page_taxa = $arr[0];
-            if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
-            unset($page_taxa);
+            $taxon_parameters = array();
+            $taxon_parameters['identifier'] = $metadata['avibaseid'];
+            if(isset($avibaseids_added[$metadata['avibaseid']])) continue;
+            $avibaseids_added[$metadata['avibaseid']] = 1;
+            $taxon_parameters['kingdom'] = "Animalia";
+            $taxon_parameters['phylum'] = "Chordata";
+            $taxon_parameters['class'] = "Aves";
+            $taxon_parameters['order'] = @$this->family_orders[$metadata['family']];
+            $taxon_parameters['family'] = @$metadata['family'];
+            $taxon_parameters['scientificName'] = $metadata['taxon_name'];
+            if(preg_match("/^([a-z][^ ]+) /i", $metadata['taxon_name'], $arr))
+            {
+                $taxon_parameters['genus'] = $arr[1];
+            }
+            if(!$taxon_parameters['scientificName']) continue;
+            
+            $taxon_parameters['common_names'] = array();
+            if(isset($metadata['common_names']))
+            {
+                foreach($metadata['common_names'] as $language => $common_names)
+                {
+                    if($language_iso_code = @$language_iso_codes[$language])
+                    {
+                        foreach($common_names as $common_name => $value)
+                        {
+                            $taxon_parameters['commonNames'][] = new \SchemaCommonName(array("name" => $common_name, "language" => $language_iso_code));
+                        }
+                    }else {} // echo "No iso code for: $language\n";
+                }
+            }
+            
+            $taxon_parameters['synonyms'] = array();
+            if(isset($metadata['synonyms']))
+            {
+                foreach($metadata['synonyms'] as $synonym => $value)
+                {
+                    if($synonym == $metadata['taxon_name']) continue;
+                    $taxon_parameters['synonyms'][] = new \SchemaSynonym(array("synonym" => $synonym, "relationship" => 'synonym'));
+                }
+            }
+            
+            $taxon = new \SchemaTaxon($taxon_parameters);
+            fwrite($resource_file, $taxon->__toXML());
         }
-        $xml = \SchemaDocument::get_taxon_xml($all_taxa);
-        $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        $OUT = fopen($resource_path, "w");
-        fwrite($OUT, $xml);
-        fclose($OUT);
+        
+        fwrite($resource_file, \SchemaDocument::xml_footer());
+        fclose($resource_file);
+        
+        // cache the previous version and make this new version the current version
+        @unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_previous.xml");
+        @rename(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_previous.xml");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . ".xml");
+        
+        // returning the last taxon
+        return $taxon;
     }
 
-    function prepare_data($taxonomy, $for_testing = false)
+    function prepare_list_of_family_taxa()
     {
-        if($taxonomy == "avibase") $checklists = $this->checklists;
-        else                       $checklists = array($taxonomy);
         $regions = array(
         'nam', // north america
         'cam', // central america
@@ -76,228 +119,170 @@ class AvibaseAPI
         'wpa'  // western palearctic
         );
         
-        // $regions = array('nam'); //debug
+        if($this->for_testing) $regions = array('nam'); //debug
         
-        if($for_testing) $regions = array('cam');
-        $service_url = 'http://avibase.bsc-eoc.org/checklist.jsp?';
-        $taxa = array();
-        foreach($checklists as $checklist)
+        
+        $this->names_in_families = array();
+        $this->family_orders = array();
+        foreach($regions as $region)
         {
-            foreach($regions as $region)
+            $url = AVIBASE_SERVICE_URL . '&region=' . $region . '&list=' . $this->checklist_name;
+            if($GLOBALS['ENV_DEBUG']) echo "$url\n";
+            self::get_taxa_from_html($url);
+        }
+    }
+    
+    function prepare_common_names_and_synonymy()
+    {
+        static $i = 0;
+        $start_time = time_elapsed();
+        $taxa_count = count($this->names_in_families);
+        
+        foreach($this->names_in_families as $taxon_name => $metadata)
+        {
+            if($GLOBALS['ENV_DEBUG']) echo $metadata['avibaseid'] ."\n";
+            $taxon_page_html = self::lookup_with_cache($metadata['avibaseid']);
+            $common_names_and_synonyms = self::scrape_common_names_and_synonyms($taxon_page_html);
+            
+            // Synonyms are stored in the Common Names list with language Latin
+            if($synonyms = @$common_names_and_synonyms['Latin'])
             {
-                $url = $service_url . '&region=' . $region . '&list=' . $checklist;
-                // print "\n $url";
-                $taxa = self::get_taxa_from_html($url, $taxa, $taxonomy);
+                $this->names_in_families[$taxon_name]['synonyms'] = $synonyms;
+                unset($common_names_and_synonyms['Latin']);
+            }
+            
+            if($common_names_and_synonyms)
+            {
+                $this->names_in_families[$taxon_name]['common_names'] = $common_names_and_synonyms;
+            }
+            
+            // Set the order of this taxon's family if we don't know it already
+            if(@!$this->family_orders[$metadata['family']])
+            {
+                $this->family_orders[$metadata['family']] = self::scrape_order_from_taxon_page($taxon_page_html);
+            }
+            
+            $i++;
+            // if($i > 100) break;
+            if($i % 100 == 0 && $GLOBALS['ENV_DEBUG'])
+            {
+                $estimated_total_time = (((time_elapsed() - $start_time) / $i) * count($taxa_count));
+                echo "Time spent ($i records) ". time_elapsed() ."\n";
+                echo "Estimated total seconds : $estimated_total_time\n";
+                echo "Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n";
+                echo "Memory : ". memory_get_usage() ."\n";
             }
         }
-        // print"\n total: " . count($taxa) . "\n";
-        return $taxa;
     }
 
-    function get_taxa_from_html($url, $taxa, $taxonomy)
+    function get_taxa_from_html($url)
     {
-        $names = array();
-        $ids = array();
         $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 999999);
-        $html = str_ireplace('<tr valign="bottom">', 'xxx<tr valign="bottom">', $html);
-        $html = str_ireplace('<tr valign=bottom>', 'xxx<tr valign="bottom">', $html);
+        $parts = explode("<tr valign=bottom>", $html);
+        // the first block doesn't contain name information so remove it
+        array_shift($parts);
         
-        // a way to get the last family block
-        $html = str_ireplace('</tbody></table>', 'xxx</tbody></table>', $html);
-        $html = str_ireplace('</table>', 'xxx</table>', $html);
-        
-        if(preg_match_all("/<tr valign=\"bottom\">(.*?)xxx/ims", $html, $matches))
+        // each block corresponds to a Family and its species
+        foreach($parts as $html_block)
         {
-            $html_family_block = $matches[1];
-            $i = 0;
-            foreach($html_family_block as $block)
+            // the last block will also have the tail end of the HTML which we also don't need
+            if(preg_match("/^(.*?)<\/table>/ims", $html_block, $arr)) $html_block = $arr[1];
+            
+            // pull out the family
+            if(preg_match("/<b>(.*?)<\/b>/ims", $html_block, $arr)) $family = trim($arr[1]);
+            else continue;
+            
+            // sometimes the Family is really => ORDER: Family
+            // Families can be Incertae Sedis, Genera Incertae Sedis, Genus Incertae Sedis, ...
+            if(preg_match("/^([a-z]+): (.+)$/ims", $family, $arr))
             {
-                $family = self::get_family($block);
-                /* If processing just a single taxonomy e.g. IOC World Bird Names (2011) - (ioc),
-                   many taxonomies list the Order in the Family row e.g. GAVIIFORMES: Gaviidae. 
-                   If that's the case use that Order and not the Order in the taxon detail page.
-                   If processing for the entire Avibase taxa, always go to the taxon detail page to get the Order
-                */
-                $orig_family = $family;
-                $order_family = explode(":", $family);
-                $order = "";
-                if($taxonomy == "avibase")
+                $family = ucfirst(strtolower($arr[2]));
+                $this->family_orders[$family] = ucfirst(strtolower($arr[1]));
+            }
+            
+            if(preg_match_all("/<tr><td>(.*?)<\/td><td><a href=\"species.jsp\?avibaseid=(.*?)\">(.*?)<\/a><\/td><td>(.*?)<\/td><\/tr>/ims", $html_block, $matches, PREG_SET_ORDER))
+            {
+                foreach($matches as $match)
                 {
-                    if(count($order_family) == 2) $family = trim($order_family[1]); // e.g. GAVIIFORMES: Gaviidae
-                    //to get Order, we need a taxon id
-                    if(preg_match("/avibaseid=(.*?)\">/ims", $block, $matches)) $avibaseid = $matches[1];
-                    if(@$this->family_list[$taxonomy][$family] == "") 
+                    $common_name = trim($match[1]);
+                    $avibaseid = trim($match[2]);
+                    $taxon_name = trim($match[3]);
+                    $conservation_status = trim($match[4]);
+                    if(preg_match("/<i>(.*?)<\/i>/ims", $taxon_name, $arr)) $taxon_name = trim($arr[1]);
+                    
+                    if($metadata = @$this->names_in_families[$taxon_name])
                     {
-                        $order = self::get_order($avibaseid);
-                        $this->family_list[$taxonomy][$family] = $order;
-                        print "\naa[$taxonomy][$family] = [[$order]]";
-                    }
-                }
-                else
-                {
-                    if(count($order_family) == 2) // e.g. GAVIIFORMES: Gaviidae
-                    {
-                        $order = ucfirst(strtolower($order_family[0]));
-                        $family = trim($order_family[1]);
-                        $this->family_list[$taxonomy][$family] = $order;
-                    }
-                    elseif(count($order_family) == 1)
-                    {
-                        //to get Order, we need a taxon id
-                        if(preg_match("/avibaseid=(.*?)\">/ims", $block, $matches)) $avibaseid = $matches[1];
-                        if(@$this->family_list[$taxonomy][$family] == "") 
+                        // this means that in one regional checklist they place this taxon in a different family
+                        if($metadata['family'] != $family)
                         {
-                            $order = self::get_order($avibaseid);
-                            print "\nbb [$family] = [[$order]]";
-                            $this->family_list[$taxonomy][$family] = $order;
+                            echo "Family Conflict with $taxon_name\n";
+                            continue;
+                        }
+                        
+                        // this means that in one regional checklist they use a different URL for the taxon
+                        if($metadata['avibaseid'] != $avibaseid)
+                        {
+                            echo "ID Conflict with $taxon_name\n";
+                            continue;
                         }
                     }
+                    
+                    $this->names_in_families[$taxon_name] = array(
+                        'taxon_name' => $taxon_name,
+                        'family' => $family,
+                        'common_name' => $common_name,
+                        'avibaseid' => $avibaseid,
+                        'conservation_status' => $conservation_status);
                 }
-                $taxa = self::get_taxa($taxa, $family, $block);
-                $i++;
-                //if($i == 2) break; //debug
             }
+            if($this->for_testing) break;
         }
-        return $taxa;
     }
 
-    function get_order($avibaseid)
+    public static function scrape_order_from_taxon_page($taxon_page_html)
     {
-        $url = AVIBASE_SOURCE_URL . $avibaseid;
-        $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 999999);
-        /* <b>Order:</b><br> &nbsp;&nbsp;Passeriformes<br> */
-        if(preg_match("/<b>Order:<\/b><br>(.*?)<br>/ims", $html, $matches)) 
+        if(preg_match("/<b>Order:<\/b><br>(.*?)<br>/ims", $taxon_page_html, $arr))
         {
-            $html = trim($matches[1]);
-            return str_ireplace("&nbsp;", "", $html);
+            $order = $arr[1];
+            $order = trim(str_ireplace("&nbsp;", "", $order));
+            return $order;
         }
-        return "";
     }
 
-    function get_family($html)
+    public static function scrape_common_names_and_synonyms($taxon_page_html)
     {
-        if(preg_match("/<b>(.*?)<\/b>/ims", $html, $matches)) return $matches[1];
-        return "";
-    }
-    
-    function get_taxa($taxa, $family, $html)
-    {
-        $names = array();
-        $ids = array();
-        if(preg_match_all("/<i>(.*?)<\/i>/ims", $html, $matches)) $names = $matches[1];
-        if(preg_match_all("/avibaseid=(.*?)\">/ims", $html, $matches)) $ids = $matches[1];
-        if(count($names) == count($ids))
+        $common_names_and_synonyms = array();
+        if(preg_match("/<b>Other synonyms<\/b>(.*?)<\/table>/ims", $taxon_page_html, $arr))
         {
-            $i = 0;
-            foreach($names as $name)
+            $common_names_html = $arr[1];
+            $langauge_names_html = explode("<br>", $common_names_html);
+            // remove first item from array
+            array_shift($langauge_names_html);
+            foreach($langauge_names_html as $html_block)
             {
-                $taxa[$name] = array("id" => $ids[$i], "family" => $family);
-                $i++;
-            }
-        }
-        return $taxa;
-    }
-
-    function get_names($taxa)
-    {
-        print "\n\nstart getting synonyms and common names...";
-        $i = 0;
-        $total = count($taxa);
-        foreach($taxa as $taxon => $value)
-        {
-            $i++;
-            //if(!in_array($taxon, array('Ortalis vetula', 'Ortalis ruficauda', 'Ortalis poliocephala'))) continue; //debug for synonyms
-            //if(!in_array($taxon, array('Numida meleagris'))) continue; //debug for common names
-            print "\n $i of $total $taxon";
-            if(isset($taxa[$taxon]['synonyms'])) continue;
-            $url = AVIBASE_SOURCE_URL . $value['id'];
-            $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 999999);
-            $taxa[$taxon]['common_names'] = self::scrape_common_names($html, $taxon);
-            $taxa[$taxon]['synonyms'] = self::scrape_synonyms($html, $taxon);
-        }
-        return $taxa;
-    }
-
-    function scrape_common_names($html)
-    {
-        $common_names = array();
-        if(preg_match("/<b>Other synonyms<\/b>(.*?)<\/table>/ims", $html, $match))
-        {
-            $html = $match[1] . "<br>";
-            $html = str_ireplace("<br><b>" , "&rows[]=", $html);
-            $rows = array();
-            parse_str($html);
-            foreach($rows as $rec)
-            {
-                $rec = strip_tags($rec);
-                if($rec = explode(":", $rec))
+                // trim last item in array
+                if(preg_match("/^(.*)<\/font>/", $html_block)) $html_block = $arr[1];
+                if(preg_match("/^<b>(.*): <\/b>(.*)$/", trim($html_block), $arr))
                 {
-                    $lang = trim($rec[0]);
-                    $names = explode(",", $rec[1]);
-                    foreach($names as $name) 
+                    $language = trim($arr[1]);
+                    $common_names = explode(",", trim($arr[2]));
+                    foreach($common_names as &$cn)
                     {
-                        if($lang != 'Latin') $common_names[] = array("name" => trim($name), "language" => $this->languages[$lang]);
+                        $common_names_and_synonyms[$language][trim($cn)] = 1;
                     }
                 }
             }
-            if(preg_match_all("/<br><b>(.*?)<br>/ims", $html, $matches)){}
         }
-        return $common_names;
+        return $common_names_and_synonyms;
     }
 
-    function scrape_synonyms($html, $taxon)
-    {
-        $synonyms = array();
-        if(preg_match("/Latin\:(.*?)<br>/ims", $html, $match))
-        {
-            $html = trim(strip_tags(trim($match[1])));
-            $names = explode(",", $html);
-            foreach($names as $name)
-            {
-                $name = trim($name);
-                if($taxon != $name) $synonyms[] = array("synonym" => $name, "relationship" => 'synonym');
-            } 
-        }
-        return $synonyms;
-    }
-
-    public static function get_avibase_taxa($taxon_record)
-    {
-        $response = self::parse_xml($taxon_record);//this will output the raw (but structured) array
-        $page_taxa = array();
-        foreach($response as $rec)
-        {
-            $taxon = Functions::prepare_taxon_params($rec);
-            if($taxon) $page_taxa[] = $taxon;
-        }
-        return array($page_taxa);
-    }
-
-    private function parse_xml($taxon_record)
-    {
-        $arr_data = array();
-        $arr_data[] = array("identifier"   => $taxon_record['taxon']['id'],
-                            "source"       => AVIBASE_SOURCE_URL . $taxon_record['taxon']['id'],
-                            "kingdom"      => $taxon_record['taxon']['kingdom'],
-                            "phylum"       => $taxon_record['taxon']['phylum'],
-                            "class"        => $taxon_record['taxon']['class'],
-                            "order"        => $taxon_record['taxon']['order'],
-                            "family"       => $taxon_record['taxon']['family'],
-                            "genus"        => "",
-                            "sciname"      => $taxon_record['taxon']['sciname'],
-                            "reference"    => array(),
-                            "synonyms"     => $taxon_record['synonyms'],
-                            "commonNames"  => $taxon_record['common_names'],
-                            "data_objects" => array()
-                           );
-        return $arr_data;
-    }
-    
-    function generate_language_list()
+    public static function language_iso_codes()
     {
         //http://www.loc.gov/standards/iso639-2/php/code_list.php
         //http://www.rssboard.org/rss-language-codes
-        $lang = array();
+        
+        static $lang = array();
+        if($lang) return $lang;
         $lang['Czech'] = 'cs';
         $lang['German'] = 'de';
         $lang['French'] = 'fr';
@@ -315,13 +300,13 @@ class AvibaseAPI
         $lang['Polish'] = 'pl';
         $lang['Portuguese (Brazil)'] = 'pt-br';
         $lang['Portuguese'] = 'pt-pt';
-        $lang['Estonian'] = 'et';        
+        $lang['Estonian'] = 'et';
         $lang['Slovak'] = 'sk';
         $lang['Chinese'] = 'cn';
         $lang['Finnish'] = 'fi';
         $lang['Italian'] = 'it';
         $lang['Japanese'] = 'ja';
-        $lang['Mayan languages'] = 'myn';
+        // $lang['Mayan languages'] = 'myn';
         $lang['Norwegian'] = 'no';
         $lang['Russian'] = 'ru';
         $lang['Swedish'] = 'sv';
@@ -333,7 +318,7 @@ class AvibaseAPI
         $lang['Spanish (Dominican Rep.)'] = 'es-do';
         $lang['Basque'] = 'eu';
         $lang['Faroese'] = 'fo';
-        $lang['Friulian'] = 'fur';
+        // $lang['Friulian'] = 'fur';
         $lang['Irish'] = 'ga';
         $lang['Haitian Creole French'] = 'ht';
         $lang['Croatian'] = 'hr';
@@ -344,7 +329,7 @@ class AvibaseAPI
         $lang['Maltese'] = 'mt';
         $lang['Occitan'] = 'oc';
         $lang['Romanian'] = 'ro';
-        $lang['Romany'] = 'rom';
+        // $lang['Romany'] = 'rom';
         $lang['Ojibwa'] = 'oj';
         $lang['Gaelic'] = 'gd';
         $lang['Galician'] = 'gl';
@@ -353,7 +338,7 @@ class AvibaseAPI
         $lang['Kazakh'] = 'kk';
         $lang['Greenlandic'] = 'kl';
         $lang['Mongolian'] = 'mn';
-        $lang['Tuvinian'] = 'tyv';
+        // $lang['Tuvinian'] = 'tyv';
         $lang['Araucanian'] = '';
         $lang['Mapundungun'] = '';
         $lang['Azerbaijani'] = 'az';
@@ -363,13 +348,13 @@ class AvibaseAPI
         $lang['Kirghiz'] = 'ky';
         $lang['Spanish (Bolivia)'] = 'es-bo';
         $lang['Modenese'] = '';
-        $lang['Creoles and Pidgins, French-based (Other)'] = 'cpf';
-        $lang['Karelian'] = 'krl';
+        // $lang['Creoles and Pidgins, French-based (Other)'] = 'cpf';
+        // $lang['Karelian'] = 'krl';
         $lang['Maori'] = 'mi';
         $lang['Rennell'] = '';
         $lang['Rotokas'] = '';
         $lang['Naasioi'] = '';
-        $lang['Tai'] = 'tai';
+        // $lang['Tai'] = 'tai';
         $lang['Aymara'] = 'ay';
         $lang['Reggiano'] = '';
         $lang['Somali'] = '';
@@ -377,18 +362,18 @@ class AvibaseAPI
         $lang['Aragonese'] = 'an';
         $lang['Corsican'] = 'co';
         $lang['Kurmanji'] = '';
-        $lang['Sicilian'] = 'scn';
-        $lang['Karachay-Balkar'] = 'krc';
+        // $lang['Sicilian'] = 'scn';
+        // $lang['Karachay-Balkar'] = 'krc';
         $lang['Napoletano-calabrese'] = '';
         $lang['Aymara'] = 'ay';
-        $lang['Sicilian'] = 'scn';
+        // $lang['Sicilian'] = 'scn';
         $lang['Biellese'] = '';
         $lang['Piemontese'] = '';
         $lang['Kanuri'] = 'kr';
         $lang['Ossetian'] = 'os';
         $lang['Walloon'] = 'wa';
         $lang['Lombard'] = '';
-        $lang['Delaware'] = 'del';
+        // $lang['Delaware'] = 'del';
         $lang['Bolognese'] = '';
         $lang['Amharic'] = 'am';
         $lang['Mamasa'] = '';
@@ -398,22 +383,22 @@ class AvibaseAPI
         $lang['Napulitano'] = '';
         $lang['Paduan'] = '';
         $lang['Ligurian'] = '';
-        $lang['Moksha'] = 'mdf';
+        // $lang['Moksha'] = 'mdf';
         $lang['Flemish'] = 'nl';
         $lang['Quechua'] = 'qu';
         $lang['Tamil'] = 'ta';
         $lang['Tatar'] = 'tt';
         $lang['Venetian'] = '';
         $lang['Wolof'] = 'wo';
-        $lang['Kalmyk'] = 'xal';
+        // $lang['Kalmyk'] = 'xal';
         $lang['Tamil'] = 'ta';
         $lang['Thai'] = 'th';
         $lang['Vietnamese'] = 'vi';
-        $lang['Cebuano'] = 'ceb';
-        $lang['Hawaiian'] = 'haw';
+        // $lang['Cebuano'] = 'ceb';
+        // $lang['Hawaiian'] = 'haw';
         $lang['Indonesian'] = 'id';
         $lang['Malay'] = 'ms';
-        $lang['Palauan'] = 'pau';
+        // $lang['Palauan'] = 'pau';
         $lang['Spanish (Paraguay)'] = 'es-py';
         $lang['Spanish (Uruguay)'] = 'es-uy';
         $lang['Guarani'] = 'gn';
@@ -427,7 +412,7 @@ class AvibaseAPI
         $lang['Hindi'] = 'hi';
         $lang['Brescian'] = '';
         $lang['Georgian'] = '';
-        $lang['Ladin'] = 'lad';
+        // $lang['Ladin'] = 'lad';
         $lang['Marathi'] = 'mr';
         $lang['Punjabi'] = 'pa';
         $lang['Sanskrit'] = 'sa';
@@ -435,7 +420,7 @@ class AvibaseAPI
         $lang['Catalan (Balears)'] = 'ca';
         $lang['Armenian'] = 'hy';
         $lang['Georgian'] = 'ka';
-        $lang['Asturian'] = 'ast';
+        // $lang['Asturian'] = 'ast';
         $lang['Chuvash'] = 'cv';
         $lang['Georgian'] = 'ka';
         $lang['Kashmiri'] = 'ks';
@@ -448,8 +433,8 @@ class AvibaseAPI
         $lang['Turkmen'] = 'tk';
         $lang['Turkish'] = 'tr';
         $lang['Ukrainian'] = 'uk';
-        $lang['Sorbian, Upper'] = 'hsb';
-        $lang['Sorbian, Lower'] = 'dsb';
+        // $lang['Sorbian, Upper'] = 'hsb';
+        // $lang['Sorbian, Lower'] = 'dsb';
         $lang['Belarusian'] = 'be';
         $lang['Breton'] = 'br';
         $lang['Danish'] = 'da';
@@ -461,13 +446,13 @@ class AvibaseAPI
         $lang['Hebrew'] = 'he';
         $lang['Hungarian'] = 'hu';
         $lang['Kwangali'] = '';
-        $lang['Ladino'] = 'lad';
+        // $lang['Ladino'] = 'lad';
         $lang['Latvian'] = 'lv';
         $lang['Macedonian'] = 'mk';
-        $lang['Sotho, Northern'] = 'nso';
+        // $lang['Sotho, Northern'] = 'nso';
         $lang['Sotho, Southern'] = 'st';
         $lang['Romansh'] = 'rm';
-        $lang['Scots'] = 'sco';
+        // $lang['Scots'] = 'sco';
         $lang['Shona'] = 'sn';
         $lang['Serbian'] = 'sr';
         $lang['Swahili'] = 'sw';
@@ -475,293 +460,36 @@ class AvibaseAPI
         $lang['Tsonga'] = 'ts';
         $lang['Xhosa'] = 'xh';
         $lang['Zulu'] = 'zu';
+        
+        $lang['Spanish (Cuba)'] = 'es-cu';
+        // $lang['Khakas'] = 'kjh';
+        // $lang['Kwangali'] = 'kwn';
+        // $lang['Guadeloupean Creole French'] = 'gcf';
+        // $lang['Venetian'] = 'vec';
+        // $lang['Emiliano-romagnolo'] = 'eml';
+        $lang['Siswant'] = 'ss';
+        // $lang['Araucanian'] = 'arn';
+        // $lang['Shor'] = 'cjs';
+        $lang['Uzbek'] = 'uz';
+        // $lang['Paduan'] = 'vec';
         return $lang;
     }
-
-    function generate_family_list()
+    
+    private function lookup_with_cache($avibaseid)
     {
-        // as of 20-Feb-2012
-        $family["avibase"]["Dendrocygnidae"] = "Anseriformes";
-        $family["avibase"]["Cerylidae"] = "Coraciiformes";
-        $family["avibase"]["Coccyzidae"] = "Cuculiformes";
-        $family["avibase"]["Crotophagidae"] = "Cuculiformes";
-        $family["avibase"]["Neomorphidae"] = "Cuculiformes";
-        $family["avibase"]["Cacatuidae"] = "Psittaciformes";
-        $family["avibase"]["Pteroclidae"] = "Pteroclidiformes";
-        $family["avibase"]["Incertae sedis (sapayoa)"] = "Passeriformes";
-        $family["avibase"]["Pluvianellidae"] = "Charadriiformes";
-        $family["avibase"]["Priniidae"] = "Passeriformes";
-        $family["avibase"]["Halcyonidae"] = "Coraciiformes";
-        $family["avibase"]["Hypocoliidae"] = "Passeriformes";
-        $family["avibase"]["Lybiidae"] = "Piciformes";
-        $family["avibase"]["Rhinopomastidae"] = "Upupiformes";
-        $family["avibase"]["Centropodidae"] = "Cuculiformes";
-        $family["avibase"]["Sagittariidae"] = "Falconiformes";
-        $family["avibase"]["Megalaimidae"] = "Piciformes";
-        $family["avibase"]["Nyctyornithidae"] = "Coraciiformes";
-        $family["avibase"]["Batrachostomidae"] = "Caprimulgiformes";
-        $family["avibase"]["Eurostopodidae"] = "Caprimulgiformes";
-        $family["avibase"]["Melanocharitidae"] = "Passeriformes";
-        $family["avibase"]["Turnagridae"] = "Passeriformes";
-        $family["avibase"]["Callaeatidae"] = "Passeriformes";
-        $family["avibase"]["Pandionidae"] = "Falconiformes";
-        $family["avibase"]["Meleagrididae"] = "Galliformes";
-        $family["avibase"]["Tetraonidae"] = "Galliformes";
-        $family["avibase"]["Sternidae"] = "Charadriiformes";
-        $family["avibase"]["Rynchopidae"] = "Charadriiformes";
-        $family["avibase"]["Capitonidae"] = "Piciformes";
-        $family["avibase"]["Ptilogonatidae"] = "Passeriformes";
-        $family["avibase"]["Drepanididae"] = "Passeriformes";
-        $family["avibase"]["Chionididae"] = "Charadriiformes";
-        $family["avibase"]["Paradoxornithidae"] = "Passeriformes";
-        $family["avibase"]["Tichodromidae"] = "Passeriformes";
-        $family["avibase"]["Balaenicipididae"] = "Ciconiiformes";
-        $family["avibase"]["Leptosomatidae"] = "Coraciiformes";
-        $family["avibase"]["Prionopidae"] = "Passeriformes";
-        $family["avibase"]["Grallinidae"] = "Passeriformes";
-        $family["avibase"]["Epthianuridae"] = "Passeriformes";
-        $family["avibase"]["Semnornithidae"] = "Piciformes";
-        $family["avibase"]["Sapayoidae"] = "Passeriformes";
-        $family["avibase"]["Grallariidae"] = "Passeriformes";
-        $family["avibase"]["Oxyruncidae"] = "Passeriformes";
-        $family["avibase"]["Tityridae"] = "Passeriformes";
-        $family["avibase"]["Cettiidae"] = "Passeriformes";
-        $family["avibase"]["Phylloscopidae"] = "Passeriformes";
-        $family["avibase"]["Acrocephalidae"] = "Passeriformes";
-        $family["avibase"]["Locustellidae"] = "Passeriformes";
-        $family["avibase"]["Donacobiidae"] = "Passeriformes";
-        $family["avibase"]["Leiothrichidae"] = "Passeriformes";
-        $family["avibase"]["Mohoidae"] = "Passeriformes";
-        $family["avibase"]["Calcariidae"] = "Passeriformes";
-        $family["avibase"]["Melanopareiidae"] = "Passeriformes";
-        $family["avibase"]["Panuridae"] = "Passeriformes";
-        $family["avibase"]["Calyptomenidae"] = "Passeriformes";
-        $family["avibase"]["Chaetopidae"] = "Passeriformes";
-        $family["avibase"]["Nicatoridae"] = "Passeriformes";
-        $family["avibase"]["Stenostiridae"] = "Passeriformes";
-        $family["avibase"]["Macrosphenidae"] = "Passeriformes";
-        $family["avibase"]["Bernieridae"] = "Passeriformes";
-        $family["avibase"]["Pellorneidae"] = "Passeriformes";
-        $family["avibase"]["Hyliotidae"] = "Passeriformes";
-        $family["avibase"]["Buphagidae"] = "Passeriformes";
-        $family["avibase"]["Psophodidae"] = "Passeriformes";
-        $family["avibase"]["Pnoepygidae"] = "Passeriformes";
-        $family["avibase"]["Urocynchramidae"] = "Passeriformes";
-        $family["avibase"]["Hylocitreidae"] = "Passeriformes";
-        $family["avibase"]["Strigopidae"] = "Psittaciformes";
-        $family["avibase"]["Notiomystidae"] = "Passeriformes";
-        $family["avibase"]["Incertae Sedis"] = "Passeriformes";
-        $family["avibase"]["Megapodidae"] = "Galliformes";
-        $family["avibase"]["Pluvianidae"] = "Charadriiformes";
-        $family["avibase"]["Sarothruridae"] = "Gruiformes";
-        $family["avibase"]["Tephrodornithidae"] = "Passeriformes";
-        $family["avibase"]["Struthideidae"] = "Passeriformes";
-        $family["avibase"]["Pandioninae"] = "Falconiformes";
-        $family["avibase"]["Megaluridae"] = "Passeriformes";
-        $family["avibase"]["Incertae sedis"] = "Passeriformes";
-        
-        $family["avibase"]["Rheidae"] = "Rheiformes";
-        $family["avibase"]["Anhimidae"] = "Anseriformes";
-        $family["avibase"]["Pelecanoididae"] = "Procellariiformes";
-        $family["avibase"]["Cariamidae"] = "Gruiformes";
-        $family["avibase"]["Psophiidae"] = "Gruiformes";
-        $family["avibase"]["Chionidae"] = "Charadriiformes";
-        $family["avibase"]["Rostratulidae"] = "Charadriiformes";
-        $family["avibase"]["Thinocoridae"] = "Charadriiformes";
-        $family["avibase"]["Opisthocomidae"] = "Cuculiformes";
-        $family["avibase"]["Conopophagidae"] = "Passeriformes";
-        $family["avibase"]["Cisticolidae"] = "Passeriformes";
-        $family["avibase"]["Otididae"] = "Gruiformes";
-        $family["avibase"]["Turnicidae"] = "Turniciformes";
-        $family["avibase"]["Coraciidae"] = "Coraciiformes";
-        $family["avibase"]["Meropidae"] = "Coraciiformes";
-        $family["avibase"]["Malaconotidae"] = "Passeriformes";
-        $family["avibase"]["Oriolidae"] = "Passeriformes";
-        $family["avibase"]["Struthionidae"] = "Struthioniformes";
-        $family["avibase"]["Scopidae"] = "Ciconiiformes";
-        $family["avibase"]["Balaenicipitidae"] = "Ciconiiformes";
-        $family["avibase"]["Mesitornithidae"] = "Gruiformes";
-        $family["avibase"]["Dromadidae"] = "Charadriiformes";
-        $family["avibase"]["Ibidorhynchidae"] = "Charadriiformes";
-        $family["avibase"]["Raphidae"] = "Columbiformes";
-        $family["avibase"]["Musophagidae"] = "Musophagiformes";
-        $family["avibase"]["Coliidae"] = "Coliiformes";
-        $family["avibase"]["Brachypteraciidae"] = "Coraciiformes";
-        $family["avibase"]["Leptosomidae"] = "Coraciiformes";
-        $family["avibase"]["Phoeniculidae"] = "Upupiformes";
-        $family["avibase"]["Bucerotidae"] = "Bucerotiformes";
-        $family["avibase"]["Bucorvidae"] = "Bucerotiformes";
-        $family["avibase"]["Indicatoridae"] = "Piciformes";
-        $family["avibase"]["Eurylaimidae"] = "Passeriformes";
-        $family["avibase"]["Philepittidae"] = "Passeriformes";
-        $family["avibase"]["Pittidae"] = "Passeriformes";
-        $family["avibase"]["Platysteiridae"] = "Passeriformes";
-        $family["avibase"]["Vangidae"] = "Passeriformes";
-        $family["avibase"]["Campephagidae"] = "Passeriformes";
-        $family["avibase"]["Dicruridae"] = "Passeriformes";
-        $family["avibase"]["Picathartidae"] = "Passeriformes";
-        $family["avibase"]["Genera Incertae Sedis"] = "Passeriformes";
-        $family["avibase"]["Nectariniidae"] = "Passeriformes";
-        $family["avibase"]["Promeropidae"] = "Passeriformes";
-        $family["avibase"]["Casuariidae"] = "Casuariiformes";
-        $family["avibase"]["Megapodiidae"] = "Galliformes";
-        $family["avibase"]["Podargidae"] = "Caprimulgiformes";
-        $family["avibase"]["Aegothelidae"] = "Caprimulgiformes";
-        $family["avibase"]["Hemiprocnidae"] = "Apodiformes";
-        $family["avibase"]["Ptilonorhynchidae"] = "Passeriformes";
-        $family["avibase"]["Climacteridae"] = "Passeriformes";
-        $family["avibase"]["Maluridae"] = "Passeriformes";
-        $family["avibase"]["Acanthizidae"] = "Passeriformes";
-        $family["avibase"]["Pomatostomidae"] = "Passeriformes";
-        $family["avibase"]["Orthonychidae"] = "Passeriformes";
-        $family["avibase"]["Cnemophilidae"] = "Passeriformes";
-        $family["avibase"]["Paramythiidae"] = "Passeriformes";
-        $family["avibase"]["Eupetidae"] = "Passeriformes";
-        $family["avibase"]["Cinclosomatidae"] = "Passeriformes";
-        $family["avibase"]["Genera Incertae sedis"] = "Passeriformes";
-        $family["avibase"]["Machaerirhynchidae"] = "Passeriformes";
-        $family["avibase"]["Cracticidae"] = "Passeriformes";
-        $family["avibase"]["Artamidae"] = "Passeriformes";
-        $family["avibase"]["Aegithinidae"] = "Passeriformes";
-        $family["avibase"]["Pityriaseidae"] = "Passeriformes";
-        $family["avibase"]["Neosittidae"] = "Passeriformes";
-        $family["avibase"]["Falcunculidae"] = "Passeriformes";
-        $family["avibase"]["Pachycephalidae"] = "Passeriformes";
-        $family["avibase"]["Colluricinclidae"] = "Passeriformes";
-        $family["avibase"]["Rhipiduridae"] = "Passeriformes";
-        $family["avibase"]["Paradisaeidae"] = "Passeriformes";
-        $family["avibase"]["Petroicidae"] = "Passeriformes";
-        $family["avibase"]["Irenidae"] = "Passeriformes";
-        $family["avibase"]["Rhabdornithidae"] = "Passeriformes";
-        $family["avibase"]["Chloropseidae"] = "Passeriformes";
-        $family["avibase"]["Dicaeidae"] = "Passeriformes";
-        $family["avibase"]["Dromaiidae"] = "Casuariiformes";
-        $family["avibase"]["Apterygidae"] = "Apterygiformes";
-        $family["avibase"]["Anseranatidae"] = "Anseriformes";
-        $family["avibase"]["Rhynochetidae"] = "Gruiformes";
-        $family["avibase"]["Pedionomidae"] = "Charadriiformes";
-        $family["avibase"]["Acanthisittidae"] = "Passeriformes";
-        $family["avibase"]["Menuridae"] = "Passeriformes";
-        $family["avibase"]["Atrichornithidae"] = "Passeriformes";
-        $family["avibase"]["Dasyornithidae"] = "Passeriformes";
-        $family["avibase"]["Pardalotidae"] = "Passeriformes";
-        $family["avibase"]["Callaeidae"] = "Passeriformes";
-        $family["avibase"]["Corcoracidae"] = "Passeriformes";
-        
-        $family["avibase"]["Glareolidae"] = "Charadriiformes";
-        $family["avibase"]["Pteroclididae"] = "Pteroclidiformes";
-        $family["avibase"]["Todidae"] = "Coraciiformes";
-        $family["avibase"]["Upupidae"] = "Upupiformes";
-        $family["avibase"]["Meliphagidae"] = "Passeriformes";
-        $family["avibase"]["Monarchidae"] = "Passeriformes";
-        $family["avibase"]["Dulidae"] = "Passeriformes";
-        $family["avibase"]["Pycnonotidae"] = "Passeriformes";
-        $family["avibase"]["Zosteropidae"] = "Passeriformes";
-        $family["avibase"]["Ploceidae"] = "Passeriformes";
-        $family["avibase"]["Viduidae"] = "Passeriformes";
-        $family["avibase"]["Prunellidae"] = "Passeriformes";
-        
-        $family["avibase"]["Tinamidae"] = "Tinamiformes";
-        $family["avibase"]["Cracidae"] = "Galliformes";
-        $family["avibase"]["Numididae"] = "Galliformes";
-        $family["avibase"]["Odontophoridae"] = "Galliformes";
-        $family["avibase"]["Phasianidae"] = "Galliformes";
-        $family["avibase"]["Anatidae"] = "Anseriformes";
-        $family["avibase"]["Spheniscidae"] = "Sphenisciformes";
-        $family["avibase"]["Gaviidae"] = "Gaviiformes";
-        $family["avibase"]["Diomedeidae"] = "Procellariiformes";
-        $family["avibase"]["Procellariidae"] = "Procellariiformes";
-        $family["avibase"]["Hydrobatidae"] = "Procellariiformes";
-        $family["avibase"]["Podicipedidae"] = "Podicipediformes";
-        $family["avibase"]["Phoenicopteridae"] = "Phoenicopteriformes";
-        $family["avibase"]["Ciconiidae"] = "Ciconiiformes";
-        $family["avibase"]["Threskiornithidae"] = "Ciconiiformes";
-        $family["avibase"]["Ardeidae"] = "Ciconiiformes";
-        $family["avibase"]["Phaethontidae"] = "Pelecaniformes";
-        $family["avibase"]["Fregatidae"] = "Pelecaniformes";
-        $family["avibase"]["Pelecanidae"] = "Pelecaniformes";
-        $family["avibase"]["Sulidae"] = "Pelecaniformes";
-        $family["avibase"]["Phalacrocoracidae"] = "Pelecaniformes";
-        $family["avibase"]["Anhingidae"] = "Pelecaniformes";
-        $family["avibase"]["Cathartidae"] = "Ciconiiformes";
-        $family["avibase"]["Falconidae"] = "Falconiformes";
-        $family["avibase"]["Accipitridae"] = "Falconiformes";
-        $family["avibase"]["Eurypygidae"] = "Gruiformes";
-        $family["avibase"]["Rallidae"] = "Gruiformes";
-        $family["avibase"]["Heliornithidae"] = "Gruiformes";
-        $family["avibase"]["Gruidae"] = "Gruiformes";
-        $family["avibase"]["Aramidae"] = "Gruiformes";
-        $family["avibase"]["Burhinidae"] = "Charadriiformes";
-        $family["avibase"]["Haematopodidae"] = "Charadriiformes";
-        $family["avibase"]["Recurvirostridae"] = "Charadriiformes";
-        $family["avibase"]["Charadriidae"] = "Charadriiformes";
-        $family["avibase"]["Jacanidae"] = "Charadriiformes";
-        $family["avibase"]["Scolopacidae"] = "Charadriiformes";
-        $family["avibase"]["Laridae"] = "Charadriiformes";
-        $family["avibase"]["Stercorariidae"] = "Charadriiformes";
-        $family["avibase"]["Alcidae"] = "Charadriiformes";
-        $family["avibase"]["Columbidae"] = "Columbiformes";
-        $family["avibase"]["Psittacidae"] = "Psittaciformes";
-        $family["avibase"]["Cuculidae"] = "Cuculiformes";
-        $family["avibase"]["Tytonidae"] = "Strigiformes";
-        $family["avibase"]["Strigidae"] = "Strigiformes";
-        $family["avibase"]["Steatornithidae"] = "Caprimulgiformes";
-        $family["avibase"]["Nyctibiidae"] = "Caprimulgiformes";
-        $family["avibase"]["Caprimulgidae"] = "Caprimulgiformes";
-        $family["avibase"]["Apodidae"] = "Apodiformes";
-        $family["avibase"]["Trochilidae"] = "Apodiformes";
-        $family["avibase"]["Trogonidae"] = "Trogoniformes";
-        $family["avibase"]["Alcedinidae"] = "Coraciiformes";
-        $family["avibase"]["Momotidae"] = "Coraciiformes";
-        $family["avibase"]["Ramphastidae"] = "Piciformes";
-        $family["avibase"]["Picidae"] = "Piciformes";
-        $family["avibase"]["Galbulidae"] = "Piciformes";
-        $family["avibase"]["Bucconidae"] = "Piciformes";
-        $family["avibase"]["Sapayoaidae"] = "Passeriformes";
-        $family["avibase"]["Pipridae"] = "Passeriformes";
-        $family["avibase"]["Cotingidae"] = "Passeriformes";
-        $family["avibase"]["Genera Incertae Sedis "] = "Passeriformes";
-        $family["avibase"]["Tyrannidae"] = "Passeriformes";
-        $family["avibase"]["Thamnophilidae"] = "Passeriformes";
-        $family["avibase"]["Rhinocryptidae"] = "Passeriformes";
-        $family["avibase"]["Formicariidae"] = "Passeriformes";
-        $family["avibase"]["Furnariidae"] = "Passeriformes";
-        $family["avibase"]["Dendrocolaptidae"] = "Passeriformes";
-        $family["avibase"]["Laniidae"] = "Passeriformes";
-        $family["avibase"]["Vireonidae"] = "Passeriformes";
-        $family["avibase"]["Corvidae"] = "Passeriformes";
-        $family["avibase"]["Bombycillidae"] = "Passeriformes";
-        $family["avibase"]["Paridae"] = "Passeriformes";
-        $family["avibase"]["Remizidae"] = "Passeriformes";
-        $family["avibase"]["Hirundinidae"] = "Passeriformes";
-        $family["avibase"]["Aegithalidae"] = "Passeriformes";
-        $family["avibase"]["Alaudidae"] = "Passeriformes";
-        $family["avibase"]["Sylviidae"] = "Passeriformes";
-        $family["avibase"]["Timaliidae"] = "Passeriformes";
-        $family["avibase"]["Regulidae"] = "Passeriformes";
-        $family["avibase"]["Troglodytidae"] = "Passeriformes";
-        $family["avibase"]["Genus Incertae Sedis "] = "Passeriformes";
-        $family["avibase"]["Polioptilidae"] = "Passeriformes";
-        $family["avibase"]["Sittidae"] = "Passeriformes";
-        $family["avibase"]["Certhiidae"] = "Passeriformes";
-        $family["avibase"]["Mimidae"] = "Passeriformes";
-        $family["avibase"]["Sturnidae"] = "Passeriformes";
-        $family["avibase"]["Turdidae"] = "Passeriformes";
-        $family["avibase"]["Muscicapidae"] = "Passeriformes";
-        $family["avibase"]["Cinclidae"] = "Passeriformes";
-        $family["avibase"]["Passeridae"] = "Passeriformes";
-        $family["avibase"]["Estrildidae"] = "Passeriformes";
-        $family["avibase"]["Peucedramidae"] = "Passeriformes";
-        $family["avibase"]["Motacillidae"] = "Passeriformes";
-        $family["avibase"]["Fringillidae"] = "Passeriformes";
-        $family["avibase"]["Parulidae"] = "Passeriformes";
-        $family["avibase"]["Icteridae"] = "Passeriformes";
-        $family["avibase"]["Coerebidae"] = "Passeriformes";
-        $family["avibase"]["Emberizidae"] = "Passeriformes";
-        $family["avibase"]["Thraupidae"] = "Passeriformes";
-        $family["avibase"]["Cardinalidae"] = "Passeriformes";
-        return $family;
+        $cache_path = DOC_ROOT . "update_resources/connectors/files/Avibase/cache/". $avibaseid .".xml";
+        if(file_exists($cache_path))
+        {
+            $taxon_page_html = file_get_contents($cache_path);
+            // checking for some string that appears on all pages - we may have cached a 404 page for example
+            if(preg_match("/AVBContainerText/", $taxon_page_html)) return $taxon_page_html;
+            @unlink($cache_path);
+        }
+        $taxon_page_html = Functions::get_remote_file(AVIBASE_SOURCE_URL . $avibaseid, NULL, 120);
+        $FILE = fopen($cache_path, 'w+');
+        fwrite($FILE, $taxon_page_html);
+        fclose($FILE);
+        return $taxon_page_html;
     }
-
 }
 ?>
