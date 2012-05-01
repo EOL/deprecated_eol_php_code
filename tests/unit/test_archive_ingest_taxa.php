@@ -18,7 +18,7 @@ namespace php_active_record;
     test multiple references
 */
 
-class test_archive_data_ingester extends SimpletestUnitBase
+class test_archive_ingest_taxa extends SimpletestUnitBase
 {
     function setUp()
     {
@@ -229,7 +229,7 @@ class test_archive_data_ingester extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($t);
         $r = new \eol_schema\Reference();
         $r->identifier = "11";
-        $r->full_reference = "This is another sample reference";
+        $r->fullReference = "This is another sample reference";
         $this->archive_builder->write_object_to_file($r);
         $r = new \eol_schema\Reference();
         $r->identifier = "22";
@@ -248,7 +248,7 @@ class test_archive_data_ingester extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($r);
         $r = new \eol_schema\Reference();
         $r->identifier = "33";
-        $r->full_reference = "Third reference";
+        $r->fullReference = "Third reference";
         $this->archive_builder->write_object_to_file($r);
         $this->archive_builder->finalize();
         $harvest_event = $this->harvest($resource);
