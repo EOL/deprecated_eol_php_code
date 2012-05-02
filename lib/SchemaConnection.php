@@ -26,27 +26,28 @@ class SchemaConnection
         
         $this->resource->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
         
+        $hierarchy_entry->delete_common_names();
         if(@$t['common_names'])
         {
-            $hierarchy_entry->delete_common_names();
             foreach($t['common_names'] as &$c)
             {
                 $name = Name::find_or_create_by_string($c['name']);
                 $hierarchy_entry->add_synonym($name->id, SynonymRelation::find_or_create_by_translated_label('common name')->id, @$c['language']->id ?: 0, 0);
             }
         }
+        
+        $hierarchy_entry->delete_synonyms();
         if(@$t['synonyms'])
         {
-            $hierarchy_entry->delete_synonyms();
             foreach($t['synonyms'] as &$s)
             {
                 $hierarchy_entry->add_synonym($s['name']->id, @$s['synonym_relation']->id ?: 0, 0, 0);
             }
         }
         
+        $hierarchy_entry->delete_agents();
         if(@$t['agents'])
         {
-            $hierarchy_entry->delete_agents();
             $i = 0;
             foreach($t['agents'] as &$a)
             {
@@ -66,9 +67,9 @@ class SchemaConnection
             }
         }
         
+        $hierarchy_entry->unpublish_refs();
         if(@$t['refs'])
         {
-            $hierarchy_entry->unpublish_refs();
             foreach($t['refs'] as &$r)
             {
                 if(@$r->id)
@@ -152,16 +153,17 @@ class SchemaConnection
                 $i++;
             }
             
+            $data_object->delete_audiences();
             foreach($parameters['audiences'] as &$a)
             {
                 $data_object->add_audience($a->id);
                 unset($a);
             }
             
+            $data_object->delete_info_items();
+            $data_object->delete_table_of_contents();
             if(@$parameters['info_items'])
             {
-                $data_object->delete_info_items();
-                $data_object->delete_table_of_contents();
                 foreach($parameters['info_items'] as &$ii)
                 {
                     $data_object->add_info_item($ii->id);
@@ -169,9 +171,9 @@ class SchemaConnection
                 }
             }
             
+            $data_object->unpublish_refs();
             if(@$parameters['refs'])
             {
-                $data_object->unpublish_refs();
                 foreach($parameters['refs'] as &$r)
                 {
                     if(@$r->id)

@@ -108,12 +108,15 @@ class DataObject extends ActiveRecord
     }
     
     
+    public function delete_audiences()
+    {
+        $this->mysqli->insert("DELETE FROM audiences_data_objects WHERE data_object_id=$this->id");
+    }
     public function add_audience($audience_id)
     {
         if(!$audience_id) return false;
         $this->mysqli->insert("INSERT IGNORE INTO audiences_data_objects VALUES ($this->id, $audience_id)");
     }
-    
     
     public function delete_info_items()
     {
