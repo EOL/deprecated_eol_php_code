@@ -1,23 +1,6 @@
 <?php
 namespace php_active_record;
 
-/*
-    test common names / languages
-    
-    test standard media
-    test w/ taxonID
-    test w/ scientificName
-    test w/ vernacular name
-    test lat/long/alt
-    
-    test creator
-    test multiple creators
-    test agentID
-    test multiple agentIDs
-    test reference
-    test multiple references
-*/
-
 class test_archive_ingest_taxa extends SimpletestUnitBase
 {
     function setUp()
@@ -42,6 +25,12 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         parent::tearDown();
     }
     
+    // function testFlickr()
+    // {
+    //     $resource = self::create_resource();
+    //     self::harvest($resource);
+    // }
+    
     function testImportTaxonAdjacency()
     {
         $resource = self::create_resource();
@@ -58,8 +47,8 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->furtherInformationURL = "http://some.url";
         $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize();
+        self::harvest($resource);
         
-        $harvest_event = $this->harvest($resource);
         // verify the basics
         $species = HierarchyEntry::find_by_identifier($t->taxonID);
         $this->assertEqual($species->name->string, $t->scientificName);
@@ -127,7 +116,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->parentNameUsageID = "666";
         $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize();
-        $harvest_event = $this->harvest($resource);
+        self::harvest($resource);
         
         // check the species
         $species = HierarchyEntry::find_by_identifier(777);
@@ -183,7 +172,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->taxonomicStatus = null;
         $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize();
-        $harvest_event = $this->harvest($resource);
+        self::harvest($resource);
         
         // check the species
         $species = HierarchyEntry::find_by_identifier(777);
@@ -207,7 +196,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->namePublishedIn = "This is a sample reference||And another one too";
         $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize();
-        $harvest_event = $this->harvest($resource);
+        self::harvest($resource);
         
         // check the species
         $species = HierarchyEntry::find_by_identifier(777);
@@ -227,56 +216,91 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->taxonRank = "species";
         $t->referenceID = "11;22,33";
         $this->archive_builder->write_object_to_file($t);
-        $r = new \eol_schema\Reference();
-        $r->identifier = "11";
-        $r->fullReference = "This is another sample reference";
-        $this->archive_builder->write_object_to_file($r);
-        $r = new \eol_schema\Reference();
-        $r->identifier = "22";
-        $r->title = "Some title";
-        $r->pages = "101-150";
-        $r->pageStart = "101";
-        $r->pageEnd = "150";
-        $r->volume = "v1";
-        $r->edition = "September";
-        $r->publisher = "Some publisher";
-        $r->authorList = "Helm, Danko";
-        $r->editorList = "Robertson, Manuel";
-        $r->language = "fr";
-        $r->uri = "http://some.uri";
-        $r->doi = "10.1000/182";
-        $this->archive_builder->write_object_to_file($r);
-        $r = new \eol_schema\Reference();
-        $r->identifier = "33";
-        $r->fullReference = "Third reference";
-        $this->archive_builder->write_object_to_file($r);
+        $r1 = new \eol_schema\Reference();
+        $r1->identifier = "11";
+        $r1->fullReference = "This is another sample reference";
+        $this->archive_builder->write_object_to_file($r1);
+        $r2 = new \eol_schema\Reference();
+        $r2->identifier = "22";
+        $r2->title = "Some title";
+        $r2->pages = "101-150";
+        $r2->pageStart = "101";
+        $r2->pageEnd = "150";
+        $r2->volume = "v1";
+        $r2->edition = "September";
+        $r2->publisher = "Some publisher";
+        $r2->authorList = "Helm, Danko";
+        $r2->editorList = "Robertson, Manuel";
+        $r2->language = "fr";
+        $r2->uri = "http://some.uri";
+        $r2->doi = "10.1000/182";
+        $this->archive_builder->write_object_to_file($r2);
+        $r3 = new \eol_schema\Reference();
+        $r3->identifier = "33";
+        $r3->fullReference = "Third reference";
+        $this->archive_builder->write_object_to_file($r3);
         $this->archive_builder->finalize();
-        $harvest_event = $this->harvest($resource);
+        self::harvest($resource);
         
         // check the species
         $species = HierarchyEntry::find_by_identifier(777);
         $references = $species->references;
         $this->assertEqual(count($references), 3);
-        $this->assertEqual($references[0]->full_reference, "This is another sample reference");
-        $this->assertEqual($references[0]->provider_mangaed_id, "11");
-        $this->assertEqual($references[1]->provider_mangaed_id, "22");
-        $this->assertEqual($references[1]->title, "Some title");
-        $this->assertEqual($references[1]->pages, "101-150");
-        $this->assertEqual($references[1]->page_start, "101");
-        $this->assertEqual($references[1]->page_end, "150");
-        $this->assertEqual($references[1]->volume, "v1");
-        $this->assertEqual($references[1]->edition, "September");
-        $this->assertEqual($references[1]->publisher, "Some publisher");
-        $this->assertEqual($references[1]->authors, "Helm, Danko");
-        $this->assertEqual($references[1]->editors, "Robertson, Manuel");
-        $this->assertEqual($references[1]->language->id, Language::find_or_create_for_parser('fr')->id);
+        $this->assertEqual($references[0]->provider_mangaed_id, $r1->identifier);
+        $this->assertEqual($references[0]->full_reference, $r1->fullReference);
+        $this->assertEqual($references[1]->provider_mangaed_id, $r2->identifier);
+        $this->assertEqual($references[1]->title, $r2->title);
+        $this->assertEqual($references[1]->pages, $r2->pages);
+        $this->assertEqual($references[1]->page_start, $r2->pageStart);
+        $this->assertEqual($references[1]->page_end, $r2->pageEnd);
+        $this->assertEqual($references[1]->volume, $r2->volume);
+        $this->assertEqual($references[1]->edition, $r2->edition);
+        $this->assertEqual($references[1]->publisher, $r2->publisher);
+        $this->assertEqual($references[1]->authors, $r2->authorList);
+        $this->assertEqual($references[1]->editors, $r2->editorList);
+        $this->assertEqual($references[1]->language->translation->label, $r2->language);
         $this->assertEqual(count($references[1]->ref_identifiers), 2);
         $this->assertEqual($references[1]->ref_identifiers[0]->ref_identifier_type->label, 'uri');
-        $this->assertEqual($references[1]->ref_identifiers[0]->identifier, 'http://some.uri');
+        $this->assertEqual($references[1]->ref_identifiers[0]->identifier, $r2->uri);
         $this->assertEqual($references[1]->ref_identifiers[1]->ref_identifier_type->label, 'doi');
-        $this->assertEqual($references[1]->ref_identifiers[1]->identifier, '10.1000/182');
-        $this->assertEqual($references[2]->full_reference, "Third reference");
-        $this->assertEqual($references[2]->provider_mangaed_id, "33");
+        $this->assertEqual($references[1]->ref_identifiers[1]->identifier, $r2->doi);
+        $this->assertEqual($references[2]->provider_mangaed_id, $r3->identifier);
+        $this->assertEqual($references[2]->full_reference, $r3->fullReference);
+    }
+    
+    function testImportVernacularNames()
+    {
+        $resource = self::create_resource();
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = "111";
+        $t->scientificName = "Animalia";
+        $t->taxonRank = "kingdom";
+        $this->archive_builder->write_object_to_file($t);
+        $v1 = new \eol_schema\VernacularName();
+        $v1->taxonID = "111";
+        $v1->vernacularName = "Animals";
+        $v1->language = "en";
+        $this->archive_builder->write_object_to_file($v1);
+        $v2 = new \eol_schema\VernacularName();
+        $v2->taxonID = "111";
+        $v2->vernacularName = "Animaux";
+        $v2->language = "fr";
+        $this->archive_builder->write_object_to_file($v2);
+        $v3 = new \eol_schema\VernacularName();
+        $v3->taxonID = "111";
+        $v3->vernacularName = "בעלי חיים";
+        $this->archive_builder->write_object_to_file($v3);
+        $this->archive_builder->finalize();
+        self::harvest($resource);
+        
+        $entry = HierarchyEntry::find_by_identifier($t->taxonID);
+        $this->assertEqual(count($entry->synonyms), 3);
+        $this->assertEqual($entry->synonyms[0]->name->string, $v1->vernacularName);
+        $this->assertEqual($entry->synonyms[0]->language->iso_639_1, $v1->language);
+        $this->assertEqual($entry->synonyms[1]->name->string, $v2->vernacularName);
+        $this->assertEqual($entry->synonyms[1]->language->translation->label, $v2->language);
+        $this->assertEqual($entry->synonyms[2]->name->string, $v3->vernacularName);
+        $this->assertEqual($entry->synonyms[2]->language, NULL);
     }
     
     
@@ -284,13 +308,12 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
     
     
     
-    
-    private function harvest($resource)
+    private static function harvest($resource)
     {
-        $he = HarvestEvent::create(array('resource_id' => $resource->id));
-        $ingester = new ArchiveDataIngester($he);
-        print_r($ingester->parse(false));
-        return $he;
+        // set to force harvest - this will only change the status id
+        passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
+        passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/harvest_resources_cron_task.php $resource->id --fast ENV_NAME=test");
+        Cache::flush();
     }
     
     private static function create_resource($args = array())

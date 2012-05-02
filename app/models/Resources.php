@@ -83,6 +83,14 @@ class Resource extends ActiveRecord
         return false;
     }
     
+    public function is_archive_resource()
+    {
+        if(!is_dir($this->archive_path())) return false;
+        if(!file_exists($this->archive_path() . "/meta.xml")) return false;
+        return true;
+    }
+    
+    
     public static function wikipedia()
     {
         return self::find_by_title('Wikipedia');
@@ -260,7 +268,7 @@ class Resource extends ActiveRecord
         }
     }
     
-    public function publish()
+    public function publish($fast_for_testing = false)
     {
         $this->mysqli->begin_transaction();
         if($harvest_event_id = $this->most_recent_harvest_event_id())
@@ -312,25 +320,31 @@ class Resource extends ActiveRecord
                     Hierarchy::publish_wrongly_unpublished_concepts();
                     $this->mysqli->commit();
                     
-                    // Rebuild the Solr index for this hierarchy
-                    $indexer = new HierarchyEntryIndexer();
-                    $indexer->index($this->hierarchy_id);
-                    
-                    // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                    $hierarchy = Hierarchy::find($this->hierarchy_id);
-                    CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                    
-                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id, true);
+                    if(!$fast_for_testing)
+                    {
+                        // Rebuild the Solr index for this hierarchy
+                        $indexer = new HierarchyEntryIndexer();
+                        $indexer->index($this->hierarchy_id);
+                        
+                        // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
+                        $hierarchy = Hierarchy::find($this->hierarchy_id);
+                        CompareHierarchies::process_hierarchy($hierarchy, null, true);
+                        
+                        CompareHierarchies::begin_concept_assignment($this->hierarchy_id, true);
+                    }
                 }
                 
                 // $harvest_event->insert_top_images();
                 $this->mysqli->commit();
                 $harvest_event->resource->refresh();
-                $harvest_event->create_collection();
-                $harvest_event->index_for_search();
-                if($old_he = $harvest_event->previous_harvest_event())
+                if(!$fast_for_testing)
                 {
-                    $old_he->index_for_search();
+                    $harvest_event->create_collection();
+                    $harvest_event->index_for_search();
+                    if($old_he = $harvest_event->previous_harvest_event())
+                    {
+                        $old_he->index_for_search();
+                    }
                 }
                 $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::published()->id ." WHERE id=$this->id");
             }
@@ -350,13 +364,12 @@ class Resource extends ActiveRecord
         }
     }
     
-    public function harvest($validate = true, $validate_only_welformed = false)
+    public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
         debug("Starting harvest of resource: $this->id");
+        
         debug("Validating resource: $this->id");
-        // set valid to true if we don't need validation
-        if($this->is_translation_resource()) $validate_only_welformed = false;
-        $valid = $validate ? $this->validate($this->resource_path(), $validate_only_welformed) : true;
+        $valid = $validate ? $this->validate() : true;
         debug("Validated resource: $this->id");
         if($valid)
         {
@@ -369,14 +382,18 @@ class Resource extends ActiveRecord
             {
                 require_library('TranslationSchemaParser');
                 TranslationSchemaParser::parse($this->resource_path(), 'php_active_record\\SchemaConnection::add_translated_taxon', false, $this);
+            }elseif($this->is_archive_resource())
+            {
+                $ingester = new ArchiveDataIngester($this->harvest_event);
+                $ingester->parse(false);
+                unset($ingester);
             }else
             {
                 $connection = new SchemaConnection($this);
                 SchemaParser::parse($this->resource_path(), $connection, false);
                 unset($connection);
-                debug("Parsed resource: $this->id");
             }
-            
+            debug("Parsed resource: $this->id");
             $this->mysqli->commit();
             
             // if the resource only contains information to update, then check for a 
@@ -442,7 +459,7 @@ class Resource extends ActiveRecord
             {
                 $this->harvest_event->publish = 1;
                 $this->harvest_event->save();
-                $this->publish();
+                $this->publish($fast_for_testing);
             }
         }
         $this->harvest_event = null;
@@ -692,19 +709,34 @@ class Resource extends ActiveRecord
     
     public function validate()
     {
-        $validation_result = SchemaValidator::validate($this->resource_path());
-        if($validation_result!==true)
+        if($this->is_archive_resource())
         {
-            // echo "\n\n".$this->resource_path()."\n\n";
-            // print_r($this);
+            $archive = new ContentArchiveReader(null, $this->archive_path());
+            $validator = new ContentArchiveValidator($archive);
+            $validator->get_validation_errors();
+            if(!$validator->errors()) return true;  // valid
+            if($e = $validator->errors())
+            {
+                $errors_as_string = array();
+                $warnings_as_string = array();
+                foreach($e as $error)
+                {
+                    $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
+                    if($error->value) $this_error_string .= " [value was \"$error->value\"]";
+                    $errors_as_string[] = $this_error_string;
+                }
+                $error_string = $this->mysqli->escape(implode("<br>", $errors_as_string));
+            }
+        }else
+        {
+            $validation_result = SchemaValidator::validate($this->resource_path());
+            if($validation_result===true) return true;  // valid
+            
             $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
-            $this->mysqli->update("UPDATE resources SET notes='$error_string', resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
-            return false;
         }
         
-        unset($validator);
-        
-        return true;
+        $this->mysqli->update("UPDATE resources SET notes='$error_string', resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
+        return false;
     }
     
     public function insert_hierarchy()

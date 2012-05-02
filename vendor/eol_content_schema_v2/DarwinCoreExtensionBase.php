@@ -11,6 +11,8 @@ class DarwinCoreExtensionBase
         if(!isset($GLOBALS['DarwinCoreExtensionProperties'])) $GLOBALS['DarwinCoreExtensionProperties'] = array();
         $this->load_extension();
         $this->assign_properties($parameters);
+        
+        if(!@$this->extension_row_type && static::ROW_TYPE) $this->extension_row_type = static::ROW_TYPE;
     }
     
     // to be defined by extending classes
@@ -81,6 +83,8 @@ class DarwinCoreExtensionBase
                 $this->accepted_properties_by_uri[$property['uri']] = $property;
             }
             
+            if($row_type = $xml['rowType']) $this->extension_row_type = $row_type;
+            
             $GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties'] = $this->accepted_properties;
             $GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties_by_name'] = $this->accepted_properties_by_name;
             $GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties_by_uri'] = $this->accepted_properties_by_uri;
@@ -114,7 +118,10 @@ class DarwinCoreExtensionBase
     
     public function __set($name, $value)
     {
-        if(isset($this->accepted_properties_by_name[$name]))
+        if($name == "extension_row_type")
+        {
+            $this->$name = $value;
+        }elseif(isset($this->accepted_properties_by_name[$name]))
         {
             $variable_name = $this->accepted_properties_by_name[$name]['name'];
             $this->$variable_name = $value;

@@ -184,7 +184,7 @@ class Taxon extends DarwinCoreExtensionBase
             $property = array();
             $property['name'] = 'referenceID';
             $property['namespace'] = 'http://eol.org/schema/media';
-            $property['uri'] = "http://eol.org/schema/media/referenceID";
+            $property['uri'] = "http://eol.org/schema/reference/referenceID";
             $this->accepted_properties[] = $property;
             $this->accepted_properties_by_name[$property['name']] = $property;
             $this->accepted_properties_by_uri[$property['uri']] = $property;

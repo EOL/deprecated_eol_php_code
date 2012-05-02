@@ -293,11 +293,11 @@ class HierarchyEntry extends ActiveRecord
     }
     public function delete_common_names()
     {
-        $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
+        $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND hierarchy_id=$this->hierarchy_id AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
     }
     public function delete_synonyms()
     {
-        $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND (language_id=0 OR language_id=". Language::find_or_create_for_parser('scientific name')->id.")");
+        $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$this->id AND hierarchy_id=$this->hierarchy_id AND (language_id=0 OR language_id=". Language::find_or_create_for_parser('scientific name')->id.")");
     }
     
        
@@ -341,6 +341,16 @@ class HierarchyEntry extends ActiveRecord
     {
         if(!$reference_id) return 0;
         $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs (hierarchy_entry_id, ref_id) VALUES ($this->id, $reference_id)");
+    }
+    
+    public function published_references()
+    {
+        $published_refs = array();
+        foreach($this->references as $ref)
+        {
+            if($ref->published) $published_refs[] = $ref;
+        }
+        return $published_refs;
     }
     
     public static function move_to_child_of($node_id, $child_of_id)

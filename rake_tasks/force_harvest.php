@@ -40,7 +40,7 @@ if($resource)
     }
     
     
-    if(!file_exists($resource->resource_file_path()))
+    if(!file_exists($resource->resource_file_path()) && !$resource->is_archive_resource())
     {
         echo "\n$resource->title ($id) does not have a resource file\n\n";
         exit;

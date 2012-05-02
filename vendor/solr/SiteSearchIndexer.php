@@ -31,6 +31,7 @@ class SiteSearchIndexer
     // call_user_func($callback, $fields);
     public function index_type($class_name, $table_name, $callback, &$ids = null)
     {
+        if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
         if($ids)
         {
             $batches = array_chunk($ids, 10000);
@@ -211,11 +212,17 @@ class SiteSearchIndexer
             $id = $row[0];
             $vetted_id = $row[1];
             $preferred = $row[2];
+            if($preferred == 'NULL') $preferred = NULL;
             $vern = $row[3];
+            if($vern == 'NULL') $vern = NULL;
             $language_id = $row[4];
+            if($language_id == 'NULL') $language_id = NULL;
             $source_hierarchy_entry_id = $row[5];
+            if($source_hierarchy_entry_id == 'NULL') $source_hierarchy_entry_id = NULL;
             $string = $row[6];
+            if($string == 'NULL') $string = NULL;
             $name_vetted_id = $row[7];
+            if($name_vetted_id == 'NULL') $name_vetted_id = NULL;
             
             if(!$began && $GLOBALS['ENV_DEBUG']) echo "done querying\n";
             $began = true;

@@ -5,30 +5,14 @@ class test_connector_avibase_api extends SimpletestUnitBase
 {
     function testAvibaseAPI()
     {
-        // $taxonomy = "ioc";
-        // $avibase = new AvibaseAPI(1, );
-        // $taxa = $avibase->prepare_data($taxonomy, true);
-        // $all_taxa = array();
-        // foreach($taxa as $key => $value)
-        // {
-        //     $taxon_record["taxon"] = array( "sciname" => $key, 
-        //                                     "family"  => $value["family"], 
-        //                                     "kingdom" => $avibase->ancestry["kingdom"],
-        //                                     "phylum"  => $avibase->ancestry["phylum"],
-        //                                     "class"   => $avibase->ancestry["class"],
-        //                                     "order"   => $avibase->family_list[$taxonomy][$value["family"]],
-        //                                     "id"      => $value["id"]);
-        //     $taxon_record["common_names"] = array();
-        //     $taxon_record["references"] = array();
-        //     $taxon_record["synonyms"] = array();
-        //     $taxon_record["dataobjects"] = array();
-        //     $arr = $avibase->get_avibase_taxa($taxon_record);
-        //     $taxa = $arr[0];
-        //     $this->assertTrue(is_array($taxa), 'Taxa should be an array');
-        //     $taxon = $taxa[0];
-        //     $this->assertIsA($taxon, 'SchemaTaxon', 'Response should be an array of SchemaTaxon');
-        //     break;
-        // }
+        $avibase = new AvibaseAPI(1, 'ioc', true);
+        $last_taxon = $avibase->get_all_taxa();
+        $this->assertTrue(get_class($last_taxon) == "SchemaTaxon");
+        $this->assertTrue($last_taxon->scientificName == "Crypturellus kerriae");
+        $this->assertTrue($last_taxon->order == "Tinamiformes");
+        $this->assertTrue($last_taxon->family == "Tinamidae");
+        $this->assertTrue($last_taxon->commonNames[0]->name == "Tinama kolumbijská");
+        $this->assertTrue($last_taxon->commonNames[0]->language == "cs");
     }
 }
 ?>

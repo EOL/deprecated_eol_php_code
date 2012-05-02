@@ -40,7 +40,7 @@ class NameLink
                 if($first_link)
                 {
                     $html = str_replace($arr[0], '<a href="'.$first_link['url'].'">'.$found.'</a>', $html);
-                }else $html = str_replace($arr[0], $found, $html);
+                }else $html = str_replace($arr[0], $text, $html);
                 //echo "$return<br>\n";
             }
         }

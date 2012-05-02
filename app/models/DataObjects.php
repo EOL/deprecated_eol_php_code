@@ -5,6 +5,7 @@ class DataObject extends ActiveRecord
 {
     public static $belongs_to = array(
             array('data_type'),
+            array('data_subtype', 'class_name' => 'DataType', 'foreign_key' => 'data_subtype_id'),
             array('mime_type'),
             array('language'),
             array('license'),
@@ -13,6 +14,8 @@ class DataObject extends ActiveRecord
         );
     
     public static $has_many = array(
+            array('audiences_data_objects'),
+            array('audiences', 'through' => 'audiences_data_objects'),
             array('data_objects_info_items'),
             array('info_items', 'through' => 'data_objects_info_items'),
             array('data_objects_refs'),
@@ -21,6 +24,8 @@ class DataObject extends ActiveRecord
             array('agents', 'through' => 'agents_data_objects'),
             array('data_objects_hierarchy_entries'),
             array('hierarchy_entries', 'through' => 'data_objects_hierarchy_entries'),
+            array('data_objects_taxon_concepts'),
+            array('taxon_concepts', 'through' => 'data_objects_taxon_concepts'),
         );
     
     public static function delete($id)
@@ -68,6 +73,16 @@ class DataObject extends ActiveRecord
     {
         if(!$reference_id) return 0;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_refs VALUES ($this->id, $reference_id)");
+    }
+    
+    public function published_references()
+    {
+        $published_refs = array();
+        foreach($this->references as $ref)
+        {
+            if($ref->published) $published_refs[] = $ref;
+        }
+        return $published_refs;
     }
     
     public function add_agent($agent_id, $agent_role_id, $view_order)
@@ -142,7 +157,9 @@ class DataObject extends ActiveRecord
         $fields = self::table_fields();
         foreach($fields as $field)
         {
-            $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url", "object_created_at", "object_modified_at", "created_at", "updated_at", "language_id", "data_rating", "vetted_id", "visibility_id", "curated", "published", "description_linked");
+            $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url",
+                "object_created_at", "object_modified_at", "created_at", "updated_at", "language_id", "data_rating", "vetted_id",
+                "visibility_id", "curated", "published", "description_linked", "available_at");
             if(in_array($field, $fields_to_ignore)) continue;
             
             if(@$this->$field == "0") $this->$field = 0;
