@@ -53,6 +53,7 @@ class AvibaseAPI
             $taxon_parameters['order'] = @$this->family_orders[$metadata['family']];
             $taxon_parameters['family'] = @$metadata['family'];
             $taxon_parameters['scientificName'] = $metadata['taxon_name'];
+            $taxon_parameters['source'] = AVIBASE_SOURCE_URL . $metadata['avibaseid'];
             if(preg_match("/^([a-z][^ ]+) /i", $metadata['taxon_name'], $arr))
             {
                 $taxon_parameters['genus'] = $arr[1];

@@ -8,12 +8,12 @@ $mysqli = $GLOBALS['db_connection'];
 
 
 require_library('connectors/NatureServeAPI');
-unlink(DOC_ROOT . "/temp/dwc_archive_test/meta.xml");
-unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon.tab");
-unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon_working.tab");
-unlink(DOC_ROOT . "/temp/dwc_archive_test/media_resource.tab");
-unlink(DOC_ROOT . "/temp/dwc_archive_test/media_resource_working.tab");
-unlink(DOC_ROOT . "/temp/dwc_archive_test/reference.tab");
+@unlink(DOC_ROOT . "/temp/dwc_archive_test/meta.xml");
+@unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon.tab");
+@unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon_working.tab");
+@unlink(DOC_ROOT . "/temp/dwc_archive_test/media_resource.tab");
+@unlink(DOC_ROOT . "/temp/dwc_archive_test/media_resource_working.tab");
+@unlink(DOC_ROOT . "/temp/dwc_archive_test/reference.tab");
 rmdir(DOC_ROOT . "/temp/dwc_archive_test/");
 $naturserveAPI = new NatureServeAPI();
 $naturserveAPI->get_all_taxa();
@@ -37,12 +37,13 @@ $archive = new ContentArchiveReader(null, DOC_ROOT . "/temp/dwc_archive_test/");
 
 $GLOBALS['data_objects'] = array();
 $GLOBALS['taxon_id_media'] = array();
+$GLOBALS['all_references'] = array();
 
 print_r($archive->tables);
 
-$archive->process_table("http://labs2.eol.org/schema/ontology.rdf#Document", "php_active_record\\lookup_references");
-$archive->process_table("http://labs2.eol.org/schema/ontology.rdf#MediaResource", "php_active_record\\lookup_data_objects");
-$archive->process_table("http://rs.tdwg.org/dwc/terms/Taxon", "php_active_record\\lookup_taxa", $resource_file);
+$archive->process_table("http://eol.org/schema/reference/Reference", "php_active_record\\lookup_references");
+$archive->process_table("http://eol.org/schema/media/Document", "php_active_record\\lookup_data_objects");
+$archive->process_table("http://rs.tdwg.org/dwc/terms/Taxon", "php_active_record\\lookup_taxa", array('resource_file' => $resource_file));
 
 
 // write the resource footer
@@ -64,7 +65,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "263.xml") > 600)
 
 
 
-function lookup_taxa($taxon, $resource_file)
+function lookup_taxa($taxon, $parameters)
 {
     static $i=0;
     if($i%1000==0) echo "$i - ".memory_get_usage()."\n";
@@ -99,16 +100,20 @@ function lookup_taxa($taxon, $resource_file)
         }
     }
     $taxon_parameters['references'] = array();
-    if($taxon_id_refs = @$GLOBALS['taxon_id_refs'][$taxon_parameters['identifier']])
+    if($reference_ids = $taxon['http://eol.org/schema/reference/referenceID'])
     {
-        foreach($taxon_id_refs as $ref)
+        $reference_ids = explode("; ", $reference_ids);
+        foreach($reference_ids as $ref_id)
         {
-            $taxon_parameters['references'][] = $ref;
+            if($r = $GLOBALS['all_references'][$ref_id])
+            {
+                $taxon_parameters['references'][] = $r;
+            }
         }
     }
     
     $t = new \SchemaTaxon($taxon_parameters);
-    fwrite($resource_file, $t->__toXML());
+    fwrite($parameters['resource_file'], $t->__toXML());
 }
 
 function lookup_data_objects($media)
@@ -121,46 +126,45 @@ function lookup_data_objects($media)
     
     $object_parameters = array();
     $object_parameters['additionalInformation'] = "";
-    $object_parameters['identifier'] = $media['http://www.eol.org/schema/transfer#mediaResourceID'];
-    $object_parameters['dataType'] = $media['http://www.eol.org/schema/transfer#type'];
-    $object_parameters['mimeType'] = $media['http://www.eol.org/schema/transfer#mimeType'];
-    if($creator = $media['http://www.eol.org/schema/transfer#creator'])
+    $object_parameters['identifier'] = $media['http://purl.org/dc/terms/identifier'];
+    $object_parameters['dataType'] = $media['http://purl.org/dc/terms/type'];
+    $object_parameters['mimeType'] = $media['http://purl.org/dc/terms/format'];
+    if($creator = $media['http://purl.org/dc/terms/creator'])
     {
         $role = '';
         if($object_parameters['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $role = 'photographer';
         if($object_parameters['dataType'] == 'http://purl.org/dc/dcmitype/Text') $role = 'author';
         $object_parameters['agents'] = array(new \SchemaAgent(array('fullName' => $creator, 'role' => $role)));
     }
-    if($v = $media['http://www.eol.org/schema/transfer#created']) $object_parameters['created'] = $v;
-    if($v = $media['http://www.eol.org/schema/transfer#title']) $object_parameters['title'] = $v;
-    if($v = $media['http://www.eol.org/schema/transfer#language']) $object_parameters['language'] = $v;
-    if($v = $media['http://www.eol.org/schema/transfer#license']) $object_parameters['license'] = $v;
+    if($v = $media['http://ns.adobe.com/xap/1.0/CreateDate']) $object_parameters['created'] = $v;
+    if($v = $media['http://purl.org/dc/terms/title']) $object_parameters['title'] = $v;
+    if($v = $media['http://purl.org/dc/terms/language']) $object_parameters['language'] = $v;
+    if($v = $media['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) $object_parameters['license'] = $v;
     if($object_parameters['license'] == 'http://creativecommons.org/licenses/publicdomain')
     {
         $object_parameters['license'] = 'http://creativecommons.org/licenses/publicdomain/';
     }
-    if($v = $media['http://www.eol.org/schema/transfer#rights']) $object_parameters['rights'] = $v;
-    if($v = $media['http://www.eol.org/schema/transfer#rightsHolder']) $object_parameters['rightsHolder'] = $v;
-    if($v = $media['http://www.eol.org/schema/transfer#additionalInformationURL']) $object_parameters['source'] = $v;
+    if($v = $media['http://ns.adobe.com/xap/1.0/rights/Owner']) $object_parameters['rightsHolder'] = $v;
+    if($v = $media['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $object_parameters['source'] = $v;
     
     
     
-    if($media['http://www.eol.org/schema/transfer#subject'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use')
+    if($media['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use')
     {
-        $media['http://www.eol.org/schema/transfer#subject'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses';
-    }elseif($media['http://www.eol.org/schema/transfer#subject'] == 'http://www.eol.org/voc/table_of_contents#Taxonomy')
+        $media['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses';
+    }elseif($media['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] == 'http://www.eol.org/voc/table_of_contents#Taxonomy')
     {
-        $media['http://www.eol.org/schema/transfer#subject'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription';
+        $media['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription';
         $object_parameters['additionalInformation'] .= "<subject>http://www.eol.org/voc/table_of_contents#Taxonomy</subject>";
     }
     
     
     
-    if($v = $media['http://www.eol.org/schema/transfer#subject']) $object_parameters['subjects'] = array(new \SchemaSubject(array('label' => $v)));
-    if($v = $media['http://www.eol.org/schema/transfer#description']) $object_parameters['description'] = $v;
-    if($v = $media['http://www.eol.org/schema/transfer#fileURL']) $object_parameters['mediaURL'] = $v;
+    if($v = $media['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']) $object_parameters['subjects'] = array(new \SchemaSubject(array('label' => $v)));
+    if($v = $media['http://purl.org/dc/terms/description']) $object_parameters['description'] = $v;
+    if($v = $media['http://rs.tdwg.org/ac/terms/accessURI']) $object_parameters['mediaURL'] = $v;
     
-    if($v = $media['http://www.eol.org/schema/transfer#subtype'])
+    if($v = $media['http://rs.tdwg.org/audubon_core/subtype'])
     {
         $object_parameters['additionalInformation'] .= "<subtype>Map</subtype>";
     }
@@ -182,13 +186,9 @@ function lookup_references($ref)
     $i++;
     // if($i >= 1000) return;
     
-    $full_reference = $ref['http://www.eol.org/schema/reference#fullReference'];
-    if($taxon_id = $ref['http://rs.tdwg.org/dwc/terms/relatedResourceID'])
-    {
-        if(!isset($GLOBALS['taxon_id_refs'][$taxon_id])) $GLOBALS['taxon_id_refs'][$taxon_id] = array();
-        $GLOBALS['taxon_id_refs'][$taxon_id][] = new \SchemaReference(array('fullReference' => $full_reference));
-    }
-    
+    $identifier = $ref['http://purl.org/dc/terms/identifier'];
+    $full_reference = $ref['http://eol.org/schema/reference/fullReference'];
+    $GLOBALS['all_references'][$identifier] = new \SchemaReference(array('fullReference' => $full_reference));
 }
 
 
@@ -196,3 +196,4 @@ function lookup_references($ref)
 
 
 ?>
+

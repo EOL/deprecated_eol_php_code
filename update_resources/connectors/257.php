@@ -17,6 +17,11 @@ $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);
 fclose($OUT);
 
+if(filesize($resource_path) > 600)
+{
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=257");
+}
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds              \n";

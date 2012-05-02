@@ -1,8 +1,6 @@
 <?php
 namespace php_active_record;
 
-require_vendor('eol_content_schema_v2');
-
 class NatureServeAPI
 {
     // https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=ELEMENT_GLOBAL.2.104386
@@ -25,8 +23,8 @@ class NatureServeAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/temp/dwc_archive_test/"));
         
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/natureserve_species_list.xml";
-        // shell_exec("rm -f $species_list_path");
-        // shell_exec("curl ". self::SPECIES_LIST_URL ." -o $species_list_path");
+        shell_exec("rm -f $species_list_path");
+        shell_exec("curl ". self::SPECIES_LIST_URL ." -o $species_list_path");
         
         $reader = new \XMLReader();
         $reader->open($species_list_path);
@@ -116,10 +114,16 @@ class NatureServeAPI
     private function process_species_xml($details_xml)
     {
         $this->current_details_xml = $details_xml;
+        $scientific_name = $this->current_details_xml->classification->names->scientificName->unformattedName;
+        if(preg_match("/(sp|pop)\. [0-9]/", $scientific_name)) return;
+        echo "$scientific_name\n";
+        
         $identifier = (string) $this->current_details_xml['uid'];
         $this->get_images($identifier);
         
-        $this->write_taxonomy();
+        $taxon_reference_ids = $this->references();
+        
+        $this->write_taxonomy($taxon_reference_ids);
         $text = "";
         $this->append_description($text, @$this->current_details_xml->classification->taxonomy->formalTaxonomy->taxonomicComments, 'Comments');
         $this->write_text_description("", "taxonomic_comments", "http://www.eol.org/voc/table_of_contents#Taxonomy", $text);
@@ -150,10 +154,9 @@ class NatureServeAPI
         $this->trophic_strategy();
         $this->cyclicity();
         $this->size();
-        $this->references();
     }
     
-    private function write_taxonomy()
+    private function write_taxonomy($reference_ids = array())
     {
         $scientific_name = (string) @$this->current_details_xml->classification->names->scientificName->unformattedName;
         $author = (string) @$this->current_details_xml->classification->names->scientificName->nomenclaturalAuthor;
@@ -175,6 +178,7 @@ class NatureServeAPI
         $t->source = (string) @$this->current_details_xml->natureServeExplorerURI;
         // $t->source = "http://www.natureserve.org/explorer/servlet/NatureServe?loadTemplate=species_RptComprehensive.wmt&elKey=" . $t->taxonID;
         $t->vernacularName = (string) @$this->current_details_xml->classification->names->natureServePrimaryGlobalCommonName;
+        if($reference_ids) $t->referenceID = implode("; ", $reference_ids);
         $this->archive_builder->write_object_to_file($t);
     }
     
@@ -454,16 +458,17 @@ class NatureServeAPI
     
     private function taxon_biology()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
-            $text = "";
-            $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->shortGeneralDescription);
-            $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->generalDescription);
-            $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->technicalDescription);
-            $this->write_text_description("", "ecology_life_history", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $text,
-                array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
-                        'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
-        }
+        // echo "WE NEED TO HIDE THESE\n";
+        // if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
+        // {
+        //     $text = "";
+        //     $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->shortGeneralDescription);
+        //     $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->generalDescription);
+        //     $this->append_description($text, @$ecology->ecologyAndLifeHistoryDescription->technicalDescription);
+        //     $this->write_text_description("", "ecology_life_history", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $text,
+        //         array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
+        //                 'created' => @trim((string) $ecology->ecologyAndLifeHistoryEditionDate)));
+        // }
     }
     
     private function diagnostic_description()
@@ -629,7 +634,7 @@ class NatureServeAPI
         unset($references["NatureServe. Unpublished. Concept reference for taxa where a reference cannot be recorded due to insufficient BCD data for conversion; to be used as a placeholder until the correct citation is identified."]);
         unset($references["NatureServe. Unpublished. Concept reference for taxa for which no reference which describes the circumscription has been recorded; to be used as a placeholder until such a citation is identified."]);
         unset($references["NatureServe. Unpublished. Concept reference for taxa which have not yet been described; to be used as a placeholder until a citation is available which describes the circumscription of the taxon."]);
-        $this->write_references($references);
+        return $this->write_references($references);
     }
     
     private function get_images($id)
@@ -653,10 +658,8 @@ class NatureServeAPI
             $mr->additionalInformationURL = $image->natureServeExplorerURI;
             $mr->fileURL = $dc->identifier;
             $mr->creator = $dc->creator;
-            $mr->rights = $dc->rights;
             $mr->rightsHolder = @$mr->rightsHolder ?: $dc->rightsHolder;
             $mr->license = 'http://creativecommons.org/licenses/publicdomain/';
-            if($mr->rights == 'Public Domain') $mr->rights = '';
             if($mr->rightsHolder == 'Public Domain') $mr->rightsHolder = '';
              
             if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr))
@@ -686,18 +689,18 @@ class NatureServeAPI
         if(!$description) return;
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID = (string) $this->current_details_xml['uid'];
-        $mr->mediaResourceID = $mr->taxonID . "_" . $id_suffix;
+        $mr->identifier = $mr->taxonID . "_" . $id_suffix;
         $mr->type = 'http://purl.org/dc/dcmitype/Text';
         $mr->language = 'en';
-        $mr->mimeType = 'text/html';
-        $mr->additionalInformationURL = (string) @$this->current_details_xml->natureServeExplorerURI;
+        $mr->format = 'text/html';
+        $mr->furtherInformationURL = (string) @$this->current_details_xml->natureServeExplorerURI;
         $mr->description = $description;
-        $mr->subject = $subject;
+        $mr->CVterm = $subject;
         $mr->title = $title;
         $mr->creator = @$options['creator'];
-        $mr->created = @$options['created'];
-        $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
-        $mr->rightsHolder = 'NatureServe';
+        $mr->CreateDate = @$options['created'];
+        $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $mr->Owner = 'NatureServe';
         $this->archive_builder->write_object_to_file($mr);
     }
     
@@ -706,32 +709,35 @@ class NatureServeAPI
         if(!$fileURL) return;
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID = (string) $this->current_details_xml['uid'];
-        $mr->mediaResourceID = $mr->taxonID . "_" . $id_suffix;
+        $mr->identifier = $mr->taxonID . "_" . $id_suffix;
         $mr->type = 'http://purl.org/dc/dcmitype/StillImage';
         $mr->subtype = $subtype;
         $mr->language = 'en';
-        $mr->mimeType = 'image/gif';
-        $mr->additionalInformationURL = (string) @$this->current_details_xml->natureServeExplorerURI;
+        $mr->format = 'image/gif';
+        $mr->furtherInformationURL = (string) @$this->current_details_xml->natureServeExplorerURI;
         $mr->title = $title;
-        $mr->fileURL = $fileURL;
+        $mr->accessURI = $fileURL;
         $mr->creator = @$options['creator'];
-        $mr->created = @$options['created'];
+        $mr->CreateDate = @$options['created'];
         $mr->description = @$options['description'];
-        $mr->license = 'http://creativecommons.org/licenses/by-nc/3.0/';
-        $mr->rightsHolder = 'NatureServe';
+        $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $mr->Owner = 'NatureServe';
         $this->archive_builder->write_object_to_file($mr);
     }
     
     private function write_references($references)
     {
         if(!$references) return;
+        $reference_ids = array();
         foreach($references as $ref => $junk)
         {
             $r = new \eol_schema\Reference();
-            $r->taxonID = (string) $this->current_details_xml['uid'];
             $r->fullReference = $ref;
+            $r->identifier = md5($ref);
             $this->archive_builder->write_object_to_file($r);
+            $reference_ids[] = $r->identifier;
         }
+        return $reference_ids;
     }
     
     private static function description_from_block($xml, $title)
@@ -973,3 +979,4 @@ class NatureServeAPI
 }
 
 ?>
+

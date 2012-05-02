@@ -14,12 +14,12 @@ insert_items();
 insert_pages();
 insert_page_names();
 
-shell_exec("rm -fr ". DOC_ROOT ."temp/data/*");
-shell_exec("rm -fr ". DOC_ROOT ."temp/data.zip");
+// shell_exec("rm -fr ". DOC_ROOT ."temp/data/*");
+// shell_exec("rm -fr ". DOC_ROOT ."temp/data.zip");
 
 
 // clear the cache 
-shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
+// shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 
 
@@ -64,7 +64,7 @@ function insert_titles()
     {
         $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS publication_titles_tmp LIKE publication_titles");
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE publication_titles_tmp");
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/titles.txt", "publication_titles_tmp", "IGNORE", '', 100000);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/titles.txt", "publication_titles_tmp", "IGNORE", '', 100000, 500000);
         $GLOBALS['db_connection']->swap_tables('publication_titles_tmp', 'publication_titles');
     }
     shell_exec("rm ". DOC_ROOT ."temp/titles.txt");
@@ -102,7 +102,7 @@ function insert_items()
     {
         $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS title_items_tmp LIKE title_items");
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE title_items_tmp");
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/items.txt", "title_items_tmp", "IGNORE", '', 100000);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/items.txt", "title_items_tmp", "IGNORE", '', 100000, 500000);
         $GLOBALS['db_connection']->swap_tables('title_items_tmp', 'title_items');
     }
     shell_exec("rm ". DOC_ROOT ."temp/items.txt");
@@ -142,7 +142,7 @@ function insert_pages()
     {
         $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS item_pages_tmp LIKE item_pages");
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE item_pages_tmp");
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/pages.txt", "item_pages_tmp", "IGNORE", '', 100000);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/pages.txt", "item_pages_tmp", "IGNORE", '', 100000, 500000);
         $GLOBALS['db_connection']->swap_tables('item_pages_tmp', 'item_pages');
     }
     shell_exec("rm ". DOC_ROOT ."temp/pages.txt");
@@ -174,7 +174,7 @@ function insert_page_names()
     {
         $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS page_names_tmp LIKE page_names");
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE page_names_tmp");
-        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/page_names.txt", "page_names_tmp", "IGNORE", '', 100000);
+        $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/page_names.txt", "page_names_tmp", "IGNORE", '', 100000, 500000);
         $GLOBALS['db_connection']->swap_tables('page_names_tmp', 'page_names');
     }
     shell_exec("rm ". DOC_ROOT ."temp/page_names.txt");

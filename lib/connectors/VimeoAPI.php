@@ -10,29 +10,53 @@ class VimeoAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $users = self::compile_user_list();
-        $total_users = sizeof($users); 
-        $j = 0;
-        foreach($users as $user)
+        $user_ids = self::get_list_of_user_ids();
+        $count_of_users = count($user_ids);
+        $i = 0;
+        foreach($user_ids as $user_id)
         {
-            $j++; print "\n";
-            $num_rows = count($user["video_ids"]);
-            $i = 0;
-            foreach($user["video_ids"] as $video_id)
+            $i++;
+            
+            $page = 1;
+            $count_of_videos = 0;
+            while($page == 1 || $count_of_videos == 20)
             {
-                $xml = Functions::get_hashed_response(VIMEO_USER_SERVICE . "video/" . trim($video_id) . ".xml");
-                print "\n" . VIMEO_USER_SERVICE . "video/" . trim($video_id) . ".xml";
-                if(sizeof($xml->video)) 
+                $video_list_url = "http://vimeo.com/api/v2/$user_id/videos.xml?page=$page";
+                $xml = Functions::get_hashed_response($video_list_url);
+                
+                $count_of_videos = count($xml->video);
+                $j = 0;
+                foreach($xml->video as $video)
                 {
-                    $i++; print "\n [user $j of $total_users] [video $i of $num_rows] ";
-                    $arr = self::get_vimeo_taxa($xml->video, $used_collection_ids);
+                    $j++;
+                    echo "User $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)\n";
+                    $arr = self::get_vimeo_taxa($video, $used_collection_ids);
                     $page_taxa              = $arr[0];
                     $used_collection_ids    = $arr[1];
                     if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                 }
+                if($page == 3) break;
+                $page++;
             }
         }
         return $all_taxa;
+    }
+    
+    function get_list_of_user_ids()
+    {
+        $user_ids = array();
+        $page = 1;
+        while(!$user_ids || count($user_ids) % 20 == 0)
+        {
+            $xml = Functions::get_hashed_response(VIMEO_USER_SERVICE . "group/encyclopediaoflife/users.xml?page=$page");
+            foreach($xml->user as $user)
+            {
+                $user_ids[(string) $user->id] = 1;
+            }
+            if($page == 3) break;
+            $page++;
+        }
+        return array_keys($user_ids);
     }
 
     public static function get_vimeo_taxa($rec, $used_collection_ids)
@@ -116,7 +140,7 @@ class VimeoAPI
         //has to have a valid license
         if(!$license)
         {
-            print "\n invalid license [$rec->url]";
+            echo "invalid license [$rec->url]\n\n";
             return array();
         }
 
@@ -334,58 +358,5 @@ class VimeoAPI
         if(preg_match("/<a href=\"http:\/\/creativecommons.org\/licenses\/(.*?)\//ims", $html, $matches)) return self::get_cc_license("cc-" . trim($matches[1]));
         return false;
     }
-
-    function compile_user_list()
-    {
-        $users = array();
-        /* you can add users by adding them here especially if they haven't join the EOL-Vimeo group:
-        $users["user1632860"] = ""; //Peter Kuttner
-        $users["user5361059"] = ""; //Patrick Leary
-        $users["morphologic"] = ""; //morphologic
-        $users["user6136460"] = ""; //Ximena Miranda
-        $users["user1632860"] = ""; //Peter Kuttner
-        $users["user5814509"] = ""; //Katja Schulz
-        $users["user5352360"] = ""; //Eli Agbayani
-        */
-
-        /* or you can include them by getting all the members from the EOL-Vimeo group */
-        $xml = Functions::get_hashed_response(VIMEO_USER_SERVICE . "group/encyclopediaoflife/users.xml");
-        foreach($xml->user as $user)
-        {
-            $path_parts = pathinfo($user->profile_url);
-            $user = $path_parts['filename'];
-            $users[$user] = "";
-        }
-
-        $users = self::assign_video_ids(array_keys($users));
-        return $users;
-    }
-
-    function assign_video_ids($user_ids)
-    {
-        include_once(dirname(__FILE__) . "/../../vendor/vimeo/vimeo.php");
-        $vimeo = new \phpVimeo('4dd12148ba83e2f6e0ad3483a0eae9ef', 'aa7c2d4015aafb25');
-        $users = array();
-        foreach($user_ids as $user_id)
-        {
-            $page = 1;
-            $video_ids = array();
-            while(true)
-            {
-                $all_videos = $vimeo->call('vimeo.videos.getUploaded', array('user_id' => $user_id, 'page' => $page));
-                $page++;
-                if(isset($all_videos->videos->video)) foreach($all_videos->videos->video as $video) $video_ids[] = $video->id;
-                else
-                {
-                    print "\n not yet setup: user_id:[$user_id] -- no. of pages:[$page]";
-                    break;
-                }
-            }
-            $users[$user_id]["id"] = $user_id;
-            $users[$user_id]["video_ids"] = $video_ids;
-        }
-        return $users;
-    }
-
 }
 ?>
