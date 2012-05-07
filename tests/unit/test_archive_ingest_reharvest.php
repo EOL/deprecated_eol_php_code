@@ -284,7 +284,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         $taxon->scientificName = "Ursus maritimus Phipps, 1774";
         $taxon->taxonRank = "species";
         $taxon->furtherInformationURL = "http://some.url/polar_bear";
-        $t->referenceID = "11;33";
+        $taxon->referenceID = "11;33";
         $this->taxa[] = $taxon;
         
         $vernacular = new \eol_schema\VernacularName();
@@ -313,7 +313,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         $taxon->scientificName = "Salmo salar Linnaeus, 1758";
         $taxon->taxonRank = "species";
         $taxon->furtherInformationURL = "http://some.url/salmon";
-        $t->referenceID = "22;33";
+        $taxon->referenceID = "22;33";
         $this->taxa[] = $taxon;
         
         $vernacular = new \eol_schema\VernacularName();

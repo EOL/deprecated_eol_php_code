@@ -55,6 +55,7 @@ class Taxon extends DarwinCoreExtensionBase
             'homotypicSynonym',
             'misapplied',
             'proParteSynonym',
+            'junior synonym',
             'synonym')))
         {
             return false;
@@ -64,7 +65,7 @@ class Taxon extends DarwinCoreExtensionBase
     
     public static function valid_rank($v)
     {
-        if($v && !in_array($v, array(
+        if($v && !in_array(strtolower($v), array(
             'kingdom',
             'regnum',
             'subkingdom',

@@ -3,7 +3,7 @@ namespace eol_schema;
 
 class ContentArchiveFieldValidationRule extends ContentArchiveValidationRule
 {
-    public function validate($field_value)
+    public function validate(&$field_value)
     {
         $success = call_user_func($this->validation_function, $field_value);
         if(!$success)

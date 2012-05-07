@@ -67,6 +67,10 @@ class ContentArchiveValidator
             $new_errors = \eol_schema\Taxon::validate_by_hash($row);
         }elseif($parameters['row_type'] == 'http://rs.gbif.org/terms/1.0/vernacularname')
         {
+            $new_errors = \eol_schema\VernacularName::validate_by_hash($row);
+        }elseif($parameters['row_type'] == 'http://eol.org/schema/reference/reference')
+        {
+            $new_errors = \eol_schema\Reference::validate_by_hash($row);
         }
         
         foreach($new_errors as $new_error)

@@ -281,7 +281,7 @@ function show_synonyms_he($hierarchy_entry)
             echo $v->name->string;
             if($v->synonym_relation_id) echo " (".$v->synonym_relation->translation->label.")";
             $language = $v->language;
-            if($label = @$language->label) echo " ($label)";
+            if($label = @$language->translation->label) echo " ($label)";
             if($cf = @$v->name->ranked_canonical_form->string) echo str_repeat("&nbsp;", 10)."<small>$cf</small>";
             else echo str_repeat("&nbsp;", 10)."<small>-----</small>";
             echo "<br>";

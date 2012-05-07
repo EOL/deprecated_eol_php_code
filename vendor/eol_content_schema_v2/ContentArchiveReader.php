@@ -146,7 +146,10 @@ class ContentArchiveReader
         }
         
         // grabbing the coreID if it exists
-        if($id = $metadata_xml->coreid)
+        $id = $metadata_xml->coreid;
+        # just in case people use the wrong case, as GBIF did in some documentation
+        if(!$id) $id = $metadata_xml->coreId;
+        if($id)
         {
             $index = (int) @$id['index'];
             $term = (string) @$id['term'];

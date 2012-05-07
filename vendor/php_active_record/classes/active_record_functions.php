@@ -478,7 +478,7 @@ function recursive_rmdir($dir)
         if(is_dir($dir_or_file)) recursive_rmdir($dir_or_file);
         else unlink($dir_or_file);
     }
-    rmdir($dir);
+    @rmdir($dir);
 }
 
 ?>

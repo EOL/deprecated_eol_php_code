@@ -71,7 +71,7 @@ class FileIterator implements \Iterator
         {
             $line = fgets($this->FILE, 65535);
             $this->current_line = rtrim($line, "\r\n");
-            
+            unset($line);
             // // possibly faster but doesn't recognize both \n and \r
             // $this->current_line = stream_get_line($this->FILE, 65535, "\n");
             

@@ -23,6 +23,7 @@ exit;
 */
 
 
+/*
 $GLOBALS['itis_dump_dir'] = dump_directory_path();
 if(!$GLOBALS['itis_dump_dir']) exit;
 
@@ -49,11 +50,35 @@ echo "Getting vernaculars...\n";
 get_vernaculars();
 echo "Getting synonyms...\n";
 get_synonyms();
+*/
 
+
+// // create the test resource
+// $agent = Agent::find_or_create(array('full_name' => 'Integrated Taxonomic Information System 2012'));
+// $user = User::find_or_create(array('display_name' => 'Integrated Taxonomic Information System 2012', 'agent_id' => $agent->id));
+// 
+// // create the content partner
+// $content_partner = ContentPartner::find_or_create(array('user_id' => $user->id));
+// $hierarchy = Hierarchy::find_or_create(array('agent_id' => $agent->id, 'label' => 'Integrated Taxonomic Information System 2012'));
+// 
+// // create the resource
+// $attr = array(  'content_partner_id'    => $content_partner->id,
+//                 'service_type'          => ServiceType::find_or_create_by_translated_label('EOL Transfer Schema'),
+//                 'refresh_period_hours'  => 1,
+//                 'auto_publish'          => 1,
+//                 'vetted'                => 1,
+//                 'title'                 => "Integrated Taxonomic Information System 20122",
+//                 'hierarchy_id'          => $hierarchy->id,
+//                 'resource_status'       => ResourceStatus::validated());
+// $resource = Resource::find_or_create($attr);
+// 
+$resource = Resource::find(8);
+
+/*
 echo "Starting to create document\n";
 echo "Memory: ".memory_get_usage()."\n";
 echo "Time: ".time_elapsed()."\n\n";
-get_names();
+get_names($resource->id);
 echo "Memory: ".memory_get_usage()."\n";
 echo "Time: ".time_elapsed()."\n\n";
 
@@ -72,50 +97,104 @@ unset($GLOBALS['synonyms']);
 unset($GLOBALS['synonym_of']);
 echo "Memory: ".memory_get_usage()."\n";
 echo "Time: ".time_elapsed()."\n\n";
+*/
 
+/*
+$archive_reader = new ContentArchiveReader(null, CONTENT_RESOURCE_LOCAL_PATH . $resource->id);
+$archive_validator = new ContentArchiveValidator($archive_reader);
 
-
-
-$agent = Agent::find_or_create_by_full_name("Integrated Taxonomic Information System", array("acronym" => "ITIS"));
-
-$agent_hierarchy = Hierarchy::find_last_by_agent_id($agent->id);
-if($agent_hierarchy)
+$archive_validator->get_validation_errors();
+if($errors = $archive_validator->errors())
 {
-    $hierarchy_group_id = $agent_hierarchy->hierarchy_group_id;
-    $hierarchy_group_version = $agent_hierarchy->latest_group_version()+1;
-    
-    $hierarchy_params = array(
-        "agent_id"                  => $agent_hierarchy->agent_id,
-        "label"                     => $agent_hierarchy->label,
-        "descriptive_label"         => $agent_hierarchy->descriptive_label,
-        "description"               => $agent_hierarchy->description,
-        "hierarchy_group_id"        => $agent_hierarchy->hierarchy_group_id,
-        "hierarchy_group_version"   => $hierarchy_group_version,
-        "url"                       => $agent_hierarchy->url,
-        "outlink_uri"               => $agent_hierarchy->outlink_uri,
-        "ping_host_url"             => $agent_hierarchy->ping_host_url,
-        "complete"                  => $agent_hierarchy->complete);
-}else
-{
-    $hierarchy_group_id = Hierarchy::next_group_id();
-    $hierarchy_group_version = 1;
-    
-    $hierarchy_params = array(
-        "label"                     => "Integrated Taxonomic Information System (ITIS)",
-        "description"               => "latest export",
-        "agent_id"                  => $agent->id,
-        "url"                       => "http://www.itis.gov/",
-        "outlink_uri"               => "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=%%ID%%",
-        "complete"                  => 1,
-        "hierarchy_group_id"        => $hierarchy_group_id,
-        "hierarchy_group_version"   => $hierarchy_group_version);
+    $errors_as_string = array();
+    foreach($errors as $error)
+    {
+        $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
+        if($error->value) $this_error_string .= " [value was \"$error->value\"]";
+        $errors_as_string[] = $this_error_string;
+    }
+    print_r($errors_as_string);
 }
+if($warnings = $archive_validator->warnings())
+{
+    $warnings_as_string = array();
+    foreach($warnings as $warning)
+    {
+        $this_warning_string = "<b>Warning</b> in $warning->file on line $warning->line field $warning->uri: $warning->message";
+        if($warning->value) $this_warning_string .= " [value was \"$warning->value\"]";
+        $warnings_as_string[] = $this_warning_string;
+    }
+    print_r($warnings_as_string);
+}
+*/
 
-$hierarchy = Hierarchy::find_or_create($hierarchy_params);
+$GLOBALS['db_connection']->begin_transaction();
+$resource->insert_hierarchy();
+
+$resource->start_harvest();
+$ingester = new ArchiveDataIngester($resource->harvest_event);
+$ingester->parse(false);
+unset($ingester);
+
+$GLOBALS['db_connection']->commit();
 
 
-$uri = dirname(__FILE__) . "/out.xml";
-DarwinCoreHarvester::harvest($uri, $hierarchy);
+
+
+
+
+
+
+
+
+// 
+// 
+// 
+// 
+// $agent = Agent::find_or_create_by_full_name("Integrated Taxonomic Information System", array("acronym" => "ITIS"));
+// 
+// $agent_hierarchy = Hierarchy::find_last_by_agent_id($agent->id);
+// if($agent_hierarchy)
+// {
+//     $hierarchy_group_id = $agent_hierarchy->hierarchy_group_id;
+//     $hierarchy_group_version = $agent_hierarchy->latest_group_version()+1;
+//     
+//     $hierarchy_params = array(
+//         "agent_id"                  => $agent_hierarchy->agent_id,
+//         "label"                     => $agent_hierarchy->label,
+//         "descriptive_label"         => $agent_hierarchy->descriptive_label,
+//         "description"               => $agent_hierarchy->description,
+//         "hierarchy_group_id"        => $agent_hierarchy->hierarchy_group_id,
+//         "hierarchy_group_version"   => $hierarchy_group_version,
+//         "url"                       => $agent_hierarchy->url,
+//         "outlink_uri"               => $agent_hierarchy->outlink_uri,
+//         "ping_host_url"             => $agent_hierarchy->ping_host_url,
+//         "complete"                  => $agent_hierarchy->complete);
+// }else
+// {
+//     $hierarchy_group_id = Hierarchy::next_group_id();
+//     $hierarchy_group_version = 1;
+//     
+//     $hierarchy_params = array(
+//         "label"                     => "Integrated Taxonomic Information System (ITIS)",
+//         "description"               => "latest export",
+//         "agent_id"                  => $agent->id,
+//         "url"                       => "http://www.itis.gov/",
+//         "outlink_uri"               => "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=%%ID%%",
+//         "complete"                  => 1,
+//         "hierarchy_group_id"        => $hierarchy_group_id,
+//         "hierarchy_group_version"   => $hierarchy_group_version);
+// }
+// 
+// $hierarchy = Hierarchy::find_or_create($hierarchy_params);
+// 
+// 
+// $uri = dirname(__FILE__) . "/out.xml";
+// DarwinCoreHarvester::harvest($uri, $hierarchy);
+
+
+
+
 
 
 
@@ -260,7 +339,7 @@ function get_locations()
         if(!$line) continue;
         $line_data  = explode("|", $line);
         $tsn        = trim($line_data[0]);
-        $location   = trim(utf8_encode($line_data[1]));
+        $location   = trim($line_data[1]);
         $GLOBALS['locations'][$tsn] = $location;
     }
 }
@@ -320,8 +399,8 @@ function get_authors()
     {
         if(!$line) continue;
         $line_data  = explode("|", $line);
-        $id         = trim(utf8_encode($line_data[0]));
-        $GLOBALS['authors'][$id] = trim($line_data[1]);
+        $id         = trim($line_data[0]);
+        $GLOBALS['authors'][$id] = trim(utf8_encode($line_data[1]));
     }
 }
 
@@ -373,7 +452,7 @@ function get_synonyms()
     }
 }
 
-function get_names()
+function get_names($resource_id)
 {
     global $mysqli;
     
@@ -402,10 +481,15 @@ function get_names()
     //22   update_date date not null
     //23   uncertain_prnt_ind char(3)
     
-    $OUT = fopen(dirname(__FILE__)."/out.xml", "w+");
-    fwrite($OUT, DarwinCoreRecordSet::xml_header());
+    // $OUT = fopen(dirname(__FILE__)."/out.xml", "w+");
+    // fwrite($OUT, DarwinCoreRecordSet::xml_header());
+    
+    if(!is_dir(CONTENT_RESOURCE_LOCAL_PATH . "$resource_id")) mkdir(CONTENT_RESOURCE_LOCAL_PATH . "$resource_id");
+    $archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => CONTENT_RESOURCE_LOCAL_PATH . "$resource_id/"));
+    $written_publication_ids = array();
     
     $path = $GLOBALS['itis_dump_dir']."/".$GLOBALS['filenames']['taxonomic_units'];
+    $i = 0;
     foreach(new FileIterator($path) as $line)
     {
         if(!$line) continue;
@@ -429,7 +513,6 @@ function get_names()
         $author_id      = trim($line_data[18]);
         $rank_id        = trim($line_data[21]);
         
-        
         if(!$parent_tsn) $parent_tsn = 0;
         
         $name_string = $name_part_1;
@@ -440,15 +523,15 @@ function get_names()
         if($name_part_3)    $name_string.=" ".$name_part_3;
         if($sp_marker_2)    $name_string.=" ".$sp_marker_2;
         if($name_part_4)    $name_string.=" ".$name_part_4;
-        if(@$GLOBALS['authors'][$author_id]) $name_string.=" ".$GLOBALS['authors'][$author_id];
+        if(@$GLOBALS['authors'][$author_id]) $name_string = utf8_encode($name_string)." ".$GLOBALS['authors'][$author_id];
         
         $canonical_form = $name_part_1;
         if($name_part_2)    $canonical_form.=" ".$name_part_2;
         if($name_part_3)    $canonical_form.=" ".$name_part_3;
         if($name_part_4)    $canonical_form.=" ".$name_part_4;
         
-        $name_string    = trim(utf8_encode($name_string));
-        $canonical_form = trim(utf8_encode($canonical_form));
+        $name_string    = trim($name_string);
+        $canonical_form = utf8_encode(trim($canonical_form));
         
         $remarks = "";
         if($comp_rating && $comp_rating != "unknown") $remarks .= "Completeness: $comp_rating. ";
@@ -465,31 +548,24 @@ function get_names()
         $remarks = str_replace("..", ".", $remarks);
         $remarks = trim($remarks);
         
-        $publications = array();
-        if(isset($GLOBALS['publication_links'][$name_tsn]))
-        {
-            foreach($GLOBALS['publication_links'][$name_tsn] as $pub_id)
-            {
-                if(@$GLOBALS['publications'][$pub_id]) $publications[] = $GLOBALS['publications'][$pub_id];
-            }
-        }
         
         
         if(isset($GLOBALS['synonym_of'][$name_tsn]))
         {
-            $params = array(
-                    "taxonID"           => $name_tsn,
-                    "scientificName"    => $name_string,
-                    "parentNameUsageID" => $GLOBALS['synonym_of'][$name_tsn],
-                    "taxonRank"         => $GLOBALS['ranks'][$rank_id],
-                    "taxonRemarks"      => $remarks,
-                    "namePublishedIn"   => $publications,
-                    "taxonomicStatus"   => $reason);
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID = $name_tsn;
+            $taxon->scientificName = $name_string;
+            $taxon->parentNameUsageID = $GLOBALS['synonym_of'][$name_tsn];
+            $taxon->taxonRank = $GLOBALS['ranks'][$rank_id];
+            $taxon->taxonRemarks = $remarks;
+            // $taxon->namePublishedIn = $publications;
+            $taxon->taxonomicStatus = $reason;
+            // if(isset($GLOBALS['locations'][$name_tsn])) $taxon->spatial = $GLOBALS['locations'][$name_tsn];
             
+            if(!Functions::is_utf8($taxon->scientificName)) echo "NOT UTF8 SYN: $name_tsn : $taxon->scientificName\n";
+            $archive_builder->write_object_to_file($taxon);
             @$GLOBALS['all_statuses']['synonyms'][$validity] += 1;
-            if(isset($GLOBALS['locations'][$name_tsn])) $params['dcterms:spatial'] = $GLOBALS['locations'][$name_tsn];
-            $dwc_taxon = new DarwinCoreTaxon($params);
-            fwrite($OUT, $dwc_taxon->__toXML());
+            @$GLOBALS['all_statuses']['synonym_reasons'][$reason] += 1;
         }else
         {
             // first loop and find all vernacular names
@@ -498,32 +574,97 @@ function get_names()
             {
                 foreach($GLOBALS['vernaculars'][$name_tsn] as $name_hash)
                 {
-                    $vernacular_names[$name_hash['language']][] = $name_hash['name'];
+                    $vernacular = new \eol_schema\VernacularName();
+                    $vernacular->taxonID = $name_tsn;
+                    $vernacular->vernacularName = $name_hash['name'];
+                    $vernacular->language = get_iso_code_for_language($name_hash['language']);
+
+                    if(!Functions::is_utf8($vernacular->vernacularName)) echo "NOT UTF8 VERN: $name_tsn : $vernacular->vernacularName\n";
+                    $archive_builder->write_object_to_file($vernacular);
+                    @$GLOBALS['all_statuses']['languages'][$name_hash['language']] += 1;
                 }
             }
             
-            $params = array(
-                    "taxonID"           => $name_tsn,
-                    "scientificName"    => $name_string,
-                    "parentNameUsageID" => $parent_tsn,
-                    "taxonRank"         => $GLOBALS['ranks'][$rank_id],
-                    "taxonRemarks"      => $remarks,
-                    "namePublishedIn"   => $publications,
-                    "taxonomicStatus"   => $validity,
-                    "vernacularName"    => $vernacular_names);
+            $publication_ids = array();
+            if(isset($GLOBALS['publication_links'][$name_tsn]))
+            {
+                foreach($GLOBALS['publication_links'][$name_tsn] as $pub_id)
+                {
+                    if(@$GLOBALS['publications'][$pub_id])
+                    {
+                        if(!isset($written_publication_ids[$pub_id]))
+                        {
+                            $reference = new \eol_schema\Reference();
+                            $reference->identifier = $pub_id;
+                            $reference->fullReference = $GLOBALS['publications'][$pub_id];
+
+                            if(!Functions::is_utf8($reference->fullReference)) echo "NOT UTF8 REF: $name_tsn : $reference->fullReference\n";
+                            $archive_builder->write_object_to_file($reference);
+                            $written_publication_ids[$pub_id] = 1;
+                        }
+                        $publication_ids[] = $pub_id;
+                    }
+                }
+            }
             
+            if($i % 1000 == 0) echo "$i : $name_tsn : $name_string : ". time_elapsed() ." : ". memory_get_usage() ."\n";
+            $i++;
+            
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID = $name_tsn;
+            $taxon->scientificName = $name_string;
+            $taxon->parentNameUsageID = $parent_tsn;
+            $taxon->taxonRank = $GLOBALS['ranks'][$rank_id];
+            $taxon->taxonRemarks = $remarks;
+            $taxon->referenceID = implode(";", $publication_ids);
+            $taxon->taxonomicStatus = $validity;
+            // if(isset($GLOBALS['locations'][$name_tsn])) $taxon->spatial = $GLOBALS['locations'][$name_tsn];
+            
+            if(!Functions::is_utf8($taxon->scientificName)) echo "NOT UTF8: $name_tsn : $taxon->scientificName\n";
+            $archive_builder->write_object_to_file($taxon);
             @$GLOBALS['all_statuses']['valids'][$validity] += 1;
-            if(isset($GLOBALS['locations'][$name_tsn])) $params['dcterms:spatial'] = $GLOBALS['locations'][$name_tsn];
-            $dwc_taxon = new DarwinCoreTaxon($params);
-            fwrite($OUT, $dwc_taxon->__toXML());
         }
     }
     
-    fwrite($OUT, DarwinCoreRecordSet::xml_footer());
-    fclose($OUT);
+    $archive_builder->finalize();
 }
 
-
+function get_iso_code_for_language($language)
+{
+    if(!$language) return $language;
+    
+    static $lang = array();
+    if(!$lang)
+    {
+        $lang['French'] = 'fr';
+        $lang['English'] = 'en';
+        $lang['Spanish'] = 'es';
+        // $lang['Hawaiian'] = '';
+        $lang['Native American'] = '';
+        $lang['Portuguese'] = 'pt';
+        $lang['Italian'] = 'it';
+        $lang['German'] = 'de';
+        $lang['Japanese'] = 'ja';
+        $lang['Arabic'] = 'ar';
+        $lang['Icelandic'] = 'is';
+        $lang['Afrikaans'] = 'af';
+        // $lang['Iglulik Inuit'] = '';
+        $lang['Chinese'] = 'cn';
+        $lang['Hindi'] = 'hi';
+        $lang['Dutch'] = 'nl';
+        $lang['Hausa'] = 'ha';
+        $lang['Greek'] = 'el';
+        // $lang['Djuka'] = '';
+        $lang['Galibi'] = 'gl';
+        $lang['Korean'] = 'ko';
+        // $lang['Australian'] = '';
+    }
+    
+    if(isset($lang[$language])) return $lang[$language];
+    return $language;
+    
+    
+}
 
 function dump_directory_path()
 {

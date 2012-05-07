@@ -160,6 +160,12 @@ class ArchiveDataIngester
             $this->taxon_ids_inserted[$taxon_id] = array('hierarchy_entry_id' => $hierarchy_entry->id, 'taxon_concept_id' => $hierarchy_entry->taxon_concept_id, 'source_url' => $source_url);
         }
         
+        if(!isset($this->entry_references_deleted[$hierarchy_entry->id]))
+        {
+            $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) JOIN refs r ON (her.ref_id=r.id) SET r.published=0 WHERE he.id=$hierarchy_entry->id");
+            $this->entry_references_deleted[$hierarchy_entry->id] = true;
+        }
+        
         if($name_published_in = @$row['http://rs.tdwg.org/dwc/terms/namePublishedIn'])
         {
             $individual_references = explode("||", $name_published_in);
@@ -212,6 +218,7 @@ class ArchiveDataIngester
     public function insert_vernacular_names($row)
     {
         self::debug_iterations("Inserting VernacularName");
+        $this->commit_iterations("VernacularName", 500);
         
         $taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $taxon_info = array();
@@ -275,6 +282,7 @@ class ArchiveDataIngester
     # <field index="10" term="http://rs.tdwg.org/ac/terms/accessURI"/>
     # <field index="11" term="http://eol.org/schema/media/thumbnailURL"/>
     # <field index="12" term="http://rs.tdwg.org/ac/terms/furtherInformationURL"/>
+    --- <field index="12" term="http://rs.tdwg.org/ac/terms/derivedFrom"/>
     # <field index="13" term="http://ns.adobe.com/xap/1.0/CreateDate"/>
     # <field index="14" term="http://purl.org/dc/terms/modified"/>
     # <field index="15" term="http://purl.org/dc/terms/available"/>
@@ -293,6 +301,7 @@ class ArchiveDataIngester
     --------% <field index="28" term="http://rs.tdwg.org/dwc/terms/lifeStage"/>
     --------% <field index="29" term="http://rs.tdwg.org/ac/terms/subjectOrientation"/>
     # <field index="30" term="http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated"/>
+    -- <field index="30" term="http://purl.org/dc/terms/spatial"/>
     # <field index="31" term="http://www.w3.org/2003/01/geo/wgs84_pos#lat"/>
     # <field index="32" term="http://www.w3.org/2003/01/geo/wgs84_pos#long"/>
     # <field index="33" term="http://www.w3.org/2003/01/geo/wgs84_pos#alt"/>
@@ -351,6 +360,7 @@ class ArchiveDataIngester
         $data_object->rights_holder = @self::field_decode($row['http://ns.adobe.com/xap/1.0/rights/Owner']);
         $data_object->bibliographic_citation = @self::field_decode($row['http://purl.org/dc/terms/bibliographicCitation']);
         $data_object->source_url = @self::field_decode($row['http://rs.tdwg.org/ac/terms/furtherInformationURL']);
+        $data_object->derived_from = @self::field_decode($row['http://rs.tdwg.org/ac/terms/derivedFrom']);
         $data_object->description = @self::field_decode($row['http://purl.org/dc/terms/description']);
         // Turn newlines into paragraphs
         $data_object->description = str_replace("\n","</p><p>", $data_object->description);
@@ -358,6 +368,7 @@ class ArchiveDataIngester
         $data_object->object_url = @self::field_decode($row['http://rs.tdwg.org/ac/terms/accessURI']);
         $data_object->thumbnail_url = @self::field_decode($row['http://eol.org/schema/media/thumbnailURL']);
         $data_object->location = @self::field_decode($row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated']);
+        // $data_object->generic_location = @self::field_decode($row['http://purl.org/dc/terms/spatial']);
         $data_object->latitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#lat']);
         $data_object->longitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#long']);
         $data_object->altitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#alt']);
@@ -473,11 +484,18 @@ class ArchiveDataIngester
             unset($a);
             $i++;
         }
+        
+        if(!isset($this->object_references_deleted[$data_object->id]))
+        {
+            $this->mysqli->update("UPDATE data_objects do JOIN data_objects_refs dor ON (do.id=dor.data_object_id) JOIN refs r ON (dor.ref_id=r.id) SET r.published=0 WHERE do.guid='$data_object->guid'");
+            $this->object_references_deleted[$data_object->id] = true;
+        }
     }
     
     public function insert_references($row)
     {
         self::debug_iterations("Inserting reference");
+        $this->commit_iterations("Reference", 500);
         
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         // we really only need to insert the references that relate to taxa or media
@@ -529,11 +547,6 @@ class ArchiveDataIngester
         {
             foreach($this->taxon_reference_ids[$reference_id] as $hierarchy_entry_id => $val)
             {
-                if(!isset($this->entry_references_deleted[$hierarchy_entry_id]))
-                {
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) JOIN refs r ON (her.ref_id=r.id) SET r.published=0 WHERE he.id=$hierarchy_entry_id");
-                    $this->entry_references_deleted[$hierarchy_entry_id] = true;
-                }
                 $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs (hierarchy_entry_id, ref_id) VALUES ($hierarchy_entry_id, $reference->id)");
                 $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
                 // TODO: find_or_create doesn't work here because of the dual primary key
@@ -546,11 +559,6 @@ class ArchiveDataIngester
         {
             foreach($this->media_reference_ids[$reference_id] as $data_object_id => $data_object_guid)
             {
-                if(!isset($this->object_references_deleted[$data_object_id]))
-                {
-                    $this->mysqli->update("UPDATE data_objects do JOIN data_objects_refs dor ON (do.id=dor.data_object_id) JOIN refs r ON (dor.ref_id=r.id) SET r.published=0 WHERE do.guid='$data_object_guid'");
-                    $this->object_references_deleted[$data_object_id] = true;
-                }
                 $this->mysqli->insert("INSERT IGNORE INTO data_objects_refs (data_object_id, ref_id) VALUES ($data_object_id, $reference->id)");
                 $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
                 // TODO: find_or_create doesn't work here because of the dual primary key - same as above with entries
@@ -634,6 +642,7 @@ class ArchiveDataIngester
             $is_valid = Functions::array_searchi($taxonomic_status, self::$valid_taxonomic_statuses);
             // $is_valid might be zero at this point so we need to check
             if($is_valid === null) $is_valid = false;
+            else $is_valid = true;  // $is_valid could be 0 here
         }
         
         // if the taxon has an acceptedNameUsageID then it isn't valid

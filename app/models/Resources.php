@@ -663,6 +663,7 @@ class Resource extends ActiveRecord
             
             // Create this harvest event
             $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
+            $this->harvest_event->resource = $this;
             $this->start_harvest_time  = date('Y m d H');
         }
     }

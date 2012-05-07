@@ -16,23 +16,26 @@ class DarwinCoreExtensionBase
     }
     
     // to be defined by extending classes
-    public static function validate_by_hash($fields)
+    public static function validate_by_hash(&$fields)
     {
         $errors = array();
         $rules = static::validation_rules();
         // get the field name and validation rule(s) for that field
-        foreach($rules as $rule)
+        if(isset($rules))
         {
-            if(get_class($rule) == 'eol_schema\ContentArchiveFieldValidationRule')
+            foreach($rules as $rule)
             {
-                $success_or_error = $rule->validate(@$fields[$rule->field_uri]);
-            }elseif(get_class($rule) == 'eol_schema\ContentArchiveRowValidationRule')
-            {
-                $success_or_error = $rule->validate($fields);
-            }
-            if(get_parent_class($success_or_error) == 'eol_schema\ContentArchiveErrorBase')
-            {
-                $errors[] = $success_or_error;
+                if(get_class($rule) == 'eol_schema\ContentArchiveFieldValidationRule')
+                {
+                    $success_or_error = $rule->validate(@$fields[$rule->field_uri]);
+                }elseif(get_class($rule) == 'eol_schema\ContentArchiveRowValidationRule')
+                {
+                    $success_or_error = $rule->validate($fields);
+                }
+                if(get_parent_class($success_or_error) == 'eol_schema\ContentArchiveErrorBase')
+                {
+                    $errors[] = $success_or_error;
+                }
             }
         }
         return $errors;
