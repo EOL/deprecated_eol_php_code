@@ -11,7 +11,7 @@ require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 344; 
-$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-mammals-response-20120302.xml.gz"; //Mammals Resource
+$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-mammals-response-20120423.xml.gz"; //Mammals Resource
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document();
 
