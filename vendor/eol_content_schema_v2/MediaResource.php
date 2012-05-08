@@ -22,7 +22,7 @@ class MediaResource extends DarwinCoreExtensionBase
                 'field_uri'             => 'http://purl.org/dc/terms/language',
                 'validation_function'   => 'eol_schema\MediaResource::valid_language',
                 'failure_type'          => 'error',
-                'failure_message'       => 'Invalid language'));
+                'failure_message'       => 'Language should use standardized ISO 639 language codes'));
             
             $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://purl.org/dc/terms/type',
@@ -53,7 +53,25 @@ class MediaResource extends DarwinCoreExtensionBase
                 'validation_function'   => 'eol_schema\MediaResource::valid_license',
                 'failure_type'          => 'error',
                 'failure_message'       => 'Invalid license'));
-                
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/ac/terms/accessURI',
+                'validation_function'   => 'eol_schema\MediaResource::valid_url',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Invalid URL'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://eol.org/schema/media/thumbnailURL',
+                'validation_function'   => 'eol_schema\MediaResource::valid_url',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Invalid URL'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/ac/terms/furtherInformationURL',
+                'validation_function'   => 'eol_schema\MediaResource::valid_url',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Invalid URL'));
+            
             // these rules apply to entire rows
             $rules[] = new ContentArchiveRowValidationRule(array(
                 'validation_function'   => 'eol_schema\MediaResource::images_need_urls',
@@ -79,6 +97,16 @@ class MediaResource extends DarwinCoreExtensionBase
         return true;
     }
     
+    public static function valid_url($v)
+    {
+        // must start with http:// and contain at least one dot ( . )
+        if($v && !preg_match("/^http:\/\/.*\./i", $v))
+        {
+            return false;
+        }
+        return true;
+    }
+    
     public static function valid_language($v)
     {
         if($v && !preg_match("/^[a-z]{2,3}(-[a-z]{2,3})?$/i", $v))
@@ -90,12 +118,12 @@ class MediaResource extends DarwinCoreExtensionBase
     
     public static function valid_data_type($v)
     {
-        if(preg_match("/^http:\/\/purl\.org\/dc\/dcmitype\/(.*)$/", $v, $arr)) $v = $arr[1];
+        if(preg_match("/^http:\/\/purl\.org\/dc\/dcmitype\/(.*)$/", strtolower($v), $arr)) $v = $arr[1];
         if($v && !in_array($v, array(
-            'MovingImage',
-            'Sound',
-            'StillImage',
-            'Text'
+            'movingimage',
+            'sound',
+            'stillimage',
+            'text'
             )))
         {
             return false;
@@ -105,8 +133,8 @@ class MediaResource extends DarwinCoreExtensionBase
     
     public static function valid_data_subtype($v)
     {
-        if($v && !in_array($v, array(
-            'Map')))
+        if($v && !in_array(strtolower($v), array(
+            'map')))
         {
             return false;
         }

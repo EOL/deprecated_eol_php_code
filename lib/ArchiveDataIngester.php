@@ -124,6 +124,8 @@ class ArchiveDataIngester
         $rank = Rank::find_or_create_by_translated_label(@self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRank']));
         $source_url = @self::field_decode($row['http://rs.tdwg.org/ac/terms/furtherInformationURL']);
         if(!$source_url) $source_url = @self::field_decode($row['http://purl.org/dc/terms/source']);
+        if(isset($row['http://rs.tdwg.org/dwc/terms/taxonRemarks'])) $taxon_remarks = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRemarks']);
+        else $taxon_remarks = NULL;
         
         // these are the taxa using the adjacency list format
         if(!$parent_hierarchy_entry_id && ($kingdom || $phylum || $class || $order || $family || $genus))
@@ -138,7 +140,8 @@ class ArchiveDataIngester
                             "genus"             => $genus,
                             "scientificName"    => $scientific_name,
                             "name"              => $name,
-                            "rank"              => $rank);
+                            "rank"              => $rank,
+                            "taxon_remarks"     => $taxon_remarks);
             $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($params, $this->harvest_event->resource->hierarchy_id);
             if(@!$hierarchy_entry->id) return;
             $this->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
@@ -153,7 +156,8 @@ class ArchiveDataIngester
                             "parent_id"         => $parent_hierarchy_entry_id,
                             "hierarchy_id"      => $this->harvest_event->resource->hierarchy_id,
                             "rank"              => $rank,
-                            "ancestry"          => $ancestry);
+                            "ancestry"          => $ancestry,
+                            "taxon_remarks"     => $taxon_remarks);
             $hierarchy_entry = HierarchyEntry::find_or_create_by_array($params);
             if(@!$hierarchy_entry->id) return;
             $this->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
@@ -194,8 +198,11 @@ class ArchiveDataIngester
                 if(@!$synonym_name->id) continue;
                 
                 $taxonomic_status = @self::field_decode($synonym_row['http://rs.tdwg.org/dwc/terms/taxonomicStatus']) ?: 'synonym';
+                if(isset($synonym_row['http://rs.tdwg.org/dwc/terms/taxonRemarks'])) $taxon_remarks = @self::field_decode($synonym_row['http://rs.tdwg.org/dwc/terms/taxonRemarks']);
+                else $taxon_remarks = NULL;
+                
                 $synonym_relation = SynonymRelation::find_or_create_by_translated_label($taxonomic_status);
-                $hierarchy_entry->add_synonym($synonym_name->id, @$synonym_relation->id ?: 0, 0, 0);
+                $hierarchy_entry->add_synonym($synonym_name->id, @$synonym_relation->id ?: 0, 0, 0, 0, 0, $taxon_remarks);
             }
             unset($this->synonyms[$taxon_id]);
         }
@@ -264,49 +271,10 @@ class ArchiveDataIngester
                                           'preferred'             => 0,
                                           'hierarchy_id'          => $this->harvest_event->resource->hierarchy_id,
                                           'vetted_id'             => 0,
-                                          'published'             => 0));
+                                          'published'             => 0,
+                                          'taxonRemarks'          => $taxonRemarks));
         }
     }
-    
-    /*
-    # <field index="0" term="http://purl.org/dc/terms/identifier"/>
-    -------% <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
-    -------% <field index="2" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
-    -------% <field index="3" term="http://rs.tdwg.org/dwc/terms/vernacularName"/>
-    # <field index="4" term="http://purl.org/dc/terms/type"/>
-    # <field index="5" term="http://rs.tdwg.org/audubon_core/subtype"/>
-    # <field index="6" term="http://purl.org/dc/terms/format"/>
-    # <field index="7" term="http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm"/>
-    # <field index="8" term="http://purl.org/dc/terms/title"/>
-    # <field index="9" term="http://purl.org/dc/terms/description"/>
-    # <field index="10" term="http://rs.tdwg.org/ac/terms/accessURI"/>
-    # <field index="11" term="http://eol.org/schema/media/thumbnailURL"/>
-    # <field index="12" term="http://rs.tdwg.org/ac/terms/furtherInformationURL"/>
-    --- <field index="12" term="http://rs.tdwg.org/ac/terms/derivedFrom"/>
-    # <field index="13" term="http://ns.adobe.com/xap/1.0/CreateDate"/>
-    # <field index="14" term="http://purl.org/dc/terms/modified"/>
-    # <field index="15" term="http://purl.org/dc/terms/available"/>
-    # <field index="16" term="http://purl.org/dc/terms/language"/>
-    # <field index="17" term="http://ns.adobe.com/xap/1.0/Rating"/>
-    # <field index="18" term="http://purl.org/dc/terms/audience"/>
-    # <field index="19" term="http://ns.adobe.com/xap/1.0/rights/UsageTerms"/>
-    # <field index="20" term="http://purl.org/dc/terms/rights"/>
-    # <field index="21" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
-    # <field index="22" term="http://purl.org/dc/terms/bibliographicCitation"/>
-    # <field index="23" term="http://purl.org/dc/terms/publisher"/>
-    # <field index="24" term="http://purl.org/dc/terms/contributor"/>
-    # <field index="25" term="http://purl.org/dc/terms/creator"/>
-    # <field index="26" term="http://purl.org/dc/terms/provider"/>
-    --------% <field index="27" term="http://rs.tdwg.org/ac/terms/subjectPart"/>
-    --------% <field index="28" term="http://rs.tdwg.org/dwc/terms/lifeStage"/>
-    --------% <field index="29" term="http://rs.tdwg.org/ac/terms/subjectOrientation"/>
-    # <field index="30" term="http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated"/>
-    -- <field index="30" term="http://purl.org/dc/terms/spatial"/>
-    # <field index="31" term="http://www.w3.org/2003/01/geo/wgs84_pos#lat"/>
-    # <field index="32" term="http://www.w3.org/2003/01/geo/wgs84_pos#long"/>
-    # <field index="33" term="http://www.w3.org/2003/01/geo/wgs84_pos#alt"/>
-    # <field index="34" term="http://eol.org/schema/media/referenceID"/>
-    */
     
     public function insert_data_object($row)
     {
@@ -368,7 +336,7 @@ class ArchiveDataIngester
         $data_object->object_url = @self::field_decode($row['http://rs.tdwg.org/ac/terms/accessURI']);
         $data_object->thumbnail_url = @self::field_decode($row['http://eol.org/schema/media/thumbnailURL']);
         $data_object->location = @self::field_decode($row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated']);
-        // $data_object->generic_location = @self::field_decode($row['http://purl.org/dc/terms/spatial']);
+        $data_object->spatial_location = @self::field_decode($row['http://purl.org/dc/terms/spatial']);
         $data_object->latitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#lat']);
         $data_object->longitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#long']);
         $data_object->altitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#alt']);

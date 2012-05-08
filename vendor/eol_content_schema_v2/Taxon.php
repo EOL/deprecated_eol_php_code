@@ -28,13 +28,13 @@ class Taxon extends DarwinCoreExtensionBase
                 'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonRank',
                 'validation_function'   => 'eol_schema\Taxon::valid_rank',
                 'failure_type'          => 'warning',
-                'failure_message'       => 'Taxa should have a valid rank'));
+                'failure_message'       => 'Unrecognized taxon rank'));
             
             $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonomicStatus',
                 'validation_function'   => 'eol_schema\Taxon::valid_taxon_status',
                 'failure_type'          => 'warning',
-                'failure_message'       => 'Taxa should have a valid taxonomicStatus'));
+                'failure_message'       => 'Unrecognized taxonomicStatus'));
             
             // these rules apply to entire rows
             $rules[] = new ContentArchiveRowValidationRule(array(

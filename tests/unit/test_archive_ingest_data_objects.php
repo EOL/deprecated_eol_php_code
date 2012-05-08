@@ -92,7 +92,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->assertEqual($data_object->object_title, $m->title);
         $this->assertEqual($data_object->description, $m->description);
         $this->assertEqual($data_object->source_url, $m->furtherInformationURL);
-        // $this->assertEqual($data_object->derivedFrom, $m->derivedFrom);
+        $this->assertEqual($data_object->derived_from, $m->derivedFrom);
         $this->assertEqual($data_object->object_created_at, $m->CreateDate);
         $this->assertEqual($data_object->object_modified_at, $m->modified);
         $this->assertEqual($data_object->language->iso_639_1, $m->language);
@@ -103,7 +103,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->assertEqual($data_object->rights_holder, $m->Owner);
         $this->assertEqual($data_object->bibliographic_citation, $m->bibliographicCitation);
         $this->assertEqual($data_object->location, $m->LocationCreated);
-        // $this->assertEqual($data_object->spatial, $m->spatial);
+        $this->assertEqual($data_object->spatial_location, $m->spatial);
         $this->assertEqual($data_object->latitude, $m->lat);
         $this->assertEqual($data_object->longitude, $m->long);
         $this->assertEqual($data_object->altitude, $m->alt);
@@ -169,7 +169,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->assertEqual($data_object->object_url, $m->accessURI);
         $this->assertEqual($data_object->thumbnail_url, $m->thumbnailURL);
         $this->assertEqual($data_object->source_url, $m->furtherInformationURL);
-        // $this->assertEqual($data_object->derivedFrom, $m->derivedFrom);
+        $this->assertEqual($data_object->derived_from, $m->derivedFrom);
         $this->assertEqual($data_object->object_created_at, $m->CreateDate);
         $this->assertEqual($data_object->object_modified_at, $m->modified);
         $this->assertEqual($data_object->language->iso_639_1, $m->language);
@@ -180,7 +180,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->assertEqual($data_object->rights_holder, $m->Owner);
         $this->assertEqual($data_object->bibliographic_citation, $m->bibliographicCitation);
         $this->assertEqual($data_object->location, $m->LocationCreated);
-        // $this->assertEqual($data_object->spatial, $m->spatial);
+        $this->assertEqual($data_object->spatial_location, $m->spatial);
         $this->assertEqual($data_object->latitude, $m->lat);
         $this->assertEqual($data_object->longitude, $m->long);
         $this->assertEqual($data_object->altitude, $m->alt);

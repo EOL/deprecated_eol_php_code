@@ -307,7 +307,7 @@ class HierarchyEntry extends ActiveRecord
         $this->mysqli->insert("INSERT IGNORE INTO agents_hierarchy_entries (hierarchy_entry_id, agent_id, agent_role_id, view_order) VALUES ($this->id, $agent_id, $agent_role_id, $view_order)");
     }
     
-    public function add_synonym($name_id, $relation_id, $language_id, $preferred, $vetted_id = 0, $published = 0)
+    public function add_synonym($name_id, $relation_id, $language_id, $preferred, $vetted_id = 0, $published = 0, $taxon_remarks = NULL)
     {
         if(!$name_id) return 0;
         if(!$relation_id) $relation_id = 0;
@@ -320,7 +320,8 @@ class HierarchyEntry extends ActiveRecord
                                       'preferred'             => $preferred,
                                       'hierarchy_id'          => $this->hierarchy_id,
                                       'vetted_id'             => $vetted_id,
-                                      'published'             => $published));
+                                      'published'             => $published,
+                                      'taxon_remarks'         => $taxon_remarks));
     }
     
     public function add_data_object($data_object_id, $vetted_id = null, $visibility_id = null)
@@ -478,6 +479,7 @@ class HierarchyEntry extends ActiveRecord
                 {
                     $params["rank_id"] = $rank_id;
                 }
+                if(isset($taxon['taxon_remarks'])) $params["taxon_remarks"] = $taxon['taxon_remarks'];
             }
             
             $params["visibility_id"] = Visibility::preview()->id;

@@ -182,7 +182,7 @@ class test_archive_validator extends SimpletestUnitBase
         $this->assertTrue($warnings, 'There should be warnings');
         $this->assertTrue(count($warnings) == 1, 'There should be only one warning');
         $this->assertTrue($warnings[0]->uri == 'http://rs.tdwg.org/dwc/terms/taxonRank');
-        $this->assertTrue($warnings[0]->message == 'Taxa should have a valid rank');
+        $this->assertTrue($warnings[0]->message == 'Unrecognized taxon rank');
     }
     
     function testValidateTaxonStatus()
@@ -198,7 +198,7 @@ class test_archive_validator extends SimpletestUnitBase
         $this->assertTrue($warnings, 'There should be warnings');
         $this->assertTrue(count($warnings) == 1, 'There should be only one warning');
         $this->assertTrue($warnings[0]->uri == 'http://rs.tdwg.org/dwc/terms/taxonomicStatus');
-        $this->assertTrue($warnings[0]->message == 'Taxa should have a valid taxonomicStatus');
+        $this->assertTrue($warnings[0]->message == 'Unrecognized taxonomicStatus');
     }
     
     function testValidateMediaID()
@@ -227,6 +227,261 @@ class test_archive_validator extends SimpletestUnitBase
         $this->assertTrue($errors[0]->message == 'Images must have an accessURI');
     }
     
+    function testValidateReferenceID()
+    {
+        $r = new \eol_schema\Reference();
+        $r->title = 'not much here';
+        $this->archive_builder->write_object_to_file($r);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'References must have identifiers');
+        $this->reset();
+    
+        $r = new \eol_schema\Reference();
+        $r->identifier = '1234';
+        $r->title = 'more here';
+        $this->archive_builder->write_object_to_file($r);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+    }
+    
+    function testValidateReferencesNeedTitles()
+    {
+        $r = new \eol_schema\Reference();
+        $r->identifier = '123';
+        $r->volume = 3;
+        $this->archive_builder->write_object_to_file($r);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'References must minimally contain a fullReference or title');
+        $this->reset();
+        
+        $r = new \eol_schema\Reference();
+        $r->identifier = '123';
+        $r->volume = 3;
+        $r->fullReference = 'this is where its at';
+        $this->archive_builder->write_object_to_file($r);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $r = new \eol_schema\Reference();
+        $r->identifier = '123';
+        $r->volume = 3;
+        $r->title = 'this is where its at';
+        $this->archive_builder->write_object_to_file($r);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $r = new \eol_schema\Reference();
+        $r->identifier = '123';
+        $r->volume = 3;
+        $r->primaryTitle = 'this is where its at';
+        $this->archive_builder->write_object_to_file($r);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+    }
+    
+    function testValidateAgentID()
+    {
+        $a = new \eol_schema\Agent();
+        $a->term_name = 'Thomas Jefferson';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'Agents must have identifiers');
+        $this->reset();
+        
+        $a = new \eol_schema\Agent();
+        $a->identifier = '1234';
+        $a->term_name = 'Thomas Jefferson';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+    }
+    
+    function testValidateAgentLogoURL()
+    {
+        $a = new \eol_schema\Agent();
+        $a->identifier = '1234';
+        $a->term_name = 'Thomas Jefferson';
+        $a->term_logo = 'not a url';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'Invalid URL');
+        $this->reset();
+        
+        $a = new \eol_schema\Agent();
+        $a->identifier = '1234';
+        $a->term_name = 'Thomas Jefferson';
+        $a->term_logo = 'http://something';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'Invalid URL');
+        $this->reset();
+        
+        $a = new \eol_schema\Agent();
+        $a->identifier = '1234';
+        $a->term_name = 'Thomas Jefferson';
+        $a->term_logo = 'http://some.url';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+    }
+    
+    function testValidateAgentInvalidRole()
+    {
+        $a = new \eol_schema\Agent();
+        $a->identifier = '1234';
+        $a->term_name = 'Thomas Jefferson';
+        $a->agentRole = 'president';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($warnings, 'There should be warnings');
+        $this->assertTrue($warnings[0]->message == 'Unrecognized agent role');
+        $this->reset();
+        
+        $a = new \eol_schema\Agent();
+        $a->identifier = '1234';
+        $a->term_name = 'Thomas Jefferson';
+        $a->agentRole = 'author';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($warnings);
+        $this->reset();
+    }
+    
+    function testValidateAgentsNeedNames()
+    {
+        $a = new \eol_schema\Agent();
+        $a->identifier = '123';
+        $a->agentRole = 'photographer';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'Agents must minimally contain a term_name, term_firstName or term_familyName');
+        $this->reset();
+        
+        $a = new \eol_schema\Agent();
+        $a->identifier = '123';
+        $a->term_name = 'Thomas Jefferson';
+        $a->agentRole = 'photographer';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $a = new \eol_schema\Agent();
+        $a->identifier = '123';
+        $a->term_firstName = 'Thomas';
+        $a->agentRole = 'photographer';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $a = new \eol_schema\Agent();
+        $a->identifier = '123';
+        $a->term_familyName = 'Jefferson';
+        $a->agentRole = 'photographer';
+        $this->archive_builder->write_object_to_file($a);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+    }
+    
+    function testValidateVernacularNameTaxonID()
+    {
+        $v = new \eol_schema\VernacularName();
+        $v->vernacularName = 'bluefish';
+        $this->archive_builder->write_object_to_file($v);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'Vernacular names must have taxonIDs');
+        $this->reset();
+        
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID = '123';
+        $v->vernacularName = 'bluefish';
+        $this->archive_builder->write_object_to_file($v);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+    }
+    
+    function testValidateVernacularNameLanguage()
+    {
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID = '123';
+        $v->vernacularName = 'bluefish';
+        $v->language = 'English';
+        $this->archive_builder->write_object_to_file($v);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($warnings, 'There should be warnings');
+        $this->assertTrue($warnings[0]->message == 'Vernacular name languages should use standardized ISO 639 language codes');
+        $this->reset();
+        
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID = '123';
+        $v->vernacularName = 'bluefish';
+        $v->language = 'eng-american';
+        $this->archive_builder->write_object_to_file($v);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($warnings, 'There should be warnings');
+        $this->assertTrue($warnings[0]->message == 'Vernacular name languages should use standardized ISO 639 language codes');
+        $this->reset();
+        
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID = '123';
+        $v->vernacularName = 'bluefish';
+        $v->language = 'en';
+        $this->archive_builder->write_object_to_file($v);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($warnings);
+        $this->reset();
+        
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID = '123';
+        $v->vernacularName = 'bluefish';
+        $v->language = 'eng';
+        $this->archive_builder->write_object_to_file($v);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($warnings);
+        $this->reset();
+        
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID = '123';
+        $v->vernacularName = 'bluefish';
+        $v->language = 'en-us';
+        $this->archive_builder->write_object_to_file($v);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($warnings);
+    }
     
     private function validate()
     {

@@ -25,12 +25,6 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         parent::tearDown();
     }
     
-    // function testFlickr()
-    // {
-    //     $resource = self::create_resource();
-    //     self::harvest($resource);
-    // }
-    
     function testImportTaxonAdjacency()
     {
         $resource = self::create_resource();
@@ -45,6 +39,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->scientificName = "Ursus maritimus Phipps, 1774";
         $t->taxonRank = "species";
         $t->furtherInformationURL = "http://some.url";
+        $t->taxonRemarks = "\"This is a string\" with 'various' (special!) *characters\nin it\tto make sure we can $ harvest #complex strings'";
         $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize();
         self::harvest($resource);
@@ -55,6 +50,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $this->assertEqual($species->rank, Rank::find_or_create_by_translated_label('species'));
         $this->assertEqual($species->source_url, $t->furtherInformationURL);
         $this->assertEqual($species->hierarchy_id, $resource->hierarchy_id);
+        $this->assertEqual($species->taxon_remarks, $t->taxonRemarks);
         
         // now check the parents
         $genus = $species->parent();
@@ -109,11 +105,13 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->scientificName = "Ursus";
         $t->taxonRank = "genus";
         $t->parentNameUsageID = "555";
+        $t->taxonRemarks = "\"This is a string\" with 'various' (special!) *characters\nin it\tto make sure we can $ harvest #complex strings'";
         $this->archive_builder->write_object_to_file($t);
         $t->taxonID = "777";
         $t->scientificName = "Ursus maritimus Phipps, 1774";
         $t->taxonRank = "species";
         $t->parentNameUsageID = "666";
+        $t->taxonRemarks = NULL;
         $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize();
         self::harvest($resource);
@@ -122,12 +120,14 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $species = HierarchyEntry::find_by_identifier(777);
         $this->assertEqual($species->name->string, 'Ursus maritimus Phipps, 1774');
         $this->assertEqual($species->rank, Rank::find_or_create_by_translated_label('species'));
+        $this->assertEqual($species->taxon_remarks, NULL);
         
         // now check the parents
         $genus = $species->parent();
         $this->assertEqual($genus->name->string, 'Ursus');
         $this->assertEqual($genus->rank, Rank::find_or_create_by_translated_label('genus'));
         $this->assertEqual($genus->identifier, 666);
+        $this->assertEqual($genus->taxon_remarks, "\"This is a string\" with 'various' (special!) *characters\nin it\tto make sure we can $ harvest #complex strings'");
         $family = $genus->parent();
         $this->assertEqual($family->name->string, 'Ursidae');
         $this->assertEqual($family->rank, Rank::find_or_create_by_translated_label('family'));
@@ -170,6 +170,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $t->parentNameUsageID = null;
         $t->acceptedNameUsageID = "777";
         $t->taxonomicStatus = null;
+        $t->taxonRemarks = "\"This is a string\" with 'various' (special!) *characters\nin it\tto make sure we can $ harvest #complex strings'";
         $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize();
         self::harvest($resource);

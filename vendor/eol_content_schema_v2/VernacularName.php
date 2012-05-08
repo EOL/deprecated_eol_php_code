@@ -8,7 +8,36 @@ class VernacularName extends DarwinCoreExtensionBase
     
     public static function validation_rules()
     {
-        
+        static $rules = array();
+        if(!$rules)
+        {
+            // these rules apply to individual fields
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonID',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Vernacular names must have taxonIDs'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/vernacularName',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Vernacular names must have name strings'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://purl.org/dc/terms/language',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Vernacular names should have languages'));
+            
+            // these rules apply to entire rows
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://purl.org/dc/terms/language',
+                'validation_function'   => 'eol_schema\MediaResource::valid_language',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Vernacular name languages should use standardized ISO 639 language codes'));
+        }
+        return $rules;
     }
     
     protected function load_extension()

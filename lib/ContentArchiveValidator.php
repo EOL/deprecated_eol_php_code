@@ -71,6 +71,9 @@ class ContentArchiveValidator
         }elseif($parameters['row_type'] == 'http://eol.org/schema/reference/reference')
         {
             $new_errors = \eol_schema\Reference::validate_by_hash($row);
+        }elseif($parameters['row_type'] == 'http://eol.org/schema/agent/agent')
+        {
+            $new_errors = \eol_schema\Agent::validate_by_hash($row);
         }
         
         foreach($new_errors as $new_error)
