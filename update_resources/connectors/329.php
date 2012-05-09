@@ -11,6 +11,16 @@ $timestart = time_elapsed();
 
 $resource_id = 329;
 BoldsImagesAPI::get_all_taxa($resource_id);
+
+//--------------
+/* set rating to 2 */
+require_library('ResourceDataObjectElementsSetting');
+$resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
+$bolds = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
+$xml = $bolds->set_data_object_rating_on_xml_document();
+$bolds->save_resource_document($xml);
+//--------------
+
 Functions::set_resource_status_to_force_harvest($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;

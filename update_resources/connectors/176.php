@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for National Museum of Natural History Image Collection
-estimated execution time: 
+estimated execution time: 2.3 mins.
 Connector reads the XML provided by partner and 
 - sets the image rating.
 - If needed ingests TypeInformation text dataObjects
@@ -11,7 +11,7 @@ require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 176; 
-$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-ento-response-20120423.xml.gz"; //NMNH Entomology resource
+$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-ento-response-20120507.xml.gz"; //NMNH Entomology resource
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document();
 
