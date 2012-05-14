@@ -86,6 +86,8 @@ update_resources/connectors/CDC2.php
 update_resources/connectors/files/*
 !update_resources/connectors/files/Avibase
 update_resources/connectors/files/Avibase/cache/*.xml
+!update_resources/connectors/files/IUCN
+update_resources/connectors/files/IUCN/cache/*.html
 update_resources/connectors/readmeli.txt
 update_resources/connectors/run.bat
 update_resources/connectors/set.php

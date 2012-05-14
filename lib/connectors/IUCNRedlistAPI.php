@@ -58,21 +58,28 @@ class IUCNRedlistAPI
     public static function get_taxa_for_species($species_json)
     {
         $species_id = $species_json->species_id;
-        $details_html = Functions::get_remote_file(self::API_PREFIX.$species_id);
+        $details_html = self::lookup_with_cache($species_id);
         
         // this is a hack to get the document to load as UTF8. Nothing else seemed to work when using DOMDocument
         // http://www.php.net/manual/en/domdocument.loadhtml.php#95251
         $details_html = str_replace("<!DOCTYPE html>", "<?xml encoding=\"UTF-8\">", $details_html);
         $details_html = str_replace("<meta charset=\"UTF-8\"/>", "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">", $details_html);
-        
-        $details_html = str_replace("Downloaded on <b>", "Downloaded on ", $details_html);
+        $details_html = str_replace("\n", " ", $details_html);
+        $details_html = str_replace("\r", " ", $details_html);
+        $details_html = str_replace("\t", " ", $details_html);
+        $details_html = str_replace("<span>", "", $details_html);
+        $details_html = str_replace("</span>", "", $details_html);
+        $details_html = str_replace("&nbsp;", " ", $details_html);
+        // $details_html = str_replace("Downloaded on <b>", "Downloaded on ", $details_html);
         $details_html = str_replace("& ", "&amp; ", $details_html);
+        $details_html = preg_replace("/<([0-9])/", "&lt;\\1", $details_html);
+        while(preg_match("/  /", $details_html)) $details_html = str_replace("  ", " ", $details_html);
         
-        $dom_doc = new DOMDocument("1.0", "UTF-8");
+        $dom_doc = new \DOMDocument("1.0", "UTF-8");
         $dom_doc->loadHTML($details_html);
         $dom_doc->encoding = 'UTF-8';
         $dom_doc->preserveWhiteSpace = false;
-        $xpath = new DOMXpath($dom_doc);
+        $xpath = new \DOMXpath($dom_doc);
         
         $taxon_parameters = array();
         $taxon_parameters['identifier'] = $species_id;
@@ -204,7 +211,7 @@ class IUCNRedlistAPI
             $object_parameters['agents'] = $agents;
             $object_parameters['bibliographicCitation'] = $citation;
             
-            echo htmlspecialchars_decode($section_html)."\n\n";
+            // echo "$div_id :: $title :: ".htmlspecialchars_decode($section_html)."\n\n";
             
             return new \SchemaDataObject($object_parameters);
         }
@@ -243,7 +250,8 @@ class IUCNRedlistAPI
     {
         $element = $xpath->query("//div[@id='x_citation']//div[@id='citation']");
         $citation = $dom_doc->saveXML($element->item(0));
-        if(preg_match("/^<div id=\"citation\">(.*?)<\/div>$/", $citation, $arr)) $citation = htmlspecialchars_decode(trim($arr[1]));
+        if(preg_match("/^<div id=\"citation\">(.*?)<\/div>$/ims", trim($citation), $arr)) $citation = htmlspecialchars_decode(trim($arr[1]));
+        if(preg_match("/^(.*)\. Downloaded on .*/ims", trim($citation), $arr)) $citation = $arr[1];
         
         $agents = array();
         if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr))
@@ -264,32 +272,52 @@ class IUCNRedlistAPI
         $birdlife_checklist_path = DOC_ROOT . "update_resources/connectors/files/BirdLife_Checklist_Version_4.txt";
         $birdlife_names = array();
         $birdlife_synonyms = array();
-        foreach(new FileIterator($birdlife_checklist_path) as $line_number => $line)
+        if(file_exists($birdlife_checklist_path))
         {
-            // echo "$line_number - $line\n";
-            if($line_number < 2) continue;
-            $columns = explode("\t", $line);
-            $scientific_name = @trim($columns[3]);
-            $synonyms = @trim($columns[21]);
-            $id = @trim($columns[24]);
-            if(!$id) continue;
-            $birdlife_names[strtolower($scientific_name)] = $id;
-            
-            if($synonyms)
+            foreach(new FileIterator($birdlife_checklist_path) as $line_number => $line)
             {
-                $synonyms = explode(";", $synonyms);
-                foreach($synonyms as $synonym)
+                // echo "$line_number - $line\n";
+                if($line_number < 2) continue;
+                $columns = explode("\t", $line);
+                $scientific_name = @trim($columns[3]);
+                $synonyms = @trim($columns[21]);
+                $id = @trim($columns[24]);
+                if(!$id) continue;
+                $birdlife_names[strtolower($scientific_name)] = $id;
+
+                if($synonyms)
                 {
-                    $synonym = preg_replace("/\(.*?\)/", "", trim($synonym));
-                    if(!$synonym) continue;
-                    echo "$synonym\n";
-                    $birdlife_synonyms[strtolower(trim($synonym))] = $id;
+                    $synonyms = explode(";", $synonyms);
+                    foreach($synonyms as $synonym)
+                    {
+                        $synonym = preg_replace("/\(.*?\)/", "", trim($synonym));
+                        if(!$synonym) continue;
+                        echo "$synonym\n";
+                        $birdlife_synonyms[strtolower(trim($synonym))] = $id;
+                    }
                 }
             }
         }
         ksort($birdlife_names);
         ksort($birdlife_synonyms);
         return array($birdlife_names, $birdlife_synonyms);
+    }
+    
+    private static function lookup_with_cache($iucn_id)
+    {
+        $cache_path = DOC_ROOT . "update_resources/connectors/files/IUCN/cache/". $iucn_id .".html";
+        if(file_exists($cache_path))
+        {
+            $taxon_page_html = file_get_contents($cache_path);
+            // checking for some string that appears on all pages - we may have cached a 404 page for example
+            if(preg_match("/x_section/", $taxon_page_html)) return $taxon_page_html;
+            @unlink($cache_path);
+        }
+        $taxon_page_html = Functions::get_remote_file(self::API_PREFIX . $iucn_id, NULL, 120);
+        $FILE = fopen($cache_path, 'w+');
+        fwrite($FILE, $taxon_page_html);
+        fclose($FILE);
+        return $taxon_page_html;
     }
 }
 
