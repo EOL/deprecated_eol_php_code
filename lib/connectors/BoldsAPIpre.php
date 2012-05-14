@@ -12,7 +12,9 @@ Barcode data: 71263 (41,341 with barcode image)
 
 class BoldsAPIpre
 {
-    const SPECIES_SERVICE_URL = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
+    // const SPECIES_SERVICE_URL = "http://www.boldsystems.org/views/taxbrowser.php?taxid="; old website
+    const SPECIES_SERVICE_URL = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
+
     public function __construct()
     {
         $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
@@ -582,7 +584,9 @@ class BoldsAPIpre
 
     private function proc_subtaxa_block($str)
     {
-        if(preg_match("/<h2>Sub-taxa<\/h2>(.*?)<\/ul>/ims", $str, $matches)) $str = $matches[1]; 
+        //if(preg_match("/<h2>Sub-taxa<\/h2>(.*?)<\/ul>/ims", $str, $matches)) $str = $matches[1]; old BOLDS website
+        if(preg_match("/Sub-taxa<\/a><\/h2>(.*?)<\/div>/ims", $str, $matches)) $str = $matches[1]; 
+
         //stops processing, doesn't go deeper if taxon is already in the species level
 
         /* use this if you want all higher-level taxa only */
@@ -593,7 +597,8 @@ class BoldsAPIpre
                 return array();
             }
             //for cleaning
-            $pos = stripos($str, "taxbrowser.php?taxid=");
+            // $pos = stripos($str, "taxbrowser.php?taxid="); old BOLDS website
+            $pos = stripos($str, "Taxbrowser_Taxonpage?taxid=");
             if(!is_numeric($pos))
             {
                 print " -stop here- ";
@@ -623,11 +628,15 @@ class BoldsAPIpre
         $final = array();
         foreach ($arr as $a)
         {
-            $name = "xxx" . self::get_str_from_anchor_tag($a);
-            if(preg_match("/xxx(.*?)\[/ims", $name, $matches)) $name = $matches[1];
-            $id = self::get_href_from_anchor_tag($a)."xxx";
-            if(preg_match("/taxid=(.*?)xxx/ims", $id, $matches)) $id = $matches[1];
-            $final[] = array("name" => $name, "id" => $id);
+            $pos = stripos($a, "Taxbrowser_Taxonpage?taxid=");
+            if(is_numeric($pos))
+            {
+                $name = "xxx" . self::get_str_from_anchor_tag($a);
+                if(preg_match("/xxx(.*?)\[/ims", $name, $matches)) $name = $matches[1];
+                $id = self::get_href_from_anchor_tag($a)."xxx";
+                if(preg_match("/taxid=(.*?)xxx/ims", $id, $matches)) $id = $matches[1];
+                $final[] = array("name" => $name, "id" => $id);
+            }
         }
         return $final;
     }
