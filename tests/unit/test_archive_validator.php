@@ -220,11 +220,12 @@ class test_archive_validator extends SimpletestUnitBase
         $mr = new \eol_schema\MediaResource();
         $mr->identifier = "12345";
         $mr->type = 'http://purl.org/dc/dcmitype/StillImage';
+        $mr->UsageTerms = 'http://creativecommons.org/licenses/by/3.0/';
         $this->archive_builder->write_object_to_file($mr);
         $this->archive_builder->finalize();
         list($errors, $warnings) = $this->validate();
         $this->assertTrue($errors, 'There should be errors');
-        $this->assertTrue($errors[0]->message == 'Images must have an accessURI');
+        $this->assertTrue($errors[0]->message == 'Multimedia must have accessURIs');
     }
     
     function testValidateReferenceID()

@@ -205,6 +205,7 @@ class ContentManager
         elseif(preg_match("/^xml( |$)/i", $file_type) || preg_match("/xml$/i", $file_type)) $new_suffix = "xml";
         elseif(preg_match("/^pdf( |$)/i", $file_type))                                  $new_suffix = "pdf";
         elseif(preg_match("/^html( |$)/i", $file_type))                                 $new_suffix = "html";
+        elseif(preg_match("/ Excel(,|$)/i", $file_type))                                $new_suffix = "xls";
         elseif($suffix == "xml" && preg_match("/^utf-8 unicode /i", $file_type))        $new_suffix = "xml";
         elseif($suffix == "xml" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "xml";
         elseif($suffix == "xml" && preg_match("/^ASCII English text/i", $file_type))    $new_suffix = "xml";

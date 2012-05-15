@@ -334,6 +334,9 @@ class Resource extends ActiveRecord
                     }
                 }
                 
+                $this->update_names();
+                $this->mysqli->commit();
+                
                 // $harvest_event->insert_top_images();
                 $this->mysqli->commit();
                 $harvest_event->resource->refresh();
@@ -401,9 +404,6 @@ class Resource extends ActiveRecord
             $this->add_unchanged_data_to_harvest();
             
             $this->end_harvest();
-            $this->mysqli->commit();
-            
-            $this->update_names_of_new_entries();
             $this->mysqli->commit();
             
             // if there are things in preview mode in old harvest which are not in this harvest
@@ -506,25 +506,17 @@ class Resource extends ActiveRecord
     }
     
     
-    public function update_names_of_new_entries()
+    public function update_names()
     {
         if($this->harvest_event)
         {
-            $last_harvest_max_he_id = 0;
-            if($last_he_id = $this->last_harvest_event_id())
-            {
-                $result = $this->mysqli->query("SELECT max(hierarchy_entry_id) max FROM harvest_events_hierarchy_entries WHERE harvest_event_id=$last_he_id");
-                if($result && $row=$result->fetch_assoc()) $last_harvest_max_he_id = $row['max'];
-            }
-            if($last_harvest_max_he_id == NULL) $last_harvest_max_he_id = 0;
-            $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.id>$last_harvest_max_he_id");
-            
+            $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=".$this->harvest_event->id);
             $this->mysqli->begin_transaction();
             while($result && $row=$result->fetch_assoc())
             {
                 static $i=0;
                 $i++;
-                if($i%50==0) $this->mysqli->commit();
+                if($i%100 == 0) $this->mysqli->commit();
                 Tasks::update_taxon_concept_names($row['taxon_concept_id']);
             }
             $this->mysqli->end_transaction();

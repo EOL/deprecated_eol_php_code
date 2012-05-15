@@ -50,6 +50,12 @@ class MediaResource extends DarwinCoreExtensionBase
             
             $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
+                'failure_type'          => 'error',
+                'failure_message'       => 'License must be present'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
                 'validation_function'   => 'eol_schema\MediaResource::valid_license',
                 'failure_type'          => 'error',
                 'failure_message'       => 'Invalid license'));
@@ -74,9 +80,9 @@ class MediaResource extends DarwinCoreExtensionBase
             
             // these rules apply to entire rows
             $rules[] = new ContentArchiveRowValidationRule(array(
-                'validation_function'   => 'eol_schema\MediaResource::images_need_urls',
+                'validation_function'   => 'eol_schema\MediaResource::media_need_urls',
                 'failure_type'          => 'error',
-                'failure_message'       => 'Images must have an accessURI'));
+                'failure_message'       => 'Multimedia must have accessURIs'));
             
             $rules[] = new ContentArchiveRowValidationRule(array(
                 'validation_function'   => 'eol_schema\MediaResource::text_needs_descriptions',
@@ -90,7 +96,8 @@ class MediaResource extends DarwinCoreExtensionBase
     
     public static function valid_license($v)
     {
-        if($v && !preg_match("/^http:\/\/creativecommons.org\/licenses\/(by|by-nc|by-sa|by-nc-sa|publicdomain)\/(1\.0|2\.0|2\.5|3\.0)\/$/i", $v) && $v != 'not applicable')
+        if($v && !preg_match("/^http:\/\/creativecommons.org\/licenses\/((by|by-nc|by-sa|by-nc-sa)\/(1\.0|2\.0|2\.5|3\.0)|publicdomain)\/$/i", $v) &&
+            strtolower($v) != 'not applicable')
         {
             return false;
         }
@@ -123,8 +130,7 @@ class MediaResource extends DarwinCoreExtensionBase
             'movingimage',
             'sound',
             'stillimage',
-            'text'
-            )))
+            'text')))
         {
             return false;
         }
@@ -143,55 +149,58 @@ class MediaResource extends DarwinCoreExtensionBase
 
     public static function valid_subject($v)
     {
-        if(preg_match("/^http:\/\/rs\.tdwg\.org\/ontology\/voc\/SPMInfoItems#(.*)$/", $v, $arr)) $v = $arr[1];
-        if($v && !in_array($v, array(
-            'Associations',
-            'Behaviour',
-            'Biology',
-            'Conservation',
-            'ConservationStatus',
-            'Cyclicity',
-            'Cytology',
-            'Description',
-            'DiagnosticDescription',
-            'Diseases',
-            'Dispersal',
-            'Distribution',
-            'Ecology',
-            'Evolution',
-            'GeneralDescription',
-            'Genetics',
-            'Growth',
-            'Habitat',
-            'Key',
-            'Legislation',
-            'LifeCycle',
-            'LifeExpectancy',
-            'LookAlikes',
-            'Management',
-            'Migration',
-            'MolecularBiology',
-            'Morphology',
-            'Physiology',
-            'PopulationBiology',
-            'Procedures',
-            'Reproduction',
-            'RiskStatement',
-            'Size',
-            'TaxonBiology',
-            'Threats',
-            'Trends',
-            'TrophicStrategy',
-            'Uses')))
+        if(preg_match("/^http:\/\/rs\.tdwg\.org\/ontology\/voc\/SPMInfoItems#(.*)$/i", $v, $arr)) $v = $arr[1];
+        if($v && !in_array(strtolower($v), array(
+            'associations',
+            'behaviour',
+            'biology',
+            'conservation',
+            'conservationstatus',
+            'cyclicity',
+            'cytology',
+            'description',
+            'diagnosticdescription',
+            'diseases',
+            'dispersal',
+            'distribution',
+            'ecology',
+            'evolution',
+            'generaldescription',
+            'genetics',
+            'growth',
+            'habitat',
+            'key',
+            'legislation',
+            'lifecycle',
+            'lifeexpectancy',
+            'lookalikes',
+            'management',
+            'migration',
+            'molecularbiology',
+            'morphology',
+            'physiology',
+            'populationbiology',
+            'procedures',
+            'reproduction',
+            'riskstatement',
+            'size',
+            'taxonbiology',
+            'threats',
+            'trends',
+            'trophicstrategy',
+            'uses')))
         {
             return false;
         }
         return true;
     }
     
-    public static function images_need_urls($fields)
+    public static function media_need_urls($fields)
     {
-        if(@$fields['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/StillImage' &&
+        if(in_array(@strtolower($fields['http://purl.org/dc/terms/type']), array(
+            'http://purl.org/dc/dcmitype/stillimage',
+            'http://purl.org/dc/dcmitype/movingimage',
+            'http://purl.org/dc/dcmitype/sound')) &&
             @!$fields['http://rs.tdwg.org/ac/terms/accessURI'])
         {
             return false;
@@ -201,7 +210,7 @@ class MediaResource extends DarwinCoreExtensionBase
     
     public static function text_needs_descriptions($fields)
     {
-        if(@$fields['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/Text' &&
+        if(@strtolower($fields['http://purl.org/dc/terms/type']) == 'http://purl.org/dc/dcmitype/text' &&
             @!$fields['http://purl.org/dc/terms/description'])
         {
             return false;

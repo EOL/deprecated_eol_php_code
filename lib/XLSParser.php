@@ -14,6 +14,7 @@ class XLSParser
         $ext = strtolower(end(explode('.', $spreadsheet)));
         if    ($ext == "xls") $objReader = \PHPExcel_IOFactory::createReader('Excel5');
         elseif($ext == "xlsx")$objReader = \PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
+        elseif($ext == "zip") $objReader = \PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
         elseif($ext == "csv") $objReader = new \PHPExcel_Reader_CSV();
         $objPHPExcel = $objReader->load($spreadsheet);
         if($ext != "csv") $objReader->setReadDataOnly(true);
@@ -41,7 +42,7 @@ class XLSParser
         return $sheet_value;
     }
     
-    public function create_eol_xml($parser, $file)
+    public function create_eol_xml($file)
     {
         /* EOL spreadsheet template worksheets
         0 = Contributors
@@ -53,10 +54,10 @@ class XLSParser
         6 = More common names (optional)
         7 = Synonyms
         */
-        $taxon_info = $parser->convert_sheet_to_array($file, 5);
-        $GLOBALS['subjects_with_identical_texts'] = self::check_subjects_with_identical_texts($parser->convert_sheet_to_array($file, 2));
+        $taxon_info = $this->convert_sheet_to_array($file, 5);
+        $GLOBALS['subjects_with_identical_texts'] = self::check_subjects_with_identical_texts($this->convert_sheet_to_array($file, 2));
 
-        $text_desc = self::prepare_data($parser->convert_sheet_to_array($file, 2), "multiple", "Taxon Name", "Taxon Name", "Reference Code", "Attribution Code", "Contributor Code",
+        $text_desc = self::prepare_data($this->convert_sheet_to_array($file, 2), "multiple", "Taxon Name", "Taxon Name", "Reference Code", "Attribution Code", "Contributor Code",
         "Audience", "DateCreated", "DateModified", "Source URL",
         "Associations", "Behaviour", "Biology", "Conservation",
         "ConservationStatus", "Cyclicity", "Cytology", "Description", "DiagnosticDescription", "Diseases", "Dispersal", "Distribution", "Ecology", "Evolution",
@@ -64,15 +65,15 @@ class XLSParser
         "MolecularBiology", "Morphology", "Physiology", "PopulationBiology", "Procedures", "Reproduction", "RiskStatement", "Size", "TaxonBiology", "Threats", "Trends",
         "TrophicStrategy", "Uses");
 
-        $multimedia     = self::prepare_data($parser->convert_sheet_to_array($file, 4, 2), "multiple", "Taxon Name",
+        $multimedia     = self::prepare_data($this->convert_sheet_to_array($file, 4, 2), "multiple", "Taxon Name",
         "DateCreated", "DateModified", "Data Type", "MIME Type", "Media URL", "Thumbnail URL", "Source URL", "Caption", "Language", "Audience", "Location", "Latitude",
         "Longitude", "Altitude", "Attribution Code", "Contributor Code", "Reference Code");
         
-        $references     = self::prepare_data($parser->convert_sheet_to_array($file, 3), "single", "Reference Code", "Bibliographic Citation", "URL", "ISBN");
-        $attributions   = self::prepare_data($parser->convert_sheet_to_array($file, 1), "single", "Code", "License", "RightsStatement", "RightsHolder", "BibliographicCitation");
-        $contributors   = self::prepare_data($parser->convert_sheet_to_array($file, 0), "single", "Code", "Display Name", "Role", "Logo URL", "Homepage", "Family Name", "Given Name", "Email", "Telephone", "Mailing Address");
-        $common_names   = self::prepare_data($parser->convert_sheet_to_array($file, 6), "multiple", "Taxon Name", "Common Name", "Language");
-        $synonyms       = self::prepare_data($parser->convert_sheet_to_array($file, 7), "multiple", "Taxon Name", "Synonym", "Relationship");
+        $references     = self::prepare_data($this->convert_sheet_to_array($file, 3), "single", "Reference Code", "Bibliographic Citation", "URL", "ISBN");
+        $attributions   = self::prepare_data($this->convert_sheet_to_array($file, 1), "single", "Code", "License", "RightsStatement", "RightsHolder", "BibliographicCitation");
+        $contributors   = self::prepare_data($this->convert_sheet_to_array($file, 0), "single", "Code", "Display Name", "Role", "Logo URL", "Homepage", "Family Name", "Given Name", "Email", "Telephone", "Mailing Address");
+        $common_names   = self::prepare_data($this->convert_sheet_to_array($file, 6), "multiple", "Taxon Name", "Common Name", "Language");
+        $synonyms       = self::prepare_data($this->convert_sheet_to_array($file, 7), "multiple", "Taxon Name", "Synonym", "Relationship");
         
         $do_details = array("references" => $references,
                             "attributions" => $attributions,

@@ -65,53 +65,92 @@ switch($function)
             break;
         }
         
+        if($file_path)
+        {
+            // remove:
+            //      resources/ID/*
+            //      resources/ID
+            //      resources/ID.*
+            wildcard_rm(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+        }
         $manager = new ContentManager($server_ip);
         $new_file_path = $manager->grab_file($file_path, $resource_id, "resource");
         if($new_file_path)
         {
+            
             if(is_dir($new_file_path))
             {
-                $archive = new ContentArchiveReader(null, $new_file_path);
-                $validator = new ContentArchiveValidator($archive);
-                $validator->get_validation_errors();
-                
-                if($e = $validator->errors())
-                {
-                    $errors_as_string = array();
-                    $warnings_as_string = array();
-                    foreach($e as $error)
-                    {
-                        $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
-                        if($error->value) $this_error_string .= " [value was \"$error->value\"]";
-                        $errors_as_string[] = $this_error_string;
-                    }
-                    if($w = $validator->warnings())
-                    {
-                        foreach($w as $warning)
-                        {
-                            $this_warning_string = "<b>Warning</b> in $warning->file on line $warning->line field $warning->uri: $warning->message";
-                            if($warning->value) $this_warning_string .= " [value was \"$warning->value\"]";
-                            $warnings_as_string[] = $this_warning_string;
-                        }
-                    }
-                    echo "  <status>Validation failed</status>\n";
-                    echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $errors_as_string))."</error>\n";
-                    // if($warnings_as_string) echo "  <warning type='validation'>".htmlspecialchars(implode("<br>", $warnings_as_string))."</error>\n";
-                }else
-                {
-                    echo "  <status>Validated</status>\n";
-                }
+                validate_archive($archive_directory_path);
             }else
             {
-                $validator = new SchemaValidator();
-                $validation_result = $validator->validate(CONTENT_RESOURCE_LOCAL_PATH . $new_file_path);
-                if($validation_result != "true")
+                $new_file_path = CONTENT_RESOURCE_LOCAL_PATH . $new_file_path;
+                $path_parts = pathinfo($new_file_path);
+                $extension = @$path_parts['extension'];
+                if($extension == 'zip' || $extension == 'xls')
                 {
-                    echo "  <status>Validation failed</status>\n";
-                    echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $validation_result))."</error>\n";
-                }else
+                    require_library('ExcelToText');
+                    $archive_directory_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id;
+                    // delete the entire existing directory and rebuild it
+                    recursive_rmdir($archive_directory_path);
+                    $archive_converter = new ExcelToText($new_file_path, $archive_directory_path);
+                    if($archive_converter->errors())
+                    {
+                        echo "  <error type='fatal'>". htmlspecialchars(implode('<br/>', $archive_converter->errors()))."</error>\n";
+                        break;
+                    }elseif($archive_converter->is_new_schema_spreadsheet())
+                    {
+                        $archive_converter->convert_to_new_schema_archive();
+                        if($archive_converter->errors())
+                        {
+                            echo "  <error type='fatal'>". htmlspecialchars(implode('<br/>', $archive_converter->errors()))."</error>\n";
+                            break;
+                        }
+                        validate_archive($archive_directory_path);
+                        break;
+                    }else
+                    {
+                        $original_errors = $archive_converter->errors();
+                        $xml_converter = new ExcelToText($new_file_path, $archive_directory_path .".xml");
+                        if($xml_converter->is_old_schema_spreadsheet())
+                        {
+                            $converted_file_path = $xml_converter->convert_to_old_schema_xml();
+                            if($xml_converter->errors())
+                            {
+                                echo "  <error type='fatal'>". htmlspecialchars(implode('<br/>', $xml_converter->errors()))."</error>\n";
+                                break;
+                            }
+                            $validator = new SchemaValidator();
+                            $validation_result = $validator->validate($converted_file_path);
+                            if($validation_result != "true")
+                            {
+                                echo "  <status>Validation failed</status>\n";
+                                echo "  <error type='validation'>".htmlspecialchars(implode("<br/>", $validation_result))."</error>\n";
+                            }else
+                            {
+                                echo "  <status>Validated</status>\n";
+                            }
+                            break;
+                        }
+                        if($archive_converter->errors())
+                        {
+                            echo "  <error type='fatal'>". htmlspecialchars(implode('<br/>', $archive_converter->errors()))."</error>\n";
+                            break;
+                        }                        
+                        echo "  <error type='fatal'>Unable to determine the template of Excel file</error>\n";
+                        break;
+                    }
+                }elseif($extension == 'xml')
                 {
-                    echo "  <status>Validated</status>\n";
+                    $validator = new SchemaValidator();
+                    $validation_result = $validator->validate($new_file_path);
+                    if($validation_result != "true")
+                    {
+                        echo "  <status>Validation failed</status>\n";
+                        echo "  <error type='validation'>".htmlspecialchars(implode("<br/>", $validation_result))."</error>\n";
+                    }else
+                    {
+                        echo "  <status>Validated</status>\n";
+                    }
                 }
             }
         }else
@@ -155,5 +194,39 @@ switch($function)
 }
 
 echo "</response>";
+
+function validate_archive($archive_directory_path)
+{
+    $archive = new ContentArchiveReader(null, $archive_directory_path);
+    $validator = new ContentArchiveValidator($archive);
+    $validator->get_validation_errors();
+    
+    if($e = $validator->errors())
+    {
+        $errors_as_string = array();
+        $warnings_as_string = array();
+        foreach($e as $error)
+        {
+            $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
+            if($error->value) $this_error_string .= " [value was \"$error->value\"]";
+            $errors_as_string[] = $this_error_string;
+        }
+        if($w = $validator->warnings())
+        {
+            foreach($w as $warning)
+            {
+                $this_warning_string = "<b>Warning</b> in $warning->file on line $warning->line field $warning->uri: $warning->message";
+                if($warning->value) $this_warning_string .= " [value was \"$warning->value\"]";
+                $warnings_as_string[] = $this_warning_string;
+            }
+        }
+        echo "  <status>Validation failed</status>\n";
+        echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $errors_as_string))."</error>\n";
+        // if($warnings_as_string) echo "  <warning type='validation'>".htmlspecialchars(implode("<br>", $warnings_as_string))."</error>\n";
+    }else
+    {
+        echo "  <status>Validated</status>\n";
+    }
+}
 
 ?>

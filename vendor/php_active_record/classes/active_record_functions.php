@@ -481,4 +481,16 @@ function recursive_rmdir($dir)
     @rmdir($dir);
 }
 
+function wildcard_rm($prefix)
+{
+    if(!$prefix || $prefix[0] == '.' || strlen($prefix) < 8) return false;
+    if(is_dir($prefix)) recursive_rmdir($prefix);
+    foreach(glob($prefix .".*") as $filename)
+    {
+        unlink($filename);
+    }
+    if(file_exists($prefix)) unlink($prefix);
+}
+
+
 ?>

@@ -90,10 +90,10 @@ class EOLStats
         $this->data_object_curation_activity_ids();
         $this->name_curation_activity_ids();
         $this->curation_activity_ids();
-        $stats['curators']            = $this->curators();                            // Number of registered curators
         $stats['curators_assistant']  = $this->curators($this->assistant_curator_id); // Number of registered assistant curators
         $stats['curators_full']       = $this->curators($this->full_curator_id);      // Number of registered full curators
         $stats['curators_master']     = $this->curators($this->master_curator_id);    // Number of registered master curators
+        $stats['curators']            = $stats['curators_assistant'] + $stats['curators_full'] + $stats['curators_master'] // Number of registered curators
         $stats['active_curators']     = count($this->curators_active()); //COMPLETE
         $stats['pages_curated_by_active_curators']    = $this->pages_curated($this->curators_active); // number of pages curated by active curators 
         $stats['objects_curated_in_the_last_30_days'] = $this->objects_curated_in_the_last_n_days(30); //COMPLETE
@@ -436,22 +436,9 @@ class EOLStats
       return 0;
     }
 
-    public function curators($curator_level_id = null)
+    public function curators($curator_level_id)
     {
-        $add_sql = "";
-        if($curator_level_id) $add_sql .= " AND u.curator_level_id = " . $curator_level_id;
-        if($curator_level_id == $this->assistant_curator_id)
-        {
-            $sql = "SELECT u.id FROM users u WHERE u.curator_approved=1 AND u.active=1 $add_sql
-                    UNION 
-                    SELECT u.id FROM users u WHERE u.curator_approved=0 AND u.active=1 AND u.requested_curator_level_id > 0 ";
-            $result = $this->mysqli_slave->query($sql);
-            $user_ids = array();
-            while($result && $row=$result->fetch_assoc()) $user_ids[] = $row['id'];
-            return count($user_ids);
-        } 
-        $sql = "SELECT COUNT(*) count FROM users u WHERE u.curator_approved=1 AND u.active=1 $add_sql";
-        $result = $this->mysqli_slave->query($sql);
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM users u WHERE u.curator_level_id=$curator_level_id AND u.active=1 AND u.hidden!=1");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
