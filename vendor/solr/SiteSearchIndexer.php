@@ -449,7 +449,7 @@ class SiteSearchIndexer
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
         if($GLOBALS['ENV_DEBUG']) echo "\nquerying objects\n";
         $last_data_object_id = 0;
-        $query = "SELECT id, username, given_name, family_name, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at) FROM users WHERE id ";
+        $query = "SELECT id, username, given_name, family_name, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at) FROM users WHERE active = 1 AND hidden != 1 AND id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
