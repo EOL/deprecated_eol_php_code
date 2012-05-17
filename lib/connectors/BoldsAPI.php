@@ -7,7 +7,9 @@ It is assumed that this file has already been created: DOC_ROOT . "/update_resou
 
 class BoldsAPI
 {
-    const SPECIES_SERVICE_URL = "http://www.boldsystems.org/views/taxbrowser.php?taxid=";
+    // const SPECIES_SERVICE_URL = "http://www.boldsystems.org/views/taxbrowser.php?taxid="; old website
+    const SPECIES_SERVICE_URL = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
+
     public function __construct()
     {
         $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
@@ -15,6 +17,7 @@ class BoldsAPI
         $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_in_progress_list.txt";
         $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
         $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
+        // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt";
     }
 
     function initialize_text_files()
@@ -280,11 +283,13 @@ class BoldsAPI
         }
 
         //=========================================================================//start get BOLD stats
-        if(preg_match("/<h2>BOLD Stats<\/h2>(.*?)<\/table>/ims", $orig_str, $matches)) $str = $matches[1];
+        // if(preg_match("/<h2>BOLD Stats<\/h2>(.*?)<\/table>/ims", $orig_str, $matches)) $str = $matches[1]; old site
+        if(preg_match("/<h3><a href=\"#\">BOLD Stats<\/a><\/h3>(.*?)<\/table>/ims", $orig_str, $matches)) $str = $matches[1];
         $str = strip_tags($str, "<tr><td><table>");
         $str = str_ireplace('width="100%"', "", $str);
         $pos = stripos($str, "Species List - Progress"); 
         $str = substr($str, 0, $pos) . "</td></tr></table>";
+        $str = str_ireplace('<table width="30%" >', '<table>', $str);
         //=========================================================================
 
         $arr = array($taxa, $str, $species_level, true, $with_map);
