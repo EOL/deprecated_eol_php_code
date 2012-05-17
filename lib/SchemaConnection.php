@@ -67,7 +67,7 @@ class SchemaConnection
             }
         }
         
-        $hierarchy_entry->unpublish_refs();
+        $hierarchy_entry->delete_refs();
         if(@$t['refs'])
         {
             foreach($t['refs'] as &$r)
@@ -171,7 +171,7 @@ class SchemaConnection
                 }
             }
             
-            $data_object->unpublish_refs();
+            $data_object->delete_refs();
             if(@$parameters['refs'])
             {
                 foreach($parameters['refs'] as &$r)

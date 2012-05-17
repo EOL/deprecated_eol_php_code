@@ -333,9 +333,9 @@ class HierarchyEntry extends ActiveRecord
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts (taxon_concept_id, data_object_id) VALUES ($this->taxon_concept_id, $data_object_id)");
     }
     
-    public function unpublish_refs()
+    public function delete_refs()
     {
-        $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) JOIN refs r ON (her.ref_id=r.id) SET r.published=0 WHERE he.id=$this->id");
+        $this->mysqli->update("DELETE FROM hierarchy_entries_refs WHERE hierarchy_entry_id=$this->id");
     }
     
     public function add_reference($reference_id)

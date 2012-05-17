@@ -64,9 +64,9 @@ class DataObject extends ActiveRecord
         $GLOBALS['mysqli_connection']->update("UPDATE data_objects SET published=1 WHERE id=$id");
     }
     
-    public function unpublish_refs()
+    public function delete_refs()
     {
-        $this->mysqli->update("UPDATE data_objects do JOIN data_objects_refs dor ON (do.id=dor.data_object_id) JOIN refs r ON (dor.ref_id=r.id) SET r.published=0 WHERE do.guid='$this->guid'");
+        $this->mysqli->update("DELETE FROM data_objects_refs WHERE data_object_id=$this->id");
     }
     
     public function add_reference($reference_id)
