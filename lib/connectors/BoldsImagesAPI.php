@@ -36,6 +36,7 @@ class BoldsImagesAPI
 
     function prepare_data()
     {
+        $do_identifiers = array();
         $data = array();
         $filename = BOLDS_IMAGE_EXPORT_FILE;
         print "\nfilename: [$filename]";
@@ -98,13 +99,18 @@ class BoldsImagesAPI
                     */
                 }
 
-                $data[$Taxon][] = array("identifier" => $SampleID . "_" . $ProcessID . "_" . $Orientation,
-                                        "description" => $description,
-                                        "rights_holder" => $rights_holder,
-                                        "rights_statement" => "Copyright " . $Copyright_year,
-                                        "license" => $license,
-                                        "agent" => $agent,
-                                        "mediaURL" => $URL);
+                $do_id = $SampleID . "_" . $ProcessID . "_" . $Orientation;
+                if (!in_array($do_id, $do_identifiers)) 
+                {
+                    $do_identifiers[] = $do_id;
+                    $data[$Taxon][] = array("identifier" => $do_id,
+                                            "description" => $description,
+                                            "rights_holder" => $rights_holder,
+                                            "rights_statement" => "Copyright " . $Copyright_year,
+                                            "license" => $license,
+                                            "agent" => $agent,
+                                            "mediaURL" => $URL);
+                }
             }
             //if($i >= $limit) break; //debug
         }

@@ -78,6 +78,7 @@ class AquamapsAPIv2
                                    "dc_source"    => $arr_objects[0]["source"],
                                    "data_objects" => $arr_objects
                                   );
+            // if($ctr >= 5) break; //debug
         }
         return $arr_scraped;
     }
@@ -205,7 +206,22 @@ class AquamapsAPIv2
         $str = "<br>Computer Generated Map of <i>$genus $species</i>";
         if($legend) $str .= " ($review)<br><img src='http://www.aquamaps.org/pic/probability1.gif'>";
         $str .= "<br> $attribution";
+        $str .= self::check_for_interactive_map($genus, $species);
         return $str;
+    }
+
+    private function check_for_interactive_map($genus, $species)
+    {
+        $url = "http://www.aquamaps.org/webservice/getAMap.php?genus=" . $genus . "&species=" . $species;
+        $xml = Functions::get_hashed_response($url);
+        if($xml->section_body != '')
+        {
+            $html = $xml->section_body;
+            $html = str_ireplace("height='150'", "height='250'", $html);
+            $html = str_ireplace("width ='350'", "width ='550'", $html);
+            return "<p>Interactive map<br>" . $html;
+        } 
+        return;
     }
 
 }
