@@ -93,12 +93,11 @@ class Taxon extends DarwinCoreExtensionBase
             'accepted',
             'valid',
             'current',
-            'heterotypicSynonym',
-            'homotypicSynonym',
-            'misapplied',
-            'proParteSynonym',
-            'junior synonym',
-            'synonym')))
+            'invalid',
+            'synonym',
+            'homotypic synonym',
+            'heterotypic synonym',
+            'misapplied name')))
         {
             return false;
         }

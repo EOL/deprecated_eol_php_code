@@ -176,7 +176,11 @@ class ArchiveDataIngester
             foreach($individual_references as $reference_string)
             {
                 $reference = Reference::find_or_create_by_full_reference(trim($reference_string));
-                if(@$reference->id) $hierarchy_entry->add_reference($reference->id);
+                if(@$reference->id)
+                {
+                    $hierarchy_entry->add_reference($reference->id);
+                    $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
+                }
             }
         }
         
