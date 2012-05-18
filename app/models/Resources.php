@@ -714,9 +714,7 @@ class Resource extends ActiveRecord
                 $warnings_as_string = array();
                 foreach($e as $error)
                 {
-                    $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
-                    if($error->value) $this_error_string .= " [value was \"$error->value\"]";
-                    $errors_as_string[] = $this_error_string;
+                    $errors_as_string[] = $error->__toString();
                 }
                 $error_string = $this->mysqli->escape(implode("<br>", $errors_as_string));
             }

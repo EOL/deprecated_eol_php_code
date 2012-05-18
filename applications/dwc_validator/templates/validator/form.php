@@ -9,11 +9,11 @@ namespace php_active_record;
 <form name="validator_form" action="index.php" method="post" enctype="multipart/form-data">
 <table align="center">
     <tr>
-        <td>DwC-A URL:</td>
+        <td>File URL:</td>
         <td><input type="text" size="30" name="file_url"<?php if($file_url) echo " value=\"$file_url\""; ?>/></td>
     </tr>
     <tr>
-        <td>DwC-A Upload:</td>
+        <td>File Upload:</td>
         <td><input type="file" name="dwca_upload" id="dwca_upload"/></td>
     </tr>
     <tr>

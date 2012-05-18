@@ -79,7 +79,8 @@ class ContentManager
         }
         
         if(file_exists($temp_file_path)) unlink($temp_file_path);
-        return $new_file_path;
+        if(isset($new_file_path)) return $new_file_path;
+        return null;
     }
     
     function download_temp_file_and_assign_extension($file_path_or_uri, $unique_key = null, $is_resource = false, $timeout = DOWNLOAD_TIMEOUT_SECONDS)

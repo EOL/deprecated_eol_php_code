@@ -31,6 +31,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         // no need to have media for this test
         $this->media = array();
         $this->taxa[0]->referenceID = "11";
+        $this->taxa[1]->referenceID = "11";
         $this->build_resource();
         self::harvest($this->resource);
         $entry = HierarchyEntry::find_by_identifier($this->taxa[0]->taxonID);
@@ -40,6 +41,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         $original_entry_id = $entry->id;
         
         $this->taxa[0]->referenceID = "11;22";
+        $this->taxa[1]->referenceID = "";
         $this->build_resource();
         self::harvest($this->resource);
         $entry = HierarchyEntry::find_by_identifier($this->taxa[0]->taxonID);

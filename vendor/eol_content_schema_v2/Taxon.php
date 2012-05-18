@@ -36,6 +36,48 @@ class Taxon extends DarwinCoreExtensionBase
                 'failure_type'          => 'warning',
                 'failure_message'       => 'Unrecognized taxonomicStatus'));
             
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/scientificName',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Names should be encoded in UTF-8'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/kingdom',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Names should be encoded in UTF-8'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/phylum',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Names should be encoded in UTF-8'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/class',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Names should be encoded in UTF-8'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/order',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Names should be encoded in UTF-8'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/family',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Names should be encoded in UTF-8'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/genus',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Names should be encoded in UTF-8'));
+            
             // these rules apply to entire rows
             $rules[] = new ContentArchiveRowValidationRule(array(
                 'validation_function'   => 'eol_schema\Taxon::validate_presence_of_any_name',

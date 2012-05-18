@@ -78,6 +78,18 @@ class MediaResource extends DarwinCoreExtensionBase
                 'failure_type'          => 'error',
                 'failure_message'       => 'Invalid URL'));
             
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://purl.org/dc/terms/description',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Descriptions should be encoded in UTF-8'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://purl.org/dc/terms/title',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
+                'failure_type'          => 'warning',
+                'failure_message'       => 'Titles should be encoded in UTF-8'));
+            
             // these rules apply to entire rows
             $rules[] = new ContentArchiveRowValidationRule(array(
                 'validation_function'   => 'eol_schema\MediaResource::media_need_urls',

@@ -166,7 +166,7 @@ class ArchiveDataIngester
         
         if(!isset($this->entry_references_deleted[$hierarchy_entry->id]))
         {
-            $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries_refs her ON (he.id=her.hierarchy_entry_id) JOIN refs r ON (her.ref_id=r.id) SET r.published=0 WHERE he.id=$hierarchy_entry->id");
+            $hierarchy_entry->delete_refs();
             $this->entry_references_deleted[$hierarchy_entry->id] = true;
         }
         
@@ -279,7 +279,7 @@ class ArchiveDataIngester
     public function insert_data_object($row)
     {
         self::debug_iterations("Inserting DataObject");
-        $this->commit_iterations("DataObject", 500);
+        $this->commit_iterations("DataObject", 20);
         
         $object_taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $object_taxon_info = array();
@@ -455,7 +455,7 @@ class ArchiveDataIngester
         
         if(!isset($this->object_references_deleted[$data_object->id]))
         {
-            $this->mysqli->update("UPDATE data_objects do JOIN data_objects_refs dor ON (do.id=dor.data_object_id) JOIN refs r ON (dor.ref_id=r.id) SET r.published=0 WHERE do.guid='$data_object->guid'");
+            $data_object->delete_refs();
             $this->object_references_deleted[$data_object->id] = true;
         }
     }
@@ -495,7 +495,7 @@ class ArchiveDataIngester
                         "publisher"                 => $publisher,
                         "authors"                   => $authorList,
                         "editors"                   => $editorList,
-                        "publication_created_at"    => $created,
+                        "publication_created_at"    => @$created ?: '0000-00-00 00:00:00',
                         "language_id"               => @$language->id ?: 0,
                         "editors"                   => $editorList);
         $reference = Reference::find_or_create($params);
@@ -552,7 +552,6 @@ class ArchiveDataIngester
                         "organization"  => @self::field_decode($row['http://eol.org/schema/agent/organization']),
                         "account_name"  => @self::field_decode($row['http://xmlns.com/foaf/spec/#term_accountName']),
                         "openid"        => @self::field_decode($row['http://xmlns.com/foaf/spec/#term_openid']));
-        
         // find or create this agent
         $agent = Agent::find_or_create($params);
         if(!$agent) return;

@@ -21,7 +21,7 @@ namespace php_active_record;
             <br/>
             <input type="submit" value="Submit">
             <br/><br/>
-            You might also want to try our <a href='../dwc_validator/index.php'>DarwinCore Archive validator</a>
+            You might also want to try our <a href='../dwc_validator/index.php'>Archive and Spreadsheet Validator</a>
         </td>
     </tr>
 </table>

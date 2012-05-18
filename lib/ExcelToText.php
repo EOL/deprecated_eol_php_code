@@ -230,7 +230,7 @@ class ExcelToText
         
         $info = pathinfo($archive_temp_directory_path);
         // create /path/dir.tar.gz from /path/dir/*
-        shell_exec("tar -czf ". $archive_temp_directory_path .".tar.gz --directory=". $info['dirname'] ." ". $info['basename']);
+        shell_exec("tar -czf ". $archive_temp_directory_path .".tar.gz --directory=". $info['dirname'] ."/". $info['basename'] ." .");
         
         return $archive_temp_directory_path;
     }

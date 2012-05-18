@@ -4,7 +4,6 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('CyberSource');
 
-
 $function = @$_GET["function"];
 $server_ip = @$_GET["server_ip"];
 $file_path = @$_GET["file_path"];
@@ -23,10 +22,7 @@ if(!$amount) $amount = @$_POST["amount"];
 if(!$currecny) $currecny = @$_POST["currecny"];
 if(!$type) $type = @$_POST["type"];
 
-
-
-
-
+/* Cybersource API is special */
 if($function=="InsertSignature3")
 {
     header('Content-type: text/plain');
@@ -49,14 +45,11 @@ switch($function)
         {
             if(preg_match("/^([0-9]+)\./", $new_file_path, $arr)) $new_file_path = $arr[1];
             echo "  <file_prefix>$new_file_path</file_prefix>\n";
-            
-            ContentManager::sync_partner_logos();
         }else
         {
             echo "  <error type='fatal'>Upload failed</error>\n";
         }
         break;
-        
         
     case "upload_resource":
         if(!$resource_id)
@@ -64,23 +57,25 @@ switch($function)
             echo "  <error type='fatal'>No resource_id included</error>\n";
             break;
         }
-        
-        if($file_path)
+        if(!$file_path)
         {
-            // remove:
-            //      resources/ID/*
-            //      resources/ID
-            //      resources/ID.*
-            wildcard_rm(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+            echo "  <error type='fatal'>No file_path included</error>\n";
+            break;
         }
+        
+        // remove:
+        //      resources/ID/*
+        //      resources/ID
+        //      resources/ID.*
+        wildcard_rm(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+        
         $manager = new ContentManager($server_ip);
         $new_file_path = $manager->grab_file($file_path, $resource_id, "resource");
         if($new_file_path)
         {
-            
             if(is_dir($new_file_path))
             {
-                validate_archive($archive_directory_path);
+                validate_archive($new_file_path);
             }else
             {
                 $new_file_path = CONTENT_RESOURCE_LOCAL_PATH . $new_file_path;
@@ -207,17 +202,13 @@ function validate_archive($archive_directory_path)
         $warnings_as_string = array();
         foreach($e as $error)
         {
-            $this_error_string = "<b>Error</b> in $error->file on line $error->line field $error->uri: $error->message";
-            if($error->value) $this_error_string .= " [value was \"$error->value\"]";
-            $errors_as_string[] = $this_error_string;
+            $errors_as_string[] = $error->__toString();
         }
         if($w = $validator->warnings())
         {
             foreach($w as $warning)
             {
-                $this_warning_string = "<b>Warning</b> in $warning->file on line $warning->line field $warning->uri: $warning->message";
-                if($warning->value) $this_warning_string .= " [value was \"$warning->value\"]";
-                $warnings_as_string[] = $this_warning_string;
+                $warnings_as_string[] = $warning->__toString();
             }
         }
         echo "  <status>Validation failed</status>\n";
