@@ -100,17 +100,21 @@ class BoldsImagesAPI
                 }
 
                 $do_id = $SampleID . "_" . $ProcessID . "_" . $Orientation;
-                if (!in_array($do_id, $do_identifiers)) 
+                if (in_array($do_id, $do_identifiers)) 
                 {
-                    $do_identifiers[] = $do_id;
-                    $data[$Taxon][] = array("identifier" => $do_id,
-                                            "description" => $description,
-                                            "rights_holder" => $rights_holder,
-                                            "rights_statement" => "Copyright " . $Copyright_year,
-                                            "license" => $license,
-                                            "agent" => $agent,
-                                            "mediaURL" => $URL);
+                    $path_parts = pathinfo($URL);
+                    $do_id .= "_" . $path_parts['filename'];
                 }
+
+                $do_identifiers[] = $do_id;
+                $data[$Taxon][] = array("identifier" => $do_id,
+                                        "description" => $description,
+                                        "rights_holder" => $rights_holder,
+                                        "rights_statement" => "Copyright " . $Copyright_year,
+                                        "license" => $license,
+                                        "agent" => $agent,
+                                        "mediaURL" => $URL);
+
             }
             //if($i >= $limit) break; //debug
         }
