@@ -20,7 +20,7 @@ require_library('connectors/INBioAPI');
 $xml = INBioAPI::assign_eol_subjects($xml);
 
 $xml = $nmnh->replace_data_object_element_value("mimeType", "audio/wav", "audio/x-wav", $xml);
-
+$xml = $nmnh->remove_data_object_of_certain_element_value("mimeType", "audio/x-wav", $xml); // to exclude <dataObject>'s of this element and value
 $nmnh->save_resource_document($xml);
 Functions::set_resource_status_to_force_harvest($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
