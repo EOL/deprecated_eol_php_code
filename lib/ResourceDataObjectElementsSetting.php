@@ -61,6 +61,41 @@ class ResourceDataObjectElementsSetting
         return Functions::get_remote_file($this->xml_path);
     }
 
+    public function remove_data_object_of_cetain_element_value($field, $value, $xml_string)
+    {
+        /* e.g.
+            remove_data_object_of_cetain_element_value("mimeType", "audio/x-wav", $xml);
+            remove_data_object_of_cetain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
+        */
+        $xml = simplexml_load_string($xml_string);
+        $i = 0;
+        foreach($xml->taxon as $taxon)
+        {
+            $i++; print "$i ";
+            foreach($taxon->dataObject as $dataObject)
+            {
+                $do = self::get_dataObject_namespace($field, $dataObject);
+                $field = self::get_field_name($field);
+                if(@$do->$field == $value) 
+                {
+                    print "\n this <dataObject> will not be ingested -- $field = $value" . "\n";
+                    @$dataObject->mediaURL = "";
+                    @$dataObject->agent = "";
+                    $do_dc = $dataObject->children("http://purl.org/dc/terms/");
+                    @$do_dc->description = "";
+                    @$do_dc->source = "";
+                    @$do_dc->identifier = "";
+                    @$do_dc->title = ""; 
+                    @$do_dc->language = "";
+                    @$do_dc->rights = "";
+                    $do_dcterms = $dataObject->children("http://purl.org/dc/terms/");
+                    @$do_dcterms->rightsHolder = "";
+                }
+            }
+        }
+        return $xml->asXML();
+    }
+
     public function replace_data_object_element_value($field, $old_value, $new_value, $xml_string, $compare = true)
     {
         /* e.g. 
@@ -74,15 +109,8 @@ class ResourceDataObjectElementsSetting
             $i++; print "$i ";
             foreach($taxon->dataObject as $dataObject)
             {
-                if(substr($field,0,3) == "dc:")             $do = $dataObject->children("http://purl.org/dc/elements/1.1/");
-                elseif(substr($field,0,8) == "dcterms:")    $do = $dataObject->children("http://purl.org/dc/terms/");
-                else                                        $do = $dataObject;
-
-                if(substr($field,0,3) == "dc:" || substr($field,0,8) == "dcterms:")
-                {
-                    $field = str_ireplace(array("dc:", "dcterms:"), "", $field);
-                }
-                
+                $do = self::get_dataObject_namespace($field, $dataObject);
+                $field = self::get_field_name($field);
                 if($compare) 
                 {
                     if(@$do->$field == $old_value) $do->$field = $new_value;
@@ -91,6 +119,19 @@ class ResourceDataObjectElementsSetting
             }
         }
         return $xml->asXML();
+    }
+
+    function get_dataObject_namespace($field, $dataObject)
+    {
+        if(substr($field,0,3) == "dc:")             return $dataObject->children("http://purl.org/dc/elements/1.1/");
+        elseif(substr($field,0,8) == "dcterms:")    return $dataObject->children("http://purl.org/dc/terms/");
+        else                                        return $dataObject;
+    }
+
+    function get_field_name($field)
+    {
+        if(substr($field,0,3) == "dc:" || substr($field,0,8) == "dcterms:") return str_ireplace(array("dc:", "dcterms:"), "", $field);
+        return $field;
     }
 
     public function save_resource_document($xml)
