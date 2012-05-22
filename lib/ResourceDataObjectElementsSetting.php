@@ -61,11 +61,11 @@ class ResourceDataObjectElementsSetting
         return Functions::get_remote_file($this->xml_path);
     }
 
-    public function remove_data_object_of_cetain_element_value($field, $value, $xml_string)
+    public function remove_data_object_of_certain_element_value($field, $value, $xml_string)
     {
         /* e.g.
-            remove_data_object_of_cetain_element_value("mimeType", "audio/x-wav", $xml);
-            remove_data_object_of_cetain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
+            remove_data_object_of_certain_element_value("mimeType", "audio/x-wav", $xml);
+            remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
         */
         $xml = simplexml_load_string($xml_string);
         $i = 0;
