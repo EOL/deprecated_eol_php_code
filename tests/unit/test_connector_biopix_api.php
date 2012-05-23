@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 require_library('connectors/BiopixAPI');
-class test_connector_biopix extends SimpletestUnitBase
+class test_connector_biopix_api extends SimpletestUnitBase
 {
     function testBiopixAPI()
     {
