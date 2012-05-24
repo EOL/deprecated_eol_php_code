@@ -14,7 +14,7 @@ $resource_id = 339;
 //--------------
 /* set rating to 2 */
 require_library('ResourceDataObjectElementsSetting');
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
+$resource_path = "http://data.rbge.org.uk/service/static/Rhododendron_curtis_images_eol_transfer.xml";
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $func->set_data_object_rating_on_xml_document();
 $func->save_resource_document($xml);
