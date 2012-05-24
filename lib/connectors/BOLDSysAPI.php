@@ -3,11 +3,14 @@ namespace php_active_record;
 /* connector: 212 */
 /* Connector uses BOLDS API service for most of the info but still scrapes the nucleotides sequence - for species level taxa */
 
-define("PHYLUM_SERVICE_URL", "http://www.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
-define("SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxid=");
+define("PHYLUM_SERVICE_URL", "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
+define("SPECIES_URL", "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=");
 
 class BOLDSysAPI
 {
+    const MAP_SCALE = "/libhtml/icons/mapScale_BOLD.png";
+    const BOLDS_DOMAIN = "http://www.boldsystems.org";
+
     private static $PHYLUM_LIST;
     public function __construct() 
     {           
@@ -71,6 +74,7 @@ class BOLDSysAPI
         {
             $i++; print"\n [$i of $num_rows] ";
             print $rec['taxonomy']['species']['taxon']['name'];
+            // if(trim($rec['taxonomy']['species']['taxon']['name']) != "Lumbricus centralis") continue; //debug
             $arr = self::get_boldsys_taxa($rec, $used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
@@ -140,8 +144,8 @@ class BOLDSysAPI
         $rightsHolder = "Barcode of Life Data Systems";
 
         //same for all objects
-        $agent = array(0 => array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Sujeevan Ratnasingham"),
-                       1 => array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Paul D.N. Hebert"));
+        $agent = array(0 => array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Sujeevan Ratnasingham"),
+                       1 => array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Paul D.N. Hebert"));
         if($bold_stats != "<br>") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         
         //barcode image
@@ -167,13 +171,14 @@ class BOLDSysAPI
             $mediaURL    = "";               
             $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img border='0' src='".$rec['map_url']."'>";                
             */
+            $map_scale_url = self::BOLDS_DOMAIN . self::MAP_SCALE;
             $identifier  = $taxon_id . "_map";
             $dataType    = "http://purl.org/dc/dcmitype/StillImage"; 
             $mimeType    = "image/png";
             $title       = "BOLDS: Map of specimen collection locations for <i>" . $sciname . "</i>";            
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = $rec['map_url'];
-            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i>";                
+            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img src='$map_scale_url'>";                
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         }            
         //end data objects

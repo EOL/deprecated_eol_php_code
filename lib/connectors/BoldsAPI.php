@@ -11,6 +11,7 @@ class BoldsAPI
     const MAP_PARTIAL_URL = "/index.php/TaxBrowser_Maps_CollectionSites?taxid=";
     const MAP_SCALE = "/libhtml/icons/mapScale_BOLD.png";
     const BOLDS_DOMAIN = "http://www.boldsystems.org";
+    const BOLDS_DOMAIN_NEW = "http://v2.boldsystems.org";
 
     public function __construct()
     {
@@ -171,7 +172,7 @@ class BoldsAPI
                 $rightsHolder = "Barcode of Life Data Systems";
 
                 //1st text object
-                if($description)
+                if($description != "")
                 {
                     $identifier = $taxon_rec["id"] . "_barcode_data";
                     $title      = "Barcode data";
@@ -485,7 +486,7 @@ class BoldsAPI
         $str = "";
         if($folder != "")
         {
-            $url = self::BOLDS_DOMAIN . "/temp/" . $folder . "/fasta.fas";
+            $url = self::BOLDS_DOMAIN_NEW . "/temp/" . $folder . "/fasta.fas";
             $str = Functions::get_remote_file($url);
             print "\n\n access: $url \n"; 
         }
