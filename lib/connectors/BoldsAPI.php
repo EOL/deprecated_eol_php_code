@@ -7,8 +7,10 @@ It is assumed that this file has already been created: DOC_ROOT . "/update_resou
 
 class BoldsAPI
 {
-    // const SPECIES_SERVICE_URL = "http://www.boldsystems.org/views/taxbrowser.php?taxid="; old website
     const SPECIES_SERVICE_URL = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
+    const MAP_PARTIAL_URL = "/index.php/TaxBrowser_Maps_CollectionSites?taxid=";
+    const MAP_SCALE = "/libhtml/icons/mapScale_BOLD.png";
+    const BOLDS_DOMAIN = "http://www.boldsystems.org";
 
     public function __construct()
     {
@@ -102,11 +104,13 @@ class BoldsAPI
                 $used_collection_ids    = $arr[1];
                 if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                 unset($page_taxa);
+                //if($i >= 2) break; //debug
             }
         }
         fclose($FILE);
 
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
+        $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
         $resource_path = $this->TEMP_FILE_PATH . "temp_Bolds_" . $task . ".xml";
         $OUT = fopen($resource_path, "w"); 
         fwrite($OUT, $xml); 
@@ -161,8 +165,8 @@ class BoldsAPI
                 $dataType   = "http://purl.org/dc/dcmitype/Text";
                 $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology"; //debug MolecularBiology
                 $agent = array();
-                $agent[] = array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Sujeevan Ratnasingham");
-                $agent[] = array("role" => "compiler", "homepage" => "http://www.boldsystems.org/", "fullName" => "Paul D.N. Hebert");
+                $agent[] = array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Sujeevan Ratnasingham");
+                $agent[] = array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Paul D.N. Hebert");
                 $license = "http://creativecommons.org/licenses/by/3.0/";
                 $rightsHolder = "Barcode of Life Data Systems";
 
@@ -192,8 +196,9 @@ class BoldsAPI
                 //another text object
                 if($with_map)
                 {
-                    $map_url = "http://www.boldsystems.org/lib/gis/mini_map_500w_taxonpage_occ.php?taxid=" . $taxon_rec["id"];
-                    $description = "Collection Sites: world map showing specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i><br><img border='0' src='$map_url'>";
+                    $map_url = self::BOLDS_DOMAIN . self::MAP_PARTIAL_URL . $taxon_rec["id"];
+                    $map_scale_url = self::BOLDS_DOMAIN . self::MAP_SCALE;
+                    $description = "Collection Sites: world map showing specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i><br><img border='0' src='$map_url'><br><img src='$map_scale_url'>";
                     $identifier  = $taxon_rec["id"] . "_map";
                     $title = "Locations of barcode samples";
                     $mediaURL   = "";
@@ -201,7 +206,17 @@ class BoldsAPI
                     $refs       = array();
                     $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
                     print "\n map exists: $map_url \n";
-                }            
+
+                    // map as image object
+                    $identifier  = $taxon_rec["id"] . "_image_map";
+                    $dataType    = "http://purl.org/dc/dcmitype/StillImage"; 
+                    $mimeType    = "image/png";
+                    $title       = "BOLDS: Map of specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i>";
+                    $source      = self::SPECIES_SERVICE_URL . trim($taxon_rec["id"]);
+                    $mediaURL    = $map_url;
+                    $description = "Collection Sites: world map showing specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i><br><img src='$map_scale_url'>";
+                    $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, "");
+                }
                 else print "\n no map for $taxon_rec[id] \n";
             }//if($taxa)
         }//with public barcodes
@@ -254,7 +269,7 @@ class BoldsAPI
         $orig_str = Functions::get_remote_file($file);
         
         //check if there is map:
-        $pos = stripos($orig_str, "lib/gis/mini_map_500w_taxonpage_occ.php?taxid=");
+        $pos = stripos($orig_str, self::MAP_PARTIAL_URL);
         if(is_numeric($pos)) $with_map = true;
         else                 $with_map = false;
         
@@ -382,7 +397,7 @@ class BoldsAPI
         */
 
         //start get text dna sequece
-        $src = "http://www.boldsystems.org/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
+        $src = self::BOLDS_DOMAIN . "/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
         if($species_level)
         {
             if($barcode_image_url || self::barcode_image_available($src))
@@ -399,7 +414,7 @@ class BoldsAPI
         {
             if($public_barcodes > 0)
             {    
-                $url = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+                $url = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
                 $arr = self::get_text_dna_sequence($url);
                 $count_sequence     = $arr[0];
                 $text_dna_sequence  = $arr[1];
@@ -430,7 +445,7 @@ class BoldsAPI
                 $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
                 */
                 /* 2-click per PL advice */
-                $url_fasta_file = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+                $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
                 $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
             }
             else
@@ -442,7 +457,7 @@ class BoldsAPI
         else
         {
             /* 2-click per PL advice */
-            $url_fasta_file = "http://www.boldsystems.org/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+            $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
             $temp = "<a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
         }
         $description .= $temp;
@@ -470,7 +485,7 @@ class BoldsAPI
         $str = "";
         if($folder != "")
         {
-            $url="http://www.boldsystems.org/temp/" . $folder . "/fasta.fas";
+            $url = self::BOLDS_DOMAIN . "/temp/" . $folder . "/fasta.fas";
             $str = Functions::get_remote_file($url);
             print "\n\n access: $url \n"; 
         }

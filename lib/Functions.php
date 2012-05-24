@@ -1695,6 +1695,7 @@ class Functions
     public function create_work_list_from_master_file($master_file, $divisor, $destination_folder, $filename_prefix, $work_list)
     {
         $FILE = fopen($master_file, "r");
+        if(!$FILE) exit("\n File not found: \n $master_file \n Program will terminate.\n\n");
         $i = 0;
         $file_ctr = 0;
         $str = "";
