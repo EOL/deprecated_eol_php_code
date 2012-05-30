@@ -123,13 +123,13 @@ class DataObjectAncestriesIndexer
             SELECT do.id, do.guid, do.data_type_id, do.data_subtype_id, do.language_id, do.license_id, do.published, do.data_rating,
                 UNIX_TIMESTAMP(do.created_at), he.id, he.taxon_concept_id, dohe.vetted_id, dohe.visibility_id,
                 cuhe.id, cuhe.taxon_concept_id, cudohe.vetted_id, cudohe.visibility_id,
-                udo.taxon_concept_id, cudohe.vetted_id, cudohe.visibility_id, udo.user_id
+                udo.taxon_concept_id, udo.vetted_id, udo.visibility_id, udo.user_id
             FROM data_objects do
             LEFT JOIN
                 (data_objects_hierarchy_entries dohe JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id))
                 ON (do.id=dohe.data_object_id)
             LEFT JOIN
-                (data_objects_hierarchy_entries cudohe JOIN hierarchy_entries cuhe ON (cudohe.hierarchy_entry_id=cuhe.id))
+                (curated_data_objects_hierarchy_entries cudohe JOIN hierarchy_entries cuhe ON (cudohe.hierarchy_entry_id=cuhe.id))
                 ON (do.id=cudohe.data_object_id)
             LEFT JOIN users_data_objects udo ON (do.id=udo.data_object_id)
             WHERE (do.published=1 OR dohe.visibility_id=".Visibility::preview()->id.")
@@ -168,7 +168,7 @@ class DataObjectAncestriesIndexer
             // HierarchyEntry block
             $hierarchy_entry_id = $row[9];
             $taxon_concept_id = $row[10];
-            $vetted_id = $row[10];
+            $vetted_id = $row[11];
             $visibility_id = $row[12];
             if($taxon_concept_id && $taxon_concept_id != 'NULL')
             {
@@ -223,12 +223,12 @@ class DataObjectAncestriesIndexer
     {
         debug("querying ancestries ($start, $limit)");
         $query = "
-            SELECT do.id, he.taxon_concept_id, dohe.vetted_id, dohe.visibility_id, tcf.ancestor_id
+            SELECT do.id, he.taxon_concept_id, cudohe.vetted_id, cudohe.visibility_id, tcf.ancestor_id
             FROM data_objects do
-            JOIN curated_data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
-            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            JOIN curated_data_objects_hierarchy_entries cudohe ON (do.id=cudohe.data_object_id)
+            JOIN hierarchy_entries he ON (cudohe.hierarchy_entry_id=he.id)
             LEFT JOIN taxon_concepts_flattened tcf ON (he.taxon_concept_id=tcf.taxon_concept_id)
-            WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
+            WHERE (do.published=1 OR cudohe.visibility_id!=".Visibility::visible()->id.")
             AND do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
@@ -271,13 +271,13 @@ class DataObjectAncestriesIndexer
     {
         debug("querying ancestries ($start, $limit)");
         $query = "
-            SELECT do.id, he_concept.id, dohe.vetted_id, dohe.visibility_id, hef.ancestor_id
+            SELECT do.id, he_concept.id, cudohe.vetted_id, cudohe.visibility_id, hef.ancestor_id
             FROM data_objects do
-            JOIN curated_data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
-            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
+            JOIN curated_data_objects_hierarchy_entries cudohe ON (do.id=cudohe.data_object_id)
+            JOIN hierarchy_entries he ON (cudohe.hierarchy_entry_id=he.id)
             JOIN hierarchy_entries he_concept ON (he.taxon_concept_id=he_concept.taxon_concept_id)
             LEFT JOIN hierarchy_entries_flattened hef ON (he_concept.id=hef.hierarchy_entry_id)
-            WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
+            WHERE (do.published=1 OR cudohe.visibility_id!=".Visibility::visible()->id.")
             AND (he.published=1 OR he.visibility_id!=".Visibility::visible()->id.")
             AND do.id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
