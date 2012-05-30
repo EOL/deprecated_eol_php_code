@@ -124,6 +124,45 @@ class ResourceDataObjectElementsSetting
         return $xml->asXML();
     }
 
+    public function replace_data_object_element_value_with_condition($field, $old_value, $new_value, $xml_string, $condition_field, $condition_value, $compare = true)
+    {
+        /* e.g. 
+            This will replace all <mimeType> elements with original value of "image/gif" to "image/jpeg" only if <dc:title> is "JPEG Images"
+            replace_data_object_element_value_with_condition("mimeType", "image/gif", "image/jpeg", $xml, "dc:title", "JPEG Images");
+            
+            This will replace all <subject> elements to "#Distribution" only if <dc:title> is "Distribution Information".
+            replace_data_object_element_value_with_condition("subject", "", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", $xml, "dc:title", "Distribution Information", false);
+        */
+        $xml = simplexml_load_string($xml_string);
+        $i = 0;
+        foreach($xml->taxon as $taxon)
+        {
+            $i++; print "$i ";
+            foreach($taxon->dataObject as $dataObject)
+            {
+                $do = self::get_dataObject_namespace($field, $dataObject);
+                $field = self::get_field_name($field);
+                if($compare) 
+                {
+                    if(@$do->$field == $old_value) 
+                    {
+                        $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
+                        $condition_field = self::get_field_name($condition_field);
+                        if(@$condition_do->$condition_field == $condition_value) $do->$field = $new_value;
+                    }
+                }
+                else 
+                {
+                    $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
+                    $condition_field = self::get_field_name($condition_field);
+                    if(@$condition_do->$condition_field == $condition_value) $do->$field = $new_value;
+                }
+            }
+        }
+        return $xml->asXML();
+    }
+
+
     function get_dataObject_namespace($field, $dataObject)
     {
         if(substr($field,0,3) == "dc:")             return $dataObject->children("http://purl.org/dc/elements/1.1/");
