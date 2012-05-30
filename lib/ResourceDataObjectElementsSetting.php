@@ -2,7 +2,7 @@
 namespace php_active_record;
 class ResourceDataObjectElementsSetting
 {
-    public function __construct($resource_id, $xml_path, $data_object_type, $rating)
+    public function __construct($resource_id, $xml_path, $data_object_type = null, $rating = null)
     {
         $this->resource_id = $resource_id;
         $this->xml_path = $xml_path;
@@ -22,14 +22,17 @@ class ResourceDataObjectElementsSetting
                 if(@$dataObject->dataType == $this->data_object_type)
                 {
                     print "\n" . $dataObject_dc->identifier;
-                    if ($dataObject->additionalInformation->rating) $dataObject->additionalInformation->rating = $this->rating;
+                    if ($dataObject->additionalInformation)
+                    {
+                        if ($dataObject->additionalInformation->rating) $dataObject->additionalInformation->rating = $this->rating;
+                        else $dataObject->additionalInformation->addChild("rating", $this->rating);
+                    }
                     else
                     {
                         $dataObject->addChild("additionalInformation", "");
                         $dataObject->additionalInformation->addChild("rating", $this->rating);
                     }
                 }
-
             }
         }
         return $xml->asXML();
