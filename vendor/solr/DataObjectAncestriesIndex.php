@@ -12,6 +12,16 @@ class DataObjectAncestriesIndexer
         $this->mysqli =& $GLOBALS['db_connection'];
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
         else $this->mysqli_slave =& $this->mysqli;
+        
+        $this->vetted_field_label_prefixes = array(
+            Vetted::trusted()->id => 'trusted_',
+            Vetted::unknown()->id => 'unreviewed_',
+            Vetted::untrusted()->id => 'untrusted_',
+            Vetted::inappropriate()->id => 'inappropriate_');
+        $this->visibility_field_label_prefixes = array(
+            Visibility::invisible()->id => 'invisible_',
+            Visibility::visible()->id => 'visible_',
+            Visibility::preview()->id => 'preview_');
     }
     
     public function index()
@@ -174,6 +184,14 @@ class DataObjectAncestriesIndexer
             {
                 $this->objects[$id]['taxon_concept_id'][$taxon_concept_id] = 1;
                 $this->objects[$id]['hierarchy_entry_id'][$hierarchy_entry_id] = 1;
+                if($field_prefix = @$this->vetted_field_label_prefixes[$vetted_id])
+                {
+                    $this->objects[$id][$field_prefix."taxon_concept_id"][$taxon_concept_id] = 1;
+                }
+                if($field_prefix = @$this->visibility_field_label_prefixes[$visibility_id])
+                {
+                    $this->objects[$id][$field_prefix."taxon_concept_id"][$taxon_concept_id] = 1;
+                }
             }
             
             // CuratedHierarchyEntry block
@@ -185,6 +203,14 @@ class DataObjectAncestriesIndexer
             {
                 $this->objects[$id]['taxon_concept_id'][$taxon_concept_id] = 1;
                 $this->objects[$id]['hierarchy_entry_id'][$hierarchy_entry_id] = 1;
+                if($field_prefix = @$this->vetted_field_label_prefixes[$vetted_id])
+                {
+                    $this->objects[$id][$field_prefix."taxon_concept_id"][$taxon_concept_id] = 1;
+                }
+                if($field_prefix = @$this->visibility_field_label_prefixes[$visibility_id])
+                {
+                    $this->objects[$id][$field_prefix."taxon_concept_id"][$taxon_concept_id] = 1;
+                }
             }
             
             // UsersDataObject block
@@ -196,6 +222,14 @@ class DataObjectAncestriesIndexer
             {
                 $this->objects[$id]['taxon_concept_id'][$taxon_concept_id] = 1;
                 $this->objects[$id]['added_by_user_id'] = $user_id;
+                if($field_prefix = @$this->vetted_field_label_prefixes[$vetted_id])
+                {
+                    $this->objects[$id][$field_prefix."taxon_concept_id"][$taxon_concept_id] = 1;
+                }
+                if($field_prefix = @$this->visibility_field_label_prefixes[$visibility_id])
+                {
+                    $this->objects[$id][$field_prefix."taxon_concept_id"][$taxon_concept_id] = 1;
+                }
             }
             
             $last_data_object_id = $id;
@@ -301,16 +335,6 @@ class DataObjectAncestriesIndexer
     
     private function add_ancestries_from_result($query, $field_suffix = 'ancestor_id')
     {
-        $vetted_fields = array(
-            Vetted::trusted()->id => 'trusted_' . $field_suffix,
-            Vetted::unknown()->id => 'unreviewed_' . $field_suffix,
-            Vetted::untrusted()->id => 'untrusted_' . $field_suffix,
-            Vetted::inappropriate()->id => 'inappropriate_' . $field_suffix);
-        $visibility_fields = array(
-            Visibility::invisible()->id => 'invisible_' . $field_suffix,
-            Visibility::visible()->id => 'visible_' . $field_suffix,
-            Visibility::preview()->id => 'preview_' . $field_suffix);
-        
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
@@ -324,15 +348,15 @@ class DataObjectAncestriesIndexer
             
             if($taxon_concept_id) $this->objects[$id][$field_suffix][$taxon_concept_id] = 1;
             if($ancestor_id) $this->objects[$id][$field_suffix][$ancestor_id] = 1;
-            if($field = @$vetted_fields[$vetted_id])
+            if($field_prefix = @$this->vetted_field_label_prefixes[$vetted_id])
             {
-                if($taxon_concept_id) $this->objects[$id][$field][$taxon_concept_id] = 1;
-                if($ancestor_id) $this->objects[$id][$field][$ancestor_id] = 1;
+                if($taxon_concept_id) $this->objects[$id][$field_prefix.$field_suffix][$taxon_concept_id] = 1;
+                if($ancestor_id) $this->objects[$id][$field_prefix.$field_suffix][$ancestor_id] = 1;
             }
-            if($field = @$visibility_fields[$visibility_id])
+            if($field_prefix = @$this->visibility_field_label_prefixes[$visibility_id])
             {
-                if($taxon_concept_id) $this->objects[$id][$field][$taxon_concept_id] = 1;
-                if($ancestor_id) $this->objects[$id][$field][$ancestor_id] = 1;
+                if($taxon_concept_id) $this->objects[$id][$field_prefix.$field_suffix][$taxon_concept_id] = 1;
+                if($ancestor_id) $this->objects[$id][$field_prefix.$field_suffix][$ancestor_id] = 1;
             }
         }
     }

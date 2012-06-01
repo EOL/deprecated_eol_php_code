@@ -119,7 +119,7 @@ class MediaResource extends DarwinCoreExtensionBase
     public static function valid_url($v)
     {
         // must start with http:// and contain at least one dot ( . )
-        if($v && !preg_match("/^http:\/\/.*\./i", $v))
+        if($v && !preg_match("/^(https?|ftp):\/\/.*\./i", $v))
         {
             return false;
         }
