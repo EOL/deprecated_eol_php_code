@@ -29,7 +29,7 @@ class Reference extends DarwinCoreExtensionBase
     
     public static function references_need_titles($fields)
     {
-        if(@!$fields['http://eol.org/schema/reference/fullReference'] && 
+        if(@!$fields['http://eol.org/schema/reference/full_reference'] && 
            @!$fields['http://eol.org/schema/reference/primaryTitle'] && 
            @!$fields['http://purl.org/dc/terms/title'])
         {
