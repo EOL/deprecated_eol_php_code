@@ -8,6 +8,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/BoldsAPI');
 
+// It is assumed that this file already exists: DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt"
+$folder = DOC_ROOT . "update_resources/connectors/files/BOLD";
+if(!file_exists($folder)) mkdir($folder , 0777);
+
 if(isset($argv[1])) $call_multiple_instance = false;
 else $call_multiple_instance = true;
 

@@ -118,7 +118,7 @@ class BoldsAPIpre
         , "Animals_3", "Animals_4");
 
         /*
-        $taxa_groups = array("elix1", "elix2"); //debug
+        $taxa_groups = array("elix1", "elix2", "elix3"); //debug
         //$taxa_groups = array("Animals_4"); //debug
         */
 
@@ -491,6 +491,10 @@ class BoldsAPIpre
             $arr_family = array();
             $arr_family[] = array( "name" => "Proteocephalidae"     , "id" => 72162);
         } 
+        if($species_group == "elix3")
+        {
+            $arr_phylum[] = array( "name" => "Priapulida"  , "id" => 392644);
+        }    
         */
 
         if(isset($arr_phylum))      $arr_taxa = $arr_phylum;
