@@ -6,6 +6,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
     function setUp()
     {
         parent::setUp();
+        recursive_rmdir_contents(DOC_ROOT . "vendor/eol_content_schema_v2/extension_cache/");
         $this->archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/1/";
         if(!file_exists($this->archive_directory)) mkdir($this->archive_directory);
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->archive_directory));
