@@ -473,7 +473,7 @@ class ArchiveDataIngester
         // we really only need to insert the references that relate to taxa or media
         if(!isset($this->taxon_reference_ids[$reference_id]) && !isset($this->media_reference_ids[$reference_id])) return;
         
-        $full_reference = @self::field_decode($row['http://eol.org/schema/reference/fullReference']);
+        $full_reference = @self::field_decode($row['http://eol.org/schema/reference/full_reference']);
         $title = @self::field_decode($row['http://purl.org/dc/terms/title']);
         $pages = @self::field_decode($row['http://purl.org/ontology/bibo/pages']);
         $pageStart = @self::field_decode($row['http://purl.org/ontology/bibo/pageStart']);

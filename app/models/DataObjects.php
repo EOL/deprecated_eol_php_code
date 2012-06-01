@@ -264,7 +264,7 @@ class DataObject extends ActiveRecord
                     $data_object->data_rating = $existing_data_object->data_rating;
                     
                     // Check to see if we can reuse cached object or need to download it again
-                    if($data_object->object_url == $existing_data_object->object_url && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
+                    if(strtolower($data_object->object_url) == strtolower($existing_data_object->object_url) && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
                     elseif(!$data_object->cache_object($content_manager, $resource)) return false;
                     
                     if(!$data_object->thumbnail_cache_url) $data_object->cache_thumbnail($content_manager);

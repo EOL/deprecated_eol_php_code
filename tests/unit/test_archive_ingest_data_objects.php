@@ -215,7 +215,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($m);
         $r = new \eol_schema\Reference();
         $r->identifier = "11";
-        $r->fullReference = "This is another sample reference";
+        $r->full_reference = "This is another sample reference";
         $this->archive_builder->write_object_to_file($r);
         $r = new \eol_schema\Reference();
         $r->identifier = "22";
@@ -234,7 +234,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($r);
         $r = new \eol_schema\Reference();
         $r->identifier = "33";
-        $r->fullReference = "Third reference";
+        $r->full_reference = "Third reference";
         $this->archive_builder->write_object_to_file($r);
         $this->archive_builder->finalize();
         self::harvest($this->resource);

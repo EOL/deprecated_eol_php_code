@@ -335,7 +335,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         */
         $reference = new \eol_schema\Reference();
         $reference->identifier = "11";
-        $reference->fullReference = "This is another sample reference";
+        $reference->full_reference = "This is another sample reference";
         $this->references[] = $reference;
         
         $reference = new \eol_schema\Reference();
@@ -356,7 +356,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         
         $reference = new \eol_schema\Reference();
         $reference->identifier = "33";
-        $reference->fullReference = "Third reference";
+        $reference->full_reference = "Third reference";
         $this->references[] = $reference;
         
         /*

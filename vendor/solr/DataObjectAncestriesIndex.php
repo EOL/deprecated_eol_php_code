@@ -100,9 +100,9 @@ class DataObjectAncestriesIndexer
                 else $this->objects[$id]['max_vetted_weight'] = 1;
                 
                 if(isset($attr['visible_ancestor_id'])) $this->objects[$id]['max_visibility_weight'] = 4;
-                elseif(isset($attr['invisible_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 3;
-                elseif(isset($attr['preview_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 2;
-                else $this->objects[$id]['max_vetted_weight'] = 1;
+                elseif(isset($attr['invisible_ancestor_id'])) $this->objects[$id]['max_visibility_weight'] = 3;
+                elseif(isset($attr['preview_ancestor_id'])) $this->objects[$id]['max_visibility_weight'] = 2;
+                else $this->objects[$id]['max_visibility_weight'] = 1;
             }
         }
         

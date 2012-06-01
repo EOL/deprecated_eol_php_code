@@ -22,14 +22,14 @@ class Reference extends DarwinCoreExtensionBase
             $rules[] = new ContentArchiveRowValidationRule(array(
                 'validation_function'   => 'eol_schema\Reference::references_need_titles',
                 'failure_type'          => 'error',
-                'failure_message'       => 'References must minimally contain a fullReference or title'));
+                'failure_message'       => 'References must minimally contain a full_reference or title'));
         }
         return $rules;
     }
     
     public static function references_need_titles($fields)
     {
-        if(@!$fields['http://eol.org/schema/reference/fullReference'] && 
+        if(@!$fields['http://eol.org/schema/reference/full_reference'] && 
            @!$fields['http://eol.org/schema/reference/primaryTitle'] && 
            @!$fields['http://purl.org/dc/terms/title'])
         {

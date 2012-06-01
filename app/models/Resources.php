@@ -228,6 +228,7 @@ class Resource extends ActiveRecord
     public function unpublish_hierarchy_entries()
     {
         $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=".Visibility::invisible()->id." WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
+        $this->mysqli->update("UPDATE hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.published=0 WHERE s.published=0 AND he.hierarchy_id=$this->hierarchy_id");
     }
     
     public function unpublish_taxon_concepts()
@@ -440,6 +441,7 @@ class Resource extends ActiveRecord
                 {
                     // Vet all taxon concepts associated with this resource
                     $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=". Vetted::trusted()->id .", tc.vetted_id=". Vetted::trusted()->id ." WHERE hierarchy_id=$this->hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.vetted_id=". Vetted::trusted()->id ." WHERE he.hierarchy_id=$this->hierarchy_id");
                 }
                 
                 // after all the resource hierarchy stuff has been taken care of - import the DWC Archive into a
