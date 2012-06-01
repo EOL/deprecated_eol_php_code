@@ -472,13 +472,19 @@ function merge_arrays(&$from_array, &$to_array)
 
 function recursive_rmdir($dir)
 {
+    recursive_rmdir_contents($dir);
+    @rmdir($dir);
+}
+
+function recursive_rmdir_contents($dir)
+{
     foreach(glob($dir . '/{,.}*', GLOB_BRACE) as $dir_or_file)
     {
+        if(preg_match("/\/\.gitignore$/", $dir_or_file)) continue;
         if(preg_match("/\/\.+$/", $dir_or_file)) continue;
         if(is_dir($dir_or_file)) recursive_rmdir($dir_or_file);
         else unlink($dir_or_file);
     }
-    @rmdir($dir);
 }
 
 function wildcard_rm($prefix)

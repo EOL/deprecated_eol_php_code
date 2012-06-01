@@ -6,6 +6,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
     function setUp()
     {
         parent::setUp();
+        recursive_rmdir_contents(DOC_ROOT . "vendor/eol_content_schema_v2/extension_cache/");
         $this->archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/1/";
         if(!file_exists($this->archive_directory)) mkdir($this->archive_directory);
         $this->resource = self::create_resource();
@@ -335,7 +336,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         */
         $reference = new \eol_schema\Reference();
         $reference->identifier = "11";
-        $reference->fullReference = "This is another sample reference";
+        $reference->full_reference = "This is another sample reference";
         $this->references[] = $reference;
         
         $reference = new \eol_schema\Reference();
@@ -356,7 +357,7 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         
         $reference = new \eol_schema\Reference();
         $reference->identifier = "33";
-        $reference->fullReference = "Third reference";
+        $reference->full_reference = "Third reference";
         $this->references[] = $reference;
         
         /*

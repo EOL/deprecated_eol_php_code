@@ -6,6 +6,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
     function setUp()
     {
         parent::setUp();
+        recursive_rmdir_contents(DOC_ROOT . "vendor/eol_content_schema_v2/extension_cache/");
         $this->archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/1/";
         if(!file_exists($this->archive_directory)) mkdir($this->archive_directory);
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->archive_directory));
@@ -215,7 +216,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($m);
         $r = new \eol_schema\Reference();
         $r->identifier = "11";
-        $r->fullReference = "This is another sample reference";
+        $r->full_reference = "This is another sample reference";
         $this->archive_builder->write_object_to_file($r);
         $r = new \eol_schema\Reference();
         $r->identifier = "22";
@@ -234,7 +235,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($r);
         $r = new \eol_schema\Reference();
         $r->identifier = "33";
-        $r->fullReference = "Third reference";
+        $r->full_reference = "Third reference";
         $this->archive_builder->write_object_to_file($r);
         $this->archive_builder->finalize();
         self::harvest($this->resource);

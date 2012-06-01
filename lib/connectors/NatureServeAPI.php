@@ -732,7 +732,7 @@ class NatureServeAPI
         foreach($references as $ref => $junk)
         {
             $r = new \eol_schema\Reference();
-            $r->fullReference = $ref;
+            $r->full_reference = $ref;
             $r->identifier = md5($ref);
             $this->archive_builder->write_object_to_file($r);
             $reference_ids[] = $r->identifier;

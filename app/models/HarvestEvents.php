@@ -70,6 +70,7 @@ class HarvestEvent extends ActiveRecord
     public function publish_hierarchy_entries()
     {
         $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.published=1, he.visibility_id=". Visibility::visible()->id .", tc.published=1 WHERE hehe.harvest_event_id=$this->id");
+        $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.published=1 WHERE hehe.harvest_event_id=$this->id");
         $this->publish_hierarchy_entry_parents();
         $this->make_hierarchy_entry_parents_visible();
     }

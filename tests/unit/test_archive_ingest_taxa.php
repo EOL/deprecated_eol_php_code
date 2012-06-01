@@ -6,6 +6,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
     function setUp()
     {
         parent::setUp();
+        recursive_rmdir_contents(DOC_ROOT . "vendor/eol_content_schema_v2/extension_cache/");
         $this->archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/1/";
         if(!file_exists($this->archive_directory)) mkdir($this->archive_directory);
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->archive_directory));
@@ -219,7 +220,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($t);
         $r1 = new \eol_schema\Reference();
         $r1->identifier = "11";
-        $r1->fullReference = "This is another sample reference";
+        $r1->full_reference = "This is another sample reference";
         $this->archive_builder->write_object_to_file($r1);
         $r2 = new \eol_schema\Reference();
         $r2->identifier = "22";
@@ -238,7 +239,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $this->archive_builder->write_object_to_file($r2);
         $r3 = new \eol_schema\Reference();
         $r3->identifier = "33";
-        $r3->fullReference = "Third reference";
+        $r3->full_reference = "Third reference";
         $this->archive_builder->write_object_to_file($r3);
         $this->archive_builder->finalize();
         self::harvest($resource);
@@ -248,7 +249,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $references = $species->references;
         $this->assertEqual(count($references), 3);
         $this->assertEqual($references[0]->provider_mangaed_id, $r1->identifier);
-        $this->assertEqual($references[0]->full_reference, $r1->fullReference);
+        $this->assertEqual($references[0]->full_reference, $r1->full_reference);
         $this->assertEqual($references[1]->provider_mangaed_id, $r2->identifier);
         $this->assertEqual($references[1]->title, $r2->title);
         $this->assertEqual($references[1]->pages, $r2->pages);
@@ -266,7 +267,7 @@ class test_archive_ingest_taxa extends SimpletestUnitBase
         $this->assertEqual($references[1]->ref_identifiers[1]->ref_identifier_type->label, 'doi');
         $this->assertEqual($references[1]->ref_identifiers[1]->identifier, $r2->doi);
         $this->assertEqual($references[2]->provider_mangaed_id, $r3->identifier);
-        $this->assertEqual($references[2]->full_reference, $r3->fullReference);
+        $this->assertEqual($references[2]->full_reference, $r3->full_reference);
     }
     
     function testImportVernacularNames()
