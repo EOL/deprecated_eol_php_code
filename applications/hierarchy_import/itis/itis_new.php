@@ -596,9 +596,9 @@ function get_names($resource_id)
                         {
                             $reference = new \eol_schema\Reference();
                             $reference->identifier = $pub_id;
-                            $reference->fullReference = $GLOBALS['publications'][$pub_id];
+                            $reference->full_reference = $GLOBALS['publications'][$pub_id];
 
-                            if(!Functions::is_utf8($reference->fullReference)) echo "NOT UTF8 REF: $name_tsn : $reference->fullReference\n";
+                            if(!Functions::is_utf8($reference->full_reference)) echo "NOT UTF8 REF: $name_tsn : $reference->full_reference\n";
                             $archive_builder->write_object_to_file($reference);
                             $written_publication_ids[$pub_id] = 1;
                         }

@@ -73,6 +73,8 @@ class ContentManager
             if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
             elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
             
+            if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
+            
             // Take the substring of the new file path to return via the webservice
             if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr)) $new_file_path = str_replace("/", "", $arr[1]);
             elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
@@ -288,12 +290,14 @@ class ContentManager
     function reduce_original($path, $prefix)
     {
         shell_exec("convert $path -strip -background white -flatten -quality 80 ".$prefix."_orig.jpg");
+        self::create_checksum($prefix."_orig.jpg");
     }
     
     function create_smaller_version($path, $new_width, $new_height, $prefix)
     {
         shell_exec("convert $path -strip -background white -flatten -quality 80 \
                         -resize ".$new_width."x".$new_height."\">\" ".$prefix."_".$new_width."_".$new_height.".jpg");
+        self::create_checksum($prefix."_".$new_width."_".$new_height.".jpg");
     }
     
     function create_upper_left_crop($path, $width, $height, $square_dimension, $prefix)
@@ -312,6 +316,7 @@ class ContentManager
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
         // echo $command;
         shell_exec($command);
+        self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }
     
     function create_constrained_square_crop($path, $width, $height, $square_dimension, $prefix)
@@ -326,6 +331,7 @@ class ContentManager
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
         // echo $command;
         shell_exec($command);
+        self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }
     
     function new_partner_file_name()
@@ -384,6 +390,16 @@ class ContentManager
             $connection = new \SSH2Connection($content_server_ip, CONTENT_PARTNER_USER, CONTENT_PARTNER_PASSWORD);
             $connection->sync_logos();
             unset($connection);
+        }
+    }
+    
+    private static function create_checksum($file_path)
+    {
+        if(file_exists($file_path))
+        {
+            $OUT = fopen("$file_path.sha1", "w+");
+            fwrite($OUT, sha1_file($file_path));
+            fclose($OUT);
         }
     }
 }

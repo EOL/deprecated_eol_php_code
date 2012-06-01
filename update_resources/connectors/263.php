@@ -187,8 +187,8 @@ function lookup_references($ref)
     // if($i >= 1000) return;
     
     $identifier = $ref['http://purl.org/dc/terms/identifier'];
-    $full_reference = $ref['http://eol.org/schema/reference/fullReference'];
-    $GLOBALS['all_references'][$identifier] = new \SchemaReference(array('fullReference' => $full_reference));
+    $full_reference = $ref['http://eol.org/schema/reference/full_reference'];
+    $GLOBALS['all_references'][$identifier] = new \SchemaReference(array('full_reference' => $full_reference));
 }
 
 

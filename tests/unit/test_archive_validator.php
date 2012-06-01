@@ -257,13 +257,13 @@ class test_archive_validator extends SimpletestUnitBase
         $this->archive_builder->finalize();
         list($errors, $warnings) = $this->validate();
         $this->assertTrue($errors, 'There should be errors');
-        $this->assertTrue($errors[0]->message == 'References must minimally contain a fullReference or title');
+        $this->assertTrue($errors[0]->message == 'References must minimally contain a full_reference or title');
         $this->reset();
         
         $r = new \eol_schema\Reference();
         $r->identifier = '123';
         $r->volume = 3;
-        $r->fullReference = 'this is where its at';
+        $r->full_reference = 'this is where its at';
         $this->archive_builder->write_object_to_file($r);
         $this->archive_builder->finalize();
         list($errors, $warnings) = $this->validate();

@@ -182,9 +182,9 @@ class Tasks
         while($result && $row=$result->fetch_assoc())
         {
             // skipping Wikipedia common names entirely
-            if($row['hierarchy_id'] == Hierarchy::wikipedia()->id) continue;
-            $curator_name = ($row['hierarchy_id'] == Hierarchy::contributors()->id);
-            $ubio_name = ($row['hierarchy_id'] == Hierarchy::ubio()->id);
+            if($row['hierarchy_id'] == @Hierarchy::wikipedia()->id) continue;
+            $curator_name = ($row['hierarchy_id'] == @Hierarchy::contributors()->id);
+            $ubio_name = ($row['hierarchy_id'] == @Hierarchy::ubio()->id);
             if($curator_name || $ubio_name || $row['hierarchy_id'] == Hierarchy::contributors()->id || ($row['published'] == 1 && $row['visibility_id'] == Visibility::visible()->id))
             {
                 $synonym_id = $row["id"];
