@@ -7,10 +7,10 @@ $file = "" . $_GET["file"];
 
 require_library('XLSParser');
 $parser = new XLSParser();
-$xml = $parser->create_eol_xml($parser,$file);
+$xml = $parser->create_eol_xml($file);
 
 $filename = "xml/" . time() . ".xml";
-$OUT = fopen($filename, "w+");            
+$OUT = fopen($filename, "w+");
 fwrite($OUT, $xml); fclose($OUT);
 
 $domain = $_SERVER['HTTP_HOST'];
@@ -34,7 +34,7 @@ if($validate == 'on')
     <input type='hidden' size='30' name='file_url' value='$url'>
     <input type='submit' value='Click here to Validate >> '>
     </td></form>
-    <p><a href='javascript:history.go(-1)'> &lt;&lt; Back to menu</a>";    
-    exit;        
+    <p><a href='javascript:history.go(-1)'> &lt;&lt; Back to menu</a>";
+    exit;
 }
 ?>

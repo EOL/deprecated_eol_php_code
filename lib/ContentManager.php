@@ -214,6 +214,7 @@ class ContentManager
         elseif($suffix == "xml" && preg_match("/^ASCII English text/i", $file_type))    $new_suffix = "xml";
         // some XML files like BibAlex's resource doesnt have an extension and just has a utf-8 descriptor
         elseif(preg_match("/^utf-8 unicode /i", $file_type))                            $new_suffix = "xml";
+        elseif(preg_match("/Microsoft Office Document/i", $file_type))                  $new_suffix = "xls";
         
         return $new_suffix;
     }

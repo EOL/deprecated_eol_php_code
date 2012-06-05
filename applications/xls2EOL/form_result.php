@@ -2,8 +2,8 @@
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-$url = get_val_var('url');
-$url_new = get_val_var('url_new');
+$url = @get_val_var('url');
+$url_new = @get_val_var('url_new');
 $orig_url = $url;
 
 $parts = pathinfo($url);
@@ -13,7 +13,7 @@ $newfile = "temp/" . time() . "." . $extension;
 
 if($url != ""){}//URL is pasted.
 elseif($url_new != ""){}//URL is pasted.
-elseif($_FILES["file_upload_new"]["type"])
+elseif(@$_FILES["file_upload_new"]["type"])
 {
     if(in_array($_FILES["file_upload_new"]["type"],
         array("application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream")))
@@ -56,7 +56,7 @@ elseif($_FILES["file_upload_new"]["type"])
     }
     
     exit;
-}elseif($_FILES["file_upload"]["type"])
+}elseif(@$_FILES["file_upload"]["type"])
 {
     if(in_array($_FILES["file_upload"]["type"],
         array("application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream")))

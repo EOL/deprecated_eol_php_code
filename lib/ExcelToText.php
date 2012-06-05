@@ -21,7 +21,7 @@ class ExcelToText
         try
         {
             $this->spreadsheet_reader = self::prepare_reader($this->path_to_spreadsheet);
-        }catch (Exception $e)
+        }catch (\Exception $e)
         {
             $this->errors[] = "Unable to read Excel file";
         }
@@ -169,18 +169,23 @@ class ExcelToText
         {
             if($sheet_name == "controlled terms") continue;
             $worksheet_reader = $this->spreadsheet_reader->setActiveSheetIndex($sheet_index);
+            $worksheetTitle = $worksheet_reader->getTitle();
+            $highest_row = $worksheet_reader->getHighestRow(); // e.g. 10
+            $highest_column = $worksheet_reader->getHighestColumn(); // e.g 'F'
+            $highest_column_index = \PHPExcel_Cell::columnIndexFromString($highest_column);
+            $number_of_columns = ord($highest_column) - 64;
             
             $OUTFILE = fopen($archive_temp_directory_path ."/$sheet_name.txt", "w+");
             $worksheet_fields[$sheet_name] = array();
-            // $index will start at 1, not 0
-            foreach($worksheet_reader->getRowIterator() as $row_index => $row)
+            for($row_index = 1; $row_index <= $highest_row; $row_index++)
             {
-                $row_reader = $row->getCellIterator();
-                $row_reader->setIterateOnlyExistingCells(false);
-                
+                static $i = 0;
+                $i++;
+                // if($i % 100 == 0) echo "$i - ".time_elapsed()."\n";
                 $values = array();
-                foreach($row_reader as $column_index => $cell)
+                for ($column_index = 0; $column_index < $highest_column_index; $column_index++)
                 {
+                    $cell = $worksheet_reader->getCellByColumnAndRow($column_index, $row_index);
                     $value = self::prepare_value($cell->getCalculatedValue());
                     /*
                         Row1: readable label
@@ -381,8 +386,9 @@ class ExcelToText
         elseif($extension == "zip") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "csv") $excel_reader = new \PHPExcel_Reader_CSV();
         
-        $objPHPExcel = $excel_reader->load($path_to_spreadsheet);
+        if(!$excel_reader->canRead($path_to_spreadsheet)) throw new \Exception('Cannot read this file');
         if($extension != "csv") $excel_reader->setReadDataOnly(true);
+        $objPHPExcel = $excel_reader->load($path_to_spreadsheet);
         return $objPHPExcel;
     }
     
