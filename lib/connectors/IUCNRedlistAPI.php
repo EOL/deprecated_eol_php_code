@@ -64,15 +64,20 @@ class IUCNRedlistAPI
         // http://www.php.net/manual/en/domdocument.loadhtml.php#95251
         $details_html = str_replace("<!DOCTYPE html>", "<?xml encoding=\"UTF-8\">", $details_html);
         $details_html = str_replace("<meta charset=\"UTF-8\"/>", "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">", $details_html);
-        $details_html = str_replace("\n", " ", $details_html);
-        $details_html = str_replace("\r", " ", $details_html);
-        $details_html = str_replace("\t", " ", $details_html);
-        $details_html = str_replace("<span>", "", $details_html);
-        $details_html = str_replace("</span>", "", $details_html);
-        $details_html = str_replace("&nbsp;", " ", $details_html);
-        // $details_html = str_replace("Downloaded on <b>", "Downloaded on ", $details_html);
         $details_html = str_replace("& ", "&amp; ", $details_html);
         $details_html = preg_replace("/<([0-9])/", "&lt;\\1", $details_html);
+        
+        if(preg_match("/^(.*<div id='citation'>)(.*?)(<\/div>.*)$/ims", $details_html, $arr))
+        {
+            $arr[2] = str_replace("\n", " ", $arr[2]);
+            $arr[2] = str_replace("\r", " ", $arr[2]);
+            $arr[2] = str_replace("\t", " ", $arr[2]);
+            $arr[2] = str_replace("<span>", "", $arr[2]);
+            $arr[2] = str_replace("</span>", "", $arr[2]);
+            $arr[2] = str_replace("&nbsp;", " ", $arr[2]);
+            $arr[2] = str_replace("</td>", "", $arr[2]);
+            $details_html = $arr[1] . $arr[2] . $arr[3];
+        }
         while(preg_match("/  /", $details_html)) $details_html = str_replace("  ", " ", $details_html);
         
         $dom_doc = new \DOMDocument("1.0", "UTF-8");
@@ -135,12 +140,12 @@ class IUCNRedlistAPI
         
         
         list($agents, $citation) = self::get_agents_and_citation($dom_doc, $xpath);
-        if(preg_match("/^BirdLife International/", $citation))
+        if(preg_match("/^(BirdLife International [12][0-9]{3}\. <i>(.*?)<\/i>)/", $citation, $arr))
         {
-            
+            $birdlife_url = self::get_birdlife_url($arr[2]);
             $reference_parameters = array();
-            // $reference_parameters['fullReference'] = ???;
-            $reference_parameters['referenceIdentifiers'] = array(new \SchemaReferenceIdentifier(array('label' => 'url', 'value' => $birdlife_url)));
+            $reference_parameters['fullReference'] = $arr[1];
+            if($birdlife_url) $reference_parameters['referenceIdentifiers'] = array(new \SchemaReferenceIdentifier(array('label' => 'url', 'value' => $birdlife_url)));
             $taxon_parameters['references'][] = new \SchemaReference($reference_parameters);
         }
         
@@ -193,6 +198,7 @@ class IUCNRedlistAPI
         $section_html = str_replace("\t", " ", $section_html);
         while(preg_match("/  /", $section_html)) $section_html = str_replace("  ", " ", $section_html);
         $section_html = preg_replace("/^<br\/>/", "", $section_html);
+        $section_html = str_replace("<b/>", "", $section_html);
         $section_html = preg_replace("/^<p><br\/><\/p>/", "", $section_html);
         
         if($section_html)
@@ -293,7 +299,7 @@ class IUCNRedlistAPI
                     {
                         $synonym = preg_replace("/\(.*?\)/", "", trim($synonym));
                         if(!$synonym) continue;
-                        echo "$synonym\n";
+                        echo "$synonym : $id\n";
                         $birdlife_synonyms[strtolower(trim($synonym))] = $id;
                     }
                 }
@@ -302,6 +308,18 @@ class IUCNRedlistAPI
         ksort($birdlife_names);
         ksort($birdlife_synonyms);
         return array($birdlife_names, $birdlife_synonyms);
+    }
+    
+    public function get_birdlife_url($taxon_name)
+    {
+        $taxon_name = strtolower($taxon_name);
+        if(isset($GLOBALS['birdlife_names'][0][$taxon_name]))
+        {
+            return "http://www.birdlife.org/datazone/speciesfactsheet.php?id=" . $GLOBALS['birdlife_names'][0][$taxon_name];
+        }elseif(isset($GLOBALS['birdlife_names'][1][$taxon_name]))
+        {
+            return "http://www.birdlife.org/datazone/speciesfactsheet.php?id=" . $GLOBALS['birdlife_names'][1][$taxon_name];
+        }
     }
     
     private static function lookup_with_cache($iucn_id)
