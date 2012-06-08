@@ -185,8 +185,9 @@ class ExcelToText
                 $values = array();
                 for ($column_index = 0; $column_index < $highest_column_index; $column_index++)
                 {
-                    $cell = $worksheet_reader->getCellByColumnAndRow($column_index, $row_index);
-                    $value = self::prepare_value($cell->getCalculatedValue());
+                    $cell = $worksheet_reader->getCellByColumnAndRow($column_index, $row_index, true);
+                    if($cell === null) $value = null;
+                    else $value = self::prepare_value($cell->getCalculatedValue());
                     /*
                         Row1: readable label
                         Row2: field type URI
@@ -198,7 +199,11 @@ class ExcelToText
                         Row8: comment
                         Row9: extension thesaurus URI
                     */
-                    if($row_index == 1)
+                    if($row_index > 9)
+                    {
+                        $value = self::fix_spreadsheet_shorthand($sheet_name, @$worksheet_fields[$sheet_name][$column_index]['uri'], $value);
+                        $values[] = $value;
+                    }elseif($row_index == 1)
                     {
                         $worksheet_fields[$sheet_name][$column_index]['label'] = $value;
                         $values[] = $value;
@@ -211,11 +216,6 @@ class ExcelToText
                     elseif($row_index == 7) $worksheet_fields[$sheet_name][$column_index]['definition'] = $value;
                     elseif($row_index == 8) $worksheet_fields[$sheet_name][$column_index]['comment'] = $value;
                     elseif($row_index == 9) $worksheet_fields[$sheet_name][$column_index]['example'] = $value;
-                    else
-                    {
-                        $value = self::fix_spreadsheet_shorthand($sheet_name, @$worksheet_fields[$sheet_name][$column_index]['uri'], $value);
-                        $values[] = $value;
-                    }
                 }
                 
                 if($values)
@@ -260,18 +260,20 @@ class ExcelToText
     {
         if($worksheet_name == 'media' && strtolower($uri) == 'http://purl.org/dc/terms/type')
         {
-            if(in_array(strtolower($value), array('movingimage', 'sound', 'stillimage', 'text')))
+            static $data_types = array('movingimage', 'sound', 'stillimage', 'text');
+            if(in_array(strtolower($value), $data_types))
             {
                 $value = "http://purl.org/dc/dcmitype/". $value;
             }
         }elseif($worksheet_name == 'media' && strtolower($uri) == 'http://iptc.org/std/iptc4xmpext/1.0/xmlns/cvterm')
         {
-            if(in_array(strtolower($value), array('associations', 'behaviour', 'biology', 'conservation', 'conservationstatus',
+            static $subjects = array('associations', 'behaviour', 'biology', 'conservation', 'conservationstatus',
                 'cyclicity', 'cytology', 'description', 'diagnosticdescription', 'diseases', 'dispersal', 'distribution',
                 'ecology', 'evolution', 'generaldescription', 'genetics', 'growth', 'habitat', 'key', 'legislation',
                 'lifecycle', 'lifeexpectancy', 'lookalikes', 'management', 'migration', 'molecularbiology', 'morphology',
                 'physiology', 'populationbiology', 'procedures', 'reproduction', 'riskstatement', 'size', 'taxonbiology',
-                'threats', 'trends', 'trophicstrategy', 'uses')))
+                'threats', 'trends', 'trophicstrategy', 'uses');
+            if(in_array(strtolower($value), $subjects))
             {
                 $value = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#". $value;
             }

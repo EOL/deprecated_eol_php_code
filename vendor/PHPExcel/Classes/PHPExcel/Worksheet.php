@@ -992,12 +992,14 @@ class PHPExcel_Worksheet implements PHPExcel_IComparable
 	 * @param	string $pRow		Numeric row coordinate of the cell
 	 * @return	PHPExcel_Cell		Cell that was found
 	 */
-	public function getCellByColumnAndRow($pColumn = 0, $pRow = 1)
+	public function getCellByColumnAndRow($pColumn = 0, $pRow = 1, $return_if_undefined = false)
 	{
 		$columnLetter = PHPExcel_Cell::stringFromColumnIndex($pColumn);
 		$coordinate = $columnLetter . $pRow;
+        
 
 		if (!$this->_cellCollection->isDataSet($coordinate)) {
+		    if($return_if_undefined) return null;
 			$cell = $this->_cellCollection->addCacheData($coordinate, new PHPExcel_Cell($columnLetter, $pRow, null, PHPExcel_Cell_DataType::TYPE_NULL, $this));
 			$this->_cellCollectionIsSorted = false;
 
@@ -1008,7 +1010,7 @@ class PHPExcel_Worksheet implements PHPExcel_IComparable
 
 			return $cell;
 		}
-
+	    
 		return $this->_cellCollection->getCacheData($coordinate);
 	}
 
