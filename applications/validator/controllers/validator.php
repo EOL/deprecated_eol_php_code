@@ -15,19 +15,16 @@ class validator_controller extends ControllerBase
         $xml_file = @$file_url;
         $downloaded_file = false;
         if(@$xml_upload['tmp_name']) $xml_file = $xml_upload['tmp_name'];
-        elseif($xml_file)
+        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file))
         {
-            if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file))
+            if(is_dir($temp_dir))
             {
-                if(is_dir($temp_dir))
-                {
-                    recursive_rmdir($temp_dir);
-                    $xml_file = null;
-                }else
-                {
-                    $downloaded_file = true;
-                    $xml_file = $temp_dir;
-                }
+                recursive_rmdir($temp_dir);
+                $xml_file = null;
+            }else
+            {
+                $downloaded_file = true;
+                $xml_file = $temp_dir;
             }
         }
         
