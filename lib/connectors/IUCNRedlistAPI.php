@@ -193,6 +193,7 @@ class IUCNRedlistAPI
         $section_html = str_replace("\t", " ", $section_html);
         while(preg_match("/  /", $section_html)) $section_html = str_replace("  ", " ", $section_html);
         $section_html = preg_replace("/^<br\/>/", "", $section_html);
+        $section_html = preg_replace("/^<p><br\/><\/p>/", "", $section_html);
         
         if($section_html)
         {
