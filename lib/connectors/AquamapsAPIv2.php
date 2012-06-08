@@ -54,7 +54,7 @@ class AquamapsAPIv2
         foreach($xml->RECORD as $rec)
         {
             $ctr++;
-            print "\n $ctr of $total";
+            print "\n $ctr of $total ". memory_get_usage();
             if(substr($rec->SPECIESID, 0, 3)=="Fis") $source_dbase_link = "<a target='$rec->SpecCode' href='" . FISHBASE_URL . $rec->SpecCode . "'>FishBase</a>";
             else                                     $source_dbase_link = "<a target='$rec->SpecCode' href='" . SEALIFEBASE_URL . $rec->SpecCode . "'>SeaLifeBase</a>";
             //start distribution
@@ -212,6 +212,18 @@ class AquamapsAPIv2
 
     private function check_for_interactive_map($genus, $species)
     {
+        $genus = (string) $genus;
+        $species = (string) $species;
+        if(!isset($GLOBALS['aquamaps_check_for_interactive_map'])) $GLOBALS['aquamaps_check_for_interactive_map'] = array();
+        if(!isset($GLOBALS['aquamaps_check_for_interactive_map'][$genus])) $GLOBALS['aquamaps_check_for_interactive_map'][$genus] = array();
+        if(isset($GLOBALS['aquamaps_check_for_interactive_map'][$genus][$species]))
+        {
+            return $GLOBALS['aquamaps_check_for_interactive_map'][$genus][$species];
+        }else
+        {
+            $GLOBALS['aquamaps_check_for_interactive_map'] = array();
+            $GLOBALS['aquamaps_check_for_interactive_map'][$genus] = array();
+        }
         $url = "http://www.aquamaps.org/webservice/getAMap.php?genus=" . $genus . "&species=" . $species;
         $xml = Functions::get_hashed_response($url);
         if($xml->section_body != '')
@@ -219,7 +231,9 @@ class AquamapsAPIv2
             $html = $xml->section_body;
             $html = str_ireplace("height='150'", "height='250'", $html);
             $html = str_ireplace("width ='350'", "width ='550'", $html);
-            return "<p>Interactive map<br>" . $html;
+            $html = "<p>Interactive map<br>" . $html;
+            $GLOBALS['aquamaps_check_for_interactive_map'][$genus][$species] = $html;
+            return $html;
         } 
         return;
     }

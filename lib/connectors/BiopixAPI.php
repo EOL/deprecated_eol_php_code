@@ -44,9 +44,9 @@ class BiopixAPI
         $rating = @trim($columns[8]);
         
         // we must have a taxon name and an image
-        if(!$scientific_name) continue;
-        if(!$image_id) continue;
-        if(!$image_url) continue;
+        if(!$scientific_name) return;
+        if(!$image_id) return;
+        if(!$image_url) return;
         
         // add the family the first time we see it
         $family_id = null;
@@ -66,11 +66,11 @@ class BiopixAPI
         }
         
         // add the taxon the first time we see them
-        $taxon_id = md5($family ."|". $scientific_name);
+        $taxon_id = str_replace(" ", "_", $scientific_name);
         if(!isset($this->taxa[$taxon_id]))
         {
             $t = new \eol_schema\Taxon();
-            $t->taxonID = str_replace(" ", "_", $scientific_name);  // $taxon_id
+            $t->taxonID = str_replace(" ", "_", $scientific_name);
             if($family_id) $t->parentNameUsageID = $family_id;
             else $t->parentNameUsageID = $this->get_parent_name_usage_id($category);
             $t->scientificName = $scientific_name;

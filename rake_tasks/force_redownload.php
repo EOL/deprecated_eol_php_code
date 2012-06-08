@@ -22,6 +22,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $result = $mysqli->query("SELECT id, object_url, thumbnail_url FROM data_objects WHERE id=$data_object_id LIMIT 1");
 if($result && $row=$result->fetch_assoc())
 {
+    print_r($row);
     $content_manager = new ContentManager();
     if($thumbnail == 'thumbnail')
     {

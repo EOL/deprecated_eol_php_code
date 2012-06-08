@@ -56,6 +56,11 @@ class VimeoAPI
             if($page == 3) break;
             $page++;
         }
+        
+        // moderators are not returned in the users.xml
+        // Simple API we use above. Maybe using the Advanced API would fix that
+        $user_ids['user5814509'] = 1;  // Katja
+        $user_ids['user5352360'] = 1;  // Eli
         return array_keys($user_ids);
     }
 
