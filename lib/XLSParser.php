@@ -43,7 +43,7 @@ class XLSParser
                 if($row == $startRow) $sheet_label[] = $cell;
                 else
                 {
-                    $index = $sheet_label[$col];
+                    $index = trim($sheet_label[$col]);
                     if($index) $sheet_value[$index][] = $cell;
                 }
             }
