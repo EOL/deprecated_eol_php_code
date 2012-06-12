@@ -102,11 +102,13 @@ class XMLToArchive
         
         foreach($t->commonName as $c)
         {
+            $attr = $c->attributes();
             $xml_attr = $c->attributes("http://www.w3.org/XML/1998/namespace");
             $vernacular = new \eol_schema\VernacularName();
             $vernacular->taxonID = $taxon->taxonID;
             $vernacular->vernacularName = Functions::import_decode((string) $c);
             $vernacular->language = @Functions::import_decode($xml_attr["lang"]);
+            if(@Functions::import_decode($attr['isformal']) == 1) $vernacular->isPreferredName = true;
             $vernacular_id = md5("$vernacular->taxonID|$vernacular->vernacularName|$vernacular->language");
             
             if(!$vernacular->vernacularName) continue;

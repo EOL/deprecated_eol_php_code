@@ -17,8 +17,8 @@ if(!$start_id && !$end_id)
 }
 
 
-$nametag = new NameTag('');
-if($end_id) $result = $GLOBALS['db_connection']->query("SELECT id, description FROM data_objects WHERE description!='' AND (visibility_id=".Visibility::find('preview')." OR (visibility_id=".Visibility::find('visible')." AND published=1)) AND id BETWEEN $start_id AND $end_id AND description_linked IS NULL");
+$nametag = new \NameTag('');
+if($end_id) $result = $GLOBALS['db_connection']->query("SELECT id, description FROM data_objects WHERE description!='' AND published=1 AND id BETWEEN $start_id AND $end_id");
 else $result = $GLOBALS['db_connection']->query("SELECT id, description FROM data_objects WHERE id=$start_id");
 
 $i = 0;
@@ -41,9 +41,9 @@ while($result && $row=$result->fetch_assoc())
     $nametag->reset($description);
     $description = $nametag->markup_html();
     
-    $description = NameLink::replace_tags_with_collection($description, 'EOLLookup::check_db');
-    $description = preg_replace("/(<a[^>]*>[^<]*?)<a href=\"\/pages\/[0-9]+\">(.*?)<\/a>/", "$1$2", $description);
-    
+    $description = \NameLink::replace_tags_with_collection($description, 'php_active_record\\EOLLookup::check_db');
+    $description = preg_replace("/(<a[^>]*>[^<]*?)<a href=\"\/pages\/[0-9]+\/overview\/\">(.*?)<\/a>/", "$1$2", $description);
+    // echo "UPDATE data_objects SET description_linked='".$GLOBALS['db_connection']->real_escape_string($description)."' WHERE id=$id\n";
     $GLOBALS['db_connection']->query("UPDATE data_objects SET description_linked='".$GLOBALS['db_connection']->real_escape_string($description)."' WHERE id=$id");
 }
 $GLOBALS['db_connection']->end_transaction();
@@ -68,7 +68,7 @@ class EOLLookup
         }
         
         $json = array();
-        if($min_tc_id) $json[] = array('url' => '/pages/'. $min_tc_id);
+        if($min_tc_id) $json[] = array('url' => '/pages/'. $min_tc_id .'/overview/');
         
         
         return $json;

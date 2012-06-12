@@ -13,7 +13,20 @@ class validator_controller extends ControllerBase
         
         
         $xml_file = @$file_url;
+        $downloaded_file = false;
         if(@$xml_upload['tmp_name']) $xml_file = $xml_upload['tmp_name'];
+        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file))
+        {
+            if(is_dir($temp_dir))
+            {
+                recursive_rmdir($temp_dir);
+                $xml_file = null;
+            }else
+            {
+                $downloaded_file = true;
+                $xml_file = $temp_dir;
+            }
+        }
         
         if($xml_file)
         {
@@ -34,6 +47,11 @@ class validator_controller extends ControllerBase
                 if($file_size && $file_size<40000) list($eol_errors, $eol_warnings) = SchemaParser::eol_schema_validate($xml_file);
                 else $is_eol_schema = false;
             }
+        }
+        
+        if($downloaded_file)
+        {
+            unlink($xml_file);
         }
         
         render_template("validator/index", array("file_url" => @$file_url, "file_upload" => @$xml_upload['name'], "is_eol_schema" => @$is_eol_schema, "xsd" => @$xsd, "errors" => @$errors, "eol_errors" => @$eol_errors, "eol_warnings" => @$eol_warnings));

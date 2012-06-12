@@ -6,8 +6,8 @@ chmod ug+rw /opt/eol_php_code/log/*
 chown www-data:www-data /opt/eol_php_code/tmp/*
 chmod ug+rw /opt/eol_php_code/tmp/*
 
-chown www-data:www-data /opt/eol_php_code/lib/*
-chmod ug+rw /opt/eol_php_code/lib/*
+chown -R www-data:www-data /opt/eol_php_code/lib/*
+chmod -R ug+rw /opt/eol_php_code/lib/*
 
 chown www-data:www-data /opt/eol_php_code/app/models/*
 chmod ug+rw /opt/eol_php_code/app/models/*

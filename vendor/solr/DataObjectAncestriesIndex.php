@@ -290,7 +290,7 @@ class DataObjectAncestriesIndexer
             FROM data_objects do
             JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
             JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
-            JOIN hierarchy_entries he_concept ON (he.taxon_concept_id=he_concept.taxon_concept_id)
+            JOIN hierarchy_entries he_concept ON (he.taxon_concept_id=he_concept.taxon_concept_id AND he_concept.published=1)
             LEFT JOIN hierarchy_entries_flattened hef ON (he_concept.id=hef.hierarchy_entry_id)
             WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
             AND he.published=1

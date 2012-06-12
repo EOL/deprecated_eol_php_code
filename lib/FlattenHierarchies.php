@@ -92,7 +92,13 @@ class FlattenHierarchies
             }
         }
         
-        $result = $this->mysqli->query("SELECT DISTINCT c.id child_id, p.id parent_id, p.taxon_concept_id FROM hierarchy_entries c JOIN hierarchy_entries p ON (c.parent_id=p.id) WHERE c.taxon_concept_id = $taxon_concept_id AND c.published=1 AND c.visibility_id IN ($this->visibile_id, $this->preview_id)");
+        $result = $this->mysqli->query("SELECT DISTINCT c.id child_id, p.id parent_id, p.taxon_concept_id
+            FROM hierarchy_entries c
+            JOIN hierarchy_entries p ON (c.parent_id=p.id)
+            WHERE c.taxon_concept_id = $taxon_concept_id
+            AND c.published=1
+            AND c.visibility_id IN ($this->visibile_id, $this->preview_id)
+            AND c.vetted_id!=".Vetted::untrusted()->id);
         while($result && $row=$result->fetch_assoc())
         {
             $ancestor_entry_ids = array();
@@ -118,10 +124,8 @@ class FlattenHierarchies
         fclose($this->TC_OUTFILE);
         
         // batches of 250,000 - .8 second pause in between
-        // print_r(file($this->he_tmp_file_path));
         $this->mysqli->load_data_infile($this->he_tmp_file_path, 'hierarchy_entries_flattened', "IGNORE", '', 800000, 250000);
         unlink($this->he_tmp_file_path);
-        // print_r(file($this->tc_tmp_file_path));
         $this->mysqli->load_data_infile($this->tc_tmp_file_path, 'taxon_concepts_flattened', "IGNORE", '', 800000, 250000);
         unlink($this->tc_tmp_file_path);
     }
@@ -133,8 +137,12 @@ class FlattenHierarchies
         $count++;
         if($count%1000 == 0 && $GLOBALS['ENV_DEBUG']) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
         
-        //if($count>=10000) exit;
-        $query = "SELECT id, parent_id, taxon_concept_id, (rgt-lft) therange FROM hierarchy_entries WHERE parent_id=$parent_id AND published=1 AND visibility_id IN ($this->visibile_id, $this->preview_id)";
+        $query = "SELECT id, parent_id, taxon_concept_id, (rgt-lft) therange
+            FROM hierarchy_entries
+            WHERE parent_id=$parent_id
+            AND published=1
+            AND visibility_id IN ($this->visibile_id, $this->preview_id)
+            AND vetted_id!=".Vetted::untrusted()->id;
         if($child_id) $query .= " AND id = $child_id";
         $result = $this->mysqli_slave->query($query);
         while($result && $row=$result->fetch_assoc())

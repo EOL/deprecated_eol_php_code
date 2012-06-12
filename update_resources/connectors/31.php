@@ -4,8 +4,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/BiopixAPI');
 
 
-// $biopix_connector = new BiopixAPI;
-// $biopix_connector->get_all_taxa();
+$biopix_connector = new BiopixAPI;
+$biopix_connector->get_all_taxa();
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "31_working/taxon.tab") > 1000 &&
     filesize(CONTENT_RESOURCE_LOCAL_PATH . "31_working/media_resource.tab") > 1000)

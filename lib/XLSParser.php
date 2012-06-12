@@ -11,13 +11,22 @@ class XLSParser
     public function convert_sheet_to_array($spreadsheet, $sheet = NULL, $startRow = NULL)
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
+        
+        if(!isset($this->open_spreadsheets)) $this->open_spreadsheets = array();
         $ext = strtolower(end(explode('.', $spreadsheet)));
-        if    ($ext == "xls") $objReader = \PHPExcel_IOFactory::createReader('Excel5');
-        elseif($ext == "xlsx")$objReader = \PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
-        elseif($ext == "zip") $objReader = \PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
-        elseif($ext == "csv") $objReader = new \PHPExcel_Reader_CSV();
-        $objPHPExcel = $objReader->load($spreadsheet);
-        if($ext != "csv") $objReader->setReadDataOnly(true);
+        if(isset($this->open_spreadsheets['spreadsheet']))
+        {
+            $objPHPExcel = $this->open_spreadsheets['spreadsheet'];
+        }else
+        {
+            if    ($ext == "xls") $objReader = \PHPExcel_IOFactory::createReader('Excel5');
+            elseif($ext == "xlsx")$objReader = \PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
+            elseif($ext == "zip") $objReader = \PHPExcel_IOFactory::createReader('Excel2007'); //memory intensive, slow response
+            elseif($ext == "csv") $objReader = new \PHPExcel_Reader_CSV();
+            if($ext != "csv") $objReader->setReadDataOnly(true);
+            $objPHPExcel = $objReader->load($spreadsheet);
+            $this->open_spreadsheets['spreadsheet'] = $objPHPExcel;
+        }
         if(is_null($sheet)) $objWorksheet = $objPHPExcel->getActiveSheet();
         else                $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);
         $highestRow         = $objWorksheet->getHighestRow(); // e.g. 10
@@ -34,7 +43,7 @@ class XLSParser
                 if($row == $startRow) $sheet_label[] = $cell;
                 else
                 {
-                    $index = $sheet_label[$col];
+                    $index = trim($sheet_label[$col]);
                     if($index) $sheet_value[$index][] = $cell;
                 }
             }
@@ -54,9 +63,10 @@ class XLSParser
         6 = More common names (optional)
         7 = Synonyms
         */
+        
         $taxon_info = $this->convert_sheet_to_array($file, 5);
         $GLOBALS['subjects_with_identical_texts'] = self::check_subjects_with_identical_texts($this->convert_sheet_to_array($file, 2));
-
+        
         $text_desc = self::prepare_data($this->convert_sheet_to_array($file, 2), "multiple", "Taxon Name", "Taxon Name", "Reference Code", "Attribution Code", "Contributor Code",
         "Audience", "DateCreated", "DateModified", "Source URL",
         "Associations", "Behaviour", "Biology", "Conservation",
@@ -64,7 +74,7 @@ class XLSParser
         "GeneralDescription", "Genetics", "Growth", "Habitat", "Key", "Legislation", "LifeCycle", "LifeExpectancy", "LookAlikes", "Management", "Migration",
         "MolecularBiology", "Morphology", "Physiology", "PopulationBiology", "Procedures", "Reproduction", "RiskStatement", "Size", "TaxonBiology", "Threats", "Trends",
         "TrophicStrategy", "Uses");
-
+        
         $multimedia     = self::prepare_data($this->convert_sheet_to_array($file, 4, 2), "multiple", "Taxon Name",
         "DateCreated", "DateModified", "Data Type", "MIME Type", "Media URL", "Thumbnail URL", "Source URL", "Caption", "Language", "Audience", "Location", "Latitude",
         "Longitude", "Altitude", "Attribution Code", "Contributor Code", "Reference Code");
@@ -80,6 +90,7 @@ class XLSParser
                             "contributors" => $contributors);
         
         $eol_xml = self::create_specialist_project_xml($taxon_info, $text_desc, $multimedia, $common_names, $synonyms, $do_details);
+        echo time_elapsed()."<br>\n";
         return $eol_xml;
     }
 
@@ -127,7 +138,7 @@ class XLSParser
                 $taxon_parameters["genus"]          = ucfirst(self::format(@$taxon_info["Genus"][$i]));
                 $taxon_parameters["scientificName"] = ucfirst(self::format(@$taxon_info["Scientific Name"][$i]));
                 $taxon_parameters["source"]         = trim(self::format(@$taxon_info["Source URL"][$i]));
-
+        
                 //start taxon reference
                 $taxon_parameters["references"] = array();
                 $refs = array();
@@ -386,7 +397,9 @@ class XLSParser
     
     function format($str)
     {
+        if(!$str) return $str;
         $str = trim($str);
+        if(!$str) return $str;
         $str = utf8_encode(utf8_decode($str));
         $str = self::fix_chars($str);
         $str = utf8_encode(utf8_decode($str));
@@ -395,25 +408,30 @@ class XLSParser
 
     function fix_chars($s)
     {
+        /*
         $s = str_ireplace(utf8_decode('“'), "'", $s);
         $s = str_ireplace(utf8_decode('”'), "'", $s);
         $s = str_ireplace(utf8_decode('–'), "-", $s);
         $s = str_ireplace(utf8_decode('’'), "'", $s);
         $s = str_ireplace(utf8_decode('µ'), utf8_encode("&#181;"), $s);
-
-        $entity = array("&nbsp;", "&iexcl;", "&cent;", "&pound;", "&curren;", "&yen;", "&brvbar;", "&sect;",
+        */
+        
+        static $entities_to_decode = array("&nbsp;", "&iexcl;", "&cent;", "&pound;", "&curren;", "&yen;", "&brvbar;", "&sect;",
                     "&uml;", "&copy;", "&ordf;", "&laquo;", "&not;", "&shy;", "&reg;", "&hibar;",
                     "&deg;", "&plusmn;", "&sup2;", "&sup3;", "&acute;", "&micro;", "&para;", "&middot;",
                     "&cedil;", "&sup1;", "&ordm;", "&raquo;", "&frac14;", "&frac12;", "&frac34;", "&iquest;",
-                    "&Agrave;", "&Aacute;", "&Acirc;", "&Atilde;", "&Auml;", "&Aring;", "&AElig;", "&Ccedil;",
-                    "&Egrave;", "&Eacute;", "&Ecirc;", "&Euml;", "&Igrave;", "&Iacute;", "&Icirc;", "&Iuml;",
-                    "&ETH;", "&Ntilde;", "&Ograve;", "&Oacute;", "&Ocirc;", "&Otilde;", "&Ouml;", "&times;",
-                    "&Oslash;", "&Ugrave;", "&Uacute;", "&Ucirc;", "&Uuml;", "&Yacute;", "&THORN;", "&szlig;",
+                    "&agrave;", "&aacute;", "&acirc;", "&atilde;", "&auml;", "&aring;", "&aelig;", "&ccedil;",
+                    "&egrave;", "&eacute;", "&ecirc;", "&euml;", "&igrave;", "&iacute;", "&icirc;", "&iuml;",
+                    "&eth;", "&ntilde;", "&ograve;", "&oacute;", "&ocirc;", "&otilde;", "&ouml;", "&times;",
+                    "&oslash;", "&igrave;", "&uacute;", "&ucirc;", "&uuml;", "&yacute;", "&thorn;", "&szlig;",
                     "&agrave;", "&aacute;", "&acirc;", "&atilde;", "&auml;", "&aring;", "&aelig;", "&ccedil;",
                     "&egrave;", "&eacute;", "&ecirc;", "&euml;", "&igrave;", "&iacute;", "&icirc;", "&iuml;",
                     "&eth;", "&ntilde;", "&ograve;", "&oacute;", "&ocirc;", "&otilde;", "&ouml;", "&divide;",
                     "&oslash;", "&ugrave;", "&uacute;", "&ucirc;", "&uuml;", "&yacute;", "&thorn;", "&yuml;");
-        foreach($entity as $r) $s = str_replace($r, html_entity_decode($r), $s);
+        while(preg_match("/(&[a-z0-9]{3,7};)/ims", $s, $arr))
+        {
+            if(in_array($arr[1], $entities_to_decode)) $s = str_replace($arr[1], html_entity_decode($arr[1]), $s);
+        }
         return $s;
     }
 

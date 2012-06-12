@@ -15,6 +15,13 @@ $resource_id = 339;
 /* set rating to 2 */
 require_library('ResourceDataObjectElementsSetting');
 $resource_path = "http://data.rbge.org.uk/service/static/Rhododendron_curtis_images_eol_transfer.xml";
+
+$result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
+$row = $result->fetch_row();
+$new_resource_path = $row[0];
+if($resource_path != $new_resource_path && $new_resource_path != '') $resource_path = $new_resource_path;
+print "\n processing resource:\n $resource_path \n\n"; 
+
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $func->set_data_object_rating_on_xml_document();
 $func->save_resource_document($xml);

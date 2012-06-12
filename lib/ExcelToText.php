@@ -21,7 +21,7 @@ class ExcelToText
         try
         {
             $this->spreadsheet_reader = self::prepare_reader($this->path_to_spreadsheet);
-        }catch (Exception $e)
+        }catch (\Exception $e)
         {
             $this->errors[] = "Unable to read Excel file";
         }
@@ -169,19 +169,25 @@ class ExcelToText
         {
             if($sheet_name == "controlled terms") continue;
             $worksheet_reader = $this->spreadsheet_reader->setActiveSheetIndex($sheet_index);
+            $worksheetTitle = $worksheet_reader->getTitle();
+            $highest_row = $worksheet_reader->getHighestRow(); // e.g. 10
+            $highest_column = $worksheet_reader->getHighestColumn(); // e.g 'F'
+            $highest_column_index = \PHPExcel_Cell::columnIndexFromString($highest_column);
+            $number_of_columns = ord($highest_column) - 64;
             
             $OUTFILE = fopen($archive_temp_directory_path ."/$sheet_name.txt", "w+");
             $worksheet_fields[$sheet_name] = array();
-            // $index will start at 1, not 0
-            foreach($worksheet_reader->getRowIterator() as $row_index => $row)
+            for($row_index = 1; $row_index <= $highest_row; $row_index++)
             {
-                $row_reader = $row->getCellIterator();
-                $row_reader->setIterateOnlyExistingCells(false);
-                
+                static $i = 0;
+                $i++;
+                // if($i % 100 == 0) echo "$i - ".time_elapsed()."\n";
                 $values = array();
-                foreach($row_reader as $column_index => $cell)
+                for ($column_index = 0; $column_index < $highest_column_index; $column_index++)
                 {
-                    $value = self::prepare_value($cell->getCalculatedValue());
+                    $cell = $worksheet_reader->getCellByColumnAndRow($column_index, $row_index, true);
+                    if($cell === null) $value = null;
+                    else $value = self::prepare_value($cell->getCalculatedValue());
                     /*
                         Row1: readable label
                         Row2: field type URI
@@ -193,7 +199,11 @@ class ExcelToText
                         Row8: comment
                         Row9: extension thesaurus URI
                     */
-                    if($row_index == 1)
+                    if($row_index > 9)
+                    {
+                        $value = self::fix_spreadsheet_shorthand($sheet_name, @$worksheet_fields[$sheet_name][$column_index]['uri'], $value);
+                        $values[] = $value;
+                    }elseif($row_index == 1)
                     {
                         $worksheet_fields[$sheet_name][$column_index]['label'] = $value;
                         $values[] = $value;
@@ -206,11 +216,6 @@ class ExcelToText
                     elseif($row_index == 7) $worksheet_fields[$sheet_name][$column_index]['definition'] = $value;
                     elseif($row_index == 8) $worksheet_fields[$sheet_name][$column_index]['comment'] = $value;
                     elseif($row_index == 9) $worksheet_fields[$sheet_name][$column_index]['example'] = $value;
-                    else
-                    {
-                        $value = self::fix_spreadsheet_shorthand($sheet_name, @$worksheet_fields[$sheet_name][$column_index]['uri'], $value);
-                        $values[] = $value;
-                    }
                 }
                 
                 if($values)
@@ -255,18 +260,20 @@ class ExcelToText
     {
         if($worksheet_name == 'media' && strtolower($uri) == 'http://purl.org/dc/terms/type')
         {
-            if(in_array(strtolower($value), array('movingimage', 'sound', 'stillimage', 'text')))
+            static $data_types = array('movingimage', 'sound', 'stillimage', 'text');
+            if(in_array(strtolower($value), $data_types))
             {
                 $value = "http://purl.org/dc/dcmitype/". $value;
             }
         }elseif($worksheet_name == 'media' && strtolower($uri) == 'http://iptc.org/std/iptc4xmpext/1.0/xmlns/cvterm')
         {
-            if(in_array(strtolower($value), array('associations', 'behaviour', 'biology', 'conservation', 'conservationstatus',
+            static $subjects = array('associations', 'behaviour', 'biology', 'conservation', 'conservationstatus',
                 'cyclicity', 'cytology', 'description', 'diagnosticdescription', 'diseases', 'dispersal', 'distribution',
                 'ecology', 'evolution', 'generaldescription', 'genetics', 'growth', 'habitat', 'key', 'legislation',
                 'lifecycle', 'lifeexpectancy', 'lookalikes', 'management', 'migration', 'molecularbiology', 'morphology',
                 'physiology', 'populationbiology', 'procedures', 'reproduction', 'riskstatement', 'size', 'taxonbiology',
-                'threats', 'trends', 'trophicstrategy', 'uses')))
+                'threats', 'trends', 'trophicstrategy', 'uses');
+            if(in_array(strtolower($value), $subjects))
             {
                 $value = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#". $value;
             }
@@ -381,8 +388,9 @@ class ExcelToText
         elseif($extension == "zip") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "csv") $excel_reader = new \PHPExcel_Reader_CSV();
         
-        $objPHPExcel = $excel_reader->load($path_to_spreadsheet);
+        if(!$excel_reader->canRead($path_to_spreadsheet)) throw new \Exception('Cannot read this file');
         if($extension != "csv") $excel_reader->setReadDataOnly(true);
+        $objPHPExcel = $excel_reader->load($path_to_spreadsheet);
         return $objPHPExcel;
     }
     
