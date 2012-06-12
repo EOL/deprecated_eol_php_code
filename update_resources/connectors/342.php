@@ -12,6 +12,13 @@ require_library('ResourceDataObjectElementsSetting');
 $timestart = time_elapsed();
 $resource_id = 342; 
 $resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-fishes-response-20120423.xml.gz"; //Fishes resource
+
+$result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
+$row = $result->fetch_row();
+$new_resource_path = $row[0];
+if($resource_path != $new_resource_path && $new_resource_path != '') $resource_path = $new_resource_path;
+print "\n processing resource:\n $resource_path \n\n"; 
+
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document();
 

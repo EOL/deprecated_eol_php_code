@@ -148,14 +148,14 @@ class ResourceDataObjectElementsSetting
                     {
                         $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
                         $condition_field = self::get_field_name($condition_field);
-                        if(@$condition_do->$condition_field == $condition_value) $do->$field = $new_value;
+                        if(trim(@$condition_do->$condition_field) == $condition_value) $do->$field = $new_value;
                     }
                 }
                 else 
                 {
                     $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
                     $condition_field = self::get_field_name($condition_field);
-                    if(@$condition_do->$condition_field == $condition_value) $do->$field = $new_value;
+                    if(trim(@$condition_do->$condition_field) == $condition_value) $do->$field = $new_value;
                 }
             }
         }
