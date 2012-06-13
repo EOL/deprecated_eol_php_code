@@ -13,9 +13,16 @@ $resource_id = 6;
 
 /* change subject mapping from #Description to #TaxonBiology */
 require_library('ResourceDataObjectElementsSetting');
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
+$resource_path = "http://dl.dropbox.com/u/7597512/resources/6.xml.gz";
+
+$result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
+$row = $result->fetch_row();
+$new_resource_path = $row[0];
+if($resource_path != $new_resource_path && $new_resource_path != '') $resource_path = $new_resource_path;
+print "\n processing resource:\n $resource_path \n\n"; 
+
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
-$xml = Functions::get_remote_file($resource_path);
+$xml = $func->load_xml_string();
 $xml = $func->replace_data_object_element_value_with_condition( "subject", 
                                                                 "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription", 
                                                                 "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", 
