@@ -20,7 +20,7 @@ class ContentManager
     // partner - this type means we are downloading a logo for a content partner
     // resource - this means we are downloading an XML or zipped file of the EOL schema for processing
     
-    function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
+    function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $specified_download_path = null)
     {
         if($temp_file_path = self::download_temp_file_and_assign_extension($file, $this->unique_key, ($type == "resource"), $timeout))
         {
@@ -41,13 +41,19 @@ class ContentManager
             }
             
             // Move into place in the /content or /resources folder
-            if($type == "image") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "video") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "audio") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "upload") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "partner") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
-            $new_file_path = $new_file_prefix . "." . $suffix;
+            if($specified_download_path)
+            {
+                $new_file_path = $specified_download_path;
+            }else
+            {
+                if($type == "image") $new_file_prefix = $this->new_content_file_name();
+                elseif($type == "video") $new_file_prefix = $this->new_content_file_name();
+                elseif($type == "audio") $new_file_prefix = $this->new_content_file_name();
+                elseif($type == "upload") $new_file_prefix = $this->new_content_file_name();
+                elseif($type == "partner") $new_file_prefix = $this->new_content_file_name();
+                elseif($type == "resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
+                $new_file_path = $new_file_prefix . "." . $suffix;
+            }
             
             // copy temporary file into its new home
             copy($temp_file_path, $new_file_path);
@@ -59,7 +65,7 @@ class ContentManager
                 return false;
             }
             $sizes = array();
-            if($type == "image" || $type == "partner")
+            if(($type == "image" || $type == "partner") && !$specified_download_path)
             {
                 $sizes = getimagesize($new_file_path);
                 if(@!$sizes[1])
@@ -70,7 +76,7 @@ class ContentManager
             }
                 
             // create thumbnails of website content and agent logos
-            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
+            if($type=="image" && !$specified_download_path) $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
             elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
             
             if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
@@ -354,7 +360,7 @@ class ContentManager
     function new_content_file_name()
     {
         $date = date("Y m d H");
-        list($year, $month, $day, $hour) = explode(" ",$date);
+        list($year, $month, $day, $hour) = explode(" ", $date);
         
         if(!file_exists(CONTENT_LOCAL_PATH."$year")) mkdir(CONTENT_LOCAL_PATH."$year");
         if(!file_exists(CONTENT_LOCAL_PATH."$year/$month")) mkdir(CONTENT_LOCAL_PATH."$year/$month");
@@ -394,7 +400,7 @@ class ContentManager
         }
     }
     
-    private static function create_checksum($file_path)
+    public static function create_checksum($file_path)
     {
         if(file_exists($file_path))
         {
