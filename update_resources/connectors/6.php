@@ -16,7 +16,10 @@ require_library('ResourceDataObjectElementsSetting');
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
 $xml = Functions::get_remote_file($resource_path);
-$xml = $func->replace_data_object_element_value("subject", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $xml);
+$xml = $func->replace_data_object_element_value_with_condition( "subject", 
+                                                                "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription", 
+                                                                "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", 
+                                                                $xml, "dc:title", "Description");
 $func->save_resource_document($xml);
 
 Functions::set_resource_status_to_force_harvest($resource_id);
