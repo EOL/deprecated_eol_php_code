@@ -11,7 +11,7 @@ require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 120; 
-$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-iz-response-20120423.xml.gz"; //NMNH Invertebrate Zoology resource
+$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-iz-response-20120609.xml.gz"; //NMNH Invertebrate Zoology resource
 
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();
