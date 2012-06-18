@@ -5,13 +5,16 @@ class PeerContentSynchronizer
 {
     private $mysqli;
     private $peer_site_id;
-    const MAXIMUM_FAILED_ATTEMPTS = 100;
-    const MAXIMUM_NUMBER_OF_WORKERS = 15;
+    private $maximum_number_of_workers;
+    const MAXIMUM_FAILED_ATTEMPTS = 10;
+    const DEFAULT_MAXIMUM_NUMBER_OF_WORKERS = 8;
     
-    function __construct($peer_site_id)
+    function __construct($peer_site_id, $maximum_number_of_workers = self::DEFAULT_MAXIMUM_NUMBER_OF_WORKERS)
     {
         $this->mysqli = $GLOBALS['db_connection'];
         $this->peer_site_id = $peer_site_id;
+        $this->maximum_number_of_workers = $maximum_number_of_workers;
+        $this->number_of_running_workers = 0;
     }
     
     function initiate_master_thread()
@@ -32,7 +35,7 @@ class PeerContentSynchronizer
             AND do.published = 1
             AND ((do.object_cache_url !='' AND do.object_cache_url IS NOT NULL) OR (do.thumbnail_cache_url !='' AND do.thumbnail_cache_url IS NOT NULL))
             AND my_status.status_id!=".Status::download_succeeded()->id."
-            AND my_status.status_id!=".Status::download_in_progress()->id." 
+            AND my_status.status_id!=".Status::download_in_progress()->id."
             AND my_status.failed_attempts < ". self::MAXIMUM_FAILED_ATTEMPTS ."
             AND master_status.status_id=".Status::download_succeeded()->id) as $row)
         {
@@ -72,19 +75,28 @@ class PeerContentSynchronizer
     public function queue_download($params)
     {
         $count_processes = Functions::grep_processlist('sync_content_with_peers');
-        while($count_processes > self::MAXIMUM_NUMBER_OF_WORKERS)
+        $started_waiting = false;
+        while($this->number_of_running_workers >= $this->maximum_number_of_workers)
         {
-            echo "pool is full - waiting\n";
+            if(!$started_waiting) echo "pool is full - waiting";
+            echo ".";
             // wait .1 seconds before checking pool again
             usleep(100000);
-            $count_processes = Functions::grep_processlist('sync_content_with_peers');
+            // reset the value of #OfRunningWorkers. Keeping this value cached will speed up the process.
+            // when the number is lower than the #MaxWorkers, we can quickly spawn multiple processes and
+            // don't have to check the processlist each time to see if we can add more - we know if we can add more
+            // subtracting one here as the master process will get listed and we just want the worker processes
+            $this->number_of_running_workers = (Functions::grep_processlist('sync_content_with_peers') - 1);
+            $started_waiting = true;
         }
+        if($started_waiting) echo "\n";
         
         static $i = 0;
         $i++;
         $script = DOC_ROOT . "rake_tasks/sync_content_with_peers.php ". escapeshellarg(serialize($params));
-        echo "Downloading ($i) ". $params['data_object_id'] ." ". $params['object_cache_url'] ."...\n";
+        echo "Downloading ($i) ID:". $params['data_object_id'] ." CacheURL:". $params['object_cache_url'] ."\n";
         shell_exec(PHP_BIN_PATH . "$script ENV_NAME=". $GLOBALS['ENV_NAME'] ." > /dev/null 2>/dev/null &");
+        $this->number_of_running_workers++;
     }
     
     public function download_asset_from_peer($params)

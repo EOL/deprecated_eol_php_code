@@ -120,6 +120,7 @@ class Functions
         @exec("ps -e | grep $string", $ps);
         foreach($ps as $process)
         {
+            if(preg_match("/grep $string/", $process)) continue;
             if(preg_match("/".preg_quote($string, '/')."/", $process)) $count++;
         }
         return $count;
