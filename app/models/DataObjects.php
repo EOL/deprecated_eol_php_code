@@ -97,7 +97,11 @@ class DataObject extends ActiveRecord
     }
     public function delete_agents()
     {
-        $this->mysqli->insert("DELETE FROM agents_data_objects WHERE data_object_id=$this->id");
+        $result = $this->mysqli->query("SELECT * FROM agents_data_objects WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->delete("DELETE FROM agents_data_objects WHERE data_object_id=". $row['data_object_id'] ." AND agent_id=". $row['agent_id'] ." AND agent_role_id=". $row['agent_role_id']);
+        }
     }
     
     public function add_translation($data_object_id, $language_id)
@@ -124,7 +128,11 @@ class DataObject extends ActiveRecord
     
     public function delete_info_items()
     {
-        $this->mysqli->insert("DELETE FROM data_objects_info_items WHERE data_object_id=$this->id");
+        $result = $this->mysqli->query("SELECT * FROM data_objects_info_items WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->delete("DELETE FROM data_objects_info_items WHERE data_object_id=". $row['data_object_id'] ." AND info_item_id=". $row['info_item_id']);
+        }
     }
     public function add_info_item($info_item_id)
     {
