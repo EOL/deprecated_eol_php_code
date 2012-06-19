@@ -126,7 +126,7 @@ class WormsAPI
                 }
             }
         }
-        $GLOBALS['WORMS_bad_id'] .= $id . ",";
+        @$GLOBALS['WORMS_bad_id'] .= $id . ",";
         return false;
     }
     
