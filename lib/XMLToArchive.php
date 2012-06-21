@@ -27,7 +27,9 @@ class XMLToArchive
         $this->reference_ids = array();
         $this->agent_ids = array();
         $reader = new \XMLReader();
-        $reader->open($this->path_to_xml_file);
+        $file = file_get_contents($this->path_to_xml_file);
+        $file = iconv("UTF-8", "UTF-8//IGNORE", $file);
+        $reader->XML($file);
         
         $i = 0;
         while(@$reader->read())
@@ -36,7 +38,7 @@ class XMLToArchive
             {
                 $taxon_xml = $reader->readOuterXML();
                 $t = simplexml_load_string($taxon_xml, null, LIBXML_NOCDATA);
-                $this->add_taxon_to_archive($t);
+                if($t) $this->add_taxon_to_archive($t);
                 
                 $i++;
                 if($i%100==0) echo "Parsed taxon $i : ". time_elapsed() ."\n";
@@ -54,16 +56,18 @@ class XMLToArchive
         $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
         
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID = Functions::import_decode($t_dc->identifier);
-        $taxon->source = Functions::import_decode($t_dc->source);
-        $taxon->kingdom = Functions::import_decode($t_dwc->Kingdom);
-        $taxon->phylum = Functions::import_decode($t_dwc->Phylum);
-        $taxon->class = Functions::import_decode($t_dwc->Class);
-        $taxon->order = Functions::import_decode($t_dwc->Order);
-        $taxon->family = Functions::import_decode($t_dwc->Family);
-        $taxon->genus = Functions::import_decode($t_dwc->Genus);
-        $taxon->scientificName = Functions::import_decode($t_dwc->ScientificName);
-        $taxon->taxonRank = Functions::import_decode($t->rank);
+        $taxon->taxonID = self::clean_string($t_dc->identifier);
+        if(preg_match("/xeno-canto species ID:(.*)$/", $taxon->taxonID, $arr)) $taxon->taxonID = trim($arr[1]);
+        $taxon->source = self::clean_string($t_dc->source);
+        $taxon->kingdom = self::clean_string($t_dwc->Kingdom);
+        $taxon->phylum = self::clean_string($t_dwc->Phylum);
+        $taxon->class = self::clean_string($t_dwc->Class);
+        $taxon->order = self::clean_string($t_dwc->Order);
+        if($taxon->order == 'Some_Order') $taxon->order = NULL;
+        $taxon->family = self::clean_string($t_dwc->Family);
+        $taxon->genus = self::clean_string($t_dwc->Genus);
+        $taxon->scientificName = self::clean_string($t_dwc->ScientificName);
+        $taxon->taxonRank = self::clean_string($t->rank);
         
         if(!$taxon->scientificName)
         {
@@ -92,6 +96,13 @@ class XMLToArchive
                 $taxon->scientificName = $name;
                 $taxon->kingdom = null;
             }
+        }else
+        {
+            if(!$taxon->genus && preg_match("/^([A-Z-][a-z-]+) [a-z]+$/", $taxon->scientificName, $arr))
+            {
+                $taxon->genus = $arr[1];
+                if(!$taxon->taxonRank) $taxon->taxonRank = 'species';
+            }
         }
         if(!$taxon->scientificName) return;
         
@@ -106,9 +117,9 @@ class XMLToArchive
             $xml_attr = $c->attributes("http://www.w3.org/XML/1998/namespace");
             $vernacular = new \eol_schema\VernacularName();
             $vernacular->taxonID = $taxon->taxonID;
-            $vernacular->vernacularName = Functions::import_decode((string) $c);
-            $vernacular->language = @Functions::import_decode($xml_attr["lang"]);
-            if(@Functions::import_decode($attr['isformal']) == 1) $vernacular->isPreferredName = true;
+            $vernacular->vernacularName = self::clean_string((string) $c);
+            $vernacular->language = @self::clean_string($xml_attr["lang"]);
+            if(@self::clean_string($attr['isformal']) == 1) $vernacular->isPreferredName = true;
             $vernacular_id = md5("$vernacular->taxonID|$vernacular->vernacularName|$vernacular->language");
             
             if(!$vernacular->vernacularName) continue;
@@ -124,7 +135,7 @@ class XMLToArchive
             $attr = $s->attributes();
             if(!@$attr["relationship"]) $attr["relationship"] = 'synonym';
             $synonym = new \eol_schema\Taxon();
-            $synonym->scientificName = Functions::import_decode((string) $s);
+            $synonym->scientificName = self::clean_string((string) $s);
             $synonym->acceptedNameUsageID = $taxon->taxonID;
             $synonym->taxonomicStatus = trim($attr["relationship"]);
             $synonym->taxonID = md5("$taxon->taxonID|$synonym->scientificName|$synonym->taxonomicStatus");
@@ -143,11 +154,11 @@ class XMLToArchive
         foreach($t->reference as $r)
         {
             $attr = $r->attributes();
-            $doi = @Functions::import_decode($attr['doi'], 0, 0);
-            $uri = @Functions::import_decode($attr['url'], 0, 0);
-            if(!$uri) $uri = @Functions::import_decode($attr['urn'], 0, 0);
+            $doi = @self::clean_string($attr['doi'], 0, 0);
+            $uri = @self::clean_string($attr['url'], 0, 0);
+            if(!$uri) $uri = @self::clean_string($attr['urn'], 0, 0);
             $reference = new \eol_schema\Reference();
-            $reference->full_reference = Functions::import_decode((string) $r, 0, 0);
+            $reference->full_reference = self::clean_string((string) $r, 0, 0);
             $reference->uri = $uri;
             $reference->doi = $doi;
             $reference->identifier = md5("$reference->full_reference|$reference->uri|$reference->doi");
@@ -175,23 +186,24 @@ class XMLToArchive
             $d_geo = $d->children("http://www.w3.org/2003/01/geo/wgs84_pos#");
             
             $media = new \eol_schema\MediaResource();
-            $media->identifier = Functions::import_decode($d_dc->identifier);
+            $media->identifier = self::clean_string($d_dc->identifier);
+            if(preg_match("/xeno-canto recording ID:(.*)$/", $media->identifier, $arr)) $media->identifier = trim($arr[1]);
             $media->taxonID = $taxon->taxonID;
-            $media->type = Functions::import_decode($d->dataType);
-            $media->format = Functions::import_decode($d->mimeType);
-            $media->title = Functions::import_decode($d_dc->title, 0, 0);
-            $media->description = Functions::import_decode($d_dc->description, 0, 0);
-            $media->accessURI = Functions::import_decode($d->mediaURL);
-            $media->thumbnailURL = Functions::import_decode($d->thumbnailURL);
-            $media->furtherInformationURL = Functions::import_decode($d_dc->source);
-            $media->CreateDate = Functions::import_decode($d_dcterms->created);
-            $media->modified = Functions::import_decode($d_dcterms->modified);
-            $media->language = Functions::import_decode($d_dc->language);
-            $media->UsageTerms = Functions::import_decode($d->license);
-            $media->rights = Functions::import_decode($d_dc->rights, 0, 0);
-            $media->Owner = Functions::import_decode($d_dcterms->rightsHolder, 0, 0);
-            $media->bibliographicCitation = Functions::import_decode($d_dcterms->bibliographicCitation, 0, 0);
-            $media->LocationCreated = Functions::import_decode($d->location, 0, 0);
+            $media->type = self::clean_string($d->dataType);
+            $media->format = self::clean_string($d->mimeType);
+            $media->title = self::clean_string($d_dc->title, 0, 0);
+            $media->description = self::clean_string($d_dc->description, 0, 0);
+            $media->accessURI = self::clean_string($d->mediaURL);
+            $media->thumbnailURL = self::clean_string($d->thumbnailURL);
+            $media->furtherInformationURL = self::clean_string($d_dc->source);
+            $media->CreateDate = self::clean_string($d_dcterms->created);
+            $media->modified = self::clean_string($d_dcterms->modified);
+            $media->language = self::clean_string($d_dc->language);
+            $media->UsageTerms = self::clean_string($d->license);
+            $media->rights = self::clean_string($d_dc->rights, 0, 0);
+            $media->Owner = self::clean_string($d_dcterms->rightsHolder, 0, 0);
+            $media->bibliographicCitation = self::clean_string($d_dcterms->bibliographicCitation, 0, 0);
+            $media->LocationCreated = self::clean_string($d->location, 0, 0);
             
             if($r = (string) @$d->additionalInformation->rating)
             {
@@ -200,13 +212,13 @@ class XMLToArchive
             
             if($subtype = @$d->additionalInformation->subtype)
             {
-                $media->subtype = Functions::import_decode($subtype);
+                $media->subtype = self::clean_string($subtype);
             }
             
             if(!$media->language)
             {
                 $xml_attr = $d_dc->description->attributes("http://www.w3.org/XML/1998/namespace");
-                $media->language = @Functions::import_decode($xml_attr["lang"]);
+                $media->language = @self::clean_string($xml_attr["lang"]);
             }
             
             $data_object->latitude = 0;
@@ -215,9 +227,9 @@ class XMLToArchive
             foreach($d_geo->Point as $p)
             {
                 $p_geo = $p->children("http://www.w3.org/2003/01/geo/wgs84_pos#");
-                $media->lat = Functions::import_decode($p_geo->lat);
-                $media->long = Functions::import_decode($p_geo->long);
-                $media->alt = Functions::import_decode($p_geo->alt);
+                $media->lat = self::clean_string($p_geo->lat);
+                $media->long = self::clean_string($p_geo->long);
+                $media->alt = self::clean_string($p_geo->alt);
             }
             
             $agent_ids = array();
@@ -225,9 +237,9 @@ class XMLToArchive
             {
                 $attr = $a->attributes();
                 $agent = new \eol_schema\Agent();
-                $agent->term_name = Functions::import_decode((string) $a, 0, 0);
-                $agent->term_homepage = @Functions::import_decode($attr["homepage"]);
-                $agent->term_logo = @Functions::import_decode($attr["logoURL"]);
+                $agent->term_name = self::clean_string((string) $a, 0, 0);
+                $agent->term_homepage = @self::clean_string($attr["homepage"]);
+                $agent->term_logo = @self::clean_string($attr["logoURL"]);
                 $agent->agentRole = @trim($attr["role"]);
                 $agent->identifier = md5("$agent->term_name|$agent->term_homepage|$agent->term_logo|$agent->agentRole");
                 
@@ -260,11 +272,11 @@ class XMLToArchive
             foreach($d->reference as $r)
             {
                 $attr = $r->attributes();
-                $doi = @Functions::import_decode($attr['doi'], 0, 0);
-                $uri = @Functions::import_decode($attr['url'], 0, 0);
-                if(!$uri) $uri = @Functions::import_decode($attr['urn'], 0, 0);
+                $doi = @self::clean_string($attr['doi'], 0, 0);
+                $uri = @self::clean_string($attr['url'], 0, 0);
+                if(!$uri) $uri = @self::clean_string($attr['urn'], 0, 0);
                 $reference = new \eol_schema\Reference();
-                $reference->full_reference = Functions::import_decode((string) $r, 0, 0);
+                $reference->full_reference = self::clean_string((string) $r, 0, 0);
                 $reference->uri = $uri;
                 $reference->doi = $doi;
                 $reference->identifier = md5("$reference->full_reference|$reference->uri|$reference->doi");
@@ -285,6 +297,14 @@ class XMLToArchive
                 $this->media_ids[$media->identifier] = 1;
             }
         }
+    }
+    
+    private static function clean_string($str, $remove_whitespace = false, $decode = true)
+    {
+        $str = Functions::import_decode(trim($str), $remove_whitespace, $decode);
+        $str = str_replace("&nbsp;", " ", $str);
+        $str = str_replace("\t", " ", $str);
+        return trim($str);
     }
 }
 
