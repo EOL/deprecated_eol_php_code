@@ -667,7 +667,7 @@ class Resource extends ActiveRecord
         if($this->harvest_event)
         {
             $this->harvest_event->completed();
-            $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='harvest ended' WHERE id=$this->id");
+            $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
             $this->harvest_event->resource->refresh();
             
