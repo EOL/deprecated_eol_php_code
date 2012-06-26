@@ -16,10 +16,12 @@ class CheckIfNameHasAnEOLPage
     function check_if_name_has_EOL_page($scientific_name)
     {
         $file = self::API_SEARCH . str_ireplace(" ","%20",$scientific_name); //. "?exact=1";
-        $xml = Functions::get_hashed_response($file, NULL, 300);
-        foreach($xml->entry as $species)
+        if($xml = Functions::get_hashed_response($file, NULL, 300))
         {
-            if(trim($scientific_name) == trim(Functions::canonical_form(trim($species->title)))) return array(true, $xml);
+            foreach($xml->entry as $species)
+            {
+                if(trim($scientific_name) == trim(Functions::canonical_form(trim($species->title)))) return array(true, $xml);
+            }
         }
         return array(false, $xml);
     }
@@ -62,9 +64,9 @@ class CheckIfNameHasAnEOLPage
         $image = 0;
         if($xml = Functions::get_hashed_response($file))
         {
-            if($xml->taxon->dataObject)
+            if($xml->dataObject)
             {
-                foreach($xml->taxon->dataObject as $object)
+                foreach($xml->dataObject as $object)
                 {
                     if     ($object->dataType == "http://purl.org/dc/dcmitype/StillImage") $image++;
                     elseif ($object->dataType == "http://purl.org/dc/dcmitype/Text") $text++;
