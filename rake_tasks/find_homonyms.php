@@ -8,7 +8,7 @@ $hf = new HomonymFinder();
 $hf->begin();
 
 // useful homonym list:
-//   http://www.taxonomy.nl/main/index/homonyms/a1.htm
+//   http://sn2000.taxonomy.nl/Main/Index/Homonyms/A1.htm
 
 
 class HomonymFinder

@@ -317,8 +317,8 @@ class Functions
     
     public static function cmp_hierarchy_entries($a, $b)
     {
-        if ($a->name()->string == $b->name()->string) return 0;
-        return ($a->name()->string < $b->name()->string) ? -1 : 1;
+        if ($a->name->string == $b->name->string) return 0;
+        return ($a->name->string < $b->name->string) ? -1 : 1;
     }
     
     public static function cmp_references($a, $b)
