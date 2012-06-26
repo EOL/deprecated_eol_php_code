@@ -103,6 +103,7 @@ class SchemaConnection
         // print_r($d);
         
         list($data_object, $status, $existing_data_object) = DataObject::find_and_compare($this->resource, $d, $this->content_manager);
+        $GLOBALS['db_connection']->commit();
         if(@!$data_object->id) return false;
         
         $vetted_id = Vetted::unknown()->id;

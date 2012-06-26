@@ -1,32 +1,40 @@
 <?php
 namespace php_active_record;
 /* connector for Efloras
-estimated execution time: 3 minutes
+estimated execution time: 5 minutes
 This script will modify the original Efloras resource (17_orig.xml).
     - change subject GeneralDescript to Morphology
     - remove all references
+    - splits the "habitat & distribution" into "habitat" and "distribution", each a <dataObject> of its own
+    - then split habitat further into #cyclicity (flowering-time) and #habitat
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+require_library('ResourceDataObjectElementsSetting');
+
 $timestart = time_elapsed();
 $resource_id = 17;
+// $resource_path = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/17_test.xml"; //test data
+$resource_path = "http://dl.dropbox.com/u/7597512/resources/17_orig.xml.gz";
 
-$original_file = "http://dl.dropbox.com/u/7597512/resources/17_orig.xml.gz";
-$xml = load_file($original_file);
+$func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
+$xml = $func->load_xml_string();
+
+//removes the <reference> entries, faster this way than to loop each entry.
 $xml = preg_replace("/<reference (.*?)>/ims", "<reference>", $xml);
 $xml = preg_replace("/<reference>(.*?)<\/reference>/ims", "", $xml);
 
-/* 
-works, but takes a long time than just use str_ireplace()
-$xml = change_subject($xml); 
-*/
-
+//re-maps the #GeneralDescription to #Morphology
 $xml = str_ireplace("<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>", "<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology</subject>", $xml);
+
+//splits the "habitat & distribution" into "habitat" and "distribution", each a <dataObject> of its own
+$xml = split_habitat_and_distribution($xml);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $OUT = fopen($resource_path, "w");
 fwrite($OUT, $xml);
 fclose($OUT);
 
+Functions::set_resource_status_to_force_harvest($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
@@ -34,44 +42,119 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 exit("\n\n Done processing.");
 
-function load_file($filename)
+function split_habitat_and_distribution($xml_string)
 {
-    $temp_file_path = create_temp_dir() . "/";
-    print "\n " . $temp_file_path;
-    if($file_contents = Functions::get_remote_file($filename, DOWNLOAD_WAIT_TIME, 999999))
-    {
-        $uncompressed_file = $temp_file_path . "/17_orig.xml";
-        $compressed_file = $temp_file_path . "/17_orig.xml.gz";
-        $TMP = fopen($compressed_file, "w");
-        fwrite($TMP, $file_contents);
-        fclose($TMP);
-        $output = shell_exec("gzip -d $compressed_file $temp_file_path");
-        $xml = Functions::get_remote_file($uncompressed_file);
-    }
-    else exit("\n\n Connector terminated. Remote files are not ready.\n\n");
-    // remove tmp dir
-    if($temp_file_path) shell_exec("rm -fr $temp_file_path");
-    return $xml;
-}
-
-function change_subject($xml_string)
-{
+    $dc_namespace = "http://purl.org/dc/elements/1.1/";
+    $dcterms_namespace = "http://purl.org/dc/terms/";
+    
     $xml = simplexml_load_string($xml_string);
-    $i = 0;
     foreach($xml->taxon as $taxon)
     {
-        $i++; print "$i ";
         foreach($taxon->dataObject as $dataObject)
         {
-            $dataObject_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
-            $eol_subjects[] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription";
-            if(@$dataObject->subject)
+            $dataObject_dc = $dataObject->children($dc_namespace);
+            $dataObject_dcterms = $dataObject->children($dcterms_namespace);
+            print "\n" . $dataObject_dc->identifier . "\n";
+            if($dataObject_dc->title == "Habitat & Distribution")
             {
-                if (in_array($dataObject->subject, $eol_subjects)) $dataObject->subject = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology";
+                //start storing
+                $agents = array();
+                foreach($dataObject->agent as $agent) $agents[] = $agent;
+                $license = $dataObject->license;
+                $dc_rights = $dataObject_dc->rights;
+                $dcterms_rightsHolder = $dataObject_dcterms->rightsHolder;
+                $dcterms_bibliographicCitation = $dataObject_dcterms->bibliographicCitation;
+                $dc_source = $dataObject_dc->source;
+                
+                $texts = split_description($dataObject_dc->description); //splits the description into 2: habitat and distribution texts
+                if($texts)
+                {
+                    $dataObject_dc->title = "Habitat";
+                    $dataObject_dc->description = trim($texts[0]); //habitat
+                    $text_distribution = trim($texts[1]); //distribution
+
+                    //create a new #Distribution <dataObject>
+                    add_dataObject($taxon, $dataObject_dc->identifier . "_distribution", $dc_namespace, $agents,
+                    $license, $dc_rights, $dcterms_rightsHolder, $dcterms_namespace, $dcterms_bibliographicCitation,
+                    $dc_source, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $text_distribution, 'Distribution');
+
+                    //see if #habitat can further be divided into #cyclicity 'flowering-time' and #habitat.
+                    if($texts = get_flowering_time($dataObject_dc->description))
+                    {
+                        $dataObject_dc->description = trim($texts[1]); //habitat
+                        $text_cyclicity = trim($texts[0]); //cyclicity - flowering/fruiting time
+                        //create a new #Cyclicity <dataObject>
+                        add_dataObject($taxon, $dataObject_dc->identifier . "_cyclicity", $dc_namespace, $agents,
+                        $license, $dc_rights, $dcterms_rightsHolder, $dcterms_namespace, $dcterms_bibliographicCitation,
+                        $dc_source, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Cyclicity', $text_cyclicity, 'Cyclicity');
+                    }
+                }
+                //end storing
             }
         }
     }
     return $xml->asXML();
+}
+
+function get_flowering_time($text)
+{
+    $texts = array();
+    print "\n [$text]\n";
+    if(substr($text, 0, 9) == 'Flowering' || substr($text, 0, 8) == 'Fruiting')
+    {
+        $pos_of_first_period = stripos($text, '.');
+        if ($pos_of_first_period !== false) 
+        {
+            $texts[0] = substr($text, 0, $pos_of_first_period + 1);
+            $texts[1] = trim(substr($text, $pos_of_first_period + 2, strlen($text)));
+        }
+    }
+    print_r($texts);
+    return $texts;
+}
+
+function split_description($text)
+{
+    $separators = array('m; ', 'm. '); //possible separators between 'habitat' and 'distribution' string in dc:description
+    foreach($separators as $separator)
+    {
+        $texts = explode($separator, $text);
+        if(count($texts) > 1) 
+        {
+            $texts[0] .= $separator;
+            print_r($texts);
+            return $texts;
+        }
+    }
+    return array();
+}
+
+function add_dataObject($taxon, $identifier, $dc_namespace, $agents, $license, 
+    $dc_rights, $dcterms_rightsHolder, $dcterms_namespace, $dcterms_bibliographicCitation,
+    $dc_source, $subject, $text_distribution, $dc_title)
+{
+    $obj = $taxon->addChild('dataObject');
+    $obj->addChild('identifier', $identifier, $dc_namespace);
+    $obj->addChild('dataType', 'http://purl.org/dc/dcmitype/Text');
+    $obj->addChild('mimeType', 'text/html');
+    foreach($agents as $agent)
+    {
+        $a = $obj->addChild('agent', htmlentities($agent));
+        $a->addAttribute('role', $agent['role']);
+        $a->addAttribute('logoURL', $agent['logoURL']);
+        $a->addAttribute('homepage', $agent['homepage']);
+    }
+    $obj->addChild('title', $dc_title, $dc_namespace);
+    $obj->addChild('license', $license);
+    $obj->addChild('rights', $dc_rights, $dc_namespace);
+    $obj->addChild('rightsHolder', $dcterms_rightsHolder, $dcterms_namespace);
+    $obj->addChild('bibliographicCitation', '', $dcterms_namespace);
+    $obj->bibliographicCitation = $dcterms_bibliographicCitation;
+    $obj->addChild('source', '', $dc_namespace);
+    $obj->source = $dc_source;
+    $obj->addChild('subject', $subject);
+    $obj->addChild('description', '', $dc_namespace);
+    $obj->description = $text_distribution;
 }
 
 ?>

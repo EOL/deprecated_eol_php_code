@@ -288,7 +288,7 @@ function lookup_image_urls($titles)
             
             if(isset($GLOBALS['data_objects'][$title]))
             {
-                $url = $obj->imageinfo[0]->thumburl;
+                $url = $obj->imageinfo[0]->url;
                 $GLOBALS['data_objects'][$title]['mediaURL'] = $url;
             }else echo "NOTHING FOR $title\n";
         }

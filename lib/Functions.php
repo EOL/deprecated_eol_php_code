@@ -128,6 +128,7 @@ class Functions
     
     public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
     {
+        $remote_url = str_replace(" ", "%20", $remote_url);
         debug("Grabbing $remote_url: attempt 1");
         
         $context = stream_context_create(array('http' => array('timeout' => $timeout)));
@@ -317,8 +318,8 @@ class Functions
     
     public static function cmp_hierarchy_entries($a, $b)
     {
-        if ($a->name()->string == $b->name()->string) return 0;
-        return ($a->name()->string < $b->name()->string) ? -1 : 1;
+        if ($a->name->string == $b->name->string) return 0;
+        return ($a->name->string < $b->name->string) ? -1 : 1;
     }
     
     public static function cmp_references($a, $b)

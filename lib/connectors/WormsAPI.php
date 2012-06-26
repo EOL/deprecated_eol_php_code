@@ -35,7 +35,7 @@ class WormsAPI
                 Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
                 // step 1: divides the big list of ids into small files
                 $ids = self::get_id_list();
-                self::divide_text_file(10000, $ids); //debug original value 10000
+                self::divide_text_file(100000, $ids); //debug original value 10000
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);//removes a task from task list
             }
         }
@@ -126,19 +126,26 @@ class WormsAPI
                 }
             }
         }
-        $GLOBALS['WORMS_bad_id'] .= $id . ",";
+        @$GLOBALS['WORMS_bad_id'] .= $id . ",";
         return false;
     }
     
-    private function generate_url_list($urls, $year = 0)
+    private function generate_url_list($urls)
     {
-        if($year == 0) $year = date("Y");
-        for ($month = 1; $month <= date("n"); $month++)
+        $start_year = 2012;
+        $current_year = date("Y");
+        for ($year = $start_year; $year <= $current_year; $year++)
         {
-            $start_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "01";
-            $end_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "31";
-            $urls[] = WORMS_ID_LIST_API . "&startdate=" . $start_date . "&enddate=" . $end_date;
+            if($year == $current_year) $month_limit = date("n");
+            else $month_limit = 12;
+            for ($month = 1; $month <= $month_limit; $month++)
+            {
+                $start_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "01";
+                $end_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "31";
+                $urls[] = WORMS_ID_LIST_API . "&startdate=" . $start_date . "&enddate=" . $end_date;
+            }
         }
+        print_r($urls);
         return $urls;
     } 
 
@@ -151,12 +158,10 @@ class WormsAPI
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2010.xml";
+        $urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2011.xml";
 
-        //append current year
+        //append year 2012 and onwards
         $urls = self::generate_url_list($urls);
-
-        //append respective year
-        //$urls = self::generate_url_list($urls, 2010);
 
         /* debug
         $r = array();

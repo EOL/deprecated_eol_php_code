@@ -89,6 +89,7 @@ class EOLStats
         $time_start = time_elapsed();
         $this->data_object_curation_activity_ids();
         $this->name_curation_activity_ids();
+        $this->taxa_curation_activity_ids();
         $this->curation_activity_ids();
         $stats['curators_assistant']  = $this->curators($this->assistant_curator_id); // Number of registered assistant curators
         $stats['curators_full']       = $this->curators($this->full_curator_id);      // Number of registered full curators
@@ -318,7 +319,7 @@ class EOLStats
     {
         if(isset($this->curation_activity_ids)) return $this->curation_activity_ids;
         $this->curation_activity_ids = array();
-        $this->curation_activity_ids = array_merge($this->name_curation_activity_ids, $this->data_object_curation_activity_ids);
+        $this->curation_activity_ids = array_merge($this->name_curation_activity_ids, $this->data_object_curation_activity_ids, $this->taxa_curation_activity_ids);
         return $this->curation_activity_ids;
     }
 
@@ -338,6 +339,15 @@ class EOLStats
         $result = $this->mysqli_slave->query("SELECT t.activity_id from eol_logging_production.translated_activities t WHERE t.name in ('trusted', 'untrusted', 'unreviewed', 'show', 'hide', 'inappropriate', 'add_association', 'remove_association', 'choose_exemplar', 'rate')");
         while($result && $row=$result->fetch_assoc()) $this->data_object_curation_activity_ids[] = $row['activity_id'];
         return $this->data_object_curation_activity_ids;
+    }
+
+    public function taxa_curation_activity_ids()
+    {
+        if(isset($this->taxa_curation_activity_ids)) return $this->taxa_curation_activity_ids;
+        $this->taxa_curation_activity_ids = array();
+        $result = $this->mysqli_slave->query("SELECT t.activity_id from eol_logging_production.translated_activities t WHERE t.name in ('preferred_classification')");
+        while($result && $row=$result->fetch_assoc()) $this->taxa_curation_activity_ids[] = $row['activity_id'];
+        return $this->taxa_curation_activity_ids;
     }
 
     public function pages_curated($curators = null)
