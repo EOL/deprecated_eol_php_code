@@ -220,6 +220,8 @@ function show_ancestry_he($entry)
 function show_children_he($node, $indent)
 {
     $children = $node->children();
+    @usort($children, array('\php_active_record\Functions', 'cmp_hierarchy_entries'));
+    
     $i = 0;
     foreach($children as $k => $v)
     {
