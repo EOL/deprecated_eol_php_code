@@ -127,9 +127,8 @@ class ActiveRecord
             {
                 foreach($args['conditions'] as $attr => $val)
                 {
-                    // if(is_null($val)) $conditions[] = "$attr IS NULL";
-                    // else $conditions[] = "$attr = '$val'";
-                    $conditions[] = "$attr = '$val'";
+                    if(is_null($val)) $conditions[] = "$attr IS NULL OR $attr=''";
+                    else $conditions[] = "$attr = '$val'";
                 }
             }elseif(is_string($args['conditions']))
             {
