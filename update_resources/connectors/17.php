@@ -7,6 +7,8 @@ This script will modify the original Efloras resource (17_orig.xml).
     - remove all references
     - splits the "habitat & distribution" into "habitat" and "distribution", each a <dataObject> of its own
     - then split habitat further into #cyclicity (flowering-time) and #habitat
+    - re-map text objects with title 'Comments' to http://www.eol.org/voc/table_of_contents#Notes
+    - change schema ver. from 0.1 to 0.3
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('ResourceDataObjectElementsSetting');
@@ -22,6 +24,10 @@ $xml = $func->load_xml_string();
 //removes the <reference> entries, faster this way than to loop each entry.
 $xml = preg_replace("/<reference (.*?)>/ims", "<reference>", $xml);
 $xml = preg_replace("/<reference>(.*?)<\/reference>/ims", "", $xml);
+
+//replace schema 0.1 to 0.3 because the new resource uses <additionalInformation> element
+$xml = str_ireplace("/transfer/content/0.1", "/transfer/content/0.3", $xml);
+$xml = str_ireplace("/content_0_1.xsd", "/content_0_3.xsd", $xml);
 
 //re-maps the #GeneralDescription to #Morphology
 $xml = str_ireplace("<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription</subject>", "<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology</subject>", $xml);
@@ -46,7 +52,7 @@ function split_habitat_and_distribution($xml_string)
 {
     $dc_namespace = "http://purl.org/dc/elements/1.1/";
     $dcterms_namespace = "http://purl.org/dc/terms/";
-    
+
     $xml = simplexml_load_string($xml_string);
     foreach($xml->taxon as $taxon)
     {
@@ -57,7 +63,6 @@ function split_habitat_and_distribution($xml_string)
             print "\n" . $dataObject_dc->identifier . "\n";
             if($dataObject_dc->title == "Habitat & Distribution")
             {
-                //start storing
                 $agents = array();
                 foreach($dataObject->agent as $agent) $agents[] = $agent;
                 $license = $dataObject->license;
@@ -65,7 +70,7 @@ function split_habitat_and_distribution($xml_string)
                 $dcterms_rightsHolder = $dataObject_dcterms->rightsHolder;
                 $dcterms_bibliographicCitation = $dataObject_dcterms->bibliographicCitation;
                 $dc_source = $dataObject_dc->source;
-                
+
                 $texts = split_description($dataObject_dc->description); //splits the description into 2: habitat and distribution texts
                 if($texts)
                 {
@@ -78,7 +83,7 @@ function split_habitat_and_distribution($xml_string)
                     $license, $dc_rights, $dcterms_rightsHolder, $dcterms_namespace, $dcterms_bibliographicCitation,
                     $dc_source, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $text_distribution, 'Distribution');
 
-                    //see if #habitat can further be divided into #cyclicity 'flowering-time' and #habitat.
+                    //see if #habitat can further be divided into #cyclicity (flowering/fruiting time) and #habitat.
                     if($texts = get_flowering_time($dataObject_dc->description))
                     {
                         $dataObject_dc->description = trim($texts[1]); //habitat
@@ -86,11 +91,17 @@ function split_habitat_and_distribution($xml_string)
                         //create a new #Cyclicity <dataObject>
                         add_dataObject($taxon, $dataObject_dc->identifier . "_cyclicity", $dc_namespace, $agents,
                         $license, $dc_rights, $dcterms_rightsHolder, $dcterms_namespace, $dcterms_bibliographicCitation,
-                        $dc_source, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Cyclicity', $text_cyclicity, 'Cyclicity');
+                        $dc_source, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Cyclicity', $text_cyclicity, 'Flowering/Fruiting');
                     }
                 }
-                //end storing
             }
+
+            if($dataObject_dc->title == "Comments")
+            {
+                $dataObject->addChild("additionalInformation", "");
+                $dataObject->additionalInformation->addChild("subject", "http://www.eol.org/voc/table_of_contents#Notes");
+            }
+
         }
     }
     return $xml->asXML();
@@ -99,7 +110,6 @@ function split_habitat_and_distribution($xml_string)
 function get_flowering_time($text)
 {
     $texts = array();
-    print "\n [$text]\n";
     if(substr($text, 0, 9) == 'Flowering' || substr($text, 0, 8) == 'Fruiting')
     {
         $pos_of_first_period = stripos($text, '.');
@@ -109,7 +119,6 @@ function get_flowering_time($text)
             $texts[1] = trim(substr($text, $pos_of_first_period + 2, strlen($text)));
         }
     }
-    print_r($texts);
     return $texts;
 }
 
@@ -122,16 +131,14 @@ function split_description($text)
         if(count($texts) > 1) 
         {
             $texts[0] .= $separator;
-            print_r($texts);
             return $texts;
         }
     }
     return array();
 }
 
-function add_dataObject($taxon, $identifier, $dc_namespace, $agents, $license, 
-    $dc_rights, $dcterms_rightsHolder, $dcterms_namespace, $dcterms_bibliographicCitation,
-    $dc_source, $subject, $text_distribution, $dc_title)
+function add_dataObject($taxon, $identifier, $dc_namespace, $agents, $license, $dc_rights, $dcterms_rightsHolder, $dcterms_namespace, 
+    $dcterms_bibliographicCitation, $dc_source, $subject, $text_distribution, $dc_title)
 {
     $obj = $taxon->addChild('dataObject');
     $obj->addChild('identifier', $identifier, $dc_namespace);
