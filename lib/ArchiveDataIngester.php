@@ -708,6 +708,14 @@ class ArchiveDataIngester
             $reference = Reference::find_or_create($params);
             
             $he_id = $taxon_info['hierarchy_entry_id'];
+            // TODO: NULL not comparing with ''
+            // SELECT * FROM refs WHERE (provider_mangaed_id = '') AND (full_reference = '1996. database, NODC Taxonomic Code') AND (title = '') AND (authors = '') AND (publication_created_at = '0000-00-00 00:00:00') AND (language_id = '0') ORDER BY id ASC LIMIT 0,1;
+            // +---------+-------------------------------------+---------------------+---------+---------+------------------------+-------+-------+------------+----------+--------+---------+-----------+-------------+----------------+---------------+-----------+
+            // | id      | full_reference                      | provider_mangaed_id | authors | editors | publication_created_at | title | pages | page_start | page_end | volume | edition | publisher | language_id | user_submitted | visibility_id | published |
+            // +---------+-------------------------------------+---------------------+---------+---------+------------------------+-------+-------+------------+----------+--------+---------+-----------+-------------+----------------+---------------+-----------+
+            // | 7217652 | 1996. database, NODC Taxonomic Code |                     | NULL    | NULL    |    0000-00-00 00:00:00 | NULL  | NULL  | NULL       | NULL     | NULL   | NULL    | NULL      |           0 |              0 |             1 |         1 |
+            // | 7217651 | 1996. database, NODC Taxonomic Code |                     | NULL    | NULL    |    0000-00-00 00:00:00 | NULL  | NULL  | NULL       | NULL     | NULL   | NULL    | NULL      |           0 |              0 |             1 |         1 |
+            
             $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs (hierarchy_entry_id, ref_id) VALUES ($he_id, $reference->id)");
             $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
             // TODO: find_or_create doesn't work here because of the dual primary key

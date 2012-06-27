@@ -11,7 +11,8 @@ class Resource extends ActiveRecord
             array('preview_collection', 'class_name' => 'Collection', 'foreign_key' => 'preview_collection_id'),
             array('license'),
             array('hierarchy'),
-            array('language')
+            array('language'),
+            array('peer_site')
         );
         
     public $harvest_event;

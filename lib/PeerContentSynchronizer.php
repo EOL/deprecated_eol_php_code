@@ -27,17 +27,19 @@ class PeerContentSynchronizer
             SELECT do.id data_object_id, do.object_cache_url, do.thumbnail_cache_url, do.peer_site_id, do.data_type_id, do.mime_type_id,
               ps.content_host_url_prefix, my_status.id download_status_id, my_status.failed_attempts, my_status.status_id
             FROM data_objects do
-            JOIN peer_sites ps ON (do.peer_site_id=ps.id)
-            JOIN data_objects_download_statuses master_status ON (do.id=master_status.data_object_id AND master_status.peer_site_id=do.peer_site_id
-                AND master_status.peer_site_id!=$this->peer_site_id)
-            JOIN data_objects_download_statuses my_status ON (do.id=my_status.data_object_id AND my_status.peer_site_id=$this->peer_site_id)
-            WHERE do.data_type_id IN (". DataType::image()->id .", ". DataType::video()->id .", ". DataType::sound()->id .", ". DataType::flash()->id .", ". DataType::youtube()->id .")
+            JOIN peer_sites ps ON (do.peer_site_id = ps.id)
+            JOIN media_download_statuses master_status ON (master_status.target_row_type = 'DataObject' AND do.id = master_status.target_row_id
+              AND master_status.peer_site_id = do.peer_site_id AND master_status.peer_site_id != $this->peer_site_id)
+            JOIN media_download_statuses my_status ON (my_status.target_row_type = 'DataObject' AND do.id = my_status.target_row_id
+              AND my_status.peer_site_id = $this->peer_site_id)
+            WHERE do.data_type_id IN (". DataType::image()->id .", ". DataType::video()->id .", ". DataType::sound()->id .", ".
+              DataType::flash()->id .", ". DataType::youtube()->id .")
             AND do.published = 1
-            AND ((do.object_cache_url !='' AND do.object_cache_url IS NOT NULL) OR (do.thumbnail_cache_url !='' AND do.thumbnail_cache_url IS NOT NULL))
-            AND my_status.status_id!=".Status::download_succeeded()->id."
-            AND my_status.status_id!=".Status::download_in_progress()->id."
+            AND ((do.object_cache_url != '' AND do.object_cache_url IS NOT NULL) OR (do.thumbnail_cache_url != '' AND do.thumbnail_cache_url IS NOT NULL))
+            AND my_status.status_id != ".Status::download_succeeded()->id."
+            AND my_status.status_id != ".Status::download_in_progress()->id."
             AND my_status.failed_attempts < ". self::MAXIMUM_FAILED_ATTEMPTS ."
-            AND master_status.status_id=".Status::download_succeeded()->id) as $row)
+            AND master_status.status_id = ".Status::download_succeeded()->id) as $row)
         {
             $params = array(
                 'data_object_id' => $row[0],
@@ -62,13 +64,15 @@ class PeerContentSynchronizer
     private function create_missing_download_statuses()
     {
         // Making sure there is at least a placeholder for every item needing to be downloaded
-        $outfile = $this->mysqli->select_into_outfile("SELECT NULL, do.id, $this->peer_site_id, ". Status::download_pending()->id .", 0, NULL
-            FROM data_objects do LEFT JOIN data_objects_download_statuses dods ON (do.id=dods.data_object_id AND dods.peer_site_id=$this->peer_site_id)
-            WHERE do.data_type_id IN (". DataType::image()->id .", ". DataType::video()->id .", ". DataType::sound()->id .", ". DataType::flash()->id .", ". DataType::youtube()->id .")
+        $outfile = $this->mysqli->select_into_outfile("SELECT NULL, 'DataObject', do.id, $this->peer_site_id, ". Status::download_pending()->id .", 0, NULL
+            FROM data_objects do LEFT JOIN media_download_statuses mds ON (mds.target_row_type = 'DataObject' AND
+              do.id = mds.target_row_id AND mds.peer_site_id = $this->peer_site_id)
+            WHERE do.data_type_id IN (". DataType::image()->id .", ". DataType::video()->id .", ". DataType::sound()->id .", ".
+              DataType::flash()->id .", ". DataType::youtube()->id .")
             AND do.published = 1
-            AND ((do.object_cache_url !='' AND do.object_cache_url IS NOT NULL) OR (do.thumbnail_cache_url !='' AND do.thumbnail_cache_url IS NOT NULL))
-            AND dods.id IS NULL");
-        $this->mysqli->load_data_infile($outfile, 'data_objects_download_statuses');
+            AND ((do.object_cache_url != '' AND do.object_cache_url IS NOT NULL) OR (do.thumbnail_cache_url != '' AND do.thumbnail_cache_url IS NOT NULL))
+            AND mds.id IS NULL");
+        $this->mysqli->load_data_infile($outfile, 'media_download_statuses');
         unlink($outfile);
     }
     
@@ -136,12 +140,12 @@ class PeerContentSynchronizer
         }
         if($succeeded === true)
         {
-            $this->mysqli->update("UPDATE data_objects_download_statuses SET status_id=". Status::download_succeeded()->id .", last_attempted = NOW()
-                WHERE data_object_id=". $params['data_object_id'] ." AND peer_site_id=$this->peer_site_id");
+            $this->mysqli->update("UPDATE media_download_statuses SET status_id=". Status::download_succeeded()->id .", last_attempted = NOW()
+                WHERE target_row_id=". $params['data_object_id'] ." AND target_row_type='DataObject' AND peer_site_id=$this->peer_site_id");
         }elseif($succeeded === false)
         {
-            $this->mysqli->update("UPDATE data_objects_download_statuses SET status_id=". Status::download_failed()->id .", failed_attempts=failed_attempts+1, last_attempted = NOW()
-                WHERE data_object_id=". $params['data_object_id'] ." AND peer_site_id=$this->peer_site_id");
+            $this->mysqli->update("UPDATE media_download_statuses SET status_id=". Status::download_failed()->id .", failed_attempts=failed_attempts+1, last_attempted = NOW()
+                WHERE target_row_id=". $params['data_object_id'] ." AND target_row_type='DataObject' AND peer_site_id=$this->peer_site_id");
         }
     }
     

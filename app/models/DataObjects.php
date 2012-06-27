@@ -10,7 +10,8 @@ class DataObject extends ActiveRecord
             array('language'),
             array('license'),
             array('vetted'),
-            array('visibility')
+            array('visibility'),
+            array('peer_site')
         );
     
     public static $has_many = array(

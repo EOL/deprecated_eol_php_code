@@ -1,13 +1,12 @@
 <?php
 namespace php_active_record;
 
-class ContentPartner extends ActiveRecord
+class MediaDownloadStatus extends ActiveRecord
 {
     public static $belongs_to = array(
-            array('user'),
             array('peer_site')
         );
-
+    
 }
 
 ?>
