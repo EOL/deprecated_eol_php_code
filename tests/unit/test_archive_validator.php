@@ -60,8 +60,19 @@ class test_archive_validator extends SimpletestUnitBase
         $this->archive_builder->finalize();
         list($errors, $warnings) = $this->validate();
         $this->assertTrue($errors, 'There should be errors');
-        $this->assertTrue($errors[0]->uri == 'http://rs.tdwg.org/dwc/terms/taxonID');
+        $this->assertTrue($errors[0]->file == 'taxon.tab');
         $this->assertTrue($errors[0]->message == 'Taxa must have identifiers');
+        $this->reset();
+        
+        // identifier used in the place of TaxonID is OK. We'll interpret it as TaxonID
+        $t = new \eol_schema\Taxon();
+        $t->identifier = "12345";
+        $t->scientificName = "Aus bus";
+        $this->archive_builder->write_object_to_file($t);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->assertFalse($warnings);
     }
     
     function testValidateTaxonScientificName()

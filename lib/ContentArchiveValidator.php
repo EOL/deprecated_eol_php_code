@@ -46,7 +46,7 @@ class ContentArchiveValidator
         if(!$this->content_archive_reader->tables)
         {
             $error = new \eol_schema\ContentArchiveError();
-            $error->message = "Cannot read meta.xml";
+            $error->message = "Cannot read meta.xml. Make sure the archive does not contain a directory - just the archive files.";
             $this->errors[] = $error;
         }
         // looping through all files in the archive
