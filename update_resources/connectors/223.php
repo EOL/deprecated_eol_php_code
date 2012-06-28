@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for DiscoverLife Maps
-estimated execution time:
+estimated execution time: 20 mins.
 */
 set_time_limit(0);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -14,7 +14,6 @@ if(!file_exists($folder)) mkdir($folder , 0777);
 
 $dl = new DiscoverLifeAPIv2();
 $dl->initialize_text_files();
-// Functions::kill_running_connectors($resource_id);
 $dl->start_process($resource_id, false);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
