@@ -75,13 +75,23 @@ switch($function)
         {
             if(is_dir($new_file_path))
             {
+                if($xml_file = Functions::get_single_xml_file_in_directory($new_file_path))
+                {
+                    rename($xml_file, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+                    recursive_rmdir($new_file_path);
+                    $new_file_path = $resource_id . ".xml";
+                }
+            }
+            
+            if(is_dir($new_file_path))
+            {
                 validate_archive($new_file_path);
             }else
             {
                 $new_file_path = CONTENT_RESOURCE_LOCAL_PATH . $new_file_path;
                 $path_parts = pathinfo($new_file_path);
                 $extension = @$path_parts['extension'];
-                if($extension == 'zip' || $extension == 'xls')
+                if($extension == 'xls' || $extension == 'xlsx')
                 {
                     require_library('ExcelToText');
                     $archive_directory_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id;

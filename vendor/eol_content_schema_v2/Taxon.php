@@ -13,12 +13,6 @@ class Taxon extends DarwinCoreExtensionBase
         {
             // these rules apply to individual fields
             $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonID',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
-                'failure_type'          => 'error',
-                'failure_message'       => 'Taxa must have identifiers'));
-            
-            $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://rs.tdwg.org/dwc/terms/scientificName',
                 'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
                 'failure_type'          => 'warning',
@@ -79,6 +73,11 @@ class Taxon extends DarwinCoreExtensionBase
                 'failure_message'       => 'Names should be encoded in UTF-8'));
             
             // these rules apply to entire rows
+            $rules[] = new ContentArchiveRowValidationRule(array(
+                'validation_function'   => 'eol_schema\Taxon::valid_identifier',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Taxa must have identifiers'));
+            
             $rules[] = new ContentArchiveRowValidationRule(array(
                 'validation_function'   => 'eol_schema\Taxon::validate_presence_of_any_name',
                 'failure_type'          => 'warning',
@@ -157,6 +156,16 @@ class Taxon extends DarwinCoreExtensionBase
         return true;
     }
     
+    public static function valid_identifier($fields)
+    {
+        if(@!$fields['http://rs.tdwg.org/dwc/terms/taxonID'] &&
+           @!$fields['http://purl.org/dc/terms/identifier'])
+        {
+            return false;
+        }
+        return true;
+    }
+    
     public static function validate_presence_of_any_name($fields)
     {
         if(@!$fields['http://rs.tdwg.org/dwc/terms/scientificName'] &&
@@ -200,6 +209,15 @@ class Taxon extends DarwinCoreExtensionBase
             $property['name'] = 'taxonID';
             $property['namespace'] = 'http://rs.tdwg.org/dwc/terms';
             $property['uri'] = "http://rs.tdwg.org/dwc/terms/taxonID";
+            $this->accepted_properties[] = $property;
+            $this->accepted_properties_by_name[$property['name']] = $property;
+            $this->accepted_properties_by_uri[$property['uri']] = $property;
+            
+            // add dc:identifier
+            $property = array();
+            $property['name'] = 'identifier';
+            $property['namespace'] = 'http://purl.org/dc/terms';
+            $property['uri'] = "http://purl.org/dc/terms/identifier";
             $this->accepted_properties[] = $property;
             $this->accepted_properties_by_name[$property['name']] = $property;
             $this->accepted_properties_by_uri[$property['uri']] = $property;

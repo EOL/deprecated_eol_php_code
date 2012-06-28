@@ -599,7 +599,7 @@ class Functions
         {
            while(false !== ($file = readdir($handle)))
            {
-               if(substr($file, 0, 1) != ".")
+               if(substr($file, 0, 1) != "." && $file != '__MACOSX')
                {
                    $files[] = $file;
                }
@@ -608,6 +608,21 @@ class Functions
         }
 
         return $files;
+    }
+    
+    public static function get_single_xml_file_in_directory($dir)
+    {
+        $files = Functions::get_files_in_dir($dir);
+        $single_xml_path = null;
+        foreach($files as $file)
+        {
+            if($single_xml_path) return null;
+            if(preg_match("/\.xml$/i", $file))
+            {
+                $single_xml_path = $dir."/".$file;
+            }else return null;
+        }
+        return $single_xml_path;
     }
     
     public static function get_fixture_files()

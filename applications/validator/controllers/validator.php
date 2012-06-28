@@ -14,16 +14,20 @@ class validator_controller extends ControllerBase
         
         $xml_file = @$file_url;
         $downloaded_file = false;
-        if(@$xml_upload['tmp_name']) $xml_file = $xml_upload['tmp_name'];
-        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file))
+        $suffix = null;
+        if(@$xml_upload['tmp_name'])
         {
+            $xml_file = $xml_upload['tmp_name'];
+            if(preg_match("/\.([^\.]+)$/", $xml_upload['name'], $arr)) $suffix = strtolower(trim($arr[1]));
+        }
+        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file, null, false, DOWNLOAD_TIMEOUT_SECONDS, $suffix))
+        {
+            $downloaded_file = true;
             if(is_dir($temp_dir))
             {
-                recursive_rmdir($temp_dir);
-                $xml_file = null;
+                $xml_file = Functions::get_single_xml_file_in_directory($temp_dir);
             }else
             {
-                $downloaded_file = true;
                 $xml_file = $temp_dir;
             }
         }
@@ -51,7 +55,13 @@ class validator_controller extends ControllerBase
         
         if($downloaded_file)
         {
-            unlink($xml_file);
+            if(is_dir($temp_dir))
+            {
+                recursive_rmdir($temp_dir);
+            }else
+            {
+                unlink($temp_dir);
+            }
         }
         
         render_template("validator/index", array("file_url" => @$file_url, "file_upload" => @$xml_upload['name'], "is_eol_schema" => @$is_eol_schema, "xsd" => @$xsd, "errors" => @$errors, "eol_errors" => @$eol_errors, "eol_warnings" => @$eol_warnings));

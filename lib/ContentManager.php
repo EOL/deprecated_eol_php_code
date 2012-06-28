@@ -91,10 +91,11 @@ class ContentManager
         return null;
     }
     
-    function download_temp_file_and_assign_extension($file_path_or_uri, $unique_key = null, $is_resource = false, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
+    function download_temp_file_and_assign_extension($file_path_or_uri, $unique_key = null, $is_resource = false, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $specified_suffix = null)
     {
         $suffix = null;
-        if(preg_match("/\.([^\.]+)$/", $file_path_or_uri, $arr)) $suffix = strtolower(trim($arr[1]));
+        if($specified_suffix) $suffix = $specified_suffix;
+        elseif(preg_match("/\.([^\.]+)$/", $file_path_or_uri, $arr)) $suffix = strtolower(trim($arr[1]));
         
         // resources may need a little extra time to establish a connection
         if($is_resource && $timeout < 60) $timeout = 60;
@@ -162,6 +163,17 @@ class ContentManager
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                 }
+                if(preg_match("/^(.*)\.(zip)$/", $new_temp_file_path, $arr))
+                {
+                    $archive_directory = $arr[1];
+                    @unlink($archive_directory);
+                    @rmdir($archive_directory);
+                    mkdir($archive_directory);
+                    
+                    shell_exec("unzip -d $archive_directory $new_temp_file_path");
+                    if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
+                    $new_temp_file_path = $archive_directory;
+                }
                 if(file_exists($new_temp_file_path)) return $new_temp_file_path;
             }
         }
@@ -191,7 +203,7 @@ class ContentManager
         elseif(preg_match("/^microsoft asf/i", $file_type))                             $new_suffix = "wmv";
         elseif(preg_match("/^mpeg sequence/i", $file_type))                             $new_suffix = "mpg";
         elseif(preg_match("/^flc animation/i", $file_type))                             $new_suffix = "flc";
-        elseif($suffix=="wmv" && preg_match("/^microsoft asf/i", $file_type))           $new_suffix = "wmv";
+        elseif($suffix == "wmv" && preg_match("/^microsoft asf/i", $file_type))           $new_suffix = "wmv";
         
         // audio
         elseif(preg_match("/^riff \(little-endian\) data, wave audio/i", $file_type))   $new_suffix = "wav";
@@ -208,7 +220,11 @@ class ContentManager
         elseif(preg_match("/^gzip compressed data/i", $file_type))                      $new_suffix = "gz";
         elseif(preg_match("/^posix tar archive/i", $file_type))                         $new_suffix = "tar";
         elseif(preg_match("/^tar archive/i", $file_type))                               $new_suffix = "tar";
-        elseif(preg_match("/^zip archive data/i", $file_type))                          $new_suffix = "zip";
+        elseif(preg_match("/^zip archive data/i", $file_type))
+        {
+            if($suffix == "xlsx")                                                       $new_suffix = "xlsx";
+            else                                                                        $new_suffix = "zip";
+        }
         
         // other - xml, html, pdf
         elseif(preg_match("/^xml( |$)/i", $file_type) || preg_match("/xml$/i", $file_type)) $new_suffix = "xml";
