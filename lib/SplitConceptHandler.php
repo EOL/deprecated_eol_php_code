@@ -13,7 +13,7 @@ class SplitConceptHandler
        !$args['bad_match_hierarchy_entry_id'] || !is_numeric($args['bad_match_hierarchy_entry_id']))
     {
         echo "\n\n\tsplit_concept.php [taxon_concept_id_from] [hierarchy_entry_id] [taxon_concept_id_to] [bad_match_hierarchy_entry_id] [confirmed] [reindex?]\n\n";
-        exit;
+        return;
     }
 
     $tc_from = TaxonConcept::find($args['taxon_concept_id_from']);
@@ -26,18 +26,18 @@ class SplitConceptHandler
     if(!$he->id || !$tc_from->id || !$tc_to->id || !$bad_he->id)
     {
         echo "\n\nInvalid ID\n";
-        exit;
+        return;
     }
 
     if($he->taxon_concept_id != $tc_from->id)
     {
         echo "\n\nThis entry is not in the source concept\n";
-        exit;
+        return;
     }
     if($he->taxon_concept_id != $bad_he->taxon_concept_id)
     {
         echo "\n\nThe bad match ID isn't from the same concept\n";
-        exit;
+        return;
     }
 
     if($args['confirmed'] == 'confirmed' || $args['confirmed'] == 'force')
