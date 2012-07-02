@@ -219,6 +219,7 @@ class WikimediaPage
         $data_object_parameters["title"] = $this->title;
         $data_object_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
         $data_object_parameters["description"] = $this->description();
+        $data_object_parameters["rights"] = $this->rights();
         $data_object_parameters["language"] = 'en';
         
         //if($this->description() && preg_match("/([^".UPPER.LOWER."0-9\/,\.;:'\"\(\)\[\]\{\}\|\!\?~@#\$%+_\^&\*<>=\n\r -])/ims", $this->description(), $arr))
@@ -316,6 +317,21 @@ class WikimediaPage
         
         $this->author = $author;
         return $author;
+    }
+    
+    public function rights()
+    {
+        if(isset($this->rights)) return $this->rights;
+        $rights = "";
+        if($info = $this->information())
+        {
+            foreach($info as $attr => $val)
+            {
+                if($attr == "permission") $rights = self::convert_diacritics(WikiParser::strip_syntax($val, true));
+            }
+        }
+        $this->rights = $rights;
+        return $rights;
     }
     
     public function description()
