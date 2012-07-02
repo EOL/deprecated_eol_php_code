@@ -397,7 +397,7 @@ class ObisAPI
         $i = 0;
         foreach($arr['rank_id'] as $rank_id)
         {
-            $arr_rank[$rank_id] = $arr['rank_name'][$i];
+            $arr_rank[$rank_id] = @$arr['rank_name'][$i];
             $i++;
         }    
         return $arr_rank;
