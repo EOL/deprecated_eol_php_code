@@ -69,7 +69,7 @@ class Hierarchy extends ActiveRecord
         $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE he.published=1 AND he.visibility_id=".Visibility::visible()->id." AND tc.published=0", "published=1");
         
         // unpublish concepts with no entries
-        $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM taxon_concepts tc LEFT JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) WHERE tc.published=1 AND he.id IS NULL", "published=0");
+        $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM taxon_concepts tc LEFT JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id AND he.published=1) WHERE tc.published=1 AND he.id IS NULL", "published=0");
         
         // unpublish concepts that have been superceded
         $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT id FROM taxon_concepts tc WHERE supercedure_id!=0 AND published=1", "published=0");
