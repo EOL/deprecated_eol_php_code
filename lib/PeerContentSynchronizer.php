@@ -4,28 +4,40 @@ namespace php_active_record;
 class PeerContentSynchronizer
 {
     private $mysqli;
-    private $peer_site_id;
     private $maximum_number_of_workers;
+    private $peer_site_id;
+    private $models_with_logos;
     const MAXIMUM_FAILED_ATTEMPTS = 10;
     const DEFAULT_MAXIMUM_NUMBER_OF_WORKERS = 8;
     
-    function __construct($peer_site_id, $maximum_number_of_workers = self::DEFAULT_MAXIMUM_NUMBER_OF_WORKERS)
+    function __construct($maximum_number_of_workers = self::DEFAULT_MAXIMUM_NUMBER_OF_WORKERS, $peer_site_id = PEER_SITE_ID)
     {
         $this->mysqli = $GLOBALS['db_connection'];
-        $this->peer_site_id = $peer_site_id;
         $this->maximum_number_of_workers = $maximum_number_of_workers;
         $this->number_of_running_workers = 0;
+        $this->peer_site_id = $peer_site_id;
+        $this->models_with_logos = array(
+            'agents'            => 'Agent',
+            'collections'       => 'Collection',
+            'communities'       => 'Community',
+            'content_partners'  => 'ContentPartner',
+            'users'             => 'User');
     }
     
     function initiate_master_thread()
     {
         $this->create_missing_download_statuses();
-        
+        $this->queue_data_object_downloads();
+        $this->queue_model_logo_downloads();
+    }
+    
+    function queue_data_object_downloads()
+    {
         // this looks for downloadable media present on some node in the network that are NOT either
         // successfully downloaded at this node; or tried and failed too many times
         foreach($this->mysqli->iterate_file("
             SELECT do.id data_object_id, do.object_cache_url, do.thumbnail_cache_url, do.peer_site_id, do.data_type_id, do.mime_type_id,
-              ps.content_host_url_prefix, my_status.id download_status_id, my_status.failed_attempts, my_status.status_id
+              ps.content_host_url_prefix, my_status.failed_attempts
             FROM data_objects do
             JOIN peer_sites ps ON (do.peer_site_id = ps.id)
             JOIN media_download_statuses master_status ON (master_status.target_row_type = 'DataObject' AND do.id = master_status.target_row_id
@@ -42,22 +54,49 @@ class PeerContentSynchronizer
             AND master_status.status_id = ".Status::download_succeeded()->id) as $row)
         {
             $params = array(
-                'data_object_id' => $row[0],
+                'target_row_type' => 'DataObject',
+                'target_row_id' => $row[0],
                 'object_cache_url' => $row[1],
                 'thumbnail_cache_url' => $row[2],
                 'source_peer_site_id' => $row[3],
                 'data_type_id' => $row[4],
                 'mime_type_id' => $row[5],
                 'content_host_url_prefix' => $row[6],
-                'data_objects_download_status_id' => $row[7],
-                'failed_attempts' => $row[8],
-                'status_id' => $row[9]);
+                'failed_attempts' => $row[7]);
             if($params['object_cache_url'] == 'NULL') $params['object_cache_url'] = null;
             if($params['thumbnail_cache_url'] == 'NULL') $params['thumbnail_cache_url'] = null;
-            if(in_array($params['data_type_id'], array(6, 7))) continue;
-            
-            // $this->download_asset_from_peer($params);
             $this->queue_download($params);
+        }
+    }
+    
+    function queue_model_logo_downloads()
+    {
+        foreach($this->models_with_logos as $table_name => $class_name)
+        {
+            foreach($this->mysqli->iterate_file("
+                SELECT '$class_name', tbl.id, tbl.logo_cache_url, tbl.peer_site_id,
+                  ps.content_host_url_prefix, my_status.failed_attempts
+                FROM $table_name tbl
+                JOIN peer_sites ps ON (tbl.peer_site_id = ps.id)
+                JOIN media_download_statuses master_status ON (master_status.target_row_type = '$class_name' AND tbl.id = master_status.target_row_id
+                  AND master_status.peer_site_id = tbl.peer_site_id AND master_status.peer_site_id != $this->peer_site_id)
+                JOIN media_download_statuses my_status ON (my_status.target_row_type = '$class_name' AND tbl.id = my_status.target_row_id
+                  AND my_status.peer_site_id = $this->peer_site_id)
+                WHERE (tbl.logo_cache_url != '' AND tbl.logo_cache_url IS NOT NULL)
+                AND my_status.status_id != ".Status::download_succeeded()->id."
+                AND my_status.status_id != ".Status::download_in_progress()->id."
+                AND my_status.failed_attempts < ". self::MAXIMUM_FAILED_ATTEMPTS ."
+                AND master_status.status_id = ".Status::download_succeeded()->id) as $row)
+            {
+                $params = array(
+                    'target_row_type' => $row[0],
+                    'target_row_id' => $row[1],
+                    'logo_cache_url' => $row[2],
+                    'source_peer_site_id' => $row[3],
+                    'content_host_url_prefix' => $row[4],
+                    'failed_attempts' => $row[5]);
+                $this->queue_download($params);
+            }
         }
     }
     
@@ -74,6 +113,17 @@ class PeerContentSynchronizer
             AND mds.id IS NULL");
         $this->mysqli->load_data_infile($outfile, 'media_download_statuses');
         unlink($outfile);
+        
+        foreach($this->models_with_logos as $table_name => $class_name)
+        {
+            $outfile = $this->mysqli->select_into_outfile("SELECT NULL, '$class_name', tbl.id, $this->peer_site_id, ". Status::download_pending()->id .", 0, NULL
+                FROM $table_name tbl LEFT JOIN media_download_statuses mds ON (mds.target_row_type = '$class_name' AND
+                  tbl.id = mds.target_row_id AND mds.peer_site_id = $this->peer_site_id)
+                WHERE (tbl.logo_cache_url != '' AND tbl.logo_cache_url IS NOT NULL)
+                AND mds.id IS NULL");
+            $this->mysqli->load_data_infile($outfile, 'media_download_statuses');
+            unlink($outfile);
+        }
     }
     
     public function queue_download($params)
@@ -98,12 +148,36 @@ class PeerContentSynchronizer
         static $i = 0;
         $i++;
         $script = DOC_ROOT . "rake_tasks/sync_content_with_peers.php ". escapeshellarg(serialize($params));
-        echo "Downloading ($i) ID:". $params['data_object_id'] ." CacheURL:". $params['object_cache_url'] ."\n";
+        echo "Downloading ($i) ". $params['target_row_type'] .":". $params['target_row_id'] ." CacheURL:". (@$params['object_cache_url'] ?: @$params['logo_cache_url']) ."\n";
         shell_exec(PHP_BIN_PATH . "$script ENV_NAME=". $GLOBALS['ENV_NAME'] ." > /dev/null 2>/dev/null &");
         $this->number_of_running_workers++;
     }
     
     public function download_asset_from_peer($params)
+    {
+        $succeeded = null;
+        switch($params['target_row_type'])
+        {
+            case 'DataObject':
+                $succeeded = $this->download_data_object_from_peer($params);
+                break;
+            default:
+                $succeeded = $this->download_logo_from_peer($params);
+                break;
+        }
+        
+        if($succeeded === true)
+        {
+            $this->mysqli->update("UPDATE media_download_statuses SET status_id=". Status::download_succeeded()->id .", last_attempted = NOW()
+                WHERE target_row_id=". $params['target_row_id'] ." AND target_row_type='". $params['target_row_type'] ."' AND peer_site_id=$this->peer_site_id");
+        }elseif($succeeded === false)
+        {
+            $this->mysqli->update("UPDATE media_download_statuses SET status_id=". Status::download_failed()->id .", failed_attempts=failed_attempts+1, last_attempted = NOW()
+                WHERE target_row_id=". $params['target_row_id'] ." AND target_row_type='". $params['target_row_type'] ."' AND peer_site_id=$this->peer_site_id");
+        }
+    }
+    
+    private function download_data_object_from_peer($params)
     {
         $succeeded = null;
         switch($params['data_type_id'])
@@ -138,15 +212,18 @@ class PeerContentSynchronizer
                 }
                 break;
         }
-        if($succeeded === true)
+        return $succeeded;
+    }
+    
+    private function download_logo_from_peer($params)
+    {
+        $succeeded = null;
+        if($params['logo_cache_url'])
         {
-            $this->mysqli->update("UPDATE media_download_statuses SET status_id=". Status::download_succeeded()->id .", last_attempted = NOW()
-                WHERE target_row_id=". $params['data_object_id'] ." AND target_row_type='DataObject' AND peer_site_id=$this->peer_site_id");
-        }elseif($succeeded === false)
-        {
-            $this->mysqli->update("UPDATE media_download_statuses SET status_id=". Status::download_failed()->id .", failed_attempts=failed_attempts+1, last_attempted = NOW()
-                WHERE target_row_id=". $params['data_object_id'] ." AND target_row_type='DataObject' AND peer_site_id=$this->peer_site_id");
+            $params['object_cache_url'] = $params['logo_cache_url'];
+            $succeeded = $this->download_from_peer($params, 'image');
         }
+        return $succeeded;
     }
     
     private function download_from_peer($params, $data_type)

@@ -396,6 +396,7 @@ class test_resources extends SimpletestUnitBase
                         'title'                 => $args['title'],
                         'dwc_archive_url'       => $args['dwc_archive_url'],
                         'language_id'           => $args['language_id'],
+                        'peer_site_id'          => PEER_SITE_ID,
                         'resource_status'       => ResourceStatus::validated());
         $resource = Resource::find_or_create($attr);
         

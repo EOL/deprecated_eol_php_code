@@ -4,6 +4,8 @@ ini_set('memory_limit', '4096M'); // 4GB maximum memory usage
 ini_set('max_execution_time', '604800'); // 7 days maximum running time
 ini_set('display_errors', true);
 
+define('PEER_SITE_ID', 1);
+
 // make sure you define the proper URL to the root directory of this installation
 define('WEB_ROOT', 'http:// *PRODUCTION_WEB_SERVER_HOST* /eol_php_code/');
 

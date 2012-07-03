@@ -152,7 +152,7 @@ class Resource extends ActiveRecord
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE peer_site_id=".PEER_SITE_ID." AND resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))");
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["id"]);
@@ -165,7 +165,7 @@ class Resource extends ActiveRecord
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         $resources = array();
-        $result = $mysqli->query("SELECT SQL_NO_CACHE DISTINCT resource_id FROM harvest_events WHERE publish=1 AND published_at IS NULL");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE DISTINCT r.id FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE peer_site_id=".PEER_SITE_ID." AND he.publish=1 AND he.published_at IS NULL");
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["resource_id"]);

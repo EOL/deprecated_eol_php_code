@@ -13,7 +13,7 @@ $peer_site_id = 99;                 // this is temporary - will be replaced with
 $maximum_number_of_workers = 12;    // this is temporary - will be replaced with a constant in /config/environments/production.php
 
 
-$sync = new PeerContentSynchronizer($peer_site_id, $maximum_number_of_workers);
+$sync = new PeerContentSynchronizer($maximum_number_of_workers, $peer_site_id);
 if($serialized_params)
 {
     $sync->download_asset_from_peer(unserialize($serialized_params));

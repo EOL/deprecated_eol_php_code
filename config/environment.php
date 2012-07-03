@@ -9,7 +9,7 @@ ini_set('display_errors', false);
 /* Default Environment */
 if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
 // passing in the CLI arguments
-set_and_load_proper_environment($argv);
+@set_and_load_proper_environment($argv);
 
 
 if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://localhost/eol_php_code/');  // URL prefix of this installation
@@ -22,6 +22,7 @@ if(!isset($GLOBALS['ENV_DEBUG_FILE_FLUSH'])) $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = 
 
 if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = true;
 
+if(!defined('PEER_SITE_ID')) define('PEER_SITE_ID', 1);
 
 
 /* Initialize app - this should be towards the top of environment.php,

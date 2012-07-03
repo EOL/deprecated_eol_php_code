@@ -445,6 +445,7 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
                         'title'                 => $args['title'],
                         'dwc_archive_url'       => $args['dwc_archive_url'],
                         'hierarchy_id'          => $hierarchy->id,
+                        'peer_site_id'          => PEER_SITE_ID,
                         'resource_status'       => ResourceStatus::validated());
         $resource = Resource::find_or_create($attr);
         return $resource;

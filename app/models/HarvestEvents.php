@@ -286,6 +286,7 @@ class HarvestEvent extends ActiveRecord
         $description .= " Last indexed ". date('F j, Y', strtotime($this->completed_at));
         $collection = Collection::find_or_create(array(
             'name' => $collection_title,
+            'peer_site_id' => $this->resource->peer_site_id,
             'logo_cache_url' => $this->resource->content_partner->user->logo_cache_url,
             'description' => trim($description),
             'created_at' => 'NOW()',
@@ -348,13 +349,12 @@ class HarvestEvent extends ActiveRecord
             elseif(in_array($data_type_id, $text_type_ids)) $title = "Text";
             else $title = "Data Object";
             
-            fwrite($OUT, "NULL\t$title\tDataObject\t$id\t$collection->id\t$created_at\t$created_at\t\tNULL\n");
+            fwrite($OUT, "NULL\t$collection->peer_site_id\t$title\tDataObject\t$id\t$collection->id\t$created_at\t$created_at\t\tNULL\n");
             $used_ids[$id] = true;
         }
         fclose($OUT);
         $this->mysqli->load_data_infile($outfile, 'collection_items');
         unlink($outfile);
-        // echo "$dump_path\n";
     }
     
     private function add_taxa_to_collection($collection)
@@ -375,7 +375,7 @@ class HarvestEvent extends ActiveRecord
             if(isset($used_ids[$id])) continue;
             $created_at = $row[1];
             $name_string = trim($row[2]);
-            fwrite($OUT, "NULL\t$name_string\tTaxonConcept\t$id\t$collection->id\t$created_at\t$created_at\t\tNULL\n");
+            fwrite($OUT, "NULL\t$collection->peer_site_id\t$name_string\tTaxonConcept\t$id\t$collection->id\t$created_at\t$created_at\t\tNULL\n");
             $used_ids[$id] = true;
         }
         fclose($OUT);

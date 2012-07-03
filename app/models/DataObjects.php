@@ -179,7 +179,7 @@ class DataObject extends ActiveRecord
         {
             $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url",
                 "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id",
-                "visibility_id", "curated", "published", "description_linked", "available_at");
+                "visibility_id", "curated", "published", "description_linked", "available_at", "peer_site_id");
             if(in_array($field, $fields_to_ignore)) continue;
             
             if(@$this->$field == "0") $this->$field = 0;
@@ -323,6 +323,7 @@ class DataObject extends ActiveRecord
     static function create_by_object($data_object)
     {
         if(@!$data_object->guid) $data_object->guid = Functions::generate_guid();
+        if(@!$data_object->peer_site_id) $data_object->peer_site_id = PEER_SITE_ID;
         
         return self::create($data_object);
     }
