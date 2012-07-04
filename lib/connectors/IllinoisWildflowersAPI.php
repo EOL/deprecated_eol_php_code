@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [34]  
+/* connector: [34]
 http://www.illinoiswildflowers.info/
 */
 class IllinoisWildflowersAPI
@@ -99,6 +99,8 @@ class IllinoisWildflowersAPI
         foreach($GLOBALS['taxon'] as $taxon_name => $value)
         {
             // if($taxon_name != "Agalinis purpurea") continue; //debug
+            // if (!in_array($taxon_name, array('Acer rubrum', 'Acer nigrum'))) continue; //debug
+
             if(@$value['Description'] != "" || 
                @$value['Cultivation'] != "" ||
                @$value['Range &amp; Habitat'] != "" ||
@@ -119,7 +121,7 @@ class IllinoisWildflowersAPI
             }
             $html = self::clean_str($html);
             self::get_family($html, $taxon_name);
-            if(preg_match_all("/<BLOCKQUOTE>(.*?)<\/BLOCKQUOTE>/ims", $html, $matchez))
+            if(preg_match_all("/<BLOCKQUOTE>(.*?)<\/BLOCKQUOTE>/ims", $html, $matchez)) // this can only be just preg_match not preg_match_all
             {
                 foreach($matchez[1] as $matchz)
                 {
@@ -129,13 +131,11 @@ class IllinoisWildflowersAPI
                     if(preg_match_all("/<font color='#33cc33'>(.*?)<br>/ims", $desc, $matches))
                     {
                         $texts = $matches[1];
-                        $i = 0;
                         foreach($texts as $text)
                         {
                             $temp = strip_tags($text, "<br><i>");
                             $temp = explode(":", $temp);
                             if($temp) $GLOBALS['taxon'][$taxon_name][@$temp[0]] = @$temp[1]; //placed @ bec sometimes there are extra ':' in the text.
-                            $i++;
                         }
                     }
                     else
@@ -150,8 +150,43 @@ class IllinoisWildflowersAPI
             {
                 $GLOBALS['taxon'][$taxon_name]['Description'] = 'no objects';
                 print "\n investigate: (no <BLOCKQUOTE>) $type - $taxon_name \n";
+                self::scrape_second_try($html, $taxon_name, $type);
             }
 
+        }
+    }
+
+    function scrape_second_try($html, $taxon_name, $type)
+    {
+        $html = self::clean_str($html);
+        $html = str_ireplace('"', "'", $html);
+        self::get_images($html, $type, $taxon_name);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 51);'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 51); font-family: Times New Roman;'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 0); font-family: Times New Roman;'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 0);'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='color: rgb(51, 204, 0); font-weight: bold;'>", 'zzz xxxyyy', $html);
+        if(preg_match_all("/xxxyyy(.*?)zzz/ims", $html, $matches))
+        {
+            print "\n 2nd-try successful - $type - $taxon_name \n";
+            $i = 0;
+            $texts = $matches[1];
+            foreach($texts as $text)
+            {
+                $texts[$i] = trim(strip_tags($text, "<i>"));
+                $i++;
+            }
+            // build-up paragraphs
+            foreach($texts as $text)
+            {
+                $temp = explode(":", $text);
+                if($temp) $GLOBALS['taxon'][$taxon_name][@$temp[0]] = @$temp[1]; //placed @ bec sometimes there are extra ':' in the text.
+            }
+        }
+        else
+        {
+            $GLOBALS['taxon'][$taxon_name]['Description'] = 'no objects';
+            print "\n investigate: 2nd-try failed $type - $taxon_name \n";
         }
     }
 
@@ -265,8 +300,6 @@ class IllinoisWildflowersAPI
                                                   "title"   => 'Comments',
                                                   "type"    => 'Comments');
 
-
-        /* no title: Hypoxis hirsuta, Celastrus scandens */
         foreach($texts as $text)
         {
             $agent = array();
@@ -364,7 +397,7 @@ class IllinoisWildflowersAPI
     function get_common_names($names)
     {
         $arr_names = array();
-        if($names) 
+        if($names)
         {
             foreach($names as $name) $arr_names[] = array("name" => $name, "language" => 'en');
         }
@@ -372,11 +405,11 @@ class IllinoisWildflowersAPI
     }
 
     function clean_str($str)
-    {    
-        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), " ", trim($str));          
-        $str = str_ireplace(array("    "), " ", trim($str));          
-        $str = str_ireplace(array("   "), " ", trim($str));          
-        $str = str_ireplace(array("  "), " ", trim($str));          
+    {
+        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), " ", trim($str));
+        $str = str_ireplace(array("    "), " ", trim($str));
+        $str = str_ireplace(array("   "), " ", trim($str));
+        $str = str_ireplace(array("  "), " ", trim($str));
         return $str;
     }
 
