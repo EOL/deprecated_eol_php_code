@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for Insect Visitors of Illinois Wildflowers
-estimated execution time: 16 minutes
+estimated execution time: 30 minutes
 Connector scrapes the site: http://www.illinoiswildflowers.info/flower_insects/index.htm
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -9,8 +9,8 @@ require_library('connectors/InsectVisitorsAPI');
 $timestart = time_elapsed();
 
 $resource_id = 143;
-$fishbase = new InsectVisitorsAPI();
-$fishbase->get_all_taxa($resource_id);
+$func = new InsectVisitorsAPI();
+$func->get_all_taxa($resource_id);
 Functions::set_resource_status_to_force_harvest($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
