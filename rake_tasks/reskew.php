@@ -10,6 +10,8 @@ include_once(dirname(__FILE__) . "/../lib/Reskewer.php");
 require_once(DOC_ROOT . "vendor/php_resque/lib/Resque.php");
 Resque::setBackend(RESQUE_SERVER);
 
+/*
+ * This was an example run. I'm keeping it here to have a record of how to enque something in PHP:
 $args = array('cmd'                          => @$argv[1], // Really, I don't think we should do this, but instead
                                                            // have separate rake commands for each ...uh... command.
               'taxon_concept_id_from'        => @$argv[2],
@@ -19,5 +21,6 @@ $args = array('cmd'                          => @$argv[1], // Really, I don't th
               'confirmed'                    => @$argv[6],
               'reindex'                      => @trim($argv[7]));
 Resque::enqueue('php', 'Reskewer', $args);
+ */
 
 ?>
