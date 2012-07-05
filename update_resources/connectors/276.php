@@ -12,6 +12,7 @@ $resource_id = 276;
 // $dwca_file = "http://localhost/~eolit/dwca-inbio-eol.zip"; //zip extracts directly to temp_dir
 // $dwca_file = "http://localhost/~eolit/dwca_inbio.zip"; //zip extracts it within a folder inside temp_dir
 // $dwca_file = "http://localhost/~eolit/dwca_inbio_small.zip";
+// $dwca_file = "http://localhost/~eolit/dwca.tar.gz";
 $dwca_file = "http://dl.dropbox.com/u/7597512/INBIO/dwca_inbio.zip";
 
 $func = new INBioAPI();

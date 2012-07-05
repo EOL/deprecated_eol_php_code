@@ -20,6 +20,7 @@ class INBioAPI
 
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
+        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields) exit("\n\n Invalid archive file. Program will terminate.\n");
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_table('http://rs.gbif.org/terms/1.0/image'));
         $references = self::get_references($harvester->process_table('http://rs.gbif.org/terms/1.0/reference'));
@@ -62,15 +63,20 @@ class INBioAPI
         if($file_contents = Functions::get_remote_file($dwca_file, DOWNLOAD_WAIT_TIME, 999999))
         {
             $temp_file_path = $temp_dir . "" . $filename;
+            print "\n\n temp_dir: $temp_dir\n";
+            print "\n\n Extracting... $temp_file_path\n";
             $TMP = fopen($temp_file_path, "w");
             fwrite($TMP, $file_contents);
             fclose($TMP);
+            sleep(5);
 
             if(preg_match("/^(.*)\.(tar.gz|tgz)$/", $dwca_file, $arr)) 
             {
-                shell_exec("gunzip -c $temp_file_path");
+                $cur_dir = getcwd();
+                chdir($temp_dir);
+                shell_exec("tar -zxvf $temp_file_path");
+                chdir($cur_dir);
                 $archive_path = str_ireplace(".tar.gz", "", $temp_file_path);
-                sleep(5);
             }
             // elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) 
             // {
