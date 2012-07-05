@@ -3,9 +3,9 @@ date_default_timezone_set('America/Denver');  // TODO - This should be moved to 
 include_once(dirname(__FILE__) . "/../config/environment.php");
 
 # Needed for work:
-php_active_record\require_library("SplitConceptHandler");
-php_active_record\require_library("MoveConceptHandler");
-php_active_record\require_library("MergeConceptHandler");
+php_active_record\require_library("SplitEntryHandler");
+php_active_record\require_library("MoveEntryHandler");
+php_active_record\require_library("MergeConceptsHandler");
 
 // This is a way for PHP and Ruby to talk across Resque. If the class names are (exactly) the same, they can pass
 // JSON back and forth fairly simply.
@@ -15,11 +15,15 @@ class CodeBridge
   public function perform()
   {
     if ($this->args['cmd'] == 'split') {
-      SplitConceptHandler::split_concept($this->args);
+      SplitEntryHandler::split_entry($this->args);
     } elseif ($this->args['cmd'] == 'move') {
-      MoveConceptHandler::split_concept($this->args);
+      // The 'reindex' argument from the command-line doesn't reindex solr, so I'm adding it automatically here:
+      if ($this->args['reindex'] == 'reindex') {
+        $this->args['reindex_solr'] = 'reindex_solr';
+      }
+      MoveEntryHandler::split_entry($this->args);
     } elseif ($this->args['cmd'] == 'merge') {
-      MergeConceptHandler::split_concept($this->args);
+      MergeConceptsHandler::merge_concepts($this->args);
     } else {
       throw new Exception("No command available for " . $this->args['cmd']);
     }

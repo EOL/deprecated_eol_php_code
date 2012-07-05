@@ -51,6 +51,14 @@ class MoveEntryHandler
         HierarchyEntry::move_to_concept_static($args['hierarchy_entry_id'], $args['taxon_concept_id_to'], $force_move_if_disallowed, $args['reindex']);
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" . $args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
         echo "\nMoved " . $args['hierarchy_entry_id'] . " to " . $args['taxon_concept_id_to'] . "\n\n";
+
+        if($args['reindex_solr'] == 'reindex_solr') // NOTE - this can ONLY be specified by the resque task, ATM.
+        {
+          php_active_record\require_library("SolrUpdateConceptHandler");
+          SolrUpdateConceptHandler::update_concept($args['taxon_concept_id_from']);
+          SolrUpdateConceptHandler::update_concept($args['taxon_concept_id_to']);
+        }
+
     }else
     {
         echo "\n\n";
