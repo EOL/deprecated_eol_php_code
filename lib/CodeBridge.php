@@ -21,7 +21,7 @@ class CodeBridge
       if ($this->args['reindex'] == 'reindex') {
         $this->args['reindex_solr'] = 'reindex_solr';
       }
-      MoveEntryHandler::split_entry($this->args);
+      MoveEntryHandler::move_entry($this->args);
     } elseif ($this->args['cmd'] == 'merge') {
       MergeConceptsHandler::merge_concepts($this->args);
     } else {
