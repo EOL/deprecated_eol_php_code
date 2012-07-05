@@ -220,7 +220,7 @@ class InsectVisitorsAPI
             {
                 print("\n\n Content partner's server is down4, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
-                return;
+                continue;
             } 
 
             if(preg_match("/<B>(.*?)<BLOCKQUOTE>/ims", $html, $match))
