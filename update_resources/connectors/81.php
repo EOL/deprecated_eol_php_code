@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for BOLDS
-estimated execution time: 
+estimated execution time: 15 hours for slow connection
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

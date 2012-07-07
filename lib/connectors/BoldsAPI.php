@@ -226,13 +226,13 @@ class BoldsAPI
         {
             $arr_taxa[]=array(  "identifier"   => $taxon_rec["id"],
                                 "source"       => self::SPECIES_SERVICE_URL . urlencode($taxon_rec["id"]),
-                                "kingdom"      => Functions::import_decode(@$taxa["kingdom"]),
-                                "phylum"       => Functions::import_decode(@$taxa["phylum"]),
-                                "class"        => Functions::import_decode(@$taxa["class"]),
-                                "order"        => Functions::import_decode(@$taxa["order"]),
-                                "family"       => Functions::import_decode(@$taxa["family"]),
-                                "genus"        => Functions::import_decode(@$taxa["genus"]),
-                                "sciname"      => Functions::import_decode($taxon_rec["sciname"]),
+                                "kingdom"      => utf8_encode(@$taxa["kingdom"]),
+                                "phylum"       => utf8_encode(@$taxa["phylum"]),
+                                "class"        => utf8_encode(@$taxa["class"]),
+                                "order"        => utf8_encode(@$taxa["order"]),
+                                "family"       => utf8_encode(@$taxa["family"]),
+                                "genus"        => utf8_encode(@$taxa["genus"]),
+                                "sciname"      => utf8_encode($taxon_rec["sciname"]),
                                 "data_objects" => $arr_objects
                              );
         }
