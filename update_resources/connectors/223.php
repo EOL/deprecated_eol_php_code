@@ -16,6 +16,7 @@ $dl = new DiscoverLifeAPIv2();
 $dl->initialize_text_files();
 $dl->start_process($resource_id, false);
 
+Functions::set_resource_status_to_force_harvest($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

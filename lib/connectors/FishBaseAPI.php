@@ -5,7 +5,8 @@ class FishBaseAPI
 {
     public function __construct()
     {
-        // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase.zip";
+        // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_in_folder.zip";
+        // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_not_in_folder.zip";
         $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
         $this->TAXON_PATH                       = "";
         $this->TAXON_COMNAMES_PATH              = "";
