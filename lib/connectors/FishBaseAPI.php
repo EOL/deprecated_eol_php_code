@@ -66,6 +66,10 @@ class FishBaseAPI
         Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "FB_*.xml");
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
         self::delete_temp_files($this->TEMP_FILE_PATH . "FB_*.xml");
+
+        // remove tmp dir
+        $this->TEMP_FILE_PATH = str_ireplace("/fishbase", "", $this->TEMP_FILE_PATH);
+        if($this->TEMP_FILE_PATH) shell_exec("rm -fr $this->TEMP_FILE_PATH");
     }
 
     function load_zip_contents()
@@ -79,6 +83,15 @@ class FishBaseAPI
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("tar -xzf $temp_file_path -C $this->TEMP_FILE_PATH");
+
+            if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) 
+            {
+                print "\nPath not found...trying one folder deeper...\n";
+                $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
+                if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) exit("\n\n Can't extract archive file. Program will terminate.\n");
+                print " --- files found.";
+            }
+
             $this->TAXON_PATH                       = $this->TEMP_FILE_PATH . "/taxon.txt";
             $this->TAXON_COMNAMES_PATH              = $this->TEMP_FILE_PATH . "/taxon_comnames.txt";
             $this->TAXON_DATAOBJECT_PATH            = $this->TEMP_FILE_PATH . "/taxon_dataobject.txt";
@@ -88,8 +101,6 @@ class FishBaseAPI
             $this->TAXON_SYNONYMS_PATH              = $this->TEMP_FILE_PATH . "/taxon_synonyms.txt";
         }
         else exit("\n\n Connector terminated. Remote files are not ready.\n\n");
-        // remove tmp dir
-        // if($this->TEMP_FILE_PATH) shell_exec("rm -fr $this->TEMP_FILE_PATH");
     }
 
     function prepare_data()
@@ -135,6 +146,7 @@ class FishBaseAPI
     function make_array($filename, $fields, $index_key, $excluded_fields=array())
     {
         $data = array();
+        print "\n filename: [$filename] --- ";
         $READ = fopen($filename, "r");
         $line = fgets($READ);
         if(stripos($line, "\t") == "") exit("\n\n Connector terminated. Remote files are not ready.\n\n");
@@ -285,7 +297,12 @@ class FishBaseAPI
         $arr_synonyms = array();
         if($synonyms) 
         {
-            foreach($synonyms as $name) $arr_synonyms[] = array("synonym" => utf8_encode($name['synonym']), "relationship" => $name['relationship']);
+            foreach($synonyms as $name) 
+            {
+                $relationship = '';
+                if(strtolower($name['relationship']) != 'xxx') $relationship = $name['relationship'];
+                $arr_synonyms[] = array("synonym" => utf8_encode($name['synonym']), "relationship" => $relationship);
+            }
         }
         return $arr_synonyms;
     }
