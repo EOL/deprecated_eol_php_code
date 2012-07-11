@@ -1,10 +1,11 @@
 <?php
 include_once(dirname(__FILE__) . "/../config/environment.php");
+namespace php_active_record;
 
 class SplitEntryHandler
 {
 
-  function split_entry($args)
+  public static function split_entry($args)
   {
 
     if(!$args['hierarchy_entry_id'] || !is_numeric($args['hierarchy_entry_id']) || !$args['bad_match_hierarchy_entry_id'] || !is_numeric($args['bad_match_hierarchy_entry_id']))
@@ -13,8 +14,8 @@ class SplitEntryHandler
         return false;
     }
 
-    $he = php_active_record\HierarchyEntry::find($args['hierarchy_entry_id']);
-    $bad_he = php_active_record\HierarchyEntry::find($args['bad_match_hierarchy_entry_id']);
+    $he = HierarchyEntry::find($args['hierarchy_entry_id']);
+    $bad_he = HierarchyEntry::find($args['bad_match_hierarchy_entry_id']);
 
     if(!$he->id || !$bad_he->id)
     {
@@ -32,13 +33,13 @@ class SplitEntryHandler
     {
         $user_id = 13;  # 13 is Patrick's user ID - TODO - this should be an argument.  :|
         $update_caches = true;
-        echo php_active_record\HierarchyEntry::split_from_concept_static($args['hierarchy_entry_id'], $update_caches)."\n";
+        echo HierarchyEntry::split_from_concept_static($args['hierarchy_entry_id'], $update_caches)."\n";
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" .$args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
 
         if($args['reindex'] == 'reindex') // NOTE - this can ONLY be specified by the resque task, ATM.
         {
-          php_active_record\require_library("SolrUpdateConceptHandler");
-          php_active_record\SolrUpdateConceptHandler::update_concept($he->taxon_concept_id);
+          require_library("SolrUpdateConceptHandler");
+          SolrUpdateConceptHandler::update_concept($he->taxon_concept_id);
         }
 
     }else
@@ -50,7 +51,7 @@ class SplitEntryHandler
         echo "From:\n";
         print_r($he->taxon_concept);
         
-        $descendant_objects = php_active_record\TaxonConcept::count_descendants_objects($he->taxon_concept_id);
+        $descendant_objects = TaxonConcept::count_descendants_objects($he->taxon_concept_id);
         echo "\n\nDescendant Objects:  $descendant_objects\n\n";
     }
 

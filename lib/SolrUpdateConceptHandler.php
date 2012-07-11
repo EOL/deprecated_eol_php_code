@@ -7,7 +7,7 @@ class SolrUpdateConceptHandler
 {
 
   // NOTE there is no "confirm" on this method, it just runs.
-  function update_concept($taxon_concept_id)
+  public static function update_concept($taxon_concept_id)
   {
 
     if(!$taxon_concept_id || !is_numeric($taxon_concept_id))
