@@ -20,6 +20,10 @@ class MergeConceptsHandler
         TaxonConcept::supercede_by_ids($args['id1'], $args['id2'], true);
         echo "\nPages " . $args['id1'] . " and " . $args['id2'] . " have been merged to: " . min($args['id1'], $args['id2'])."\n\n";
 
+        // Only applicable if run via resque, but safe *enough* otherwise:
+        TaxonConcept::unlock_classifications_by_id($args['id1']);
+        TaxonConcept::unlock_classifications_by_id($args['id2']);
+
     }else
     {
         $descendant_objects = TaxonConcept::count_descendants_objects($args['id1']);

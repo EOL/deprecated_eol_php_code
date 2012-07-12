@@ -58,6 +58,8 @@ class MoveEntryHandler
           require_library("SolrUpdateConceptHandler");
           SolrUpdateConceptHandler::update_concept($args['taxon_concept_id_from']);
           SolrUpdateConceptHandler::update_concept($args['taxon_concept_id_to']);
+          TaxonConcept::unlock_classifications_by_id($args['taxon_concept_id_from']);
+          TaxonConcept::unlock_classifications_by_id($args['taxon_concept_id_to']);
         }
 
     }else

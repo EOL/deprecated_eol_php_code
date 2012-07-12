@@ -14,6 +14,12 @@ class TaxonConcept extends ActiveRecord
     {
         self::supercede_by_ids($taxon_concept_id, $this->id);
     }
+
+    public static function unlock_classifications_by_id($id)
+    {
+      $mysqli =& $GLOBALS['mysqli_connection'];
+      $mysqli->update("DELETE FROM taxon_classifications_locks WHERE taxon_concept_id=$id");
+    }
     
     public static function supercede_by_ids($id1, $id2, $update_caches = false)
     {

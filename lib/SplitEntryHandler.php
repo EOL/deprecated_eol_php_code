@@ -40,6 +40,7 @@ class SplitEntryHandler
         {
           require_library("SolrUpdateConceptHandler");
           SolrUpdateConceptHandler::update_concept($he->taxon_concept_id);
+          TaxonConcept::unlock_classifications_by_id($bad_he->taxon_concept_id);
         }
 
     }else
