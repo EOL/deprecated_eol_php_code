@@ -14,7 +14,7 @@ class INBioAPI
         $all_taxa = array();
         $used_collection_ids = array();
 
-        $paths = self::extract_archive_file($dwca_file);
+        $paths = self::extract_archive_file($dwca_file, "meta.xml");
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
@@ -53,7 +53,7 @@ class INBioAPI
         return $all_taxa;
     }
 
-    function extract_archive_file($dwca_file)
+    function extract_archive_file($dwca_file, $check_file_or_folder_name)
     {
         print "\nPlease wait, downloading resource document...\n";
         $path_parts = pathinfo($dwca_file);
@@ -93,8 +93,8 @@ class INBioAPI
         }
         else exit("\n\n Connector terminated. Remote files are not ready.\n\n");
 
-        if(file_exists($temp_dir . "meta.xml")) return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
-        elseif(file_exists($archive_path . "/meta.xml")) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
+        if(file_exists($temp_dir . $check_file_or_folder_name)) return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
+        elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
         else exit("\n\n Can't extract archive file. Program will terminate.");
     }
 
