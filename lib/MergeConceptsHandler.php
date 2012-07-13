@@ -21,8 +21,8 @@ class MergeConceptsHandler
         echo "\nPages " . $args['id1'] . " and " . $args['id2'] . " have been merged to: " . min($args['id1'], $args['id2'])."\n\n";
 
         // Only applicable if run via resque, but safe *enough* otherwise:
-        TaxonConcept::unlock_classifications_by_id($args['id1']);
-        TaxonConcept::unlock_classifications_by_id($args['id2']);
+        TaxonConcept::unlock_classifications_by_id($args['id1'], $args['notify']);
+        TaxonConcept::unlock_classifications_by_id($args['id2'], $args['notify']);
 
     }else
     {
