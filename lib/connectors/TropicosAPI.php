@@ -450,12 +450,12 @@ class TropicosAPI
 
         if($with_content)
         {
-            $description = "<i>$sciname</i>: <br>" . $description;
+            $description = "<i>$sciname</i>: <br>" . $description . "<br>Note: This information is based on publications available through Tropicos and may not represent the entire distribution. Tropicos does not categorize distributions as native or non-native.";
             $source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
             $identifier = $taxon_id . "_distribution";
             $mimeType   = "text/html";
             $dataType   = "http://purl.org/dc/dcmitype/Text";
-            $title      = "";
+            $title      = "Localities documented in Tropicos sources";
             $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
             $agent      = array();
             $agent[] = array("role" => "source", "homepage" => "http://www.tropicos.org", "fullName" => "Tropicos");
