@@ -24,17 +24,27 @@ class TaxonConcept extends ActiveRecord
 
       {
 
-        $activity = Activity::find_by_name('taxon_concept');
-        $object_type_id = ChangeableObjectType::taxon_concept()->id;
-        $fqz = NotificationFrequency::find_by_frequency('send immediately');
+        require_once 'lib/Resque.php';
+        if (defined('RESQUE_HOST')) {
+          Resque::setBackend(RESQUE_HOST);
+        }
+        Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'unlock_notify', 'user_id' => $notify, 
+                        'taxon_concept_id' => $id));
 
-        $ca_log = CuratorActivityLog::create(array('user_id' => $notify,
-          'changeable_object_type_id' => $object_type_id, 'object_id' => $id, 'activity_id' => $activity->id,
-          'taxon_concept_id' => $id));
+        if (false) { // OLD.  ...The AR models don't work because they are in the logging DB.  :|
 
-        $mysqli->insert("INSERT INTO pending_notifications " .
-          "(user_id, notification_frequency_id, target_id, target_type, reason) " .
-          "VALUES ($notify, $fqz, $ca_log->id, 'CuratorActivityLog', 'auto_email_after_curation')");
+          $activity = Activity::find_by_name('unlock');
+          $object_type_id = ChangeableObjectType::taxon_concept()->id;
+          $fqz = NotificationFrequency::find_by_frequency('send immediately');
+
+          $ca_log = CuratorActivityLog::create(array('user_id' => $notify,
+            'changeable_object_type_id' => $object_type_id, 'object_id' => $id, 'activity_id' => $activity->id,
+            'taxon_concept_id' => $id));
+
+          $mysqli->insert("INSERT INTO pending_notifications " .
+            "(user_id, notification_frequency_id, target_id, target_type, reason) " .
+            "VALUES ($notify, $fqz, $ca_log->id, 'CuratorActivityLog', 'auto_email_after_curation')");
+        }
 
       }
 

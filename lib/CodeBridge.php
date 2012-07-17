@@ -1,6 +1,9 @@
 <?php
 date_default_timezone_set('America/Denver');  // TODO - This should be moved to the config file, I think.
 include_once(dirname(__FILE__) . "/../config/environment.php");
+if (defined('RESQUE_HOST')) {
+  Resque::setBackend(RESQUE_HOST);
+}
 
 # Needed for work:
 php_active_record\require_library("SplitEntryHandler");
