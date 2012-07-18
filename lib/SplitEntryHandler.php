@@ -14,6 +14,8 @@ class SplitEntryHandler
         return false;
     }
 
+    echo "++ Splitting HE#" . $args['hierarchy_entry_id'] . " from " . $args['bad_match_hierarchy_entry_id'] . "\n";
+
     $he = HierarchyEntry::find($args['hierarchy_entry_id']);
     $bad_he = HierarchyEntry::find($args['bad_match_hierarchy_entry_id']);
 
@@ -42,6 +44,8 @@ class SplitEntryHandler
           SolrUpdateConceptHandler::update_concept($he->taxon_concept_id);
           TaxonConcept::unlock_classifications_by_id($bad_he->taxon_concept_id, $args['notify']);
         }
+
+        echo "++ Done.\n";
 
     }else
     {

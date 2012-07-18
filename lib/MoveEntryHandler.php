@@ -17,6 +17,9 @@ class MoveEntryHandler
         return;
     }
 
+    echo "++ Moving HE#" . $args['hierarchy_entry_id'] . " from TC#" . $args['taxon_concept_id_from'] . " to TC#" .
+      $args['taxon_concept_id_to'] . " avoiding HE#" . $args['bad_match_hierarchy_entry_id'] . "\n";
+
     $tc_from = TaxonConcept::find($args['taxon_concept_id_from']);
     $tc_to = TaxonConcept::find($args['taxon_concept_id_to']);
     $he = HierarchyEntry::find($args['hierarchy_entry_id']);
@@ -61,6 +64,8 @@ class MoveEntryHandler
           TaxonConcept::unlock_classifications_by_id($args['taxon_concept_id_from'], $args['notify']);
           TaxonConcept::unlock_classifications_by_id($args['taxon_concept_id_to'], $args['notify']);
         }
+
+        echo "++ Done.\n";
 
     }else
     {

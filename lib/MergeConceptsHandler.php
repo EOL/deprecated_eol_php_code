@@ -17,12 +17,16 @@ class MergeConceptsHandler
     if($args['confirmed'] == 'confirmed')
     {
 
+      echo "++ Merging TC#" . $args['id1'] . " to " . $args['id2'] . "\n";
+
         TaxonConcept::supercede_by_ids($args['id1'], $args['id2'], true);
         echo "\nPages " . $args['id1'] . " and " . $args['id2'] . " have been merged to: " . min($args['id1'], $args['id2'])."\n\n";
 
         // Only applicable if run via resque, but safe *enough* otherwise:
         TaxonConcept::unlock_classifications_by_id($args['id1'], $args['notify']);
         TaxonConcept::unlock_classifications_by_id($args['id2'], $args['notify']);
+
+        echo "++ Done.\n";
 
     }else
     {
