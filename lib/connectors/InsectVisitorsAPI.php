@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [143]  
+/* connector: [143]
 http://www.illinoiswildflowers.info/
 http://www.illinoiswildflowers.info/flower_insects/index.htm
 */
@@ -61,7 +61,7 @@ class InsectVisitorsAPI
             $url = $this->path . '/files/' . $path["type"] . ".htm";
             if($path["active"])
             {
-                print "\n\n$i" . " " . $url . "\n";        
+                print "\n\n$i" . " " . $url . "\n";
                 self::process_gen_desc($url, $path["ancestry"], $path['type']);
                 $i++;
             }
@@ -113,7 +113,7 @@ class InsectVisitorsAPI
             foreach($records as $rec)
             {
                 $html = strip_tags($rec, "<BR><I>");
-                if(preg_match("/(.*?)\(/ims", $html, $match)) 
+                if(preg_match("/(.*?)\(/ims", $html, $match))
                 {
                     $taxon_name = self::clean_str($match[1]);
                     $description = self::clean_str($html);
@@ -145,7 +145,7 @@ class InsectVisitorsAPI
 
     function process_birds($url, $ancestry, $type)
     {
-        if(!$html = Functions::get_remote_file($url)) 
+        if(!$html = Functions::get_remote_file($url))
         {
             print("\n\n Content partner's server is down2, $url\n");
             return;
@@ -160,6 +160,10 @@ class InsectVisitorsAPI
                 /*/hummingbird.htm" NAME="hummingbird">Archilochus colubris</A><BR></B><FONT COLOR="#000000">(Ruby-Throated Hummingbird)</FONT></FONT></FONT>*/
                 if(preg_match("/>(.*?)<\/a>/ims", $match, $string_match)) $taxon_name = self::clean_str($string_match[1]);
                 if(preg_match("/\/(.*?)\"/ims", $match, $string_match)) $html = self::clean_str($string_match[1]);
+
+                $taxon_name = utf8_encode($taxon_name);
+                // if($taxon_name != "Vernonia × illinoensis") continue; //debug
+                
                 if(preg_match("/\((.*?)\)/ims", $match, $string_match)) 
                 {
                     $common_name = self::clean_str($string_match[1]);
@@ -189,10 +193,10 @@ class InsectVisitorsAPI
                 /*/purs_spdwell.htm" name="purs_spdwell">Veronica peregrina (Purslane Speedwell)*/
                 if(preg_match("/>(.*?)\(/ims", $match, $string_match)) $taxon_name = self::clean_str($string_match[1]);
                 $taxon_name = utf8_encode($taxon_name);
-
+                // if($taxon_name != "Vernonia × illinoensis") continue; //debug
+                
                 if(preg_match("/\/(.*?)\"/ims", $match, $string_match)) $html = self::clean_str($string_match[1]);
-                if(in_array($html, array('ill_ironweed.htm', 'hybrid_cardinal.htm'))) continue; //for Vernonia × illinoensis (Illinois Ironweed)
-                if(preg_match("/\((.*?)\)/ims", $match, $string_match)) 
+                if(preg_match("/\((.*?)\)/ims", $match, $string_match))
                 {
                     $common_name = self::clean_str($string_match[1]);
                     $GLOBALS['taxon'][$taxon_name]['comnames'][] = $common_name;
@@ -340,11 +344,11 @@ class InsectVisitorsAPI
     function get_objects($record, $arr_objects)
     {
         $texts = array();
-        if(@$record['gendesc'])     $texts[] = array("desc"     => $record['gendesc'], 
+        if(@$record['gendesc'])     $texts[] = array("desc"     => $record['gendesc'],
                                                      "subject"  => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription",
                                                      "title"    => '',
                                                      "type"     => 'gendesc');
-        if(@$record['association'] && @$record['association'] != 'no object') $texts[] = array("desc"     => $record['association'], 
+        if(@$record['association'] && @$record['association'] != 'no object') $texts[] = array("desc"     => $record['association'],
                                                      "subject"  => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations",
                                                      "title"    => @$record['association_title'],
                                                      "type"     => 'association');
@@ -359,7 +363,7 @@ class InsectVisitorsAPI
             $license        = "http://creativecommons.org/licenses/by-nc/3.0/";
             $agent          = $agent;
             $rightsHolder   = "John Hilty";
-            $rights         = "Copyright © 2002-2010 by Dr. John Hilty";
+            $rights         = "Copyright © 2002-" . date("Y") . " by Dr. John Hilty";
             $location       = '';
             $dataType       = "http://purl.org/dc/dcmitype/Text";
             $mimeType       = "text/html";
@@ -396,7 +400,12 @@ class InsectVisitorsAPI
 
     function get_references()
     {
-        $reference = "Hilty, J. Editor. " . date("Y") . ". Insect Visitors of Illinois Wildflowers. World Wide Web electronic publication. flowervisitors.info, version (09/2010).<br>See: <a href='http://www.illinoiswildflowers.info/flower_insects/files/abbreviations.htm'>Abbreviations for Insect Activities</a>, <a href='http://www.illinoiswildflowers.info/flower_insects/files/observers.htm'>Abbreviations for Scientific Observers</a>, <a href='http://www.illinoiswildflowers.info/flower_insects/files/references.htm'>References for behavioral observations</a>";
+        $reference = "Hilty, J. Editor. " . date("Y") . ". Insect Visitors of Illinois Wildflowers. 
+        World Wide Web electronic publication. illinoiswildflowers.info, version (" . date("m/Y")  . ") 
+        <br>See: 
+        <a href='http://www.illinoiswildflowers.info/flower_insects/files/abbreviations.htm'>Abbreviations for Insect Activities</a>, 
+        <a href='http://www.illinoiswildflowers.info/flower_insects/files/observers.htm'>Abbreviations for Scientific Observers</a>, 
+        <a href='http://www.illinoiswildflowers.info/flower_insects/files/references.htm'>References for behavioral observations</a>";
         $refs = array();
         $refs[] = array("url" => '', "fullReference" => $reference);
         return $refs;
@@ -414,12 +423,8 @@ class InsectVisitorsAPI
 
     function clean_str($str)
     {    
-        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), " ", trim($str));          
-        $str = str_ireplace(array("    "), " ", trim($str));          
-        $str = str_ireplace(array("   "), " ", trim($str));          
-        $str = str_ireplace(array("  "), " ", trim($str));          
-        // this line counts how many # as num, and repeats this char in num times, then replaces these chars with just 1 space ' ' 
-        // $str = str_replace(str_repeat(" ", substr_count($str, ' ')), ' ', $str);
+        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), " ", trim($str));
+        $str = str_ireplace(array("    ", "   ", "  "), " ", trim($str));
         return $str;
     }
 
