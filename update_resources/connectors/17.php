@@ -130,7 +130,7 @@ function split_description($text)
         $texts = explode($separator, $text);
         if(count($texts) > 1) 
         {
-            $texts[0] .= $separator;
+            $texts[0] .= "m. ";
             return $texts;
         }
     }
