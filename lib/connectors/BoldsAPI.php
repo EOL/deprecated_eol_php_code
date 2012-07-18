@@ -463,7 +463,9 @@ class BoldsAPI
         }
         $description .= $temp;
         //end get text dna sequence
-        return $description;
+        
+        if(Functions::is_utf8($description)) return $description;
+        else return;
     }
 
     private function barcode_image_available($src)

@@ -156,8 +156,10 @@ class BOLDSysAPI
             $title       = "Barcode data: $sciname";
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
-            $description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true, "http://".$rec['barcode_image_url']);
-            $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
+            if($description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true, "http://".$rec['barcode_image_url']))
+            {
+                $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
+            }
         }
 
         //map
