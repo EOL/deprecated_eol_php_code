@@ -14,6 +14,7 @@ class AquamapsAPIv2
         $all_taxa = array();
         $used_collection_ids = array();
         $path = DOC_ROOT . "/update_resources/connectors/files/AquaMaps/";
+        $path = "http://dl.dropbox.com/u/7597512/AquaMaps/";
         $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 1),  // all 8k species
                        1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 0)   // test just 3 species
                      );
@@ -48,7 +49,7 @@ class AquamapsAPIv2
     function parse_xml($url)
     {
         $arr_scraped=array();
-        $xml = Functions::get_hashed_response($url);
+        if(!$xml = Functions::get_hashed_response($url)) exit("\n\nFile not ready $url\nProgram will terminate.\n");
         $ctr = 0;
         $total = sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)
