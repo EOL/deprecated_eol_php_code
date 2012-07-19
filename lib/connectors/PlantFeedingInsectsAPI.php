@@ -6,8 +6,11 @@ http://www.illinoiswildflowers.info/plant_insects/database.html
 */
 class PlantFeedingInsectsAPI
 {
-    public function __construct()
+    public function __construct($test_run = false, $debug_info = true)
     {
+        $this->test_run = $test_run;
+        $this->debug_info = $debug_info;
+
         $this->path = 'http://www.illinoiswildflowers.info/flower_insects';
         $this->path = 'http://www.illinoiswildflowers.info/plant_insects';
         $this->urls = array();
@@ -17,13 +20,14 @@ class PlantFeedingInsectsAPI
     function get_all_taxa($resource_id)
     {
         self::get_associations();
-        print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
+        if($this->debug_info) print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
         $all_taxa = array();
         $i = 0;
         $total = count(array_keys($GLOBALS['taxon']));
         foreach($GLOBALS['taxon'] as $taxon_name => $record)
         {
-            $i++; print "\n$i of $total " . $taxon_name;
+            $i++; 
+            if($this->debug_info) print "\n$i of $total " . $taxon_name;
             $record["taxon_name"] = $taxon_name;
             $arr = self::get_plant_feeding_taxa($record);
             $page_taxa = $arr[0];
@@ -35,6 +39,7 @@ class PlantFeedingInsectsAPI
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
         fclose($OUT);
+        return $all_taxa; //used for testing
     }
 
     function get_associations()
@@ -47,7 +52,7 @@ class PlantFeedingInsectsAPI
             else                           $url = $this->path . '/insects/' . $path['type'] . ".htm";
             if($path["active"])
             {
-                print "\n\n$i " . $path['type'] . " [$url]\n";        
+                if($this->debug_info) print "\n\n$i " . $path['type'] . " [$url]\n";        
                 if($path['type'] == "insects")              self::process_insects($url, $path["ancestry"]);
                 elseif(in_array($path['type'], $bird_type)) self::process_birds($url, $path["ancestry"], $path['type']);
             }
@@ -83,7 +88,11 @@ class PlantFeedingInsectsAPI
                 }
                 $GLOBALS['taxon'][$taxon_name]['html'] = "/plants/$html";
                 $GLOBALS['taxon'][$taxon_name]['ancestry'] = $ancestry;
-                // $i++; if($i >= 10) break; //debug
+                $i++; 
+                if($this->test_run)
+                {
+                    if($i >= 2) break; //debug
+                }
             }
         }
         self::get_title_description('insects');
@@ -100,7 +109,7 @@ class PlantFeedingInsectsAPI
             if($type == 'insects') $url = str_ireplace("/insects/", "/", $url);
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
-            print "\n $url -- $taxon_name";
+            if($this->debug_info) print "\n $url -- $taxon_name";
             if(!$html = Functions::get_remote_file($url))
             {
                 print("\n\n Content partner's server is down4, $url\n");

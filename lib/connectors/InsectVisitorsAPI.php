@@ -6,8 +6,11 @@ http://www.illinoiswildflowers.info/flower_insects/index.htm
 */
 class InsectVisitorsAPI
 {
-    public function __construct()
+    public function __construct($test_run = false, $debug_info = true)
     {
+        $this->test_run = $test_run;
+        $this->debug_info = $debug_info;
+        
         $this->path = 'http://www.illinoiswildflowers.info/flower_insects';
         $this->urls = array();
         $this->urls[] = array("active" => 1, "type" => "insects", "ancestry" => array("kingdom" => "Plantae", "phylum" => "", "class" => "", "order" => "", "family" => ""));
@@ -33,13 +36,14 @@ class InsectVisitorsAPI
         self::get_associations();
         self::get_general_descriptions();
         self::prepare_common_names();
-        print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
+        if($this->debug_info) print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
         $all_taxa = array();
         $i = 0;
         $total = count(array_keys($GLOBALS['taxon']));
         foreach($GLOBALS['taxon'] as $taxon_name => $record)
         {
-            $i++; print "\n$i of $total " . $taxon_name;
+            $i++; 
+            if($this->debug_info) print "\n$i of $total " . $taxon_name;
             $record["taxon_name"] = $taxon_name;
             $arr = self::get_visitors_taxa($record);
             $page_taxa = $arr[0];
@@ -51,6 +55,7 @@ class InsectVisitorsAPI
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
         fclose($OUT);
+        return $all_taxa; //used for testing
     }
 
     function get_general_descriptions()
@@ -61,34 +66,35 @@ class InsectVisitorsAPI
             $url = $this->path . '/files/' . $path["type"] . ".htm";
             if($path["active"])
             {
-                print "\n\n$i" . " " . $url . "\n";
+                if($this->debug_info) print "\n\n$i" . " " . $url . "\n";
                 self::process_gen_desc($url, $path["ancestry"], $path['type']);
                 $i++;
+                if($this->test_run) break; //just get 1 url
             }
         }
         if($i == 0) return;
         //special cases
         // Formicidae and Myrmicidae
-        $GLOBALS['taxon']['Formicidae']['ancestry']     = $GLOBALS['taxon']['Formicidae and Myrmicidae']['ancestry'];
-        $GLOBALS['taxon']['Formicidae']['gendesc']      = $GLOBALS['taxon']['Formicidae and Myrmicidae']['gendesc'];
-        $GLOBALS['taxon']['Formicidae']['html']         = $GLOBALS['taxon']['Formicidae and Myrmicidae']['html'];
-        $GLOBALS['taxon']['Myrmicidae']['ancestry']     = $GLOBALS['taxon']['Formicidae and Myrmicidae']['ancestry'];
-        $GLOBALS['taxon']['Myrmicidae']['gendesc']      = $GLOBALS['taxon']['Formicidae and Myrmicidae']['gendesc'];
-        $GLOBALS['taxon']['Myrmicidae']['html']         = $GLOBALS['taxon']['Formicidae and Myrmicidae']['html'];
+        $GLOBALS['taxon']['Formicidae']['ancestry']     = @$GLOBALS['taxon']['Formicidae and Myrmicidae']['ancestry'];
+        $GLOBALS['taxon']['Formicidae']['gendesc']      = @$GLOBALS['taxon']['Formicidae and Myrmicidae']['gendesc'];
+        $GLOBALS['taxon']['Formicidae']['html']         = @$GLOBALS['taxon']['Formicidae and Myrmicidae']['html'];
+        $GLOBALS['taxon']['Myrmicidae']['ancestry']     = @$GLOBALS['taxon']['Formicidae and Myrmicidae']['ancestry'];
+        $GLOBALS['taxon']['Myrmicidae']['gendesc']      = @$GLOBALS['taxon']['Formicidae and Myrmicidae']['gendesc'];
+        $GLOBALS['taxon']['Myrmicidae']['html']         = @$GLOBALS['taxon']['Formicidae and Myrmicidae']['html'];
         // Sciaridae, Mycetophilidae
-        $GLOBALS['taxon']['Sciaridae']['ancestry']      = $GLOBALS['taxon']['Sciaridae, Mycetophilidae']['ancestry'];
-        $GLOBALS['taxon']['Sciaridae']['gendesc']       = $GLOBALS['taxon']['Sciaridae, Mycetophilidae']['gendesc'];
-        $GLOBALS['taxon']['Sciaridae']['html']          = $GLOBALS['taxon']['Sciaridae, Mycetophilidae']['html'];
-        $GLOBALS['taxon']['Mycetophilidae']['ancestry'] = $GLOBALS['taxon']['Sciaridae, Mycetophilidae']['ancestry'];
-        $GLOBALS['taxon']['Mycetophilidae']['gendesc']  = $GLOBALS['taxon']['Sciaridae, Mycetophilidae']['gendesc'];
-        $GLOBALS['taxon']['Mycetophilidae']['html']     = $GLOBALS['taxon']['Sciaridae, Mycetophilidae']['html'];
+        $GLOBALS['taxon']['Sciaridae']['ancestry']      = @$GLOBALS['taxon']['Sciaridae, Mycetophilidae']['ancestry'];
+        $GLOBALS['taxon']['Sciaridae']['gendesc']       = @$GLOBALS['taxon']['Sciaridae, Mycetophilidae']['gendesc'];
+        $GLOBALS['taxon']['Sciaridae']['html']          = @$GLOBALS['taxon']['Sciaridae, Mycetophilidae']['html'];
+        $GLOBALS['taxon']['Mycetophilidae']['ancestry'] = @$GLOBALS['taxon']['Sciaridae, Mycetophilidae']['ancestry'];
+        $GLOBALS['taxon']['Mycetophilidae']['gendesc']  = @$GLOBALS['taxon']['Sciaridae, Mycetophilidae']['gendesc'];
+        $GLOBALS['taxon']['Mycetophilidae']['html']     = @$GLOBALS['taxon']['Sciaridae, Mycetophilidae']['html'];
         // Tephretidae, Drosophilidae
-        $GLOBALS['taxon']['Tephretidae']['ancestry']    = $GLOBALS['taxon']['Tephretidae, Drosophilidae']['ancestry'];
-        $GLOBALS['taxon']['Tephretidae']['gendesc']     = $GLOBALS['taxon']['Tephretidae, Drosophilidae']['gendesc'];
-        $GLOBALS['taxon']['Tephretidae']['html']        = $GLOBALS['taxon']['Tephretidae, Drosophilidae']['html'];
-        $GLOBALS['taxon']['Drosophilidae']['ancestry']  = $GLOBALS['taxon']['Tephretidae, Drosophilidae']['ancestry'];
-        $GLOBALS['taxon']['Drosophilidae']['gendesc']   = $GLOBALS['taxon']['Tephretidae, Drosophilidae']['gendesc'];
-        $GLOBALS['taxon']['Drosophilidae']['html']      = $GLOBALS['taxon']['Tephretidae, Drosophilidae']['html'];
+        $GLOBALS['taxon']['Tephretidae']['ancestry']    = @$GLOBALS['taxon']['Tephretidae, Drosophilidae']['ancestry'];
+        $GLOBALS['taxon']['Tephretidae']['gendesc']     = @$GLOBALS['taxon']['Tephretidae, Drosophilidae']['gendesc'];
+        $GLOBALS['taxon']['Tephretidae']['html']        = @$GLOBALS['taxon']['Tephretidae, Drosophilidae']['html'];
+        $GLOBALS['taxon']['Drosophilidae']['ancestry']  = @$GLOBALS['taxon']['Tephretidae, Drosophilidae']['ancestry'];
+        $GLOBALS['taxon']['Drosophilidae']['gendesc']   = @$GLOBALS['taxon']['Tephretidae, Drosophilidae']['gendesc'];
+        $GLOBALS['taxon']['Drosophilidae']['html']      = @$GLOBALS['taxon']['Tephretidae, Drosophilidae']['html'];
         unset($GLOBALS['taxon']['Formicidae and Myrmicidae']);
         unset($GLOBALS['taxon']['Sciaridae, Mycetophilidae']);
         unset($GLOBALS['taxon']['Tephretidae, Drosophilidae']);
@@ -96,7 +102,7 @@ class InsectVisitorsAPI
 
     function process_gen_desc($url, $ancestry, $type)
     {
-        print "\n\n file: $url \n";
+        if($this->debug_info) print "\n\n file: $url \n";
         if(!$html = Functions::get_remote_file($url)) 
         {
             print("\n\n Content partner's server is down1, $url.\n");
@@ -135,11 +141,15 @@ class InsectVisitorsAPI
             else                           $url = $this->path . '/insects/' . $path['type'] . ".htm";
             if($path["active"])
             {
-                print "\n\n$i " . $path['type'] . " [$url]\n";        
+                if($this->debug_info) print "\n\n$i " . $path['type'] . " [$url]\n";
                 if($path['type'] == "insects")              self::process_insects($url, $path["ancestry"]);
                 elseif(in_array($path['type'], $bird_type)) self::process_birds($url, $path["ancestry"], $path['type']);
             }
             $i++;
+            if($this->test_run)
+            {
+                if($i >= 2) break;
+            }
         }
     }
 
@@ -171,7 +181,11 @@ class InsectVisitorsAPI
                 }
                 $GLOBALS['taxon'][$taxon_name]['html'] = "/$type/$html";
                 $GLOBALS['taxon'][$taxon_name]['ancestry'] = $ancestry;
-                // $i++; if($i >= 3) break; //debug
+                $i++; 
+                if($this->test_run)
+                {
+                    if($i >= 1) break; //debug
+                }
             }
         }
         self::get_title_description();
@@ -203,7 +217,11 @@ class InsectVisitorsAPI
                 }
                 $GLOBALS['taxon'][$taxon_name]['html'] = "/plants/$html";
                 $GLOBALS['taxon'][$taxon_name]['ancestry'] = $ancestry;
-                // $i++; if($i >= 3) break; //debug
+                $i++; 
+                if($this->test_run)
+                {
+                    if($i >= 1) break; //debug
+                }
             }
         }
         self::get_title_description('insects');
@@ -220,7 +238,7 @@ class InsectVisitorsAPI
             if($type == 'insects') $url = str_ireplace("/insects/", "/", $url);
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
-            print "\n $url -- $taxon_name";
+            if($this->debug_info) print "\n $url -- $taxon_name";
             if(!$html = Functions::get_remote_file($url))
             {
                 print("\n\n Content partner's server is down4, $url\n");
@@ -282,7 +300,7 @@ class InsectVisitorsAPI
                     }
                 }
             }
-            // break; //debug - to get only 1 url
+            if($this->test_run) break; //debug - to get only 1 url, not 2 (family_names.htm, common_names.htm)
         }
         
         //split those comma-separated common names
