@@ -3,11 +3,13 @@ namespace php_active_record;
 /* connector: [42]  */
 class FishBaseAPI
 {
-    public function __construct()
+    public function __construct($test_run = false, $debug_info = true)
     {
+        $this->test_run = $test_run;
         // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_not_in_folder.zip";
         $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
+        if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->TAXON_PATH                       = "";
         $this->TAXON_COMNAMES_PATH              = "";
         $this->TAXON_DATAOBJECT_PATH            = "";
@@ -65,12 +67,13 @@ class FishBaseAPI
         fwrite($OUT, $xml);
         fclose($OUT);
         Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "FB_*.xml");
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
         self::delete_temp_files($this->TEMP_FILE_PATH . "FB_*.xml");
 
         // remove tmp dir
         $this->TEMP_FILE_PATH = str_ireplace("/fishbase", "", $this->TEMP_FILE_PATH);
         if($this->TEMP_FILE_PATH) shell_exec("rm -fr $this->TEMP_FILE_PATH");
+
+        if($this->test_run) return $all_taxa; //used in testing
     }
 
     function load_zip_contents()
