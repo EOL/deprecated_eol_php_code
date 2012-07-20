@@ -1,6 +1,5 @@
 <?php
 namespace php_active_record;
-
 require_library('connectors/FishBaseAPI');
 
 class test_connector_FishBase_api extends SimpletestUnitBase
@@ -19,11 +18,5 @@ class test_connector_FishBase_api extends SimpletestUnitBase
         }
     }
 }
-/*
-$resource_id = 42;
-$fishbase = new FishBaseAPI();
-$fishbase->get_all_taxa($resource_id);
-
-*/
 ?>
 
