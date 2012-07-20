@@ -10,25 +10,22 @@ class SplitEntryHandler
 
     if(!$args['hierarchy_entry_id'] || !is_numeric($args['hierarchy_entry_id']) || !$args['bad_match_hierarchy_entry_id'] || !is_numeric($args['bad_match_hierarchy_entry_id']))
     {
-        echo "\n\n\tsplit_entry.php [hierarchy_entry_id] [bad_match_hierarchy_entry_id] [confirmed]\n\n";
-        return false;
+        throw new \Exception("split_entry.php [hierarchy_entry_id] [bad_match_hierarchy_entry_id] [confirmed]");
     }
 
-    echo "++ Splitting HE#" . $args['hierarchy_entry_id'] . " from " . $args['bad_match_hierarchy_entry_id'] . "\n";
+    echo "++ Splitting HE#", $args['hierarchy_entry_id'], " from ", $args['bad_match_hierarchy_entry_id'], "\n";
 
     $he = HierarchyEntry::find($args['hierarchy_entry_id']);
     $bad_he = HierarchyEntry::find($args['bad_match_hierarchy_entry_id']);
 
     if(!$he->id || !$bad_he->id)
     {
-        echo "\n\nInvalid ID\n";
-        return false;
+        throw new \Exception("Invalid ID");
     }
 
     if($he->taxon_concept_id != $bad_he->taxon_concept_id)
     {
-        echo "\n\nThe bad match ID isn't from the same concept\n";
-        return false;
+        throw new \Exception("The bad match ID isn't from the same concept");
     }
 
     if($args['confirmed'] == 'confirmed')

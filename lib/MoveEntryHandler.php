@@ -13,8 +13,7 @@ class MoveEntryHandler
        !$args['taxon_concept_id_to'] || !is_numeric($args['taxon_concept_id_to']) ||
        !$args['bad_match_hierarchy_entry_id'] || !is_numeric($args['bad_match_hierarchy_entry_id']))
     {
-        echo "\n\n\tsplit_concept.php [taxon_concept_id_from] [hierarchy_entry_id] [taxon_concept_id_to] [bad_match_hierarchy_entry_id] [confirmed] [reindex?]\n\n";
-        return;
+        throw new \Exception("split_concept.php [taxon_concept_id_from] [hierarchy_entry_id] [taxon_concept_id_to] [bad_match_hierarchy_entry_id] [confirmed] [reindex?]");
     }
 
     echo "++ Moving HE#" . $args['hierarchy_entry_id'] . " from TC#" . $args['taxon_concept_id_from'] . " to TC#" .
@@ -29,19 +28,16 @@ class MoveEntryHandler
 
     if(!$he->id || !$tc_from->id || !$tc_to->id || !$bad_he->id)
     {
-        echo "\n\nInvalid ID\n";
-        return;
+        throw new \Exception("Invalid ID");
     }
 
     if($he->taxon_concept_id != $tc_from->id)
     {
-        echo "\n\nThis entry is not in the source concept\n";
-        return;
+        throw new \Exception("This entry is not in the source concept");
     }
     if($he->taxon_concept_id != $bad_he->taxon_concept_id)
     {
-        echo "\n\nThe bad match ID isn't from the same concept\n";
-        return;
+        throw new \Exception("The bad match ID isn't from the same concept");
     }
 
     if($args['confirmed'] == 'confirmed' || $args['confirmed'] == 'force')
@@ -55,6 +51,10 @@ class MoveEntryHandler
         HierarchyEntry::move_to_concept_static($args['hierarchy_entry_id'], $args['taxon_concept_id_to'], $force_move_if_disallowed, $args['reindex']);
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" . $args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
         echo "\nMoved " . $args['hierarchy_entry_id'] . " to " . $args['taxon_concept_id_to'] . "\n\n";
+
+        // Need to look through all the HEs in the TC we're moving *to* and cycle through them to make sure none of
+        // them are blocking the move:
+        // $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE (hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $args['bad_match_hierarchy_entry_id'] . ") OR (hierarchy_entry_id_2=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_1=" . $args['bad_match_hierarchy_entry_id'] . ") AND equivalent=0)");
 
         if($args['reindex_solr'] == 'reindex_solr') // NOTE - this can ONLY be specified by the resque task, ATM.
         {

@@ -17,18 +17,26 @@ class CodeBridge
 
   public function perform()
   {
-    if ($this->args['cmd'] == 'split') {
-      php_active_record\SplitEntryHandler::split_entry($this->args);
-    } elseif ($this->args['cmd'] == 'move') {
-      // The 'reindex' argument from the command-line doesn't reindex solr, so I'm adding it automatically here:
-      if ($this->args['reindex'] == 'reindex') {
-        $this->args['reindex_solr'] = 'reindex_solr';
+    try {
+      if ($this->args['cmd'] == 'split') {
+        php_active_record\SplitEntryHandler::split_entry($this->args);
+      } elseif ($this->args['cmd'] == 'move') {
+        // The 'reindex' argument from the command-line doesn't reindex solr, so I'm adding it automatically here:
+        if ($this->args['reindex'] == 'reindex') {
+          $this->args['reindex_solr'] = 'reindex_solr';
+        }
+        php_active_record\MoveEntryHandler::move_entry($this->args);
+      } elseif ($this->args['cmd'] == 'merge') {
+        php_active_record\MergeConceptsHandler::merge_concepts($this->args);
+      } else {
+        throw new Exception("No command available for ", $this->args['cmd']);
       }
-      php_active_record\MoveEntryHandler::move_entry($this->args);
-    } elseif ($this->args['cmd'] == 'merge') {
-      php_active_record\MergeConceptsHandler::merge_concepts($this->args);
-    } else {
-      throw new Exception("No command available for " . $this->args['cmd']);
+    } catch (Exception $e) {
+      echo "** Command Failed: ", $e->getMessage(), "\n";
+      foreach($this->args as $key => $value) 
+      { 
+        echo "  '$key' = '$value'\n";
+      } 
     }
   }
 

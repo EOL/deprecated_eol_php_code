@@ -10,8 +10,7 @@ class MergeConceptsHandler
 
     if(!$args['id1'] || !is_numeric($args['id1']) || !$args['id2'] || !is_numeric($args['id2']))
     {
-        echo "\n\n\tsupercede_concepts.php [id1] [id2] [confirmed]\n\n";
-        return false;
+        throw new \Exception("supercede_concepts.php [id1] [id2] [confirmed]");
     }
 
     if($args['confirmed'] == 'confirmed')
