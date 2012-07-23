@@ -124,7 +124,7 @@ function get_flowering_time($text)
 
 function split_description($text)
 {
-    $separators = array('m; ', 'm. '); //possible separators between 'habitat' and 'distribution' string in dc:description
+    $separators = array(' m; ', 'm. '); //possible separators between 'habitat' and 'distribution' string in dc:description
     foreach($separators as $separator)
     {
         $texts = explode($separator, $text);
