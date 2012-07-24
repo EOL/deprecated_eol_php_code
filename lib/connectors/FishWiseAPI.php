@@ -6,6 +6,10 @@ define("FWP_SPECIES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/Fi
 define("FWP_IMAGES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/images.xls");
 define("FWP_COMNAMES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/comnames.xls");
 define("FWP_SYNONYMS_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/synonyms.xls");
+// define("FWP_SPECIES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/species_small.xls");
+// define("FWP_IMAGES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/images_small.xls");
+// define("FWP_COMNAMES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/comnames_small.xls");
+// define("FWP_SYNONYMS_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/synonyms_small.xls");
 
 define("FWP_IMAGE_URL", "http://www.fishwisepro.com/pics/");
 define("FWP_SPECIES_PAGE_URL", "http://www.fishwisepro.com/Species/details.aspx?Zoom=True&SId=");//45079

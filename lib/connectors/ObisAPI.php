@@ -397,7 +397,7 @@ class ObisAPI
         $i = 0;
         foreach($arr['rank_id'] as $rank_id)
         {
-            $arr_rank[$rank_id] = $arr['rank_name'][$i];
+            $arr_rank[$rank_id] = @$arr['rank_name'][$i];
             $i++;
         }    
         return $arr_rank;
@@ -416,7 +416,7 @@ class ObisAPI
         $i = 0;
         $line = "";
         $file_count = 0;
-        $file = fopen(OBIS_DATA_FILE, "r");
+        if(!$file = fopen(OBIS_DATA_FILE, "r")) exit("\nFile not found: " . OBIS_DATA_FILE . "\nProgram will terminate.\n");
         $labels = "";
         while(!feof($file))
         {
