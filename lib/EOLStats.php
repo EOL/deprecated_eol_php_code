@@ -460,7 +460,7 @@ class EOLStats
 
     public function not_so_rich_pages()
     {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics tcm JOIN taxon_concepts tc ON (tcm.taxon_concept_id=tc.id) WHERE tc.published=1 AND tcm.richness_score >= 0.10 AND tcm.richness_score <= 0.39");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics tcm JOIN taxon_concepts tc ON (tcm.taxon_concept_id=tc.id) WHERE tc.published=1 AND tcm.richness_score >= 0.10 AND tcm.richness_score <= 0.40");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
