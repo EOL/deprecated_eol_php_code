@@ -87,7 +87,11 @@ class DiscoverLife_KeysAPI
             }
         }
         fclose($FILE);
-        if(count($taxa_objects) <= 1) exit("\n\n Invalid text file. Program will terminate.");
+        if(count($taxa_objects) <= 1)
+        {
+            echo "\n\nInvalid text file. Program will terminate.\n";
+            return;
+        }
         return $taxa_objects;
     }
 

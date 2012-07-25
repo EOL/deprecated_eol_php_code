@@ -91,7 +91,11 @@ class DiscoverLifeAPIv2
         //initialize text file for DiscoverLife: save names without a page in EOL
         self::initialize_text_file($this->TEXT_FILE_FOR_DL);
         $filename = $this->TEMP_FILE_PATH . $task . ".txt";
-        if(!$FILE = fopen($filename, "r")) exit("Expected file not found. Program will terminate.");
+        if(!$FILE = fopen($filename, "r"))
+        {
+            echo "\n\nExpected file not found. Program will terminate.\n";
+            return;
+        }
         $i = 0; 
         $save_count = 0; 
         $no_eol_page = 0;
@@ -238,7 +242,11 @@ class DiscoverLifeAPIv2
 
     private function divide_text_file($divisor)
     {
-        if(!$FILE = fopen(self::DL_MAP_SPECIES_LIST, "r")) exit("\n\n External file not available. Program will terminate. \n");
+        if(!$FILE = fopen(self::DL_MAP_SPECIES_LIST, "r"))
+        {
+            echo "\n\nExternal file not available. Program will terminate.\n";
+            return;
+        }
         $i = 0;
         $file_ctr = 0;
         $str = "";

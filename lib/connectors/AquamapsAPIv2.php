@@ -49,7 +49,11 @@ class AquamapsAPIv2
     function parse_xml($url)
     {
         $arr_scraped=array();
-        if(!$xml = Functions::get_hashed_response($url)) exit("\n\nFile not ready $url\nProgram will terminate.\n");
+        if(!$xml = Functions::get_hashed_response($url))
+        {
+            echo "\n\nFile not ready $url\nProgram will terminate.\n";
+            return;
+        }
         $ctr = 0;
         $total = sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)

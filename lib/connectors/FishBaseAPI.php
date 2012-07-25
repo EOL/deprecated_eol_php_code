@@ -92,7 +92,11 @@ class FishBaseAPI
             {
                 print "\nPath not found...trying one folder deeper...\n";
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
-                if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) exit("\n\n Can't extract archive file. Program will terminate.\n");
+                if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt"))
+                {
+                    echo "\n\nCan't extract archive file. Program will terminate.\n";
+                    return;
+                }
                 print " --- files found.";
             }
 

@@ -20,7 +20,11 @@ class INBioAPI
 
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
-        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields) exit("\n\n Invalid archive file. Program will terminate.\n");
+        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields)
+        {
+            echo "\n\nInvalid archive file. Program will terminate.\n";
+            return;
+        }
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_table('http://rs.gbif.org/terms/1.0/image'));
         $references = self::get_references($harvester->process_table('http://rs.gbif.org/terms/1.0/reference'));
@@ -88,14 +92,26 @@ class INBioAPI
                 shell_exec("unzip -ad $temp_dir $temp_file_path");
                 $archive_path = str_ireplace(".zip", "", $temp_file_path);
             } 
-            else exit("\n -- archive not gzip or zip");
+            else
+            {
+                echo "\n\n-- archive not gzip or zip.\n";
+                return;
+            }
             print "\n archive path: [" . $archive_path . "]\n";
         }
-        else exit("\n\n Connector terminated. Remote files are not ready.\n\n");
+        else
+        {
+            echo "\n\nConnector terminated. Remote files are not ready.\n";
+            return;
+        }
 
         if(file_exists($temp_dir . $check_file_or_folder_name)) return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
         elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
-        else exit("\n\n Can't extract archive file. Program will terminate.");
+        else
+        {
+            echo "\n\nCan't extract archive file. Program will terminate.\n";
+            return;
+        }
     }
 
     public static function assign_eol_subjects($xml_string)

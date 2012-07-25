@@ -4,17 +4,17 @@ require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
 
-if(!($on = $_GET["on"])) exit("Wrong entry.");
-
-if      ($on == "lifedesk")     $stats = get_lifedesk_stat();
-elseif  ($on == "dataobjects")  $stats = dataobject_stat_more();
-
-$arr = $stats;
-if      ($arr[1]=="data_objects_more_stat") published_data_objects($arr[0]); //group 4
-elseif  ($arr[1]=="lifedesk_stat")          lifedesk_stat($arr[0]); //group 5
-
-
-//print"<hr>";print"<pre>";print_r($stats);print"</pre>";exit;
+if($on = $_GET["on"])
+{
+    if($on == "lifedesk") $stats = get_lifedesk_stat();
+    elseif($on == "dataobjects") $stats = dataobject_stat_more();
+    $arr = $stats;
+    if($arr[1] == "data_objects_more_stat") published_data_objects($arr[0]);
+    elseif($arr[1] == "lifedesk_stat") lifedesk_stat($arr[0]);
+else
+{
+    echo "Wrong entry.";
+}
 
 function lifedesk_stat($stats)
 {       //print"<pre>";print_r($stats);print"</pre>";
@@ -388,7 +388,6 @@ function get_values_fromCSV()
         3 => array( "id" => Vetted::find("trusted")   , "label" => "Trusted")       
         );                    
         
-        //exit("222");                        
         
         //initialize
         for ($i = 1; $i <= count($data_type); $i++) 
@@ -432,9 +431,7 @@ function get_values_fromCSV()
                 $param[] = count($do[$str1][$str2]);
             }
         }
-        //print sizeof($param); exit;
         
-        //exit("111");
                 
         //start Flickr count        
         $query = "Select Max(harvest_events.id) From harvest_events Where harvest_events.resource_id = '15' Group By harvest_events.resource_id ";
@@ -492,15 +489,7 @@ function published_data_objects($arr)
     print"Published Data Objects: <br/>";
     $flickr_count = $arr[24];
     $user_do_count = $arr[25];
-	/* debug
-	print "<hr>
-    $flickr_count <br>
-    $user_do_count <br>		
-	<hr>";
-	print_r($arr);
-	*/
-	//exit;
-	
+
     array_pop($arr);    
     array_pop($arr);        
     

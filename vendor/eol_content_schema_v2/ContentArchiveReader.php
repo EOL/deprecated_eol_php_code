@@ -241,9 +241,12 @@ class ContentArchiveReader
         {
             $enclosure = preg_quote($table_definition->fields_enclosed_by, "/");
             $terminate = preg_quote($table_definition->fields_terminated_by, "/");
-            $line = preg_replace("/((^|$terminate)$enclosure"."[^$enclosure]*)$terminate([^$enclosure]*$enclosure($terminate|$))/", "\\1|+|+|\\3", $line);
-            $line = preg_replace("/(^|$terminate)$enclosure/", $table_definition->fields_terminated_by, $line);
-            $line = preg_replace("/$enclosure($terminate|$)/", $table_definition->fields_terminated_by, $line);
+            $pattern = "/((^|$terminate)$enclosure"."[^$enclosure]*)$terminate([^$enclosure]*$enclosure($terminate|$))/";
+            while(preg_match($pattern, $line)) $line = preg_replace($pattern, "\\1|+|+|\\3", $line);
+            $pattern = "/(^|$terminate)$enclosure/";
+            while(preg_match($pattern, $line)) $line = preg_replace($pattern, $table_definition->fields_terminated_by, $line);
+            $pattern = "/$enclosure($terminate|$)/";
+            while(preg_match($pattern, $line)) $line = preg_replace($pattern, $table_definition->fields_terminated_by, $line);
         }
         
         $fields = explode($table_definition->fields_terminated_by, $line);

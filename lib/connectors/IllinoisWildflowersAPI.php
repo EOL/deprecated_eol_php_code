@@ -75,7 +75,7 @@ class IllinoisWildflowersAPI
             {
                 /*/purs_spdwell.htm" name="purs_spdwell">Veronica peregrina (Purslane Speedwell)*/
                 if(preg_match("/>(.*?)\(/ims", $match, $string_match)) $taxon_name = strip_tags(self::clean_str($string_match[1]));
-                else continue; //exit("\n\n Can't get taxon name. Program will terminate. \n");
+                else continue;
                 $taxon_name = utf8_encode($taxon_name);
                 print "\n[$taxon_name]\n";
                 if(preg_match("/\/(.*?)\"/ims", $match, $string_match)) $html = self::clean_str($string_match[1]);
