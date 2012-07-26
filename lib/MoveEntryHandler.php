@@ -49,7 +49,7 @@ class MoveEntryHandler
         
         // TODO Need to look through all the HEs in the TC we're moving *to* and cycle through them to make sure none of
         // them are blocking the move:
-        foreach ($tc_to->hierarchy_entries as $tc_he) $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE (hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $tc_he->id . ") AND equivalent=0)");
+        foreach ($tc_to->hierarchy_entries as $tc_he) $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $tc_he->id . " AND equivalent=0");
 
         /* HierarchyEntry::move_to_concept_static(he_id, tc_id, force); */
         HierarchyEntry::move_to_concept_static($args['hierarchy_entry_id'], $args['taxon_concept_id_to'], $force_move_if_disallowed, $args['reindex']);
