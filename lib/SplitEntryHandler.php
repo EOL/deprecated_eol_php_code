@@ -40,6 +40,8 @@ class SplitEntryHandler
           require_library("SolrUpdateConceptHandler");
           SolrUpdateConceptHandler::update_concept($he->taxon_concept_id);
           TaxonConcept::unlock_classifications_by_id($bad_he->taxon_concept_id, $args['notify']);
+          $tc_id = HierarchyEntry::find($args['hierarchy_entry_id'])->taxon_concept_id;
+          TaxonConcept::unlock_classifications_by_id($tc_id, $args['notify']); // No need to unlock, but notify!
         }
 
         echo "++ Done.\n";
