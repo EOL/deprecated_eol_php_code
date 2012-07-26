@@ -24,12 +24,9 @@ class TaxonConcept extends ActiveRecord
 
       {
 
-        require_once 'lib/Resque.php';
-        if (defined('RESQUE_HOST')) {
-          Resque::setBackend(RESQUE_HOST);
-        }
-        Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'unlock_notify', 'user_id' => $notify, 
-                        'taxon_concept_id' => $id, 'error' => $error));
+        // Assuming Resque is loaded, if we get here.
+        \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'unlock_notify', 'user_id' => $notify, 
+                         'taxon_concept_id' => $id, 'error' => $error));
 
         if (false) { // OLD.  ...The AR models don't work because they are in the logging DB.  :|
 
