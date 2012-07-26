@@ -37,7 +37,7 @@ class CodeBridge
       // Unlock everything, send errors to watchers:
       if ($this->args['notify']) {
         if ($this->args['bad_match_hierarchy_entry_id']) {
-          $tc_id = php_active_record\HierarchyEntry.find($this->args['bad_match_hierarchy_entry_id'])->taxon_concept_id;
+          $tc_id = php_active_record\HierarchyEntry::find($this->args['bad_match_hierarchy_entry_id'])->taxon_concept_id;
           php_active_record\TaxonConcept::unlock_classifications_by_id($tc_id, $this->args['notify'], $msg);
         }
         if ($this->args['to_taxon_concept_id']) {
