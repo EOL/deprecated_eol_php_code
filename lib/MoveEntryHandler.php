@@ -47,14 +47,14 @@ class MoveEntryHandler
         $update_caches = false;
         $user_id = 13;  # 13 is Patrick's user ID
         
+        // TODO Need to look through all the HEs in the TC we're moving *to* and cycle through them to make sure none of
+        // them are blocking the move:
+        foreach ($tc_to->hierarchy_entries as $tc_he) $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE (hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $tc_he->id . ") AND equivalent=0)");
+
         /* HierarchyEntry::move_to_concept_static(he_id, tc_id, force); */
         HierarchyEntry::move_to_concept_static($args['hierarchy_entry_id'], $args['taxon_concept_id_to'], $force_move_if_disallowed, $args['reindex']);
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" . $args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
         echo "\nMoved " . $args['hierarchy_entry_id'] . " to " . $args['taxon_concept_id_to'] . "\n\n";
-
-        // TODO Need to look through all the HEs in the TC we're moving *to* and cycle through them to make sure none of
-        // them are blocking the move:
-        foreach ($tc_to->hierarchy_entries as $tc_he) $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE (hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $tc_he->id . ") AND equivalent=0)");
 
         if($args['reindex_solr'] == 'reindex_solr') // NOTE - this can ONLY be specified by the resque task, ATM.
         {

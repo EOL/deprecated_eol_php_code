@@ -13,7 +13,8 @@ try {
                                      'taxon_concept_id_to'          => @$argv[3],
                                      'bad_match_hierarchy_entry_id' => @$argv[4],
                                      'confirmed'                    => @$argv[5],
-                                     'reindex'                      => @trim($argv[6])));
+                                     'reindex'                      => @trim($argv[6]),
+                                     'reindex_solr'                 => false));
 } catch (\Exception $e) {
   echo "\n\n\t", $e->getMessage(), "\n\n";
 }
