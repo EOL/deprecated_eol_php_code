@@ -40,6 +40,7 @@ class CompareHierarchies
             $GLOBALS['hierarchy_ids_with_good_synonymies'][622] = 1; // IUCN
             $GLOBALS['hierarchy_ids_with_good_synonymies'][636] = 1; // Tropicos
             $GLOBALS['hierarchy_ids_with_good_synonymies'][143] = 1; // Fishbase
+            $GLOBALS['hierarchy_ids_with_good_synonymies'][860] = 1; // Avibase
         }
     }
     
@@ -65,8 +66,10 @@ class CompareHierarchies
         $result = $mysqli->query("SELECT h.id, count(*) as count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count(*) DESC");
         while($result && $row=$result->fetch_assoc())
         {
+            if($row['id'] == 129 || $row['id'] == 800) continue;
             $hierarchy_lookup_ids2[$row['id']] = $row['count'];
         }
+        $hierarchy_lookup_ids2[800] = 1;
         
         // if the function is passed a hierarchy_id then make the first loop just that hierarchy
         // otherwise make the first loop the same as the inner loop - compare everything with everything else

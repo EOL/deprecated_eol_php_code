@@ -349,7 +349,7 @@ class ArchiveDataIngester
                                           'synonym_relation_id'   => $common_name_relation->id,
                                           'language_id'           => @$language->id ?: 0,
                                           'hierarchy_entry_id'    => $he_id,
-                                          'preferred'             => 0,
+                                          'preferred'             => ($isPreferredName != ''),
                                           'hierarchy_id'          => $this->harvest_event->resource->hierarchy_id,
                                           'vetted_id'             => 0,
                                           'published'             => 0,
