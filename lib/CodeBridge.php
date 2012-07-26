@@ -35,18 +35,18 @@ class CodeBridge
       $msg = $e->getMessage();
       echo "** Command Failed: ", $msg, "\n";
       // Unlock everything, send errors to watchers:
-      if $this->args['notify'] {
-        if $this->args['bad_match_hierarchy_entry_id'] {
+      if ($this->args['notify']) {
+        if ($this->args['bad_match_hierarchy_entry_id']) {
           $tc_id = php_active_record\HierarchyEntry.find($this->args['bad_match_hierarchy_entry_id'])->taxon_concept_id;
           php_active_record\TaxonConcept::unlock_classifications_by_id($tc_id, $this->args['notify'], $msg);
         }
-        if $this->args['to_taxon_concept_id'] {
+        if ($this->args['to_taxon_concept_id']) {
           php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['to_taxon_concept_id'], $this->args['notify'], $msg);
         }
-        if $this->args['id1'] {
+        if ($this->args['id1']) {
           php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['id1'], $this->args['notify'], $msg);
         }
-        if $this->args['id2'] {
+        if ($this->args['id2']) {
           php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['id2'], $this->args['notify'], $msg);
         }
       }
