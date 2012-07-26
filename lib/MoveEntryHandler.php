@@ -52,9 +52,9 @@ class MoveEntryHandler
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" . $args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
         echo "\nMoved " . $args['hierarchy_entry_id'] . " to " . $args['taxon_concept_id_to'] . "\n\n";
 
-        // Need to look through all the HEs in the TC we're moving *to* and cycle through them to make sure none of
+        // TODO Need to look through all the HEs in the TC we're moving *to* and cycle through them to make sure none of
         // them are blocking the move:
-        // $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE (hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $args['bad_match_hierarchy_entry_id'] . ") OR (hierarchy_entry_id_2=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_1=" . $args['bad_match_hierarchy_entry_id'] . ") AND equivalent=0)");
+        foreach ($tc_to->hierarchy_entries as $tc_he) $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE (hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $tc_he->id . ") AND equivalent=0)");
 
         if($args['reindex_solr'] == 'reindex_solr') // NOTE - this can ONLY be specified by the resque task, ATM.
         {

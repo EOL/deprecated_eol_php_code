@@ -32,7 +32,24 @@ class CodeBridge
         throw new Exception("No command available for ", $this->args['cmd']);
       }
     } catch (Exception $e) {
-      echo "** Command Failed: ", $e->getMessage(), "\n";
+      $msg = $e->getMessage();
+      echo "** Command Failed: ", $msg, "\n";
+      // Unlock everything, send errors to watchers:
+      if $this->args['notify'] {
+        if $this->args['bad_match_hierarchy_entry_id'] {
+          $tc_id = php_active_record\HierarchyEntry.find($this->args['bad_match_hierarchy_entry_id'])->taxon_concept_id;
+          php_active_record\TaxonConcept::unlock_classifications_by_id($tc_id, $this->args['notify'], $msg);
+        }
+        if $this->args['to_taxon_concept_id'] {
+          php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['to_taxon_concept_id'], $this->args['notify'], $msg);
+        }
+        if $this->args['id1'] {
+          php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['id1'], $this->args['notify'], $msg);
+        }
+        if $this->args['id2'] {
+          php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['id2'], $this->args['notify'], $msg);
+        }
+      }
       foreach($this->args as $key => $value) 
       { 
         echo "  '$key' = '$value'\n";

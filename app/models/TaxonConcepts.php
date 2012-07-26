@@ -15,7 +15,7 @@ class TaxonConcept extends ActiveRecord
         self::supercede_by_ids($taxon_concept_id, $this->id);
     }
 
-    public static function unlock_classifications_by_id($id, $notify = null)
+    public static function unlock_classifications_by_id($id, $notify = null, $error = null)
     {
 
       $mysqli =& $GLOBALS['mysqli_connection'];
@@ -29,7 +29,7 @@ class TaxonConcept extends ActiveRecord
           Resque::setBackend(RESQUE_HOST);
         }
         Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'unlock_notify', 'user_id' => $notify, 
-                        'taxon_concept_id' => $id));
+                        'taxon_concept_id' => $id, 'error' => $error));
 
         if (false) { // OLD.  ...The AR models don't work because they are in the logging DB.  :|
 
@@ -44,6 +44,7 @@ class TaxonConcept extends ActiveRecord
           $mysqli->insert("INSERT INTO pending_notifications " .
             "(user_id, notification_frequency_id, target_id, target_type, reason) " .
             "VALUES ($notify, $fqz, $ca_log->id, 'CuratorActivityLog', 'auto_email_after_curation')");
+
         }
 
       }
