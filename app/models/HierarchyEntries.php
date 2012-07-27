@@ -41,7 +41,7 @@ class HierarchyEntry extends ActiveRecord
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
-                Tasks::update_taxon_concept_names($taxon_concept_id);
+                Tasks::update_taxon_concept_names(array($taxon_concept_id));
                 if($update_caches)
                 {
                     require_library('FlattenHierarchies');

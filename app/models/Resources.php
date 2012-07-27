@@ -512,16 +512,17 @@ class Resource extends ActiveRecord
     {
         if($this->harvest_event)
         {
-            $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=".$this->harvest_event->id);
-            $this->mysqli->begin_transaction();
-            while($result && $row=$result->fetch_assoc())
+            $taxon_concept_ids = array();
+            $query = "SELECT DISTINCT he.taxon_concept_id FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id=". $this->harvest_event->id;
+            foreach($this->mysqli->iterate_file($query) as $row_number => $row)
             {
-                static $i=0;
-                $i++;
-                if($i%100 == 0) $this->mysqli->commit();
-                Tasks::update_taxon_concept_names($row['taxon_concept_id']);
+                $id = $row[0];
+                $taxon_concept_ids[$id] = $id;
             }
-            $this->mysqli->end_transaction();
+            if($taxon_concept_ids)
+            {
+                Tasks::update_taxon_concept_names($taxon_concept_ids);
+            }
         }
     }
     
@@ -834,7 +835,7 @@ class Resource extends ActiveRecord
             $result = $this->mysqli->query("SELECT taxon_concept_id FROM hierarchy_entries WHERE hierarchy_id=$archive_hierarchy_id");
             while($result && $row=$result->fetch_assoc())
             {
-                Tasks::update_taxon_concept_names($row['taxon_concept_id']);
+                Tasks::update_taxon_concept_names(array($row['taxon_concept_id']));
             }
             
             // Rebuild the Solr index for this hierarchy

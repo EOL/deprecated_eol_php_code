@@ -20,7 +20,9 @@ class Name extends ActiveRecord
                                 'ß', 'str', 'biovar', 'type', 'strain', 'serotype', 'hybrid',
                                 'cultivar', 'x', '×', 'pop', 'group', 'environmental', 'sample',
                                 'endosymbiont', 'species', 'complex',
-                                'unassigned', 'n', 'gen', 'auct', 'non', 'aff');
+                                'unassigned', 'n', 'gen', 'auct', 'non', 'aff',
+                                'mixed', 'library', 'genomic', 'unidentified', 'parasite', 'synthetic',
+                                'phytoplasma');
         if(preg_match("/(^|[^\w])(". implode("|", $red_flag_words) .")([^\w]|$)/i", $string)) return true;
         if(preg_match("/ [abcd] /i", $string)) return true;
         if(preg_match("/(_|'|\")/i", $string)) return true;

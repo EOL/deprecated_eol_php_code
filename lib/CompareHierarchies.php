@@ -83,10 +83,12 @@ class CompareHierarchies
         foreach($hierarchy_lookup_ids1 as $id1 => $count1)
         {
             $hierarchy1 = Hierarchy::find($id1);
+            if(@!$hierarchy1->id) continue;
             
             foreach($hierarchy_lookup_ids2 as $id2 => $count2)
             {
                 $hierarchy2 = Hierarchy::find($id2);
+                if(@!$hierarchy2->id) continue;
                 
                 // already compared - skip
                 if(isset($hierarchies_compared[$hierarchy1->id][$hierarchy2->id])) continue;
