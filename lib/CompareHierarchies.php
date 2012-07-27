@@ -351,8 +351,14 @@ class CompareHierarchies
         
         $GLOBALS['ranks_matched_at_kingdom'] = array(Rank::find_or_create_by_translated_label('kingdom')->id, Rank::find_or_create_by_translated_label('phylum')->id, Rank::find_or_create_by_translated_label('class')->id, Rank::find_or_create_by_translated_label('order')->id);
         
-        $mysqli->delete("DROP TABLE IF EXISTS he_relations_tmp");
-        $mysqli->query("CREATE TABLE IF NOT EXISTS `he_relations_tmp` (
+        $temp_table_index = 1;
+        $relations_table_name = "he_relations_tmp_". $temp_table_index;
+        while($mysqli->table_exists($relations_table_name))
+        {
+            $temp_table_index += 1;
+            $relations_table_name = "he_relations_tmp_". $temp_table_index;
+        }
+        $mysqli->query("CREATE TABLE IF NOT EXISTS `$relations_table_name` (
           `id` int(10) unsigned NOT NULL auto_increment,
           `hierarchy_entry_id_1` int(10) unsigned NOT NULL,
           `hierarchy_entry_id_2` int(10) unsigned NOT NULL,
@@ -362,7 +368,7 @@ class CompareHierarchies
           UNIQUE (`hierarchy_entry_id_1`,`hierarchy_entry_id_2`),
           KEY `hierarchy_entry_id_2` (`hierarchy_entry_id_2`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-        $mysqli->delete("TRUNCATE TABLE he_relations_tmp");
+        $mysqli->delete("TRUNCATE TABLE $relations_table_name");
         
         // get a path to a tmp file which doesn't exist yet
         $sql_filepath = temp_filepath();
@@ -429,13 +435,14 @@ class CompareHierarchies
         }
         
         fclose($SQL_FILE);
-        $mysqli->load_data_infile($sql_filepath, "he_relations_tmp", 'IGNORE', '', 500000, 500000);
+        $mysqli->load_data_infile($sql_filepath, $relations_table_name, 'IGNORE', '', 500000, 500000);
         @unlink($sql_filepath);
         
-        self::insert_curator_assertions($hierarchy);
+        self::insert_curator_assertions($hierarchy, $relations_table_name);
         
-        $solr_indexer = new HierarchyEntryRelationshipIndexer();
+        $solr_indexer = new HierarchyEntryRelationshipIndexer($relations_table_name);
         $solr_indexer->index($hierarchy, $compare_to_hierarchy);
+        $mysqli->delete("DROP TABLE $relations_table_name");
     }
     
     public static function test_compare_single_entry($hierarchy_entry_id, $compare_to_hierarchy = null)
@@ -632,25 +639,25 @@ class CompareHierarchies
         return $score;
     }
     
-    public static function insert_curator_assertions($hierarchy)
+    public static function insert_curator_assertions($hierarchy, $table_name)
     {
         // entry 1 is in target hierarchy
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT NULL, he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, $table_name);
         unlink($outfile);
         
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT NULL, he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he1.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, $table_name);
         unlink($outfile);
         
         
         // entry 2 is in target hierarchy
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT NULL, he1.id id1, he2.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, $table_name);
         unlink($outfile);
         
         $outfile = $GLOBALS['mysqli_connection']->select_into_outfile("SELECT NULL, he2.id id1, he1.id id2, 'name', 1, '' FROM curated_hierarchy_entry_relationships cher JOIN hierarchy_entries he1 ON (cher.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (cher.hierarchy_entry_id_2=he2.id) WHERE cher.equivalent=1 AND he2.hierarchy_id=$hierarchy->id");
-        $GLOBALS['mysqli_connection']->load_data_infile($outfile, "he_relations_tmp");
+        $GLOBALS['mysqli_connection']->load_data_infile($outfile, $table_name);
         unlink($outfile);
     }
 }

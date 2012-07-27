@@ -445,6 +445,16 @@ class MysqliConnection
                                     $swap TO $table_two");
     }
     
+    function table_exists($table_name)
+    {
+        $result = $this->query("SHOW TABLES LIKE '". $this->escape($table_name) ."'");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return true;
+        }
+        return false;
+    }
+    
     function debug($string, $master)
     {
         static $number_of_queries;
