@@ -1,8 +1,18 @@
 <?php
 namespace php_active_record;
-/* connector: 81 */
-/* Connector scrapes data from BOLDS website - for higher level taxa 
-It is assumed that this file has already been created: DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt"
+/* connector: 81 
+--- BOLDS resource for higher-level taxa [81]. This is now scheduled as a cron task.
+Connector scrapes data from BOLDS website for higher level taxa. 
+The partner doesn't have any service for their higher-level taxa.
+Before running the connector, it is assumed that this file has already been created: DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt"
+
+This is the rake task that generates the 'hl_master_list.txt' file: /rake_tasks/generate_BOLDS_higher_level_taxa.php
+This rake task is now scheduled to run as a cron task.
+
+* Due to the long processing time, there might be some network problems along the way and some encoding problems 
+might creep in. You just need to open the 212.xml file and delete the <dataObject> with the wrong encoding. When I last ran this in July 2012 
+I had to delete one <dataObject> for taxon Anopheles longirostris B NWB-2009 - http://v2.boldsystems.org/views/taxbrowser.php?taxid=303232
+but when I ran the connector again I didn't get the encoding problem anymore. Anyway, just a heads-up.
 */
 
 class BoldsAPI

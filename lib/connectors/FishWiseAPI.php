@@ -1,6 +1,39 @@
 <?php
 namespace php_active_record;
-/* connector: [190]  */
+/* connector: [190]  
+FishWise Professional
+--- FishWisePro resource [190]
+Partner gave us temporary remote access to their MS SQL server. We connected and downloaded tables to an Access DB.
+In that AccessDB we created queries which we then exported the results to spreadsheets: species.xls, images.xls, comnames.xls, synonyms.xls
+The connector then reads these spreadsheets and creates the EOL XML.
+Related Data tickets: DATA-584, DATA-638
+
+This is the template AccessDB that you can use to import the tables from the partners SQL server:
+http://dl.dropbox.com/u/7597512/FishwisePro/FishwisePro.zip
+
+Steps in setting up an ODBC link to a remote SQL server:
+1. Install the SQL Server Native Client 10 ODBC driver. 
+Look for "Microsoft SQL Server 2008 Native Client" at http://www.microsoft.com/downloads/en/details.aspx?FamilyID=c6c3e9ef-ba29-4a43-8d69-a2bed18fe73c
+2. Then create the System DSN.
+Go to Start->Control Panel->Administrative Tools-> Data Sources (ODBC)
+select System DSN, click "Add" 
+select SQL Server Native Client 10
+Finish - Next >
+Server = fishwisepro.com
+SQL Login: eol - (Case sensitive)
+Password: EOL1user - (Case sensitive)
+Default database: fishwisepro (Case sensitive)
+Next - Next - Finish - Click Test Data Source
+
+Steps before running the connector:
+1. Now open the template AccessDB. And connect to the external data you created above.
+2. Import the tables.
+3. Then run the four queries (species, images, comnames, synonyms) and export it to its respective spreadsheets.
+4. You can then run the connector (190.php).
+
+* The last time I tried doing this, the login credentials aren't working anymore.
+You can just ask for the credentials from Dennis Polack (dennis@fishwise.cc)
+*/
 
 define("FWP_SPECIES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/species.xls");
 define("FWP_IMAGES_DOC_PATH", DOC_ROOT . "/update_resources/connectors/files/FishWisePro/images.xls");

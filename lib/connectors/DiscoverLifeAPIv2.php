@@ -1,10 +1,13 @@
 <?php
 namespace php_active_record;
-/* connector: 223 */
-/* This class will move the DiscoverLife (DL) maps to the Maps tab. */
-/*
-Script will check the DB if DL taxon name has an EOL page. If yes, then EOL will show the DL map in the Maps tab.
-If no, then this name will be reported back to DL.
+/* connector: 223 
+--- DiscoverLife map resource [223]. This is now scheduled as a cron task.
+Partner provides a big text file of all their taxa with maps in DL.
+But the partner wishes that EOL only gets those taxa where we already have existing EOL pages for.
+They admit that their names are not yet totally cleaned and they don't want EOL to be creating new pages for their names.
+The connector first checks our database if the DL taxon name has an EOL page. If yes, then connector will process it as a <dataObject> of subtype map.
+This will end up in EOL's Maps tab.
+If no, then this name will be added to a text file that will be reported back to DL for further investigation by the partner.
 */
 
 class DiscoverLifeAPIv2

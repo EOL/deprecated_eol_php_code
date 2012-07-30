@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: [100]  */
+/* connector: [100]  
+Partner provided a service to list all their taxa with a link to the individual EOL XML for each taxon.
+Connector loops through the list XML and combines all individual taxon XML to generate the final EOL XML.
+*/
 define("CONABIO_SPECIES_LIST", "http://conabioweb.conabio.gob.mx/xmleol/EolList.xml");
 class ConabioAPI
 {

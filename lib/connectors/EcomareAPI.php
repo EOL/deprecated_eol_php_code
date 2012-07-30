@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
-/* connector:  */
+/* connector: 414
+Partner provided a zip file. This consists of individual customized taxon XML files.
+The connector unzips the file, and processes each taxon XML to generate the final EOL XML.
+The partner hasn't yet hosted the zip file. There might still be changes on how the raw files will be served.
+This resource is still on preview mode.
+*/
 class EcomareAPI
 {
     const ECOMARE_DOMAIN = "http://www.ecomare.nl/";

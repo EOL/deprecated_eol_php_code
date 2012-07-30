@@ -1,9 +1,10 @@
 <?php
 namespace php_active_record;
-/* connector: 252 */
-/* This will process a partner-supplied text file. */
-/*
-Script will check the DB if DL taxon name has an EOL page. If yes, then EOL will get the ID keys info for it.
+/* connector: 252 
+--- DiscoverLife ID keys resource [252]
+Leo Shapiro with his exchanges with the partner, provided a text file (or spreadsheet) to BIG.
+The text file is a list of taxa with links (URLs) to the Identification page in DL website.
+The connector will check the EOL DB if the DL taxon name has an EOL page. If yes, then EOL will get the ID keys info for it.
 If no, then this name will be reported back to DL.
 */
 

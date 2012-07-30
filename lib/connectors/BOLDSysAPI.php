@@ -1,7 +1,19 @@
 <?php
 namespace php_active_record;
-/* connector: 212 */
-/* Connector uses BOLDS API service for most of the info but still scrapes the nucleotides sequence - for species level taxa */
+/* connector: 212 
+--- BOLDS resource for species-level taxa [212]. This is now scheduled as a cron task.
+Connector uses BOLDS service for most of the info but still scrapes the nucleotides sequence for species level taxa.
+The service is per phylum level e.g.: http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
+This service will then list all the species under this phylum. The list of phylum names at the moment is hard-coded.
+The connector runs all the phylum taxa, assembles each of the taxon info and generates the final EOL XML.
+
+** Latest News from BOLDS: We just received from Sujeevan, a way to download the BOLDS data dump.
+https://jira.eol.org/browse/COLLAB-560?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel&focusedCommentId=37126#comment-37126
+I haven't opened it yet but the dump consists of one giant XML file, 3.4 GB in size.
+This mother resource from BOLDS maybe the way to go and all past connectors will become obsolete. 
+I will leave this to the next BIG developer who will handle this resource.
+
+*/
 
 define("PHYLUM_SERVICE_URL", "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
 define("SPECIES_URL", "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=");
