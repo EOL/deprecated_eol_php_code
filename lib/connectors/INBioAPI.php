@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
-/* connector: 276 */
+/* connector: 276 
+We received a Darwincore archive file from the partner. It has a pliniancore extension.
+Partner hasn't yet hosted the DWC-A file.
+Connector downloads the archive file, extracts, reads the archive file, assembles the data and generates the EOL XML.
+*/
 class INBioAPI
 {
     private static $MAPPINGS;

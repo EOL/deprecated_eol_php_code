@@ -1,6 +1,12 @@
 <?php
 namespace php_active_record;
-/* connector: [419] */
+/* connector: [419] 
+Connector scrapes the site: http://www.na.fs.fed.us/spfo/pubs/silvics_manual/table_of_contents.htm
+Assembles the information and generates the EOL XML.
+Data comes from 2 main pages:
+Conifers: http://www.na.fs.fed.us/spfo/pubs/silvics_manual/Volume_1/vol1_Table_of_contents.htm
+Hardwoods: http://www.na.fs.fed.us/spfo/pubs/silvics_manual/volume_2/vol2_Table_of_contents.htm
+*/
 class SilvicsNorthAmericaAPI
 {
     public function __construct($test_run = false, $debug_info = true)

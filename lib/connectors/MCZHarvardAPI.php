@@ -1,9 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector 201 */
+/* connector 201 
+Partner provided/hosted a csv file. Connector downloads, reads, assembles the information and generates the EOL XML.
+*/
 
-define("SPECIMEN_DETAIL_URL", "http://mczbase.mcz.harvard.edu/SpecimenDetail.cfm?GUID=");
-define("MCZ_TAXON_DETAIL_URL", "http://mczbase.mcz.harvard.edu/TaxonomyResults.cfm?scientific_name=");
 define("TEMP_LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //just a temporary file
 define("REMOTE_CSV", "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv");
 // define("REMOTE_CSV", "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
@@ -151,7 +151,6 @@ class MCZHarvardAPI
                     collected by [COLLECTORS], identified by [IDENTIFIEDBY], GUID: [GUID] 
                     */
                                                 
-                    //$dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME']; --working but replaced by Brendan
                     $dc_source = $r['SPECIMENDETAILURL'];
                     $path_parts = pathinfo($mediaURL);
                     $dc_identifier = $path_parts['basename']; //$r['MEDIA_ID'];                            
@@ -162,8 +161,6 @@ class MCZHarvardAPI
 
         if(@$arr_texts[$sciname] || @$arr_photos[$sciname])
         {
-            //$dc_source = MCZ_TAXON_DETAIL_URL . $taxon['SCIENTIFIC_NAME'];
-            
             if(self::has_invalid_names($taxon, $sciname)) return array();
             $arr_scraped[]=array("identifier" => "MCZ_" . str_replace(" ", "_", $sciname),
                                  "kingdom" => $taxon['KINGDOM'],

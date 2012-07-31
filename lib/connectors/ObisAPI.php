@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: [171]  */
+/* connector: [171]  
+Partner provided two csv files. One for the taxa names and the other for their dataObjects.
+Connector reads the csv files, assembles the information and generates the EOL XML.
+*/
 define("GOOGLE_CHART_DOMAIN", "http://chart.apis.google.com/");
 define("OBIS_SPECIES_PAGE", "http://www.iobis.org/mapper/?taxon_id=");
 

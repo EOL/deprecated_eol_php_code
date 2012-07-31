@@ -3,6 +3,8 @@ namespace php_active_record;
 /* connector: [417]
 http://www.illinoiswildflowers.info/
 http://www.illinoiswildflowers.info/plant_insects/database.html
+Connector scrapes the site: http://www.illinoiswildflowers.info/plant_insects/database.html
+and assembles the information and generates the EOL XML.
 */
 class PlantFeedingInsectsAPI
 {

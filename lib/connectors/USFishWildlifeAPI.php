@@ -2,12 +2,15 @@
 namespace php_active_record;
 /* connector: [266]  */
 /*
+Taxa list comes from 3 spreadsheets and content is scraped.
+Note: Due to scraping, some characters are needed to be manually removed from the generated resource XML.
+
 Steps before accepting a name from US Fish and Wildlife Services
 - search the name through the API e.g. api/search/Gadus morhua
 - if name == canonical_form(entry->title), proceed
 - if there is multiple results, use the name with the most no. of data objects
 
-Leo provides 3 spreadsheets
+Leo Shapiro provides 3 spreadsheets
 - a master taxa list
 - synonymy (guide to what taxon in EOL to use)
 - new taxa to be added to EOL

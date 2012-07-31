@@ -1,6 +1,42 @@
 <?php
 namespace php_active_record;
-/* connector: 323 */
+/* connector: 323 
+There is a YouTube user called 'EncyclopediaOfLife'.
+This user (EncyclopediaOfLife) will subscribe to any user who will want to share their videos to EOL.
+Then using the API we can get all users willing to share their videos and their videos' details.
+We can then ingest these videos into EOL.
+
+So what does a user need to do to have his YouTube video(s) show up in EOL.
+Edit their video information:
+Step 1: Set the license of the video(s) to "Creative Commons Attribution license (reuse allowed)".
+Step 2: In the description section, add the taxon name after the description.
+Step 3: The YouTube user should then let SPG know that he is now ready to share. 
+SPG, who owns the user 'EncyclopediaOfLife' would then subscribe to that user.
+
+This YouTube connector who will then process user 'EncyclopediaOfLife'.
+- get its subscriptions (users who are wiling to share videos to EOL)
+- filter the cc videos for each of these users
+- ingest it into EOL
+- end
+
+For step 2 above:
+How to add a taxon name: for example species Anarhichas lupus
+Can be this long:
+[taxonomy:binomial=Anarhichas lupus]
+[taxonomy:kingdom=Animalia]
+[taxonomy:phylum=Chordata]
+[taxonomy:class=Actinopterygii]
+[taxonomy:order=Perciformes]
+[taxonomy:family=Anarhichadidae]
+[taxonomy:common=Atlantic wolffish]
+
+Can be this simple:
+[taxonomy:binomial=Anarhichas lupus]
+[taxonomy:family=Anarhichadidae]
+
+Or just simply:
+[taxonomy:binomial=Anarhichas lupus]
+*/
 
 define("DEVELOPER_KEY", "AI39si4JyuxT-aemiIm9JxeiFbr4F3hphhrhR1n3qPkvbCrrLRohUbBSA7ngDqku8mUGEAhYZpKDTfq2tu_mDPImDAggk8At5Q");
 define("YOUTUBE_EOL_USER", "EncyclopediaOfLife");

@@ -1,5 +1,7 @@
 <?php
-exit;
+namespace php_active_record;
+
+//exit;
 /* connector for INOTAXA
 estimated execution time: 1.3 hours
 
@@ -30,7 +32,7 @@ require_library('connectors/InotaxaAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = InotaxaAPI::get_all_taxa();
-$xml = SchemaDocument::get_taxon_xml($taxa);
+$xml = \SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "63.xml";
 

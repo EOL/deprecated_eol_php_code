@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
-/* connector: 297 */
+/* connector: 297 
+We received a Darwincore archive file from the partner. It has a pliniancore extension.
+Partner hasn't yet hosted the DWC-A file.
+Connector reads the archive file, assembles the data and generates the EOL XML.
+*/
 class IabinAPI
 {
     private static $MAPPINGS;
@@ -13,6 +17,11 @@ class IabinAPI
         $used_collection_ids = array();
         $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_iabin");
         $tables = $harvester->tables;
+        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields)
+        {
+            echo "\n\nInvalid archive file. Program will terminate.\n";
+            return;
+        }
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_table('http://rs.gbif.org/terms/1.0/image'));
         $references = self::get_references($harvester->process_table('http://rs.gbif.org/terms/1.0/reference'));

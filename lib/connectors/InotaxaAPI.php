@@ -1,5 +1,11 @@
 <?php
 namespace php_active_record;
+/* connector: 63
+Partner provided a non EOL-compliant XML file for all their species.
+Connector parses this XML and generates the EOL-compliant XML.
+You can download a copy of the XML here: 
+http://dl.dropbox.com/u/7597512/INOTAXA/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml
+*/
 
 define("SUBJECT_LIST", "Associations,Behaviour,Biology,Conservation,ConservationStatus,Cyclicity,Cytology,Description,DiagnosticDescription,Diseases,Dispersal,Distribution,Ecology,Evolution,GeneralDescription,Genetics,Growth,Habitat,Key,Legislation,LifeCycle,LifeExpectancy,Management,Migration,MolecularBiology,Morphology,Physiology,PopulationBiology,Procedures,Reproduction,RiskStatement,Size,TaxonBiology,Threats,Trends,TrophicStrategy,Uses");
 define("SOURCE_URL_PREFIX", "http://www.inotaxa.org/jsp/display.jsp?context=TaxonTreatment&taxmlitid=");

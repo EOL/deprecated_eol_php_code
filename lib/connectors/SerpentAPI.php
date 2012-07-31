@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector [170]*/
+/* connector [170]
+Connector screen scrapes the partner website, assembles the information and generates the EOL XML
+http://archive.serpentproject.com/view/species/
+*/
 
 define("SERPENT_PAGE_URL", "http://archive.serpentproject.com/view/species/");
 class SerpentAPI

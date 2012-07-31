@@ -1,4 +1,6 @@
 <?php
+namespace php_active_record;
+
 //exit; 
 /* connector for Photosynth
 estimated execution time: 29 secs.

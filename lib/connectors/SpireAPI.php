@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector 219 */
+/* connector 219 
+Connector accesses the OWL (XML) files from remote server for most of the data and uses a spreadsheet for taxonomy info.
+*/
 
 define("SPIRE_SERVICE", "http://spire.umbc.edu/ontologies/foodwebs/webs_publisher.php?published_study=");
 define("SPIRE_PATH_ANCESTRY", DOC_ROOT . "/update_resources/connectors/files/SPIRE/taxa_detail.xls");

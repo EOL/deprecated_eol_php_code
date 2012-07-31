@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connectors: [358] */
+/* connectors: [358] 
+Connector processes the original XML resource (http://eol.org/content_partners/44/resources/35) 
+and checks if the map image exists. If it does, it generates a map dataObject for the Maps tab.
+*/
 class STRImapsAPI
 {
     public function __construct()

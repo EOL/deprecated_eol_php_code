@@ -1,6 +1,16 @@
 <?php
 namespace php_active_record;
-/* connector: 214 */
+/* connector: 214 
+Connector makes use of the Vimeo API to generate the EOL XML.
+There is a vimeo group called: Encyclopedia of Life Videos 
+https://vimeo.com/groups/encyclopediaoflife
+
+First step is to get the user IDs of all users from the group called 'encyclopediaoflife'.
+Second step is to then access/get each user's list of videos using their ID.
+
+There is also an instruction here outlining the steps on how to setup your video so it can be shown in eol.org
+https://vimeo.com/groups/encyclopediaoflife/forum/topic:237888
+*/
 define("VIMEO_USER_SERVICE", "http://vimeo.com/api/v2/");
 define("VIMEO_PLAYER_URL", "http://vimeo.com/moogaloop.swf?clip_id=");
 

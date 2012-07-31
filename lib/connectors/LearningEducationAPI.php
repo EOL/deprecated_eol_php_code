@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: 257 */
+/* connector: 257 
+Partner provided an XML feed for their dataObjects and connector scrapes the site for the taxa names.
+*/
 
 define("PODCAST_FEED", "http://education.eol.org/podcast/newfeed");
 define("PODCAST_DETAILS_PAGE", "http://education.eol.org/podcast/");

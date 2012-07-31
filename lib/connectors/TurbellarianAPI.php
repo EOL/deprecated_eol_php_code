@@ -1,9 +1,12 @@
 <?php
 namespace php_active_record;
-/* connector 185 */
+/* connector 185 
+Connector scrapes the partner's site, assembles the information and generates the EOL XML.
+*/
 
 define("CP_DOMAIN", "http://turbellaria.umaine.edu");
-define("TAXON_URL", "http://turbellaria.umaine.edu/turb2.php?action=1&code=");
+// define("TAXON_URL", "http://turbellaria.umaine.edu/turb2.php?action=1&code=");
+define("TAXON_URL", "http://turbellaria.umaine.edu/turb3.php?action=1&code=");
 
 class TurbellarianAPI
 {

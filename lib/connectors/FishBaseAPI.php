@@ -1,6 +1,14 @@
 <?php
 namespace php_active_record;
-/* connector: [42]  */
+/* connector: [42] - This is now scheduled as a cron task.
+We created a script for FishBase and turned it over to them. This script is now installed in their system.
+The script reads their MS Acccess database and creates tab-delimited text files.
+They then zip these files and host it in their server.
+The connector in this page then reads this zip file, extracts, assembles the information and generate the EOL XML.
+FishBase contacts are: Stacy and Skit 
+"Christian Stacy Militante" <fin.csd.militante@gmail.com>
+"Josephine Skit Barile" <j.barile@fin.ph>
+*/
 class FishBaseAPI
 {
     public function __construct($test_run = false, $debug_info = true)
