@@ -124,6 +124,7 @@ class Taxon extends DarwinCoreExtensionBase
             'ordo',
             'suborder',
             'subordo',
+            'superfamily',
             'family',
             'familia',
             'subfamily',
