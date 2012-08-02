@@ -63,14 +63,17 @@ class IllinoisWildflowersAPI
             print("\n\n Content partner's server is down, $url\n");
             return;
         }
+        /* <a href="plantx/pf_foxglovex.htm">Agalinis purpurea (Purple False Foxglove)</a> */
         
         if($type == 'prairie') $key_term = 'plantx';
         else                   $key_term = 'plants';
         
         if(preg_match_all("/href=\"$key_term(.*?)<\/a>/ims", $html, $matches))
         {
+            $i = 0;
             foreach($matches[1] as $match)
             {
+                /*/purs_spdwell.htm" name="purs_spdwell">Veronica peregrina (Purslane Speedwell)*/
                 if(preg_match("/>(.*?)\(/ims", $match, $string_match)) $taxon_name = strip_tags(self::clean_str($string_match[1]));
                 else continue;
                 $taxon_name = utf8_encode($taxon_name);
@@ -85,6 +88,7 @@ class IllinoisWildflowersAPI
                 else                   $html = $type . "/plants/$html";
                 print "\nhtml: [$html]";
                 $GLOBALS['taxon'][$taxon_name]['html'] = $html;
+                // $i++; if($i >= 5) break; //debug
             }
         }
         self::get_title_description($type);
@@ -92,9 +96,11 @@ class IllinoisWildflowersAPI
 
     function get_title_description($type = null)
     {
-        if(!$GLOBALS['taxon']) return;
         foreach($GLOBALS['taxon'] as $taxon_name => $value)
         {
+            // if($taxon_name != "Agalinis purpurea") continue; //debug
+            // if (!in_array($taxon_name, array('Acer rubrum', 'Acer nigrum'))) continue; //debug
+
             if(@$value['Description'] != "" || 
                @$value['Cultivation'] != "" ||
                @$value['Range &amp; Habitat'] != "" ||
@@ -119,9 +125,10 @@ class IllinoisWildflowersAPI
             {
                 foreach($matchez[1] as $matchz)
                 {
-                    $desc = self::clean_str($matchz) . '<br>';
+                    $desc = self::clean_str($matchz);
+                    $desc = str_ireplace('"', "'", $desc) . '<br>'; // added '<br>' to get the last text block
                     self::get_images($desc, $type, $taxon_name);
-                    if(preg_match_all("/<font color=\"#33cc33\">(.*?)<br>/ims", $desc, $matches))
+                    if(preg_match_all("/<font color='#33cc33'>(.*?)<br>/ims", $desc, $matches))
                     {
                         $texts = $matches[1];
                         foreach($texts as $text)
@@ -154,11 +161,11 @@ class IllinoisWildflowersAPI
         $html = self::clean_str($html);
         $html = str_ireplace('"', "'", $html);
         self::get_images($html, $type, $taxon_name);
-        $html = str_ireplace("<span style=\"font-weight: bold; color: rgb(51, 204, 51);\">", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style=\"font-weight: bold; color: rgb(51, 204, 51); font-family: Times New Roman;\">", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style=\"font-weight: bold; color: rgb(51, 204, 0); font-family: Times New Roman;\">", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style=\"font-weight: bold; color: rgb(51, 204, 0);\">", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style=\"color: rgb(51, 204, 0); font-weight: bold;\">", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 51);'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 51); font-family: Times New Roman;'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 0); font-family: Times New Roman;'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 0);'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace("<span style='color: rgb(51, 204, 0); font-weight: bold;'>", 'zzz xxxyyy', $html);
         if(preg_match_all("/xxxyyy(.*?)zzz/ims", $html, $matches))
         {
             print "\n 2nd-try successful - $type - $taxon_name \n";
@@ -207,7 +214,7 @@ class IllinoisWildflowersAPI
         {
             foreach($matches[1] as $str)
             {
-                if(preg_match("/src=\"(.*?)\"/ims", $str, $match)) 
+                if(preg_match("/src='(.*?)'/ims", $str, $match)) 
                 {
                     $img = str_replace('..', '', $this->path . $type . $match[1]);
                     $GLOBALS['taxon'][$taxon_name]['images'][] = $img;

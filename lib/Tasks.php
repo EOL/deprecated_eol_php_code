@@ -109,7 +109,7 @@ class Tasks
             $started_new_transaction = true;
         }
         
-        $batches = array_chunk($taxon_concept_ids, 3000);
+        $batches = array_chunk($taxon_concept_ids, 500);
         foreach($batches as $batch_ids)
         {
             $name_ids = array();
@@ -245,7 +245,7 @@ class Tasks
                     $hierarchy_entry_id = $arr2['hierarchy_entry_id'];
                     $preferred = $arr2['preferred'];
                     $vetted_id = $arr2['vetted_id'];
-                    fwrite($LOAD_DATA_TEMP, "$taxon_concept_id\t$name_id\t$hierarchy_entry_id\t$language_id\t1\t$preferred\t$vetted_id\t$synonym_id\n");
+                    fwrite($LOAD_DATA_TEMP, "$taxon_concept_id\t$name_id\t$hierarchy_entry_id\t$language_id\t1\t$preferred\t$synonym_id\t$vetted_id\n");
                 }
             }
             $mysqli->load_data_infile($tmp_file_path, 'taxon_concept_names');
@@ -255,6 +255,7 @@ class Tasks
             unset($common_names);
             unset($name_ids);
             unset($preferred_in_language);
+            $mysqli->commit();
         }
         if($started_new_transaction) $mysqli->end_transaction();
     }

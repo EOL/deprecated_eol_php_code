@@ -743,6 +743,7 @@ class Resource extends ActiveRecord
         if(@$provider_agent->id) $params["agent_id"] = $provider_agent->id;
         $params["label"] = $this->title;
         $params["description"] = "From resource $this->title ($this->id)";
+        $params["complete"] = 0;
         $hierarchy = Hierarchy::find_or_create($params);
         
         $this->mysqli->insert("UPDATE resources SET hierarchy_id=$hierarchy->id WHERE id=$this->id");

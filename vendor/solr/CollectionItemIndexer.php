@@ -168,7 +168,7 @@ class CollectionItemIndexer
     {
         if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_taxon_concepts\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
-            ci.object_id, ci.collection_id, ci.name, tcm.richness_score, n.string name_string
+            ci.object_id, ci.collection_id, ci.name, tcm.richness_score, n.string name_string, ci.sort_field
             FROM collection_items ci
             LEFT JOIN taxon_concept_metrics tcm ON (ci.object_id=tcm.taxon_concept_id)
             LEFT JOIN
@@ -193,12 +193,14 @@ class CollectionItemIndexer
             $title = $row[7];
             $richness_score = $row[8];
             $name_string = $row[9];
+            $sort_field = $row[10];
             if($annotation == 'NULL') $annotation = '';
             if($added_by_user_id == 'NULL') $added_by_user_id = 0;
             if($title == 'NULL') $title = $name_string;
             if($title == 'NULL') $title = 'zzz';
             if($richness_score == 'NULL') $richness_score = 0;
             if($collection_id == 'NULL') continue;
+            if($sort_field == 'NULL') $sort_field = '';
             
             $this->objects[$collection_item_id] = array(
                 'object_type'       => 'TaxonConcept',
@@ -210,7 +212,8 @@ class CollectionItemIndexer
                 'date_modified'     => $updated_at ?: '1960-01-01T00:00:01Z',
                 'title'             => SolrAPI::text_filter($title),
                 'richness_score'    => $richness_score,
-                'data_rating'       => 0);
+                'data_rating'       => 0,
+                'sort_field'        => SolrAPI::text_filter($sort_field));
             $used_ids[$collection_item_id] = true;
         }
     }
