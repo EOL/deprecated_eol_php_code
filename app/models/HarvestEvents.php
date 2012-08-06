@@ -258,10 +258,19 @@ class HarvestEvent extends ActiveRecord
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events VALUES ($this->id, $data_object->id, '$data_object->guid', ". Status::find_or_create_by_translated_label($status)->id .")");
     }
     
-    public function index_for_search()
+    public function index_for_search($comparison_harvest_event_id = null)
     {
         $search_indexer = new SiteSearchIndexer();
-        $query = "SELECT data_object_id FROM data_objects_harvest_events WHERE harvest_event_id = $this->id";
+        if($comparison_harvest_event_id)
+        {
+            $query = "SELECT dohe.data_object_id
+                FROM data_objects_harvest_events dohe
+                LEFT JOIN data_objects_harvest_events dohe2 ON (dohe.data_object_id = dohe2.data_object_id AND dohe2.harvest_event_id = $comparison_harvest_event_id)
+                WHERE dohe.harvest_event_id = $this->id AND dohe2.data_object_id IS NULL";
+        }else
+        {
+            $query = "SELECT data_object_id FROM data_objects_harvest_events WHERE harvest_event_id = $this->id";
+        }
         $data_object_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $data_object_ids[] = $row[0];
         if($GLOBALS['ENV_DEBUG']) print_r($data_object_ids);
@@ -270,8 +279,20 @@ class HarvestEvent extends ActiveRecord
         $object_indexer = new DataObjectAncestriesIndexer();
         $object_indexer->index_objects($data_object_ids);
         
-        $query = "SELECT he.taxon_concept_id FROM harvest_events_hierarchy_entries hehe
-        JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE hehe.harvest_event_id = $this->id";
+        if($comparison_harvest_event_id)
+        {
+            $query = "SELECT he.taxon_concept_id
+                FROM harvest_events_hierarchy_entries hehe
+                JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id)
+                LEFT JOIN harvest_events_hierarchy_entries hehe2 ON (hehe.hierarchy_entry_id=hehe2.hierarchy_entry_id AND hehe2.harvest_event_id = $comparison_harvest_event_id)
+                WHERE hehe.harvest_event_id = $this->id AND hehe2.hierarchy_entry_id IS NULL";
+        }else
+        {
+            $query = "SELECT he.taxon_concept_id
+                FROM harvest_events_hierarchy_entries hehe
+                JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id)
+                WHERE hehe.harvest_event_id = $this->id";
+        }
         $taxon_concept_ids = array();
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row) $taxon_concept_ids[] = $row[0];
         if($GLOBALS['ENV_DEBUG']) print_r($taxon_concept_ids);

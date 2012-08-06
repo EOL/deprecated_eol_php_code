@@ -347,7 +347,7 @@ class Resource extends ActiveRecord
                     $harvest_event->index_for_search();
                     if($old_he = $harvest_event->previous_harvest_event())
                     {
-                        $old_he->index_for_search();
+                        $old_he->index_for_search($harvest_event->id);
                     }
                 }
                 $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::published()->id ." WHERE id=$this->id");

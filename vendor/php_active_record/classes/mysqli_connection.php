@@ -414,7 +414,7 @@ class MysqliConnection
     {
         $this->check();
         $this->mysqli->close();
-        $this->master_mysqli->close();
+        if($this->master_mysqli !== $this->mysqli) $this->master_mysqli->close();
     }
     
     function check()
