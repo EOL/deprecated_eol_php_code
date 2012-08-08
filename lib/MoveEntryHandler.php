@@ -65,7 +65,7 @@ class MoveEntryHandler
           TaxonConcept::unlock_classifications_by_id($args['taxon_concept_id_to'], $args['notify']);
         }
 
-        echo "++ Done.\n";
+        echo "++ [" . date('g:i A', time()) . "] Done.\n";
 
     }else
     {

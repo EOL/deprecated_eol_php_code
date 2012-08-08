@@ -25,7 +25,7 @@ class MergeConceptsHandler
         TaxonConcept::unlock_classifications_by_id($args['id1'], $args['notify']);
         TaxonConcept::unlock_classifications_by_id($args['id2'], $args['notify']);
 
-        echo "++ Done.\n";
+        echo "++ [" . date('g:i A', time()) . "] Done.\n";
 
     }else
     {

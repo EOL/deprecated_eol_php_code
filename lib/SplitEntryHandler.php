@@ -44,7 +44,7 @@ class SplitEntryHandler
           TaxonConcept::unlock_classifications_by_id($tc_id, $args['notify']); // No need to unlock, but notify!
         }
 
-        echo "++ Done.\n";
+        echo "++ [" . date('g:i A', time()) . "] Done.\n";
 
     }else
     {
