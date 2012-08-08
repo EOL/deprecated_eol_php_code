@@ -13,7 +13,7 @@ class SplitEntryHandler
         throw new \Exception("split_entry.php [hierarchy_entry_id] [bad_match_hierarchy_entry_id] [confirmed]");
     }
 
-    echo "++ Splitting HE#", $args['hierarchy_entry_id'], " from ", $args['bad_match_hierarchy_entry_id'], "\n";
+    echo "++ [" . date('g:i A', time()) . "] Splitting HE#", $args['hierarchy_entry_id'], " from ", $args['bad_match_hierarchy_entry_id'], "\n";
 
     $he = HierarchyEntry::find($args['hierarchy_entry_id']);
     $bad_he = HierarchyEntry::find($args['bad_match_hierarchy_entry_id']);

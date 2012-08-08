@@ -18,6 +18,8 @@ class CodeBridge
   public function perform()
   {
     try {
+      $GLOBALS['db_connection']->close();
+      $GLOBALS['db_connection']->initialize();
       if ($this->args['cmd'] == 'split') {
         php_active_record\SplitEntryHandler::split_entry($this->args);
       } elseif ($this->args['cmd'] == 'move') {
@@ -33,7 +35,7 @@ class CodeBridge
       }
     } catch (Exception $e) {
       $msg = $e->getMessage();
-      echo "** Command Failed: ", $msg, "\n";
+      echo "** [" . date('g:i A', time()) . "] Command Failed: ", $msg, "\n";
       // Unlock everything, send errors to watchers:
       if ($this->args['notify']) {
         if ($this->args['bad_match_hierarchy_entry_id']) {
@@ -55,6 +57,7 @@ class CodeBridge
         echo "  '$key' = '$value'\n";
       } 
     }
+    $GLOBALS['db_connection']->initialize();
   }
 
 }

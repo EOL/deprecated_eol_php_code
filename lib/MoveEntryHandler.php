@@ -16,7 +16,7 @@ class MoveEntryHandler
         throw new \Exception("split_concept.php [taxon_concept_id_from] [hierarchy_entry_id] [taxon_concept_id_to] [bad_match_hierarchy_entry_id] [confirmed] [reindex?]");
     }
 
-    echo "++ Moving HE#" . $args['hierarchy_entry_id'] . " from TC#" . $args['taxon_concept_id_from'] . " to TC#" .
+    echo "++ [" . date('g:i A', time()) . "] Moving HE#" . $args['hierarchy_entry_id'] . " from TC#" . $args['taxon_concept_id_from'] . " to TC#" .
       $args['taxon_concept_id_to'] . " avoiding HE#" . $args['bad_match_hierarchy_entry_id'] . "\n";
 
     $tc_from = TaxonConcept::find($args['taxon_concept_id_from']);
