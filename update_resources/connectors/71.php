@@ -265,7 +265,7 @@ function get_image_urls()
 function lookup_image_urls($titles)
 {
     $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiurlwidth=460&iiprop=url&titles=";
-    $url .= implode("|", array_keys($titles));
+    $url .= urlencode(implode("|", array_keys($titles)));
     
     $result = Functions::get_remote_file_fake_browser($url);
     
