@@ -1,12 +1,13 @@
 <?php
 namespace php_active_record;
-/* connector: 223 */
-/* This class will move the DL maps to the Maps tab. */
-/*
-Steps before accepting a name from DiscoverLife
-- search the name through the API e.g. api/search/Gadus morhua
-- if name == canonical_form(entry->title), proceed
-- if there is multiple results, use the name with the most no. of data objects
+/* connector: 223 
+--- DiscoverLife map resource [223]. This is now scheduled as a cron task.
+Partner provides a big text file of all their taxa with maps in DL.
+But the partner wishes that EOL only gets those taxa where we already have existing EOL pages for.
+They admit that their names are not yet totally cleaned and they don't want EOL to be creating new pages for their names.
+The connector first checks our database if the DL taxon name has an EOL page. If yes, then connector will process it as a <dataObject> of subtype map.
+This will end up in EOL's Maps tab.
+If no, then this name will be added to a text file that will be reported back to DL for further investigation by the partner.
 */
 
 class DiscoverLifeAPIv2
@@ -88,14 +89,16 @@ class DiscoverLifeAPIv2
 
     private function get_all_taxa($task)
     {
-        require_library('CheckIfNameHasAnEOLPage');
-        $func = new CheckIfNameHasAnEOLPage();
         $all_taxa = array();
         $used_collection_ids = array();
         //initialize text file for DiscoverLife: save names without a page in EOL
         self::initialize_text_file($this->TEXT_FILE_FOR_DL);
         $filename = $this->TEMP_FILE_PATH . $task . ".txt";
-        $FILE = fopen($filename, "r");
+        if(!$FILE = fopen($filename, "r"))
+        {
+            echo "\n\nExpected file not found. Program will terminate.\n";
+            return;
+        }
         $i = 0; 
         $save_count = 0; 
         $no_eol_page = 0;
@@ -106,24 +109,15 @@ class DiscoverLifeAPIv2
                 $name = trim($line);
                 $i++;
                 //Filter names. Process only those who already have a page in EOL. Report back to DiscoverLife names not found in EOL
-                $arr = $func->check_if_name_has_EOL_page($name);
-                $if_name_has_page_in_EOL = $arr[0];
-                $xml_from_api            = $arr[1];
-                if(!$if_name_has_page_in_EOL)
+                if(!$taxon = self::with_eol_page($name))
                 {
-                    print"\n - no EOL page ($name)"; 
+                    print"\n $i -- no EOL page ($name)"; 
                     $no_eol_page++;
                     self::store_name_to_text_file($name, $task);
                     continue;
                 }
-                $taxon = array();
-                $taxon = $func->get_taxon_simple_stat($name, $xml_from_api);
-                $taxon["map"] = 1;
 
-                if(trim($name) == trim(Functions::canonical_form(trim($taxon['sciname'])))) $taxon["call_back"] = "taxon_concept_id";
-                else $taxon["call_back"] = "scientific_name";
-
-                print "\n $i -- " . $taxon['sciname'] . "\n";                
+                print "\n $i -- " . $taxon['orig_sciname'] . "\n";         
                 $arr = self::get_discoverlife_taxa($taxon, $used_collection_ids);
                 $page_taxa              = $arr[0];
                 $used_collection_ids    = $arr[1];
@@ -142,6 +136,29 @@ class DiscoverLifeAPIv2
 
         $with_eol_page = $i - $no_eol_page;
         print "\n\n total = $i \n With EOL page = $with_eol_page \n No EOL page = $no_eol_page \n\n ";
+    }
+
+    function with_eol_page($name)
+    {
+        $taxon = array();
+        $sql = "SELECT DISTINCT(tcn.taxon_concept_id) FROM canonical_forms cf 
+        JOIN names n ON (cf.id=n.canonical_form_id) 
+        JOIN taxon_concept_names tcn ON (n.id=tcn.name_id) 
+        JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) 
+        LEFT JOIN taxon_concept_metrics tcm ON (tc.id=tcm.taxon_concept_id)
+        WHERE cf.string='$name' AND tc.published=1 ORDER BY tcm.richness_score DESC";
+        
+        $result = $GLOBALS['db_connection']->select($sql);
+        if($result && $row=$result->fetch_assoc())
+        {
+            $taxon_concept_id = $row['taxon_concept_id'];
+            $taxon = array( 'orig_sciname' => $name,
+                            'tc_id' => $taxon_concept_id,
+                            'map' => 1,
+                            'call_back' => 'taxon_concept_id'
+                );
+        } 
+        return $taxon;
     }
 
     function get_discoverlife_taxa($taxon, $used_collection_ids)
@@ -179,12 +196,6 @@ class DiscoverLifeAPIv2
                 <!--<img src="http://www.discoverlife.org/DB/sat/w00/lt_cb.jpg"> sent if no map points-->
                 <!--next version: to deal with homonyms,  add &group=Highertaxon (e.g. Plantae, Fabaceae)-->
             */
-
-            /* No final text yet from John Pickering...
-            $description = "<br><a href='" . self::DL_SEARCH_URL . str_replace(" ", "+", $taxon) . $call_back . "'>Discover Life</a> 
-            -- click <a href='" . self::DL_MAP_URL . str_replace(" ", "+", $taxon) . $call_back . "'>here</a> for details, credits, terms of use and for the latest version of the map.";
-            */
-
             $description = "<br>Please see details, credits, terms of use and the latest version of the map at <a href='" . self::DL_MAP_URL . str_replace(" ", "+", $taxon) . $call_back . "'>Discover Life</a>.";
             $description .= "<br>Explore <a href='" . self::DL_SEARCH_URL . str_replace(" ", "+", $taxon) . $call_back . "'><i>$taxon</i></a> in Discover Life.";
 
@@ -234,7 +245,11 @@ class DiscoverLifeAPIv2
 
     private function divide_text_file($divisor)
     {
-        $FILE = fopen(self::DL_MAP_SPECIES_LIST, "r");
+        if(!$FILE = fopen(self::DL_MAP_SPECIES_LIST, "r"))
+        {
+            echo "\n\nExternal file not available. Program will terminate.\n";
+            return;
+        }
         $i = 0;
         $file_ctr = 0;
         $str = "";

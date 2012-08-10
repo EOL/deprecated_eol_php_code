@@ -16,7 +16,7 @@ namespace php_active_record;
 <?php
 if($file_url || $file_upload)
 {
-    if($file_url) print "The file entered was: <b>$file_url</b><br/>";
+    if($file_url) print "The file entered was: <b>$file_url</b><br/><br/>";
     elseif($file_upload) print "You uploaded: <b>$file_upload</b><br/><br/>";
     
     

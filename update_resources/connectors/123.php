@@ -3,10 +3,6 @@ namespace php_active_record;
 
 /* connector for AquaMaps
 estimated execution time: 3 hrs.
-
-This connector reads an XML (list of species with AquaMaps) then loops on each species 
-and accesses the external service (provided by AquaMaps) to get the distribution maps.
-
 1st version: Maps are shown as embedded images in the Distribution text.
 2nd version: Maps are shown in the Maps tab as image objects.
 */

@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector [121] */
+/* connector [121] 
+This is a screen-scraping connector. No further development since we harvested their data.
+Last run was July 2012 and connector still works. This means no changes in the website page structure.
+*/
 define("SPECIES_URL", "http://www.whoi.edu/vent-larval-id/");
 define("PHOTO_URL", "http://www.whoi.edu/vent-larval-id/");
 

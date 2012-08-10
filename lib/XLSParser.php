@@ -90,7 +90,6 @@ class XLSParser
                             "contributors" => $contributors);
         
         $eol_xml = self::create_specialist_project_xml($taxon_info, $text_desc, $multimedia, $common_names, $synonyms, $do_details);
-        echo time_elapsed()."<br>\n";
         return $eol_xml;
     }
 
@@ -428,9 +427,19 @@ class XLSParser
                     "&egrave;", "&eacute;", "&ecirc;", "&euml;", "&igrave;", "&iacute;", "&icirc;", "&iuml;",
                     "&eth;", "&ntilde;", "&ograve;", "&oacute;", "&ocirc;", "&otilde;", "&ouml;", "&divide;",
                     "&oslash;", "&ugrave;", "&uacute;", "&ucirc;", "&uuml;", "&yacute;", "&thorn;", "&yuml;");
+        $entities_not_replaced = array();
         while(preg_match("/(&[a-z0-9]{3,7};)/ims", $s, $arr))
         {
             if(in_array($arr[1], $entities_to_decode)) $s = str_replace($arr[1], html_entity_decode($arr[1]), $s);
+            else
+            {
+                $s = str_replace($arr[1], "|REPLACED_". count($entities_not_replaced) ."|", $s);
+                $entities_not_replaced[] = $arr[1];
+            }
+        }
+        while(preg_match("/(\|REPLACED_([0-9]+)\|)/ims", $s, $arr))
+        {
+            $s = str_replace($arr[1], $entities_not_replaced[$arr[2]], $s);
         }
         return $s;
     }

@@ -78,10 +78,10 @@ class ResourceDataObjectElementsSetting
             foreach($taxon->dataObject as $dataObject)
             {
                 $do = self::get_dataObject_namespace($field, $dataObject);
-                $field = self::get_field_name($field);
-                if(@$do->$field == $value) 
+                $use_field = self::get_field_name($field);
+                if(@$do->$use_field == $value) 
                 {
-                    print "\n this <dataObject> will not be ingested -- $field = $value" . "\n";
+                    print "\n this <dataObject> will not be ingested -- $use_field = $value" . "\n";
                     @$dataObject->mediaURL = "";
                     @$dataObject->agent = "";
                     $do_dc = $dataObject->children("http://purl.org/dc/terms/");
@@ -113,12 +113,12 @@ class ResourceDataObjectElementsSetting
             foreach($taxon->dataObject as $dataObject)
             {
                 $do = self::get_dataObject_namespace($field, $dataObject);
-                $field = self::get_field_name($field);
+                $use_field = self::get_field_name($field);
                 if($compare) 
                 {
-                    if(@$do->$field == $old_value) $do->$field = $new_value;
+                    if(@$do->$use_field == $old_value) $do->$use_field = $new_value;
                 }
-                else $do->$field = $new_value;
+                else $do->$use_field = $new_value;
             }
         }
         return $xml->asXML();
@@ -141,21 +141,21 @@ class ResourceDataObjectElementsSetting
             foreach($taxon->dataObject as $dataObject)
             {
                 $do = self::get_dataObject_namespace($field, $dataObject);
-                $field = self::get_field_name($field);
+                $use_field = self::get_field_name($field);
                 if($compare) 
                 {
-                    if(@$do->$field == $old_value) 
+                    if(@$do->$use_field == $old_value) 
                     {
                         $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
-                        $condition_field = self::get_field_name($condition_field);
-                        if(trim(@$condition_do->$condition_field) == $condition_value) $do->$field = $new_value;
+                        $use_condition_field = self::get_field_name($condition_field);
+                        if(trim(@$condition_do->$use_condition_field) == $condition_value) $do->$use_field = $new_value;
                     }
                 }
                 else 
                 {
                     $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
-                    $condition_field = self::get_field_name($condition_field);
-                    if(trim(@$condition_do->$condition_field) == $condition_value) $do->$field = $new_value;
+                    $use_condition_field = self::get_field_name($condition_field);
+                    if(trim(@$condition_do->$use_condition_field) == $condition_value) $do->$use_field = $new_value;
                 }
             }
         }

@@ -1,6 +1,32 @@
 <?php
 namespace php_active_record;
-/* connector: [26]  */
+/* connector: [26]  
+World Register of Marine Species:
+--- WORMS resource [26]. This is now scheduled as a cron task.
+
+Partner provides two services. First is the service to get their list of taxa and their IDs based on a date range. 
+The 2nd one is the service to use the taxon ID to get the EOL XML for each taxon.
+
+This is the service to get the list of taxa:
+e.g. for the entire month of January 2012
+http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20120101&enddate=20120131
+e.g. or for the entire year of 2011
+http://www.marinespecies.org/aphia.php?p=eol&action=taxlist&startdate=20110101&enddate=20111231
+
+This is the service to get the EOL XML for a certain taxon using its ID e.g. 466138: 
+http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=466138
+
+I normally archive the past year. So in the connector code you'll see something like:
+$urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2007.xml";
+$urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
+$urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
+$urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2010.xml";
+$urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2011.xml";
+Archiving these reduces the load from the partner's server. 
+I do this because there are times when partner's server can't render if you query
+the entire year. So I archive the past year(s) and query monthly the current year.
+
+*/
 
 define("WORMS_TAXON_API", "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=");
 define("WORMS_ID_LIST_API", "http://www.marinespecies.org/aphia.php?p=eol&action=taxlist");
@@ -35,7 +61,7 @@ class WormsAPI
                 Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
                 // step 1: divides the big list of ids into small files
                 $ids = self::get_id_list();
-                self::divide_text_file(10000, $ids); //debug original value 10000
+                self::divide_text_file(100000, $ids); //debug original value 10000
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);//removes a task from task list
             }
         }
@@ -126,19 +152,26 @@ class WormsAPI
                 }
             }
         }
-        $GLOBALS['WORMS_bad_id'] .= $id . ",";
+        @$GLOBALS['WORMS_bad_id'] .= $id . ",";
         return false;
     }
     
-    private function generate_url_list($urls, $year = 0)
+    private function generate_url_list($urls)
     {
-        if($year == 0) $year = date("Y");
-        for ($month = 1; $month <= date("n"); $month++)
+        $start_year = 2012;
+        $current_year = date("Y");
+        for ($year = $start_year; $year <= $current_year; $year++)
         {
-            $start_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "01";
-            $end_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "31";
-            $urls[] = WORMS_ID_LIST_API . "&startdate=" . $start_date . "&enddate=" . $end_date;
+            if($year == $current_year) $month_limit = date("n");
+            else $month_limit = 12;
+            for ($month = 1; $month <= $month_limit; $month++)
+            {
+                $start_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "01";
+                $end_date = $year . Functions::format_number_with_leading_zeros($month, 2) . "31";
+                $urls[] = WORMS_ID_LIST_API . "&startdate=" . $start_date . "&enddate=" . $end_date;
+            }
         }
+        print_r($urls);
         return $urls;
     } 
 
@@ -151,12 +184,10 @@ class WormsAPI
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2010.xml";
+        $urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2011.xml";
 
-        //append current year
+        //append year 2012 and onwards
         $urls = self::generate_url_list($urls);
-
-        //append respective year
-        //$urls = self::generate_url_list($urls, 2010);
 
         /* debug
         $r = array();

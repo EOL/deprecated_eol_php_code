@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: 145 */
+/* connector: 145 
+Partner provided three customized XML. Connector parses all three, assembles the information and generates the EOL XML.
+*/
 define("NHS_DOC_1", "http://www.rkwalton.com/nhsjumpers_videositemap.xml");
 define("NHS_DOC_2", "http://www.rkwalton.com/nhswasps_videositemap.xml");
 define("NHS_DOC_3", "http://www.rkwalton.com/nhsskippers_videositemap.xml");

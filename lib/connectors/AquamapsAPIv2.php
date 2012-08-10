@@ -1,6 +1,16 @@
 <?php
 namespace php_active_record;
-/* connector: 123 */
+/* connector: 123 
+AquaMaps
+--- AquaMaps resource [123]
+The partner provided a customized XML (list of species with AquaMaps) exported from their MS Access database.
+e.g. http://dl.dropbox.com/u/7597512/AquaMaps/aquamaps_species_list.XML
+We can later on ask partner to host this XML and update it periodically.
+Contact would be Nina Garilao (cgarilao@ifm-geomar.de, ninagarilao@yahoo.com). To make her remember the customized XML EOL needs, just show her the 'aquamaps_species_list.XML' above.
+
+This connector reads the XML (list of species with AquaMaps) then loops on each species 
+and accesses the external service (provided by AquaMaps) to get the distribution maps.
+*/
 define("SERVICE_URL", "http://www.aquamaps.org/webservice/getAMap.php?");
 define("FISHBASE_URL", "http://www.fishbase.us/summary/speciessummary.php?id=");
 define("SEALIFEBASE_URL", "http://www.sealifebase.org/summary/speciessummary.php?id=");
@@ -14,6 +24,7 @@ class AquamapsAPIv2
         $all_taxa = array();
         $used_collection_ids = array();
         $path = DOC_ROOT . "/update_resources/connectors/files/AquaMaps/";
+        $path = "http://dl.dropbox.com/u/7597512/AquaMaps/";
         $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 1),  // all 8k species
                        1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 0)   // test just 3 species
                      );
@@ -48,7 +59,11 @@ class AquamapsAPIv2
     function parse_xml($url)
     {
         $arr_scraped=array();
-        $xml = Functions::get_hashed_response($url);
+        if(!$xml = Functions::get_hashed_response($url))
+        {
+            echo "\n\nFile not ready $url\nProgram will terminate.\n";
+            return;
+        }
         $ctr = 0;
         $total = sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)

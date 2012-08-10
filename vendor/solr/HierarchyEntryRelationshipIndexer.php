@@ -5,10 +5,12 @@ class HierarchyEntryRelationshipIndexer
 {
     private $mysqli;
     private $solr;
+    private $relations_table_name;
     
-    public function __construct()
+    public function __construct($relations_table_name = 'he_relations_tmp')
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->relations_table_name = $relations_table_name;
     }
     
     public function index($hierarchy = null, $compare_to_hierarchy = null)
@@ -29,7 +31,7 @@ class HierarchyEntryRelationshipIndexer
         $start = 0;
         $max_id = 0;
         $limit = 50000;
-        $result = $this->mysqli->query("SELECT MAX(id) as max FROM he_relations_tmp");
+        $result = $this->mysqli->query("SELECT MAX(id) as max FROM $this->relations_table_name");
         if($result && $row=$result->fetch_assoc())
         {
             $max_id = $row["max"];
@@ -45,7 +47,7 @@ class HierarchyEntryRelationshipIndexer
     private function lookup_relatipnships($start, $limit)
     {
         if($GLOBALS['ENV_DEBUG']) echo("querying relationships ($start, $limit)\n");
-        $outfile = $this->mysqli->select_into_outfile("SELECT he1.id id1, he1.taxon_concept_id taxon_concept_id1, he1.hierarchy_id hierarchy_id1, he1.visibility_id visibility_id1, he2.id id2, he2.taxon_concept_id taxon_concept_id2, he2.hierarchy_id hierarchy_id2, he2.visibility_id visibility_id2, he1.taxon_concept_id=he2.taxon_concept_id same_concept, hr.relationship, hr.score FROM he_relations_tmp hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.id BETWEEN $start AND ".($start+$limit));
+        $outfile = $this->mysqli->select_into_outfile("SELECT he1.id id1, he1.taxon_concept_id taxon_concept_id1, he1.hierarchy_id hierarchy_id1, he1.visibility_id visibility_id1, he2.id id2, he2.taxon_concept_id taxon_concept_id2, he2.hierarchy_id hierarchy_id2, he2.visibility_id visibility_id2, he1.taxon_concept_id=he2.taxon_concept_id same_concept, hr.relationship, hr.score FROM $this->relations_table_name hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.id BETWEEN $start AND ".($start+$limit));
         if($GLOBALS['ENV_DEBUG']) echo("done querying relationships\n");
         
         if(filesize($outfile)) $this->solr->send_from_mysql_result($outfile);

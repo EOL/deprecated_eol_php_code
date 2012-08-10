@@ -8,7 +8,6 @@ $timestart = microtime(1);
 $GLOBALS['ENV_NAME'] = "slave_215";
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-//exit;
 
 $mysqli2 = load_mysql_environment('eol_statistics');    //destination storage
 
@@ -23,7 +22,6 @@ $arr = process_parameters();//month and year parameters
 $month = $arr[0]; $year = $arr[1]; $year_month = $year . "_" . $month; //$year_month = "2009_04";
 
 
-//exit("finish test");
 
 $month = GetNumMonthAsString($month, $year);
 
@@ -34,7 +32,6 @@ $google_analytics_page_statistics = "google_analytics_page_statistics_" . $year 
 // /* //start1
 initialize_tables_4dmonth();
 $api = get_from_api($month,$year);    
-//exit("<hr>finished start1 only");
 //end
 // */
 
@@ -139,7 +136,7 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     global $mysqli;
     global $mysqli2;
     
-    initialize_tables(); //exit;
+    initialize_tables();
 
     //=================================================================
     //query 1
@@ -205,7 +202,6 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
         $temp = save_to_txt($result2,"agents_hierarchies",$fields,$year_month,chr(9),0,"txt");
     }
     
-    //exit("<hr>stopx");
     
     /*
     WHERE a.full_name IN (
@@ -249,7 +245,6 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
     WHERE he.hierarchy_id = ".Hierarchy::default_id()."";
         
 
-    //print"<hr>$query<hr>"; exit;    
 
     //$query .= " LIMIT 1 "; //debug
     $result = $mysqli->query($query);    
@@ -276,7 +271,6 @@ function prepare_agentHierarchies_hierarchiesNames($year_month)
 
     //start query9,10,11,12 => start3.php
     //start query11 - site_statistics
-    //print"<hr>xxx [$temp]<hr>"; exit($temp);
     /*
     //$query1 .= " INTO OUTFILE 'C:/webroot/eol_php_code/applications/google_stats/data/2009_07/eli.txt' FIELDS TERMINATED BY '\t' ";
     */   
@@ -410,7 +404,6 @@ function get_from_api($month,$year)
                 
             }//end for loop
 
-            //exit;
                         
             fwrite($OUT, $str); // transferred out of the while
         }//end while
@@ -540,7 +533,7 @@ function process_parameters()
         print"\n Invalid parameters!\n
         e.g. for July 2009 enter: \n
         \t php generate.php 7 2009 \n\n ";
-        exit();
+        return;
     }
     $month = GetNumMonthAsString($month, $year);
     $arr = array();

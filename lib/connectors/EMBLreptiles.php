@@ -1,6 +1,15 @@
 <?php
 namespace php_active_record;
-/* connector: 306 */
+/* connector: 306 
+Data tickets: https://jira.eol.org/browse/COLLAB-377
+              https://jira.eol.org/browse/DATA-714
+SPG purchased the database. It was downloaded from: http://dl.dropbox.com/u/6379405/Reptile_Database_2011_Win_kj56.zip
+It is a desktop windows application that has export feautures. We then exported the data we needed as spreadsheets (.xls).
+ update_resources/connectors/files/EMBL/reptile_DB.xls
+ update_resources/connectors/files/EMBL/references.xls
+ update_resources/connectors/files/EMBL/taxon_references.xls
+The connector then reads these spreadsheets and generates the EOL XML.
+*/
 class EMBLreptiles
 {
     const TAXON_SOURCE_URL = "http://reptile-database.reptarium.cz/species?";

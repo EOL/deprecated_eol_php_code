@@ -1,6 +1,25 @@
 <?php
 namespace php_active_record;
-/* connector: [218]  */
+/* connector: [218]  
+Missouri Botanical Garden:
+--- Tropicos resource [218]
+Partner provides a number of services to share their data to EOL. There is no scraping for this resource.
+Partner provides a list of IDs: e.g. http://services.tropicos.org/Name/List?startid=0&PageSize=1000&apikey=2810ce68-f4cf-417c-b336-234bc8928390&format=json
+The connector does some looping to get all the IDs.
+And partner provides 7 different services for each type of information:
+http://services.tropicos.org/Name/25510055?format=json&apikey=2810ce68-f4cf-417c-b336-234bc8928390
+http://services.tropicos.org/Name/25510055/ChromosomeCounts?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390
+http://services.tropicos.org/Name/25510055/Images?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390
+http://services.tropicos.org/Name/25510055/Distributions?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390
+http://services.tropicos.org/Name/25510055/Synonyms?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390
+http://services.tropicos.org/Name/25510055/References?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390
+http://services.tropicos.org/Name/25510055/HigherTaxa?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390
+
+* Tropicos web service goes down daily between 7-8am Eastern. So the connector process sleeps for an hour during this downtime.
+* Connector runs for a long time because the sheer number of server requests to get all data for all taxa.
+Last collection numbers: taxa=260,738; articles=345,414; images=80,125
+*/
+
 /*
 <a href="http://services.tropicos.org/Name/25510055/ChromosomeCounts?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">1</a>
 <a href="http://services.tropicos.org/Name/25510055/Images?format=xml&apikey=2810ce68-f4cf-417c-b336-234bc8928390">2</a>
@@ -450,12 +469,12 @@ class TropicosAPI
 
         if($with_content)
         {
-            $description = "<i>$sciname</i>: <br>" . $description;
+            $description = "<i>$sciname</i>: <br>" . $description . "<br>Note: This information is based on publications available through Tropicos and may not represent the entire distribution. Tropicos does not categorize distributions as native or non-native.";
             $source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
             $identifier = $taxon_id . "_distribution";
             $mimeType   = "text/html";
             $dataType   = "http://purl.org/dc/dcmitype/Text";
-            $title      = "";
+            $title      = "Localities documented in Tropicos sources";
             $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
             $agent      = array();
             $agent[] = array("role" => "source", "homepage" => "http://www.tropicos.org", "fullName" => "Tropicos");

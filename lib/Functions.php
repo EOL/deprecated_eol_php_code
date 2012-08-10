@@ -132,6 +132,7 @@ class Functions
     
     public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
     {
+        $remote_url = str_replace(" ", "%20", $remote_url);
         debug("Grabbing $remote_url: attempt 1");
         
         $context = stream_context_create(array('http' => array('timeout' => $timeout)));
@@ -321,8 +322,8 @@ class Functions
     
     public static function cmp_hierarchy_entries($a, $b)
     {
-        if ($a->name()->string == $b->name()->string) return 0;
-        return ($a->name()->string < $b->name()->string) ? -1 : 1;
+        if ($a->name->string == $b->name->string) return 0;
+        return ($a->name->string < $b->name->string) ? -1 : 1;
     }
     
     public static function cmp_references($a, $b)
@@ -602,7 +603,7 @@ class Functions
         {
            while(false !== ($file = readdir($handle)))
            {
-               if(substr($file, 0, 1) != ".")
+               if(substr($file, 0, 1) != "." && $file != '__MACOSX')
                {
                    $files[] = $file;
                }
@@ -611,6 +612,21 @@ class Functions
         }
 
         return $files;
+    }
+    
+    public static function get_single_xml_file_in_directory($dir)
+    {
+        $files = Functions::get_files_in_dir($dir);
+        $single_xml_path = null;
+        foreach($files as $file)
+        {
+            if($single_xml_path) return null;
+            if(preg_match("/\.xml$/i", $file))
+            {
+                $single_xml_path = $dir."/".$file;
+            }else return null;
+        }
+        return $single_xml_path;
     }
     
     public static function get_fixture_files()

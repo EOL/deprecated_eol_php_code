@@ -1,5 +1,8 @@
 <?php
 namespace php_active_record;
+/* connector: 119 
+A published resource but further maintenance was stopped as we don't show Photosynth interface anymore in V2.
+*/
 
 define("FORM_URL", "http://photosynth.net/PhotosynthHandler.ashx");
 define("VIEW_URL", "http://photosynth.net/view.aspx?cid=");

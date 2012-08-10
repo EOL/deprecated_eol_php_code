@@ -128,7 +128,7 @@ class MediaResource extends DarwinCoreExtensionBase
     
     public static function valid_language($v)
     {
-        if($v && !preg_match("/^[a-z]{2,3}(-[a-z]{2,3})?$/i", $v))
+        if($v && !preg_match("/^[a-z]{2,3}(-[a-z]{2,5})?$/i", $v))
         {
             return false;
         }

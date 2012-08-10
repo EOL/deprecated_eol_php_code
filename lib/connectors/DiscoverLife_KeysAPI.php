@@ -1,11 +1,11 @@
 <?php
 namespace php_active_record;
-
-/*
-Steps before accepting a name from DiscoverLife
-- search the name through the API e.g. api/search/Gadus morhua
-- if name == canonical_form(entry->title), proceed
-- if there is multiple results, use the name with the most no. of data objects
+/* connector: 252 
+--- DiscoverLife ID keys resource [252]
+Leo Shapiro with his exchanges with the partner, provided a text file (or spreadsheet) to BIG.
+The text file is a list of taxa with links (URLs) to the Identification page in DL website.
+The connector will check the EOL DB if the DL taxon name has an EOL page. If yes, then EOL will get the ID keys info for it.
+If no, then this name will be reported back to DL.
 */
 
 class DiscoverLife_KeysAPI
@@ -14,12 +14,14 @@ class DiscoverLife_KeysAPI
     const API_URL           = "http://eol.org/api/search/";
     const TEXT_FILE_FOR_DL  = "/update_resources/connectors/files/DiscoverLife/names_without_pages_in_eol"; //report back to DiscoverLife
     const TEMP_FILE_PATH    = "/update_resources/connectors/files/DiscoverLife/";
-    const ID_KEYS_FILE      = "ID keys spreadsheet 30March2011.txt";
+
+    // const ID_KEYS_FILE = "http://dl.dropbox.com/u/7597512/DiscoverLife/ID%20keys%20spreadsheet%2030March2011_small.txt";
+    const ID_KEYS_FILE = "http://dl.dropbox.com/u/7597512/DiscoverLife/ID%20keys%20spreadsheet%2030March2011.txt";
 
     public function get_all_taxa_keys($resource_id)
     {
-        require_library('CheckIfNameHasAnEOLPage');
-        $func = new CheckIfNameHasAnEOLPage();
+        require_library('connectors/DiscoverLifeAPIv2');
+        $func = new DiscoverLifeAPIv2();
         $taxa_objects = self::process_keys_spreadsheet();
         $all_taxa = array();
         $used_collection_ids = array();
@@ -32,21 +34,15 @@ class DiscoverLife_KeysAPI
         $no_eol_page = 0;
         foreach($taxa_objects as $name => $fields)
         {
-            sleep(1);
             $i++;
             //filter names. Process only those who already have a page in EOL. Report back to DiscoverLife names not found in EOL
-            $arr = $func->check_if_name_has_EOL_page($name);
-            $if_name_has_page_in_EOL = $arr[0];
-            $xml_from_api            = $arr[1];
-            if(!$if_name_has_page_in_EOL)
+            if(!$taxon = $func->with_eol_page($name))
             {
                 print "\n $i - no EOL page ($name)";
                 $no_eol_page++;
                 self::store_name_to_text_file($name, "ID_Keys");
                 continue;
             }
-            $taxon = array();
-            $taxon["orig_sciname"] = $name;
             $taxon["keys"] = array();
             foreach($fields as $field) $taxon["keys"][] = $field;
             print "\n $i -- " . $taxon['orig_sciname'];
@@ -59,7 +55,7 @@ class DiscoverLife_KeysAPI
             unset($page_taxa);
         }
 
-        $xml = SchemaDocument::get_taxon_xml($all_taxa);
+        $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
         $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml);
@@ -72,25 +68,31 @@ class DiscoverLife_KeysAPI
     private function process_keys_spreadsheet()
     {
         $taxa_objects = array();
-        $filename = DOC_ROOT . self::TEMP_FILE_PATH . self::ID_KEYS_FILE;
+        $filename = self::ID_KEYS_FILE;
+        // $filename = DOC_ROOT . self::TEMP_FILE_PATH . self::ID_KEYS_FILE;
         print "\n[$filename]\n";
-        $FILE = fopen($filename, "r");
-        while(!feof($FILE))
+        if($FILE = fopen($filename, "r"))
         {
-            if($line = fgets($FILE))
+            while(!feof($FILE))
             {
-                $line = trim($line);
-                $fields = explode("\t", $line);
-                $name    = trim($fields[0]);
-                $id_key1 = trim(@$fields[1]);
-                $id_key2 = trim(@$fields[2]);
-                $id_key3 = trim(@$fields[3]);
-                if($id_key1) $taxa_objects[$name][] = $id_key1;
-                if($id_key2) $taxa_objects[$name][] = $id_key2;
-                if($id_key3) $taxa_objects[$name][] = $id_key3;
+                if($line = fgets($FILE))
+                {
+                    $line = trim($line);
+                    $fields = explode("\t", $line);
+                    $name = trim($fields[0]);
+                    print "\n name: $name";
+                    if($id_key1 = trim(@$fields[1])) $taxa_objects[$name][] = $id_key1;
+                    if($id_key2 = trim(@$fields[2])) $taxa_objects[$name][] = $id_key2;
+                    if($id_key3 = trim(@$fields[3])) $taxa_objects[$name][] = $id_key3;
+                }
             }
         }
         fclose($FILE);
+        if(count($taxa_objects) <= 1)
+        {
+            echo "\n\nInvalid text file. Program will terminate.\n";
+            return;
+        }
         return $taxa_objects;
     }
 

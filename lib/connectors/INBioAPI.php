@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
-/* connector: 276 */
+/* connector: 276 
+We received a Darwincore archive file from the partner. It has a pliniancore extension.
+Partner hasn't yet hosted the DWC-A file.
+Connector downloads the archive file, extracts, reads the archive file, assembles the data and generates the EOL XML.
+*/
 class INBioAPI
 {
     private static $MAPPINGS;
@@ -8,13 +12,23 @@ class INBioAPI
     const SPM = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#";
     const EOL = "http://www.eol.org/voc/table_of_contents#";
 
-    public static function get_all_taxa()
+    function get_all_taxa($dwca_file)
     {
         self::$MAPPINGS = self::assign_mappings();
         $all_taxa = array();
         $used_collection_ids = array();
-        $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_inbio");
+
+        $paths = self::extract_archive_file($dwca_file, "meta.xml");
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
+        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields)
+        {
+            echo "\n\nInvalid archive file. Program will terminate.\n";
+            return;
+        }
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_table('http://rs.gbif.org/terms/1.0/image'));
         $references = self::get_references($harvester->process_table('http://rs.gbif.org/terms/1.0/reference'));
@@ -40,7 +54,68 @@ class INBioAPI
             $used_collection_ids     = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
         }
+
+        // remove tmp dir
+        if($temp_dir) shell_exec("rm -fr $temp_dir");
+
         return $all_taxa;
+    }
+
+    function extract_archive_file($dwca_file, $check_file_or_folder_name)
+    {
+        print "\nPlease wait, downloading resource document...\n";
+        $path_parts = pathinfo($dwca_file);
+        $filename = $path_parts['basename'];
+        $temp_dir = create_temp_dir() . "/";
+        print "\n " . $temp_dir;
+        if($file_contents = Functions::get_remote_file($dwca_file, DOWNLOAD_WAIT_TIME, 999999))
+        {
+            $temp_file_path = $temp_dir . "" . $filename;
+            print "\n\n temp_dir: $temp_dir\n";
+            print "\n\n Extracting... $temp_file_path\n";
+            $TMP = fopen($temp_file_path, "w");
+            fwrite($TMP, $file_contents);
+            fclose($TMP);
+            sleep(5);
+
+            if(preg_match("/^(.*)\.(tar.gz|tgz)$/", $dwca_file, $arr)) 
+            {
+                $cur_dir = getcwd();
+                chdir($temp_dir);
+                shell_exec("tar -zxvf $temp_file_path");
+                chdir($cur_dir);
+                $archive_path = str_ireplace(".tar.gz", "", $temp_file_path);
+            }
+            // elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) 
+            // {
+            //     shell_exec("gunzip -f $temp_file_path");
+            //     $archive_path = str_ireplace(".gz", "", $temp_file_path);
+            // }
+            elseif(preg_match("/^(.*)\.(zip)$/", $dwca_file, $arr))
+            {
+                shell_exec("unzip -ad $temp_dir $temp_file_path");
+                $archive_path = str_ireplace(".zip", "", $temp_file_path);
+            } 
+            else
+            {
+                echo "\n\n-- archive not gzip or zip.\n";
+                return;
+            }
+            print "\n archive path: [" . $archive_path . "]\n";
+        }
+        else
+        {
+            echo "\n\nConnector terminated. Remote files are not ready.\n";
+            return;
+        }
+
+        if(file_exists($temp_dir . $check_file_or_folder_name)) return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
+        elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
+        else
+        {
+            echo "\n\nCan't extract archive file. Program will terminate.\n";
+            return;
+        }
     }
 
     public static function assign_eol_subjects($xml_string)
@@ -84,11 +159,11 @@ class INBioAPI
                 $taxon_id = $image['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $images[$taxon_id]['url'][]           = $image['http://purl.org/dc/terms/identifier'];
                 $images[$taxon_id]['caption'][]       = $image['http://purl.org/dc/terms/description'];
-                $images[$taxon_id]['license'][]       = $image['http://purl.org/dc/terms/license'];
-                $images[$taxon_id]['publisher'][]     = $image['http://purl.org/dc/terms/publisher'];
-                $images[$taxon_id]['creator'][]       = $image['http://purl.org/dc/terms/creator'];
-                $images[$taxon_id]['created'][]       = $image['http://purl.org/dc/terms/created'];
-                $images[$taxon_id]['rightsHolder'][]  = $image['http://purl.org/dc/terms/rightsHolder'];
+                $images[$taxon_id]['license'][]       = @$image['http://purl.org/dc/terms/license'];
+                $images[$taxon_id]['publisher'][]     = @$image['http://purl.org/dc/terms/publisher'];
+                $images[$taxon_id]['creator'][]       = @$image['http://purl.org/dc/terms/creator'];
+                $images[$taxon_id]['created'][]       = @$image['http://purl.org/dc/terms/created'];
+                $images[$taxon_id]['rightsHolder'][]  = @$image['http://purl.org/dc/terms/rightsHolder'];
             }
         }
         return $images;
@@ -113,7 +188,7 @@ class INBioAPI
             $taxon_id = $name['http://rs.tdwg.org/dwc/terms/taxonID'];
             if($name['http://rs.tdwg.org/dwc/terms/vernacularName'])
             {
-                $vernacular_names[$taxon_id][] = array("name" => $name['http://rs.tdwg.org/dwc/terms/vernacularName'], "language" => self::get_language($name['http://purl.org/dc/terms/language']));
+                $vernacular_names[$taxon_id][] = array("name" => $name['http://rs.tdwg.org/dwc/terms/vernacularName'], "language" => self::get_language(@$name['http://purl.org/dc/terms/language']));
             }
         }
         return $vernacular_names;

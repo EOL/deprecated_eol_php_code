@@ -91,7 +91,7 @@ print "\n";
 print "elapsed time = $elapsed_time_sec sec              \n";
 print "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 print "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 
 //#############################################################################################################
 

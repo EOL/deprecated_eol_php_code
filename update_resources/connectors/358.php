@@ -2,7 +2,8 @@
 namespace php_active_record;
 /* connector for STRI maps (Shorefishes of the tropical eastern Pacific online information system)
 estimated execution time: 16 minutes
-Connector processes the original XML resource and checks if the map image exists
+Connector processes the original XML resource (http://eol.org/content_partners/44/resources/35) 
+and checks if the map image exists. If it does, it generates a map dataObject for the Maps tab.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/STRImapsAPI');

@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connectors: [353, 354, 355]  */
+/* connectors: [353, 354, 355]  
+Avibase has 3 resources. Each resource will use this connector. Connector scrapes the site and generates the EOL XML.
+*/
 define("AVIBASE_SOURCE_URL", "http://avibase.bsc-eoc.org/species.jsp?avibaseid=");
 define("AVIBASE_SERVICE_URL", "http://avibase.bsc-eoc.org/checklist.jsp?");
 

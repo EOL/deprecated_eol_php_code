@@ -414,7 +414,7 @@ class MysqliConnection
     {
         $this->check();
         $this->mysqli->close();
-        $this->master_mysqli->close();
+        if($this->master_mysqli !== $this->mysqli) $this->master_mysqli->close();
     }
     
     function check()
@@ -443,6 +443,16 @@ class MysqliConnection
         $this->update("RENAME TABLE $table_one TO $swap,
                                     $table_two TO $table_one,
                                     $swap TO $table_two");
+    }
+    
+    function table_exists($table_name)
+    {
+        $result = $this->query("SHOW TABLES LIKE '". $this->escape($table_name) ."'");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return true;
+        }
+        return false;
     }
     
     function debug($string, $master)

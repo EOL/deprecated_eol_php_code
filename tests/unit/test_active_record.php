@@ -29,6 +29,32 @@ class test_active_record extends SimpletestUnitBase
         $sp = Language::find_or_create_by_translated_label('Spanish', array('iso_639_1' => 'sp'));
         TranslatedLanguage::create(array('language_id' => $sp->id, 'original_language_id' => $en->id, 'label' => 'Anglais'));
     }
+    
+    function testFindWithEmptyStrings()
+    {
+        $params = array("provider_mangaed_id"       => 0,
+                        "full_reference"            => 'This is the text of the reference',
+                        "title"                     => '',
+                        "authors"                   => '',
+                        "publication_created_at"    => '0000-00-00 00:00:00',
+                        "language_id"               => 0);
+        $reference_first = Reference::find_or_create($params);
+        $reference_second = Reference::find_or_create($params);
+        $this->assertEqual($reference_first->id, $reference_second->id, "Should be able to lookup using empty strings");
+    }
+    
+    function testFindWithNullValues()
+    {
+        $params = array("provider_mangaed_id"       => 0,
+                        "full_reference"            => 'This is the text of the reference',
+                        "title"                     => NULL,
+                        "authors"                   => NULL,
+                        "publication_created_at"    => '0000-00-00 00:00:00',
+                        "language_id"               => 0);
+        $reference_first = Reference::find_or_create($params);
+        $reference_second = Reference::find_or_create($params);
+        $this->assertEqual($reference_first->id, $reference_second->id, "Should be able to lookup using NULL values");
+    }
 }
 
 ?>

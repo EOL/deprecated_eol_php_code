@@ -14,11 +14,15 @@ class dwc_validator_controller extends ControllerBase
         
         
         $dwca_file = @$file_url;
-        if(@$dwca_upload['tmp_name']) $dwca_file = $dwca_upload['tmp_name'];
-        
+        $suffix = null;
+        if(@$dwca_upload['tmp_name'])
+        {
+            $dwca_file = $dwca_upload['tmp_name'];
+            if(preg_match("/\.([^\.]+)$/", $dwca_upload['name'], $arr)) $suffix = strtolower(trim($arr[1]));
+        }
         if($dwca_file)
         {
-            if($temp_dir = ContentManager::download_temp_file_and_assign_extension($dwca_file))
+            if($temp_dir = ContentManager::download_temp_file_and_assign_extension($dwca_file, null, false, DOWNLOAD_TIMEOUT_SECONDS, $suffix))
             {
                 if(is_dir($temp_dir))
                 {
@@ -31,7 +35,7 @@ class dwc_validator_controller extends ControllerBase
                     }else
                     {
                         $error = new \eol_schema\ContentArchiveError();
-                        $error->message = "Unable to locate a meta.xml file";
+                        $error->message = "Unable to locate a meta.xml file. Make sure the archive does not contain a directory - just the archive files.";
                         $errors[] = $error;
                     }
                     recursive_rmdir($temp_dir);
@@ -42,7 +46,7 @@ class dwc_validator_controller extends ControllerBase
                     $archive_tmp_dir = @$path_parts['dirname'] ."/". @$path_parts['filename'];
                     recursive_rmdir($archive_tmp_dir);
                     mkdir($archive_tmp_dir);
-                    if($extension == 'zip' || $extension == 'xls')
+                    if($extension == 'xlsx' || $extension == 'xls')
                     {
                         require_library('ExcelToText');
                         $archive_converter = new ExcelToText($temp_dir, $archive_tmp_dir);

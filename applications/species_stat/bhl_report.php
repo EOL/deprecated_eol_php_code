@@ -6,11 +6,6 @@
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-/*
-$mysqli = new mysqli("", "web", "", "eol_data_production");
-if (mysqli_connect_errno()) {   printf("Connect failed: %s\n", mysqli_connect_error());   exit();}
-printf("Host information: %s\n", $mysqli->host_info);
-*/
 
 
 //list ($eol_pages_with_do, $taxa_count) = get_eol_pages_with_do(); //print "<hr> eol pages with do       = $eol_pages_with_do <br> eol pages with content  = $taxa_count ";
@@ -59,7 +54,6 @@ print"
 </table>
 ";
 
-exit; 
 
 function get_marine_eol_pages()
 {
@@ -97,7 +91,7 @@ function get_marine_eol_pages()
 function get_stats($names,$marine_pages)
 {
     global $mysqli; 
-    if(mysqli_connect_errno()){printf("Can't connect to MySQL database (). Errorcode: %s\n", mysqli_connect_error());exit;}     
+    if(mysqli_connect_errno()) printf("Can't connect to MySQL database (). Errorcode: %s\n", mysqli_connect_error());
     $result = $mysqli->query("SELECT taxon_concept_id id, n.string 
     FROM names n 
     JOIN taxon_concept_names tcn ON (n.id=tcn.name_id) 

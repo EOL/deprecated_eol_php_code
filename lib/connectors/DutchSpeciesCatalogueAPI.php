@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: 68 */
+/* connector: 68 
+Partner provided 2 services. First, is a list of all their taxa with IDs.
+And the 2nd is a service that generates the individual EOL XML using a taxon ID.
+*/
 define("DUTCH_SPECIES_LIST", "http://www.nederlandsesoorten.nl/eol/EolList.xml");
 define("TAXON_SERVICE", "http://www.nederlandsesoorten.nl/get?site=nlsr&view=nlsr&page_alias=conceptcard&version=EOL&cid=");
 

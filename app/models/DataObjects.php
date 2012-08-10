@@ -66,7 +66,11 @@ class DataObject extends ActiveRecord
     
     public function delete_refs()
     {
-        $this->mysqli->update("DELETE FROM data_objects_refs WHERE data_object_id=$this->id");
+        $result = $this->mysqli->query("SELECT * FROM data_objects_refs WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->delete("DELETE FROM data_objects_refs WHERE data_object_id=". $row['data_object_id'] ." AND ref_id=". $row['ref_id']);
+        }
     }
     
     public function add_reference($reference_id)
@@ -93,7 +97,11 @@ class DataObject extends ActiveRecord
     }
     public function delete_agents()
     {
-        $this->mysqli->insert("DELETE FROM agents_data_objects WHERE data_object_id=$this->id");
+        $result = $this->mysqli->query("SELECT * FROM agents_data_objects WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->delete("DELETE FROM agents_data_objects WHERE data_object_id=". $row['data_object_id'] ." AND agent_id=". $row['agent_id'] ." AND agent_role_id=". $row['agent_role_id']);
+        }
     }
     
     public function add_translation($data_object_id, $language_id)
@@ -120,7 +128,11 @@ class DataObject extends ActiveRecord
     
     public function delete_info_items()
     {
-        $this->mysqli->insert("DELETE FROM data_objects_info_items WHERE data_object_id=$this->id");
+        $result = $this->mysqli->query("SELECT * FROM data_objects_info_items WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->delete("DELETE FROM data_objects_info_items WHERE data_object_id=". $row['data_object_id'] ." AND info_item_id=". $row['info_item_id']);
+        }
     }
     public function add_info_item($info_item_id)
     {
@@ -131,7 +143,11 @@ class DataObject extends ActiveRecord
     
     public function delete_table_of_contents()
     {
-        $this->mysqli->insert("DELETE FROM data_objects_table_of_contents WHERE data_object_id=$this->id");
+        $result = $this->mysqli->query("SELECT * FROM data_objects_table_of_contents WHERE data_object_id=$this->id");
+        while($result && $row=$result->fetch_assoc())
+        {
+            $this->mysqli->delete("DELETE FROM data_objects_table_of_contents WHERE data_object_id=". $row['data_object_id'] ." AND toc_id=". $row['toc_id']);
+        }
     }
     public function add_table_of_contents($toc_id)
     {
@@ -161,7 +177,7 @@ class DataObject extends ActiveRecord
         foreach($fields as $field)
         {
             $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url",
-                "object_created_at", "object_modified_at", "created_at", "updated_at", "language_id", "data_rating", "vetted_id",
+                "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id",
                 "visibility_id", "curated", "published", "description_linked", "available_at");
             if(in_array($field, $fields_to_ignore)) continue;
             

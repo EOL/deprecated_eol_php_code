@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: [171]  */
+/* connector: [171]  
+Partner provided two csv files. One for the taxa names and the other for their dataObjects.
+Connector reads the csv files, assembles the information and generates the EOL XML.
+*/
 define("GOOGLE_CHART_DOMAIN", "http://chart.apis.google.com/");
 define("OBIS_SPECIES_PAGE", "http://www.iobis.org/mapper/?taxon_id=");
 
@@ -397,7 +400,7 @@ class ObisAPI
         $i = 0;
         foreach($arr['rank_id'] as $rank_id)
         {
-            $arr_rank[$rank_id] = $arr['rank_name'][$i];
+            $arr_rank[$rank_id] = @$arr['rank_name'][$i];
             $i++;
         }    
         return $arr_rank;
@@ -416,7 +419,7 @@ class ObisAPI
         $i = 0;
         $line = "";
         $file_count = 0;
-        $file = fopen(OBIS_DATA_FILE, "r");
+        if(!$file = fopen(OBIS_DATA_FILE, "r")) exit("\nFile not found: " . OBIS_DATA_FILE . "\nProgram will terminate.\n");
         $labels = "";
         while(!feof($file))
         {
