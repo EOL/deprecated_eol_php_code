@@ -34,12 +34,12 @@ class PhotosynthAPI
                     foreach($page_taxa as $t) $all_taxa[] = $t;
                 }
             }
-        }        
+        }
         return $all_taxa;
     }
     
     public static function get_photosynth_taxa($per_page, $page, $used_collection_ids)
-    {        
+    {
         $response = self::search_collections(TAG_SEARCHED, $per_page, $page);
         $page_taxa = array();
         foreach($response->Collections as $synth)
@@ -50,9 +50,9 @@ class PhotosynthAPI
             if($taxon) $page_taxa[] = $taxon;
             
             $used_collection_ids[$synth->Id] = true;
-        }        
+        }
         return array($page_taxa,$used_collection_ids);
-    }    
+    }
     
     public static function search_collections($search_term, $per_page, $page)
     {
@@ -65,7 +65,8 @@ class PhotosynthAPI
     
     public static function get_taxa_for_photo($synth)
     {
-        $tags = self::get_synth_tags($synth);
+        $html = $html = Functions::get_remote_file_fake_browser(COLLECTION_URL . $synth->Id);
+        $tags = self::get_synth_tags($html);
         $taxon = array();
         $taxon["commonNames"] = array();
         $license = null;
@@ -90,16 +91,16 @@ class PhotosynthAPI
         if(@!$temp_params["scientificName"] && @$taxon["genus"] && @$taxon["species"] && !preg_match("/ /", $taxon["genus"]) && !preg_match("/ /", $taxon["species"])) $taxon["scientificName"] = $taxon["genus"]." ".$taxon["species"];
         if(@!$taxon["genus"] && @preg_match("/^([^ ]+) /", $taxon["scientificName"], $arr)) $taxon["genus"] = $arr[1];
         if(@!$taxon["scientificName"] && @!$taxon["genus"] && @!$taxon["family"] && @!$taxon["order"] && @!$taxon["class"] && @!$taxon["phylum"] && @!$taxon["kingdom"]) return false;                
-        if(!($xml = Functions::get_hashed_response($synth->CollectionUrl))) return;
-        $ctr=0;
-        foreach($xml->Items->I as $rec)
-        {           
-            $mediaURL = str_ireplace('.dzi' , '_files/thumb.jpg', @$rec["Source"]);
-            $ctr++;
-            $data_object = self::get_data_object($synth, $license, $mediaURL, $ctr);
-            if(!$data_object) return false;
-            $taxon["dataObjects"][] = $data_object;        
-        }             
+        
+        $taxon["dataObjects"] = array();
+        if(preg_match("/window\.Microsoft\.Photosynth\.Viewer\.LoadParameters\(\".*?\",\"(.*?)\"/", $html, $arr))
+        {
+            $mediaURL = $arr[1];
+            $data_object = self::get_data_object($synth, $license, $mediaURL, 'thumb');
+            $taxon["dataObjects"][] = $data_object;
+        }
+        if(!$taxon["dataObjects"]) return false;
+        
         $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
@@ -157,10 +158,9 @@ class PhotosynthAPI
         return $mediaURL;   
     }
     
-    public function get_synth_tags($synth)
+    public function get_synth_tags($html)
     {
         $synth_tags = array();
-        $html = Functions::get_remote_file_fake_browser(COLLECTION_URL . $synth->Id);
         if(preg_match("/<div id=\"tagCloud\">(.*?)<\/div>/ims", $html, $arr))
         {
             if(preg_match_all("/aspx\?q=(.*?)\">/", $arr[1], $tags, PREG_SET_ORDER))

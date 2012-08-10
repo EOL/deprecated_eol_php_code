@@ -100,6 +100,7 @@ class Tasks
     public static function update_taxon_concept_names($taxon_concept_ids)
     {
         if(!$taxon_concept_ids) return false;
+        if(is_numeric($taxon_concept_ids)) $taxon_concept_ids = array($taxon_concept_ids);
         $mysqli =& $GLOBALS['db_connection'];
         
         $started_new_transaction = false;

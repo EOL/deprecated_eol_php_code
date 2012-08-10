@@ -833,10 +833,16 @@ class Resource extends ActiveRecord
             $importer = new TaxonImporter($archive_hierarchy, $vetted_id, Visibility::visible()->id, 1);
             $importer->import_taxa($taxa);
             
-            $result = $this->mysqli->query("SELECT taxon_concept_id FROM hierarchy_entries WHERE hierarchy_id=$archive_hierarchy_id");
-            while($result && $row=$result->fetch_assoc())
+            $taxon_concept_ids = array();
+            $query = "SELECT taxon_concept_id FROM hierarchy_entries WHERE hierarchy_id=$archive_hierarchy_id";
+            foreach($this->mysqli->iterate_file($query) as $row_number => $row)
             {
-                Tasks::update_taxon_concept_names(array($row['taxon_concept_id']));
+                $id = $row[0];
+                $taxon_concept_ids[$id] = $id;
+            }
+            if($taxon_concept_ids)
+            {
+                Tasks::update_taxon_concept_names($taxon_concept_ids);
             }
             
             // Rebuild the Solr index for this hierarchy

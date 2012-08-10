@@ -67,6 +67,7 @@ class PreferredEntriesCalculator
             $hierarchy_id = $row[5];
             $browsable = $row[6];
             if(!$browsable) $browsable = 0;
+            if($browsable == 'NULL') $browsable = 0;
 
             if(@!$all_entries[$taxon_concept_id]) $all_entries[$taxon_concept_id] = array();
             $all_entries[$taxon_concept_id][$hierarchy_id] = array(
