@@ -97,9 +97,6 @@ if(!defined('CONTENT_IMAGE_SMALL'))         define('CONTENT_IMAGE_SMALL',       
 // this may not be needed anymore
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 
-// Resque:
-if(!defined('RESQUE_SERVER')) define('RESQUE_SERVER', 'localhost:6379');
-
 /* table data which will not get cached - there are too many rows */
 $GLOBALS['no_cache']['agents']              = true;
 $GLOBALS['no_cache']['canonical_forms']     = true;
