@@ -14,6 +14,39 @@ class TaxonConcept extends ActiveRecord
     {
         self::supercede_by_ids($taxon_concept_id, $this->id);
     }
+
+    public static function unlock_classifications_by_id($id, $notify = null, $error = null)
+    {
+
+      $mysqli =& $GLOBALS['mysqli_connection'];
+      $mysqli->update("DELETE FROM taxon_classifications_locks WHERE taxon_concept_id=$id");
+      if ($notify && is_numeric($notify))
+
+      {
+
+        // Assuming Resque is loaded, if we get here.
+        \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'unlock_notify', 'user_id' => $notify, 
+                         'taxon_concept_id' => $id, 'error' => $error));
+
+        if (false) { // OLD.  ...The AR models don't work because they are in the logging DB.  :|
+
+          $activity = Activity::find_by_name('unlock');
+          $object_type_id = ChangeableObjectType::taxon_concept()->id;
+          $fqz = NotificationFrequency::find_by_frequency('send immediately');
+
+          $ca_log = CuratorActivityLog::create(array('user_id' => $notify,
+            'changeable_object_type_id' => $object_type_id, 'object_id' => $id, 'activity_id' => $activity->id,
+            'taxon_concept_id' => $id));
+
+          $mysqli->insert("INSERT INTO pending_notifications " .
+            "(user_id, notification_frequency_id, target_id, target_type, reason) " .
+            "VALUES ($notify, $fqz, $ca_log->id, 'CuratorActivityLog', 'auto_email_after_curation')");
+
+        }
+
+      }
+
+    }
     
     public static function supercede_by_ids($id1, $id2, $update_caches = false)
     {

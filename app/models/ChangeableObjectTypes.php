@@ -41,6 +41,11 @@ class ChangeableObjectType extends ActiveRecord
         return ChangeableObjectType::find_or_create_by_ch_object_type('comment');
     }
 
+    public static function taxon_concept()
+    {
+        return ChangeableObjectType::find_or_create_by_ch_object_type('taxon_concept');
+    }
+
 
 }
 
