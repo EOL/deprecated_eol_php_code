@@ -2,8 +2,8 @@
 
 /* NOTE - prefer using constants (like FOO and BAR) for values that you don't want to change during a run. Use
  * $GLOBALS if you may want to set the values, then override in certain environments. */
-
-date_default_timezone_set('America/Denver'); // Required by resque... though, DUH, use your own zone...
+if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America/New_York';
+date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);  // Required by resque...
 
 /* best to leave the PHP settings at the top in case they are overridden in another environment */
 ini_set('memory_limit', '1024M'); // 1GB maximum memory usage
@@ -17,9 +17,8 @@ if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
 set_and_load_proper_environment($argv);
 
 
-if(!defined('RESQUE_HOST')) define('RESQUE_HOST', 'staging.eol.org:6379');
 if(!defined('PS_LITE_CMD')) define('PS_LITE_CMD', 'ps -eo uid,pid,ppid,stime,tty,time,command'); // No -f
-if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://localhost/php_code/');  // URL prefix of this installation
+if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://localhost/eol_php_code/');  // URL prefix of this installation
 if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');              // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 
 if(!isset($GLOBALS['ENV_DEBUG'])) $GLOBALS['ENV_DEBUG'] = true;
@@ -98,6 +97,7 @@ if(!defined('CONTENT_IMAGE_SMALL'))         define('CONTENT_IMAGE_SMALL',       
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 
 // Resque:
+if(!defined('RESQUE_HOST')) define('RESQUE_HOST', 'localhost:6379');
 if(!defined('RESQUE_SERVER')) define('RESQUE_SERVER', 'localhost:6379');
 
 /* table data which will not get cached - there are too many rows */
