@@ -134,7 +134,6 @@ class HydrothermalVentLarvaeAPI
             $sourceURL = $rec["url"];
             if(!$html = utf8_decode(Functions::get_remote_file_fake_browser($sourceURL))) exit("\n\n Content partner's server is down, connector will now terminate.\n");
             $html = self::clean_html($html);
-
             $species = "";
             if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Species\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))
             {$species = trim(strip_tags($matches[1]));}

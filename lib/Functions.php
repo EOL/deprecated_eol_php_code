@@ -117,7 +117,12 @@ class Functions
     public static function grep_processlist($string)
     {
         $count = 0;
-        @exec('ps -ef', $ps);
+        $ps = ''; // Scope.
+        if (defined('PS_LITE_CMD')) {
+          @exec(PS_LITE_CMD, $ps);
+        } else {
+          @exec('ps -ef', $ps);
+        }
         foreach($ps as $process)
         {
             if(preg_match("/".preg_quote($string, '/')."/", $process)) $count++;

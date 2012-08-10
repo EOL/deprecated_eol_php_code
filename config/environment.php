@@ -1,5 +1,10 @@
 <?php
 
+/* NOTE - prefer using constants (like FOO and BAR) for values that you don't want to change during a run. Use
+ * $GLOBALS if you may want to set the values, then override in certain environments. */
+if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America/New_York';
+date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);  // Required by resque...
+
 /* best to leave the PHP settings at the top in case they are overridden in another environment */
 ini_set('memory_limit', '1024M'); // 1GB maximum memory usage
 ini_set('max_execution_time', '21600'); // 6 hours
@@ -12,6 +17,7 @@ if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
 set_and_load_proper_environment($argv);
 
 
+if(!defined('PS_LITE_CMD')) define('PS_LITE_CMD', 'ps -eo uid,pid,ppid,stime,tty,time,command'); // No -f
 if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://localhost/eol_php_code/');  // URL prefix of this installation
 if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');              // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 
@@ -87,9 +93,12 @@ if(!defined('CONTENT_IMAGE_LARGE'))         define('CONTENT_IMAGE_LARGE',       
 if(!defined('CONTENT_IMAGE_MEDIUM'))        define('CONTENT_IMAGE_MEDIUM',          '147x147');
 if(!defined('CONTENT_IMAGE_SMALL'))         define('CONTENT_IMAGE_SMALL',           '62x47');
 
-// this mat not be needed anymore
+// this may not be needed anymore
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 
+// Resque:
+if(!defined('RESQUE_HOST')) define('RESQUE_HOST', 'localhost:6379');
+if(!defined('RESQUE_SERVER')) define('RESQUE_SERVER', 'localhost:6379');
 
 /* table data which will not get cached - there are too many rows */
 $GLOBALS['no_cache']['agents']              = true;
