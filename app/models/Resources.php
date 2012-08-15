@@ -90,10 +90,20 @@ class Resource extends ActiveRecord
         return true;
     }
     
-    
     public static function wikipedia()
     {
         return self::find_by_title('Wikipedia');
+    }
+    
+    public static function flickr()
+    {
+        return self::find_by_title('EOL Group on Flickr');
+    }
+    
+    public function is_inaturalist()
+    {
+        if($this->id == 430) return true;
+        return false;
     }
     
     public function resource_file_path()

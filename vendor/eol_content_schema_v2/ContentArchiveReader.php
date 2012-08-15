@@ -120,6 +120,11 @@ class ContentArchiveReader
         $table_definition->lines_terminated_by = self::convert_escaped_chars($table_definition->lines_terminated_by);
         $table_definition->fields_enclosed_by = self::convert_escaped_chars($table_definition->fields_enclosed_by);
         
+        if($table_definition->lines_terminated_by == "\\n\\r" || $table_definition->lines_terminated_by == "\\r\\n")
+        {
+            $table_definition->lines_terminated_by = "\n";
+        }
+        
         // file location
         $table_definition->location = (string) $metadata_xml->files->location;
         $table_definition->file_uri = $table_definition->location;
@@ -243,12 +248,11 @@ class ContentArchiveReader
             $terminate = preg_quote($table_definition->fields_terminated_by, "/");
             $pattern = "/((^|$terminate)$enclosure"."[^$enclosure]*)$terminate([^$enclosure]*$enclosure($terminate|$))/";
             while(preg_match($pattern, $line)) $line = preg_replace($pattern, "\\1|+|+|\\3", $line);
-            $pattern = "/(^|$terminate)$enclosure/";
+            $pattern = "/($terminate$enclosure|$enclosure$terminate)/";
             while(preg_match($pattern, $line)) $line = preg_replace($pattern, $table_definition->fields_terminated_by, $line);
-            $pattern = "/$enclosure($terminate|$)/";
-            while(preg_match($pattern, $line)) $line = preg_replace($pattern, $table_definition->fields_terminated_by, $line);
+            $pattern = "/(^$enclosure|$enclosure$)/";
+            while(preg_match($pattern, $line)) $line = preg_replace($pattern, "", $line);
         }
-        
         $fields = explode($table_definition->fields_terminated_by, $line);
         foreach($fields as &$field) $field = str_replace("|+|+|", $table_definition->fields_terminated_by, $field);
         

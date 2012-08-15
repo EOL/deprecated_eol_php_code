@@ -145,6 +145,7 @@ class ContentManager
                     shell_exec("gunzip -f $new_temp_file_path");
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
+                    self::move_up_if_only_directory($new_temp_file_path);
                 }
                 if(preg_match("/^(.*)\.(tar)$/", $new_temp_file_path, $arr))
                 {
@@ -156,6 +157,7 @@ class ContentManager
                     shell_exec("tar -xf $new_temp_file_path -C $archive_directory");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
+                    self::move_up_if_only_directory($new_temp_file_path);
                 }
                 if(preg_match("/^(.*)\.(zip)$/", $new_temp_file_path, $arr))
                 {
@@ -167,9 +169,29 @@ class ContentManager
                     shell_exec("unzip -d $archive_directory $new_temp_file_path");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
+                    self::move_up_if_only_directory($new_temp_file_path);
                 }
                 if(file_exists($new_temp_file_path)) return $new_temp_file_path;
             }
+        }
+    }
+    
+    public static function move_up_if_only_directory($directory_path)
+    {
+        $files = read_dir($directory_path);
+        $only_file = null;
+        foreach($files as $file)
+        {
+            // there can be only one only file
+            if($only_file) return;
+            if(substr($file, 0, 1) == ".") continue;
+            $only_file = $directory_path ."/". $file;
+        }
+        if(is_dir($only_file))
+        {
+            rename($only_file, $directory_path."_swap");
+            rmdir($directory_path);
+            rename($directory_path."_swap", $directory_path);
         }
     }
     
