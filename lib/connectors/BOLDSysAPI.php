@@ -140,7 +140,7 @@ class BOLDSysAPI
         $bold_stats = "";
         if(isset($rec['stats']['public_barcodes'])) $bold_stats .= "Public Records: " . $rec['stats']['public_barcodes'] . "<br>";
         else                                        $bold_stats .= "Public Records: 0<br>";
-        if(isset($rec['stats']['barcodes']))        $bold_stats .= "Species: " . $rec['stats']['barcodes'] . "<br>";
+        if(isset($rec['stats']['barcodes']))        $bold_stats .= "Specimens with Barcodes: " . $rec['stats']['barcodes'] . "<br>";
         if(isset($rec['stats']['barcoded_species']))$bold_stats .= "Species With Barcodes: " . $rec['stats']['barcoded_species'] . "<br>";
         $bold_stats .= "<br>";                
         $identifier  = $taxon_id . "_stats";

@@ -388,7 +388,7 @@ class ArchiveDataIngester
         // }
         
         if(!$object_taxon_info) return false;
-        if($this->harvest_event->resource->is_inaturalist() && $this->is_this_image_in_flickr()) return false;
+        if($this->harvest_event->resource->is_inaturalist() && self::is_this_image_in_flickr($row)) return false;
         
         $data_object = new DataObject();
         $data_object->identifier = @self::field_decode($row['http://purl.org/dc/terms/identifier']);

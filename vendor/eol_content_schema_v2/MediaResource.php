@@ -200,7 +200,8 @@ class MediaResource extends DarwinCoreExtensionBase
             'threats',
             'trends',
             'trophicstrategy',
-            'uses')))
+            'uses',
+            'use')))
         {
             return false;
         }
