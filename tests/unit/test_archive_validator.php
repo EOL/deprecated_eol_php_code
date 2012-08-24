@@ -84,10 +84,8 @@ class test_archive_validator extends SimpletestUnitBase
         list($errors, $warnings) = $this->validate();
         $this->assertFalse($errors);
         $this->assertTrue($warnings, 'There should be warnings');
-        $this->assertTrue(count($warnings) == 2, 'There should be 2 warnings');
         $this->assertTrue($warnings[0]->uri == 'http://rs.tdwg.org/dwc/terms/scientificName');
         $this->assertTrue($warnings[0]->message == 'Taxa should have scientificNames');
-        $this->assertTrue($warnings[1]->message == 'Taxa should contain a scientificName or minimally a kingdom, phylum, class, order, family or genus');
     }
     
     function testValidateTaxonAnyName()
@@ -218,6 +216,10 @@ class test_archive_validator extends SimpletestUnitBase
         $mr = new \eol_schema\MediaResource();
         $mr->title = 'not much here';
         $this->archive_builder->write_object_to_file($mr);
+        $mr = new \eol_schema\MediaResource();
+        $mr->identifier = 'someid';
+        $mr->title = 'not much here';
+        $this->archive_builder->write_object_to_file($mr);
         $this->archive_builder->finalize();
         list($errors, $warnings) = $this->validate();
         $this->assertTrue($errors, 'There should be errors');
@@ -250,7 +252,7 @@ class test_archive_validator extends SimpletestUnitBase
         $this->assertTrue($errors, 'There should be errors');
         $this->assertTrue($errors[0]->message == 'References must have identifiers');
         $this->reset();
-    
+        
         $r = new \eol_schema\Reference();
         $r->identifier = '1234';
         $r->title = 'more here';
@@ -501,7 +503,7 @@ class test_archive_validator extends SimpletestUnitBase
         $archive = new ContentArchiveReader(null, $this->archive_directory);
         $validator = new ContentArchiveValidator($archive);
         $validator->get_validation_errors();
-        return array($validator->errors(), $validator->warnings());
+        return array($validator->display_errors(), $validator->display_warnings());
     }
 }
 

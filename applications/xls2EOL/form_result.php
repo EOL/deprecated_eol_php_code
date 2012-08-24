@@ -37,7 +37,8 @@ elseif(@$_FILES["file_upload_new"]["type"])
         $archive = new ContentArchiveReader(null, DOC_ROOT . $arr[1]);
         $validator = new ContentArchiveValidator($archive);
         $validator->get_validation_errors();
-        if($e = $validator->errors())
+        $errors = array_merge($validator->structural_errors(), $this->validator->display_errors());
+        if($errors)
         {
             echo "<h2>Errors</h2>";
             foreach($e as $error)
@@ -45,7 +46,7 @@ elseif(@$_FILES["file_upload_new"]["type"])
                 echo "Error in $error->file on line $error->line field $error->uri: $error->message [\"$error->value\"]<br/><br/>";
             }
         }
-        if($w = $validator->warnings())
+        if($w = $validator->display_warnings())
         {
             echo "<h2>Warnings</h2>";
             foreach($w as $warning)

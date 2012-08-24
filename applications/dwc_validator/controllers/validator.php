@@ -31,7 +31,7 @@ class dwc_validator_controller extends ControllerBase
                         $archive = new ContentArchiveReader(null, $temp_dir);
                         $validator = new ContentArchiveValidator($archive);
                         $validator->get_validation_errors();
-                        list($errors, $warnings, $stats) = array($validator->errors(), $validator->warnings(), $validator->stats());
+                        list($errors, $structural_errors, $warnings, $stats) = array($validator->display_errors(), $validator->structural_errors(), $validator->display_warnings(), $validator->stats());
                     }else
                     {
                         $error = new \eol_schema\ContentArchiveError();
@@ -64,7 +64,7 @@ class dwc_validator_controller extends ControllerBase
                                 $archive = new ContentArchiveReader(null, $archive_tmp_dir);
                                 $validator = new ContentArchiveValidator($archive);
                                 $validator->get_validation_errors();
-                                list($errors, $warnings, $stats) = array($validator->errors(), $validator->warnings(), $validator->stats());
+                                list($errors, $structural_errors, $warnings, $stats) = array($validator->display_errors(), $validator->structural_errors(), $validator->display_warnings(), $validator->stats());
                             }
                         }elseif($archive_converter->errors())
                         {
@@ -90,7 +90,7 @@ class dwc_validator_controller extends ControllerBase
                 $errors[] = $error;
             }
         }
-        render_template("validator/index", array("file_url" => @$file_url, "file_upload" => @$dwca_upload['name'], "errors" => @$errors, "warnings" => @$warnings, "stats" => $stats));
+        render_template("validator/index", array("file_url" => @$file_url, "file_upload" => @$dwca_upload['name'], "errors" => @$errors, "structural_errors" => @$structural_errors, "warnings" => @$warnings, "stats" => $stats));
     }
 }
 

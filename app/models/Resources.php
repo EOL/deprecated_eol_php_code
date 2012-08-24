@@ -366,18 +366,6 @@ class Resource extends ActiveRecord
         $this->mysqli->end_transaction();
     }
     
-    public function harvest_from_archive($validate = true)
-    {
-        $errors = $validate ? ContentArchiveValidator($this->archive_path()) : false;
-        if($errors)
-        {
-            print_r($errors);
-        }else
-        {
-            $connection = new ArchiveDataIngester($this);
-        }
-    }
-    
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
         debug("Starting harvest of resource: $this->id");
@@ -450,7 +438,8 @@ class Resource extends ActiveRecord
                 if($this->vetted)
                 {
                     // Vet all taxon concepts associated with this resource
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=". Vetted::trusted()->id .", tc.vetted_id=". Vetted::trusted()->id ." WHERE hierarchy_id=$this->hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=". Vetted::trusted()->id ." WHERE he.hierarchy_id=$this->hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=". Vetted::trusted()->id ." WHERE he.hierarchy_id=$this->hierarchy_id AND he.vetted_id!=". Vetted::untrusted()->id);
                     $this->mysqli->update("UPDATE hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.vetted_id=". Vetted::trusted()->id ." WHERE he.hierarchy_id=$this->hierarchy_id");
                 }
                 
@@ -715,17 +704,19 @@ class Resource extends ActiveRecord
     
     public function validate()
     {
+        $valid = false;
+        $error_string = null;
         if($this->is_archive_resource())
         {
             $archive = new ContentArchiveReader(null, $this->archive_path());
             $validator = new ContentArchiveValidator($archive);
             $validator->get_validation_errors();
-            if(!$validator->errors()) return true;  // valid
-            if($e = $validator->errors())
+            if($validator->is_valid()) $valid = true;  // valid
+            $errors = array_merge($validator->structural_errors(), $validator->display_errors());
+            if($errors)
             {
                 $errors_as_string = array();
-                $warnings_as_string = array();
-                foreach($e as $error)
+                foreach($errors as $error)
                 {
                     $errors_as_string[] = $error->__toString();
                 }
@@ -734,13 +725,18 @@ class Resource extends ActiveRecord
         }else
         {
             $validation_result = SchemaValidator::validate($this->resource_path());
-            if($validation_result===true) return true;  // valid
-            
-            $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
+            if($validation_result===true) $valid = true;  // valid
+            else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
         }
-        
-        $this->mysqli->update("UPDATE resources SET notes='$error_string', resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
-        return false;
+        if($error_string)
+        {
+            $this->mysqli->update("UPDATE resources SET notes='$error_string' WHERE id=$this->id");
+        }
+        if(!$valid)
+        {
+            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
+        }
+        return $valid;
     }
     
     public function insert_hierarchy()

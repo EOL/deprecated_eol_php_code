@@ -96,7 +96,8 @@ class Taxon extends DarwinCoreExtensionBase
             'synonym',
             'homotypic synonym',
             'heterotypic synonym',
-            'misapplied name')))
+            'misapplied name',
+            'not accepted')))
         {
             return false;
         }

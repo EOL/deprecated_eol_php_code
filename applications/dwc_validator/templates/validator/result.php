@@ -19,15 +19,20 @@ if($file_url || $file_upload)
     if($file_url) print "The file entered was: <b>$file_url</b><br/><br/>";
     elseif($file_upload) print "You uploaded: <b>$file_upload</b><br/><br/>";
     
-    
-    if(!$errors)
+    $pass_color = "#008000";
+    $fail_color = "#FF0000";
+    $color = $pass_color;
+    $status = "Valid";
+    if($structural_errors)
     {
-        print 'This file contained no errors<br/><br/>';
-        if(!$warnings)
-        {
-            print 'This file contained no warnings<br/><br/>';
-        }
+        $color = $fail_color;
+        $status = "Invalid";
+    }elseif($errors)
+    {
+        $status = "Partially Valid";
     }
+    print "<hr><h2 style='color:$color;'>This archive is $status</h2>";
+    
     
     if($stats)
     {
@@ -55,28 +60,20 @@ if($file_url || $file_upload)
         echo "</blockquote>";
     }
     
-    if($errors)
+    if($errors || $structural_errors)
     {
         ?>
         <hr/>
         <h3>Errors</h3>
         <blockquote><pre><?php
-        foreach($errors as $error)
-        {
-            if(is_string($error))
+            if($structural_errors)
             {
-                print "Error Message: $error<br/>";
-            }else
-            {
-                if($error->file) print "File: $error->file<br/>";
-                if($error->line) print "Line: $error->line<br/>";
-                if($error->uri) print "URI: $error->uri<br/>";
-                print "Error Message: $error->message<br/>";
-                if($error->value) print "Line Value: $error->value<br/>";
+                foreach($structural_errors as $error)
+                {
+                    print_exception($error);
+                }
             }
-            print "<br/>";
-            print "<br/>";
-        }
+            display_exceptions($errors);
         ?></pre></blockquote>
         <?php
     }
@@ -86,20 +83,34 @@ if($file_url || $file_upload)
         ?>
         <hr/>
         <h3>Warnings</h3>
-        <blockquote><pre><?php
-        foreach($warnings as $warning)
-        {
-            if($warning->file) print "File: $warning->file<br/>";
-            if($warning->line) print "Line: $warning->line<br/>";
-            if($warning->uri) print "URI: $warning->uri<br/>";
-            print "Warning Message: $warning->message<br/>";
-            if($warning->value) print "Line Value: $warning->value<br/>";
-            print "<br/>";
-            print "<br/>";
-        }
-        ?></pre></blockquote>
+        <blockquote><pre><?php display_exceptions($warnings); ?></pre></blockquote>
         <?php
     }
+}
+
+function display_exceptions($exceptions)
+{
+    foreach($exceptions as $exception)
+    {
+        print_exception($exception);
+    }
+}
+
+function print_exception($exception)
+{
+    if(is_string($exception))
+    {
+        print "Message: $exception<br/>";
+    }else
+    {
+        if($exception->file) print "File: $exception->file<br/>";
+        if($exception->line) print "Line: $exception->line<br/>";
+        if($exception->uri) print "URI: $exception->uri<br/>";
+        print "Message: $exception->message<br/>";
+        if($exception->value) print "Line Value: $exception->value<br/>";
+    }
+    print "<br/>";
+    print "<br/>";
 }
 
 ?>
