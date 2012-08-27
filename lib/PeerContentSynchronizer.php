@@ -221,7 +221,7 @@ class PeerContentSynchronizer
         if($params['logo_cache_url'])
         {
             $params['object_cache_url'] = $params['logo_cache_url'];
-            $succeeded = $this->download_from_peer($params, 'image');
+            $succeeded = $this->download_from_peer($params, 'logo');
         }
         return $succeeded;
     }
@@ -240,6 +240,9 @@ class PeerContentSynchronizer
                 '_130_130.jpg', '_260_190.jpg',
                 '_580_360.jpg', '_88_88.jpg',
                 '_98_68.jpg', '_orig.jpg');
+        }elseif($data_type == 'logo')
+        {
+            $suffixes_to_download = array('_130_130.jpg', '_88_88.jpg');
         }elseif($data_type == 'video')
         {
             $suffixes_to_download = array('.mov', '.mp4', '.flv', '.avi');
