@@ -14,7 +14,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/PhotosynthAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 $taxa = PhotosynthAPI::get_all_taxa();
-$xml = SchemaDocument::get_taxon_xml($taxa);
+$xml = \SchemaDocument::get_taxon_xml($taxa);
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "119.xml";
 $OUT = fopen($resource_path, "w+");
 fwrite($OUT, $xml);

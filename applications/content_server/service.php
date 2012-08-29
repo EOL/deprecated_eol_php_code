@@ -204,30 +204,17 @@ function validate_archive($archive_directory_path)
 {
     $archive = new ContentArchiveReader(null, $archive_directory_path);
     $validator = new ContentArchiveValidator($archive);
-    $validator->get_validation_errors();
+    if($validator->is_valid()) echo "  <status>Validated</status>\n";
+    else echo "  <status>Validation failed</status>\n";
     
-    if($e = $validator->errors())
+    $errors = array_merge($validator->structural_errors(), $validator->display_errors());
+    $errors_as_string = null;
+    foreach($errors as $error)
     {
-        $errors_as_string = array();
-        $warnings_as_string = array();
-        foreach($e as $error)
-        {
-            $errors_as_string[] = $error->__toString();
-        }
-        if($w = $validator->warnings())
-        {
-            foreach($w as $warning)
-            {
-                $warnings_as_string[] = $warning->__toString();
-            }
-        }
-        echo "  <status>Validation failed</status>\n";
-        echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $errors_as_string))."</error>\n";
-        // if($warnings_as_string) echo "  <warning type='validation'>".htmlspecialchars(implode("<br>", $warnings_as_string))."</error>\n";
-    }else
-    {
-        echo "  <status>Validated</status>\n";
+        $errors_as_string[] = $error->__toString();
     }
+    if($errors_as_string) echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $errors_as_string))."</error>\n";
+    // if($warnings_as_string) echo "  <warning type='validation'>".htmlspecialchars(implode("<br>", $warnings_as_string))."</error>\n";
 }
 
 ?>

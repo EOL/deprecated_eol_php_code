@@ -4,7 +4,7 @@ namespace php_active_record;
 class ArchiveDataIngester
 {
     private $resource;
-    private static $valid_taxonomic_statuses = array("valid", "accepted", "accepted name", "provisionally accepted name");
+    private static $valid_taxonomic_statuses = array("valid", "accepted", "accepted name", "provisionally accepted name", "current");
     
     public function __construct($harvest_event)
     {
@@ -21,7 +21,9 @@ class ArchiveDataIngester
         
         // set valid to true if we don't need validation
         $valid = $validate ? $this->archive_validator->is_valid() : true;
-        if($valid !== true) return $this->archive_validator->errors();
+        if($valid !== true) return array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
+        // even if we don't want to validate - we need the errors to determine which rows to ignore
+        if(!$validate) $this->archive_validator->get_validation_errors();
         
         $this->taxon_reference_ids = array();
         $this->media_reference_ids = array();
@@ -78,7 +80,7 @@ class ArchiveDataIngester
         }else echo "THERE ARE NO ROOT TAXA\nAborting import\n";
     }
     
-    public function read_taxon($row)
+    public function read_taxon($row, $parameters)
     {
         self::debug_iterations("Loading taxon", 5000);
         
@@ -102,11 +104,11 @@ class ArchiveDataIngester
         }
         unset($row['http://rs.tdwg.org/dwc/terms/datasetName']);
         unset($row['http://rs.tdwg.org/dwc/terms/taxonConceptID']);
+        $row['archive_line_number'] = $parameters['archive_line_number'];
         
         self::compress_array($row);
         if($taxon_id && $is_valid)
         {
-            
             if(!$parent_taxon_id) $parent_taxon_id = 0;
             $this->children[$parent_taxon_id][] = $row;
         }elseif(!$is_valid && $parent_taxon_id)
@@ -122,6 +124,7 @@ class ArchiveDataIngester
     {
         self::debug_iterations("Inserting taxon");
         self::commit_iterations("Taxa", 500);
+        if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/taxon', $row['archive_line_number'])) return false;
         
         // make sure this taxon has a name, otherwise skip this branch
         $scientific_name = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/scientificName']);
@@ -302,10 +305,11 @@ class ArchiveDataIngester
         unset($row);
     }
     
-    public function insert_vernacular_names($row)
+    public function insert_vernacular_names($row, $parameters)
     {
         self::debug_iterations("Inserting VernacularName");
         $this->commit_iterations("VernacularName", 500);
+        if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_line_number'])) return false;
         
         $taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $taxon_info = array();
@@ -357,10 +361,11 @@ class ArchiveDataIngester
         }
     }
     
-    public function insert_data_object($row)
+    public function insert_data_object($row, $parameters)
     {
         self::debug_iterations("Inserting DataObject");
         $this->commit_iterations("DataObject", 20);
+        if($this->archive_validator->has_error_by_line('http://eol.org/schema/media/document', $parameters['archive_line_number'])) return false;
         
         $object_taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $object_taxon_info = array();
@@ -388,7 +393,7 @@ class ArchiveDataIngester
         // }
         
         if(!$object_taxon_info) return false;
-        
+        if($this->harvest_event->resource->is_inaturalist() && self::is_this_image_in_flickr($row)) return false;
         
         $data_object = new DataObject();
         $data_object->identifier = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
@@ -542,10 +547,11 @@ class ArchiveDataIngester
         }
     }
     
-    public function insert_references($row)
+    public function insert_references($row, $parameters)
     {
         self::debug_iterations("Inserting reference");
         $this->commit_iterations("Reference", 500);
+        if($this->archive_validator->has_error_by_line('http://eol.org/schema/reference/reference', $parameters['archive_line_number'])) return false;
         
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         // we really only need to insert the references that relate to taxa or media
@@ -616,9 +622,10 @@ class ArchiveDataIngester
         }
     }
     
-    public function insert_agents($row)
+    public function insert_agents($row, $parameters)
     {
         self::debug_iterations("Inserting agent");
+        if($this->archive_validator->has_error_by_line('http://eol.org/schema/agent/agent', $parameters['archive_line_number'])) return false;
         
         $agent_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         // we really only need to insert the agents that relate to media
@@ -657,10 +664,11 @@ class ArchiveDataIngester
         }
     }
     
-    public function insert_gbif_references($row)
+    public function insert_gbif_references($row, $parameters)
     {
         self::debug_iterations("Inserting GBIF reference");
         $this->commit_iterations("GBIFReference", 500);
+        if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/reference', $parameters['archive_line_number'])) return false;
         
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
@@ -726,6 +734,38 @@ class ArchiveDataIngester
             $this->mysqli->commit();
         }
         $iteration_counts[$namespace]++;
+    }
+    
+    public static function is_this_image_in_flickr($row)
+    {
+        if(!$row['http://rs.tdwg.org/ac/terms/accessURI']) return false;
+        if(preg_match("/static\.flickr\.com\/.+?\/([0-9]+?)_.+?\.jpg$/i", $row['http://rs.tdwg.org/ac/terms/accessURI'], $arr))
+        {
+            $flickr_image_id = $arr[1];
+            if(self::is_this_identifier_in_flickr($flickr_image_id))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private static function is_this_identifier_in_flickr($flickr_image_id)
+    {
+        static $flickr_resource = null;
+        if(!$flickr_resource) $flickr_resource = Resource::flickr();
+        if(!$flickr_resource) return false;
+        
+        static $last_harvest_event_id = null;
+        if(!$last_harvest_event_id) $last_harvest_event_id = $flickr_resource->most_recent_published_harvest_event_id();
+        if(!$last_harvest_event_id) return false;
+        
+        $result = $GLOBALS['db_connection']->query("SELECT * FROM data_objects_harvest_events dohe
+            JOIN data_objects do ON (dohe.data_object_id=do.id)
+            WHERE dohe.harvest_event_id=$last_harvest_event_id
+            AND do.identifier='$flickr_image_id'");
+        if($result && $row=$result->fetch_assoc()) return true;
+        return false;
     }
     
     private static function debug_iterations($message_prefix, $iteration_size = 500)
@@ -819,8 +859,6 @@ class ArchiveDataIngester
     {
         $array = unserialize(gzuncompress($array));
     }
-    
-    
 }
 
 ?>

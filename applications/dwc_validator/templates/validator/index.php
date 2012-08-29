@@ -20,6 +20,6 @@ namespace php_active_record;
         <h2 align="center">Archive and Spreadsheet Validator</h2>
         <?php render_template("validator/form", array("file_url" => $file_url)); ?>
         <hr/>
-        <?php render_template("validator/result", array("file_url" => $file_url, "file_upload" => $file_upload, "errors" => $errors, "warnings" => $warnings, "stats" => $stats)); ?>
+        <?php render_template("validator/result", array("file_url" => $file_url, "file_upload" => $file_upload, "errors" => $errors, "structural_errors" => $structural_errors, "warnings" => $warnings, "stats" => $stats)); ?>
     </body>
 </html>

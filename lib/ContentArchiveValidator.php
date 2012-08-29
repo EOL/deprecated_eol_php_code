@@ -4,8 +4,9 @@ namespace php_active_record;
 class ContentArchiveValidator
 {
     private $content_archive_reader;
-    private $errors;
-    private $warnings;
+    private $structural_errors;
+    private $errors_by_line;
+    private $warnings_by_line;
     private $stats;
     
     public function __construct($content_archive_reader)
@@ -18,21 +19,74 @@ class ContentArchiveValidator
     public function is_valid()
     {
         $this->get_validation_errors();
-        if(!$this->errors) return true;
-        return false;
+        if($this->structural_errors) return false;
+        return true;
     }
     
-    public function errors()
+    public function structural_errors()
     {
-        return $this->errors;
+        return $this->structural_errors;
     }
-    public function warnings()
+    public function errors_by_line()
     {
-        return $this->warnings;
+        return $this->errors_by_line;
+    }
+    public function warnings_by_line()
+    {
+        return $this->warnings_by_line;
     }
     public function stats()
     {
         return $this->stats;
+    }
+    
+    public function has_error_by_line($row_type, $line_number)
+    {
+        if(isset($this->errors_by_line[$row_type][$line_number])) return true;
+        return false;
+    }
+    
+    public function display_errors()
+    {
+        return self::group_exceptions($this->errors_by_line);
+    }
+    
+    public function display_warnings()
+    {
+        return self::group_exceptions($this->warnings_by_line);
+    }
+    
+    public static function group_exceptions($exceptions_by_line)
+    {
+        $grouped_exceptions = array();
+        foreach($exceptions_by_line as $file_path => $data)
+        {
+            foreach($data as $line_number => $exception)
+            {
+                if(!isset($grouped_exceptions[$file_path][$exception->uri][$exception->value][$exception->message]))
+                {
+                    $grouped_exceptions[$file_path][$exception->uri][$exception->value][$exception->message] = $exception;
+                }elseif($line_number)
+                {
+                    $grouped_exceptions[$file_path][$exception->uri][$exception->value][$exception->message]->line .= ", $line_number";
+                }
+            }
+        }
+        $simplified_errors = array();
+        foreach($grouped_exceptions as $file_path => $d1)
+        {
+            foreach($d1 as $uri => $d2)
+            {
+                foreach($d2 as $value => $d3)
+                {
+                    foreach($d3 as $message => $exception)
+                    {
+                        $simplified_errors[] = $exception;
+                    }
+                }
+            }
+        }
+        return $simplified_errors;
     }
     
     public function get_validation_errors()
@@ -40,21 +94,42 @@ class ContentArchiveValidator
         if($this->validation_has_run) return;
         $this->validation_has_run = true;
         
-        $this->errors = array();
-        $this->warnings = array();
+        $this->structural_errors = array();
+        $this->errors_by_line = array();
+        $this->warnings_by_line = array();
         $this->stats = array();
         if(!$this->content_archive_reader->tables)
         {
             $error = new \eol_schema\ContentArchiveError();
-            $error->message = "Cannot read meta.xml. Make sure the archive does not contain a directory - just the archive files.";
-            $this->errors[] = $error;
+            $error->message = "Cannot read meta.xml. There may be a structural problem with this archive.";
+            $this->structural_errors[] = $error;
         }
-        // looping through all files in the archive
+        // looping through archive, one entire file at a time
         foreach($this->content_archive_reader->tables as $row_type => $table)
         {
-            // duplicate primary keys
-            // referential integrity
+            // TODO: duplicate primary keys
+            // TODO: referential integrity
             $this->content_archive_reader->process_table($row_type, array($this, 'validate_row'), array('row_type' => $row_type));
+            if($row_type == 'http://rs.tdwg.org/dwc/terms/taxon')
+            {
+                $count_of_all_taxa = @$this->stats[$row_type]['Total'];
+                // if(isset($this->errors_by_line[$row_type]))
+                // {
+                //     $count_of_taxa_errors = count($this->errors_by_line[$row_type]);
+                //     if($count_of_taxa_errors >= $count_of_all_taxa)
+                //     {
+                //         $error = new \eol_schema\ContentArchiveError();
+                //         $error->message = "There are no valid taxa in this archive.";
+                //         $this->structural_errors[] = $error;
+                //     }
+                // }
+                if(!$count_of_all_taxa)
+                {
+                    $error = new \eol_schema\ContentArchiveError();
+                    $error->message = "There are no valid taxa in this archive.";
+                    $this->structural_errors[] = $error;
+                }
+            }
         }
     }
     
@@ -64,55 +139,28 @@ class ContentArchiveValidator
         $i++;
         
         $new_errors = array();
-        if(!isset($this->stats[$parameters['row_type']])) $this->stats[$parameters['row_type']] = array();
-        if(!isset($this->stats[$parameters['row_type']]['Total'])) $this->stats[$parameters['row_type']]['Total'] = 0;
-        $this->stats[$parameters['row_type']]['Total']++;
-        
         if($parameters['row_type'] == 'http://eol.org/schema/media/document')
         {
-            if(@$v = $row['http://purl.org/dc/terms/type'])
-            {
-                if(!isset($this->stats[$parameters['row_type']]['Total by type'])) $this->stats[$parameters['row_type']]['Total by type'] = array();
-                if(!isset($this->stats[$parameters['row_type']]['Total by type'][$v])) $this->stats[$parameters['row_type']]['Total by type'][$v] = 0;
-                $this->stats[$parameters['row_type']]['Total by type'][$v]++;
-            }
-            if(@$v = $row['http://rs.tdwg.org/audubon_core/subtype'])
-            {
-                if(!isset($this->stats[$parameters['row_type']]['Total by subtype'])) $this->stats[$parameters['row_type']]['Total by subtype'] = array();
-                if(!isset($this->stats[$parameters['row_type']]['Total by subtype'][$v])) $this->stats[$parameters['row_type']]['Total by subtype'][$v] = 0;
-                $this->stats[$parameters['row_type']]['Total by subtype'][$v]++;
-            }
-            if(@$v = $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])
-            {
-                if(!isset($this->stats[$parameters['row_type']]['Total by license'])) $this->stats[$parameters['row_type']]['Total by license'] = array();
-                if(!isset($this->stats[$parameters['row_type']]['Total by license'][$v])) $this->stats[$parameters['row_type']]['Total by license'][$v] = 0;
-                $this->stats[$parameters['row_type']]['Total by license'][$v]++;
-            }
-            if(@$v = $row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'])
-            {
-                if(!isset($this->stats[$parameters['row_type']]['Total by subject'])) $this->stats[$parameters['row_type']]['Total by subject'] = array();
-                if(!isset($this->stats[$parameters['row_type']]['Total by subject'][$v])) $this->stats[$parameters['row_type']]['Total by subject'][$v] = 0;
-                $this->stats[$parameters['row_type']]['Total by subject'][$v]++;
-            }
-            if(@$v = $row['http://purl.org/dc/terms/language'])
-            {
-                if(!isset($this->stats[$parameters['row_type']]['Total by language'])) $this->stats[$parameters['row_type']]['Total by language'] = array();
-                if(!isset($this->stats[$parameters['row_type']]['Total by language'][$v])) $this->stats[$parameters['row_type']]['Total by language'][$v] = 0;
-                $this->stats[$parameters['row_type']]['Total by language'][$v]++;
-            }
             $new_errors = \eol_schema\MediaResource::validate_by_hash($row);
+            if(!$new_errors)
+            {
+                if(@$v = $row['http://purl.org/dc/terms/type']) $this->add_stat('type', $parameters['row_type'], $v);
+                if(@$v = $row['http://rs.tdwg.org/audubon_core/subtype']) $this->add_stat('subtype', $parameters['row_type'], $v);
+                if(@$v = $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) $this->add_stat('license', $parameters['row_type'], $v);
+                if(@$v = $row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']) $this->add_stat('subject', $parameters['row_type'], $v);
+                if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $v);
+                if(@$v = $row['http://purl.org/dc/terms/format']) $this->add_stat('format', $parameters['row_type'], $v);
+            }
         }elseif($parameters['row_type'] == 'http://rs.tdwg.org/dwc/terms/taxon')
         {
             $new_errors = \eol_schema\Taxon::validate_by_hash($row);
         }elseif($parameters['row_type'] == 'http://rs.gbif.org/terms/1.0/vernacularname')
         {
-            if(@$v = $row['http://purl.org/dc/terms/language'])
-            {
-                if(!isset($this->stats[$parameters['row_type']]['Total by language'])) $this->stats[$parameters['row_type']]['Total by language'] = array();
-                if(!isset($this->stats[$parameters['row_type']]['Total by language'][$v])) $this->stats[$parameters['row_type']]['Total by language'][$v] = 0;
-                $this->stats[$parameters['row_type']]['Total by language'][$v]++;
-            }
             $new_errors = \eol_schema\VernacularName::validate_by_hash($row);
+            if(!$new_errors)
+            {
+                if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $v);
+            }
         }elseif($parameters['row_type'] == 'http://eol.org/schema/reference/reference')
         {
             $new_errors = \eol_schema\Reference::validate_by_hash($row);
@@ -121,15 +169,37 @@ class ContentArchiveValidator
             $new_errors = \eol_schema\Agent::validate_by_hash($row);
         }
         
-        foreach($new_errors as $new_error)
+        if(!$new_errors)
         {
-            $new_error->file = $parameters['archive_table_definition']->location;
-            $new_error->line = $parameters['archive_line_number'];
-            if(get_class($new_error) == 'eol_schema\ContentArchiveError') $this->errors[] = $new_error;
-            else $this->warnings[] = $new_error;
+            if(!isset($this->stats[$parameters['row_type']])) $this->stats[$parameters['row_type']] = array();
+            if(!isset($this->stats[$parameters['row_type']]['Total'])) $this->stats[$parameters['row_type']]['Total'] = 0;
+            $this->stats[$parameters['row_type']]['Total']++;
+        }else
+        {
+            foreach($new_errors as $new_error)
+            {
+                $new_error->file = $parameters['archive_table_definition']->location;
+                $new_error->line = $parameters['archive_line_number'];
+                if(get_class($new_error) == 'eol_schema\ContentArchiveError')
+                {
+                    if(isset($this->errors_by_line[$parameters['row_type']][$new_error->line])) continue;
+                    $this->errors_by_line[$parameters['row_type']][$new_error->line] = $new_error;
+                }else
+                {
+                    if(isset($this->warnings_by_line[$parameters['row_type']][$new_error->line])) continue;
+                    $this->warnings_by_line[$parameters['row_type']][$new_error->line] = $new_error;
+                }
+            }
         }
     }
     
+    private function add_stat($label, $row_type, $value)
+    {
+        $index = "Total by $label";
+        if(!isset($this->stats[$row_type][$index])) $this->stats[$row_type][$index] = array();
+        if(!isset($this->stats[$row_type][$index][$value])) $this->stats[$row_type][$index][$value] = 0;
+        $this->stats[$row_type][$index][$value]++;
+    }
     
     /*
         Some basic rules
