@@ -220,10 +220,22 @@ class ExcelToText
                 
                 if($values)
                 {
-                    $row = self::$field_enclosure .
-                           implode(self::$field_enclosure . self::$field_delimeter . self::$field_enclosure, $values) .
-                           self::$field_enclosure . self::$row_delimiter;
-                    fwrite($OUTFILE, $row);
+                    $all_empty_values = true;
+                    foreach($values as $value)
+                    {
+                        if($value)
+                        {
+                            $all_empty_values = false;
+                            break;
+                        }
+                    }
+                    if(!$all_empty_values)
+                    {
+                        $row = self::$field_enclosure .
+                               implode(self::$field_enclosure . self::$field_delimeter . self::$field_enclosure, $values) .
+                               self::$field_enclosure . self::$row_delimiter;
+                        fwrite($OUTFILE, $row);
+                    }
                 }
             }
             fclose($OUTFILE);
@@ -234,8 +246,11 @@ class ExcelToText
         fclose($META);
         
         $info = pathinfo($archive_temp_directory_path);
-        // create /path/dir.tar.gz from /path/dir/*
-        shell_exec("tar -czf ". $archive_temp_directory_path .".tar.gz --directory=". $info['dirname'] ."/". $info['basename'] ." .");
+        $temporary_tarball_path = temp_filepath();
+        $final_tarball_path = $archive_temp_directory_path . $info['basename'] .".tar.gz";
+        shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
+        @unlink($new_tarball_path);
+        rename($temporary_tarball_path, $final_tarball_path);
         
         return $archive_temp_directory_path;
     }
