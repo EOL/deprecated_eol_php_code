@@ -199,6 +199,8 @@ class IUCNRedlistAPI
         while(preg_match("/  /", $section_html)) $section_html = str_replace("  ", " ", $section_html);
         $section_html = preg_replace("/^<br\/>/", "", $section_html);
         $section_html = str_replace("<b/>", "", $section_html);
+        $section_html = str_replace("<strong/>", "", $section_html);
+        $section_html = str_replace("<span style=\"background-color: black;\"/>", "", $section_html);
         $section_html = preg_replace("/^<p><br\/><\/p>/", "", $section_html);
         
         if($section_html)
