@@ -81,8 +81,14 @@ class SilvicsNorthAmericaAPI
                 /* /purs_spdwell.htm" name="purs_spdwell">Veronica peregrina (Purslane Speedwell) */
                 if(preg_match("/>(.*?)</ims", $match, $string_match)) $taxon_name = self::clean_str($string_match[1]);
                 $taxon_name = utf8_encode($taxon_name);
-                
-                // if($taxon_name != "Larix laricina") continue; //debug
+
+                /* https://jira.eol.org/browse/DATA-1095?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel&focusedCommentId=37475#comment-37475
+                Manually change from one name to another:
+                From: Didymopanax morototoni -- To: Schefflera morototoni
+                From: Chamaecyparis nootkatensis -- To: Cupressus nootkatensis
+                */
+                if($taxon_name == "Didymopanax morototoni") $taxon_name = "Schefflera morototoni";
+                if($taxon_name == "Chamaecyparis nootkatensis") $taxon_name = "Cupressus nootkatensis";
                 
                 /* debug - use to start process only for this taxon
                 if($taxon_name == "Larix laricina") $continue = false;
@@ -115,9 +121,21 @@ class SilvicsNorthAmericaAPI
                 print("\n\n Content partner's server is down4, $url\n");
                 continue; // this will just skip to the next species, hopefully server is now ready.
             } 
-            if    (preg_match("/<FONT SIZE=\"\+3\">(.*?)<\/FONT>/ims", $html, $arr)) $GLOBALS['taxon'][$taxon_name]['sciname'] = strip_tags($arr[1]);
-            elseif(preg_match("/<FONT SIZE=\"\+2\">(.*?)<\/FONT>/ims", $html, $arr)) $GLOBALS['taxon'][$taxon_name]['sciname'] = strip_tags($arr[1]);
+
+            if    (preg_match("/<FONT SIZE=\"\+3\">(.*?)<\/FONT>/ims", $html, $arr)) $GLOBALS['taxon'][$taxon_name]['sciname'] = self::clean_str(strip_tags($arr[1]));
+            elseif(preg_match("/<FONT SIZE=\"\+2\">(.*?)<\/FONT>/ims", $html, $arr)) $GLOBALS['taxon'][$taxon_name]['sciname'] = self::clean_str(strip_tags($arr[1]));
+            $GLOBALS['taxon'][$taxon_name]['sciname'] = str_ireplace('&amp;', '&', $GLOBALS['taxon'][$taxon_name]['sciname']);
             if(preg_match("/<FONT SIZE=\"\+4\">(.*?)<\/FONT>/ims", $html, $arr)) $GLOBALS['taxon'][$taxon_name]['comnames'][] = self::clean_str($arr[1]);
+            if($GLOBALS['taxon'][$taxon_name]['sciname'] == "Didymopanax morototoni (Aubl.) Decne. & Planch.") 
+            {
+                $GLOBALS['taxon'][$taxon_name]['sciname'] = "Schefflera morototoni";
+                $GLOBALS['taxon'][$taxon_name]['comnames'] = array();
+            }
+            elseif($GLOBALS['taxon'][$taxon_name]['sciname'] == "Chamaecyparis nootkatensis (D. Don)  Spach") 
+            {
+                $GLOBALS['taxon'][$taxon_name]['sciname'] = "Cupressus nootkatensis";
+                $GLOBALS['taxon'][$taxon_name]['comnames'] = array();
+            }
 
             // manual adjustment
             $html = str_ireplace('<H2></H2>', '', $html); //only for hardwoods
