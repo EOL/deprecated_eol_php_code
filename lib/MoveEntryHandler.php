@@ -53,7 +53,7 @@ class MoveEntryHandler
 
         /* HierarchyEntry::move_to_concept_static(he_id, tc_id, force); */
         $moved = HierarchyEntry::move_to_concept_static($args['hierarchy_entry_id'], $args['taxon_concept_id_to'], $force_move_if_disallowed, $args['reindex']);
-        throw new \Exception("This move is not allowed; it would affect other hierarchies") unless $moved;
+        if(!$moved) throw new \Exception("This move is not allowed; it would affect other hierarchies");
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" . $args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
         echo "\nMoved " . $args['hierarchy_entry_id'] . " to " . $args['taxon_concept_id_to'] . "\n\n";
 
