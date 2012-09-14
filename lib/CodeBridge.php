@@ -29,32 +29,38 @@ class CodeBridge
         php_active_record\MoveEntryHandler::move_entry($this->args);
       } elseif ($this->args['cmd'] == 'merge') {
         php_active_record\MergeConceptsHandler::merge_concepts($this->args);
+      } elseif ($this->args['cmd'] == 'reindex') {
+        php_active_record\TaxonConcept::reindex_descendants_objects($this->args['taxon_concept_id']);
+        php_active_record\TaxonConcept::reindex_for_search($this->args['taxon_concept_id']);
+        php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['taxon_concept_id']);
       } else {
         throw new Exception("No command available for ", $this->args['cmd']);
       }
     } catch (Exception $e) {
       $msg = $e->getMessage();
+      // Report for logging on the worker:
       echo "** [" . date('g:i A', time()) . "] Command Failed: ", $msg, "\n";
-      // Unlock everything, send errors to watchers:
-      if ($this->args['notify']) {
-        if ($this->args['bad_match_hierarchy_entry_id']) {
-          $tc_id = php_active_record\HierarchyEntry::find($this->args['bad_match_hierarchy_entry_id'])->taxon_concept_id;
-          php_active_record\TaxonConcept::unlock_classifications_by_id($tc_id, $this->args['notify'], $msg);
-        }
-        if ($this->args['to_taxon_concept_id']) {
-          php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['to_taxon_concept_id'], $this->args['notify'], $msg);
-        }
-        if ($this->args['id1']) {
-          php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['id1'], $this->args['notify'], $msg);
-        }
-        if ($this->args['id2']) {
-          php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['id2'], $this->args['notify'], $msg);
-        }
-      }
       foreach($this->args as $key => $value) 
       { 
         echo "  '$key' = '$value'\n";
       } 
+      // Actual error logs to the DB (note that this can fail if the DB connection was severed),
+      // so I'm attempting a reconnect, here:
+      $GLOBALS['db_connection']->close();
+      $GLOBALS['db_connection']->initialize();
+      if ($this->args['hierarchy_entry_id']) {
+        $GLOBALS['db_connection']->query("UPDATE hiearchy_entry_moves SET completed_at = " . $something .
+          ", error = '" . $msg . "' WHERE hierachy_entry_id = " . $args['hierarchy_entry_id'] .
+          " AND classification_curation_id = " . $args['classification_curation_id'];
+      } else { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
+        $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = " . $something .
+          ", error = '" . $msg . "' WHERE id = " . $args['classification_curation_id'];
+      }
+    }
+    // Don't need to check_status_and_notify if we're reindexing:
+    if ($this->args['cmd'] != 'reindex') {
+      \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
+                       'classification_curation_id' => $args['classification_curation_id']));
     }
     $GLOBALS['db_connection']->initialize();
   }
