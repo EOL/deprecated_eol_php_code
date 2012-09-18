@@ -16,6 +16,7 @@ class CodeBridge
 
   public function perform()
   {
+    $msg = '';
     try {
       $GLOBALS['db_connection']->close();
       $GLOBALS['db_connection']->initialize();
@@ -48,16 +49,25 @@ class CodeBridge
       // so I'm attempting a reconnect, here:
       $GLOBALS['db_connection']->close();
       $GLOBALS['db_connection']->initialize();
-      if ($this->args['hierarchy_entry_id']) {
-        $GLOBALS['db_connection']->query("UPDATE hiearchy_entry_moves SET completed_at = " . $something . ", error = '" . $msg . "' WHERE hierachy_entry_id = " . $args['hierarchy_entry_id'] . " AND classification_curation_id = " . $args['classification_curation_id']);
-      } else { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
-        $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = " . $something . ", error = '" . $msg . "' WHERE id = " . $args['classification_curation_id']);
-      }
     }
-    // Don't need to check_status_and_notify if we're reindexing:
-    if ($this->args['cmd'] != 'reindex') {
-      \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
-                       'classification_curation_id' => $args['classification_curation_id']));
+    try {
+      if ($this->args['hierarchy_entry_id']) {
+        $GLOBALS['db_connection']->query("UPDATE hiearchy_entry_moves SET completed_at = " . $something . ", error = '" . $msg . "' WHERE hierachy_entry_id = " . $this->args['hierarchy_entry_id'] . " AND classification_curation_id = " . $this->args['classification_curation_id']);
+      } else { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
+        $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = " . $something . ", error = '" . $msg . "' WHERE id = " . $this->args['classification_curation_id']);
+      }
+      // Don't need to check_status_and_notify if we're reindexing:
+      if ($this->args['cmd'] != 'reindex') {
+        \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
+                         'classification_curation_id' => $this->args['classification_curation_id']));
+      }
+    } catch (Exception $e) {
+      // Well, shoot, logging the error failed... just shout via STDOUT, I suppose:
+      echo "** [" . date('g:i A', time()) . "] Logging Failed: ", $e->getMessage(), "\n";
+      foreach($this->args as $key => $value) 
+      { 
+        echo "  '$key' = '$value'\n";
+      } 
     }
     $GLOBALS['db_connection']->initialize();
   }
