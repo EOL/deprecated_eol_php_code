@@ -29,7 +29,7 @@ class CodeBridge
         php_active_record\MoveEntryHandler::move_entry($this->args);
       } elseif ($this->args['cmd'] == 'merge') {
         php_active_record\MergeConceptsHandler::merge_concepts($this->args);
-      } elseif ($this->args['cmd'] == 'reindex') {
+      } elseif ($this->args['cmd'] == 'reindex_taxon_concept') {
         php_active_record\TaxonConcept::reindex_descendants_objects($this->args['taxon_concept_id']);
         php_active_record\TaxonConcept::reindex_for_search($this->args['taxon_concept_id']);
         php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['taxon_concept_id']);
