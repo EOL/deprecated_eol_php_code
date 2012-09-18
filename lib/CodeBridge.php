@@ -49,12 +49,9 @@ class CodeBridge
       $GLOBALS['db_connection']->close();
       $GLOBALS['db_connection']->initialize();
       if ($this->args['hierarchy_entry_id']) {
-        $GLOBALS['db_connection']->query("UPDATE hiearchy_entry_moves SET completed_at = " . $something .
-          ", error = '" . $msg . "' WHERE hierachy_entry_id = " . $args['hierarchy_entry_id'] .
-          " AND classification_curation_id = " . $args['classification_curation_id'];
+        $GLOBALS['db_connection']->query("UPDATE hiearchy_entry_moves SET completed_at = " . $something . ", error = '" . $msg . "' WHERE hierachy_entry_id = " . $args['hierarchy_entry_id'] . " AND classification_curation_id = " . $args['classification_curation_id']);
       } else { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
-        $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = " . $something .
-          ", error = '" . $msg . "' WHERE id = " . $args['classification_curation_id'];
+        $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = " . $something . ", error = '" . $msg . "' WHERE id = " . $args['classification_curation_id']);
       }
     }
     // Don't need to check_status_and_notify if we're reindexing:
