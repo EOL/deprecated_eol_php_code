@@ -35,15 +35,6 @@ class SplitEntryHandler
         echo HierarchyEntry::split_from_concept_static($args['hierarchy_entry_id'], $update_caches)."\n";
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" .$args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
 
-        if($args['reindex'] == 'reindex') // NOTE - this can ONLY be specified by the resque task, ATM.
-        {
-          require_library("SolrUpdateConceptHandler");
-          SolrUpdateConceptHandler::update_concept($he->taxon_concept_id);
-          TaxonConcept::unlock_classifications_by_id($bad_he->taxon_concept_id, $args['notify']);
-          $tc_id = HierarchyEntry::find($args['hierarchy_entry_id'])->taxon_concept_id;
-          TaxonConcept::unlock_classifications_by_id($tc_id, $args['notify']); // No need to unlock, but notify!
-        }
-
         echo "++ [" . date('g:i A', time()) . "] Done.\n";
 
     }else
