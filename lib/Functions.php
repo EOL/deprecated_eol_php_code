@@ -428,9 +428,39 @@ class Functions
         $string = str_replace("|-/n-|","</i>",$string);
         $string = str_replace("<i><i>", "<i>", $string);
         $string = str_replace("</i></i>", "</i>", $string);
-        
+        $string = Functions::fix_italics($string);
         unset($canonical_form);
         return $string;
+    }
+    
+    public static function fix_italics($italicized)
+    {
+        $modified_italicized = $italicized;
+        $modified_italicized = str_replace("<i><i>", "<i>", $modified_italicized);
+        $modified_italicized = str_replace("<i><i>", "<i>", $modified_italicized);
+        $modified_italicized = str_replace("</i></i>", "</i>", $modified_italicized);
+        $modified_italicized = str_replace("</i></i>", "</i>", $modified_italicized);
+        if(preg_match_all("/(<i>(.*?))<i>/", $modified_italicized, $matches, PREG_SET_ORDER))
+        {
+            foreach($matches as $match)
+            {
+                if(strpos($match[0], "</i>") === false)
+                {
+                    $modified_italicized = str_replace($match[0], $match[1], $modified_italicized);
+                }
+            }
+        }
+        if(preg_match_all("/<\/i>((.*?)<\/i>)/", $modified_italicized, $matches, PREG_SET_ORDER))
+        {
+            foreach($matches as $match)
+            {
+                if(strpos($match[0], "<i>") === false)
+                {
+                    $modified_italicized = str_replace($match[0], $match[1], $modified_italicized);
+                }
+            }
+        }
+        return $modified_italicized;
     }
     
     public static function class_name($path)

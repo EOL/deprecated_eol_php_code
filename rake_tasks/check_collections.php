@@ -23,25 +23,14 @@ class CollectionsFixer
     
     public function get_collection_counts()
     {
-        // $delete_queries = array("collection_item_id:162184468");
-        // $this->solr->delete_by_queries($delete_queries, false);
-        // $this->solr->commit();
-        // 
-        // $ids = array(162184468);
-        // $this->collection_item_indexer->index_collection_items($ids);
-        // $this->solr->commit();
-        // exit;
-        
-        
-
         // $test_collection_id = 19;
         if(isset($test_collection_id))
         {
             $result = $this->mysqli->query("SELECT c.id, count(*) count FROM collections c JOIN collection_items ci ON (c.id=ci.collection_id) WHERE c.id=$test_collection_id GROUP BY c.id");
         }else
         {
-            $result = $this->mysqli->query("SELECT c.id, count(*) count FROM collections c JOIN collection_items ci ON (c.id=ci.collection_id) WHERE c.id BETWEEN 30000 AND 40000 GROUP BY c.id");
-        } 
+            $result = $this->mysqli->query("SELECT c.id, count(*) count FROM collections c JOIN collection_items ci ON (c.id=ci.collection_id) GROUP BY c.id");
+        }
         while($result && $row=$result->fetch_assoc())
         {
             $collection_id = $row['id'];
@@ -52,11 +41,11 @@ class CollectionsFixer
             
             
             echo "Collection $collection_id : $mysql_count\n";
-            $this->fix_collection($collection_id);
+            $this->fix_collection($collection_id, isset($test_collection_id));
         }
     }
     
-    public function fix_collection($collection_id)
+    public function fix_collection($collection_id, $test_mode)
     {
         $collection_ids_in_mysql = array();
         foreach($this->mysqli->iterate_file("SELECT id, object_id FROM collection_items WHERE collection_id=$collection_id ORDER BY id") as $row_num => $row)
@@ -101,7 +90,8 @@ class CollectionsFixer
         echo "Need to be Deleted: ". count($items_that_need_to_be_deleted) ."\n\n\n";
         // print_r($items_that_need_to_be_deleted);
         
-        // return;
+        if($test_mode) return;
+        
         if($items_that_need_to_be_deleted)
         {
             foreach($items_that_need_to_be_deleted as &$item)
@@ -134,7 +124,6 @@ class CollectionsFixer
             $this->collection_item_indexer->index_collection_items($chunk);
             $this->solr->commit();
         }
-        
     }
 }
 
@@ -142,4 +131,3 @@ class CollectionsFixer
 
 
 ?>
-

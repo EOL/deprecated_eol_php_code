@@ -44,32 +44,7 @@ class ItalicsFixer
         {
             $name_id = $row[0];
             $italicized = $row[1];
-            $modified_italicized = $italicized;
-            $modified_italicized = str_replace("<i><i>", "<i>", $modified_italicized);
-            $modified_italicized = str_replace("<i><i>", "<i>", $modified_italicized);
-            $modified_italicized = str_replace("</i></i>", "</i>", $modified_italicized);
-            $modified_italicized = str_replace("</i></i>", "</i>", $modified_italicized);
-            if(preg_match_all("/(<i>(.*?))<i>/", $modified_italicized, $matches, PREG_SET_ORDER))
-            {
-                foreach($matches as $match)
-                {
-                    if(strpos($match[0], "</i>") === false)
-                    {
-                        $modified_italicized = str_replace($match[0], $match[1], $modified_italicized);
-                    }
-                }
-            }
-            if(preg_match_all("/<\/i>((.*?)<\/i>)/", $modified_italicized, $matches, PREG_SET_ORDER))
-            {
-                foreach($matches as $match)
-                {
-                    if(strpos($match[0], "<i>") === false)
-                    {
-                        $modified_italicized = str_replace($match[0], $match[1], $modified_italicized);
-                    }
-                }
-            }
-            
+            $modified_italicized = Functions::fix_italics($italicized);
             $count_open = substr_count($modified_italicized, '<i>');
             $count_closed = substr_count($modified_italicized, '</i>');
             if($modified_italicized != $italicized && $count_open == $count_closed)

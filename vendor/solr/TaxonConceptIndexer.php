@@ -149,7 +149,7 @@ class TaxonConceptIndexer
     function lookup_ranks($start, $limit, $filter = "1=1", &$taxon_concept_ids = array())
     {
         debug("querying ranks");
-        $query = " SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries he WHERE he.visibility_id=".Visibility::find('visible')." AND he.published=1 AND taxon_concept_id ";
+        $query = " SELECT taxon_concept_id, rank_id, hierarchy_id FROM hierarchy_entries he WHERE he.visibility_id=".Visibility::find('visible')->id." AND he.published=1 AND taxon_concept_id ";
         if($taxon_concept_ids) $query .= "IN (". implode(",", $taxon_concept_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
         
