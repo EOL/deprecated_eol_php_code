@@ -157,7 +157,7 @@ class CollectionItemIndexer
                 'added_by_user_id'  => $added_by_user_id,
                 'date_created'      => $created_at ?: '1960-01-01T00:00:01Z',
                 'date_modified'     => $updated_at ?: '1960-01-01T00:00:01Z',
-                'title'             => SolrAPI::text_filter($title),
+                'title'             => (SolrAPI::text_filter($title) ?: 'User'),
                 'data_rating'       => $data_rating,
                 'richness_score'    => 0);
             $used_ids[$collection_item_id] = true;
@@ -210,7 +210,7 @@ class CollectionItemIndexer
                 'added_by_user_id'  => $added_by_user_id,
                 'date_created'      => $created_at ?: '1960-01-01T00:00:01Z',
                 'date_modified'     => $updated_at ?: '1960-01-01T00:00:01Z',
-                'title'             => SolrAPI::text_filter($title),
+                'title'             => (SolrAPI::text_filter($title) ?: 'User'),
                 'richness_score'    => $richness_score,
                 'data_rating'       => 0,
                 'sort_field'        => SolrAPI::text_filter($sort_field));
@@ -254,7 +254,7 @@ class CollectionItemIndexer
                 'added_by_user_id'  => $added_by_user_id,
                 'date_created'      => $created_at ?: '1960-01-01T00:00:01Z',
                 'date_modified'     => $updated_at ?: '1960-01-01T00:00:01Z',
-                'title'             => SolrAPI::text_filter($username),
+                'title'             => (SolrAPI::text_filter($username) ?: 'User'),
                 'richness_score'    => 0,
                 'data_rating'       => 0);
             $used_ids[$collection_item_id] = true;
@@ -297,7 +297,7 @@ class CollectionItemIndexer
                 'added_by_user_id'  => $added_by_user_id,
                 'date_created'      => $created_at ?: '1960-01-01T00:00:01Z',
                 'date_modified'     => $updated_at ?: '1960-01-01T00:00:01Z',
-                'title'             => SolrAPI::text_filter($name),
+                'title'             => (SolrAPI::text_filter($name) ?: 'User'),
                 'richness_score'    => 0,
                 'data_rating'       => 0);
             $used_ids[$collection_item_id] = true;
@@ -340,7 +340,7 @@ class CollectionItemIndexer
                 'added_by_user_id'  => $added_by_user_id,
                 'date_created'      => $created_at ?: '1960-01-01T00:00:01Z',
                 'date_modified'     => $updated_at ?: '1960-01-01T00:00:01Z',
-                'title'             => SolrAPI::text_filter($name),
+                'title'             => (SolrAPI::text_filter($name) ?: 'User'),
                 'richness_score'    => 0,
                 'data_rating'       => 0);
             $used_ids[$collection_item_id] = true;
@@ -349,3 +349,4 @@ class CollectionItemIndexer
 }
 
 ?>
+
