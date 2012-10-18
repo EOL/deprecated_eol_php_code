@@ -52,14 +52,17 @@ class CodeBridge
     }
     try {
       if ($this->args['hierarchy_entry_id']) {
-        $GLOBALS['db_connection']->query("UPDATE hiearchy_entry_moves SET completed_at = " . $something . ", error = '" . $msg . "' WHERE hierachy_entry_id = " . $this->args['hierarchy_entry_id'] . " AND classification_curation_id = " . $this->args['classification_curation_id']);
-      } else { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
-        $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = " . $something . ", error = '" . $msg . "' WHERE id = " . $this->args['classification_curation_id']);
+        $GLOBALS['db_connection']->query("UPDATE hierarchy_entry_moves SET completed_at = NOW(), error = '" . $msg . "' WHERE hierarchy_entry_id = " . $this->args['hierarchy_entry_id'] . " AND classification_curation_id = " . $this->args['classification_curation_id']);
+        echo "++ Updating move for HE " . $this->args['hierarchy_entry_id'] . ", curation " . $this->args['classification_curation_id'] . ". Message: $msg\n";
+      } elseif($this->args['classification_curation_id']) { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
+        $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = NOW(), error = '" . $msg . "' WHERE id = " . $this->args['classification_curation_id']);
+        echo "++ Updating curation " . $this->args['classification_curation_id'] . ". Message: $msg\n";
       }
       // Don't need to check_status_and_notify if we're reindexing:
       if ($this->args['cmd'] != 'reindex') {
         \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
                          'classification_curation_id' => $this->args['classification_curation_id']));
+        echo "++ Enqueued notifications/CodeBridge/check_status_and_notify(classification_curation_id = " .  $this->args['classification_curation_id'] . ")\n";
       }
     } catch (Exception $e) {
       // Well, shoot, logging the error failed... just shout via STDOUT, I suppose:
