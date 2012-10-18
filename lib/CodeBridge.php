@@ -51,15 +51,16 @@ class CodeBridge
       $GLOBALS['db_connection']->initialize();
     }
     try {
-      if ($this->args['hierarchy_entry_id']) {
+      if (array_key_exists('hierarchy_entry_id', $this->args)) {
         $GLOBALS['db_connection']->query("UPDATE hierarchy_entry_moves SET completed_at = NOW(), error = '" . $msg . "' WHERE hierarchy_entry_id = " . $this->args['hierarchy_entry_id'] . " AND classification_curation_id = " . $this->args['classification_curation_id']);
         echo "++ Updating move for HE " . $this->args['hierarchy_entry_id'] . ", curation " . $this->args['classification_curation_id'] . ". Message: $msg\n";
-      } elseif($this->args['classification_curation_id']) { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
+
+      } elseif(array_key_exists('classification_curation_id', $this->args)) { // This was a merge; there are no HEs, so we should only have one error on the curation itself:
         $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = NOW(), error = '" . $msg . "' WHERE id = " . $this->args['classification_curation_id']);
         echo "++ Updating curation " . $this->args['classification_curation_id'] . ". Message: $msg\n";
       }
-      // Don't need to check_status_and_notify if we're reindexing:
-      if ($this->args['cmd'] != 'reindex') {
+      // Need to check_status_and_notify if we're not reindexing and if we have a curation ID:
+      if ($this->args['cmd'] != 'reindex' && array_key_exists('classification_curation_id', $this->args)) {
         \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
                          'classification_curation_id' => $this->args['classification_curation_id']));
         echo "++ Enqueued notifications/CodeBridge/check_status_and_notify(classification_curation_id = " .  $this->args['classification_curation_id'] . ")\n";
