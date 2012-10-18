@@ -8,7 +8,7 @@ include_once(dirname(__FILE__) . "/../lib/SplitEntryHandler.php");
 
 try {
   SplitEntryHandler::split_entry(array('hierarchy_entry_id'     => @$argv[1],
-                                       'bad_hierarchy_entry_id' => @$argv[2],
+                                       'bad_match_hierarchy_entry_id' => @$argv[2],
                                        'confirmed'              => @$argv[3],
                                        'reindex'                => @trim($argv[4])));
 } catch (\Exception $e) {

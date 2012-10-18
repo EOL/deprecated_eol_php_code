@@ -100,6 +100,11 @@ class Resource extends ActiveRecord
         return self::find_by_title('EOL Group on Flickr');
     }
     
+    public static function ligercat()
+    {
+        return self::find_by_title('LigerCat');
+    }
+    
     public function is_inaturalist()
     {
         if($this->id == 430) return true;
