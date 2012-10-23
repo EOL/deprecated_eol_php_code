@@ -115,6 +115,7 @@ class HierarchyEntry extends ActiveRecord
                 $mysqli->end_transaction();
             }
         }
+        return(true);
     }
     
     public static function entry_move_effects_other_hierarchies($hierarchy_entry_id, $new_taxon_concept_id)

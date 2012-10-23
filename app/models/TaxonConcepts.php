@@ -15,7 +15,7 @@ class TaxonConcept extends ActiveRecord
         self::supercede_by_ids($taxon_concept_id, $this->id);
     }
 
-    public static function unlock_classifications_by_id($id, $notify = null, $error = null)
+    public static function unlock_classifications_by_id($id)
     {
 
       $mysqli =& $GLOBALS['mysqli_connection'];

@@ -51,9 +51,20 @@ class MoveEntryHandler
         // them are blocking the move:
         foreach ($tc_to->hierarchy_entries as $tc_he) $GLOBALS['db_connection']->query("DELETE FROM curated_hierarchy_entry_relationships WHERE hierarchy_entry_id_1=" .$args['hierarchy_entry_id'] . " AND hierarchy_entry_id_2=" . $tc_he->id . " AND equivalent=0");
 
-        /* HierarchyEntry::move_to_concept_static(he_id, tc_id, force); */
+        echo ".. Force? ";
+        if($force_move_if_disallowed)
+        {
+          echo "Yes.\n";
+        } else
+        {
+          echo "No.\n";
+        }
         $moved = HierarchyEntry::move_to_concept_static($args['hierarchy_entry_id'], $args['taxon_concept_id_to'], $force_move_if_disallowed, $args['reindex']);
-        if(!$moved) throw new \Exception("This move is not allowed; it would affect other hierarchies");
+        if(!$moved)
+        {
+          echo "++ [" . date('g:i A', time()) . "] NOT ALLOWED: throwing exception.\n";
+          throw new \Exception("This move is not allowed; it would affect other hierarchies");
+        }
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" . $args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
         echo "\nMoved " . $args['hierarchy_entry_id'] . " to " . $args['taxon_concept_id_to'] . "\n\n";
 
