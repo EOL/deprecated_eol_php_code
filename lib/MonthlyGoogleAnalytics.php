@@ -376,7 +376,7 @@ class MonthlyGoogleAnalytics
     {
         $year_month = $year . "_" . $month;
         $start_date = "$year-$month-01";
-        $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);
+        $end_date   = "$year-$month-" . Functions::last_day_of_month(intval($month), $year);
         print "\n start day = $start_date \n end day = $end_date \n";
         if($start_date < "2011-09-01") self::$profile_name = V1_PROFILE_NAME;
         else                           self::$profile_name = V2_PROFILE_NAME;
@@ -518,7 +518,7 @@ class MonthlyGoogleAnalytics
         print "\n profile: " . self::$profile_name;
         foreach($api[0] as $label => $value)
         {
-            $a = date("Y m d", mktime(0, 0, 0, $month, getlastdayofmonth(intval($month), $year), $year)) . " 23:59:59";
+            $a = date("Y m d", mktime(0, 0, 0, $month, Functions::last_day_of_month(intval($month), $year), $year)) . " 23:59:59";
             $b = date("Y m d H:i:s");
             if($a <= $b) $tab_delim .= $value . "\t";
         }

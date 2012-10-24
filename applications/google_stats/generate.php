@@ -297,7 +297,7 @@ function get_from_api($month,$year)
     global $mysqli2;
     
     $start_date = "$year-$month-01";
-    $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);           
+    $end_date   = "$year-$month-" . Functions::last_day_of_month(intval($month), $year);
     
     print"<hr>
     start = $start_date <br>
@@ -419,11 +419,6 @@ function get_from_api($month,$year)
     }
     return $final;
 }//function get_from_api($month,$year)
-
-function getlastdayofmonth($month, $year) 
-{
-    return idate('d', mktime(0, 0, 0, ($month + 1), 0, $year));
-}
 
 function initialize_tables_4dmonth()
 {
