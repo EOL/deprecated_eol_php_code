@@ -61,6 +61,7 @@ config/environments/*
 !config/environments/production_sample.php
 config/old
 config/start.php
+config/google-privatekey.p12
 lib/NewDenormalizedTables.php
 log/*
 !log/.gitignore

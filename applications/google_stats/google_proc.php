@@ -4,12 +4,12 @@ function prepare_vars($website, $month, $year, $entire_year = Null)
     if($entire_year)
     {
         $start_date = "$year-01-01";
-        $end_date   = "$year-12-" . getlastdayofmonth(12, $year);
+        $end_date   = "$year-12-" . Functions::last_day_of_month(12, $year);
     }
     else
     {
         $start_date = "$year-$month-01";
-        $end_date   = "$year-$month-" . getlastdayofmonth(intval($month), $year);
+        $end_date   = "$year-$month-" . Functions::last_day_of_month(intval($month), $year);
     }
     if($website == "eol" or $website == NULL)
     {   $login = GOOGLE_ANALYTICS_API_USERNAME;
@@ -249,11 +249,6 @@ function get_from_api($month, $year, $website = NULL)
     }
     else echo "\n -login failed- \n";
     return $final;
-}
-
-function getlastdayofmonth($month, $year)
-{
-    return idate('d', mktime(0, 0, 0, ($month + 1), 0, $year));
 }
 
 function GetNumMonthAsString($m,$y)
