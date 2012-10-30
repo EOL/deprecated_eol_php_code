@@ -78,4 +78,6 @@ class CodeBridge
 
 }
 
+echo "** [" . date('g:i A', time()) . "] CodeBridge loaded.\n";
+
 ?>
