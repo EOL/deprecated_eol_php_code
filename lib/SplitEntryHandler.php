@@ -31,8 +31,7 @@ class SplitEntryHandler
     if($args['confirmed'] == 'confirmed')
     {
         $user_id = 13;  # 13 is Patrick's user ID - TODO - this should be an argument.  :|
-        $update_caches = true;
-        echo HierarchyEntry::split_from_concept_static($args['hierarchy_entry_id'], $update_caches)."\n";
+        echo HierarchyEntry::split_from_concept_static($args['hierarchy_entry_id'], false)."\n";
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" .$args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
 
         echo "++ [" . date('g:i A', time()) . "] Done.\n";
