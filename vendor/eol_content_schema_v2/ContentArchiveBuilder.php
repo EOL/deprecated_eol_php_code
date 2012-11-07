@@ -43,7 +43,7 @@ class ContentArchiveBuilder
         $this->finalize();
     }
     
-    public function finalize()
+    public function finalize($compress = false)
     {
         $meta_xml_contents = "<?xml version=\"1.0\"?>\n";
         $meta_xml_contents .= "<archive xmlns=\"http://rs.tdwg.org/dwc/text/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://rs.tdwg.org/dwc/text/  http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd\">\n";
@@ -70,6 +70,15 @@ class ContentArchiveBuilder
         $META_FILE = fopen($this->directory . "meta.xml", 'w+');
         fwrite($META_FILE, $meta_xml_contents);
         fclose($META_FILE);
+        
+        if($compress)
+        {
+            $info = pathinfo($this->directory);
+            $temporary_tarball_path = \php_active_record\temp_filepath();
+            $final_tarball_path = $archive_temp_directory_path . $info['basename'] .".tar.gz";
+            shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
+            rename($temporary_tarball_path, $info['dirname'] ."/". $final_tarball_path);
+        }
     }
     
     public function rebalance_tabs_and_add_header($file_name)
