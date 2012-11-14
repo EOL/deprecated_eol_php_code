@@ -8,6 +8,7 @@ if (defined('RESQUE_HOST')) {
 php_active_record\require_library("SplitEntryHandler");
 php_active_record\require_library("MoveEntryHandler");
 php_active_record\require_library("MergeConceptsHandler");
+php_active_record\require_library("ReindexHandler");
 
 // This is a way for PHP and Ruby to talk across Resque. If the class names are (exactly) the same, they can pass
 // JSON back and forth fairly simply.
@@ -31,9 +32,7 @@ class CodeBridge
       } elseif ($this->args['cmd'] == 'merge') {
         php_active_record\MergeConceptsHandler::merge_concepts($this->args);
       } elseif ($this->args['cmd'] == 'reindex_taxon_concept') {
-        php_active_record\TaxonConcept::reindex_descendants_objects($this->args['taxon_concept_id']);
-        php_active_record\TaxonConcept::reindex_for_search($this->args['taxon_concept_id']);
-        php_active_record\TaxonConcept::unlock_classifications_by_id($this->args['taxon_concept_id']);
+        php_active_record\ReindexHandler::reindex_concept($this->args);
       } else {
         throw new Exception("No command available for ", $this->args['cmd']);
       }
