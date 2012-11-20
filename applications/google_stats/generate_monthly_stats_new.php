@@ -36,7 +36,7 @@ function get_month_and_year()
     
     if(!$month && !$year)
     {
-        $last_month_date = mktime(0, 0, 0, date("m"), 1, date("Y"));
+        $last_month_date = mktime(0, 0, 0, date("m")-1, 1, date("Y"));
         $month = date('n', $last_month_date);
         $year = date('Y', $last_month_date);
     }

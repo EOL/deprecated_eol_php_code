@@ -467,6 +467,8 @@ class Resource extends ActiveRecord
                 $this->harvest_event->save();
                 $this->publish($fast_for_testing);
             }
+            
+            $this->harvest_event->send_emails_about_outlier_harvests();
         }
         $this->harvest_event = null;
     }

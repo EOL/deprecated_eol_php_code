@@ -338,6 +338,80 @@ class HarvestEvent extends ActiveRecord
         }
     }
     
+    function count_data_objects()
+    {
+        $result = $this->mysqli->query("SELECT count(*) as count FROM data_objects_harvest_events WHERE harvest_event_id=$this->id");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return $row['count'];
+        }
+        return 0;
+    }
+    
+    function count_hierarchy_entries()
+    {
+        $result = $this->mysqli->query("SELECT count(*) as count FROM harvest_events_hierarchy_entries WHERE harvest_event_id=$this->id");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return $row['count'];
+        }
+        return 0;
+    }
+    
+    function percent_different_data_objects()
+    {
+        $previous_harvest_event = $this->previous_harvest_event();
+        if(!$previous_harvest_event) return 0;
+        $my_count = $this->count_data_objects();
+        $previous_count = $previous_harvest_event->count_data_objects();
+        if($previous_count == 0) return 0;
+        return ((($my_count - $previous_count) / $previous_count) * 100);
+    }
+    
+    function percent_different_hierarchy_entries()
+    {
+        $previous_harvest_event = $this->previous_harvest_event();
+        if(!$previous_harvest_event) return 0;
+        $my_count = $this->count_hierarchy_entries();
+        $previous_count = $previous_harvest_event->count_hierarchy_entries();
+        if($previous_count == 0) return 0;
+        return ((($my_count - $previous_count) / $previous_count) * 100);
+    }
+    
+    function send_emails_about_outlier_harvests()
+    {
+        if(abs($this->percent_different_data_objects()) > 10 ||
+            abs($this->percent_different_hierarchy_entries()) > 10)
+        {
+            $subject = 'EOL Harvesting: outlier harvest event';
+            $message = "A Harvest Event just completed which has an unusual change in data objects or taxa counts.\n\n";
+            
+            $message .= "ContentPartner: ". $this->resource->content_partner->full_name ."\n";
+            $message .= "URL: http://eol.org/content_partners/". $this->resource->content_partner_id ."\n\n";
+            
+            $message .= "Resource: ". $this->resource->title ."\n";
+            $message .= "URL: http://eol.org/content_partners/". $this->resource->content_partner_id ."/resources/$this->resource_id\n\n";
+            
+            $message .= "This Harvest Event Stats:\n";
+            $message .= "Processed at: $this->completed_at\n";
+            $message .= "Count of Objects: ". $this->count_data_objects() ." (a difference of ". round($this->percent_different_data_objects(), 2) ."%)\n";
+            $message .= "Count of Taxa: ". $this->count_hierarchy_entries() ." (a difference of ". round($this->percent_different_hierarchy_entries(), 2) ."%)\n\n";
+            
+            $previous_harvest_event = $this->previous_harvest_event();
+            $message .= "Previous Harvest Event Stats:\n";
+            $message .= "Processed at: $previous_harvest_event->completed_at\n";
+            $message .= "Count of Objects: ". $previous_harvest_event->count_data_objects() ."\n";
+            $message .= "Count of Taxa: ". $previous_harvest_event->count_hierarchy_entries();
+            
+            
+            $headers = 'From: no-reply@eol.org' . "\r\n" .
+                'Reply-To: no-reply@eol.org' . "\r\n" .
+                'X-Mailer: PHP/' . phpversion();
+            $to      = implode(";", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS));
+            mail($to, $subject, $message, $headers);
+        }
+    }
+    
     private function add_objects_to_collection($collection)
     {
         $sound_type_ids = DataType::sound_type_ids();
@@ -403,7 +477,6 @@ class HarvestEvent extends ActiveRecord
         $this->mysqli->load_data_infile($outfile, 'collection_items');
         unlink($outfile);
     }
-    
 }
 
 ?>
