@@ -100,8 +100,11 @@ class MediaResource extends DarwinCoreExtensionBase
                 'validation_function'   => 'eol_schema\MediaResource::text_needs_descriptions',
                 'failure_type'          => 'error',
                 'failure_message'       => 'Text must have descriptions'));
-                
-                
+            
+            $rules[] = new ContentArchiveRowValidationRule(array(
+                'validation_function'   => 'eol_schema\MediaResource::text_needs_subjects',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Text must have subjects'));
         }
         return $rules;
     }
@@ -225,6 +228,16 @@ class MediaResource extends DarwinCoreExtensionBase
     {
         if(@strtolower($fields['http://purl.org/dc/terms/type']) == 'http://purl.org/dc/dcmitype/text' &&
             @!$fields['http://purl.org/dc/terms/description'])
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public static function text_needs_subjects($fields)
+    {
+        if(@strtolower($fields['http://purl.org/dc/terms/type']) == 'http://purl.org/dc/dcmitype/text' &&
+            @!$fields['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'])
         {
             return false;
         }
