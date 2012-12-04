@@ -29,6 +29,7 @@ if($file_url || $file_upload)
         $status = "Invalid";
     }elseif($errors)
     {
+        $color = '#FF6600';
         $status = "Partially Valid";
     }
     print "<hr><h2 style='color:$color;'>This archive is $status</h2>";

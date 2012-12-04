@@ -1,5 +1,7 @@
 <?php
 
+ini_set('memory_limit', '3024M');
+
 $mysqldump_path = @$argv[1];
 $obfuscated_dump_path = @$argv[2];
 
@@ -28,8 +30,16 @@ $fields_to_obfuscate = array(
         'family_name' => 'name',
         'email' => 'email',
         'telephone' => 'phone',
-        'address' => 'address')
+        'address' => 'address'),
+        
+    'open_authentications' => array(
+        'provider' => 'string',
+        'guid' => 'string',
+        'token' => 'string',
+        'secret' => 'string')
 );
+
+
 
 $obfuscator = new MysqlDumpObfuscator();
 $obfuscator->obfuscate_mysqldump($mysqldump_path, $fields_to_obfuscate, $obfuscated_dump_path);
