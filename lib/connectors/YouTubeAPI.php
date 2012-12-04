@@ -61,6 +61,7 @@ class YouTubeAPI
             $video_index = 0;
             foreach($user_video_ids[$username] as $video_id)
             {
+                print "\n $username - $video_id";
                 $video_index++;
                 if($GLOBALS['ENV_DEBUG']) echo "[user $user_index of $total_users] [video $video_index of $number_of_user_videos]\n";
                 if($record = self::build_data($video_id))
@@ -94,6 +95,12 @@ class YouTubeAPI
     {
         $url = YOUTUBE_API  . '/videos/' . $video_id . '?v=2&alt=json';
         $raw_json = Functions::get_remote_file($url);
+
+        $raw_json = str_ireplace("taxonomy", "taxonomy", $raw_json);
+        $raw_json = str_ireplace("binomial", "binomial", $raw_json);
+        $raw_json = str_ireplace("taxonomy: binomial", "taxonomy:binomial", $raw_json);
+        $raw_json = str_ireplace("taxonomy:binomial:", "taxonomy:binomial=", $raw_json);
+
         $json_object = json_decode($raw_json);
         if(!@$json_object->entry->id)
         {
@@ -271,7 +278,7 @@ class YouTubeAPI
         if(!isset($sciname))
         {
             print "\n This needs checking...";
-            print "<pre>"; print_r($match); print "</pre>";
+            print_r($match);
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
@@ -354,7 +361,7 @@ class YouTubeAPI
         $usernames_of_subscribers['EncyclopediaOfLife'] = 1;
         
         /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
-        $usernames_of_people_to_ignore = array('PRI');
+        $usernames_of_people_to_ignore = array('PRI', 'pri');
         
         // /* as of 3-14-12: This is the same list that is taken from the API below. 
         // This is just a safeguard that when the API suddenly changes that EOL won't lose all their YouTube contributors */
@@ -372,20 +379,20 @@ class YouTubeAPI
 
         /* or you can get them by getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
-        $xml = Functions::get_hashed_response($url);
-        foreach($xml->entry as $entry)
+        if($xml = Functions::get_hashed_response($url))
         {
-            foreach($entry->title as $title)
+            foreach($xml->entry as $entry)
             {
-                if(preg_match("/^Activity of: (.*)$/", $title, $arr))
+                $yt = $entry->children("http://gdata.youtube.com/schemas/2007");
+                $username = trim($yt->username);
+                if(!in_array($username, $usernames_of_people_to_ignore))
                 {
-                    if(!in_array($arr[1], $usernames_of_people_to_ignore))
-                    {
-                        $usernames_of_subscribers[$arr[1]] = 1;
-                    }
+                    $usernames_of_subscribers[$username] = 1;
                 }
             }
         }
+        else print "\n Service not available: $url";
+        print_r(array_keys($usernames_of_subscribers));
         return array_keys($usernames_of_subscribers);
     }
 
