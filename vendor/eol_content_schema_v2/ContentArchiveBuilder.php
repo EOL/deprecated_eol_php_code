@@ -77,6 +77,7 @@ class ContentArchiveBuilder
             $temporary_tarball_path = \php_active_record\temp_filepath();
             $final_tarball_path = $archive_temp_directory_path . $info['basename'] .".tar.gz";
             shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
+            @unlink($info['dirname'] ."/". $final_tarball_path);
             rename($temporary_tarball_path, $info['dirname'] ."/". $final_tarball_path);
         }
     }
