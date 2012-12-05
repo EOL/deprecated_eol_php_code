@@ -363,10 +363,9 @@ class YouTubeAPI
         /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
         $usernames_of_people_to_ignore = array('PRI', 'pri');
         
-        // /* as of 3-14-12: This is the same list that is taken from the API below. 
+        // /* as of Dec-04-2012: This is the same list that is taken from the API below. 
         // This is just a safeguard that when the API suddenly changes that EOL won't lose all their YouTube contributors */
         // $usernames_of_subscribers['jenhammock1']        = 1;
-        // $usernames_of_subscribers['PRI']                = 1;
         // $usernames_of_subscribers['treegrow']           = 1;
         // $usernames_of_subscribers['soapberrybug']       = 1;
         // $usernames_of_subscribers['heliam']             = 1;
@@ -376,6 +375,15 @@ class YouTubeAPI
         // $usernames_of_subscribers['TuftsEnvStudies']    = 1;
         // $usernames_of_subscribers['censusofmarinelife'] = 1;
         // $usernames_of_subscribers['lubaro1977']         = 1;
+        // $usernames_of_subscribers['exallias1']          = 1;
+        // $usernames_of_subscribers['parcscanada']        = 1;
+        // $usernames_of_subscribers['nscgreensboro']      = 1;
+        // $usernames_of_subscribers['scubapro25']         = 1;
+        // $usernames_of_subscribers['dunoyer']            = 1;
+        // $usernames_of_subscribers['drbillbushing']      = 1;
+        // $usernames_of_subscribers['sheshadriali']       = 1;
+        // $usernames_of_subscribers['lodolai0']           = 1;
+        // $usernames_of_subscribers['exallias']           = 1;
 
         /* or you can get them by getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
