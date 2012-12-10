@@ -362,7 +362,8 @@ class NameTag
             }
             
             // we found the first word in a potential name string
-            if($parameters["current_string"] && is_null($name_start_index))
+            if(($parameters["current_string"] && is_null($name_start_index))  ||
+                ($name_start_index && $parameters["current_string"] && strpos($parameters["current_string"], ' ') === false))
             {
                 $name_start_index = $index;
                 $name_last_index = $index;
