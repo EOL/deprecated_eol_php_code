@@ -35,11 +35,6 @@ class PlantConservationAPI
                 if(preg_match("/^control-/", $path)) continue;
                 if(preg_match("/^plants-to-watch.htm#/", $path)) continue;
                 
-                # multiple species
-                if($path == "bamboos.htm") continue;
-                if($path == "privets.htm") continue;
-                if($path == "ornu-orum.htm") continue;
-                
                 # lots on the same page
                 if($path == "plants-to-watch.htm")
                 {
@@ -128,7 +123,7 @@ class PlantConservationAPI
         }
     }
     
-    public function write_taxon($taxon_id, $scientific_name, $canonical_form, $family, $common_name)
+    public function write_taxon($taxon_id, $scientific_name, $canonical_form, $family, $common_name = "")
     {
         if(isset($this->taxa[$taxon_id])) return $this->taxa[$taxon_id];
         $rank = 'species';
@@ -166,30 +161,72 @@ class PlantConservationAPI
         $taxa_page_html = self::lookup_with_cache($url);
         
         // Taxon
-        $common_name = null;
-        $scientific_name = null;
-        $canonical_form = null;
-        $family = null;
-        if(preg_match("/<p class=\"heading-1-left-16-pt\">(.*?)<\/p>/ims", $taxa_page_html, $arr))
+        if($url == self::MIDATLANTIC_TAXA_PREFIX."bamboos.htm")
         {
-            $common_name = trim($arr[1]);
-            $common_name = str_replace("&rsquo;", "'", $common_name);
+            $taxon_ids = array();
+            $this->write_taxon("bambusa", "Bambusa", "Bambusa", "Poaceae");
+            $taxon_ids[] = 'bambusa';
+            $this->write_taxon("bambusa_vulgaris", "Bambusa vulgaris Schrad. ex J.C. Wendl", "Bambusa vulgaris", "Poaceae", "Common bamboo");
+            $taxon_ids[] = 'bambusa_vulgaris';
+            $this->write_taxon("phyllostachys_aurea", "Phyllostachys aurea Carr. ex A.& C. Rivière", "Phyllostachys aurea", "Poaceae", "Golden bamboo");
+            $taxon_ids[] = 'phyllostachys_aurea';
+            $this->write_taxon("pseudosasa_japonica", "Pseudosasa japonica (Sieb. & Zucc. ex Steud.) Makino ex Nakai", "Pseudosasa japonica", "Poaceae", "Arrow bamboo");
+            $taxon_ids[] = 'pseudosasa_japonica';
+            $this->write_taxon("arundinaria_gigantea", "Arundinaria gigantea (Walter) Muhl.", "Arundinaria gigantea", "Poaceae", "Giant cane");
+            $taxon_ids[] = 'arundinaria_gigantea';
+            $taxon_id = "bambusa";
+        }elseif($url == self::MIDATLANTIC_TAXA_PREFIX."privets.htm")
+        {
+            $taxon_ids = array();
+            $this->write_taxon("ligustrum", "Ligustrum", "Ligustrum", "Oleaceae");
+            $taxon_ids[] = 'ligustrum';
+            $this->write_taxon("ligustrum_obtusifolium", "Ligustrum obtusifolium Sieb. & Zucc.", "Ligustrum obtusifolium", "Oleaceae", "Border privet");
+            $taxon_ids[] = 'ligustrum_obtusifolium';
+            $this->write_taxon("ligustrum_ovalifolium", "Ligustrum ovalifolium Hassk.", "Ligustrum ovalifolium", "Oleaceae", "California privet");
+            $taxon_ids[] = 'ligustrum_ovalifolium';
+            $this->write_taxon("ligustrum_sinense", "Ligustrum sinense Lour.", "Ligustrum sinense", "Oleaceae", "Chinese privet");
+            $taxon_ids[] = 'ligustrum_sinense';
+            $this->write_taxon("ligustrum_vulgare", "Ligustrum vulgare L.", "Ligustrum vulgare", "Oleaceae", "European privet");
+            $taxon_ids[] = 'ligustrum_vulgare';
+            $taxon_id = "ligustrum";
+        }elseif($url == self::MIDATLANTIC_TAXA_PREFIX."ornu-orum.htm")
+        {
+            $taxon_ids = array();
+            $this->write_taxon("ornithogalum", "Ornithogalum", "Ornithogalum", "Liliaceae");
+            $taxon_ids[] = 'ornithogalum';
+            $this->write_taxon("ornithogalum_nutans", "Ornithogalum nutans L.", "Ornithogalum nutans", "Liliaceae", "Nodding Star-of-Bethlehem");
+            $taxon_ids[] = 'ornithogalum_nutans';
+            $this->write_taxon("ornithogalum_umbellatum", "Ornithogalum umbellatum L.", "Ornithogalum umbellatum", "Liliaceae", "Sleepydick");
+            $taxon_ids[] = 'ornithogalum_umbellatum';
+            $taxon_id = "ornithogalum";
+        }else
+        {
+            $common_name = null;
+            $scientific_name = null;
+            $canonical_form = null;
+            $family = null;
+            if(preg_match("/<p class=\"heading-1-left-16-pt\">(.*?)<\/p>/ims", $taxa_page_html, $arr))
+            {
+                $common_name = trim($arr[1]);
+                $common_name = str_replace("&rsquo;", "'", $common_name);
+            }
+            if(preg_match("/<p class=\"real-body-text\">(<i>.*?)<br \/>(.*?<br \/>)?(.*?)\((.*?)\)<\/p>/ims", $taxa_page_html, $arr))
+            {
+                $scientific_name = trim(html_entity_decode($arr[1], ENT_QUOTES, 'UTF-8'));
+                $family1 = trim($arr[3]);
+                $family2 = trim($arr[4]);
+                $family = $family2;
+                if(preg_match("/family/", $family2)) $family = $family1;
+            }elseif(preg_match("/<p class=\"real-body-text\">(<i>.*?)<br \/>(.*?) Family<\/p>/ims", $taxa_page_html, $arr))
+            {
+                $scientific_name = trim(html_entity_decode($arr[1], ENT_QUOTES, 'UTF-8'));
+                $family = trim($arr[2]);
+            }
+            list($scientific_name, $canonical_form, $taxon_id) = self::evaluate_scientific_name($scientific_name);
+            $this->write_taxon($taxon_id, $scientific_name, $canonical_form, $family, $common_name);
+            $taxon_ids = array($taxon_id);
         }
-        if(preg_match("/<p class=\"real-body-text\">(<i>.*?)<br \/>(.*?<br \/>)?(.*?)\((.*?)\)<\/p>/ims", $taxa_page_html, $arr))
-        {
-            $scientific_name = trim(html_entity_decode($arr[1], ENT_QUOTES, 'UTF-8'));
-            $family1 = trim($arr[3]);
-            $family2 = trim($arr[4]);
-            $family = $family2;
-            if(preg_match("/family/", $family2)) $family = $family1;
-        }elseif(preg_match("/<p class=\"real-body-text\">(<i>.*?)<br \/>(.*?) Family<\/p>/ims", $taxa_page_html, $arr))
-        {
-            $scientific_name = trim(html_entity_decode($arr[1], ENT_QUOTES, 'UTF-8'));
-            $family = trim($arr[2]);
-        }
-        list($scientific_name, $canonical_form, $taxon_id) = self::evaluate_scientific_name($scientific_name);
-        $this->write_taxon($taxon_id, $scientific_name, $canonical_form, $family, $common_name);
-        $taxon_ids = array($taxon_id);
+        
         
         // DataObjects
         if(preg_match("/<p class=\"real-body-text\"><span class=\"header-1\">Origin:<\/span> (.*?)<\/p>/ims", $taxa_page_html, $arr))
@@ -257,60 +294,97 @@ class PlantConservationAPI
     public function write_alien_taxon($url)
     {
         $taxa_page_html = self::lookup_with_cache($url);
-        
+
         // Taxon
-        $common_name = null;
-        $scientific_name = null;
-        $canonical_form = null;
-        $family = null;
-        if(preg_match("/body\" -->.*?<IMG.*? ALT=\"(.*?)\"/ims", $taxa_page_html, $arr))
+        if($url == self::ALIEN_TAXA_PREFIX."fact/tama1.htm")
         {
-            $common_name = trim($arr[1]);
-        }else echo "****COMMON\n";
-        
-        if(preg_match("/<FONT.*?SIZE=\"\+1\">(.*?)<IMG/ims", $taxa_page_html, $arr))
+            $taxon_ids = array();
+            $this->write_taxon("tamarix", "Tamarix", "Tamarix", "Tamaricaceae");
+            $taxon_ids[] = 'tamarix';
+            $this->write_taxon("tamarix_aphylla", "Tamarix aphylla", "Tamarix aphylla", "Tamaricaceae");
+            $taxon_ids[] = 'tamarix_aphylla';
+            $this->write_taxon("tamarix_chinensis", "Tamarix chinensis", "Tamarix chinensis", "Tamaricaceae");
+            $taxon_ids[] = 'tamarix_chinensis';
+            $this->write_taxon("tamarix_gallica", "Tamarix gallica", "Tamarix gallica", "Tamaricaceae");
+            $taxon_ids[] = 'tamarix_gallica';
+            $this->write_taxon("tamarix_parviflora", "Tamarix parviflora", "Tamarix parviflora", "Tamaricaceae");
+            $taxon_ids[] = 'tamarix_parviflora';
+            $this->write_taxon("tamarix_ramosissima", "Tamarix ramosissima", "Tamarix ramosissima", "Tamaricaceae");
+            $taxon_ids[] = 'tamarix_ramosissima';
+            $taxon_id = "tamarix";
+        }elseif($url == self::ALIEN_TAXA_PREFIX."fact/loni1.htm")
         {
-            $scientific_name = trim(html_entity_decode($arr[1], ENT_QUOTES, 'UTF-8'));
-            $scientific_name = trim(str_replace("\r", " ", $scientific_name));
-            $scientific_name = trim(str_replace("\n", " ", $scientific_name));
-            if(preg_match("/^(.*)<.*?>[a-z- ]* family *\((.*?)(\)|, formerly)/i", $scientific_name, $arr))
+            $taxon_ids = array();
+            $this->write_taxon("lonicera", "Lonicera", "Lonicera", "Caprifoliaceae");
+            $taxon_ids[] = 'lonicera';
+            $this->write_taxon("lonicera_fragrantissima", "Lonicera fragrantissima", "Lonicera fragrantissima", "Caprifoliaceae", "fragrant honeysuckle");
+            $taxon_ids[] = 'lonicera_fragrantissima';
+            $this->write_taxon("lonicera_maackii", "Lonicera maackii", "Lonicera maackii", "Caprifoliaceae", "Amur honeysuckle");
+            $taxon_ids[] = 'lonicera_maackii';
+            $this->write_taxon("lonicera_morrowii", "Lonicera morrowii", "Lonicera morrowii", "Caprifoliaceae", "Morrow's honeysuckle");
+            $taxon_ids[] = 'lonicera_morrowii';
+            $this->write_taxon("lonicera_standishii", "Lonicera standishii", "Lonicera standishii", "Caprifoliaceae", "Standish's honeysuckle");
+            $taxon_ids[] = 'lonicera_standishii';
+            $this->write_taxon("lonicera_tatarica", "Lonicera tatarica", "Lonicera tatarica", "Caprifoliaceae", "Tartarian honeysuckle");
+            $taxon_ids[] = 'lonicera_tatarica';
+            $this->write_taxon("lonicera_xylosteum", "Lonicera xylosteum", "Lonicera xylosteum", "Caprifoliaceae", "European fly honeysuckle");
+            $taxon_ids[] = 'lonicera_xylosteum';
+            $this->write_taxon("lonicera_x_bella", "Lonicera X bella", "Lonicera X bella", "Caprifoliaceae", "pretty honeysuckle");
+            $taxon_ids[] = 'lonicera_x_bella';
+            $taxon_id = "lonicera";
+        }else
+        {
+            $common_name = null;
+            $scientific_name = null;
+            $canonical_form = null;
+            $family = null;
+            if(preg_match("/body\" -->.*?<IMG.*? ALT=\"(.*?)\"/ims", $taxa_page_html, $arr))
             {
-                $scientific_name = trim($arr[1]);
-                $family = trim($arr[2]);
-            }else echo "****FAMILY\n";
-            
-            $scientific_name = str_replace("</FONT></I>", " ", $scientific_name);
-            $scientific_name = str_replace("<I><BR>", "<I>", $scientific_name);
-            $scientific_name = preg_replace("/<FONT.*?\+1\">/ims", "", $scientific_name);
-            if(preg_match("/^(.*?)<\/FONT>/ims", $scientific_name, $arr)) $scientific_name = trim($arr[1]);
-            if(preg_match("/^(.*?)<BR>/ims", $scientific_name, $arr)) $scientific_name = trim($arr[1]);
-            if(preg_match("/^(.*?)\(previously/ims", $scientific_name, $arr)) $scientific_name = trim($arr[1]);
-            while(preg_match("/  /", $scientific_name)) $scientific_name = str_replace("  ", " ", $scientific_name);
-            $scientific_name = str_replace(" </I>", "</I>", $scientific_name);
-            $scientific_name = str_replace("<I> ", "<I>", $scientific_name);
-            $scientific_name = preg_replace("/<\/I>([^ ])/ims", "</I> \\1", $scientific_name);
-            $scientific_name = str_replace(".<", ". <", $scientific_name);
-            if(preg_match("/<I><EM>/", $scientific_name))
+                $common_name = trim($arr[1]);
+            }else echo "****COMMON\n";
+
+            if(preg_match("/<FONT.*?SIZE=\"\+1\">(.*?)<IMG/ims", $taxa_page_html, $arr))
             {
-                $scientific_name = str_replace("<EM>", "", $scientific_name);
-                $scientific_name = str_replace("</EM>", "", $scientific_name);
-            }else
-            {
-                $scientific_name = str_replace("<EM>", "<I>", $scientific_name);
-                $scientific_name = str_replace("</EM>", "</I>", $scientific_name);
-            }
-            
-            // too many names
-            // http://www.nps.gov/plants/alien/fact/tama1.htm
-            // http://www.nps.gov/plants/alien/fact/loni1.htm
-            if(preg_match("/,/", $scientific_name)) return false;
-            
-            list($scientific_name, $canonical_form, $taxon_id) = self::evaluate_scientific_name($scientific_name);
-        }else echo "****SCIENTIFIC\n";
-        
-        if(!$scientific_name || !$taxon_id) return;
-        $this->write_taxon($taxon_id, $scientific_name, $canonical_form, $family, $common_name);
-        $taxon_ids = array($taxon_id);
+                $scientific_name = trim(html_entity_decode($arr[1], ENT_QUOTES, 'UTF-8'));
+                $scientific_name = trim(str_replace("\r", " ", $scientific_name));
+                $scientific_name = trim(str_replace("\n", " ", $scientific_name));
+                if(preg_match("/^(.*)<.*?>[a-z- ]* family *\((.*?)(\)|, formerly)/i", $scientific_name, $arr))
+                {
+                    $scientific_name = trim($arr[1]);
+                    $family = trim($arr[2]);
+                }else echo "****FAMILY\n";
+
+                $scientific_name = str_replace("</FONT></I>", " ", $scientific_name);
+                $scientific_name = str_replace("<I><BR>", "<I>", $scientific_name);
+                $scientific_name = preg_replace("/<FONT.*?\+1\">/ims", "", $scientific_name);
+                if(preg_match("/^(.*?)<\/FONT>/ims", $scientific_name, $arr)) $scientific_name = trim($arr[1]);
+                if(preg_match("/^(.*?)<BR>/ims", $scientific_name, $arr)) $scientific_name = trim($arr[1]);
+                if(preg_match("/^(.*?)\(previously/ims", $scientific_name, $arr)) $scientific_name = trim($arr[1]);
+                while(preg_match("/  /", $scientific_name)) $scientific_name = str_replace("  ", " ", $scientific_name);
+                $scientific_name = str_replace(" </I>", "</I>", $scientific_name);
+                $scientific_name = str_replace("<I> ", "<I>", $scientific_name);
+                $scientific_name = preg_replace("/<\/I>([^ ])/ims", "</I> \\1", $scientific_name);
+                $scientific_name = str_replace(".<", ". <", $scientific_name);
+                if(preg_match("/<I><EM>/", $scientific_name))
+                {
+                    $scientific_name = str_replace("<EM>", "", $scientific_name);
+                    $scientific_name = str_replace("</EM>", "", $scientific_name);
+                }else
+                {
+                    $scientific_name = str_replace("<EM>", "<I>", $scientific_name);
+                    $scientific_name = str_replace("</EM>", "</I>", $scientific_name);
+                }
+
+                // too many names
+                if(preg_match("/,/", $scientific_name)) return false;
+
+                list($scientific_name, $canonical_form, $taxon_id) = self::evaluate_scientific_name($scientific_name);
+            }else echo "****SCIENTIFIC\n";
+
+            if(!$scientific_name || !$taxon_id) return;
+            $this->write_taxon($taxon_id, $scientific_name, $canonical_form, $family, $common_name);
+            $taxon_ids = array($taxon_id);
+        }
         echo "\n$url<br/>\n";
         
         $taxa_page_html = preg_replace("/<IMG( .*?)\/?>/ims", "", $taxa_page_html);
