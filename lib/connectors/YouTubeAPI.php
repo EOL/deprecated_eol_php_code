@@ -64,7 +64,7 @@ class YouTubeAPI
                 print "\n $username - $video_id";
                 $video_index++;
                 if($GLOBALS['ENV_DEBUG']) echo "[user $user_index of $total_users] [video $video_index of $number_of_user_videos]\n";
-                if($record = self::build_data($video_id))
+                if($record = self::build_data($video_id, $username))
                 {
                     $arr = self::get_youtube_taxa($record, $used_collection_ids);
                     $page_taxa              = $arr[0];
@@ -91,7 +91,7 @@ class YouTubeAPI
         return array($page_taxa, $used_collection_ids);
     }
 
-    public static function build_data($video_id)
+    public static function build_data($video_id, $username)
     {
         $url = YOUTUBE_API  . '/videos/' . $video_id . '?v=2&alt=json';
         $raw_json = Functions::get_remote_file($url);
@@ -129,7 +129,7 @@ class YouTubeAPI
                      "author"        => $json_object->entry->author[0]->name->{'$t'},
                      "author_uri"    => $json_object->entry->author[0]->uri->{'$t'},
                      "author_detail" => $json_object->entry->author[0]->uri->{'$t'},
-                     "author_url"    => "http://www.youtube.com/user/" . $json_object->entry->author[0]->name->{'$t'},
+                     "author_url"    => "http://www.youtube.com/user/" . $username, //$json_object->entry->author[0]->name->{'$t'},
                      "media_title"   => $json_object->entry->title->{'$t'},
                      "description"   => str_replace("\r\n", "<br/>", trim($json_object->entry->{'media$group'}->{'media$description'}->{'$t'})),
                      "thumbnail"     => $json_object->entry->{'media$group'}->{'media$thumbnail'}[1]->url,
