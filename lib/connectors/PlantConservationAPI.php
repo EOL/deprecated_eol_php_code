@@ -471,7 +471,7 @@ class PlantConservationAPI
             $scientific_name = str_replace("  ", " ", $scientific_name);
             $scientific_name = str_ireplace("&rsquo;", "'", $scientific_name);
         }
-        if(!$canonical_form) $canonical_form = Functions::canonical_form($scientific_name);
+        if(@!$canonical_form) $canonical_form = Functions::canonical_form($scientific_name);
         $taxon_id = str_replace(" ", "_", strtolower($canonical_form));
         return array($scientific_name, $canonical_form, $taxon_id);
     }

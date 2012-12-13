@@ -4,10 +4,11 @@ namespace php_active_record;
 estimated execution time: 1 minute. But this will change as the number of EOL YouTube subscriptions increase.
 */
 
+// setting a 2 second wait time because we were getting yt:quota, too_many_recent_calls errors
+define('DOWNLOAD_WAIT_TIME', 2000000)
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/YouTubeAPI');
-$GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = YouTubeAPI::get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);

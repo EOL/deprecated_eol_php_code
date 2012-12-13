@@ -407,7 +407,7 @@ class HarvestEvent extends ActiveRecord
             $headers = 'From: no-reply@eol.org' . "\r\n" .
                 'Reply-To: no-reply@eol.org' . "\r\n" .
                 'X-Mailer: PHP/' . phpversion();
-            $to      = implode(";", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS));
+            $to      = implode(", ", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS));
             mail($to, $subject, $message, $headers);
         }
     }

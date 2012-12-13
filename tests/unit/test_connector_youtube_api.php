@@ -11,7 +11,7 @@ class test_connector_youtube_api extends SimpletestUnitBase
         {
             foreach($video_ids as $video_id)
             {
-                $record = $yt->build_data($video_id);
+                $record = $yt->build_data($video_id, 'ile1731');
                 if($record) 
                 {
                     $arr = YouTubeAPI::get_youtube_taxa($record, array());
