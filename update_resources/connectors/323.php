@@ -5,7 +5,7 @@ estimated execution time: 1 minute. But this will change as the number of EOL Yo
 */
 
 // setting a 2 second wait time because we were getting yt:quota, too_many_recent_calls errors
-define('DOWNLOAD_WAIT_TIME', 2000000)
+define('DOWNLOAD_WAIT_TIME', 2000000);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/YouTubeAPI');
