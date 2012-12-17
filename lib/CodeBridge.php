@@ -24,10 +24,6 @@ class CodeBridge
       if ($this->args['cmd'] == 'split') {
         php_active_record\SplitEntryHandler::split_entry($this->args);
       } elseif ($this->args['cmd'] == 'move') {
-        // The 'reindex' argument from the command-line doesn't reindex solr, so I'm adding it automatically here:
-        if ($this->args['reindex'] == 'reindex') {
-          $this->args['reindex_solr'] = 'reindex_solr';
-        }
         php_active_record\MoveEntryHandler::move_entry($this->args);
       } elseif ($this->args['cmd'] == 'merge') {
         php_active_record\MergeConceptsHandler::merge_concepts($this->args);
@@ -59,7 +55,7 @@ class CodeBridge
         echo "++ Updating curation " . $this->args['classification_curation_id'] . ". Message: $msg\n";
       }
       // Need to check_status_and_notify if we're not reindexing and if we have a curation ID:
-      if ($this->args['cmd'] != 'reindex' && array_key_exists('classification_curation_id', $this->args)) {
+      if ($this->args['cmd'] != 'reindex_taxon_concept' && array_key_exists('classification_curation_id', $this->args)) {
         \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
                          'classification_curation_id' => $this->args['classification_curation_id']));
         echo "++ Enqueued notifications/CodeBridge/check_status_and_notify(classification_curation_id = " .  $this->args['classification_curation_id'] . ")\n";
