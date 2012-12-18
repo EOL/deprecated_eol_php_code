@@ -15,9 +15,11 @@ class RubyNameParserClient
     
     private static function start_parserver()
     {
-        $maximum_attempts = 3;
+        $gem_is_installed = shell_exec('which parserver');
+        if(!$gem_is_installed) return false;
+        $maximum_attempts = 2;
         $reconnect_attempts = 0;
-        while(!self::is_parserver_running() && $reconnect_attempts <= $maximum_attempts)
+        while(!self::is_parserver_running() && $reconnect_attempts < $maximum_attempts)
         {
             shell_exec('parserver --output=canonical_with_rank > /dev/null 2>/dev/null &');
             sleep(10);
@@ -25,7 +27,7 @@ class RubyNameParserClient
         }
         if(!self::is_parserver_running())
         {
-            trigger_error("NameParserGemClient:: Unable to start parserver", E_USER_WARNING);
+            trigger_error("NameParserGemClient:: Unable to start parserver. You may need to `sudo gem install biodiversity --version '=1.0.10'`", E_USER_WARNING);
         }
     }
     
@@ -59,11 +61,6 @@ class RubyNameParserClient
             $this->connected = true;
             stream_set_timeout($this->fsock, 2);
         }
-    }
-    
-    public function connected()
-    {
-        return true;
     }
     
     public function lookup_string($string)
