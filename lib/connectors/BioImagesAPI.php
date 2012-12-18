@@ -1,659 +1,317 @@
 <?php
 namespace php_active_record;
+/* connector: [168]
+This connector will process the images objects from a remote tab-delimited text file hosted in DiscoverLife.
+And will process the text objects from the original 168.xml retrieved from TheBeast.
+*/
 
-define("PAGE_URL", "http://www.bioimages.org.uk/html/");
-define("IMAGE_URL", "http://www.bioimages.org.uk/");
 class BioImagesAPI
 {
-    public static function get_all_taxa()
+    function __construct()
     {
-        /* This creates a text file (connectors\files\BioImages\bioimages.txt) that'll list each taxon URL. */
-        $urls = self::compile_taxon_urls();
-        
-        /* Partner provided ancestry information on a separate spreadsheet file. */
-        $ancestry = self::prepare_ancestry_info();
-        
-        /* Reads bioimages.txt - normal operation */        
-        $urls = self::get_from_txt();        
+        // for testing:
+        // $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BioImages/Nov2012/Malcolm_Storey_images_test.TXT";
+        // $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BioImages/Nov2012/Malcolm_Storey_images.TXT";
+        // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010_small.xml";
+        // $this->original_resource = "http://dl.dropbox.com/u/7597512/BioImages/168_Nov2010.xml";
 
-        $all_taxa = array();
-        $used_collection_ids = array();        
-        
-        $i=1; $total=sizeof($urls);
-        foreach($urls as $url)
-        {
-            print"\n $i of $total";$i++;
-            if($url["active"])
-            {
-                $arr = self::get_BioImages_taxa($url["path"],$ancestry,$used_collection_ids); 
-                $page_taxa              = $arr[0];
-                $used_collection_ids    = $arr[1];                
-                $all_taxa = array_merge($all_taxa,$page_taxa);                                    
-            }
-        }
-        return $all_taxa;
-    }    
-    
-    public static function get_BioImages_taxa($url1,$ancestry,$used_collection_ids)
-    {
-        $response = self::search_collections($url1,$ancestry);//this will output the raw (but structured) output from the external service
-        $page_taxa = array();
-        foreach($response as $rec)
-        {
-            if(@$used_collection_ids[$rec["sciname"]]) continue;
-            
-            $taxon = self::get_taxa_for_photo($rec);
-            if($taxon) $page_taxa[] = $taxon;
-            
-            $used_collection_ids[$rec["sciname"]] = true;
-        }        
-        return array($page_taxa,$used_collection_ids);
-    }    
-    
-    function prepare_ancestry_info()
-    {
-        $ancestry=array();        
-        require_library('XLSParser');
-        $parser = new XLSParser();        
-        $arr_filename = array(DOC_ROOT . "update_resources/connectors/files/BioImages/Photographed Taxa.xls",
-                              DOC_ROOT . "update_resources/connectors/files/BioImages/Taxa with trophisms.xls");        
-        foreach($arr_filename as $filename)
-        {
-            $arr = $parser->convert_sheet_to_array($filename);                  
-            $i=0;
-            foreach($arr["Latin"] as $latin)
-            {   
-                $latin = str_ireplace(' & ',' and ', $latin);	                                        
-                $latin_authority = $arr["Latin_authority"][$i];
-                $latin_authority = str_ireplace(' & ',' and ', $latin_authority);	                                                        
-                $ancestry[$latin]           =array("Phylum"=>$arr["Phylum"][$i], "Class"=>$arr["Class"][$i], "Order"=>$arr["Order"][$i], "Family"=>$arr["Family"][$i], "ComName"=>$arr["English"][$i]);
-                $ancestry[$latin_authority] =array("Phylum"=>$arr["Phylum"][$i], "Class"=>$arr["Class"][$i], "Order"=>$arr["Order"][$i], "Family"=>$arr["Family"][$i], "ComName"=>$arr["English"][$i]);
-                $i++;        
-            }
-        }
-        return $ancestry;
+        $this->data_dump_url = "http://pick14.pick.uga.edu/users/s/Storey,_Malcolm/Malcolm_Storey_images.TXT";
+        $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010.xml";
+
+        $this->taxa = array();
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/bioimages_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $this->resource_reference_ids = array();
+        $this->resource_agent_ids = array();
+        $this->vernacular_name_ids = array();
+        $this->taxon_ids = array();
+        $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
     }
-    
-    function compile_taxon_urls()
-    {
-        $start_url = "http://www.bioimages.org.uk/html/shortcut.htm";
-        
-        //get top level URLs
-        $taxon_urls = self::taxon_url_extractor($start_url);
 
-        //start loop to all taxon URLs
-        $i=0; $total=sizeof($taxon_urls);
-        foreach($taxon_urls as $url)
+    private function parse_record_element($row, $col)
+    {
+        $sciname = $row[$col['Taxon']];
+        $taxon_id = $row[$col['NWB taxon id']];
+        print "\n" . " - " . $sciname . " - " . $taxon_id;
+        $reference_ids = array(); // no taxon references yet
+        $ref_ids = array(); // no data_object references yet
+        $agent_ids = self::get_object_agents($row, $col);
+        $this->create_instances_from_taxon_object($row, $col, $reference_ids);
+        self::get_images($row, $col, $ref_ids, $agent_ids);
+    }
+
+    function get_all_taxa()
+    {
+        $FILE = fopen($this->data_dump_url, "r");
+        $line_num = 0;
+        $col = array();
+        while(!feof($FILE))
         {
-            $i++;
-            print"\n $i of $total";            
-            
-            $arr_temp = self::taxon_url_extractor($url);    
-            $taxon_urls = array_merge($taxon_urls,$arr_temp);            
-            foreach($arr_temp as $url2)
+            if($line = fgets($FILE))
             {
-                $arr_temp2 = self::taxon_url_extractor($url2);    
-                $taxon_urls = array_merge($taxon_urls,$arr_temp2);                                
-                foreach($arr_temp2 as $url3)
+                $line_num++;
+                $line = trim($line);
+                $row = explode("\t", $line);
+                if($line_num == 1)
                 {
-                    $arr_temp3 = self::taxon_url_extractor($url3);    
-                    $taxon_urls = array_merge($taxon_urls,$arr_temp3);                                
-                    foreach($arr_temp3 as $url4)                    
+                    foreach($row as $id => $value)
                     {
-                        $arr_temp4 = self::taxon_url_extractor($url4);    
-                        $taxon_urls = array_merge($taxon_urls,$arr_temp4);                                
-                        foreach($arr_temp4 as $url5)                    
-                        {
-                            $arr_temp5 = self::taxon_url_extractor($url5);    
-                            $taxon_urls = array_merge($taxon_urls,$arr_temp5);                                
-                            foreach($arr_temp5 as $url6)                    
-                            {
-                                $arr_temp6 = self::taxon_url_extractor($url6);    
-                                $taxon_urls = array_merge($taxon_urls,$arr_temp6);
-                                foreach($arr_temp6 as $url7)                    
-                                {
-                                    $arr_temp7 = self::taxon_url_extractor($url7);    
-                                    $taxon_urls = array_merge($taxon_urls,$arr_temp7);
-                                    foreach($arr_temp7 as $url8)                    
-                                    {
-                                        $arr_temp8 = self::taxon_url_extractor($url8);    
-                                        $taxon_urls = array_merge($taxon_urls,$arr_temp8);                                    
-                                        foreach($arr_temp8 as $url9)                    
-                                        {
-                                            $arr_temp9 = self::taxon_url_extractor($url9);    
-                                            $taxon_urls = array_merge($taxon_urls,$arr_temp9);
-                                            foreach($arr_temp9 as $url10)                    
-                                            {
-                                                $arr_temp10 = self::taxon_url_extractor($url10);    
-                                                $taxon_urls = array_merge($taxon_urls,$arr_temp10);
-                                                foreach($arr_temp10 as $url11)                    
-                                                {
-                                                    $arr_temp11 = self::taxon_url_extractor($url11);    
-                                                    $taxon_urls = array_merge($taxon_urls,$arr_temp11);
-                                                    foreach($arr_temp11 as $url12)                    
-                                                    {
-                                                        $arr_temp12 = self::taxon_url_extractor($url12);    
-                                                        $taxon_urls = array_merge($taxon_urls,$arr_temp12);
-                                                        foreach($arr_temp12 as $url13)                    
-                                                        {
-                                                            $arr_temp13 = self::taxon_url_extractor($url13);    
-                                                            $taxon_urls = array_merge($taxon_urls,$arr_temp13);
-                                                        }
-                                                    }                                                    
-                                                }                                                
-                                            }                                                           
-                                        }
-                                    }                                        
-                                }
-                            }
-                        }                        
-                    }   
-                }                                
-            }
-            //use to limit to ANIMALIA -- if($i==1)break;
-        }   
-           
-        $taxon_urls = array_unique($taxon_urls);
-        self::save_to_txt($taxon_urls,"w+");//a - append, doesn't truncate | w+ - truncates
-        return;        
-    }
-    
-    function taxon_url_extractor($url)
-    {
-        $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
-        $html = strip_tags($html,"<a>");
-        $html = str_ireplace('href="t' , "&arr[]=", $html);	
-        $arr = array(); parse_str($html);	            
-        $urls=array();
-        foreach($arr as $r)
-        {
-            $url = PAGE_URL . "t" . substr($r,0,stripos($r,'"'));
-            if($url != "http://www.bioimages.org.uk/html/t43377.htm")$urls[$url]=1;            
-        }
-        return array_keys($urls);
-    }    
-
-    function search_collections($url1,$ancestry)
-    {
-        $html = utf8_decode(Functions::get_remote_file_fake_browser($url1));
-        $html1 = $html;
-        $response = self::scrape_species_page($html1,$url1,$ancestry);        
-        return $response;//structured array
-    }           
-    
-    function scrape_species_page($html,$species_page_url,$ancestry)
-    {        
-        $arr_scraped=array();
-        $arr_photos=array();
-        $arr_sciname=array();                
-        //=============================================================================================================         
-        $species="";
-        if(preg_match("/<title>(.*?)<\/title/ims", $html, $matches))
-        {   
-            $title = trim(strip_tags($matches[1]));            
-            $piece = self::separate_sciname_from_vernacular($title);            
-            $sciname = self::clean_sciname(@$piece[0]);            
-            $vernacular = trim(@$piece[1]);           
-        }
-        //=============================================================================================================
-
-        $agent=array();
-
-        //photos start =================================================================
-        $arr_photos=array();
-        $arr_photo_url=self::get_photos($html,'<h2 class="Recs">'); 
-
-        if($arr_photo_url)
-        {
-            $arr_photo_urls_per_taxon = self::get_all_photo_urls_per_taxon($arr_photo_url);
-            if($arr_photo_urls_per_taxon)$arr_photos = self::get_photo_details($arr_photo_urls_per_taxon);               
-        }        
-                
-        foreach($arr_photos as $rec)
-        {
-            $desc="";
-            if(@$rec['Date:'])           $desc.="Date: " . @$rec['Date:'] . " <br>";
-            if(@$rec['Location:'])       $desc.="Location: " . @$rec['Location:'] . " <br>";
-            if(@$rec['State:'])          $desc.="State: " . @$rec['State:'] . " <br>";
-            if(@$rec['Record Summary:']) $desc.="Record Summary: " . @$rec['Record Summary:'] . " <br>";
-            if(@$rec['Image Reference:'])$desc.="Image Reference: " . @$rec['Image Reference:'];            
-            $agent=array();
-            $rights_holder="";            
-            if($rec['Malcolm Storey'])
-            {                
-                $agent[]=array("role" => "photographer" , "homepage" => "http://www.bioimages.org.uk/index.htm" , "name" => "Malcolm Storey");
-                $rights_holder = "Malcolm Storey";
-            }
-            else continue;            
-            
-            $rec["Copyright"] = str_ireplace('www.bioimages.org.uk.' ,'www.bioimages.org.uk',$rec["Copyright"]);
-            $rec["Copyright"] = str_ireplace('Some rights reserved.' ,'',$rec["Copyright"]);
-            
-            $arr_photos["$sciname"][] = array(
-                        "identifier"    =>@$rec["Image Reference:"],
-                        "mediaURL"      =>@$rec["url"],
-                        "mimeType"      =>"image/jpeg",                        
-                        "date_created"  =>@$rec["Date:"],                        
-                        "rights"        =>str_ireplace('©' , '', @$rec["Copyright"]),                        
-                        "rights_holder" =>$rights_holder,
-                        "dataType"      =>"http://purl.org/dc/dcmitype/StillImage",
-                        "description"   =>$desc,
-                        "title"         =>"",
-                        "location"      =>@$rec["Location:"],
-                        "dc_source"     =>@$rec["sourceURL"],
-                        "agent"         =>$agent);            
-        }                
-        //photos end =================================================================        
-        
-        //text start Description DiagnosticDescription =================================================================
-        $arr_texts = self::scrape_page($html,$species_page_url);            
-        if(@$arr_texts['Notes (MWS)'])        $arr_texts["$sciname"][]=self::fill_text_array($arr_texts["sourceURL"],"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description",$arr_texts["Notes (MWS)"],"");
-        if(@$arr_texts['Diagnostic features'])$arr_texts["$sciname"][]=self::fill_text_array($arr_texts["sourceURL"],"http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription",$arr_texts["Diagnostic features"],"");        
-        //text end =================================================================        
-        
-        //text start associations =================================================================                
-        $texts_asso = self::scrape_page_others($html,"is associated with:</p>","not reference");                    
-        if($texts_asso) 
-        {               
-            $texts_asso = "In Great Britain and/or Ireland:<br>" . "$sciname is associated with:<br> <br> $texts_asso";
-            $arr_texts["$sciname"][]=self::fill_text_array($species_page_url,"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations",$texts_asso,"Feeding and other inter-species relationships");
-        }         
-        $texts_asso = self::scrape_page_others($html,"<p>Associated with","not reference");            
-        if($texts_asso) 
-        {   
-            $texts_asso = "In Great Britain and/or Ireland:<br>" . "Associated with $sciname:<br> <br> $texts_asso";
-            $arr_texts["$sciname"][]=self::fill_text_array($species_page_url,"http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations",$texts_asso,"Feeding and other inter-species relationships");
-        }                 
-        //text end associations =================================================================                
-
-        //text start references =================================================================                
-        $arr_ref = self::scrape_page_others($html,'<h2 class="Lit">References</h2>',"reference");            
-        if($arr_ref)$arr_ref = self::prepare_reference($arr_ref);
-        else $arr_ref=array();
-        //text end references =================================================================        
-        
-        $arr_sciname["$sciname"]=$species_page_url;                       
-        foreach(array_keys($arr_sciname) as $sci)
-        {
-            if(@$arr_photos["$sci"] || @$arr_texts["$sci"])
-            {
-                $arr_scraped[]=array("id"=>"",
-                                     "kingdom"=>"",   
-                                     "phylum"=>@$ancestry[$sci]['Phylum'],   
-                                     "class"=>@$ancestry[$sci]['Class'],   
-                                     "order"=>@$ancestry[$sci]['Order'],   
-                                     "family"=>@$ancestry[$sci]['Family'],   
-                                     "comname"=>@$ancestry[$sci]['ComName'],
-                                     "sciname"=>$sci,
-                                     "dc_source"=>$species_page_url,   
-                                     "photos"=>@$arr_photos["$sci"],
-                                     "texts"=>@$arr_texts["$sci"],
-                                     "references"=>$arr_ref
-                                    );
-            }
-        }        
-        return $arr_scraped;        
-    }
-    
-    function clean_sciname($sciname)
-    {
-        $sciname = trim($sciname);
-        $pos = stripos($sciname,' ');
-        if(is_numeric($pos))
-        {
-            $part1 = trim(substr($sciname,0,$pos));
-            $part2 = trim(substr($sciname,$pos,strlen($sciname)));
-            $sciname = trim(ucfirst(strtolower($part1)) . " " . $part2);                
-        }
-        else $sciname = ucfirst(strtolower($sciname));    
-        return $sciname;    
-    }
-    
-    function prepare_reference($arr_ref)
-    {
-        $refs=array();
-        foreach($arr_ref as $r)
-        {        
-            $url="";    
-            if(preg_match("/href=(.*?)>/ims", $r, $matches)) $url = str_ireplace(" ","%20",$matches[1]);                        
-            $ref = str_ireplace('</td>' , '. ', $r);	
-            $ref = strip_tags($ref);
-            $refs[]=array("url"=>$url, "ref"=>$ref);                        
-        }          
-        return $refs;
-    }
-    
-    function fill_text_array($sourceURL,$subject,$desc,$title)
-    {
-        $agent[]=array("role" => "compiler" , "homepage" => "http://www.bioimages.org.uk/index.htm" , "name" => "Malcolm Storey");            
-        $rights_holder = "Malcolm Storey";
-        return          array(
-                        "identifier"    =>$sourceURL,
-                        "mediaURL"      =>"",
-                        "mimeType"      =>"text/html",                        
-                        "date_created"  =>"",                        
-                        "rights"        =>"",                        
-                        "rights_holder" =>$rights_holder,
-                        "dataType"      =>"http://purl.org/dc/dcmitype/Text",
-                        "description"   =>$desc,
-                        "title"         =>$title,
-                        "location"      =>"",
-                        "dc_source"     =>$sourceURL,
-                        "agent"         =>$agent,
-                        "subject"       =>$subject,
-                        );                    
-    }
-
-    function get_photos($string,$searched)
-    {        
-        $arr_photo_url=array();
-        $pos = stripos($string,$searched);
-        $str = substr($string,$pos,strlen($string));
-        if(is_numeric($pos))
-        {
-            if(preg_match("/<table>(.*?)<\/table/ims", $str, $matches))
-            {   
-                $str = trim($matches[1]);
-                $str = str_ireplace('<a href="' , "&arr[]=", $str);	
-                $arr = array(); parse_str($str);	                            
-                foreach($arr as $r)
-                {                    
-                    $arr_photo_url[] = PAGE_URL . substr($r,0,stripos($r,'"'));
+                        print "\n $id -- $value";
+                        $col[trim($value)] = $id;
+                    }
+                }
+                else
+                {
+                    print "\n" . $row[$col['Taxon']];
+                    self::parse_record_element($row, $col);
                 }
             }
         }
-        return $arr_photo_url;
-    }    
-    
-    function get_all_photo_urls_per_taxon($arr)
-    {
-        $arr_total_url=array();
-        //URLs to access photos per species
-        foreach($arr as $url)
-        {                    
-            $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
-            $arr_photo_url=self::get_photos($html,'<h2 class="Assets">');                        
-            $arr_total_url = array_merge($arr_total_url,$arr_photo_url);
-        }
-        return $arr_total_url;
-    }
-    
-    function get_photo_details($arr)
-    {
-        $arr_total=array();
-        foreach($arr as $url)
-        {                    
-            $html = utf8_decode(Functions::get_remote_file_fake_browser($url));
-            //special case
-            $html = self::clean_str($html);
-            $html = str_ireplace('<td class="FieldTitle">Date: </td><td></td>',"",$html);            
-            $html = str_ireplace('<td class="FieldTitle">Location: </td><td></td>',"",$html);
-            $html = str_ireplace('<td class="FieldTitle">State: </td><td></td>',"",$html);
-            $html = str_ireplace('<td class="FieldTitle">Record Summary: </td><td></td>',"",$html);
-            $html = str_ireplace('<td class="FieldTitle">Image Reference: </td><td></td>',"",$html);
-            //end special case            
-            $arr_scraped = self::scrape_page($html,$url);            
-            if($arr_scraped)$arr_total[] = $arr_scraped;
-        }   
-        return $arr_total;
-    }
-    function scrape_page($html,$sourceURL)
-    {
-        //special case        
-        $html = str_ireplace("&quot;","",$html);
-        //end special case
-        
-        //for FieldTitle 
-        $str = str_ireplace('<td class="FieldTitle">' , "&arr[]=", $html);	
-        $arr = array(); parse_str($str);	                                    
-        $arr_title=array();
-        foreach($arr as $r)
-        {
-            $pos = stripos($r,'</td>');
-            if(is_numeric($pos)) $arr_title[] = trim(substr($r,0,$pos));
-        }
-                
-        //for FieldValue 
-        $str = str_ireplace('<td class="FieldValue">' , "&arr[]=", $html);	
-        $arr = array(); parse_str($str);	                                    
-        $arr_value=array();
-        foreach($arr as $r)
-        {
-            $pos = stripos($r,'</td>');
-            if(is_numeric($pos)) $arr_value[] = trim(substr($r,0,$pos));
-        }
-        
-        $arr=array(); $i=0;
-        foreach($arr_title as $title)
-        {
-            $arr[$title]=$arr_value[$i];$i++;
-        }        
+        fclose($FILE);
 
-        $substrr = substr($html,stripos($html,'FieldTitle'),strlen($html));
-        if(preg_match("/src=\"(.*?)\"/ims", $substrr, $matches)) 
-        {
-            $arr["url"] = str_ireplace('../../' , IMAGE_URL, $matches[1]);	        
-            $arr["url"] = str_ireplace(" ","%20", $arr["url"]);	        
-            $arr["sourceURL"] = $sourceURL;
-        }        
-        return $arr;
-    }
-    
-    function scrape_page_others($html,$searched,$return_value)
-    {
-        $pos = stripos($html,$searched);
-        if(is_numeric($pos))
-        {
-            $html = trim(substr($html,$pos,strlen($html)));
-            $pos = stripos($html,"</table>");   
-            $html = trim(substr($html,0,$pos));            
-            $pos = stripos($html,'<td class="FieldValue">');
-            if(!is_numeric($pos))return;            
-        }
-        else return;
-
-        $html = str_ireplace('<tr class="odd">' , '<tr>', $html);	
-        $html = str_ireplace('<tr class="even">' , '<tr>', $html);	        
-        
-        //special case
-        $html = str_ireplace('&amp;' , "and", $html);	                
-        //end special case        
-
-        $str = str_ireplace('<tr>' , "&arr[]=", $html);	
-        $arr = array(); parse_str($str);	                                    
-        
-        $arr_value=array();
-        foreach($arr as $r)
-        {
-            $pos = stripos($r,'</tr>');
-            if(is_numeric($pos)) $arr_value[] = trim(substr($r,0,$pos));
-        }
-        
-        //to exclude any images <img>
-        $arr=array();
-        foreach($arr_value as $r)
-        {
-            $r = str_ireplace('<td></td>' , "", $r);	                
-            $r = str_ireplace('<a href=' , "<a target='bioimages' href=" . PAGE_URL, $r);	
-            $arr[] = strip_tags(trim($r),"<a><td>");
-        }            
-        if($return_value=="reference")return $arr;
-
-        //concatenate...
-        $html="";
-        foreach($arr as $r)
-        {                
-            $str = str_ireplace('<td class="FieldValue">' , "", $r);	
-            $str = str_ireplace('<td class="FieldRef">' , "Ref. ", $str);	                
-            $str = str_ireplace('</td>' , ". ", $str);	                
-            $html .= $str;
-            $html .= "<br> <br>";
-        }                            
-        return $html; 
-    }    
-    
-    function separate_sciname_from_vernacular($string)
-    {
-        $string = strip_tags($string);
-        $string = str_ireplace('&amp;' , "and", $string);	                
-        $string = self::remove_parenthesis_if_first_char($string);
-        $count = substr_count($string, '(');
-        if($count == 0)
-        {
-            $arr = array($string,"");        
-        }
-        else
-        {
-            if($count == 1)    $pos = stripos($string,'(');    
-            elseif($count > 1) $pos = strripos($string, '(');            
-            $sciname = substr($string,0,$pos-1);
-            $vernacular = substr($string,$pos+1,strlen($string));
-            $vernacular = str_ireplace(')','',$vernacular); //remove the ending parenthesis
-            $arr = array($sciname,$vernacular);                   
-        }        
-        return $arr;
-    }
-    function remove_parenthesis_if_first_char($string)
-    {
-        $string=trim($string);
-        if(substr($string,0,1)=="(")
-        {
-            $pos = stripos($string,')');                
-            $string = substr($string,1,strlen($string)-(strlen($string)-$pos)-1);
-        }
-        return $string;
+        //get text objects from the original resource (168.xml in Nov 2010)
+        self::get_texts();
+        // finalize the process and create the archive
+        $this->create_archive();
     }
 
-    function get_taxa_for_photo($rec)
+    private function get_texts()
     {
-        $taxon = array();
-        $taxon["commonNames"] = array();
-        $license = null;                
-        $taxon["identifier"] = "";
-        $taxon["source"] = $rec["dc_source"];                
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));        
-        $taxon["kingdom"] = ucfirst(trim($rec["kingdom"]));
-        $taxon["phylum"] = ucfirst(trim($rec["phylum"]));       
-        $taxon["class"] = ucfirst(trim($rec["class"]));
-        $taxon["order"] = ucfirst(trim($rec["order"]));
-        $taxon["family"] = ucfirst(trim($rec["family"]));        
-        if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"],@$taxon["dataObjects"],array());
-        if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"],@$taxon["dataObjects"],$rec["references"]);        
-        $taxon_object = new \SchemaTaxon($taxon);
-        return $taxon_object;
-    }
-    
-    function prepare_objects($arr,$taxon_dataObjects,$references)
-    {
-        $arr_SchemaDataObject=array();        
-        if($arr)
+        if($xml = Functions::get_hashed_response($this->original_resource))
         {
-            $arr_ref=array();
-            $length = sizeof($arr);
-            $i=0;
-            foreach($arr as $rec)
+            foreach($xml->taxon as $t)
             {
-                $i++;
-                if($length == $i)$arr_ref = $references;
-                $data_object = self::get_data_object($rec,$arr_ref);
-                if(!$data_object) return false;
-                $taxon_dataObjects[]= new \SchemaDataObject($data_object);                     
+                $do_count = sizeof($t->dataObject);
+                if($do_count > 0)
+                {
+                    $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+                    $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
+                    $taxonID = (string)trim($t_dc->identifier);
+                    $source = self::clean_str("http://www.bioimages.org.uk/html/" . str_replace(" ", "_", Functions::canonical_form($t_dwc->ScientificName)) . ".htm");
+
+                    //---------------------------------
+                    $taxon = new \eol_schema\Taxon();
+                    $taxon->taxonID                     = $taxonID;
+                    $taxon->scientificName              = $t_dwc->ScientificName;
+                    $taxon->scientificNameAuthorship    = '';
+                    $taxon->vernacularName              = '';
+                    $taxon->kingdom                     = $t_dwc->Kingdom;
+                    $taxon->phylum                      = $t_dwc->Phylum;
+                    $taxon->class                       = $t_dwc->Class;
+                    $taxon->order                       = $t_dwc->Order;
+                    $taxon->family                      = $t_dwc->Family;
+                    $taxon->furtherInformationURL       = $source;
+                    print "\n $taxon->taxonID - $taxon->scientificName [$source]";
+                    if(isset($this->taxa[$taxonID])) print " -- already exists";
+                    else $this->taxa[$taxonID] = $taxon;
+                    //---------------------------------
+
+                    foreach($t->dataObject as $do)
+                    {
+                        if($do->dataType != "http://purl.org/dc/dcmitype/Text") continue;
+                        $t_dc2      = $do->children("http://purl.org/dc/elements/1.1/");
+                        $t_dcterms  = $do->children("http://purl.org/dc/terms/");
+
+                        //---------------------------
+                        $agent_ids = array();
+                        $r = new \eol_schema\Agent();
+                        $r->term_name = $do->agent;
+                        $r->identifier = md5("$do->agent|$do->agent['role']");
+                        $r->agentRole = $do->agent['role'];
+                        $r->term_homepage = "http://www.bioimages.org.uk/index.htm";
+                        $agent_ids[] = $r->identifier;
+                        if(!in_array($r->identifier, $this->resource_agent_ids))
+                        {
+                           $this->resource_agent_ids[] = $r->identifier;
+                           $this->archive_builder->write_object_to_file($r);
+                        }
+                        //---------------------------
+
+                        $mr = new \eol_schema\MediaResource();
+                        if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
+                        $mr->taxonID        = $taxonID;
+                        $mr->identifier     = self::clean_str($t_dc2->identifier);
+                        $mr->type           = (string)"http://purl.org/dc/dcmitype/Text"; //$do->dataType;
+                        $mr->language       = "en";
+                        $mr->format         = "text/html"; //$do->mimeType;
+                        $mr->furtherInformationURL = (string)trim($source);
+
+                        /* very long text objects, temporarily ignored */
+                        $problematic_objects = array("http://www.bioimages.org.uk/html/Betula.htm",
+                                                     "http://www.bioimages.org.uk/html/Broadleaved_trees.htm",
+                                                     "http://www.bioimages.org.uk/html/Fagus.htm",
+                                                     "http://www.bioimages.org.uk/html/Pinopsida.htm",
+                                                     "http://www.bioimages.org.uk/html/Poaceae.htm",
+                                                     "http://www.bioimages.org.uk/html/Quercus.htm",
+                                                     "http://www.bioimages.org.uk/html/Salix.htm",
+                                                     "http://www.bioimages.org.uk/html/Trees.htm");
+                        if(in_array($mr->furtherInformationURL, $problematic_objects)) continue;
+
+                        $mr->CVterm         = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
+                        $mr->Owner          = "BioImages";
+                        $mr->title          = "Associations";
+                        $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+                        // $mr->audience       = 'Everyone';
+                        // $mr->accessURI      = $source;
+
+                        $description = trim((string)self::clean_str(utf8_encode($t_dc2->description)));
+                        if(!$description) continue;
+                        else
+                        {
+                            $mr->description = $description;
+                            $this->archive_builder->write_object_to_file($mr);
+                        }
+                    }
+                }
             }
-        }        
-        return $taxon_dataObjects;
-    }
-    
-    function get_data_object($rec,$references)
-    {
-        $data_object_parameters = array();
-        $data_object_parameters["identifier"]   = $rec["identifier"];        
-        $data_object_parameters["source"]       = $rec["dc_source"];        
-        $data_object_parameters["dataType"]     = $rec["dataType"];
-        $data_object_parameters["mimeType"]     = @$rec["mimeType"];
-        $data_object_parameters["mediaURL"]     = @$rec["mediaURL"];        
-        $data_object_parameters["rights"]       = @$rec["rights"];
-        $data_object_parameters["rightsHolder"] = @$rec["rights_holder"];        
-        $data_object_parameters["title"]        = @$rec["title"];
-        $data_object_parameters["description"]  = utf8_encode($rec["description"]);
-        $data_object_parameters["location"]     = utf8_encode($rec["location"]);        
-        $data_object_parameters["license"]      = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-
-        //start reference
-        $data_object_parameters["references"] = array();        
-        $ref=array();
-        foreach($references as $r)
-        {
-            $referenceParameters = array();
-            $referenceParameters["fullReference"] = trim($r["ref"]);           
-            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url" , "value" => trim($r["url"])));      
-            $ref[] = new \SchemaReference($referenceParameters);
-        }        
-        $data_object_parameters["references"] = $ref;
-        //end reference
-        
-        if(@$rec["subject"])
-        {
-            $data_object_parameters["subjects"] = array();
-            $subjectParameters = array();
-            $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
         }
-        
-         if(@$rec["agent"])
-         {               
-             $agents = array();
-             foreach($rec["agent"] as $a)
-             {  
-                 $agentParameters = array();
-                 $agentParameters["role"]     = $a["role"];
-                 $agentParameters["homepage"] = $a["homepage"];
-                 $agentParameters["logoURL"]  = "";        
-                 $agentParameters["fullName"] = $a["name"];
-                 $agents[] = new \SchemaAgent($agentParameters);
-             }
-             $data_object_parameters["agents"] = $agents;
-         }
-        return $data_object_parameters;
-    }    
+        else print "\n Down: " . $this->original_resource;
+    }
 
-    function clean_str($str)
-    {    
-        $str = str_ireplace(array("\n", "\r", "\t", "\o"), '', $str);			
+    private function clean_str($str)
+    {
+        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011", "	", ""), " ", trim($str));
+        $str = str_ireplace(array("    "), " ", trim($str));
+        $str = str_ireplace(array("   "), " ", trim($str));
+        $str = str_ireplace(array("  "), " ", trim($str));
         return $str;
     }
 
-    function save_to_txt($arr,$mode)
+    private function get_object_agents($row, $col)
     {
-    	$str="";        
-        foreach ($arr as $value)
-    	{
-    		$str .= $value . "\n";
-    	}  
-        $filename = DOC_ROOT . "update_resources/connectors/files/BioImages/bioimages.txt";
-    	if($fp = fopen($filename,$mode))
-        {   
-            fwrite($fp,$str);fclose($fp);
-        }	
-        // else no text file	    
-        return "";    
+        $agent_ids = array();
+        $agents_array = explode(",", $row[$col['Recorded/Collected by']]);
+        foreach($agents_array as $agent)
+        {
+            $agent = (string)trim($agent);
+            if(!$agent) continue;
+            $r = new \eol_schema\Agent();
+            $r->term_name = $agent;
+            $r->identifier = md5("$agent|compiler");
+            $r->agentRole = "compiler";
+            $agent_ids[] = $r->identifier;
+            if(!in_array($r->identifier, $this->resource_agent_ids))
+            {
+               $this->resource_agent_ids[] = $r->identifier;
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return $agent_ids;
     }
 
-    function get_from_txt()
-    {        
-        $filename = DOC_ROOT . "update_resources/connectors/files/BioImages/bioimages.txt";        
-        $fd = fopen ($filename, "r");
-        $contents = fread ($fd,filesize ($filename)); fclose ($fd);        
-        $splitcontents = explode("\n", $contents);
-        $counter = "";        
-        $arr=array();
-        foreach ( $splitcontents as $value )
-        {    
-            if($value)
-            {
-                $arr[]=array("path" => $value , "active" => 1);
-            }        
-        }            
-        return $arr;
+    private function get_images($row, $col, $reference_ids, $agent_ids)
+    {
+        if(!$row[$col['DiscoverLife URL']]) return;
+        $mr = new \eol_schema\MediaResource();
+        if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
+        if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
+        $mr->taxonID = "BI-taxon-" . $row[$col['NWB taxon id']];
+        $mr->identifier = "BI-image-" . $row[$col['NWB picture reference id']];
+        $mr->type = 'http://purl.org/dc/dcmitype/StillImage';
+        $mr->language = 'en';
+        $mr->format = 'image/jpeg';
+        $mr->furtherInformationURL = $row[$col['BioImages image page']];
+        $mr->CVterm = '';
+        $mr->title = (string) self::clean_str(utf8_encode($row[$col['Title']]));
+        $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+        $mr->accessURI = $row[$col['DiscoverLife URL']];
+        $mr->creator = '';
+        $mr->CreateDate = '';
+        $mr->modified = '';
+        $mr->Owner = '';
+        $mr->publisher = '';
+        $mr->audience = 'Everyone';
+        $mr->bibliographicCitation = '';
+        $description = '';
+        //record details
+        $description .= $row[$col['Longitude (deg)']] != "" ? "Longitude (deg): " . $row[$col['Longitude (deg)']] . ". " : "";
+        $description .= $row[$col['Latitude (deg)']] != "" ? "Latitude (deg): " . $row[$col['Latitude (deg)']] . ". " : "";
+        $description .= $row[$col['Longitude (deg/min)']] != "" ? "Longitude (deg/min): " . $row[$col['Longitude (deg/min)']] . ". " : "";
+        $description .= $row[$col['Latitude (deg/min)']] != "" ? "Latitude (deg/min): " . $row[$col['Latitude (deg/min)']] . ". " : "";
+        $description .= $row[$col['Vice county name']] != "" ? "Vice county name: " . $row[$col['Vice county name']] . ". " : "";
+        $description .= $row[$col['Vice county no']] != "" ? "Vice county no.: " . $row[$col['Vice county no']] . ". " : "";
+        $description .= $row[$col['Country']] != "" ? "Country: " . $row[$col['Country']] . ". " : "";
+        $description .= $row[$col['Stage']] != "" ? "Stage: " . $row[$col['Stage']] . ". " : "";
+        $description .= $row[$col['Associated species']] != "" ? "Associated species: " . $row[$col['Associated species']] . ". " : "";
+        $description .= $row[$col['Identified by']] != "" ? "Identified by: " . $row[$col['Identified by']] . ". " : "";
+        $description .= $row[$col['Confirmed by']] != "" ? "Confirmed by: " . $row[$col['Confirmed by']] . ". " : "";
+        $description .= $row[$col['Photo summary']] != "" ? "Photo summary: " . $row[$col['Photo summary']] . ". " : "";
+        $description .= $row[$col['Record summary']] != "" ? "Comment: " . $row[$col['Record summary']] . ". " : "";
+        //image details
+        $description .= $row[$col['Description']] != "" ? "Description: " . $row[$col['Description']] . ". " : "";
+        $description .= $row[$col['Shows']] != "" ? "Shows: " . $row[$col['Shows']] . ". " : "";
+        $description .= $row[$col['Detail to note']] != "" ? "Detail to note: " . $row[$col['Detail to note']] . ". " : "";
+        $description .= $row[$col['Other taxa shown']] != "" ? "Other taxa shown: " . $row[$col['Other taxa shown']] . ". " : "";
+        $description .= $row[$col['Category']] != "" ? "Category: " . $row[$col['Category']] . ". " : "";
+        $description .= $row[$col['Image scaling']] != "" ? "Image scaling: " . $row[$col['Image scaling']] . ". " : "";
+        $description .= $row[$col['Real world width(mm)']] != "" ? "Real world width(mm): " . $row[$col['Real world width(mm)']] . ". " : "";
+        $description .= $row[$col['Background']] != "" ? "Background: " . $row[$col['Background']] . ". " : "";
+        $description .= $row[$col['Photo date']] != "" ? "Photo date: " . $row[$col['Photo date']] . ". " : "";
+        $description .= $row[$col['In situ/arranged/studio/specimen etc']] != "" ? "Where photo was taken: " . $row[$col['In situ/arranged/studio/specimen etc']] . ". " : "";
+        // $description .= $row[$col['Specimen prep']] != "" ? "Specimen preparation: " . $row[$col['Specimen prep']] . ". " : "";
+        // $description .= $row[$col['Stained with']] != "" ? "Stained with: " . $row[$col['Stained with']] . ". " : "";
+        // $description .= $row[$col['Mounted in']] != "" ? "Mounting medium: " . $row[$col['Mounted in']] . ". " : "";
+        // $description .= $row[$col['Lighting & focus']] != "" ? "Lighting: " . $row[$col['Lighting & focus']] . ". " : "";
+        // $description .= $row[$col['Post processing']] != "" ? "Post processing: " . $row[$col['Post processing']] . ". " : "";
+        $description .= $row[$col['Annotation']] != "" ? "Annotation: " . $row[$col['Annotation']] . ". " : "";
+        $description .= $row[$col['Orientation']] != "" ? "Orientation: " . $row[$col['Orientation']] . ". " : "";
+        $description .= $row[$col['Kit']] != "" ? "Photographic equipment used: " . $row[$col['Kit']] . ". " : "";
+        $mr->description = utf8_encode($description);
+        $this->archive_builder->write_object_to_file($mr);
+    }
+
+    private function create_instances_from_taxon_object($row, $col, $reference_ids)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon_id = (string)$row[$col['NWB taxon id']];
+        if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
+        $taxon->taxonID = "BI-taxon-" . $taxon_id;
+        $rank = (string)trim($row[$col['Rank']]);
+        if(self::valid_rank($rank)) $taxon->taxonRank = $rank;
+        $scientificName = (string)utf8_encode($row[$col['Taxon']]);
+        if(!$scientificName) return; //blank
+        $taxon->scientificName              = $scientificName;
+        $taxon->scientificNameAuthorship    = '';
+        $taxon->vernacularName              = '';
+        $taxon->kingdom                     = (string)$row[$col['Kingdom']];
+        $taxon->phylum                      = (string)$row[$col['Phylum']];
+        $taxon->class                       = (string)$row[$col['Class']];
+        $taxon->order                       = (string)$row[$col['Order']];
+        $taxon->family                      = (string)$row[$col['Family']];
+        $taxon->specificEpithet             = '';
+        $taxon->taxonomicStatus             = '';
+        $taxon->furtherInformationURL       = $row[$col['BioImages taxon page']];
+        $taxon->nomenclaturalCode           = '';
+        $taxon->nomenclaturalStatus         = '';
+        $taxon->acceptedNameUsage           = ''; //'Accepted name'
+        $taxon->acceptedNameUsageID         = '';
+        $taxon->parentNameUsageID           = '';
+        $original_identification            = (string)$row[$col['Original ident']];
+        $taxon->namePublishedIn             = $original_identification;
+        $taxonRemarks = '';
+        $taxonRemarks .= $original_identification != "" ? "Original identification: " . $original_identification . ". " : "";
+        $taxonRemarks .= $rank != "" ? "Rank: " . $rank . ". " : "";
+        $NBN_Code = (string)$row[$col['NBN Code']];
+        $taxonRemarks .= $NBN_Code != "" ? "UK NBN (National Biodiversity Network) taxon code: " . $NBN_Code . ". " : "";
+        $taxon->taxonRemarks                = $taxonRemarks;
+        $taxon->infraspecificEpithet        = '';
+        $this->taxa[$taxon->taxonID] = $taxon;
+    }
+
+    private function valid_rank($rank)
+    {
+        $unrecognized_ranks = array("", "Anamorphic Species", "Hybrid", "Informal", "Aggregate", "Aberration", "Form genus", "Breed", "Cultivar", "Section (Zoo.)", "Forma specialis", "Nothosubspecies", "Anamorphic variety");
+        if(in_array($rank, $unrecognized_ranks)) return false;
+        else return true;
+    }
+
+    private function create_archive()
+    {
+        foreach($this->taxa as $t)
+        {
+            $this->archive_builder->write_object_to_file($t);
+        }
+        $this->archive_builder->finalize();
     }
 }
 ?>
