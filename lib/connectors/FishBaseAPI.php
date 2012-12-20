@@ -116,7 +116,11 @@ class FishBaseAPI
             $this->TAXON_REFERENCES_PATH            = $this->TEMP_FILE_PATH . "/taxon_references.txt";
             $this->TAXON_SYNONYMS_PATH              = $this->TEMP_FILE_PATH . "/taxon_synonyms.txt";
         }
-        else exit("\n\n Connector terminated. Remote files are not ready.\n\n");
+        else
+        {
+            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+            return;
+        }
     }
 
     function prepare_data()
