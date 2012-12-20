@@ -406,12 +406,12 @@ class DataObjectAncestriesIndexer
     private function lookup_curation($start, $limit, &$data_object_ids = array())
     {
         $query = "
-            SELECT cal.object_id, cal.user_id
+            SELECT cal.target_id, cal.user_id
             FROM ".LOGGING_DB.".curator_activity_logs cal
             JOIN ".LOGGING_DB.".translated_activities ta ON (cal.activity_id=ta.id)
             WHERE ta.name IN ('trusted', 'untrusted', 'hide', 'show', 'inappropriate', 'unreviewed', 'add_association', 'add_common_name')
             AND cal.changeable_object_type_id IN (".ChangeableObjectType::data_object()->id.", ".ChangeableObjectType::data_objects_hierarchy_entry()->id.")
-            AND cal.object_id ";
+            AND cal.target_id ";
         if($data_object_ids) $query .= "IN (". implode(",", $data_object_ids) .")";
         else $query .= "BETWEEN $start AND ". ($start+$limit);
         

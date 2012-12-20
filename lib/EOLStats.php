@@ -360,7 +360,7 @@ class EOLStats
 
     public function pages_comments_curated_thru_TaxonConcept($curators)
     {
-        $sql = "SELECT DISTINCT c.parent_id taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.object_id = c.id WHERE cal.changeable_object_type_id = " . ChangeableObjectType::comment()->id . " AND c.parent_type = 'TaxonConcept' ";
+        $sql = "SELECT DISTINCT c.parent_id taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.target_id = c.id WHERE cal.changeable_object_type_id = " . ChangeableObjectType::comment()->id . " AND c.parent_type = 'TaxonConcept' ";
         if($curators) $sql .= " AND cal.user_id IN (" . implode(",", $curators) . ")";
         $result = $this->mysqli_slave->query($sql);
         $pages_comments_curated_thru_TaxonConcept = array();
@@ -378,7 +378,7 @@ class EOLStats
     public function pages_curated_thru_data_objects($curators)
     {
         $pages_curated_thru_data_objects = array();
-        $sql = "SELECT DISTINCT dotc.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN eol_logging_production.activities acts ON (cal.activity_id = acts.id) JOIN data_objects_taxon_concepts dotc ON (cal.object_id = dotc.data_object_id) WHERE cal.changeable_object_type_id IN (" . implode(",", $this->data_object_scope) . ")";
+        $sql = "SELECT DISTINCT dotc.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN eol_logging_production.activities acts ON (cal.activity_id = acts.id) JOIN data_objects_taxon_concepts dotc ON (cal.target_id = dotc.data_object_id) WHERE cal.changeable_object_type_id IN (" . implode(",", $this->data_object_scope) . ")";
         if($curators) $sql .= " AND cal.user_id IN (" . implode(",", $curators) . ")";
         $result = $this->mysqli_slave->query($sql);
         while($result && $row=$result->fetch_assoc()) $pages_curated_thru_data_objects[] = $row['taxon_concept_id'];
@@ -417,7 +417,7 @@ class EOLStats
     {
         $sql = "SELECT COUNT(*) count FROM
           (
-            SELECT DISTINCT(cal.object_id) FROM eol_logging_production.curator_activity_logs cal WHERE cal.activity_id IN (" . implode(",", $this->data_object_curation_activity_ids) . ") AND cal.created_at > date_sub(now(), interval $days day)
+            SELECT DISTINCT(cal.target_id) FROM eol_logging_production.curator_activity_logs cal WHERE cal.activity_id IN (" . implode(",", $this->data_object_curation_activity_ids) . ") AND cal.created_at > date_sub(now(), interval $days day)
             UNION
             SELECT DISTINCT w.revision_id object_id FROM wikipedia_queue w WHERE w.created_at > date_sub(now(), interval $days day)
           ) total";
@@ -430,7 +430,7 @@ class EOLStats
     {
       $sql = "SELECT COUNT(*) count FROM
         (
-          SELECT cal.object_id FROM eol_logging_production.curator_activity_logs cal WHERE cal.created_at > date_sub(now(), interval $days day)
+          SELECT cal.target_id FROM eol_logging_production.curator_activity_logs cal WHERE cal.created_at > date_sub(now(), interval $days day)
           AND 
           (
             cal.activity_id IN (" . implode(",", $this->curation_activity_ids) . ") OR
@@ -466,7 +466,7 @@ class EOLStats
 
     public function get_redhotlist($collection_ids)
     {
-        $result = $this->mysqli_slave->query("SELECT distinct(c.object_id) taxon_concept_id from collection_items c WHERE c.object_type = 'TaxonConcept' AND c.collection_id IN (" . implode(",", $collection_ids) . ")");
+        $result = $this->mysqli_slave->query("SELECT distinct(c.collected_item_id) taxon_concept_id FROM collection_items c WHERE c.collected_item_type = 'TaxonConcept' AND c.collection_id IN (" . implode(",", $collection_ids) . ")");
         $tc_ids = array();
         while($result && $row=$result->fetch_assoc()) $tc_ids[$row['taxon_concept_id']] = '';
         return array_keys($tc_ids);        
@@ -699,9 +699,9 @@ class EOLStats
 
     public function pages_comments_curated_thru_data_objects($type, $curators)
     {
-        if    ($type == 'DOHE')  $sql = "SELECT DISTINCT he.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.object_id = c.id JOIN data_objects_hierarchy_entries dohe ON c.parent_id = dohe.data_object_id JOIN hierarchy_entries he ON dohe.hierarchy_entry_id = he.id ";
-        elseif($type == 'CDOHE') $sql = "SELECT DISTINCT he.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.object_id = c.id JOIN curated_data_objects_hierarchy_entries cdohe ON c.parent_id = cdohe.data_object_id JOIN hierarchy_entries he ON cdohe.hierarchy_entry_id = he.id ";
-        elseif($type == 'UDO')   $sql = "SELECT DISTINCT udo.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.object_id = c.id JOIN users_data_objects udo ON c.parent_id = udo.data_object_id ";
+        if    ($type == 'DOHE')  $sql = "SELECT DISTINCT he.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.target_id = c.id JOIN data_objects_hierarchy_entries dohe ON c.parent_id = dohe.data_object_id JOIN hierarchy_entries he ON dohe.hierarchy_entry_id = he.id ";
+        elseif($type == 'CDOHE') $sql = "SELECT DISTINCT he.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.target_id = c.id JOIN curated_data_objects_hierarchy_entries cdohe ON c.parent_id = cdohe.data_object_id JOIN hierarchy_entries he ON cdohe.hierarchy_entry_id = he.id ";
+        elseif($type == 'UDO')   $sql = "SELECT DISTINCT udo.taxon_concept_id FROM eol_logging_production.curator_activity_logs cal JOIN comments c ON cal.target_id = c.id JOIN users_data_objects udo ON c.parent_id = udo.data_object_id ";
         $sql .= "WHERE cal.changeable_object_type_id = " . ChangeableObjectType::comment()->id . " AND c.parent_type = 'DataObject' ";
         if($curators) $sql .= " AND cal.user_id IN (" . implode(",", $curators) . ")";
         $result = $this->mysqli_slave->query($sql);

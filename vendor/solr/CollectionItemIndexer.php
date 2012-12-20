@@ -102,14 +102,14 @@ class CollectionItemIndexer
         
         if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_data_objects\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
-            ci.object_id, ci.collection_id, do.object_title, do.data_type_id, do.data_rating, ttoc.label
+            ci.collected_item_id, ci.collection_id, do.object_title, do.data_type_id, do.data_rating, ttoc.label
             FROM collection_items ci
-            JOIN data_objects do ON (ci.object_id=do.id)
+            JOIN data_objects do ON (ci.collected_item_id=do.id)
             LEFT JOIN
               (table_of_contents toc JOIN data_objects_table_of_contents dotoc ON (toc.id=dotoc.toc_id)
               JOIN translated_table_of_contents ttoc ON (toc.id=ttoc.table_of_contents_id AND ttoc.language_id=". Language::english()->id ."))
               ON (do.id=dotoc.data_object_id)
-            WHERE object_type='DataObject' AND ci.id ";
+            WHERE collected_item_type='DataObject' AND ci.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
@@ -168,12 +168,12 @@ class CollectionItemIndexer
     {
         if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_taxon_concepts\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
-            ci.object_id, ci.collection_id, ci.name, tcm.richness_score, n.string name_string, ci.sort_field
+            ci.collected_item_id, ci.collection_id, ci.name, tcm.richness_score, n.string name_string, ci.sort_field
             FROM collection_items ci
-            LEFT JOIN taxon_concept_metrics tcm ON (ci.object_id=tcm.taxon_concept_id)
+            LEFT JOIN taxon_concept_metrics tcm ON (ci.collected_item_id=tcm.taxon_concept_id)
             LEFT JOIN
-                (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id AND tcn.preferred=1 AND tcn.vern=0)) ON (ci.object_id=tcn.taxon_concept_id)
-            WHERE object_type='TaxonConcept' AND ci.id ";
+                (taxon_concept_names tcn JOIN names n ON (tcn.name_id=n.id AND tcn.preferred=1 AND tcn.vern=0)) ON (ci.collected_item_id=tcn.taxon_concept_id)
+            WHERE collected_item_type='TaxonConcept' AND ci.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         $query .= " ORDER BY tcn.source_hierarchy_entry_id ASC";
@@ -222,10 +222,10 @@ class CollectionItemIndexer
     {
         if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_users\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
-            ci.object_id, ci.collection_id, u.username
+            ci.collected_item_id, ci.collection_id, u.username
             FROM collection_items ci
-            JOIN users u ON (ci.object_id=u.id)
-            WHERE object_type='User' AND ci.id ";
+            JOIN users u ON (ci.collected_item_id=u.id)
+            WHERE collected_item_type='User' AND ci.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
@@ -265,10 +265,10 @@ class CollectionItemIndexer
     {
         if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_communities\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
-            ci.object_id, ci.collection_id, c.name
+            ci.collected_item_id, ci.collection_id, c.name
             FROM collection_items ci
-            JOIN communities c ON (ci.object_id=c.id)
-            WHERE object_type='Community' AND ci.id ";
+            JOIN communities c ON (ci.collected_item_id=c.id)
+            WHERE collected_item_type='Community' AND ci.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         
@@ -308,10 +308,10 @@ class CollectionItemIndexer
     {
         if($GLOBALS['ENV_DEBUG']) echo "\nquerying lookup_collections\n";
         $query = "SELECT ci.id, ci.annotation, ci.added_by_user_id, UNIX_TIMESTAMP(ci.created_at), UNIX_TIMESTAMP(ci.updated_at),
-            ci.object_id, ci.collection_id, c.name
+            ci.collected_item_id, ci.collection_id, c.name
             FROM collection_items ci
-            JOIN collections c ON (ci.object_id=c.id)
-            WHERE object_type='Collection' AND ci.id ";
+            JOIN collections c ON (ci.collected_item_id=c.id)
+            WHERE collected_item_type='Collection' AND ci.id ";
         if(@$params['ids']) $query .= "IN (". implode(",", $params['ids']) .")";
         else $query .= "BETWEEN ". $params['start'] ." AND ". ($params['start'] + $params['limit']);
         

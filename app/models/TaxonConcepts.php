@@ -56,11 +56,11 @@ class TaxonConcept extends ActiveRecord
         if($update_caches)
         {
             $updating_collection_items = false;
-            $result = $mysqli->query("SELECT 1 FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept' LIMIT 1");
+            $result = $mysqli->query("SELECT 1 FROM collection_items WHERE collected_item_id=$id2 AND collected_item_type='TaxonConcept' LIMIT 1");
             if($result && $row=$result->fetch_assoc())
             {
                 $updating_collection_items = true;
-                $mysqli->update("UPDATE IGNORE collection_items SET object_id=$id1 WHERE object_id=$id2 AND object_type='TaxonConcept'");
+                $mysqli->update("UPDATE IGNORE collection_items SET collected_item_id=$id1 WHERE collected_item_id=$id2 AND collected_item_type='TaxonConcept'");
                 self::reindex_collection_items($id1);
             }
             
@@ -78,7 +78,7 @@ class TaxonConcept extends ActiveRecord
             {
                 $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
                 $solr->delete("object_type:TaxonConcept AND object_id:$id2");
-                $mysqli->update("DELETE FROM collection_items WHERE object_id=$id2 AND object_type='TaxonConcept'");
+                $mysqli->update("DELETE FROM collection_items WHERE collected_item_id=$id2 AND collected_item_type='TaxonConcept'");
             }
         }
         $mysqli->end_transaction();
@@ -139,7 +139,7 @@ class TaxonConcept extends ActiveRecord
     public static function reindex_collection_items($taxon_concept_id)
     {
         $collection_item_ids = array();
-        $query = "SELECT id FROM collection_items WHERE object_id = $taxon_concept_id AND object_type = 'TaxonConcept'";
+        $query = "SELECT id FROM collection_items WHERE collected_item_id = $taxon_concept_id AND collected_item_type = 'TaxonConcept'";
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
         {
             $collection_item_ids[] = $row[0];

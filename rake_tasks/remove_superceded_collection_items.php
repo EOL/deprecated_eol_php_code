@@ -11,8 +11,8 @@ $taxon_concept_ids_updated_to = array();
 
 $result = $mysqli->query("SELECT ci.id, tc.id taxon_concept_id, tc.supercedure_id
     FROM collection_items ci
-    JOIN taxon_concepts tc ON (ci.object_id = tc.id)
-    WHERE ci.object_type = 'TaxonConcept'
+    JOIN taxon_concepts tc ON (ci.collected_item_id = tc.id)
+    WHERE ci.collected_item_type = 'TaxonConcept'
     AND tc.supercedure_id != 0");
     
 $mysqli->begin_transaction();
