@@ -112,6 +112,9 @@ class MediaResource extends DarwinCoreExtensionBase
     public static function valid_license($v)
     {
         if($v && !preg_match("/^http:\/\/creativecommons.org\/licenses\/((by|by-nc|by-sa|by-nc-sa)\/(1\.0|2\.0|2\.5|3\.0)|publicdomain)\/$/i", $v) &&
+            strtolower($v) != 'http://creativecommons.org/publicdomain/zero/1.0/' &&
+            strtolower($v) != 'http://www.flickr.com/commons/usage/' &&
+            strtolower($v) != 'no known copyright restrictions' &&
             strtolower($v) != 'not applicable')
         {
             return false;

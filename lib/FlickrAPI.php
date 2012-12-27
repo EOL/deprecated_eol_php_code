@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 
-/* for the Flickr connector */
+/* See http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html */
 $GLOBALS['flickr_licenses'] = array();
 //$GLOBALS['flickr_licenses'][0] = "All Rights Reserved";
 $GLOBALS['flickr_licenses'][1] = "http://creativecommons.org/licenses/by-nc-sa/2.0/";
@@ -10,6 +10,7 @@ $GLOBALS['flickr_licenses'][2] = "http://creativecommons.org/licenses/by-nc/2.0/
 $GLOBALS['flickr_licenses'][4] = "http://creativecommons.org/licenses/by/2.0/";
 $GLOBALS['flickr_licenses'][5] = "http://creativecommons.org/licenses/by-sa/2.0/";
 //$GLOBALS['flickr_licenses'][6] = "http://creativecommons.org/licenses/by-nd/2.0/";
+$GLOBALS['flickr_licenses'][7] = "http://www.flickr.com/commons/usage/";
 
 define("FLICKR_REST_PREFIX", "http://api.flickr.com/services/rest/?");
 define("FLICKR_AUTH_PREFIX", "http://api.flickr.com/services/auth/?");
