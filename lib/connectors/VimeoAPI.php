@@ -1,7 +1,9 @@
 <?php
 namespace php_active_record;
+require_once DOC_ROOT . '/vendor/vimeo-vimeo-php-lib-a32ff71/vimeo.php';
+
 /* connector: 214 
-Connector makes use of the Vimeo API to generate the EOL XML.
+Connector makes use of the Advanced Vimeo API to generate the EOL XML.
 There is a vimeo group called: Encyclopedia of Life Videos 
 https://vimeo.com/groups/encyclopediaoflife
 
@@ -11,8 +13,9 @@ Second step is to then access/get each user's list of videos using their ID.
 There is also an instruction here outlining the steps on how to setup your video so it can be shown in eol.org
 https://vimeo.com/groups/encyclopediaoflife/forum/topic:237888
 */
-define("VIMEO_USER_SERVICE", "http://vimeo.com/api/v2/");
 define("VIMEO_PLAYER_URL", "http://vimeo.com/moogaloop.swf?clip_id=");
+define("CONSUMER_KEY", "8498d03ee2e3276f878fbbeb2354a1552bfea767");
+define("CONSUMER_SECRET", "579812c7f9e9cef30ab1bf088c3d3b92073e115c");
 
 class VimeoAPI
 {
@@ -23,29 +26,26 @@ class VimeoAPI
         $user_ids = self::get_list_of_user_ids();
         $count_of_users = count($user_ids);
         $i = 0;
+        $vimeo = new \phpVimeo(CONSUMER_KEY, CONSUMER_SECRET);
         foreach($user_ids as $user_id)
         {
             $i++;
-            
             $page = 1;
             $count_of_videos = 0;
-            while($page == 1 || $count_of_videos == 20)
+            while($page == 1 || $count_of_videos == 50) //if $count_of_videos < 50 it means that this current page is the last page; default per_page = 50
             {
-                $video_list_url = "http://vimeo.com/api/v2/$user_id/videos.xml?page=$page";
-                $xml = Functions::get_hashed_response($video_list_url);
-                
-                $count_of_videos = count($xml->video);
+                $return = $vimeo->call('vimeo.videos.getUploaded', array('user_id' => $user_id, 'page' => $page, "full_response" => true));
+                $count_of_videos = count($return->videos->video);
                 $j = 0;
-                foreach($xml->video as $video)
+                foreach($return->videos->video as $video)
                 {
                     $j++;
-                    echo "User $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)\n";
+                    echo "\nUser $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)";
                     $arr = self::get_vimeo_taxa($video, $used_collection_ids);
                     $page_taxa              = $arr[0];
                     $used_collection_ids    = $arr[1];
                     if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                 }
-                if($page == 3) break;
                 $page++;
             }
         }
@@ -54,29 +54,37 @@ class VimeoAPI
     
     function get_list_of_user_ids()
     {
+        //get the members of the group
+        $vimeo = new \phpVimeo(CONSUMER_KEY, CONSUMER_SECRET);
         $user_ids = array();
         $page = 1;
-        while(!$user_ids || count($user_ids) % 20 == 0)
+        while(!$user_ids || count($user_ids) % 20 == 0) //if count($user_ids) is not a multiple of 20 it means that this current page is the last page; default per_page = 50
         {
-            $xml = Functions::get_hashed_response(VIMEO_USER_SERVICE . "group/encyclopediaoflife/users.xml?page=$page");
-            foreach($xml->user as $user)
-            {
-                $user_ids[(string) $user->id] = 1;
-            }
-            if($page == 3) break;
+            print "\npage: $page";
+            $return = $vimeo->call('vimeo.groups.getMembers', array('group_id' => "encyclopediaoflife", 'page' => $page, 'per_page' => 20));
+            print " - " . count($return->members->member) . " members";
+            foreach($return->members->member as $member) $user_ids[(string) $member->id] = 1;
             $page++;
         }
-        
-        // moderators are not returned in the users.xml
-        // Simple API we use above. Maybe using the Advanced API would fix that
-        $user_ids['user5814509'] = 1;  // Katja
-        $user_ids['user5352360'] = 1;  // Eli
+
+        //get the moderators of the group
+        $return = $vimeo->call('vimeo.groups.getModerators', array('group_id' => "encyclopediaoflife", 'page' => 1));
+        foreach($return->moderators->moderator as $moderator) $user_ids[(string) $moderator->id] = 1;
+
+        /*
+        $user_ids = array();
+        $user_ids['user7837321'] = 1;
+        $user_ids['user5814509'] = 1; //katja
+        $user_ids['user5352360'] = 1; //eli
+        $user_ids['5352360'] = 1; //eli
+        $user_ids['user1632860'] = 1; //peter kuttner
+        */
         return array_keys($user_ids);
     }
 
     public static function get_vimeo_taxa($rec, $used_collection_ids)
     {
-        $response = self::parse_xml($rec);//this will output the raw (but structured) array
+        $response = self::parse_xml($rec); //this will output the raw (but structured) array
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -130,32 +138,31 @@ class VimeoAPI
         }
 
         $with_eol_tag = false;
-        $tags = explode(",", $rec->tags);
-        foreach($tags as $tag)
+        if(isset($rec->tags))
         {
-            $tag = trim($tag);
-            if(trim($tag) == "eol") $with_eol_tag = true;
-            elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr)) $license = strtolower(trim($arr[1]));
+            foreach($rec->tags->tag as $tag)
+            {
+                $tag = trim($tag->{"_content"});
+                if($tag == "eol") $with_eol_tag = true;
+                elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr)) $license = strtolower(trim($arr[1])); //users might put the license in a tag
+            }
         }
 
-        /* Not a pre-requisite anymore
-        //has to have an 'eol' tag
+        /* Not a pre-requisite anymore to have an 'eol' tag
         if(!$with_eol_tag) return array();
         */
 
-        //license from Vimeo license settings - scraped from the video page
-        $license = self::get_license_from_page($rec->url);
-
-        if(!$license)
+        if($license) $license = self::get_cc_license($license); //license from Vimeo tag or description section
+        else
         {
-            //license from Vimeo tag or description section
-            $license = self::get_cc_license($license);
+            if($license = $rec->license) $license = self::get_cc_license($license);
+            else $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
         }
 
         //has to have a valid license
         if(!$license)
         {
-            echo "invalid license [$rec->url]\n\n";
+            echo "\ninvalid license: " . $rec->urls->url{0}->{"_content"} . "\n";
             return array();
         }
 
@@ -164,7 +171,7 @@ class VimeoAPI
             if(!$sciname && @$arr_sciname[$sciname]['trinomial']) $sciname = @$arr_sciname[$sciname]['trinomial'];
             if(!$sciname && @$arr_sciname[$sciname]['genus'] && @$arr_sciname[$sciname]['species'] && !preg_match("/ /", @$arr_sciname[$sciname]['genus']) && !preg_match("/ /", @$arr_sciname[$sciname]['species'])) $sciname = @$arr_sciname[$sciname]['genus']." ".@$arr_sciname[$sciname]['species'];                        
             if(!$sciname && !@$arr_sciname[$sciname]['genus'] && !@$arr_sciname[$sciname]['family'] && !@$arr_sciname[$sciname]['order'] && !@$arr_sciname[$sciname]['class'] && !@$arr_sciname[$sciname]['phylum'] && !@$arr_sciname[$sciname]['kingdom']) return array();
-                        
+
             //start data objects //----------------------------------------------------------------------------------------
             $arr_objects = array();
             $identifier  = $rec->id;
@@ -172,11 +179,13 @@ class VimeoAPI
             $mimeType    = "video/x-flv";
             if(trim($rec->title)) $title = $rec->title;
             else                  $title = "Vimeo video";
-            $source      = $rec->url;
+            $source      = $rec->urls->url{0}->{"_content"};
             $mediaURL    = VIMEO_PLAYER_URL . $rec->id;
-            $thumbnailURL = $rec->thumbnail_large;
+            $thumbnailURL = $rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
             $agent = array();
-            if($rec->user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->user_url , $rec->user_name));
+            if($rec->owner->display_name) $user_name = $rec->owner->display_name;
+            elseif($rec->owner->realname) $user_name = $rec->owner->realname;
+            if($user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->owner->profileurl , $user_name));
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
@@ -234,7 +243,6 @@ class VimeoAPI
         /*
           [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
         */
-
         $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "family" => 4, "order" => 5, "class" => 6, "phylum" => 7, "kingdom" => 8);
         $smallest_rank_id = 9;
         $smallest_rank = "";
@@ -257,7 +265,7 @@ class VimeoAPI
         if(!isset($sciname))
         {
             print "\n This needs checking...";
-            print "<pre>"; print_r($match); print "</pre>";
+            print_r($match); 
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
@@ -362,6 +370,8 @@ class VimeoAPI
                 return 'http://creativecommons.org/licenses/by-nc/3.0/'; break;
             case 'by-nc-sa':
                 return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'; break;
+            case 'public domain':
+                return 'http://creativecommons.org/licenses/publicdomain/'; break;
             default:
                 return false;
         }
