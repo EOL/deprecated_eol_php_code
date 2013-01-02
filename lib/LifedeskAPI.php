@@ -17,7 +17,7 @@ class LifeDeskAPI
         if(!$term) return array();
         
         $hierarchy_entries = array();
-        $query = "SELECT DISTINCT he.id FROM canonical_forms c JOIN names n ON (c.id=n.canonical_form_id) JOIN hierarchy_entries he ON (n.id=he.name_id) JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE c.string='".$this->mysqli->real_escape_string($term)."' AND h.browsable=1";
+        $query = "SELECT DISTINCT he.id FROM canonical_forms c JOIN names n ON (c.id=n.canonical_form_id) JOIN hierarchy_entries he ON (n.id=he.name_id) JOIN hierarchies h ON (he.hierarchy_id=h.id) WHERE c.string='".$this->mysqli->real_escape_string($term)."' AND (h.browsable=1 OR h.label LIKE 'Species 2000 & ITIS Catalogue of Life%' OR h.label LIKE 'Integrated Taxonomic Information System%')";
         if($hierarchy_id) $query .= " AND he.hierarchy_id=$hierarchy_id";
         
         $result = $this->mysqli->query($query ." order by hierarchy_group_version desc, id asc");
@@ -59,17 +59,15 @@ class LifeDeskAPI
     {
         $results = array();
         
-        $entry = $this->getHierarchyEntry($id);
+        $entry = HierarchyEntry::find($id);
         $details = $this->get_details($entry);
-        
-        if($entry->hierarchy_id != 107 && $entry->hierarchy_id != 106 && $v->hierarchy_id != 158) return array();
         
         $currentNode = $entry;
         
         if($ancestry)
         {
             $parentInfo = array();
-            while($parent = $currentNode->getParent())
+            while($parent = $currentNode->parent)
             {
                 $info = array();
                 $info["id"] = $parent->id;
@@ -79,7 +77,7 @@ class LifeDeskAPI
                 $info["rank"] = $parent->rank->translation->label;
                 $info["synonyms"] = array();
                 
-                $synonyms = $parent->getSynonyms();
+                $synonyms = $parent->synonyms();
                 foreach($synonyms as $k => $v)
                 {
                     $thisSynonym = array();
@@ -122,7 +120,7 @@ class LifeDeskAPI
         $details["rank"] = $hierarchy_entry->rank->translation->label;
         $details["synonyms"] = array();
         
-        $synonyms = $hierarchy_entry->getSynonyms();
+        $synonyms = $hierarchy_entry->synonyms;
         foreach($synonyms as $k => $v)
         {
             $thisSynonym = array();
@@ -135,7 +133,7 @@ class LifeDeskAPI
         
         $details["children"] = array();
         
-        $children = $hierarchy_entry->getChildren();
+        $children = $hierarchy_entry->children();
         foreach($children as $k => $v)
         {
             $childDetails = $this->get_details($v);
