@@ -304,8 +304,8 @@
     </xsd:simpleType>
     
     <xsd:simpleType name="licenseTypes">
-        <xsd:restriction base="xsd:anyURI">
-            <xsd:pattern value="http://creativecommons.org/licenses/(publicdomain|by|by-nc|by-sa|by-nc-sa)/[0-9]\.[0-9]/"/>
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="not applicable|no known copyright restrictions|http://www.flickr.com/commons/usage/|http://creativecommons.org/publicdomain/zero/1.0/|http://creativecommons.org/licenses/(publicdomain|by|by-nc|by-sa|by-nc-sa)(/[0-9]\.[0-9])?/"/>
         </xsd:restriction>
     </xsd:simpleType>
     

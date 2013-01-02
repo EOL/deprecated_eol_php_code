@@ -242,6 +242,56 @@ class test_archive_validator extends SimpletestUnitBase
         $this->assertTrue($errors[0]->message == 'Multimedia must have accessURIs');
     }
     
+    function testValidateLicense()
+    {
+        $mr = new \eol_schema\MediaResource();
+        $mr->identifier = "12345";
+        $mr->type = 'http://purl.org/dc/dcmitype/Text';
+        $mr->description = "This is the text";
+        $mr->CVterm = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description";
+        $mr->UsageTerms = 'http://creativecommons.org/licenses/by/3.0/';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $mr->UsageTerms = 'not applicable';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $mr->UsageTerms = 'no known copyright restrictions';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $mr->UsageTerms = 'http://www.flickr.com/commons/usage/';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $mr->UsageTerms = 'http://creativecommons.org/publicdomain/zero/1.0/';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $mr->UsageTerms = 'nonsense';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertTrue($errors, 'There should be errors');
+        $this->assertTrue($errors[0]->message == 'Invalid license');
+    }
+    
     function testValidateReferenceID()
     {
         $r = new \eol_schema\Reference();

@@ -12,6 +12,7 @@ class License extends ActiveRecord
     static function find_by_string($string)
     {
         if($string == "not applicable" && $license = self::find_by_title($string)) return $license;
+        if($string == "no known copyright restrictions" && $license = self::find_by_title($string)) return $license;
         return parent::find_by_source_url($string);
     }
 }
