@@ -126,7 +126,7 @@ class LifeDeskAPI
             $thisSynonym = array();
             $thisSynonym["name"] = $v->name->string;
             $thisSynonym["type"] = $v->synonym_relation->translation->label;
-            $thisSynonym["language_id"] = $v->language->translation->label;
+            $thisSynonym["language_id"] = $v->language ? $v->language->translation->label : '';
             
             $details["synonyms"][] = $thisSynonym;
         }
