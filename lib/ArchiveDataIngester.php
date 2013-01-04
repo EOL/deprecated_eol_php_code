@@ -381,17 +381,6 @@ class ArchiveDataIngester
             }
         }
         
-        // // for when we allow taxon names in the media file
-        // elseif(!$taxon_id)
-        // {
-        //     $scientific_name = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/scientificName']);
-        //     if(!$scientific_name) return false;
-        //     $taxon_parameters = array("scientific_name" => $scientific_name);
-        //     $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($taxon_parameters, $this->resource->hierarchy_id);
-        //     if(@!$hierarchy_entry->id) return false;
-        //     $this->resource->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
-        // }
-        
         if(!$object_taxon_info) return false;
         if($this->harvest_event->resource->is_inaturalist() && self::is_this_image_in_flickr($row)) return false;
         

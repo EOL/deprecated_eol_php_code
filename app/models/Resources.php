@@ -230,13 +230,11 @@ class Resource extends ActiveRecord
         return $this->data_supplier;
     }
     
-    public function unpublish_data_objects($object_guids_to_keep = null)
+    public function unpublish_data_objects()
     {
         if($last_id = $this->most_recent_published_harvest_event_id())
         {
-            $where_clause = '';
-            if($object_guids_to_keep) $where_clause = "AND do.guid NOT IN ('". implode($object_guids_to_keep,"','") ."')";
-            $this->mysqli->update("UPDATE harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.id=$last_id $where_clause");
+            $this->mysqli->update("UPDATE harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.id=$last_id");
         }
     }
     
@@ -292,14 +290,8 @@ class Resource extends ActiveRecord
             $harvest_event = HarvestEvent::find($harvest_event_id);
             if(!$harvest_event->published_at && $harvest_event->completed_at && $harvest_event->publish)
             {
-                $object_guids_to_keep = array();
-                if($this->title == 'Wikipedia')
-                {
-                    $object_guids_to_keep = $this->vetted_object_guids();
-                }
-                
                 // make all objects in last harvest visible if they were in preview mode
-                $harvest_event->make_objects_visible($object_guids_to_keep);
+                $harvest_event->make_objects_visible();
                 
                 // preserve visibilities from older versions of same objects
                 // if the older versions were curated they may be invible or inappropriate and we don't want to lose that info
@@ -310,7 +302,7 @@ class Resource extends ActiveRecord
                 }
                 
                 // set published=0 for ALL objects associated with this resource
-                $this->unpublish_data_objects($object_guids_to_keep);
+                $this->unpublish_data_objects();
                 
                 // now only set published=1 for the objects in the latest harvest
                 $harvest_event->publish_objects();
@@ -353,7 +345,6 @@ class Resource extends ActiveRecord
                 $this->update_names();
                 $this->mysqli->commit();
                 
-                // $harvest_event->insert_top_images();
                 $this->mysqli->commit();
                 $harvest_event->resource->refresh();
                 if(!$fast_for_testing)

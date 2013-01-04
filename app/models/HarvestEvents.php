@@ -48,18 +48,15 @@ class HarvestEvent extends ActiveRecord
         return null;
     }
     
-    public function make_objects_visible($object_guids_to_keep = null)
+    public function make_objects_visible()
     {
-        $where_clause = '';
-        if($object_guids_to_keep) $where_clause = "AND do.guid NOT IN ('". implode($object_guids_to_keep,"','") ."')";
         $this->mysqli->query("
             UPDATE data_objects_harvest_events dohe
             JOIN data_objects do ON (dohe.data_object_id=do.id)
             JOIN data_objects_hierarchy_entries dohent ON (do.id=dohent.data_object_id)
             SET dohent.visibility_id=". Visibility::visible()->id ."
             WHERE dohent.visibility_id=". Visibility::preview()->id ."
-            AND dohe.harvest_event_id=$this->id
-            $where_clause");
+            AND dohe.harvest_event_id=$this->id");
     }
     
     public function publish_objects()
@@ -166,70 +163,6 @@ class HarvestEvent extends ActiveRecord
         }
         fclose($FILE);
         unlink($outfile);
-    }
-    
-    public function insert_top_images()
-    {
-        $image_type_id = DataType::image()->id;
-        
-        // Published images go to top_images
-        $outfile = $this->mysqli->select_into_outfile("
-            SELECT he.id, do.id, 255
-            FROM data_objects_harvest_events dohevt
-            JOIN data_objects do ON (dohevt.data_object_id=do.id)
-            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
-            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
-            WHERE dohevt.harvest_event_id=$this->id
-            AND do.data_type_id=$image_type_id
-            AND do.published=1
-            AND dohe.visibility_id=".Visibility::visible()->id."
-            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_images');
-        unlink($outfile);
-        
-        // Published images go to top_concept_images
-        $outfile = $this->mysqli->select_into_outfile("
-            SELECT he.taxon_concept_id, do.id, 255
-            FROM data_objects_harvest_events dohevt
-            JOIN data_objects do ON (dohevt.data_object_id=do.id)
-            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
-            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
-            WHERE dohevt.harvest_event_id=$this->id
-            AND do.data_type_id=$image_type_id
-            AND do.published=1
-            AND dohe.visibility_id=".Visibility::visible()->id."
-            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_concept_images');
-        unlink($outfile);
-        
-        // Published XOR visible images go to top_unpublished_images
-        $outfile = $this->mysqli->select_into_outfile("
-            SELECT he.id, do.id, 255
-            FROM data_objects_harvest_events dohevt
-            JOIN data_objects do ON (dohevt.data_object_id=do.id)
-            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
-            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
-            WHERE dohevt.harvest_event_id=$this->id
-            AND do.data_type_id=$image_type_id
-            AND dohe.visibility_id=".Visibility::preview()->id."
-            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_images');
-        unlink($outfile);
-        
-        // Published XOR visible images go to top_unpublished_concept_images
-        $outfile = $this->mysqli->select_into_outfile("
-            SELECT he.taxon_concept_id, do.id, 255
-            FROM data_objects_harvest_events dohevt
-            JOIN data_objects do ON (dohevt.data_object_id=do.id)
-            JOIN data_objects_hierarchy_entries dohe ON (dohevt.data_object_id=dohe.data_object_id)
-            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
-            WHERE dohevt.harvest_event_id=$this->id
-            AND do.data_type_id=$image_type_id
-            AND dohe.visibility_id!=".Visibility::preview()->id."
-            AND (he.published=1 OR he.visibility_id=".Visibility::preview()->id.")");
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'top_unpublished_concept_images');
-        unlink($outfile);
-        
     }
     
     public function add_taxon_from_harvest($parameters = array())
@@ -380,35 +313,38 @@ class HarvestEvent extends ActiveRecord
     
     function send_emails_about_outlier_harvests()
     {
-        if(abs($this->percent_different_data_objects()) > 10 ||
-            abs($this->percent_different_hierarchy_entries()) > 10)
+        if(defined('SPG_EMAIL_ADDRESS') && defined('PLEARY_EMAIL_ADDRESS'))
         {
-            $subject = 'EOL Harvesting: outlier harvest event';
-            $message = "A Harvest Event just completed which has an unusual change in data objects or taxa counts.\n\n";
-            
-            $message .= "ContentPartner: ". $this->resource->content_partner->full_name ."\n";
-            $message .= "URL: http://eol.org/content_partners/". $this->resource->content_partner_id ."\n\n";
-            
-            $message .= "Resource: ". $this->resource->title ."\n";
-            $message .= "URL: http://eol.org/content_partners/". $this->resource->content_partner_id ."/resources/$this->resource_id\n\n";
-            
-            $message .= "This Harvest Event Stats:\n";
-            $message .= "Processed at: $this->completed_at\n";
-            $message .= "Count of Objects: ". $this->count_data_objects() ." (a difference of ". round($this->percent_different_data_objects(), 2) ."%)\n";
-            $message .= "Count of Taxa: ". $this->count_hierarchy_entries() ." (a difference of ". round($this->percent_different_hierarchy_entries(), 2) ."%)\n\n";
-            
-            $previous_harvest_event = $this->previous_harvest_event();
-            $message .= "Previous Harvest Event Stats:\n";
-            $message .= "Processed at: $previous_harvest_event->completed_at\n";
-            $message .= "Count of Objects: ". $previous_harvest_event->count_data_objects() ."\n";
-            $message .= "Count of Taxa: ". $previous_harvest_event->count_hierarchy_entries();
-            
-            
-            $headers = 'From: no-reply@eol.org' . "\r\n" .
-                'Reply-To: no-reply@eol.org' . "\r\n" .
-                'X-Mailer: PHP/' . phpversion();
-            $to      = implode(", ", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS));
-            mail($to, $subject, $message, $headers);
+            if(abs($this->percent_different_data_objects()) > 10 ||
+                abs($this->percent_different_hierarchy_entries()) > 10)
+            {
+                $subject = 'EOL Harvesting: outlier harvest event';
+                $message = "A Harvest Event just completed which has an unusual change in data objects or taxa counts.\n\n";
+
+                $message .= "ContentPartner: ". $this->resource->content_partner->full_name ."\n";
+                $message .= "URL: http://eol.org/content_partners/". $this->resource->content_partner_id ."\n\n";
+
+                $message .= "Resource: ". $this->resource->title ."\n";
+                $message .= "URL: http://eol.org/content_partners/". $this->resource->content_partner_id ."/resources/$this->resource_id\n\n";
+
+                $message .= "This Harvest Event Stats:\n";
+                $message .= "Processed at: $this->completed_at\n";
+                $message .= "Count of Objects: ". $this->count_data_objects() ." (a difference of ". round($this->percent_different_data_objects(), 2) ."%)\n";
+                $message .= "Count of Taxa: ". $this->count_hierarchy_entries() ." (a difference of ". round($this->percent_different_hierarchy_entries(), 2) ."%)\n\n";
+
+                $previous_harvest_event = $this->previous_harvest_event();
+                $message .= "Previous Harvest Event Stats:\n";
+                $message .= "Processed at: $previous_harvest_event->completed_at\n";
+                $message .= "Count of Objects: ". $previous_harvest_event->count_data_objects() ."\n";
+                $message .= "Count of Taxa: ". $previous_harvest_event->count_hierarchy_entries();
+
+
+                $headers = 'From: no-reply@eol.org' . "\r\n" .
+                    'Reply-To: no-reply@eol.org' . "\r\n" .
+                    'X-Mailer: PHP/' . phpversion();
+                $to      = implode(", ", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS));
+                mail($to, $subject, $message, $headers);
+            }
         }
     }
     

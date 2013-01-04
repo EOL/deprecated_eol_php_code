@@ -265,7 +265,6 @@ class ContentManager
         if(!in_array($suffix, $arr))
         {
             $new_suffix=false;
-            // /*
             $new_suffix=false;
             $new_suffix="xml";
             
@@ -288,13 +287,12 @@ class ContentManager
             for ($i = 0; $i < count($image); $i++)
             {
                 if($image_data["mime"] == $image[$i]["type"])
-                {    
+                {
                     $new_suffix = $image[$i]["suffix"];
                     break;
                 }
             }
-            // */
-        }        
+        }
         return $new_suffix;
     }
     
@@ -328,13 +326,13 @@ class ContentManager
     
     function reduce_original($path, $prefix)
     {
-        shell_exec("convert $path -strip -background white -flatten -quality 80 ".$prefix."_orig.jpg");
+        shell_exec(CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 ".$prefix."_orig.jpg");
         self::create_checksum($prefix."_orig.jpg");
     }
     
     function create_smaller_version($path, $new_width, $new_height, $prefix)
     {
-        shell_exec("convert $path -strip -background white -flatten -quality 80 \
+        shell_exec(CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 \
                         -resize ".$new_width."x".$new_height."\">\" ".$prefix."_".$new_width."_".$new_height.".jpg");
         self::create_checksum($prefix."_".$new_width."_".$new_height.".jpg");
     }
@@ -345,15 +343,12 @@ class ContentManager
         $factor = $square_dimension / $min;
         $new_width = $width * $factor;
         $new_height = $height * $factor;
-        // $width_offset = floor(($new_width - $square_dimension) / 8);
-        // $height_offset = floor(($new_height - $square_dimension) / 8);
         $width_offset = 0;
         $height_offset = 0;
         
-        $command = "convert $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
                         -gravity NorthWest -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." \
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
-        // echo $command;
         shell_exec($command);
         self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }
@@ -365,10 +360,9 @@ class ContentManager
         $new_width = $width * $factor;
         $new_height = $height * $factor;
 
-        $command = "convert $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
                         -bordercolor white -border ".(($square_dimension-$new_width)/2)."x".(($square_dimension-$new_height)/2)." -gravity center \
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
-        // echo $command;
         shell_exec($command);
         self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }

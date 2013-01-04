@@ -110,7 +110,8 @@ class SchemaConnection
         $visibility_id = Visibility::preview()->id;
         if($existing_data_object)
         {
-            if($existing_data_object && $this->resource->title != "Wikipedia" && $v = $existing_data_object->best_vetted())
+            // if($existing_data_object && ($this->resource->title != "Wikipedia" || $status == "Unchanged") && $v = $existing_data_object->best_vetted())
+            if($existing_data_object && $v = $existing_data_object->best_vetted())
             {
                 // all new Wikipedia articles should be unvetted, even if the previous version was vetted
                 $vetted_id = $v->id;
