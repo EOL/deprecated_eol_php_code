@@ -25,7 +25,8 @@ $excluded_MorphBank_IDs = prepare_excluded_ids();
 if($url_list_of_image_ids)
 {
     print "\n [url_list_of_image_ids: $url_list_of_image_ids] \n";
-    $image_id_xml = Functions::get_hashed_response($url_list_of_image_ids);
+    $response = Functions::get_remote_file($url_list_of_image_ids, DOWNLOAD_WAIT_TIME, 120);
+    $image_id_xml = simplexml_load_string($response);
     if($image_id_xml) 
     {
         foreach($image_id_xml->id as $id) $image_ids[] = $id;
