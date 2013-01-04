@@ -412,6 +412,22 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
         $this->assertEqual($data_object->data_objects_hierarchy_entries[1]->hierarchy_entry->name->string, $this->taxon2->scientificName);
     }
     
+    function testImportDifferentLicenseURI()
+    {
+        $m = new \eol_schema\MediaResource();
+        $m->taxonID = $this->taxon1->taxonID;
+        $m->identifier = "text1";
+        $m->type = "http://purl.org/dc/dcmitype/Text";
+        $m->CVterm = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Biology";
+        $m->description = "Text Description";
+        $m->license = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $this->archive_builder->write_object_to_file($m);
+        $this->archive_builder->finalize();
+        self::harvest($this->resource);
+        
+        $data_object = DataObject::find_by_identifier($m->identifier);
+        $this->assertEqual($data_object->license->source_url, $m->license);
+    }
     
     private static function harvest($resource)
     {

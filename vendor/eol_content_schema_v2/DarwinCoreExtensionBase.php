@@ -27,7 +27,24 @@ class DarwinCoreExtensionBase
             {
                 if(get_class($rule) == 'eol_schema\ContentArchiveFieldValidationRule')
                 {
-                    $success_or_error = $rule->validate(@$fields[$rule->field_uri]);
+                    $test_value = NULL;
+                    $test_uri = NULL;
+                    if(is_array($rule->field_uri))
+                    {
+                        foreach($rule->field_uri as $field_uri)
+                        {
+                            if(isset($fields[$field_uri]))
+                            {
+                                $test_value = $fields[$field_uri];
+                                $test_uri = $field_uri;
+                            }
+                        }
+                    }else
+                    {
+                        $test_value = @$fields[$rule->field_uri];
+                        $test_uri = $rule->field_uri;
+                    }
+                    $success_or_error = $rule->validate($test_value, $test_uri);
                 }elseif(get_class($rule) == 'eol_schema\ContentArchiveRowValidationRule')
                 {
                     $success_or_error = $rule->validate($fields);
@@ -147,15 +164,6 @@ class DarwinCoreExtensionBase
     
     public function __toString()
     {
-        // $string = get_called_class()."\n(\n";
-        // $properties = $this->assigned_properties();
-        // foreach($properties as $p)
-        // {
-        //     $string .= "\t[". $p['property']['name'] ."] => ".$p['value']."\n";
-        // }
-        // $string .= ")\n";
-        // return $string;
-        
         $string = get_called_class()."\n(\n";
         foreach($this as $key => $value)
         {

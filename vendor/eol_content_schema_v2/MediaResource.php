@@ -49,13 +49,17 @@ class MediaResource extends DarwinCoreExtensionBase
                 'failure_message'       => 'Unrecognized Subject'));
             
             $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
+                'field_uri'             => array(
+                                                'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
+                                                'http://purl.org/dc/terms/license'),
                 'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
                 'failure_type'          => 'error',
                 'failure_message'       => 'License must be present'));
             
             $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
+                'field_uri'             => array(
+                                                'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
+                                                'http://purl.org/dc/terms/license'),
                 'validation_function'   => 'eol_schema\MediaResource::valid_license',
                 'failure_type'          => 'error',
                 'failure_message'       => 'Invalid license'));
@@ -111,7 +115,7 @@ class MediaResource extends DarwinCoreExtensionBase
     
     public static function valid_license($v)
     {
-        if($v && !preg_match("/^http:\/\/creativecommons.org\/licenses\/((by|by-nc|by-sa|by-nc-sa)\/(1\.0|2\.0|2\.5|3\.0)|publicdomain)\/$/i", $v) &&
+        if($v && !preg_match("/^http:\/\/creativecommons.org\/licen(s|c)es\/((by|by-nc|by-sa|by-nc-sa)\/(1\.0|2\.0|2\.5|3\.0)|publicdomain)\/$/i", $v) &&
             strtolower($v) != 'http://creativecommons.org/publicdomain/zero/1.0/' &&
             strtolower($v) != 'http://www.flickr.com/commons/usage/' &&
             strtolower($v) != 'no known copyright restrictions' &&
@@ -246,6 +250,20 @@ class MediaResource extends DarwinCoreExtensionBase
         }
         return true;
     }
+
+    protected function load_extension()
+    {
+        parent::load_extension();
+        // add dc:license
+        $property = array();
+        $property['name'] = 'license';
+        $property['namespace'] = 'http://purl.org/dc/terms';
+        $property['uri'] = "http://purl.org/dc/terms/license";
+        $this->accepted_properties[] = $property;
+        $this->accepted_properties_by_name[$property['name']] = $property;
+        $this->accepted_properties_by_uri[$property['uri']] = $property;
+    }
+
 }
 
 ?>
