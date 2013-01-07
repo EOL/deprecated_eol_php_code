@@ -249,26 +249,6 @@ class Resource extends ActiveRecord
         $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=0 WHERE he.hierarchy_id=$this->hierarchy_id");
     }
     
-    public function vetted_object_guids()
-    {
-        $guids = array();
-        $result = $this->mysqli->query("
-            SELECT do.guid
-            FROM harvest_events he
-            JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id)
-            JOIN data_objects do ON (dohe.data_object_id=do.id)
-            JOIN data_objects_hierarchy_entries dohent ON (do.id=dohent.data_object_id)
-            WHERE do.published=1
-            AND dohent.visibility_id=".Visibility::visible()->id."
-            AND dohent.vetted_id=".Vetted::trusted()->id."
-            AND he.resource_id=$this->id");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $guids[] = $row['guid'];
-        }
-        return array_unique($guids);
-    }
-    
     public function force_publish()
     {
         if($harvest_event_id = $this->most_recent_harvest_event_id())
@@ -488,7 +468,7 @@ class Resource extends ActiveRecord
             }
             
             // at this point identifiers_to_delete could be empty - meaning we don't want to delete anything and
-            // we want to being over all old items not references in the resource file
+            // we want to bring over all old items not referenced in the resource file
             $identifiers_to_delete_string = "'". implode("','", $identifiers_to_delete) ."'";
             if($identifiers_to_delete_string == "''") $identifiers_to_delete_string = "'NONSENSE 9832rhjgovih'";
             
