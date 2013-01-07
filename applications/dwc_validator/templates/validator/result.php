@@ -21,6 +21,7 @@ if($file_url || $file_upload)
     
     $pass_color = "#008000";
     $fail_color = "#FF0000";
+    $partial_pass_color = "#FF8000";
     $color = $pass_color;
     $status = "Valid";
     if($structural_errors)
@@ -29,7 +30,7 @@ if($file_url || $file_upload)
         $status = "Invalid";
     }elseif($errors)
     {
-        $color = '#FF6600';
+        $color = $partial_pass_color;
         $status = "Partially Valid";
     }
     print "<hr><h2 style='color:$color;'>This archive is $status</h2>";
