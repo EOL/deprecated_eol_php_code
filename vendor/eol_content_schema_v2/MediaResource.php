@@ -168,6 +168,7 @@ class MediaResource extends DarwinCoreExtensionBase
     public static function valid_subject($v)
     {
         if(preg_match("/^http:\/\/rs\.tdwg\.org\/ontology\/voc\/SPMInfoItems#(.*)$/i", $v, $arr)) $v = $arr[1];
+        elseif(preg_match("/^http:\/\/rs\.tdwg\.org\/pccore\/([a-z]+)$/i", $v, $arr)) $v = $arr[1];
         if($v && !in_array(strtolower($v), array(
             'associations',
             'behaviour',
@@ -207,7 +208,59 @@ class MediaResource extends DarwinCoreExtensionBase
             'trends',
             'trophicstrategy',
             'uses',
-            'use')))
+            'use',
+            
+            // PlinianCore terms
+            'distribution',
+            'abstract',
+            'annualcycle',
+            'behavior',
+            'briefdescription',
+            'chromosomicnumbern',
+            'conservationstatuscites',
+            'conservationstatusuicn',
+            'distribution',
+            'documenteduses',
+            'ecologicalsignificance',
+            'endemicity',
+            'endemism',
+            'feeding',
+            'folklore',
+            'habit',
+            'habitat',
+            'identificationkeys',
+            'interactions',
+            'invasivenessdata',
+            'legislation',
+            'lifecycle',
+            'management',
+            'migratorydata',
+            'moleculardata',
+            'nationallegislation',
+            'otherinformationsources',
+            'papers',
+            'phenology',
+            'population',
+            'populationbiology',
+            'populationstate',
+            'publicationdate',
+            'regionallegislation',
+            'reproduction',
+            'scientificdescription',
+            'seasons',
+            'speciespublicationreference',
+            'symbioticrelationship',
+            'targetaudiences',
+            'territory',
+            'threatstatus',
+            'traditionaluses',
+            'typecollector',
+            'typedepository',
+            'typelocation',
+            'typification',
+            'unstructureddocumentation',
+            'unstructurednaturalhistory',
+            'uses')))
         {
             return false;
         }
