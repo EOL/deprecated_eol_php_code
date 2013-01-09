@@ -116,11 +116,25 @@ class SilvicsNorthAmericaAPI
             sleep(5); //debug 
             $url = $value['html'];
             if($this->debug_info) print "\n\n $url -- $taxon_name";
-            if(!$html = Functions::get_remote_file($url))
+
+            $trials = 1;
+            $success = 0;
+            while($success == 0 && $trials < 5)
             {
-                print("\n\n Content partner's server is down4, $url\n");
-                continue; // this will just skip to the next species, hopefully server is now ready.
-            } 
+                if($html = Functions::get_remote_file($url)) $success = 1;
+                else
+                {
+                    $trials++;
+                    print "\n Down: $url";
+                    print "\n Will wait for 30 seconds and will try again. Trial #" . $trials;
+                    sleep(30);
+                }
+            }
+            if($trials >= 5)
+            {
+                print "\n Will skip to the next species after $trials unsuccessful trials";
+                continue;
+            }
 
             if    (preg_match("/<FONT SIZE=\"\+3\">(.*?)<\/FONT>/ims", $html, $arr)) $GLOBALS['taxon'][$taxon_name]['sciname'] = self::clean_str(strip_tags($arr[1]));
             elseif(preg_match("/<FONT SIZE=\"\+2\">(.*?)<\/FONT>/ims", $html, $arr)) $GLOBALS['taxon'][$taxon_name]['sciname'] = self::clean_str(strip_tags($arr[1]));
@@ -202,7 +216,8 @@ class SilvicsNorthAmericaAPI
                 if(preg_match("/<H2>Genetics<\/H2>(.*?)<H2>Literature Cited/ims", $html, $match)) $genetics = strip_tags(trim($match[1]),"<P><I>");
             }
             if(preg_match("/<H3>Native Range<\/H3>(.*?)<xxx>/ims", $html, $match) ||
-               preg_match("/Native Range<\/FONT><\/H4>(.*?)<xxx>/ims", $html, $match))
+               preg_match("/Native Range<\/FONT><\/H4>(.*?)<xxx>/ims", $html, $match) ||
+               preg_match("/Range<\/FONT><\/H4>(.*?)<xxx>/ims", $html, $match))
             {
                 $native_range = $match[1];
                 if(preg_match("/<IMG SRC\=\"(.*?)\"/ims", $match[1], $map))
@@ -367,7 +382,7 @@ class SilvicsNorthAmericaAPI
                 }
                 $title = str_replace('-', '', $title);
                 $title = self::clean_str($title);
-                if($title && trim($title) != "No information available.") $texts[] = array("title" => $title, "description" => $description);
+                if($title && stripos($title, "No information available") == "") $texts[] = array("title" => $title, "description" => $description);
             }
         }
         return $texts;
@@ -465,11 +480,12 @@ class SilvicsNorthAmericaAPI
         {
             $refs = self::get_references();
             $identifier     = str_replace(" ", "_", $record['taxon_name']) . "_silvics_" . str_ireplace(" ", "_", $text['type']);
-            $description    = $text['desc'];
+            $description    = str_ireplace("</P>", "<BR/><BR/>", $text['desc']);
+            $description    = strip_tags($description, "<I><BR>");
             $license        = "http://creativecommons.org/licenses/by-nc/3.0/";
             $agent          = $record['agents'];
             $rightsHolder   = "";
-            $rights         = ""; //"Copyright © 2002-" . date("Y") . " by";
+            $rights         = "";
             $location       = "";
             $dataType       = "http://purl.org/dc/dcmitype/Text";
             $mimeType       = "text/html";
