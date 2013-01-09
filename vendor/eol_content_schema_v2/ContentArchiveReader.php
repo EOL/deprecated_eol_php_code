@@ -69,7 +69,8 @@ class ContentArchiveReader
             foreach($metadata_xml->core as $core_xml)
             {
                 $table_definition = $this->load_table_definition($core_xml);
-                $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+                if(!isset($this->tables[strtolower($table_definition->row_type)])) $this->tables[strtolower($table_definition->row_type)] = array();
+                $this->tables[strtolower($table_definition->row_type)][] = $table_definition;
                 $this->core = $table_definition;
             }
         }
@@ -80,7 +81,8 @@ class ContentArchiveReader
             foreach($metadata_xml->extension as $extension_xml)
             {
                 $table_definition = $this->load_table_definition($extension_xml);
-                $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+                if(!isset($this->tables[strtolower($table_definition->row_type)])) $this->tables[strtolower($table_definition->row_type)] = array();
+                $this->tables[strtolower($table_definition->row_type)][] = $table_definition;
             }
         }
         
@@ -90,7 +92,8 @@ class ContentArchiveReader
             foreach($metadata_xml->table as $table_xml)
             {
                 $table_definition = $this->load_table_definition($table_xml);
-                $this->tables[strtolower($table_definition->row_type)] = $table_definition;
+                if(!isset($this->tables[strtolower($table_definition->row_type)])) $this->tables[strtolower($table_definition->row_type)] = array();
+                $this->tables[strtolower($table_definition->row_type)][] = $table_definition;
             }
         }
     }
@@ -187,59 +190,58 @@ class ContentArchiveReader
         return $table_definition;
     }
     
-    function table_exists($row_type)
-    {
-        return isset($this->tables[strtolower($row_type)]);
-    }
-    
     // if a callback is included, each row will be sent as an array to the callback method.
     // otherwise the entire table will be returned as an array of all rows
-    function process_table($row_type, $callback = NULL, $parameters = NULL)
+    function process_row_type($row_type, $callback = NULL, $parameters = NULL)
     {
         if(isset($this->tables[strtolower($row_type)]))
         {
-            $table_definition = $this->tables[strtolower($row_type)];
-            $this->table_iterator_index = 0;
             $all_rows = array();
-            
-            // rows are on newlines, so we can stream the file with an iterator
-            if($table_definition->lines_terminated_by == "\n")
+            foreach($this->tables[strtolower($row_type)] as $table_definition)
             {
-                $parameters['archive_table_definition'] =& $table_definition;
-                foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
+                $this->file_iterator_index = 0;
+                // rows are on newlines, so we can stream the file with an iterator
+                if($table_definition->lines_terminated_by == "\n")
                 {
-                    $parameters['archive_line_number'] = $line_number;
-                    $fields = $this->parse_table_row($table_definition, $line, $parameters);
-                    if($fields == "this is the break message") break;
-                    if($fields && $callback) call_user_func($callback, $fields, $parameters);
-                    elseif($fields) $all_rows[] = $fields;
+                    $parameters['archive_table_definition'] =& $table_definition;
+                    foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
+                    {
+                        $parameters['archive_line_number'] = $line_number;
+                        if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
+                        $fields = $this->parse_table_row($table_definition, $line, $parameters);
+                        if($fields == "this is the break message") break;
+                        if($fields && $callback) call_user_func($callback, $fields, $parameters);
+                        elseif($fields) $all_rows[] = $fields;
+                    }
                 }
-            }
-            
-            // otherwise we need to load the entire file into memory and split it
-            else
-            {
-                $file_contents = Functions::get_remote_file($table_definition->file_uri);
-                $lines = explode($this->core->lines_terminated_by, $file_contents);
-                foreach($lines as $line)
+                // otherwise we need to load the entire file into memory and split it
+                else
                 {
-                    $fields = $this->parse_table_row($table_definition, $line);
-                    if($fields && $callback) call_user_func($callback, $fields, $parameters);
-                    elseif($fields) $all_rows[] = $fields;
+                    $file_contents = Functions::get_remote_file($table_definition->file_uri);
+                    $lines = explode($table_definition->lines_terminated_by, $file_contents);
+                    foreach($lines as $line_number => $line)
+                    {
+                        $parameters['archive_line_number'] = $line_number + 1;
+                        if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
+                        $fields = $this->parse_table_row($table_definition, $line, $parameters);
+                        if($fields == "this is the break message") break;
+                        if($fields && $callback) call_user_func($callback, $fields, $parameters);
+                        elseif($fields) $all_rows[] = $fields;
+                    }
                 }
             }
             return $all_rows;
         }
     }
     
-    // this method uses the instance variable $this->table_iterator_index to determine which row of the file
+    // this method uses the instance variable $this->file_iterator_index to determine which row of the file
     // it is reading. That variable must be reset before reading a new file to properly ignore the header line
     function parse_table_row($table_definition, $line, $parameters = null)
     {
-        // if($this->table_iterator_index % 10000 == 0) echo "Parsing table row $this->table_iterator_index: ".memory_get_usage()."\n";
-        $this->table_iterator_index++;
-        if(isset($parameters['parse_row_limit']) && $this->table_iterator_index > $parameters['parse_row_limit']) return "this is the break message";
-        if($table_definition->ignore_header_lines && $this->table_iterator_index <= $table_definition->ignore_header_lines) return array();
+        // if($this->file_iterator_index % 10000 == 0) echo "Parsing table row $this->file_iterator_index: ".memory_get_usage()."\n";
+        $this->file_iterator_index++;
+        if(isset($parameters['parse_row_limit']) && $this->file_iterator_index > $parameters['parse_row_limit']) return "this is the break message";
+        if($table_definition->ignore_header_lines && $this->file_iterator_index <= $table_definition->ignore_header_lines) return array();
         
         if(!trim($line)) return array();
         if($table_definition->fields_enclosed_by)

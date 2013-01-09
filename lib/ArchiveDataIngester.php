@@ -43,11 +43,11 @@ class ArchiveDataIngester
         $this->mysqli->begin_transaction();
         $this->start_reading_taxa();
         $this->mysqli->commit();
-        $this->archive_reader->process_table("http://rs.gbif.org/terms/1.0/VernacularName", array($this, 'insert_vernacular_names'));
-        $this->archive_reader->process_table("http://eol.org/schema/media/Document", array($this, 'insert_data_object'));
-        $this->archive_reader->process_table("http://eol.org/schema/reference/Reference", array($this, 'insert_references'));
-        $this->archive_reader->process_table("http://eol.org/schema/agent/Agent", array($this, 'insert_agents'));
-        $this->archive_reader->process_table("http://rs.gbif.org/terms/1.0/Reference", array($this, 'insert_gbif_references'));
+        $this->archive_reader->process_row_type("http://rs.gbif.org/terms/1.0/VernacularName", array($this, 'insert_vernacular_names'));
+        $this->archive_reader->process_row_type("http://eol.org/schema/media/Document", array($this, 'insert_data_object'));
+        $this->archive_reader->process_row_type("http://eol.org/schema/reference/Reference", array($this, 'insert_references'));
+        $this->archive_reader->process_row_type("http://eol.org/schema/agent/Agent", array($this, 'insert_agents'));
+        $this->archive_reader->process_row_type("http://rs.gbif.org/terms/1.0/Reference", array($this, 'insert_gbif_references'));
         
         $this->mysqli->end_transaction();
         
@@ -59,7 +59,7 @@ class ArchiveDataIngester
     {
         $this->children = array();
         $this->synonyms = array();
-        $this->archive_reader->process_table("http://rs.tdwg.org/dwc/terms/Taxon", array($this, 'read_taxon'));
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Taxon", array($this, 'read_taxon'));
         $this->begin_adding_taxa();
     }
     
