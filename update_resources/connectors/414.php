@@ -1,19 +1,16 @@
 <?php
 namespace php_active_record;
-/* connector for Ecomare
-Partner provides DWC-A file
+/* connector for Ecomare - Dutch Marine Species Encyclopedia
 estimated execution time: 18 minutes
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/EcomareAPI');
 $resource_id = 414;
 
-$dwca_file = "http://localhost/~eolit/ecomare.zip";
-$dwca_file = "http://dl.dropbox.com/u/7597512/Ecomare/ecomare.zip";
-
 $func = new EcomareAPI();
-$taxa = $func->get_all_taxa($dwca_file);
+$taxa = $func->get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
