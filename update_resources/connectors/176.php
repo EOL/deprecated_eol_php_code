@@ -11,7 +11,7 @@ require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 176; 
-$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-ento-response-20120507.xml.gz"; //NMNH Entomology resource
+$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-ento-response.xml.gz"; //NMNH Entomology resource
 
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();
