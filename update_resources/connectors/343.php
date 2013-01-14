@@ -11,7 +11,7 @@ require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 343; 
-$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-herps-response-20120423.xml.gz"; //Herpetology Resource
+$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-herps-response.xml.gz"; //Herpetology Resource
 
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();

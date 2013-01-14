@@ -12,7 +12,7 @@ require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 341; 
-$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-birds-response-20120423.xml.gz"; //Birds resource
+$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-birds-response.xml.gz"; //Birds resource
 
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();

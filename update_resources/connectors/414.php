@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector for Ecomare - Dutch Marine Species Encyclopedia
+/* connector for Ecomare - Dutch Marine and Coastal Species Encyclopedia
 estimated execution time: 18 minutes
 */
 
