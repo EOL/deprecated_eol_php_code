@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: 414
+/* connector: 414 - Dutch Marine and Coastal Species Encyclopedia
 Version 1:
 Partner provided a zip file. This consists of individual customized taxon XML files.
 The connector unzips the file, and processes each taxon XML to generate the final EOL XML.
@@ -116,16 +116,16 @@ class EcomareAPI
                     {
                         if($item->type == 9) //image type
                         {
+                            $source_url = str_ireplace("L=0", "L=2", $xml->subject_setup->source_url);
                             if(trim($item->file_name) != "")
                             {
                                 $description .= $item->image_description != '' ? "" . $item->image_description . ". " : '';
-                                $description .= $item->image_orient != '' ? "Orientation: " . $item->image_orient . ". " : '';
                                 $title .= $item->header != '' ? "" . $item->header . ". " : '';
                                 $identifier     = "img_" . $item->uid;
                                 $mediaURL       = self::ECOMARE_DOMAIN . $item->file_path . $item->file_name;
                                 $mimeType       = Functions::get_mimetype($item->file_name);
                                 $rightsHolder   = $item->image_copyright;
-                                $source         = $xml->subject_setup->source_url;
+                                $source         = $source_url;
                             }
                             if(!in_array($item->bodytext, $texts))
                             {
@@ -137,7 +137,7 @@ class EcomareAPI
                                     "rightsHolder"  => '', //$text_rightsHolder
                                     "title"         => '',
                                     "description"   => strip_tags($item->bodytext),
-                                    "source"        => $xml->subject_setup->source_url,
+                                    "source"        => $source_url,
                                     "license"       => "http://creativecommons.org/licenses/by-nc/3.0/",
                                     "subject"       => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology",
                                     "language"      => $language);
