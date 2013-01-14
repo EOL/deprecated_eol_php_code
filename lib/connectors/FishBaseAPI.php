@@ -45,7 +45,8 @@ class FishBaseAPI
         $batch_count = 0;
         foreach($taxa as $taxon)
         {
-            $i++; print "\n$i of $total " . $taxon["dwc_ScientificName"];
+            $i++;
+            debug("\n$i of $total " . $taxon["dwc_ScientificName"]);
             $taxon_record["taxon"] = $taxon;
             $taxon_id = $taxon["int_id"];
             $taxon_record["common_names"] = @$taxon_comnames[$taxon_id];
@@ -87,7 +88,6 @@ class FishBaseAPI
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        print "\n " . $this->TEMP_FILE_PATH;
         if($file_contents = Functions::get_remote_file($this->fishbase_data, DOWNLOAD_WAIT_TIME, 999999))
         {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
@@ -98,14 +98,11 @@ class FishBaseAPI
 
             if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) 
             {
-                print "\nPath not found...trying one folder deeper...\n";
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
                 if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt"))
                 {
-                    echo "\n\nCan't extract archive file. Program will terminate.\n";
                     return;
                 }
-                print " --- files found.";
             }
 
             $this->TAXON_PATH                       = $this->TEMP_FILE_PATH . "/taxon.txt";
@@ -129,31 +126,24 @@ class FishBaseAPI
         //taxon
         $fields = array("TaxonID", "dc_identifier", "dc_source", "dwc_Kingdom", "dwc_Phylum", "dwc_Class", "dwc_Order", "dwc_Family", "dwc_Genus", "dwc_ScientificName", "dcterms_created", "dcterms_modified", "int_id", "ProviderID");
         $taxon = self::make_array($this->TAXON_PATH, $fields, "", array(0,10,11,13), "");
-        print "\n taxa";
         //taxon_comnames
         $fields = array("commonName", "xml_lang", "int_id");
         $taxon_comnames = self::make_array($this->TAXON_COMNAMES_PATH, $fields, "int_id");
-        print "\n comnames";
         //taxon_dataobject
         $fields = array("TaxonID", "dc_identifier", "dataType", "mimeType", "dcterms_created", "dcterms_modified", "dc_title", "dc_language", "license", "dc_rights", "dcterms_bibliographicCitation", "dc_source", "subject", "dc_description", "mediaURL", "thumbnailURL", "location", "xml_lang", "geo_point", "lat", "long", "alt", "timestamp", "int_id", "int_do_id", "dc_rightsHolder");
         $taxon_dataobject = self::make_array($this->TAXON_DATAOBJECT_PATH, $fields, "int_id", array(0,4,5,7,17,18,19,20,21,22));
-        print "\n dataobject";
         //taxon_dataobject_agent
         $fields = array("agent", "homepage", "logoURL", "role", "int_do_id", "timestamp");
         $taxon_dataobject_agent = self::make_array($this->TAXON_DATAOBJECT_AGENT_PATH, $fields, "int_do_id", array(5));
-        print "\n agents";
         //taxon_dataobject_reference
         $fields = array("reference", "bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn", "int_do_id");
         $taxon_dataobject_reference = self::make_array($this->TAXON_DATAOBJECT_REFERENCE_PATH, $fields, "int_do_id", array(1,2,3,4,5,7,8,9,10,12));
-        print "\n dataObject references";
         //taxon_references
         $fields = array("reference", "bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn", "int_id", "timestamp", "autoctr");
         $taxon_references = self::make_array($this->TAXON_REFERENCES_PATH, $fields, "int_id", array(1,2,3,4,5,7,8,9,10,12,14,15));
-        print "\n taxon references";
         //taxon_synonyms
         $fields = array("synonym", "author", "relationship", "int_id", "timestamp", "autoctr");
         $taxon_synonyms = self::make_array($this->TAXON_SYNONYMS_PATH, $fields, "int_id", array(1,4,5));
-        print "\n synonyms \n";
         return array("taxon"                        => $taxon,
                      "taxon_comnames"               => $taxon_comnames,
                      "taxon_dataobject"             => $taxon_dataobject,
@@ -166,7 +156,6 @@ class FishBaseAPI
     function make_array($filename, $fields, $index_key, $excluded_fields=array())
     {
         $data = array();
-        print "\n filename: [$filename] --- ";
         $READ = fopen($filename, "r");
         $line = fgets($READ);
         if(stripos($line, "\t") == "") exit("\n\n Connector terminated. Remote files are not ready.\n\n");

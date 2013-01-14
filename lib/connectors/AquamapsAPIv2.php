@@ -34,8 +34,7 @@ class AquamapsAPIv2
             {
                 $arr = self::get_aquamaps_taxa($url["path"], $used_collection_ids);
                 $page_taxa              = $arr[0];
-                $used_collection_ids    = $arr[1];            
-                print "\n page_taxa count: " . count($page_taxa) . "\n\n";
+                $used_collection_ids    = $arr[1];
                 if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
             }
         }
@@ -61,7 +60,6 @@ class AquamapsAPIv2
         $arr_scraped=array();
         if(!$xml = Functions::get_hashed_response($url))
         {
-            echo "\n\nFile not ready $url\nProgram will terminate.\n";
             return;
         }
         $ctr = 0;
@@ -69,7 +67,6 @@ class AquamapsAPIv2
         foreach($xml->RECORD as $rec)
         {
             $ctr++;
-            print "\n $ctr of $total ". memory_get_usage();
             if(substr($rec->SPECIESID, 0, 3)=="Fis") $source_dbase_link = "<a target='$rec->SpecCode' href='" . FISHBASE_URL . $rec->SpecCode . "'>FishBase</a>";
             else                                     $source_dbase_link = "<a target='$rec->SpecCode' href='" . SEALIFEBASE_URL . $rec->SpecCode . "'>SeaLifeBase</a>";
             //start distribution
@@ -79,7 +76,6 @@ class AquamapsAPIv2
             if(!$arr_objects) continue;
             if(preg_match("/&SpecID=(.*?)(&?$|&)/ims", $arr_objects[0]["source"], $matches)) {$species_id = trim($matches[1]);} //ends with & or end of string
             else $species_id = "";
-            print "\n [$genus $species] [$species_id]";
             $arr_scraped[] = array("id"           => $ctr,
                                    "identifier"   => $species_id,
                                    "sciname"      => $rec->Genus . ' ' . $rec->Species,
@@ -106,7 +102,6 @@ class AquamapsAPIv2
         $html = $xml->section_body;
         if($html == "")
         {
-            print "\nNo AquaMaps - $genus $species";
             return array();
         }
 
@@ -127,7 +122,6 @@ class AquamapsAPIv2
         if(preg_match("/\/2050\/(.*?)&quot;/ims", $html, $matches))
         {   $m2050 = trim($matches[1]) . "";
             $m2050 = CACHED_MAPS_URL . "/2050/" . $m2050;
-            print "\n 2050: $m2050";
             $description = "<a target='am $genus $species' href='$sourceURL'>Year 2050 range</a>";
             $description .= self::additional_string($genus, $species, $review, $attribution);
             $title = "AquaMaps for $genus $species (Year 2050 range)";            
@@ -139,7 +133,6 @@ class AquamapsAPIv2
         {
             $pointmap = trim($matches[1]) . "";
             $pointmap = CACHED_MAPS_URL . "/pointmap/" . $pointmap;
-            print "\n pointmap: $pointmap";
             $description = "<a target='am $genus $species' href='$sourceURL'>PointMap</a>";
             $description .= self::additional_string($genus, $species, $review, $attribution, 0);
             $title = "AquaMaps for $genus $species (PointMap)";
@@ -151,7 +144,6 @@ class AquamapsAPIv2
         {
             $suitable = trim($matches[1]) . "";
             $suitable = CACHED_MAPS_URL . "/suitable/" . $suitable;
-            print "\n suitable: $suitable";
             $description = "<a target='am $genus $species' href='$sourceURL'>All suitable habitat</a>";
             $description .= self::additional_string($genus, $species, $review, $attribution);
             $title = "AquaMaps for $genus $species (All suitable habitat)";
@@ -162,7 +154,6 @@ class AquamapsAPIv2
         if(preg_match("/=\&quot\;\s*(.*?)\&quot\;\'\>\s*Native range\s*/ims", $html, $matches))
         {   
             $native = trim($matches[1]) . "";
-            print "\n native: $native";
             $description = "<a target='am $genus $species' href='$sourceURL'>Native range</a>";
             $description .= self::additional_string($genus, $species, $review, $attribution);
             $title = "AquaMaps for $genus $species (Native range)";

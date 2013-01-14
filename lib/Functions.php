@@ -1799,7 +1799,7 @@ class Functions
 
     function combine_all_eol_resource_xmls($resource_id, $files)
     {
-        print "\n\n Start compiling all XML...";
+        debug("\n\n Start compiling all XML...");
         $OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w");
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
         $str .= "<response\n";

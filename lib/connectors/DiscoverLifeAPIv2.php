@@ -297,7 +297,7 @@ class DiscoverLifeAPIv2
 
     private function combine_all_xmls($resource_id)
     {
-        print "\n\n Start compiling all XML...\n";
+        debug("\n\n Start compiling all XML...");
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
         $OUT = fopen($old_resource_path, "w");
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";

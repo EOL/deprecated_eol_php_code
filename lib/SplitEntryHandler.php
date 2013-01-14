@@ -36,7 +36,6 @@ class SplitEntryHandler
         $GLOBALS['db_connection']->query("INSERT IGNORE INTO curated_hierarchy_entry_relationships VALUES (" .$args['hierarchy_entry_id'] . ", " . $args['bad_match_hierarchy_entry_id'] . ", $user_id, 0)");
 
         echo "++ [" . date('g:i A', time()) . "] Done.\n";
-
     }else
     {
         echo "\n\n";
