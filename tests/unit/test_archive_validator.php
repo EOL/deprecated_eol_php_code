@@ -284,6 +284,22 @@ class test_archive_validator extends SimpletestUnitBase
         $this->assertFalse($errors);
         $this->reset();
         
+        $mr->UsageTerms = NULL;
+        $mr->license = 'http://creativecommons.org/publicdomain/zero/1.0/';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $mr->license = 'http://creativecommons.org/licences/by/3.0/';
+        $this->archive_builder->write_object_to_file($mr);
+        $this->archive_builder->finalize();
+        list($errors, $warnings) = $this->validate();
+        $this->assertFalse($errors);
+        $this->reset();
+        
+        $mr->license = NULL;
         $mr->UsageTerms = 'nonsense';
         $this->archive_builder->write_object_to_file($mr);
         $this->archive_builder->finalize();

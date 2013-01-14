@@ -129,6 +129,7 @@ switch($function)
                             if($validation_result != "true")
                             {
                                 echo "  <status>Validation failed</status>\n";
+                                if(strlen($validation_result) > 50000) $validation_result = substr($validation_result, 0, 50000) . "...";
                                 echo "  <error type='validation'>".htmlspecialchars(implode("<br/>", $validation_result))."</error>\n";
                             }else
                             {
@@ -151,6 +152,7 @@ switch($function)
                     if($validation_result != "true")
                     {
                         echo "  <status>Validation failed</status>\n";
+                        if(strlen($validation_result) > 50000) $validation_result = substr($validation_result, 0, 50000) . "...";
                         echo "  <error type='validation'>".htmlspecialchars(implode("<br/>", $validation_result))."</error>\n";
                     }else
                     {

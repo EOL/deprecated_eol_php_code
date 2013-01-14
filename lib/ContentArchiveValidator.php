@@ -109,7 +109,7 @@ class ContentArchiveValidator
         {
             // TODO: duplicate primary keys
             // TODO: referential integrity
-            $this->content_archive_reader->process_table($row_type, array($this, 'validate_row'), array('row_type' => $row_type));
+            $this->content_archive_reader->process_row_type($row_type, array($this, 'validate_row'), array('row_type' => $row_type));
             if($row_type == 'http://rs.tdwg.org/dwc/terms/taxon')
             {
                 $count_of_all_taxa = @$this->stats[$row_type]['Total'];

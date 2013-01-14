@@ -78,7 +78,7 @@ if(!$fast_for_testing)
                 }
                 
                 if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
-                {   
+                {
                     $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
                     $solr->optimize();
                 }
@@ -86,6 +86,12 @@ if(!$fast_for_testing)
                 if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
                 {
                     $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
+                    $solr->optimize();
+                }
+                
+                if(SolrAPI::ping(SOLR_SERVER, 'collection_items'))
+                {
+                    $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
                     $solr->optimize();
                 }
             }

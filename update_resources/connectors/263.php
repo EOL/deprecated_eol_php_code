@@ -41,9 +41,9 @@ $GLOBALS['all_references'] = array();
 
 print_r($archive->tables);
 
-$archive->process_table("http://eol.org/schema/reference/Reference", "php_active_record\\lookup_references");
-$archive->process_table("http://eol.org/schema/media/Document", "php_active_record\\lookup_data_objects");
-$archive->process_table("http://rs.tdwg.org/dwc/terms/Taxon", "php_active_record\\lookup_taxa", array('resource_file' => $resource_file));
+$archive->process_row_type("http://eol.org/schema/reference/Reference", "php_active_record\\lookup_references");
+$archive->process_row_type("http://eol.org/schema/media/Document", "php_active_record\\lookup_data_objects");
+$archive->process_row_type("http://rs.tdwg.org/dwc/terms/Taxon", "php_active_record\\lookup_taxa", array('resource_file' => $resource_file));
 
 
 // write the resource footer

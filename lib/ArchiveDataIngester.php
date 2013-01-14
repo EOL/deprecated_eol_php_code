@@ -43,11 +43,11 @@ class ArchiveDataIngester
         $this->mysqli->begin_transaction();
         $this->start_reading_taxa();
         $this->mysqli->commit();
-        $this->archive_reader->process_table("http://rs.gbif.org/terms/1.0/VernacularName", array($this, 'insert_vernacular_names'));
-        $this->archive_reader->process_table("http://eol.org/schema/media/Document", array($this, 'insert_data_object'));
-        $this->archive_reader->process_table("http://eol.org/schema/reference/Reference", array($this, 'insert_references'));
-        $this->archive_reader->process_table("http://eol.org/schema/agent/Agent", array($this, 'insert_agents'));
-        $this->archive_reader->process_table("http://rs.gbif.org/terms/1.0/Reference", array($this, 'insert_gbif_references'));
+        $this->archive_reader->process_row_type("http://rs.gbif.org/terms/1.0/VernacularName", array($this, 'insert_vernacular_names'));
+        $this->archive_reader->process_row_type("http://eol.org/schema/media/Document", array($this, 'insert_data_object'));
+        $this->archive_reader->process_row_type("http://eol.org/schema/reference/Reference", array($this, 'insert_references'));
+        $this->archive_reader->process_row_type("http://eol.org/schema/agent/Agent", array($this, 'insert_agents'));
+        $this->archive_reader->process_row_type("http://rs.gbif.org/terms/1.0/Reference", array($this, 'insert_gbif_references'));
         
         $this->mysqli->end_transaction();
         
@@ -59,7 +59,7 @@ class ArchiveDataIngester
     {
         $this->children = array();
         $this->synonyms = array();
-        $this->archive_reader->process_table("http://rs.tdwg.org/dwc/terms/Taxon", array($this, 'read_taxon'));
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Taxon", array($this, 'read_taxon'));
         $this->begin_adding_taxa();
     }
     
@@ -399,7 +399,16 @@ class ArchiveDataIngester
         $data_object->available_at = @self::field_decode($row['http://purl.org/dc/terms/available']);
         $data_object->object_title = @self::field_decode($row['http://purl.org/dc/terms/title']);
         $data_object->language = Language::find_or_create_for_parser(@self::field_decode($row['http://purl.org/dc/terms/language']));
-        $data_object->license = License::find_or_create_for_parser(@self::field_decode($row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']));
+        
+        // check multiple fields for a value of license
+        if(isset($row['http://purl.org/dc/terms/license']))
+        {
+            $license_string = @self::field_decode($row['http://purl.org/dc/terms/license']);
+        }else $license_string = @self::field_decode($row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']);
+        // convert British licences to American licenses
+        $license_string = str_replace("creativecommons.org/licences/", "creativecommons.org/licenses/", $license_string);
+        $data_object->license = License::find_or_create_for_parser($license_string);
+        
         $data_object->rights_statement = @self::field_decode($row['http://purl.org/dc/terms/rights']);
         $data_object->rights_holder = @self::field_decode($row['http://ns.adobe.com/xap/1.0/rights/Owner']);
         $data_object->bibliographic_citation = @self::field_decode($row['http://purl.org/dc/terms/bibliographicCitation']);

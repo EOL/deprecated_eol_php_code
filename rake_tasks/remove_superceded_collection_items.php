@@ -26,16 +26,16 @@ while($result && $row=$result->fetch_assoc())
     $taxon_concept_ids_updated_from[$taxon_concept_id] = 1;
     $taxon_concept_ids_updated_to[] = $supercedure_id;
     
-    echo "UPDATE IGNORE collection_items SET object_id=$supercedure_id WHERE object_id=$taxon_concept_id AND object_type='TaxonConcept'\n";
-    $mysqli->update("UPDATE IGNORE collection_items SET object_id=$supercedure_id WHERE object_id=$taxon_concept_id AND object_type='TaxonConcept'");
+    echo "UPDATE IGNORE collection_items SET collected_item_id=$supercedure_id WHERE collected_item_id=$taxon_concept_id AND collected_item_type='TaxonConcept'\n";
+    $mysqli->update("UPDATE IGNORE collection_items SET collected_item_id=$supercedure_id WHERE collected_item_id=$taxon_concept_id AND collected_item_type='TaxonConcept'");
 }
 
 if($collection_item_ids_updated)
 {
     foreach($taxon_concept_ids_updated_from as $taxon_concept_id => $junk)
     {
-        echo "DELETE FROM collection_items WHERE object_id=$taxon_concept_id AND object_type='TaxonConcept'\n";
-        $mysqli->update("DELETE FROM collection_items WHERE object_id=$taxon_concept_id AND object_type='TaxonConcept'");
+        echo "DELETE FROM collection_items WHERE collected_item_id=$taxon_concept_id AND collected_item_type='TaxonConcept'\n";
+        $mysqli->update("DELETE FROM collection_items WHERE collected_item_id=$taxon_concept_id AND collected_item_type='TaxonConcept'");
     }
     $mysqli->commit();
     

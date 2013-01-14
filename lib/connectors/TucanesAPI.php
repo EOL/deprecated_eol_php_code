@@ -23,17 +23,17 @@ class TucanesAPI
             return;
         }
         $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
-        $images = self::get_images($harvester->process_table('http://rs.gbif.org/terms/1.0/image'));
-        $references = self::get_references($harvester->process_table('http://rs.gbif.org/terms/1.0/reference'));
-        $vernacular_names = self::get_vernacular_names($harvester->process_table('http://rs.gbif.org/terms/1.0/vernacularname'));
+        $images = self::get_images($harvester->process_row_type('http://rs.gbif.org/terms/1.0/image'));
+        $references = self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/reference'));
+        $vernacular_names = self::get_vernacular_names($harvester->process_row_type('http://rs.gbif.org/terms/1.0/vernacularname'));
         $taxon_media = array();
-        $media = $harvester->process_table('http://www.pliniancore.org/plic/pcfcore/PlinianCore2.3');
+        $media = $harvester->process_row_type('http://www.pliniancore.org/plic/pcfcore/PlinianCore2.3');
         foreach($media as $m)
         {
             $taxon_id = $m['http://rs.tdwg.org/dwc/terms/taxonID'];
             @$taxon_media[$taxon_id][] = $m;
         }
-        $taxa = $harvester->process_table('http://rs.tdwg.org/dwc/terms/Taxon');
+        $taxa = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
         $i = 0;
         $total = sizeof($taxa);
         foreach($taxa as $taxon)

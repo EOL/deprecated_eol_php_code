@@ -166,7 +166,7 @@ class NameTag
         $tag = strtolower($tag);
         if(substr($tag, 0, 1) == "/") $tag = substr($tag, 1);
         
-        if($tag == "p" || $tag == "td" || $tag == "tr" || $tag == "table" || $tag == "hr")
+        if($tag == "p" || $tag == "td" || $tag == "tr" || $tag == "table" || $tag == "hr" || $tag == "ul" || $tag == "li")
         {
             return array(TAXONFINDER_STOP_KEYWORD, -1);
         }
@@ -418,11 +418,11 @@ class NameTag
             $starting_offset += strlen($arr[1]);
         }
         
-        if(preg_match("/.*".preg_quote($last_letter_in_name, "/")."(.*?)\z/iums", $last_word_in_name, $arr))
+        if(@preg_match("/.*".preg_quote($last_letter_in_name, "/")."(.*?)\z/iums", $last_word_in_name, $arr))
         {
             $ending_offset -= strlen($arr[1]);
         }
-                
+        
         $this->marked_html = substr($this->marked_html, 0, $starting_offset) . $open_tag . substr($this->marked_html, $starting_offset);
         $this->marked_html = substr($this->marked_html, 0, $ending_offset) . $close_tag . substr($this->marked_html, $ending_offset);
     }
