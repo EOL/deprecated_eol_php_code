@@ -63,7 +63,7 @@ class YouTubeAPI
             {
                 print "\n $username - $video_id";
                 $video_index++;
-                if($GLOBALS['ENV_DEBUG']) echo "[user $user_index of $total_users] [video $video_index of $number_of_user_videos]\n";
+                if($GLOBALS['ENV_DEBUG']) echo " [user $user_index of $total_users] [video $video_index of $number_of_user_videos]";
                 if($record = self::build_data($video_id, $username))
                 {
                     $arr = self::get_youtube_taxa($record, $used_collection_ids);
@@ -94,30 +94,47 @@ class YouTubeAPI
     public static function build_data($video_id, $username)
     {
         $url = YOUTUBE_API  . '/videos/' . $video_id . '?v=2&alt=json';
-        $raw_json = Functions::get_remote_file($url);
-
+        $continue = false;
+        while($continue == false)
+        {
+            print " Accessing: $url";
+            if($raw_json = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120))
+            {
+                print " - OK ";
+                if(is_numeric(stripos($raw_json, "too_many_recent_calls"))) 
+                {
+                    print " Failed due to 'too many recent calls'. Will retry in 30 seconds.";
+                    sleep(30);
+                    $continue = false;
+                }
+                else $continue = true;
+            }
+            else
+            {
+                print " - Fail. Will retry in 30 seconds.";
+                sleep(30);
+                $continue = false;
+            }
+        }
         $raw_json = str_ireplace("taxonomy", "taxonomy", $raw_json);
         $raw_json = str_ireplace("binomial", "binomial", $raw_json);
         $raw_json = str_ireplace("taxonomy: binomial", "taxonomy:binomial", $raw_json);
         $raw_json = str_ireplace("taxonomy:binomial:", "taxonomy:binomial=", $raw_json);
-
         $json_object = json_decode($raw_json);
         if(!@$json_object->entry->id)
         {
-            if($GLOBALS['ENV_DEBUG']) echo "$url -- invalid response\n";
+            if($GLOBALS['ENV_DEBUG']) echo " -- invalid response";
             return;
         }
         $license = @$json_object->entry->{'media$group'}->{'media$license'}->href;
         if(!$license || !preg_match("/^http:\/\/creativecommons.org\/licenses\//", $license))
         {
-            if($GLOBALS['ENV_DEBUG']) echo "$url -- invalid license\n";
+            if($GLOBALS['ENV_DEBUG']) echo " -- invalid license";
             return;
         }
-        
-        
         $thumbnailURL = @$json_object->entry->{'media$group'}->{'media$thumbnail'}[1]->url;
         $mediaURL = @$json_object->entry->{'media$group'}->{'media$content'}[0]->url;
-        
+
         // For a while we used the API URL for the identifier (not sure why). Just 
         // trying to preserve that so I don't lose all curation/rating information
         // for the existing objects. Really we just need to use the video ID: -ravHVw8K4U
@@ -129,7 +146,7 @@ class YouTubeAPI
                      "author"        => $json_object->entry->author[0]->name->{'$t'},
                      "author_uri"    => $json_object->entry->author[0]->uri->{'$t'},
                      "author_detail" => $json_object->entry->author[0]->uri->{'$t'},
-                     "author_url"    => "http://www.youtube.com/user/" . $username, //$json_object->entry->author[0]->name->{'$t'},
+                     "author_url"    => "http://www.youtube.com/user/" . $username,
                      "media_title"   => $json_object->entry->title->{'$t'},
                      "description"   => str_replace("\r\n", "<br/>", trim($json_object->entry->{'media$group'}->{'media$description'}->{'$t'})),
                      "thumbnail"     => $json_object->entry->{'media$group'}->{'media$thumbnail'}[1]->url,
@@ -145,7 +162,7 @@ class YouTubeAPI
         $description = str_ireplace("<br />", "", $description);
         $license = "";
         $arr_sciname = array();
-        if(preg_match_all("/\[(.*?)\]/ims", $description, $matches))//gets everything between brackets []
+        if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) //gets everything between brackets []
         {
             $smallest_taxa = self::get_smallest_rank($matches[1]);
             $smallest_rank = $smallest_taxa['rank'];
@@ -160,7 +177,7 @@ class YouTubeAPI
                 {
                     if(is_numeric(stripos($tag,$smallest_rank)))
                     {
-                        if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr))$sciname = ucfirst(trim($arr[1]));
+                        if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
                         $arr_sciname = self::initialize($sciname,$arr_sciname);
                     }
                 }
@@ -176,16 +193,13 @@ class YouTubeAPI
             }
             foreach($matches[0] as $str) $description = str_ireplace($str, "", trim($description));
         }
-
         $license = 'http://creativecommons.org/licenses/by/3.0/';
-
         foreach($arr_sciname as $sciname => $temp)
         {
             if(!$sciname && @$arr_sciname[$sciname]['trinomial']) $sciname = @$arr_sciname[$sciname]['trinomial'];
             if(!$sciname && @$arr_sciname[$sciname]['genus'] && @$arr_sciname[$sciname]['species'] && !preg_match("/ /", @$arr_sciname[$sciname]['genus']) && !preg_match("/ /", @$arr_sciname[$sciname]['species'])) $sciname = @$arr_sciname[$sciname]['genus']." ".@$arr_sciname[$sciname]['species'];                        
             if(!$sciname && !@$arr_sciname[$sciname]['genus'] && !@$arr_sciname[$sciname]['family'] && !@$arr_sciname[$sciname]['order'] && !@$arr_sciname[$sciname]['class'] && !@$arr_sciname[$sciname]['phylum'] && !@$arr_sciname[$sciname]['kingdom']) return array();
-                        
-            //start data objects //----------------------------------------------------------------------------------------
+            //start data objects
             $arr_objects = array();
             $identifier  = $rec['id'];
             $dataType    = "http://purl.org/dc/dcmitype/MovingImage";
@@ -203,10 +217,9 @@ class YouTubeAPI
                 $description .= "<br>Source: <a href='$rec[sourceURL]'>YouTube</a>";
             }
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
-            //end data objects //----------------------------------------------------------------------------------------
-
+            //end data objects
             $taxon_id   = str_ireplace(" ", "_", $sciname) . '_' . $rec['video_id'];
-            $arr_data[]=array(  "identifier"   => "",
+            $arr_data[] = array("identifier"   => "",
                                 "source"       => "",
                                 "kingdom"      => $arr_sciname[$sciname]['kingdom'],
                                 "phylum"       => $arr_sciname[$sciname]['phylum'],
@@ -359,49 +372,45 @@ class YouTubeAPI
     {
         $usernames_of_subscribers = array();
         $usernames_of_subscribers['EncyclopediaOfLife'] = 1;
-        
         /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
         $usernames_of_people_to_ignore = array('PRI', 'pri');
-        
-        // /* as of Dec-04-2012: This is the same list that is taken from the API below. 
-        // This is just a safeguard that when the API suddenly changes that EOL won't lose all their YouTube contributors */
-        // $usernames_of_subscribers['jenhammock1']        = 1;
-        // $usernames_of_subscribers['treegrow']           = 1;
-        // $usernames_of_subscribers['soapberrybug']       = 1;
-        // $usernames_of_subscribers['heliam']             = 1;
-        // $usernames_of_subscribers['smithsonianNMNH']    = 1;
-        // $usernames_of_subscribers['robmutch1']          = 1;
-        // $usernames_of_subscribers['NESCentMedia']       = 1;
-        // $usernames_of_subscribers['TuftsEnvStudies']    = 1;
-        // $usernames_of_subscribers['censusofmarinelife'] = 1;
-        // $usernames_of_subscribers['lubaro1977']         = 1;
-        // $usernames_of_subscribers['exallias1']          = 1;
-        // $usernames_of_subscribers['parcscanada']        = 1;
-        // $usernames_of_subscribers['nscgreensboro']      = 1;
-        // $usernames_of_subscribers['scubapro25']         = 1;
-        // $usernames_of_subscribers['dunoyer']            = 1;
-        // $usernames_of_subscribers['drbillbushing']      = 1;
-        // $usernames_of_subscribers['sheshadriali']       = 1;
-        // $usernames_of_subscribers['lodolai0']           = 1;
-        // $usernames_of_subscribers['exallias']           = 1;
-
-        /* or you can get them by getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
+        /* Getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
-        if($xml = Functions::get_hashed_response($url))
+        if($xml = self::get_hashed_response_with_retry($url))
         {
             foreach($xml->entry as $entry)
             {
                 $yt = $entry->children("http://gdata.youtube.com/schemas/2007");
                 $username = trim($yt->username);
-                if(!in_array($username, $usernames_of_people_to_ignore))
-                {
-                    $usernames_of_subscribers[$username] = 1;
-                }
+                if(!in_array($username, $usernames_of_people_to_ignore)) $usernames_of_subscribers[$username] = 1;
             }
         }
         else print "\n Service not available: $url";
         print_r(array_keys($usernames_of_subscribers));
         return array_keys($usernames_of_subscribers);
+    }
+
+    private function get_hashed_response_with_retry($url)
+    {
+        $trials = 1;
+        while(true)
+        {
+            if($xml = Functions::get_hashed_response($url)) return $xml;
+            else
+            {
+                $trials++;
+                if($trials <= 5)
+                {
+                    print "\n Fail. Will try again in 30 seconds. Trial: $trials";
+                    sleep(30);
+                }
+                else
+                {
+                    print "\n Five (5) un-successful tries already.";
+                    return false;
+                }
+            }
+        }
     }
 
     public static function get_upload_videos_from_usernames($usernames)
@@ -410,26 +419,33 @@ class YouTubeAPI
         $user_video_ids = array();
         foreach($usernames as $username)
         {
-            if($GLOBALS['ENV_DEBUG']) echo "Getting video list for $username...\n";
+            sleep(3); //delay not to overwhelm partner server
+            if($GLOBALS['ENV_DEBUG']) echo "\n Getting video list for $username...";
             $start_index = 1;
             while(true)
             {
-                $url = YOUTUBE_API . '/users/' . $username . '/uploads?';
-                $url .= "start-index=$start_index&max-results=$max_results";
-                $xml = Functions::get_hashed_response($url);
-                if($xml->entry)
+                $url = YOUTUBE_API . "/users/" . $username . "/uploads?" . "start-index=$start_index&max-results=$max_results";
+                print "\n Accessing: $url";
+                if($xml = self::get_hashed_response_with_retry($url))
                 {
-                    foreach($xml->entry as $entry) 
+                    print " - OK ";
+                    if($xml->entry)
                     {
-                        $user_video_pathinfo = pathinfo($entry->id);
-                        $user_video_ids[$username][] = $user_video_pathinfo['basename'];
+                        foreach($xml->entry as $entry) 
+                        {
+                            $user_video_pathinfo = pathinfo($entry->id);
+                            $user_video_ids[$username][] = $user_video_pathinfo['basename'];
+                        }
                     }
+                    else break; //no more videos, go to next user
+                    $start_index += $max_results;
                 }
-                else break;
-                $start_index += $max_results;
+                else break; //five (5) un-successful tries already, go to next user, hopefully it doesn't go here
             }
         }
+        print "\n";
         return $user_video_ids;
     }
+
 }
 ?>
