@@ -37,8 +37,6 @@ if($result && $row=$result->fetch_assoc())
                 $m = date("m");
                 $d = date("d");
                 $h = date("H");
-                // ContentManager::sync_to_content_servers($y, $m, $d, $h);
-                
                 $r = substr($new_object_cache_url, -5);
                 echo "\n\nDone: http://content1.eol.org/content/$y/$m/$d/$h/$r" . "_orig.jpg\n\n";
             }
@@ -54,8 +52,6 @@ if($result && $row=$result->fetch_assoc())
             $m = date("m");
             $d = date("d");
             $h = date("H");
-            // ContentManager::sync_to_content_servers($y, $m, $d, $h);
-            
             $r = substr($new_object_cache_url, -5);
             echo "\n\nDone: http://content1.eol.org/content/$y/$m/$d/$h/$r" . "_orig.jpg\n\n";
         }

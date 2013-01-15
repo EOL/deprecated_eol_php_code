@@ -12,6 +12,10 @@ $resource_id = @$_GET["resource_id"];
 $amount = @$_GET["amount"];
 $currecny = @$_GET["currecny"];
 $type = @$_GET["type"];
+$data_object_id = @$_GET["data_object_id"];
+$x = @$_GET["x"];
+$y = @$_GET["y"];
+$w = @$_GET["w"];
 
 if(!$function) $function = @$_POST["function"];
 if(!$server_ip) $server_ip = @$_POST["server_ip"];
@@ -21,6 +25,10 @@ if(!$resource_id) $resource_id = @$_POST["resource_id"];
 if(!$amount) $amount = @$_POST["amount"];
 if(!$currecny) $currecny = @$_POST["currecny"];
 if(!$type) $type = @$_POST["type"];
+if(!$data_object_id) $type = @$_POST["data_object_id"];
+if(!$x) $type = @$_POST["x"];
+if(!$y) $type = @$_POST["y"];
+if(!$w) $type = @$_POST["x"];
 
 /* Cybersource API is special */
 if($function=="InsertSignature3")
@@ -45,10 +53,7 @@ switch($function)
         {
             if(preg_match("/^([0-9]+)\./", $new_file_path, $arr)) $new_file_path = $arr[1];
             echo "  <file_prefix>$new_file_path</file_prefix>\n";
-        }else
-        {
-            echo "  <error type='fatal'>Upload failed</error>\n";
-        }
+        }else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
         
     case "upload_resource":
@@ -166,37 +171,25 @@ switch($function)
         }
         break;
         
-        
     case "upload_content":
         $manager = new ContentManager($server_ip);
         $new_file_path = $manager->grab_file($file_path,0,"image");
-        if($new_file_path)
-        {
-            echo "  <file_path>$new_file_path</file_path>\n";
-            if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})/", $new_file_path, $arr))
-            {
-                ContentManager::sync_to_content_servers($arr[1], $arr[2], $arr[3], $arr[4]);
-            }
-        }else
-        {
-            echo "  <error type='fatal'>Upload failed</error>\n";
-        }
+        if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
+        else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
         
     case "admin_upload":
         $manager = new ContentManager($server_ip);
         $new_file_path = $manager->grab_file($file_path,0,"upload");
-        if($new_file_path)
-        {
-            echo "  <file_path>$new_file_path</file_path>\n";
-            if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})/", $new_file_path, $arr))
-            {
-                ContentManager::sync_to_content_servers($arr[1], $arr[2], $arr[3], $arr[4]);
-            }
-        }else
-        {
-            echo "  <error type='fatal'>Upload failed</error>\n";
-        }
+        if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
+        else echo "  <error type='fatal'>Upload failed</error>\n";
+        break;
+        
+    case "crop_image":
+        $manager = new ContentManager($server_ip);
+        $new_file_path = $manager->crop_image($data_object_id, $x, $y, $w);
+        if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
+        else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
 }
 

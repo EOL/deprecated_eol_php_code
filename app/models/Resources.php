@@ -652,35 +652,6 @@ class Resource extends ActiveRecord
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
             $this->harvest_event->resource->refresh();
-            
-            // Make sure we set a harvest start time
-            // Compare the end time to the start time, get the number of hours difference,
-            // and sync the content servers for each hour this resource was being processed.
-            if($this->start_harvest_time)
-            {
-                $d1 = explode(" ", $this->start_harvest_time);
-                $d2 = explode(" ", $this->end_harvest_time);
-                
-                debug("Start harvest time: $this->start_harvest_time");
-                debug("End harvest time: $this->end_harvest_time");
-                
-                $time1 = mktime($d1[3], 0, 0, $d1[1], $d1[2], $d1[0]);
-                $time2 = mktime($d2[3], 0, 0, $d2[1], $d2[2], $d2[0]);
-                
-                $harvest_hours = ceil(($time2 - $time1) / 3600);
-                
-                debug("Harvest hours: $harvest_hours");
-                
-                $date = explode(" ", date("Y m d H", mktime($d1[3], 0, 0, $d1[1], $d1[2], $d1[0])));
-                ContentManager::sync_to_content_servers($date[0], $date[1], $date[2], $date[3]);
-                while($harvest_hours)
-                {
-                    $d1[3]+=1;
-                    $date = explode(" ", date("Y m d H", mktime($d1[3], 0, 0, $d1[1], $d1[2], $d1[0])));
-                    ContentManager::sync_to_content_servers($date[0], $date[1], $date[2], $date[3]);
-                    $harvest_hours--;
-                }
-            }
         }
     }
     

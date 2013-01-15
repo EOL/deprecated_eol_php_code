@@ -9,7 +9,7 @@ date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);  // Required by resque.
 ini_set('memory_limit', '1024M'); // 1GB maximum memory usage
 ini_set('max_execution_time', '21600'); // 6 hours
 ini_set('display_errors', false);
-
+define('CONVERT_BIN_PATH', '/usr/local/bin/convert');
 
 /* Default Environment */
 if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
@@ -18,6 +18,7 @@ set_and_load_proper_environment($argv);
 
 
 if(!defined('PS_LITE_CMD')) define('PS_LITE_CMD', 'ps -eo uid,pid,ppid,stime,tty,time,command'); // No -f
+// if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://128.128.163.201/eol_php_code/');  // URL prefix of this installation
 if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://localhost/eol_php_code/');  // URL prefix of this installation
 if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');              // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 if(!defined('CONVERT_BIN_PATH')) define('CONVERT_BIN_PATH', 'convert');        // path to imagemagick convert binary
