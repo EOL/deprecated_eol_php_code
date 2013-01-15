@@ -29,6 +29,7 @@ class ObisAPI
     {
         //divide big file to a more consumable chunks
         $file_count = self::divide_big_csv_file(20000);
+        if($file_count === false) return false;
 
         $all_taxa = array();
         $used_collection_ids = array();
@@ -419,7 +420,11 @@ class ObisAPI
         $i = 0;
         $line = "";
         $file_count = 0;
-        if(!$file = fopen(OBIS_DATA_FILE, "r")) exit("\nFile not found: " . OBIS_DATA_FILE . "\nProgram will terminate.\n");
+        if(!$file = fopen(OBIS_DATA_FILE, "r"))
+        {
+            echo "\nFile not found: " . OBIS_DATA_FILE . "\nProgram will terminate.\n";
+            return false;
+        }
         $labels = "";
         while(!feof($file))
         {

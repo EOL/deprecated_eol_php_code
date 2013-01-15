@@ -14,7 +14,8 @@ class MCZHarvardAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        self::download_and_put_header_in_csv();
+        $success = self::download_and_put_header_in_csv();
+        if($success === false) return false;
         $urls = array(TEMP_LOCAL_CSV);
         $taxa_arr = self::compile_taxa($urls);
 
@@ -64,8 +65,11 @@ class MCZHarvardAPI
             fwrite($fp, $first_row);
             fwrite($fp, $csv_body);
             fclose($fp);
+        }else
+        {
+            echo "\n\nRemote server is not available. Connector will now terminate.\n";
+            return false;
         }
-        else exit("\n\nRemote server is not available. Connector will now terminate.\n");
     }
 
     function compile_taxa($urls)

@@ -30,5 +30,5 @@ $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 ?>

@@ -80,7 +80,7 @@ print "\n";
 print "elapsed time = $elapsed_time_sec sec                 \n";
 print "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 print "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 
 //start functions #################################################################################################
 function process($id)

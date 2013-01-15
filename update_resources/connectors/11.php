@@ -17,7 +17,7 @@ $i=0;
 $wrap="\n";
 print "taxa count = " . count($xml) . "\n";
 
-$resource = new Resource(11);//Biolib.cz //exit($resource->id);
+$resource = new Resource(11);
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 $OUT = fopen($old_resource_path, "w+");
@@ -125,7 +125,7 @@ echo "elapsed time = $elapsed_time_sec sec              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 
-exit("$wrap$wrap Done processing.");
+echo "\n\n Done processing.";
 //######################################################################################################################
 //######################################################################################################################
 //######################################################################################################################

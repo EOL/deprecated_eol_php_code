@@ -21,7 +21,8 @@ class SilvicsNorthAmericaAPI
 
     function get_all_taxa($resource_id)
     {
-        self::get_associations();
+        $success = self::get_associations();
+        if($success === false) return false;
         if($this->debug_info) print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
         $all_taxa = array();
         $i = 0;
@@ -53,8 +54,9 @@ class SilvicsNorthAmericaAPI
             if($path["active"])
             {
                 if($this->debug_info) print "\n\n$i " . $path['type'] . " [$url]\n";        
-                if    ($path['type'] == "conifers")  self::process_conifers($url, $path["ancestry"], $path['folder'], $path['type']);
-                elseif($path['type'] == "hardwoods") self::process_conifers($url, $path["ancestry"], $path['folder'], $path['type']);
+                if    ($path['type'] == "conifers")  $success = self::process_conifers($url, $path["ancestry"], $path['folder'], $path['type']);
+                elseif($path['type'] == "hardwoods") $success = self::process_conifers($url, $path["ancestry"], $path['folder'], $path['type']);
+                if($success === false) return false;
             }
             $i++;
         }
@@ -65,8 +67,8 @@ class SilvicsNorthAmericaAPI
         if(!$html = Functions::get_remote_file($url))
         {
             print("\n\n Content partner's server is down3, $url\n");
-            exit("\nProgram will terminate.\n"); // this has to be terminated bec. the entire section either conifers or hardwoods is down.
-            return;
+            echo "\nProgram will terminate.\n"; // this has to be terminated bec. the entire section either conifers or hardwoods is down.
+            return false;
         }
         // manual adjustment
         $html = str_ireplace('<I><FONT FACE="Arial">', '<FONT FACE="Arial"><I>', $html);
@@ -105,7 +107,8 @@ class SilvicsNorthAmericaAPI
                 }
             }
         }
-        self::get_title_description($type, $taxon_name);
+        $success = self::get_title_description($type, $taxon_name);
+        if($success === false) return false;
     }
 
     function get_title_description($type = null, $taxon_name)
@@ -248,8 +251,11 @@ class SilvicsNorthAmericaAPI
                     {
                         $description = trim($arr[1]);
                         $texts = self::divide_whole_text_to_texts($description, $texts);
+                    }else
+                    {
+                        echo "\n 111 walang text within texts...\n";
+                        return false;
                     }
-                    else exit("\n 111 walang text within texts...\n");
                     /* this is if you want to get the entire text section as 1 <dataObject>
                     if($title) $texts[] = array("title" => $title, "description" => $description);
                     */
@@ -268,8 +274,11 @@ class SilvicsNorthAmericaAPI
                         {
                             $description = trim($arr[1]);
                             $texts = self::divide_whole_text_to_texts($description, $texts);
+                        }else
+                        {
+                            echo "\n 222 walang text within texts...\n";
+                            return false;
                         }
-                        else exit("\n 222 walang text within texts...\n");
                     }
                 }
                 // e.g. Acer nigrum
@@ -283,8 +292,11 @@ class SilvicsNorthAmericaAPI
                         {
                             $description = trim($arr[1]);
                             $texts = self::divide_whole_text_to_texts($description, $texts);
+                        }else
+                        {
+                            echo "\n 333 walang text within texts...\n";
+                            return false;
                         }
-                        else exit("\n 333 walang text within texts...\n");
                     }
                 }
             }
@@ -345,7 +357,6 @@ class SilvicsNorthAmericaAPI
                 $family = "Betulaceae";
                 $names[] = "Constance A. Harrington";
             }
-            //else {exit("\n [$url] wala ditox\n");}
         }
         foreach($names as $name)
         {

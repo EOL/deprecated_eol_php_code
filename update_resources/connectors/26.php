@@ -23,5 +23,5 @@ echo "elapsed time = " . $elapsed_time_sec . " seconds \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo date('Y-m-d h:i:s a', time())."\n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 ?>

@@ -46,7 +46,7 @@ echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 
 function split_habitat_and_distribution($xml_string)
 {

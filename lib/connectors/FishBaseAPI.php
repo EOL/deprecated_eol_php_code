@@ -31,6 +31,7 @@ class FishBaseAPI
     function get_all_taxa($resource_id)
     {
         $data = self::prepare_data();
+        if($data === false) return false;
         $taxa                        = $data["taxon"]; 
         $taxon_comnames              = $data["taxon_comnames"];
         $taxon_references            = $data["taxon_references"];
@@ -126,6 +127,7 @@ class FishBaseAPI
         //taxon
         $fields = array("TaxonID", "dc_identifier", "dc_source", "dwc_Kingdom", "dwc_Phylum", "dwc_Class", "dwc_Order", "dwc_Family", "dwc_Genus", "dwc_ScientificName", "dcterms_created", "dcterms_modified", "int_id", "ProviderID");
         $taxon = self::make_array($this->TAXON_PATH, $fields, "", array(0,10,11,13), "");
+        if($taxon === false) return false;
         //taxon_comnames
         $fields = array("commonName", "xml_lang", "int_id");
         $taxon_comnames = self::make_array($this->TAXON_COMNAMES_PATH, $fields, "int_id");
@@ -158,7 +160,11 @@ class FishBaseAPI
         $data = array();
         $READ = fopen($filename, "r");
         $line = fgets($READ);
-        if(stripos($line, "\t") == "") exit("\n\n Connector terminated. Remote files are not ready.\n\n");
+        if(stripos($line, "\t") == "")
+        {
+            echo "\n\n Connector terminated. Remote files are not ready.\n\n";
+            return false
+        }
         $included_fields = array();
         while(!feof($READ))
         {

@@ -13,6 +13,7 @@ class ResourceDataObjectElementsSetting
     public function set_data_object_rating_on_xml_document()
     {
         $xml_string = self::load_xml_string();
+        if($xml_string === false) return false;
         $xml = simplexml_load_string($xml_string);
         foreach($xml->taxon as $taxon)
         {
@@ -57,7 +58,11 @@ class ResourceDataObjectElementsSetting
                 $this->xml_path = $this->TEMP_FILE_PATH . str_ireplace(".gz", "", $filename);
                 print "\n -- " . $this->xml_path;
             }
-            else exit("\n\n Connector terminated. Remote files are not ready.\n\n");
+            else
+            {
+                echo "\n\n Connector terminated. Remote files are not ready.\n\n";
+                return false;
+            }
             // remove tmp dir
             // if($this->TEMP_FILE_PATH) shell_exec("rm -fr $this->TEMP_FILE_PATH");
         }

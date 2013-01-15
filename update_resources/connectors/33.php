@@ -129,7 +129,7 @@ echo "elapsed time = $elapsed_time_sec sec              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
 
-exit("$wrap$wrap Done processing.");
+echo "$wrap$wrap Done processing.";
 
 //==========================================================================================
 function get_data_object($do,$t_dc2,$t_dcterms)

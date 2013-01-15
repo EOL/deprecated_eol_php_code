@@ -27,6 +27,6 @@ $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-exit("\nDone processing.\n");
+echo "\n\n Done processing.";
 
 ?>

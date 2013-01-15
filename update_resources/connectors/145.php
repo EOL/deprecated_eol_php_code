@@ -4,7 +4,6 @@ namespace php_active_record;
 estimated execution time: 7 mins. {Connector screen scrapes the partner website.}
 estimated execution time: 3 secs. {using customized XML}
 */
-//exit;
 $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -24,6 +23,6 @@ echo "\n";
 echo "elapsed time = $elapsed_time_sec sec              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 
 ?>

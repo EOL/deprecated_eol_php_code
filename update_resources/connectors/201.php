@@ -33,5 +33,5 @@ echo "\n";
 echo "elapsed time = $elapsed_time_sec sec              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 ?>

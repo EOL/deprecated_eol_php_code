@@ -106,7 +106,6 @@ class InotaxaAPI
             $ptm_count=0;
             foreach($main->PublicationTaxonomicMatter as $ptm)
             {   $ptm_count++;         
-                //print"<pre>";print_r($ptm);print"</pre>";exit;                    
                 $tt_count=0;
                 foreach($ptm->TaxonTreatment as $tt)
                 {

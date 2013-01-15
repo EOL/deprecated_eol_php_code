@@ -14,6 +14,7 @@ class SpireAPI
         $all_taxa = array();
         $used_collection_ids = array();
         $arr = self::assemble_XML_files();
+        if($arr === false) return false;
         $GLOBALS['arr_taxa']    = $arr[0];
         $GLOBALS['arr_ref']     = $arr[1];
         $GLOBALS['reference']   = $arr[2];
@@ -55,7 +56,11 @@ class SpireAPI
         for ($i = 1; $i <= 259; $i++)//debug orig 259
         {            
             print"\n $i ---" . SPIRE_SERVICE . $i;
-            if(!$str = Functions::get_remote_file(SPIRE_SERVICE . $i)) exit("\n\nSPIRE service not available at the moment.\n\n");
+            if(!$str = Functions::get_remote_file(SPIRE_SERVICE . $i))
+            {
+                echo "\n\nSPIRE service not available at the moment.\n\n";
+                return false;
+            }
             $str = str_replace('rdf:resource', 'rdf_resource', $str);
             $str = utf8_encode($str);
             $xml = simplexml_load_string($str);
@@ -81,9 +86,6 @@ class SpireAPI
                     $arr = parse_url($value);
                     $ref_num = trim($arr['fragment']);
                 }
-
-                //debug
-                //if(in_array("Accipiter cooperii",array($predator,$prey))){print"\n problem here: [$i] [$predator][$prey]";exit;}
 
                 $arr_taxa[$predator]['desc']        = $pred_desc;
                 $arr_taxa[$prey]['desc']            = $prey_desc;

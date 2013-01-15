@@ -23,5 +23,5 @@ $elapsed_time_sec = microtime(1) - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds              \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes   \n";
-exit("\n\n Done processing.");
+echo "\n\n Done processing.";
 ?>

@@ -22,6 +22,7 @@ class HydrothermalVentLarvaeAPI
             if($url["active"])
             {
                 $arr = self::get_larvae_taxa($url["path"], $used_collection_ids);
+                if($arr === false) return false;
                 $page_taxa = $arr["page_taxa"];
                 $used_collection_ids = $arr["used_collection_ids"];
                 $all_taxa = array_merge($all_taxa,$page_taxa);
@@ -33,6 +34,7 @@ class HydrothermalVentLarvaeAPI
     public static function get_larvae_taxa($url, $used_collection_ids)
     {
         $response = self::search_collections($url);//this will output the raw (but structured) output from the external service
+        if($response === false) return false;
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -46,10 +48,15 @@ class HydrothermalVentLarvaeAPI
 
     public static function search_collections($url)//this will output the raw (but structured) output from the external service
     {
-        if(!$html = utf8_decode(Functions::get_remote_file_fake_browser($url))) exit("\n\n Content partner's server is down, connector will now terminate.\n");
+        if(!$html = utf8_decode(Functions::get_remote_file_fake_browser($url)))
+        {
+            echo "\n\n Content partner's server is down, connector will now terminate.\n";
+            return false;
+        }
         $html = self::clean_html($html);
-        $arr_url_list = self::get_url_list($html);        
+        $arr_url_list = self::get_url_list($html);
         $response = self::scrape_species_page($arr_url_list);
+        if($response === false) return false;
         return $response;//structured array
     }        
     
@@ -132,7 +139,11 @@ class HydrothermalVentLarvaeAPI
         foreach($arr_url_list as $rec)
         {
             $sourceURL = $rec["url"];
-            if(!$html = utf8_decode(Functions::get_remote_file_fake_browser($sourceURL))) exit("\n\n Content partner's server is down, connector will now terminate.\n");
+            if(!$html = utf8_decode(Functions::get_remote_file_fake_browser($sourceURL)))
+            {
+                echo "\n\n Content partner's server is down, connector will now terminate.\n";
+                return false;
+            }
             $html = self::clean_html($html);
             $species = "";
             if(preg_match("/<!--\s*InstanceBeginEditable\s*name=\"Species\"\s*-->(.*?)<!--\s*InstanceEndEditable/ims", $html, $matches))

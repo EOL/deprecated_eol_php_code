@@ -256,7 +256,6 @@ class WormsAPI
             if(in_array($id, $ids)) print "\n $id found";
             else print "\n $id not found";
         }
-        exit;
         */
         
         return $ids;

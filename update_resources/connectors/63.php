@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
 
-//exit;
 /* connector for INOTAXA
 estimated execution time: 1.3 hours
 
