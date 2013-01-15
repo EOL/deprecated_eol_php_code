@@ -253,6 +253,8 @@ class ContentManager
         // some XML files like BibAlex's resource doesnt have an extension and just has a utf-8 descriptor
         elseif(preg_match("/^utf-8 unicode /i", $file_type))                            $new_suffix = "xml";
         elseif(preg_match("/Microsoft Office Document/i", $file_type))                  $new_suffix = "xls";
+        // not sure why this is happening, but when downloading JPG from EOL content servers I was getting this type
+        elseif(preg_match("/Minix filesystem/i", $file_type))                           $new_suffix = "jpg";
         
         return $new_suffix;
     }
@@ -344,9 +346,9 @@ class ContentManager
         // offsets are from the 580 x 360 version (but CSS scales them to 540 X 360. The crop will be taken from the original
         // form, so the offsets and width need to be converted to match the dimensions of the original form
         $offset_factor = 1;
-        if(($width / $height) < ( 540 / 335 ))
+        if(($width / $height) < ( 540 / 360 ))
         {
-            if($height > 335) $offset_factor = $height / 335;
+            if($height > 360) $offset_factor = $height / 360;
         }else
         {
             if($width > 540) $offset_factor = $width / 540;
