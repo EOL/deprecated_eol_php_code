@@ -163,7 +163,7 @@ class FishBaseAPI
         if(stripos($line, "\t") == "")
         {
             echo "\n\n Connector terminated. Remote files are not ready.\n\n";
-            return false
+            return false;
         }
         $included_fields = array();
         while(!feof($READ))
