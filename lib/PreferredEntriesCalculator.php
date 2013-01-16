@@ -47,7 +47,7 @@ class PreferredEntriesCalculator
     
     private function lookup_block($start, $limit)
     {
-        $query = "SELECT tc.id taxon_concept_id, he.id hierarchy_entry_id, he.visibility_id, he.vetted_id, v.view_order vetted_view_order, h.id hierarchy_id, h.browsable
+        $query = "SELECT tc.id taxon_concept_id, he.id hierarchy_entry_id, he.visibility_id, he.vetted_id, v.view_order vetted_view_order, h.id hierarchy_id, h.browsable, h.label
             FROM taxon_concepts tc
             JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id)
             JOIN hierarchies h ON (he.hierarchy_id=h.id)
@@ -66,6 +66,7 @@ class PreferredEntriesCalculator
             $vetted_view_order = $row[4];
             $hierarchy_id = $row[5];
             $browsable = $row[6];
+            $label = $row[7];
             if(!$browsable) $browsable = 0;
             if($browsable == 'NULL') $browsable = 0;
 
@@ -76,7 +77,8 @@ class PreferredEntriesCalculator
                 'vetted_id' => $vetted_id,
                 'vetted_view_order' => $vetted_view_order,
                 'hierarchy_id' => $hierarchy_id,
-                'browsable' => $browsable);
+                'browsable' => $browsable,
+                'hierarchy_sort_order' => self::hierarchy_sort_order($label));
         }
         $curated_best_entries = $this->lookup_curated_best_entries($start, $limit);
         $this->sort_and_insert_best_entries($all_entries, $curated_best_entries);
@@ -103,20 +105,6 @@ class PreferredEntriesCalculator
         $best_entry_for_concept = array();
         foreach($all_entries as $taxon_concept_id => $concept_entries)
         {
-            if(isset($concept_entries[529])) // Catalogue of Life
-            {
-                $best_entry_for_concept[$taxon_concept_id] = $concept_entries[529]['hierarchy_entry_id'];
-                continue;
-            }elseif(isset($concept_entries[847])) // ITIS
-            {
-                $best_entry_for_concept[$taxon_concept_id] = $concept_entries[847]['hierarchy_entry_id'];
-                continue;
-            }elseif(isset($concept_entries[759])) // NCBI
-            {
-                $best_entry_for_concept[$taxon_concept_id] = $concept_entries[759]['hierarchy_entry_id'];
-                continue;
-            }
-            
             usort($concept_entries, array("php_active_record\PreferredEntriesCalculator", "sort_preferred_entries"));
             $first = array_shift($concept_entries);
             $best_entry_for_concept[$taxon_concept_id] = $first['hierarchy_entry_id'];
@@ -150,15 +138,23 @@ class PreferredEntriesCalculator
     
     private static function sort_preferred_entries($a, $b)
     {
-        if($a['vetted_view_order'] != $b['vetted_view_order'])
-        {
-            return ($a['vetted_view_order'] < $b['vetted_view_order']) ? -1 : 1; // ascending
-        }
-        if($a['browsable'] != $b['browsable'])
-        {
-            return ($a['browsable'] < $b['browsable']) ? 1 : -1; // descending
-        }
+        if($a['vetted_view_order'] != $b['vetted_view_order']) return ($a['vetted_view_order'] < $b['vetted_view_order']) ? -1 : 1; // ascending
+        if($a['browsable'] != $b['browsable']) return ($a['browsable'] < $b['browsable']) ? 1 : -1; // descending
+        if($a['hierarchy_sort_order'] != $b['hierarchy_sort_order']) return ($a['hierarchy_sort_order'] < $b['hierarchy_sort_order']) ? -1 : 1; // ascending
         return ($a['hierarchy_entry_id'] < $b['hierarchy_entry_id']) ? -1 : 1;  // ascending
+    }
+    
+    private static function hierarchy_sort_order($hierarchy_label)
+    {
+        if(preg_match("/^Species 2000 & ITIS Catalogue of Life/i", $hierarchy_label)) return 1;
+        elseif(preg_match("/^Integrated Taxonomic Information System/i", $hierarchy_label)) return 2;
+        elseif($hierarchy_label == "Avibase - IOC World Bird Names (2011)") return 3;
+        elseif($hierarchy_label == "WORMS Species Information (Marine Species)") return 4;
+        elseif($hierarchy_label == "FishBase (Fish Species)") return 5;
+        elseif($hierarchy_label == "IUCN Red List (Species Assessed for Global Conservation)") return 6;
+        elseif($hierarchy_label == "Index Fungorum") return 7;
+        elseif($hierarchy_label == "Paleobiology Database") return 8;
+        return 999;
     }
 }
 
