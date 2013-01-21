@@ -21,12 +21,12 @@ class VimeoAPI
 {
     public static function get_all_taxa()
     {
+        $vimeo = new \phpVimeo(CONSUMER_KEY, CONSUMER_SECRET);
         $all_taxa = array();
         $used_collection_ids = array();
-        $user_ids = self::get_list_of_user_ids();
+        $user_ids = self::get_list_of_user_ids($vimeo);
         $count_of_users = count($user_ids);
         $i = 0;
-        $vimeo = new \phpVimeo(CONSUMER_KEY, CONSUMER_SECRET);
         foreach($user_ids as $user_id)
         {
             $i++;
@@ -34,41 +34,59 @@ class VimeoAPI
             $count_of_videos = 0;
             while($page == 1 || $count_of_videos == 50) //if $count_of_videos < 50 it means that this current page is the last page; default per_page = 50
             {
-                $return = $vimeo->call('vimeo.videos.getUploaded', array('user_id' => $user_id, 'page' => $page, "full_response" => true));
-                $count_of_videos = count($return->videos->video);
-                $j = 0;
-                foreach($return->videos->video as $video)
+                sleep(3);
+                if($return = self::vimeo_call_with_retry($vimeo, 'vimeo.videos.getUploaded', array('user_id' => $user_id, 'page' => $page, "full_response" => true)))
                 {
-                    $j++;
-                    echo "\nUser $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)";
-                    $arr = self::get_vimeo_taxa($video, $used_collection_ids);
-                    $page_taxa              = $arr[0];
-                    $used_collection_ids    = $arr[1];
-                    if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
+                    $count_of_videos = count($return->videos->video);
+                    $j = 0;
+                    foreach($return->videos->video as $video)
+                    {
+                        $j++;
+                        debug("\nUser $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)");
+                        $arr = self::get_vimeo_taxa($video, $used_collection_ids);
+                        $page_taxa              = $arr[0];
+                        $used_collection_ids    = $arr[1];
+                        if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
+                    }
+                    $page++;
                 }
-                $page++;
             }
         }
         return $all_taxa;
     }
     
-    function get_list_of_user_ids()
+    public static function vimeo_call_with_retry($vimeo, $command, $param)
+    {
+        $trials = 1;
+        while($trials <= 5)
+        {
+            if($return = $vimeo->call($command, $param)) return $return;
+            else
+            {
+                debug("\n Fail. Will try again in 30 seconds.");
+                sleep(30);
+                $trials++;
+            }
+        }
+        debug("\nFailed after 5 tries.");
+        return false;
+    }
+    
+    function get_list_of_user_ids($vimeo)
     {
         //get the members of the group
-        $vimeo = new \phpVimeo(CONSUMER_KEY, CONSUMER_SECRET);
         $user_ids = array();
         $page = 1;
         while(!$user_ids || count($user_ids) % 20 == 0) //if count($user_ids) is not a multiple of 20 it means that this current page is the last page; default per_page = 50
         {
-            print "\npage: $page";
-            $return = $vimeo->call('vimeo.groups.getMembers', array('group_id' => "encyclopediaoflife", 'page' => $page, 'per_page' => 20));
-            print " - " . count($return->members->member) . " members";
+            debug("\npage: $page");
+            $return = self::vimeo_call_with_retry($vimeo, 'vimeo.groups.getMembers', array('group_id' => "encyclopediaoflife", 'page' => $page, 'per_page' => 20));
+            debug(" - " . count($return->members->member) . " members");
             foreach($return->members->member as $member) $user_ids[(string) $member->id] = 1;
             $page++;
         }
-
         //get the moderators of the group
-        $return = $vimeo->call('vimeo.groups.getModerators', array('group_id' => "encyclopediaoflife", 'page' => 1));
+        $return = self::vimeo_call_with_retry($vimeo, 'vimeo.groups.getModerators', array('group_id' => "encyclopediaoflife", 'page' => 1));
         foreach($return->moderators->moderator as $moderator) $user_ids[(string) $moderator->id] = 1;
 
         /*
@@ -76,9 +94,10 @@ class VimeoAPI
         $user_ids['user7837321'] = 1;
         $user_ids['user5814509'] = 1; //katja
         $user_ids['user5352360'] = 1; //eli
-        $user_ids['5352360'] = 1; //eli
+        $user_ids['5352360']     = 1; //eli
         $user_ids['user1632860'] = 1; //peter kuttner
         */
+
         return array_keys($user_ids);
     }
 
@@ -98,7 +117,7 @@ class VimeoAPI
 
     function parse_xml($rec)
     {
-        $arr_data=array();
+        $arr_data = array();
         $description = Functions::import_decode($rec->description);
         $description = str_ireplace("<br />", "", $description);
 
@@ -162,7 +181,7 @@ class VimeoAPI
         //has to have a valid license
         if(!$license)
         {
-            echo "\ninvalid license: " . $rec->urls->url{0}->{"_content"} . "\n";
+            debug("\ninvalid license: " . $rec->urls->url{0}->{"_content"});
             return array();
         }
 
@@ -264,7 +283,7 @@ class VimeoAPI
         foreach($match as $tag) if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
         if(!isset($sciname))
         {
-            print "\n This needs checking...";
+            debug("\nThis needs checking...");
             print_r($match); 
         }
         return array("rank" => $smallest_rank, "name" => $sciname);

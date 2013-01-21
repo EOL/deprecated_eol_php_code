@@ -16,7 +16,7 @@ $file = 'http://localhost/~eolit/eol_php_code/applications/content_server/resour
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
 if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 999999))
 {
-    exit("\n\n Content partner's server is down, connector will now terminate.\n");
+    echo("\n\n Content partner's server is down, connector will now terminate.\n");
 }else
 {
     $new_resource_xml = utf8_encode($new_resource_xml);
@@ -147,9 +147,9 @@ if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 99
     shell_exec("rm ".$new_resource_path);
     $elapsed_time_sec = microtime(1)-$timestart;
     echo "\n";
-    echo "elapsed time = $elapsed_time_sec sec              \n";
-    echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
-    echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
+    echo "elapsed time = $elapsed_time_sec sec                 \n";
+    echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
+    echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
     echo "\n\n Done processing.";
 }
 
@@ -166,18 +166,15 @@ function get_data_object($id, $title, $description, $subject, $refs, $agents, $p
     $dataObjectParameters["source"] = $pageURL;
     $dataObjectParameters["agents"] = $agents;
     $dataObjectParameters["audiences"] = array();
-
     $audienceParameters = array();
     $audienceParameters["label"] = "Expert users";
     $v["audiences"][] = new \SchemaAudience($audienceParameters);
     $audienceParameters["label"] = "General public";
     $v["audiences"][] = new \SchemaAudience($audienceParameters);
-
     $dataObjectParameters["subjects"] = array();
     $subjectParameters = array();
     $subjectParameters["label"] = $subject;
     $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
-
     $rec["reference"] = $refs;
     $dataObjectParameters = Functions::prepare_reference_params($rec, $dataObjectParameters);
     return $dataObjectParameters;

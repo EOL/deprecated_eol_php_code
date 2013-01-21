@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: 276 
+/* connector: 276
 We received a Darwincore archive file from the partner. It has a pliniancore extension.
 Partner hasn't yet hosted the DWC-A file.
 Connector downloads the archive file, extracts, reads the archive file, assembles the data and generates the EOL XML.
@@ -17,19 +17,16 @@ class INBioAPI
         self::$MAPPINGS = self::assign_mappings();
         $all_taxa = array();
         $used_collection_ids = array();
-
         $paths = self::extract_archive_file($dwca_file, "meta.xml");
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
-
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
-        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields)
+        if(!($GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"][0]->fields))
         {
-            echo "\n\nInvalid archive file. Program will terminate.\n";
-            return;
+            debug("Invalid archive file. Program will terminate.");
+            return false;
         }
-        $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_row_type('http://rs.gbif.org/terms/1.0/image'));
         $references = self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/reference'));
         $vernacular_names = self::get_vernacular_names($harvester->process_row_type('http://rs.gbif.org/terms/1.0/vernacularname'));
@@ -42,7 +39,7 @@ class INBioAPI
         foreach($taxa as $taxon)
         {
             $i++;
-            print "\n $i of $total";
+            debug("$i of $total");
             $taxon_id = @$taxon['http://rs.tdwg.org/dwc/terms/taxonID'];
             $taxon["id"] = $taxon_id;
             $taxon["image"] = @$images[$taxon_id];
@@ -54,30 +51,27 @@ class INBioAPI
             $used_collection_ids     = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
         }
-
         // remove tmp dir
         if($temp_dir) shell_exec("rm -fr $temp_dir");
-
         return $all_taxa;
     }
 
     function extract_archive_file($dwca_file, $check_file_or_folder_name)
     {
-        print "\nPlease wait, downloading resource document...\n";
+        debug("Please wait, downloading resource document...");
         $path_parts = pathinfo($dwca_file);
         $filename = $path_parts['basename'];
         $temp_dir = create_temp_dir() . "/";
-        print "\n " . $temp_dir;
+        debug($temp_dir);
         if($file_contents = Functions::get_remote_file($dwca_file, DOWNLOAD_WAIT_TIME, 999999))
         {
             $temp_file_path = $temp_dir . "" . $filename;
-            print "\n\n temp_dir: $temp_dir\n";
-            print "\n\n Extracting... $temp_file_path\n";
+            debug("temp_dir: $temp_dir");
+            debug("Extracting... $temp_file_path");
             $TMP = fopen($temp_file_path, "w");
             fwrite($TMP, $file_contents);
             fclose($TMP);
             sleep(5);
-
             if(preg_match("/^(.*)\.(tar.gz|tgz)$/", $dwca_file, $arr)) 
             {
                 $cur_dir = getcwd();
@@ -98,14 +92,14 @@ class INBioAPI
             } 
             else
             {
-                echo "\n\n-- archive not gzip or zip.\n";
+                debug("-- archive not gzip or zip.");
                 return;
             }
-            print "\n archive path: [" . $archive_path . "]\n";
+            debug("archive path: [" . $archive_path . "]");
         }
         else
         {
-            echo "\n\nConnector terminated. Remote files are not ready.\n";
+            debug("Connector terminated. Remote files are not ready.");
             return;
         }
 
@@ -113,7 +107,7 @@ class INBioAPI
         elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
         else
         {
-            echo "\n\nCan't extract archive file. Program will terminate.\n";
+            debug("Can't extract archive file. Program will terminate.");
             return;
         }
     }
@@ -121,12 +115,13 @@ class INBioAPI
     public static function assign_eol_subjects($xml_string)
     {
         if(!stripos($xml_string, "http://www.eol.org/voc/table_of_contents#")) return $xml_string;
-        print "\n this resource has http://www.eol.org/voc/table_of_contents# \n";
+        debug("this resource has http://www.eol.org/voc/table_of_contents# ");
         $xml = simplexml_load_string($xml_string);
         $i = 0;
         foreach($xml->taxon as $taxon)
         {
-            $i++; print "$i ";
+            $i++;
+            debug($i);
             foreach($taxon->dataObject as $dataObject)
             {
                 $dataObject_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
@@ -135,7 +130,7 @@ class INBioAPI
                 $eol_subjects[] = self::EOL . "Notes";
                 if(@$dataObject->subject)
                 {
-                    if (in_array($dataObject->subject, $eol_subjects)) 
+                    if(in_array($dataObject->subject, $eol_subjects))
                     {
                         $dataObject->addChild("additionalInformation", "");
                         $dataObject->additionalInformation->addChild("subject", $dataObject->subject);
@@ -199,7 +194,7 @@ class INBioAPI
         $response = self::parse_xml($taxon);
         $page_taxa = array();
         foreach($response as $rec)
-        {            
+        {
             if(@$used_collection_ids[$rec["identifier"]]) continue;
             $taxon = Functions::prepare_taxon_params($rec);
             if($taxon) $page_taxa[] = $taxon;
@@ -219,15 +214,11 @@ class INBioAPI
             {
                 $term = $field["term"];
                 $mappings = self::$MAPPINGS;
-                if(@$mappings[$term] && @$taxon["media"][$term])
-                {
-                    $arr_objects[] = self::prepare_text_objects($taxon, $term);
-                }                
+                if(@$mappings[$term] && @$taxon["media"][$term]) $arr_objects[] = self::prepare_text_objects($taxon, $term);
             }
             $arr_objects = self::prepare_image_objects($taxon, $arr_objects);
             $refs = array();
             if($taxon["reference"]) $refs = $taxon["reference"];
-            
             if(sizeof($arr_objects))
             {
                 $sciname = @$taxon["http://rs.tdwg.org/dwc/terms/scientificName"];
@@ -253,12 +244,9 @@ class INBioAPI
 
     private function parse_references($refs)
     {
-        if    (is_numeric(strpos($refs, "<p>"))) $refs = explode("<p>", $refs);
-        elseif(is_numeric(strpos($refs, "<P>"))) $refs = explode("<P>", $refs);
-        elseif(is_numeric(strpos($refs, "</p>"))) $refs = explode("</p>", $refs);
-        elseif(is_numeric(strpos($refs, "</P>"))) $refs = explode("</P>", $refs);
+        if    (is_numeric(stripos($refs, "<p>")))  $refs = explode("<p>", $refs);
+        elseif(is_numeric(stripos($refs, "</p>"))) $refs = explode("</p>", $refs);
         else $refs = explode("<p>", $refs);
-
         $references = array();
         foreach($refs as $ref) $references[] = array("fullReference" => $ref);
         return $references;
@@ -412,11 +400,6 @@ class INBioAPI
                        "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"      => self::EOL . "Notes",
                        "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"    => self::EOL . "Notes"
                    );
-        /*
-            not being used:
-            <field index="3" term="http://www.pliniancore.org/plic/pcfcore/version"/>
-            <field index="6" term="http://purl.org/dc/terms/audience"/>
-        */
     }
 
 }

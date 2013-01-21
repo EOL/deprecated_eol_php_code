@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [349] 
+/* connector: [349]
 We received a Darwincore archive file from the partner. It has a pliniancore extension.
 Partner hasn't yet hosted the DWC-A file.
 Connector reads the archive file, assembles the data and generates the EOL XML.
@@ -17,12 +17,11 @@ class TucanesAPI
         $used_collection_ids = array();
         $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_tucanes");
         $tables = $harvester->tables;
-        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields)
+        if(!($GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"][0]->fields))
         {
-            echo "\n\nInvalid archive file. Program will terminate.\n";
-            return;
+            debug("Invalid archive file. Program will terminate.");
+            return false;
         }
-        $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_row_type('http://rs.gbif.org/terms/1.0/image'));
         $references = self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/reference'));
         $vernacular_names = self::get_vernacular_names($harvester->process_row_type('http://rs.gbif.org/terms/1.0/vernacularname'));
@@ -39,7 +38,7 @@ class TucanesAPI
         foreach($taxa as $taxon)
         {
             $i++;
-            print "\n $i of $total";
+            debug("$i of $total");
             $taxon_id = @$taxon['http://rs.tdwg.org/dwc/terms/taxonID'];
             $taxon["id"] = $taxon_id;
             $taxon["image"] = @$images[$taxon_id];
@@ -103,8 +102,7 @@ class TucanesAPI
             {
                 //remove parenthesis for this string "(Frank and Ramus"
                 if($pos = stripos($common_names, "(Frank and Ramus")) $common_names = trim(substr($common_names, 0, $pos-1));
-
-                $common_names = explode(",", $common_names); 
+                $common_names = explode(",", $common_names);
                 foreach($common_names as $common_name)
                 {
                     $vernacular_names[$taxon_id][] = array("name" => trim($common_name), "language" => self::get_language($name['http://purl.org/dc/terms/language']));
@@ -119,7 +117,7 @@ class TucanesAPI
         $response = self::parse_xml($taxon);
         $page_taxa = array();
         foreach($response as $rec)
-        {            
+        {
             if(@$used_collection_ids[$rec["identifier"]]) continue;
             $taxon = Functions::prepare_taxon_params($rec);
             if($taxon) $page_taxa[] = $taxon;
@@ -148,7 +146,6 @@ class TucanesAPI
                     }
                 }
             }
-
             $arr_objects = self::prepare_image_objects($taxon, $arr_objects);
             $refs = array();
             if($taxon["reference"]) $refs[] = array("fullReference" => $taxon["reference"]);
@@ -193,21 +190,16 @@ class TucanesAPI
                 $identifier     = $mediaURL;
                 $location       = "";
                 $license        = "http://creativecommons.org/licenses/by-nc-sa/2.5/";
-
                 // commented -- DATA-953 on March 5
                 // $rightsHolder   = @$taxon["image"]['rightsHolder'][$i];
                 $rightsHolder = "Instituto de Investigación de Recursos Biológicos Alexander von Humboldt";
-
                 $created        = @$taxon["image"]['created'][$i];
                 $source         = TUCANES_SOURCE_URL . @$taxon["id"];
-
                 $agent = array();
                 $agent[] = array("role" => "creator", "homepage" => "", "fullName" => "Robin Schielle");
-
                 // commented -- DATA-953 on March 5
                 // if(@$taxon["image"]['creator'][$i]) $agent[] = array("role" => "photographer", "homepage" => "", "fullName" => @$taxon["image"]['creator'][$i]);
                 // if(@$taxon["image"]['publisher'][$i]) $agent[] = array("role" => "publisher", "homepage" => "", "fullName" => @$taxon["image"]['publisher'][$i]);
-
                 $refs           = array();
                 $modified       = "";
                 $language       = "";
@@ -231,10 +223,8 @@ class TucanesAPI
     {
         $temp = parse_url($term);
         $description   = trim($taxon_text[$term]);
-        
         //to handle data problem from IABIN
         if(in_array($description, array(". . .", ". ."))) return array();
-        
         $identifier    = $taxon["id"] . str_replace("/", "_", $temp["path"]);
         $mimeType      = "text/html";
         $dataType      = "http://purl.org/dc/dcmitype/Text";
@@ -243,11 +233,7 @@ class TucanesAPI
         $mediaURL      = "";
         $location      = "";
         $license       = "http://creativecommons.org/licenses/by-nc-sa/2.5/";
-
-        // commented -- DATA-953 on March 5
-        //$rightsHolder  = @$taxon["http://purl.org/dc/terms/rightsHolder"];
         $rightsHolder = "Instituto de Investigación de Recursos Biológicos Alexander von Humboldt";
-
         $source        = TUCANES_SOURCE_URL . $taxon["id"];
         $refs          = array();
         $agent         = self::get_agents($taxon_text);
@@ -319,8 +305,8 @@ class TucanesAPI
                        "http://www.pliniancore.org/plic/pcfcore/legislation"                  => $SPM . "Legislation",
                        "http://www.pliniancore.org/plic/pcfcore/habitat"                      => $SPM . "Habitat",
                        "http://www.pliniancore.org/plic/pcfcore/lifeCycle"                    => $SPM . "LifeCycle",
-                       "http://www.pliniancore.org/plic/pcfcore/molecularData"                => $SPM . "MolecularBiology",
-                       "http://www.pliniancore.org/plic/pcfcore/typification"                 => $SPM . "Distribution", 
+                       "http://www.pliniancore.org/plic/pcfcore/molecularData"                => $EOL . "SystematicsOrPhylogenetics",
+                       "http://www.pliniancore.org/plic/pcfcore/typification"                 => $EOL . "TypeInformation",
                        "http://www.pliniancore.org/plic/pcfcore/unstructuredNaturalHistory"   => $EOL . "Notes",
                        "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"      => $EOL . "Notes",
                        "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"    => $EOL . "Notes",
@@ -329,18 +315,6 @@ class TucanesAPI
                        "http://rs.tdwg.org/dwc/terms/establishmentMeans"                      => $SPM . "Distribution",
                        "http://purl.org/dc/terms/abstract"                                    => $SPM . "TaxonBiology"
                    );
-
-    /*
-        "http://www.pliniancore.org/plic/pcfcore/molecularData"                  => $EOL . "SystematicsOrPhylogenetics", 
-        "http://www.pliniancore.org/plic/pcfcore/typification"                   => $EOL . "TypeInformation", 
-        "http://www.pliniancore.org/plic/pcfcore/unstructuredNaturalHistory"     => $EOL . "Notes",
-        "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"        => $EOL . "Notes",
-        "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"      => $EOL . "Notes",
-
-        not being used:
-        <field index="3" term="http://www.pliniancore.org/plic/pcfcore/version"/>
-        <field index="6" term="http://purl.org/dc/terms/audience"/>
-    */
     }
 
     private function get_string_between($str_left, $str_right, $string)
@@ -348,7 +322,7 @@ class TucanesAPI
         if(preg_match("/$str_left(.*?)$str_right/ims", $string, $matches)) return trim($matches[1]);
         return;
     }
-    
+
     private function get_href_from_anchor_tag($str)
     {
         return self::get_string_between('href = \"', '\"', $str);
