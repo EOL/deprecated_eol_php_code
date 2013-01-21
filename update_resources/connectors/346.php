@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for National Museum of Natural History Image Collection
-estimated execution time: 8 mins.
+estimated execution time: 45 mins.
 Connector reads the XML provided by partner and 
 - sets the image rating.
 - If needed ingests TypeInformation text dataObjects
@@ -17,7 +17,7 @@ $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resourc
 $row = $result->fetch_row();
 $new_resource_path = $row[0];
 if($resource_path != $new_resource_path && $new_resource_path != '') $resource_path = $new_resource_path;
-print "\n processing resource:\n $resource_path \n\n"; 
+echo "\n processing resource:\n $resource_path \n\n";
 
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document();
