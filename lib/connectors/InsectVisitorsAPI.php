@@ -8,11 +8,9 @@ and assembles the information and generates the EOL XML.
 */
 class InsectVisitorsAPI
 {
-    public function __construct($test_run = false, $debug_info = true)
+    public function __construct($test_run = false)
     {
         $this->test_run = $test_run;
-        $this->debug_info = $debug_info;
-        
         $this->path = 'http://www.illinoiswildflowers.info/flower_insects';
         $this->urls = array();
         $this->urls[] = array("active" => 1, "type" => "insects", "ancestry" => array("kingdom" => "Plantae", "phylum" => "", "class" => "", "order" => "", "family" => ""));
@@ -38,14 +36,14 @@ class InsectVisitorsAPI
         self::get_associations();
         self::get_general_descriptions();
         self::prepare_common_names();
-        if($this->debug_info) print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
+        debug("\n\n total: " . count($GLOBALS['taxon']) . "\n");
         $all_taxa = array();
         $i = 0;
         $total = count(array_keys($GLOBALS['taxon']));
         foreach($GLOBALS['taxon'] as $taxon_name => $record)
         {
             $i++; 
-            if($this->debug_info) print "\n$i of $total " . $taxon_name;
+            debug("\n$i of $total " . $taxon_name);
             $record["taxon_name"] = $taxon_name;
             $arr = self::get_visitors_taxa($record);
             $page_taxa = $arr[0];
@@ -68,7 +66,7 @@ class InsectVisitorsAPI
             $url = $this->path . '/files/' . $path["type"] . ".htm";
             if($path["active"])
             {
-                if($this->debug_info) print "\n\n$i" . " " . $url . "\n";
+                debug("\n\n$i" . " " . $url . "\n");
                 self::process_gen_desc($url, $path["ancestry"], $path['type']);
                 $i++;
                 if($this->test_run) break; //just get 1 url
@@ -104,10 +102,10 @@ class InsectVisitorsAPI
 
     function process_gen_desc($url, $ancestry, $type)
     {
-        if($this->debug_info) print "\n\n file: $url \n";
-        if(!$html = Functions::get_remote_file($url)) 
+        debug("\n\n file: $url \n");
+        if(!$html = self::get_remote_file_with_retry($url)) 
         {
-            print("\n\n Content partner's server is down1, $url.\n");
+            debug("\n\n Content partner's server is down1, $url.\n");
             return;
         }
         $html = str_ireplace("&amp;", "and", $html);
@@ -143,7 +141,7 @@ class InsectVisitorsAPI
             else                           $url = $this->path . '/insects/' . $path['type'] . ".htm";
             if($path["active"])
             {
-                if($this->debug_info) print "\n\n$i " . $path['type'] . " [$url]\n";
+                debug("\n\n$i " . $path['type'] . " [$url]\n");
                 if($path['type'] == "insects")              self::process_insects($url, $path["ancestry"]);
                 elseif(in_array($path['type'], $bird_type)) self::process_birds($url, $path["ancestry"], $path['type']);
             }
@@ -157,9 +155,9 @@ class InsectVisitorsAPI
 
     function process_birds($url, $ancestry, $type)
     {
-        if(!$html = Functions::get_remote_file($url))
+        if(!$html = self::get_remote_file_with_retry($url))
         {
-            print("\n\n Content partner's server is down2, $url\n");
+            debug("\n\n Content partner's server is down2, $url\n");
             return;
         }
         /*HREF="birds/hummingbird.htm" NAME="hummingbird">Archilochus colubris</A><BR></B><FONT COLOR="#000000">(Ruby-Throated Hummingbird)</FONT></FONT></FONT></TD>*/
@@ -195,9 +193,9 @@ class InsectVisitorsAPI
 
     function process_insects($url, $ancestry)
     {
-        if(!$html = Functions::get_remote_file($url))
+        if(!$html = self::get_remote_file_with_retry($url))
         {
-            print("\n\n Content partner's server is down3, $url\n");
+            debug("\n\n Content partner's server is down3, $url\n");
             return;
         }
         /*<a href="plants/velvetleaf.htm" name="velvetleaf">Abutilon theophrastii (Velvet Leaf)</a>*/
@@ -240,10 +238,10 @@ class InsectVisitorsAPI
             if($type == 'insects') $url = str_ireplace("/insects/", "/", $url);
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
-            if($this->debug_info) print "\n $url -- $taxon_name";
-            if(!$html = Functions::get_remote_file($url))
+            debug("\n $url -- $taxon_name");
+            if(!$html = self::get_remote_file_with_retry($url))
             {
-                print("\n\n Content partner's server is down4, $url\n");
+                debug("\n\n Content partner's server is down4, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
                 continue;
             } 
@@ -269,9 +267,9 @@ class InsectVisitorsAPI
         $urls = array("http://www.illinoiswildflowers.info/flower_insects/files/family_names.htm", "http://www.illinoiswildflowers.info/flower_insects/files/common_names.htm");
         foreach($urls as $url)
         {
-            if(!$html = Functions::get_remote_file($url))
+            if(!$html = self::get_remote_file_with_retry($url))
             {
-                print("\n\n Content partner's server is down5, $url.\n");
+                debug("\n\n Content partner's server is down5, $url.\n");
                 return;
             }
             $html = str_ireplace("</FONT></FONT></FONT>", "<U>", $html); // so that last block is included in preg_match_all
@@ -446,6 +444,23 @@ class InsectVisitorsAPI
         $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), " ", trim($str));
         $str = str_ireplace(array("    ", "   ", "  "), " ", trim($str));
         return $str;
+    }
+
+    private function get_remote_file_with_retry($url)
+    {
+        $trials = 1;
+        while($trials <= 5)
+        {
+            if($html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 240)) return $html;
+            else
+            {
+                $trials++;
+                debug("Failed. Will try again after 30 seconds. Trial: $trials");
+                sleep(30);
+            }
+        }
+        debug("Five (5) un-successful attempts already.");
+        return false;
     }
 
 }

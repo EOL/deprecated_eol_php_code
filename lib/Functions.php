@@ -1447,16 +1447,19 @@ class Functions
     {
         $path_info = pathinfo($file_path);
         $extension = strtolower($path_info['extension']);
-        $mimetype="";
-        $mpg=array("mpg","mpeg");
-        if      ($extension == "wmv")         $mimetype="video/x-ms-wmv";
-        elseif  ($extension == "avi")         $mimetype="video/x-msvideo";
-        elseif  ($extension == "mp4")         $mimetype="video/mp4";
-        elseif  ($extension == "mov")         $mimetype="video/quicktime";
-        elseif  (in_array($extension, $mpg))  $mimetype="video/mpeg";
-        elseif  ($extension == "flv")         $mimetype="video/x-flv";
-        elseif  ($extension == "gif")         $mimetype="image/gif";
-        elseif  ($extension == "jpg")         $mimetype="image/jpeg";
+        $mimetype = "";
+        $mpg = array("mpg", "mpeg");
+        if     ($extension == "wmv")        $mimetype = "video/x-ms-wmv";
+        elseif ($extension == "avi")        $mimetype = "video/x-msvideo";
+        elseif ($extension == "mp4")        $mimetype = "video/mp4";
+        elseif ($extension == "mov")        $mimetype = "video/quicktime";
+        elseif (in_array($extension, $mpg)) $mimetype = "video/mpeg";
+        elseif ($extension == "flv")        $mimetype = "video/x-flv";
+        elseif ($extension == "bmp")        $mimetype = "image/bmp";
+        elseif ($extension == "gif")        $mimetype = "image/gif";
+        elseif ($extension == "jpg")        $mimetype = "image/jpeg";
+        elseif ($extension == "png")        $mimetype = "image/png";
+        elseif ($extension == "tif")        $mimetype = "image/tiff";
         return $mimetype;
     }
     
@@ -1818,7 +1821,7 @@ class Functions
         fwrite($OUT, $str);
         foreach (glob($files) as $filename)
         {
-            print "\n $filename ";
+            debug("\n $filename");
             $READ = fopen($filename, "r");
             $contents = fread($READ, filesize($filename));
             fclose($READ);
@@ -1829,11 +1832,11 @@ class Functions
                 $str  = substr($contents, $pos1, $pos2-$pos1);
                 if($pos1) fwrite($OUT, $str);
             }
-            else print "\n no contents [$filename]";
+            else debug("\n no contents [$filename]");
         }
         fwrite($OUT, "</response>");
         fclose($OUT);
-        print"\n All XML compiled\n\n";
+        debug("\n All XML compiled\n\n");
     }
 
     function last_day_of_month($month, $year)

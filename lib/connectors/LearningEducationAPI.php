@@ -13,7 +13,7 @@ class LearningEducationAPI
     {
         $podcast_taxon_names = self::all_podcast_scientific_names();
         $podcast_data_objects = self::all_podcast_data_objects();
-        
+
         $all_taxa = array();
         foreach($podcast_data_objects as $title => $data_object)
         {
@@ -31,11 +31,11 @@ class LearningEducationAPI
         }
         return $all_taxa;
     }
-    
+
     public static function all_podcast_scientific_names()
     {
         $podcast_taxa = array();
-        $details_page_html = Functions::get_remote_file(PODCAST_DETAILS_PAGE);
+        $details_page_html = Functions::get_remote_file(PODCAST_DETAILS_PAGE, DOWNLOAD_WAIT_TIME, 240);
         if(preg_match_all("/<a href=\".*?\"><h2>(.*?)<\/h2><\/a> *?<h3 style=\"font-style:italic;margin:0 0 3px 0;\">(.*?)<\/h3>/ims", $details_page_html, $matches, PREG_SET_ORDER))
         {
             foreach($matches as $match)
@@ -52,11 +52,11 @@ class LearningEducationAPI
         }
         return $podcast_taxa;
     }
-    
+
     public static function all_podcast_data_objects()
     {
         $podcast_data_objects = array();
-        $xml = Functions::get_hashed_response(PODCAST_FEED);
+        $xml = self::get_hashed_response_with_retry(PODCAST_FEED);
         foreach($xml->channel->item as $item)
         {
             $data_object_parameters = array();
@@ -64,7 +64,7 @@ class LearningEducationAPI
             $description = $item->description;
             if($item_itunes->duration) $description .= "<br>Duration: " . $item_itunes->duration;
             if($item->pubDate) $description .= "<br>Published: " . $item->pubDate;
-            
+
             $title = trim($item->title);
             $data_object_parameters["identifier"] = trim($item->guid);
             $data_object_parameters["source"] = trim($item->link);
@@ -75,17 +75,36 @@ class LearningEducationAPI
             $data_object_parameters["title"] = trim($item->title);
             $data_object_parameters["description"] = $description;
             $data_object_parameters["license"] = 'http://creativecommons.org/licenses/by-nc/3.0/';
-            
+
             // add agents
             $agents = array();
             $agents[] = new \SchemaAgent(array("role" => "author", "homepage" => "http://www.eol.org", "fullName" => "Encyclopedia of Life"));
             $agents[] = new \SchemaAgent(array("role" => "project", "homepage" => "http://www.atlantic.org/", "fullName" => "Atlantic Public Media"));
             $data_object_parameters["agents"] = $agents;
-            
+
             // create object
             $podcast_data_objects[$title] = new \SchemaDataObject($data_object_parameters);
         }
         return $podcast_data_objects;
     }
+
+    private function get_hashed_response_with_retry($url)
+    {
+        $trials = 1;
+        while($trials <= 5)
+        {
+            $response = utf8_encode(Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 240));
+            if($xml = simplexml_load_string($response)) return $xml;
+            else
+            {
+                $trials++;
+                debug("Fail. Will try again after 30 seconds. Trial: $trials");
+                sleep(30);
+            }
+        }
+        debug("Five (5) un-successful attempts already.");
+        return false;
+    }
+
 }
 ?>
