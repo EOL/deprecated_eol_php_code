@@ -389,15 +389,16 @@ class YouTubeAPI
         $trials = 1;
         while($trials <= 5)
         {
-            if($xml = Functions::get_hashed_response($url)) return $xml;
+            $response = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120);
+            if($xml = simplexml_load_string($response)) return $xml;
             else
             {
                 $trials++;
-                debug("\n Fail. Will try again in 30 seconds. Trial: $trials");
+                debug("\n Failed. Will try again after 30 seconds. Trial: $trials");
                 sleep(30);
             }
         }
-        debug("\n Five (5) un-successful tries already.");
+        debug("\n Five (5) un-successful attempts already.");
         return false;
     }
 

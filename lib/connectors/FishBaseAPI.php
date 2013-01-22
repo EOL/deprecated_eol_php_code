@@ -11,7 +11,7 @@ FishBase contacts are: Stacy and Skit
 */
 class FishBaseAPI
 {
-    public function __construct($test_run = false, $debug_info = true)
+    public function __construct($test_run = false)
     {
         $this->test_run = $test_run;
         // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_in_folder.zip";
@@ -162,7 +162,7 @@ class FishBaseAPI
         $line = fgets($READ);
         if(stripos($line, "\t") == "")
         {
-            echo "\n\n Connector terminated. Remote files are not ready.\n\n";
+            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
             return false;
         }
         $included_fields = array();
