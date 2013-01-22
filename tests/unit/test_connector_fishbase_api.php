@@ -7,8 +7,7 @@ class test_connector_FishBase_api extends SimpletestUnitBase
     function testFishBaseAPI()
     {
         $test_run = true;
-        $debug_info = false;
-        $func = new FishBaseAPI($test_run, $debug_info);
+        $func = new FishBaseAPI($test_run);
         $page_taxa = $func->get_all_taxa('test'); //made-up resource_id 'test'
         $this->assertTrue(is_array($page_taxa), 'Taxa should be an array');
         foreach($page_taxa as $taxon)

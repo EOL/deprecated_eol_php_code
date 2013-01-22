@@ -496,7 +496,7 @@ class ConservationBiologyTurtlesAPI
         $trials = 1;
         while($trials <= 5)
         {
-            if($html = Functions::get_remote_file($url)) return $html;
+            if($html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 240)) return $html;
             else
             {
                 $trials++;
