@@ -15,6 +15,7 @@ class ResourceDataObjectElementsSetting
         $xml_string = self::load_xml_string();
         if($xml_string === false) return false;
         $xml = simplexml_load_string($xml_string);
+        debug("set_data_object_rating_on_xml_document " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
         {
             foreach($taxon->dataObject as $dataObject)
@@ -22,7 +23,6 @@ class ResourceDataObjectElementsSetting
                 $dataObject_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
                 if(@$dataObject->dataType == $this->data_object_type)
                 {
-                    print "\n" . $dataObject_dc->identifier;
                     if ($dataObject->additionalInformation)
                     {
                         if ($dataObject->additionalInformation->rating) $dataObject->additionalInformation->rating = $this->rating;
@@ -36,18 +36,19 @@ class ResourceDataObjectElementsSetting
                 }
             }
         }
+        debug("set_data_object_rating_on_xml_document -- done.");
         return $xml->asXML();
     }
 
     function load_xml_string()
     {
-        print "\nPlease wait, downloading resource document...\n";
+        debug("Please wait, downloading resource document...");
         if(preg_match("/^(.*)\.(gz|gzip)$/", $this->xml_path, $arr))
         {
             $path_parts = pathinfo($this->xml_path);
             $filename = $path_parts['basename'];
             $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-            print "\n " . $this->TEMP_FILE_PATH;
+            debug("temp file path: " . $this->TEMP_FILE_PATH);
             if($file_contents = Functions::get_remote_file($this->xml_path, DOWNLOAD_WAIT_TIME, 999999))
             {
                 $temp_file_path = $this->TEMP_FILE_PATH . "/" . $filename;
@@ -56,17 +57,15 @@ class ResourceDataObjectElementsSetting
                 fclose($TMP);
                 shell_exec("gunzip -f $temp_file_path");
                 $this->xml_path = $this->TEMP_FILE_PATH . str_ireplace(".gz", "", $filename);
-                print "\n -- " . $this->xml_path;
+                debug("xml path: " . $this->xml_path);
             }
             else
             {
-                echo "\n\n Connector terminated. Remote files are not ready.\n\n";
+                debug("Connector terminated. Remote files are not ready.");
                 return false;
             }
-            // remove tmp dir
-            // if($this->TEMP_FILE_PATH) shell_exec("rm -fr $this->TEMP_FILE_PATH");
         }
-        return Functions::get_remote_file($this->xml_path);
+        return Functions::get_remote_file($this->xml_path, DOWNLOAD_WAIT_TIME, 999999);
     }
 
     public function remove_data_object_of_certain_element_value($field, $value, $xml_string)
@@ -76,17 +75,16 @@ class ResourceDataObjectElementsSetting
             remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
         */
         $xml = simplexml_load_string($xml_string);
-        $i = 0;
+        debug("remove_data_object_of_certain_element_value " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
         {
-            $i++; print "$i ";
             foreach($taxon->dataObject as $dataObject)
             {
                 $do = self::get_dataObject_namespace($field, $dataObject);
                 $use_field = self::get_field_name($field);
                 if(@$do->$use_field == $value) 
                 {
-                    print "\n this <dataObject> will not be ingested -- $use_field = $value" . "\n";
+                    debug("this <dataObject> will not be ingested -- $use_field = $value");
                     @$dataObject->mediaURL = "";
                     @$dataObject->agent = "";
                     $do_dc = $dataObject->children("http://purl.org/dc/terms/");
@@ -101,6 +99,7 @@ class ResourceDataObjectElementsSetting
                 }
             }
         }
+        debug("remove_data_object_of_certain_element_value -- done.");
         return $xml->asXML();
     }
 
@@ -111,10 +110,9 @@ class ResourceDataObjectElementsSetting
             replace_data_object_element_value("dcterms:modified", "", "07/13/1972", $xml, false);
         */
         $xml = simplexml_load_string($xml_string);
-        $i = 0;
+        debug("replace_data_object_element_value " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
         {
-            $i++; print "$i ";
             foreach($taxon->dataObject as $dataObject)
             {
                 $do = self::get_dataObject_namespace($field, $dataObject);
@@ -126,6 +124,7 @@ class ResourceDataObjectElementsSetting
                 else $do->$use_field = $new_value;
             }
         }
+        debug("replace_data_object_element_value -- done.");
         return $xml->asXML();
     }
 
@@ -139,10 +138,9 @@ class ResourceDataObjectElementsSetting
             replace_data_object_element_value_with_condition("subject", "", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", $xml, "dc:title", "Distribution Information", false);
         */
         $xml = simplexml_load_string($xml_string);
-        $i = 0;
+        debug("replace_data_object_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
         {
-            $i++; print "$i ";
             foreach($taxon->dataObject as $dataObject)
             {
                 $do = self::get_dataObject_namespace($field, $dataObject);
@@ -156,7 +154,7 @@ class ResourceDataObjectElementsSetting
                         if(trim(@$condition_do->$use_condition_field) == $condition_value) $do->$use_field = $new_value;
                     }
                 }
-                else 
+                else
                 {
                     $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
                     $use_condition_field = self::get_field_name($condition_field);
@@ -164,9 +162,9 @@ class ResourceDataObjectElementsSetting
                 }
             }
         }
+        debug("replace_data_object_element_value_with_condition -- done.");
         return $xml->asXML();
     }
-
 
     function get_dataObject_namespace($field, $dataObject)
     {

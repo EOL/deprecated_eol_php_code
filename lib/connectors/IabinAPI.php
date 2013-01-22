@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: 297 
+/* connector: 297
 We received a Darwincore archive file from the partner. It has a pliniancore extension.
 Partner hasn't yet hosted the DWC-A file.
 Connector reads the archive file, assembles the data and generates the EOL XML.
@@ -17,12 +17,11 @@ class IabinAPI
         $used_collection_ids = array();
         $harvester = new ContentArchiveReader(NULL, DOC_ROOT . "temp/dwca_iabin");
         $tables = $harvester->tables;
-        if(!$tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields)
+        if(!($GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"][0]->fields))
         {
-            echo "\n\nInvalid archive file. Program will terminate.\n";
-            return;
+            debug("Invalid archive file. Program will terminate.");
+            return false;
         }
-        $GLOBALS['fields'] = $tables["http://www.pliniancore.org/plic/pcfcore/pliniancore2.3"]->fields;
         $images = self::get_images($harvester->process_row_type('http://rs.gbif.org/terms/1.0/image'));
         $references = self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/reference'));
         $vernacular_names = self::get_vernacular_names($harvester->process_row_type('http://rs.gbif.org/terms/1.0/vernacularname'));
@@ -33,14 +32,13 @@ class IabinAPI
             $taxon_id = $m['http://rs.tdwg.org/dwc/terms/taxonID'];
             @$taxon_media[$taxon_id][] = $m;
         }
-
         $taxa = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
         $i = 0;
         $total = sizeof($taxa);
         foreach($taxa as $taxon)
         {
             $i++;
-            print "\n $i of $total";
+            debug(" $i of $total");
             $taxon_id = @$taxon['http://rs.tdwg.org/dwc/terms/taxonID'];
             $taxon["id"] = $taxon_id;
             $taxon["image"] = @$images[$taxon_id];
@@ -50,7 +48,6 @@ class IabinAPI
             $arr = self::get_iabin_taxa($taxon, $used_collection_ids);
             $page_taxa               = $arr[0];
             $used_collection_ids     = $arr[1];
-            
             //do in batches to speed it up.
             if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
             if(count($all_taxa) == 1000)
@@ -76,7 +73,6 @@ class IabinAPI
                 $images[$taxon_id]['caption'][]       = $image['http://purl.org/dc/terms/description'];
                 $images[$taxon_id]['license'][]       = $image['http://purl.org/dc/terms/license'];
                 $images[$taxon_id]['created'][]       = $image['http://purl.org/dc/terms/created'];
-                
                 /* not available for IABIN in images
                 $images[$taxon_id]['publisher'][]     = $image['http://purl.org/dc/terms/publisher'];
                 $images[$taxon_id]['creator'][]       = $image['http://purl.org/dc/terms/creator'];
@@ -92,10 +88,7 @@ class IabinAPI
         $references = array();
         foreach($refs as $ref)
         {
-            if($ref['http://purl.org/dc/terms/bibliographicCitation'])
-            {
-                $references[$ref['http://rs.tdwg.org/dwc/terms/taxonID']] = $ref['http://purl.org/dc/terms/bibliographicCitation'];
-            }
+            if($ref['http://purl.org/dc/terms/bibliographicCitation']) $references[$ref['http://rs.tdwg.org/dwc/terms/taxonID']] = $ref['http://purl.org/dc/terms/bibliographicCitation'];
         }
         return $references;
     }
@@ -110,7 +103,6 @@ class IabinAPI
             {
                 //remove parenthesis for this string "(Frank and Ramus"
                 if($pos = stripos($common_names, "(Frank and Ramus")) $common_names = trim(substr($common_names, 0, $pos-1));
-
                 $common_names = explode(",", $common_names); 
                 foreach($common_names as $common_name)
                 {
@@ -140,10 +132,7 @@ class IabinAPI
         $taxon_id = $taxon["id"];
         $arr_data = array();
         $arr_objects = array();
-
-        /*
-        For IABIN, $taxon["media"] can be multiple, unlike with INBIO which is only 1.
-        */
+        /* For IABIN, $taxon["media"] can be multiple, unlike with INBIO which is only 1. */
         $taxon_texts = $taxon["media"];
         if($taxon_texts)
         {
@@ -159,7 +148,6 @@ class IabinAPI
                     }
                 }
             }
-
             $arr_objects = self::prepare_image_objects($taxon, $arr_objects);
             $refs = array();
             if($taxon["reference"]) $refs[] = array("fullReference" => $taxon["reference"]);
@@ -237,10 +225,8 @@ class IabinAPI
     {
         $temp = parse_url($term);
         $description   = trim($taxon_text[$term]);
-        
         //to handle data problem from IABIN
         if(in_array($description, array(". . .", ". ."))) return array();
-        
         $identifier    = $taxon["id"] . str_replace("/", "_", $temp["path"]);
         $mimeType      = "text/html";
         $dataType      = "http://purl.org/dc/dcmitype/Text";
@@ -329,8 +315,8 @@ class IabinAPI
                        "http://www.pliniancore.org/plic/pcfcore/legislation"                  => $SPM . "Legislation",
                        "http://www.pliniancore.org/plic/pcfcore/habitat"                      => $SPM . "Habitat",
                        "http://www.pliniancore.org/plic/pcfcore/lifeCycle"                    => $SPM . "LifeCycle",
-                       "http://www.pliniancore.org/plic/pcfcore/molecularData"                => $SPM . "MolecularBiology",
-                       "http://www.pliniancore.org/plic/pcfcore/typification"                 => $SPM . "Distribution", 
+                       "http://www.pliniancore.org/plic/pcfcore/molecularData"                => $EOL . "SystematicsOrPhylogenetics",
+                       "http://www.pliniancore.org/plic/pcfcore/typification"                 => $EOL . "TypeInformation",
                        "http://www.pliniancore.org/plic/pcfcore/unstructuredNaturalHistory"   => $EOL . "Notes",
                        "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"      => $EOL . "Notes",
                        "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"    => $EOL . "Notes",
@@ -339,17 +325,6 @@ class IabinAPI
                        "http://rs.tdwg.org/dwc/terms/establishmentMeans"                      => $SPM . "Distribution",
                        "http://purl.org/dc/terms/abstract"                                    => $SPM . "TaxonBiology"
                    );
-    /*
-        "http://www.pliniancore.org/plic/pcfcore/molecularData"                  => $EOL . "SystematicsOrPhylogenetics", 
-        "http://www.pliniancore.org/plic/pcfcore/typification"                   => $EOL . "TypeInformation", 
-        "http://www.pliniancore.org/plic/pcfcore/unstructuredNaturalHistory"     => $EOL . "Notes",
-        "http://www.pliniancore.org/plic/pcfcore/unstructedDocumentation"        => $EOL . "Notes",
-        "http://www.pliniancore.org/plic/pcfcore/unstructuredDocumentation"      => $EOL . "Notes",
-
-        not being used:
-        <field index="3" term="http://www.pliniancore.org/plic/pcfcore/version"/>
-        <field index="6" term="http://purl.org/dc/terms/audience"/>
-    */
     }
 
     private function get_string_between($str_left, $str_right, $string)
@@ -357,7 +332,7 @@ class IabinAPI
         if(preg_match("/$str_left(.*?)$str_right/ims", $string, $matches)) return trim($matches[1]);
         return;
     }
-    
+
     private function get_href_from_anchor_tag($str)
     {
         return self::get_string_between('href = \"', '\"', $str);

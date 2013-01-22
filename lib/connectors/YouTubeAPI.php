@@ -62,7 +62,7 @@ class YouTubeAPI
             {
                 debug("\n $username - $video_id");
                 $video_index++;
-                if($GLOBALS['ENV_DEBUG']) debug(" [user $user_index of $total_users] [video $video_index of $number_of_user_videos]");
+                debug(" [user $user_index of $total_users] [video $video_index of $number_of_user_videos]");
                 if($record = self::build_data($video_id, $username))
                 {
                     $arr = self::get_youtube_taxa($record, $used_collection_ids);
@@ -118,13 +118,13 @@ class YouTubeAPI
         $json_object = json_decode($raw_json);
         if(!@$json_object->entry->id)
         {
-            if($GLOBALS['ENV_DEBUG']) debug(" -- invalid response");
+            debug(" -- invalid response");
             return;
         }
         $license = @$json_object->entry->{'media$group'}->{'media$license'}->href;
         if(!$license || !preg_match("/^http:\/\/creativecommons.org\/licenses\//", $license))
         {
-            if($GLOBALS['ENV_DEBUG']) debug(" -- invalid response");
+            debug(" -- invalid response");
             return;
         }
         $thumbnailURL = @$json_object->entry->{'media$group'}->{'media$thumbnail'}[1]->url;
@@ -387,24 +387,18 @@ class YouTubeAPI
     private function get_hashed_response_with_retry($url)
     {
         $trials = 1;
-        while(true)
+        while($trials <= 5)
         {
             if($xml = Functions::get_hashed_response($url)) return $xml;
             else
             {
                 $trials++;
-                if($trials <= 5)
-                {
-                    debug("\n Fail. Will try again in 30 seconds. Trial: $trials");
-                    sleep(30);
-                }
-                else
-                {
-                    debug("\n Five (5) un-successful tries already.");
-                    return false;
-                }
+                debug("\n Fail. Will try again in 30 seconds. Trial: $trials");
+                sleep(30);
             }
         }
+        debug("\n Five (5) un-successful tries already.");
+        return false;
     }
 
     public static function get_upload_videos_from_usernames($usernames)
@@ -414,7 +408,7 @@ class YouTubeAPI
         foreach($usernames as $username)
         {
             sleep(3); //delay not to overwhelm partner server
-            if($GLOBALS['ENV_DEBUG']) debug("\n Getting video list for $username...");
+            debug("\n Getting video list for $username...");
             $start_index = 1;
             while(true)
             {
