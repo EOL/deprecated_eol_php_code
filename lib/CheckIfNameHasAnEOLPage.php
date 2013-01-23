@@ -16,7 +16,9 @@ class CheckIfNameHasAnEOLPage
     function check_if_name_has_EOL_page($scientific_name)
     {
         $file = self::API_SEARCH . str_ireplace(" ","%20",$scientific_name); //. "?exact=1";
-        if($xml = self::get_hashed_response_with_retry($file))
+        
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if($xml = Functions::get_hashed_response($file, 30000000, 240, 5))
         {
             foreach($xml->entry as $species)
             {
@@ -62,7 +64,9 @@ class CheckIfNameHasAnEOLPage
         $file = self::API_PAGES . $id . self::API_PAGES_PARAMS;
         $text = 0;
         $image = 0;
-        if($xml = self::get_hashed_response_with_retry($file))
+
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if($xml = Functions::get_hashed_response($file, 30000000, 240, 5))
         {
             if($xml->dataObject)
             {
@@ -93,24 +97,6 @@ class CheckIfNameHasAnEOLPage
     private function cmp($a, $b)
     {
         return $a["total_objects"] < $b["total_objects"];
-    }
-
-    private function get_hashed_response_with_retry($url)
-    {
-        $trials = 1;
-        while($trials <= 5)
-        {
-            $response = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120);
-            if($xml = simplexml_load_string($response)) return $xml;
-            else
-            {
-                $trials++;
-                debug("\n Failed. Will try again after 30 seconds. Trial: $trials");
-                sleep(30);
-            }
-        }
-        debug("\n Five (5) un-successful attempts already.");
-        return false;
     }
 
 }

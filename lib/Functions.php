@@ -130,36 +130,30 @@ class Functions
         return $count;
     }
     
-    public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
+    public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS)
     {
         $remote_url = str_replace(" ", "%20", $remote_url);
-        debug("Grabbing $remote_url: attempt 1");
-        
         $context = stream_context_create(array('http' => array('timeout' => $timeout)));
-        
-        $file = @self::fake_user_agent_http_get($remote_url, $timeout);
-        usleep($download_wait_time);
-        
+
         $attempts = 1;
-        while(!$file && $attempts < DOWNLOAD_ATTEMPTS)
+        while($attempts <= $download_attempts)
         {
-            debug("Grabbing $remote_url: attempt ".($attempts+1));
-            
-            $file = @self::fake_user_agent_http_get($remote_url, $timeout);
+            debug("Grabbing $remote_url: attempt " . $attempts);
+
+            if($file = @self::fake_user_agent_http_get($remote_url, $timeout))
+            {
+                unset($context);
+                debug("received file");
+                return $file;
+            }
+
+            debug("attemp $attempts failed, will try again after " . ($download_wait_time/1000000) . " seconds");
             usleep($download_wait_time);
             $attempts++;
         }
-        
-        if($attempts >= DOWNLOAD_ATTEMPTS)
-        {
-            debug("failed download file");
-            return false;
-        }
-        
-        unset($context);
-        debug("received file");
-        
-        return $file;
+
+        debug("failed download file after " . ($attempts-1) . " attempts");
+        return false;
     }
     
     public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
@@ -183,9 +177,9 @@ class Functions
         return $file;
     }
     
-    public static function get_hashed_response($url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    public static function get_hashed_response($url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS)
     {
-        $response = self::get_remote_file($url, $download_wait_time);
+        $response = self::get_remote_file($url, $download_wait_time, $timeout, $download_attempts);
         
         $hash = simplexml_load_string($response);
         

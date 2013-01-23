@@ -22,7 +22,8 @@ class ConservationBiologyTurtlesAPI
 
     private function prepare_taxa_urls()
     {
-        if($html = self::get_remote_file_with_retry($this->turtles_site))
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if($html = Functions::get_remote_file($this->turtles_site, 30000000, 240, 5))
         {
             if(preg_match_all("/href=\"http:\/\/www.iucn\-tftsg\.org\/cbftt\/toc\-ind\/toc\/(.*?)<\/a>/ims", $html, $arr))
             {
@@ -129,8 +130,11 @@ class ConservationBiologyTurtlesAPI
         sleep(3); // delay not to overwhelm the partner's website
         $descriptions = array();
         debug("\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'] . "\n");
-        if($html = self::get_remote_file_with_retry($rec['url'])) 
+
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if($html = Functions::get_remote_file($rec['url'], 30000000, 240, 5))
         {
+            $html = str_ireplace("www.iucn&ndash;tftsg.org", "www.iucn-tftsg.org", $html);
             $agent_ids = self::get_object_agents($html, $rec);
             $rec = self::get_descriptions_from_html($html, $rec);
             $texts = $rec['texts'];
@@ -215,8 +219,8 @@ class ConservationBiologyTurtlesAPI
             $strings_2be_removed = array("&nbsp;");
             $map_caption = self::remove_first_part_of_string($strings_2be_removed, trim($map_caption));
             $descriptions['map_caption'] = $map_caption;
-            debug("\n\n map caption: sss[" . $descriptions['map_caption'] . "]jjj");
-            debug("\n\n map image: sss[" . $descriptions['map_image'] . "]jjj");
+            debug("\n\n map caption: [" . $descriptions['map_caption'] . "]");
+            debug("\n\n map image: [" . $descriptions['map_image'] . "]");
         }
         else debug("\n No map");
 
@@ -281,7 +285,7 @@ class ConservationBiologyTurtlesAPI
             $citation = self::remove_first_part_of_string($strings_2be_removed, $citation);
             $citation = self::remove_last_part_of_string(array("&nbsp;"), $citation);
             $descriptions["citation"] = $citation;
-            debug("\n\n citation: sss[$citation]jjj");
+            debug("\n\n citation: [$citation]");
         }
         else debug("\n No citation");
 
@@ -308,7 +312,7 @@ class ConservationBiologyTurtlesAPI
                 $description = self::remove_first_part_of_string($strings_2be_removed, trim($description));
                 $description = self::remove_last_part_of_string(array("</p>", "<b>", "&nbsp;", "&mdash;"), trim($description));
                 if(in_array(trim(strtolower($description)), array("none recognized.", "none.", "none currently recognized.", "no subspecies have been described.", "there are no recognized subspecies.", "no subspecies currently recognized."))) continue;
-                debug("description: \nsss[$description]jjj");
+                // debug("description: \n[$description]");
                 if($subject == "SUMMARY")       $dc_identifier = "GenDesc_" . $rec['taxonID'];
                 if($subject == "DISTRIBUTION")  $dc_identifier = "Distribution_" . $rec['taxonID'];
                 if($subject == "STATUS")        $dc_identifier = "Status_" . $rec['taxonID'];
@@ -489,23 +493,6 @@ class ConservationBiologyTurtlesAPI
         $this->subject['SUBSPECIES']['category'] = "http://eol.org/schema/eol_info_items.xml#Taxonomy";
         $this->subject['SUMMARY']['title'] = "Summary";
         $this->subject['SUMMARY']['category'] = $this->SPM . "#TaxonBiology";
-    }
-
-    private function get_remote_file_with_retry($url)
-    {
-        $trials = 1;
-        while($trials <= 5)
-        {
-            if($html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 240)) return $html;
-            else
-            {
-                $trials++;
-                debug("Failed. Will try again after 30 seconds. Trial: $trials");
-                sleep(30);
-            }
-        }
-        debug("Five (5) un-successful attempts already.");
-        return false;
     }
 
     private function remove_first_part_of_string($chars_2be_removed, $string)
