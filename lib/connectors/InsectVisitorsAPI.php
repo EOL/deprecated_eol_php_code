@@ -103,7 +103,8 @@ class InsectVisitorsAPI
     function process_gen_desc($url, $ancestry, $type)
     {
         debug("\n\n file: $url \n");
-        if(!$html = self::get_remote_file_with_retry($url)) 
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
         {
             debug("\n\n Content partner's server is down1, $url.\n");
             return;
@@ -155,7 +156,8 @@ class InsectVisitorsAPI
 
     function process_birds($url, $ancestry, $type)
     {
-        if(!$html = self::get_remote_file_with_retry($url))
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
         {
             debug("\n\n Content partner's server is down2, $url\n");
             return;
@@ -193,7 +195,8 @@ class InsectVisitorsAPI
 
     function process_insects($url, $ancestry)
     {
-        if(!$html = self::get_remote_file_with_retry($url))
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
         {
             debug("\n\n Content partner's server is down3, $url\n");
             return;
@@ -239,7 +242,8 @@ class InsectVisitorsAPI
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
             debug("\n $url -- $taxon_name");
-            if(!$html = self::get_remote_file_with_retry($url))
+            // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+            if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
             {
                 debug("\n\n Content partner's server is down4, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
@@ -267,7 +271,8 @@ class InsectVisitorsAPI
         $urls = array("http://www.illinoiswildflowers.info/flower_insects/files/family_names.htm", "http://www.illinoiswildflowers.info/flower_insects/files/common_names.htm");
         foreach($urls as $url)
         {
-            if(!$html = self::get_remote_file_with_retry($url))
+            // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+            if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
             {
                 debug("\n\n Content partner's server is down5, $url.\n");
                 return;
@@ -444,23 +449,6 @@ class InsectVisitorsAPI
         $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), " ", trim($str));
         $str = str_ireplace(array("    ", "   ", "  "), " ", trim($str));
         return $str;
-    }
-
-    private function get_remote_file_with_retry($url)
-    {
-        $trials = 1;
-        while($trials <= 5)
-        {
-            if($html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 240)) return $html;
-            else
-            {
-                $trials++;
-                debug("Failed. Will try again after 30 seconds. Trial: $trials");
-                sleep(30);
-            }
-        }
-        debug("Five (5) un-successful attempts already.");
-        return false;
     }
 
 }

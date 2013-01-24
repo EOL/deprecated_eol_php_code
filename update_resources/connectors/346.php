@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for National Museum of Natural History Image Collection
-estimated execution time: 45 mins.
+estimated execution time: 32 mins.
 Connector reads the XML provided by partner and 
 - sets the image rating.
 - If needed ingests TypeInformation text dataObjects
@@ -21,6 +21,9 @@ echo "\n processing resource:\n $resource_path \n\n";
 
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document();
+
+//manual fix DATA-1189, until partner fixes their data
+$xml = str_ireplace("Photograph of Photograph of", "Photograph of", $xml);
 
 require_library('connectors/INBioAPI');
 $xml = INBioAPI::assign_eol_subjects($xml);
