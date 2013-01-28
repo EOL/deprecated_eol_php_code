@@ -737,7 +737,10 @@ class ArchiveDataIngester
     public static function is_this_image_in_flickr($row)
     {
         if(!$row['http://rs.tdwg.org/ac/terms/accessURI']) return false;
-        if(preg_match("/static\.flickr\.com\/.+?\/([0-9]+?)_.+?\.jpg$/i", $row['http://rs.tdwg.org/ac/terms/accessURI'], $arr))
+        $flickr_image_id = NULL;
+        if(preg_match("/static\.flickr\.com\/.+?\/([0-9]+?)_.+?\.jpg$/i", $row['http://rs.tdwg.org/ac/terms/accessURI'], $arr)) $flickr_image_id = $arr[1];
+        elseif(preg_match("/staticflickr\.com\/.+?\/([0-9]+?)_.+?\.jpg$/i", $row['http://rs.tdwg.org/ac/terms/accessURI'], $arr)) $flickr_image_id = $arr[1];
+        if($flickr_image_id)
         {
             $flickr_image_id = $arr[1];
             if(self::is_this_identifier_in_flickr($flickr_image_id))
