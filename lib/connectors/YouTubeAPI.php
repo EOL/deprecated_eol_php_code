@@ -371,7 +371,9 @@ class YouTubeAPI
         $usernames_of_people_to_ignore = array('PRI', 'pri');
         /* Getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
-        if($xml = self::get_hashed_response_with_retry($url))
+
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if($xml = Functions::get_hashed_response($url, 30000000, 240, 5))
         {
             foreach($xml->entry as $entry)
             {
@@ -382,24 +384,6 @@ class YouTubeAPI
         }
         else debug("\n Service not available: $url");
         return array_keys($usernames_of_subscribers);
-    }
-
-    private function get_hashed_response_with_retry($url)
-    {
-        $trials = 1;
-        while($trials <= 5)
-        {
-            $response = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120);
-            if($xml = simplexml_load_string($response)) return $xml;
-            else
-            {
-                $trials++;
-                debug("\n Failed. Will try again after 30 seconds. Trial: $trials");
-                sleep(30);
-            }
-        }
-        debug("\n Five (5) un-successful attempts already.");
-        return false;
     }
 
     public static function get_upload_videos_from_usernames($usernames)
@@ -414,7 +398,9 @@ class YouTubeAPI
             while(true)
             {
                 $url = YOUTUBE_API . "/users/" . $username . "/uploads?" . "start-index=$start_index&max-results=$max_results";
-                if($xml = self::get_hashed_response_with_retry($url))
+
+                // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+                if($xml = Functions::get_hashed_response($url, 30000000, 240, 5))
                 {
                     if($xml->entry)
                     {

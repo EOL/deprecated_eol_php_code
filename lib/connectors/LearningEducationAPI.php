@@ -56,7 +56,9 @@ class LearningEducationAPI
     public static function all_podcast_data_objects()
     {
         $podcast_data_objects = array();
-        $xml = self::get_hashed_response_with_retry(PODCAST_FEED);
+        
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        $xml = Functions::get_hashed_response(PODCAST_FEED, 30000000, 240, 5);
         foreach($xml->channel->item as $item)
         {
             $data_object_parameters = array();
@@ -86,24 +88,6 @@ class LearningEducationAPI
             $podcast_data_objects[$title] = new \SchemaDataObject($data_object_parameters);
         }
         return $podcast_data_objects;
-    }
-
-    private function get_hashed_response_with_retry($url)
-    {
-        $trials = 1;
-        while($trials <= 5)
-        {
-            $response = utf8_encode(Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 240));
-            if($xml = simplexml_load_string($response)) return $xml;
-            else
-            {
-                $trials++;
-                debug("Fail. Will try again after 30 seconds. Trial: $trials");
-                sleep(30);
-            }
-        }
-        debug("Five (5) un-successful attempts already.");
-        return false;
     }
 
 }

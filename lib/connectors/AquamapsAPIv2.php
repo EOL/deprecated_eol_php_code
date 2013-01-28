@@ -58,7 +58,8 @@ class AquamapsAPIv2
     function parse_xml($url)
     {
         $arr_scraped=array();
-        if(!$xml = self::get_hashed_response_with_retry($url)) return;
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        if(!$xml = Functions::get_hashed_response($url, 30000000, 240, 5)) return;
         $ctr = 0;
         $total = sizeof($xml->RECORD);
         foreach($xml->RECORD as $rec)
@@ -96,7 +97,9 @@ class AquamapsAPIv2
     {
         $param = "genus=" . $genus . "&species=" . $species;
         $fn = SERVICE_URL . $param;
-        $xml = self::get_hashed_response_with_retry($fn);
+
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        $xml = Functions::get_hashed_response($fn, 30000000, 240, 5);
         $html = $xml->section_body;
         if($html == "") return array();
         if(is_numeric(stripos($html, "has not yet been reviewed"))) $review = "un-reviewed";
@@ -220,7 +223,9 @@ class AquamapsAPIv2
             $GLOBALS['aquamaps_check_for_interactive_map'][$genus] = array();
         }
         $url = "http://www.aquamaps.org/webservice/getAMap.php?genus=" . $genus . "&species=" . $species;
-        $xml = self::get_hashed_response_with_retry($url);
+
+        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
+        $xml = Functions::get_hashed_response($url, 30000000, 240, 5);
         if($xml->section_body != '')
         {
             $html = $xml->section_body;
@@ -231,24 +236,6 @@ class AquamapsAPIv2
             return $html;
         }
         return;
-    }
-
-    private function get_hashed_response_with_retry($url)
-    {
-        $trials = 1;
-        while($trials <= 5)
-        {
-            $response = utf8_encode(Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120));
-            if($xml = simplexml_load_string($response)) return $xml;
-            else
-            {
-                $trials++;
-                debug("Fail. Will try again in 30 seconds. Trial: $trials");
-                sleep(30);
-            }
-        }
-        debug("Five (5) un-successful tries already.");
-        return false;
     }
 
 }
