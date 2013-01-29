@@ -5,15 +5,7 @@ class ClementsAPI
 {
     function __construct($folder)
     {
-        // this spreadsheet is attached in the Data ticket: DATA-1181
-        
         $this->page_to_download_the_spreadsheet = "http://www.birds.cornell.edu/clementschecklist/downloadable-clements-checklist";
-        // $this->data_dump_url = "";
-        // $this->data_dump_url = "http://www.birds.cornell.edu/clementschecklist/Clements%20Checklist%206.7.xls";
-        
-        // $this->data_dump_url = DOC_ROOT . "/update_resources/connectors/files/Clements/Clements Checklist 6.7.xls";
-        // $this->data_dump_url = DOC_ROOT . "/update_resources/connectors/files/Clements/Clements Checklist 6.7 small.xls";
-
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -39,39 +31,23 @@ class ClementsAPI
             else debug(" - not valid category");
         }
         $this->create_archive();
-        // remove tmp dir
-        if($this->temp_directory) shell_exec("rm -fr $this->temp_directory");
-        debug("\n temporary directory removed: [$this->temp_directory]");
+
+        // remove tmp file
+        unlink($this->data_dump_url);
+        debug("\n temporary file removed: [$this->data_dump_url]");
     }
 
     private function parse_xls()
     {
-        self::save_remote_file_to_local();
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        debug("\n reading: " . $this->data_dump_url . "\n");
-        $temp = $parser->convert_sheet_to_array($this->data_dump_url);
-        $records = $parser->prepare_data($temp, "single", "SCIENTIFIC NAME", "SCIENTIFIC NAME", "CATEGORY", "ENGLISH NAME", "RANGE", "ORDER", "FAMILY", "EXTINCT", "EXTINCT_YEAR");
-        return $records;
-    }
-
-    function save_remote_file_to_local()
-    {
-        $this->temp_directory = create_temp_dir();
-        debug("\ntemp file path: " . $this->temp_directory);
-        debug("\n\n Saving remote file, this takes a couple of minutes...\n $this->data_dump_url\n\n");
-        $path_parts = pathinfo($this->data_dump_url);
-        $filename = $path_parts['basename'];        
-        if($file_contents = Functions::get_remote_file($this->data_dump_url, 30000000, 1200, 5)) //30secs wait_time, 20mins timeout, 5 attempts
+        if($this->data_dump_url = Functions::save_remote_file_to_local($this->data_dump_url, 30000000, 600, 5, "xls"))
         {
-            $temp_file_path = $this->temp_directory . "/" . urldecode($filename);
-            $file = fopen($temp_file_path, "w");
-            fwrite($file, $file_contents);
-            fclose($file);
-            $this->data_dump_url = $temp_file_path;
-            debug("\nnew file path: " . $this->data_dump_url);
+            require_library('XLSParser');
+            $parser = new XLSParser();
+            debug("\n reading: " . $this->data_dump_url . "\n");
+            $temp = $parser->convert_sheet_to_array($this->data_dump_url);
+            $records = $parser->prepare_data($temp, "single", "SCIENTIFIC NAME", "SCIENTIFIC NAME", "CATEGORY", "ENGLISH NAME", "RANGE", "ORDER", "FAMILY", "EXTINCT", "EXTINCT_YEAR");
+            return $records;
         }
-        else debug("Remote file not ready: [$this->data_dump_url]");
     }
 
     private function parse_record_element($rec)

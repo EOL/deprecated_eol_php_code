@@ -20,10 +20,6 @@ class test_connector_clements_api extends SimpletestUnitBase
         $this->assertTrue($taxon->scientificName == "Casuarius casuarius", 'We should get the right scientific name');
         $this->assertTrue($taxon->order == "Struthioniformes", 'We should get the right order name');
         $this->assertTrue($taxon->family == "Casuariidae", 'We should get the right family name');
-
-        // remove tmp dir
-        shell_exec("rm -fr " . CONTENT_RESOURCE_LOCAL_PATH . $archive_folder);
-        shell_exec("rm -fr " . CONTENT_RESOURCE_LOCAL_PATH . $archive_folder . "_working");
     }
 }
 ?>
