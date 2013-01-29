@@ -32,16 +32,14 @@ class ClementsAPI
         }
         $this->create_archive();
 
-        // remove tmp dir
-        $path_parts = pathinfo($this->data_dump_url);
-        $temp_directory = $path_parts['dirname'];
-        if($temp_directory) shell_exec("rm -fr $temp_directory");
-        debug("\n temporary directory removed: [$temp_directory]");
+        // remove tmp file
+        unlink($this->data_dump_url);
+        debug("\n temporary file removed: [$this->data_dump_url]");
     }
 
     private function parse_xls()
     {
-        if($this->data_dump_url = Functions::save_remote_file_to_local($this->data_dump_url, 30000000, 600, 5))
+        if($this->data_dump_url = Functions::save_remote_file_to_local($this->data_dump_url, 30000000, 600, 5, "xls"))
         {
             require_library('XLSParser');
             $parser = new XLSParser();

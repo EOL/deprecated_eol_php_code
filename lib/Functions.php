@@ -195,23 +195,20 @@ class Functions
         return $hash;
     }
 
-    public static function save_remote_file_to_local($url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS)
+    public static function save_remote_file_to_local($url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS, $file_extension = false)
     {
-        $temp_directory = create_temp_dir();
-        debug("\n\n Temporary directory: " . $temp_directory);
+        $temp_path = temp_filepath();
+        if($file_extension) $temp_path .= "." . $file_extension;
         debug("\n\n Saving remote file: " . $url);
-        $path_parts = pathinfo($url);
-        $filename = $path_parts['basename'];        
+        debug("\n\n Temporary file: " . $temp_path);
         if($file_contents = self::get_remote_file($url, $download_wait_time, $timeout, $download_attempts))
         {
-            $local_file_path = $temp_directory . "/" . urldecode($filename);
-            $file = fopen($local_file_path, "w");
+            $file = fopen($temp_path, "w");
             fwrite($file, $file_contents);
             fclose($file);
-            debug("\n\n New file path: " . $local_file_path);
-            return $local_file_path;
+            return $temp_path;
         }
-        else return false;
+        return false;
     }
 
     // see http://www.php.net/manual/en/function.filesize.php#92462

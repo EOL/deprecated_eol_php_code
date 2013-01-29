@@ -32,11 +32,9 @@ if($local_path = Functions::save_remote_file_to_local($resource_path, 30000000, 
     $func->save_resource_document($xml);
     Functions::set_resource_status_to_force_harvest($resource_id);
 
-    // remove tmp dir
-    $path_parts = pathinfo($local_path);
-    $temp_directory = $path_parts['dirname'];
-    if($temp_directory) shell_exec("rm -fr $temp_directory");
-    debug("\n temporary directory removed: [$temp_directory]");
+    // remove tmp file
+    unlink($local_path);
+    debug("\n temporary file removed: [$local_path]");
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
