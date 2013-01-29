@@ -22,7 +22,7 @@ class Name extends ActiveRecord
                                 'endosymbiont', 'species', 'complex',
                                 'unassigned', 'n', 'gen', 'auct', 'non', 'aff',
                                 'mixed', 'library', 'genomic', 'unidentified', 'parasite', 'synthetic',
-                                'phytoplasma');
+                                'phytoplasma', 'bacterium');
         if(preg_match("/(^|[^\w])(". implode("|", $red_flag_words) .")([^\w]|$)/i", $string)) return true;
         if(preg_match("/ [abcd] /i", $string)) return true;
         if(preg_match("/(_|'|\")/i", $string)) return true;
@@ -36,6 +36,7 @@ class Name extends ActiveRecord
         if(preg_match("/1[02345][0-9]{2}/", $string)) return true; // 1600 - 1900
         if(preg_match("/2[1-9][0-9]{2}/", $string)) return true; // 1600 - 1900
         if(preg_match("/virus([^\w]|$)/i", $string)) return true;
+        if(preg_match("/viruses([^\w]|$)/i", $string)) return true;
         return false;
     }
     

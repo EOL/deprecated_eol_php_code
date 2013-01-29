@@ -25,10 +25,10 @@ if(!$resource_id) $resource_id = @$_POST["resource_id"];
 if(!$amount) $amount = @$_POST["amount"];
 if(!$currecny) $currecny = @$_POST["currecny"];
 if(!$type) $type = @$_POST["type"];
-if(!$data_object_id) $type = @$_POST["data_object_id"];
-if(!$x) $type = @$_POST["x"];
-if(!$y) $type = @$_POST["y"];
-if(!$w) $type = @$_POST["x"];
+if(!$data_object_id) $data_object_id = @$_POST["data_object_id"];
+if(!$x) $x = @$_POST["x"];
+if(!$y) $y = @$_POST["y"];
+if(!$w) $w = @$_POST["w"];
 
 /* Cybersource API is special */
 if($function=="InsertSignature3")
