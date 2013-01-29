@@ -17,10 +17,6 @@ class test_connector_conservationbiologyturtles_api extends SimpletestUnitBase
         $taxon = array_shift($connector->taxa);
         $this->assertTrue($taxon->taxonID == "iucn_ssc_Actinemys_marmorata_(Baird_and_Girard_1852)", 'We should get the right taxon id');
         $this->assertTrue($taxon->scientificName == "Actinemys marmorata (Baird and Girard 1852)", 'We should get the right scientific name');
-
-        // remove tmp dir
-        shell_exec("rm -fr " . CONTENT_RESOURCE_LOCAL_PATH . $archive_folder);
-        shell_exec("rm -fr " . CONTENT_RESOURCE_LOCAL_PATH . $archive_folder . "_working");
     }
 }
 ?>

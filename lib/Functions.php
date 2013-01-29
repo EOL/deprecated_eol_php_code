@@ -194,8 +194,23 @@ class Functions
         
         return $hash;
     }
-    
-    
+
+    public static function save_remote_file_to_local($url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS, $file_extension = false)
+    {
+        $temp_path = temp_filepath();
+        if($file_extension) $temp_path .= "." . $file_extension;
+        debug("\n\n Saving remote file: " . $url);
+        debug("\n\n Temporary file: " . $temp_path);
+        if($file_contents = self::get_remote_file($url, $download_wait_time, $timeout, $download_attempts))
+        {
+            $file = fopen($temp_path, "w");
+            fwrite($file, $file_contents);
+            fclose($file);
+            return $temp_path;
+        }
+        return false;
+    }
+
     // see http://www.php.net/manual/en/function.filesize.php#92462
     public static function remote_file_size($uri)
     {

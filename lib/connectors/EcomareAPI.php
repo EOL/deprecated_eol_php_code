@@ -32,7 +32,7 @@ class EcomareAPI
         foreach($taxa as $id => $taxon)
         {
             $i++;
-            print "\n $i of $total";
+            debug("\n $i of $total");
             $arr = self::get_Ecomare_taxa($taxon, $used_collection_ids);
             $page_taxa               = $arr[0];
             $used_collection_ids     = $arr[1];
@@ -45,10 +45,9 @@ class EcomareAPI
     {
         $taxa = array();
         $path_species_list = self::ECOMARE_SOURCE_DIR . self::ECOMARE_SPECIES_LIST;
-        print "\n species list: " . $path_species_list;
-        if($response = Functions::get_remote_file($path_species_list, DOWNLOAD_WAIT_TIME, 120))
+        debug("\n species list: $path_species_list \n");
+        if($xml = Functions::get_hashed_response($path_species_list, 30000000, 600, 5))
         {
-            $xml = simplexml_load_string($response);
             $i = 0;
             foreach($xml->subject_item as $item)
             {
@@ -56,18 +55,18 @@ class EcomareAPI
                 if($item->name_latin != "")
                 {
                     $i++;
-                    // if($i > 2) break; //debug
+                    // if($i > 5) break; //debug
                     $sciname = self::get_sciname($item->name_latin);
                     $taxa[$id]['sciname'] = $sciname;
                     $taxa[$id]['id'] = $id;
-                    print "\n\n $item->name_latin -- $id";
-                    print "\n $sciname";
+                    debug("\n $item->name_latin -- $id");
+                    debug("\n $sciname");
                     $objects = self::get_taxon_details($id);
                     foreach($objects as $object) $taxa[$id]['objects'][] = $object;
                 }
             }
         }
-        else print "\n Down: $path_species_list";
+        else debug("\n Down: $path_species_list");
         return $taxa;
     }
 
@@ -96,66 +95,54 @@ class EcomareAPI
         $text_rightsHolder = "";
         foreach($languages as $language => $dir)
         {
-            print "\n $language - $dir";
+            debug("\n $language - $dir \n");
             if($language == "nl")
             {
                 if(substr($description, strlen($description)-2, 2) == ". ") $description = substr($description, 0, strlen($description)-2). "; ";
                 if(substr($title, strlen($title)-2, 2) == ". ") $title = substr($title, 0, strlen($title)-2) . "; ";
             }
             $xml_file = self::ECOMARE_SOURCE_DIR . "/$dir/" . $id . ".xml";
-            sleep(3); // 3 seconds interval for every taxon XML access, so not to overwhelm the partner
+            sleep(1); // 1 second interval for every taxon XML access, so not to overwhelm the partner
 
-            $trials = 1;
-            while($trials <= 5)
+            debug("\n Accessing: $xml_file \n");
+            if($xml = Functions::get_hashed_response($xml_file, 30000000, 600, 5)) //30secs wait_time, 10mins timeout, 5 attempts
             {
-                print "\n Accessing: $xml_file";
-                if($xml = Functions::get_hashed_response($xml_file))
+                debug(" - OK ");
+                foreach($xml->content_item as $item)
                 {
-                    print " - OK ";
-                    foreach($xml->content_item as $item)
+                    if($item->type == 9) //image type
                     {
-                        if($item->type == 9) //image type
+                        $source_url = str_ireplace("L=0", "L=2", $xml->subject_setup->source_url);
+                        if(trim($item->file_name) != "")
                         {
-                            $source_url = str_ireplace("L=0", "L=2", $xml->subject_setup->source_url);
-                            if(trim($item->file_name) != "")
-                            {
-                                $description .= $item->image_description != '' ? "" . $item->image_description . ". " : '';
-                                $title .= $item->header != '' ? "" . $item->header . ". " : '';
-                                $identifier     = "img_" . $item->uid;
-                                $mediaURL       = self::ECOMARE_DOMAIN . $item->file_path . $item->file_name;
-                                $mimeType       = Functions::get_mimetype($item->file_name);
-                                $rightsHolder   = $item->image_copyright;
-                                $source         = $source_url;
-                            }
-                            if(!in_array($item->bodytext, $texts))
-                            {
-                                $objects[] = array(
-                                    "identifier"    => $item->uid,
-                                    "mediaURL"      => '',
-                                    "mimeType"      => 'text/html',
-                                    "dataType"      => 'http://purl.org/dc/dcmitype/Text',
-                                    "rightsHolder"  => '', //$text_rightsHolder
-                                    "title"         => '',
-                                    "description"   => strip_tags($item->bodytext),
-                                    "source"        => $source_url,
-                                    "license"       => "http://creativecommons.org/licenses/by-nc/3.0/",
-                                    "subject"       => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology",
-                                    "language"      => $language);
-                                $texts[] = $item->bodytext;
-                            }
+                            $description .= $item->image_description != '' ? "" . $item->image_description . ". " : '';
+                            $title .= $item->header != '' ? "" . $item->header . ". " : '';
+                            $identifier     = "img_" . $item->uid;
+                            $mediaURL       = self::ECOMARE_DOMAIN . $item->file_path . $item->file_name;
+                            $mimeType       = Functions::get_mimetype($item->file_name);
+                            $rightsHolder   = $item->image_copyright;
+                            $source         = $source_url;
                         }
-                        elseif($item->type == 10) $text_rightsHolder = strip_tags($item->bodytext);
+                        if(!in_array($item->bodytext, $texts))
+                        {
+                            $objects[] = array(
+                                "identifier"    => $item->uid,
+                                "mediaURL"      => '',
+                                "mimeType"      => 'text/html',
+                                "dataType"      => 'http://purl.org/dc/dcmitype/Text',
+                                "rightsHolder"  => '', //$text_rightsHolder
+                                "title"         => '',
+                                "description"   => strip_tags($item->bodytext),
+                                "source"        => $source_url,
+                                "license"       => "http://creativecommons.org/licenses/by-nc/3.0/",
+                                "subject"       => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology",
+                                "language"      => $language);
+                            $texts[] = $item->bodytext;
+                        }
                     }
-                    break; // gets out of the loop for a successful access
+                    elseif($item->type == 10) $text_rightsHolder = strip_tags($item->bodytext);
                 }
-                else
-                {
-                    $trials++;
-                    print " Fail. Will wait for 30 seconds and will try again. Trial # " . $trials;
-                    sleep(30);
-                }
-            }// access trial loop
-
+            }
         }// language loop
 
         $objects[] = array(
