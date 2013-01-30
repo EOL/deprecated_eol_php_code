@@ -8,6 +8,9 @@ require_library('connectors/ClementsAPI');
 $timestart = time_elapsed();
 $resource_id = 527;
 $func = new ClementsAPI($resource_id);
+
+$data_dump_url = DOC_ROOT . "/update_resources/connectors/files/Clements/Clements Checklist 6.7 small.xls";
+
 $func->get_all_taxa(); // you can pass $data_dump_url
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
