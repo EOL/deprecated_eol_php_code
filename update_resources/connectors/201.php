@@ -1,37 +1,32 @@
 <?php
 namespace php_active_record;
-
-/* connector for MCZ Harvard
-estimated execution time: 15 mins.
-Partner provides a CSV file.      
-    - download the CSV from remote 
-    - add the label headers
-    - then start processing...
-
-Reminders: 
-- In CSV, there are some entries that starts with '=' (the equal sign) - can be mistaken to be an Excel formula.
-- Connector can be improved by reading the CSV using fopen() and don't use PHPExcel library.
+/* estimated execution time: 2 minutes
+Partner provides a CSV file.
 */
 
-$timestart = microtime(1);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MCZHarvardAPI');
-$GLOBALS['ENV_DEBUG'] = false;
 
-$taxa = MCZHarvardAPI::get_all_taxa();
-$xml = \SchemaDocument::get_taxon_xml($taxa);
+$timestart = time_elapsed();
 $resource_id = 201;
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-$OUT = fopen($resource_path, "w+");
-fwrite($OUT, $xml);
-fclose($OUT);
+$func = new MCZHarvardAPI($resource_id);
+$func->get_all_taxa();
 
-Functions::set_resource_status_to_force_harvest($resource_id);
 
-$elapsed_time_sec = microtime(1)-$timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec sec              \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
-echo "\n\n Done processing.";
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
+{
+    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
+    {
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+    }
+    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+    Functions::set_resource_status_to_force_harvest($resource_id);
+}
+
+$elapsed_time_sec = time_elapsed() - $timestart;
+echo "\n\n";
+echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
+echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
+echo "\n Done processing.\n";
 ?>
