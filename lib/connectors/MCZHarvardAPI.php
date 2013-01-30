@@ -1,329 +1,208 @@
 <?php
 namespace php_active_record;
-/* connector 201 
-Partner provided/hosted a csv file. Connector downloads, reads, assembles the information and generates the EOL XML.
-*/
-
-define("TEMP_LOCAL_CSV", DOC_ROOT . "tmp/MCZ.csv"); //just a temporary file
-define("REMOTE_CSV", "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv");
-// define("REMOTE_CSV", "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.csv");
-
+// connector: [201]
 class MCZHarvardAPI
 {
-    public static function get_all_taxa()
+    function __construct($folder)
     {
-        $all_taxa = array();
-        $used_collection_ids = array();
-        $success = self::download_and_put_header_in_csv();
-        if($success === false) return false;
-        $urls = array(TEMP_LOCAL_CSV);
-        $taxa_arr = self::compile_taxa($urls);
+        $this->data_dump_url = "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv";
+        // $this->data_dump_url = "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small_2013.csv";
+        // $this->data_dump_url = "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_2013.csv";
 
-        //start prepare CSV file
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        $images = self::prepare_table($parser->convert_sheet_to_array(TEMP_LOCAL_CSV),"multiple", "SCIENTIFIC_NAME", "GUID", "MEDIA_ID", "MEDIA_URI", "MIME_TYPE", "SPEC_LOCALITY", "HIGHER_GEOG", "TYPESTATUS", "PARTS", "COLLECTING_METHOD", "COLLECTORS", "IDENTIFIEDBY", "created", "LAST_EDIT_DATE", "SPECIMENDETAILURL", "AGENT");
-        print "images: " . sizeof($images) . "\n";
-
-        unlink(TEMP_LOCAL_CSV); //delete temp file
-        $i = 1; 
-        $total = sizeof($taxa_arr);
-        foreach($taxa_arr as $taxon)
-        {
-            print "\n $i of $total";
-            $i++;
-            $taxon_id = $taxon['taxon_id'];
-            $sciname = trim($taxon['SCIENTIFIC_NAME']);
-            $arr = self::get_MCZHarvard_taxa($taxon, @$images[$sciname], $used_collection_ids);
-            $page_taxa              = $arr[0];
-            $used_collection_ids    = $arr[1];
-            $all_taxa = array_merge($all_taxa, $page_taxa);
-        }
-        return $all_taxa;
+        $this->taxa = array();
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $this->resource_reference_ids = array();
+        $this->resource_agent_ids = array();
+        $this->vernacular_name_ids = array();
+        $this->taxon_ids = array();
     }
 
-    public static function get_MCZHarvard_taxa($taxon, $taxon_images, $used_collection_ids)
+    function get_all_taxa($data_dump_url = false)
     {
-        $response = self::search_collections($taxon, $taxon_images);//this will output the raw (but structured) output from the external service
-        $page_taxa = array();
-        foreach($response as $rec)
+        $labels = self::get_headers();
+        if($data_dump_url) $this->data_dump_url = $data_dump_url;
+        $file = fopen($this->data_dump_url, "r");
+        $not80 = 0;
+        while(!feof($file))
         {
-            if(@$used_collection_ids[$rec["identifier"]]) continue;
-            $taxon = self::get_taxa_for_photo($rec);
-            if($taxon) $page_taxa[] = $taxon;
-            $used_collection_ids[$rec["identifier"]] = true;
-        }
-        return array($page_taxa, $used_collection_ids);
-    }
-
-    function download_and_put_header_in_csv()
-    {
-        $first_row="MEDIA_ID, MEDIA_URI, MIME_TYPE, subject, created, CAT_NUM, INSTITUTION_ACRONYM, COLLECTION_CDE, COLLECTION, MINIMUM_ELEVATION, MAXIMUM_ELEVATION, ORIG_ELEV_UNITS, LAST_EDIT_DATE, INDIVIDUALCOUNT, COLL_OBJ_DISPOSITION, COLLECTORS, TYPESTATUS, SEX, PARTS, VERBATIM_DATE, HIGHER_GEOG, CONTINENT_OCEAN, COUNTRY, STATE_PROV, COUNTY, FEATURE, ISLAND, ISLAND_GROUP, QUAD, SEA, SPEC_LOCALITY, MIN_ELEV_IN_M, MAX_ELEV_IN_M, DEC_LAT, DEC_LONG, DATUM, ORIG_LAT_LONG_UNITS, VERBATIMLATITUDE, VERBATIMLONGITUDE, LAT_LONG_REF_SOURCE, COORDINATEUNCERTAINTYINMETERS, GEOREFMETHOD, LAT_LONG_REMARKS, LAT_LONG_DETERMINER, SCIENTIFIC_NAME, IDENTIFIEDBY, MADE_DATE, REMARKS, HABITAT, FULL_TAXON_NAME, PHYLCLASS, KINGDOM, PHYLUM, PHYLORDER, FAMILY, GENUS, SPECIES, SUBSPECIES, INFRASPECIFIC_RANK, AUTHOR_TEXT, IDENTIFICATIONMODIFIER, NOMENCLATURAL_CODE, GUID, BASISOFRECORD, DEPTH_UNITS, MIN_DEPTH, MAX_DEPTH, COLLECTING_METHOD, COLLECTING_SOURCE, DAYOFYEAR, AGE_CLASS, ATTRIBUTES, VERIFICATIONSTATUS, SPECIMENDETAILURL, COLLECTORNUMBER, VERBATIMELEVATION, YEAR, MONTH, DAY, AGENT\n";
-        if($csv_body = Functions::get_remote_file(REMOTE_CSV))
-        {
-            $fp = fopen(TEMP_LOCAL_CSV, "w+");
-            fwrite($fp, $first_row);
-            fwrite($fp, $csv_body);
-            fclose($fp);
-        }else
-        {
-            echo "\n\nRemote server is not available. Connector will now terminate.\n";
-            return false;
-        }
-    }
-
-    function compile_taxa($urls)
-    {
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        $taxa_arr = array();
-        foreach($urls as $url)
-        {
-            $arr = self::prepare_table($parser->convert_sheet_to_array($url), "single", "GUID", "GUID", "SCIENTIFIC_NAME", "FULL_TAXON_NAME", "PHYLCLASS", "KINGDOM", "PHYLUM", "PHYLORDER", "FAMILY", "GENUS", "SPECIES", "SUBSPECIES", "INFRASPECIFIC_RANK", "AUTHOR_TEXT");
-            foreach($arr as $taxon_id => $rec)
+            if($line = fgets($file))
             {
-                if(!@$taxa_arr[$taxon_id])
+                $record = self::prepare_row_data(trim($line), $labels);
+                if(count($record) != 80) $not80++; // means invalid CSV row, needs attention by provider
+                else
                 {
-                    $rec["taxon_id"] = $taxon_id;
-                    $taxa_arr[$taxon_id] = $rec;
-                }
-            }
-            print "\n";
-        }
-        print "taxa: " . sizeof($taxa_arr) . "\n";
-        return $taxa_arr;
-    }
-
-    function search_collections($taxon, $taxon_images)//this will output the raw (but structured) output from the external service
-    {
-        $arr = array();
-        $taxon_id = $taxon["taxon_id"];
-        $response = self::prepare_species_page($taxon, $taxon_images);
-        return $response;//structured array
-    }
-
-    function prepare_species_page($taxon, $taxon_images)
-    {
-        $arr_scraped = array();
-        $arr_photos = array();
-        $arr_sciname = array();
-        $taxon_id = $taxon["taxon_id"];
-
-        $sciname = trim($taxon['SCIENTIFIC_NAME']);
-        if(trim($sciname) == "<>") return array();
-        $rights_holder = "";
-
-        $reference=array();
-        $arr_texts=array();
-
-        $arr_photos=array();
-        if($arr=$taxon_images)
-        {
-            foreach($arr as $r)
-            {
-                if  ( trim(@$r['MEDIA_URI']) != "" )
-                { 
-                    $mediaURL = str_ireplace(' ', '%20', trim(@$r['MEDIA_URI']));
-                    $mimeType = @$r['MIME_TYPE'];
-                    $dataType = "http://purl.org/dc/dcmitype/StillImage";
-
-                    $location = "";
-                    if(trim($r['SPEC_LOCALITY']) != "[Exact locality unknown]") $location = $r['SPEC_LOCALITY'];
-                    if($location!="") $location .= ", " . $r['HIGHER_GEOG'];
-                    else              $location .= $r['HIGHER_GEOG'];
-
-                    $desc = "";
-                    $typestatus = substr($r['TYPESTATUS'], 0, stripos($r['TYPESTATUS'], " "));
-                    if($typestatus)             $desc .= $typestatus.", ";
-                    if($r['PARTS'])             $desc .= $r['PARTS'].", ";
-                    if($r['COLLECTING_METHOD']) $desc .= $r['COLLECTING_METHOD'].", ";
-
-                    if($r['COLLECTORS'] && trim($r['COLLECTORS']) != "no agent" 
-                                        && trim($r['COLLECTORS']) != "Unknown collector"
-                                        ) $desc .= "collected by " . $r['COLLECTORS'] . ", ";
-
-                    $agent=array();
-                    if($r['AGENT'] && trim($r['AGENT']) != "no agent") $agent[] = array("role" => "photographer", "homepage" => "", $r['AGENT']);
-                    if($r['IDENTIFIEDBY'])      $desc .= "identified by " . $r['IDENTIFIEDBY'].", ";
-                    if($r['GUID'])              $desc .= "GUID: " . $r['GUID'].", ";
-                    $date_created = $r['created'];
-                    $date_modified = $r['LAST_EDIT_DATE'];
-
-                    /*
-                    For location, print: [SPEC_LOCALITY], [HIGHER_GEOG]
-                    For the description, print: [first word of TYPESTATUS], [PARTS], [COLLECTING_METHOD], 
-                    collected by [COLLECTORS], identified by [IDENTIFIEDBY], GUID: [GUID] 
-                    */
-                                                
-                    $dc_source = $r['SPECIMENDETAILURL'];
-                    $path_parts = pathinfo($mediaURL);
-                    $dc_identifier = $path_parts['basename']; //$r['MEDIA_ID'];                            
-                    $arr_photos[$sciname][] = self::fill_data_object($dc_identifier, $desc, "", "", $agent, $rights_holder, $mediaURL, $mimeType, $dataType, $dc_source, $date_created, $date_modified, $location);
+                    if(@$record['SCIENTIFIC_NAME'])
+                    {
+                        debug($record['SCIENTIFIC_NAME'] . "\n");
+                        self::parse_record_element($record);
+                    }
                 }
             }
         }
-
-        if(@$arr_texts[$sciname] || @$arr_photos[$sciname])
-        {
-            if(self::has_invalid_names($taxon, $sciname)) return array();
-            $arr_scraped[]=array("identifier" => "MCZ_" . str_replace(" ", "_", $sciname),
-                                 "kingdom" => $taxon['KINGDOM'],
-                                 "phylum" => $taxon['PHYLUM'],
-                                 "class" => $taxon['PHYLCLASS'],
-                                 "order" => $taxon['PHYLORDER'],
-                                 "family" => $taxon['FAMILY'],
-                                 "genus" => $taxon['GENUS'],
-                                 "sciname" => $sciname . " " . $taxon['AUTHOR_TEXT'],
-                                 "dc_source" => $dc_source,
-                                 "texts" => @$arr_texts[$sciname],
-                                 "photos" => @$arr_photos[$sciname],
-                                 "references" => $reference
-                                );
-        }
-        return $arr_scraped;
+        fclose($file);
+        debug("\n not 80: $not80 \n");
+        $this->create_archive();
     }
 
-    function has_invalid_names($taxon, $sciname)
+    private function get_headers()
     {
-      $ranks = array('KINGDOM', 'PHYLUM', 'PHYLCLASS', 'PHYLORDER', 'FAMILY', 'GENUS');
-      foreach($ranks as $rank)
-      {
-        $name = trim($taxon[$rank]);
-        if(strpos($name, " ") > 0) return true;
-      }
-      // hard coded to be sure not to get wrong name, caused by unbalanced csv file.
-      if(strpos($sciname, "Bonaccorso") > 0) return true;
-      return false;
+        $labels = "MEDIA_ID, MEDIA_URI, MIME_TYPE, subject, created, CAT_NUM, INSTITUTION_ACRONYM, COLLECTION_CDE, COLLECTION, MINIMUM_ELEVATION, MAXIMUM_ELEVATION, ORIG_ELEV_UNITS, LAST_EDIT_DATE, INDIVIDUALCOUNT, COLL_OBJ_DISPOSITION, COLLECTORS, TYPESTATUS, SEX, PARTS, VERBATIM_DATE, HIGHER_GEOG, CONTINENT_OCEAN, COUNTRY, STATE_PROV, COUNTY, FEATURE, ISLAND, ISLAND_GROUP, QUAD, SEA, SPEC_LOCALITY, MIN_ELEV_IN_M, MAX_ELEV_IN_M, DEC_LAT, DEC_LONG, DATUM, ORIG_LAT_LONG_UNITS, VERBATIMLATITUDE, VERBATIMLONGITUDE, LAT_LONG_REF_SOURCE, COORDINATEUNCERTAINTYINMETERS, GEOREFMETHOD, LAT_LONG_REMARKS, LAT_LONG_DETERMINER, SCIENTIFIC_NAME, IDENTIFIEDBY, MADE_DATE, REMARKS, HABITAT, FULL_TAXON_NAME, PHYLCLASS, KINGDOM, PHYLUM, PHYLORDER, FAMILY, GENUS, SPECIES, SUBSPECIES, INFRASPECIFIC_RANK, AUTHOR_TEXT, IDENTIFICATIONMODIFIER, NOMENCLATURAL_CODE, GUID, BASISOFRECORD, DEPTH_UNITS, MIN_DEPTH, MAX_DEPTH, COLLECTING_METHOD, COLLECTING_SOURCE, DAYOFYEAR, AGE_CLASS, ATTRIBUTES, VERIFICATIONSTATUS, SPECIMENDETAILURL, COLLECTORNUMBER, VERBATIMELEVATION, YEAR, MONTH, DAY, AGENT\n";
+        $labels = explode(",", $labels);
+        $labels = array_map('trim', $labels); // will trim all values of the array
+        return $labels;
     }
 
-    function fill_data_object($dc_identifier, $desc, $subject, $title, $agent, $rights_holder, $mediaURL, $mimeType, $dataType, $dc_source, $date_created, $date_modified, $location)
+    private function prepare_row_data($line, $labels)
     {
-        $desc = str_ireplace('<a href="/species_images/', '<a target="_blank" href="http://www.cmarz.org/species_images/', $desc);
-        $desc = str_ireplace('<a href="../species_images/', '<a target="_blank" href="http://www.cmarz.org/species_images/', $desc);
-        return
-            array(
-            "identifier"    => $dc_identifier,
-            "mediaURL"      => $mediaURL,
-            "mimeType"      => $mimeType,
-            "date_created"  => $date_created,
-            "date_modified" => $date_modified,
-            "rights"        => "",
-            "rights_holder" => $rights_holder,
-            "dataType"      => $dataType,
-            "description"   => $desc,
-            "title"         => $title,
-            "location"      => $location,
-            "dc_source"     => $dc_source,
-            "subject"       => $subject,
-            "agent"         => $agent
-            );
-    }
-
-    function prepare_table($arr, $entry, $index_key, $attr1, $attr2 = NULL, $attr3 = NULL, $attr4 = NULL, $attr5 = NULL, $attr6 = NULL, $attr7 = NULL, $attr8 = NULL, $attr9 = NULL, $attr10 = NULL, $attr11 = NULL, $attr12 = NULL, $attr13 = NULL, $attr14 = NULL, $attr15 = NULL, $attr16 = NULL, $attr17 = NULL, $attr18 = NULL, $attr19 = NULL, $attr20 = NULL, $attr21 = NULL, $attr22 = NULL, $attr23 = NULL, $attr24 = NULL, $attr25 = NULL, $attr26 = NULL)
-    {
-        $arr_hash = array();
+        $line = str_ireplace(", ", "xxxyyy", $line);
+        $fields = str_getcsv($line);
+        $record = array();
         $i = 0;
-        foreach(@$arr[$index_key] as $id)
+        foreach($fields as $field)
         {
-            $temp = array($attr1 => @$arr[$attr1][$i], $attr2 => @$arr[$attr2][$i], $attr3 => @$arr[$attr3][$i], $attr4 => @$arr[$attr4][$i], $attr5 => @$arr[$attr5][$i], $attr6 => @$arr[$attr6][$i], $attr7 => @$arr[$attr7][$i], $attr8 => @$arr[$attr8][$i], $attr9 => @$arr[$attr9][$i], $attr10 => @$arr[$attr10][$i], $attr11 => @$arr[$attr11][$i], $attr12 => @$arr[$attr12][$i], $attr13 => @$arr[$attr13][$i], $attr14 => @$arr[$attr14][$i], $attr15 => @$arr[$attr15][$i], $attr16 => @$arr[$attr16][$i], $attr17 => @$arr[$attr17][$i], $attr18 => @$arr[$attr18][$i], $attr19 => @$arr[$attr19][$i], $attr20 => @$arr[$attr20][$i], $attr21 => @$arr[$attr21][$i], $attr22 => @$arr[$attr22][$i], $attr23 => @$arr[$attr23][$i], $attr24 => @$arr[$attr24][$i], $attr25 => @$arr[$attr25][$i], $attr26 => @$arr[$attr26][$i]);
-            if    ($entry == "single")    $arr_hash[$id]   = $temp;
-            elseif($entry == "multiple")  $arr_hash[$id][] = $temp;
+            $record[$labels[$i]] = str_ireplace("xxxyyy", ", ", $field);
             $i++;
         }
-        return $arr_hash;
+        return $record;
     }
 
-    function get_taxa_for_photo($rec)
+    private function parse_record_element($rec)
     {
-        $taxon = array();
-        $taxon["commonNames"] = array();
-        $taxon["identifier"] = $rec["identifier"];
-        $taxon["source"] = $rec["dc_source"];
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        $taxon["kingdom"] = ucfirst(trim($rec["kingdom"]));
-        $taxon["phylum"] = ucfirst(trim($rec["phylum"]));
-        $taxon["class"] = ucfirst(trim($rec["class"]));
-        $taxon["order"] = ucfirst(trim($rec["order"]));
-        $taxon["family"] = ucfirst(trim($rec["family"]));
-        if(@$rec["photos"]) $taxon["dataObjects"] = self::prepare_objects($rec["photos"], @$taxon["dataObjects"], array());
-        if(@$rec["texts"])  $taxon["dataObjects"] = self::prepare_objects($rec["texts"], @$taxon["dataObjects"], $rec["references"]);
-        $taxon_object = new \SchemaTaxon($taxon);
-        return $taxon_object;
+        $reference_ids = array();
+        $ref_ids = array();
+        $agent_ids = self::get_object_agents($rec);
+        $rec = $this->create_instances_from_taxon_object($rec, $reference_ids);
+        self::get_images($rec, $ref_ids, $agent_ids);
     }
 
-    function prepare_objects($arr, $taxon_dataObjects, $references)
+    private function get_object_agents($rec)
     {
-        $arr_SchemaDataObject = array();
-        if($arr)
+        $agent_ids = array();
+        if($rec['AGENT'] && !in_array(trim($rec['AGENT']), array("[no agent data]", "no agent")))
         {
-            $arr_ref = array();
-            $length = sizeof($arr);
-            $i = 0;
-            foreach($arr as $rec)
+            $agent = (string) trim($rec['AGENT']);
+            if(!$agent) continue;
+            $r = new \eol_schema\Agent();
+            $r->term_name = $agent;
+            $r->identifier = md5("$agent|photographer");
+            $r->agentRole = "photographer";
+            $r->term_homepage = "";
+            $agent_ids[] = $r->identifier;
+            if(!in_array($r->identifier, $this->resource_agent_ids)) 
             {
-                $i++;
-                /* if($length == $i)$arr_ref = $references;//to add the references to the last dataObject */
-                $arr_ref = $references;//to add the reference to all dataObject's
-
-                $data_object = self::get_data_object($rec,$arr_ref);
-                if(!$data_object) return false;
-                $taxon_dataObjects[]= new \SchemaDataObject($data_object);
+               $this->resource_agent_ids[] = $r->identifier;
+               $this->archive_builder->write_object_to_file($r);
             }
         }
-        return $taxon_dataObjects;
+        return $agent_ids;
     }
 
-    function get_data_object($rec,$references)
+    private function get_images($rec, $reference_ids = null, $agent_ids = null)
     {
-        $data_object_parameters = array();
-        $data_object_parameters["identifier"]   = $rec["identifier"];
-        $data_object_parameters["source"]       = $rec["dc_source"];
-        $data_object_parameters["dataType"]     = $rec["dataType"];
-        $data_object_parameters["created"]      = $rec["date_created"];
-        $data_object_parameters["modified"]     = $rec["date_modified"];
-        $data_object_parameters["mimeType"]     = @$rec["mimeType"];
-        $data_object_parameters["mediaURL"]     = @$rec["mediaURL"];
-        $data_object_parameters["rights"]       = @$rec["rights"];
-        $data_object_parameters["rightsHolder"] = @$rec["rights_holder"];
-        $data_object_parameters["title"]        = @$rec["title"];
-        $data_object_parameters["description"]  = utf8_encode($rec["description"]);
-        $data_object_parameters["location"]     = utf8_encode($rec["location"]);
-        $data_object_parameters["license"]      = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-        $data_object_parameters["additionalInformation"] = '<rating>2.0</rating>';
-        //start reference
-        $data_object_parameters["references"] = array();
-        $ref = array();
-        foreach($references as $r)
+        if(trim(@$rec['MEDIA_URI']) != "")
         {
-            $referenceParameters = array();
-            $referenceParameters["fullReference"] = trim($r["ref"]);
-            $referenceParameters["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => "url", "value" => trim($r["url"])));
-            $ref[] = new \SchemaReference($referenceParameters);
+            $mediaURL = urldecode(trim(@$rec['MEDIA_URI']));
+            $mimeType = @$rec['MIME_TYPE'];
+            $location = "";
+            if(trim($rec['SPEC_LOCALITY']) != "[Exact locality unknown]") $location = $rec['SPEC_LOCALITY'];
+            if($location != "") $location .= ", " . $rec['HIGHER_GEOG'];
+            else                $location .= $rec['HIGHER_GEOG'];
+            $desc = "";
+            $typestatus = substr($rec['TYPESTATUS'], 0, stripos($rec['TYPESTATUS'], " "));
+            if($typestatus)               $desc .= $typestatus.", ";
+            if($rec['PARTS'])             $desc .= $rec['PARTS'].", ";
+            if($rec['COLLECTING_METHOD']) $desc .= $rec['COLLECTING_METHOD'].", ";
+            if($rec['COLLECTORS'] && trim($rec['COLLECTORS']) != "no agent" 
+                                && trim($rec['COLLECTORS']) != "Unknown collector"
+                                ) $desc .= "collected by " . $rec['COLLECTORS'] . ", ";
+            if($rec['IDENTIFIEDBY'])      $desc .= "identified by " . $rec['IDENTIFIEDBY'].", ";
+            if($rec['GUID'])              $desc .= "GUID: " . $rec['GUID'].", ";
+            $date_created = $rec['created'];
+            $date_modified = $rec['LAST_EDIT_DATE'];
+            $dc_source = "";
+            if(!in_array($rec['SPECIMENDETAILURL'], array("unknown", "unverified"))) $dc_source = $rec['SPECIMENDETAILURL'];
+            $path_parts = pathinfo($mediaURL);
+            $dc_identifier = $path_parts['basename'];
+            $taxon_id = $rec["taxonID"];
+
+            /*
+            For location, : [SPEC_LOCALITY], [HIGHER_GEOG]
+            For the description, : [first word of TYPESTATUS], [PARTS], [COLLECTING_METHOD], 
+            collected by [COLLECTORS], identified by [IDENTIFIEDBY], GUID: [GUID] 
+            */
+
+            $mr = new \eol_schema\MediaResource();
+            if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
+            if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
+            $mr->taxonID                = $taxon_id;
+            $mr->identifier             = $dc_identifier;
+            $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
+            $mr->language               = 'en';
+            $mr->format                 = $mimeType;
+            $mr->furtherInformationURL  = $dc_source;
+            $mr->description            = $desc;
+            $mr->CVterm                 = "";
+            $mr->title                  = "";
+            $mr->creator                = "";
+            $mr->CreateDate             = $date_created;
+            $mr->modified               = $date_modified;
+            $mr->LocationCreated        = $location;
+            $mr->UsageTerms             = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+            $mr->Owner                  = "";
+            $mr->publisher              = "";
+            $mr->audience               = "";
+            $mr->bibliographicCitation  = "";
+            $mr->rights                 = "";
+            $mr->accessURI              = $mediaURL;
+            $mr->Rating                 = 2;
+            $this->archive_builder->write_object_to_file($mr);
         }
-        $data_object_parameters["references"] = $ref;
-        //end reference
-        if(@$rec["subject"])
+    }
+
+    function create_instances_from_taxon_object($rec, $reference_ids)
+    {
+        $taxon = new \eol_schema\Taxon();
+
+        $sciname = trim($rec['SCIENTIFIC_NAME']);
+        $taxon_id = "MCZ_" . str_replace(" ", "_", $sciname);
+        $rec["taxonID"] = $taxon_id;
+
+        if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
+        $taxon->taxonID = $taxon_id;
+
+        $taxon->taxonRank                   = "";
+        $taxon->scientificName              = (string) $sciname . " " . $rec['AUTHOR_TEXT'];
+        $taxon->scientificNameAuthorship    = "";
+        $taxon->vernacularName              = "";
+        $taxon->kingdom                     = (string) $rec['KINGDOM'];
+        $taxon->phylum                      = (string) $rec['PHYLUM'];
+        $taxon->class                       = (string) $rec['PHYLCLASS'];
+        $taxon->order                       = (string) $rec["PHYLORDER"];
+        $taxon->family                      = (string) $rec["FAMILY"];
+        $taxon->genus                       = (string) $rec["GENUS"];
+        $taxon->furtherInformationURL       = (string) $rec["SPECIMENDETAILURL"];
+        $taxon->specificEpithet             = "";
+        $taxon->taxonomicStatus             = "";
+        $taxon->nomenclaturalCode           = "";
+        $taxon->nomenclaturalStatus         = "";
+        $taxon->acceptedNameUsage           = "";
+        $taxon->acceptedNameUsageID         = "";
+        $taxon->parentNameUsageID           = "";
+        $taxon->namePublishedIn             = "";
+        $taxon->taxonRemarks                = "";
+        $taxon->infraspecificEpithet        = "";
+        $this->taxa[$taxon_id] = $taxon;
+        return $rec;
+    }
+
+    function create_archive()
+    {
+        foreach($this->taxa as $t)
         {
-            $data_object_parameters["subjects"] = array();
-            $subjectParameters = array();
-            $subjectParameters["label"] = @$rec["subject"];
-            $data_object_parameters["subjects"][] = new \SchemaSubject($subjectParameters);
+            $this->archive_builder->write_object_to_file($t);
         }
-        if(@$rec["agent"])
-        {
-            $agents = array();
-            foreach($rec["agent"] as $a)
-            {  
-                $agentParameters = array();
-                $agentParameters["role"]     = $a["role"];
-                $agentParameters["homepage"] = $a["homepage"];
-                $agentParameters["logoURL"]  = "";
-                $agentParameters["fullName"] = $a[0];
-                $agents[] = new \SchemaAgent($agentParameters);
-            }
-            $data_object_parameters["agents"] = $agents;
-        }
-        return $data_object_parameters;
+        $this->archive_builder->finalize();
     }
 
 }
