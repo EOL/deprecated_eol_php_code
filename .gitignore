@@ -77,6 +77,7 @@ temp/*
 tmp/*
 !tmp/.gitignore
 !tmp/cache
+tmp/cache/*
 update_resources/connectors/26 v1.php
 update_resources/connectors/26pre.php
 update_resources/connectors/81 v1.php

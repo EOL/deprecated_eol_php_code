@@ -139,8 +139,9 @@ class Functions
         while($attempts <= $download_attempts)
         {
             debug("Grabbing $remote_url: attempt " . $attempts);
-
-            if($file = @self::fake_user_agent_http_get($remote_url, $timeout))
+            $file = @self::fake_user_agent_http_get($remote_url, $timeout);
+            usleep($download_wait_time);
+            if($file)
             {
                 unset($context);
                 debug("received file");
@@ -148,14 +149,45 @@ class Functions
             }
 
             debug("attemp $attempts failed, will try again after " . ($download_wait_time/1000000) . " seconds");
-            usleep($download_wait_time);
             $attempts++;
         }
 
         debug("failed download file after " . ($attempts-1) . " attempts");
         return false;
     }
-    
+
+    public static function lookup_with_cache($url, $options = array())
+    {
+        // default expire time is 30 days
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
+        $md5 = md5($url);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists(DOC_ROOT . "tmp/cache/$cache1")) mkdir(DOC_ROOT . "tmp/cache/$cache1");
+        if(!file_exists(DOC_ROOT . "tmp/cache/$cache1/$cache2")) mkdir(DOC_ROOT . "tmp/cache/$cache1/$cache2");
+        $cache_path = DOC_ROOT . "tmp/cache/$cache1/$cache2/$md5.cache";
+        if(file_exists($cache_path))
+        {
+            $file_contents = file_get_contents($cache_path);
+            $cache_is_valid = true;
+            if($options['validation_regex'] && !preg_match("/". $options['validation_regex'] ."/ims", $file_contents))
+            {
+                $cache_is_valid = false;
+            }
+            if($file_contents && $cache_is_valid)
+            {
+                $file_age_in_seconds = time() - filemtime($cache_path);
+                if($file_age_in_seconds < $options['expire_seconds']) return $file_contents;
+            }
+            @unlink($cache_path);
+        }
+        $file_contents = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120);
+        $FILE = fopen($cache_path, 'w+');
+        fwrite($FILE, $file_contents);
+        fclose($FILE);
+        return $file_contents;
+    }
+
     public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
         debug("Grabbing $remote_url: attempt 1: waiting $download_wait_time");

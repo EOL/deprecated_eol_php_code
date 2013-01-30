@@ -27,7 +27,7 @@ class PlantConservationAPI
     
     public function get_midatlantic_taxa()
     {
-        $toc_html = self::lookup_with_cache(self::MIDATLANTIC_TOC_URL);
+        $toc_html = Functions::lookup_with_cache(self::MIDATLANTIC_TOC_URL, array('validation_regex' => '<body'));
         if(preg_match("/Introduction(.*)Native Alternatives/ims", $toc_html, $arr)) $toc_html = $arr[1];
         if(preg_match_all("/<a href=\"(.*?)\">(.*?)<\/a>/", $toc_html, $matches, PREG_SET_ORDER))
         {
@@ -51,7 +51,7 @@ class PlantConservationAPI
     
     public function get_alien_taxa()
     {
-        $toc_html = self::lookup_with_cache(self::ALIEN_TOC_URL);
+        $toc_html = Functions::lookup_with_cache(self::ALIEN_TOC_URL, array('validation_regex' => '<body'));
         if(preg_match_all("/<A HREF=\"(fact\/.*?)\">/", $toc_html, $matches, PREG_SET_ORDER))
         {
             foreach($matches as $match)
@@ -189,7 +189,7 @@ class PlantConservationAPI
     public function write_midatlantic_taxon($url)
     {
         echo "\n$url<br/>\n";
-        $taxa_page_html = self::lookup_with_cache($url);
+        $taxa_page_html = Functions::lookup_with_cache($url, array('validation_regex' => '<body'));
         
         // Taxon
         if($url == self::MIDATLANTIC_TAXA_PREFIX."bamboos.htm")
@@ -291,7 +291,7 @@ class PlantConservationAPI
     
     public function write_plants_to_watch($url)
     {
-        $taxa_page_html = self::lookup_with_cache($url);
+        $taxa_page_html = Functions::lookup_with_cache($url, array('validation_regex' => '<body'));
         if(preg_match_all("/<p class=\"heading-1-left-\"><a.*?<\/a>(.*?)<\/p>.*?-text\">(.*?)<br \/>(.*?)<\/p>.*?-text\">(.*?)<\/p>/ims", $taxa_page_html, $matches, PREG_SET_ORDER))
         {
             foreach($matches as $match)
@@ -311,7 +311,7 @@ class PlantConservationAPI
     
     public function write_alien_taxon($url)
     {
-        $taxa_page_html = self::lookup_with_cache($url);
+        $taxa_page_html = utf8_encode(Functions::lookup_with_cache($url, array('validation_regex' => '<body')));
         $transformed_html = preg_replace("/<IMG( .*?)\/?>/ims", "", $taxa_page_html);
         $transformed_html = preg_replace("/<P CLASS=\"style1\">(<B>)?(<I>)?<FONT (SIZE=\"-1\" )?COLOR=\"#(117711|007700|006600)\".*?>/", "<GREEN_COMMENT>", $transformed_html);
         $transformed_html = preg_replace("/<P (ALIGN=\"LEFT\" )?CLASS=\"style1( style1)*\">(<FONT COLOR=\"#000000\">){0,3}(<SPAN CLASS=\"style1\">)? ?<B>/", "<MARK>", $transformed_html);
@@ -522,31 +522,6 @@ class PlantConservationAPI
         if(@!$canonical_form) $canonical_form = Functions::canonical_form($scientific_name);
         $taxon_id = str_replace(" ", "_", strtolower($canonical_form));
         return array($scientific_name, $canonical_form, $taxon_id);
-    }
-    
-    // default expire time is 30 days
-    private static function lookup_with_cache($url, $expire_seconds = 2592000)
-    {
-        $md5 = md5($url);
-        if(!file_exists(DOC_ROOT . 'update_resources/connectors/files/plant_conservation')) mkdir(DOC_ROOT . 'update_resources/connectors/files/plant_conservation');
-        if(!file_exists(DOC_ROOT . 'update_resources/connectors/files/plant_conservation/cache')) mkdir(DOC_ROOT . 'update_resources/connectors/files/plant_conservation/cache');
-        $cache_path = DOC_ROOT . "update_resources/connectors/files/plant_conservation/cache/". $md5 .".html";
-        if(file_exists($cache_path))
-        {
-            $taxon_page_html = file_get_contents($cache_path);
-            // checking for some string that appears on all pages - we may have cached a 404 page for example
-            if(preg_match("/<body/ims", $taxon_page_html))
-            {
-                $file_age_in_seconds = time() - filemtime($cache_path);
-                if($file_age_in_seconds < $expire_seconds) return $taxon_page_html;
-            }
-            @unlink($cache_path);
-        }
-        $taxon_page_html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120);
-        $FILE = fopen($cache_path, 'w+');
-        fwrite($FILE, $taxon_page_html);
-        fclose($FILE);
-        return $taxon_page_html;
     }
 }
 
