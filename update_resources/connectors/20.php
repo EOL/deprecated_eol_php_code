@@ -20,7 +20,7 @@ if($result && $row = $result->fetch_row())
 }
 echo "\n processing resource: $resource_path \n";
 
-if($local_path = Functions::save_remote_file_to_local($resource_path, 30000000, 600, 5))
+if($local_path = Functions::save_remote_file_to_local($resource_path, 1000000, 600, 5))
 {
     $func = new ResourceDataObjectElementsSetting($resource_id, $local_path);
     $dataObjects = get_values($local_path);
@@ -48,7 +48,7 @@ echo "\n\n Done processing.";
 function get_values($resource_path)
 {
     $dataObjects = array();
-    if($xml = Functions::get_hashed_response($resource_path, 30000000, 600, 5))
+    if($xml = Functions::get_hashed_response($resource_path, 1000000, 600, 5))
     {
         foreach($xml->taxon as $taxon)
         {
@@ -78,7 +78,7 @@ function get_values($resource_path)
 
 function remove_elements($resource_path)
 {
-    if($xml = Functions::get_hashed_response($resource_path, 30000000, 600, 5))
+    if($xml = Functions::get_hashed_response($resource_path, 1000000, 600, 5))
     {
         foreach($xml->taxon as $taxon)
         {
@@ -106,7 +106,7 @@ function remove_elements($resource_path)
 
 function fill_up_values($resource_path, $dataObjects)
 {
-    if($xml = Functions::get_hashed_response($resource_path, 30000000, 600, 5))
+    if($xml = Functions::get_hashed_response($resource_path, 1000000, 600, 5))
     {
         foreach($xml->taxon as $taxon)
         {
