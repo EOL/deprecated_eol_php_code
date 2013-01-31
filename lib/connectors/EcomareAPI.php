@@ -22,11 +22,12 @@ class EcomareAPI
     const ECOMARE_SPECIES_LIST = "encyclopedia_toc.xml";
     const ECOMARE_SOURCE_DIR = "http://www.zeeinzicht.nl/vleet/vleet_xml/_beknopt/";
 
-    function get_all_taxa()
+    function get_all_taxa($path_species_list = false)
     {
+        if(!$path_species_list) $path_species_list = self::ECOMARE_SOURCE_DIR . self::ECOMARE_SPECIES_LIST;
         $all_taxa = array();
         $used_collection_ids = array();
-        $taxa = self::get_taxa_list();
+        $taxa = self::get_taxa_list($path_species_list);
         $i = 0;
         $total = sizeof($taxa);
         foreach($taxa as $id => $taxon)
@@ -41,10 +42,9 @@ class EcomareAPI
         return $all_taxa;
     }
 
-    function get_taxa_list()
+    function get_taxa_list($path_species_list)
     {
         $taxa = array();
-        $path_species_list = self::ECOMARE_SOURCE_DIR . self::ECOMARE_SPECIES_LIST;
         debug("\n species list: $path_species_list \n");
         if($xml = Functions::get_hashed_response($path_species_list, 1000000, 600, 5))
         {
