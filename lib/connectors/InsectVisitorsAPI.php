@@ -103,8 +103,7 @@ class InsectVisitorsAPI
     function process_gen_desc($url, $ancestry, $type)
     {
         debug("\n\n file: $url \n");
-        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-        if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
+        if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
         {
             debug("\n\n Content partner's server is down1, $url.\n");
             return;
@@ -156,8 +155,7 @@ class InsectVisitorsAPI
 
     function process_birds($url, $ancestry, $type)
     {
-        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-        if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
+        if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
         {
             debug("\n\n Content partner's server is down2, $url\n");
             return;
@@ -195,8 +193,7 @@ class InsectVisitorsAPI
 
     function process_insects($url, $ancestry)
     {
-        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-        if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
+        if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
         {
             debug("\n\n Content partner's server is down3, $url\n");
             return;
@@ -242,8 +239,7 @@ class InsectVisitorsAPI
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
             debug("\n $url -- $taxon_name");
-            // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-            if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
+            if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
             {
                 debug("\n\n Content partner's server is down4, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
@@ -271,8 +267,7 @@ class InsectVisitorsAPI
         $urls = array("http://www.illinoiswildflowers.info/flower_insects/files/family_names.htm", "http://www.illinoiswildflowers.info/flower_insects/files/common_names.htm");
         foreach($urls as $url)
         {
-            // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-            if(!$html = Functions::get_remote_file($url, 30000000, 240, 5))
+            if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
             {
                 debug("\n\n Content partner's server is down5, $url.\n");
                 return;

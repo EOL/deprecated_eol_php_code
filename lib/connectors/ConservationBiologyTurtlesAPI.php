@@ -22,8 +22,7 @@ class ConservationBiologyTurtlesAPI
 
     private function prepare_taxa_urls()
     {
-        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-        if($html = Functions::get_remote_file($this->turtles_site, 30000000, 240, 5))
+        if($html = Functions::get_remote_file($this->turtles_site, 1000000, 240, 5))
         {
             if(preg_match_all("/href=\"http:\/\/www.iucn\-tftsg\.org\/cbftt\/toc\-ind\/toc\/(.*?)<\/a>/ims", $html, $arr))
             {
@@ -127,12 +126,9 @@ class ConservationBiologyTurtlesAPI
 
     private function prepare_data($rec)
     {
-        sleep(3); // delay not to overwhelm the partner's website
         $descriptions = array();
         debug("\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'] . "\n");
-
-        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-        if($html = Functions::get_remote_file($rec['url'], 30000000, 240, 5))
+        if($html = Functions::get_remote_file($rec['url'], 3000000, 240, 5))
         {
             $html = str_ireplace("www.iucn&ndash;tftsg.org", "www.iucn-tftsg.org", $html);
             $agent_ids = self::get_object_agents($html, $rec);

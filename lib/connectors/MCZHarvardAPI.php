@@ -172,7 +172,7 @@ class MCZHarvardAPI
         $taxon->taxonID = $taxon_id;
 
         $taxon->taxonRank                   = "";
-        $taxon->scientificName              = (string) $sciname . " " . $rec['AUTHOR_TEXT'];
+        $taxon->scientificName              = (string) trim($sciname . " " . $rec['AUTHOR_TEXT']);
         $taxon->scientificNameAuthorship    = "";
         $taxon->vernacularName              = "";
         $taxon->kingdom                     = (string) $rec['KINGDOM'];
