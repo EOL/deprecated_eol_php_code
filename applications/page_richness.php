@@ -4,7 +4,6 @@ namespace php_active_record;
   include_once(dirname(__FILE__) . "/../config/environment.php");
   require_library("PageRichnessCalculator");
   
-  //print_pre($_REQUEST);
   $taxon_concept_id = @$_REQUEST['taxon_concept_id'] ?: '';
   $taxon_concept_id2 = @$_REQUEST['taxon_concept_id2'] ?: '';
   
@@ -155,23 +154,17 @@ function show_results_for($taxon_concept_id)
     if($taxon_concept_id)
     {
         $name = TaxonConcept::get_name($taxon_concept_id);
-        $metric = new TaxonConceptMetric($taxon_concept_id);
+        $metric = TaxonConceptMetric::find_by_taxon_concept_id($taxon_concept_id);
+        if(!isset($metric->image_total))
+        {
+            echo "Error or page not found";
+            return;
+        }
         $metric->set_weights($_REQUEST);
-        if(!isset($metric->image_total)) return;
         $scores = $metric->scores();
         
-        $statistics = new TextStatistics();
-        $grades = array();
-        $result = $GLOBALS['db_connection']->query("SELECT do.description FROM data_objects_taxon_concepts dotc JOIN data_objects do ON (dotc.data_object_id=do.id) WHERE dotc.taxon_concept_id=$taxon_concept_id AND do.published=1 AND do.visibility_id=".Visibility::visible()->id." AND do.data_type_id=".DataType::text()->id);
-        while($result && $row=$result->fetch_assoc())
-        {
-            $grades[] = $statistics->flesch_kincaid_grade_level($row['description']);
-        }
-        $average_grade = 0;
-        if($grades) $average_grade = round(array_sum($grades) / count($grades), 4);
-        
         ?>
-        <h3><a href='http://www.eol.org/pages/<?= $taxon_concept_id; ?>' target='_blank'><?= $name; ?></a></h3>
+        <h3><a href='http://eol.org/pages/<?= $taxon_concept_id; ?>/overview' target='_blank'><?= $name; ?></a></h3>
         <table class='results'>
           <tr><td>Breadth:</td><td><?= round($scores['breadth'] / $metric->BREADTH_WEIGHT, 4); ?></td></tr>
           <tr><td>Depth:</td><td><?= round($scores['depth'] / $metric->DEPTH_WEIGHT, 4); ?></td></tr>
@@ -230,11 +223,6 @@ function show_results_for($taxon_concept_id)
             <td class='max_score'><?= $metric->PARTNERS_DIVERSITY_MAX; ?></td>
             <td><?= $metric->content_partners_score(); ?></td>
             <td class='max_score'>/<?= $metric->PARTNERS_DIVERSITY_WEIGHT * $metric->DIVERSITY_WEIGHT; ?></td></tr>
-            
-          <tr><td>Reading Level:</td><td><?= $average_grade; ?></td>
-            <td class='max_score'></td>
-            <td></td>
-            <td class='max_score'></td></tr>
         </table>
         <?
     }

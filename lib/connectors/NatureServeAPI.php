@@ -40,7 +40,6 @@ class NatureServeAPI
         echo "Total Records: ". count($records) ."\n";
         
         $chunk_size = 1;
-        $this->request_timeout = 120; // seconds
         // shuffle($records);
         
         
@@ -84,31 +83,12 @@ class NatureServeAPI
     private function lookup_multiple_ids($ids)
     {
         $url = self::API_PREFIX . implode(",", $ids);
-        $details_xml = $this->lookup_with_cache($url);
+        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/globalSpeciesList>'));
         $xml = simplexml_load_string($details_xml);
         foreach($xml->globalSpecies as $species_record)
         {
             $this->process_species_xml($species_record);
         }
-    }
-    
-    private function lookup_with_cache($url, $image = false)
-    {
-        $hash = md5($url);
-        if($image) $cache_path = DOC_ROOT . "tmp/natureserve/images/$hash.xml";
-        else $cache_path = DOC_ROOT . "tmp/natureserve/$hash.xml";
-        if(file_exists($cache_path))
-        {
-            $details_xml = file_get_contents($cache_path);
-            if($image && $details_xml && preg_match("/<\/images>/", $details_xml)) return $details_xml;
-            elseif(!$image && $details_xml && preg_match("/<\/globalSpeciesList>/", $details_xml)) return $details_xml;
-            @unlink($cache_path);
-        }
-        $details_xml = Functions::get_remote_file($url, NULL, $this->request_timeout);
-        $FILE = fopen($cache_path, 'w+');
-        fwrite($FILE, $details_xml);
-        fclose($FILE);
-        return $details_xml;
     }
     
     private function process_species_xml($details_xml)
@@ -640,7 +620,7 @@ class NatureServeAPI
     private function get_images($id)
     {
         $url = self::IMAGE_API_PREFIX . $id;
-        $details_xml = $this->lookup_with_cache($url, true);
+        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/images>'));
         $xml = simplexml_load_string($details_xml);
         foreach($xml->image as $image)
         {

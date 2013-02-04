@@ -3,11 +3,12 @@ namespace php_active_record;
 /* connectors: [353, 354, 355]  
 Avibase has 3 resources. Each resource will use this connector. Connector scrapes the site and generates the EOL XML.
 */
-define("AVIBASE_SOURCE_URL", "http://avibase.bsc-eoc.org/species.jsp?avibaseid=");
-define("AVIBASE_SERVICE_URL", "http://avibase.bsc-eoc.org/checklist.jsp?");
 
 class AvibaseAPI
 {
+    const AVIBASE_SOURCE_URL = "http://avibase.bsc-eoc.org/species.jsp?avibaseid=";
+    const AVIBASE_SERVICE_URL = "http://avibase.bsc-eoc.org/checklist.jsp?";
+    
     public function __construct($resource_id, $checklist_name, $for_testing = false)
     {
         $this->resource_id = $resource_id;
@@ -55,7 +56,7 @@ class AvibaseAPI
             $taxon_parameters['order'] = @$this->family_orders[$metadata['family']];
             $taxon_parameters['family'] = @$metadata['family'];
             $taxon_parameters['scientificName'] = $metadata['taxon_name'];
-            $taxon_parameters['source'] = AVIBASE_SOURCE_URL . $metadata['avibaseid'];
+            $taxon_parameters['source'] = self::AVIBASE_SOURCE_URL . $metadata['avibaseid'];
             if(preg_match("/^([a-z][^ ]+) /i", $metadata['taxon_name'], $arr))
             {
                 $taxon_parameters['genus'] = $arr[1];
@@ -129,7 +130,7 @@ class AvibaseAPI
         $this->family_orders = array();
         foreach($regions as $region)
         {
-            $url = AVIBASE_SERVICE_URL . '&region=' . $region . '&list=' . $this->checklist_name;
+            $url = self::AVIBASE_SERVICE_URL . '&region=' . $region . '&list=' . $this->checklist_name;
             if($GLOBALS['ENV_DEBUG']) echo "$url\n";
             self::get_taxa_from_html($url);
         }
@@ -144,7 +145,7 @@ class AvibaseAPI
         foreach($this->names_in_families as $taxon_name => $metadata)
         {
             if($GLOBALS['ENV_DEBUG']) echo $metadata['avibaseid'] ."\n";
-            $taxon_page_html = self::lookup_with_cache($metadata['avibaseid']);
+            $taxon_page_html = Functions::lookup_with_cache(self::AVIBASE_SOURCE_URL . $metadata['avibaseid'], array('validation_regex' => 'AVBContainerText'));
             $common_names_and_synonyms = self::scrape_common_names_and_synonyms($taxon_page_html);
             
             // Synonyms are stored in the Common Names list with language Latin
@@ -476,23 +477,6 @@ class AvibaseAPI
         $lang['Uzbek'] = 'uz';
         // $lang['Paduan'] = 'vec';
         return $lang;
-    }
-    
-    private function lookup_with_cache($avibaseid)
-    {
-        $cache_path = DOC_ROOT . "update_resources/connectors/files/Avibase/cache/". $avibaseid .".xml";
-        if(file_exists($cache_path))
-        {
-            $taxon_page_html = file_get_contents($cache_path);
-            // checking for some string that appears on all pages - we may have cached a 404 page for example
-            if(preg_match("/AVBContainerText/", $taxon_page_html)) return $taxon_page_html;
-            @unlink($cache_path);
-        }
-        $taxon_page_html = Functions::get_remote_file(AVIBASE_SOURCE_URL . $avibaseid, NULL, 120);
-        $FILE = fopen($cache_path, 'w+');
-        fwrite($FILE, $taxon_page_html);
-        fclose($FILE);
-        return $taxon_page_html;
     }
 }
 ?>

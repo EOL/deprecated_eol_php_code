@@ -58,7 +58,7 @@ class IUCNRedlistAPI
     public static function get_taxa_for_species($species_json)
     {
         $species_id = $species_json->species_id;
-        $details_html = self::lookup_with_cache($species_id);
+        $details_html = Functions::lookup_with_cache(self::API_PREFIX . $species_id, array('validation_regex' => 'x_section'));
         
         // this is a hack to get the document to load as UTF8. Nothing else seemed to work when using DOMDocument
         // http://www.php.net/manual/en/domdocument.loadhtml.php#95251
@@ -322,23 +322,6 @@ class IUCNRedlistAPI
         {
             return "http://www.birdlife.org/datazone/speciesfactsheet.php?id=" . $GLOBALS['birdlife_names'][1][$taxon_name];
         }
-    }
-    
-    private static function lookup_with_cache($iucn_id)
-    {
-        $cache_path = DOC_ROOT . "update_resources/connectors/files/IUCN/cache/". $iucn_id .".html";
-        if(file_exists($cache_path))
-        {
-            $taxon_page_html = file_get_contents($cache_path);
-            // checking for some string that appears on all pages - we may have cached a 404 page for example
-            if(preg_match("/x_section/", $taxon_page_html)) return $taxon_page_html;
-            @unlink($cache_path);
-        }
-        $taxon_page_html = Functions::get_remote_file(self::API_PREFIX . $iucn_id, NULL, 120);
-        $FILE = fopen($cache_path, 'w+');
-        fwrite($FILE, $taxon_page_html);
-        fclose($FILE);
-        return $taxon_page_html;
     }
 }
 

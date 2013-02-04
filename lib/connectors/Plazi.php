@@ -27,7 +27,7 @@ class Plazi
                 echo "$xml_with_stylesheet_url\n";
                 self::get_metadata($xml_with_stylesheet_url);
                 
-                $xml = self::lookup_with_cache($xml_url);
+                $xml = Functions::lookup_with_cache($xml_url, array('validation_regex' => 'xmlns:'));
                 
                 
                 $count += 1;
@@ -39,7 +39,7 @@ class Plazi
     
     public static function get_metadata($url)
     {
-        $xml = self::lookup_with_cache($url);
+        $xml = Functions::lookup_with_cache($url, array('validation_regex' => 'xmlns:'));
         $simple_xml = simplexml_load_string($xml);
         $params = array();
         
@@ -69,23 +69,6 @@ class Plazi
         print_r($xml);
         // print_r($params);
         echo "\n\n\n";
-    }
-    
-    private static function lookup_with_cache($url, $image = false)
-    {
-        $hash = md5($url);
-        $cache_path = DOC_ROOT . "update_resources/connectors/files/plazi/cache/$hash.xml";
-        if(file_exists($cache_path))
-        {
-            $xml = file_get_contents($cache_path);
-            if($xml && strpos($xml, "xmlns:")) return $xml;
-            @unlink($cache_path);
-        }
-        $xml = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 60);
-        $FILE = fopen($cache_path, 'w+');
-        fwrite($FILE, $xml);
-        fclose($FILE);
-        return $xml;
     }
 }
 
