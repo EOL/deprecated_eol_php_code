@@ -39,7 +39,7 @@ class ClementsAPI
 
     private function parse_xls()
     {
-        if($this->data_dump_url = Functions::save_remote_file_to_local($this->data_dump_url, 30000000, 600, 5, "xls"))
+        if($this->data_dump_url = Functions::save_remote_file_to_local($this->data_dump_url, 1000000, 600, 5, "xls"))
         {
             require_library('XLSParser');
             $parser = new XLSParser();
@@ -79,7 +79,7 @@ class ClementsAPI
     {
         /* partner provides to download their dump file (.xls) from their site */
         $path_parts = pathinfo($this->page_to_download_the_spreadsheet);
-        if($html = Functions::get_remote_file($this->page_to_download_the_spreadsheet, 30000000, 120, 5)) //30secs wait_time, 2mins timeout, 5 attempts
+        if($html = Functions::get_remote_file($this->page_to_download_the_spreadsheet, 1000000, 120, 5))
         {
             if(preg_match("/class\=\"internal-link\" href\=\"(.*?)\.xls\"><strong>Download the checklist/ims", $html, $arr))
             {

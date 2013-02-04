@@ -57,8 +57,7 @@ class LearningEducationAPI
     {
         $podcast_data_objects = array();
         
-        // 30secs download_wait_time before re-trying, 4mins download_timeout, 5 attemps to download the file
-        $xml = Functions::get_hashed_response(PODCAST_FEED, 30000000, 240, 5);
+        $xml = Functions::get_hashed_response(PODCAST_FEED, 1000000, 240, 5);
         foreach($xml->channel->item as $item)
         {
             $data_object_parameters = array();

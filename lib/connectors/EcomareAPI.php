@@ -22,11 +22,12 @@ class EcomareAPI
     const ECOMARE_SPECIES_LIST = "encyclopedia_toc.xml";
     const ECOMARE_SOURCE_DIR = "http://www.zeeinzicht.nl/vleet/vleet_xml/_beknopt/";
 
-    function get_all_taxa()
+    function get_all_taxa($path_species_list = false)
     {
+        if(!$path_species_list) $path_species_list = self::ECOMARE_SOURCE_DIR . self::ECOMARE_SPECIES_LIST;
         $all_taxa = array();
         $used_collection_ids = array();
-        $taxa = self::get_taxa_list();
+        $taxa = self::get_taxa_list($path_species_list);
         $i = 0;
         $total = sizeof($taxa);
         foreach($taxa as $id => $taxon)
@@ -41,12 +42,11 @@ class EcomareAPI
         return $all_taxa;
     }
 
-    function get_taxa_list()
+    function get_taxa_list($path_species_list)
     {
         $taxa = array();
-        $path_species_list = self::ECOMARE_SOURCE_DIR . self::ECOMARE_SPECIES_LIST;
         debug("\n species list: $path_species_list \n");
-        if($xml = Functions::get_hashed_response($path_species_list, 30000000, 600, 5))
+        if($xml = Functions::get_hashed_response($path_species_list, 1000000, 600, 5))
         {
             $i = 0;
             foreach($xml->subject_item as $item)
@@ -102,10 +102,9 @@ class EcomareAPI
                 if(substr($title, strlen($title)-2, 2) == ". ") $title = substr($title, 0, strlen($title)-2) . "; ";
             }
             $xml_file = self::ECOMARE_SOURCE_DIR . "/$dir/" . $id . ".xml";
-            sleep(1); // 1 second interval for every taxon XML access, so not to overwhelm the partner
 
             debug("\n Accessing: $xml_file \n");
-            if($xml = Functions::get_hashed_response($xml_file, 30000000, 600, 5)) //30secs wait_time, 10mins timeout, 5 attempts
+            if($xml = Functions::get_hashed_response($xml_file, 1000000, 600, 5)) //1sec wait_time, 10mins timeout, 5 attempts
             {
                 debug(" - OK ");
                 foreach($xml->content_item as $item)
