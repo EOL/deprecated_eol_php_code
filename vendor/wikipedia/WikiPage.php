@@ -246,16 +246,17 @@ class WikiPage
         $taxon_parameters["source"] = "http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $this->title) ."&oldid=". $this->revision;
         $taxon_parameters['commonNames'] = $this->common_names($taxon_name);
         
-        if(!($taxon_rank == 'familia' || @$taxon_parameters['family']))
+        if($taxon_rank == 'familia' || @$taxon_parameters['family'] || @$taxon_parameters['species'] || @$taxon_parameters['genus'])
+        {
+            $taxon_parameters['dataObjects'] = array();
+            $this->taxon_parameters = $taxon_parameters;
+            return $taxon_parameters;
+        }else
         {
             echo "   not a family or below\n";
             $this->taxon_parameters = array();
             return $this->taxon_parameters;
         }
-        
-        $taxon_parameters['dataObjects'] = array();
-        $this->taxon_parameters = $taxon_parameters;
-        return $taxon_parameters;
     }
     
     public function data_object_parameters($download_text = true)
@@ -363,12 +364,12 @@ class WikiPage
     
     public function __toString()
     {
-        $str = "<b>".$page->title."</b><br>";
-        $str .= "<a href='http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $page->title) ."&oldid=". $page->revision ."' target='wiki_page'>go to revision</a><br>";
+        $str = "<b>".$this->title."</b><br>";
+        $str .= "<a href='http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $this->title) ."&oldid=". $this->revision ."' target='wiki_page'>go to revision</a><br>";
         //$str .= "<div style='background-color:#DDDDDD;'><pre>".htmlspecialchars($page->xml)."</pre></div>\n";
-        $str .= php_active_record\Functions::print_pre($page->taxonomy(), 1);
-        $str .= php_active_record\Functions::print_pre($page->taxon_parameters(), 1);
-        $str .= php_active_record\Functions::print_pre($page->data_object_parameters(), 1);
+        $str .= php_active_record\Functions::print_pre($this->taxonomy(), 1);
+        $str .= php_active_record\Functions::print_pre($this->taxon_parameters(), 1);
+        $str .= php_active_record\Functions::print_pre($this->data_object_parameters(), 1);
         $str .= "<hr>";
         return $str;
     }
