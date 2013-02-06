@@ -57,7 +57,7 @@ class ClementsAPI
         $agent_ids = array();
         $rec = $this->create_instances_from_taxon_object($rec, $reference_ids);
         if($distribution = self::get_distribution($rec)) self::get_texts($distribution, $rec, 'Range', '#Distribution', 'distribution', $ref_ids, $agent_ids);
-        if($extinction = self::get_extinction($rec)) self::get_texts($extinction, $rec, '', '#Ecology', 'extinction', $ref_ids, $agent_ids);
+        if($extinction = self::get_extinction($rec)) self::get_texts($extinction, $rec, '', '#ConservationStatus', 'extinction', $ref_ids, $agent_ids);
     }
 
     private function get_object_reference_ids()

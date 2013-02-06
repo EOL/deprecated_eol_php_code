@@ -74,7 +74,8 @@ class AvibaseAPI
                         {
                             $taxon_parameters['commonNames'][] = new \SchemaCommonName(array("name" => $common_name, "language" => $language_iso_code));
                         }
-                    }else {} // echo "No iso code for: $language\n";
+                    }
+                    else debug("No iso code for: $language \n");
                 }
             }
             
@@ -131,7 +132,7 @@ class AvibaseAPI
         foreach($regions as $region)
         {
             $url = self::AVIBASE_SERVICE_URL . '&region=' . $region . '&list=' . $this->checklist_name;
-            if($GLOBALS['ENV_DEBUG']) echo "$url\n";
+            debug("$url \n");
             self::get_taxa_from_html($url);
         }
     }
@@ -144,7 +145,7 @@ class AvibaseAPI
         
         foreach($this->names_in_families as $taxon_name => $metadata)
         {
-            if($GLOBALS['ENV_DEBUG']) echo $metadata['avibaseid'] ."\n";
+            debug($metadata['avibaseid'] . "\n");
             $taxon_page_html = Functions::lookup_with_cache(self::AVIBASE_SOURCE_URL . $metadata['avibaseid'], array('validation_regex' => 'AVBContainerText'));
             $common_names_and_synonyms = self::scrape_common_names_and_synonyms($taxon_page_html);
             
@@ -168,20 +169,20 @@ class AvibaseAPI
             
             $i++;
             // if($i > 100) break;
-            if($i % 100 == 0 && $GLOBALS['ENV_DEBUG'])
+            if($i % 100 == 0)
             {
                 $estimated_total_time = (((time_elapsed() - $start_time) / $i) * count($taxa_count));
-                echo "Time spent ($i records) ". time_elapsed() ."\n";
-                echo "Estimated total seconds : $estimated_total_time\n";
-                echo "Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n";
-                echo "Memory : ". memory_get_usage() ."\n";
+                debug("Time spent ($i records) ". time_elapsed() ."\n");
+                debug("Estimated total seconds : $estimated_total_time\n");
+                debug("Estimated total hours : ". ($estimated_total_time / (60 * 60)) ."\n");
+                debug("Memory : ". memory_get_usage() ."\n");
             }
         }
     }
 
     function get_taxa_from_html($url)
     {
-        $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 999999);
+        $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5); //20mins download timeout, 5 retry attempts
         $parts = explode("<tr valign=bottom>", $html);
         // the first block doesn't contain name information so remove it
         array_shift($parts);
@@ -219,14 +220,14 @@ class AvibaseAPI
                         // this means that in one regional checklist they place this taxon in a different family
                         if($metadata['family'] != $family)
                         {
-                            echo "Family Conflict with $taxon_name\n";
+                            debug("Family Conflict with $taxon_name\n");
                             continue;
                         }
                         
                         // this means that in one regional checklist they use a different URL for the taxon
                         if($metadata['avibaseid'] != $avibaseid)
                         {
-                            echo "ID Conflict with $taxon_name\n";
+                            debug("ID Conflict with $taxon_name\n");
                             continue;
                         }
                     }

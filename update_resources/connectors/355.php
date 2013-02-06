@@ -8,15 +8,11 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AvibaseAPI');
 
 $timestart = time_elapsed();
-
-$av = new AvibaseAPI(355, 'ioc');
+$resource_id = 355;
+$av = new AvibaseAPI($resource_id, 'ioc');
 $av->get_all_taxa();
 
-// set to force harvest
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "355.xml") > 600)
-{
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=355");
-}
+Functions::set_resource_status_to_force_harvest($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
