@@ -7,13 +7,15 @@ class ContentArchiveValidator
     private $structural_errors;
     private $errors_by_line;
     private $warnings_by_line;
+    private $archive_resource;
     private $stats;
     
-    public function __construct($content_archive_reader)
+    public function __construct($content_archive_reader, $resource = NULL)
     {
         if(get_class($content_archive_reader) != 'php_active_record\ContentArchiveReader') return null;
         $this->content_archive_reader = $content_archive_reader;
         $this->validation_has_run = false;
+        $this->archive_resource = $resource;
     }
     
     public function is_valid()
@@ -141,6 +143,13 @@ class ContentArchiveValidator
         $new_errors = array();
         if($parameters['row_type'] == 'http://eol.org/schema/media/document')
         {
+            if(@!$row['http://purl.org/dc/terms/license'] && @!$row['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])
+            {
+                if($this->archive_resource && $this->archive_resource->license && $this->archive_resource->license->source_url)
+                {
+                    $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms'] = $this->archive_resource->license->source_url;
+                }
+            }
             $new_errors = \eol_schema\MediaResource::validate_by_hash($row);
             if(!$new_errors)
             {

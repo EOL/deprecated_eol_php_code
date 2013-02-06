@@ -662,7 +662,7 @@ class Resource extends ActiveRecord
         if($this->is_archive_resource())
         {
             $archive = new ContentArchiveReader(null, $this->archive_path());
-            $validator = new ContentArchiveValidator($archive);
+            $validator = new ContentArchiveValidator($archive, $this);
             $validator->get_validation_errors();
             if($validator->is_valid()) $valid = true;  // valid
             $errors = array_merge($validator->structural_errors(), $validator->display_errors());
