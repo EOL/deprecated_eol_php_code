@@ -25,7 +25,6 @@ class SoundcloudAPI
     function get_all_taxa()
     {
         $inaccessible_tries = 0;
-        $allowed_inaccessible_tries = 10;
         $all_taxa = array();
         $used_collection_ids = array();
         $user_ids = self::get_list_of_user_ids();
@@ -37,42 +36,33 @@ class SoundcloudAPI
             $offset = 0;
             $limit = 100;
             $audio_list_url = $this->soundcloud_domain . "/users/" . $user_id . "/tracks?client_id=" . $this->soundcloud_api_client_id . "&limit=$limit&offset=$offset&downloadable=true";
-            echo "\naudio_list_url: " . $audio_list_url;
+            debug("\n audio_list_url: " . $audio_list_url);
             $count_of_tracks = 0;
             $page = 1;
             while($page == 1 || $count_of_tracks > 0)
             {
-                if($xml = Functions::get_hashed_response($audio_list_url))
+                if($xml = Functions::get_hashed_response($audio_list_url, 5000000, 240, 5))
                 {
                     $inaccessible_tries = 0;
-                    sleep(5);
                     $count_of_tracks = count($xml->track);
                     $j = 0;
                     foreach($xml->track as $track)
                     {
                         $j++;
-                        echo "\nUser $i of $count_of_users (User: [$user_id] - " . $track->user->username . "); page $page Audio $j of $count_of_tracks (trackID: $track->id)";
+                        debug("\n User $i of $count_of_users (User: [$user_id] - " . $track->user->username . "); page $page Audio $j of $count_of_tracks (trackID: $track->id)");
                         $arr = self::get_soundcloud_taxa($track, $used_collection_ids);
                         $page_taxa              = $arr[0];
                         $used_collection_ids    = $arr[1];
                         if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                     }
-                    echo "\n";
                 }
-                else
-                {
-                    echo "\nDown: " . $audio_list_url;
-                    echo "\nWill wait for 30 seconds and will try again.";
-                    sleep(30);
-                    $inaccessible_tries++;
-                    echo "\n Trying again... #$inaccessible_tries";
-                    if($inaccessible_tries > 10) 
-                    {
-                        echo "\n Too many inaccessible service tries. Connector will terminate.";
-                        return;
-                    }
-                    continue;
-                }
+                // else
+                // {
+                //     sleep(30);
+                //     $inaccessible_tries++;
+                //     if($inaccessible_tries > 3) return $all_taxa; // whatever is stored in $all_taxa
+                //     continue;
+                // }
                 $page++;
                 $offset += $limit;
                 $audio_list_url = $this->soundcloud_domain . "/users/" . $user_id . "/tracks?client_id=" . $this->soundcloud_api_client_id . "&limit=$limit&offset=$offset&downloadable=true";
@@ -83,22 +73,21 @@ class SoundcloudAPI
 
     function get_list_of_user_ids()
     {
-        // return array("30860816"); //debug -- user 'Eli Agbayani'
-        // return array("70505", "30860816"); //debug -- (User: [70505] - Ben Fawkes) has 100+ audio files
+        // return array("30860816", "5810611"); // Laura F. [5810611], Eli Agbayani [30860816] , (User: [70505] - Ben Fawkes) has 100+ audio files
         $user_ids = array();
-        echo "\nGetting all members... " . $this->EOL_members;
-        if($xml = Functions::get_hashed_response($this->EOL_members))
+        debug("\n Getting all members... " . $this->EOL_members);
+        if($xml = Functions::get_hashed_response($this->EOL_members, 1000000, 240, 5))
         {
-            echo "\nmembers: " . count($xml->user);
+            debug("\n members: " . count($xml->user));
             foreach($xml->user as $user)
             {
                 $user_ids[(string) $user->id] = 1;
-                echo "\n $user->username [$user->id]";
+                debug("\n $user->username [$user->id]");
             }
         }
         else
         {
-            echo("\nConnector terminated. Down: " . $this->EOL_members . "\n");
+            debug("\n Connector terminated. Down: " . $this->EOL_members . "\n");
             return array();
         }
         return array_keys($user_ids);
@@ -123,12 +112,12 @@ class SoundcloudAPI
         $license = self::get_cc_license($rec->license);
         if(!$license)
         {
-            echo " - invalid license [$rec->uri]";
+            debug(" - invalid license [$rec->uri]");
             return array();
         }
         if($rec->downloadable != 'true') 
         {
-            echo " - audio not downloadable [$rec->uri]";
+            debug(" - audio not downloadable [$rec->uri]");
             return array();
         }
         $arr_data = array();
@@ -145,6 +134,7 @@ class SoundcloudAPI
             if(!$sciname && @$arr_sciname[$sciname]['trinomial']) $sciname = @$arr_sciname[$sciname]['trinomial'];
             if(!$sciname && @$arr_sciname[$sciname]['genus'] && @$arr_sciname[$sciname]['species'] && !preg_match("/ /", @$arr_sciname[$sciname]['genus']) && !preg_match("/ /", @$arr_sciname[$sciname]['species'])) $sciname = @$arr_sciname[$sciname]['genus']." ".@$arr_sciname[$sciname]['species'];
             if(!$sciname && !@$arr_sciname[$sciname]['genus'] && !@$arr_sciname[$sciname]['family'] && !@$arr_sciname[$sciname]['order'] && !@$arr_sciname[$sciname]['class'] && !@$arr_sciname[$sciname]['phylum'] && !@$arr_sciname[$sciname]['kingdom']) return array();
+
             //start data objects //----------------------------------------------------------------------------------------
             $arr_objects  = array();
             $identifier   = $rec->id;
@@ -159,6 +149,7 @@ class SoundcloudAPI
             if($rec->user->username) $agent[]= array("role" => "creator", "homepage" => trim($rec->user->{'permalink-url'}), "fullName" => trim($rec->user->username));
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
+
             $taxon_id   = str_ireplace(" ", "_", $sciname) . "_" . $rec->id;
             $arr_data[] = array("identifier"   => "",
                                 "source"       => "",
@@ -174,14 +165,16 @@ class SoundcloudAPI
                                 "arr_objects"  => $arr_objects
                                );
         }
-        if(!$arr_data) echo " - invalid audio for EOL [$rec->uri]";
+        if(!$arr_data) debug(" - invalid audio for EOL [$rec->uri]");
         return $arr_data;
     }
 
     private function get_taxonomy_from_description($description)
     {
         $arr_sciname = array();
-        if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) //gets everything between brackets []
+        if    (preg_match_all("/\[(.*?)\]/ims", $description, $matches) ||
+               preg_match_all("/\((.*?)\)/ims", $description, $matches)
+              ) //gets everything between brackets [] or parenthesis ()
         {
             $smallest_taxa = self::get_smallest_rank($matches[1]);
             $smallest_rank = $smallest_taxa['rank'];
@@ -199,19 +192,25 @@ class SoundcloudAPI
                         $arr_sciname = self::initialize($sciname, $arr_sciname);
                     }
                 }
-                if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))       $arr_sciname[$sciname]['binomial']  = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr))  $arr_sciname[$sciname]['trinomial'] = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['genus']     = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['family']    = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['order']     = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['class']     = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['phylum']    = ucfirst(trim($arr[1]));
-                elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['kingdom']   = ucfirst(trim($arr[1]));
+                if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))       $arr_sciname[$sciname]['binomial']  = self::clean_name($arr[1]);
+                elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr))  $arr_sciname[$sciname]['trinomial'] = self::clean_name($arr[1]);
+                elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['genus']     = self::clean_name($arr[1]);
+                elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['family']    = self::clean_name($arr[1]);
+                elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['order']     = self::clean_name($arr[1]);
+                elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['class']     = self::clean_name($arr[1]);
+                elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['phylum']    = self::clean_name($arr[1]);
+                elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['kingdom']   = self::clean_name($arr[1]);
                 elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['commonNames'][] = trim($arr[1]);
             }
-            foreach($matches[0] as $str) $description = str_ireplace($str, "", trim($description)); //remove brackets in the description
+            foreach($matches[0] as $str) $description = str_ireplace($str, "", trim($description)); //remove brackets or parenthesis in the description
         }
         return array($arr_sciname, $description);
+    }
+
+    private function clean_name($string)
+    {
+        $string = str_ireplace(array("'", '"', "&quot;"), "", $string);
+        return trim(ucfirst($string));
     }
 
     private function get_taxonomy_from_tags($tags)
@@ -298,11 +297,11 @@ class SoundcloudAPI
         }
         if(!isset($sciname))
         {
-            echo "\n This needs checking...";
+            debug("\n This needs checking...");
             print_r($match);
             return array();
         }
-        return array("rank" => $smallest_rank, "name" => $sciname);
+        return array("rank" => $smallest_rank, "name" => self::clean_name($sciname));
     }
 
     function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
