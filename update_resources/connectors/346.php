@@ -25,6 +25,10 @@ $xml = $nmnh->set_data_object_rating_on_xml_document();
 //manual fix DATA-1189, until partner fixes their data
 $xml = str_ireplace("Photograph of Photograph of", "Photograph of", $xml);
 
+//manual fix DATA-1205
+$xml = replace_Indet_sp($xml);
+$xml = remove_blank_taxon_entry($xml);
+
 require_library('connectors/INBioAPI');
 $xml = INBioAPI::assign_eol_subjects($xml);
 
@@ -36,4 +40,85 @@ echo "elapsed time = $elapsed_time_sec seconds             \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\n\n Done processing.";
+
+function remove_blank_taxon_entry($xml)
+{
+    $xml = preg_replace('/\s*(<[^>]*>)\s*/','$1',$xml); // remove whitespaces
+    $xml = str_ireplace(array("<taxon></taxon>", "<taxon/>"), "", $xml);
+    return $xml;
+}
+
+function replace_Indet_sp($xml_string)
+{
+    if(!is_numeric(stripos($xml_string, "Indet"))) return $xml_string;
+    echo "\n\n this resource has 'Indet.' taxa \n";
+    $xml = simplexml_load_string($xml_string);
+    $i = 0;
+    foreach($xml->taxon as $taxon)
+    {
+        $i++;
+        $dc = $taxon->children("http://purl.org/dc/elements/1.1/");
+        $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
+        $dcterms = $taxon->children("http://purl.org/dc/terms/");
+        echo "\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName."]";
+        if(is_numeric(stripos($dwc->ScientificName, "Indet")))
+        {
+            if(isset($dwc->Genus)) $ancestry['Genus'] = $dwc->Genus;
+            if(isset($dwc->Family)) $ancestry['Family'] = $dwc->Family;
+            if(isset($dwc->Order)) $ancestry['Order'] = $dwc->Order;
+            if(isset($dwc->Class)) $ancestry['Class'] = $dwc->Class;
+            if(isset($dwc->Phylum)) $ancestry['Phylum'] = $dwc->Phylum;
+            if(isset($dwc->Kingdom)) $ancestry['Kingdom'] = $dwc->Kingdom;
+            $ancestry['ScientificName'] = $dwc->ScientificName;
+
+            $ancestry = get_names($ancestry);
+            echo "\n final sciname: [" . $ancestry['ScientificName'] . "]";
+
+            $dwc->ScientificName = $ancestry['ScientificName'];
+            if(isset($dwc->Genus)) $dwc->Genus = $ancestry['Genus'];
+            if(isset($dwc->Family)) $dwc->Family = $ancestry['Family'];
+            if(isset($dwc->Order)) $dwc->Order = $ancestry['Order'];
+            if(isset($dwc->Class)) $dwc->Class = $ancestry['Class'];
+            if(isset($dwc->Phylum)) $dwc->Phylum = $ancestry['Phylum'];
+            if(isset($dwc->Kingdom)) $dwc->Kingdom = $ancestry['Kingdom'];
+            if(!$ancestry['ScientificName'])
+            {
+                echo "\n deleted identifier: [" . $dc->identifier . "] \n";
+                unset($dc->identifier);
+                unset($dc->source);
+                unset($dwc->Kingdom);
+                unset($dwc->Phylum);
+                unset($dwc->Class);
+                unset($dwc->Order);
+                unset($dwc->Family);
+                unset($dwc->Genus);
+                unset($dwc->ScientificName);
+                unset($xml->taxon[$i-1]->commonName);
+                unset($xml->taxon[$i-1]->synonym);
+                unset($dcterms->created);
+                unset($dcterms->modified);
+                unset($xml->taxon[$i-1]->reference);
+                unset($xml->taxon[$i-1]->dataObject);
+            }
+        }
+    }
+    return $xml->asXML();
+}
+
+function get_names($ancestry)
+{
+    foreach($ancestry as $rank => $name)
+    {
+        if(trim($name) != "" && !is_numeric(stripos($name, "Indet")))
+        {
+            echo "\n Found a parent taxon for an Indet taxon \n";
+            $ancestry['ScientificName'] = $name;
+            $ancestry[$rank] = "";
+            return $ancestry;
+        }
+        else $ancestry[$rank] = "";
+    }
+    return $ancestry;
+}
+
 ?>
