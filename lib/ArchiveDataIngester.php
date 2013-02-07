@@ -16,7 +16,7 @@ class ArchiveDataIngester
     {
         if(!is_dir($this->harvest_event->resource->archive_path())) return false;
         $this->archive_reader = new ContentArchiveReader(null, $this->harvest_event->resource->archive_path());
-        $this->archive_validator = new ContentArchiveValidator($this->archive_reader);
+        $this->archive_validator = new ContentArchiveValidator($this->archive_reader, $this->harvest_event->resource);
         $this->content_manager = new ContentManager();
         
         // set valid to true if we don't need validation
@@ -407,6 +407,10 @@ class ArchiveDataIngester
         }else $license_string = @self::field_decode($row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']);
         // convert British licences to American licenses
         $license_string = str_replace("creativecommons.org/licences/", "creativecommons.org/licenses/", $license_string);
+        if(!$license_string && $this->harvest_event->resource->license && $this->harvest_event->resource->license->source_url)
+        {
+            $license_string = $this->harvest_event->resource->license->source_url;
+        }
         $data_object->license = License::find_or_create_for_parser($license_string);
         
         $data_object->rights_statement = @self::field_decode($row['http://purl.org/dc/terms/rights']);

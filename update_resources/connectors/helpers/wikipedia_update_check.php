@@ -86,6 +86,7 @@ function check_revisions($revision_ids)
     $url = revision_query_url(array_keys($revision_ids));
     $response_xml = Functions::get_hashed_response_fake_browser($url);
     if(!$response_xml) return false;
+    $revisions_seen = array();
     foreach($response_xml->query->pages->page as $page)
     {
         $title = (string) $page['title'];
@@ -99,6 +100,8 @@ function check_revisions($revision_ids)
         if(!$data_object_id) continue;
         // an ID asked for which doesn't currently have a page - possible deletion
         if(!isset($page['pageid'])) continue;
+        // this page has been redirected and is no longer current
+        if(isset($page['redirect'])) continue;
         
         if($latest_revision_id == $query_revision_id)
         {

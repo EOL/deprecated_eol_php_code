@@ -261,6 +261,35 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         $this->assertEqual($object->object_cache_url, $second_object->object_cache_url);
     }
     
+    function testDefaultLanguage()
+    {
+        $this->media = array($this->media[1]);
+        $this->media[0]->UsageTerms = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $this->build_resource();
+        self::harvest($this->resource);
+        $first_version = array_pop(DataObject::find_all_by_identifier($this->media[0]->identifier));
+        $this->assertEqual($first_version->license->source_url, "http://creativecommons.org/licenses/by-nc-sa/3.0/");
+        
+        $this->media[0]->UsageTerms = NULL;
+        $this->build_resource();
+        self::harvest($this->resource);
+        # essentially this version does not get inserted because there is no license, nor a default license on the resource
+        $second_version = array_pop(DataObject::find_all_by_identifier($this->media[0]->identifier));
+        $this->assertEqual($second_version->id, $first_version->id);
+        
+        $this->media[0]->UsageTerms = NULL;
+        $this->resource->license_id = License::find_or_create_for_parser("http://creativecommons.org/licenses/by/3.0/")->id;
+        $this->resource->save();
+        $this->resource->refresh();
+        $this->build_resource();
+        self::harvest($this->resource);
+        # essentially this version does not get inserted because there is no license, nor a default license on the resource
+        $third_version = array_pop(DataObject::find_all_by_identifier($this->media[0]->identifier));
+        $this->assertNotEqual($third_version->id, $first_version->id);
+        $this->assertNotEqual($third_version->id, $second_version->id);
+        $this->assertEqual($third_version->license->source_url, $this->resource->license->source_url);
+    }
+    
     
     
     
