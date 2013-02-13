@@ -206,7 +206,7 @@ class ContentArchiveReader
                     $parameters['archive_table_definition'] =& $table_definition;
                     foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                     {
-                        $parameters['archive_line_number'] = $line_number;
+                        $parameters['archive_line_number'] = $line_number + 1;
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
                         $fields = $this->parse_table_row($table_definition, $line, $parameters);
                         if($fields == "this is the break message") break;
@@ -248,16 +248,33 @@ class ContentArchiveReader
         {
             $enclosure = preg_quote($table_definition->fields_enclosed_by, "/");
             $terminate = preg_quote($table_definition->fields_terminated_by, "/");
+            
+            // swap out any $enclosure not next to a $terminate
+            //  ,"...".."...", => ,"...|-|-|..|-|-|...",
+            $pattern = "/([^$terminate])$enclosure([^$terminate])/";
+            while(preg_match($pattern, $line)) $line = preg_replace($pattern, "\\1|-|-|\\2", $line);
+            
+            // swap out any $terminate within valid enclosed block
+            // ,"...,...,...", => ,"...|+|+|...|+|+|...",
             $pattern = "/((^|$terminate)$enclosure"."[^$enclosure]*)$terminate([^$enclosure]*$enclosure($terminate|$))/";
             while(preg_match($pattern, $line)) $line = preg_replace($pattern, "\\1|+|+|\\3", $line);
+            
+            // remove enclosures to simplify splitting
+            //  ,"...","...","...", => ,...,...,...,
             $pattern = "/($terminate$enclosure|$enclosure$terminate)/";
             while(preg_match($pattern, $line)) $line = preg_replace($pattern, $table_definition->fields_terminated_by, $line);
+            
+            // remove leading and trailing enclosures
+            // "...,...,..." => ...,...,...
             $pattern = "/(^$enclosure|$enclosure$)/";
             while(preg_match($pattern, $line)) $line = preg_replace($pattern, "", $line);
         }
         $fields = explode($table_definition->fields_terminated_by, $line);
-        foreach($fields as &$field) $field = str_replace("|+|+|", $table_definition->fields_terminated_by, $field);
-        
+        foreach($fields as &$field)
+        {
+            $field = str_replace("|-|-|", $table_definition->fields_enclosed_by, $field);
+            $field = str_replace("|+|+|", $table_definition->fields_terminated_by, $field);
+        }
         return self::assign_field_types($table_definition, $fields);
     }
     

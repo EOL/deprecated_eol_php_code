@@ -149,6 +149,7 @@ class Taxon extends DarwinCoreExtensionBase
             'subseries',
             'species',
             'subspecies',
+            'infraspecies',
             'variety',
             'varietas',
             'subvariety',

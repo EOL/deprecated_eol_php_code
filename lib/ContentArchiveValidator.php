@@ -29,22 +29,14 @@ class ContentArchiveValidator
     {
         return $this->structural_errors;
     }
-    public function errors_by_line()
-    {
-        return $this->errors_by_line;
-    }
-    public function warnings_by_line()
-    {
-        return $this->warnings_by_line;
-    }
     public function stats()
     {
         return $this->stats;
     }
     
-    public function has_error_by_line($row_type, $line_number)
+    public function has_error_by_line($row_type, $file_location, $line_number)
     {
-        if(isset($this->errors_by_line[$row_type][$line_number])) return true;
+        if(isset($this->errors_by_line[$row_type][$file_location][$line_number])) return true;
         return false;
     }
     
@@ -61,29 +53,38 @@ class ContentArchiveValidator
     public static function group_exceptions($exceptions_by_line)
     {
         $grouped_exceptions = array();
-        foreach($exceptions_by_line as $file_path => $data)
+        foreach($exceptions_by_line as $row_type => $files)
         {
-            foreach($data as $line_number => $exception)
+            foreach($files as $file_location => $data)
             {
-                if(!isset($grouped_exceptions[$file_path][$exception->uri][$exception->value][$exception->message]))
+                foreach($data as $line_number => $exceptions)
                 {
-                    $grouped_exceptions[$file_path][$exception->uri][$exception->value][$exception->message] = $exception;
-                }elseif($line_number)
-                {
-                    $grouped_exceptions[$file_path][$exception->uri][$exception->value][$exception->message]->line .= ", $line_number";
+                    foreach($exceptions as $exception)
+                    {
+                        if(!isset($grouped_exceptions[$row_type][$file_location][$exception->uri][$exception->value][$exception->message]))
+                        {
+                            $grouped_exceptions[$row_type][$file_location][$exception->uri][$exception->value][$exception->message] = $exception;
+                        }elseif($line_number)
+                        {
+                            $grouped_exceptions[$row_type][$file_location][$exception->uri][$exception->value][$exception->message]->line .= ", $line_number";
+                        }
+                    }
                 }
             }
         }
         $simplified_errors = array();
-        foreach($grouped_exceptions as $file_path => $d1)
+        foreach($grouped_exceptions as $row_type => $d1)
         {
-            foreach($d1 as $uri => $d2)
+            foreach($d1 as $file_location => $d2)
             {
-                foreach($d2 as $value => $d3)
+                foreach($d2 as $uri => $d3)
                 {
-                    foreach($d3 as $message => $exception)
+                    foreach($d3 as $value => $d4)
                     {
-                        $simplified_errors[] = $exception;
+                        foreach($d4 as $message => $exception)
+                        {
+                            $simplified_errors[] = $exception;
+                        }
                     }
                 }
             }
@@ -99,15 +100,16 @@ class ContentArchiveValidator
         $this->structural_errors = array();
         $this->errors_by_line = array();
         $this->warnings_by_line = array();
+        $this->primary_keys_by_row_type = array();
         $this->stats = array();
         if(!$this->content_archive_reader->tables)
         {
             $error = new \eol_schema\ContentArchiveError();
-            $error->message = "Cannot read meta.xml. There may be a structural problem with this archive.";
+            $error->message = 'Cannot read meta.xml. There may be a structural problem with this archive.';
             $this->structural_errors[] = $error;
         }
         // looping through archive, one entire file at a time
-        foreach($this->content_archive_reader->tables as $row_type => $table)
+        foreach($this->content_archive_reader->tables as $row_type => $tables)
         {
             // TODO: duplicate primary keys
             // TODO: referential integrity
@@ -121,14 +123,14 @@ class ContentArchiveValidator
                 //     if($count_of_taxa_errors >= $count_of_all_taxa)
                 //     {
                 //         $error = new \eol_schema\ContentArchiveError();
-                //         $error->message = "There are no valid taxa in this archive.";
+                //         $error->message = 'There are no valid taxa in this archive.';
                 //         $this->structural_errors[] = $error;
                 //     }
                 // }
                 if(!$count_of_all_taxa)
                 {
                     $error = new \eol_schema\ContentArchiveError();
-                    $error->message = "There are no valid taxa in this archive.";
+                    $error->message = 'There are no valid taxa in this archive.';
                     $this->structural_errors[] = $error;
                 }
             }
@@ -140,7 +142,8 @@ class ContentArchiveValidator
         static $i = 0;
         $i++;
         
-        $new_errors = array();
+        $file_location = $parameters['archive_table_definition']->location;
+        $new_exceptions = array();
         if($parameters['row_type'] == 'http://eol.org/schema/media/document')
         {
             if(@!$row['http://purl.org/dc/terms/license'] && @!$row['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])
@@ -148,61 +151,83 @@ class ContentArchiveValidator
                 if($this->archive_resource && $this->archive_resource->license && $this->archive_resource->license->source_url)
                 {
                     $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms'] = $this->archive_resource->license->source_url;
+                    unset($row['http://purl.org/dc/terms/license']);
                 }
             }
-            $new_errors = \eol_schema\MediaResource::validate_by_hash($row);
-            if(!$new_errors)
+            $new_exceptions = \eol_schema\MediaResource::validate_by_hash($row);
+            $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
+            if(!self::any_exceptions_of_type_error($new_exceptions))
             {
-                if(@$v = $row['http://purl.org/dc/terms/type']) $this->add_stat('type', $parameters['row_type'], $v);
-                if(@$v = $row['http://rs.tdwg.org/audubon_core/subtype']) $this->add_stat('subtype', $parameters['row_type'], $v);
-                if(@$v = $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) $this->add_stat('license', $parameters['row_type'], $v);
-                if(@$v = $row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']) $this->add_stat('subject', $parameters['row_type'], $v);
-                if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $v);
-                if(@$v = $row['http://purl.org/dc/terms/format']) $this->add_stat('format', $parameters['row_type'], $v);
+                if(@$v = $row['http://purl.org/dc/terms/type']) $this->add_stat('type', $parameters['row_type'], $file_location, $v);
+                if(@$v = $row['http://rs.tdwg.org/audubon_core/subtype']) $this->add_stat('subtype', $parameters['row_type'], $file_location, $v);
+                if(@$v = $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) $this->add_stat('license', $parameters['row_type'], $file_location, $v);
+                if(@$v = $row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']) $this->add_stat('subject', $parameters['row_type'], $file_location, $v);
+                if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $file_location, $v);
+                if(@$v = $row['http://purl.org/dc/terms/format']) $this->add_stat('format', $parameters['row_type'], $file_location, $v);
             }
         }elseif($parameters['row_type'] == 'http://rs.tdwg.org/dwc/terms/taxon')
         {
-            $new_errors = \eol_schema\Taxon::validate_by_hash($row);
+            $new_exceptions = \eol_schema\Taxon::validate_by_hash($row);
+            $this->append_identifier_error($row, 'http://rs.tdwg.org/dwc/terms/taxonID', $parameters, $new_exceptions);
         }elseif($parameters['row_type'] == 'http://rs.gbif.org/terms/1.0/vernacularname')
         {
-            $new_errors = \eol_schema\VernacularName::validate_by_hash($row);
-            if(!$new_errors)
+            $new_exceptions = \eol_schema\VernacularName::validate_by_hash($row);
+            if(!$new_exceptions)
             {
-                if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $v);
+                if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $file_location, $v);
             }
         }elseif($parameters['row_type'] == 'http://eol.org/schema/reference/reference')
         {
-            $new_errors = \eol_schema\Reference::validate_by_hash($row);
+            $new_exceptions = \eol_schema\Reference::validate_by_hash($row);
+            $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
         }elseif($parameters['row_type'] == 'http://eol.org/schema/agent/agent')
         {
-            $new_errors = \eol_schema\Agent::validate_by_hash($row);
+            $new_exceptions = \eol_schema\Agent::validate_by_hash($row);
+            $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
         }
         
-        if(!$new_errors)
+        if(!$new_exceptions)
         {
             if(!isset($this->stats[$parameters['row_type']])) $this->stats[$parameters['row_type']] = array();
             if(!isset($this->stats[$parameters['row_type']]['Total'])) $this->stats[$parameters['row_type']]['Total'] = 0;
             $this->stats[$parameters['row_type']]['Total']++;
         }else
         {
-            foreach($new_errors as $new_error)
+            foreach($new_exceptions as $exception)
             {
-                $new_error->file = $parameters['archive_table_definition']->location;
-                $new_error->line = $parameters['archive_line_number'];
-                if(get_class($new_error) == 'eol_schema\ContentArchiveError')
+                $exception->file = $parameters['archive_table_definition']->location;
+                $exception->line = $parameters['archive_line_number'];
+                if(get_class($exception) == 'eol_schema\ContentArchiveError')
                 {
-                    if(isset($this->errors_by_line[$parameters['row_type']][$new_error->line])) continue;
-                    $this->errors_by_line[$parameters['row_type']][$new_error->line] = $new_error;
+                    if(!isset($this->errors_by_line[$parameters['row_type']][$file_location][$exception->line]))
+                    {
+                        $this->errors_by_line[$parameters['row_type']][$file_location][$exception->line] = array();
+                    }
+                    $this->errors_by_line[$parameters['row_type']][$file_location][$exception->line][] = $exception;
                 }else
                 {
-                    if(isset($this->warnings_by_line[$parameters['row_type']][$new_error->line])) continue;
-                    $this->warnings_by_line[$parameters['row_type']][$new_error->line] = $new_error;
+                    if(!isset($this->warnings_by_line[$parameters['row_type']][$file_location][$exception->line]))
+                    {
+                        $this->warnings_by_line[$parameters['row_type']][$file_location][$exception->line] = array();
+                    }
+                    $this->warnings_by_line[$parameters['row_type']][$file_location][$exception->line][] = $exception;
                 }
             }
         }
     }
     
-    private function add_stat($label, $row_type, $value)
+    private function append_identifier_error($row, $identifier_uri, $parameters, &$errors)
+    {
+        if($id = @$row[$identifier_uri])
+        {
+            if(isset($this->primary_keys_by_row_type[$parameters['row_type']][$id]))
+            {
+                $errors[] = new \eol_schema\ContentArchiveError(array('message' => 'Duplicate identifiers'));
+            }else $this->primary_keys_by_row_type[$parameters['row_type']][$id] = true;
+        }
+    }
+    
+    private function add_stat($label, $row_type, $file_location, $value)
     {
         $index = "Total by $label";
         if(!isset($this->stats[$row_type][$index])) $this->stats[$row_type][$index] = array();
@@ -225,6 +250,14 @@ class ContentArchiveValidator
         if(!$v) return true;
         $return = Functions::is_utf8($v);
         return $return;
+    }
+    
+    public static function any_exceptions_of_type_error($exceptions)
+    {
+        foreach($exceptions as $exception)
+        {
+            if(get_class($exception) == 'eol_schema\ContentArchiveError') return true;
+        }
     }
 }
 

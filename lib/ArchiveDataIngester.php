@@ -105,6 +105,7 @@ class ArchiveDataIngester
         unset($row['http://rs.tdwg.org/dwc/terms/datasetName']);
         unset($row['http://rs.tdwg.org/dwc/terms/taxonConceptID']);
         $row['archive_line_number'] = $parameters['archive_line_number'];
+        $row['archive_file_location'] = $parameters['archive_table_definition']->location;
         
         self::compress_array($row);
         if($taxon_id && $is_valid)
@@ -124,7 +125,7 @@ class ArchiveDataIngester
     {
         self::debug_iterations("Inserting taxon");
         self::commit_iterations("Taxa", 500);
-        if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/taxon', $row['archive_line_number'])) return false;
+        if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/taxon', $row['archive_file_location'], $row['archive_line_number'])) return false;
         
         // make sure this taxon has a name, otherwise skip this branch
         $scientific_name = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/scientificName']);
@@ -309,7 +310,7 @@ class ArchiveDataIngester
     {
         self::debug_iterations("Inserting VernacularName");
         $this->commit_iterations("VernacularName", 500);
-        if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_line_number'])) return false;
+        if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
         
         $taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $taxon_info = array();
@@ -365,7 +366,7 @@ class ArchiveDataIngester
     {
         self::debug_iterations("Inserting DataObject");
         $this->commit_iterations("DataObject", 20);
-        if($this->archive_validator->has_error_by_line('http://eol.org/schema/media/document', $parameters['archive_line_number'])) return false;
+        if($this->archive_validator->has_error_by_line('http://eol.org/schema/media/document', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
         
         $object_taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $object_taxon_info = array();
@@ -411,6 +412,7 @@ class ArchiveDataIngester
         {
             $license_string = $this->harvest_event->resource->license->source_url;
         }
+        if(!$license_string || !\eol_schema\MediaResource::valid_license($license_string)) return false;
         $data_object->license = License::find_or_create_for_parser($license_string);
         
         $data_object->rights_statement = @self::field_decode($row['http://purl.org/dc/terms/rights']);
@@ -553,7 +555,7 @@ class ArchiveDataIngester
     {
         self::debug_iterations("Inserting reference");
         $this->commit_iterations("Reference", 500);
-        if($this->archive_validator->has_error_by_line('http://eol.org/schema/reference/reference', $parameters['archive_line_number'])) return false;
+        if($this->archive_validator->has_error_by_line('http://eol.org/schema/reference/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
         
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         // we really only need to insert the references that relate to taxa or media
@@ -627,7 +629,7 @@ class ArchiveDataIngester
     public function insert_agents($row, $parameters)
     {
         self::debug_iterations("Inserting agent");
-        if($this->archive_validator->has_error_by_line('http://eol.org/schema/agent/agent', $parameters['archive_line_number'])) return false;
+        if($this->archive_validator->has_error_by_line('http://eol.org/schema/agent/agent', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
         
         $agent_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         // we really only need to insert the agents that relate to media
@@ -670,7 +672,7 @@ class ArchiveDataIngester
     {
         self::debug_iterations("Inserting GBIF reference");
         $this->commit_iterations("GBIFReference", 500);
-        if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/reference', $parameters['archive_line_number'])) return false;
+        if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
         
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);

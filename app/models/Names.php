@@ -22,7 +22,7 @@ class Name extends ActiveRecord
                                 'endosymbiont', 'species', 'complex',
                                 'unassigned', 'n', 'gen', 'auct', 'non', 'aff',
                                 'mixed', 'library', 'genomic', 'unidentified', 'parasite', 'synthetic',
-                                'phytoplasma', 'bacterium');
+                                'phytoplasma', 'bacterium', 'sect', 'section');
         if(preg_match("/(^|[^\w])(". implode("|", $red_flag_words) .")([^\w]|$)/i", $string)) return true;
         if(preg_match("/ [abcd] /i", $string)) return true;
         if(preg_match("/(_|'|\")/i", $string)) return true;

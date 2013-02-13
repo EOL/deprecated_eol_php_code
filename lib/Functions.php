@@ -148,7 +148,7 @@ class Functions
                 return $file;
             }
 
-            debug("attemp $attempts failed, will try again after " . ($download_wait_time/1000000) . " seconds");
+            debug("attempt $attempts failed, will try again after " . ($download_wait_time/1000000) . " seconds");
             $attempts++;
         }
 

@@ -67,7 +67,12 @@ switch($function)
             echo "  <error type='fatal'>No file_path included</error>\n";
             break;
         }
-        
+        $resource = Resource::find($resource_id);
+        if(!$resource || !$resource->exists())
+        {
+            echo "  <error type='fatal'>Invalid resource_id included</error>\n";
+            break;
+        }
         // remove:
         //      resources/ID/*
         //      resources/ID
@@ -90,7 +95,7 @@ switch($function)
             
             if(is_dir($new_file_path))
             {
-                validate_archive($new_file_path);
+                validate_archive($new_file_path, $resource);
             }else
             {
                 $new_file_path = CONTENT_RESOURCE_LOCAL_PATH . $new_file_path;
@@ -115,7 +120,7 @@ switch($function)
                             echo "  <error type='fatal'>". htmlspecialchars(implode('<br/>', $archive_converter->errors()))."</error>\n";
                             break;
                         }
-                        validate_archive($archive_directory_path);
+                        validate_archive($archive_directory_path, $resource);
                         break;
                     }else
                     {
@@ -195,10 +200,10 @@ switch($function)
 
 echo "</response>";
 
-function validate_archive($archive_directory_path)
+function validate_archive($archive_directory_path, $resource)
 {
     $archive = new ContentArchiveReader(null, $archive_directory_path);
-    $validator = new ContentArchiveValidator($archive);
+    $validator = new ContentArchiveValidator($archive, $resource);
     if($validator->is_valid()) echo "  <status>Validated</status>\n";
     else echo "  <status>Validation failed</status>\n";
     
