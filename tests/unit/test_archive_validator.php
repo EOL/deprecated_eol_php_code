@@ -225,8 +225,10 @@ class test_archive_validator extends SimpletestUnitBase
         $this->assertTrue($errors, 'There should be errors');
         $this->assertTrue($errors[0]->uri == 'http://purl.org/dc/terms/identifier');
         $this->assertTrue($errors[0]->message == 'Media must have identifiers');
-        $this->assertTrue($errors[1]->uri == 'http://purl.org/dc/terms/type');
-        $this->assertTrue($errors[1]->message == 'DataType must be present');
+        $this->assertTrue($errors[1]->uri == 'http://rs.tdwg.org/dwc/terms/taxonID');
+        $this->assertTrue($errors[1]->message == 'Media must have taxonIDs');
+        $this->assertTrue($errors[2]->uri == 'http://purl.org/dc/terms/type');
+        $this->assertTrue($errors[2]->message == 'DataType must be present');
     }
     
     function testValidateImagesNeedUrls()
@@ -239,13 +241,15 @@ class test_archive_validator extends SimpletestUnitBase
         $this->archive_builder->finalize();
         list($errors, $warnings) = $this->validate();
         $this->assertTrue($errors, 'There should be errors');
-        $this->assertTrue($errors[0]->message == 'Multimedia must have accessURIs');
+        $this->assertTrue($errors[0]->message == 'Media must have taxonIDs');
+        $this->assertTrue($errors[1]->message == 'Multimedia must have accessURIs');
     }
     
     function testValidateLicense()
     {
         $mr = new \eol_schema\MediaResource();
         $mr->identifier = "12345";
+        $mr->taxonID = "99999";
         $mr->type = 'http://purl.org/dc/dcmitype/Text';
         $mr->description = "This is the text";
         $mr->CVterm = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description";

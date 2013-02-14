@@ -71,6 +71,7 @@ function get_tests_from_dir($dir, &$group_test, $recursive)
             $file = $arr[1];
             require_once($dir . $file.".php");
             
+            if(preg_match("/^test_connector/", $file)) continue;
             $test_name = __NAMESPACE__ . '\\' . $file;
             $group_test->addTestCase(new $test_name());
         }elseif($recursive && is_dir($dir .'/'. $file) && !preg_match("/^\./", $file))

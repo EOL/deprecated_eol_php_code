@@ -31,20 +31,26 @@ class DarwinCoreExtensionBase
                     $test_uri = NULL;
                     if(is_array($rule->field_uri))
                     {
+                        $test_data = array();
                         foreach($rule->field_uri as $field_uri)
                         {
                             if(isset($fields[$field_uri]))
                             {
-                                $test_value = $fields[$field_uri];
-                                $test_uri = $field_uri;
-                            }
+                                $test_data[] = array('value' => $fields[$field_uri], 'uri' => $field_uri);
+                            }else $test_data[] = array('value' => NULL, 'uri' => NULL);
+                        }
+                        usort($test_data, array('\eol_schema\DarwinCoreExtensionBase', 'sort_fields_by_value'));
+                        foreach($test_data as $data)
+                        {
+                            $success_or_error = $rule->validate($data['value'], $data['uri']);
+                            if($data['value']) break;
                         }
                     }else
                     {
                         $test_value = @$fields[$rule->field_uri];
                         $test_uri = $rule->field_uri;
+                        $success_or_error = $rule->validate($test_value, $test_uri);
                     }
-                    $success_or_error = $rule->validate($test_value, $test_uri);
                 }elseif(get_class($rule) == 'eol_schema\ContentArchiveRowValidationRule')
                 {
                     $success_or_error = $rule->validate($fields);
@@ -176,6 +182,11 @@ class DarwinCoreExtensionBase
         }
         $string .= ")\n";
         return $string;
+    }
+    
+    public static function sort_fields_by_value($a, $b)
+    {
+        return ($a['value'] < $b['value']) ? 1 : -1;
     }
 }
 

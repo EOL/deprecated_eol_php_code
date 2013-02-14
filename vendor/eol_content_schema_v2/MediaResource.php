@@ -19,6 +19,12 @@ class MediaResource extends DarwinCoreExtensionBase
                 'failure_message'       => 'Media must have identifiers'));
             
             $rules[] = new ContentArchiveFieldValidationRule(array(
+                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/taxonID',
+                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
+                'failure_type'          => 'error',
+                'failure_message'       => 'Media must have taxonIDs'));
+            
+            $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://purl.org/dc/terms/language',
                 'validation_function'   => 'eol_schema\MediaResource::valid_language',
                 'failure_type'          => 'error',
@@ -53,8 +59,8 @@ class MediaResource extends DarwinCoreExtensionBase
                                                 'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
                                                 'http://purl.org/dc/terms/license'),
                 'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
-                'failure_type'          => 'error',
-                'failure_message'       => 'License must be present'));
+                'failure_type'          => 'warning',
+                'failure_message'       => 'License should be present'));
             
             $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => array(
