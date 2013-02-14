@@ -61,15 +61,22 @@ function replace_Indet_sp($xml_string)
         $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
         $dcterms = $taxon->children("http://purl.org/dc/terms/");
         echo "\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName."]";
-        if(is_numeric(stripos($dwc->ScientificName, "Indet")))
+        if(is_numeric(stripos($dwc->ScientificName, "Indet")) ||
+           is_numeric(stripos($dwc->Kingdom, "Indet")) ||
+           is_numeric(stripos($dwc->Phylum, "Indet")) ||
+           is_numeric(stripos($dwc->Class, "Indet")) ||
+           is_numeric(stripos($dwc->Order, "Indet")) ||
+           is_numeric(stripos($dwc->Family, "Indet")) ||
+           is_numeric(stripos($dwc->Genus, "Indet"))
+        )
         {
-            if(isset($dwc->Genus)) $ancestry['Genus'] = $dwc->Genus;
-            if(isset($dwc->Family)) $ancestry['Family'] = $dwc->Family;
-            if(isset($dwc->Order)) $ancestry['Order'] = $dwc->Order;
-            if(isset($dwc->Class)) $ancestry['Class'] = $dwc->Class;
-            if(isset($dwc->Phylum)) $ancestry['Phylum'] = $dwc->Phylum;
-            if(isset($dwc->Kingdom)) $ancestry['Kingdom'] = $dwc->Kingdom;
-            $ancestry['ScientificName'] = $dwc->ScientificName;
+            if(isset($dwc->Genus)) $ancestry['Genus'] = (string) $dwc->Genus;
+            if(isset($dwc->Family)) $ancestry['Family'] = (string) $dwc->Family;
+            if(isset($dwc->Order)) $ancestry['Order'] = (string) $dwc->Order;
+            if(isset($dwc->Class)) $ancestry['Class'] = (string) $dwc->Class;
+            if(isset($dwc->Phylum)) $ancestry['Phylum'] = (string) $dwc->Phylum;
+            if(isset($dwc->Kingdom)) $ancestry['Kingdom'] = (string) $dwc->Kingdom;
+            $ancestry['ScientificName'] = (string) $dwc->ScientificName;
 
             $ancestry = get_names($ancestry);
             echo "\n final sciname: [" . $ancestry['ScientificName'] . "]";
@@ -107,16 +114,29 @@ function replace_Indet_sp($xml_string)
 
 function get_names($ancestry)
 {
+    // first loop is to remove all Indet taxon entries
     foreach($ancestry as $rank => $name)
     {
-        if(trim($name) != "" && !is_numeric(stripos($name, "Indet")))
+        if(is_numeric(stripos($name, "Indet")))
         {
-            echo "\n Found a parent taxon for an Indet taxon \n";
-            $ancestry['ScientificName'] = $name;
             $ancestry[$rank] = "";
-            return $ancestry;
+            echo "\n $rank has [$name] now removed.";
         }
-        else $ancestry[$rank] = "";
+    }
+
+    // if ScientificName is blank, then it will get the immediate higher taxon if it exists
+    if($ancestry['ScientificName'] == "")
+    {
+        foreach($ancestry as $rank => $name)
+        {
+            if(trim($name) != "")
+            {
+                echo "\n This will be the new ScientificName: [$name] \n";
+                $ancestry['ScientificName'] = $name;
+                $ancestry[$rank] = "";
+                return $ancestry;
+            }
+        }
     }
     return $ancestry;
 }
