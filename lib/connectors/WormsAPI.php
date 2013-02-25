@@ -1,10 +1,11 @@
 <?php
 namespace php_active_record;
 /* connector: [26]  
-World Register of Marine Species:
---- WORMS resource [26]. This is now scheduled as a cron task.
+Latest news: We will might abondone this connector as WORMS now is open to moving to the DWC-A resource.
 
-Partner provides two services. First is the service to get their list of taxa and their IDs based on a date range. 
+World Register of Marine Species: is is now scheduled as a cron task.
+
+Partner provides two services. First is the service to get their list of taxa and their IDs based on a date range.
 The 2nd one is the service to use the taxon ID to get the EOL XML for each taxon.
 
 This is the service to get the list of taxa:
@@ -22,22 +23,35 @@ $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
 $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
 $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2010.xml";
 $urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2011.xml";
+$urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2012.xml";
 Archiving these reduces the load from the partner's server. 
 I do this because there are times when partner's server can't render if you query
-the entire year. So I archive the past year(s) and query monthly the current year.
-
+the entire year. So I archive the past year(s) and just query monthly the current year.
 */
 
 define("WORMS_TAXON_API", "http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=");
 define("WORMS_ID_LIST_API", "http://www.marinespecies.org/aphia.php?p=eol&action=taxlist");
 class WormsAPI
 {
-    public function __construct() 
-    {           
+    public function __construct()
+    {
         $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/WORMS/";
         $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_list.txt";
         $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/WORMS/work_in_progress_list.txt";
         $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/WORMS/initial_process_status.txt";
+
+        $this->exec_time_in_seconds = 0;
+        $this->start_year_for_auto_compiling_of_ids = 2013; 
+        /* start_year_for_auto_compiling_of_ids -- Normally this is the current year, if past year is already archived.
+        e.g. archived years
+        $urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2011.xml";
+        $urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2012.xml";
+        It is the year where the connector starts doing the on-demand compilation of taxon_id's, that will be used in calling the WORMS webservice.
+        e.g. http://www.marinespecies.org/aphia.php?p=eol&action=taxdetails&id=466138
+
+        This means that when Jan 2014 comes, the value should still be 2013. Only when you've archived 2013 already then you can set this to 2014.
+        Connector will still run fine if you don't archive 2013 when 2014 comes, but value for this variable should remain as 2013.
+        */
     }
 
     function initialize_text_files()
@@ -61,7 +75,7 @@ class WormsAPI
                 Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
                 // step 1: divides the big list of ids into small files
                 $ids = self::get_id_list();
-                self::divide_text_file(100000, $ids); //debug original value 10000
+                self::divide_text_file(10000, $ids); //debug original value 10000
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);//removes a task from task list
             }
         }
@@ -71,24 +85,22 @@ class WormsAPI
             $task = Functions::get_a_task($this->WORK_LIST);//get task to work on
             if($task)
             {
-                print "\n Process this: $task";
+                echo "\n Process this: $task";
                 Functions::delete_a_task($task, $this->WORK_LIST);//remove a task from task list
                 Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                
                 if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
                 {
                     Functions::run_another_connector_instance($resource_id, 2);
                     $call_multiple_instance = 0;
                 }
-                
                 self::get_all_taxa($task);
-                print "\n Task $task is done. \n";
+                echo "\n Task $task is done. \n";
                 Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
             }
             else
             {
-                print "\n\n [$task] Work list done --- " . date('Y-m-d h:i:s a', time()) . "\n";
+                echo "\n\n [$task] Work list done --- " . date('Y-m-d h:i:s a', time()) . "\n";
                 break;
             }
         }
@@ -110,55 +122,56 @@ class WormsAPI
         $filename = $this->TEMP_FILE_PATH . $task . ".txt";
         $READ = fopen($filename, "r");
         $i = 0;
-        
         $temp_resource_path = $this->TEMP_FILE_PATH . "temp_worms_" . $task . ".xml";
-        
         $OUT = fopen($temp_resource_path, "w");
         while(!feof($READ))
         {
             if($line = fgets($READ))
             {
                 $i++;
-                print "\n $i. ";
+                echo "\n $i. ";
                 $line = trim($line);
                 $fields = explode("\t", $line);
                 $taxon_id = trim($fields[0]);
                 if($contents = self::process($taxon_id))
                 {
-                    print " -ok- ";
+                    echo " -ok- ";
                     fwrite($OUT, $contents);
                 }
-                else print " -bad- ";
+                else echo " -bad- ";
             }
         }
+        echo "\n\n average download per record: [$this->exec_time_in_seconds/$i] = " . $this->exec_time_in_seconds/$i;
         fclose($READ);
         fclose($OUT);
     }
 
     function process($id)
     {
+        $timestart = time_elapsed(); echo "\n start timer";
         $file = WORMS_TAXON_API . $id;
         echo "$file\n";
-        if($contents = Functions::get_remote_file($file))
+        if($contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 240, 5))
         {
-            if($xml = simplexml_load_string($contents))
+            $pos1 = stripos($contents, "<taxon>");
+            $pos2 = stripos($contents, "</taxon>");
+            if($pos1 != "" and $pos2 != "")
             {
-                $pos1 = stripos($contents,"<taxon>");
-                $pos2 = stripos($contents,"</taxon>");
-                if($pos1 != "" and $pos2 != "")
-                {
-                    $contents = trim(substr($contents, $pos1, $pos2 - $pos1 + 8));
-                    return $contents;
-                }
+                $contents = trim(substr($contents, $pos1, $pos2 - $pos1 + 8));
+                $elapsed_time_sec = time_elapsed() - $timestart;
+                echo "\n";
+                echo "elapsed time = " . $elapsed_time_sec . " seconds \n";
+                $this->exec_time_in_seconds += $elapsed_time_sec;
+                return $contents;
             }
         }
         @$GLOBALS['WORMS_bad_id'] .= $id . ",";
         return false;
     }
-    
+
     private function generate_url_list($urls)
     {
-        $start_year = 2012;
+        $start_year = $this->start_year_for_auto_compiling_of_ids;
         $current_year = date("Y");
         for ($year = $start_year; $year <= $current_year; $year++)
         {
@@ -171,22 +184,22 @@ class WormsAPI
                 $urls[] = WORMS_ID_LIST_API . "&startdate=" . $start_date . "&enddate=" . $end_date;
             }
         }
-        print_r($urls);
         return $urls;
-    } 
+    }
 
     function get_id_list()
     {
         $urls = array();
-        //$urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2011_small.xml"; //for debug
+        // $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2011_small.xml"; //for debug
 
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2007.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2008.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2009.xml";
         $urls[] = DOC_ROOT . "/update_resources/connectors/files/WORMS/2010.xml";
         $urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2011.xml";
+        $urls[] = "http://dl.dropbox.com/u/7597512/WORMS/2012.xml";
 
-        //append year 2012 and onwards
+        //append year (the current year) and onwards
         $urls = self::generate_url_list($urls);
 
         /* debug
@@ -194,46 +207,32 @@ class WormsAPI
         $r[] = $urls[0];
         $urls = $r;
         */
-        
-        print "\n URLs = " . sizeof($urls) . "\n";
+
+        echo "\n URLs = " . sizeof($urls) . "\n";
+        print_r($urls);
+
         $ids = array();
         $file_ctr = 0;
         foreach($urls as $url)
         {
-            print "\n Processing: $url \n";
-            //save file locally first as it is too big to read remotely
-            $content = "";
-            if($file_handle = fopen($url, "r"))
+            echo "\n Processing: $url \n";
+            if($xml = Functions::get_hashed_response($url, DOWNLOAD_WAIT_TIME, 240, 5))
             {
-                while (!feof($file_handle)) $content .= fgets($file_handle);
-                fclose($file_handle);
-                $file_ctr++;
-                $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                $OUT = fopen($this->TEMP_FILE_PATH . "xmlcontent_" . $file_ctr_str . ".xml", "w");
-                fwrite($OUT, $content);
-                fclose($OUT);
-
-                //start read locally and get the IDs
-                $url = $this->TEMP_FILE_PATH . "xmlcontent_" . $file_ctr_str . ".xml";
-                if($xml = Functions::get_hashed_response($url))
+                foreach($xml->taxdetail as $taxdetail)
                 {
-                    foreach($xml->taxdetail as $taxdetail)
-                    {
-                        $id = @$taxdetail["id"];
-                        $ids[] = $id;
-                    }
+                    $id = @$taxdetail["id"];
+                    $ids[] = $id;
                 }
-                sleep(30); //debug orig 30
             }
-            else print "\n -- not being able to process \n";
+            sleep(30); //debug orig 30
         }
 
         //delete temp XML files
         self::delete_temp_files($this->TEMP_FILE_PATH . "xmlcontent_", "xml");
 
         $ids = array_unique($ids);
-        print "\n total ids: " . sizeof($ids);
-        print "\n" . sizeof($urls) . " URLs | taxid count = " . sizeof($ids) . "\n";
+        echo "\n total ids: " . sizeof($ids);
+        echo "\n" . sizeof($urls) . " URLs | taxid count = " . sizeof($ids) . "\n";
 
         /* debug
         $r = array();
@@ -253,11 +252,11 @@ class WormsAPI
         /*debug: to be used when searching for an id
         foreach(array(582008, 582009, 582010) as $id)
         {
-            if(in_array($id, $ids)) print "\n $id found";
-            else print "\n $id not found";
+            if(in_array($id, $ids)) echo "\n $id found";
+            else echo "\n $id not found";
         }
         */
-        
+
         return $ids;
     }
 
@@ -266,12 +265,11 @@ class WormsAPI
         $i = 0;
         $file_ctr = 0;
         $str = "";
-        print "\n";
         foreach($ids as $id)
         {
             $i++;
             $str .= $id . "\n";
-            print "$i. " . $id . "\n";
+            echo "\n $i. " . $id;
             if($i == $divisor)//no. of names per text file
             {
                 $file_ctr++;
@@ -292,7 +290,6 @@ class WormsAPI
             fwrite($OUT, $str);
             fclose($OUT);
         }
-
         //create work_list
         $str = "";
         FOR($i = 1; $i <= $file_ctr; $i++) $str .= "batch_" . Functions::format_number_with_leading_zeros($i, 3) . "\n";
@@ -342,24 +339,23 @@ class WormsAPI
         {
             $i++;
             $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            
             $filename = $this->TEMP_FILE_PATH . "temp_worms_" . "batch_" . $i_str . ".xml";
-            
             if(!is_file($filename))
             {
-                print " -end compiling XML's- ";
+                echo " -end compiling XML's- ";
                 break;
             }
-            print " $i ";
+            echo " $i ";
             $READ = fopen($filename, "r");
             $contents = fread($READ, filesize($filename));
             fclose($READ);
             if($contents) fwrite($OUT, $contents);
-            else print "\n no contents $i";
+            else echo "\n no contents $i";
         }
         fwrite($OUT, "</response>");
         fclose($OUT);
-        print"\n All XML compiled\n\n";
+        echo "\n All XML compiled\n\n";
     }
+
 }
 ?>
