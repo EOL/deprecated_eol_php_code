@@ -12,8 +12,12 @@ If no, then this name will be added to a text file that will be reported back to
 
 class DiscoverLifeAPIv2
 {
-    const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
-    //const DL_MAP_SPECIES_LIST   = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/DiscoverLife/species_map_small2.txt";
+    // const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
+    // const DL_MAP_SPECIES_LIST   = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/DiscoverLife/species_map_small2.txt";
+
+    // this is temporary until DL fixes their list
+    const DL_MAP_SPECIES_LIST   = "http://dl.dropbox.com/u/7597512/DiscoverLife/species_map 2012 06 26.txt";
+    
     const DL_SEARCH_URL         = "http://www.discoverlife.org/mp/20q?search=";
     const DL_MAP_URL            = "http://www.discoverlife.org/20/m?kind=";
     const DL_MAP_SRC            = "http://www.discoverlife.org/mp/20m?map=";
