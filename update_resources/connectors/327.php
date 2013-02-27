@@ -6,6 +6,18 @@ Partner provides 4 EOL resource XML files. The connector just combines all and g
 Also adds <rank> element for names that were entered twice; as dwc:ScientificName and as a higher-level taxon name e.g. genus, family
 */
 
+/*
+as of Feb 27, 2013
+There are 7 instances where an image dataObject id is repeated (used twice), but it has the same <mediaURL> so I didn't bother removing it.
+    warning: has duplicates do_id: [102420-3.jpg][Asplenium blastophorum Hieron.]
+    warning: has duplicates do_id: [126760-1.jpg][Afzelia quanzensis Welw.]
+    warning: has duplicates do_id: [126760-2.jpg][Afzelia quanzensis Welw.]
+    warning: has duplicates do_id: [126760-3.jpg][Afzelia quanzensis Welw.]
+    warning: has duplicates do_id: [150140-1.jpg][Platostoma strictum (Hiern) A.J. Paton]
+    warning: has duplicates do_id: [150140-2.jpg][Platostoma strictum (Hiern) A.J. Paton]
+    warning: has duplicates do_id: [150140-3.jpg][Platostoma strictum (Hiern) A.J. Paton]
+*/
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 327;
@@ -30,8 +42,10 @@ combine_remote_eol_resource_files($resource_id, $files);
 unlink($temp_family_path);
 unlink($temp_genera_path);
 
-$xml = Functions::get_remote_file($resource_path);
-$xml = fix_higher_level_names_entered_twice($xml);
+$xml = Functions::get_remote_file($resource_path, DOWNLOAD_WAIT_TIME, 1200, 5);
+$xml = fix_higher_level_names_entered_twice($xml); // this also fixes duplicate taxon and dataObject identifiers
+
+echo "\n\n has duplicate identifiers: " . check_for_duplicate_identifiers($xml) . "\n";
 
 $OUT = fopen($resource_path, "w");
 fwrite($OUT, $xml);
@@ -48,34 +62,91 @@ echo "\n\n Done processing.";
 
 function add_rank_element($source, $destination, $rank)
 {
-    $xml = Functions::get_remote_file($source, DOWNLOAD_WAIT_TIME, 0);
+    $xml = Functions::get_remote_file($source, DOWNLOAD_WAIT_TIME, 1200, 5);
     $xml = str_ireplace("</dwc:ScientificName>", "</dwc:ScientificName><rank>" . $rank . "</rank>", $xml);
     $OUT = fopen($destination, "w");
     fwrite($OUT, $xml);
     fclose($OUT);
 }
 
-function fix_higher_level_names_entered_twice($xml_string)
+function fix_higher_level_names_entered_twice($xml_string) // fixes duplicate object identifiers with different dataObject info
 {
+    $taxon_ids = array();
     $xml = simplexml_load_string($xml_string);
     foreach($xml->taxon as $taxon)
     {
-        $t_dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");                         
+        $t_dc = $taxon->children("http://purl.org/dc/elements/1.1/");
+        $t_dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
         $family         = trim($t_dwc->Family);
         $genus          = trim($t_dwc->Genus);
         $scientificname = trim($t_dwc->ScientificName);
+        $taxon_identifier = trim($t_dc->identifier);
+
+        // fix duplicate identifiers
+        $has_duplicates = false;
+        if(in_array($taxon_identifier, $taxon_ids))
+        {
+            echo "\n\n has duplicates: [$taxon_identifier][$scientificname]\n";
+            $has_duplicates = true;
+            $taxon_identifier = $taxon_identifier . "_" . str_ireplace(" ", "_", $scientificname);
+            $t_dc->identifier = $taxon_identifier;
+        }
+        else $taxon_ids[] = $taxon_identifier;
+        //end
+
         if($family == $scientificname)
         {
-            print "\n same family -- f[$family] g[$genus] sn[$scientificname]";
+            echo "\n same family -- f[$family] g[$genus] sn[$scientificname]";
             unset($t_dwc->Family);
         }
         elseif($genus == $scientificname)
         {
-            print "\n same genus -- f[$family] g[$genus] sn[$scientificname]";
+            echo "\n same genus -- f[$family] g[$genus] sn[$scientificname]";
             unset($t_dwc->Genus);
         }
+        if($has_duplicates)
+        {
+            foreach($taxon->dataObject as $do)
+            {
+                $t_dc2 = $do->children("http://purl.org/dc/elements/1.1/");            
+                $t_dc2->identifier = trim($t_dc2->identifier) . "_" . str_ireplace(" ", "_", $scientificname);
+            }
+        }
+
     }
     return $xml->asXML();
+}
+
+function check_for_duplicate_identifiers($xml_string)
+{
+    $taxon_ids = array();
+    $do_ids = array();
+    $xml = simplexml_load_string($xml_string);
+    foreach($xml->taxon as $taxon)
+    {
+        $t_dc = $taxon->children("http://purl.org/dc/elements/1.1/");
+        $t_dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
+        $scientificname = trim($t_dwc->ScientificName);
+        
+        $taxon_identifier = trim($t_dc->identifier);
+        if(in_array($taxon_identifier, $taxon_ids))
+        {
+            echo "\n\n warning: has duplicate taxon_id: [$taxon_identifier][$scientificname]\n";
+        }
+        else $taxon_ids[] = $taxon_identifier;
+        foreach($taxon->dataObject as $do)
+        {
+            $t_dc2 = $do->children("http://purl.org/dc/elements/1.1/");            
+            $do_identifier = trim($t_dc2->identifier);
+            if(in_array($do_identifier, $do_ids))
+            {
+                echo "\n\n warning: has duplicates do_id: [$do_identifier][$scientificname]\n";
+            }
+            else $do_ids[] = $do_identifier;
+        }
+    }
+    if($taxon_ids || $do_ids) return true;
+    else return false;
 }
 
 function combine_remote_eol_resource_files($resource_id, $files)
@@ -95,8 +166,8 @@ function combine_remote_eol_resource_files($resource_id, $files)
     fwrite($OUT, $str);
     foreach($files as $filename)
     {
-        print "\n $filename ";
-        $contents = Functions::get_remote_file($filename, DOWNLOAD_WAIT_TIME, 0);
+        echo "\n $filename ";
+        $contents = Functions::get_remote_file($filename, DOWNLOAD_WAIT_TIME, 1200, 5);
         if($contents != "")
         {
             $pos1 = stripos($contents, "<taxon>");
@@ -104,11 +175,11 @@ function combine_remote_eol_resource_files($resource_id, $files)
             $str  = substr($contents, $pos1, $pos2-$pos1);
             if($pos1) fwrite($OUT, $str);
         }
-        else print "\n no contents [$filename]";
+        else echo "\n no contents [$filename]";
     }
     fwrite($OUT, "</response>");
     fclose($OUT);
-    print"\n All XML compiled\n\n";
+    echo "\n All XML compiled\n\n";
 }
 
 ?>
