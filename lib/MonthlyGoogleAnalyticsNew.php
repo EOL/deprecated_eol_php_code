@@ -398,6 +398,8 @@ class MonthlyGoogleAnalyticsNew
             $bhl_concept_ids = array();
             foreach(new FileIterator($bhl_file_path) as $line_number => $line)
             {
+                $fields = explode("\t", $line);
+                $taxon_concept_id = trim($fields[0]);
                 $bhl_concept_ids[$taxon_concept_id] = 1;
             }
             $totals[] = count($bhl_concept_ids);

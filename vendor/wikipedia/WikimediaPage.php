@@ -90,7 +90,7 @@ class WikimediaPage
             }
             
             // add the authority to the last entry
-            if($authority)
+            if($authority && $taxonomy)
             {
                 $value = current($taxonomy);
                 $taxonomy[key($taxonomy)] = $value .' '. $authority;
@@ -133,7 +133,7 @@ class WikimediaPage
     {
         if(isset($this->taxon_parameters)) return $this->taxon_parameters;
         $taxonomy = $this->taxonomy();
-        
+        if(!$taxonomy) return array();
         $taxon_rank = key($taxonomy);
         $taxon_name = current($taxonomy);
         

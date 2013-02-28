@@ -7,4 +7,14 @@ require_library('EOLArchiveNames');
 $archive_creator = new EOLArchiveNames();
 $archive_creator->create();
 
+if(is_dir('/opt/downloads'))
+{
+    copy(DOC_ROOT.'temp/eol_names_and_ranks_archive.tar.gz', '/opt/downloads/eol_names_and_ranks_archive.tar.gz');
+    
+    $md5sum = md5_file('/opt/downloads/eol_names_and_ranks_archive.tar.gz');
+    $MD5_FILE = fopen('/opt/downloads/eol_names_and_ranks_archive.md5', 'w+');
+    fwrite($MD5_FILE, $md5sum);
+    fclose($MD5_FILE);
+}
+
 ?>

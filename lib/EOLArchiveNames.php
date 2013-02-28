@@ -12,9 +12,8 @@ class EOLArchiveNames
         $this->mysqli =& $GLOBALS['db_connection'];
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
         else $this->mysqli_slave =& $this->mysqli;
-        $this->output_directory = DOC_ROOT . "temp/eol_names_only_archive/";
+        $this->output_directory = DOC_ROOT . "temp/eol_names_and_ranks_archive/";
         recursive_rmdir($this->output_directory);
-        @unlink(DOC_ROOT . "temp/eol_names_only_archive.tar.gz");
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->output_directory));
         $this->load_all_ranks();
         $this->load_all_hierarchies();

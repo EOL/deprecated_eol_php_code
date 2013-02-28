@@ -18,7 +18,8 @@ class MergeConceptsHandler
 
         echo "++ [" . date('g:i A', time()) . "] Merging TC#" . $args['id1'] . " to " . $args['id2'] . "\n";
 
-        TaxonConcept::supercede_by_ids($args['id1'], $args['id2'], true);
+        $reindex = (isset($args['reindex'])) ? ($args['reindex'] == 'reindex') : true;
+        TaxonConcept::supercede_by_ids($args['id1'], $args['id2'], $reindex);
         echo "\nPages " . $args['id1'] . " and " . $args['id2'] . " have been merged to: " . min($args['id1'], $args['id2'])."\n\n";
 
         // Only applicable if run via resque, but safe *enough* otherwise:
