@@ -307,7 +307,7 @@ class FlickrAPI
             $extras = "last_update,media,url_o,owner_name";
             /* remove group_id param to get images from BHL photostream, and not only those in the EOL Flickr group */
             $text = "taxonomy:";
-            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "text" => $text, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
+            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
         }
         return json_decode(Functions::get_remote_file($url, NULL, 30));
     }

@@ -1,5 +1,8 @@
 <?php
 namespace php_active_record;
+/* connector for BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
+execution time: 3.5 hours
+*/
 
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
