@@ -7,7 +7,6 @@ class ReindexHandler
     {
         if (array_key_exists('flatten', $args))
         {
-            require_library('FlattenHierarchies');
             $he = new FlattenHierarchies();
             $he->flatten_hierarchies_from_concept_id($args['taxon_concept_id']);
         }

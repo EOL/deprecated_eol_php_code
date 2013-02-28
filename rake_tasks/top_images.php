@@ -11,7 +11,6 @@ $top_images = new TopImages();
 $top_images->begin_process();
 $top_images->top_concept_images(true);
 $top_images->top_concept_images(false);
-shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 $log->finished();
 

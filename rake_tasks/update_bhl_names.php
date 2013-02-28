@@ -18,8 +18,6 @@ insert_page_names();
 // shell_exec("rm -fr ". DOC_ROOT ."temp/data.zip");
 
 
-// clear the cache 
-// shell_exec(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/clear_eol_cache.php ENV_NAME=". $GLOBALS['ENV_NAME']);
 
 
 

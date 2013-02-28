@@ -16,6 +16,7 @@ class HarvestProcessLog extends ActiveRecord
     
     public function finished()
     {
+        unset($this->began_at);
         $this->completed_at = 'NOW()';
         $this->save();
         $this->refresh();

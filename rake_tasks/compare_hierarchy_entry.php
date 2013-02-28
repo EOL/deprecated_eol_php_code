@@ -1,4 +1,5 @@
 <?php
+exit;
 namespace php_active_record;
 
 $id = @$argv[1];

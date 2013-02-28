@@ -23,7 +23,6 @@ if($confirmed == 'confirmed')
         $taxon_concept = TaxonConcept::find($tc_id);
         Tasks::update_taxon_concept_names(array($tc_id));
         
-        require_library('FlattenHierarchies');
         $he = new FlattenHierarchies();
         $he->flatten_hierarchies_from_concept_id($tc_id);  // make sure hierarchy info is up-to-date
         TaxonConcept::reindex_descendants_objects($tc_id); // make sure objects are indexed for display

@@ -44,7 +44,6 @@ class HierarchyEntry extends ActiveRecord
                 Tasks::update_taxon_concept_names(array($taxon_concept_id));
                 if($update_caches)
                 {
-                    require_library('FlattenHierarchies');
                     $he = new FlattenHierarchies();
                     $he->flatten_hierarchies_from_concept_id($taxon_concept_id);
                     $he->flatten_hierarchies_from_concept_id($old_taxon_concept_id);
@@ -102,7 +101,6 @@ class HierarchyEntry extends ActiveRecord
                 
                 if($update_caches)
                 {
-                    require_library('FlattenHierarchies');
                     $he = new FlattenHierarchies();
                     $he->flatten_hierarchies_from_concept_id($taxon_concept_id);
                     $he->flatten_hierarchies_from_concept_id($old_taxon_concept_id);

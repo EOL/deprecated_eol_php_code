@@ -13,20 +13,35 @@ class HierarchyEntryRelationshipIndexer
         $this->relations_table_name = $relations_table_name;
     }
     
-    public function index($hierarchy = null, $compare_to_hierarchy = null)
+    public function index($options = array())
     {
+        if(!$options['hierarchy']) return false;
+        if(get_class($options['hierarchy']) != 'php_active_record\Hierarchy') return false;
+        if($options['hierarchy_entry_ids'] && !is_array($options['hierarchy_entry_ids'])) return false;
+        
         if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship')) return false;
         $this->solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
         
-        if($compare_to_hierarchy)
+        if($options['hierarchy_entry_ids'])
         {
-            if($GLOBALS['ENV_DEBUG']) echo("deleting (hierarchy_id_1:$hierarchy->id AND hierarchy_id_2:$compare_to_hierarchy->id) OR (hierarchy_id_2:$hierarchy->id AND hierarchy_id_1:$compare_to_hierarchy->id)\n");
-            $this->solr->delete("(hierarchy_id_1:$hierarchy->id AND hierarchy_id_2:$compare_to_hierarchy->id) OR (hierarchy_id_2:$hierarchy->id AND hierarchy_id_1:$compare_to_hierarchy->id)");
-        }elseif($hierarchy)
+            $batches = array_chunk($options['hierarchy_entry_ids'], 5000);
+            foreach($batches as $batch)
+            {
+                $queries = array();
+                foreach($batch as $id)
+                {
+                    $queries[] = "hierarchy_entry_id_1:$id";
+                    $queries[] = "hierarchy_entry_id_2:$id";
+                }
+                $this->solr->delete_by_queries($queries);
+            }
+        }else
         {
+            $hierarchy = $options['hierarchy'];
             if($GLOBALS['ENV_DEBUG']) echo("deleting hierarchy_id_1:$hierarchy->id OR hierarchy_id_2:$hierarchy->id\n");
             $this->solr->delete("hierarchy_id_1:$hierarchy->id OR hierarchy_id_2:$hierarchy->id");
         }
+        
         
         $start = 0;
         $max_id = 0;
@@ -38,13 +53,13 @@ class HierarchyEntryRelationshipIndexer
         }
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {
-            $this->lookup_relatipnships($i, $limit);
+            $this->lookup_relationships($i, $limit);
         }
-        //$this->solr->optimize();
+        $this->solr->commit();
     }
     
     
-    private function lookup_relatipnships($start, $limit)
+    private function lookup_relationships($start, $limit)
     {
         if($GLOBALS['ENV_DEBUG']) echo("querying relationships ($start, $limit)\n");
         $outfile = $this->mysqli->select_into_outfile("SELECT he1.id id1, he1.taxon_concept_id taxon_concept_id1, he1.hierarchy_id hierarchy_id1, he1.visibility_id visibility_id1, he2.id id2, he2.taxon_concept_id taxon_concept_id2, he2.hierarchy_id hierarchy_id2, he2.visibility_id visibility_id2, he1.taxon_concept_id=he2.taxon_concept_id same_concept, hr.relationship, hr.score FROM $this->relations_table_name hr JOIN hierarchy_entries he1 ON (hr.hierarchy_entry_id_1=he1.id) JOIN hierarchy_entries he2 ON (hr.hierarchy_entry_id_2=he2.id) WHERE hr.id BETWEEN $start AND ".($start+$limit));

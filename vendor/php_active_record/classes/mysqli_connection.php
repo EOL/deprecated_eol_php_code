@@ -20,7 +20,7 @@ class MysqliConnection
     private $master_socket;
     private $master_mysqli;
     private $transaction_in_progres;
-    
+
     function __construct($server, $user, $password, $database, $encoding, $port, $socket, $master_server, $master_user, $master_password, $master_database, $master_encoding, $master_port, $master_socket)
     {
         $this->server = $server;
@@ -36,9 +36,9 @@ class MysqliConnection
         $this->master_database = $master_database;
         $this->master_encoding = $master_encoding;
         $this->master_port = $master_port;
-        $this->master_socket = $master_socket;  
+        $this->master_socket = $master_socket;
         $this->transaction_in_progress = false;
-        
+
         if(!$this->encoding) $this->encoding = "utf8";
         if(!$this->port) $this->port = NULL;
         if(!$this->socket) $this->socket = NULL;
@@ -46,12 +46,12 @@ class MysqliConnection
         if(!$this->master_socket) $this->master_socket = NULL;
         if(!$this->master_encoding) $this->master_encoding = $this->encoding;
     }
-    
+
     function insert($query)
     {
         $this->check();
         $this->debug($query, true);
-        
+
         $this->master_mysqli->query($query);
         if($this->master_mysqli->errno)
         {
@@ -61,12 +61,12 @@ class MysqliConnection
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
         return $this->master_mysqli->insert_id;
     }
-    
+
     function update($query)
     {
         $this->check();
         $this->debug($query, true);
-        
+
         $result = $this->master_mysqli->query($query);
         if($this->master_mysqli->errno)
         {
@@ -76,17 +76,17 @@ class MysqliConnection
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
         return $result;
     }
-    
+
     function master($query)
     {
         return $this->update($query);
     }
-    
+
     function delete($query)
     {
         $this->check();
         $this->debug($query, true);
-        
+
         $result = $this->master_mysqli->query($query);
         if($this->master_mysqli->errno)
         {
@@ -96,12 +96,12 @@ class MysqliConnection
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
         return $result;
     }
-    
+
     function select($query)
     {
         $this->check();
         $this->debug($query, false);
-        
+
         $result = $this->mysqli->query($query);
         if($this->mysqli->errno)
         {
@@ -111,12 +111,20 @@ class MysqliConnection
         if($err = mysqli_errno($this->mysqli)) return NULL;
         return $result;
     }
-    
+
+    function select_value($query)
+    {
+        if($result = $this->select($query))
+        {
+            if($row = $result->fetch_row()) return $row[0];
+        }
+    }
+
     public static function is_read_query($query)
     {
         return !self::is_write_query($query);
     }
-    
+
     public static function is_write_query($query)
     {
         if(preg_match("/^(insert|update|delete|truncate|create|drop|alter|load data)/i", trim($query), $arr))
@@ -125,7 +133,7 @@ class MysqliConnection
         }
         return false;
     }
-    
+
     function query($query)
     {
         if(preg_match("/^(insert|update|delete|truncate|create|drop|alter|load data)/i", trim($query), $arr))
@@ -143,16 +151,16 @@ class MysqliConnection
                     break;
             }
         }
-        
+
         return $this->select($query);
     }
-    
+
     function multi_query($query)
     {
         if(!trim($query)) return;
         $this->check();
         $this->debug($query, true);
-        
+
         if($this->master_mysqli->multi_query($query))
         {
             $results = array();
@@ -163,7 +171,7 @@ class MysqliConnection
                 {
                     trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
                 }
-                
+
                 if($result) $result->free();
             }while(@$this->master_mysqli->next_result());
         }else
@@ -171,19 +179,19 @@ class MysqliConnection
             trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
         }
     }
-    
+
     function load_data_infile($path, $table, $action = "IGNORE", $set = '', $udelay = 500000, $maximum_rows_in_file = 50000)
     {
         if($action != "REPLACE") $action = "IGNORE";
         // how many rows to split the larger file into
         if($action == 'REPLACE') $maximum_rows_in_file = 20000;
         $tmp_file_path = temp_filepath();
-        
+
         $this->begin_transaction();
         //$this->insert("SET FOREIGN_KEY_CHECKS = 0");
         $LOAD_DATA_TEMP = fopen($tmp_file_path, "w+");
         //flock($LOAD_DATA_TEMP, LOCK_EX);
-        
+
         $line_counter = 0;
         $batch = 0;
         $FILE = fopen($path, "r");
@@ -192,7 +200,7 @@ class MysqliConnection
             if($line = fgets($FILE, 4096))
             {
                 fwrite($LOAD_DATA_TEMP, $line);
-                
+
                 $line_counter++;
                 // load data if we have enough rows
                 if($line_counter >= $maximum_rows_in_file)
@@ -209,7 +217,7 @@ class MysqliConnection
             }
         }
         fclose($FILE);
-        
+
         // insert the remaining rows
         if(filesize($tmp_file_path))
         {
@@ -217,25 +225,25 @@ class MysqliConnection
             $this->commit();
             usleep_production($udelay);
         }
-        
+
         //$this->insert("SET FOREIGN_KEY_CHECKS = 1");
         $this->end_transaction();
         unlink($tmp_file_path);
     }
-    
+
     function select_into_outfile($query, $escape = false)
     {
         $query = str_replace("\n", " ", $query);
         $query = str_replace("\r", " ", $query);
         $query = str_replace("\t", " ", $query);
         $tmp_file_path = temp_filepath();
-        
+
         // perpare the command line command
         $command = MYSQL_BIN_PATH . " --host=$this->server --user=$this->user --password=$this->password --database=$this->database --compress --column-names=false";
         if($this->port) $command .= " --port=$this->port";
         if($this->encoding) $command .= " --default-character-set=$this->encoding";
         $command .= " -e \"$query\"  > $tmp_file_path";
-        
+
         // echo "$command\n";
         // execute the query
         $this->debug($query, true);
@@ -243,11 +251,11 @@ class MysqliConnection
         if(file_exists($tmp_file_path)) return $tmp_file_path;
         return false;
     }
-    
+
     function delete_from_where($table, $field, $select, $udelay = 1000000)
     {
         $outfile = $this->select_into_outfile($select);
-        
+
         $ids = array();
         $this->begin_transaction();
         $FILE = fopen($outfile, "r");
@@ -275,11 +283,11 @@ class MysqliConnection
         $this->end_transaction();
         unlink($outfile);
     }
-    
+
     function update_where($table, $field, $select, $set, $udelay = 500000)
     {
         $outfile = $this->select_into_outfile($select);
-        
+
         $ids = array();
         $this->begin_transaction();
         $FILE = fopen($outfile, "r");
@@ -307,25 +315,25 @@ class MysqliConnection
         $this->end_transaction();
         unlink($outfile);
     }
-    
+
     function &iterate($query)
     {
         $result = $this->query($query);
         $result_iterator = new MysqliResultIterator($result);
         return $result_iterator;
     }
-    
+
     function &iterate_file($query)
     {
         $it = new MysqliResultFileIterator($query, $this);
         return $it;
     }
-    
+
     function truncate_tables($environment = "test")
     {
         if($GLOBALS['ENV_NAME'] != $environment) return false;
         $this->check();
-        
+
         $query = "";
         $this->debug("show tables from ".$this->master_database, true);
         $result = $this->master_mysqli->query("show tables from ".$this->master_database);
@@ -340,27 +348,27 @@ class MysqliConnection
         }
         if($query) $this->multi_query($query);
     }
-    
+
     function real_escape_string($string)
     {
         $this->check();
         return $this->master_mysqli->real_escape_string($string);
     }
-    
+
     function escape($string)
     {
         $this->check();
         if(is_null($string)) return NULL;
         return $this->master_mysqli->real_escape_string($string);
     }
-    
+
     function thread_id($master)
     {
         $this->check();
         if($master) return $this->master_mysqli->thread_id;
         return $this->mysqli->thread_id;
     }
-    
+
     function autocommit($commit)
     {
         $this->check();
@@ -368,14 +376,14 @@ class MysqliConnection
         if($commit) $this->transaction_in_progress = false;
         else $this->transaction_in_progress = true;
     }
-    
+
     function begin_transaction()
     {
         $this->check();
         mysql_debug('Beginning transaction');
         $this->autocommit(false);
     }
-    
+
     function end_transaction()
     {
         $this->check();
@@ -383,14 +391,14 @@ class MysqliConnection
         mysql_debug('Ending transaction');
         $this->autocommit(true);
     }
-    
+
     function commit()
     {
         $this->check();
         mysql_debug('Committing');
         $this->master_mysqli->commit();
     }
-    
+
     function in_transaction()
     {
         $this->check();
@@ -402,41 +410,41 @@ class MysqliConnection
         }
         return false;
     }
-    
+
     function rollback()
     {
         $this->check();
         mysql_debug('Rolling back');
         $this->master_mysqli->rollback();
     }
-    
+
     function close()
     {
         $this->check();
         $this->mysqli->close();
         if($this->master_mysqli !== $this->mysqli) $this->master_mysqli->close();
     }
-    
+
     function check()
     {
         if(!$this->mysqli) $this->initialize();
     }
-    
+
     function errno()
     {
         return $this->master_mysqli->errno;
     }
-    
+
     function error()
     {
         return $this->master_mysqli->error;
     }
-    
+
     function affected_rows()
     {
         return $this->master_mysqli->affected_rows;
     }
-    
+
     function swap_tables($table_one, $table_two)
     {
         $swap = $table_one . "_to_swap";
@@ -444,7 +452,7 @@ class MysqliConnection
                                     $table_two TO $table_one,
                                     $swap TO $table_two");
     }
-    
+
     function table_exists($table_name)
     {
         $result = $this->query("SHOW TABLES LIKE '". $this->escape($table_name) ."'");
@@ -454,7 +462,7 @@ class MysqliConnection
         }
         return false;
     }
-    
+
     function debug($string, $master)
     {
         static $number_of_queries;
@@ -463,21 +471,21 @@ class MysqliConnection
         {
             if(!isset($number_of_queries)) $number_of_queries = 1;
             if(!isset($number_of_master_queries)) $number_of_master_queries = 1;
-            
+
             $this->check();
-            
+
             $return = "db";
             if($master) $return .= "(M) $number_of_master_queries";
             else $return .= " $number_of_queries";
             $return .= "\n\t$string";
-            
+
             mysql_debug($return);
-            
+
             if($master) $number_of_master_queries++;
             else $number_of_queries++;
         }
     }
-    
+
     function initialize()
     {
         mysql_debug("Connecting to host:$this->server, database:$this->database");
@@ -485,13 +493,13 @@ class MysqliConnection
         $this->mysqli->init();
         $this->mysqli->options(MYSQLI_OPT_LOCAL_INFILE, true);
         $this->mysqli->real_connect($this->server, $this->user, $this->password, "", $this->port, $this->socket, MYSQLI_CLIENT_COMPRESS);
-        
+
         if($this->mysqli->connect_errno)
         {
             trigger_error('MySQL Connect Error: ' . $this->mysqli->connect_error, E_USER_ERROR);
             exit;
         }
-        
+
         if(!$this->mysqli->select_db($this->database))
         {
             if(@!$GLOBALS['ENV_ALLOW_MISSING_DB'])
@@ -500,9 +508,9 @@ class MysqliConnection
                 exit;
             }
         }
-        
+
         $this->mysqli->set_charset($this->encoding);
-        
+
         if($this->master_server)
         {
             mysql_debug("Connecting to host:$this->master_server, database:$this->master_database");
@@ -510,13 +518,13 @@ class MysqliConnection
             $this->master_mysqli->init();
             $this->master_mysqli->options(MYSQLI_OPT_LOCAL_INFILE, true);
             $this->master_mysqli->real_connect($this->master_server, $this->master_user, $this->master_password, "", $this->master_port, $this->master_socket, MYSQLI_CLIENT_COMPRESS);
-            
+
             if($this->master_mysqli->connect_errno)
             {
                 trigger_error('MySQL Connect Error: ' . $this->master_mysqli->connect_error, E_USER_ERROR);
                 exit;
             }
-            
+
             if(!$this->master_mysqli->select_db($this->database))
             {
                 if(@!$GLOBALS['ENV_ALLOW_MISSING_DB'])
@@ -525,7 +533,7 @@ class MysqliConnection
                     exit;
                 }
             }
-            
+
             $this->master_mysqli->set_charset($this->master_encoding);
         }else
         {
@@ -536,7 +544,7 @@ class MysqliConnection
             $this->master_encoding = $this->encoding;
             $this->master_port = $this->port;
             $this->master_socket = $this->socket;
-            
+
             $this->master_mysqli =& $this->mysqli;
         }
     }

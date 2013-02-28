@@ -1,4 +1,5 @@
 <?php
+exit;
 namespace php_active_record;
 
 $attr = @$argv[1];

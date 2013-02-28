@@ -315,10 +315,7 @@ class Resource extends ActiveRecord
                         $indexer->index($this->hierarchy_id);
                         
                         // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                        $hierarchy = Hierarchy::find($this->hierarchy_id);
-                        CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                        
-                        CompareHierarchies::begin_concept_assignment($this->hierarchy_id, true);
+                        $harvest_event->compare_new_hierarchy_entries();
                     }
                 }
                 
@@ -331,10 +328,6 @@ class Resource extends ActiveRecord
                 {
                     $harvest_event->create_collection();
                     $harvest_event->index_for_search();
-                    if($old_he = $harvest_event->previous_harvest_event())
-                    {
-                        $old_he->index_for_search($harvest_event->id);
-                    }
                 }
                 $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::published()->id ." WHERE id=$this->id");
             }
@@ -404,9 +397,7 @@ class Resource extends ActiveRecord
                     $indexer = new HierarchyEntryIndexer();
                     $indexer->index($this->hierarchy_id);
                     
-                    // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-                    CompareHierarchies::process_hierarchy($hierarchy, null, true);
-                    CompareHierarchies::begin_concept_assignment($this->hierarchy_id, true);
+                    $this->harvest_event->compare_new_hierarchy_entries();
                     
                     $this->harvest_event->create_collection();
                 }
@@ -810,7 +801,8 @@ class Resource extends ActiveRecord
             $indexer->index($archive_hierarchy_id);
             
             // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
-            CompareHierarchies::process_hierarchy($archive_hierarchy, null, true);
+            $relator = new RelateHierarchies(array('hierarchy_to_compare' => $archive_hierarchy));
+            $relator->process_hierarchy();
             
             // Use the entry relationships to assign the proper concept IDs
             CompareHierarchies::begin_concept_assignment($archive_hierarchy_id, true);
