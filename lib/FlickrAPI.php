@@ -16,17 +16,18 @@ define("FLICKR_REST_PREFIX", "http://api.flickr.com/services/rest/?");
 define("FLICKR_AUTH_PREFIX", "http://api.flickr.com/services/auth/?");
 define("FLICKR_UPLOAD_URL", "http://www.flickr.com/services/upload/");
 define("FLICKR_EOL_GROUP_ID", "806927@N20");
+define("FLICKR_BHL_ID", "61021753@N02"); // BHL: BioDivLibrary's photostream - http://www.flickr.com/photos/61021753@N02
 
 class FlickrAPI
 {
-    public static function get_all_eol_photos($auth_token = "", $resource_file = null)
+    public static function get_all_eol_photos($auth_token = "", $resource_file = null, $user_id = NULL)
     {
         $all_taxa = array();
         $used_image_ids = array();
         $per_page = 500;
         
         // Get metadata about the EOL Flickr pool
-        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, $auth_token);
+        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, $auth_token, $user_id);
         if($response && isset($response->photos->total))
         {
             $total = $response->photos->total;
@@ -38,7 +39,7 @@ class FlickrAPI
             for($i=1 ; $i<=$total_pages ; $i++)
             {
                 echo "getting page $i: ".time_elapsed()."\n";
-                $page_taxa = self::get_eol_photos($per_page, $i, $auth_token);
+                $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id);
                 if($page_taxa)
                 {
                     foreach($page_taxa as $t)
@@ -53,12 +54,13 @@ class FlickrAPI
         return $all_taxa;
     }
     
-    public static function get_eol_photos($per_page, $page, $auth_token = "")
+    public static function get_eol_photos($per_page, $page, $auth_token = "", $user_id = NULL)
     {
         global $used_image_ids;
         
-        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token);
-        
+        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id);
+        echo "\n page " . $response->photos->page . " of " . $response->photos->pages . " | total taxa =  " . $response->photos->total . "\n";
+
         static $count_taxa = 0;
         $page_taxa = array();
         foreach($response->photos->photo as $photo)
@@ -300,6 +302,13 @@ class FlickrAPI
     {
         $extras = "last_update,media,url_o";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
+        if($user_id == FLICKR_BHL_ID)
+        {
+            $extras = "last_update,media,url_o,owner_name";
+            /* remove group_id param to get images from BHL photostream, and not only those in the EOL Flickr group */
+            $text = "taxonomy:";
+            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
+        }
         return json_decode(Functions::get_remote_file($url, NULL, 30));
     }
     
