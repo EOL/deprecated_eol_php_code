@@ -42,6 +42,7 @@ applications/species_stat/temp/*
 !applications/species_stat/temp/.gitignore
 applications/taxon_page_metrics/text_files/*
 !applications/taxon_page_metrics/text_files/.gitignore
+applications/taxon_page_metrics/*.txt
 applications/urls_lookup/temp/*
 !applications/urls_lookup/temp/.gitignore
 applications/xls2EOL/eol_video.xls
