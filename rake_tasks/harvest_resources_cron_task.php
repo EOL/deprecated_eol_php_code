@@ -47,6 +47,7 @@ if(!$fast_for_testing)
     
     // setting appropriate TaxonConcept publish flag
     Hierarchy::publish_wrongly_unpublished_concepts();
+    Hierarchy::fix_improperly_trusted_concepts();
     
     // update collection items which reference superceded concepts
     shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/remove_superceded_collection_items.php ENV_NAME=". $GLOBALS['ENV_NAME']);

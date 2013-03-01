@@ -85,11 +85,11 @@ class SiteSearchIndexer
         $this->solr->commit();
     }
     
-    public function index_collection($collection)
+    public function index_collection($collection_id)
     {
         if(!$this->solr) $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        $id = array($collection->id);
-        $this->index_type('Collection', 'collections', 'lookup_collections', $id);
+        $ids = array($collection_id);
+        $this->index_type('Collection', 'collections', 'lookup_collections', $ids);
     }
     
     public function index_taxa($params = array())

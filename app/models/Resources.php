@@ -704,47 +704,6 @@ class Resource extends ActiveRecord
         return $hierarchy->id;
     }
     
-    // this method will potentially change the ID of the supplied collection
-    public function set_collection(&$collection, $preview = false)
-    {
-        if($collection->published == 0 || $preview)
-        {
-            if($this->preview_collection)
-            {
-                $previous_collection = $this->preview_collection;
-                $this->mysqli->query("UPDATE collections SET id = id*-1 WHERE id = $previous_collection->id");
-                $this->mysqli->query("UPDATE collection_items SET collection_id = collection_id*-1 WHERE collection_id = $previous_collection->id");
-                
-                $this->mysqli->query("UPDATE collections SET id = $previous_collection->id WHERE id = $collection->id");
-                $this->mysqli->query("UPDATE collection_items SET collection_id = $previous_collection->id WHERE collection_id = $collection->id");
-                
-                $collection->id = $previous_collection->id;
-                $this->mysqli->query("DELETE FROM collections WHERE id = -$previous_collection->id");
-                $this->mysqli->query("DELETE FROM collection_items WHERE collection_id = -$previous_collection->id");
-                
-            }
-            $this->preview_collection_id = $collection->id;
-            $this->save();
-        }else
-        {
-            if($this->collection)
-            {
-                $previous_collection = $this->collection;
-                $this->mysqli->query("UPDATE collections SET id = id*-1 WHERE id = $previous_collection->id");
-                $this->mysqli->query("UPDATE collection_items SET collection_id = collection_id*-1 WHERE collection_id = $previous_collection->id");
-                
-                $this->mysqli->query("UPDATE collections SET id = $previous_collection->id WHERE id = $collection->id");
-                $this->mysqli->query("UPDATE collection_items SET collection_id = $previous_collection->id WHERE collection_id = $collection->id");
-                
-                $collection->id = $previous_collection->id;
-                $this->mysqli->query("DELETE FROM collections WHERE id = -$previous_collection->id");
-                $this->mysqli->query("DELETE FROM collection_items WHERE collection_id = -$previous_collection->id");
-            }
-            $this->collection_id = $collection->id;
-            $this->save();
-        }
-    }
-    
     private function insert_dwc_hierarchy()
     {
         // if there is already an archive hierarchy - make a copy for the new data

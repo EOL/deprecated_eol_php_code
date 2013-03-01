@@ -73,7 +73,10 @@ class Hierarchy extends ActiveRecord
         
         // unpublish concepts that have been superceded
         $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT id FROM taxon_concepts tc WHERE supercedure_id!=0 AND published=1", "published=0");
-        
+    }
+    
+    public static function fix_improperly_trusted_concepts()
+    {
         // trust concepts that have visible trusted entries
         $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM taxon_concepts tc JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id) WHERE tc.vetted_id!=".Vetted::trusted()->id." AND he.visibility_id=".Visibility::visible()->id." AND he.vetted_id=".Vetted::trusted()->id, "vetted_id=".Vetted::trusted()->id);
         

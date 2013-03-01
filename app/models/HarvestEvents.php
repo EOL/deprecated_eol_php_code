@@ -231,42 +231,107 @@ class HarvestEvent extends ActiveRecord
         if($taxon_concept_ids) $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
     }
     
+    private function create_or_get_resource_collection()
+    {
+        if($this->published_at)
+        {
+            if($this->resource->collection) $collection = $this->resource->collection;
+            else
+            {
+                $collection = Collection::create(array('name' => $this->resource->title));
+                $this->resource->refresh();
+                $this->resource->collection_id = $collection->id;
+                $this->resource->save();
+            }
+            $collection->published = 1;
+        }else
+        {
+            if($this->resource->preview_collection) $collection = $this->resource->preview_collection;
+            else
+            {
+                $collection = Collection::create(array('name' => $this->resource->title));
+                $this->resource->refresh();
+                $this->resource->preview_collection_id = $collection->id;
+                $this->resource->save();
+            }
+            $collection->published = 0;
+        }
+        return $collection;
+    }
+    
     public function create_collection()
     {
-        $collection_title = $this->resource->title;
+        $collection = $this->create_or_get_resource_collection();
         $description = trim($this->resource->content_partner->description);
         if($description && !preg_match("/\.$/", $description)) $description = trim($description) . ".";
         $description .= " Last indexed ". date('F j, Y', strtotime($this->completed_at));
-        $collection = Collection::find_or_create(array(
-            'name' => $collection_title,
-            'logo_cache_url' => $this->resource->content_partner->user->logo_cache_url,
-            'description' => trim($description),
-            'created_at' => 'NOW()',
-            'updated_at' => 'NOW()'));
-        $GLOBALS['db_connection']->insert("INSERT IGNORE INTO collections_users (collection_id, user_id) VALUES ($collection->id, ".$this->resource->content_partner->user->id.")");
         
+        $collection->name = $this->resource->title;
+        $collection->logo_cache_url = $this->resource->content_partner->logo_cache_url;
+        if(!$collection->logo_cache_url) $collection->logo_cache_url = $this->resource->content_partner->user->logo_cache_url;
+        $collection->description = trim($description);
+        $collection->updated_at = 'NOW()';
+        $collection->save();
+        $user_id = $this->resource->content_partner->user_id;
+        $GLOBALS['db_connection']->insert("INSERT IGNORE INTO collections_users (collection_id, user_id) VALUES ($collection->id, $user_id)");
+        
+        $this->sync_with_collection($collection);
+        
+        if($this->published_at)
+        {
+            // make sure the collection can be searched for
+            $indexer = new SiteSearchIndexer();
+            $indexer->index_collection($collection->id);
+            // delete the existing preview collection
+            if($this->resource->preview_collection) $this->resource->preview_collection->delete();
+        }
+    }
+    
+    public function sync_with_collection($collection)
+    {
+        $this->remove_collection_items_not_in_harvest($collection);
+        
+        $starting_max_collection_item_id = $this->mysqli->select_value("SELECT MAX(id) FROM collection_items WHERE collection_id=$collection->id");
+        if(!$starting_max_collection_item_id) $starting_max_collection_item_id = 0;
         $this->add_objects_to_collection($collection);
         $this->add_taxa_to_collection($collection);
         
-        if($this->published_at)
+        $collection_items_to_index = array();
+        $query = "SELECT id FROM collection_items WHERE collection_id=$collection->id AND id > $starting_max_collection_item_id";
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $collection_items_to_index[] = $row[0];
+        if($collection_items_to_index)
         {
-            $collection->published = 1;
-            $collection->save();
-            $this->resource->set_collection($collection);
-        }else
-        {
-            $collection->published = 0;
-            $collection->save();
-            $this->resource->set_collection($collection, true);
+            $indexer = new CollectionItemIndexer();
+            $indexer->index_collection_items($collection_items_to_index);
         }
+    }
+    
+    private function remove_collection_items_not_in_harvest($collection)
+    {
+        $collection_items_to_delete = array();
+        // objects in collection not in harvest event
+        $query = "SELECT ci.id FROM collection_items ci
+            LEFT JOIN data_objects_harvest_events dohe ON (ci.collected_item_id=dohe.data_object_id AND dohe.harvest_event_id=$this->id)
+            WHERE ci.collection_id=$collection->id AND ci.collected_item_type='DataObject' AND dohe.data_object_id IS NULL";
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $collection_items_to_delete[] = $row[0];
         
+        // taxa in collection not in harvest event
+        $query = "SELECT ci.id FROM collection_items ci
+            LEFT JOIN (
+                harvest_events_hierarchy_entries hehe
+                JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id AND hehe.harvest_event_id=$this->id))
+            ON (ci.collected_item_id=he.taxon_concept_id)
+            WHERE ci.collection_id=$collection->id AND ci.collected_item_type='TaxonConcept' AND hehe.hierarchy_entry_id IS NULL";
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $collection_items_to_delete[] = $row[0];
         
-        $indexer = new CollectionItemIndexer();
-        $indexer->index_collection($collection->id);
-        if($this->published_at)
+        $batches = array_chunk($collection_items_to_delete, 10000);
+        foreach($batches as $batch)
         {
-            $indexer = new SiteSearchIndexer();
-            $indexer->index_collection($collection);
+            // delete them from mysql
+            $this->mysqli->delete("DELETE FROM collection_items WHERE id IN (". implode(",", $batch) .")");
+            // remove them from solr
+            $indexer = new CollectionItemIndexer();
+            $indexer->index_collection_items($batch);
         }
     }
     
@@ -389,7 +454,7 @@ class HarvestEvent extends ActiveRecord
         {
             $query = "SELECT dohe.data_object_id
                 FROM data_objects_hierarchy_entries dohe
-                WHERE dohe.hierarchy_entry_id IN (". implode($batch, ",") .")";
+                WHERE dohe.hierarchy_entry_id IN (". implode(",", $batch) .")";
             foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $data_object_ids[$row[0]] = true;
         }
         return array_keys($data_object_ids);
@@ -480,11 +545,13 @@ class HarvestEvent extends ActiveRecord
         $map_type_ids = DataType::map_type_ids();
         $text_type_ids = DataType::text_type_ids();
         
-        $query = "
-            SELECT do.id, do.created_at, do.object_title, do.data_type_id
+        // objects that need to be added
+        $query = "SELECT do.id, do.created_at, do.object_title, do.data_type_id
             FROM data_objects_harvest_events dohe
             JOIN data_objects do ON (dohe.data_object_id=do.id)
-            WHERE dohe.harvest_event_id = $this->id";
+            LEFT JOIN collection_items ci ON (dohe.data_object_id=ci.collected_item_id
+                AND ci.collected_item_type='DataObject' AND ci.collection_id=$collection->id)
+            WHERE dohe.harvest_event_id=$this->id AND ci.id IS NULL";
         $used_ids = array();
         $count = 0;
         $outfile = temp_filepath();
@@ -509,17 +576,18 @@ class HarvestEvent extends ActiveRecord
         fclose($OUT);
         $this->mysqli->load_data_infile($outfile, 'collection_items');
         unlink($outfile);
-        // echo "$dump_path\n";
     }
     
     private function add_taxa_to_collection($collection)
     {
-        $query = "
-            SELECT he.taxon_concept_id, he.created_at, n.string
+        // taxa that need to be added
+        $query = "SELECT he.taxon_concept_id, he.created_at, n.string
             FROM harvest_events_hierarchy_entries hehe
             JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id)
             JOIN names n ON (he.name_id=n.id)
-            WHERE hehe.harvest_event_id = $this->id";
+            LEFT JOIN collection_items ci ON (he.taxon_concept_id=ci.collected_item_id
+                AND ci.collected_item_type='TaxonConcept' AND ci.collection_id=$collection->id)
+            WHERE hehe.harvest_event_id=$this->id AND ci.id IS NULL";
         $used_ids = array();
         $count = 0;
         $outfile = temp_filepath();
