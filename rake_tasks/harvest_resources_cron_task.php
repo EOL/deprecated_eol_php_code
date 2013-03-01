@@ -27,7 +27,7 @@ $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    // if(in_array($resource->id, array(42))) continue;
+    // if(in_array($resource->id, array(201, 224))) continue;
     if($specified_id && $resource->id != $specified_id) continue;
     // if(!in_array($resource->id, array(324))) continue;
     // if($resource->id < 197) continue;
@@ -59,19 +59,17 @@ if(!$fast_for_testing)
         
         if(defined('SOLR_SERVER'))
         {
-            if(SolrAPI::ping(SOLR_SERVER, 'site_search'))
-            {
-                $search_indexer = new SiteSearchIndexer();
-                $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects');
-                $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa');
-                
-                $solr = new SolrAPI(SOLR_SERVER, 'site_search');
-                $solr->optimize();
-            }
-            
-            // Only optimize the indices on Saturday which is our lowest traffic day
             if($GLOBALS["ENV_NAME"] == 'test' || date('w') == 6)
             {
+                if(SolrAPI::ping(SOLR_SERVER, 'site_search'))
+                {
+                    $search_indexer = new SiteSearchIndexer();
+                    $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects');
+                    $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa');
+                    $solr = new SolrAPI(SOLR_SERVER, 'site_search');
+                    $solr->optimize();
+                }
+                
                 if(SolrAPI::ping(SOLR_SERVER, 'data_objects'))
                 {
                     $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
