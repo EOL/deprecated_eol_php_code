@@ -91,7 +91,7 @@ class WormsAPI
                 $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
                 if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
                 {
-                    Functions::run_another_connector_instance($resource_id, 2);
+                    Functions::run_another_connector_instance($resource_id, 4);
                     $call_multiple_instance = 0;
                 }
                 self::get_all_taxa($task);
@@ -151,18 +151,21 @@ class WormsAPI
         $timestart = time_elapsed(); echo "\n start timer";
         $file = WORMS_TAXON_API . $id;
         echo "$file\n";
-        if($contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 240, 5))
+        if($contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 600, 5))
         {
-            $pos1 = stripos($contents, "<taxon>");
-            $pos2 = stripos($contents, "</taxon>");
-            if($pos1 != "" and $pos2 != "")
+            if(simplexml_load_string($contents))
             {
-                $contents = trim(substr($contents, $pos1, $pos2 - $pos1 + 8));
-                $elapsed_time_sec = time_elapsed() - $timestart;
-                echo "\n";
-                echo "elapsed time = " . $elapsed_time_sec . " seconds \n";
-                $this->exec_time_in_seconds += $elapsed_time_sec;
-                return $contents;
+                $pos1 = stripos($contents, "<taxon>");
+                $pos2 = stripos($contents, "</taxon>");
+                if($pos1 != "" and $pos2 != "")
+                {
+                    $contents = trim(substr($contents, $pos1, $pos2 - $pos1 + 8));
+                    $elapsed_time_sec = time_elapsed() - $timestart;
+                    echo "\n";
+                    echo "elapsed time = " . $elapsed_time_sec . " seconds \n";
+                    $this->exec_time_in_seconds += $elapsed_time_sec;
+                    return $contents;
+                }
             }
         }
         @$GLOBALS['WORMS_bad_id'] .= $id . ",";
@@ -248,7 +251,9 @@ class WormsAPI
         $r[] = $ids[9];
         $ids = $r;
         */
-
+        
+        // $ids = array(); $ids[] = 246718;//9182;//243944;
+        
         /*debug: to be used when searching for an id
         foreach(array(582008, 582009, 582010) as $id)
         {

@@ -28,4 +28,28 @@ Soon this connector will be obsolete as WORMS agreed to provide a DWC-A resource
 // echo "elapsed time = " . $elapsed_time_sec/60/60/24 . " days \n";
 // echo date('Y-m-d h:i:s a', time())."\n";
 // echo "\n\n Done processing.";
+
+
+function worms_check()
+{
+    $path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/26.xml";
+    print "\n xml file: [$path] \n";
+    $reader = new \XMLReader();
+    $reader->open($path);
+    $i = 0;
+    while(@$reader->read())
+    {
+        if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon")
+        {
+            $string = $reader->readOuterXML();
+            if($xml = simplexml_load_string($string)) print " ok ";
+            else 
+            {
+                print " bad "; $i++;
+            }
+        }
+    }
+    print "\n\n invalid xml: $i";
+}
+
 ?>

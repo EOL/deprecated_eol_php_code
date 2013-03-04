@@ -187,5 +187,44 @@ class ResourceDataObjectElementsSetting
         fclose($OUT);
     }
 
+    public function delete_taxon_if_no_dataObject($xml_string)
+    {
+        if($xml = simplexml_load_string($xml_string))
+        {
+            $i = 0;
+            foreach($xml->taxon as $taxon)
+            {
+                $i++;
+                $dc = $taxon->children("http://purl.org/dc/elements/1.1/");
+                $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
+                $dcterms = $taxon->children("http://purl.org/dc/terms/");
+                echo "\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName ."]";
+                if(!$taxon->dataObject)
+                {
+                    echo " --- deleted \n";
+                    unset($dc->identifier);
+                    unset($dc->source);
+                    unset($dwc->Kingdom);
+                    unset($dwc->Phylum);
+                    unset($dwc->Class);
+                    unset($dwc->Order);
+                    unset($dwc->Family);
+                    unset($dwc->Genus);
+                    unset($dwc->ScientificName);
+                    unset($xml->taxon[$i-1]->commonName);
+                    unset($xml->taxon[$i-1]->synonym);
+                    unset($dcterms->created);
+                    unset($dcterms->modified);
+                    unset($xml->taxon[$i-1]->reference);
+                    unset($xml->taxon[$i-1]->dataObject);
+                }
+            }
+            $xml_string = $xml->asXML();
+            $xml_string = preg_replace('/\s*(<[^>]*>)\s*/', '$1', $xml_string); // remove whitespaces
+            $xml_string = str_ireplace(array("<taxon></taxon>", "<taxon/>"), "", $xml_string);
+            return $xml_string;
+        }
+    }
+
 }
 ?>
