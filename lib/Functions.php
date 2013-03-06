@@ -1756,7 +1756,7 @@ class Functions
                     Functions::run_another_connector_instance($class->resource_id, $class->connectors_to_run);
                     $class->call_multiple_instance = 0;
                 }
-                $class::get_all_taxa($task, $class->TEMP_FILE_PATH); //main connector body
+                $class->get_all_taxa($task, $class->TEMP_FILE_PATH); //main connector body
                 print"\n Task $task is done. \n";
                 Functions::delete_a_task("$task\n", $class->WORK_IN_PROGRESS_LIST);//remove a task from task list
             }

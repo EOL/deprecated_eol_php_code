@@ -7,12 +7,8 @@ The service is per phylum level e.g.: http://v2.boldsystems.org/connect/REST/get
 This service will then list all the species under this phylum. The list of phylum names at the moment is hard-coded.
 The connector runs all the phylum taxa, assembles each of the taxon info and generates the final EOL XML.
 
-** Latest News from BOLDS: We just received from Sujeevan, a way to download the BOLDS data dump.
-https://jira.eol.org/browse/COLLAB-560?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel&focusedCommentId=37126#comment-37126
-I haven't opened it yet but the dump consists of one giant XML file, 3.4 GB in size.
-This mother resource from BOLDS maybe the way to go and all past connectors will become obsolete. 
-I will leave this to the next BIG developer who will handle this resource.
-
+With the availability of the BOLDS big XML file (http://www.boldsystems.org/export/boldrecords.xml.gz), 
+the nucleotides sequence is no longer scraped from the site.
 */
 
 define("PHYLUM_SERVICE_URL", "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
@@ -22,15 +18,18 @@ class BOLDSysAPI
 {
     const MAP_SCALE = "/libhtml/icons/mapScale_BOLD.png";
     const BOLDS_DOMAIN = "http://www.boldsystems.org";
+    const BOLDS_DOMAIN_NEW = "http://v2.boldsystems.org";
 
-    private static $PHYLUM_LIST;
-    public function __construct() 
+    private static $saved_sequences;
+
+    public function __construct()
     {           
         $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
-        $this->WORK_LIST              = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_list.txt"; //sl - species-level taxa
-        $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_work_in_progress_list.txt";
-        $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/sl_initial_process_status.txt";
-        $this->LOG_FILE               = DOC_ROOT . "/update_resources/connectors/files/BOLD/cannot_access_phylum.txt";
+        $this->WORK_LIST              = $this->TEMP_FILE_PATH . "sl_work_list.txt"; //sl - species-level taxa
+        $this->WORK_IN_PROGRESS_LIST  = $this->TEMP_FILE_PATH . "sl_work_in_progress_list.txt";
+        $this->INITIAL_PROCESS_STATUS = $this->TEMP_FILE_PATH . "sl_initial_process_status.txt";
+        $this->LOG_FILE               = $this->TEMP_FILE_PATH . "cannot_access_phylum.txt";
+        $this->SAVED_SEQUENCES_FILE   = $this->TEMP_FILE_PATH . "taxa_sequences.txt";
     }
 
     function initialize_text_files()
@@ -46,12 +45,9 @@ class BOLDSysAPI
 
     function start_process($resource_id, $call_multiple_instance, $connectors_to_run = 1)
     {
-        $this->resource_id = $resource_id; 
-        $this->call_multiple_instance = $call_multiple_instance; 
+        $this->resource_id = $resource_id;
+        $this->call_multiple_instance = $call_multiple_instance;
         $this->connectors_to_run = $connectors_to_run;
-
-        require_library('connectors/BoldsAPI');
-        self::$PHYLUM_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/phylum_list.txt";
         if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
             if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
@@ -84,10 +80,10 @@ class BOLDSysAPI
         $num_rows = sizeof($records); $i = 0;
         foreach($records as $rec)
         {
-            $i++; print"\n [$i of $num_rows] ";
-            print $rec['taxonomy']['species']['taxon']['name'];
+            $i++; echo "\n [$i of $num_rows] ";
+            echo $rec['taxonomy']['species']['taxon']['name'];
             // if(trim($rec['taxonomy']['species']['taxon']['name']) != "Lumbricus centralis") continue; //debug
-            $arr = self::get_boldsys_taxa($rec, $used_collection_ids);
+            $arr = $this->get_boldsys_taxa($rec, $used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa,$page_taxa);
@@ -96,14 +92,14 @@ class BOLDSysAPI
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
         $resource_path = $temp_file_path . $task . ".xml";
-        $OUT = fopen($resource_path, "w"); 
+        $OUT = fopen($resource_path, "w");
         fwrite($OUT, $xml); 
         fclose($OUT);
     }
 
-    public static function get_boldsys_taxa($rec, $used_collection_ids)
+    function get_boldsys_taxa($rec, $used_collection_ids)
     {
-        $response = self::parse_xml($rec);//this will output the raw (but structured) array
+        $response = $this->parse_xml($rec);//this will output the raw (but structured) array
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -168,7 +164,7 @@ class BOLDSysAPI
             $title       = "Barcode data: $sciname";
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = "";               
-            if($description = BoldsAPI::check_if_with_content($taxon_id, $source, 1, true, "http://".$rec['barcode_image_url']))
+            if($description = $this->check_if_with_content($taxon_id, $source, 1, true, "http://".$rec['barcode_image_url']))
             {
                 $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
             }
@@ -187,16 +183,16 @@ class BOLDSysAPI
             */
             $map_scale_url = self::BOLDS_DOMAIN . self::MAP_SCALE;
             $identifier  = $taxon_id . "_map";
-            $dataType    = "http://purl.org/dc/dcmitype/StillImage"; 
+            $dataType    = "http://purl.org/dc/dcmitype/StillImage";
             $mimeType    = "image/png";
-            $title       = "BOLDS: Map of specimen collection locations for <i>" . $sciname . "</i>";            
+            $title       = "BOLDS: Map of specimen collection locations for <i>" . $sciname . "</i>";
             $source      = SPECIES_URL . trim($taxon_id);
             $mediaURL    = $rec['map_url'];
-            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img src='$map_scale_url'>";                
+            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $sciname . "</i><br><img src='$map_scale_url'>";
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
-        }            
+        }
         //end data objects
-        
+
         $phylum = ""; $class = ""; $order = ""; $family = ""; $genus = ""; $species = "";
         if(isset($rec['taxonomy']['phylum']['taxon']['name']))   $phylum = $rec['taxonomy']['phylum']['taxon']['name'];
         if(isset($rec['taxonomy']['class']['taxon']['name']))    $class = $rec['taxonomy']['class']['taxon']['name'];
@@ -301,7 +297,7 @@ class BOLDSysAPI
 
         /* //debug
         $arr_phylum = array();
-        //$arr_phylum[] = array( "name" => "Chordata" , "id" => 18);
+        // $arr_phylum[] = array( "name" => "Chordata" , "id" => 18);
         $arr_phylum[] = array( "name" => "Annelida"       , "id" => 11);
         */
 
@@ -317,20 +313,16 @@ class BOLDSysAPI
         foreach($arr_phylum as $phylum)
         {
             $p++;
-            //if($xml = Functions::get_hashed_response(PHYLUM_SERVICE_URL . $phylum['name']))
-            /* I used simplexml_load_file() instead of Functions::get_hashed_response because I can't overwrite the DOWNLOAD_TIMEOUT_SECONDS which was definedin boot.php.
-               Some of the XML files being loaded needs more time.
-            */
-            print "\n\nphylum service: " . PHYLUM_SERVICE_URL . $phylum['name'] . "\n";
-            if($xml = simplexml_load_file(PHYLUM_SERVICE_URL . $phylum['name']))
+            $phylum_path = PHYLUM_SERVICE_URL . $phylum['name'];
+            // $phylum_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
+            echo "\n\nphylum service: " . $phylum_path . "\n";
+            if($xml = Functions::get_hashed_response($phylum_path, DOWNLOAD_WAIT_TIME, 1200, 5))
             {
-                $num_rows = sizeof($xml->record);
-                print"\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [$num_rows] ";
+                echo "\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [" . sizeof($xml->record) . "]";
                 $i = 0;
                 foreach($xml->record as $rec)
                 {
                     $i++; 
-                    print $rec['taxonomy']['species']['taxon']['name'];
                     $records[] = $rec;
                     if(sizeof($records) >= 10000) //debug orig divide into batch of 10000
                     {
@@ -338,13 +330,13 @@ class BOLDSysAPI
                         self::save_to_json_file($records, $this->TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
                         $records = array();
                     }
-                    //if($i >= 20) break; //debug
+                    // if($i >= 20) break; //debug
                 }
             }
             else
             {
-                print "\n\n Cannot access: " . PHYLUM_SERVICE_URL . $phylum['name'];
-                self::log_cannot_access_phylum(PHYLUM_SERVICE_URL . $phylum['name']);
+                echo "\n\n Cannot access: " . $phylum_path;
+                self::log_cannot_access_phylum($phylum_path);
             }
             sleep(10);
         }
@@ -394,6 +386,207 @@ class BOLDSysAPI
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         return json_decode($contents,true);
+    }
+
+    // start of added functions
+
+    public function check_if_with_content($taxid, $dc_source, $public_barcodes, $species_level, $barcode_image_url = false)
+    {
+        //start get text dna sequece
+        $src = self::BOLDS_DOMAIN . "/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
+        if($species_level)
+        {
+            if($barcode_image_url || self::barcode_image_available($src))
+            {
+                $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.
+                <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
+            }
+            else $description = "Barcode image not yet available.";
+            $description .= "<br>&nbsp;<br>";
+        }
+        else $description = "";
+
+        if($species_level)
+        {
+            if($public_barcodes > 0)
+            {    
+                $url = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+                // $arr = self::get_text_dna_sequence($url);
+                $arr = $this->get_text_dna_sequence_v2($taxid);
+                $count_sequence     = $arr["count_sequence"];
+                $text_dna_sequence  = $arr["best_sequence"];
+                // $url_fasta_file     = $arr["url_fasta_file"]; this will point to the fasta.fas file from BOLDS temp folder
+
+                echo "\n[$public_barcodes]=[$count_sequence]\n";
+                $str = "";
+                if($count_sequence > 0)
+                {
+                    if($count_sequence == 1)$str="There is 1 barcode sequence available from BOLD and GenBank. 
+                                            Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
+                                            See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen.
+                                            Other sequences that do not yet meet barcode criteria may also be available.";
+
+                    else                    $str="There are $count_sequence barcode sequences available from BOLD and GenBank.
+                                            Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
+                                            See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
+                    $str .= "<br>&nbsp;<br>";
+                    $text_dna_sequence .= "<br>-- end --<br>";
+                }
+            }
+            else $text_dna_sequence = "";
+
+            if(trim($text_dna_sequence) != "")
+            {
+                $temp = "$str ";
+                $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
+                /* one-click         
+                $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
+                */
+                /* 2-click per PL advice */
+                $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+                $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File3</a>";
+            }
+            else
+            {
+                $temp = "No available public DNA sequences <br>";
+                return false;
+            }
+        }
+        // else
+        // {
+        //     /* 2-click per PL advice */
+        //     $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+        //     $temp = "<a target='fasta' href='$url_fasta_file'>Download FASTA File4</a>";
+        // }
+        $description .= $temp;
+        //end get text dna sequence
+
+        if(Functions::is_utf8($description)) return $description;
+        else return;
+    }
+
+    function get_text_dna_sequence_v2($taxon_id)
+    {
+        if(!self::$saved_sequences)
+        {
+            // at this point the $this->SAVED_SEQUENCES_FILE will always exist
+            if(!file_exists($this->SAVED_SEQUENCES_FILE)) $this->save_dna_sequence_from_big_xml();
+
+            echo "\n loading saved sequences... \n";
+            self::$saved_sequences = self::get_array_from_json_file($this->SAVED_SEQUENCES_FILE);
+        }
+        print_r(@self::$saved_sequences[$taxon_id]);
+        return array("count_sequence" => @self::$saved_sequences[$taxon_id]["c"], "best_sequence" => @self::$saved_sequences[$taxon_id]["s"]);
+    }
+
+    private function get_text_dna_sequence($url)
+    {
+        echo "\n\n access get_text_dna_sequence(): $url \n"; 
+        $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
+        if(preg_match("/\.\.\/temp\/(.*?)fasta\.fas/ims", $str, $matches)) $folder = $matches[1];
+        $str = "";
+        if($folder != "")
+        {
+            $url = self::BOLDS_DOMAIN_NEW . "/temp/" . $folder . "/fasta.fas";
+            $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
+            echo "\n\n access: $url \n";
+        }
+        $count_sequence = substr_count($str, '>');
+        //start get the single sequence = longest, with least N char
+        $best_sequence = self::get_best_sequence($str);
+        return array("count_sequence" => $count_sequence, "best_sequence" => $best_sequence);
+    }
+
+    private function get_best_sequence($str)
+    {
+        $str = str_ireplace('>', '&arr[]=', $str);
+        $arr = array();
+        parse_str($str);
+        if(count($arr) > 0)
+        {
+            $biggest = 0;
+            $index_with_longest_txt = 0;
+            for ($i = 0; $i < count($arr); $i++)
+            {
+                $dna = trim($arr[$i]);
+                $pos = strrpos($dna, "|");
+                $new_dna = trim(substr($dna, $pos+1, strlen($dna)));
+                $new_dna = str_ireplace(array("-", " "), "", $new_dna);
+                $len_new_dna = strlen($new_dna);
+                if($biggest < $len_new_dna)
+                {
+                    $biggest = $len_new_dna;
+                    $index_with_longest_txt = $i;
+                }
+            }
+            return $arr[$index_with_longest_txt];
+        }
+        else return "";
+    }
+
+    private function barcode_image_available($src)
+    {
+        $str = Functions::get_remote_file($src, DOWNLOAD_WAIT_TIME, 1200, 5);
+        /*
+        ERROR: Only species level taxids are accepted
+        ERROR: Unable to retrieve sequence
+        */
+        if(is_numeric(stripos($str, "ERROR:"))) return false;
+        else return true;
+    }
+
+    function save_dna_sequence_from_big_xml()
+    {
+        echo "\n\n saving dna sequence from big xml file...\n"; // from 212.php this file will always be re-created
+        require_library('connectors/BoldsImagesAPIv2');
+        $func = new BoldsImagesAPIv2();
+        $path = $func->download_and_extract_remote_file();
+        echo "\n\n $path";
+        $reader = new \XMLReader();
+        $reader->open($path);
+        $taxa_sequences = array();
+        while(@$reader->read())
+        {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "record")
+            {
+                $string = $reader->readOuterXML();
+                $xml = simplexml_load_string($string);
+                $best_sequence = "";
+                if(@$xml->sequences->sequence)
+                {
+                    if    ($taxon_id = trim(@$xml->taxonomy->species->taxon->taxon_id)) {}
+                    elseif($taxon_id = trim(@$xml->taxonomy->genus->taxon->taxon_id)) {}
+                    elseif($taxon_id = trim(@$xml->taxonomy->subfamily->taxon->taxon_id)) {}
+                    elseif($taxon_id = trim(@$xml->taxonomy->family->taxon->taxon_id)) {}
+                    elseif($taxon_id = trim(@$xml->taxonomy->order->taxon->taxon_id)) {}
+                    elseif($taxon_id = trim(@$xml->taxonomy->class->taxon->taxon_id)) {}
+                    elseif($taxon_id = trim(@$xml->taxonomy->phylum->taxon->taxon_id)) {}
+                    elseif($taxon_id = trim(@$xml->taxonomy->kingdom->taxon->taxon_id)) {}
+                    $i = 0;
+                    foreach(@$xml->sequences->sequence as $sequence)
+                    {
+                        $i++;
+                        if(strlen($best_sequence) < strlen($sequence->nucleotides)) $best_sequence = trim($sequence->nucleotides);
+                    }
+                    if($best_sequence)
+                    {
+                        if(@$taxa_sequences[$taxon_id])
+                        {
+                            $old = $taxa_sequences[$taxon_id]["s"];
+                            if(strlen($old) < strlen($best_sequence)) $taxa_sequences[$taxon_id]["s"] = $best_sequence;
+                            $taxa_sequences[$taxon_id]["c"] += $i;
+                        }
+                        else
+                        {
+                            $taxa_sequences[$taxon_id]["s"] = $best_sequence;
+                            $taxa_sequences[$taxon_id]["c"] = $i;
+                        }
+                    }
+                }
+            }
+        }
+        self::save_to_json_file($taxa_sequences, $this->SAVED_SEQUENCES_FILE);
+        unlink($path); 
     }
 
 }
