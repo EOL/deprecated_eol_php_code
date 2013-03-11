@@ -429,10 +429,15 @@ class Functions
         
         for($i=1 ; $i<$num ; $i++)
         {
-            if(preg_match("/^[".UPPER."\(]/u",$words[$i]) || (preg_match("/[0-9]/",$words[$i])&&!preg_match("/^[1-2]?[0-9]?\-?[".LOWER."]+$/u",$words[$i]))) continue;
+            if(preg_match("/^[".UPPER."\(]/u",$words[$i])) continue;
+            if(preg_match("/[0-9]/",$words[$i]) && !preg_match("/^[1-2]?[0-9]?\-?[".LOWER."]+$/u",$words[$i])) continue;
+            
             if(preg_match("/^[^0-9".UPPER.LOWER."]*([0-9".UPPER.LOWER."]*)[^0-9".UPPER.LOWER."]*$/u",$words[$i],$arr)) $words[$i] = $arr[1];
-            if(preg_match("/[".UPPER."]/u",$words[$i])||preg_match("/\[/u",$words[$i])||
-            preg_match("/.\../u",$words[$i])||!preg_match("/[[:alpha:]]/u",$words[$i])) continue;
+            
+            if(preg_match("/[".UPPER."]/u",$words[$i])) continue;
+            if(preg_match("/\[/u", $words[$i])) continue;
+            if(preg_match("/.\../u",$words[$i]) && !preg_match("/st\.-/u",$words[$i])) continue;
+            if(!preg_match("/[[:alpha:]]/u",$words[$i])) continue;
             
             if(@$GLOBALS["SCI_PARTS"][$words[$i]] || @$GLOBALS["AUTHOR_PARTS"][$words[$i]] || @$GLOBALS["JUNK_PARTS"][$words[$i]]) continue;
             
