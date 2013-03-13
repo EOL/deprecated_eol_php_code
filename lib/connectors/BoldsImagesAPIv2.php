@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: []
+/* connector: [546]
 Partner provides a big XML file. Connector parses it and generates a DWC-A image resource.
 Connector excludes those images already included in the original/published BOLDS image resource.
 */
@@ -8,9 +8,10 @@ class BoldsImagesAPIv2
 {
     function __construct($folder = false)
     {
+        $this->max_images_per_taxon = 10;
         $this->data_dump_url = "http://www.boldsystems.org/export/boldrecords.xml.gz";
         // $this->data_dump_url = "http://localhost/~eolit/xml_parser/boldrecords.xml.gz";
-        $this->data_dump_url = "http://localhost/~eolit/xml_parser/bolds_sample_data.xml.gz";
+        // $this->data_dump_url = "http://localhost/~eolit/xml_parser/bolds_sample_data.xml.gz";
 
         $this->sourceURL = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->taxa = array();
@@ -20,15 +21,16 @@ class BoldsImagesAPIv2
         $this->resource_agent_ids = array();
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
-
-        // for generating the higher-level taxa list
-        $this->MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
+        $this->do_ids = array();
 
         $this->old_bolds_image_ids_path = "http://dl.dropbox.com/u/7597512/BOLDS/old_BOLDS_image_ids.txt";
-        $this->old_bolds_image_ids_path = CONTENT_RESOURCE_LOCAL_PATH . "old_BOLDS_image_ids.txt";
+        // $this->old_bolds_image_ids_path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/old_BOLDS_image_ids.txt";
         $this->old_bolds_image_ids = array();
         $this->old_bolds_image_ids_count = 0;
         $this->info = array();
+
+        // for generating the higher-level taxa list
+        $this->MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
     }
 
     function get_all_taxa($data_dump_url = false)
@@ -41,6 +43,9 @@ class BoldsImagesAPIv2
         $i = 0;
 
         // retrive all image_ids from the first/original BOLDS images resource
+        
+        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, DOWNLOAD_WAIT_TIME, 600, 5);
+        
         $READ = fopen($this->old_bolds_image_ids_path, "r");
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
@@ -48,20 +53,34 @@ class BoldsImagesAPIv2
         echo "\n\n from text file: " . count($this->old_bolds_image_ids) . "\n\n";
         // end -
 
+        $i = 0;
         while(@$reader->read())
         {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "record")
             {
                 $string = $reader->readOuterXML();
-                $xml = simplexml_load_string($string);
-                echo "\n" . $xml->record_id;
-                self::parse_record_element($xml);
+                if($xml = simplexml_load_string($string))
+                {
+                    $i++;
+                    self::parse_record_element($xml);
+                    echo("\n $i. ");
+                }
+
+                // $i++;
+                // if($i > 1000000)
+                // {
+                //     self::parse_record_element($xml);
+                //     print "\n $i. ";
+                //     if($i > 1500000) break;
+                // }
+
             }
         }
         $this->create_archive();
         unlink($path);
+        unlink($this->old_bolds_image_ids_path);
         echo "\n\n total old ids: " . $this->old_bolds_image_ids_count . "\n\n";
-        print_r($this->info);
+        // print_r($this->info);
     }
 
     function download_and_extract_remote_file($file = false)
@@ -79,7 +98,7 @@ class BoldsImagesAPIv2
         $ref_ids = array();
         $agent_ids = array();
         $rec = $this->create_instances_from_taxon_object($rec, $reference_ids);
-        self::get_images($rec, $ref_ids, $agent_ids);
+        if($rec) self::get_images($rec, $ref_ids, $agent_ids);
     }
 
     private function get_object_agents($rec)
@@ -96,16 +115,19 @@ class BoldsImagesAPIv2
         if(@$rec->photographer)
         {
             $agent = (string) trim($rec->photographer);
-            $r = new \eol_schema\Agent();
-            $r->term_name = $agent;
-            $r->identifier = md5("$agent|photographer");
-            $r->agentRole = "photographer";
-            $r->term_homepage = "";
-            $agent_ids[] = $r->identifier;
-            if(!in_array($r->identifier, $this->resource_agent_ids))
+            if($agent != "")
             {
-               $this->resource_agent_ids[] = $r->identifier;
-               $this->archive_builder->write_object_to_file($r);
+                $r = new \eol_schema\Agent();
+                $r->term_name = $agent;
+                $r->identifier = md5("$agent|photographer");
+                $r->agentRole = "photographer";
+                $r->term_homepage = "";
+                $agent_ids[] = $r->identifier;
+                if(!in_array($r->identifier, $this->resource_agent_ids))
+                {
+                   $this->resource_agent_ids[] = $r->identifier;
+                   $this->archive_builder->write_object_to_file($r);
+                }
             }
         }
         return $agent_ids;
@@ -151,9 +173,9 @@ class BoldsImagesAPIv2
                 $taxon_id = trim($rec->taxon_id);
                 if(@$this->info[$taxon_id]) 
                 {
-                    if($this->info[$taxon_id] == 5)
+                    if($this->info[$taxon_id] == $this->max_images_per_taxon)
                     {
-                        echo " --- max 5 images reached for [$taxon_id][$rec->sciname] -- ";
+                        echo(" --- max $this->max_images_per_taxon images reached for [$taxon_id][$rec->sciname] -- ");
                         break;
                     }
                     $this->info[$taxon_id]++;
@@ -165,7 +187,7 @@ class BoldsImagesAPIv2
                 if(@$rec->processid)                      $description .= "Process ID = " . $ProcessID . "<br>";
                 if(@$media->caption)                      $description .= "Caption = " . $Orientation . "<br>";
 
-                $rights;
+                $rights = "";
                 if(@$media->licensing->year) $rights = "Copyright ". $media->licensing->year;
 
                 $rightsHolder = "";
@@ -174,39 +196,48 @@ class BoldsImagesAPIv2
 
                 $agent_ids = self::get_object_agents($media);
 
-                $mr = new \eol_schema\MediaResource();
-                if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
-                if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
-                $mr->taxonID                = $rec->taxon_id;
-                $mr->identifier             = $media->mediaID;
-                $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
-                $mr->language               = 'en';
-                $mr->format                 = Functions::get_mimetype($media->image_link);
-                $mr->furtherInformationURL  = $this->sourceURL . $rec->taxon_id;
-                $mr->description            = $description;
-                $mr->CVterm                 = ""; // subject
-                $mr->title                  = "";
-                $mr->creator                = "";
-                $mr->CreateDate             = "";
-                $mr->modified               = "";
-                $mr->LocationCreated        = "";
-                $mr->UsageTerms             = self::get_license($media->licensing->license);
-                $mr->Owner                  = (string) $rightsHolder;
-                $mr->publisher              = "";
-                $mr->audience               = "";
-                $mr->bibliographicCitation  = "";
-                $mr->rights                 = $rights;
-                $mr->accessURI              = (string) $media->image_link;;
-                $mr->Rating                 = 2;
-                $this->archive_builder->write_object_to_file($mr);
+                $mediaID = trim($media->mediaID);
+                if(trim($rec->taxon_id) != "" && $mediaID != "" && self::get_license($media->licensing->license) && Functions::get_mimetype($media->image_link) != "")
+                {
+                    if(in_array($mediaID, $this->do_ids))
+                    {
+                        echo("\n pass here 333");
+                        return;
+                    }
+                    else $this->do_ids[] = $mediaID;
+
+                    $mr = new \eol_schema\MediaResource();
+                    if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
+                    if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
+                    $mr->taxonID                = (string) $rec->taxon_id;
+                    $mr->identifier             = (string) $mediaID;
+                    $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
+                    $mr->language               = 'en';
+                    $mr->format                 = (string) Functions::get_mimetype($media->image_link);
+                    $mr->furtherInformationURL  = (string) $this->sourceURL . $rec->taxon_id;
+                    $mr->description            = (string) $description;
+                    $mr->CVterm                 = ""; // subject
+                    $mr->title                  = "";
+                    $mr->creator                = "";
+                    $mr->CreateDate             = "";
+                    $mr->modified               = "";
+                    $mr->LocationCreated        = "";
+                    $mr->UsageTerms             = (string) self::get_license($media->licensing->license);
+                    $mr->Owner                  = (string) $rightsHolder;
+                    $mr->publisher              = "";
+                    $mr->audience               = "";
+                    $mr->bibliographicCitation  = "";
+                    $mr->rights                 = (string) $rights;
+                    $mr->accessURI              = (string) $media->image_link;
+                    $mr->Rating                 = 2;
+                    $this->archive_builder->write_object_to_file($mr);
+                }
             }
         }
     }
 
     function create_instances_from_taxon_object($rec, $reference_ids)
     {
-        $taxon = new \eol_schema\Taxon();
-
         $info = self::get_sciname($rec->taxonomy);
         $sciname  = $info["taxon_name"];
         $taxon_id = $info["taxon_id"];
@@ -216,10 +247,23 @@ class BoldsImagesAPIv2
         $rec->taxon_id = $taxon_id;
         $rec->sciname = $sciname;
 
+        if(trim($taxon_id) == "" || trim($sciname) == "")
+        {
+            // echo("\n pass here 111");
+            return false;
+        }
+        if(in_array($taxon_id, $this->taxon_ids))
+        {
+            // echo("\n pass here 222");
+            return $rec;
+        }
+        else $this->taxon_ids[] = $taxon_id;
+
+        $taxon = new \eol_schema\Taxon();
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
 
         $taxon->taxonID                     = (string) $taxon_id;
-        $taxon->taxonRank                   = $rank;
+        $taxon->taxonRank                   = (string) $rank;
         $taxon->scientificName              = (string) $sciname;
         $taxon->scientificNameAuthorship    = "";
         $taxon->vernacularName              = "";
@@ -238,7 +282,7 @@ class BoldsImagesAPIv2
         $taxon->acceptedNameUsageID         = "";
         $taxon->parentNameUsageID           = "";
         $taxon->namePublishedIn             = "";
-        $taxon->taxonRemarks                = @$rec->taxonomy->identification_provided_by ? "Taxonomy identification provided by " . $rec->taxonomy->identification_provided_by : '';
+        $taxon->taxonRemarks                = (string) @$rec->taxonomy->identification_provided_by ? "Taxonomy identification provided by " . $rec->taxonomy->identification_provided_by : '';
         $taxon->infraspecificEpithet        = "";
         $this->taxa[$taxon_id] = $taxon;
         return $rec;
@@ -254,7 +298,7 @@ class BoldsImagesAPIv2
             case "CreativeCommons - Attribution Share-Alike"                : return "http://creativecommons.org/licenses/by-sa/3.0/"; break;
             default:
             {
-                debug("Invalid license: [$license]");
+                echo("Invalid license: [$license]");
                 return false;
                 break;
             }
