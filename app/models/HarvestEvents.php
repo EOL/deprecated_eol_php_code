@@ -194,6 +194,10 @@ class HarvestEvent extends ActiveRecord
     
     public function index_for_search($index_only_modified_data = true)
     {
+        if($previous_harvest = $this->previous_harvest_event())
+        {
+            if(!$previous_harvest->published_at) $index_only_modified_data = false;
+        }
         // first make sure the resources hierarchy has been denormalized, which will be
         // needed when indexing the data objects to figure out which pages to show them on
         $flattener = new FlattenHierarchies();
@@ -273,6 +277,7 @@ class HarvestEvent extends ActiveRecord
         $collection->updated_at = 'NOW()';
         $collection->save();
         $user_id = $this->resource->content_partner->user_id;
+        $GLOBALS['db_connection']->insert("DELETE FROM collections_users WHERE collection_id = $collection->id AND user_id = $user_id");
         $GLOBALS['db_connection']->insert("INSERT IGNORE INTO collections_users (collection_id, user_id) VALUES ($collection->id, $user_id)");
         
         $this->sync_with_collection($collection);
