@@ -355,8 +355,9 @@ class Resource extends ActiveRecord
                 TranslationSchemaParser::parse($this->resource_path(), 'php_active_record\\SchemaConnection::add_translated_taxon', false, $this);
             }elseif($this->is_archive_resource())
             {
+                $this->create_archive_validator();
                 $ingester = new ArchiveDataIngester($this->harvest_event);
-                $ingester->parse(false);
+                $ingester->parse(false, $this->archive_reader, $this->archive_validator);
                 unset($ingester);
             }else
             {
@@ -646,17 +647,22 @@ class Resource extends ActiveRecord
         }
     }
     
+    public function create_archive_validator()
+    {
+        if(isset($this->archive_validator)) return $this->archive_validator;
+        $this->archive_reader = new ContentArchiveReader(null, $this->archive_path());
+        $this->archive_validator = new ContentArchiveValidator($this->archive_reader, $this);
+    }
+    
     public function validate()
     {
         $valid = false;
         $error_string = null;
         if($this->is_archive_resource())
         {
-            $archive = new ContentArchiveReader(null, $this->archive_path());
-            $validator = new ContentArchiveValidator($archive, $this);
-            $validator->get_validation_errors();
-            if($validator->is_valid()) $valid = true;  // valid
-            $errors = array_merge($validator->structural_errors(), $validator->display_errors());
+            $this->create_archive_validator();
+            if($this->archive_validator->is_valid()) $valid = true;  // valid
+            $errors = array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
             if($errors)
             {
                 $errors_as_string = array();

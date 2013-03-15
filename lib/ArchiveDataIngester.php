@@ -12,11 +12,13 @@ class ArchiveDataIngester
         $this->mysqli =& $GLOBALS['db_connection'];
     }
     
-    public function parse($validate = true)
+    public function parse($validate = true, &$archive_reader = null, &$archive_validator = null)
     {
         if(!is_dir($this->harvest_event->resource->archive_path())) return false;
-        $this->archive_reader = new ContentArchiveReader(null, $this->harvest_event->resource->archive_path());
-        $this->archive_validator = new ContentArchiveValidator($this->archive_reader, $this->harvest_event->resource);
+        if($archive_reader) $this->archive_reader = $archive_reader;
+        else $this->archive_reader = new ContentArchiveReader(null, $this->harvest_event->resource->archive_path());
+        if($archive_validator) $this->archive_validator = $archive_validator;
+        else $this->archive_validator = new ContentArchiveValidator($this->archive_reader, $this->harvest_event->resource);
         $this->content_manager = new ContentManager();
         
         // set valid to true if we don't need validation
@@ -24,6 +26,7 @@ class ArchiveDataIngester
         if($valid !== true) return array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
         // even if we don't want to validate - we need the errors to determine which rows to ignore
         if(!$validate) $this->archive_validator->get_validation_errors();
+        $this->archive_validator->delete_validation_cache();
         
         $this->taxon_reference_ids = array();
         $this->media_reference_ids = array();
