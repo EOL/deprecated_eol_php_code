@@ -44,7 +44,7 @@ class SiteSearchIndexer
                 
                 // delete old ones
                 $queries = array();
-                foreach($batch as $id) $queries[] = "resource_type:$class_name AND resource_id:$id";
+                foreach($batch as $id) $queries[] = "resource_unique_key:". $class_name ."_$id";
                 $this->solr->delete_by_queries($queries, false);
                 
                 // add new ones if available

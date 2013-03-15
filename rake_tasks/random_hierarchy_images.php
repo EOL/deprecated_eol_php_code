@@ -2,7 +2,7 @@
 namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-
+exit;
 
 if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $mysqli_slave = load_mysql_environment('slave');
 else $mysqli_slave = $GLOBALS['db_connection'];

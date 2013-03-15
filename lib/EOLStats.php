@@ -594,7 +594,7 @@ class EOLStats
     {
         $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND t.BHL_publications > 0 AND 
             t.image_total = 0 AND t.text_total = 0 AND t.video_total = 0 AND t.sound_total = 0 AND t.flash_total = 0 AND t.youtube_total = 0 AND 
-            t.map_total = 0 AND t.data_object_references = 0 AND t.outlinks = 0 AND t.has_biomedical_terms = 0 AND t.iucn_total = 0 "); //has_gbif_map = 0 AND
+            t.map_total = 0 AND t.data_object_references = 0 AND t.outlinks = 0 AND t.has_biomedical_terms = 0 AND t.iucn_total = 0 AND has_gbif_map = 0");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
@@ -613,7 +613,7 @@ class EOLStats
     public function pages_with_at_least_a_trusted_object()
     {
         $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND 
-            t.image_trusted > 0 OR t.text_trusted > 0 OR t.video_trusted > 0 OR t.sound_trusted > 0 OR t.flash_trusted > 0 OR t.youtube_trusted > 0 OR t.map_trusted > 0 "); //has_gbif_map = 1
+            t.image_trusted > 0 OR t.text_trusted > 0 OR t.video_trusted > 0 OR t.sound_trusted > 0 OR t.flash_trusted > 0 OR t.youtube_trusted > 0 OR t.map_trusted > 0 OR has_gbif_map = 1");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
@@ -621,7 +621,7 @@ class EOLStats
     {
         $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND 
             t.image_total = 0 AND t.text_total = 0 AND t.video_total = 0 AND t.sound_total = 0 AND t.flash_total = 0 AND t.youtube_total = 0 AND t.map_total = 0 
-            AND ( t.data_object_references > 0 OR t.BHL_publications > 0 OR t.outlinks > 0 OR t.has_biomedical_terms = 1 OR t.iucn_total > 0 )"); //has_gbif_map = 0 AND
+            AND ( t.data_object_references > 0 OR t.BHL_publications > 0 OR t.outlinks > 0 OR t.has_biomedical_terms = 1 OR t.iucn_total > 0) AND has_gbif_map = 0");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
@@ -645,7 +645,7 @@ class EOLStats
 
     public function pages_with_map()
     {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND t.map_total > 0 "); //OR has_gbif_map = 1
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND (t.map_total > 0 OR has_gbif_map = 1)");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
@@ -669,7 +669,7 @@ class EOLStats
 
     public function pages_with_content()
     {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND t.image_total > 0 OR t.text_total > 0 OR t.video_total > 0 OR t.sound_total > 0 OR t.flash_total > 0 OR t.youtube_total > 0 OR t.map_total > 0"); //OR has_gbif_map = 1
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND t.image_total > 0 OR t.text_total > 0 OR t.video_total > 0 OR t.sound_total > 0 OR t.flash_total > 0 OR t.youtube_total > 0 OR t.map_total > 0 OR has_gbif_map = 1");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 

@@ -94,6 +94,11 @@ class Hierarchy extends ActiveRecord
       return Hierarchy::find_by_label('Catalogue of Life China');
     }
     
+    static function gbif()
+    {
+      return Hierarchy::find_by_label('GBIF Nub Taxonomy');
+    }
+    
     static function next_group_id()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];

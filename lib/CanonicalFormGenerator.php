@@ -40,7 +40,7 @@ class CanonicalFormGenerator
             if($canonical_form = CanonicalForm::find_or_create_by_string($canonical_form_string))
             {
                 echo "UPDATE names SET canonical_form_id=$canonical_form->id WHERE id=$id\n";
-                $this->mysqli->update("UPDATE names SET canonical_form_id=$canonical_form->id WHERE id=$id");
+                $this->mysqli->update("UPDATE names SET canonical_form_id=$canonical_form->id, ranked_canonical_form_id=$canonical_form->id WHERE id=$id");
             }
         }
         $this->mysqli->commit();

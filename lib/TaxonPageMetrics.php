@@ -235,8 +235,13 @@ class TaxonPageMetrics
         $time_start = time_elapsed();
         $arr_taxa = array();
         print "\n GBIF_map [7 of 14]\n";
-        $sql = "SELECT tc.id tc_id FROM hierarchies_content hc JOIN hierarchy_entries he ON hc.hierarchy_entry_id = he.id JOIN taxon_concepts tc ON he.taxon_concept_id = tc.id WHERE hc.map > 0 AND tc.published = 1 AND tc.supercedure_id=0 ";
-        if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and tc.id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
+        $sql = "SELECT he.taxon_concept_id
+            FROM gbif_identifiers_with_maps g
+            JOIN hierarchy_entries he ON (g.gbif_taxon_id=he.identifier)
+            JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id)
+            WHERE tc.published=1 AND tc.supercedure_id=0
+            AND he.hierarchy_id=". Hierarchy::gbif()->id;
+	if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
         $num_rows=0;
