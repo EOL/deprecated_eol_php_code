@@ -68,7 +68,7 @@ class RelateHierarchies
     private function iterate_through_selected_entries()
     {
         // this size is much smaller than above as we need to take all these IDs and send them in a single URL
-        $iteration_size = 300;
+        $iteration_size = 200;
         $batches = array_chunk($this->hierarchy_entry_ids_to_compare, $iteration_size);
         $this->total_comparisons_to_be_made = count($this->hierarchy_entry_ids_to_compare);
         foreach($batches as $batch)

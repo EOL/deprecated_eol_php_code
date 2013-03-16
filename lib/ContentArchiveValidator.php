@@ -141,6 +141,7 @@ class ContentArchiveValidator
     {
         static $i = 0;
         $i++;
+        if($i % 10000 == 0) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
         
         $file_location = $parameters['archive_table_definition']->location;
         $new_exceptions = array();
@@ -233,6 +234,13 @@ class ContentArchiveValidator
         if(!isset($this->stats[$row_type][$index])) $this->stats[$row_type][$index] = array();
         if(!isset($this->stats[$row_type][$index][$value])) $this->stats[$row_type][$index][$value] = 0;
         $this->stats[$row_type][$index][$value]++;
+    }
+
+    public function delete_validation_cache()
+    {
+        unset($this->primary_keys_by_row_type);
+        unset($this->stats);
+        unset($this->warnings_by_line);
     }
     
     /*

@@ -116,11 +116,8 @@ class DataObjectAncestriesIndexer
             }
         }
         
-        if($data_object_ids)
-        {
-            foreach($data_object_ids as $id) $queries[] = "data_object_id:$id";
-            $this->solr->delete_by_queries($queries, false);
-        }else $this->solr->delete("data_object_id:[$start TO ". ($start + $limit - 1) ."]", false);
+        if($data_object_ids) $this->solr->delete_by_ids($data_object_ids, false);
+        else $this->solr->delete("data_object_id:[$start TO ". ($start + $limit - 1) ."]", false);
         if(isset($this->objects)) $this->solr->send_attributes($this->objects);
     }
     

@@ -36,42 +36,6 @@ class Taxon extends DarwinCoreExtensionBase
                 'failure_type'          => 'warning',
                 'failure_message'       => 'Names should be encoded in UTF-8'));
             
-            $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/kingdom',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
-                'failure_type'          => 'warning',
-                'failure_message'       => 'Names should be encoded in UTF-8'));
-            
-            $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/phylum',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
-                'failure_type'          => 'warning',
-                'failure_message'       => 'Names should be encoded in UTF-8'));
-            
-            $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/class',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
-                'failure_type'          => 'warning',
-                'failure_message'       => 'Names should be encoded in UTF-8'));
-            
-            $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/order',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
-                'failure_type'          => 'warning',
-                'failure_message'       => 'Names should be encoded in UTF-8'));
-            
-            $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/family',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
-                'failure_type'          => 'warning',
-                'failure_message'       => 'Names should be encoded in UTF-8'));
-            
-            $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/genus',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::is_utf8',
-                'failure_type'          => 'warning',
-                'failure_message'       => 'Names should be encoded in UTF-8'));
-            
             // these rules apply to entire rows
             $rules[] = new ContentArchiveRowValidationRule(array(
                 'validation_function'   => 'eol_schema\Taxon::valid_identifier',
@@ -86,78 +50,82 @@ class Taxon extends DarwinCoreExtensionBase
         return $rules;
     }
     
+    static $taxon_statuses = array(
+        'valid',
+        'accepted',
+        'valid',
+        'current',
+        'invalid',
+        'synonym',
+        'homotypic synonym',
+        'heterotypic synonym',
+        'misapplied name',
+        'not accepted');
     public static function valid_taxon_status($v)
     {
-        if($v && !in_array($v, array(
-            'accepted',
-            'valid',
-            'current',
-            'invalid',
-            'synonym',
-            'homotypic synonym',
-            'heterotypic synonym',
-            'misapplied name',
-            'not accepted')))
+        if($v && !in_array($v, self::$taxon_statuses))
         {
             return false;
         }
         return true;
     }
     
+    static $ranks = array(
+        'species',
+        'kingdom',
+        'regnum',
+        'subkingdom',
+        'subregnum',
+        'division',
+        'superphylum',
+        'phylum',
+        'divisio',
+        'subdivision',
+        'subphylum',
+        'subdivisio',
+        'superclass',
+        'class',
+        'classis',
+        'infraclass',
+        'subclass',
+        'subclassis',
+        'superorder',
+        'order',
+        'ordo',
+        'infraorder',
+        'suborder',
+        'subordo',
+        'superfamily',
+        'family',
+        'familia',
+        'subfamily',
+        'subfamilia',
+        'tribe',
+        'tribus',
+        'subtribe',
+        'subtribus',
+        'genus',
+        'subgenus',
+        'section',
+        'sectio',
+        'subsection',
+        'subsectio',
+        'series',
+        'subseries',
+        'species',
+        'subspecies',
+        'infraspecies',
+        'variety',
+        'varietas',
+        'subvariety',
+        'subvarietas',
+        'form',
+        'forma',
+        'subform',
+        'subforma');
     public static function valid_rank($v)
     {
-        if($v && !in_array(strtolower($v), array(
-            'kingdom',
-            'regnum',
-            'subkingdom',
-            'subregnum',
-            'division',
-            'superphylum',
-            'phylum',
-            'divisio',
-            'subdivision',
-            'subphylum',
-            'subdivisio',
-            'superclass',
-            'class',
-            'classis',
-            'infraclass',
-            'subclass',
-            'subclassis',
-            'superorder',
-            'order',
-            'ordo',
-            'infraorder',
-            'suborder',
-            'subordo',
-            'superfamily',
-            'family',
-            'familia',
-            'subfamily',
-            'subfamilia',
-            'tribe',
-            'tribus',
-            'subtribe',
-            'subtribus',
-            'genus',
-            'subgenus',
-            'section',
-            'sectio',
-            'subsection',
-            'subsectio',
-            'series',
-            'subseries',
-            'species',
-            'subspecies',
-            'infraspecies',
-            'variety',
-            'varietas',
-            'subvariety',
-            'subvarietas',
-            'form',
-            'forma',
-            'subform',
-            'subforma')))
+        if($v && !in_array(strtolower($v), self::$ranks))
         {
             return false;
         }

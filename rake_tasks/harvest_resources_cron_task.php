@@ -27,7 +27,7 @@ $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-    // if(in_array($resource->id, array(201, 224))) continue;
+    if(in_array($resource->id, array(201, 224))) continue;
     if($specified_id && $resource->id != $specified_id) continue;
     // if(!in_array($resource->id, array(324))) continue;
     // if($resource->id < 197) continue;

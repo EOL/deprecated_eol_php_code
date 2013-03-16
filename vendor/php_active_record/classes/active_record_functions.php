@@ -472,12 +472,16 @@ function merge_arrays(&$from_array, &$to_array)
 
 function recursive_rmdir($dir)
 {
+    if(!trim($dir)) return;
+    if(trim($dir) == "/") return;
     recursive_rmdir_contents($dir);
     @rmdir($dir);
 }
 
 function recursive_rmdir_contents($dir)
 {
+    if(!trim($dir)) return;
+    if(trim($dir) == "/") return;
     foreach(glob($dir . '/{,.}*', GLOB_BRACE) as $dir_or_file)
     {
         if(preg_match("/\/\.gitignore$/", $dir_or_file)) continue;

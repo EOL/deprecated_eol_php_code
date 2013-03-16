@@ -96,7 +96,7 @@ class ContentManager
         
         if(!$unique_key) $unique_key = Functions::generate_guid();
         $temp_file_path = CONTENT_TEMP_PREFIX . $unique_key . ".file";
-        if(preg_match("/^http:\/\//", $file_path_or_uri) || preg_match("/^https:\/\//", $file_path_or_uri) || preg_match("/^\//", $file_path_or_uri))
+        if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || preg_match("/^\//", $file_path_or_uri))
         {
             if($file_contents = Functions::get_remote_file($file_path_or_uri, DOWNLOAD_WAIT_TIME, $timeout))
             {

@@ -16,23 +16,6 @@
         style="font-size : x-small; font-family : Arial;">
     </td>
 </tr>
-<!--
-<tr align="center">
-    <td>
-        <font size="2">NEW! XLS File URL: </font><input type="text" name="url_new" size="100" style="font-size : x-small; font-family : Arial;">
-        <br>
-        <font size="2"><i>e.g. http://mydomain.org/my_spreadsheet.xls</i><br>
-        <a href="../../tests/fixtures/files/new_schema_spreadsheet.xlsx">Download</a> the NEW! EOL spreadsheet template here.<br>
-        </font>
-    </td>
-</tr>
-<tr>
-    <td>
-        <font size="2">NEW! XLS File Upload: </font><input type="file" name="file_upload_new" id="file_upload_new" size="100" 
-        style="font-size : x-small; font-family : Arial;">
-    </td>
-</tr>
--->
 <tr align="center">
     <td>    
         <input type="submit" value="Convert to EOL-compliant XML">

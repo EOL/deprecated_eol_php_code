@@ -18,10 +18,6 @@ video:
     schema_value: http://purl.org/dc/dcmitype/MovingImage
     label: Video
 
-gbif_image:
-    id: 5
-    label: GBIF Image
-
 iucn:
     id: 6
     label: IUCN
