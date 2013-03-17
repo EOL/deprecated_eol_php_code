@@ -1,9 +1,5 @@
 <?php
 namespace php_active_record;
-include_once(dirname(__FILE__) . "/../../config/environment.php");
-
-$ncbi = new NCBIConnector(111);
-$ncbi->build_archive();
 
 class NCBIConnector
 {
