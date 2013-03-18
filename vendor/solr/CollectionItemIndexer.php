@@ -52,9 +52,7 @@ class CollectionItemIndexer
                 if($GLOBALS['ENV_DEBUG']) echo "Looked up $num_batch of $count .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
                 
                 // delete old ones
-                $ids = array();
-                foreach($batch as $id) $ids[] = $id;
-                $this->solr->delete_by_ids($ids, false);
+                $this->solr->delete_by_ids($batch, false);
                 // add new ones if available
                 if(isset($this->objects)) $this->solr->send_attributes($this->objects);
             }
