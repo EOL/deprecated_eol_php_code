@@ -277,7 +277,7 @@ function index_old_objects()
     
     $data_object_ids = array_keys($data_object_ids);
     $object_indexer = new DataObjectAncestriesIndexer();
-    $object_indexer->index_objects($data_object_ids);
+    $object_indexer->index_data_objects($data_object_ids);
 
     $search_indexer = new SiteSearchIndexer();
     if($data_object_ids) $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);

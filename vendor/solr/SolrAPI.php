@@ -33,7 +33,9 @@ class SolrAPI
     
     function __destruct()
     {
-        if(file_exists($this->csv_bulk_path) && filesize($this->csv_bulk_path)) $this->commit_objects_in_file();
+        clearstatcache();
+        if(file_exists(DOC_ROOT . $this->csv_bulk_path) && filesize(DOC_ROOT . $this->csv_bulk_path)) $this->commit_objects_in_file();
+        $this->commit();
         @unlink(DOC_ROOT . $this->csv_path);
         @unlink(DOC_ROOT . $this->csv_bulk_path);
     }
@@ -157,6 +159,7 @@ class SolrAPI
     
     public function delete_by_ids($ids, $commit = true)
     {
+        if(!$ids) return;
         @unlink(DOC_ROOT . $this->csv_path);
         $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
         fwrite($OUT, "<delete>");
@@ -181,6 +184,7 @@ class SolrAPI
     
     public function delete_by_queries($queries, $commit = true)
     {
+        if(!$queries) return;
         @unlink(DOC_ROOT . $this->csv_path);
         $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
         fwrite($OUT, "<delete>");
@@ -200,10 +204,11 @@ class SolrAPI
     
     public function write_objects_to_file($objects)
     {
+        clearstatcache();
         $OUT = fopen(DOC_ROOT . $this->csv_bulk_path, "a+");
         
         $fields = array_keys(get_object_vars($this->schema_object));
-        if(!filesize($this->csv_bulk_path))
+        if(!filesize(DOC_ROOT . $this->csv_bulk_path))
         {
             if($this->primary_key)
             {
@@ -269,9 +274,10 @@ class SolrAPI
     public function send_attributes_in_bulk($objects)
     {
         $this->write_objects_to_file($objects);
-        debug("Solr attributes file size: ". filesize($this->csv_bulk_path) ."\n");
+        debug("Solr attributes file size: ". filesize(DOC_ROOT . $this->csv_bulk_path));
         // 50 MB
-        if(filesize($this->csv_bulk_path) >= 50000000) $this->commit_objects_in_file();
+        clearstatcache();
+        if(filesize(DOC_ROOT . $this->csv_bulk_path) >= 50000000) $this->commit_objects_in_file();
     }
     
     public function send_from_mysql_result($outfile)
@@ -331,7 +337,6 @@ class SolrAPI
     
     public static function mysql_date_to_solr_date($mysql_date)
     {
-        // echo "$mysql_date\n";
         if(!$mysql_date) return null;
         return date('Y-m-d', $mysql_date) . "T". date('h:i:s', $mysql_date) ."Z";
     }

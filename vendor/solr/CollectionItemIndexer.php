@@ -24,7 +24,7 @@ class CollectionItemIndexer
         $this->text_type_ids = DataType::text_type_ids();
     }
     
-    public function index_collection($collection_id, $optimize = true)
+    public function index_collection($collection_id)
     {
         $this->solr->delete('collection_id:'. $collection_id);
         $query = "SELECT id FROM collection_items WHERE collection_id = $collection_id";
@@ -56,21 +56,19 @@ class CollectionItemIndexer
         $this->solr->commit_objects_in_file();
     }
     
-    public function index_collection_items(&$collection_item_ids = array(), $optimize = false)
+    public function index_collection_items(&$collection_item_ids = array())
     {
         if($collection_item_ids)
         {
             $batches = array_chunk($collection_item_ids, 10000);
-            $count = count($batches);
             foreach($batches as $batch)
             {
                 $this->index_batch($batch);
             }
         }
-        $this->solr->commit();
     }
     
-    function index_batch($collection_item_ids)
+    function index_batch(&$collection_item_ids)
     {
         unset($this->objects);
         static $num_batch = 0;
@@ -83,9 +81,7 @@ class CollectionItemIndexer
         $this->lookup_communities(array('ids' => $collection_item_ids));
         if($GLOBALS['ENV_DEBUG']) echo "Looked up $num_batch .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         
-        // delete old ones
         $this->solr->delete_by_ids($collection_item_ids, false);
-        // add new ones if available
         if(isset($this->objects)) $this->solr->send_attributes_in_bulk($this->objects);
     }
     
@@ -209,7 +205,7 @@ class CollectionItemIndexer
                 elseif(in_array($data_object_data_type_id, $this->map_type_ids)) $object_type = "Map";
                 if(!$title)
                 {
-                    if(in_array($data_type_id, $this->text_type_ids) && $data_object_subject) $title = $data_object_subject;
+                    if(in_array($data_object_data_type_id, $this->text_type_ids) && $data_object_subject) $title = $data_object_subject;
                     else $title = $object_type;
                 }
             }
