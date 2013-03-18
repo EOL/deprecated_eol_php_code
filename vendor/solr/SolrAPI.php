@@ -10,6 +10,7 @@ class SolrAPI
     private $file_delimiter;
     private $multi_value_delimiter;
     private $csv_path;
+    private $csv_bulk_path;
     private $action_url;
     
     public function __construct($s = SOLR_SERVER, $core = '', $d = SOLR_FILE_DELIMITER, $mv = SOLR_MULTI_VALUE_DELIMETER)
@@ -22,6 +23,8 @@ class SolrAPI
         $this->multi_value_delimiter = $mv;
         
         $this->csv_path = temp_filepath(true);
+        $this->csv_bulk_path = temp_filepath(true);
+        $this->multi_valued_fields_in_csv = array();
         $this->action_url = $this->server . $this->core;
         if(preg_match("/^(.*)\/$/", $this->action_url, $arr)) $this->action_url = $arr[1];
         
@@ -30,7 +33,9 @@ class SolrAPI
     
     function __destruct()
     {
+        if(file_exists($this->csv_bulk_path) && filesize($this->csv_bulk_path)) $this->commit_objects_in_file();
         @unlink(DOC_ROOT . $this->csv_path);
+        @unlink(DOC_ROOT . $this->csv_bulk_path);
     }
     
     public static function ping($s = SOLR_SERVER, $c = '')
@@ -193,22 +198,21 @@ class SolrAPI
         if($commit) $this->commit();
     }
     
-    
-    
-    public function send_attributes($objects)
+    public function write_objects_to_file($objects)
     {
-        @unlink(DOC_ROOT . $this->csv_path);
-        $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
+        $OUT = fopen(DOC_ROOT . $this->csv_bulk_path, "a+");
         
         $fields = array_keys(get_object_vars($this->schema_object));
-        if($this->primary_key)
+        if(!filesize($this->csv_bulk_path))
         {
-            fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");
-        }else
-        {
-            fwrite($OUT, implode($this->file_delimiter, $fields) . "\n");
+            if($this->primary_key)
+            {
+                fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");
+            }else
+            {
+                fwrite($OUT, implode($this->file_delimiter, $fields) . "\n");
+            }
         }
-        $multi_values = array();
         
         foreach($objects as $primary_key => $attributes)
         {
@@ -222,7 +226,7 @@ class SolrAPI
                     // the attribute is multi-valued
                     if(is_array($attributes[$attr]))
                     {
-                        $multi_values[$attr] = 1;
+                        $this->multi_valued_fields_in_csv[$attr] = 1;
                         $values = array_keys($attributes[$attr]);
                         $this_attr[] = implode($this->multi_value_delimiter, $values);
                     }else
@@ -236,22 +240,38 @@ class SolrAPI
             fwrite($OUT, implode($this->file_delimiter, $this_attr) . "\n");
         }
         fclose($OUT);
-        
-        
-        
-        
+    }
+    
+    public function commit_objects_in_file()
+    {
         $curl = "curl ". $this->action_url ."/update/csv -F overwrite=true -F separator='". $this->file_delimiter ."'";
-        foreach($multi_values as $field => $bool)
+        foreach($this->multi_valued_fields_in_csv as $field => $bool)
         {
             $curl .= " -F f.$field.split=true -F f.$field.separator='". $this->multi_value_delimiter ."'";
         }
-        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path -F stream.contentType='text/plain;charset=utf-8'";
+        $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_bulk_path -F stream.contentType='text/plain;charset=utf-8'";
         
         if($GLOBALS['ENV_DEBUG']) echo("Solr send_attributes $curl\n");
         if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
         $extra_bit = @$extra_bit ?: '';
         exec($curl . $extra_bit);
         $this->commit();
+        @unlink(DOC_ROOT . $this->csv_bulk_path);
+        $this->multi_valued_fields_in_csv = array();
+    }
+    
+    public function send_attributes($objects)
+    {
+        $this->write_objects_to_file($objects);
+        $this->commit_objects_in_file();
+    }
+    
+    public function send_attributes_in_bulk($objects)
+    {
+        $this->write_objects_to_file($objects);
+        debug("Solr attributes file size: ". filesize($this->csv_bulk_path) ."\n");
+        // 50 MB
+        if(filesize($this->csv_bulk_path) >= 50000000) $this->commit_objects_in_file();
     }
     
     public function send_from_mysql_result($outfile)
