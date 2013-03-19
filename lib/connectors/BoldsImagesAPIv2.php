@@ -10,8 +10,8 @@ class BoldsImagesAPIv2
     {
         $this->max_images_per_taxon = 10;
         $this->data_dump_url = "http://www.boldsystems.org/export/boldrecords.xml.gz";
-        // $this->data_dump_url = "http://localhost/~eolit/xml_parser/boldrecords.xml.gz";
-        // $this->data_dump_url = "http://localhost/~eolit/xml_parser/bolds_sample_data.xml.gz";
+        // $this->data_dump_url = "http://localhost/~eolit/xml_parser/boldrecords.xml.gz"; // debug
+        // $this->data_dump_url = "http://localhost/~eolit/xml_parser/bolds_sample_data.xml.gz"; // debug
 
         $this->sourceURL = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->taxa = array();
@@ -24,13 +24,14 @@ class BoldsImagesAPIv2
         $this->do_ids = array();
 
         $this->old_bolds_image_ids_path = "http://dl.dropbox.com/u/7597512/BOLDS/old_BOLDS_image_ids.txt";
-        // $this->old_bolds_image_ids_path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/old_BOLDS_image_ids.txt";
+        // $this->old_bolds_image_ids_path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/old_BOLDS_image_ids.txt"; // debug
         $this->old_bolds_image_ids = array();
         $this->old_bolds_image_ids_count = 0;
         $this->info = array();
 
         // for generating the higher-level taxa list
         $this->MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
+        $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt";
     }
 
     function get_all_taxa($data_dump_url = false)
@@ -43,15 +44,13 @@ class BoldsImagesAPIv2
         $i = 0;
 
         // retrive all image_ids from the first/original BOLDS images resource
-        
-        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, DOWNLOAD_WAIT_TIME, 600, 5);
-        
+        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, DOWNLOAD_WAIT_TIME, 1200, 5);
         $READ = fopen($this->old_bolds_image_ids_path, "r");
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
         $this->old_bolds_image_ids = json_decode($contents, true);
         echo "\n\n from text file: " . count($this->old_bolds_image_ids) . "\n\n";
-        // end -
+        // end
 
         $i = 0;
         while(@$reader->read())
@@ -66,11 +65,12 @@ class BoldsImagesAPIv2
                     echo("\n $i. ");
                 }
 
+                // debug - to process by batch
                 // $i++;
                 // if($i > 1000000)
                 // {
                 //     self::parse_record_element($xml);
-                //     print "\n $i. ";
+                //     echo "\n $i. ";
                 //     if($i > 1500000) break;
                 // }
 
@@ -80,7 +80,6 @@ class BoldsImagesAPIv2
         unlink($path);
         unlink($this->old_bolds_image_ids_path);
         echo "\n\n total old ids: " . $this->old_bolds_image_ids_count . "\n\n";
-        // print_r($this->info);
     }
 
     function download_and_extract_remote_file($file = false)
@@ -197,12 +196,13 @@ class BoldsImagesAPIv2
                 $agent_ids = self::get_object_agents($media);
 
                 $mediaID = trim($media->mediaID);
-                if(trim($rec->taxon_id) != "" && $mediaID != "" && self::get_license($media->licensing->license) && Functions::get_mimetype($media->image_link) != "")
+                $license = self::get_license($media->licensing->license);
+                if(trim($rec->taxon_id) != "" && $mediaID != "" && $license && Functions::get_mimetype($media->image_link) != "")
                 {
                     if(in_array($mediaID, $this->do_ids))
                     {
-                        echo("\n pass here 333");
-                        return;
+                        echo("\n it should not pass here, just in case... \n");
+                        continue;
                     }
                     else $this->do_ids[] = $mediaID;
 
@@ -222,7 +222,7 @@ class BoldsImagesAPIv2
                     $mr->CreateDate             = "";
                     $mr->modified               = "";
                     $mr->LocationCreated        = "";
-                    $mr->UsageTerms             = (string) self::get_license($media->licensing->license);
+                    $mr->UsageTerms             = (string) $license;
                     $mr->Owner                  = (string) $rightsHolder;
                     $mr->publisher              = "";
                     $mr->audience               = "";
@@ -247,16 +247,8 @@ class BoldsImagesAPIv2
         $rec->taxon_id = $taxon_id;
         $rec->sciname = $sciname;
 
-        if(trim($taxon_id) == "" || trim($sciname) == "")
-        {
-            // echo("\n pass here 111");
-            return false;
-        }
-        if(in_array($taxon_id, $this->taxon_ids))
-        {
-            // echo("\n pass here 222");
-            return $rec;
-        }
+        if(trim($taxon_id) == "" || trim($sciname) == "") return false;
+        if(in_array($taxon_id, $this->taxon_ids)) return $rec;
         else $this->taxon_ids[] = $taxon_id;
 
         $taxon = new \eol_schema\Taxon();
@@ -383,7 +375,6 @@ class BoldsImagesAPIv2
         $reader = new \XMLReader();
         $reader->open($path);
         $i = 0;
-        $fn = fopen($this->MASTER_LIST, "w");
         $sl_taxa = array(); // species-level taxa
         $hl_taxa = array(); // higher-level taxa
         while(@$reader->read())
@@ -441,6 +432,7 @@ class BoldsImagesAPIv2
         ksort($sl_taxa);
         echo "\n\n higher-level taxa count: " . count($hl_taxa);
         $i = 0;
+        $fn = fopen($this->MASTER_LIST, "w");
         foreach($hl_taxa as $key => $value)
         {
             $i++; echo "\n $i. $key -- $value[rank] $value[taxon_id]";
@@ -449,6 +441,29 @@ class BoldsImagesAPIv2
         echo "\n\n species-level taxa count: " . count($sl_taxa);
         echo "\n higher-level taxa count: " . count($hl_taxa);
         fclose($fn);
+        self::reconcile_with_old_master_list($hl_taxa);
+    }
+
+    private function reconcile_with_old_master_list($hl_taxa)
+    {
+        $write = fopen($this->MASTER_LIST, "a");
+        $read = fopen($this->OLD_MASTER_LIST, "r");
+        while(!feof($read))
+        {
+            if($line = fgets($read))
+            {
+                $split = explode("\t", trim($line));
+                $sciname = $split[1];
+                $id = $split[0];
+                if(!isset($hl_taxa["$sciname"]["taxon_id"]))
+                {
+                    echo "\n to be added: [$sciname - {$id}]";
+                    fwrite($write, $id . "\t" . $sciname . "\t" . "" . "\n");
+                }
+            }
+        }
+        fclose($read);
+        fclose($write);
     }
 
 }

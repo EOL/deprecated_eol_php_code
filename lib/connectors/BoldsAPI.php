@@ -26,9 +26,7 @@ class BoldsAPI
         $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_in_progress_list.txt";
         $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
         $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
-        // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt";
-        
-        
+        // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
     }
 
     function initialize_text_files()
@@ -43,17 +41,9 @@ class BoldsAPI
 
     function start_process($resource_id, $call_multiple_instance)
     {
-        
-        require_library('connectors/BOLDSysAPI');
-        $this->bolds = new BOLDSysAPI();
-        
-        
-
-
         $this->resource_id = $resource_id;
         $this->call_multiple_instance = $call_multiple_instance;
         $this->connectors_to_run = 1;
-        
         if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
             if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
@@ -69,8 +59,6 @@ class BoldsAPI
         {
             // Combine all XML files.
             self::combine_all_xmls($resource_id);
-            // Set to force harvest
-            Functions::set_resource_status_to_force_harvest($resource_id);
             // Delete temp files
             self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
             self::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
@@ -91,7 +79,7 @@ class BoldsAPI
             if($line = fgets($FILE))
             {
                 $split = explode("\t", trim($line));
-                $taxon = array("sciname" => $split[1] , "id" => $split[0], "rank" => $split[2]);
+                $taxon = array("sciname" => $split[1] , "id" => $split[0], "rank" => @$split[2]);
                 $i++;
                 echo "\n $i -- " . $taxon['sciname'] . " $taxon[id] \n";
                 $arr = self::get_Bolds_taxa($taxon, $used_collection_ids);
@@ -99,7 +87,7 @@ class BoldsAPI
                 $used_collection_ids    = $arr[1];
                 if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                 unset($page_taxa);
-                //if($i >= 2) break; //debug
+                // if($i >= 2) break; //debug
             }
         }
         fclose($FILE);
@@ -137,82 +125,76 @@ class BoldsAPI
         $taxa = @$arr[0];
         $bold_stats = @$arr[1];
         $species_level = @$arr[2];
-        $with_dobjects = @$arr[3];
+        $public_records = @$arr[3];
         $with_map = @$arr[4];
 
-        if(!$taxa && !$bold_stats && !$species_level && !$with_dobjects) return array();
+        if(!$taxa && !$bold_stats && !$species_level) return array();
 
         // check if there is content
-        $description = self::check_if_with_content($taxon_rec, $source, 1, $species_level);
+        $description = self::check_if_with_content($taxon_rec, $public_records);
         if(!$description && !$taxa) return array();
 
         //start #########################################################################  
-        //if(intval($main->public_barcodes > 0))
-        //if(intval($main->barcodes) > 0)
-        if(true)
+
+        //same for all text objects
+        $mimeType   = "text/html";
+        $dataType   = "http://purl.org/dc/dcmitype/Text";
+        $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology"; //debug MolecularBiology
+        $agent = array();
+        $agent[] = array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Sujeevan Ratnasingham");
+        $agent[] = array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Paul D.N. Hebert");
+        $license = "http://creativecommons.org/licenses/by/3.0/";
+        $rightsHolder = "Barcode of Life Data Systems";
+
+        //1st text object
+        if($description)
         {
-            if($with_dobjects)
-            {     
-                //same for all text objects
-                $mimeType   = "text/html";
-                $dataType   = "http://purl.org/dc/dcmitype/Text";
-                $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology"; //debug MolecularBiology
-                $agent = array();
-                $agent[] = array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Sujeevan Ratnasingham");
-                $agent[] = array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Paul D.N. Hebert");
-                $license = "http://creativecommons.org/licenses/by/3.0/";
-                $rightsHolder = "Barcode of Life Data Systems";
+            $identifier = $taxon_rec["id"] . "_barcode_data";
+            $title      = "Barcode data";
+            $mediaURL   = ""; 
+            $location   = "";
+            $refs       = array();
+            $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
+        }
 
-                //1st text object
-                if($description != "")
-                {
-                    $identifier = $taxon_rec["id"] . "_barcode_data";
-                    $title      = "Barcode data";
-                    $mediaURL   = ""; 
-                    $location   = "";
-                    $refs       = array();
-                    $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
-                }
+        //another text object
+        if($bold_stats)
+        {
+            $description = "Barcode of Life Data Systems (BOLD) Stats <br> $bold_stats";
+            $description = str_ireplace("\t", "", $description);
+            $identifier = $taxon_rec["id"] . "_stats";
+            $title = "Statistics of barcoding coverage";
+            $mediaURL   = ""; 
+            $location   = "";
+            $refs       = array();
+            $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
+        }
 
-                //another text object
-                if($bold_stats)
-                {
-                    $description = "Barcode of Life Data Systems (BOLD) Stats <br> $bold_stats";
-                    $identifier = $taxon_rec["id"] . "_stats";
-                    $title = "Statistics of barcoding coverage";
-                    $mediaURL   = ""; 
-                    $location   = "";
-                    $refs       = array();
-                    $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
-                }
+        //another text object
+        if($with_map)
+        {
+            $map_url = self::BOLDS_DOMAIN . self::MAP_PARTIAL_URL . $taxon_rec["id"];
+            $map_scale_url = self::BOLDS_DOMAIN . self::MAP_SCALE;
+            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i><br><img border='0' src='$map_url'><br><img src='$map_scale_url'>";
+            $identifier  = $taxon_rec["id"] . "_map";
+            $title = "Locations of barcode samples";
+            $mediaURL   = "";
+            $location   = "";
+            $refs       = array();
+            $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
+            echo "\n map exists: $map_url \n";
 
-                //another text object
-                if($with_map)
-                {
-                    $map_url = self::BOLDS_DOMAIN . self::MAP_PARTIAL_URL . $taxon_rec["id"];
-                    $map_scale_url = self::BOLDS_DOMAIN . self::MAP_SCALE;
-                    $description = "Collection Sites: world map showing specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i><br><img border='0' src='$map_url'><br><img src='$map_scale_url'>";
-                    $identifier  = $taxon_rec["id"] . "_map";
-                    $title = "Locations of barcode samples";
-                    $mediaURL   = "";
-                    $location   = "";
-                    $refs       = array();
-                    $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
-                    echo "\n map exists: $map_url \n";
-
-                    // map as image object
-                    $identifier  = $taxon_rec["id"] . "_image_map";
-                    $dataType    = "http://purl.org/dc/dcmitype/StillImage"; 
-                    $mimeType    = "image/png";
-                    $title       = "BOLDS: Map of specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i>";
-                    $source      = self::SPECIES_SERVICE_URL . trim($taxon_rec["id"]);
-                    $mediaURL    = $map_url;
-                    $description = "Collection Sites: world map showing specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i><br><img src='$map_scale_url'>";
-                    $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, "");
-                }
-                else echo "\n no map for $taxon_rec[id] \n";
-            }//if($taxa)
-        }//with public barcodes
+            // map as image object
+            $identifier  = $taxon_rec["id"] . "_image_map";
+            $dataType    = "http://purl.org/dc/dcmitype/StillImage"; 
+            $mimeType    = "image/png";
+            $title       = "BOLDS: Map of specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i>";
+            $source      = self::SPECIES_SERVICE_URL . trim($taxon_rec["id"]);
+            $mediaURL    = $map_url;
+            $description = "Collection Sites: world map showing specimen collection locations for <i>" . $taxon_rec["sciname"] . "</i><br><img src='$map_scale_url'>";
+            $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, "");
+        }
+        else echo "\n no map for $taxon_rec[id] \n";
         
         if(sizeof($arr_objects))
         {
@@ -261,6 +243,12 @@ class BoldsAPI
         $file = self::SPECIES_SERVICE_URL . $taxid;
         $orig_str = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 1200, 5);
         
+        if(is_numeric(stripos($orig_str, "Taxonomy Browser - No Match")))
+        {
+            echo " -Taxonomy Browser - No Match- [$taxid]";
+            return array(false, false, false, false, false);
+        }
+        
         //check if there is map:
         $pos = stripos($orig_str, self::MAP_PARTIAL_URL);
         if(is_numeric($pos)) $with_map = true;
@@ -269,8 +257,8 @@ class BoldsAPI
         //side script - to check if id/url is even resolvable
         if(is_numeric(stripos($orig_str, "fatal error")))
         {
-            echo " -fatal error found- "; 
-            return array(false, false, false, false);
+            echo " -fatal error found- [$taxid]";
+            return array(false, false, false, false, false);
         }
 
         $str = $orig_str;
@@ -294,18 +282,29 @@ class BoldsAPI
         }
 
         //=========================================================================//start get BOLD stats
+        $public_records = 0;
+        $str = "";
         // if(preg_match("/<h2>BOLD Stats<\/h2>(.*?)<\/table>/ims", $orig_str, $matches)) $str = $matches[1]; old site
-        if(preg_match("/<h3><a href=\"#\">BOLD Stats<\/a><\/h3>(.*?)<\/table>/ims", $orig_str, $matches)) $str = $matches[1];
-        $str = strip_tags($str, "<tr><td><table>");
-        $str = str_ireplace('width="100%"', "", $str);
-        $pos = stripos($str, "Species List - Progress"); 
-        $str = substr($str, 0, $pos) . "</td></tr></table>";
-        $str = str_ireplace('<table width="30%" >', '<table>', $str);
+        if(preg_match("/<h3><a href=\"#\">BOLD Stats<\/a><\/h3>(.*?)<\/table>/ims", $orig_str, $matches)) 
+        {
+            $str = $matches[1];
+            $str = strip_tags($str, "<tr><td><table>");
+            $str = str_ireplace('width="100%"', "", $str);
+            $pos = stripos($str, "Species List - Progress"); 
+            $str = substr($str, 0, $pos) . "</td></tr></table>";
+            $str = str_ireplace('<table width="30%" >', '<table>', $str);
+
+            // get "public records" count
+            if(preg_match("/public records:(.*?)<\/tr>/ims", $str, $matches)) 
+            {
+                $public_records = intval(str_ireplace(",", "", trim(strip_tags($matches[1]))));
+                echo "\n[$public_records]\n";
+            }
+        }
         //=========================================================================
 
-        return array($taxa, $str, $species_level, true, $with_map);
+        return array($taxa, $str, $species_level, $public_records, $with_map);
     }
-
 
     private function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject)
     {
@@ -384,19 +383,16 @@ class BoldsAPI
         if(preg_match("/<a title=\"(.*?)\"/ims", $str, $matches)) return $matches[1];
     }
 
-    public function check_if_with_content($taxon_rec, $dc_source, $public_barcodes, $species_level, $barcode_image_url = false)
+    public function check_if_with_content($taxon_rec, $public_records)
     {
-        $taxid = $taxon_rec["id"];
-        $description = "";
-        $arr = $this->bolds->get_text_dna_sequence_v2($taxid);
-        $count_sequence     = $arr["count_sequence"];
-        $text_dna_sequence  = $arr["best_sequence"];
-        if($text_dna_sequence)
+        if($public_records > 0)
         {
+            $taxid = $taxon_rec["id"];
             $url = "http://www.boldsystems.org/index.php/Public_SearchTerms?query=" . $taxon_rec["sciname"];
-            $description = "<a target='dataportal' href='$url'>Access Published & Released Data: Download FASTA File</a>";
+            $description = "<a target='" . $taxon_rec["sciname"] . "' href='$url'>Access Published & Released Data: Download FASTA File</a>";
+            return $description;
         }
-        return $description;
+        else return false;
     }
 
 }

@@ -134,11 +134,10 @@ class BOLDSysAPI
  
         //barcode stats
         $bold_stats = "";
-        if(isset($rec['stats']['public_barcodes'])) $bold_stats .= "Public Records: " . $rec['stats']['public_barcodes'] . "<br>";
-        else                                        $bold_stats .= "Public Records: 0<br>";
-        if(isset($rec['stats']['barcodes']))        $bold_stats .= "Specimens with Barcodes: " . $rec['stats']['barcodes'] . "<br>";
-        if(isset($rec['stats']['barcoded_species']))$bold_stats .= "Species With Barcodes: " . $rec['stats']['barcoded_species'] . "<br>";
-        $bold_stats .= "<br>";                
+        if(@$rec['stats']['public_barcodes']) $bold_stats .= "Public Records: " . @$rec['stats']['public_barcodes'] . "<br>";
+        else                                  $bold_stats .= "Public Records: 0<br>";
+        if(@$rec['stats']['barcodes'])        $bold_stats .= "Specimens with Barcodes: " . @$rec['stats']['barcodes'] . "<br>";
+        if(@$rec['stats']['barcoded_species'])$bold_stats .= "Species With Barcodes: " . @$rec['stats']['barcoded_species'];
         $identifier  = $taxon_id . "_stats";
         $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType    = "text/html";
         $title       = "Statistics of barcoding coverage: $sciname";
@@ -154,7 +153,7 @@ class BOLDSysAPI
         //same for all objects
         $agent = array(0 => array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Sujeevan Ratnasingham"),
                        1 => array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Paul D.N. Hebert"));
-        if($bold_stats != "<br>") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
+        if($bold_stats != "") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
         
         //barcode image
         if(isset($rec['barcode_image_url']))
@@ -163,8 +162,10 @@ class BOLDSysAPI
             $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType = "text/html";
             $title       = "Barcode data: $sciname";
             $source      = SPECIES_URL . trim($taxon_id);
-            $mediaURL    = "";               
-            if($description = $this->check_if_with_content($taxon_id, $source, 1, true, "http://".$rec['barcode_image_url']))
+            $mediaURL    = "";
+
+            $with_stats = @$rec['stats']['public_barcodes'] || @$rec['stats']['barcodes'] || @$rec['stats']['barcoded_species'];
+            if($description = $this->check_if_with_content($taxon_id, $source, "http://".$rec['barcode_image_url'], $with_stats, @$rec['stats']['public_barcodes']))
             {
                 $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
             }
@@ -390,79 +391,62 @@ class BOLDSysAPI
 
     // start of added functions
 
-    public function check_if_with_content($taxid, $dc_source, $public_barcodes, $species_level, $barcode_image_url = false)
+    public function check_if_with_content($taxid, $dc_source, $barcode_image_url = false, $with_stats, $public_barcodes)
     {
         //start get text dna sequece
-        $src = self::BOLDS_DOMAIN . "/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
-        if($species_level)
+        $src = self::BOLDS_DOMAIN_NEW . "/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
+        if($barcode_image_url || self::barcode_image_available($src))
         {
-            if($barcode_image_url || self::barcode_image_available($src))
-            {
-                $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.
-                <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
-            }
-            else $description = "Barcode image not yet available.";
-            $description .= "<br>&nbsp;<br>";
+            $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.
+            <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
         }
-        else $description = "";
+        else $description = "Barcode image not yet available.";
+        $description .= "<br><br>";
 
-        if($species_level)
+        $url = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+        // $arr = self::get_text_dna_sequence($url);
+        $arr = $this->get_text_dna_sequence_v2($taxid);
+        $count_sequence     = $arr["count_sequence"];
+        $text_dna_sequence  = $arr["best_sequence"];
+        // $url_fasta_file     = $arr["url_fasta_file"]; this will point to the fasta.fas file from BOLDS temp folder
+
+        echo "\n[$public_barcodes]=[$count_sequence]\n";
+        $str = "";
+        if($count_sequence > 0)
         {
-            if($public_barcodes > 0)
-            {    
-                $url = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-                // $arr = self::get_text_dna_sequence($url);
-                $arr = $this->get_text_dna_sequence_v2($taxid);
-                $count_sequence     = $arr["count_sequence"];
-                $text_dna_sequence  = $arr["best_sequence"];
-                // $url_fasta_file     = $arr["url_fasta_file"]; this will point to the fasta.fas file from BOLDS temp folder
-
-                echo "\n[$public_barcodes]=[$count_sequence]\n";
-                $str = "";
-                if($count_sequence > 0)
-                {
-                    if($count_sequence == 1)$str="There is 1 barcode sequence available from BOLD and GenBank. 
-                                            Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
-                                            See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen.
-                                            Other sequences that do not yet meet barcode criteria may also be available.";
-
-                    else                    $str="There are $count_sequence barcode sequences available from BOLD and GenBank.
-                                            Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
-                                            See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
-                    $str .= "<br>&nbsp;<br>";
-                    $text_dna_sequence .= "<br>-- end --<br>";
-                }
-            }
-            else $text_dna_sequence = "";
-
-            if(trim($text_dna_sequence) != "")
-            {
-                $temp = "$str ";
-                $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
-                /* one-click         
-                $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
-                */
-                /* 2-click per PL advice */
-                $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-                $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File3</a>";
-            }
-            else
-            {
-                $temp = "No available public DNA sequences <br>";
-                return false;
-            }
+            if($count_sequence == 1) $str = "There is 1 barcode sequence available from BOLD and GenBank. 
+                                     Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
+                                     See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen.
+                                     Other sequences that do not yet meet barcode criteria may also be available.";
+            else                     $str = "There are $count_sequence barcode sequences available from BOLD and GenBank.
+                                     Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
+                                     See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
+            $str .= "<br><br>";
+            $text_dna_sequence .= "<br>-- end --<br>";
         }
-        // else
-        // {
-        //     /* 2-click per PL advice */
-        //     $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-        //     $temp = "<a target='fasta' href='$url_fasta_file'>Download FASTA File4</a>";
-        // }
+
+        if(trim($text_dna_sequence) != "")
+        {
+            $temp = "$str ";
+            $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
+        }
+        else $temp = "No available public DNA sequences. <br>";
+
+        if($count_sequence > 0 || $with_stats)
+        {
+            /* one-click         
+            $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
+            */
+            /* 2-click per PL advice */
+            $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+            $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
+        }
+
         $description .= $temp;
         //end get text dna sequence
 
         if(Functions::is_utf8($description)) return $description;
-        else return;
+        else return false;
     }
 
     function get_text_dna_sequence_v2($taxon_id)

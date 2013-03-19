@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* This is BOLDS 2nd image resource, gets the data from BOLDS big XML file but excluding those images from the original image resource.
-estimated execution time: 3.39 | 7.6 hours
+estimated execution time: 3.39 | 7.6 | 9.5 hours
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
