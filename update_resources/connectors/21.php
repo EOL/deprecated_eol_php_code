@@ -12,9 +12,9 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $resource_id = 21;
 $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
 
-$file = 'http://localhost/~eolit/eol_php_code/applications/content_server/resources/amphib_dump.xml';
+$file = 'http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/amphib_dump.xml';
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
-if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 999999))
+if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 1200, 5))
 {
     echo("\n\n Content partner's server is down, connector will now terminate.\n");
 }else
@@ -63,29 +63,12 @@ if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 99
         $refs = array();
         foreach($ref as $r) $refs[] = array("fullReference" => trim($r));
 
-        $description = str_replace("\n"," ",$description);
-        while(preg_match("/<p> *<p>/i",$description)) $description = preg_replace("/<p> *<p>/i","<p>",$description);
-        $description = str_replace("  "," ",$description);
-
-        $distribution = str_replace("\n"," ",$distribution);
-        while(preg_match("/<p> *<p>/i",$distribution)) $distribution = preg_replace("/<p> *<p>/i","<p>",$distribution);
-        $distribution = str_replace("  "," ",$distribution);
-
-        $life_history = str_replace("\n"," ",$life_history);
-        while(preg_match("/<p> *<p>/i",$life_history)) $life_history = preg_replace("/<p> *<p>/i","<p>",$life_history);
-        $life_history = str_replace("  "," ",$life_history);
-
-        $trends_and_threats = str_replace("\n"," ",$trends_and_threats);
-        while(preg_match("/<p> *<p>/i",$trends_and_threats)) $trends_and_threats = preg_replace("/<p> *<p>/i","<p>",$trends_and_threats);
-        $trends_and_threats = str_replace("  "," ",$trends_and_threats);
-
-        $relation_to_humans = str_replace("\n"," ",$relation_to_humans);
-        while(preg_match("/<p> *<p>/i",$relation_to_humans)) $relation_to_humans = preg_replace("/<p> *<p>/i","<p>",$relation_to_humans);
-        $relation_to_humans = str_replace("  "," ",$relation_to_humans);
-
-        $comments = str_replace("\n"," ",$comments);
-        while(preg_match("/<p> *<p>/i",$comments)) $comments = preg_replace("/<p> *<p>/i","<p>",$comments);
-        $comments = str_replace("  "," ",$comments);    
+        $description = fix_article($description);
+        $distribution = fix_article($distribution);
+        $life_history = fix_article($life_history);
+        $trends_and_threats = fix_article($trends_and_threats);
+        $relation_to_humans = fix_article($relation_to_humans);
+        $comments = fix_article($comments);
 
         $pageURL = "http://amphibiaweb.org/cgi/amphib_query?where-genus=".$genus."&where-species=".$speciesName."&account=amphibiaweb";
         if(!$submittedBy) continue;
@@ -121,9 +104,9 @@ if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 99
         if($trends_and_threats) $dataObjects[] = get_data_object($amphibID . "_trends_threats","Life History, Abundance, Activity, and Special Behaviors", $trends_and_threats, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats", $refs, $agents, $pageURL);
         if($relation_to_humans) $dataObjects[] = get_data_object($amphibID . "_relation_to_humans","Relation to Humans", $relation_to_humans, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#RiskStatement", $refs, $agents, $pageURL);    
 
-        if(trim($description) != "") if(trim($comments)!="") $description .= "<br>&nbsp;<br>" . $comments;
-        else if(trim($comments) !="" ) $description = $comments;    
-        if($description) $dataObjects[] = get_data_object($amphibID . "_description","Description", $description, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription", $refs, $agents, $pageURL);
+        if($description != "") if($comments != "") $description .=  $comments;
+        else if($comments != "" ) $description = $comments;    
+        if($description) $dataObjects[] = get_data_object($amphibID . "_description", "Description", $description, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription", $refs, $agents, $pageURL);
 
         /* we didn't get <comments>
         if($comments)       $dataObjects[] = get_data_object("Comments", $comments, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription", $refs, $agents, $pageURL);        
@@ -151,6 +134,26 @@ if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 99
     echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
     echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
     echo "\n\n Done processing.";
+}
+
+function fix_article($article)
+{
+    $article = str_ireplace(array("\n", "\t", "</p>"), "", $article);
+    if(substr($article, 0, 3) == "<p>") $article = trim(substr($article, 3, strlen($article)));
+    $article = str_ireplace("<p>", "------", $article);
+
+    // bring back <p> and </p>
+    $article = trim(str_ireplace("------", "</p><p>", $article));
+    if($article == "") return;
+    $article = "<p>" . $article . "</p>";
+    $article = str_ireplace(array("<br><br>", "<p></p>"), "", $article);
+    $article = str_ireplace(array("<BR></p>"), "</p>", $article);
+
+    // make <img src=''> and <a href=''> work
+    $article = str_ireplace('href="/amazing_amphibians', 'href="http://amphibiaweb.org/amazing_amphibians', $article);
+    $article = str_ireplace('src="/images', 'src="http://amphibiaweb.org/images', $article);
+
+    return trim($article);
 }
 
 function get_data_object($id, $title, $description, $subject, $refs, $agents, $pageURL)
