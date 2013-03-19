@@ -555,7 +555,7 @@ class Resource extends ActiveRecord
             echo count($data_object_ids);
             echo " $last_id\n";
             $indexer = new DataObjectAncestriesIndexer();
-            $indexer->index_objects($data_object_ids);
+            $indexer->index_data_objects($data_object_ids);
         }
     }
     

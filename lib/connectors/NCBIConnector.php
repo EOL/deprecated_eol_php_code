@@ -15,7 +15,7 @@ class NCBIConnector
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/$this->resource_id/";
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
-        if($download_directory = ContentManager::download_temp_file_and_assign_extension(self::DUMP_URL, null, false, DOWNLOAD_TIMEOUT_SECONDS, $suffix))
+        if($download_directory = ContentManager::download_temp_file_and_assign_extension(self::DUMP_URL))
         {
             if(is_dir($download_directory) && file_exists($download_directory ."/names.dmp"))
             {
@@ -39,9 +39,12 @@ class NCBIConnector
         {
             if($line_number % 10000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
             $line_data  = explode("\t|", $line);
-            $tax_id = trim($line_data[0]);
-            $name = trim($line_data[1]);
-            $name_class = trim($line_data[3]);
+            $tax_id = @trim($line_data[0]);
+            $name = @trim($line_data[1]);
+            $name_class = @trim($line_data[3]);
+            if(!is_numeric($tax_id)) continue;
+            if(!$name) continue;
+            if(!$name_class) continue;
             if($tax_id == 1) continue;  // tax_id 1 is a sudo-node with the name of 'root'
 
             // remove single and double quotes from ('")word or phrase('")
@@ -69,6 +72,8 @@ class NCBIConnector
             $parent_tax_id = trim($line_data[1]);
             $rank = trim($line_data[2]);
             $comments = trim($line_data[12]);
+            if(!is_numeric($tax_id)) continue;
+            if(!is_numeric($parent_tax_id)) continue;
 
             if($rank == "no rank") $rank = "";
             // tax_id 1 is a sudo-node named 'root'. Things with 1 as a parent are the real roots

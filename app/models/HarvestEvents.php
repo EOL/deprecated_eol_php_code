@@ -217,7 +217,7 @@ class HarvestEvent extends ActiveRecord
         if($data_object_ids) $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
         // index objects in the data_objects core
         $object_indexer = new DataObjectAncestriesIndexer();
-        $object_indexer->index_objects($data_object_ids);
+        $object_indexer->index_data_objects($data_object_ids);
         
         // index the taxa
         $taxon_concept_ids = array();
