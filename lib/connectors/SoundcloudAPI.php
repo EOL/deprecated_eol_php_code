@@ -297,7 +297,7 @@ class SoundcloudAPI
         }
         if(!isset($sciname))
         {
-            debug("\n This needs checking...");
+            debug("\n This needs checking... no scientificName found.\n");
             print_r($match);
             return array();
         }
