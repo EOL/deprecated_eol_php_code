@@ -5,9 +5,13 @@ class MCZHarvardAPI
 {
     function __construct($folder)
     {
-        $this->data_dump_url = "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv";
+        // $this->data_dump_url = "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv";
         // $this->data_dump_url = "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small_2013.csv";
         // $this->data_dump_url = "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_2013.csv";
+
+        $this->data_dump_url = "http://digir.mcz.harvard.edu/forEOL/MCZimages.tsv";
+        // $this->data_dump_url = "http://127.0.0.1/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.tsv";
+        // $this->data_dump_url = "http://127.0.0.1/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages.tsv";
 
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -22,27 +26,35 @@ class MCZHarvardAPI
     {
         $labels = self::get_headers();
         if($data_dump_url) $this->data_dump_url = $data_dump_url;
-        $file = fopen($this->data_dump_url, "r");
-        $not80 = 0;
-        while(!feof($file))
+        if($file = fopen($this->data_dump_url, "r"))
         {
-            if($line = fgets($file))
+            $not80 = 0;
+            $i = 0;
+            while(!feof($file))
             {
-                $record = self::prepare_row_data(trim($line), $labels);
-                if(count($record) != 80) $not80++; // means invalid CSV row, needs attention by provider
-                else
+                if($line = fgets($file))
                 {
-                    if(@$record['SCIENTIFIC_NAME'])
+                    $record = self::prepare_row_data(trim($line), $labels);
+                    if(count($record) != 80)
                     {
-                        debug($record['SCIENTIFIC_NAME'] . "\n");
-                        self::parse_record_element($record);
+                       $not80++; // means invalid CSV row, needs attention by provider
+                       print_r($record);
+                    }
+                    else
+                    {
+                        if(@$record['SCIENTIFIC_NAME'])
+                        {
+                            $i++;
+                            debug("$i. " . $record['SCIENTIFIC_NAME'] . "\n");
+                            self::parse_record_element($record);
+                        }
                     }
                 }
             }
+            fclose($file);
+            debug("\n not 80: $not80 \n");
+            $this->create_archive();
         }
-        fclose($file);
-        debug("\n not 80: $not80 \n");
-        $this->create_archive();
     }
 
     private function get_headers()
@@ -55,13 +67,17 @@ class MCZHarvardAPI
 
     private function prepare_row_data($line, $labels)
     {
-        $line = str_ireplace(", ", "xxxyyy", $line);
-        $fields = str_getcsv($line);
+        // used in old csv file
+        // $line = str_ireplace(", ", "xxxyyy", $line);
+        // $fields = str_getcsv($line);
+
+        $line = str_replace('"', '', $line);
+        $fields = explode("\t", $line);
         $record = array();
         $i = 0;
         foreach($fields as $field)
         {
-            $record[$labels[$i]] = str_ireplace("xxxyyy", ", ", $field);
+            $record[$labels[$i]] = $field;
             $i++;
         }
         return $record;
