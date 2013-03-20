@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* estimated execution time: 2 minutes
+/* estimated execution time: 9 minutes
 Partner provides a CSV file.
 */
 
