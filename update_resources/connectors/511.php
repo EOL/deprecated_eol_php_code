@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for Soundcloud 
-estimated execution time:  minutes
+estimated execution time:  10 minutes
 */
 
 $timestart = microtime(1);
