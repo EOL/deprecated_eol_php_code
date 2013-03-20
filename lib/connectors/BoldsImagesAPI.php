@@ -1,13 +1,12 @@
 <?php
 namespace php_active_record;
-/* connector: [329]  
---- BOLD images [329]
+/* connector: [329]
 The partner provides a big tab-delimited text file for their images. The connector processes each row, assembles the data and generates the EOL XML.
 Partner hasn't yet provided a permanent URL for the text file.
 */
 
-//define("BOLDS_IMAGE_EXPORT_FILE", "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BOLD_images/BOLD%20Images%20-%20CreativeCommons%20-%20Nov%202011%20small.txt");
-define("BOLDS_IMAGE_EXPORT_FILE", "http://dl.dropbox.com/u/7597512/resources/BOLD%20Images%20-%20CreativeCommons%20-%20Nov%202011.txt");
+// define("BOLDS_IMAGE_EXPORT_FILE", "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BOLD_images/BOLD Images - CreativeCommons - Nov 2011 small.txt");
+define("BOLDS_IMAGE_EXPORT_FILE", "http://dl.dropbox.com/u/7597512/resources/BOLD Images - CreativeCommons - Nov 2011.txt");
 define("BOLDS_SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxon=");
 
 class BoldsImagesAPI
@@ -46,6 +45,9 @@ class BoldsImagesAPI
         $READ = fopen($filename, "r");
         $i = 0;
         //$limit = 10; //debug
+
+        $ids_4fn = array();
+
         while(!feof($READ))
         {
             if($line = fgets($READ))
@@ -108,6 +110,10 @@ class BoldsImagesAPI
                     $path_parts = pathinfo($URL);
                     $do_id .= "_" . $path_parts['filename'];
                 }
+                else 
+                {
+                    $ids_4fn[$do_id] = 1;
+                }
 
                 $do_identifiers[] = $do_id;
                 $data[$Taxon][] = array("identifier" => $do_id,
@@ -121,6 +127,21 @@ class BoldsImagesAPI
             }
             //if($i >= $limit) break; //debug
         }
+
+        // start utility
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "old_BOLDS_image_ids.txt";
+        $WRITE = fopen($filename, "w");
+        fwrite($WRITE, json_encode(array_keys($ids_4fn)));
+        fclose($WRITE);
+            // just testing - reading it back
+            $READ2 = fopen($filename, "r");
+            $contents = fread($READ2, filesize($filename));
+            fclose($READ2);
+            $ids_4fn = json_decode($contents,true);
+            echo "\n\n from text file: " . count($ids_4fn);
+        // end utility
+        
+        
         fclose($READ);
         return $data;
     }
