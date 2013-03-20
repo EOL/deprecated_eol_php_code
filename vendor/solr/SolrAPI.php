@@ -35,7 +35,6 @@ class SolrAPI
     {
         clearstatcache();
         if(file_exists(DOC_ROOT . $this->csv_bulk_path) && filesize(DOC_ROOT . $this->csv_bulk_path)) $this->commit_objects_in_file();
-        $this->commit();
         @unlink(DOC_ROOT . $this->csv_path);
         @unlink(DOC_ROOT . $this->csv_bulk_path);
     }
@@ -249,6 +248,8 @@ class SolrAPI
     
     public function commit_objects_in_file()
     {
+        clearstatcache();
+        if(!file_exists(DOC_ROOT . $this->csv_bulk_path) || !filesize(DOC_ROOT . $this->csv_bulk_path)) return;
         $curl = "curl ". $this->action_url ."/update/csv -F overwrite=true -F separator='". $this->file_delimiter ."'";
         foreach($this->multi_valued_fields_in_csv as $field => $bool)
         {
@@ -275,9 +276,9 @@ class SolrAPI
     {
         $this->write_objects_to_file($objects);
         debug("Solr attributes file size: ". filesize(DOC_ROOT . $this->csv_bulk_path));
-        // 50 MB
+        // 5 MB
         clearstatcache();
-        if(filesize(DOC_ROOT . $this->csv_bulk_path) >= 50000000) $this->commit_objects_in_file();
+        if(filesize(DOC_ROOT . $this->csv_bulk_path) >= 5000000) $this->commit_objects_in_file();
     }
     
     public function send_from_mysql_result($outfile)
@@ -317,10 +318,16 @@ class SolrAPI
     }
     
     
-    public static function text_filter(&$text, $convert_to_ascii = false)
+    public static function text_filter(&$text, $is_date = false)
     {
+        if($is_date)
+        {
+            if(!$text || $text == 'NULL') $text = 1;  // setting the default to 1969-12-31T07:00:01Z
+            return self::mysql_date_to_solr_date($text);
+        }
+        if($text == 'NULL') return NULL;
         if(is_numeric($text)) return $text;
-        if(preg_match("/^[a-zA-Z0-9 \(\)-]$/", $text)) return $text;
+        if(preg_match("/^[a-zA-Z0-9 \(\),\.&-]+$/", $text)) return $text;
         if(!Functions::is_utf8($text)) return "";
         $text = str_replace(";", " ", $text);
         $text = str_replace("×", " ", $text);
@@ -330,7 +337,6 @@ class SolrAPI
         $text = str_replace("\n", "", $text);
         $text = str_replace("\r", "", $text);
         $text = str_replace("\t", "", $text);
-        if($convert_to_ascii) $text = Functions::utf8_to_ascii($text);
         while(preg_match("/  /", $text)) $text = str_replace("  ", " ", $text);
         return trim($text);
     }

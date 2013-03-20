@@ -214,7 +214,7 @@ class HarvestEvent extends ActiveRecord
         }
         if($GLOBALS['ENV_DEBUG']) print_r($data_object_ids);
         // index objects in the site_search core
-        if($data_object_ids) $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
+        if($data_object_ids) $search_indexer->index_type('DataObject', $data_object_ids);
         // index objects in the data_objects core
         $object_indexer = new DataObjectAncestriesIndexer();
         $object_indexer->index_data_objects($data_object_ids);
@@ -232,7 +232,7 @@ class HarvestEvent extends ActiveRecord
         }
         if($GLOBALS['ENV_DEBUG']) print_r($taxon_concept_ids);
         // index concepts in the site_search core
-        if($taxon_concept_ids) $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
+        if($taxon_concept_ids) $search_indexer->index_type('TaxonConcept', $taxon_concept_ids);
     }
     
     private function create_or_get_resource_collection()

@@ -93,7 +93,7 @@ class TaxonConcept extends ActiveRecord
             $object_indexer->index_data_objects($data_object_ids);
 
             $search_indexer = new SiteSearchIndexer();
-            $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
+            $search_indexer->index_type('DataObject', $data_object_ids);
         }
     }
     
@@ -109,7 +109,7 @@ class TaxonConcept extends ActiveRecord
         if(!$taxon_concept_id) return false;
         $ids = array($taxon_concept_id);
         $search_indexer = new SiteSearchIndexer();
-        $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $ids);
+        $search_indexer->index_type('TaxonConcept', $ids);
     }
     
     public static function reindex_descendants($taxon_concept_id)
@@ -123,7 +123,7 @@ class TaxonConcept extends ActiveRecord
         print_r($taxon_concept_ids);
         $taxon_concept_ids[] = $taxon_concept_id;
         $search_indexer = new SiteSearchIndexer();
-        $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa', $taxon_concept_ids);
+        $search_indexer->index_type('TaxonConcept', $taxon_concept_ids);
     }
     
     public static function count_descendants($taxon_concept_id)

@@ -33,31 +33,27 @@ class DataObjectAncestriesIndexer
         $max_id = $this->mysqli->select_value("SELECT MAX(id) FROM data_objects");
         for($i=$start ; $i<$max_id ; $i+=$limit)
         {
-            $query = "SELECT id FROM data_objects WHERE id BETWEEN $i AND ". ($i + $limit - 1);
-            $data_object_ids = array();
-            foreach($this->mysqli->iterate_file($query) as $row_num => $row) $data_object_ids[] = $row[0];
-            if($data_object_ids)
-            {
-                $this->index_data_objects($data_object_ids);
-            }
+            $upper_range = $i + $limit - 1;
+            if($upper_range > $max_id) $upper_range = $max_id;
+            $data_object_ids = range($i, $upper_range);
+            $this->index_data_objects($data_object_ids);
         }
         $this->solr->commit_objects_in_file();
     }
     
     public function index_data_objects(&$data_object_ids = array())
     {
-        if($data_object_ids)
+        if(!$data_object_ids) return;
+        $batches = array_chunk($data_object_ids, 10000);
+        foreach($batches as $batch)
         {
-            $batches = array_chunk($data_object_ids, 10000);
-            foreach($batches as $batch)
-            {
-                $this->index_batch($batch);
-            }
+            $this->index_batch($batch);
         }
     }
     
-    public function index_batch(&$data_object_ids)
+    private function index_batch(&$data_object_ids)
     {
+        if(!$data_object_ids) return;
         unset($this->objects);
         static $num_batch = 0;
         $num_batch++;
@@ -66,32 +62,30 @@ class DataObjectAncestriesIndexer
         if($GLOBALS['ENV_DEBUG']) echo "after DO Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
         if(isset($this->objects))
         {
-            $this->lookup_ancestries($data_object_ids);
+            $lookup_ids = array_keys($this->objects);
+            $this->lookup_ancestries($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_curated_ancestries($data_object_ids);
+            $this->lookup_curated_ancestries($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after c_a Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_user_added_ancestries($data_object_ids);
+            $this->lookup_user_added_ancestries($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after uaa Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_ancestries_he($data_object_ids);
+            $this->lookup_ancestries_he($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after ancestries_he Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_curated_ancestries_he($data_object_ids);
+            $this->lookup_curated_ancestries_he($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after curated ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_user_added_ancestries_he($data_object_ids);
+            $this->lookup_user_added_ancestries_he($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after udo Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_ignores($data_object_ids);
+            $this->lookup_ignores($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after ignores Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_curation($data_object_ids);
+            $this->lookup_curation($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after curation Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_resources($data_object_ids);
+            $this->lookup_resources($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after resources Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_table_of_contents($data_object_ids);
+            $this->lookup_table_of_contents($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after toc Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_translations($data_object_ids);
+            $this->lookup_translations($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after translations Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-        }
-        
-        if(isset($this->objects))
-        {
+            
             foreach($this->objects as $id => $attr)
             {
                 if(isset($attr['trusted_ancestor_id'])) $this->objects[$id]['max_vetted_weight'] = 5;
@@ -109,6 +103,7 @@ class DataObjectAncestriesIndexer
         
         $this->solr->delete_by_ids($data_object_ids, false);
         if(isset($this->objects)) $this->solr->send_attributes_in_bulk($this->objects);
+        $this->solr->commit();
     }
     
     

@@ -280,7 +280,7 @@ function index_old_objects()
     $object_indexer->index_data_objects($data_object_ids);
 
     $search_indexer = new SiteSearchIndexer();
-    if($data_object_ids) $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects', $data_object_ids);
+    if($data_object_ids) $search_indexer->index_type('DataObject', $data_object_ids);
 }
 
 ?>

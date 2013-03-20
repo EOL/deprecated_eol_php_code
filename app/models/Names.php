@@ -15,7 +15,7 @@ class Name extends ActiveRecord
     
     public static function is_surrogate($string)
     {
-        $red_flag_words = array('incertae', 'sedis', 'incertaesedis', 'culture', 'clone', 'isolate',
+        static $red_flag_words = array('incertae', 'sedis', 'incertaesedis', 'culture', 'clone', 'isolate',
                                 'phage', 'sp', 'cf', 'uncultured', 'DNA', 'unclassified', 'sect',
                                 'ß', 'str', 'biovar', 'type', 'strain', 'serotype', 'hybrid',
                                 'cultivar', 'x', '×', 'pop', 'group', 'environmental', 'sample',
@@ -25,18 +25,21 @@ class Name extends ActiveRecord
                                 'phytoplasma', 'bacterium', 'sect', 'section');
         if(preg_match("/(^|[^\w])(". implode("|", $red_flag_words) .")([^\w]|$)/i", $string)) return true;
         if(preg_match("/ [abcd] /i", $string)) return true;
-        if(preg_match("/(_|'|\")/i", $string)) return true;
-        if(preg_match("/[0-9][a-z]/i", $string)) return true;
-        if(preg_match("/[a-z][0-9]/i", $string)) return true;
-        if(preg_match("/[a-z]-[0-9]/i", $string)) return true;
-        if(preg_match("/ [0-9]{1,3}$/", $string)) return true;
-        if(preg_match("/(^|[^\w])[0-9]{1,3}-[0-9]{1,3}(^|[^\w])/", $string)) return true;
-        if(preg_match("/[0-9]{5,}/", $string)) return true;
-        if(preg_match("/[03456789][0-9]{3}/", $string)) return true; // years should start with 1 or 2
-        if(preg_match("/1[02345][0-9]{2}/", $string)) return true; // 1600 - 1900
-        if(preg_match("/2[1-9][0-9]{2}/", $string)) return true; // 1600 - 1900
         if(preg_match("/virus([^\w]|$)/i", $string)) return true;
         if(preg_match("/viruses([^\w]|$)/i", $string)) return true;
+        if(preg_match("/(_|'|\")/i", $string)) return true;
+        
+        // the rest of the rules involve numbers, so we can return if there isn't a number
+        if(!preg_match("/[0-9]/", $string)) return false;
+        if(preg_match("/[0-9][a-z]/i", $string)) return true;           // 9c
+        if(preg_match("/[a-z][0-9]/i", $string)) return true;           // c9
+        if(preg_match("/[a-z]-[0-9]/i", $string)) return true;          // c-9
+        if(preg_match("/ [0-9]{1,3}$/", $string)) return true;          // 197
+        if(preg_match("/(^|[^\w])[0-9]{1,3}-[0-9]{1,3}(^|[^\w])/", $string)) return true;
+        if(preg_match("/[0-9]{5,}/", $string)) return true;             // 19777
+        if(preg_match("/[03456789][0-9]{3}/", $string)) return true;    // years should start with 1 or 2
+        if(preg_match("/1[02345][0-9]{2}/", $string)) return true;      // 1600 - 1900
+        if(preg_match("/2[1-9][0-9]{2}/", $string)) return true;        // 1600 - 1900
         return false;
     }
     

@@ -64,8 +64,8 @@ if(!$fast_for_testing)
                 if(SolrAPI::ping(SOLR_SERVER, 'site_search'))
                 {
                     $search_indexer = new SiteSearchIndexer();
-                    $search_indexer->index_type('DataObject', 'data_objects', 'lookup_objects');
-                    $search_indexer->index_type('TaxonConcept', 'taxon_concepts', 'index_taxa');
+                    $search_indexer->recreate_index_for_class('DataObject');
+                    $search_indexer->recreate_index_for_class('TaxonConcept');
                     $solr = new SolrAPI(SOLR_SERVER, 'site_search');
                     $solr->optimize();
                 }

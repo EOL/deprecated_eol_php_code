@@ -45,31 +45,27 @@ class CollectionItemIndexer
         $max_id = $this->mysqli->select_value("SELECT MAX(id) FROM collection_items");
         for($i=$start ; $i<$max_id ; $i+=$limit)
         {
-            $query = "SELECT id FROM collection_items WHERE id BETWEEN $i AND ". ($i + $limit - 1);
-            $collection_item_ids = array();
-            foreach($this->mysqli->iterate_file($query) as $row_num => $row) $collection_item_ids[] = $row[0];
-            if($collection_item_ids)
-            {
-                $this->index_collection_items($collection_item_ids);
-            }
+            $upper_range = $i + $limit - 1;
+            if($upper_range > $max_id) $upper_range = $max_id;
+            $collection_item_ids = range($i, $upper_range);
+            $this->index_collection_items($collection_item_ids);
         }
         $this->solr->commit_objects_in_file();
     }
     
     public function index_collection_items(&$collection_item_ids = array())
     {
-        if($collection_item_ids)
+        if(!$collection_item_ids) return;
+        $batches = array_chunk($collection_item_ids, 10000);
+        foreach($batches as $batch)
         {
-            $batches = array_chunk($collection_item_ids, 10000);
-            foreach($batches as $batch)
-            {
-                $this->index_batch($batch);
-            }
+            $this->index_batch($batch);
         }
     }
     
-    function index_batch(&$collection_item_ids)
+    private function index_batch(&$collection_item_ids)
     {
+        if(!$collection_item_ids) return;
         unset($this->objects);
         static $num_batch = 0;
         $num_batch++;
@@ -83,6 +79,7 @@ class CollectionItemIndexer
         
         $this->solr->delete_by_ids($collection_item_ids, false);
         if(isset($this->objects)) $this->solr->send_attributes_in_bulk($this->objects);
+        $this->solr->commit();
     }
     
     function lookup_data_objects($params)
