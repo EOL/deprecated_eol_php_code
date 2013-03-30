@@ -30,7 +30,6 @@ class VernacularName extends DarwinCoreExtensionBase
                 'failure_type'          => 'warning',
                 'failure_message'       => 'Vernacular names should have languages'));
             
-            // these rules apply to entire rows
             $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://purl.org/dc/terms/language',
                 'validation_function'   => 'eol_schema\MediaResource::valid_language',

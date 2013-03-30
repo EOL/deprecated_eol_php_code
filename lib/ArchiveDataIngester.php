@@ -25,7 +25,7 @@ class ArchiveDataIngester
         $valid = $validate ? $this->archive_validator->is_valid() : true;
         if($valid !== true) return array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
         // even if we don't want to validate - we need the errors to determine which rows to ignore
-        if(!$validate) $this->archive_validator->get_validation_errors();
+        if(!$validate) $this->archive_validator->get_validation_errors(true);
         $this->archive_validator->delete_validation_cache();
         
         $this->taxon_reference_ids = array();
@@ -42,6 +42,9 @@ class ArchiveDataIngester
         $this->entry_references_deleted = array();
         $this->entry_vernacular_names_deleted = array();
         $this->entry_synonyms_deleted = array();
+        
+        $this->dataset_metadata = array();
+        $this->collect_dataset_attribution();
         
         $this->mysqli->begin_transaction();
         $this->start_reading_taxa();
@@ -72,13 +75,12 @@ class ArchiveDataIngester
         if(isset($this->children[0]))
         {
             // get all the roots, or taxa with no parents
-            foreach($this->children[0] as $taxon_id => &$row)
+            foreach($this->children[0] as &$row)
             {
                 $parent_hierarchy_entry_id = 0;
                 $ancestry = "";
                 self::uncompress_array($row);
-                $this->add_hierarchy_entry($row, $parent_hierarchy_entry_id, $ancestry);
-                unset($this->children[$taxon_id]);
+                $this->add_hierarchy_entry($row, $parent_hierarchy_entry_id, $ancestry, @$row['http://rs.tdwg.org/dwc/terms/scientificName']);
             }
         }else echo "THERE ARE NO ROOT TAXA\nAborting import\n";
     }
@@ -124,18 +126,28 @@ class ArchiveDataIngester
         }
     }
     
-    function add_hierarchy_entry(&$row, $parent_hierarchy_entry_id, $ancestry)
+    function add_hierarchy_entry(&$row, $parent_hierarchy_entry_id, $ancestry, $branch_kingdom)
     {
         self::debug_iterations("Inserting taxon");
         self::commit_iterations("Taxa", 500);
+        // // if($branch_kingdom != 'cellular organisms') return;
+        // if(!isset($GLOBALS['kingdom_counts'])) $GLOBALS['kingdom_counts'] = array();
+        // if(!isset($GLOBALS['kingdom_counts'][$branch_kingdom])) $GLOBALS['kingdom_counts'][$branch_kingdom] = 0;
+        // $GLOBALS['kingdom_counts'][$branch_kingdom]++;
+        // if($GLOBALS['kingdom_counts'][$branch_kingdom] > 20000) return;
         if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/taxon', $row['archive_file_location'], $row['archive_line_number'])) return false;
-        
+
         // make sure this taxon has a name, otherwise skip this branch
         $scientific_name = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/scientificName']);
         $authorship = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/scientificNameAuthorship']);
         $kingdom = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/kingdom']);
         $genus = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/genus']);
         $rank_label = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRank']);
+        if(strtolower($kingdom) == 'viruses')
+        {
+            if(substr($scientific_name, -1) == ":") $scientific_name = substr($scientific_name, 0, -1);
+            if(preg_match("/^(.*) ICTV$/i", $scientific_name, $arr)) $scientific_name = $arr[1];
+        }
         if(strtolower($kingdom) == 'viruses' && $genus && strtolower($rank_label) != 'genus')
         {
             if(stripos($scientific_name, $genus) == 0)
@@ -154,6 +166,7 @@ class ArchiveDataIngester
         if(!$taxon_id) return false;
         if(isset($this->taxon_ids_inserted[$taxon_id])) return false;
         
+        $scientific_name = ucfirst($scientific_name);
         $name = Name::find_or_create_by_string($scientific_name);
         if(@!$name->id) return false;
         
@@ -182,13 +195,13 @@ class ArchiveDataIngester
         {
             $params = array("identifier"        => $taxon_id,
                             "source_url"        => $source_url,
-                            "kingdom"           => $kingdom,
-                            "phylum"            => $phylum,
-                            "class"             => $class,
-                            "order"             => $order,
-                            "family"            => $family,
-                            "genus"             => $genus,
-                            "scientificName"    => $scientific_name,
+                            "kingdom"           => ucfirst($kingdom),
+                            "phylum"            => ucfirst($phylum),
+                            "class"             => ucfirst($class),
+                            "order"             => ucfirst($order),
+                            "family"            => ucfirst($family),
+                            "genus"             => ucfirst($genus),
+                            "scientificName"    => ucfirst($scientific_name),
                             "name"              => $name,
                             "rank"              => $rank,
                             "taxon_remarks"     => $taxon_remarks);
@@ -262,7 +275,7 @@ class ArchiveDataIngester
                 if(!$synonym_taxon_id) $taxon_id = @self::field_decode($synonym_row['http://purl.org/dc/terms/identifier']);
                 if(!$synonym_taxon_id) continue;
                 
-                $synonym_name = Name::find_or_create_by_string($synonym_scientific_name);
+                $synonym_name = Name::find_or_create_by_string(ucfirst($synonym_scientific_name));
                 if(@!$synonym_name->id) continue;
                 
                 $taxonomic_status = @self::field_decode($synonym_row['http://rs.tdwg.org/dwc/terms/taxonomicStatus']) ?: 'synonym';
@@ -275,9 +288,8 @@ class ArchiveDataIngester
             unset($this->synonyms[$taxon_id]);
         }
         
-        if($dataset_id && isset($GLOBALS['dataset_metadata'][$dataset_id]))
+        if($dataset_id && isset($this->dataset_metadata[$dataset_id]) && $metadata = $this->dataset_metadata[$dataset_id])
         {
-            $metadata = $GLOBALS['dataset_metadata'][$dataset_id];
             $hierarchy_entry->delete_agents();
             $agent_name = $metadata['title'];
             if($editors = $metadata['editors']) $agent_name .= " by $editors";
@@ -301,7 +313,7 @@ class ArchiveDataIngester
             foreach($this->children[$taxon_id] as &$row)
             {
                 self::uncompress_array($row);
-                $this->add_hierarchy_entry($row, $hierarchy_entry->id, $this_ancestry);
+                $this->add_hierarchy_entry($row, $hierarchy_entry->id, $this_ancestry, $branch_kingdom);
             }
             unset($this->children[$taxon_id]);
         }
@@ -690,9 +702,8 @@ class ArchiveDataIngester
         // $primary_title = @self::field_decode($row['http://purl.org/dc/terms/source']);
         $description = @self::field_decode($row['http://purl.org/dc/terms/description']);
         // $subject = @self::field_decode($row['http://purl.org/dc/terms/subject']);
+        $source = @self::field_decode($row['http://purl.org/dc/terms/source']);
         $language = Language::find_or_create_for_parser(@self::field_decode($row['http://purl.org/dc/terms/language']));
-        // $rights = @self::field_decode($row['http://purl.org/dc/terms/rights']);
-        // $taxon_remarks = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRemarks']);
         $type = @self::field_decode($row['http://purl.org/dc/terms/type']);
         if($type != 'taxon') return;
         
@@ -700,6 +711,7 @@ class ArchiveDataIngester
         if($author) $reference_parts[] = $author;
         if($date) $reference_parts[] = $date;
         if($title) $reference_parts[] = $title;
+        if($source) $reference_parts[] = $source;
         if($description) $reference_parts[] = $description;
         $full_reference = implode(". ", $reference_parts);
         $full_reference = str_replace("..", ".", $full_reference);
@@ -709,6 +721,7 @@ class ArchiveDataIngester
         $author = null;
         $date = null;
         $description = null;
+        $source = null;
         $type = null;
         
         if($taxon_info = @$this->taxon_ids_inserted[$taxon_id])
@@ -851,6 +864,60 @@ class ArchiveDataIngester
                 $params = array("full_name" => $agent_name,
                                 "agent_role" => AgentRole::find_or_create_by_translated_label($agent_role));
                 $data_object_parameters["agents"][] = $params;
+            }
+        }
+    }
+    
+    private function collect_dataset_attribution()
+    {
+        $this->dataset_metadata = array();
+        if(is_dir($this->harvest_event->resource->archive_path() . "dataset") && file_exists($this->harvest_event->resource->archive_path() . "dataset/col.xml"))
+        {
+            foreach(glob($this->harvest_event->resource->archive_path() . "dataset/*") as $filename)
+            {
+                if(preg_match("/\/([0-9]+)\.xml$/", $filename, $arr)) $dataset_id = $arr[1];
+                $xml = simplexml_load_file($filename);
+                $title = trim($xml->dataset->title);
+                if(preg_match("/^(.*) in the Catalogue of Life/", $title, $arr)) $title = trim($arr[1]);
+                $title = str_replace("  ", " ", $title);
+                
+                $editors = trim($xml->additionalMetadata->metadata->sourceDatabase->authorsAndEditors);
+                if(preg_match("/^(.*)\. For a full list/", $editors, $arr)) $editors = trim($arr[1]);
+                if(preg_match("/^(.*); for detailed information/", $editors, $arr)) $editors = trim($arr[1]);
+                $editors = str_replace("  ", " ", $editors);
+                
+                $abbreviatedName = trim($xml->additionalMetadata->metadata->sourceDatabase->abbreviatedName);
+                
+                $this->dataset_metadata[$abbreviatedName]['title'] = $title;
+                $this->dataset_metadata[$abbreviatedName]['editors'] = $editors;
+                $this->dataset_metadata[$abbreviatedName]['abbreviatedName'] = $abbreviatedName;
+                $this->dataset_metadata[$abbreviatedName]['datasetID'] = $dataset_id;
+                $this->dataset_metadata[$dataset_id] =& $this->dataset_metadata[$abbreviatedName];
+            }
+            
+            // now go grab the citation information from the COL website
+            $url = "http://www.catalogueoflife.org/col/info/cite";
+            $html = Functions::get_remote_file($url);
+            preg_match_all("/<p><strong>(.*?)<\/strong><br\/>(.*?)<\/p>/ims", $html, $matches, PREG_SET_ORDER);
+            foreach($matches as $match)
+            {
+                $dataset_name = $match[1];
+                if(preg_match("/^(.*) via ITIS/", $dataset_name, $arr)) $dataset_name = trim($arr[1]);
+                
+                $citation = $match[2];
+                
+                if(isset($this->dataset_metadata[$dataset_name]))
+                {
+                    $this->dataset_metadata[$dataset_name]['citation'] = $citation;
+                }elseif($dataset_name == "Species 2000 Common Names" && isset($this->dataset_metadata["Catalogue of Life"]))
+                {
+                    $this->dataset_metadata["Catalogue of Life"]['citation'] = $citation;
+                }
+            }
+            if(!isset($this->dataset_metadata["Catalogue of Life"]['citation']) || !isset($this->dataset_metadata["FishBase"]['citation']))
+            {
+                echo "Tried getting attribution for Catalogue of Life datasets, but there was a problem\n";
+                exit;
             }
         }
     }

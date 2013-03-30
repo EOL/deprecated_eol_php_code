@@ -53,6 +53,7 @@ class Taxon extends DarwinCoreExtensionBase
     static $taxon_statuses = array(
         'valid',
         'accepted',
+        'accepted name',
         'valid',
         'current',
         'invalid',
@@ -60,7 +61,10 @@ class Taxon extends DarwinCoreExtensionBase
         'homotypic synonym',
         'heterotypic synonym',
         'misapplied name',
-        'not accepted');
+        'not accepted',
+        'ambiguous synonym',
+        'provisionally accepted name'
+        );
     public static function valid_taxon_status($v)
     {
         if($v && !in_array($v, self::$taxon_statuses))

@@ -16,7 +16,7 @@ class DarwinCoreExtensionBase
     }
     
     // to be defined by extending classes
-    public static function validate_by_hash(&$fields)
+    public static function validate_by_hash(&$fields, $skip_warnings = false)
     {
         $errors = array();
         $rules = static::validation_rules();
@@ -25,6 +25,7 @@ class DarwinCoreExtensionBase
         {
             foreach($rules as $rule)
             {
+                if($skip_warnings && $rule->failure_type == 'warning') continue;
                 if(get_class($rule) == 'eol_schema\ContentArchiveFieldValidationRule')
                 {
                     $test_value = NULL;

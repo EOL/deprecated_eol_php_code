@@ -99,10 +99,11 @@ class RelateHierarchies
         if(isset($entry_from_solr->name))
         {
             $search_name = rawurlencode($entry_from_solr->name);
-            if($canonical_form_string = @$entry_from_solr->canonical_form) $search_canonical = rawurlencode($canonical_form_string);
+            if(Name::is_surrogate($search_name)) $search_canonical = "";
+            elseif(isset($entry_from_solr->kingdom) && (strtolower($entry_from_solr->kingdom) == 'virus' || strtolower($entry_from_solr->kingdom) == 'viruses')) $search_canonical = "";
+            elseif($canonical_form_string = @$entry_from_solr->canonical_form) $search_canonical = rawurlencode($canonical_form_string);
             else $search_canonical = "";
             if(preg_match("/virus$/", $search_canonical)) $search_canonical = "";
-            elseif(isset($entry_from_solr->kingdom) && (strtolower($entry_from_solr->kingdom) == 'virus' || strtolower($entry_from_solr->kingdom) == 'viruses')) $search_canonical = "";
             
             $query_bits = array();
             if($search_canonical) $query_bits[] = "canonical_form_string:\"$search_canonical\"";
