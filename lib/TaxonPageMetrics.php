@@ -612,7 +612,6 @@ class TaxonPageMetrics
         $concept_data_object_maps = array();
         $concept_info_items = array();
         $concept_references = array();
-        $gbif_image_id  = DataType::gbif_image()->id;
         $image_id       = DataType::image()->id;
         $map_id         = DataType::map()->id;
         $text_id        = DataType::text()->id;
@@ -625,7 +624,6 @@ class TaxonPageMetrics
         $data_type_label[$sound_id]      ='sound';
         $data_type_label[$text_id]       ='text';
         $data_type_label[$video_id]      ='video';
-        $data_type_label[$gbif_image_id] ='gbif';
         $data_type_label[$iucn_id]       ='iucn';
         $data_type_label[$flash_id]      ='flash';
         $data_type_label[$youtube_id]    ='youtube';

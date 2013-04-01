@@ -31,10 +31,10 @@ if($confirmed == 'confirmed')
     echo "Reindexing:\n";
     print_r($collection);
     echo "\nCounts of objects to index:\n";
-    $result = $GLOBALS['db_connection']->query("SELECT object_type, COUNT(*) count FROM collection_items WHERE collection_id=$collection->id GROUP BY object_type ORDER BY COUNT(*) DESC");
+    $result = $GLOBALS['db_connection']->query("SELECT collected_item_type, COUNT(*) count FROM collection_items WHERE collection_id=$collection->id GROUP BY collected_item_type ORDER BY COUNT(*) DESC");
     while($result && $row=$result->fetch_assoc())
     {
-        echo $row['object_type'] . ": " . $row['count'] . "\n";
+        echo $row['collected_item_type'] . ": " . $row['count'] . "\n";
     }
     echo "\n\n\treindex_solr_collection.php [collection_id] [confirmed]\n\n";
 
