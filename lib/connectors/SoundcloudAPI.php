@@ -173,8 +173,9 @@ class SoundcloudAPI
     {
         $arr_sciname = array();
         if    (preg_match_all("/\[(.*?)\]/ims", $description, $matches) ||
-               preg_match_all("/\((.*?)\)/ims", $description, $matches)
-              ) //gets everything between brackets [] or parenthesis ()
+               preg_match_all("/\((.*?)\)/ims", $description, $matches) ||
+               preg_match_all("/\"(.*?)\"/ims", $description, $matches)
+              ) //gets everything between brackets [] or parenthesis () or quotes ""
         {
             $smallest_taxa = self::get_smallest_rank($matches[1]);
             $smallest_rank = $smallest_taxa['rank'];
