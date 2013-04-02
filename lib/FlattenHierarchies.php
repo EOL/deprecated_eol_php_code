@@ -35,9 +35,7 @@ class FlattenHierarchies
             foreach($batches as $batch)
             {
                 $ids = implode(",", $batch);
-                echo "DELETE FROM taxon_concepts_flattened WHERE taxon_concept_id IN ($ids)\n";
                 $this->mysqli->delete("DELETE FROM taxon_concepts_flattened WHERE taxon_concept_id IN ($ids)");
-                echo "DELETE hef FROM hierarchy_entries he JOIN hierarchy_entries_flattened hef ON (he.id=hef.hierarchy_entry_id) WHERE he.taxon_concept_id IN ($ids)\n";
                 $GLOBALS['db_connection']->delete_from_where('hierarchy_entries_flattened', 'hierarchy_entry_id', "SELECT id FROM hierarchy_entries WHERE taxon_concept_id IN ($ids)");
             }
         }

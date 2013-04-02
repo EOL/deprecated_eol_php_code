@@ -14,11 +14,14 @@ class CodeBridge
 {
     public function perform()
     {
-        $msg = '';
+        $mysqli =& $GLOBALS['db_connection'];
+        $error_message = '';
         try
         {
-            $GLOBALS['db_connection']->close();
-            $GLOBALS['db_connection']->initialize();
+            $mysqli->close();
+            $mysqli->initialize();
+            echo "Code bridge was called with:\n";
+            print_r($this->args);
             if ($this->args['cmd'] == 'split') php_active_record\SplitEntryHandler::split_entry($this->args);
             elseif ($this->args['cmd'] == 'move') php_active_record\MoveEntryHandler::move_entry($this->args);
             elseif ($this->args['cmd'] == 'merge') php_active_record\MergeConceptsHandler::merge_concepts($this->args);
@@ -26,49 +29,51 @@ class CodeBridge
             else throw new Exception("No command available for ", $this->args['cmd']);
         }catch (Exception $e)
         {
-            $msg = $e->getMessage();
+            $error_message = $e->getMessage();
             // Report for logging on the worker:
-            echo "** [" . date('g:i A', time()) . "] Command Failed: ", $msg, "\n";
-            foreach($this->args as $key => $value)
-            {
-                    echo "  '$key' = '$value'\n";
-            }
+            CodeBridge::print_message("Command Failed: $error_message");
+            print_r($this->args);
+            
             // Actual error logs to the DB (note that this can fail if the DB connection was severed),
             // so I'm attempting a reconnect, here:
-            $GLOBALS['db_connection']->close();
-            $GLOBALS['db_connection']->initialize();
+            $mysqli->close();
+            $mysqli->initialize();
         }
+        
         try
         {
             if (array_key_exists('hierarchy_entry_id', $this->args))
             {
-                $GLOBALS['db_connection']->query("UPDATE hierarchy_entry_moves SET completed_at = NOW(), error = '" . $msg . "' WHERE hierarchy_entry_id = " . $this->args['hierarchy_entry_id'] . " AND classification_curation_id = " . $this->args['classification_curation_id']);
-                echo "++ Updating move for HE " . $this->args['hierarchy_entry_id'] . ", curation " . $this->args['classification_curation_id'] . ". Message: $msg\n";
+                $mysqli->query("UPDATE hierarchy_entry_moves SET completed_at = NOW(), error = '". $mysqli->escape($error_message) ."' WHERE hierarchy_entry_id = " .
+                    $this->args['hierarchy_entry_id'] ." AND classification_curation_id = ". $this->args['classification_curation_id']);
+                CodeBridge::print_message("Updating move for HE ". $this->args['hierarchy_entry_id'] .", curation ". $this->args['classification_curation_id'] .". Message: $error_message");
             }elseif(array_key_exists('classification_curation_id', $this->args)) // This was a merge; there are no HEs, so we should only have one error on the curation itself:
             {
-                $GLOBALS['db_connection']->query("UPDATE classification_curations SET completed_at = NOW(), error = '" . $msg . "' WHERE id = " . $this->args['classification_curation_id']);
-                echo "++ Updating curation " . $this->args['classification_curation_id'] . ". Message: $msg\n";
+                $mysqli->query("UPDATE classification_curations SET completed_at = NOW(), error = '". $mysqli->escape($error_message) ."' WHERE id = ". $this->args['classification_curation_id']);
+                CodeBridge::print_message("Updating curation ". $this->args['classification_curation_id'] .". Message: $error_message");
             }
             // Need to check_status_and_notify if we're not reindexing and if we have a curation ID:
             if ($this->args['cmd'] != 'reindex_taxon_concept' && array_key_exists('classification_curation_id', $this->args))
             {
                 \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
-                'classification_curation_id' => $this->args['classification_curation_id']));
-                echo "++ Enqueued notifications/CodeBridge/check_status_and_notify(classification_curation_id = " .  $this->args['classification_curation_id'] . ")\n";
+                    'classification_curation_id' => $this->args['classification_curation_id']));
+                CodeBridge::print_message("++ Enqueued notifications/CodeBridge/check_status_and_notify(classification_curation_id = ". $this->args['classification_curation_id'] .")");
             }
         }catch (Exception $e)
         {
             // Well, shoot, logging the error failed... just shout via STDOUT, I suppose:
-            echo "** [" . date('g:i A', time()) . "] Logging Failed: ", $e->getMessage(), "\n";
-            foreach($this->args as $key => $value)
-            {
-                echo "  '$key' = '$value'\n";
-            }
+            CodeBridge::print_message("Logging Failed: ". $e->getMessage());
+            print_r($this->args);
         }
-        $GLOBALS['db_connection']->initialize();
+        $mysqli->initialize();
+    }
+    
+    public static function print_message($message)
+    {
+        echo "\n++ [" . date('g:i A', time()) . "] $message\n\n";
     }
 }
 
-echo "** [" . date('g:i A', time()) . "] CodeBridge loaded.\n";
+CodeBridge::print_message('CodeBridge loaded.');
 
 ?>

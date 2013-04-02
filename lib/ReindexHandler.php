@@ -5,14 +5,19 @@ class ReindexHandler
 {
     public static function reindex_concept($args)
     {
-        if (array_key_exists('flatten', $args))
+        $taxon_concept_id = $args['taxon_concept_id'];
+        if(!$taxon_concept_id || !is_numeric($taxon_concept_id))
         {
-            $he = new FlattenHierarchies();
-            $he->flatten_hierarchies_from_concept_id($args['taxon_concept_id']);
+            throw new \Exception("The TaxonConceptID was missing or was not a number");
+            return;
         }
-        TaxonConcept::reindex_descendants_objects($args['taxon_concept_id']);
-        TaxonConcept::reindex_for_search($args['taxon_concept_id']);
-        TaxonConcept::unlock_classifications_by_id($args['taxon_concept_id']);
+        
+        Tasks::update_taxon_concept_names(array($taxon_concept_id));
+        $he = new FlattenHierarchies();
+        $he->flatten_hierarchies_from_concept_id($taxon_concept_id);
+        TaxonConcept::reindex_descendants_objects($taxon_concept_id);
+        TaxonConcept::reindex_for_search($taxon_concept_id);
+        TaxonConcept::unlock_classifications_by_id($taxon_concept_id);
     }
 }
 

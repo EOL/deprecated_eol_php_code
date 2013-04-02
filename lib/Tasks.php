@@ -327,7 +327,7 @@ class Tasks
             $data_object_ids[$row['data_object_id']] = 1;
         }
         
-        $result = $GLOBALS['mysqli_connection']->query("(SELECT dohe.data_object_id FROM hierarchy_entries he JOIN hierarchy_entries_flattened hef ON (he.id=hef.ancestor_id) JOIN hierarchy_entries he_descendants ON (hef.hierarchy_entry_id=he_descendants.id) JOIN hierarchy_entries he_concept ON (he_descendants.taxon_concept_id=he_concept.taxon_concept_id) JOIN curated_data_objects_hierarchy_entries dohe ON (he_concept.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id) UNION (SELECT dohe.data_object_id FROM hierarchy_entries he JOIN curated_data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id)");
+        $result = $GLOBALS['mysqli_connection']->query("(SELECT dohe.data_object_id FROM hierarchy_entries he STRAIGHT_JOIN hierarchy_entries_flattened hef ON (he.id=hef.ancestor_id) STRAIGHT_JOIN hierarchy_entries he_descendants ON (hef.hierarchy_entry_id=he_descendants.id) STRAIGHT_JOIN hierarchy_entries he_concept ON (he_descendants.taxon_concept_id=he_concept.taxon_concept_id) STRAIGHT_JOIN curated_data_objects_hierarchy_entries dohe ON (he_concept.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id) UNION (SELECT dohe.data_object_id FROM hierarchy_entries he JOIN curated_data_objects_hierarchy_entries dohe ON (he.id=dohe.hierarchy_entry_id) WHERE he.taxon_concept_id=$taxon_concept_id)");
         while($result && $row=$result->fetch_assoc())
         {
             $data_object_ids[$row['data_object_id']] = 1;

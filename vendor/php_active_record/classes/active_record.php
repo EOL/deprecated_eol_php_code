@@ -140,7 +140,7 @@ class ActiveRecord
         if(isset($args['order']) && $scope == 'all') $order = $GLOBALS['db_connection']->escape($args['order']);
         if(isset($args['limit']) && $scope == 'all') $limit = $GLOBALS['db_connection']->escape($args['limit']);
         
-        $query = "SELECT $select FROM $from";
+        $query = "SELECT SQL_NO_CACHE $select FROM $from";
         if($conditions) $query .= " WHERE (". implode(") AND (", $conditions) .")";
         if($group_by) $query .= " GROUP BY $group_by";
         if($having) $query .= " HAVING $having";
@@ -198,7 +198,7 @@ class ActiveRecord
         $class = self::called_class();
         $return = array();
         
-        $query = "SELECT * FROM ".self::table_name()." WHERE $attribute='$value'";
+        $query = "SELECT SQL_NO_CACHE * FROM ".self::table_name()." WHERE $attribute='$value'";
         
         if(@$args['conditions']) $query .= ' AND (' . $args['conditions'] . ')';
         if(@$args['group']) $query .= ' GROUP BY ' .    $GLOBALS['db_connection']->escape($args['group']);
@@ -462,7 +462,7 @@ class ActiveRecord
     public function refresh()
     {
         if(!$this->exists()) return false;
-        $result = $GLOBALS['db_connection']->query("SELECT * FROM ". self::table_name() ." WHERE `". static::$primary_key ."` = ". $this->id ." LIMIT 0,1");
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE * FROM ". self::table_name() ." WHERE `". static::$primary_key ."` = ". $this->id ." LIMIT 0,1");
         if($result && $row = $result->fetch_assoc())
         {
             foreach($row as $k => $v) $this->$k = $v;
@@ -617,7 +617,7 @@ class ActiveRecord
             $table_name = call_user_func($class_name . "::table_name");
             $through_table_name = call_user_func($through_class_name . "::table_name");
             
-            $result = $GLOBALS['db_connection']->query("SELECT `$table_name`.* FROM `$through_table_name` INNER JOIN `$table_name` ON (`$through_table_name`.`$association_foreign_key` = `$table_name`.`$association_primary_key`) WHERE `$through_table_name`.`$foreign_key` = " . $this->id);
+            $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE `$table_name`.* FROM `$through_table_name` INNER JOIN `$table_name` ON (`$through_table_name`.`$association_foreign_key` = `$table_name`.`$association_primary_key`) WHERE `$through_table_name`.`$foreign_key` = " . $this->id);
             while($result && $row=$result->fetch_assoc())
             {
                 $object = new $class_name();
@@ -629,7 +629,7 @@ class ActiveRecord
             //$foreign_key = self::foreign_key();
             $table_name = call_user_func($class_name . "::table_name");
             $primary_key = static::$primary_key;
-            $result = $GLOBALS['db_connection']->query("SELECT * FROM `$table_name` WHERE `$foreign_key` = " . $this->$primary_key);
+            $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE * FROM `$table_name` WHERE `$foreign_key` = " . $this->$primary_key);
             while($result && $row=$result->fetch_assoc())
             {
                 $object = new $class_name();
@@ -649,7 +649,7 @@ class ActiveRecord
         $foreign_key = self::foreign_key();
         $table_name = to_plural($association);
         $primary_key = static::$primary_key;
-        $result = $GLOBALS['db_connection']->query("SELECT * FROM " . $table_name . " WHERE $foreign_key = " . $this->$primary_key);
+        $result = $GLOBALS['db_connection']->query("SELECT SQL_NO_CACHE * FROM " . $table_name . " WHERE $foreign_key = " . $this->$primary_key);
         if($result && $row=$result->fetch_assoc())
         {
             $object = new $class_name();

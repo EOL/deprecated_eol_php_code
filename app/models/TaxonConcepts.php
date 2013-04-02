@@ -23,7 +23,7 @@ class TaxonConcept extends ActiveRecord
 
     }
     
-    public static function supercede_by_ids($id1, $id2, $update_caches = false)
+    public static function supercede_by_ids($id1, $id2, $update_collection_items = false)
     {
         if($id1 == $id2) return true;
         if(!$id1 || !$id2) return false;
@@ -53,7 +53,7 @@ class TaxonConcept extends ActiveRecord
         $mysqli->update("UPDATE IGNORE taxon_concepts_flattened SET ancestor_id=$id1 WHERE ancestor_id=$id2");
         $mysqli->update("DELETE FROM taxon_concepts_flattened WHERE ancestor_id=$id2");
         
-        if($update_caches)
+        if($update_collection_items)
         {
             $updating_collection_items = false;
             $result = $mysqli->query("SELECT 1 FROM collection_items WHERE collected_item_id=$id2 AND collected_item_type='TaxonConcept' LIMIT 1");
@@ -63,16 +63,6 @@ class TaxonConcept extends ActiveRecord
                 $mysqli->update("UPDATE IGNORE collection_items SET collected_item_id=$id1 WHERE collected_item_id=$id2 AND collected_item_type='TaxonConcept'");
                 self::reindex_collection_items($id1);
             }
-            
-            // DO THE SOLR STUFF HERE, HIERARCHICAL
-            // all descendants' DataObject
-            // all descendants' objects in SiteSearch
-            // each concept in SiteSearch
-            // CollectionItems?
-            self::reindex_descendants_objects($id1);
-            self::reindex_descendants_objects($id2);
-            self::reindex_descendants($id1);
-            self::reindex_descendants($id2);
             
             if($updating_collection_items)
             {
