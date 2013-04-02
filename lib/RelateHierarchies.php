@@ -99,7 +99,7 @@ class RelateHierarchies
         if(isset($entry_from_solr->name))
         {
             $search_name = rawurlencode($entry_from_solr->name);
-            if(Name::is_surrogate($search_name)) $search_canonical = "";
+            if(Name::is_surrogate($entry_from_solr->name)) $search_canonical = "";
             elseif(isset($entry_from_solr->kingdom) && (strtolower($entry_from_solr->kingdom) == 'virus' || strtolower($entry_from_solr->kingdom) == 'viruses')) $search_canonical = "";
             elseif($canonical_form_string = @$entry_from_solr->canonical_form) $search_canonical = rawurlencode($canonical_form_string);
             else $search_canonical = "";
@@ -114,6 +114,9 @@ class RelateHierarchies
             if($this->hierarchy_to_compare_against) $query .= " AND hierarchy_id:". $this->hierarchy_to_compare_against->id;
             // don't compare these hierarchies to themselves
             if($this->hierarchy_to_compare->complete) $query .= " NOT hierarchy_id:". $this->hierarchy_to_compare->id;
+            // don't relate NCBI to itself
+            if($this->hierarchy_to_compare->id == 1172) $query .= " NOT hierarchy_id:759";
+            if($this->hierarchy_to_compare->id == 759) $query .= " NOT hierarchy_id:1172";
             $query .= "&rows=400";
             
             $matching_entries_from_solr = $this->solr->get_results($query);

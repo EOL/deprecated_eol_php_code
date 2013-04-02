@@ -62,7 +62,6 @@ class Hierarchy extends ActiveRecord
         return Hierarchy::find_by_label('Wikipedia');
     }
     
-    
     public static function publish_wrongly_unpublished_concepts()
     {
         // publishe all the concepts that are unpublished but have published entries

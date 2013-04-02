@@ -429,12 +429,6 @@ class TopImages
                                                 top_unpublished_images_swap TO top_unpublished_images_tmp");
         }
         
-        echo "Update 1 of 2\n";
-        $this->mysqli->update("UPDATE taxon_concept_content tcc JOIN hierarchy_entries he USING (taxon_concept_id) JOIN top_images ti ON (he.id=ti.hierarchy_entry_id) SET tcc.child_image=1, tcc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-        
-        echo "Update 2 of 2\n";
-        $this->mysqli->update("UPDATE hierarchies_content hc JOIN top_images ti USING (hierarchy_entry_id) SET hc.child_image=1, hc.image_object_id=ti.data_object_id WHERE ti.view_order=1");
-        
         $species_rank_ids = implode(",", Rank::species_ranks_ids());
         
         // maybe also add where lft=rgt-1??

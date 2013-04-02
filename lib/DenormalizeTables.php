@@ -91,52 +91,6 @@ class DenormalizeTables
             $GLOBALS['db_connection']->swap_tables("data_objects_taxon_concepts", "data_objects_taxon_concepts_tmp");
         }
     }
-    
-    public static function taxon_concepts_exploded($select_hierarchy_id = 0)
-    {
-        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `taxon_concepts_exploded_tmp`");
-        $GLOBALS['db_connection']->query("CREATE TABLE `taxon_concepts_exploded_tmp` (
-                  `taxon_concept_id` int unsigned NOT NULL,
-                  `parent_id` int unsigned NOT NULL,
-                  PRIMARY KEY (`taxon_concept_id`),
-                  KEY `parent_id` (`parent_id`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-        $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS taxon_concepts_exploded LIKE taxon_concepts_exploded_tmp");
-        
-        // $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS taxon_concepts_exploded_tmp LIKE taxon_concepts_exploded");
-        // $GLOBALS['db_connection']->delete("TRUNCATE TABLE taxon_concepts_exploded_tmp");
-        
-        # TODO - dont hardcode IDs
-        # COL 2007, 2008, Flickr, GBIF, COL 2009, BioLib.cz, Indiana Dunes
-        $hierarchies_to_ignore = array(105,106,114,129,147,394,399);
-        
-        // do the big ones first
-        $result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id, count(*) count  FROM hierarchies h JOIN hierarchy_entries he ON (h.id=he.hierarchy_id) GROUP BY h.id ORDER BY count DESC");
-        //$result = $GLOBALS['db_connection']->query("SELECT h.id hierarchy_id FROM hierarchies h");
-        while($result && $row=$result->fetch_assoc())
-        {
-            $hierarchy_id = $row['hierarchy_id'];
-            if(in_array($hierarchy_id, $hierarchies_to_ignore)) continue;
-            if($select_hierarchy_id && $select_hierarchy_id!=$hierarchy_id) continue;
-            self::taxon_concept_explode_hierarchy($hierarchy_id);
-        }
-        
-        $result = $GLOBALS['db_connection']->query("SELECT 1 FROM taxon_concepts_exploded_tmp LIMIT 1");
-        if($result && $row=$result->fetch_assoc())
-        {
-            $GLOBALS['db_connection']->swap_tables("taxon_concepts_exploded", "taxon_concepts_exploded_tmp");
-        }
-    }
-    
-    public static function taxon_concept_explode_hierarchy($id)
-    {
-        debug("Exploding $id");
-        
-        // get all concept_id, parent_concept_id which wont create loops
-        $outfile = $GLOBALS['db_connection']->select_into_outfile("SELECT he.taxon_concept_id, he_parent.taxon_concept_id FROM hierarchy_entries he LEFT JOIN hierarchy_entries he_parent ON (he.parent_id=he_parent.id) LEFT JOIN taxon_concepts_exploded_tmp tcx ON (he.taxon_concept_id=tcx.parent_id AND tcx.taxon_concept_id=he_parent.taxon_concept_id) WHERE he.hierarchy_id=$id AND tcx.taxon_concept_id IS NULL AND he.taxon_concept_id != he_parent.taxon_concept_id");
-        $GLOBALS['db_connection']->load_data_infile($outfile, 'taxon_concepts_exploded_tmp');
-        unlink($outfile);
-    }
 }
 
 ?>
