@@ -16,6 +16,7 @@ class FishBaseAPI
         $this->test_run = $test_run;
         // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_not_in_folder.zip";
+        // $this->fishbase_data = "http://localhost/~eolit/mtce2/GenerateEOLdata_from_stacy/GenerateEOLdata/txt/Archive.zip";
         $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->TAXON_PATH                       = "";

@@ -12,11 +12,11 @@ If no, then this name will be added to a text file that will be reported back to
 
 class DiscoverLifeAPIv2
 {
-    // const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
+    const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
     // const DL_MAP_SPECIES_LIST   = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/DiscoverLife/species_map_small2.txt";
 
     // this is temporary until DL fixes their list
-    const DL_MAP_SPECIES_LIST   = "http://dl.dropbox.com/u/7597512/DiscoverLife/species_map 2012 06 26.txt";
+    // const DL_MAP_SPECIES_LIST   = "http://dl.dropbox.com/u/7597512/DiscoverLife/species_map 2012 06 26.txt";
     
     const DL_SEARCH_URL         = "http://www.discoverlife.org/mp/20q?search=";
     const DL_MAP_URL            = "http://www.discoverlife.org/20/m?kind=";
@@ -335,7 +335,7 @@ class DiscoverLifeAPIv2
                 $pos1 = stripos($contents, "<taxon>");
                 $pos2 = stripos($contents, "</response>");
                 $str  = substr($contents, $pos1, $pos2 - $pos1);
-                fwrite($OUT, $str);
+                if($pos1 > 0 && $pos2 > 0) fwrite($OUT, $str);
             }
         }
         fwrite($OUT, "</response>");
