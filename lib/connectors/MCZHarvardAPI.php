@@ -20,6 +20,7 @@ class MCZHarvardAPI
         $this->resource_agent_ids = array();
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
+        $this->do_ids = array();
     }
 
     function get_all_taxa($data_dump_url = false)
@@ -147,6 +148,9 @@ class MCZHarvardAPI
             For the description, : [first word of TYPESTATUS], [PARTS], [COLLECTING_METHOD], 
             collected by [COLLECTORS], identified by [IDENTIFIEDBY], GUID: [GUID] 
             */
+
+            if(in_array($dc_identifier, $this->do_ids)) return;
+            else $this->do_ids[] = $dc_identifier;
 
             $mr = new \eol_schema\MediaResource();
             if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
