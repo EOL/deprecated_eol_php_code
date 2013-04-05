@@ -17,6 +17,7 @@ class FishBaseAPI
         // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_not_in_folder.zip";
         // $this->fishbase_data = "http://localhost/~eolit/mtce2/GenerateEOLdata_from_stacy/GenerateEOLdata/txt/Archive.zip";
+        // $this->fishbase_data = "http://localhost/~eolit/fishbase.zip";
         $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->TAXON_PATH                       = "";
@@ -47,6 +48,7 @@ class FishBaseAPI
         $batch_count = 0;
         foreach($taxa as $taxon)
         {
+            // if($taxon["dc_identifier"] != "FB-47873") continue; // debug
             $i++;
             debug("\n$i of $total " . $taxon["dwc_ScientificName"]);
             $taxon_record["taxon"] = $taxon;
@@ -101,10 +103,7 @@ class FishBaseAPI
             if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) 
             {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
-                if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt"))
-                {
-                    return;
-                }
+                if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) return;
             }
 
             $this->TAXON_PATH                       = $this->TEMP_FILE_PATH . "/taxon.txt";
@@ -279,6 +278,11 @@ class FishBaseAPI
 
     function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rights, $rightsHolder, $refs, $subject, $arr_objects)
     {
+        if(!Functions::is_utf8($description)) 
+        {
+            echo "\n not utf8 desc: [" . $description . "]\n";
+            return $arr_objects;
+        }
         $arr_objects[]=array( "identifier"   => $identifier,
                               "dataType"     => $dataType,
                               "mimeType"     => $mimeType,
@@ -303,7 +307,12 @@ class FishBaseAPI
         $refs = array();
         if($references)
         {
-            foreach($references as $reference) $refs[] = array("url" => $reference['url'], "fullReference" => utf8_encode($reference['reference']));
+            foreach($references as $reference) 
+            {
+                $ref = utf8_encode($reference['reference']);
+                if(Functions::is_utf8($ref)) $refs[] = array("url" => $reference['url'], "fullReference" => Functions::import_decode($ref));
+                else echo "\n not utf8 ref: [" . $ref . "]\n";
+            }
         }
         return $refs;
     }
@@ -328,7 +337,12 @@ class FishBaseAPI
         $arr_names = array();
         if($names) 
         {
-            foreach($names as $name) $arr_names[] = array("name" => utf8_encode($name['commonName']), "language" => $name['xml_lang']);
+            foreach($names as $name) 
+            {
+                $common = utf8_encode($name['commonName']);
+                if(Functions::is_utf8($common)) $arr_names[] = array("name" => Functions::import_decode($common), "language" => $name['xml_lang']);
+                else echo "\n not utf8 common name: [" . $common . "]\n";
+            }
         }
         return $arr_names;
     }
