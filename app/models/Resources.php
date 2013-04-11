@@ -413,7 +413,7 @@ class Resource extends ActiveRecord
                 
                 // after all the resource hierarchy stuff has been taken care of - import the DWC Archive into a
                 // SEPARATE hierarchy, but try to get the same concept IDs
-                $this->import_dwc_archive();
+                // $this->import_dwc_archive();
             }
             
             if($this->vetted && $this->harvest_event)

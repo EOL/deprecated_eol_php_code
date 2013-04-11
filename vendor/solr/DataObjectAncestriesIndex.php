@@ -27,7 +27,7 @@ class DataObjectAncestriesIndexer
     
     public function index_all_data_data_objects()
     {
-        $this->solr->delete_all_documents();
+        // $this->solr->delete_all_documents();
         $limit = 500000;
         $start = $this->mysqli->select_value("SELECT MIN(id) FROM data_objects");
         $max_id = $this->mysqli->select_value("SELECT MAX(id) FROM data_objects");
@@ -69,12 +69,6 @@ class DataObjectAncestriesIndexer
             if($GLOBALS['ENV_DEBUG']) echo "after c_a Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_user_added_ancestries($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after uaa Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_ancestries_he($lookup_ids);
-            if($GLOBALS['ENV_DEBUG']) echo "after ancestries_he Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_curated_ancestries_he($lookup_ids);
-            if($GLOBALS['ENV_DEBUG']) echo "after curated ancestries Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
-            $this->lookup_user_added_ancestries_he($lookup_ids);
-            if($GLOBALS['ENV_DEBUG']) echo "after udo Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_ignores($lookup_ids);
             if($GLOBALS['ENV_DEBUG']) echo "after ignores Time: ". time_elapsed()." .. Mem: ". memory_get_usage() ."\n";
             $this->lookup_curation($lookup_ids);
@@ -233,49 +227,6 @@ class DataObjectAncestriesIndexer
         $this->add_ancestries_from_result($query, 'ancestor_id');
     }
     
-    private function lookup_ancestries_he(&$data_object_ids)
-    {
-        $query = "
-            SELECT do.id, he_concept.id, dohe.vetted_id, dohe.visibility_id, hef.ancestor_id
-            FROM data_objects do
-            JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id)
-            JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
-            JOIN hierarchy_entries he_concept ON (he.taxon_concept_id=he_concept.taxon_concept_id AND he_concept.published=1)
-            JOIN hierarchies h ON (he_concept.hierarchy_id=h.id)
-            LEFT JOIN hierarchy_entries_flattened hef ON (he_concept.id=hef.hierarchy_entry_id)
-            WHERE (do.published=1 OR dohe.visibility_id!=".Visibility::visible()->id.")
-            AND he.published=1
-            AND h.complete=1
-            AND do.id IN (". implode(",", $data_object_ids) .")";
-        $this->add_ancestries_from_result($query, 'ancestor_he_id');
-    }
-    
-    private function lookup_curated_ancestries_he(&$data_object_ids)
-    {
-        $query = "
-            SELECT do.id, he_concept.id, cudohe.vetted_id, cudohe.visibility_id, hef.ancestor_id
-            FROM data_objects do
-            JOIN curated_data_objects_hierarchy_entries cudohe ON (do.id=cudohe.data_object_id)
-            JOIN hierarchy_entries he ON (cudohe.hierarchy_entry_id=he.id)
-            JOIN hierarchy_entries he_concept ON (he.taxon_concept_id=he_concept.taxon_concept_id)
-            LEFT JOIN hierarchy_entries_flattened hef ON (he_concept.id=hef.hierarchy_entry_id)
-            WHERE (do.published=1 OR cudohe.visibility_id!=".Visibility::visible()->id.")
-            AND (he.published=1 OR he.visibility_id!=".Visibility::visible()->id.")
-            AND do.id IN (". implode(",", $data_object_ids) .")";
-        $this->add_ancestries_from_result($query, 'ancestor_he_id');
-    }
-    
-    private function lookup_user_added_ancestries_he(&$data_object_ids)
-    {
-        $query = "
-            SELECT udo.data_object_id, he_concept.id, udo.vetted_id, udo.visibility_id, hef.ancestor_id
-            FROM users_data_objects udo
-            JOIN hierarchy_entries he_concept ON (he_concept.taxon_concept_id=udo.taxon_concept_id)
-            LEFT JOIN hierarchy_entries_flattened hef ON (he_concept.id=hef.hierarchy_entry_id)
-            WHERE udo.data_object_id IN (". implode(",", $data_object_ids) .")";
-        $this->add_ancestries_from_result($query, 'ancestor_he_id');
-    }
-    
     private function add_ancestries_from_result($query, $field_suffix = 'ancestor_id')
     {
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
@@ -306,13 +257,21 @@ class DataObjectAncestriesIndexer
     
     private function lookup_resources(&$data_object_ids)
     {
+        static $latest_harvest_event_ids = array();
+        if(!$latest_harvest_event_ids)
+        {
+            $query = "SELECT resource_id, MAX(id) FROM harvest_events he GROUP BY resource_id";
+            foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+            {
+                $latest_harvest_event_ids[] = $row[1];
+            }
+        }
         $query = "
             SELECT dohe.data_object_id, he.resource_id
-            FROM data_objects do
-            JOIN data_objects_harvest_events dohe ON (do.id=dohe.data_object_id)
+            FROM data_objects_harvest_events dohe
             JOIN harvest_events he ON (dohe.harvest_event_id=he.id)
-            WHERE do.id IN (". implode(",", $data_object_ids) .")
-            GROUP BY do.id";
+            WHERE dohe.data_object_id IN (". implode(",", $data_object_ids) .")
+            AND dohe.harvest_event_id IN (". implode(",", $latest_harvest_event_ids) .")";
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
