@@ -170,8 +170,10 @@ class USDAfsfeisAPI
     {
         self::initialize_subjects();
         $records = self::prepare_taxa_urls();
-        // $records = array();
-        // $records[] = array("taxonID" => "111", "url" => "http://www.fs.fed.us/database/feis/plants/vine/celorb/all.html", "sciname" => "Aphel11oc3oma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
+        /*
+        $records = array();
+        $records[] = array("taxonID" => "111", "url" => "http://www.fs.fed.us/database/feis/plants/vine/puemonl/all.html", "sciname" => "Aphel11oc3oma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
+        */
         $urls = array();
         foreach($records as $record)
         {
@@ -673,8 +675,9 @@ class USDAfsfeisAPI
         $authorship_citation = self::remove_first_part_of_string($strings_2be_removed, $authorship_citation);
         $authorship_citation = self::remove_last_part_of_string(array("<br>", "["), $authorship_citation);
         $authorship_citation .= " Available: http://www.fs.fed.us/database/feis/";
-        $pos = stripos($authorship_citation, "[ var months");
+        $pos = stripos($authorship_citation, "var months");
         if(is_numeric($pos)) $authorship_citation = trim(substr($authorship_citation, 0, $pos));
+        $authorship_citation = self::remove_last_part_of_string(array("["), $authorship_citation);
         echo "\n meron authorship and citation:\n[$authorship_citation]\n";
         return $authorship_citation;
     }
@@ -1646,8 +1649,8 @@ class USDAfsfeisAPI
         $this->subject['Wintering habitat']['category'] = $this->SPM . "#Habitat";
         $this->subject['Landscape']['title'] = "Preferred Habitat: Landscape";
         $this->subject['Habitat']['title'] = "Habitat"; 
-        $this->subject['Limiting habitat features']['title'] = "Preferred Habitat: ";
-        $this->subject['Territoriality']['title'] = "Preferred Habitat: Limiting habitat features";
+        $this->subject['Limiting habitat features']['title'] = "Preferred Habitat: Limiting habitat features";
+        $this->subject['Territoriality']['title'] = "Preferred Habitat: Territoriality";
         $this->subject['Home range and density']['title'] = "Preferred Habitat: Home range and density";
         $this->subject['Landscape']['category'] = $this->SPM . "#Habitat";
         $this->subject['Habitat']['category'] = $this->SPM . "#Habitat"; 
@@ -1832,11 +1835,11 @@ class USDAfsfeisAPI
         $this->subject['Stand-level details']['category'] = $this->SPM . "#Management";
         $this->subject['Spatial and temporal considerations']['category'] = $this->SPM . "#Management";
         $this->subject['Brown-headed cowbird control']['category'] = $this->SPM . "#Management";
-        $this->subject['Population trends']['title'] = "Management Considerations: ";
-        $this->subject['Hunting']['title'] = "Management Considerations: ";
-        $this->subject['Crop depredation']['title'] = "Management Considerations: ";
-        $this->subject['Human disturbance']['title'] = "Management Considerations: ";
-        $this->subject['Endangered species considerations']['title'] = "Management Considerations: ";
+        $this->subject['Population trends']['title'] = "Management Considerations: Population trends";
+        $this->subject['Hunting']['title'] = "Management Considerations: Hunting";
+        $this->subject['Crop depredation']['title'] = "Management Considerations: Crop depredation";
+        $this->subject['Human disturbance']['title'] = "Management Considerations: Human disturbance";
+        $this->subject['Endangered species considerations']['title'] = "Management Considerations: Endangered species considerations";
         $this->subject['Population trends']['category'] = $this->SPM . "#Trends";
         $this->subject['Hunting']['category'] = $this->SPM . "#Threats";
         $this->subject['Crop depredation']['category'] = $this->SPM . "#RiskStatement";
@@ -1911,10 +1914,10 @@ class USDAfsfeisAPI
         $this->subject['Seasonal movements and migration']['category'] = $this->SPM . "#Migration";
         $this->subject['Dispersal']['category'] = $this->SPM . "#Dispersal";
         $this->subject['Home range']['category'] = $this->SPM . "#Ecology";
-        $this->subject['Predators']['title'] = "Life History: Life span and survival: Predators";
-        $this->subject['Diseases and parasites']['title'] = "Life History: Life span and survival: Diseases and parasites";
-        $this->subject['Malnutrition and weather']['title'] = "Life History: Life span and survival: Malnutrition and weather";
-        $this->subject['Fawn survival']['title'] = "Life History: Life span and survival: Fawn survival";
+        $this->subject['Predators']['title'] = "Life span and survival: Predators";
+        $this->subject['Diseases and parasites']['title'] = "Life span and survival: Diseases and parasites";
+        $this->subject['Malnutrition and weather']['title'] = "Life span and survival: Malnutrition and weather";
+        $this->subject['Fawn survival']['title'] = "Life span and survival: Fawn survival";
         $this->subject['Predators']['category'] = $this->SPM . "#LifeExpectancy";
         $this->subject['Diseases and parasites']['category'] = $this->SPM . "#LifeExpectancy";
         $this->subject['Malnutrition and weather']['category'] = $this->SPM . "#LifeExpectancy";
