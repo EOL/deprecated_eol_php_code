@@ -42,12 +42,12 @@ class SouthAfricanVertebratesAPI
                 {
                     $j = 0;
                     $rows = array();
-                    $sciname = trim($fields[1]); // fields[1] is the ScientificName
+                    $sciname = utf8_encode(trim($fields[1])); // fields[1] is the ScientificName
                     $canonical = Functions::canonical_form(trim($sciname));
                     foreach($fields as $field)
                     {
                         if($j == 1) $rows['canonical'] = $canonical;
-                        $rows[$labels[$j]] = $fields[$j]; 
+                        $rows[$labels[$j]] = utf8_encode($fields[$j]); 
                         $j++;
                     }
                     if(@$rows['TaxonomicStatus'] != "synonym") $taxa[$canonical] = $rows;
