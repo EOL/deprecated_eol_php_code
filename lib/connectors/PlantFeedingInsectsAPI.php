@@ -22,14 +22,14 @@ class PlantFeedingInsectsAPI
     function get_all_taxa($resource_id)
     {
         self::get_associations();
-        if($this->debug_info) print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
+        if($this->debug_info) echo "\n\n total: " . count($GLOBALS['taxon']) . "\n";
         $all_taxa = array();
         $i = 0;
         $total = count(array_keys($GLOBALS['taxon']));
         foreach($GLOBALS['taxon'] as $taxon_name => $record)
         {
             $i++; 
-            if($this->debug_info) print "\n$i of $total " . $taxon_name;
+            if($this->debug_info) echo "\n$i of $total " . $taxon_name;
             $record["taxon_name"] = $taxon_name;
             $arr = self::get_plant_feeding_taxa($record);
             $page_taxa = $arr[0];
@@ -54,7 +54,7 @@ class PlantFeedingInsectsAPI
             else                           $url = $this->path . '/insects/' . $path['type'] . ".htm";
             if($path["active"])
             {
-                if($this->debug_info) print "\n\n$i " . $path['type'] . " [$url]\n";        
+                if($this->debug_info) echo "\n\n$i " . $path['type'] . " [$url]\n";        
                 if($path['type'] == "insects")              self::process_insects($url, $path["ancestry"]);
                 elseif(in_array($path['type'], $bird_type)) self::process_birds($url, $path["ancestry"], $path['type']);
             }
@@ -66,9 +66,9 @@ class PlantFeedingInsectsAPI
 
     function process_insects($url, $ancestry)
     {
-        if(!$html = Functions::get_remote_file($url))
+        if(!$html = Functions::get_remote_file($url, 1000000, 600, 5)) // 1sec wait, 10mins timeout, 5 attempts
         {
-            print("\n\n Content partner's server is down3, $url\n");
+            echo("\n\n Content partner's server is down3, $url\n");
             return;
         }
         /*<a href="plants/velvetleaf.htm" name="velvetleaf">Abutilon theophrastii (Velvet Leaf)</a>*/
@@ -111,10 +111,10 @@ class PlantFeedingInsectsAPI
             if($type == 'insects') $url = str_ireplace("/insects/", "/", $url);
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
-            if($this->debug_info) print "\n $url -- $taxon_name";
-            if(!$html = Functions::get_remote_file($url))
+            if($this->debug_info) echo "\n $url -- $taxon_name";
+            if(!$html = Functions::get_remote_file($url, 1000000, 600, 5))
             {
-                print("\n\n Content partner's server is down4, $url\n");
+                echo("\n\n Content partner's server is down4, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
                 continue;
             } 

@@ -33,7 +33,7 @@ class BioImagesAPI
     {
         $sciname = $row[$col['Taxon']];
         $taxon_id = $row[$col['NWB taxon id']];
-        print "\n" . " - " . $sciname . " - " . $taxon_id;
+        echo "\n" . " - " . $sciname . " - " . $taxon_id;
         $reference_ids = array(); // no taxon references yet
         $ref_ids = array(); // no data_object references yet
         $agent_ids = self::get_object_agents($row, $col);
@@ -58,13 +58,13 @@ class BioImagesAPI
                     {
                         foreach($row as $id => $value)
                         {
-                            print "\n $id -- $value";
+                            echo "\n $id -- $value";
                             $col[trim($value)] = $id;
                         }
                     }
                     else
                     {
-                        print "\n" . $row[$col['Taxon']];
+                        echo "\n" . $row[$col['Taxon']];
                         self::parse_record_element($row, $col);
                     }
                 }
@@ -104,8 +104,8 @@ class BioImagesAPI
                     $taxon->order                       = $t_dwc->Order;
                     $taxon->family                      = $t_dwc->Family;
                     $taxon->furtherInformationURL       = $source;
-                    print "\n $taxon->taxonID - $taxon->scientificName [$source]";
-                    if(isset($this->taxa[$taxonID])) print " -- already exists";
+                    echo "\n $taxon->taxonID - $taxon->scientificName [$source]";
+                    if(isset($this->taxa[$taxonID])) echo " -- already exists";
                     else $this->taxa[$taxonID] = $taxon;
                     //---------------------------------
 
@@ -168,7 +168,7 @@ class BioImagesAPI
                 }
             }
         }
-        else print "\n Down: " . $this->original_resource;
+        else echo "\n Down: " . $this->original_resource;
     }
 
     private function clean_str($str)
