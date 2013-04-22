@@ -17,7 +17,7 @@ class SerpentAPI
         $i = 0;
         foreach($urls as $url)
         {
-            $i++; print "\n $i of $total " . $url['url'];
+            $i++; echo "\n $i of $total " . $url['url'];
             $arr = self::get_Serpent_taxa($url['url'], $used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
@@ -26,9 +26,9 @@ class SerpentAPI
         return $all_taxa;
     }
 
-    public static function get_Serpent_taxa($url1, $used_collection_ids)
+    public static function get_Serpent_taxa($url, $used_collection_ids)
     {
-        $response = self::search_collections($url1);//this will output the raw (but structured) output from the external service
+        $response = self::search_collections($url);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -64,16 +64,16 @@ class SerpentAPI
             $i++;
             $partial_urls = self::taxon_url_extractor($url, '<h1 class="pagetitle">', '<td>', 0);
             $taxon_urls = array_merge($taxon_urls, $partial_urls);
-        }            
+        }
         $taxon_urls = array_unique($taxon_urls);
         return $taxon_urls;
         */
     }
     
-    function taxon_url_extractor($url, $searched1, $searched2, $with_page_url)
+    function taxon_url_extractor($url, $searched1, $searched2, $with_page_url, $html = NULL)
     {
-        $urls = array();        
-        $html = Functions::get_remote_file_fake_browser($url);
+        $urls = array();
+        if(!$html) $html = Functions::get_remote_file_fake_browser($url, 1000000); // 1 second wait-time
 
         //Species: Asterias rubens</title>
         if(preg_match("/<h1 class=\"pagetitle\">(.*?)<\/h1>/ims", $html, $matches))
@@ -113,11 +113,11 @@ class SerpentAPI
         return $urls;
     }
 
-    function search_collections($url1)//this will output the raw (but structured) array
+    function search_collections($species_page_url)//this will output the raw (but structured) array
     {
-        $html = Functions::get_remote_file_fake_browser($url1);
-        $html1 = utf8_decode($html);
-        $response = self::scrape_species_page($html1, $url1);
+        $html = Functions::get_remote_file_fake_browser($species_page_url, 1000000); // 1 second wait-time
+        $html = utf8_decode($html);
+        $response = self::scrape_species_page($html, $species_page_url);
         return $response;
     }
 
@@ -129,7 +129,7 @@ class SerpentAPI
 
         //photos start =================================================================
         $arr_photos = array();
-        $arr_photo_url = self::taxon_url_extractor($species_page_url, '<h1 class="pagetitle">', '<td>', 0);
+        $arr_photo_url = self::taxon_url_extractor($species_page_url, '<h1 class="pagetitle">', '<td>', 0, $html);
         if($arr_photo_url) $arr_photos = self::get_photo_details($arr_photo_url);
         $ancestry = array();
         $cnt = 0;
@@ -298,7 +298,7 @@ class SerpentAPI
         $arr_total = array();
         foreach($arr as $url)
         {
-            $html = Functions::get_remote_file_fake_browser($url['url']);
+            $html = Functions::get_remote_file_fake_browser($url['url'], 1000000); // 1 second wait-time
             $html = utf8_decode($html);
             $arr_scraped = self::scrape_page($html, $url['url'], $url['sciname']);
             if($arr_scraped)$arr_total = array_merge($arr_total, $arr_scraped);
@@ -364,7 +364,7 @@ class SerpentAPI
         if($description)$arr_details["description"]=$description;
 
         //start multiply images for more than 1 image
-        $final_arr=array();
+        $final_arr = array();
         for ($i = 1; $i <= $count; $i++)
         {
             $temp_arr = $arr_details;
