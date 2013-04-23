@@ -154,7 +154,7 @@ class ContentArchiveValidator
     {
         static $i = 0;
         $i++;
-        if($i % 10000 == 0) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
+        if($i % 10000 == 0 && $GLOBALS['ENV_DEBUG']) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
         
         $file_location = $parameters['archive_table_definition']->location;
         $new_exceptions = array();
