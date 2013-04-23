@@ -118,7 +118,8 @@ class ContentArchiveValidator
             'http://rs.tdwg.org/dwc/terms/taxon',
             'http://eol.org/schema/reference/reference',
             'http://eol.org/schema/agent/agent',
-            'http://rs.gbif.org/terms/1.0/vernacularname'
+            'http://rs.gbif.org/terms/1.0/vernacularname',
+            'http://rs.tdwg.org/dwc/terms/measurementorfact'
         );
         foreach($this->content_archive_reader->tables as $row_type => $tables)
         {
@@ -154,7 +155,7 @@ class ContentArchiveValidator
     {
         static $i = 0;
         $i++;
-        if($i % 10000 == 0) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
+        // if($i % 10000 == 0) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
         
         $file_location = $parameters['archive_table_definition']->location;
         $new_exceptions = array();
@@ -198,6 +199,10 @@ class ContentArchiveValidator
         {
             $new_exceptions = \eol_schema\Agent::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
+        }elseif($parameters['row_type'] == 'http://rs.tdwg.org/dwc/terms/measurementorfact')
+        {
+            $new_exceptions = \eol_schema\MeasurementOrFact::validate_by_hash($row, $this->skip_warnings);
+            $this->append_identifier_error($row, 'http://rs.tdwg.org/dwc/terms/measurementID', $parameters, $new_exceptions);
         }
         
         if(!self::any_exceptions_of_type_error($new_exceptions))

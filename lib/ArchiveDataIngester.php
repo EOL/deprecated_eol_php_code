@@ -10,6 +10,7 @@ class ArchiveDataIngester
     {
         $this->harvest_event = $harvest_event;
         $this->mysqli =& $GLOBALS['db_connection'];
+        $this->sparql_client = SparqlClient::connection();
     }
     
     public function parse($validate = true, &$archive_reader = null, &$archive_validator = null)
@@ -54,6 +55,7 @@ class ArchiveDataIngester
         $this->archive_reader->process_row_type("http://eol.org/schema/reference/Reference", array($this, 'insert_references'));
         $this->archive_reader->process_row_type("http://eol.org/schema/agent/Agent", array($this, 'insert_agents'));
         $this->archive_reader->process_row_type("http://rs.gbif.org/terms/1.0/Reference", array($this, 'insert_gbif_references'));
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/MeasurementOrFact", array($this, 'insert_measurements'));
         
         $this->mysqli->end_transaction();
         
@@ -745,6 +747,63 @@ class ArchiveDataIngester
         }
     }
     
+    public function insert_measurements($row, $parameters)
+    {
+        self::debug_iterations("Inserting MeasurementOrFacts");
+        $this->commit_iterations("MeasurementOrFacts", 500);
+        if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/measurementorfact', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
+
+        $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
+        // we really only need to insert the references that relate to taxa
+        if(!isset($this->taxon_ids_inserted[$taxon_id])) return;
+        echo "ok\n";
+        if($taxon_info = @$this->taxon_ids_inserted[$taxon_id])
+        {
+            self::uncompress_array($taxon_info);
+            print_r($row);
+            $turtle = $this->prepare_measurement_turtle($row);
+            echo "$turtle\n";
+            $this->sparql_client->insert_data(array('data' => array($turtle), 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
+        }
+    }
+
+    # TODO: taxon id of the partner will not be globally unique
+    # may this is a reason we will need to do represent the data in a custom way
+    private function prepare_measurement_turtle($row)
+    {
+        $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
+        $measurement_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementID']);
+        $measurement_type = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementType']);
+        $measurement_value = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementValue']);
+        $measurement_accuracy = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementAccuracy']);
+        $measurement_determined_date = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate']);
+        $measurement_determined_by = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementDeterminedBy']);
+        $measurement_method = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementMethod']);
+        $measurement_remarks = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/measurementRemarks']);
+        $source = @self::field_decode($row['purl.org/dc/terms/source']);
+        $bibliographic_citation = @self::field_decode($row['http://purl.org/dc/terms/bibliographicCitation']);
+        $contributor = @self::field_decode($row['http://purl.org/dc/terms/contributor']);
+
+        $graph_name = $this->harvest_event->resource->virtuoso_graph_name();
+        if($measurement_id) $node_uri = "<". $graph_name ."/measurements/". SparqlClient::to_underscore($measurement_id) .">";
+        else $node_uri = "_:measurement";
+        $taxon_uri = $graph_name ."/taxa/". SparqlClient::to_underscore($taxon_id);
+        $turtle =
+            "$node_uri a dwc:MeasurementOrFact" .
+            "; dwc:taxonID <$taxon_uri>" .
+            "; dwc:measurementType ". SparqlClient::enclose_value($measurement_type) .
+            "; dwc:measurementValue ". SparqlClient::enclose_value($measurement_value) .
+            "; dwc:measurementAccuracy ". SparqlClient::enclose_value($measurement_accuracy) .
+            "; dwc:measurementDeterminedDate ". SparqlClient::enclose_value($measurement_determined_date) .
+            "; dwc:measurementDeterminedBy ". SparqlClient::enclose_value($measurement_determined_by) .
+            "; dwc:measurementMethod ". SparqlClient::enclose_value($measurement_method) .
+            "; dwc:measurementRemarks ". SparqlClient::enclose_value($measurement_remarks) .
+            "; dc:source ". SparqlClient::enclose_value($source) .
+            "; dc:bibliographicCitation ". SparqlClient::enclose_value($bibliographic_citation) .
+            "; dc:contributor ". SparqlClient::enclose_value($contributor);
+        return $turtle;
+    }
+
     private function commit_iterations($namespace, $iteration_size = 500)
     {
         static $iteration_counts = array();

@@ -505,6 +505,29 @@ class HarvestEvent extends ActiveRecord
         return ((($my_count - $previous_count) / $previous_count) * 100);
     }
     
+    function create_taxon_relations_graph()
+    {
+        $sparql_client = SparqlClient::connection();
+        $graph_name = $this->resource->virtuoso_graph_name() ."/mappings";
+        $sparql_client->delete_graph($graph_name);
+
+        $query = "SELECT identifier, taxon_concept_id FROM hierarchy_entries WHERE hierarchy_id = ". $this->resource->hierarchy_id .
+            " AND identifier IS NOT NULL AND identifier != ''";
+        $taxon_concepts = array();
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row)
+        {
+            $taxon_concepts[$row[0]] = $row[1];
+        }
+        $data = array();
+        foreach($taxon_concepts as $taxon_id => $taxon_concept_id)
+        {
+            $taxon_uri = $this->resource->virtuoso_graph_name() ."/taxa/". SparqlClient::to_underscore($taxon_id);
+            $taxon_concept_uri = "http://eol.org/pages/$taxon_concept_id";
+            $data[] = "<$taxon_uri> dwc:taxonConceptID <$taxon_concept_uri>";
+        }
+        $sparql_client->insert_data(array('data' => $data, 'graph_name' => $graph_name));
+    }
+
     function send_emails_about_outlier_harvests()
     {
         if(defined('SPG_EMAIL_ADDRESS') && defined('PLEARY_EMAIL_ADDRESS'))
