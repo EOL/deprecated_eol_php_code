@@ -139,7 +139,7 @@ class SchemaValidator
         $errors = array();
         foreach($validation_result as $k => $v)
         {
-            $error_string = "<b>".$v["type"]."</b> ".$v["code"].": ".$v["message"]." on line ".$v["line_number"];
+            $error_string = $v["type"]." ".$v["code"].": ".$v["message"]." on line ".$v["line_number"];
             if($line = $v["line"]) $error_string .= ": ".htmlspecialchars($line);
             $errors[] = $error_string;
         }
