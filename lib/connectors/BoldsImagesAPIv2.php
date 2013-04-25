@@ -364,7 +364,7 @@ class BoldsImagesAPIv2
         {
             $this->archive_builder->write_object_to_file($t);
         }
-        $this->archive_builder->finalize();
+        $this->archive_builder->finalize(true);
     }
 
     function generate_higher_level_taxa_list($data_dump_url = false)

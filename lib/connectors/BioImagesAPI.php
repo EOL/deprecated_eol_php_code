@@ -13,10 +13,11 @@ class BioImagesAPI
         // $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BioImages/Nov2012/Malcolm_Storey_images_test.TXT";
         // $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BioImages/Nov2012/Malcolm_Storey_images.TXT";
         // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010_small.xml";
+        // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010.xml";
         // $this->original_resource = "http://dl.dropbox.com/u/7597512/BioImages/168_Nov2010.xml";
 
         $this->data_dump_url = "http://pick14.pick.uga.edu/users/s/Storey,_Malcolm/Malcolm_Storey_images.TXT";
-        $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010.xml";
+        $this->original_resource = "https://dl.dropboxusercontent.com/u/7597512/BioImages/168_Nov2010.xml";
 
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/bioimages_working/';
@@ -32,7 +33,7 @@ class BioImagesAPI
     {
         $sciname = $row[$col['Taxon']];
         $taxon_id = $row[$col['NWB taxon id']];
-        print "\n" . " - " . $sciname . " - " . $taxon_id;
+        echo "\n" . " - " . $sciname . " - " . $taxon_id;
         $reference_ids = array(); // no taxon references yet
         $ref_ids = array(); // no data_object references yet
         $agent_ids = self::get_object_agents($row, $col);
@@ -42,42 +43,44 @@ class BioImagesAPI
 
     function get_all_taxa()
     {
-        $FILE = fopen($this->data_dump_url, "r");
-        $line_num = 0;
-        $col = array();
-        while(!feof($FILE))
+        if($FILE = fopen($this->data_dump_url, "r"))
         {
-            if($line = fgets($FILE))
+            $line_num = 0;
+            $col = array();
+            while(!feof($FILE))
             {
-                $line_num++;
-                $line = trim($line);
-                $row = explode("\t", $line);
-                if($line_num == 1)
+                if($line = fgets($FILE))
                 {
-                    foreach($row as $id => $value)
+                    $line_num++;
+                    $line = trim($line);
+                    $row = explode("\t", $line);
+                    if($line_num == 1)
                     {
-                        print "\n $id -- $value";
-                        $col[trim($value)] = $id;
+                        foreach($row as $id => $value)
+                        {
+                            echo "\n $id -- $value";
+                            $col[trim($value)] = $id;
+                        }
+                    }
+                    else
+                    {
+                        echo "\n" . $row[$col['Taxon']];
+                        self::parse_record_element($row, $col);
                     }
                 }
-                else
-                {
-                    print "\n" . $row[$col['Taxon']];
-                    self::parse_record_element($row, $col);
-                }
             }
+            fclose($FILE);
+            //get text objects from the original resource (168.xml in Nov 2010)
+            self::get_texts();
+            // finalize the process and create the archive
+            $this->create_archive();
         }
-        fclose($FILE);
-
-        //get text objects from the original resource (168.xml in Nov 2010)
-        self::get_texts();
-        // finalize the process and create the archive
-        $this->create_archive();
+        else echo "\n Remote file not ready. Will terminate.";
     }
 
     private function get_texts()
     {
-        if($xml = Functions::get_hashed_response($this->original_resource))
+        if($xml = Functions::get_hashed_response($this->original_resource, DOWNLOAD_WAIT_TIME, 999999, 5))
         {
             foreach($xml->taxon as $t)
             {
@@ -101,8 +104,8 @@ class BioImagesAPI
                     $taxon->order                       = $t_dwc->Order;
                     $taxon->family                      = $t_dwc->Family;
                     $taxon->furtherInformationURL       = $source;
-                    print "\n $taxon->taxonID - $taxon->scientificName [$source]";
-                    if(isset($this->taxa[$taxonID])) print " -- already exists";
+                    echo "\n $taxon->taxonID - $taxon->scientificName [$source]";
+                    if(isset($this->taxa[$taxonID])) echo " -- already exists";
                     else $this->taxa[$taxonID] = $taxon;
                     //---------------------------------
 
@@ -165,7 +168,7 @@ class BioImagesAPI
                 }
             }
         }
-        else print "\n Down: " . $this->original_resource;
+        else echo "\n Down: " . $this->original_resource;
     }
 
     private function clean_str($str)
@@ -311,7 +314,7 @@ class BioImagesAPI
         {
             $this->archive_builder->write_object_to_file($t);
         }
-        $this->archive_builder->finalize();
+        $this->archive_builder->finalize(true);
     }
 }
 ?>
