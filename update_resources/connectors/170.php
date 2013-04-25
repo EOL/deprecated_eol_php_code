@@ -2,7 +2,7 @@
 namespace php_active_record;
 
 /* connector for SERPENT
-estimated execution time: 23 mins.
+estimated execution time: 23 mins. | 1.5 hours (total taxa has increased and I increased download wait time to 1 sec.)
 Connector screen scrapes the partner website.
 */
 

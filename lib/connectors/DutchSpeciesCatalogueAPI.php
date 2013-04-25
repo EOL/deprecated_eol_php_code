@@ -70,6 +70,7 @@ class DutchSpeciesCatalogueAPI
                 $species_urls[] = TAXON_SERVICE . $id;
             }
         }
+        else echo "\n\n Remote XML not available.";
         return $species_urls;
     }
 }
