@@ -44,8 +44,8 @@ class USDAfsfeisAPI
         $this->topics["FIRE EFFECTS AND MANAGEMENT"] = $this->topics["FIRE EFFECTS"];
         // sub-topics ==================================================================================
         $this->subtopics["DISEASES AND SOURCES OF MORTALITY"] = array("Predators", "Diseases and parasites", "Weather", "Other sources of mortality");
-        $this->subtopics["FUELS AND FIRE REGIMES"] = array("Fuels", "Fire regimes");
-        $this->subtopics["FIRE EFFECTS"] = array("Immediate fire effect on plant", "Postfire regeneration strategy", "Fire adaptations and plant response to fire");
+        $this->subtopics["FUELS AND FIRE REGIMES"] = array("Fuels", "FIRE REGIMES");
+        $this->subtopics["FIRE EFFECTS"] = array("IMMEDIATE FIRE EFFECT ON PLANT", "POSTFIRE REGENERATION STRATEGY", "FIRE ADAPTATIONS AND PLANT RESPONSE TO FIRE", "Fire adaptations", "Plant response to fire", "Effects of repeated fire");
         $this->subtopics["GENERAL BOTANICAL CHARACTERISTICS"] = array("Botanical description", "Raunkiaer life form", "Common buckthorn aboveground description", "Common buckthorn belowground description", "Dahurian buckthorn description", "Life span and age distribution", "Plant architecture and stand structure");
         $this->subtopics["REGENERATION PROCESSES"] = array("Pollination and breeding system", "Seed production", "Seed dispersal", "Seed banking", "Germination", "Seedling establishment and plant growth", "Vegetative regeneration", "Seedling establishment", "Plant growth", "Germination and seedling establishment", "Seedling establishment and growth", "Pollination and breeding system", "Flower and seed production", "Germination, seedling establishment, and plant growth", "Seed production and dispersal", "Pollination", "Seed production, dispersal, banking, and germination", "Flower, fruit, and seed production", "Breeding system and pollination", "Breeding system", "Seed dispersal, seed banking, and germination", "Plant development and survival");
         $this->subtopics["SITE CHARACTERISTICS AND PLANT COMMUNITIES"] = array("Topography", "Elevation", "Soils and moisture", "Climate", "Soils");
@@ -83,11 +83,7 @@ class USDAfsfeisAPI
                 foreach($group[$topic] as $group_topic)
                 {
                     if(isset($this->subject[$group_topic]['category'])) $spm = $this->subject[$group_topic]['category'];
-                    if($subject == $group_topic)
-                    {
-                        echo "\n found spm for lost subject [$subject], spm: [$spm]\n";
-                        return $spm;
-                    }
+                    if($subject == $group_topic) return $spm;
                 }
             }
         }
@@ -127,7 +123,7 @@ class USDAfsfeisAPI
                     //     "http://www.fs.fed.us/database/feis/animals/mammal/index.html",
                     //     "http://www.fs.fed.us/database/feis/animals/bird/index.html",
                     //     "http://www.fs.fed.us/database/feis/animals/arthropod/index.html"
-                    //     ))) continue; //debug
+                    // ))) continue; //debug
                     if($html = Functions::get_remote_file($filename, 5000000, 240, 5))
                     {
                         if(preg_match("/Common Name(.*?)<\/table>/ims", $html, $arr))
@@ -154,11 +150,11 @@ class USDAfsfeisAPI
                                     }
                                 }
                            }
-                           else echo "\n Alert: - no records gathered";
+                           else echo "\n ALERT: - no records gathered";
                         }
-                        else echo "\n Alert: - nothing on $filename";
+                        else echo "\n ALERT: - nothing on $filename";
                     }
-                    else echo "\n Alert: Down1: $filename";
+                    else echo "\n ALERT: Down1: $filename";
                 }
             }
             else return array(); // Down main group page: $this->fsfeis_domain . $group . "/index.html"; 
@@ -172,16 +168,17 @@ class USDAfsfeisAPI
         $records = self::prepare_taxa_urls();
         /*
         $records = array();
-        $records[] = array("taxonID" => "111", "url" => "http://www.fs.fed.us/database/feis/plants/vine/puemonl/all.html", "sciname" => "Aphel11oc3oma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
+        $records[] = array("taxonID" => "111", "url" => "http://www.fs.fed.us/database/feis/animals/mammal/odhe/all.html", "sciname" => "Aphel11oc3oma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
         */
         $urls = array();
         foreach($records as $record)
         {
-            if(!in_array($record["url"], $urls))
-            {
-                self::prepare_data($record);
-                $urls[] = $record["url"];
-            }
+            // if(!in_array($record["url"], $urls))
+            // {
+            //     self::prepare_data($record);
+            //     $urls[] = $record["url"];
+            // }
+            self::prepare_data($record);
         }
         $this->create_archive();
         // print_r($this->spg); // debug
@@ -197,6 +194,7 @@ class USDAfsfeisAPI
         echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'];
         if($html = Functions::get_remote_file($rec['url'], 3000000, 240, 5)) 
         {
+            $html = str_ireplace('href="all.html#', 'href="#', $html);
             $html = str_ireplace(array("<br />", "<br >", "<br/>"), "<br>", trim($html));
             $html = str_ireplace("<br> <br>", "<br><br>", trim($html));
             $html = str_ireplace("<a name='REFERENCES'>", '<a name="REFERENCES">', $html);
@@ -214,11 +212,7 @@ class USDAfsfeisAPI
             $html = str_ireplace("Postfire regeneration strategy", "POSTFIRE REGENERATION STRATEGY", $html);
             $html = str_ireplace("Fire adaptations and plant response to fire", "FIRE ADAPTATIONS AND PLANT RESPONSE TO FIRE", $html);
             $html = str_ireplace("SITE CHARACTERISITICS AND PLANT COMMUNITIES", "SITE CHARACTERISTICS AND PLANT COMMUNITIES", $html);
-            if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/graminoid/panrep/all.html",
-                                           "http://www.fs.fed.us/database/feis/plants/graminoid/junbal/all.html",
-                                           "http://www.fs.fed.us/database/feis/plants/forb/melspp/all.html",
-                                           "http://www.fs.fed.us/database/feis/plants/shrub/ameuta/all.html",
-                                           "http://www.fs.fed.us/database/feis/plants/forb/eupcyp/all.html")))
+            if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/graminoid/panrep/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/junbal/all.html", "http://www.fs.fed.us/database/feis/plants/forb/melspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/ameuta/all.html", "http://www.fs.fed.us/database/feis/plants/forb/eupcyp/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/spocom/all.html")))
             {
                 $html = str_ireplace(array("\n", "\t"), "", $html);
                 $html = str_ireplace("BOTANICAL AND ECOLOGICAL       CHARACTERISTICS", "BOTANICAL AND ECOLOGICAL CHARACTERISTICS", $html);
@@ -229,6 +223,7 @@ class USDAfsfeisAPI
                 $html = str_ireplace("VALUE FOR    REHABILITATION OF DISTURBED SITES", "VALUE FOR REHABILITATION OF DISTURBED SITES", $html);
                 $html = str_ireplace("DISCUSSION AND      QUALIFICATION OF FIRE EFFECT", "DISCUSSION AND QUALIFICATION OF FIRE EFFECT", $html);
                 $html = str_ireplace("DISCUSSION AND      QUALIFICATION OF PLANT RESPONSE", "DISCUSSION AND QUALIFICATION OF PLANT RESPONSE", $html);
+                $html = str_ireplace("Fire adaptations and plant   response to fire", "FIRE ADAPTATIONS AND PLANT RESPONSE TO FIRE", $html);
             }
             if(is_numeric(stripos($html, "<!DOCTYPE html PUBLIC"))) $rec["with_line_break"] = false;
             else                                                    $rec["with_line_break"] = true;
@@ -243,6 +238,30 @@ class USDAfsfeisAPI
         $this->create_instances_from_taxon_object($rec, $reference_ids);
     }
 
+    private function clean_li_tags($text)
+    {
+        $k = 0;
+        foreach($text as $txt)
+        {
+            if(substr_count($txt, '<li>') != substr_count($txt, '</li>'))
+            {
+                $elements = explode("\n", $txt);
+                $elements = array_filter(array_map('trim', $elements)); // will trim all values of the array
+                $elements = array_values($elements); // this will fix the index values 0,1,2
+                $i = 0;
+                foreach($elements as $element)
+                {
+                    $element = trim($element);
+                    if(substr($element, -5) != "</li>") $elements[$i] = $element . "</li>";
+                    $i++;
+                }
+                $text[$k] = implode("\n", $elements);
+            }
+            $k++;
+        }
+        return $text;
+    }
+    
     private function assemble_page_framework($rec, $html)
     {
         $chapters = array();
@@ -251,10 +270,10 @@ class USDAfsfeisAPI
         {
             $html = str_ireplace("<ul></ul>", "", $html);
             // manual adjustments
-            if($rec["url"] == "http://www.fs.fed.us/database/feis/animals/mammal/odhe/all.html") $html = str_ireplace('<li><a href="#Threats">Threats</a>', '<li><a href="#Threats">Threats</a></li>', $html);
             if(preg_match_all("/<ul>(.*?)<\/ul>/ims", $html, $arr))
             {
                 $temp = $arr[1];
+                $temp = self::clean_li_tags($temp);
                 $i = 0;
                 foreach($temp as $t)
                 {
@@ -271,16 +290,20 @@ class USDAfsfeisAPI
                 }
             }
         }
-        $urls_to_use_old_script = array("http://www.fs.fed.us/database/feis/animals/reptile/crho/all.html", "http://www.fs.fed.us/database/feis/plants/forb/potnew/all.html");
+        // print_r($chapters); print_r($topics); exit; // debug
+        $urls_to_use_old_script = array("http://www.fs.fed.us/database/feis/animals/reptile/crho/all.html", "http://www.fs.fed.us/database/feis/plants/forb/potnew/all.html", "http://www.fs.fed.us/database/feis/plants/tree/poptre/all.html");
         $urls_to_use_new_script = array("");
         if(count(@$topics) < 3 || in_array($rec["url"], $urls_to_use_old_script))
         {
-            echo "\n Page used the old script " . $rec["url"] . " [" . count($topics) . "] \n";
-            print_r($topics);
+            echo "\n Page used the OLD script " . $rec["url"] . " [" . count($topics) . "] \n";
             $this->script_count["old"]++;
             if(!in_array($rec["url"], $urls_to_use_new_script)) return false;
         } 
-        else $this->script_count["new"]++; // Page used the new script
+        else 
+        {
+            echo "\n Page used the NEW script " . $rec["url"] . " [" . count($topics) . "] \n";
+            $this->script_count["new"]++;
+        }
         $chapters = self::get_href_and_link_texts($chapters);
         // set all chapters' link to uppercase
         $i = 0;
@@ -314,7 +337,7 @@ class USDAfsfeisAPI
             $chapters[2]["connect"][0]["connect2"][0]["connect3"][5] = null;
         }
 
-        print_r($chapters); //exit; ditox
+        // print_r($chapters); //debug
         $rec = self::generate_articles($chapters, $rec, $html);
         return $rec;
     }
@@ -360,7 +383,7 @@ class USDAfsfeisAPI
             }
         }
         // print_r($items); //debug
-        if(count($items) != count(array_unique($items))) echo "\nALERT: with duplicate entries. " . $rec["url"] . "\n";
+        if(count($items) != count(array_unique($items))) echo "\n ALERT: with duplicate entries. " . $rec["url"] . "\n";
         $descriptions = array();
         $i = -1;
         $items_tobe_excluded = array("INTRODUCTORY", "FEIS ABBREVIATION", "NRCS PLANT CODE", "ABBREVIATION" , "FIRE CASE STUDIES");
@@ -384,6 +407,14 @@ class USDAfsfeisAPI
             // ==========
             $html = str_ireplace(array(' id="' . $href1 . '"', ' id="' . $href2 . '"'), "", $html);
             $html = str_ireplace(array('id="' . $href1 . '" ', 'id="' . $href2 . '" '), "", $html);
+            
+            $href1 = str_ireplace("/", "\/", $href1);
+            $href2 = str_ireplace("/", "\/", $href2);
+            $href1 = str_ireplace("(", "\(", $href1);
+            $href2 = str_ireplace("(", "\(", $href2);
+            $href1 = str_ireplace(")", "\)", $href1);
+            $href2 = str_ireplace(")", "\)", $href2);
+            
             if(preg_match("/<a name\=\"$href1\">(.*?)<a name\=\"$href2\">/ims", $html, $arr))
             {
                 // seemingly new topics in lower case, but already exist as upper case
@@ -450,7 +481,7 @@ class USDAfsfeisAPI
                 {
                     if($t == $item["topic"]) 
                     {
-                        echo "\n ALERT: excluded: $topic \n";
+                        echo "\n ALERT: excluded: $topic [$t]==[" . $item["topic"] . "]\n";
                         return true;
                     }
                 }
@@ -613,7 +644,7 @@ class USDAfsfeisAPI
             $index = $chapter["link"];
             if(!isset($this->topics[$index])) 
             {
-                echo "\n Topics for chapter [$index] is not yet initialized.\n";
+                echo "\n ALERT: Topics for chapter [$index] is not yet initialized.\n";
                 continue;
             }
             $arr = self::topics_indexkey_for_chapter($this->topics[$index], $topics);
@@ -1303,6 +1334,7 @@ class USDAfsfeisAPI
         echo "\n arr1: " . count($texts);
         echo "\n arr2: " . count($subjects);
         // this loop will just check if all topics are mapped with a subject
+        $i = 0;
         foreach($subjects as $subject)
         {
             if(!in_array(strtolower(self::clean_str(strip_tags($texts[$subject]), true)), array("", "no-entry", "none", "no special status", "no entry", "no_entry", "no additional information is available on this topic.", "see other status", "no information is available on this topic.")) && 
@@ -1415,7 +1447,7 @@ class USDAfsfeisAPI
                 if(!@$this->subject[$subject]['title']) 
                 {
                     $title = $subject;
-                    echo "\n ALERT: subject becomes the title: [$subject]\n";
+                    echo "\n subject becomes the title: [$subject]\n";
                 }
                 else $title = @$this->subject[$subject]['title'];
                 if($description == "" || $spm == "")
@@ -1428,6 +1460,7 @@ class USDAfsfeisAPI
                 // if(in_array($subject, array("Ontogeny", "Phenology", "Home range"))) echo "\n $subject: \nsss[$description]jjj\n\n"; //debug
                 echo "\n description: \nsss[$description]jjj"; //debug
 
+                $i++;
                 $mr = new \eol_schema\MediaResource();
                 if($reference_ids)  $mr->referenceID = implode("; ", $reference_ids);
                 if($agent_ids)      $mr->agentID = implode("; ", $agent_ids);
@@ -1451,6 +1484,8 @@ class USDAfsfeisAPI
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
+        echo "\n\n count = $i\n";
+        if($i <= 10) echo " - less than 10x - " . $rec["url"] . "\n"; 
     }
 
     private function get_object_reference_ids($description)
@@ -1521,12 +1556,16 @@ class USDAfsfeisAPI
     function create_instances_from_taxon_object($rec, $reference_ids)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon_id = (string)$rec['taxonID'];
+        $taxon_id = (string) $rec['taxonID'];
         $taxon->taxonID = $taxon_id;
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonRank = '';
         $scientificName = (string) utf8_encode($rec['sciname']);
-        if(!$scientificName) return; //blank
+        if(!$scientificName)
+        {
+            echo "\n ALERT: blank scientificName [$scientificName]";
+            return; //blank
+        } 
         $taxon->scientificName              = $scientificName;
         $taxon->vernacularName              = (string) $rec['vernacular'];
         $taxon->kingdom                     = (string) $rec["kingdom"];
@@ -1538,7 +1577,7 @@ class USDAfsfeisAPI
     function create_archive()
     {
         foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
-        $this->archive_builder->finalize();
+        $this->archive_builder->finalize(true);
     }
 
     private function get_references_from_html($html)

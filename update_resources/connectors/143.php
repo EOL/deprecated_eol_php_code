@@ -1,8 +1,9 @@
 <?php
 namespace php_active_record;
 /* connector for Insect Visitors of Illinois Wildflowers
-estimated execution time: 30 minutes
+estimated execution time: 1.8 hours
 Connector scrapes the site: http://www.illinoiswildflowers.info/flower_insects/index.htm
+This resource is regularly being harvested. Connector is scheduled as a cron task.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/InsectVisitorsAPI');

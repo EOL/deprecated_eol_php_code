@@ -103,7 +103,7 @@ class InsectVisitorsAPI
     function process_gen_desc($url, $ancestry, $type)
     {
         debug("\n\n file: $url \n");
-        if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
+        if(!$html = Functions::get_remote_file($url, 1000000, 600, 5)) // 1sec wait, 10mins timeout, 5 attempts
         {
             debug("\n\n Content partner's server is down1, $url.\n");
             return;
@@ -155,7 +155,7 @@ class InsectVisitorsAPI
 
     function process_birds($url, $ancestry, $type)
     {
-        if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
+        if(!$html = Functions::get_remote_file($url, 1000000, 600, 5))
         {
             debug("\n\n Content partner's server is down2, $url\n");
             return;
@@ -193,7 +193,7 @@ class InsectVisitorsAPI
 
     function process_insects($url, $ancestry)
     {
-        if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
+        if(!$html = Functions::get_remote_file($url, 1000000, 600, 5))
         {
             debug("\n\n Content partner's server is down3, $url\n");
             return;
@@ -239,7 +239,7 @@ class InsectVisitorsAPI
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
             debug("\n $url -- $taxon_name");
-            if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
+            if(!$html = Functions::get_remote_file($url, 1000000, 600, 5))
             {
                 debug("\n\n Content partner's server is down4, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
@@ -267,7 +267,7 @@ class InsectVisitorsAPI
         $urls = array("http://www.illinoiswildflowers.info/flower_insects/files/family_names.htm", "http://www.illinoiswildflowers.info/flower_insects/files/common_names.htm");
         foreach($urls as $url)
         {
-            if(!$html = Functions::get_remote_file($url, 1000000, 240, 5))
+            if(!$html = Functions::get_remote_file($url, 1000000, 600, 5))
             {
                 debug("\n\n Content partner's server is down5, $url.\n");
                 return;

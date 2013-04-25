@@ -21,13 +21,13 @@ class IllinoisWildflowersAPI
     function get_all_taxa($resource_id)
     {
         self::get_associations();
-        print "\n\n total: " . count($GLOBALS['taxon']) . "\n";
+        echo "\n\n total: " . count($GLOBALS['taxon']) . "\n";
         $all_taxa = array();
         $i = 0;
         $total = count(array_keys($GLOBALS['taxon']));
         foreach($GLOBALS['taxon'] as $taxon_name => $record)
         {
-            $i++; print "\n$i of $total " . $taxon_name;
+            $i++; echo "\n$i of $total " . $taxon_name;
             $record["taxon_name"] = $taxon_name;
             $arr = self::get_visitors_taxa($record);
             $page_taxa = $arr[0];
@@ -48,7 +48,7 @@ class IllinoisWildflowersAPI
         {
             if($path["active"])
             {
-                print "\n\n$i " . $path['type'] . " " . $path['file'] . "\n";
+                echo "\n\n$i " . $path['type'] . " " . $path['file'] . "\n";
                 $url = $this->path . $path['file'];
                 self::process_insects($url, $path['type']);
             }
@@ -58,9 +58,9 @@ class IllinoisWildflowersAPI
 
     function process_insects($url, $type)
     {
-        if(!$html = Functions::get_remote_file($url)) 
+        if(!$html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5)) // 20mins timeout, 5 attempts
         {
-            print("\n\n Content partner's server is down, $url\n");
+            echo("\n\n Content partner's server is down, $url\n");
             return;
         }
         /* <a href="plantx/pf_foxglovex.htm">Agalinis purpurea (Purple False Foxglove)</a> */
@@ -77,7 +77,7 @@ class IllinoisWildflowersAPI
                 if(preg_match("/>(.*?)\(/ims", $match, $string_match)) $taxon_name = strip_tags(self::clean_str($string_match[1]));
                 else continue;
                 $taxon_name = utf8_encode($taxon_name);
-                print "\n[$taxon_name]\n";
+                echo "\n[$taxon_name]\n";
                 if(preg_match("/\/(.*?)\"/ims", $match, $string_match)) $html = self::clean_str($string_match[1]);
                 if(preg_match("/\((.*?)\)/ims", $match, $string_match)) 
                 {
@@ -86,7 +86,7 @@ class IllinoisWildflowersAPI
                 }
                 if($type == 'prairie') $html = $type . "/plantx/$html";
                 else                   $html = $type . "/plants/$html";
-                print "\nhtml: [$html]";
+                echo "\nhtml: [$html]";
                 $GLOBALS['taxon'][$taxon_name]['html'] = $html;
                 // $i++; if($i >= 5) break; //debug
             }
@@ -112,10 +112,10 @@ class IllinoisWildflowersAPI
             $url = $this->path . $value['html'];
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
-            print "\n $url -- $taxon_name";
-            if(!$html = Functions::get_remote_file($url)) 
+            echo "\n $url -- $taxon_name";
+            if(!$html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5)) 
             {
-                print("\n\n Content partner's server is down, $url\n");
+                echo("\n\n Content partner's server is down, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['Description'] = 'no objects';
                 continue;
             }
@@ -141,7 +141,7 @@ class IllinoisWildflowersAPI
                     else
                     {
                         $GLOBALS['taxon'][$taxon_name]['Description'] = 'no objects';
-                        print "\n investigate: (no objects) $type - $taxon_name \n";
+                        echo "\n investigate: (no objects) $type - $taxon_name \n";
                         continue;
                     }
                 }
@@ -149,7 +149,7 @@ class IllinoisWildflowersAPI
             else // webpage might have changed. scraping script has to be updated.
             {
                 $GLOBALS['taxon'][$taxon_name]['Description'] = 'no objects';
-                print "\n investigate: (no <BLOCKQUOTE>) $type - $taxon_name \n";
+                echo "\n investigate: (no <BLOCKQUOTE>) $type - $taxon_name \n";
                 self::scrape_second_try($html, $taxon_name, $type);
             }
 
@@ -168,7 +168,7 @@ class IllinoisWildflowersAPI
         $html = str_ireplace("<span style='color: rgb(51, 204, 0); font-weight: bold;'>", 'zzz xxxyyy', $html);
         if(preg_match_all("/xxxyyy(.*?)zzz/ims", $html, $matches))
         {
-            print "\n 2nd-try successful - $type - $taxon_name \n";
+            echo "\n 2nd-try successful - $type - $taxon_name \n";
             $i = 0;
             $texts = $matches[1];
             foreach($texts as $text)
@@ -186,7 +186,7 @@ class IllinoisWildflowersAPI
         else
         {
             $GLOBALS['taxon'][$taxon_name]['Description'] = 'no objects';
-            print "\n investigate: 2nd-try failed $type - $taxon_name \n";
+            echo "\n investigate: ALERT: 2nd-try failed $type - $taxon_name \n";
         }
     }
 
