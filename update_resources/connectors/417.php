@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for Plant-feeding insects of Illinois Wildflowers
-estimated execution time: 20 minutes
+estimated execution time: 47 minutes
 Connector scrapes the site: http://www.illinoiswildflowers.info/plant_insects/database.html
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

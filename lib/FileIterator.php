@@ -69,8 +69,7 @@ class FileIterator implements \Iterator
     {
         if(isset($this->FILE) && !feof($this->FILE))
         {
-            // 512 KB maximum per line
-            $line = fgets($this->FILE, 524288);
+            $line = fgets($this->FILE);
             $this->current_line = rtrim($line, "\r\n");
             unset($line);
             // // possibly faster but doesn't recognize both \n and \r

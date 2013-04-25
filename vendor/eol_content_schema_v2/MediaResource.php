@@ -121,7 +121,7 @@ class MediaResource extends DarwinCoreExtensionBase
     
     public static function valid_license($v)
     {
-        if($v && !preg_match("/^http:\/\/creativecommons.org\/licen(s|c)es\/((by|by-nc|by-sa|by-nc-sa)\/(1\.0|2\.0|2\.5|3\.0)|publicdomain)\/$/i", trim($v)) &&
+        if($v && !preg_match("/^http:\/\/creativecommons.org\/licen(s|c)es\/((by|by-nc|by-sa|by-nc-sa|publicdomain)\/(1\.0|2\.0|2\.5|3\.0)|publicdomain)\/$/i", trim($v)) &&
             strtolower($v) != 'http://creativecommons.org/publicdomain/zero/1.0/' &&
             strtolower($v) != 'http://www.flickr.com/commons/usage/' &&
             strtolower($v) != 'no known copyright restrictions' &&
@@ -179,6 +179,8 @@ class MediaResource extends DarwinCoreExtensionBase
     {
         if(preg_match("/^http:\/\/rs\.tdwg\.org\/ontology\/voc\/SPMInfoItems#(.*)$/i", $v, $arr)) $v = $arr[1];
         elseif(preg_match("/^http:\/\/rs\.tdwg\.org\/pccore\/([a-z]+)$/i", $v, $arr)) $v = $arr[1];
+        elseif(preg_match("/^http:\/\/eol\.org\/schema\/eol_info_items\.xml#(.*)$/i", $v, $arr)) $v = $arr[1];
+        elseif(preg_match("/^http:\/\/www\.eol\.org\/voc\/table_of_contents#(.*)$/i", $v, $arr)) $v = $arr[1];
         if($v && !in_array(strtolower($v), array(
             'associations',
             'behaviour',
@@ -270,7 +272,27 @@ class MediaResource extends DarwinCoreExtensionBase
             'typification',
             'unstructureddocumentation',
             'unstructurednaturalhistory',
-            'uses')))
+            'uses',
+
+            // EOL terms
+            'typeinformation',
+            'education',
+            'barcode',
+            'wikipedia',
+            'citizenscience',
+            'educationresources',
+            'genome',
+            'nucleotidesequences',
+            'gossilhistory',
+            'systematicsorphylogenetics',
+            'functionaladaptations',
+            'development',
+            'identificationresources',
+            'notes',
+            'taxonomy',
+            'typeinformation',
+            'taxonomy',
+            'development')))
         {
             return false;
         }

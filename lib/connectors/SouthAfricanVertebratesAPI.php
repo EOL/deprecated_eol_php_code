@@ -251,7 +251,7 @@ class SouthAfricanVertebratesAPI
         {
             $this->archive_builder->write_object_to_file($t);
         }
-        $this->archive_builder->finalize();
+        $this->archive_builder->finalize(true);
     }
 
     private function get_url($urls)

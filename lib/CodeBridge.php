@@ -1,6 +1,6 @@
 <?php
 include_once(dirname(__FILE__) . "/../config/environment.php");
-if(defined('RESQUE_HOST')) Resque::setBackend(RESQUE_HOST);
+if(defined('RESQUE_HOST') && RESQUE_HOST) Resque::setBackend(RESQUE_HOST);
 
 # Needed for work:
 php_active_record\require_library("SplitEntryHandler");

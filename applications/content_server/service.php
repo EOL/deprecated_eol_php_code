@@ -3,6 +3,7 @@ namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('CyberSource');
+$GLOBALS['ENV_DEBUG'] = false;
 
 $function = @$_GET["function"];
 $server_ip = @$_GET["server_ip"];
@@ -162,8 +163,9 @@ switch($function)
                     if($validation_result != "true")
                     {
                         echo "  <status>Validation failed</status>\n";
-                        if(strlen($validation_result) > 50000) $validation_result = substr($validation_result, 0, 50000) . "...";
-                        echo "  <error type='validation'>".htmlspecialchars(implode("<br/>", $validation_result))."</error>\n";
+                        $validation_message = implode("<br/>", $validation_result);
+                        if(strlen($validation_message) > 50000) $validation_message = substr($validation_message, 0, 50000) . "...";
+                        echo "  <error type='validation'>".htmlspecialchars($validation_message)."</error>\n";
                     }else
                     {
                         echo "  <status>Validated</status>\n";
