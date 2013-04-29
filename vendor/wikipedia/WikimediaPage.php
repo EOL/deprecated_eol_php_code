@@ -23,14 +23,32 @@ class WikimediaPage
             $this->contributor = (string) $this->simple_xml->revision->contributor->username;
         }
     }
-    
+
     public static function from_api($title)
     {
         $api_url = "http://commons.wikimedia.org/w/api.php?action=query&format=xml&prop=revisions&titles=".urlencode($title)."&rvprop=ids|timestamp|user|content";
         echo $api_url."\n";
         return new WikimediaPage(php_active_record\Functions::get_remote_file($api_url));
     }
-    
+
+    public static function expand_templates($text)
+    {
+        $url = "http://commons.wikimedia.org/w/api.php?action=expandtemplates&format=xml&text=". urlencode($text);
+        $response = \php_active_record\Functions::lookup_with_cache($url, array('validation_regex' => '<text', 'expire_seconds' => 518400));
+        $hash = simplexml_load_string($response);
+        if(@$hash->expandtemplates) return (string) $hash->expandtemplates[0];
+    }
+
+    public function expanded_text()
+    {
+        if(isset($this->expanded_text)) return $this->expanded_text;
+        $url = "http://commons.wikimedia.org/w/api.php?action=parse&format=xml&prop=text&page=". urlencode($this->title);
+        $response = \php_active_record\Functions::lookup_with_cache($url, array('validation_regex' => '<text', 'expire_seconds' => 518400));
+        $hash = simplexml_load_string($response);
+        if(@$hash->parse->text) $this->expanded_text = (string) $hash->parse->text[0];
+        return $this->expanded_text;
+    }
+
     public function information()
     {
         if(isset($this->information)) return $this->information;
@@ -61,41 +79,29 @@ class WikimediaPage
         $this->information = $information;
         return $information;
     }
-    
+
     public function taxonomy()
     {
         if(isset($this->taxonomy)) return $this->taxonomy;
-        
         $taxonomy = array();
-        if(preg_match("/(\{\{Taxonavigation.*?\}\})(.*)/ms", $this->text, $arr))
+        if(preg_match("/^<div style=\"float:left; margin:2px auto; border-top:1px solid #ccc; border-bottom:1px solid #aaa; font-size:97%\">(.*?)<\/div>\n/ms", $this->expanded_text(), $arr))
         {
-            list($taxonomy_box, $junk) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
-            
+            $taxonomy_box = $arr[1];
             $authority = "";
-            $parts = preg_split("/[\n\r]/", trim($taxonomy_box));
-            //echo "<hr>$taxonomy_box<br><br>";
-            //Functions::print_pre($parts);
+            if(preg_match("/^<div.*?>(.*)/", $taxonomy_box, $arr)) $taxonomy_box = $arr[1];
+            if(preg_match("/^'''.*?''':&nbsp;(.*)/", $taxonomy_box, $arr)) $taxonomy_box = $arr[1];
+            $parts = preg_split("/<\/b> ?&#160;• ?/", trim($taxonomy_box));
             while($part = array_pop($parts))
             {
-                //echo "PART:$part<br>";
-                if(preg_match("/^\s*([a-z]+)\s*\|\s*([^\|]+)\|?$/ims", $part, $arr))
+                if(preg_match("/^(<b>)?([a-z]+)(<b>)?:&#160;(.*)$/ims", $part, $arr))
                 {
-                    $attribute = strtolower(trim($arr[1]));
-                    $value = trim($arr[2]);
-                    $taxonomy[$attribute] = $value;
-                }elseif(preg_match("/^\s*authority\s*=\s*(.*)$/ims", $part, $arr))
-                {
-                    $authority = WikiParser::strip_syntax(trim($arr[1]));
+                    $attribute = strtolower(trim($arr[2]));
+                    $value = strip_tags(WikiParser::strip_syntax(trim($arr[4])));
+                    $value = str_replace(" (genus)", "", $value);
+                    $taxonomy[$attribute] = strip_tags(WikiParser::strip_syntax($value));
                 }
             }
-            
-            // add the authority to the last entry
-            if($authority && $taxonomy)
-            {
-                $value = current($taxonomy);
-                $taxonomy[key($taxonomy)] = $value .' '. $authority;
-            }
-            
+
             // there are often some extra ranks under the Taxonnavigation box
             if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->text, $arr))
             {
@@ -111,24 +117,24 @@ class WikimediaPage
                 }
             }
         }
-        
+
         foreach($taxonomy as &$name)
         {
-            $name = preg_replace("/\s*\|$/", "", trim($name));
-            $name = str_replace("<small>", "", $name);
-            $name = str_replace("</small>", "", $name);
+            $name = str_ireplace("/ type species/", " ", $name);
+            $name = preg_replace("/<br ?\/>/", " ", $name);
+            $name = trim(preg_replace("/\s+/", " ", WikiParser::strip_syntax(trim($name))));
             if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{/", $name))
             {
                 $taxonomy = array();
                 break;
             }
         }
-        
+
         reset($taxonomy);
         $this->taxonomy = $taxonomy;
         return $taxonomy;
     }
-    
+
     public function taxon_parameters()
     {
         if(isset($this->taxon_parameters)) return $this->taxon_parameters;
@@ -136,7 +142,7 @@ class WikimediaPage
         if(!$taxonomy) return array();
         $taxon_rank = key($taxonomy);
         $taxon_name = current($taxonomy);
-        
+
         $taxon_parameters = array();
         if($taxon_rank!='regnum' && $v = @$taxonomy['regnum']) $taxon_parameters['kingdom'] = $v;
         if($taxon_rank!='phylum' && $v = @$taxonomy['phylum']) $taxon_parameters['phylum'] = $v;
@@ -148,12 +154,11 @@ class WikimediaPage
         //$taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
         //$taxon_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
         
-        
         $taxon_parameters['dataObjects'] = array();
         $this->taxon_parameters = $taxon_parameters;
         return $taxon_parameters;
     }
-    
+
     public function data_object_parameters()
     {
         if(isset($this->data_object_parameters)) return $this->data_object_parameters;
