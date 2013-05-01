@@ -1,25 +1,23 @@
 <?php
 namespace php_active_record;
-/* estimated execution time: 6 minutes */
+/* estimated execution time: 1 hour */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/BioImagesAPI');
 
 $timestart = time_elapsed();
-
-$func = new BioImagesAPI;
-$func->get_all_taxa();
-$partner = "bioimages";
 $resource_id = 168;
+$func = new BioImagesAPI($resource_id);
+$func->get_all_taxa();
 
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $partner . "_working/taxon.tab") > 1000)
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
-    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $partner))
+    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {
-        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $partner . "_previous");
-        rename(CONTENT_RESOURCE_LOCAL_PATH . $partner, CONTENT_RESOURCE_LOCAL_PATH . $partner . "_previous");
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
     }
-    rename(CONTENT_RESOURCE_LOCAL_PATH . $partner . "_working", CONTENT_RESOURCE_LOCAL_PATH . $partner);
+    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
     Functions::set_resource_status_to_force_harvest($resource_id);
 }
 
@@ -28,5 +26,4 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\n\n Done processing.";
-
 ?>
