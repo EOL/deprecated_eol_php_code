@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 
-define('DOWNLOAD_WAIT_TIME', '2000000');  // 2 second wait after every web request
+define('DOWNLOAD_WAIT_TIME', '1000000');  // 2 second wait after every web request
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
@@ -161,12 +161,13 @@ function get_scientific_pages($xml)
     if(preg_match("/\{\{Taxonavigation/", $xml, $arr))
     {
         $page = new \WikimediaPage($xml);
+        if(preg_match("/^template\:/i", $page->title)) continue;
         $GLOBALS['scientific_pages'][$page->title] = 1;
         if($params = $page->taxon_parameters())
         {
             if(@$params['scientificName']) $GLOBALS['taxa'][$page->title] = $params;
         }
-        
+
         $images = $page->images();
         foreach($images as $image)
         {
@@ -267,7 +268,7 @@ function lookup_image_urls($titles)
     $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiurlwidth=460&iiprop=url&titles=";
     $url .= urlencode(implode("|", array_keys($titles)));
     
-    $result = Functions::get_remote_file_fake_browser($url);
+    $result = Functions::get_remote_file_fake_browser($url, 2000000);
     
     $normalized = array();
     $json = json_decode($result);
