@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 
-define('DOWNLOAD_WAIT_TIME', '2000000');  // 2 second wait after every web request
+define('DOWNLOAD_WAIT_TIME', '1000000');  // 2 second wait after every web request
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
@@ -12,21 +12,22 @@ $resource = Resource::find(71);
 
 
 // cleaning up downloaded files
-shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia/*");
-shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml");
-shell_exec("rm -f ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+$base_directory_path = DOC_ROOT ."update_resources/connectors/files/";
+shell_exec("rm -f ". $base_directory_path . "wikimedia/*");
+shell_exec("rm -f ". $base_directory_path . "wikimedia.xml");
+shell_exec("rm -f ". $base_directory_path . "wikimedia.xml.bz2");
 
 
 // download latest Wikimedia Commons export
-echo "curl ".$resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2\n";
-shell_exec("curl ".$resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+echo "curl ".$resource->accesspoint_url." -o ". $base_directory_path . "wikimedia.xml.bz2\n";
+shell_exec("curl ".$resource->accesspoint_url." -o ". $base_directory_path . "wikimedia.xml.bz2");
 // unzip the download
-shell_exec("bunzip2 ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml.bz2");
+shell_exec("bunzip2 ". $base_directory_path . "wikimedia.xml.bz2");
 // split the huge file into 300M chunks
-shell_exec("split -b 300m ". DOC_ROOT ."update_resources/connectors/files/wikimedia.xml ". DOC_ROOT ."update_resources/connectors/files/wikimedia/part_");
+shell_exec("split -b 300m ". $base_directory_path . "wikimedia.xml ". $base_directory_path . "wikimedia/part_");
 
 // determine the filename of the last chunk
-$last_line = exec("ls -l ". DOC_ROOT ."update_resources/connectors/files/wikimedia");
+$last_line = exec("ls -l ". $base_directory_path . "wikimedia");
 if(preg_match("/part_([a-z]{2})$/", trim($last_line), $arr)) $final_part_suffix = $arr[1];
 else
 {
@@ -84,14 +85,14 @@ function iterate_files($callback, $title = false)
     list($major, $minor) = str_split($final_part_suffix);
     $ord1 = ord("a");
     $ord2 = ord("a");
-    
+
     $left_overs = "";
     while($ord1 <= ord($major))
     {
         while($ord2 <= ord("z"))
         {
             $left_overs = process_file(chr($ord1).chr($ord2), $left_overs, $callback, $title);
-            
+
             if($ord1 == ord($major) && $ord2 == ord($minor))
             {
                 break;
@@ -99,7 +100,7 @@ function iterate_files($callback, $title = false)
             $ord2++;
             // if($ord2 == ord("b")) break;
         }
-        
+
         $ord1++;
         $ord2 = ord("a");
         // break;
@@ -110,8 +111,8 @@ function process_file($part_suffix, $left_overs, $callback, $title = false)
 {
     echo "Processing file $part_suffix with callback $callback ".memory_get_usage()."\n";
     flush();
-    $FILE = fopen(DOC_ROOT ."update_resources/connectors/files/wikimedia/part_".$part_suffix, "r");
-    
+    $FILE = fopen($base_directory_path . "wikimedia/part_".$part_suffix, "r");
+
     $current_page = $left_overs;
     static $page_number = 0;
     while(!feof($FILE))
@@ -119,7 +120,7 @@ function process_file($part_suffix, $left_overs, $callback, $title = false)
         if($line = fgets($FILE, 4096))
         {
             $current_page .= $line;
-            
+
             if(trim($line) == "<page>")
             {
                 $current_page = $line;
@@ -133,19 +134,19 @@ function process_file($part_suffix, $left_overs, $callback, $title = false)
                     echo "memory: ".memory_get_usage()."\n";
                     flush();
                 }
-                
+
                 if($title && !preg_match("/<title>". preg_quote($title, "/") ."<\/title>/ims", $current_page))
                 {
                     echo "<title>". preg_quote($title, "/") ."<\/title>\n";
                     continue;
                 }
-                
+
                 call_user_func($callback, $current_page);
                 $current_page = "";
             }
         }
     }
-    
+
     echo "\n\n# taxa so far: ".count($GLOBALS['taxa'])."\n";
     echo "# images so far: ".count($GLOBALS['image_titles'])."\n";
     echo "# objects so far: ".count($GLOBALS['data_objects'])."\n";
@@ -161,12 +162,13 @@ function get_scientific_pages($xml)
     if(preg_match("/\{\{Taxonavigation/", $xml, $arr))
     {
         $page = new \WikimediaPage($xml);
+        if(preg_match("/^template\:/i", $page->title)) continue;
         $GLOBALS['scientific_pages'][$page->title] = 1;
         if($params = $page->taxon_parameters())
         {
             if(@$params['scientificName']) $GLOBALS['taxa'][$page->title] = $params;
         }
-        
+
         $images = $page->images();
         foreach($images as $image)
         {
@@ -198,7 +200,7 @@ function create_resource_file()
 {
     global $resource;
     $all_taxa = array();
-    
+
     $taxon_number = 0;
     foreach($GLOBALS['taxa'] as $taxon_title => $taxon_parameters)
     {
@@ -212,23 +214,23 @@ function create_resource_file()
                 }
             }
         }
-        
+
         unset($GLOBALS['taxa'][$taxon_title]);
         unset($GLOBALS['scientific_page_images'][$taxon_title]);
-        
+
         $all_taxa[] = new \SchemaTaxon($taxon_parameters);
     }
-    
+
     $FILE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", "w+");
     \SchemaDocument::get_taxon_xml($all_taxa, $FILE);
     fclose($FILE);
-    
+
     if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml") > 600)
     {
         @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
         @rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_previous.xml");
         rename(CONTENT_RESOURCE_LOCAL_PATH . $resource->id."_tmp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource->id.".xml");
-        
+
         $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=$resource->id");
     }
 }
@@ -252,7 +254,7 @@ function get_image_urls()
             $search_titles = array();
         }
     }
-    
+
     if($search_titles)
     {
         $lookup_number++;
@@ -266,9 +268,9 @@ function lookup_image_urls($titles)
 {
     $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiurlwidth=460&iiprop=url&titles=";
     $url .= urlencode(implode("|", array_keys($titles)));
-    
-    $result = Functions::get_remote_file_fake_browser($url);
-    
+
+    $result = Functions::get_remote_file_fake_browser($url, 2000000);
+
     $normalized = array();
     $json = json_decode($result);
     if(isset($json->query->normalized))
@@ -278,14 +280,14 @@ function lookup_image_urls($titles)
             $normalized[(string) $obj->to] = (string) $obj->from;
         }
     }
-    
+
     if(isset($json->query->pages))
     {
         foreach($json->query->pages as $obj)
         {
             $title = (string) $obj->title;
             //if(isset($normalized[$title])) $title = (string) $normalized[$obj->title];
-            
+
             if(isset($GLOBALS['data_objects'][$title]))
             {
                 $url = $obj->imageinfo[0]->url;

@@ -17,6 +17,7 @@ class WikipediaHarvester
         $this->pageids_to_update = array();
         $this->resource_file = null;
         $this->resource = Resource::find(80);
+        $this->base_directory_path = DOC_ROOT ."update_resources/connectors/files/";
     }
     
     function begin_wikipedia_harvest()
@@ -64,15 +65,15 @@ class WikipediaHarvester
     function download_wikipedia_dump()
     {
         // download latest Wikipedia export
-        shell_exec("curl ".$this->resource->accesspoint_url." -o ". DOC_ROOT ."update_resources/connectors/files/wikipedia.xml.bz2");
+        shell_exec("curl ".$this->resource->accesspoint_url." -o ". $this->base_directory_path ."wikipedia.xml.bz2");
         // unzip the download
-        shell_exec("bunzip2 ". DOC_ROOT ."update_resources/connectors/files/wikipedia.xml.bz2");
+        shell_exec("bunzip2 ". $this->base_directory_path ."wikipedia.xml.bz2");
         // split the huge file into 300M chunks
-        shell_exec("split -b 300m ". DOC_ROOT ."update_resources/connectors/files/wikipedia.xml ". DOC_ROOT ."update_resources/connectors/files/wikipedia/part_");
+        shell_exec("split -b 300m ". $this->base_directory_path ."wikipedia.xml ". $this->base_directory_path ."wikipedia/part_");
         
         // determine the filename of the last chunk
         $last_part = NULL;
-        $last_line = exec("ls -l ". DOC_ROOT ."update_resources/connectors/files/wikipedia");
+        $last_line = exec("ls -l ". $this->base_directory_path ."wikipedia");
         if(preg_match("/part_([a-z]{2})$/", trim($last_line), $arr)) $last_part = $arr[1];
         return $last_part;
     }
@@ -80,9 +81,9 @@ class WikipediaHarvester
     private function cleanup_wikipedia_dump()
     {
         // cleaning up downloaded files
-        shell_exec("rm -f ".DOC_ROOT ."update_resources/connectors/files/wikipedia/*");
-        shell_exec("rm -f ".DOC_ROOT ."update_resources/connectors/files/wikipedia.xml");
-        shell_exec("rm -f ".DOC_ROOT ."update_resources/connectors/files/wikipedia.xml.bz2");
+        shell_exec("rm -f ". $this->base_directory_path ."wikipedia/*");
+        shell_exec("rm -f ". $this->base_directory_path ."wikipedia.xml");
+        shell_exec("rm -f ". $this->base_directory_path ."wikipedia.xml.bz2");
     }
     
     function create_delete_file()
@@ -175,7 +176,7 @@ class WikipediaHarvester
     {
         echo("Processing file $part_suffix with callback $callback\n");
         flush();
-        $FILE = fopen(DOC_ROOT ."update_resources/connectors/files/wikipedia/part_".$part_suffix, "r");
+        $FILE = fopen($this->base_directory_path ."wikipedia/part_".$part_suffix, "r");
         
         $current_page = $left_overs;
         static $page_number = 0;

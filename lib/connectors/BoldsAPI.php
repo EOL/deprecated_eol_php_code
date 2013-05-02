@@ -387,7 +387,7 @@ class BoldsAPI
     {
         if($public_records > 0)
         {
-            $taxid = $taxon_rec["id"];
+            // $taxid = $taxon_rec["id"];
             $url = "http://www.boldsystems.org/index.php/Public_SearchTerms?query=" . $taxon_rec["sciname"];
             $description = "<a target='" . $taxon_rec["sciname"] . "' href='$url'>Access Published & Released Data: Download FASTA File</a>";
             return $description;
