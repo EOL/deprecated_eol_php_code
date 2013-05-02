@@ -2,6 +2,10 @@
 namespace php_active_record;
 class EOLStats
 {
+    const HOTLIST_COLLECTION_ID = 55422;
+    const REDHOTLIST_COLLECTION_ID = 10667;
+    const REDHOTLIST_PENDING_COLLECTION_ID = 10675;
+
     private $mysqli;
     public function __construct()
     {
@@ -49,18 +53,18 @@ class EOLStats
 
         //Trusted Content Statistics - note change in terminology, phasing out vetted in favor of trusted
         $time_start = time_elapsed();
-        $stats['pages_with_at_least_a_trusted_object'] = $this->pages_with_at_least_a_trusted_object(); // Number of pages with at least one trusted data object 
+        $stats['pages_with_at_least_a_trusted_object'] = $this->pages_with_at_least_a_trusted_object(); // Number of pages with at least one trusted data object
         $stats['pages_with_at_least_a_curatorial_action'] = $this->pages_curated(); //***
         print "\n Trusted content stats: " . (time_elapsed()-$time_start)/60 . " minutes";
 
-        //BHL Statistics 
+        //BHL Statistics
         $time_start = time_elapsed();
         $stats['pages_with_BHL_links'] = $this->pages_with_BHL_links();
         $stats['pages_with_BHL_links_no_text'] = $this->pages_with_BHL_links_no_text();
         $stats['pages_with_BHL_links_only'] = $this->pages_with_BHL_links_only();
         print "\n BHL stats: " . (time_elapsed()-$time_start)/60 . " minutes";
 
-        //Content Partner Statistics 
+        //Content Partner Statistics
         $time_start = time_elapsed();
         $stats['content_partners'] = $this->content_partners(); //Number of publicly listed partners - as shown on home page (This includes all published partners and a few partners that have been listed although they are not yet sharing content, e.g., some international partners)
         $stats['content_partners_with_published_resources'] = $this->content_partners_with_published_resources(); //Number of partners with published resources
@@ -71,18 +75,17 @@ class EOLStats
         $stats['newly_published_resources_in_the_last_30_days'] = $this->published_resources_in_the_last_n_days(30); //Number of resources published for the first time in the last 30 days
         print "\n Content partner stats: " . (time_elapsed()-$time_start)/60 . " minutes";
 
-        //Page Richness Statistics 
+        //Page Richness Statistics
         $time_start = time_elapsed();
         $stats['rich_pages'] = $this->rich_pages(); // % of all pages (total number of taxon concepts) that are rich - with a score of 40 or more
-        $hotlist = self::get_hotlist_v2();
-        $stats['hotlist_pages'] = count($hotlist);
-        $stats['rich_hotlist_pages'] = $this->get_rich_pages($hotlist); // % pages on the hotlist that are rich - The official version of the hotlist (names & EOL ids) is now maintained here:
-        $collection_ids = array(10675, 10667);
-        $redhotlist = self::get_redhotlist($collection_ids);
-        $stats['redhotlist_pages'] = count($redhotlist);
-        $stats['rich_redhotlist_pages'] = $this->get_rich_pages($redhotlist); // % pages on the redhotlist that are rich - The official version of the redhotlist is the combined list of taxa of these two collections:
+        $hotlist_taxon_concept_ids = self::get_collections_taxon_concept_ids(array(self::HOTLIST_COLLECTION_ID));
+        $stats['hotlist_pages'] = count($hotlist_taxon_concept_ids);
+        $stats['rich_hotlist_pages'] = $this->get_rich_pages($hotlist_taxon_concept_ids); // % pages on the hotlist that are rich - The official version of the hotlist (names & EOL ids) is now maintained here:
+        $redhotlist_taxon_concept_ids = self::get_collections_taxon_concept_ids(array(self::REDHOTLIST_PENDING_COLLECTION_ID, self::REDHOTLIST_COLLECTION_ID));
+        $stats['redhotlist_pages'] = count($redhotlist_taxon_concept_ids);
+        $stats['rich_redhotlist_pages'] = $this->get_rich_pages($redhotlist_taxon_concept_ids); // % pages on the redhotlist that are rich - the redhotlist is the combined list of taxa of these two collections
         $stats['pages_with_score_10_to_39'] = $this->not_so_rich_pages(); // % of all pages that are not rich but have at least some content (score 10-39)
-        $stats['pages_with_score_less_than_10'] = $this->not_rich_pages(); // % of all pages that are base-like pages (score <10)        
+        $stats['pages_with_score_less_than_10'] = $this->not_rich_pages(); // % of all pages that are base-like pages (score <10)
         print "\n Page richness stats: " . (time_elapsed()-$time_start)/60 . " minutes";
 
         //Curatorial Stats
@@ -96,7 +99,7 @@ class EOLStats
         $stats['curators_master']     = $this->curators($this->master_curator_id);    // Number of registered master curators
         $stats['curators']            = $stats['curators_assistant'] + $stats['curators_full'] + $stats['curators_master']; // Number of registered curators
         $stats['active_curators']     = count($this->curators_active()); //COMPLETE
-        $stats['pages_curated_by_active_curators']    = $this->pages_curated($this->curators_active); // number of pages curated by active curators 
+        $stats['pages_curated_by_active_curators']    = $this->pages_curated($this->curators_active); // number of pages curated by active curators
         $stats['objects_curated_in_the_last_30_days'] = $this->objects_curated_in_the_last_n_days(30); //COMPLETE
         $stats['curator_actions_in_the_last_30_days'] = $this->curator_actions_in_the_last_n_days(30); //COMPLETE
         print "\n Curatorial Stats: " . (time_elapsed()-$time_start)/60 . " minutes";
@@ -134,7 +137,7 @@ class EOLStats
         $stats['udo_published_by_non_curators'] = $stats['udo_published'] - $stats['udo_published_by_curators']; // Number of text objects added by non-curators
         print "\n UDO stats: " . (time_elapsed()-$time_start)/60 . " minutes";
 
-        //Data Object Statistics 
+        //Data Object Statistics
         $time_start = time_elapsed();
         $stats['data_objects'] = $this->count_data_objects();
         $stats['data_objects_texts']  = $this->count_data_objects(array(DataType::text()->id));
@@ -156,7 +159,7 @@ class EOLStats
     public function get_marine_stats()
     {
         $result = $this->mysqli_slave->query("SELECT max(he.id) id, max(he.published_at) published_at FROM resources r JOIN harvest_events he ON r.id = he.resource_id JOIN content_partners cp ON r.content_partner_id = cp.id WHERE he.published_at IS NOT NULL AND cp.id = " . $this->worms_content_partner_id);
-        if($result && $row=$result->fetch_assoc()) 
+        if($result && $row=$result->fetch_assoc())
         {
             $latest_harvest_event_id = $row['id'];
             $latest_harvest = $row['published_at'];
@@ -250,7 +253,7 @@ class EOLStats
     public function count_data_objects_vettedness($vetted_id)
     {
         $filter = " WHERE do.published = 1 AND o.vetted_id = $vetted_id";
-        $sql_cdohe = "SELECT COUNT(*) total FROM data_objects do JOIN curated_data_objects_hierarchy_entries o ON do.id = o.data_object_id $filter "; 
+        $sql_cdohe = "SELECT COUNT(*) total FROM data_objects do JOIN curated_data_objects_hierarchy_entries o ON do.id = o.data_object_id $filter ";
         $sql_dohe = "SELECT COUNT(*) total FROM data_objects do JOIN data_objects_hierarchy_entries          o ON do.id = o.data_object_id $filter ";
         $sql_udo = "SELECT COUNT(*) total FROM data_objects do JOIN users_data_objects                       o ON do.id = o.data_object_id $filter ";
         $sql = "SELECT sum(total) count FROM ( $sql_dohe UNION $sql_cdohe UNION $sql_udo ) sum ";
@@ -263,7 +266,7 @@ class EOLStats
         $data_object_ids = array();
         $filter = " WHERE do.published = 1 AND o.vetted_id = $vetted_id ";
         if($vetted_id != $this->untrusted_id) $filter .= " AND o.visibility_id = " . $this->visible_id;
-        $sql_cdohe = "SELECT do.id  FROM data_objects do JOIN curated_data_objects_hierarchy_entries o ON do.id = o.data_object_id $filter "; 
+        $sql_cdohe = "SELECT do.id  FROM data_objects do JOIN curated_data_objects_hierarchy_entries o ON do.id = o.data_object_id $filter ";
         $sql_dohe = "SELECT do.id  FROM data_objects do JOIN data_objects_hierarchy_entries          o ON do.id = o.data_object_id $filter ";
         $sql_udo = "SELECT do.id  FROM data_objects do JOIN users_data_objects                       o ON do.id = o.data_object_id $filter ";
         $sql = "$sql_dohe UNION $sql_cdohe UNION $sql_udo";
@@ -303,7 +306,7 @@ class EOLStats
 
     public function count_data_objects($data_type_id = null)
     {
-        //JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id) 
+        //JOIN hierarchy_entries he ON (dohe.hierarchy_entry_id=he.id)
         $sql = "SELECT COUNT(distinct do.guid) count FROM data_objects do JOIN data_objects_hierarchy_entries dohe ON (do.id=dohe.data_object_id) WHERE do.published=1 AND dohe.visibility_id=" . $this->visible_id . " AND dohe.vetted_id!=" . $this->untrusted_id;
         if($data_type_id[0] != DataType::map()->id)
         {
@@ -398,7 +401,7 @@ class EOLStats
     public function curators_active()
     {
         if(isset($this->curators_active)) return $this->curators_active;
-        $this->curators_active = array();        
+        $this->curators_active = array();
         $sql = "SELECT DISTINCT(cal.user_id) FROM eol_logging_production.curator_activity_logs cal WHERE cal.created_at > date_sub(now(), interval 1 year)
             AND
             ( cal.activity_id IN (" . implode(",", $this->curation_activity_ids) . ") OR
@@ -431,7 +434,7 @@ class EOLStats
       $sql = "SELECT COUNT(*) count FROM
         (
           SELECT cal.target_id FROM eol_logging_production.curator_activity_logs cal WHERE cal.created_at > date_sub(now(), interval $days day)
-          AND 
+          AND
           (
             cal.activity_id IN (" . implode(",", $this->curation_activity_ids) . ") OR
             cal.changeable_object_type_id = " . ChangeableObjectType::comment()->id . "
@@ -464,64 +467,46 @@ class EOLStats
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
-    public function get_redhotlist($collection_ids)
+    public function get_rich_pages($taxon_concept_ids)
     {
-        $result = $this->mysqli_slave->query("SELECT distinct(c.collected_item_id) taxon_concept_id FROM collection_items c WHERE c.collected_item_type = 'TaxonConcept' AND c.collection_id IN (" . implode(",", $collection_ids) . ")");
-        $tc_ids = array();
-        while($result && $row=$result->fetch_assoc()) $tc_ids[$row['taxon_concept_id']] = '';
-        return array_keys($tc_ids);        
-    }
-
-    public function get_rich_pages($hotlist)
-    {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics tcm JOIN taxon_concepts tc ON (tcm.taxon_concept_id=tc.id) WHERE tc.published=1 AND tcm.richness_score >= 0.40 AND tcm.taxon_concept_id IN (" . implode(",", $hotlist) . ")");
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics tcm JOIN taxon_concepts tc ON (tcm.taxon_concept_id=tc.id) WHERE tc.published=1 AND tcm.richness_score >= 0.40 AND tcm.taxon_concept_id IN (" . implode(",", $taxon_concept_ids) . ")");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
-    public function get_hotlist_v2()
+    public function get_collections_taxon_concept_ids($collection_ids)
     {
-        require_vendor('google_api');
-        $spreadsheet_tables_api = new \google_api\GoogleSpreadsheetsAPI($GLOBALS['GOOGLE_USERNAME'], $GLOBALS['GOOGLE_PASSWORD'], @$_SESSION['GOOGLE_AUTH_TOKEN'], 'Hotlist Spreadsheet Reader');
-
-        $response = $spreadsheet_tables_api->get_spreadsheets();
-        foreach($response->entry as $entry)
+        $valid_taxon_concept_ids = array();
+        $superceded_taxon_concept_ids = array();
+        $query = "
+            SELECT ci.collected_item_id, tc.supercedure_id
+            FROM collection_items ci
+            JOIN taxon_concepts tc on (ci.collected_item_id=tc.id)
+            WHERE ci.collection_id IN (". implode(",", $collection_ids).")
+            AND ci.collected_item_type='TaxonConcept'";
+        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
-            if($entry->title == "SPG Hotlist Official Version")
+            if($row[1]) $superceded_taxon_concept_ids[$row[1]] = true;
+            else $valid_taxon_concept_ids[$row[0]] = true;
+        }
+
+        for($i=0 ; $i<3 ; $i++)
+        {
+            if(!$superceded_taxon_concept_ids) break;
+            foreach($superceded_taxon_concept_ids as $taxon_concept_id => $junk)
             {
-                $URL_for_spreadsheet = $entry->content['src'];
-                $spreadsheet_repsonse = $spreadsheet_tables_api->get_response($URL_for_spreadsheet);
-                $sheet_url = $spreadsheet_repsonse->entry->link[0]['href'];
-                $worksheet_repsonse = $spreadsheet_tables_api->get_response($sheet_url);
-                $taxon_concept_ids = array();
-                foreach($worksheet_repsonse->entry as $entry)
+                unset($superceded_taxon_concept_ids[$taxon_concept_id]);
+                $query = "SELECT supercedure_id FROM taxon_concepts WHERE id = $taxon_concept_id";
+                if($new_taxon_concept_id = $this->mysqli_slave->select_value($query))
                 {
-                    $id = (int) $entry->content;
-                    if($id) @$taxon_concept_ids[$id] = '';
+                    $superceded_taxon_concept_ids[$new_taxon_concept_id] = true;
+                }else
+                {
+                    $valid_taxon_concept_ids[$taxon_concept_id] = true;
+                    unset($superceded_taxon_concept_ids[$taxon_concept_id]);
                 }
-                return array_keys($taxon_concept_ids);
             }
         }
-        return array();
-    }
-
-    public function get_hotlist()
-    {
-        $filename = "http://dl.dropbox.com/u/7597512/SPG/SPG%20Hotlist%20Official%20Version.tsv";
-        $data = array();
-        $READ = fopen($filename, "r");
-        while(!feof($READ))
-        {
-            if($line = fgets($READ))
-            {
-                $line = trim($line);
-                $fields = explode("\t", $line);
-                @$data[$fields[1]] = '';
-            }
-        }
-        fclose($READ);
-        $data = array_keys($data);
-        array_pop($data); // delete last element, it is not an ID but a label string 'ID'.
-        return $data;
+        return array_keys($valid_taxon_concept_ids);
     }
 
     public function rich_pages()
@@ -562,7 +547,7 @@ class EOLStats
     public function latest_harvest_event_ids()
     {
         if(isset($this->latest_harvest_event_ids)) return $this->latest_harvest_event_ids;
-        $this->latest_harvest_event_ids = array();        
+        $this->latest_harvest_event_ids = array();
         $sql = "SELECT max(he.id) latest_harvest_event_id FROM resources r JOIN harvest_events he ON r.id = he.resource_id GROUP BY r.id";
         $result = $this->mysqli_slave->query($sql);
         while($result && $row=$result->fetch_assoc()) $this->latest_harvest_event_ids[] = $row['latest_harvest_event_id'];
@@ -571,8 +556,8 @@ class EOLStats
 
     public function published_resources($vetted = "x")
     {
-        $sql = "SELECT COUNT(distinct r.id) count FROM harvest_events he 
-        JOIN resources r ON (he.resource_id=r.id) JOIN content_partners cp ON (r.content_partner_id=cp.id) 
+        $sql = "SELECT COUNT(distinct r.id) count FROM harvest_events he
+        JOIN resources r ON (he.resource_id=r.id) JOIN content_partners cp ON (r.content_partner_id=cp.id)
         WHERE he.published_at IS NOT NULL AND cp.public=1 ";
         if($vetted != "x") $sql .= " AND r.vetted = $vetted ";
         $result = $this->mysqli_slave->query($sql);
@@ -581,10 +566,10 @@ class EOLStats
 
     public function published_resources_in_the_last_n_days($days)
     {
-        $sql = "SELECT COUNT(DISTINCT(r.id)) count FROM resources r JOIN harvest_events he ON r.id = he.resource_id 
-        WHERE he.published_at IS NOT NULL AND he.published_at >= date_sub(now(), interval $days day) 
-        AND r.id NOT IN 
-        ( SELECT r.id FROM resources r JOIN harvest_events he ON r.id = he.resource_id 
+        $sql = "SELECT COUNT(DISTINCT(r.id)) count FROM resources r JOIN harvest_events he ON r.id = he.resource_id
+        WHERE he.published_at IS NOT NULL AND he.published_at >= date_sub(now(), interval $days day)
+        AND r.id NOT IN
+        ( SELECT r.id FROM resources r JOIN harvest_events he ON r.id = he.resource_id
           WHERE he.published_at IS NOT NULL AND he.published_at < date_sub(now(), interval $days day) )";
         $result = $this->mysqli_slave->query($sql);
         if($result && $row=$result->fetch_assoc()) return $row['count'];
@@ -592,8 +577,8 @@ class EOLStats
 
     public function pages_with_BHL_links_only()
     {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND t.BHL_publications > 0 AND 
-            t.image_total = 0 AND t.text_total = 0 AND t.video_total = 0 AND t.sound_total = 0 AND t.flash_total = 0 AND t.youtube_total = 0 AND 
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND t.BHL_publications > 0 AND
+            t.image_total = 0 AND t.text_total = 0 AND t.video_total = 0 AND t.sound_total = 0 AND t.flash_total = 0 AND t.youtube_total = 0 AND
             t.map_total = 0 AND t.data_object_references = 0 AND t.outlinks = 0 AND t.has_biomedical_terms = 0 AND t.iucn_total = 0 AND has_gbif_map = 0");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
@@ -612,15 +597,15 @@ class EOLStats
 
     public function pages_with_at_least_a_trusted_object()
     {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND 
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND
             t.image_trusted > 0 OR t.text_trusted > 0 OR t.video_trusted > 0 OR t.sound_trusted > 0 OR t.flash_trusted > 0 OR t.youtube_trusted > 0 OR t.map_trusted > 0 OR has_gbif_map = 1");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
 
     public function pages_without_content_with_other_info()
     {
-        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND 
-            t.image_total = 0 AND t.text_total = 0 AND t.video_total = 0 AND t.sound_total = 0 AND t.flash_total = 0 AND t.youtube_total = 0 AND t.map_total = 0 
+        $result = $this->mysqli_slave->query("SELECT COUNT(*) count FROM taxon_concept_metrics t JOIN taxon_concepts tc ON (t.taxon_concept_id=tc.id) WHERE tc.published=1 AND
+            t.image_total = 0 AND t.text_total = 0 AND t.video_total = 0 AND t.sound_total = 0 AND t.flash_total = 0 AND t.youtube_total = 0 AND t.map_total = 0
             AND ( t.data_object_references > 0 OR t.BHL_publications > 0 OR t.outlinks > 0 OR t.has_biomedical_terms = 1 OR t.iucn_total > 0) AND has_gbif_map = 0");
         if($result && $row=$result->fetch_assoc()) return $row['count'];
     }
