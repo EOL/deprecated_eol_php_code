@@ -1,6 +1,5 @@
 <?php
 namespace php_active_record;
-include_once(dirname(__FILE__) . "/../config/environment.php");
 
 class SparqlClient
 {
@@ -109,7 +108,6 @@ class SparqlClient
         {
             $query = self::append_namespaces_to_query();
             $query .= " INSERT DATA INTO <". $options['graph_name'] ."> { ". implode($options['data'], " .\n") ." }";
-            echo "$query\n";
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $this->upload_uri);
@@ -165,7 +163,6 @@ class SparqlClient
     public function query($query)
     {
         $query = self::append_namespaces_to_query($query);
-        echo "$query\n";
         $query_url = $this->endpoint_uri . "?format=application/json&query=" . urlencode($query);
         $decoded_response = json_decode(file_get_contents($query_url));
         return $decoded_response->results->bindings;

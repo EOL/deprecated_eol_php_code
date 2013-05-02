@@ -119,7 +119,8 @@ class ContentArchiveValidator
             'http://eol.org/schema/reference/reference',
             'http://eol.org/schema/agent/agent',
             'http://rs.gbif.org/terms/1.0/vernacularname',
-            'http://rs.tdwg.org/dwc/terms/measurementorfact'
+            'http://rs.tdwg.org/dwc/terms/measurementorfact',
+            'http://eol.org/schema/association'
         );
         foreach($this->content_archive_reader->tables as $row_type => $tables)
         {
@@ -203,6 +204,10 @@ class ContentArchiveValidator
         {
             $new_exceptions = \eol_schema\MeasurementOrFact::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://rs.tdwg.org/dwc/terms/measurementID', $parameters, $new_exceptions);
+        }elseif($parameters['row_type'] == 'http://eol.org/schema/association')
+        {
+            $new_exceptions = \eol_schema\Association::validate_by_hash($row, $this->skip_warnings);
+            $this->append_identifier_error($row, 'http://eol.org/schema/associationID', $parameters, $new_exceptions);
         }
         
         if(!self::any_exceptions_of_type_error($new_exceptions))

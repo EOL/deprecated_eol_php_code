@@ -99,6 +99,7 @@ class RelateHierarchies
         if(isset($entry_from_solr->name))
         {
             $search_name = rawurlencode($entry_from_solr->name);
+            # TODO: what about subgenera?
             if(Name::is_surrogate($entry_from_solr->name)) $search_canonical = "";
             elseif(isset($entry_from_solr->kingdom) && (strtolower($entry_from_solr->kingdom) == 'virus' || strtolower($entry_from_solr->kingdom) == 'viruses')) $search_canonical = "";
             elseif($canonical_form_string = @$entry_from_solr->canonical_form) $search_canonical = rawurlencode($canonical_form_string);

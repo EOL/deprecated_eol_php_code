@@ -315,6 +315,7 @@ class ExcelToText
             elseif($worksheet_name == 'references') $row_type = 'http://eol.org/schema/reference/Reference';
             elseif($worksheet_name == 'agents') $row_type = 'http://eol.org/schema/agent/Agent';
             elseif($worksheet_name == 'measurements or facts') $row_type = 'http://rs.tdwg.org/dwc/terms/MeasurementOrFact';
+            elseif($worksheet_name == 'associations') $row_type = 'http://eol.org/schema/Association';
             elseif($worksheet_name == 'controlled terms') continue;
             else
             {
