@@ -30,6 +30,7 @@ class BOLDSysAPI
         $this->INITIAL_PROCESS_STATUS = $this->TEMP_FILE_PATH . "sl_initial_process_status.txt";
         $this->LOG_FILE               = $this->TEMP_FILE_PATH . "cannot_access_phylum.txt";
         $this->SAVED_SEQUENCES_FILE   = $this->TEMP_FILE_PATH . "taxa_sequences.txt";
+        $this->phylum_without_sequence = array();
     }
 
     function initialize_text_files()
@@ -154,22 +155,8 @@ class BOLDSysAPI
         $agent = array(0 => array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Sujeevan Ratnasingham"),
                        1 => array("role" => "compiler", "homepage" => self::BOLDS_DOMAIN . "/", "fullName" => "Paul D.N. Hebert"));
         if($bold_stats != "") $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
-        
-        //barcode image
-        if(isset($rec['barcode_image_url']))
-        {
-            $identifier  = $taxon_id . "_barcode_data";
-            $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType = "text/html";
-            $title       = "Barcode data: $sciname";
-            $source      = SPECIES_URL . trim($taxon_id);
-            $mediaURL    = "";
 
-            $with_stats = @$rec['stats']['public_barcodes'] || @$rec['stats']['barcodes'] || @$rec['stats']['barcoded_species'];
-            if($description = $this->check_if_with_content($taxon_id, $source, "http://".$rec['barcode_image_url'], $with_stats, @$rec['stats']['public_barcodes']))
-            {
-                $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
-            }
-        }
+        //barcode image
 
         //map
         if(isset($rec['map_url']))
@@ -201,6 +188,24 @@ class BOLDSysAPI
         if(isset($rec['taxonomy']['family']['taxon']['name']))   $family = $rec['taxonomy']['family']['taxon']['name'];
         if(isset($rec['taxonomy']['genus']['taxon']['name']))    $genus = $rec['taxonomy']['genus']['taxon']['name'];
         if(isset($rec['taxonomy']['species']['taxon']['name']))  $species = $rec['taxonomy']['species']['taxon']['name'];
+
+        //barcode image
+        if(isset($rec['barcode_image_url']))
+        {
+            $identifier  = $taxon_id . "_barcode_data";
+            $dataType    = "http://purl.org/dc/dcmitype/Text"; $mimeType = "text/html";
+            $title       = "Barcode data: $sciname";
+            $source      = SPECIES_URL . trim($taxon_id);
+            $mediaURL    = "";
+
+            $with_stats = @$rec['stats']['public_barcodes'] || @$rec['stats']['barcodes'] || @$rec['stats']['barcoded_species'];
+            if($description = $this->check_if_with_content($phylum, $taxon_id, $source, "http://".$rec['barcode_image_url'], $with_stats, @$rec['stats']['public_barcodes']))
+            {
+                $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
+            }
+        }
+
+
         $arr_data[]=array(  "identifier"   => $taxon_id,
                             "source"       => SPECIES_URL . trim($taxon_id),
                             "kingdom"      => "",
@@ -210,8 +215,7 @@ class BOLDSysAPI
                             "family"       => $family,
                             "genus"        => $genus,
                             "sciname"      => $species,
-                            "data_objects" => $arr_objects
-                         );
+                            "data_objects" => $arr_objects);
         return $arr_data;
     }
 
@@ -227,8 +231,7 @@ class BOLDSysAPI
                      "license"      => $license,
                      "rightsHolder" => $rightsHolder,
                      "subject"      => $subject,
-                     "agent"        => $agent
-                    );
+                     "agent"        => $agent);
     }
 
     function delete_temp_files($file_path, $file_extension = '*')
@@ -254,55 +257,62 @@ class BOLDSysAPI
                             12 => array( "name" => "Hemichordata"    , "id" => 21),
                             13 => array( "name" => "Mollusca"        , "id" => 23),
                             14 => array( "name" => "Nematoda"        , "id" => 19),
-                            15 => array( "name" => "Onychophora"     , "id" => 10),
-                            16 => array( "name" => "Platyhelminthes" , "id" => 5),
-                            17 => array( "name" => "Porifera"        , "id" => 24818),
-                            18 => array( "name" => "Rotifera"        , "id" => 16),
-                            19 => array( "name" => "Sipuncula"       , "id" => 15),
-                            20 => array( "name" => "Tardigrada"      , "id" => 26033),
-                            21 => array( "name" => "Xenoturbellida"  , "id" => 88647)
-                           );
-                           
+                            15 => array( "name" => "Nemertea"        , "id" => 497163),
+                            16 => array( "name" => "Onychophora"     , "id" => 10),
+                            17 => array( "name" => "Platyhelminthes" , "id" => 5),
+                            18 => array( "name" => "Porifera"        , "id" => 24818),
+                            19 => array( "name" => "Priapulida"      , "id" => 392644),
+                            20 => array( "name" => "Rotifera"        , "id" => 16),
+                            21 => array( "name" => "Sipuncula"       , "id" => 15),
+                            22 => array( "name" => "Tardigrada"      , "id" => 26033),
+                            23 => array( "name" => "Xenoturbellida"  , "id" => 88647));
+
         //Fungi 
         $temp = array(0 => array( "name" => "Ascomycota"      , "id" => 34),
                       1 => array( "name" => "Basidiomycota"   , "id" => 23675),
                       2 => array( "name" => "Chytridiomycota" , "id" => 23691),
                       3 => array( "name" => "Myxomycota"      , "id" => 83947),
-                      4 => array( "name" => "Zygomycota"      , "id" => 23738)
-                     );                        
-        $arr_phylum = array_merge($arr_phylum, $temp);                 
+                      4 => array( "name" => "Zygomycota"      , "id" => 23738));
+        $arr_phylum = array_merge($arr_phylum, $temp);
         
         //Plants 
-        $temp = array(0 => array( "name" => "Bryophyta"          , "id" => 176192),
-                      1 => array( "name" => "Chlorophyta"        , "id" => 112296),
-                      2 => array( "name" => "Lycopodiophyta"     , "id" => 38696),
-                      3 => array( "name" => "Magnoliophyta"      , "id" => 12),
-                      4 => array( "name" => "Pinophyta"          , "id" => 251587),
-                      5 => array( "name" => "Pteridophyta"       , "id" => 38074),
-                      6 => array( "name" => "Rhodophyta"         , "id" => 48327),
-                      7 => array( "name" => "Stramenopiles"      , "id" => 109924)
-                     );        
-        $arr_phylum = array_merge($arr_phylum, $temp);                 
-                         
-        //Protists                        
-        $temp = array(0 => array( "name" => "Bacillariophyta"    , "id" => 74445),
-                      1 => array( "name" => "Ciliophora"         , "id" => 72834),
-                      2 => array( "name" => "Dinozoa"            , "id" => 70855),
-                      3 => array( "name" => "Heterokontophyta"   , "id" => 53944),
-                      4 => array( "name" => "Opalozoa"           , "id" => 72171),
-                      5 => array( "name" => "Straminipila"       , "id" => 23715),
-                      6 => array( "name" => "Chlorarachniophyta" , "id" => 316986),
-                      7 => array( "name" => "Pyrrophycophyta"    , "id" => 317010)
-                     );
+        $temp = array(0 => array( "name" => "Bryophyta"      , "id" => 176192),
+                      1 => array( "name" => "Chlorophyta"    , "id" => 112296),
+                      2 => array( "name" => "Lycopodiophyta" , "id" => 38696),
+                      3 => array( "name" => "Magnoliophyta"  , "id" => 12),
+                      4 => array( "name" => "Pinophyta"      , "id" => 251587),
+                      5 => array( "name" => "Pteridophyta"   , "id" => 38074),
+                      6 => array( "name" => "Rhodophyta"     , "id" => 48327),
+                      7 => array( "name" => "Stramenopiles"  , "id" => 109924)); // as 1May2013 doesn't exist in BOLDS' home page
         $arr_phylum = array_merge($arr_phylum, $temp);
+        $this->phylum_without_sequence = self::get_phylum($temp, $this->phylum_without_sequence);
+        
+        //Protists
+        $temp = array(0 => array( "name" => "Bacillariophyta"    , "id" => 74445), // as 1May2013 doesn't exist in BOLDS' home page
+                      1 => array( "name" => "Ciliophora"         , "id" => 72834),
+                      2 => array( "name" => "Dinozoa"            , "id" => 70855), // as 1May2013 doesn't exist in BOLDS' home page
+                      3 => array( "name" => "Heterokontophyta"   , "id" => 53944),
+                      4 => array( "name" => "Opalozoa"           , "id" => 72171), // as 1May2013 doesn't exist in BOLDS' home page
+                      5 => array( "name" => "Straminipila"       , "id" => 23715), // as 1May2013 doesn't exist in BOLDS' home page
+                      6 => array( "name" => "Chlorarachniophyta" , "id" => 316986),
+                      7 => array( "name" => "Pyrrophycophyta"    , "id" => 317010));
+        $arr_phylum = array_merge($arr_phylum, $temp);
+        $this->phylum_without_sequence = self::get_phylum($temp, $this->phylum_without_sequence);
 
         /* //debug
         $arr_phylum = array();
-        // $arr_phylum[] = array( "name" => "Chordata" , "id" => 18);
-        $arr_phylum[] = array( "name" => "Annelida"       , "id" => 11);
+        $arr_phylum[] = array( "name" => "Chordata", "id" => 18);
+        // $arr_phylum[] = array( "name" => "Annelida", "id" => 11);
+        $arr_phylum[] = array( "name" => "Arthropoda", "id" => xx); // the big one that makes the difference
         */
 
         self::count_taxa_per_phylum($arr_phylum);
+    }
+    
+    private function get_phylum($phylum_list, $phylum_without_sequence)
+    {
+        foreach($phylum_list as $phylum) $phylum_without_sequence[] = $phylum["name"];
+        return $phylum_without_sequence;
     }
 
     private function count_taxa_per_phylum($arr_phylum)
@@ -317,7 +327,7 @@ class BOLDSysAPI
             $phylum_path = PHYLUM_SERVICE_URL . $phylum['name'];
             // $phylum_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
             echo "\n\nphylum service: " . $phylum_path . "\n";
-            if($xml = Functions::get_hashed_response($phylum_path, DOWNLOAD_WAIT_TIME, 1200, 5))
+            if($xml = Functions::get_hashed_response($phylum_path, DOWNLOAD_WAIT_TIME, 9999, 5))
             {
                 echo "\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [" . sizeof($xml->record) . "]";
                 $i = 0;
@@ -325,7 +335,7 @@ class BOLDSysAPI
                 {
                     $i++; 
                     $records[] = $rec;
-                    if(sizeof($records) >= 10000) //debug orig divide into batch of 10000
+                    if(sizeof($records) >= 8000) //debug orig divide into batch of 8000, previously 10000
                     {
                         $file_count++;
                         self::save_to_json_file($records, $this->TEMP_FILE_PATH . "sl_batch_" . Functions::format_number_with_leading_zeros($file_count, 3) . ".txt");
@@ -391,60 +401,63 @@ class BOLDSysAPI
 
     // start of added functions
 
-    public function check_if_with_content($taxid, $dc_source, $barcode_image_url = false, $with_stats, $public_barcodes)
+    public function check_if_with_content($phylum, $taxid, $dc_source, $barcode_image_url = false, $with_stats, $public_barcodes)
     {
-        //start get text dna sequece
         $src = self::BOLDS_DOMAIN_NEW . "/connect/REST/getBarcodeRepForSpecies.php?taxid=" . $taxid . "&iwidth=400";
-        if($barcode_image_url || self::barcode_image_available($src))
-        {
-            $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.
-            <br><a target='barcode' href='$src'><img src='$src' height=''></a>";
-        }
+        if($barcode_image_url || self::barcode_image_available($src)) $description = "The following is a representative barcode sequence, the centroid of all available sequences for this species.<br><a target='barcode' href='$src'><img src='$src' height=''></a>";
         else $description = "Barcode image not yet available.";
         $description .= "<br><br>";
 
-        $url = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-        // $arr = self::get_text_dna_sequence($url);
-        $arr = $this->get_text_dna_sequence_v2($taxid);
-        $count_sequence     = $arr["count_sequence"];
-        $text_dna_sequence  = $arr["best_sequence"];
-        // $url_fasta_file     = $arr["url_fasta_file"]; this will point to the fasta.fas file from BOLDS temp folder
-
-        echo "\n[$public_barcodes]=[$count_sequence]\n";
-        $str = "";
-        if($count_sequence > 0)
+        if(!in_array($phylum, $this->phylum_without_sequence))
         {
-            if($count_sequence == 1) $str = "There is 1 barcode sequence available from BOLD and GenBank. 
-                                     Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
-                                     See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen.
-                                     Other sequences that do not yet meet barcode criteria may also be available.";
-            else                     $str = "There are $count_sequence barcode sequences available from BOLD and GenBank.
-                                     Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
-                                     See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
-            $str .= "<br><br>";
-            $text_dna_sequence .= "<br>-- end --<br>";
-        }
-
-        if(trim($text_dna_sequence) != "")
-        {
-            $temp = "$str ";
-            $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
-        }
-        else $temp = "No available public DNA sequences. <br>";
-
-        if($count_sequence > 0 || $with_stats)
-        {
-            /* one-click         
-            $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
+            //start get text dna sequece
+            /* replaced
+            $url = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+            $arr = self::get_text_dna_sequence($url);
             */
-            /* 2-click per PL advice */
-            $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
-            $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
+            $arr = $this->get_text_dna_sequence_v2($taxid);
+            $count_sequence     = $arr["count_sequence"];
+            $text_dna_sequence  = $arr["best_sequence"];
+            // $url_fasta_file     = $arr["url_fasta_file"]; this will point to the fasta.fas file from BOLDS temp folder
+
+            echo "\n[$public_barcodes]=[$count_sequence]\n";
+            $str = "";
+            if($count_sequence > 0)
+            {
+                if($count_sequence == 1) $str = "There is 1 barcode sequence available from BOLD and GenBank. 
+                                         Below is the sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
+                                         See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen.
+                                         Other sequences that do not yet meet barcode criteria may also be available.";
+                else                     $str = "There are $count_sequence barcode sequences available from BOLD and GenBank.
+                                         Below is a sequence of the barcode region Cytochrome oxidase subunit 1 (COI or COX1) from a member of the species.
+                                         See the <a target='BOLDSys' href='$dc_source'>BOLD taxonomy browser</a> for more complete information about this specimen and other sequences.";
+                $str .= "<br><br>";
+                $text_dna_sequence .= "<br>-- end --<br>";
+            }
+
+            if(trim($text_dna_sequence) != "")
+            {
+                $temp = "$str ";
+                $temp .= "<div style='font-size : x-small;overflow : scroll;'> $text_dna_sequence </div>";
+            }
+            else $temp = "No available public DNA sequences. <br>";
+
+            if($count_sequence > 0 || $with_stats)
+            {
+                /* one-click         
+                $url_fasta_file = "http://services.eol.org/eol_php_code/applications/barcode/get_text_dna_sequence.php?taxid=$taxid";
+                */
+                /* 2-click per PL advice */
+                $url_fasta_file = self::BOLDS_DOMAIN . "/pcontr.php?action=doPublicSequenceDownload&taxids=$taxid";
+                $temp .= "<br><a target='fasta' href='$url_fasta_file'>Download FASTA File</a>";
+            }
+            $description .= $temp;
+            //end get text dna sequence
         }
-
-        $description .= $temp;
-        //end get text dna sequence
-
+        else echo "\n this phylum is non-animal: [$phylum]";
+        if(is_numeric(stripos("Barcode image not yet available.", $description)) &&
+           is_numeric(stripos("No available public DNA sequences.", $description)) &&
+           !is_numeric(stripos("Download FASTA File", $description))) return false;
         if(Functions::is_utf8($description)) return $description;
         else return false;
     }
@@ -453,9 +466,8 @@ class BOLDSysAPI
     {
         if(!self::$saved_sequences)
         {
-            // at this point the $this->SAVED_SEQUENCES_FILE will always exist
+            // at this point the $this->SAVED_SEQUENCES_FILE will always exist, it is created from 212.php
             if(!file_exists($this->SAVED_SEQUENCES_FILE)) $this->save_dna_sequence_from_big_xml();
-
             echo "\n loading saved sequences... \n";
             self::$saved_sequences = self::get_array_from_json_file($this->SAVED_SEQUENCES_FILE);
         }
@@ -463,23 +475,23 @@ class BOLDSysAPI
         return array("count_sequence" => @self::$saved_sequences[$taxon_id]["c"], "best_sequence" => @self::$saved_sequences[$taxon_id]["s"]);
     }
 
-    private function get_text_dna_sequence($url)
-    {
-        echo "\n\n access get_text_dna_sequence(): $url \n"; 
-        $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
-        if(preg_match("/\.\.\/temp\/(.*?)fasta\.fas/ims", $str, $matches)) $folder = $matches[1];
-        $str = "";
-        if($folder != "")
-        {
-            $url = self::BOLDS_DOMAIN_NEW . "/temp/" . $folder . "/fasta.fas";
-            $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
-            echo "\n\n access: $url \n";
-        }
-        $count_sequence = substr_count($str, '>');
-        //start get the single sequence = longest, with least N char
-        $best_sequence = self::get_best_sequence($str);
-        return array("count_sequence" => $count_sequence, "best_sequence" => $best_sequence);
-    }
+    // private function get_text_dna_sequence($url)
+    // {
+    //     echo "\n\n access get_text_dna_sequence(): $url \n"; 
+    //     $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
+    //     if(preg_match("/\.\.\/temp\/(.*?)fasta\.fas/ims", $str, $matches)) $folder = $matches[1];
+    //     $str = "";
+    //     if($folder != "")
+    //     {
+    //         $url = self::BOLDS_DOMAIN_NEW . "/temp/" . $folder . "/fasta.fas";
+    //         $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
+    //         echo "\n\n access: $url \n";
+    //     }
+    //     $count_sequence = substr_count($str, '>');
+    //     //start get the single sequence = longest, with least N char
+    //     $best_sequence = self::get_best_sequence($str);
+    //     return array("count_sequence" => $count_sequence, "best_sequence" => $best_sequence);
+    // }
 
     private function get_best_sequence($str)
     {
@@ -510,7 +522,7 @@ class BOLDSysAPI
 
     private function barcode_image_available($src)
     {
-        $str = Functions::get_remote_file($src, DOWNLOAD_WAIT_TIME, 1200, 5);
+        $str = Functions::get_remote_file($src, DOWNLOAD_WAIT_TIME, 2400, 5); // 40 mins. timeout
         /*
         ERROR: Only species level taxids are accepted
         ERROR: Unable to retrieve sequence
@@ -550,7 +562,10 @@ class BOLDSysAPI
                     foreach(@$xml->sequences->sequence as $sequence)
                     {
                         $i++;
-                        if(strlen($best_sequence) < strlen($sequence->nucleotides)) $best_sequence = trim($sequence->nucleotides);
+                        if($sequence->markercode == "COI-5P") // only get sequences from animal group
+                        {
+                            if(strlen($best_sequence) < strlen($sequence->nucleotides)) $best_sequence = trim($sequence->nucleotides);
+                        }
                     }
                     if($best_sequence)
                     {
