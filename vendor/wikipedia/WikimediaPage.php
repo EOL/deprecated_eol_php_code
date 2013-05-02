@@ -4,7 +4,7 @@ class WikimediaPage
 {
     public $xml;
     private $simple_xml;
-    
+
     function __construct($xml)
     {
         if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
@@ -26,7 +26,7 @@ class WikimediaPage
 
     public static function from_api($title)
     {
-        $api_url = "http://commons.wikimedia.org/w/api.php?action=query&format=xml&prop=revisions&titles=".urlencode($title)."&rvprop=ids|timestamp|user|content";
+        $api_url = "http://commons.wikimedia.org/w/api.php?action=query&format=xml&prop=revisions&titles=".urlencode($title)."&rvprop=ids|timestamp|user|content&redirects";
         echo $api_url."\n";
         return new WikimediaPage(php_active_record\Functions::get_remote_file($api_url));
     }
@@ -42,7 +42,7 @@ class WikimediaPage
     public function expanded_text()
     {
         if(isset($this->expanded_text)) return $this->expanded_text;
-        $url = "http://commons.wikimedia.org/w/api.php?action=parse&format=xml&prop=text&page=". urlencode($this->title);
+        $url = "http://commons.wikimedia.org/w/api.php?action=parse&format=xml&prop=text&redirects&page=". urlencode($this->title);
         $response = \php_active_record\Functions::lookup_with_cache($url, array('validation_regex' => '<text', 'expire_seconds' => 518400));
         $hash = simplexml_load_string($response);
         if(@$hash->parse->text) $this->expanded_text = (string) $hash->parse->text[0];
@@ -52,12 +52,12 @@ class WikimediaPage
     public function information()
     {
         if(isset($this->information)) return $this->information;
-        
+
         $information = array();
         if(preg_match("/(\{\{Information.*?\}\})(.*)/ms", $this->text, $arr))
         {
             list($information_box, $junk) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
-            
+
             $parts = preg_split("/(^|\n)\s*\|/", $information_box);
             while($part = array_shift($parts))
             {
@@ -75,7 +75,7 @@ class WikimediaPage
                 }
             }
         }
-        
+
         $this->information = $information;
         return $information;
     }
@@ -117,12 +117,12 @@ class WikimediaPage
                 }
             }
         }
-
         foreach($taxonomy as &$name)
         {
             $name = str_ireplace("/ type species/", " ", $name);
             $name = preg_replace("/<br ?\/>/", " ", $name);
             $name = trim(preg_replace("/\s+/", " ", WikiParser::strip_syntax(trim($name))));
+            $name = ucfirst($name);
             if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{/", $name))
             {
                 $taxonomy = array();
@@ -153,7 +153,7 @@ class WikimediaPage
         $taxon_parameters['scientificName'] = $taxon_name;
         //$taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
         //$taxon_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
-        
+
         $taxon_parameters['dataObjects'] = array();
         $this->taxon_parameters = $taxon_parameters;
         return $taxon_parameters;
@@ -162,7 +162,7 @@ class WikimediaPage
     public function data_object_parameters()
     {
         if(isset($this->data_object_parameters)) return $this->data_object_parameters;
-        
+
         $data_object_parameters = array();
         $licenses = $this->licenses();
         foreach($licenses as $key => $val)
@@ -190,10 +190,10 @@ class WikimediaPage
             {
                 $license = strtolower($arr[1]);
                 $rest = $arr[2];
-                
+
                 if(preg_match("/^-?([0-9]\.[0-9])/", $rest, $arr)) $version = $arr[1];
                 else $version = "3.0";
-                
+
                 $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
                 break;
             }
@@ -202,10 +202,10 @@ class WikimediaPage
             {
                 $license = "by-sa";
                 $rest = $arr[2];
-                
+
                 if(preg_match("/^-?([0-9]\.[0-9])/", $rest, $arr)) $version = $arr[1];
                 else $version = "3.0";
-                
+
                 $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
                 break;
             }
@@ -227,7 +227,7 @@ class WikimediaPage
                 return false;
             }
         }
-        
+
         $data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
         # unfortunately we have to alter the identifier to make strings with different cases look different
         # so I'm just adding up the ascii values of the strings and appending that to the identifier
@@ -238,30 +238,30 @@ class WikimediaPage
         $data_object_parameters["description"] = $this->description();
         // $data_object_parameters["rights"] = $this->rights();
         $data_object_parameters["language"] = 'en';
-        
+
         //if($this->description() && preg_match("/([^".UPPER.LOWER."0-9\/,\.;:'\"\(\)\[\]\{\}\|\!\?~@#\$%+_\^&\*<>=\n\r -])/ims", $this->description(), $arr))
         if($data_object_parameters["description"] && !php_active_record\Functions::is_utf8($data_object_parameters["description"]))
         {
             $data_object_parameters["description"] = "";
-            
+
             //echo "THIS IS BAD:<br>\n";
             //echo $this->description()."<br>\n";
         }
-        
+
         $data_object_parameters["agents"] = array();
         if($a = $this->agent_parameters())
         {
             if(php_active_record\Functions::is_utf8($a['fullName'])) $data_object_parameters["agents"][] = new SchemaAgent($a);
         }
-        
+
         return $data_object_parameters;
     }
-    
+
     public function agent_parameters()
     {
         if(isset($this->agent_parameters)) return $this->agent_parameters;
         $author = $this->author();
-        
+
         $homepage = "";
         if(preg_match("/<a href='(.*?)'>/", $author, $arr)) $homepage = $arr[1];
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/i", $homepage) || preg_match("/;/", $homepage)) $homepage = "";
@@ -270,7 +270,7 @@ class WikimediaPage
         $author = str_replace("©", "", $author);
         $author = str_replace("\xc2\xA9", "", $author); // should be the same as above
         $author = str_replace("\xA9", "", $author); // should be the same as above
-        
+
         $agent_parameters = array();
         if($author)
         {
@@ -278,17 +278,17 @@ class WikimediaPage
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
             $agent_parameters["role"] = 'photographer';
         }
-        
+
         $this->agent_parameters = $agent_parameters;
         return $agent_parameters;
     }
-    
+
     public function licenses()
     {
         if(isset($this->licenses)) return $this->licenses;
-        
+
         $licenses = array();
-        
+
         if(preg_match_all("/(\{\{.*?\}\})/", $this->text, $matches, PREG_SET_ORDER))
         {
             foreach($matches as $match)
@@ -301,22 +301,22 @@ class WikimediaPage
                 }
             }
         }
-        
+
         if(!$licenses && preg_match("/permission\s*=\s*(cc-.*?|gpl.*?|public domain.*?|creative commons .*?)(\}|\|)/msi", $this->text, $arr))
         {
             $licenses[] = trim($arr[1]);
         }
-        
+
         $this->licenses = $licenses;
         return $licenses;
     }
-    
+
     public function author()
     {
         if(isset($this->author)) return $this->author;
-        
+
         $author = "";
-        
+
         if($info = $this->information())
         {
             foreach($info as $attr => $val)
@@ -324,18 +324,18 @@ class WikimediaPage
                 if($attr == "author") $author = self::convert_diacritics(WikiParser::strip_syntax($val, true));
             }
         }
-        
+
         /* no longer considering the last editor to be the author. This was causing various bots to be deemed author */
         // if((!$author || !Functions::is_utf8($author)) && $this->contributor && Functions::is_utf8($this->contributor))
         // {
         //     $this->contributor = self::convert_diacritics($this->contributor);
         //     $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
         // }
-        
+
         $this->author = $author;
         return $author;
     }
-    
+
     public function rights()
     {
         if(isset($this->rights)) return $this->rights;
@@ -350,13 +350,13 @@ class WikimediaPage
         $this->rights = $rights;
         return $rights;
     }
-    
+
     public function description()
     {
         if(isset($this->description)) return $this->description;
-        
+
         $authors = array();
-        
+
         $description = "";
         if($info = $this->information())
         {
@@ -368,15 +368,15 @@ class WikimediaPage
                 }
             }
         }
-        
+
         $this->description = $description;
         return $description;
     }
-    
+
     public function images()
     {
         $images = array();
-        
+
         $text = $this->text;
         $lines = explode("\n", $text);
         foreach($lines as $line)
@@ -386,10 +386,10 @@ class WikimediaPage
                 $images[] = trim($arr[2]);
             }
         }
-        
+
         return $images;
     }
-    
+
     public static function convert_diacritics($string)
     {
         $string = str_replace('ä', '&amp;auml;', $string);
