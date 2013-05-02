@@ -23,7 +23,7 @@ class BoldsImagesAPIv2
         $this->taxon_ids = array();
         $this->do_ids = array();
 
-        $this->old_bolds_image_ids_path = "http://dl.dropbox.com/u/7597512/BOLDS/old_BOLDS_image_ids.txt";
+        $this->old_bolds_image_ids_path = "http://dl.dropbox.com/u/7597512/BOLDS/old_BOLDS_image_ids.txt"; // image IDs of the 1st BOLDS image resource
         // $this->old_bolds_image_ids_path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/old_BOLDS_image_ids.txt"; // debug
         $this->old_bolds_image_ids = array();
         $this->old_bolds_image_ids_count = 0;
@@ -31,7 +31,8 @@ class BoldsImagesAPIv2
 
         // for generating the higher-level taxa list
         $this->MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
-        $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt";
+        // $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt"; // debug
+        $this->OLD_MASTER_LIST = "http://dl.dropbox.com/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
     }
 
     function get_all_taxa($data_dump_url = false)

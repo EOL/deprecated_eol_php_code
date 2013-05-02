@@ -7,25 +7,25 @@ And will process the text objects from the original 168.xml retrieved from TheBe
 
 class BioImagesAPI
 {
-    function __construct()
+    function __construct($resource_id = false)
     {
         // for testing:
         // $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BioImages/Nov2012/Malcolm_Storey_images_test.TXT";
         // $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BioImages/Nov2012/Malcolm_Storey_images.TXT";
-        // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010_small.xml";
-        // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010.xml";
-        // $this->original_resource = "http://dl.dropbox.com/u/7597512/BioImages/168_Nov2010.xml";
+        // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010_small.xml.gz";
+        // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010.xml.gz";
+        // $this->original_resource = "http://dl.dropbox.com/u/7597512/BioImages/168_Nov2010.xml.gz";
 
         $this->data_dump_url = "http://pick14.pick.uga.edu/users/s/Storey,_Malcolm/Malcolm_Storey_images.TXT";
-        $this->original_resource = "https://dl.dropboxusercontent.com/u/7597512/BioImages/168_Nov2010.xml";
-
+        $this->original_resource = "https://dl.dropboxusercontent.com/u/7597512/BioImages/168_Nov2010.xml.gz";
         $this->taxa = array();
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/bioimages_working/';
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->resource_agent_ids = array();
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
+        $this->media_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
     }
 
@@ -80,7 +80,9 @@ class BioImagesAPI
 
     private function get_texts()
     {
-        if($xml = Functions::get_hashed_response($this->original_resource, DOWNLOAD_WAIT_TIME, 999999, 5))
+        require_library('connectors/BoldsImagesAPIv2');
+        $path = BoldsImagesAPIv2::download_and_extract_remote_file($this->original_resource);
+        if($xml = Functions::get_hashed_response($path, DOWNLOAD_WAIT_TIME, 999999, 5))
         {
             foreach($xml->taxon as $t)
             {
@@ -130,10 +132,13 @@ class BioImagesAPI
                         }
                         //---------------------------
 
+                        $text_identifier = self::clean_str($t_dc2->identifier);
+                        if(in_array($text_identifier, $this->media_ids)) continue;
+                        else $this->media_ids[] = $text_identifier;
                         $mr = new \eol_schema\MediaResource();
                         if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
                         $mr->taxonID        = $taxonID;
-                        $mr->identifier     = self::clean_str($t_dc2->identifier);
+                        $mr->identifier     = $text_identifier;
                         $mr->type           = (string)"http://purl.org/dc/dcmitype/Text"; //$do->dataType;
                         $mr->language       = "en";
                         $mr->format         = "text/html"; //$do->mimeType;
