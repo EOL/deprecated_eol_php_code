@@ -53,7 +53,12 @@ class CodeBridge
                 CodeBridge::print_message("Updating curation ". $this->args['classification_curation_id'] .". Message: $error_message");
             }
             // Need to check_status_and_notify if we're not reindexing and if we have a curation ID:
-            if ($this->args['cmd'] != 'reindex_taxon_concept' && array_key_exists('classification_curation_id', $this->args))
+            if ($this->args['cmd'] == 'reindex_taxon_concept' && array_key_exists('taxon_concept_id', $this->args))
+            {
+                \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'clear_cache',
+                    'taxon_concept_id' => $this->args['taxon_concept_id']));
+                CodeBridge::print_message("++ Enqueued notifications/CodeBridge/clear_cache(taxon_concept_id = ". $this->args['taxon_concept_id'] .")");
+            }elseif (array_key_exists('classification_curation_id', $this->args))
             {
                 \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'check_status_and_notify',
                     'classification_curation_id' => $this->args['classification_curation_id']));
