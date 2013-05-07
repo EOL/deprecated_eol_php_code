@@ -28,7 +28,7 @@ class ObisAPI
     public static function get_all_taxa($resource_id)
     {
         //divide big file to a more consumable chunks
-        $file_count = self::divide_big_csv_file(20000);
+        $file_count = self::divide_big_csv_file(20000); //debug orig is 20000
         if($file_count === false) return false;
 
         $all_taxa = array();
@@ -36,7 +36,7 @@ class ObisAPI
 
         for ($i = 1; $i <= $file_count; $i++)
         {
-            $arr = self::get_obis_taxa(OBIS_DATA_PATH . $i . ".csv", $used_collection_ids, OBIS_ANCESTRY_FILE);
+            $arr = self::get_obis_taxa(OBIS_DATA_PATH . "temp_" . $i . ".csv", $used_collection_ids, OBIS_ANCESTRY_FILE);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
 
@@ -48,12 +48,12 @@ class ObisAPI
         }
 
         // Combine all XML files.
-        self::combine_all_xmls($resource_id);
+        Functions::combine_all_eol_resource_xmls($resource_id, OBIS_DATA_PATH . "temp_obis_*.xml");
         // Set to force harvest
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
         // Delete temp files
         self::delete_temp_files(OBIS_DATA_PATH . "temp_obis_", "xml");
-        self::delete_temp_files(OBIS_DATA_PATH, "csv");
+        self::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
     }
 
     public static function get_obis_taxa($url, $used_collection_ids, $ancestry)
@@ -85,10 +85,8 @@ class ObisAPI
     {
         $arr_taxa = array();
         $i = 0;
-        $file = fopen($url, "r");
-        while($file && !feof($file))
+        foreach(new FileIterator($url) as $line_number => $line)
         {
-            $line = fgets($file);
             $line = str_replace(", ", "| ", $line);
             $columns = explode(",", $line);
             if (sizeof($columns) != 37) continue; // some extra commas ","
@@ -228,7 +226,6 @@ class ObisAPI
             }
             $i++;
         }
-        fclose($file);
         return $arr_taxa;
     }
 
@@ -416,20 +413,15 @@ class ObisAPI
 
     private function divide_big_csv_file($divisor)
     {
-        self::delete_temp_files(OBIS_DATA_PATH, "csv");
+        self::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
         $i = 0;
         $line = "";
         $file_count = 0;
-        if(!$file = fopen(OBIS_DATA_FILE, "r"))
-        {
-            echo "\nFile not found: " . OBIS_DATA_FILE . "\nProgram will terminate.\n";
-            return false;
-        }
         $labels = "";
-        while(!feof($file))
+        foreach(new FileIterator(OBIS_DATA_FILE) as $line_number => $linex)
         {
             $i++;
-            $line .= fgets($file);
+            $line .= $linex . "\n"; // FileIterator removes the carriage-return
             if(!$labels) 
             {
                $labels = $line;
@@ -440,7 +432,7 @@ class ObisAPI
             {
                 $i = 0;
                 $file_count++;
-                $OUT = fopen(OBIS_DATA_PATH . $file_count . ".csv", "w");
+                $OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w");
                 fwrite($OUT, $labels);
                 fwrite($OUT, $line);
                 fclose($OUT);
@@ -451,7 +443,7 @@ class ObisAPI
         if($line)
         {
             $file_count++;
-            $OUT = fopen(OBIS_DATA_PATH . $file_count . ".csv", "w");
+            $OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w");
             fwrite($OUT, $labels);
             fwrite($OUT, $line);
             fclose($OUT);
@@ -459,63 +451,9 @@ class ObisAPI
         return $file_count;
     }
 
-    private function delete_temp_files($file_path, $file_extension)
+    private function delete_temp_files($file_path, $file_extension = '*')
     {
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $filename = $file_path . $i . "." . $file_extension;
-            if(file_exists($filename))
-            {
-                print "\n unlink: $filename";
-                unlink($filename);
-            }
-            else return;
-        }
-    }
-
-    private function combine_all_xmls($resource_id)
-    {
-        debug("\n\n Start compiling all XML...");
-        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-        $OUT = fopen($old_resource_path, "w");
-        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
-        $str .= "<response\n";
-        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
-        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
-        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
-        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
-        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
-        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
-        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
-        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
-        fwrite($OUT, $str);
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $filename = OBIS_DATA_PATH . "temp_obis_" . $i . ".xml";
-            if(!is_file($filename))
-            {
-                print " -end compiling XML's- ";
-                break;
-            }
-            print " $i ";
-            $READ = fopen($filename, "r");
-            $contents = fread($READ, filesize($filename));
-            fclose($READ);
-            if(trim($contents))
-            {
-                $pos1 = stripos($contents, "<taxon>");
-                $pos2 = stripos($contents, "</response>");
-                $str  = substr($contents, $pos1, $pos2 - $pos1);
-                if($pos1 && $pos2) fwrite($OUT, $str);
-            }
-        }
-        fwrite($OUT, "</response>");
-        fclose($OUT);
-        print "\n All XML compiled\n\n";
+        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
 }

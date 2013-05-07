@@ -45,7 +45,7 @@ class BoldsImagesAPIv2
         $i = 0;
 
         // retrive all image_ids from the first/original BOLDS images resource
-        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, DOWNLOAD_WAIT_TIME, 1200, 5);
+        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, DOWNLOAD_WAIT_TIME, 2400, 5);
         $READ = fopen($this->old_bolds_image_ids_path, "r");
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
@@ -448,22 +448,18 @@ class BoldsImagesAPIv2
     private function reconcile_with_old_master_list($hl_taxa)
     {
         $write = fopen($this->MASTER_LIST, "a");
-        $read = fopen($this->OLD_MASTER_LIST, "r");
-        while(!feof($read))
+        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, DOWNLOAD_WAIT_TIME, 2400, 5);
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
-            if($line = fgets($read))
+            $split = explode("\t", trim($line));
+            $sciname = $split[1];
+            $id = $split[0];
+            if(!isset($hl_taxa["$sciname"]["taxon_id"]))
             {
-                $split = explode("\t", trim($line));
-                $sciname = $split[1];
-                $id = $split[0];
-                if(!isset($hl_taxa["$sciname"]["taxon_id"]))
-                {
-                    echo "\n to be added: [$sciname - {$id}]";
-                    fwrite($write, $id . "\t" . $sciname . "\t" . "" . "\n");
-                }
+                echo "\n to be added: [$sciname - {$id}]";
+                fwrite($write, $id . "\t" . $sciname . "\t" . "" . "\n");
             }
         }
-        fclose($read);
         fclose($write);
     }
 

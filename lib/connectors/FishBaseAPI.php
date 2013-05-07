@@ -158,17 +158,10 @@ class FishBaseAPI
     function make_array($filename, $fields, $index_key, $excluded_fields=array())
     {
         $data = array();
-        $READ = fopen($filename, "r");
-        $line = fgets($READ);
-        if(stripos($line, "\t") == "")
-        {
-            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
-            return false;
-        }
         $included_fields = array();
-        while(!feof($READ))
+        foreach(new FileIterator($filename) as $line_number => $line)
         {
-            if($line = fgets($READ))
+            if($line)
             {
                 $line = trim($line);
                 $values = explode("\t", $line);
@@ -186,7 +179,6 @@ class FishBaseAPI
                 $data[] = $temp;
             }
         }
-        fclose($READ);
         $included_fields = array_unique($included_fields);
         if($index_key)
         {

@@ -43,6 +43,9 @@ class DiscoverLifeAPIv2
 
     function start_process($resource_id, $call_multiple_instance)
     {
+        $this->resource_id = $resource_id;
+        $this->call_multiple_instance = $call_multiple_instance;
+        $this->connectors_to_run = 1;
         if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
             if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
@@ -53,36 +56,11 @@ class DiscoverLifeAPIv2
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
-
-        // Run multiple instances, for DiscoverLife ideally a total of 3
-        while(true)
-        {
-            $task = Functions::get_a_task($this->WORK_LIST);//get a task to work on
-            if($task)
-            {
-                print "\n Process this: $task";
-                Functions::delete_a_task($task, $this->WORK_LIST);
-                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
-                $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                if($call_multiple_instance)
-                {
-                    Functions::run_another_connector_instance($resource_id, 2); //call 2 other instance for a total of 3 instances running
-                    $call_multiple_instance = 0;
-                }
-                self::get_all_taxa($task);
-                print "\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
-            }
-            else
-            {
-                print "\n\n [$task] Work list done --- " . date('Y-m-d h:i:s a', time()) . "\n";
-                break;
-            }
-        }
+        Functions::process_work_list($this);
         if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Combine all XML files.
-            self::combine_all_xmls($resource_id);
+            Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "temp_DiscoverLife_batch_*.xml");
             // Set to force harvest
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // Delete temp files
@@ -91,24 +69,19 @@ class DiscoverLifeAPIv2
         }
     }
 
-    private function get_all_taxa($task)
+    function get_all_taxa($task)
     {
         $all_taxa = array();
         $used_collection_ids = array();
         //initialize text file for DiscoverLife: save names without a page in EOL
         self::initialize_text_file($this->TEXT_FILE_FOR_DL);
         $filename = $this->TEMP_FILE_PATH . $task . ".txt";
-        if(!$FILE = fopen($filename, "r"))
-        {
-            echo "\n\nExpected file not found. Program will terminate.\n";
-            return;
-        }
         $i = 0; 
         $save_count = 0; 
         $no_eol_page = 0;
-        while(!feof($FILE))
+        foreach(new FileIterator($filename) as $line_number => $line)
         {
-            if($line = fgets($FILE))
+            if($line)
             {
                 $name = trim($line);
                 $i++;
@@ -129,7 +102,6 @@ class DiscoverLifeAPIv2
                 unset($page_taxa);
             }
         }
-        fclose($FILE);
 
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</dataObject>", "<additionalInformation><subtype>map</subtype></additionalInformation></dataObject>", $xml);
@@ -249,7 +221,8 @@ class DiscoverLifeAPIv2
 
     private function divide_text_file($divisor)
     {
-        if(!$FILE = fopen(self::DL_MAP_SPECIES_LIST, "r"))
+        $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, DOWNLOAD_WAIT_TIME, 4800, 5);
+        if(!$temp_filepath)
         {
             echo "\n\nExternal file not available. Program will terminate.\n";
             return;
@@ -258,10 +231,11 @@ class DiscoverLifeAPIv2
         $file_ctr = 0;
         $str = "";
         print "\n";
-        while(!feof($FILE))
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
-            if($line = fgets($FILE))
+            if($line)
             {
+                $line .= "\n"; // FileIterator removes the carriage-return char
                 $i++;
                 $str .= $line;
                 print "$i. $line\n";
@@ -299,50 +273,6 @@ class DiscoverLifeAPIv2
         }
     }
 
-    private function combine_all_xmls($resource_id)
-    {
-        debug("\n\n Start compiling all XML...");
-        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-        $OUT = fopen($old_resource_path, "w");
-        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
-        $str .= "<response\n";
-        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
-        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
-        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
-        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
-        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
-        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
-        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
-        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
-        fwrite($OUT, $str);
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = $this->TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_" . $i_str . ".xml";
-            if(!is_file($filename))
-            {
-                print " -end compiling XML's- ";
-                break;
-            }
-            print " $i ";
-            $READ = fopen($filename, "r");
-            $contents = fread($READ, filesize($filename));
-            fclose($READ);
-            if($contents)
-            {
-                $pos1 = stripos($contents, "<taxon>");
-                $pos2 = stripos($contents, "</response>");
-                $str  = substr($contents, $pos1, $pos2 - $pos1);
-                if($pos1 > 0 && $pos2 > 0) fwrite($OUT, $str);
-            }
-        }
-        fwrite($OUT, "</response>");
-        fclose($OUT);
-        print "\n All XML compiled\n\n";
-    }
-
     private function initialize_text_file($filename)
     {
         $OUT = fopen($filename, "a");
@@ -361,21 +291,9 @@ class DiscoverLifeAPIv2
         }
     }
 
-    private function delete_temp_files($file_path, $file_extension)
+    private function delete_temp_files($file_path, $file_extension = '*')
     {
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = $file_path . $i_str . "." . $file_extension;
-            if(file_exists($filename))
-            {
-                print "\n unlink: $filename";
-                unlink($filename);
-            }
-            else return;
-        }
+        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
 }

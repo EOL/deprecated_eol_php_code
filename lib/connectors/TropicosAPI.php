@@ -80,7 +80,7 @@ class TropicosAPI
         {
             // step 3: this should only run when all of instances of step 2 are done
             sleep(10); //debug orig 10
-            self::combine_all_xmls($resource_id);
+            Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "temp_tropicos_batch_*.xml");
             self::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
             self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
             Functions::set_resource_status_to_force_harvest($resource_id);
@@ -91,17 +91,15 @@ class TropicosAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();
-
         $filename = $temp_file_path . $task . ".txt";
-        print "\nfilename: [$filename]";
-        $READ = fopen($filename, "r");
+        echo "\nfilename: [$filename]";
         $i = 0;
-        while(!feof($READ))
+        foreach(new FileIterator($filename) as $line_number => $line)
         {
             self::check_server_downtime();
-            if($line = fgets($READ))
+            if($line)
             {
-                $i++; print "\n$i ";
+                $i++; echo "\n$i ";
                 $line = trim($line);
                 $fields = explode("\t", $line);
                 $taxon_id = trim($fields[0]);
@@ -111,9 +109,8 @@ class TropicosAPI
                 if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                 unset($page_taxa);
             }
-            else print "\n Task list: end-of-file";
+            else echo "\n Task list: end-of-file";
         }
-        fclose($READ);
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         // $xml = self::add_rating_to_image_object($xml, '1.0');
         $resource_path = $temp_file_path . "temp_tropicos_" . $task . ".xml";
@@ -124,18 +121,17 @@ class TropicosAPI
 
     function divide_text_file($divisor)
     {
-        $READ = fopen(TROPICOS_NAME_EXPORT_FILE, "r");
         $i = 0;
         $file_ctr = 0;
         $str = "";
-        print "\n";
-        while(!feof($READ))
+        foreach(new FileIterator(TROPICOS_NAME_EXPORT_FILE) as $line_number => $line)
         {
-            if($line = fgets($READ))
+            if($line)
             {
+                $line .= "\n"; // FileIterator removes the carriage-return
                 $i++;
                 $str .= $line;
-                print "$i. $line \n";
+                echo "\n $i. $line";
                 if($i == $divisor)//no. of names per text file
                 {
                     $file_ctr++;
@@ -148,7 +144,6 @@ class TropicosAPI
                 }
             }
         }
-        fclose($READ);
 
         //last writes
         if($str)
@@ -174,65 +169,9 @@ class TropicosAPI
         }
     }
 
-    private function delete_temp_files($file_path, $file_extension)
+    function delete_temp_files($file_path, $file_extension = '*')
     {
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 2);
-            $filename = $file_path . $i_str . "." . $file_extension;
-            if(file_exists($filename))
-            {
-                print "\n unlink: $filename";
-                unlink($filename);
-            }
-            else return;
-        }
-    }
-
-    function combine_all_xmls($resource_id)
-    {
-        debug("\n\n Start compiling all XML...");
-        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        $OUT = fopen($old_resource_path, "w+");
-        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
-        $str .= "<response\n";
-        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
-        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
-        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
-        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
-        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
-        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
-        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
-        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
-        fwrite($OUT, $str);
-        $i=0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 2);
-            $filename = $this->TEMP_FILE_PATH . "temp_tropicos_batch_" . $i_str . ".xml";
-            if(!is_file($filename))
-            {
-                print " -end compiling XML's- ";
-                break;
-            }
-            print " $i ";
-            $READ = fopen($filename, "r");
-            $contents = fread($READ, filesize($filename));
-            fclose($READ);
-            if($contents)
-            {
-                $pos1 = stripos($contents, "<taxon>");
-                $pos2 = stripos($contents, "</response>");
-                $str  = substr($contents, $pos1, $pos2-$pos1);
-                fwrite($OUT, $str);
-            }
-        }
-        fwrite($OUT, "</response>");
-        fclose($OUT);
-        print"\n All XML compiled\n -end-of-process- \n";
+        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
     public static function get_tropicos_taxa($taxon_id, $used_collection_ids)
@@ -259,15 +198,15 @@ class TropicosAPI
         process only those with images        
         if(sizeof($arr_objects) == 0)
         {
-            print "\n no images ";
+            echo "\n no images ";
             return array();
         }
         */
 
-        if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY)) print "\n lost connection \n";
+        if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5)) echo "\n lost connection \n";
         $name = json_decode($name, true);
         $sciname = "" . @$name['ScientificNameWithAuthors'];
-        print "[$taxon_id] " . $sciname;
+        echo "[$taxon_id] " . $sciname;
         /* working but temporarily commented by Chris Freeland
         $arr_objects = self::get_chromosome_count($taxon_id, $arr_objects);
         */
@@ -296,7 +235,7 @@ class TropicosAPI
     function get_taxonomy($taxon_id)
     {
         $taxonomy = array();
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/HigherTaxa?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/HigherTaxa?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
         foreach($xml->Name as $rec)
         {
             if($rec->Rank == "kingdom") $taxonomy['kingdom'] = $rec->ScientificNameWithAuthors;
@@ -312,7 +251,7 @@ class TropicosAPI
     function get_taxon_ref($taxon_id)
     {
         $refs = array();
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/References?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/References?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
         foreach($xml->NameReference as $rec)
         {
             if(!isset($rec->Reference->ReferenceId)) continue;
@@ -325,13 +264,13 @@ class TropicosAPI
 
     function get_images($taxon_id, $arr_objects)
     {
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
         $with_image = 0;
         foreach($xml->Image as $rec)
         {
             if($rec->Error)
             {
-                print"\n no images - " . $rec->DetailUrl;
+                echo "\n no images - " . $rec->DetailUrl;
                 continue;
             }
             
@@ -353,10 +292,10 @@ class TropicosAPI
                                    "http://creativecommons.org/licenses/publicdomain/");
             if(!in_array(trim($rec->LicenseUrl), $valid_licenses))
             {
-                print"\n invalid image license - " . $rec->DetailUrl . "\n";
+                echo "\n invalid image license - " . $rec->DetailUrl . "\n";
                 continue;
             }
-            else print"\n valid image license - " . $rec->DetailUrl . "\n";
+            else echo "\n valid image license - " . $rec->DetailUrl . "\n";
             $license = $rec->LicenseUrl;
 
             $agent = array();
@@ -391,7 +330,7 @@ class TropicosAPI
 
     function get_chromosome_count($taxon_id, $arr_objects)
     {
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
         $refs = array();
         $temp_reference = array();
         $with_content = false;
@@ -444,7 +383,7 @@ class TropicosAPI
 
     function get_distributions($taxon_id, $arr_objects, $sciname)
     {
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
         $refs = array();
         $temp_reference = array();
         $temp_location = array();
@@ -492,7 +431,7 @@ class TropicosAPI
     {
         $arr_synonyms = array();
         $arr = array();
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Synonyms?format=xml&apikey=" . TROPICOS_API_KEY);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Synonyms?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
         foreach($xml->Synonym as $syn)
         {
             $synonym = trim($syn->SynonymName->ScientificNameWithAuthors);
@@ -537,8 +476,8 @@ class TropicosAPI
         {
             $count++;
             $url = TROPICOS_API_SERVICE . "List?startid=$startid&PageSize=$pagesize&apikey=" . TROPICOS_API_KEY . "&format=json";
-            print "\n[$count] $url";
-            if($json_ids = Functions::get_remote_file($url))
+            echo "\n[$count] $url";
+            if($json_ids = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 4800, 5))
             {
                 $ids = json_decode($json_ids, true);
                 $str = "";
@@ -549,18 +488,18 @@ class TropicosAPI
                         $str .= $id["NameId"] . "\n";
                         $startid = $id["NameId"];
                     }
-                    else print "\n nameid undefined";
+                    else echo "\n nameid undefined";
                 }
                 $startid++; // to avoid duplicate ids, set next id to get
                 if($str != "") fwrite($OUT, $str);
             }
             else
             {
-                print "\n --server not accessible-- \n";
+                echo "\n --server not accessible-- \n";
                 break;
             }
             if($count == 1300) break; // normal operation
-            //break; //debug
+            // break; //debug
         }
         fclose($OUT);
     }
@@ -577,7 +516,7 @@ class TropicosAPI
         $time = date('H:i:s', time());
         if($time >= "06:40:00" && $time <= "07:00:00")
         {
-            print "\n\n Process stopped at [$time], will resume in 1.5 hours...";
+            echo "\n\n Process stopped at [$time], will resume in 1.5 hours...";
             sleep((60*60)+(60*30)); //sleep 1.5 hours
         }
     }
@@ -585,7 +524,7 @@ class TropicosAPI
     function add_rating_to_image_object($xml_string, $rating)
     {
         if(!stripos($xml_string, "mediaURL")) return $xml_string;
-        print "\n this batch has mediaURL \n";
+        echo "\n this batch has mediaURL \n";
         $xml = simplexml_load_string($xml_string);
         foreach($xml->taxon as $taxon)
         {
