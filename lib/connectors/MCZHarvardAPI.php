@@ -27,13 +27,13 @@ class MCZHarvardAPI
     {
         $labels = self::get_headers();
         if($data_dump_url) $this->data_dump_url = $data_dump_url;
-        if($file = fopen($this->data_dump_url, "r"))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, DOWNLOAD_WAIT_TIME, 4800, 5))
         {
             $not80 = 0;
             $i = 0;
-            while(!feof($file))
+            foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
             {
-                if($line = fgets($file))
+                if($line)
                 {
                     $record = self::prepare_row_data(trim($line), $labels);
                     if(count($record) != 80)
@@ -52,7 +52,6 @@ class MCZHarvardAPI
                     }
                 }
             }
-            fclose($file);
             debug("\n not 80: $not80 \n");
             $this->create_archive();
         }
