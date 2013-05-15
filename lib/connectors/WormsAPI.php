@@ -68,6 +68,10 @@ class WormsAPI
 
     function start_process($resource_id, $call_multiple_instance)
     {
+        $this->resource_id = $resource_id;
+        $this->call_multiple_instance = $call_multiple_instance;
+        $this->connectors_to_run = 1;
+
         if(!trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST)))//don't do this if there are harvesting task(s) in progress
         {
             if(!trim(Functions::get_a_task($this->INITIAL_PROCESS_STATUS)))//don't do this if initial process is still running
@@ -79,31 +83,7 @@ class WormsAPI
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);//removes a task from task list
             }
         }
-        // step 2: Run multiple instances, for WORMS ideally a total of 3
-        while(true)
-        {
-            $task = Functions::get_a_task($this->WORK_LIST);//get task to work on
-            if($task)
-            {
-                echo "\n Process this: $task";
-                Functions::delete_a_task($task, $this->WORK_LIST);//remove a task from task list
-                Functions::add_a_task($task, $this->WORK_IN_PROGRESS_LIST);
-                $task = str_ireplace("\n", "", $task);//remove carriage return got from text file
-                if($call_multiple_instance) //call 2 other instances for a total of 3 instances running
-                {
-                    Functions::run_another_connector_instance($resource_id, 4);
-                    $call_multiple_instance = 0;
-                }
-                self::get_all_taxa($task);
-                echo "\n Task $task is done. \n";
-                Functions::delete_a_task("$task\n", $this->WORK_IN_PROGRESS_LIST); //remove a task from task list
-            }
-            else
-            {
-                echo "\n\n [$task] Work list done --- " . date('Y-m-d h:i:s a', time()) . "\n";
-                break;
-            }
-        }
+        Functions::process_work_list($this);
         if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // step 3: Combine all XML files. This only runs when all of instances of step 2 are done
@@ -120,13 +100,12 @@ class WormsAPI
     public function get_all_taxa($task)
     {
         $filename = $this->TEMP_FILE_PATH . $task . ".txt";
-        $READ = fopen($filename, "r");
         $i = 0;
         $temp_resource_path = $this->TEMP_FILE_PATH . "temp_worms_" . $task . ".xml";
         $OUT = fopen($temp_resource_path, "w");
-        while(!feof($READ))
+        foreach(new FileIterator($filename) as $line_number => $line)
         {
-            if($line = fgets($READ))
+            if($line)
             {
                 $i++;
                 echo "\n $i. ";
@@ -142,7 +121,6 @@ class WormsAPI
             }
         }
         echo "\n\n average download per record: [$this->exec_time_in_seconds/$i] = " . $this->exec_time_in_seconds/$i;
-        fclose($READ);
         fclose($OUT);
     }
 
@@ -249,6 +227,16 @@ class WormsAPI
         $r[] = $ids[7];
         $r[] = $ids[8];
         $r[] = $ids[9];
+        $r[] = $ids[10];
+        $r[] = $ids[11];
+        $r[] = $ids[12];
+        $r[] = $ids[13];
+        $r[] = $ids[14];
+        $r[] = $ids[15];
+        $r[] = $ids[16];
+        $r[] = $ids[17];
+        $r[] = $ids[18];
+        $r[] = $ids[19];
         $ids = $r;
         */
         
@@ -308,6 +296,7 @@ class WormsAPI
 
     function delete_temp_files($file_path, $file_extension = '*')
     {
+        if(!$file_path) return;
         foreach (glob($file_path . "*." . $file_extension) as $filename)
         {
            unlink($filename);

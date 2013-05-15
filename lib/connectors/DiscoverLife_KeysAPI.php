@@ -68,26 +68,18 @@ class DiscoverLife_KeysAPI
     private function process_keys_spreadsheet()
     {
         $taxa_objects = array();
-        $filename = self::ID_KEYS_FILE;
-        // $filename = DOC_ROOT . self::TEMP_FILE_PATH . self::ID_KEYS_FILE;
+        $filename = Functions::save_remote_file_to_local(self::ID_KEYS_FILE, DOWNLOAD_WAIT_TIME, 4800, 5);
         print "\n[$filename]\n";
-        if($FILE = fopen($filename, "r"))
+        foreach(new FileIterator($filename, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
-            while(!feof($FILE))
-            {
-                if($line = fgets($FILE))
-                {
-                    $line = trim($line);
-                    $fields = explode("\t", $line);
-                    $name = trim($fields[0]);
-                    print "\n name: $name";
-                    if($id_key1 = trim(@$fields[1])) $taxa_objects[$name][] = $id_key1;
-                    if($id_key2 = trim(@$fields[2])) $taxa_objects[$name][] = $id_key2;
-                    if($id_key3 = trim(@$fields[3])) $taxa_objects[$name][] = $id_key3;
-                }
-            }
+            $line = trim($line);
+            $fields = explode("\t", $line);
+            $name = trim($fields[0]);
+            print "\n name: $name";
+            if($id_key1 = trim(@$fields[1])) $taxa_objects[$name][] = $id_key1;
+            if($id_key2 = trim(@$fields[2])) $taxa_objects[$name][] = $id_key2;
+            if($id_key3 = trim(@$fields[3])) $taxa_objects[$name][] = $id_key3;
         }
-        fclose($FILE);
         if(count($taxa_objects) <= 1)
         {
             echo "\n\nInvalid text file. Program will terminate.\n";

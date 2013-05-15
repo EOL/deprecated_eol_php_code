@@ -58,7 +58,7 @@ class BoldsAPI
         if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Combine all XML files.
-            self::combine_all_xmls($resource_id);
+            Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "temp_Bolds_batch_*.xml");
             // Delete temp files
             self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
             self::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
@@ -70,28 +70,23 @@ class BoldsAPI
         $all_taxa = array();
         $used_collection_ids = array();
         $filename = $this->TEMP_FILE_PATH . $task . ".txt";
-        $FILE = fopen($filename, "r");
         $i = 0;
         $save_count = 0;
         $no_eol_page = 0;
-        while(!feof($FILE))
+        foreach(new FileIterator($filename) as $line_number => $line)
         {
-            if($line = fgets($FILE))
-            {
-                $split = explode("\t", trim($line));
-                $taxon = array("sciname" => $split[1] , "id" => $split[0], "rank" => @$split[2]);
-                $i++;
-                echo "\n $i -- " . $taxon['sciname'] . " $taxon[id] \n";
-                $arr = self::get_Bolds_taxa($taxon, $used_collection_ids);
-                $page_taxa              = $arr[0];
-                $used_collection_ids    = $arr[1];
-                if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
-                unset($page_taxa);
-                // if($i >= 2) break; //debug
-            }
-        }
-        fclose($FILE);
+            $split = explode("\t", trim($line));
+            $taxon = array("sciname" => $split[1] , "id" => $split[0], "rank" => @$split[2]);
+            $i++;
+            echo "\n $i -- " . $taxon['sciname'] . " $taxon[id] \n";
+            $arr = self::get_Bolds_taxa($taxon, $used_collection_ids);
+            $page_taxa              = $arr[0];
+            $used_collection_ids    = $arr[1];
+            if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
+            unset($page_taxa);
+            // if($i >= 2) break; //debug
 
+        }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
         $resource_path = $this->TEMP_FILE_PATH . "temp_Bolds_" . $task . ".xml";
@@ -207,8 +202,7 @@ class BoldsAPI
                                 "family"       => utf8_encode(@$taxa["family"]),
                                 "genus"        => utf8_encode(@$taxa["genus"]),
                                 "sciname"      => utf8_encode($taxon_rec["sciname"]),
-                                "data_objects" => $arr_objects
-                             );
+                                "data_objects" => $arr_objects);
         }
         return $arr_taxa;
     }
@@ -320,56 +314,12 @@ class BoldsAPI
                       "location"     => $location,
                       "rightsHolder" => $rightsHolder,
                       "object_refs"  => $refs,
-                      "subject"      => $subject
-                    );
-    }
-
-    private function combine_all_xmls($resource_id)
-    {
-        debug("\n\n Start compiling all XML...");
-        $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-        $OUT = fopen($old_resource_path, "w");
-        $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
-        $str .= "<response\n";
-        $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
-        $str .= "  xmlns:xsd='http://www.w3.org/2001/XMLSchema'\n";
-        $str .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
-        $str .= "  xmlns:dcterms='http://purl.org/dc/terms/'\n";
-        $str .= "  xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'\n";
-        $str .= "  xmlns:dwc='http://rs.tdwg.org/dwc/dwcore/'\n";
-        $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
-        $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
-        fwrite($OUT, $str);
-        $i = 0;
-        while(true)
-        {
-            $i++;
-            $i_str = Functions::format_number_with_leading_zeros($i, 3);
-            $filename = $this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_" . $i_str . ".xml";
-            if(!is_file($filename))
-            {
-                echo " -end compiling XML's- ";
-                break;
-            }
-            echo " $i ";
-            $READ = fopen($filename, "r");
-            $contents = fread($READ, filesize($filename));
-            fclose($READ);
-            if($contents)
-            {
-                $pos1 = stripos($contents, "<taxon>");
-                $pos2 = stripos($contents, "</response>");
-                $str  = substr($contents, $pos1, $pos2 - $pos1);
-                fwrite($OUT, $str);
-            }
-        }
-        fwrite($OUT, "</response>");
-        fclose($OUT);
-        echo "\n All XML compiled\n\n";
+                      "subject"      => $subject);
     }
 
     function delete_temp_files($file_path, $file_extension = '*')
     {
+        if(!$file_path) return;
         foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 

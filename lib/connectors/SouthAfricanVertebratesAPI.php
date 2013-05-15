@@ -29,11 +29,11 @@ class SouthAfricanVertebratesAPI
         debug("\n Processing... \n");
         $taxa = array();
         $i = 0;
-        $FILE = fopen($this->taxa_path, "r");
-        while(!feof($FILE))
+        $temp_filepath = Functions::save_remote_file_to_local($this->taxa_path, DOWNLOAD_WAIT_TIME, 4800, 5);
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $i++;
-            if($line = fgets($FILE, 4096))
+            if($line)
             {
                 $fields = explode("\t", trim($line));
                 $fields = array_map('trim', $fields); //trims all array values in the array
@@ -55,7 +55,6 @@ class SouthAfricanVertebratesAPI
                 }
             }
         }
-        fclose($FILE);
         $this->taxa_all = $taxa;
         $taxa = self::complete_missing_taxa($taxa);
         $taxa = self::assign_parent_id($taxa);
@@ -150,10 +149,10 @@ class SouthAfricanVertebratesAPI
 
     private function get_vernacular_names()
     {
-        $FILE = fopen($this->vernacular_path, "r");
-        while(!feof($FILE))
+        $temp_filepath = Functions::save_remote_file_to_local($this->vernacular_path, DOWNLOAD_WAIT_TIME, 4800, 5);
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
-            if($line = fgets($FILE, 4096))
+            if($line)
             {
                 $fields = explode("\t", trim($line));
                 $fields = array_map('trim', $fields); //trims all array values in the array
@@ -174,7 +173,6 @@ class SouthAfricanVertebratesAPI
                 }
             }
         }
-        fclose($FILE);
     }
 
     private function get_synonyms()
