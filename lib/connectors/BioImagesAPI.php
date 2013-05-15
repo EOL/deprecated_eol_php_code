@@ -43,33 +43,27 @@ class BioImagesAPI
 
     function get_all_taxa()
     {
-        if($FILE = fopen($this->data_dump_url, "r"))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, DOWNLOAD_WAIT_TIME, 4800, 5))
         {
-            $line_num = 0;
             $col = array();
-            while(!feof($FILE))
+            foreach(new FileIterator($temp_filepath, true) as $line_num => $line) // 'true' will auto delete temp_filepath
             {
-                if($line = fgets($FILE))
+                $line = trim($line);
+                $row = explode("\t", $line);
+                if($line_num == 0)
                 {
-                    $line_num++;
-                    $line = trim($line);
-                    $row = explode("\t", $line);
-                    if($line_num == 1)
+                    foreach($row as $id => $value)
                     {
-                        foreach($row as $id => $value)
-                        {
-                            echo "\n $id -- $value";
-                            $col[trim($value)] = $id;
-                        }
-                    }
-                    else
-                    {
-                        echo "\n" . $row[$col['Taxon']];
-                        self::parse_record_element($row, $col);
+                        echo "\n $id -- $value";
+                        $col[trim($value)] = $id;
                     }
                 }
+                else
+                {
+                    echo "\n" . $row[$col['Taxon']];
+                    self::parse_record_element($row, $col);
+                }
             }
-            fclose($FILE);
             //get text objects from the original resource (168.xml in Nov 2010)
             self::get_texts();
             // finalize the process and create the archive
