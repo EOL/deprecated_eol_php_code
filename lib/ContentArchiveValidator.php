@@ -120,7 +120,9 @@ class ContentArchiveValidator
             'http://eol.org/schema/agent/agent',
             'http://rs.gbif.org/terms/1.0/vernacularname',
             'http://rs.tdwg.org/dwc/terms/measurementorfact',
-            'http://eol.org/schema/association'
+            'http://eol.org/schema/association',
+            'http://rs.tdwg.org/dwc/terms/occurrence',
+            'http://rs.tdwg.org/dwc/terms/event'
         );
         foreach($this->content_archive_reader->tables as $row_type => $tables)
         {

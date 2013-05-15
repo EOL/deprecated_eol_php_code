@@ -21,7 +21,6 @@ class AnageDataConnector
         foreach(new FileIterator(self::DUMP_URL) as $line_number => $line)
         {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
-            if($line_number >= 10000) break;
             $line_data = explode("\t", $line);
             if($line_number == 0)
             {
@@ -37,7 +36,9 @@ class AnageDataConnector
     public function process_line_data($line_data)
     {
         $taxon = $this->add_taxon($line_data);
-        $this->add_numeric_data($line_data, $taxon->taxonID);
+        $event = $this->add_event($line_data, $taxon->taxonID);
+        $occurrence = $this->add_occurrence($line_data, $taxon->taxonID, $event);
+        $this->add_numeric_data($line_data, $taxon->taxonID, $event, $occurrence);
     }
 
     private function add_taxon($line_data)
@@ -60,11 +61,39 @@ class AnageDataConnector
             $vernacular->language = 'en';
             $this->archive_builder->write_object_to_file($vernacular);
         }
-
         return $t;
     }
 
-    private function add_numeric_data($line_data, $taxon_id)
+    private function add_event($line_data, $taxon_id)
+    {
+        $s = $line_data[$this->column_indices['Sample size']];
+        $q = $line_data[$this->column_indices['Data quality']];
+        if($s || $q)
+        {
+            $e = new \eol_schema\Event();
+            $e->eventID = md5($taxon_id . "event");
+            if($s) $e->sampleSize = $s;
+            if($q) $e->dataQuality = $q;
+            $this->archive_builder->write_object_to_file($e);
+            return $e;
+        }
+    }
+
+    private function add_occurrence($line_data, $taxon_id, $event)
+    {
+        if($so = $line_data[$this->column_indices['Specimen origin']])
+        {
+            $o = new \eol_schema\Occurrence();
+            $o->occurrenceID = md5($taxon_id . "occurrence");
+            $o->taxonID = $taxon_id;
+            if($event) $o->eventID = $event->eventID;
+            $o->establishmentMeans = $so;
+            $this->archive_builder->write_object_to_file($o);
+            return $o;
+        }
+    }
+
+    private function add_numeric_data($line_data, $taxon_id, $event, $occurrence)
     {
         $numeric_types = array('Female maturity (days)', 'Male maturity (days)', 'Gestation/Incubation (days)',
             'Weaning (days)', 'Litter/Clutch size', 'Litters/Clutches per year', 'Inter-litter/Interbirth interval',
@@ -86,6 +115,8 @@ class AnageDataConnector
                 $m->measurementType = "http://anage.org/". SparqlClient::to_underscore($this_label);
                 $m->measurementValue = $v;
                 $m->measurementUnit = $unit_of_measure;
+                if($occurrence) $m->occurrenceID = $occurrence->occurrenceID;
+                elseif($event) $m->eventID = $event->eventID;
                 $this->archive_builder->write_object_to_file($m);
             }
         }

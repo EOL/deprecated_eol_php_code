@@ -51,6 +51,7 @@ class test_sparql_client extends SimpletestUnitBase
         $this->assertEqual(SparqlClient::enclose_value("<http://eol.org>"), "<http://eol.org>");
         $this->assertEqual(SparqlClient::enclose_value("this is a test"), "\"this is a test\"");
         $this->assertEqual(SparqlClient::enclose_value("http://eol. org"), "\"http://eol. org\"");
+        $this->assertEqual(SparqlClient::enclose_value("eol:term"), "eol:term");
     }
 
     function textExpandNamespaces()

@@ -20,7 +20,7 @@ class ObisDataConnector
         foreach(new FileIterator(self::DUMP_URL) as $line_number => $line)
         {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
-            if($line_number >= 20000) break;
+            if($line_number >= 10000) break;
             $line_data = ContentArchiveReader::line_to_array($line, ",", "\"");
             if($line_number == 0)
             {

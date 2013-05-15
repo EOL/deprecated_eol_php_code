@@ -34,6 +34,8 @@ class ArchiveDataIngester
         $this->media_agent_ids = array();
         
         $this->media_ids_inserted = array();
+        $this->occurrence_ids_inserted = array();
+        $this->event_ids_inserted = array();
         
         /* During harvesting we need to delete all the old records associated with HierarchyEntries
            and DataObjects so we can add the new ones, and also properly represent the case where a
@@ -57,6 +59,8 @@ class ArchiveDataIngester
         $this->archive_reader->process_row_type("http://rs.gbif.org/terms/1.0/Reference", array($this, 'insert_gbif_references'));
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/MeasurementOrFact", array($this, 'insert_measurements'));
         $this->archive_reader->process_row_type("http://eol.org/schema/Association", array($this, 'insert_associations'));
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Occurrence", array($this, 'insert_occurrences'));
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Event", array($this, 'insert_events'));
         
         $this->mysqli->end_transaction();
         
@@ -776,6 +780,30 @@ class ArchiveDataIngester
         $this->sparql_client->insert_data(array('data' => array($turtle), 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
     }
 
+    public function insert_occurrences($row, $parameters)
+    {
+        self::debug_iterations("Inserting Occurrences");
+        $this->commit_iterations("Occurrences", 500);
+        if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/occurrence', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
+
+        $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
+        if(!isset($this->taxon_ids_inserted[$taxon_id])) return;
+        $turtle = $this->prepare_occurrence_turtle($row);
+        $this->sparql_client->insert_data(array('data' => array($turtle), 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
+    }
+
+    public function insert_events($row, $parameters)
+    {
+        self::debug_iterations("Inserting Events");
+        $this->commit_iterations("Events", 500);
+        if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/event', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
+
+        $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
+        // if(!isset($this->taxon_ids_inserted[$taxon_id])) return;
+        $turtle = $this->prepare_event_turtle($row);
+        $this->sparql_client->insert_data(array('data' => array($turtle), 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
+    }
+
     private function insert_taxon_structured_data($row)
     {
         $turtle = $this->prepare_taxon_turtle($row);
@@ -822,6 +850,10 @@ class ArchiveDataIngester
             if($value && preg_match("/^http:\/\//", $key, $arr))
             {
                 $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+                if($key == "http://rs.tdwg.org/dwc/terms/occurrenceID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($graph_name ."/occurrences/". SparqlClient::to_underscore($value)) ."\n";
+                }
             }
         }
         return $turtle;
@@ -839,9 +871,57 @@ class ArchiveDataIngester
         $taxon_uri = $graph_name ."/taxa/". SparqlClient::to_underscore($taxon_id);
         $target_taxon_uri = $graph_name ."/taxa/". SparqlClient::to_underscore($target_taxon_id);
         $turtle =
-            "$node_uri a eol:Association" .
+            "$node_uri a <http://eol.org/schema/Association>" .
             "; dwc:taxonID <$taxon_uri>" .
             "; <http://eol.org/schema/targetTaxonID> <$target_taxon_uri>";
+        foreach($row as $key => $value)
+        {
+            $value = @self::field_decode($value);
+            if($value && preg_match("/^http:\/\//", $key, $arr))
+            {
+                $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+            }
+        }
+        return $turtle;
+    }
+
+    private function prepare_occurrence_turtle($row)
+    {
+        $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
+        $occurrence_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/occurrenceID']);
+
+        $graph_name = $this->harvest_event->resource->virtuoso_graph_name();
+        $node_uri = "<". $graph_name ."/occurrences/". SparqlClient::to_underscore($occurrence_id) .">";
+        $taxon_uri = $graph_name ."/taxa/". SparqlClient::to_underscore($taxon_id);
+        $turtle =
+            "$node_uri a dwc:Occurrence" .
+            "; dwc:taxonID <$taxon_uri>";
+        foreach($row as $key => $value)
+        {
+            $value = @self::field_decode($value);
+            if($value && preg_match("/^http:\/\//", $key, $arr))
+            {
+                $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+                if($key == "http://rs.tdwg.org/dwc/terms/eventID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($graph_name ."/events/". SparqlClient::to_underscore($value)) ."\n";
+                }
+            }
+        }
+        return $turtle;
+    }
+
+    private function prepare_event_turtle($row)
+    {
+        $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
+        $event_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/eventID']);
+
+        $graph_name = $this->harvest_event->resource->virtuoso_graph_name();
+        $node_uri = "<". $graph_name ."/events/". SparqlClient::to_underscore($event_id) .">";
+        $taxon_uri = $graph_name ."/taxa/". SparqlClient::to_underscore($taxon_id);
+        $turtle =
+            "$node_uri a dwc:Event" .
+            "; dwc:taxonID <$taxon_uri>";
         foreach($row as $key => $value)
         {
             $value = @self::field_decode($value);
