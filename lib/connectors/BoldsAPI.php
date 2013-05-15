@@ -319,6 +319,7 @@ class BoldsAPI
 
     function delete_temp_files($file_path, $file_extension = '*')
     {
+        if(!$file_path) return;
         foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
