@@ -26,7 +26,7 @@ class BoldsAPI
         $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_in_progress_list.txt";
         $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
         $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
-        // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
+        $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
     }
 
     function initialize_text_files()
@@ -35,8 +35,8 @@ class BoldsAPI
         $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
         $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
         //this is not needed but just to have a clean directory
-        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
-        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
     }
 
     function start_process($resource_id, $call_multiple_instance)
@@ -50,7 +50,7 @@ class BoldsAPI
             {
                 // Divide the big list of ids into small files
                 Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
-                Functions::create_work_list_from_master_file($this->MASTER_LIST, 5000, $this->TEMP_FILE_PATH, "batch_", $this->WORK_LIST); //debug orig value 5000
+                Functions::create_work_list_from_master_file($this->MASTER_LIST, 2, $this->TEMP_FILE_PATH, "batch_", $this->WORK_LIST); //debug orig value 5000
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
@@ -60,8 +60,8 @@ class BoldsAPI
             // Combine all XML files.
             Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "temp_Bolds_batch_*.xml");
             // Delete temp files
-            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
-            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
         }
     }
 
@@ -84,7 +84,7 @@ class BoldsAPI
             $used_collection_ids    = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
             unset($page_taxa);
-            // if($i >= 2) break; //debug
+            if($i >= 2) break; //debug
 
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
@@ -315,12 +315,6 @@ class BoldsAPI
                       "rightsHolder" => $rightsHolder,
                       "object_refs"  => $refs,
                       "subject"      => $subject);
-    }
-
-    function delete_temp_files($file_path, $file_extension = '*')
-    {
-        if(!$file_path) return;
-        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
     private function get_str_from_anchor_tag($str)
