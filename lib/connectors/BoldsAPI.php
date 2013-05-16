@@ -26,7 +26,7 @@ class BoldsAPI
         $this->WORK_IN_PROGRESS_LIST  = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_work_in_progress_list.txt";
         $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
         $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
-        $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
+        // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
     }
 
     function initialize_text_files()
@@ -50,7 +50,7 @@ class BoldsAPI
             {
                 // Divide the big list of ids into small files
                 Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
-                Functions::create_work_list_from_master_file($this->MASTER_LIST, 2, $this->TEMP_FILE_PATH, "batch_", $this->WORK_LIST); //debug orig value 5000
+                Functions::create_work_list_from_master_file($this->MASTER_LIST, 5000, $this->TEMP_FILE_PATH, "batch_", $this->WORK_LIST); //debug orig value 5000
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
@@ -84,7 +84,7 @@ class BoldsAPI
             $used_collection_ids    = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
             unset($page_taxa);
-            if($i >= 2) break; //debug
+            // if($i >= 2) break; //debug
 
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
