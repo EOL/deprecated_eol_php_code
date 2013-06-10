@@ -14,13 +14,10 @@ $GLOBALS['ENV_DEBUG'] = false;
 
 $resource_id = 544;
 $user_id = "61021753@N02"; // BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
+$start_year = 2010;
 
 $auth_token = NULL;
-if(FlickrAPI::valid_auth_token(FLICKR_PLEARY_AUTH_TOKEN))
-{
-    $auth_token = FLICKR_PLEARY_AUTH_TOKEN;
-}
-
+if(FlickrAPI::valid_auth_token(FLICKR_PLEARY_AUTH_TOKEN)) $auth_token = FLICKR_PLEARY_AUTH_TOKEN;
 
 // create new _temp file
 $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+");
@@ -29,7 +26,15 @@ $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml",
 fwrite($resource_file, \SchemaDocument::xml_header());
 
 // query Flickr and write results to file
-FlickrAPI::get_all_eol_photos($auth_token, $resource_file, $user_id);
+
+$months_to_be_broken_down = array(0 => array("year" => 2011, "month" => 8),
+                                  1 => array("year" => 2011, "month" => 10),
+                                  2 => array("year" => 2012, "month" => 8),
+                                  3 => array("year" => 2012, "month" => 11),
+                                  4 => array("year" => 2013, "month" => 1),
+                                  5 => array("year" => 2013, "month" => 3));
+FlickrAPI::get_photostream_photos($auth_token, $resource_file, $user_id, $start_year, $months_to_be_broken_down);
+// FlickrAPI::get_all_eol_photos($auth_token, $resource_file, $user_id); // old
 
 // write the resource footer
 fwrite($resource_file, \SchemaDocument::xml_footer());
