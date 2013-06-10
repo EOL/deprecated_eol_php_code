@@ -61,9 +61,9 @@ class WormsAPI
         $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
         $f = fopen($this->TEMP_FILE_PATH . "bad_ids.txt", "w"); fclose($f);
         //this is not needed but just to have a clean directory
-        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_");
-        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_worms_batch_");
-        self::delete_temp_files($this->TEMP_FILE_PATH . "xmlcontent_");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_worms_batch_");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "xmlcontent_");
     }
 
     function start_process($resource_id, $call_multiple_instance)
@@ -91,8 +91,8 @@ class WormsAPI
             // set to force harvest
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // delete temp files
-            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
-            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_worms_" . "batch_", "xml");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_worms_" . "batch_", "xml");
         }
         self::save_bad_ids_to_txt();
     }
@@ -209,7 +209,7 @@ class WormsAPI
         }
 
         //delete temp XML files
-        self::delete_temp_files($this->TEMP_FILE_PATH . "xmlcontent_", "xml");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "xmlcontent_", "xml");
 
         $ids = array_unique($ids);
         echo "\n total ids: " . sizeof($ids);
@@ -291,15 +291,6 @@ class WormsAPI
         {
             fwrite($OUT, $str);
             fclose($OUT);
-        }
-    }
-
-    function delete_temp_files($file_path, $file_extension = '*')
-    {
-        if(!$file_path) return;
-        foreach (glob($file_path . "*." . $file_extension) as $filename)
-        {
-           unlink($filename);
         }
     }
 

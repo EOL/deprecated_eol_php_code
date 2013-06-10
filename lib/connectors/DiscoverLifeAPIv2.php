@@ -37,8 +37,8 @@ class DiscoverLifeAPIv2
         $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
         $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
         //this is not needed but just to have a clean directory
-        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
-        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_batch_", "xml");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_batch_", "xml");
     }
 
     function start_process($resource_id, $call_multiple_instance)
@@ -64,8 +64,8 @@ class DiscoverLifeAPIv2
             // Set to force harvest
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
             // Delete temp files
-            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
-            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_", "xml");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_" . "batch_", "xml");
         }
     }
 
@@ -289,12 +289,6 @@ class DiscoverLifeAPIv2
             fwrite($fp, $name. "\n");
             fclose($fp);
         }
-    }
-
-    private function delete_temp_files($file_path, $file_extension = '*')
-    {
-        if(!$file_path) return;
-        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
 }

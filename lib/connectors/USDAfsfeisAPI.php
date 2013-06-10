@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [505]
+/* connector: [505 - plants] [509 - animals]
 This will screen scrape information from: http://www.fs.fed.us/database/feis/
 */
 
@@ -10,8 +10,6 @@ class USDAfsfeisAPI
     {
         $this->fsfeis_domain = "http://www.fs.fed.us/database/feis/";
         $this->main_groups = $group;
-        // $this->main_groups["Animalia"] = "animals";
-        // $this->main_groups["Plantae"] = "plants";
         $this->subject = array();
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -28,15 +26,19 @@ class USDAfsfeisAPI
         $this->class_name['Insect'] = "Insecta";
         $this->class_name['Mammal'] = "Mammalia";
         $this->class_name['Bird'] = "Aves";
-        $this->spg = array();
+        $this->exclude_vernaculars = array("http://www.fs.fed.us/database/feis/animals/bird/cent/all.html", "http://www.fs.fed.us/database/feis/animals/bird/tymp/all.html", "http://www.fs.fed.us/database/feis/plants/fern/lygspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/carspp3/all.html", "http://www.fs.fed.us/database/feis/plants/forb/../vine/cynspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/../vine/diospp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/dipspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/galspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/kumspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/linspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/melspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/polspp/all.html", "http://www.fs.fed.us/database/feis/plants/forb/../vine/vinspp/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/brocar/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/brospp/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/carino/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/carspp2/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/impspp/all.html", "http://www.fs.fed.us/database/feis/plants/../lichens/claspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/../tree/alninc/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/corcor/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/cytspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/ligspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/lonspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/quespp2/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/rhaspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/../tree/tamspp/all.html", "http://www.fs.fed.us/database/feis/plants/tree/casspp/all.html", "http://www.fs.fed.us/database/feis/plants/tree/pinell/all.html", "http://www.fs.fed.us/database/feis/plants/tree/popspp/all.html", "http://www.fs.fed.us/database/feis/plants/tree/quespp1/all.html", "http://www.fs.fed.us/database/feis/plants/tree/quefal/all.html", "http://www.fs.fed.us/database/feis/plants/vine/wisspp/all.html");
+        
+        $this->debug_spg = array();
+        $this->debug_toberemoved = array();
         $this->script_count = array("old" => 0, "new" => 0);
+
         // main-topics ==================================================================================
         $this->topics["INTRODUCTORY"] = array("AUTHORSHIP AND CITATION", "ABBREVIATION", "SYNONYMS", "NRCS PLANT CODE", "COMMON NAMES", "TAXONOMY", "LIFE FORM", "FEIS ABBREVIATION", "ORDER", "CLASS", "FEDERAL LEGAL STATUS", "OTHER STATUS");
-        $this->topics["DISTRIBUTION AND OCCURRENCE"] = array("GENERAL DISTRIBUTION", "ECOSYSTEMS", "STATES", "BLM PHYSIOGRAPHIC REGIONS", "KUCHLER PLANT ASSOCIATIONS", "SAF COVER TYPES", "SRM (RANGELAND) COVER TYPES", "HABITAT TYPES AND PLANT COMMUNITIES", "PLANT COMMUNITIES", "SITE CHARACTERISTICS AND PLANT COMMUNITIES", "65 PLANT ASSOCIATIONS", "49 PLANT ASSOCIATIONS", "170 PLANT ASSOCIATIONS");
+        $this->topics["DISTRIBUTION AND OCCURRENCE"] = array("GENERAL DISTRIBUTION", "ECOSYSTEMS", "STATES", "BLM PHYSIOGRAPHIC REGIONS", "KUCHLER PLANT ASSOCIATIONS", "SAF COVER TYPES", "SRM (RANGELAND) COVER TYPES", "HABITAT TYPES AND PLANT COMMUNITIES", "PLANT COMMUNITIES", "SITE CHARACTERISTICS AND PLANT COMMUNITIES", "PLANT ASSOCIATIONS");
         $this->topics["WILDLIFE DISTRIBUTION AND OCCURRENCE"] = $this->topics["DISTRIBUTION AND OCCURRENCE"];
         $this->topics["BIOLOGICAL DATA AND HABITAT REQUIREMENTS"] = array("LIFE HISTORY", "PREFERRED HABITAT", "COVER REQUIREMENTS", "FOOD HABITS", "PREDATORS", "MANAGEMENT CONSIDERATIONS", "DISEASES AND SOURCES OF MORTALITY", "FEDERAL LEGAL STATUS", "OTHER STATUS", "BIOLOGICAL DATA", "SOURCES OF MORTALITY", "MORTALITY");
         $this->topics["MANAGEMENT CONSIDERATIONS"] = array("IMPORTANCE TO LIVESTOCK AND WILDLIFE", "PALATABILITY", "NUTRITIONAL VALUE", "COVER VALUE", "VALUE FOR REHABILITATION OF DISTURBED SITES", "OTHER USES AND VALUES", "OTHER MANAGEMENT CONSIDERATIONS", "UTILIZATION", "OTHER UTILIZATIONS", "OTHER USES", "SPREAD, IMPACTS, AND CONTROL");
-        $this->topics["BOTANICAL AND ECOLOGICAL CHARACTERISTICS"] = array("GENERAL BOTANICAL CHARACTERISTICS", "RAUNKIAER LIFE FORM", "REGENERATION PROCESSES", "SITE CHARACTERISTICS", "SUCCESSIONAL STATUS", "SEASONAL DEVELOPMENT", "155 LIFE FORM");
+        $this->topics["BOTANICAL AND ECOLOGICAL CHARACTERISTICS"] = array("GENERAL BOTANICAL CHARACTERISTICS", "RAUNKIAER LIFE FORM", "REGENERATION PROCESSES", "SITE CHARACTERISTICS", "SUCCESSIONAL STATUS", "SEASONAL DEVELOPMENT", "LIFE FORM");
         $this->topics["GENERAL INFORMATION ON BIOLOGY AND ECOLOGY"] = $this->topics["BOTANICAL AND ECOLOGICAL CHARACTERISTICS"];
         $this->topics["FIRE ECOLOGY"] = array("FIRE ECOLOGY OR ADAPTATIONS", "POSTFIRE REGENERATION STRATEGY", "FIRE ECOLOGY AND ADAPTATIONS", "FIRE REGIMES", "FIRE EFFECTS", "FIRE MANAGEMENT CONSIDERATIONS", "FIRE REGIME TABLE");
         $this->topics["FIRE EFFECTS"] = array("IMMEDIATE FIRE EFFECT ON PLANT", "DISCUSSION AND QUALIFICATION OF FIRE EFFECT", "PLANT RESPONSE TO FIRE", "DISCUSSION AND QUALIFICATION OF PLANT RESPONSE", "FIRE MANAGEMENT CONSIDERATIONS", "FIRE CASE STUDIES", "DIRECT FIRE EFFECTS", "HABITAT-RELATED FIRE EFFECTS", "INDIRECT FIRE EFFECTS", "FIRE REGIMES", "FIRE EFFECTS", "FUELS AND FIRE REGIMES", "FIRE REGIME", "DIRECT FIRE EFFECTS ON ANIMALS", "FIRE USE", "FUELS");
@@ -105,25 +107,28 @@ class USDAfsfeisAPI
                 {
                     if(stripos($page, "index.html") == "") $page .= "index.html";
                     $filename = $this->fsfeis_domain . $group . "/" . $page;
-                    // if($filename != "http://www.fs.fed.us/database/feis/plants/cactus/index.html") continue; //debug
-                    // if(!in_array($filename, array(
-                    //     //plants
-                    //     "http://www.fs.fed.us/database/feis/plants/bryophyte/index.html",
-                    //     "http://www.fs.fed.us/database/feis/plants/cactus/index.html",
-                    //     "http://www.fs.fed.us/database/feis/plants/fern/index.html",
-                    //     "http://www.fs.fed.us/database/feis/plants/tree/index.html",
-                    //     "http://www.fs.fed.us/database/feis/plants/forb/index.html",
-                    //     "http://www.fs.fed.us/database/feis/plants/graminoid/index.html",
-                    //     "http://www.fs.fed.us/database/feis/lichens/index.html",
-                    //     "http://www.fs.fed.us/database/feis/plants/vine/index.html",
-                    //     "http://www.fs.fed.us/database/feis/plants/shrub/index.html",
-                    //     //animals
-                    //     "http://www.fs.fed.us/database/feis/animals/amphibian/index.html",
-                    //     "http://www.fs.fed.us/database/feis/animals/reptile/index.html",
-                    //     "http://www.fs.fed.us/database/feis/animals/mammal/index.html",
-                    //     "http://www.fs.fed.us/database/feis/animals/bird/index.html",
-                    //     "http://www.fs.fed.us/database/feis/animals/arthropod/index.html"
-                    // ))) continue; //debug
+                    
+                    /* //debug
+                    if(!in_array($filename, array(
+                        //plants
+                        "http://www.fs.fed.us/database/feis/plants/bryophyte/index.html",
+                        "http://www.fs.fed.us/database/feis/plants/cactus/index.html",
+                        "http://www.fs.fed.us/database/feis/plants/fern/index.html",
+                        "http://www.fs.fed.us/database/feis/plants/tree/index.html",
+                        "http://www.fs.fed.us/database/feis/plants/forb/index.html",
+                        "http://www.fs.fed.us/database/feis/plants/graminoid/index.html",
+                        "http://www.fs.fed.us/database/feis/lichens/index.html",
+                        "http://www.fs.fed.us/database/feis/plants/vine/index.html",
+                        "http://www.fs.fed.us/database/feis/plants/shrub/index.html",
+                        //animals
+                        "http://www.fs.fed.us/database/feis/animals/amphibian/index.html",
+                        "http://www.fs.fed.us/database/feis/animals/reptile/index.html",
+                        "http://www.fs.fed.us/database/feis/animals/mammal/index.html",
+                        "http://www.fs.fed.us/database/feis/animals/bird/index.html",
+                        "http://www.fs.fed.us/database/feis/animals/arthropod/index.html"
+                    ))) continue;
+                    */
+                    
                     if($html = Functions::get_remote_file($filename, 5000000, 240, 5))
                     {
                         if(preg_match("/Common Name(.*?)<\/table>/ims", $html, $arr))
@@ -166,23 +171,31 @@ class USDAfsfeisAPI
     {
         self::initialize_subjects();
         $records = self::prepare_taxa_urls();
-        /*
+        /* // debug
         $records = array();
-        $records[] = array("taxonID" => "111", "url" => "http://www.fs.fed.us/database/feis/animals/mammal/odhe/all.html", "sciname" => "Aphel11oc3oma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
+        $records[] = array("taxonID" => "111", "url" => "http://www.fs.fed.us/database/feis/animals/bird/apco/all.html", "sciname" => "Aphel11oc3oma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
+        $records[] = array("taxonID" => "1s11", "url" => "http://www.fs.fed.us/database/feis/animals/bird/aisp/all.html", "sciname" => "Aphssel11oc3oma coerudlescens", "vernacular" => "a2sd11a1sas", "kingdom" => "Animalia");
         */
         $urls = array();
         foreach($records as $record)
         {
-            // if(!in_array($record["url"], $urls))
-            // {
-            //     self::prepare_data($record);
-            //     $urls[] = $record["url"];
-            // }
+            /* for unique URLs
+            if(!in_array($record["url"], $urls))
+            {
+                self::prepare_data($record);
+                $urls[] = $record["url"];
+            }
+            */
             self::prepare_data($record);
         }
         $this->create_archive();
-        // print_r($this->spg); // debug
+        
+        /* debug
+        echo "\n urls with <img>\n";
+        print_r($this->debug_spg);
+        print_r($this->debug_toberemoved);
         print_r($this->script_count);
+        */
     }
 
     private function prepare_data($rec)
@@ -227,7 +240,11 @@ class USDAfsfeisAPI
             }
             if(is_numeric(stripos($html, "<!DOCTYPE html PUBLIC"))) $rec["with_line_break"] = false;
             else                                                    $rec["with_line_break"] = true;
-            // if(stripos($html, "Fire adaptations and plant response to fire") != "") $this->spg[] = $rec['url']; //debug
+            
+            /* //debug
+            if(stripos($html, "<img ") != "" && stripos($html, "photo by") != "") $this->debug_spg[$rec['url']] = 1;
+            */
+            
             $this->temp_page_reference_nos = array();
             self::get_references_from_html($html);
             $orig_rec = $rec;
@@ -261,7 +278,7 @@ class USDAfsfeisAPI
         }
         return $text;
     }
-    
+
     private function assemble_page_framework($rec, $html)
     {
         $chapters = array();
@@ -335,6 +352,7 @@ class USDAfsfeisAPI
             $chapters[2]["connect"][0]["connect2"][0]["connect3"][4]["link"] = "Survival";
             $chapters[2]["connect"][0]["connect2"][0]["connect3"][4]["href"] = "#Survival";
             $chapters[2]["connect"][0]["connect2"][0]["connect3"][5] = null;
+            array_pop($chapters[2]["connect"][0]["connect2"][0]["connect3"]); // deletes ["connect3"][5], last array value of this node
         }
 
         // print_r($chapters); //debug
@@ -395,19 +413,23 @@ class USDAfsfeisAPI
             $href2 = $items[$i+1]["href"];
             $href2 = str_ireplace(array("#", "all.html"), "", $href2);
             $topic = trim($item["topic"]);
+            
+            // manual adjustment
+            if($topic == "155 LIFE FORM") $topic = "LIFE FORM";
+            if(in_array($topic, array("170 PLANT ASSOCIATIONS", "65 PLANT ASSOCIATIONS", "49 PLANT ASSOCIATIONS"))) $topic = "PLANT ASSOCIATIONS";
+            
             echo "\n $topic --- $href1 -- $href2";
             if(in_array($topic, $items_tobe_excluded)) continue;
-            // ==========
+
             $to_be_excluded = false;
             if(in_array($topic, $topics_to_check))
             {
                 $to_be_excluded = self::check_if_topic_will_be_excluded($topic, $items);
                 if($to_be_excluded) continue;
             }
-            // ==========
+
             $html = str_ireplace(array(' id="' . $href1 . '"', ' id="' . $href2 . '"'), "", $html);
             $html = str_ireplace(array('id="' . $href1 . '" ', 'id="' . $href2 . '" '), "", $html);
-            
             $href1 = str_ireplace("/", "\/", $href1);
             $href2 = str_ireplace("/", "\/", $href2);
             $href1 = str_ireplace("(", "\(", $href1);
@@ -424,6 +446,8 @@ class USDAfsfeisAPI
 
                 $arr[1] = str_ireplace(array("$topic:", "$topic :"), "", $arr[1]);
                 $descriptions[$topic] = $arr[1];
+
+                if($topic == "LIFE FORM") $lifeform = $descriptions[$topic];
 
                 // APPENDIX: FIRE REGIME TABLE
                 if(in_array($href1, array("APPENDIX: FIRE REGIME TABLE", "AppendixFireRegimeTable")))
@@ -449,9 +473,13 @@ class USDAfsfeisAPI
                 // SYNONYMS, COMMON NAMES
                 if(in_array($topic, array("SYNONYMS", "COMMON NAMES")))
                 {
-                    $temp = self::clean_str(strip_tags($arr[1], "<br><a>"));
-                    $temp = self::further_clean($temp, $topic, $html);
-                    $descriptions[$topic] = $temp;
+                    if($topic == "COMMON NAMES" && in_array($rec["url"], $this->exclude_vernaculars)) {}
+                    else
+                    {
+                        $temp = self::clean_str(strip_tags($arr[1], "<br><a>"));
+                        $temp = self::further_clean($temp, $topic, $html);
+                        $descriptions[$topic] = $temp;
+                    }
                 }
 
                 // TAXONOMY
@@ -790,7 +818,7 @@ class USDAfsfeisAPI
             $comnames = self::further_clean($comnames, "COMMON NAMES", $html);
             $descriptions["COMMON NAMES"] = $comnames;
         }
-        else echo "\n -no comnames-\n"; //debug
+        else echo "\n -no comnames- \n"; //debug
 
         if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/shrub/ceaoph/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/bernev/all.html")))
         {
@@ -1096,30 +1124,17 @@ class USDAfsfeisAPI
             }
             //animals
             $html = str_ireplace("MANAGEMENT CONSIDERATIONS :", "MANAGEMENT CONSIDERATIONS:", $html);
-            if(preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"FIRE EFFECTS AND USE\"/ims", $html, $arr) ||
-               preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"FIRE EFFECTS\"/ims", $html, $arr) ||
-               preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"FireEffectsAndManagement\"/ims", $html, $arr) ||
-               preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"Fire Effects And Management\"/ims", $html, $arr) ||
-               preg_match("/<b>MANAGEMENT CONSIDERATIONS\:(.*?)<b>REFERENCES/ims", $html, $arr)) $descriptions["MANAGEMENT CONSIDERATIONS"] = $arr[1];
+            if(preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"FIRE EFFECTS AND USE\"/ims", $html, $arr) || preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"FIRE EFFECTS\"/ims", $html, $arr) || preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"FireEffectsAndManagement\"/ims", $html, $arr) || preg_match("/MANAGEMENT CONSIDERATIONS\:(.*?)<a name\=\"Fire Effects And Management\"/ims", $html, $arr) || preg_match("/<b>MANAGEMENT CONSIDERATIONS\:(.*?)<b>REFERENCES/ims", $html, $arr)) $descriptions["MANAGEMENT CONSIDERATIONS"] = $arr[1];
             //animals
             $html = str_ireplace("<b>DIRECT FIRE EFFECTS ON ANIMALS :", "<b>DIRECT FIRE EFFECTS ON ANIMALS:", $html);
-            if(preg_match("/DIRECT FIRE EFFECTS ON ANIMAL\:(.*?)<a name\=\"HABITAT RELATED FIRE EFFECTS\"/ims", $html, $arr) ||
-               preg_match("/DIRECT FIRE EFFECTS ON ANIMALS\:(.*?)<b>HABITAT RELATED FIRE EFFECTS/ims", $html, $arr) ||
-               preg_match("/DIRECT FIRE EFFECTS\:(.*?)<a name\=\"IndirectFireEffects\"/ims", $html, $arr) || //http://www.fs.fed.us/database/feis/animals/bird/apco/all.html
-               preg_match("/DIRECT FIRE EFFECTS\:(.*?)<a name\=\"Indirect Fire Effects\"/ims", $html, $arr) ||
-               preg_match("/DIRECT FIRE EFFECTS ON ANIMALS\:(.*?)<a name\=\"HABITAT-RELATED FIRE EFFECTS\"/ims", $html, $arr)) $descriptions["DIRECT FIRE EFFECTS ON ANIMAL"] = $arr[1];
-            if(preg_match("/INDIRECT FIRE EFFECTS\:(.*?)<a name\=\"FireRegimes\"/ims", $html, $arr) ||
-               preg_match("/INDIRECT FIRE EFFECTS\:(.*?)<a name\=\"Fire Regimes\"/ims", $html, $arr)) $descriptions["INDIRECT FIRE EFFECTS"] = $arr[1];
+            if(preg_match("/DIRECT FIRE EFFECTS ON ANIMAL\:(.*?)<a name\=\"HABITAT RELATED FIRE EFFECTS\"/ims", $html, $arr) || preg_match("/DIRECT FIRE EFFECTS ON ANIMALS\:(.*?)<b>HABITAT RELATED FIRE EFFECTS/ims", $html, $arr) || preg_match("/DIRECT FIRE EFFECTS\:(.*?)<a name\=\"IndirectFireEffects\"/ims", $html, $arr) || preg_match("/DIRECT FIRE EFFECTS\:(.*?)<a name\=\"Indirect Fire Effects\"/ims", $html, $arr) || preg_match("/DIRECT FIRE EFFECTS ON ANIMALS\:(.*?)<a name\=\"HABITAT-RELATED FIRE EFFECTS\"/ims", $html, $arr)) $descriptions["DIRECT FIRE EFFECTS ON ANIMAL"] = $arr[1];
+            if(preg_match("/INDIRECT FIRE EFFECTS\:(.*?)<a name\=\"FireRegimes\"/ims", $html, $arr) || preg_match("/INDIRECT FIRE EFFECTS\:(.*?)<a name\=\"Fire Regimes\"/ims", $html, $arr)) $descriptions["INDIRECT FIRE EFFECTS"] = $arr[1];
             if(preg_match("/FUELS AND FIRE REGIMES\:(.*?)<a name\=\"FIRE MANAGEMENT CONSIDERATIONS/ims", $html, $arr)) $fuels_and_fire_regimes = $arr[1];
             elseif(preg_match("/FUELS AND FIRE REGIMES\:(.*?)<a name\=\"FireManagementConsiderations\"/ims", $html, $arr)) $fuels_and_fire_regimes = $arr[1];
             if(isset($fuels_and_fire_regimes)) $descriptions["FUELS AND FIRE REGIMES"] = $fuels_and_fire_regimes;
             //animals
             $html = str_ireplace("<b>HABITAT RELATED FIRE EFFECTS :", "<b>HABITAT RELATED FIRE EFFECTS:", $html);
-            if(preg_match("/HABITAT RELATED FIRE EFFECTS\:(.*?)<a name\=\"FIRE USE\"/ims", $html, $arr) ||
-               preg_match("/HABITAT RELATED FIRE EFFECTS\:(.*?)<b>FIRE USE/ims", $html, $arr) ||
-               preg_match("/Habitat-related Fire Effects\:(.*?)<a name\=\"FIRE USE\"/ims", $html, $arr) ||
-               preg_match("/Habitat-related Fire Effects\:(.*?)<b>FIRE USE/ims", $html, $arr)) $habitat_related = $arr[1];
-            //http://www.fs.fed.us/database/feis/animals/mammal/neal/all.html
+            if(preg_match("/HABITAT RELATED FIRE EFFECTS\:(.*?)<a name\=\"FIRE USE\"/ims", $html, $arr) || preg_match("/HABITAT RELATED FIRE EFFECTS\:(.*?)<b>FIRE USE/ims", $html, $arr) || preg_match("/Habitat-related Fire Effects\:(.*?)<a name\=\"FIRE USE\"/ims", $html, $arr) || preg_match("/Habitat-related Fire Effects\:(.*?)<b>FIRE USE/ims", $html, $arr)) $habitat_related = $arr[1];
             elseif(preg_match("/HABITAT-RELATED FIRE EFFECTS\:(.*?)<a name\=\"FIRE MANAGEMENT CONSIDERATIONS\"/ims", $html, $arr) || preg_match("/HABITAT RELATED FIRE EFFECTS\:(.*?)<a name\=\"FIRE MANAGEMENT CONSIDERATIONS\"/ims", $html, $arr)) $habitat_related = $arr[1];
             if(isset($habitat_related)) $descriptions["HABITAT RELATED FIRE EFFECTS"] = $habitat_related;
             //animals
@@ -1138,11 +1153,7 @@ class USDAfsfeisAPI
 
         /* MANAGEMENT CONSIDERATIONS */
         if(preg_match("/WOOD PRODUCTS VALUE \:(.*?)<b>IMPORTANCE TO LIVESTOCK/ims", $html, $arr) || preg_match("/WOOD PRODUCTS VALUE \:(.*?)<b>IMPORTANCE TO WILDLIFE/ims", $html, $arr)) $descriptions["WOOD PRODUCTS VALUE"] = $arr[1];
-        if(preg_match("/IMPORTANCE TO LIVESTOCK AND WILDLIFE \:(.*?)<b>PALATABILITY/ims", $html, $arr) ||
-           preg_match("/IMPORTANCE TO WILDLIFE AND LIVESTOCK\:(.*?)<a name\=\"Palatability/ims", $html, $arr) ||
-           preg_match("/IMPORTANCE TO WILDLIFE AND LIVESTOCK\:(.*?)<a name\=\"VALUE FOR REHABILITATION OF DISTURBED SITES/ims", $html, $arr) ||
-           preg_match("/IMPORTANCE TO LIVESTOCK AND WILDLIFE\:(.*?)<a name\=\"VALUE FOR REHABILITATION OF DISTURBED SITES/ims", $html, $arr) ||
-           preg_match("/IMPORTANCE TO LIVESTOCK AND WILDLIFE\:(.*?)<a name\=\"OTHER USES/ims", $html, $arr)) 
+        if(preg_match("/IMPORTANCE TO LIVESTOCK AND WILDLIFE \:(.*?)<b>PALATABILITY/ims", $html, $arr) || preg_match("/IMPORTANCE TO WILDLIFE AND LIVESTOCK\:(.*?)<a name\=\"Palatability/ims", $html, $arr) || preg_match("/IMPORTANCE TO WILDLIFE AND LIVESTOCK\:(.*?)<a name\=\"VALUE FOR REHABILITATION OF DISTURBED SITES/ims", $html, $arr) || preg_match("/IMPORTANCE TO LIVESTOCK AND WILDLIFE\:(.*?)<a name\=\"VALUE FOR REHABILITATION OF DISTURBED SITES/ims", $html, $arr) || preg_match("/IMPORTANCE TO LIVESTOCK AND WILDLIFE\:(.*?)<a name\=\"OTHER USES/ims", $html, $arr)) 
         {
             $impt_livestock = $arr[1];
             $descriptions["IMPORTANCE TO LIVESTOCK AND WILDLIFE"] = $impt_livestock;
@@ -1245,9 +1256,11 @@ class USDAfsfeisAPI
         elseif(preg_match("/DISCUSSION AND QUALIFICATION OF FIRE EFFECT\:(.*?)<a name\=\"PLANT RESPONSE TO FIRE/ims", $html, $arr)) $discussion_fire_effect = $arr[1];
         elseif(preg_match("/DISCUSSION AND QUALIFICATION OF FIRE EFFECT\:(.*?)<a name\=\"LICHEN RESPONSE TO FIRE/ims", $html, $arr)) $discussion_fire_effect = $arr[1];
         if(isset($discussion_fire_effect)) $descriptions["DISCUSSION AND QUALIFICATION OF FIRE EFFECT"] = $discussion_fire_effect;
+        
         if(preg_match("/PLANT RESPONSE TO FIRE \:(.*?)<b>DISCUSSION AND QUALIFICATION OF PLANT RESPONSE/ims", $html, $arr)) $plant_response_2fire = $arr[1];
         elseif(preg_match("/PLANT RESPONSE TO FIRE\:(.*?)<a name\=\"DISCUSSION AND QUALIFICATION OF PLANT RESPONSE/ims", $html, $arr)) $plant_response_2fire = $arr[1];
         if(isset($plant_response_2fire)) $descriptions["PLANT RESPONSE TO FIRE"] = $plant_response_2fire;
+        
         if(preg_match("/DISCUSSION AND QUALIFICATION OF PLANT RESPONSE \:(.*?)<b>FIRE MANAGEMENT CONSIDERATIONS/ims", $html, $arr)) $discussion_plant_response = $arr[1];
         elseif(preg_match("/DISCUSSION AND QUALIFICATION OF PLANT RESPONSE\:(.*?)<a name\=\"FIRE MANAGEMENT CONSIDERATIONS/ims", $html, $arr)) $discussion_plant_response = $arr[1];
         if(isset($discussion_plant_response))
@@ -1353,18 +1366,18 @@ class USDAfsfeisAPI
                 $description = str_ireplace(" \n(<a ", " (<a ", $description);
                 $description = str_ireplace("</a>), \n", "</a>), ", $description);
                 $topics_with_line_break = array("SAF COVER TYPES", "KUCHLER PLANT ASSOCIATIONS", "BLM PHYSIOGRAPHIC REGIONS", "STATES", "ECOSYSTEMS", "SRM (RANGELAND) COVER TYPES", "SYNONYMS", "COMMON NAMES", "TAXONOMY", "DISCUSSION AND QUALIFICATION OF PLANT RESPONSE", "NUTRITIONAL VALUE", "PALATABILITY", "OTHER MANAGEMENT CONSIDERATIONS", "HABITAT TYPES AND PLANT COMMUNITIES");
-                $urls_with_no_line_break = array();
-                if(!in_array($rec['url'], $urls_with_no_line_break))
+
+                // $urls_with_line_break = array("http://www.fs.fed.us/database/feis/animals/bird/aisp/all.html");
+                $urls_with_line_break = array();
+                if(in_array($rec['url'], $urls_with_line_break) || $rec["with_line_break"]) $description = str_ireplace("\n", "<br>", $description);
+                else
                 {
                     if(in_array($subject, $topics_with_line_break)) 
                     {
-                        if($subject == "HABITAT TYPES AND PLANT COMMUNITIES")
-                        {
-                            if($rec["with_line_break"]) $description = str_ireplace("\n", "<br>", $description);
-                        }
-                        else $description = str_ireplace("\n", "<br>", $description);
+                        $description = str_ireplace("\n", "<br>", $description);
                     }
                 }
+
                 if(stripos($description, "width=") != "") $description = self::remove_tag_attribute($description, "width");
                 if(stripos($description, "height=") != "") $description = self::remove_tag_attribute($description, "height");
                 if(stripos($description, "bgcolor=") != "") $description = self::remove_tag_attribute($description, "bgcolor");
@@ -1389,6 +1402,11 @@ class USDAfsfeisAPI
                 $description = str_ireplace("<br><br><br>", "<br><br>", $description);
                 $description = str_ireplace("<br><br></p>", "</p>", $description);
                 $description = str_ireplace("<br><p", "<p", $description);
+                foreach(array(".","0","1","2","3","4","5","6","7","8","9","(") as $char) // <.05 http://www.fs.fed.us/database/feis/plants/shrub/vaculi/all.html
+                {
+                    if(is_numeric(stripos($description, "<".$char))) $description = str_ireplace("<".$char, " less than ".$char, $description);
+                    // if(is_numeric(stripos($description, ">".$char))) // never use this
+                }
                 $description = self::clean_str(strip_tags($description, "<a><br><b><table><tr><td><ul><ol><li><strong><p><img>"), true);
                 // to maintain the hyperlinks in the text
                 $description = str_ireplace('href="../../../', 'href="' . $this->fsfeis_domain, $description);
@@ -1408,7 +1426,6 @@ class USDAfsfeisAPI
                 $description = self::remove_last_part_of_string($strings_2be_removed, trim($description));
                 $description = str_ireplace("<br><br><br><br>", "<br><br>", $description);
                 $description = str_ireplace("<br><br><br>", "<br><br>", $description);
-                if(isset($this->subject[$subject]['description'])) $description = $this->subject[$subject]['description'] . "<br><br>" . $description;
                 $description = str_ireplace(array("&Acirc;&#151;"), "", trim($description));
                 if(substr($description,0,8) == "<strong>" && substr($description, -9) == "</strong>")
                 {
@@ -1418,6 +1435,7 @@ class USDAfsfeisAPI
                 if(substr($description,0,4) == "<ul>" && substr($description, -5) == "</ul>") $description = "";
 
                 $reference_ids = self::get_object_reference_ids($description);
+                
                 /* FIRE CASE STUDY */
                 $fire_case_study_topics = array("SEASON/SEVERITY CLASSIFICATION", "STUDY LOCATION", "PREFIRE HABITAT", "SITE DESCRIPTION", "FIRE DESCRIPTION", "FIRE EFFECTS ON ANIMAL SPECIES AND HABITAT", "FIRE MANAGEMENT IMPLICATIONS");
                 if(in_array($subject, $fire_case_study_topics))
@@ -1455,10 +1473,20 @@ class USDAfsfeisAPI
                     echo "\n will continue...[$description][$spm]";
                     continue;
                 }
+                $description = self::adjust_paragraph(trim($description));
+                if(in_array($subject, array("LIFE FORM", "RAUNKIAER LIFE FORM"))) $description = self::process_life_form($description);
+                else 
+                {
+                    if($subject != "APPENDIX: FIRE REGIME TABLE") $description = self::word_more_info($description);
+                }
+                if(isset($this->subject[$subject]['description'])) $description = $this->subject[$subject]['description'] . "<br><br>" . $description;
+                if($rec["with_line_break"] && is_numeric(stripos($description, "&nbsp;&nbsp;&nbsp;&nbsp;"))) $description = "<pre>$description</pre>";
 
-                // start debug display
-                // if(in_array($subject, array("Ontogeny", "Phenology", "Home range"))) echo "\n $subject: \nsss[$description]jjj\n\n"; //debug
+                $description = self::disable_photos($description);
+                
                 echo "\n description: \nsss[$description]jjj"; //debug
+                // start debug display
+                // if(in_array($subject, array("PLANT RESPONSE TO FIRE"))) exit("\n\n $subject: \nsss[$description]jjj\n\n"); //debug
 
                 $i++;
                 $mr = new \eol_schema\MediaResource();
@@ -1485,7 +1513,91 @@ class USDAfsfeisAPI
             }
         }
         echo "\n\n count = $i\n";
-        if($i <= 10) echo " - less than 10x - " . $rec["url"] . "\n"; 
+        if($i <= 10) echo "ALERT: - less than 10x - " . $rec["url"] . "\n"; 
+    }
+    
+    private function disable_photos($html)
+    {
+        $html = self::clean_str(strip_tags($html, "<a><br><b><table><tr><td><ul><ol><li><strong><p>"), true);
+        $start_pos = stripos($html, "Photo by");
+        if(is_numeric($start_pos))
+        {
+            $pos = $start_pos + 8;
+            while(true)
+            {
+                $char = substr($html, $pos, 1);
+                if($char == "<") break;
+                if($pos-$start_pos >= 500) return $html;
+                $pos++;
+            }
+            $string_tobe_removed = substr($html, $start_pos, $pos-$start_pos);
+            echo "\n to be removed: [" . $string_tobe_removed . "]\n";
+            $this->debug_toberemoved[$string_tobe_removed] = 1;
+            return str_ireplace($string_tobe_removed, "", $html);
+        }
+        return $html;
+    }
+    private function process_life_form($description)
+    {
+        $description = trim(strip_tags($description, "<br>"));
+        $pos = stripos($description, '<a name="InformationAvailable">');
+        if(is_numeric($pos)) $description = trim(substr($description, 0, $pos));
+        $pos = stripos($description, '<a name="DISTRIBUTION%20AND%20OCCURRENCE">');
+        if(is_numeric($pos)) $description = trim(substr($description, 0, $pos));
+        $description = self::word_more_info($description, "LIFE FORM"); // includes RAUNKIAER LIFE FORM
+        return $description;
+    }
+
+    private function word_more_info($description, $subject = NULL)
+    {
+        $terms = $this->word;
+        $more_info = "";
+        $used = array();
+        foreach(array_keys($terms) as $word)
+        {
+            $link = $terms[$word];
+            $strings = array();
+            if($subject == "LIFE FORM") $strings[] = $word;
+            else
+            {
+                $strings[] = " " . $word . " ";
+                $strings[] = " " . $word . ".";
+                $strings[] = " " . $word . ",";
+                $strings[] = " " . $word . ";";
+            }
+            foreach($strings as $string)
+            {
+                if(is_numeric(stripos(strip_tags($description), $string)))
+                {
+                    if(!in_array($word, $used))
+                    {
+                        if($more_info) $more_info .= ", <a href='$link'><i>$word</i></a>";
+                        else $more_info .= "<a href='$link'><i>$word</i></a>";
+                        $used[] = $word;
+                    }
+                }
+            }
+        }
+        $word_term = count($used) > 1 ? "terms" : "term";
+        if($more_info) $description = "More info for the $word_term: " . $more_info . "<br><br>" . $description;
+        return utf8_encode($description);
+    }
+
+    private function adjust_paragraph($description)
+    {
+        $pos = stripos($description, "<p>");
+        if(is_numeric($pos))
+        {
+            if($pos > 0)
+            {
+                $first = trim(substr($description, 0, $pos));
+                $second = trim(substr($description, $pos, strlen($description)));
+                if(substr($first, -4) == "</p>") $description = "<p>$first" . $second;
+                else                             $description = "<p>$first</p>" . $second;
+            }
+        }
+        // else $description = "<p>$description</p>"; // no need to do this because we actually want an HTML-free text object
+        return $description;
     }
 
     private function get_object_reference_ids($description)
@@ -1497,6 +1609,7 @@ class USDAfsfeisAPI
             asort($arr[1]);
             foreach(array_unique($arr[1]) as $page_ref_no)
             {
+                if($page_ref_no == 77) echo "\n[" . $this->temp_page_reference_nos[$page_ref_no] . "]";
                 if(is_numeric($page_ref_no)) $reference_ids[] = $this->temp_page_reference_nos[$page_ref_no];
             }
         }
@@ -1569,8 +1682,8 @@ class USDAfsfeisAPI
         $taxon->scientificName              = $scientificName;
         $taxon->vernacularName              = (string) $rec['vernacular'];
         $taxon->kingdom                     = (string) $rec["kingdom"];
-        $taxon->class                       = (string) trim(@$rec["class"])  != "" ? $this->class_name[$rec["class"]]  : "";
-        $taxon->order                       = (string) trim(@$rec["order"])  != "" ? $rec["order"] : "";
+        $taxon->class                       = (string) trim(@$rec["class"]) != "" ? $this->class_name[$rec["class"]]  : "";
+        $taxon->order                       = (string) trim(@$rec["order"]) != "" ? $rec["order"] : "";
         $this->taxa[$taxon_id] = $taxon;
     }
     
@@ -1587,7 +1700,7 @@ class USDAfsfeisAPI
         {
             $html = $arr[1];
             $html = strip_tags($html, "<a><blockquote>"); // e.g. http://www.fs.fed.us/database/feis/plants/forb/tanvul/all.html
-            if(preg_match_all("/<a name\=\"(.*?)\]/ims", $html, $arr) || preg_match_all("/<blockquote>(.*?)<\/blockquote>/ims", $html, $arr))
+            if(preg_match_all("/<blockquote>(.*?)<\/blockquote>/ims", $html, $arr) || preg_match_all("/<a name\=\"(.*?)\]/ims", $html, $arr))
             {
                 foreach($arr[1] as $ref)
                 {
@@ -1595,7 +1708,6 @@ class USDAfsfeisAPI
                     else                                $ref = (string) '<a name="' . trim(utf8_encode($ref)) . "]";
                     if(preg_match("/<a name\=\"(.*?)\"/ims", $ref, $arr2)) $page_ref_no = $arr2[1];
                     $ref = self::clean_str(strip_tags($ref), true);
-                    if(!$ref) continue;
                     if($ref)
                     {   $r = new \eol_schema\Reference();
                         $r->full_reference = (string) trim($ref);
@@ -1607,14 +1719,56 @@ class USDAfsfeisAPI
                            $this->archive_builder->write_object_to_file($r);
                         }
                     }
+                    else continue;
                 }
             }
         }
         else echo "\n\n wasn't able to locate REFERENCES: ";
     }
 
+    private function generate_glossary_terms()
+    {
+        $url = "http://www.fs.fed.us/database/feis/glossary2.html";
+        if($html = Functions::get_remote_file($url, 3000000, 240, 5))
+        {
+            $html = (string) utf8_encode($html);
+            if(preg_match_all("/<strong>(.*?)<\/strong>/ims", $html, $arr))
+            {
+                foreach($arr[1] as $line)
+                {
+                    // <a name="caudex">caudex:</a> --- $this->word['caudex'] = "http://www.fs.fed.us/database/feis/glossary2.html#caudex";
+                    $href = false;
+                    $term = false;
+                    if(preg_match("/\"(.*?)\"/ims", $line, $match)) $href = $match[1];
+                    $line = str_ireplace(":", "", $line); // placed here bec sometimes the ':' is placed inside href
+                    if(preg_match("/>(.*?)</ims", $line, $match)) $term = $match[1];
+                    if($href && $term) $this->word[$term] = $url ."#" . $href;
+                }
+            }
+        }
+        // other 'Life form' terms, using wikipedia
+        $this->word['bryophyte'] = "http://en.wikipedia.org/wiki/Bryophyte";
+        $this->word['cactus'] = "http://en.wikipedia.org/wiki/Cactus";
+        $this->word['fern'] = "http://en.wikipedia.org/wiki/Fern";
+        $this->word['forb'] = "http://en.wikipedia.org/wiki/Forb";
+        $this->word['lichen'] = "http://en.wikipedia.org/wiki/Lichen";
+        $this->word['tree'] = "http://en.wikipedia.org/wiki/Tree";
+        $this->word['vine'] = "http://en.wikipedia.org/wiki/Vine";
+        $this->word['shrub'] = "http://en.wikipedia.org/wiki/Shrub";
+        $this->word['bryophytes'] = "http://en.wikipedia.org/wiki/Bryophyte";
+        $this->word['cacti'] = "http://en.wikipedia.org/wiki/Cactus";
+        $this->word['ferns'] = "http://en.wikipedia.org/wiki/Fern";
+        $this->word['forbs'] = "http://en.wikipedia.org/wiki/Forb";
+        $this->word['lichens'] = "http://en.wikipedia.org/wiki/Lichen";
+        // $this->word['trees'] = "http://en.wikipedia.org/wiki/Tree";
+        $this->word['vines'] = "http://en.wikipedia.org/wiki/Vine";
+        $this->word['shrubs'] = "http://en.wikipedia.org/wiki/Shrub";
+        ksort($this->word);
+    }
+    
     private function initialize_subjects()
     {
+        self::generate_glossary_terms();
         $this->subject['TAXONOMY']['title'] = "Taxonomy";
         $this->subject['TAXONOMY']['category'] = "http://eol.org/schema/eol_info_items.xml#Taxonomy";
         $this->subject['SYNONYMS']['title'] = "Synonyms";
@@ -1630,7 +1784,7 @@ class USDAfsfeisAPI
         $this->subject['ECOSYSTEMS']['title'] = "Habitat: Ecosystem";
         $this->subject['ECOSYSTEMS']['category'] = $this->SPM . "#Habitat";
         $this->subject['ECOSYSTEMS']['link'] = "http://en.wikipedia.org/wiki/Forest-Range_Environmental_Study_Ecosystems";
-        $this->subject['ECOSYSTEMS']['description'] = "This species is known to occur in the following ecosystem types (as named by the U.S. Forest Service in their Forest and Range Ecosystem [FRES] Type classification:";
+        $this->subject['ECOSYSTEMS']['description'] = "This species is known to occur in the following ecosystem types (as named by the U.S. Forest Service in their Forest and Range Ecosystem [FRES] Type classification):";
         $this->subject['STATES']['title'] = "Occurrence in North America";
         $this->subject['STATES']['category'] = $this->SPM . "#Distribution";
         $this->subject['BLM PHYSIOGRAPHIC REGIONS']['title'] = "Regional Distribution in the Western United States";

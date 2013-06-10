@@ -1,15 +1,16 @@
 <?php
 namespace php_active_record;
-/* estimated execution time:   */
+/* Featured Creatures Taxa Outlinks
+estimated execution time: 8 seconds */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/SciELOAPI');
+require_library('connectors/FeaturedCreaturesAPI');
 
 $timestart = time_elapsed();
-$resource_id = "487";
+$resource_id = "648";
 
-$scielo_connector = new SciELOAPI($resource_id);
-$scielo_connector->get_all_taxa();
+$func = new FeaturedCreaturesAPI($resource_id);
+$func->get_all_taxa(false); // 'true' if to generate text articles, 'false' for outlinks
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
@@ -23,10 +24,9 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     Functions::set_resource_status_to_force_harvest($resource_id);
 }
 
-
-
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
+echo "\n\n elapsed time = " . $elapsed_time_sec . " seconds";
+echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 exit("\n Done processing.");
 ?>
