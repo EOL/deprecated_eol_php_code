@@ -569,7 +569,7 @@ class SiteSearchIndexer
         );
         $total_results = $solr->count_groups_by_hash($main_query_parameters);
         echo "There are $total_results total $class_name indexed\n";
-        $iteration_size = 10000;
+        $iteration_size = 100000;
         $starting_record_id = 0;
         $last_record_id = 0;
 
