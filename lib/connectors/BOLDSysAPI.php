@@ -39,8 +39,8 @@ class BOLDSysAPI
         $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
         $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
         //this is not needed but just to have a clean directory
-        self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
-        self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml");
         self::initialize_text_file();
     }
 
@@ -67,8 +67,8 @@ class BOLDSysAPI
             // Set to force harvest
             Functions::set_resource_status_to_force_harvest($resource_id);
             // Delete temp files
-            self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
-            self::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml"); //debug Don't delete it if you want to check subsets of the resource XML.
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml"); //debug Don't delete it if you want to check subsets of the resource XML.
         }
     }
 
@@ -232,12 +232,6 @@ class BOLDSysAPI
                      "rightsHolder" => $rightsHolder,
                      "subject"      => $subject,
                      "agent"        => $agent);
-    }
-
-    function delete_temp_files($file_path, $file_extension = '*')
-    {
-        if(!$file_path) return;
-        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
     private function create_master_list()

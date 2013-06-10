@@ -17,17 +17,22 @@ define("FLICKR_AUTH_PREFIX", "http://api.flickr.com/services/auth/?");
 define("FLICKR_UPLOAD_URL", "http://www.flickr.com/services/upload/");
 define("FLICKR_EOL_GROUP_ID", "806927@N20");
 define("FLICKR_BHL_ID", "61021753@N02"); // BHL: BioDivLibrary's photostream - http://www.flickr.com/photos/61021753@N02
+define("FLICKR_SMITHSONIAN_ID", "51045845@N08"); // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
+
+// these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
+$GLOBALS['taxa'] = array();
+$GLOBALS['max_photos_per_taxon'] = false;
 
 class FlickrAPI
 {
-    public static function get_all_eol_photos($auth_token = "", $resource_file = null, $user_id = NULL)
+    public static function get_all_eol_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
         $all_taxa = array();
         $used_image_ids = array();
         $per_page = 500;
         
         // Get metadata about the EOL Flickr pool
-        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, $auth_token, $user_id);
+        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, $auth_token, $user_id, $start_date, $end_date);
         if($response && isset($response->photos->total))
         {
             $total = $response->photos->total;
@@ -39,7 +44,7 @@ class FlickrAPI
             for($i=1 ; $i<=$total_pages ; $i++)
             {
                 echo "getting page $i: ".time_elapsed()."\n";
-                $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id);
+                $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id, $start_date, $end_date);
                 if($page_taxa)
                 {
                     foreach($page_taxa as $t)
@@ -54,13 +59,15 @@ class FlickrAPI
         return $all_taxa;
     }
     
-    public static function get_eol_photos($per_page, $page, $auth_token = "", $user_id = NULL)
+    public static function get_eol_photos($per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
         global $used_image_ids;
         
-        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id);
+        $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
         echo "\n page " . $response->photos->page . " of " . $response->photos->pages . " | total taxa =  " . $response->photos->total . "\n";
-
+        echo "\n -- response count: " . count($response);
+        echo "\n -- response photos count per page: " . count($response->photos->photo) . "\n";
+        
         static $count_taxa = 0;
         $page_taxa = array();
         foreach($response->photos->photo as $photo)
@@ -69,7 +76,7 @@ class FlickrAPI
             $count_taxa++;
             echo "taxon $count_taxa ($photo->id): ".time_elapsed()."\n";
             
-            $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token);
+            $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token, $user_id);
             if($taxa)
             {
                 foreach($taxa as $t) $page_taxa[] = $t;
@@ -81,7 +88,7 @@ class FlickrAPI
         return $page_taxa;
     }
     
-    public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "")
+    public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "", $user_id = NULL)
     {
         if($file_json_object = self::check_cache('photosGetInfo', $photo_id, $last_update))
         {
@@ -124,6 +131,21 @@ class FlickrAPI
             elseif(preg_match("/^taxonomy:phylum=(.+)$/i", $string, $arr)) $parameters["phylum"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:kingdom=(.+)$/i", $string, $arr)) $parameters["kingdom"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:common=(.+)$/i", $string, $arr)) $parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($arr[1])));
+            
+            /* Photos from Smithsonian photostream that have tag "taxonomy:binomial" is already being shared in the EOL Flickr group.
+            So here we will only get those photos with tag "taxonomy:species" only, without "taxonomy:binomial" */
+            if($user_id == FLICKR_SMITHSONIAN_ID)
+            {
+                if(!preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr))
+                {
+                    if(preg_match("/^taxonomy:species=(.+ .+)$/i", $string, $arr))
+                    {
+                        if(!preg_match("/(unknown|unkown|company|worker|species)/i", $arr[1])) $parameters["scientificName"][] = ucfirst(trim($arr[1]));
+                    }
+                }
+                else continue; // those using taxonomy:binomial supposedly are already in the EOL Flickr group
+            }
+
         }
         
         $taxon_parameters = array();
@@ -163,6 +185,23 @@ class FlickrAPI
             if(@!$temp_params["scientificName"] && @!$temp_params["genus"] && @!$temp_params["family"] && @!$temp_params["order"] && @!$temp_params["class"] && @!$temp_params["phylum"] && @!$temp_params["kingdom"]) return false;
             
             $taxon_parameters[] = $temp_params;
+        }
+
+        if($user_id == FLICKR_SMITHSONIAN_ID) // we need to limit the number of photos per taxon for Smithsonian Wild Photostream
+        {
+            if($GLOBALS['max_photos_per_taxon'])
+            {
+                if($scientificName = @$taxon_parameters[0]["scientificName"])
+                {
+                    if(!@$GLOBALS['taxa'][$scientificName]) $GLOBALS['taxa'][$scientificName] = array();
+                    if(count(@$GLOBALS['taxa'][$scientificName]) >= $GLOBALS['max_photos_per_taxon']) 
+                    {
+                        echo "\n Info: " . $scientificName . " has " . $GLOBALS['max_photos_per_taxon'] . " photos now \n";
+                        return false;
+                    }
+                    if(!in_array($photo->id, @$GLOBALS['taxa'][$scientificName])) $GLOBALS['taxa'][$scientificName][] = $photo->id;
+                }
+            }
         }
         
         // get the data objects and add them to the parameter arrays
@@ -298,16 +337,14 @@ class FlickrAPI
         return json_decode($response);
     }
     
-    public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "", $user_id = NULL)
+    public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
         $extras = "last_update,media,url_o";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
-        if($user_id == FLICKR_BHL_ID)
+        if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID)))
         {
-            $extras = "last_update,media,url_o,owner_name";
-            /* remove group_id param to get images from BHL photostream, and not only those in the EOL Flickr group */
-            $text = "taxonomy:";
-            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
+            /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
+            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
         return json_decode(Functions::get_remote_file($url, NULL, 30));
     }
@@ -448,6 +485,80 @@ class FlickrAPI
         }
         return false;
     }
+
+    public static function get_photostream_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_year = NULL, $months_to_be_broken_down = NULL, $max_photos_per_taxon = NULL)
+    {
+        if($max_photos_per_taxon) $GLOBALS['max_photos_per_taxon'] = $max_photos_per_taxon;
+        $all_taxa = array();
+        $date_range = self::get_date_ranges($start_year);
+        echo "\n count: " . count($date_range);
+        if($months_to_be_broken_down)
+        {
+            foreach($months_to_be_broken_down as $date) $date_range = array_merge($date_range, self::get_date_ranges($date["year"], $date["month"]));
+            echo "\n count: " . count($date_range);
+        }
+        foreach($date_range as $range)
+        {
+            echo "\n\n From: " . $range["start"] . " To: " . $range["end"] . "\n";
+            $taxa = self::get_all_eol_photos($auth_token, $resource_file, $user_id, $range["start_timestamp"], $range["end_timestamp"]);
+            $all_taxa = array_merge($all_taxa, $taxa);
+        }
+        ksort($GLOBALS['taxa']);
+        print_r($GLOBALS['taxa']);
+        return $all_taxa;
+    }
+
+    private function get_date_ranges($start_year, $month = NULL)
+    {
+        $range = array();
+        if(!$month)
+        {
+            $current_year = date("Y");
+            for ($year = $start_year; $year <= $current_year; $year++)
+            {
+                if($year == $current_year) $month_limit = date("n");
+                else $month_limit = 12;
+                for ($month = 1; $month <= $month_limit; $month++)
+                {
+                    $start_date = $year . "-" . Functions::format_number_with_leading_zeros($month, 2) . "-01";
+                    $end_date = $year . "-" . Functions::format_number_with_leading_zeros($month, 2) . "-31";
+                    $range[] = self::get_timestamp_range($start_date, $end_date);
+                }
+            }
+        }
+        else
+        {
+            $month = Functions::format_number_with_leading_zeros($month, 2);
+            for ($day = 1; $day <= 30; $day++)
+            {
+                $start_date = $start_year . "-" . $month . "-" . Functions::format_number_with_leading_zeros($day, 2);
+                $end_date = $start_year . "-" . $month . "-" . Functions::format_number_with_leading_zeros($day+1, 2);
+                $range[] = self::get_timestamp_range($start_date, $end_date);
+            }
+            if($month == "12") // last day of the month to first day of the next month
+            {
+                $next_year = $start_year + 1;
+                $next_month = "01";
+            }
+            else
+            {
+                $next_year = $start_year;
+                $next_month = Functions::format_number_with_leading_zeros(intval($month) + 1, 2);
+            } 
+            $start_date = $start_year . "-" . $month . "-31";
+            $end_date = $next_year . "-" . $next_month . "-01";
+            $range[] = self::get_timestamp_range($start_date, $end_date);
+        }
+        return $range;
+    }
+
+    private function get_timestamp_range($start_date, $end_date)
+    {
+        $date_start = new \DateTime($start_date);
+        $date_end = new \DateTime($end_date);
+        return array("start" => $start_date, "end" => $end_date, "start_timestamp" => $date_start->getTimestamp(), "end_timestamp" => $date_end->getTimestamp());
+    }
+
 }
 
 ?>
