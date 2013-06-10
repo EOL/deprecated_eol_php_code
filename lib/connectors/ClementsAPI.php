@@ -97,7 +97,8 @@ class ClementsAPI
     private function get_extinction($rec)
     {
         if($rec["EXTINCT_YEAR"] == 'xxxx') return "Date of extinction unknown.";
-        elseif(is_numeric($rec["EXTINCT_YEAR"])) return "Year last seen in the wild: " . $rec["EXTINCT_YEAR"] . ".";
+        else return false;
+        // elseif(is_numeric($rec["EXTINCT_YEAR"])) return "Year last seen in the wild: " . $rec["EXTINCT_YEAR"] . "."; // to be moved to the structured data resource
     }
 
     private function get_texts($description, $rec, $title, $subject, $code, $reference_ids = null, $agent_ids = null)
@@ -135,7 +136,7 @@ class ClementsAPI
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonID = $taxon_id;
         $rank = trim($rec["CATEGORY"]);
-        if($rank == "species")
+        if(in_array($rank, array("species", "subspecies")))
         {
             $temp = explode(" ", trim($rec["SCIENTIFIC NAME"]));
             $genus = trim($temp[0]);
@@ -146,6 +147,9 @@ class ClementsAPI
         $taxon->scientificName              = (string) $rec["SCIENTIFIC NAME"];
         $taxon->scientificNameAuthorship    = "";
         $taxon->vernacularName              = $rec["ENGLISH NAME"];
+        $taxon->kingdom                     = "Animalia";
+        $taxon->phylum                      = "Chordata";
+        $taxon->class                       = "Aves";
         $taxon->order                       = $rec["ORDER"];
         $taxon->family                      = (string) self::remove_parenthesis($rec["FAMILY"]);
         debug("\n family: " . $taxon->family);
