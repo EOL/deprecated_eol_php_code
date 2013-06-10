@@ -1,5 +1,6 @@
 <?php
 namespace php_active_record;
+/* execution time: 21 minutes */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/USDAfsfeisAPI');
 $timestart = time_elapsed();
