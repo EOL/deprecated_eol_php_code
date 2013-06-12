@@ -163,7 +163,7 @@ function get_scientific_pages($xml)
     if(preg_match("/\{\{Taxonavigation/", $xml, $arr))
     {
         $page = new \WikimediaPage($xml);
-        if(preg_match("/^template\:/i", $page->title)) continue;
+        if(preg_match("/^template\:/i", $page->title)) return;
         $GLOBALS['scientific_pages'][$page->title] = 1;
         if($params = $page->taxon_parameters())
         {
