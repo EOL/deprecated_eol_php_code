@@ -8,7 +8,7 @@ class SiteSearchIndexer
     private $solr;
     private $objects;
     private $solr_server;
-    
+
     public function __construct($solr_server = SOLR_SERVER)
     {
         $this->mysqli =& $GLOBALS['db_connection'];
@@ -16,16 +16,16 @@ class SiteSearchIndexer
         else $this->mysqli_slave =& $this->mysqli;
         $this->solr_server = $solr_server;
         $this->solr = new SolrAPI($this->solr_server, 'site_search');
-        
+
         $this->indexable_types = array(
-            'Collection' => array('table_name' => 'collections', 'callback' => 'lookup_collections'),
-            'Community' => array('table_name' => 'communities', 'callback' => 'lookup_communities'),
-            'User' => array('table_name' => 'users', 'callback' => 'lookup_users'),
-            'DataObject' => array('table_name' => 'data_objects', 'callback' => 'lookup_objects'),
-            'TaxonConcept' => array('table_name' => 'taxon_concepts', 'callback' => 'index_taxa'),
-            'ContentPage' => array('table_name' => 'content_pages', 'callback' => 'lookup_content_pages'));
+            'Collection' =>     array('class_name' => 'Collection', 'table_name' => 'collections', 'callback' => 'lookup_collections'),
+            'Community' =>      array('class_name' => 'Community', 'table_name' => 'communities', 'callback' => 'lookup_communities'),
+            'User' =>           array('class_name' => 'User', 'table_name' => 'users', 'callback' => 'lookup_users'),
+            'DataObject' =>     array('class_name' => 'DataObject', 'table_name' => 'data_objects', 'callback' => 'lookup_objects'),
+            'TaxonConcept' =>   array('class_name' => 'TaxonConcept', 'table_name' => 'taxon_concepts', 'callback' => 'index_taxa'),
+            'ContentPage' =>    array('class_name' => 'ContentPage', 'table_name' => 'content_pages', 'callback' => 'lookup_content_pages'));
     }
-    
+
     public function recreate_index_for_class($class_name)
     {
         if(!($class_parameters = @$this->indexable_types[$class_name])) return;
@@ -41,7 +41,7 @@ class SiteSearchIndexer
         }
         $this->solr->commit_objects_in_file();
     }
-    
+
     public function index_type($class_name, &$ids)
     {
         if(!$ids) return;
@@ -53,7 +53,7 @@ class SiteSearchIndexer
         }
         $this->solr->commit_objects_in_file();
     }
-    
+
     private function insert_batch($class_name, &$ids)
     {
         if(!$ids) return;
@@ -62,35 +62,35 @@ class SiteSearchIndexer
         debug("Looking up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage());
         call_user_func(array($this, $class_parameters['callback']), $ids);
         debug("Looked up $class_name .. Time: ". time_elapsed()." .. Mem: ". memory_get_usage());
-        
+
         // delete old ones
         $queries = array();
         foreach($ids as $id) $queries[] = "resource_unique_key:". $class_name ."_$id";
         $this->solr->delete_by_queries($queries, false);
-        
+
         // add new ones if available
-        if(isset($this->objects))
+        if(isset($this->objects) && $this->objects)
         {
             if($class_name == 'TaxonConcept') $this->send_concept_objects_to_solr();
             else $this->solr->send_attributes_in_bulk($this->objects);
         }
         $this->solr->commit();
     }
-    
+
     public function index_collection($collection_id)
     {
         $ids = array($collection_id);
         $this->index_type('Collection', $ids);
         $this->solr->commit_objects_in_file();
     }
-    
+
     public function index_taxa($ids)
     {
         $this->lookup_names($ids);
         $this->lookup_ancestors($ids);
         $this->lookup_richness($ids);
     }
-    
+
     public function send_concept_objects_to_solr()
     {
         $objects_to_send = array();
@@ -156,7 +156,7 @@ class SiteSearchIndexer
         }
         $this->solr->send_attributes_in_bulk($objects_to_send);
     }
-    
+
     function lookup_names(&$ids)
     {
         $this->lookup_and_cache_language_iso_codes();
@@ -170,7 +170,7 @@ class SiteSearchIndexer
             AND tc.id IN (". implode(",", $ids) .")";
         $untrusted_id = Vetted::untrusted()->id;
         $inappropriate_id = Vetted::inappropriate()->id;
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $id = $row[0];
             $vetted_id = SolrApi::text_filter($row[1]);
@@ -181,7 +181,7 @@ class SiteSearchIndexer
             $string = SolrApi::text_filter($row[6]);
             $name_vetted_id = SolrApi::text_filter($row[7]);
             if(!$string) continue;
-            
+
             if($vern)
             {
                 $language_iso = @$GLOBALS['language_iso_codes'][$language_id] ?: 'unknown';
@@ -208,10 +208,10 @@ class SiteSearchIndexer
         }
         $this->remove_duplicate_scientific_and_common_names();
     }
-    
+
     function remove_duplicate_scientific_and_common_names()
     {
-        // if any common name is also a scientific name - then remove the common name 
+        // if any common name is also a scientific name - then remove the common name
         foreach($this->objects as $id => $arr)
         {
             if(isset($arr['preferred_commons']))
@@ -250,35 +250,35 @@ class SiteSearchIndexer
             }
         }
     }
-    
+
     function lookup_ancestors(&$ids)
     {
         $query = "
             SELECT taxon_concept_id id, ancestor_id
             FROM taxon_concepts_flattened tcf
             WHERE tcf.taxon_concept_id IN (". implode(",", $ids) .")";
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $id = $row[0];
             $ancestor_id = $row[1];
             $this->objects[$id]['ancestor_taxon_concept_id'][$ancestor_id] = 1;
         }
     }
-    
+
     function lookup_richness(&$ids)
     {
         $query = "
             SELECT taxon_concept_id, richness_score
             FROM taxon_concept_metrics
             WHERE taxon_concept_id IN (". implode(",", $ids) .")";
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $id = $row[0];
             $richness_score = $row[1];
             $this->objects[$id]['richness_score'] = $richness_score;
         }
     }
-    
+
     function lookup_objects(&$ids)
     {
         $query = "
@@ -293,14 +293,14 @@ class SiteSearchIndexer
             AND (dohe.visibility_id=". Visibility::visible()->id ." OR cdohe.visibility_id=". Visibility::visible()->id ." OR udo.visibility_id=". Visibility::visible()->id .")
             AND do.id IN (". implode(",", $ids) .")";
         $used_ids = array();
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             if(isset($row[3]) && preg_match("/^[0-9a-z]{32}$/i", $row[1]))
             {
                 $id = $row[0];
                 if(isset($used_ids[$id])) continue;
                 $used_ids[$id] = 1;
-                
+
                 $guid = $row[1];
                 $object_title = SolrApi::text_filter($row[2]);
                 $description = SolrApi::text_filter($row[3]);
@@ -308,7 +308,7 @@ class SiteSearchIndexer
                 $updated_at = SolrApi::text_filter($row[5], true);
                 $language_iso = SolrApi::text_filter($row[6]);
                 $data_type_id = SolrApi::text_filter($row[7]);
-                
+
                 $data_types = array();
                 $data_types['DataObject'] = 1;
                 $resource_weight = 100;
@@ -330,7 +330,7 @@ class SiteSearchIndexer
                     $resource_weight = 50;
                 }
                 else continue;
-                
+
                 $base_attributes = array(
                     'resource_type'             => $data_types,
                     'resource_id'               => $id,
@@ -356,7 +356,7 @@ class SiteSearchIndexer
             }
         }
     }
-    
+
     function lookup_users(&$ids)
     {
         $query = "
@@ -365,7 +365,7 @@ class SiteSearchIndexer
             WHERE active = 1
             AND hidden != 1
             AND id IN (". implode(",", $ids) .")";
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $id = $row[0];
             $username = SolrApi::text_filter($row[1]);
@@ -373,7 +373,7 @@ class SiteSearchIndexer
             $family_name = SolrApi::text_filter($row[3]);
             $created_at = SolrApi::text_filter($row[4], true);
             $updated_at = SolrApi::text_filter($row[5], true);
-            
+
             $base = array(
                 'resource_type'             => 'User',
                 'resource_id'               => $id,
@@ -386,21 +386,21 @@ class SiteSearchIndexer
             $record['keyword_type'] = 'username';
             $record['keyword'] = $username;
             if($record['keyword']) $this->objects[] = $record;
-            
+
             $record = $base;
             $record['keyword_type'] = 'full_name';
             $record['keyword'] = trim($given_name ." ". $family_name);
             if($record['keyword']) $this->objects[] = $record;
         }
     }
-    
+
     function lookup_collections(&$ids)
     {
         $query = "
             SELECT id, name, description, UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at), special_collection_id, published
             FROM collections
             WHERE id IN (". implode(",", $ids) .")";
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $id = $row[0];
             $name = SolrApi::text_filter($row[1]);
@@ -411,7 +411,7 @@ class SiteSearchIndexer
             $published = SolrApi::text_filter($row[6]);
             if(!$published) continue;
             if($special_collection_id == SpecialCollection::watch()->id) continue; // users watch collection
-            
+
             $base = array(
                 'resource_type'             => 'Collection',
                 'resource_id'               => $id,
@@ -424,7 +424,7 @@ class SiteSearchIndexer
             $record['keyword_type'] = 'name';
             $record['keyword'] = $name;
             $this->objects[] = $record;
-            
+
             if($description)
             {
                 $record = $base;
@@ -435,14 +435,14 @@ class SiteSearchIndexer
             }
         }
     }
-    
+
     function lookup_communities($ids)
     {
         $query = "
             SELECT c.id, c.name, c.description, UNIX_TIMESTAMP(c.created_at), UNIX_TIMESTAMP(c.updated_at), c.published
             FROM communities c
             WHERE c.id IN (". implode(",", $ids) .")";
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $id = $row[0];
             $name = SolrApi::text_filter($row[1]);
@@ -451,7 +451,7 @@ class SiteSearchIndexer
             $updated_at = SolrApi::text_filter($row[4], true);
             $published = SolrApi::text_filter($row[5]);
             if(!$published) continue;
-            
+
             $base = array(
                 'resource_type'             => 'Community',
                 'resource_id'               => $id,
@@ -464,7 +464,7 @@ class SiteSearchIndexer
             $record['keyword_type'] = 'name';
             $record['keyword'] = $name;
             if($record['keyword']) $this->objects[] = $record;
-            
+
             if($description)
             {
                 $record = $base;
@@ -475,7 +475,7 @@ class SiteSearchIndexer
             }
         }
     }
-    
+
     function lookup_content_pages(&$ids)
     {
         $this->lookup_and_cache_language_iso_codes();
@@ -487,7 +487,7 @@ class SiteSearchIndexer
             WHERE cp.active=1
             AND tcp.active_translation=1
             AND cp.id IN (". implode(",", $ids) .")";
-        foreach($this->mysqli_slave->iterate($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate($query) as $row)
         {
             $id = $row['id'];
             $page_name = SolrApi::text_filter($row['page_name']);
@@ -501,7 +501,7 @@ class SiteSearchIndexer
             $updated_at = SolrApi::text_filter($row['updated_at'], true);
             $language_iso = @$GLOBALS['language_iso_codes'][$language_id];
             if(!$language_iso) continue;
-            
+
             $base = array(
                 'resource_type'             => 'ContentPage',
                 'resource_id'               => $id,
@@ -509,47 +509,128 @@ class SiteSearchIndexer
                 'resource_weight'           => 25,
                 'date_created'              => $created_at,
                 'date_modified'             => $updated_at);
-            
+
             $record = $base;
             $record['keyword_type'] = 'page_name';
             $record['keyword'] = $page_name;
             $record['language'] = 'en';
             if($record['keyword']) $this->objects[] = $record;
-            
+
             $record['keyword_type'] = 'title';
             $record['keyword'] = $title;
             $record['language'] = $language_iso;
             if($record['keyword']) $this->objects[] = $record;
-            
+
             $record['keyword_type'] = 'meta_keywords';
             $record['keyword'] = $meta_keywords;
             if($record['keyword']) $this->objects[] = $record;
-            
+
             $record['full_text'] = true;
             $record['keyword_type'] = 'left_content';
             $record['keyword'] = $left_content;
             if($record['keyword']) $this->objects[] = $record;
-            
+
             $record['keyword_type'] = 'main_content';
             $record['keyword'] = $main_content;
             if($record['keyword']) $this->objects[] = $record;
-            
+
             $record['keyword_type'] = 'meta_description';
             $record['keyword'] = $meta_description;
             if($record['keyword']) $this->objects[] = $record;
         }
     }
-    
+
     function lookup_and_cache_language_iso_codes()
     {
         if(@$GLOBALS['language_iso_codes']) return $GLOBALS['language_iso_codes'];
         $GLOBALS['language_iso_codes'] = array();
         $query = "SELECT id, iso_639_1 FROM languages WHERE iso_639_1 != ''";
-        foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $id = $row[0];
             $iso_639_1 = $row[1];
             $GLOBALS['language_iso_codes'][$id] = $iso_639_1;
+        }
+    }
+
+    function sync_latest_versions_of_type($class_name)
+    {
+        if(!($class_parameters = @$this->indexable_types[$class_name])) return;
+        $maximum_record_id = $this->mysqli->select_value("SELECT MAX(id) FROM ". $class_parameters['table_name']);
+
+        $solr = new SolrAPI(SOLR_SERVER, 'site_search');
+        $main_query_parameters = array(
+            'query' => 'resource_type:' . $class_name,
+            'wt' => 'json',
+            'fl' => 'resource_id',
+            'group' => 'true',
+            'group.field' => 'resource_unique_key',
+            'sort' => 'resource_id asc'
+        );
+        $total_results = $solr->count_groups_by_hash($main_query_parameters);
+        echo "There are $total_results total $class_name indexed\n";
+        $iteration_size = 100000;
+        $starting_record_id = 0;
+        $last_record_id = 0;
+
+        for($i=0 ; $i<$total_results ; $i += $iteration_size)
+        {
+            echo "batch ". (($i + $iteration_size)/$iteration_size) ." of ". (ceil($total_results/$iteration_size)) ." :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
+            $batch_record_ids = array();
+            $groups = $solr->get_groups($main_query_parameters + array('rows' => $iteration_size, 'start' => $i));
+            foreach($groups as $group)
+            {
+                $record_id = $group->doclist->docs[0]->resource_id;
+                $batch_record_ids[] = $record_id;
+                $last_record_id = $record_id;
+            }
+            $this->sync_batch_of_type($class_parameters, $starting_record_id, $last_record_id, $batch_record_ids);
+            $starting_record_id = $last_record_id + 1;
+        }
+
+        // add anything higher than $starting_record_id
+        $main_query_parameters['sort'] = 'resource_id desc';
+        $groups = $solr->get_groups($main_query_parameters + array('rows' => 1, 'start' => 0));
+        $maximum_id_in_solr = $groups[0]->doclist->docs[0]->resource_id;
+        $higher_published_ids = array();
+        $query = "SELECT id FROM ". $class_parameters['table_name'] ." WHERE id > $maximum_id_in_solr";
+        if(in_array($class_parameters['class_name'], array('TaxonConcept', 'DataObject', 'Collection', 'Community'))) $query .= " AND published=1";
+        elseif($class_parameters['class_name'] == 'User') $query .= " AND active=1 AND hidden!=1";
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
+        {
+            $higher_published_ids[] = $row[0];
+        }
+        if($higher_published_ids)
+        {
+            echo "Add these (at the end):\n";
+            print_r($higher_published_ids);
+            $this->index_type($class_parameters['class_name'], $higher_published_ids);
+        }
+    }
+
+    function sync_batch_of_type($class_parameters, $starting_record_id, $last_record_id, $batch_record_ids)
+    {
+        $published_ids_in_this_range = array();
+        $query = "SELECT id FROM ". $class_parameters['table_name'] ." WHERE id BETWEEN $starting_record_id AND $last_record_id";
+        if(in_array($class_parameters['class_name'], array('TaxonConcept', 'DataObject', 'Collection', 'Community'))) $query .= " AND published=1";
+        elseif($class_parameters['class_name'] == 'User') $query .= " AND active=1 AND hidden!=1";
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
+        {
+            $published_ids_in_this_range[] = $row[0];
+        }
+        $ids_needing_to_be_added = array_diff($published_ids_in_this_range, $batch_record_ids);
+        $ids_needing_to_be_removed = array_diff($batch_record_ids, $published_ids_in_this_range);
+        if($ids_needing_to_be_added)
+        {
+            echo "Add these:\n";
+            print_r($ids_needing_to_be_added);
+            $this->index_type($class_parameters['class_name'], $ids_needing_to_be_added);
+        }
+        if($ids_needing_to_be_removed)
+        {
+            echo "Remove these:\n";
+            print_r($ids_needing_to_be_removed);
+            $this->index_type($class_parameters['class_name'], $ids_needing_to_be_removed);
         }
     }
 }

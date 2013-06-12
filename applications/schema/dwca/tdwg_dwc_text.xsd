@@ -28,7 +28,7 @@
     
     <!-- attributes shared across all file types, core or extensions -->
     <xs:attributeGroup name="fileAttributes">
-        <xs:attribute name="linesTerminatedBy" type="xs:string" use="optional" default="n"/>
+        <xs:attribute name="linesTerminatedBy" type="xs:string" use="optional" default="\n"/>
         <xs:attribute name="fieldsTerminatedBy" type="xs:string" use="optional" default=","/>
         <xs:attribute name="fieldsEnclosedBy" type="xs:string" use="optional" default="&quot;"/>
         <xs:attribute name="ignoreHeaderLines" type="xs:integer" use="optional" default="0"/>
