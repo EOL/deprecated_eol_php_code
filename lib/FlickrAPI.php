@@ -250,6 +250,8 @@ class FlickrAPI
         $agent_parameters["homepage"] = "http://www.flickr.com/photos/".$photo->owner->nsid;
         $agent_parameters["role"] = "photographer";
         
+        $data_object_parameters["rightsHolder"] = $agent_parameters["fullName"];
+        
         $data_object_parameters["agents"] = array();
         $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);
         

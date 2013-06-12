@@ -12,7 +12,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $resource_id = 21;
 $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
 
-$file = 'http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/amphib_dump.xml';
+// $file = 'http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/amphib_dump.xml';
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
 if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 1200, 5))
 {
@@ -45,7 +45,10 @@ if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 12
         $speciesName = utf8_decode((string) trim($species->species));
         $order = utf8_decode((string) trim($species->ordr));
         $family = utf8_decode((string) trim($species->family));
+        
         $commonNames = utf8_decode((string) trim($species->common_name));
+        $commonNames = explode(",", $commonNames);
+        
         $submittedBy = utf8_decode((string) trim($species->submittedby));
         $editedBy = utf8_decode((string) trim($species->editedby));
         $description = utf8_decode((string) trim($species->description));
@@ -96,6 +99,12 @@ if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 12
         $taxonParameters["order"] = $order;
         $taxonParameters["family"] = $family;
         $taxonParameters["scientificName"] = $nameString;
+        
+        foreach($commonNames as $common_name)
+        {
+            $taxonParameters['commonNames'][] = new \SchemaCommonName(array("name" => $common_name, "language" => "en"));
+        }
+        
         $taxonParameters["dataObjects"] = array();
 
         $dataObjects = array();
