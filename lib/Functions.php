@@ -188,6 +188,27 @@ class Functions
         return $file_contents;
     }
 
+    public static function url_already_cached($url, $options = array())
+    {
+        // default expire time is 30 days
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
+        $md5 = md5($url);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists(DOC_ROOT . "tmp/cache/$cache1")) return false;
+        if(!file_exists(DOC_ROOT . "tmp/cache/$cache1/$cache2")) return false;
+        $cache_path = DOC_ROOT . "tmp/cache/$cache1/$cache2/$md5.cache";
+        if(!file_exists($cache_path)) return false;
+        $file_age_in_seconds = time() - filemtime($cache_path);
+        if($file_age_in_seconds >= $options['expire_seconds']) return false;
+        if($options['validation_regex'])
+        {
+            $file_contents = file_get_contents($cache_path);
+            if(!preg_match("/". $options['validation_regex'] ."/ims", $file_contents)) return false;
+        }
+        return true;
+    }
+
     public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
     {
         debug("Grabbing $remote_url: attempt 1: waiting $download_wait_time");

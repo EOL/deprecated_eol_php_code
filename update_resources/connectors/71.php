@@ -109,6 +109,7 @@ function iterate_files($callback, $title = false)
 
 function process_file($part_suffix, $left_overs, $callback, $title = false)
 {
+    global $base_directory_path;
     echo "Processing file $part_suffix with callback $callback ".memory_get_usage()."\n";
     flush();
     $FILE = fopen($base_directory_path . "wikimedia/part_".$part_suffix, "r");
