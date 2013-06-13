@@ -6,6 +6,9 @@ $GLOBALS['ENV_DEBUG'] = false;
 
 
 
+shell_exec("rm -fr ". DOC_ROOT ."temp/data/*");
+shell_exec("rm -fr ". DOC_ROOT ."temp/data.zip");
+
 shell_exec("curl http://www.biodiversitylibrary.org/data/data.zip -o ". DOC_ROOT ."temp/data.zip");
 shell_exec("unzip ". DOC_ROOT ."temp/data.zip -d ". DOC_ROOT ."temp/data");
 
@@ -14,8 +17,6 @@ insert_items();
 insert_pages();
 insert_page_names();
 
-// shell_exec("rm -fr ". DOC_ROOT ."temp/data/*");
-// shell_exec("rm -fr ". DOC_ROOT ."temp/data.zip");
 
 
 
@@ -133,7 +134,6 @@ function insert_pages()
             
             fwrite($OUT, implode("\t", $details) ."\n");
         }
-        //if($i>=500000) break;
     }
     
     if(filesize(DOC_ROOT ."temp/pages.txt"))
@@ -162,16 +162,20 @@ function insert_page_names()
             $data = explode("\t", $line);
             $name_id = $data[0];
             $page_id = $data[2];
-                
+
             if($name_id) fwrite($OUT, "$page_id\t$name_id\n");
         }
-        //if($i>=500000) break;
     }
     
     if(filesize(DOC_ROOT ."temp/page_names.txt"))
     {
-        $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS page_names_tmp LIKE page_names");
-        $GLOBALS['db_connection']->delete("TRUNCATE TABLE page_names_tmp");
+        $GLOBALS['db_connection']->query("DROP TABLE IF EXISTS `page_names_tmp`");
+        $GLOBALS['db_connection']->query("CREATE TABLE `page_names_tmp` (
+              `item_page_id` int(10) unsigned NOT NULL,
+              `name_id` int(10) unsigned NOT NULL,
+              PRIMARY KEY (`name_id`,`item_page_id`),
+              KEY `item_page_id` (`item_page_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/page_names.txt", "page_names_tmp", "IGNORE", '', 100000, 500000);
         $GLOBALS['db_connection']->swap_tables('page_names_tmp', 'page_names');
     }
@@ -179,3 +183,4 @@ function insert_page_names()
 }
 
 ?>
+

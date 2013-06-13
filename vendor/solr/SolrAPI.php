@@ -12,7 +12,7 @@ class SolrAPI
     private $csv_path;
     private $csv_bulk_path;
     private $action_url;
-    
+
     public function __construct($s = SOLR_SERVER, $core = '', $d = SOLR_FILE_DELIMITER, $mv = SOLR_MULTI_VALUE_DELIMETER)
     {
         $this->server = trim($s);
@@ -21,16 +21,16 @@ class SolrAPI
         if(preg_match("/^(.*)\/$/", $this->core, $arr)) $this->core = $arr[1];
         $this->file_delimiter = $d;
         $this->multi_value_delimiter = $mv;
-        
+
         $this->csv_path = temp_filepath(true);
         $this->csv_bulk_path = temp_filepath(true);
         $this->multi_valued_fields_in_csv = array();
         $this->action_url = $this->server . $this->core;
         if(preg_match("/^(.*)\/$/", $this->action_url, $arr)) $this->action_url = $arr[1];
-        
+
         $this->load_schema();
     }
-    
+
     function __destruct()
     {
         clearstatcache();
@@ -38,7 +38,7 @@ class SolrAPI
         @unlink(DOC_ROOT . $this->csv_path);
         @unlink(DOC_ROOT . $this->csv_bulk_path);
     }
-    
+
     public static function ping($s = SOLR_SERVER, $c = '')
     {
         $server = trim($s);
@@ -51,61 +51,61 @@ class SolrAPI
         if($schema) return true;
         return false;
     }
-    
+
     private function load_schema()
     {
         // load schema XML
         $response = simplexml_load_string(file_get_contents($this->action_url . "/admin/file/?file=schema.xml"));
-        
+
         // set primary key field name
         $this->primary_key = (string) $response->uniqueKey;
-        
+
         // create empty object that maps to each field name; will be array if multivalued
         $this->schema_object = new \stdClass();
         foreach($response->fields->field as $field)
         {
             $field_name = (string) $field['name'];
             $multi_value = (string) @$field['multiValued'];
-            
+
             if($multi_value) $this->schema_object->$field_name = array();
             else $this->schema_object->$field_name = '';
         }
     }
-    
-    /* Sample SOLR query JSON response
-      {
-          "responseHeader": {
-              "status":0,
-              "QTime":929,
-              "params": {
-                  "sort":"confidence desc,
-                   visibility_id_1 desc",
-                  "start":"10000",
-                  "q":" { !lucene } (hierarchy_id_1:105 OR hierarchy_id_2:147) AND same_concept:false",
-                  "wt":"json",
-                  "rows":"2"
-              }
-          },
-          "response": {
-              "numFound":1104982,
-              "start":10000,
-              "docs": { }
-          }
-      } */
-    public function query($query)
+
+    public function convert_hash_to_query($parameter_hash)
+    {
+        $parameters = array($parameter_hash['query']);
+        unset($parameter_hash['query']);
+        foreach($parameter_hash as $key => $value) $parameters[] = "$key=$value";
+        return implode("&", $parameters);
+    }
+
+    public function raw_query($query)
     {
         debug("Solr query: $query\n");
-        $json = json_decode(file_get_contents($this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json"));
+        return json_decode(file_get_contents($this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json"));
+    }
+
+    public function query($query)
+    {
+        $json = $this->raw_query($query);
         return $json->response;
     }
-    
+
     public function get_results($query)
     {
         $objects = array();
         $response = $this->query($query);
         return $response->docs;
     }
-    
+
+    public function get_groups($parameter_hash)
+    {
+        $query = $this->convert_hash_to_query($parameter_hash);
+        $response = $this->raw_query($query);
+        return $response->grouped->{ $parameter_hash['group.field'] }->groups;
+    }
+
     public function count_results($query)
     {
         $response = $this->query($query . "&rows=0");
@@ -113,7 +113,16 @@ class SolrAPI
         unset($response);
         return $total_results;
     }
-    
+
+    public function count_groups_by_hash($parameter_hash)
+    {
+        $query = $this->convert_hash_to_query($parameter_hash);
+        $response = $this->raw_query($query . "&rows=0");
+        $total_results = $response->grouped->{ $parameter_hash['group.field'] }->matches;
+        unset($response);
+        return $total_results;
+    }
+
     public function commit()
     {
         if($GLOBALS['ENV_DEBUG']) echo("Solr commit $this->action_url\n");
@@ -121,7 +130,7 @@ class SolrAPI
         $extra_bit = @$extra_bit ?: '';
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml $extra_bit");
     }
-    
+
     public function optimize()
     {
         if($GLOBALS['ENV_DEBUG']) echo("Solr optimize $this->action_url\n");
@@ -129,7 +138,7 @@ class SolrAPI
         $extra_bit = @$extra_bit ?: '';
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/optimize.xml $extra_bit");
     }
-    
+
     public function delete_all_documents()
     {
         if($GLOBALS['ENV_DEBUG']) echo("Solr delete_all_documents $this->action_url\n");
@@ -139,7 +148,7 @@ class SolrAPI
         $this->commit();
         $this->optimize();
     }
-    
+
     public function swap($from_core, $to_core)
     {
         if($GLOBALS['ENV_DEBUG']) echo("Solr swap $this->action_url\n");
@@ -147,7 +156,7 @@ class SolrAPI
         $extra_bit = @$extra_bit ?: '';
         exec("curl ". $this->server ."admin/cores -F action=SWAP -F core=$from_core -F other=$to_core $extra_bit");
     }
-    
+
     public function reload($core)
     {
         if($GLOBALS['ENV_DEBUG']) echo("Solr reload $this->action_url\n");
@@ -155,7 +164,7 @@ class SolrAPI
         $extra_bit = @$extra_bit ?: '';
         exec("curl ". $this->server ."admin/cores -F action=RELOAD -F core=$core $extra_bit");
     }
-    
+
     public function delete_by_ids($ids, $commit = true)
     {
         if(!$ids) return;
@@ -168,19 +177,19 @@ class SolrAPI
         }
         fwrite($OUT, "</delete>");
         fclose($OUT);
-        
+
         if($GLOBALS['ENV_DEBUG']) echo("Solr delete $this->action_url\n");
         if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
         $extra_bit = @$extra_bit ?: '';
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path $extra_bit");
         if($commit) $this->commit();
     }
-    
+
     public function delete($query, $commit = true)
     {
         $this->delete_by_queries(array($query), $commit);
     }
-    
+
     public function delete_by_queries($queries, $commit = true)
     {
         if(!$queries) return;
@@ -193,19 +202,19 @@ class SolrAPI
         }
         fwrite($OUT, "</delete>");
         fclose($OUT);
-        
+
         if($GLOBALS['ENV_DEBUG']) echo("Solr delete $this->action_url\n");
         if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
         $extra_bit = @$extra_bit ?: '';
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."$this->csv_path $extra_bit");
         if($commit) $this->commit();
     }
-    
+
     public function write_objects_to_file($objects)
     {
         clearstatcache();
         $OUT = fopen(DOC_ROOT . $this->csv_bulk_path, "a+");
-        
+
         $fields = array_keys(get_object_vars($this->schema_object));
         if(!filesize(DOC_ROOT . $this->csv_bulk_path))
         {
@@ -217,7 +226,7 @@ class SolrAPI
                 fwrite($OUT, implode($this->file_delimiter, $fields) . "\n");
             }
         }
-        
+
         foreach($objects as $primary_key => $attributes)
         {
             $this_attr = array();
@@ -245,7 +254,7 @@ class SolrAPI
         }
         fclose($OUT);
     }
-    
+
     public function commit_objects_in_file()
     {
         clearstatcache();
@@ -256,7 +265,7 @@ class SolrAPI
             $curl .= " -F f.$field.split=true -F f.$field.separator='". $this->multi_value_delimiter ."'";
         }
         $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$this->csv_bulk_path -F stream.contentType='text/plain;charset=utf-8'";
-        
+
         if($GLOBALS['ENV_DEBUG']) echo("Solr send_attributes $curl\n");
         if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
         $extra_bit = @$extra_bit ?: '';
@@ -265,13 +274,13 @@ class SolrAPI
         @unlink(DOC_ROOT . $this->csv_bulk_path);
         $this->multi_valued_fields_in_csv = array();
     }
-    
+
     public function send_attributes($objects)
     {
         $this->write_objects_to_file($objects);
         $this->commit_objects_in_file();
     }
-    
+
     public function send_attributes_in_bulk($objects)
     {
         $this->write_objects_to_file($objects);
@@ -280,7 +289,7 @@ class SolrAPI
         clearstatcache();
         if(filesize(DOC_ROOT . $this->csv_bulk_path) >= 5000000) $this->commit_objects_in_file();
     }
-    
+
     public function send_from_mysql_result($outfile)
     {
         if(preg_match("/(tmp\/tmp_[0-9]{5}\.file$)/", $outfile, $arr))
@@ -290,7 +299,7 @@ class SolrAPI
              $curl = "curl ". $this->action_url ."/update/csv -F separator='\t'";
              $curl .= " -F header=false -F fieldnames=".implode(",", $fields);
              $curl .= " -F stream.url=".LOCAL_WEB_ROOT."$outfile_path -F stream.contentType='text/plain;charset=utf-8'";
-             
+
              if($GLOBALS['ENV_DEBUG']) echo("Solr send_from_mysql_result $this->action_url\n");
              if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
              $extra_bit = @$extra_bit ?: '';
@@ -298,7 +307,7 @@ class SolrAPI
              $this->commit();
         }
     }
-    
+
     private function doc_to_object($doc)
     {
         $object = clone $this->schema_object;
@@ -309,15 +318,15 @@ class SolrAPI
             if(isset($attr->str)) $value = (string) $attr->str;
             else $value = (int) $attr->int;
             $name = (string) $attr['name'];
-            
+
             if(isset($object->$name) && is_array($object->$name)) array_push($object->$name, $value);
             else $object->$name = $value;
         }
-        
+
         return $object;
     }
-    
-    
+
+
     public static function text_filter(&$text, $is_date = false)
     {
         if($is_date)
@@ -340,7 +349,7 @@ class SolrAPI
         while(preg_match("/  /", $text)) $text = str_replace("  ", " ", $text);
         return trim($text);
     }
-    
+
     public static function mysql_date_to_solr_date($mysql_date)
     {
         if(!$mysql_date) return null;

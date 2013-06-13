@@ -52,8 +52,8 @@ class ObisAPI
         // Set to force harvest
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
         // Delete temp files
-        self::delete_temp_files(OBIS_DATA_PATH . "temp_obis_", "xml");
-        self::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
+        Functions::delete_temp_files(OBIS_DATA_PATH . "temp_obis_", "xml");
+        Functions::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
     }
 
     public static function get_obis_taxa($url, $used_collection_ids, $ancestry)
@@ -413,7 +413,7 @@ class ObisAPI
 
     private function divide_big_csv_file($divisor)
     {
-        self::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
+        Functions::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
         $i = 0;
         $line = "";
         $file_count = 0;
@@ -449,12 +449,6 @@ class ObisAPI
             fclose($OUT);
         }
         return $file_count;
-    }
-
-    private function delete_temp_files($file_path, $file_extension = '*')
-    {
-        if(!$file_path) return;
-        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
 }

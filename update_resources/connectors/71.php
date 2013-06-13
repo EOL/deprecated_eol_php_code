@@ -109,6 +109,7 @@ function iterate_files($callback, $title = false)
 
 function process_file($part_suffix, $left_overs, $callback, $title = false)
 {
+    global $base_directory_path;
     echo "Processing file $part_suffix with callback $callback ".memory_get_usage()."\n";
     flush();
     $FILE = fopen($base_directory_path . "wikimedia/part_".$part_suffix, "r");
@@ -162,7 +163,7 @@ function get_scientific_pages($xml)
     if(preg_match("/\{\{Taxonavigation/", $xml, $arr))
     {
         $page = new \WikimediaPage($xml);
-        if(preg_match("/^template\:/i", $page->title)) continue;
+        if(preg_match("/^template\:/i", $page->title)) return;
         $GLOBALS['scientific_pages'][$page->title] = 1;
         if($params = $page->taxon_parameters())
         {

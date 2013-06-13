@@ -54,8 +54,8 @@ class TropicosAPI
         $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
         $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
         //this is not needed but just to have a clean directory
-        self::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml");
-        self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml");
+        Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
     }
 
     function start_process($resource_id, $call_multiple_instance, $connectors_to_run = 1)
@@ -81,8 +81,8 @@ class TropicosAPI
             // step 3: this should only run when all of instances of step 2 are done
             sleep(10); //debug orig 10
             Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "temp_tropicos_batch_*.xml");
-            self::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
-            self::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
+            Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
             Functions::set_resource_status_to_force_harvest($resource_id);
         }
     }
@@ -167,12 +167,6 @@ class TropicosAPI
             fwrite($OUT, $str);
             fclose($OUT);
         }
-    }
-
-    function delete_temp_files($file_path, $file_extension = '*')
-    {
-        if(!$file_path) return;
-        foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
     public static function get_tropicos_taxa($taxon_id, $used_collection_ids)
