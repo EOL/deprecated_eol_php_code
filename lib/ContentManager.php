@@ -71,7 +71,7 @@ class ContentManager
                 
             // create thumbnails of website content and agent logos
             if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions, $x_offset, $y_offset, $crop_width);
-            elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions);
+            elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
             
             if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
             
@@ -319,24 +319,21 @@ class ContentManager
         $this->create_upper_left_crop($square_source_image, $width, $height, 88, $prefix, $x_offset, $y_offset, $crop_width);
     }
     
-    function create_agent_thumbnails($file, $prefix, $sizes, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
-    {
-        $width = $sizes[0];
-        $height = $sizes[1];
-        
-        $this->create_constrained_square_crop($file, $width, $height, 130, $prefix);
-        $this->create_constrained_square_crop($file, $width, $height, 88, $prefix);
+    function create_agent_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
+    {        
+        $this->create_constrained_square_crop($file, 130, $prefix);
+        $this->create_constrained_square_crop($file, 88, $prefix);
     }
     
     function reduce_original($path, $prefix)
     {
-        shell_exec(CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 ".$prefix."_orig.jpg");
+        shell_exec(CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 ".$prefix."_orig.jpg");
         self::create_checksum($prefix."_orig.jpg");
     }
     
     function create_smaller_version($path, $new_width, $new_height, $prefix)
     {
-        shell_exec(CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 \
+        shell_exec(CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
                         -resize ".$new_width."x".$new_height."\">\" ".$prefix."_".$new_width."_".$new_height.".jpg");
         self::create_checksum($prefix."_".$new_width."_".$new_height.".jpg");
     }
@@ -361,6 +358,7 @@ class ContentManager
         $width_offset = $x_offset * $offset_factor * $resize_factor;
         $height_offset = $y_offset * $offset_factor * $resize_factor;
         
+        //don't need to do -auto-orient here, as create_upper_left_crop always works from an aready-corrected _orig or _580_360 image
         $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
                         -gravity NorthWest -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." \
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
@@ -368,15 +366,11 @@ class ContentManager
         self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }
     
-    function create_constrained_square_crop($path, $width, $height, $square_dimension, $prefix)
+    function create_constrained_square_crop($path, $square_dimension, $prefix)
     {
-        $min = max($width, $height);
-        $resize_factor = $square_dimension / $min;
-        $new_width = $width * $resize_factor;
-        $new_height = $height * $resize_factor;
-
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
-                        -bordercolor white -border ".(($square_dimension-$new_width)/2)."x".(($square_dimension-$new_height)/2)." -gravity center \
+    	//requires "convert" to support -extent: ImageMagick >= 6.2.4
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
+       	                -resize '".$new_width."x".$new_height."' -gravity center -extent '".$square_dimension."x".$square_dimension."' \
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
         shell_exec($command);
         self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
