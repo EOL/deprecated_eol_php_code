@@ -15,6 +15,7 @@ class ClementsAPI
         $this->taxon_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->single_reference_for_all = "Clements, J. F., T. S. Schulenberg, M. J. Iliff, B.L. Sullivan, C. L. Wood, and D. Roberson. 2012. The eBird/Clements checklist of birds of the world: Version 6.7. Downloaded from http://www.birds.cornell.edu/clementschecklist/downloadable-clements-checklist";
+        $this->levels = array("kingdom" => 1, "phylum" => 2, "class" => 3, "order" => 4, "family" => 5, "genus" => 6, "species" => 7, "subspecies" => 8);
     }
 
     function get_all_taxa($data_dump_url = false)
@@ -27,8 +28,8 @@ class ClementsAPI
         {
             debug("\n" . $record["SCIENTIFIC NAME"]);
             if($record["CATEGORY"] == "group (monotypic)") $record["CATEGORY"] = "subspecies";
-            if(in_array($record["CATEGORY"], array("species", "subspecies"))) self::parse_record_element($record);
-            else debug(" - not valid category");
+            if($record["CATEGORY"] != "group (polytypic)") self::parse_record_element($record, $records);
+            else debug(" - not valid category - " . $record["CATEGORY"] . "\n");
         }
         $this->create_archive();
 
@@ -46,16 +47,19 @@ class ClementsAPI
             debug("\n reading: " . $this->data_dump_url . "\n");
             $temp = $parser->convert_sheet_to_array($this->data_dump_url);
             $records = $parser->prepare_data($temp, "single", "SCIENTIFIC NAME", "SCIENTIFIC NAME", "CATEGORY", "ENGLISH NAME", "RANGE", "ORDER", "FAMILY", "EXTINCT", "EXTINCT_YEAR");
+            $records = self::fill_in_missing_names($records);
+            $records = self::fill_in_parent_id($records);
+            debug("\n" . count($records));
             return $records;
         }
     }
 
-    private function parse_record_element($rec)
+    private function parse_record_element($rec, $records)
     {
         $reference_ids = array();
         $ref_ids = self::get_object_reference_ids();
         $agent_ids = array();
-        $rec = $this->create_instances_from_taxon_object($rec, $reference_ids);
+        $rec = $this->create_instances_from_taxon_object($rec, $reference_ids, $records);
         if($distribution = self::get_distribution($rec)) self::get_texts($distribution, $rec, 'Range', '#Distribution', 'distribution', $ref_ids, $agent_ids);
         if($extinction = self::get_extinction($rec)) self::get_texts($extinction, $rec, '', '#ConservationStatus', 'extinction', $ref_ids, $agent_ids);
     }
@@ -91,12 +95,12 @@ class ClementsAPI
 
     private function get_distribution($rec)
     {
-        if($rec["RANGE"] != '') return $rec["RANGE"] . ".";
+        if(@$rec["RANGE"] != '') return $rec["RANGE"] . ".";
     }
 
     private function get_extinction($rec)
     {
-        if($rec["EXTINCT_YEAR"] == 'xxxx') return "Date of extinction unknown.";
+        if(@$rec["EXTINCT_YEAR"] == 'xxxx') return "Date of extinction unknown.";
         else return false;
         // elseif(is_numeric($rec["EXTINCT_YEAR"])) return "Year last seen in the wild: " . $rec["EXTINCT_YEAR"] . "."; // to be moved to the structured data resource
     }
@@ -127,43 +131,21 @@ class ClementsAPI
             $this->archive_builder->write_object_to_file($mr);
     }
 
-    function create_instances_from_taxon_object($rec, $reference_ids)
+    function create_instances_from_taxon_object($rec, $reference_ids, $records)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon_id = md5($rec["SCIENTIFIC NAME"]."clements");
+        $taxon_id = $rec["ID"];
         $rec["taxonID"] = $taxon_id;
 
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonID = $taxon_id;
         $rank = trim($rec["CATEGORY"]);
-        if(in_array($rank, array("species", "subspecies")))
-        {
-            $temp = explode(" ", trim($rec["SCIENTIFIC NAME"]));
-            $genus = trim($temp[0]);
-        }
-        else $genus = "";
-
+        
         $taxon->taxonRank                   = (string) $rank;
         $taxon->scientificName              = (string) $rec["SCIENTIFIC NAME"];
         $taxon->scientificNameAuthorship    = "";
-        $taxon->vernacularName              = $rec["ENGLISH NAME"];
-        $taxon->kingdom                     = "Animalia";
-        $taxon->phylum                      = "Chordata";
-        $taxon->class                       = "Aves";
-        $taxon->order                       = $rec["ORDER"];
-        $taxon->family                      = (string) self::remove_parenthesis($rec["FAMILY"]);
-        debug("\n family: " . $taxon->family);
-        $taxon->genus                       = $genus;
-        $taxon->specificEpithet             = '';
-        $taxon->taxonomicStatus             = '';
-        $taxon->nomenclaturalCode           = '';
-        $taxon->nomenclaturalStatus         = '';
-        $taxon->acceptedNameUsage           = '';
-        $taxon->acceptedNameUsageID         = '';
-        $taxon->parentNameUsageID           = '';
-        $taxon->namePublishedIn             = '';
-        $taxon->taxonRemarks                = '';
-        $taxon->infraspecificEpithet        = '';
+        $taxon->vernacularName              = @$rec["ENGLISH NAME"];
+        $taxon->parentNameUsageID           = $rec["CATEGORY"] != "kingdom" ? $rec["parent_id"] : "";
         $this->taxa[$taxon_id] = $taxon;
         return $rec;
     }
@@ -181,6 +163,73 @@ class ClementsAPI
     {
         $temp = explode("(", $string);
         return trim($temp[0]);
+    }
+
+    private function fill_in_missing_names($records)
+    {
+        $others["Animalia"] = array("ID" => "animalia", "SCIENTIFIC NAME" => "Animalia", "CATEGORY" => "kingdom");
+        $others["Chordata"] = array("ID" => "chordata", "SCIENTIFIC NAME" => "Chordata", "CATEGORY" => "phylum", "KINGDOM" => "Animalia");
+        $others["Aves"]     = array("ID" => "aves",     "SCIENTIFIC NAME" => "Aves",     "CATEGORY" => "class", "PHYLUM" => "Chordata");
+        foreach($records as $key => $rec)
+        {
+            $order = self::remove_parenthesis($rec["ORDER"]);
+            $family = self::remove_parenthesis($rec["FAMILY"]);
+
+            $records[$key]["ORDER"] = $order;
+            $records[$key]["FAMILY"] = $family;
+            $records[$key]["ID"] = strtolower(str_ireplace(" ", "_", $rec["SCIENTIFIC NAME"]));
+            
+            if(!isset($others[$order]))  $others[$order]  = array("ID" => strtolower(str_ireplace(" ", "_", $order)), "SCIENTIFIC NAME" => $order, "CATEGORY" => "order", "CLASS" => "Aves");
+            if(!isset($others[$family])) $others[$family] = array("ID" => strtolower(str_ireplace(" ", "_", $family)), "SCIENTIFIC NAME" => $family, "CATEGORY" => "family", "ORDER" => $order);
+            
+            $sciname = trim($rec["SCIENTIFIC NAME"]);
+            if(is_numeric(stripos($sciname, " ")))
+            {
+                $parts = explode(" ", $sciname);
+                $genus = $parts[0];
+                if(!isset($others[$genus])) $others[$genus] = array("ID" => strtolower(str_ireplace(" ", "_", $genus)), "SCIENTIFIC NAME" => $genus, "CATEGORY" => "genus", "FAMILY" => $family);
+                $records[$key]["GENUS"] = $genus;
+            }
+            
+            if($rec["CATEGORY"] == "group (monotypic)") 
+            {
+                $records[$key]["CATEGORY"] = "subspecies";
+                $records[$key]["SPECIES"] = self::get_species($sciname);
+            }
+
+            if($rec["CATEGORY"] == "subspecies") 
+            {
+                $records[$key]["SPECIES"] = self::get_species($sciname);
+            }
+        }
+        $records = array_merge($others, $records);
+        return $records;
+    }
+
+    private function fill_in_parent_id($records)
+    {
+        foreach($records as $taxon => $rec)
+        {
+            if($rec["CATEGORY"] == "group (polytypic)") continue;
+            $parent_name = "";
+            $num = $this->levels[$rec["CATEGORY"]] - 1;
+            foreach($this->levels as $key => $value)
+            {
+                if($num == $value) 
+                {
+                    $parent_name = $rec[strtoupper($key)];
+                    break;
+                }
+            }
+            if($parent_name) $records[$taxon]["parent_id"] = $records[$parent_name]["ID"];
+        }
+        return $records;
+    }
+    
+    private function get_species($sciname)
+    {
+        $parts = explode(" ", $sciname);
+        return $parts[0] . " " . $parts[1];
     }
 
 }
