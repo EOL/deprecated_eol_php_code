@@ -398,7 +398,10 @@ class ArchiveDataIngester
         }
         
         if(!$object_taxon_info) return false;
-        if($this->harvest_event->resource->is_inaturalist() && self::is_this_image_in_flickr($row)) return false;
+        if($this->harvest_event->resource->is_inaturalist() && isset($original_flickr_img = self::image_in_flickr($row))) {
+	        //here we could update the original flickr image, replace it with the iNat one, or whatever
+        	return false;
+        }
         
         $data_object = new DataObject();
         $data_object->identifier = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
@@ -756,39 +759,36 @@ class ArchiveDataIngester
         $iteration_counts[$namespace]++;
     }
     
-    public static function is_this_image_in_flickr($row)
+    public static function image_in_flickr($row)
     {
-        if(!$row['http://rs.tdwg.org/ac/terms/accessURI']) return false;
-        $flickr_image_id = NULL;
+        if(!$row['http://rs.tdwg.org/ac/terms/accessURI']) return null;
+        $flickr_image_id = null;
         if(preg_match("/static\.flickr\.com\/.+?\/([0-9]+?)_.+?\.jpg$/i", $row['http://rs.tdwg.org/ac/terms/accessURI'], $arr)) $flickr_image_id = $arr[1];
         elseif(preg_match("/staticflickr\.com\/.+?\/([0-9]+?)_.+?\.jpg$/i", $row['http://rs.tdwg.org/ac/terms/accessURI'], $arr)) $flickr_image_id = $arr[1];
         if($flickr_image_id)
         {
             $flickr_image_id = $arr[1];
-            if(self::is_this_identifier_in_flickr($flickr_image_id))
-            {
-                return true;
-            }
+            return self::identifier_in_flickr($flickr_image_id);
         }
-        return false;
+        return null;
     }
     
-    private static function is_this_identifier_in_flickr($flickr_image_id)
+    private static function identifier_in_flickr($flickr_image_id)
     {
         static $flickr_resource = null;
         if(!$flickr_resource) $flickr_resource = Resource::flickr();
-        if(!$flickr_resource) return false;
+        if(!$flickr_resource) return null;
         
         static $last_harvest_event_id = null;
         if(!$last_harvest_event_id) $last_harvest_event_id = $flickr_resource->most_recent_published_harvest_event_id();
-        if(!$last_harvest_event_id) return false;
+        if(!$last_harvest_event_id) return null;
         
         $result = $GLOBALS['db_connection']->query("SELECT * FROM data_objects_harvest_events dohe
             JOIN data_objects do ON (dohe.data_object_id=do.id)
             WHERE dohe.harvest_event_id=$last_harvest_event_id
             AND do.identifier='$flickr_image_id'");
-        if($result && $row=$result->fetch_assoc()) return true;
-        return false;
+        if($result) return $result->fetch_assoc();
+        return null;
     }
     
     private static function debug_iterations($message_prefix, $iteration_size = 500)
