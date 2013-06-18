@@ -346,18 +346,16 @@ class ContentManager
                 {
                     if($width > 540) $offset_factor = $width / 540;
                 }
-                $resize_factor = $square_dimension / ($crop_width * $offset_factor);
-                $new_width = $width * $resize_factor;
-                $new_height = $height * $resize_factor;
-                $width_offset = $x_offset * $offset_factor * $resize_factor;
-                $height_offset = $y_offset * $offset_factor * $resize_factor;
+                $new_crop_width = floatval($crop_width) * $offset_factor;
+                $new_x_offset = floatval($x_offset) * $offset_factor;
+                $new_y_offset = floatval($y_offset) * $offset_factor;
         
-                $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
-                        -resize '".$new_width."x".$new_height."' -gravity NorthWest \
-                        -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." +repage";
+                $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 -gravity NorthWest \
+                        -crop ".$new_crop_width."x".$new_crop_width."+".$new_x_offset."+".$new_y_offset." +repage \
+                        -resize ".$square_dimension."x".$square_dimension;
             }
         }
-        shell_exec($command." ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";);
+        shell_exec($command." ".$prefix."_".$square_dimension."_".$square_dimension.".jpg");
         self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }
     
