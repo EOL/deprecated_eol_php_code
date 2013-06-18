@@ -323,7 +323,7 @@ class ContentManager
     {
     	//default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
     	$command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
-        	            -resize ".$square_dimension."x".$square_dimension."^ \
+                        -resize ".$square_dimension."x".$square_dimension."^ \
                         -gravity NorthWest -crop ".$square_dimension."x".$square_dimension." +repage";
         if($crop_width) 
         {
@@ -336,7 +336,7 @@ class ContentManager
                 trigger_error("ContentManager: Unable to determine image dimensions $file, using default crop", E_USER_NOTICE);
             } else
             {
-            	$width = $sizes[0];
+                $width = $sizes[0];
                 $height = $sizes[1];
                 $offset_factor = 1;
                 if(($width / $height) < ( 540 / 360 ))
