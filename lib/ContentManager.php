@@ -324,8 +324,7 @@ class ContentManager
     	//default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
     	$command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
         	            -resize ".$square_dimension."x".$square_dimension."^ \
-                        -gravity NorthWest -crop '".$square_dimension."x".$square_dimension."' \
-                        +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
+                        -gravity NorthWest -crop ".$square_dimension."x".$square_dimension." +repage";
         if($crop_width) 
         {
             // we have a bespoke crop region, with x & y offsets, plus a crop width
@@ -334,7 +333,7 @@ class ContentManager
             $sizes = getimagesize($path); //this is the full-sized _orig image, properly rotated
             if(@!$sizes[1])
             {
-                trigger_error("ContentManager: Unable to determine local image dimensions $file", E_USER_NOTICE);
+                trigger_error("ContentManager: Unable to determine image dimensions $file, using default crop", E_USER_NOTICE);
             } else
             {
             	$width = $sizes[0];
@@ -354,12 +353,11 @@ class ContentManager
                 $height_offset = $y_offset * $offset_factor * $resize_factor;
         
                 $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
-                        -resize '".$new_width."x".$new_height."' \
-                        -gravity NorthWest -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." \
-                        +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";                  
+                        -resize '".$new_width."x".$new_height."' -gravity NorthWest \
+                        -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." +repage";
             }
         }
-        shell_exec($command);
+        shell_exec($command." ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";);
         self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }
     
