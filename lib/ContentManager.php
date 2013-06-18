@@ -58,19 +58,9 @@ class ContentManager
                 trigger_error("ContentManager: Unable to download file $file", E_USER_NOTICE);
                 return false;
             }
-            $sizes = array();
-            if($type == "image" || $type == "partner")
-            {
-                $sizes = getimagesize($new_file_path);
-                if(@!$sizes[1])
-                {
-                    trigger_error("ContentManager: Unable to determine image dimensions $file", E_USER_NOTICE);
-                    return false;
-                }
-            }
                 
             // create thumbnails of website content and agent logos
-            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $sizes, $large_thumbnail_dimensions, $x_offset, $y_offset, $crop_width);
+            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions, $x_offset, $y_offset, $crop_width);
             elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
             
             if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
@@ -297,26 +287,17 @@ class ContentManager
         }
         return $new_suffix;
     }
-    
-    function local_file_size($file)
-    {
-        $stat = @stat($file);
-        return @$stat["size"];
-    }
-    
-    function create_content_thumbnails($file, $prefix, $sizes, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
-    {
-        $width = $sizes[0];
-        $height = $sizes[1];
-        
+       
+    function create_content_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
+    {        
         $this->reduce_original($file, $prefix);
         $this->create_smaller_version($file, 580, 360, $prefix);
         $this->create_smaller_version($prefix.'_580_360.jpg', 260, 190, $prefix);
         $this->create_smaller_version($prefix.'_580_360.jpg', 98, 68, $prefix);
-        $square_source_image = $prefix.'_580_360.jpg';
-        if($crop_width) $square_source_image = $prefix.'_orig.jpg';
-        $this->create_upper_left_crop($square_source_image, $width, $height, 130, $prefix, $x_offset, $y_offset, $crop_width);
-        $this->create_upper_left_crop($square_source_image, $width, $height, 88, $prefix, $x_offset, $y_offset, $crop_width);
+        $source_image = $prefix.'_580_360.jpg';
+        if($crop_width) $source_image = $prefix.'_orig.jpg';
+        $this->create_upper_left_crop($source_image, 130, $prefix, $x_offset, $y_offset, $crop_width);
+        $this->create_upper_left_crop($source_image, 88, $prefix, $x_offset, $y_offset, $crop_width);
     }
     
     function create_agent_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
@@ -338,37 +319,53 @@ class ContentManager
         self::create_checksum($prefix."_".$new_width."_".$new_height.".jpg");
     }
     
-    function create_upper_left_crop($path, $width, $height, $square_dimension, $prefix, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
+    function create_upper_left_crop($path, $square_dimension, $prefix, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
     {
-        // offsets are from the 580 x 360 version (but CSS scales them to 540 X 360. The crop will be taken from the original
-        // form, so the offsets and width need to be converted to match the dimensions of the original form
-        $offset_factor = 1;
-        if(($width / $height) < ( 540 / 360 ))
-        {
-            if($height > 360) $offset_factor = $height / 360;
-        }else
-        {
-            if($width > 540) $offset_factor = $width / 540;
-        }
-        
-        if($crop_width) $resize_factor = $square_dimension / ($crop_width * $offset_factor);
-        else $resize_factor = $square_dimension / min($width, $height);
-        $new_width = $width * $resize_factor;
-        $new_height = $height * $resize_factor;
-        $width_offset = $x_offset * $offset_factor * $resize_factor;
-        $height_offset = $y_offset * $offset_factor * $resize_factor;
-        
-        //don't need to do -auto-orient here, as create_upper_left_crop always works from an aready-corrected _orig or _580_360 image
-        $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 -resize '".$new_width."x".$new_height."' \
-                        -gravity NorthWest -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." \
+    	//default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
+    	$command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
+        	            -resize ".$square_dimension."x".$square_dimension."^ \
+                        -gravity NorthWest -crop '".$square_dimension."x".$square_dimension."' \
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
+        if($crop_width) 
+        {
+            // we have a bespoke crop region, with x & y offsets, plus a crop width
+            // offsets are from the 580 x 360 version (but CSS scales them to 540 X 360. The crop will be taken from the original
+            // form, so the offsets and width need to be converted to match the dimensions of the original form
+            $sizes = getimagesize($path); //this is the full-sized _orig image, properly rotated
+            if(@!$sizes[1])
+            {
+                trigger_error("ContentManager: Unable to determine local image dimensions $file", E_USER_NOTICE);
+            } else
+            {
+            	$width = $sizes[0];
+                $height = $sizes[1];
+                $offset_factor = 1;
+                if(($width / $height) < ( 540 / 360 ))
+                {
+                    if($height > 360) $offset_factor = $height / 360;
+                } else
+                {
+                    if($width > 540) $offset_factor = $width / 540;
+                }
+                $resize_factor = $square_dimension / ($crop_width * $offset_factor);
+                $new_width = $width * $resize_factor;
+                $new_height = $height * $resize_factor;
+                $width_offset = $x_offset * $offset_factor * $resize_factor;
+                $height_offset = $y_offset * $offset_factor * $resize_factor;
+        
+                $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
+                        -resize '".$new_width."x".$new_height."' \
+                        -gravity NorthWest -crop ".$square_dimension."x".$square_dimension."+".$width_offset."+".$height_offset." \
+                        +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";                  
+            }
+        }
         shell_exec($command);
         self::create_checksum($prefix."_".$square_dimension."_".$square_dimension.".jpg");
     }
     
     function create_constrained_square_crop($path, $square_dimension, $prefix)
     {
-    	//requires "convert" to support -extent: ImageMagick >= 6.2.4
+    	//requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
        	                -resize '".$new_width."x".$new_height."' -gravity center -extent '".$square_dimension."x".$square_dimension."' \
                         +repage ".$prefix."_".$square_dimension."_".$square_dimension.".jpg";
