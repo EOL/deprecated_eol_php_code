@@ -398,7 +398,7 @@ class ArchiveDataIngester
         }
         
         if(!$object_taxon_info) return false;
-        if($this->harvest_event->resource->is_inaturalist() && isset($original_flickr_img = self::image_in_flickr($row))) {
+        if($this->harvest_event->resource->is_inaturalist() && (!is_null($original_flickr_img = self::image_in_flickr($row)))) {
 	        //here we could update $original_flickr_img, replace it with the iNat one, or whatever
         	return false;
         }
