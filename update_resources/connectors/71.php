@@ -182,7 +182,7 @@ function get_scientific_pages($xml)
 function get_media_pages($xml)
 {
     $page = new \WikimediaPage($xml);
-    if(isset(@$GLOBALS['image_titles'][$page->title]))
+    if(isset($GLOBALS['image_titles'][$page->title]))
     {
         if($params = $page->data_object_parameters())
         {
