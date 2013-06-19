@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
-/* estimated execution time: 5 minutes */
+/* estimated execution time: 5 minutes 
+
+Note:
+The spreadsheet has this subspecies: Edolisoma ceramensis hoogerwerfi
+but it doesn't have the species: Edolisoma ceramensis
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ClementsAPI');
