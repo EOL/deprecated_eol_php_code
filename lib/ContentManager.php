@@ -20,7 +20,7 @@ class ContentManager
     // partner - this type means we are downloading a logo for a content partner
     // resource - this means we are downloading an XML or zipped file of the EOL schema for processing
 
-    function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $timeout = DOWNLOAD_TIMEOUT_SECONDS)
+    function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
     {
         if($temp_file_path = self::download_temp_file_and_assign_extension($file, $this->unique_key, ($type == "resource"), $timeout))
         {
@@ -60,7 +60,7 @@ class ContentManager
             }
 
             // create thumbnails of website content and agent logos
-            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
+            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions, $x_offset, $y_offset, $crop_width);
             elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
 
             if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
@@ -288,15 +288,16 @@ class ContentManager
         return $new_suffix;
     }
 
-    function create_content_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
+    function create_content_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
     {
         $this->reduce_original($file, $prefix);
         $this->create_smaller_version($file, 580, 360, $prefix);
         $this->create_smaller_version($prefix.'_580_360.jpg', 260, 190, $prefix);
         $this->create_smaller_version($prefix.'_580_360.jpg', 98, 68, $prefix);
         $source_image = $prefix.'_580_360.jpg';
-        $this->create_upper_left_crop($source_image, 130, $prefix);
-        $this->create_upper_left_crop($source_image, 88, $prefix);
+        if($crop_width) $source_image = $prefix.'_orig.jpg';
+        $this->create_upper_left_crop($source_image, 130, $prefix, $x_offset, $y_offset, $crop_width);
+        $this->create_upper_left_crop($source_image, 88, $prefix, $x_offset, $y_offset, $crop_width);
     }
 
     function create_agent_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
@@ -322,12 +323,42 @@ class ContentManager
         self::create_checksum($cropped_image_path);
     }
 
-    function create_upper_left_crop($path, $square_dimension, $prefix)
+    function create_upper_left_crop($path, $square_dimension, $prefix, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
     {
         // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
         $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
                         -resize ".$square_dimension."x".$square_dimension."^ \
                         -gravity NorthWest -crop ".$square_dimension."x".$square_dimension." +repage -delete 1--1";
+        if($crop_width)
+        {
+            // we have a bespoke crop region, with x & y offsets, plus a crop width
+            // offsets are from the 580 x 360 version (but CSS scales them to 540 X 360. The crop will be taken from the original
+            // form, so the offsets and width need to be converted to match the dimensions of the original form
+            $sizes = getimagesize($path); //this is the full-sized _orig image, properly rotated
+            if(@!$sizes[1])
+            {
+                trigger_error("ContentManager: Unable to determine image dimensions $file, using default crop", E_USER_NOTICE);
+            } else
+            {
+                $width = $sizes[0];
+                $height = $sizes[1];
+                $offset_factor = 1;
+                if(($width / $height) < ( 540 / 360 ))
+                {
+                    if($height > 360) $offset_factor = $height / 360;
+                } else
+                {
+                    if($width > 540) $offset_factor = $width / 540;
+                }
+                $new_crop_width = floatval($crop_width) * $offset_factor;
+                $new_x_offset = floatval($x_offset) * $offset_factor;
+                $new_y_offset = floatval($y_offset) * $offset_factor;
+
+                $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 -gravity NorthWest \
+                        -crop ".$new_crop_width."x".$new_crop_width."+".$new_x_offset."+".$new_y_offset." +repage \
+                        -resize ".$square_dimension."x".$square_dimension;
+            }
+        }
         $cropped_image_path = $prefix."_".$square_dimension."_".$square_dimension.".jpg";
         shell_exec($command." ".$cropped_image_path);
         self::create_checksum($cropped_image_path);
