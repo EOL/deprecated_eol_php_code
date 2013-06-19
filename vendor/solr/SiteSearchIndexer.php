@@ -364,10 +364,11 @@ class SiteSearchIndexer
 
                 foreach($fields_to_index as $field_to_index)
                 {
-                    if(!$field_to_index['keyword']) continue;
+                    $keyword = str_replace("  ", " ", trim($field_to_index['keyword']));
+                    if(!$keyword) continue;
                     $this->objects[] = $base_attributes + array(
                         'keyword_type'              => $field_to_index['keyword_type'],
-                        'keyword'                   => $field_to_index['keyword'],
+                        'keyword'                   => $keyword,
                         'full_text'                 => $field_to_index['full_text'],
                         'resource_weight'           => $field_to_index['resource_weight']);
                 }
@@ -375,10 +376,11 @@ class SiteSearchIndexer
                 {
                     foreach($this->agents_for_objects[$id] as $agent_name)
                     {
-                        if(!$agent_name) continue;
+                        $keyword = str_replace("  ", " ", trim($agent_name));
+                        if(!$keyword) continue;
                         $this->objects[] = $base_attributes + array(
                             'keyword_type'              => 'agent',
-                            'keyword'                   => $agent_name,
+                            'keyword'                   => $keyword,
                             'resource_weight'           => $resource_weight + 1);
                     }
                 }
