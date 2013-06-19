@@ -171,10 +171,10 @@ function get_scientific_pages($xml)
         }
 
         $images = $page->images();
-        foreach($images as $image)
+        foreach($images as $image => $type)
         {
             $GLOBALS['scientific_page_images'][$page->title][] = "File:".$image;
-            $GLOBALS['image_titles']["File:".$image] = 1;
+            $GLOBALS['image_titles']["File:".$image] = $type;
         }
     }
 }
@@ -182,10 +182,14 @@ function get_scientific_pages($xml)
 function get_media_pages($xml)
 {
     $page = new \WikimediaPage($xml);
-    if(@$GLOBALS['image_titles'][$page->title])
+    if(isset(@$GLOBALS['image_titles'][$page->title]))
     {
         if($params = $page->data_object_parameters())
         {
+            if (preg_match("/\b(Maps?|Distributions?)\b/i", @$GLOBALS['image_titles'][$page->title])) #check for map types
+            {
+                $params['additionalInformation'] .= "<subtype>Map</subtype>";
+            }
             $GLOBALS['data_objects'][$page->title] = $params;
         }
     }

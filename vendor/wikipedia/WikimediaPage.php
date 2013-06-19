@@ -379,11 +379,17 @@ class WikimediaPage
 
         $text = $this->text;
         $lines = explode("\n", $text);
+        $type = ""; # type as categorized on commons: "Maps", "Images", "Audio/Video", "Illustrations", etc.
         foreach($lines as $line)
         {
+            if(preg_match("/(^|[^=])(={1,4})([^=]+)\\2([^=]|$)/", $line, $arr)) //spot anything between balanced == == pairs
+            {
+                $type = trim($arr[3]);
+            }
+
             if(preg_match("/^\s*\[{0,2}\s*(image|file)\s*:(.*?)(\||$)/ims", $line, $arr))
             {
-                $images[] = trim($arr[2]);
+                $images[trim($arr[2])] = type;
             }
         }
 
