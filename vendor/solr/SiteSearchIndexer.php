@@ -65,7 +65,8 @@ class SiteSearchIndexer
 
         // delete old ones
         $queries = array();
-        foreach($ids as $id) $queries[] = "resource_unique_key:". $class_name ."_$id";
+        $id_chunks = array_chunk($ids, 1000);
+        foreach($id_chunks as $id_chunk) $queries[] = "resource_type:$class_name AND resource_id:(". implode(" OR ", $id_chunk) .")";
         $this->solr->delete_by_queries($queries, false);
 
         // add new ones if available
@@ -281,6 +282,9 @@ class SiteSearchIndexer
 
     function lookup_objects(&$ids)
     {
+        $this->agents_for_objects = array();
+        $this->lookup_object_agents($ids);
+        $this->lookup_object_users($ids);
         $query = "
             SELECT do.id, do.guid,
             REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '),
@@ -312,7 +316,7 @@ class SiteSearchIndexer
                 $description = SolrApi::text_filter($row[3]);
                 $rights_statement = SolrApi::text_filter($row[4]);
                 $rights_holder = SolrApi::text_filter($row[5]);
-                $bibliographic_cation = SolrApi::text_filter($row[6]);
+                $bibliographic_citation = SolrApi::text_filter($row[6]);
                 $location = SolrApi::text_filter($row[7]);
                 $created_at = SolrApi::text_filter($row[8], true);
                 $updated_at = SolrApi::text_filter($row[9], true);
@@ -330,7 +334,7 @@ class SiteSearchIndexer
                     'language'                  => 'en',
                     'date_created'              => $created_at,
                     'date_modified'             => $updated_at);
-                
+
                 $fields_to_index = array(
                     array('keyword_type'    => 'object_title',
                           'keyword'         => $object_title,
@@ -357,58 +361,74 @@ class SiteSearchIndexer
                           'full_text'       => false,
                           'resource_weight' => $resource_weight + 6)
                 );
-                
+
                 foreach($fields_to_index as $field_to_index)
                 {
-                    if($field_to_index['keyword'])
+                    if(!$field_to_index['keyword']) continue;
+                    $this->objects[] = $base_attributes + array(
+                        'keyword_type'              => $field_to_index['keyword_type'],
+                        'keyword'                   => $field_to_index['keyword'],
+                        'full_text'                 => $field_to_index['full_text'],
+                        'resource_weight'           => $field_to_index['resource_weight']);
+                }
+                if(isset($this->agents_for_objects[$id]))
+                {
+                    foreach($this->agents_for_objects[$id] as $agent_name)
                     {
+                        if(!$agent_name) continue;
                         $this->objects[] = $base_attributes + array(
-                            'keyword_type'              => $field_to_index['keyword_type'],
-                            'keyword'                   => $field_to_index['keyword'],
-                            'full_text'                 => $field_to_index['full_text'],
-                            'resource_weight'           => $field_to_index['resource_weight']);
+                            'keyword_type'              => 'agent',
+                            'keyword'                   => $agent_name,
+                            'resource_weight'           => $resource_weight + 1);
                     }
                 }
             }
         }
-        $this->lookup_object_agents(array_keys($used_ids));
     }
 
     function lookup_object_agents($ids)
     {
+        if(!$ids) return;
         $query = "
-            SELECT do.id, a.full_name, a.given_name, a.family_name, UNIX_TIMESTAMP(do.created_at),
-            UNIX_TIMESTAMP(do.updated_at), do.data_type_id
+            SELECT do.id, a.full_name, a.given_name, a.family_name
             FROM data_objects do
             JOIN agents_data_objects ado ON (do.id=ado.data_object_id)
             JOIN agents a ON (ado.agent_id=a.id)
-            WHERE do.id IN (". implode(",", $ids) .")";
+            WHERE ado.data_object_id IN (". implode(",", $ids) .")
+            AND do.published=1";
         foreach($this->mysqli_slave->iterate_file($query) as $row)
         {
             $data_object_id = $row[0];
             $full_name = SolrApi::text_filter($row[1]);
             $given_name = SolrApi::text_filter($row[2]);
             $family_name = SolrApi::text_filter($row[3]);
-            $created_at = SolrApi::text_filter($row[4], true);
-            $updated_at = SolrApi::text_filter($row[5], true);
-            $data_type_id = SolrApi::text_filter($row[6]);
-            if($return = $this->get_resource_weight_and_data_types($data_type_id))
-            {
-                list($resource_weight, $data_types) = $return;
-            }else continue;
-
             if($agent_name = trim($full_name ." ". $given_name ." ". $family_name))
             {
-                $this->objects[] = array(
-                    'resource_type'             => $data_types,
-                    'resource_id'               => $data_object_id,
-                    'resource_unique_key'       => "DataObject_$data_object_id",
-                    'language'                  => 'en',
-                    'date_created'              => $created_at,
-                    'date_modified'             => $updated_at,
-                    'resource_weight'           => $resource_weight + 1,
-                    'keyword_type'              => 'agent',
-                    'keyword'                   => $agent_name);
+                $this->agents_for_objects[$data_object_id][] = $agent_name;
+            }
+        }
+    }
+
+    function lookup_object_users($ids)
+    {
+        if(!$ids) return;
+        $query = "
+            SELECT do.id, u.username, u.given_name, u.family_name
+            FROM data_objects do
+            JOIN users_data_objects udo ON (do.id=udo.data_object_id)
+            JOIN users u ON (udo.user_id=u.id)
+            WHERE udo.data_object_id IN (". implode(",", $ids) .")
+            AND do.published=1";
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
+        {
+            $data_object_id = $row[0];
+            $username = SolrApi::text_filter($row[1]);
+            $given_name = SolrApi::text_filter($row[2]);
+            $family_name = SolrApi::text_filter($row[3]);
+            if($username) $this->agents_for_objects[$data_object_id][] = $username;
+            if($user_real_name = trim($given_name ." ". $family_name))
+            {
+                $this->agents_for_objects[$data_object_id][] = $user_real_name;
             }
         }
     }
