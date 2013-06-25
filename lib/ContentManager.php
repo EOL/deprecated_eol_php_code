@@ -328,7 +328,7 @@ class ContentManager
         // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
         $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
                         -resize ".$square_dimension."x".$square_dimension."^ \
-                        -gravity NorthWest -crop ".$square_dimension."x".$square_dimension." +repage -delete 1--1";
+                        -gravity NorthWest -crop ".$square_dimension."x".$square_dimension."+0+0 +repage";
         if($crop_width)
         {
             // we have a bespoke crop region, with x & y offsets, plus a crop width
