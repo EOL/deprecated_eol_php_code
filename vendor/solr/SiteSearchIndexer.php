@@ -65,7 +65,8 @@ class SiteSearchIndexer
 
         // delete old ones
         $queries = array();
-        foreach($ids as $id) $queries[] = "resource_unique_key:". $class_name ."_$id";
+        $id_chunks = array_chunk($ids, 1000);
+        foreach($id_chunks as $id_chunk) $queries[] = "resource_type:$class_name AND resource_id:(". implode(" OR ", $id_chunk) .")";
         $this->solr->delete_by_queries($queries, false);
 
         // add new ones if available
@@ -281,8 +282,17 @@ class SiteSearchIndexer
 
     function lookup_objects(&$ids)
     {
+        $this->agents_for_objects = array();
+        $this->lookup_object_agents($ids);
+        $this->lookup_object_users($ids);
         $query = "
-            SELECT do.id, do.guid, REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '), REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '),
+            SELECT do.id, do.guid,
+            REPLACE(REPLACE(do.object_title, '\n', ' '), '\r', ' '),
+            REPLACE(REPLACE(do.description, '\n', ' '), '\r', ' '),
+            REPLACE(REPLACE(do.rights_statement, '\n', ' '), '\r', ' '),
+            REPLACE(REPLACE(do.rights_holder, '\n', ' '), '\r', ' '),
+            REPLACE(REPLACE(do.bibliographic_citation, '\n', ' '), '\r', ' '),
+            REPLACE(REPLACE(do.location, '\n', ' '), '\r', ' '),
             UNIX_TIMESTAMP(do.created_at), UNIX_TIMESTAMP(do.updated_at),  l.iso_639_1, do.data_type_id
             FROM data_objects do
             LEFT JOIN languages l ON (do.language_id=l.id)
@@ -304,32 +314,18 @@ class SiteSearchIndexer
                 $guid = $row[1];
                 $object_title = SolrApi::text_filter($row[2]);
                 $description = SolrApi::text_filter($row[3]);
-                $created_at = SolrApi::text_filter($row[4], true);
-                $updated_at = SolrApi::text_filter($row[5], true);
-                $language_iso = SolrApi::text_filter($row[6]);
-                $data_type_id = SolrApi::text_filter($row[7]);
-
-                $data_types = array();
-                $data_types['DataObject'] = 1;
-                $resource_weight = 100;
-                if(in_array($data_type_id, DataType::image_type_ids()))
+                $rights_statement = SolrApi::text_filter($row[4]);
+                $rights_holder = SolrApi::text_filter($row[5]);
+                $bibliographic_citation = SolrApi::text_filter($row[6]);
+                $location = SolrApi::text_filter($row[7]);
+                $created_at = SolrApi::text_filter($row[8], true);
+                $updated_at = SolrApi::text_filter($row[9], true);
+                $language_iso = SolrApi::text_filter($row[10]);
+                $data_type_id = SolrApi::text_filter($row[11]);
+                if($return = $this->get_resource_weight_and_data_types($data_type_id))
                 {
-                    $data_types['Image'] = 1;
-                    $resource_weight = 60;
-                }elseif(in_array($data_type_id, DataType::sound_type_ids()))
-                {
-                    $data_types['Sound'] = 1;
-                    $resource_weight = 70;
-                }elseif(in_array($data_type_id, DataType::text_type_ids()))
-                {
-                    $data_types['Text'] = 1;
-                    $resource_weight = 40;
-                }elseif(in_array($data_type_id, DataType::video_type_ids()))
-                {
-                    $data_types['Video'] = 1;
-                    $resource_weight = 50;
-                }
-                else continue;
+                    list($resource_weight, $data_types) = $return;
+                }else continue;
 
                 $base_attributes = array(
                     'resource_type'             => $data_types,
@@ -338,23 +334,130 @@ class SiteSearchIndexer
                     'language'                  => 'en',
                     'date_created'              => $created_at,
                     'date_modified'             => $updated_at);
-                if($object_title)
+
+                $fields_to_index = array(
+                    array('keyword_type'    => 'object_title',
+                          'keyword'         => $object_title,
+                          'full_text'       => false,
+                          'resource_weight' => $resource_weight),
+                    array('keyword_type'    => 'description',
+                          'keyword'         => $description,
+                          'full_text'       => true,
+                          'resource_weight' => $resource_weight + 2),
+                    array('keyword_type'    => 'rights_statement',
+                          'keyword'         => $rights_statement,
+                          'full_text'       => false,
+                          'resource_weight' => $resource_weight + 3),
+                    array('keyword_type'    => 'rights_holder',
+                          'keyword'         => $rights_holder,
+                          'full_text'       => false,
+                          'resource_weight' => $resource_weight + 4),
+                    array('keyword_type'    => 'bibliographic_citation',
+                          'keyword'         => $bibliographic_citation,
+                          'full_text'       => false,
+                          'resource_weight' => $resource_weight + 5),
+                    array('keyword_type'    => 'location',
+                          'keyword'         => $location,
+                          'full_text'       => false,
+                          'resource_weight' => $resource_weight + 6)
+                );
+
+                foreach($fields_to_index as $field_to_index)
                 {
+                    $keyword = str_replace("  ", " ", trim($field_to_index['keyword']));
+                    if(!$keyword) continue;
                     $this->objects[] = $base_attributes + array(
-                        'keyword_type'              => 'object_title',
-                        'keyword'                   => $object_title,
-                        'resource_weight'           => $resource_weight);
+                        'keyword_type'              => $field_to_index['keyword_type'],
+                        'keyword'                   => $keyword,
+                        'full_text'                 => $field_to_index['full_text'],
+                        'resource_weight'           => $field_to_index['resource_weight']);
                 }
-                if($description)
+                if(isset($this->agents_for_objects[$id]))
                 {
-                    $this->objects[] = $base_attributes + array(
-                        'keyword_type'              => 'description',
-                        'keyword'                   => $description,
-                        'full_text'                 => true,
-                        'resource_weight'           => $resource_weight + 1);
+                    foreach($this->agents_for_objects[$id] as $agent_name)
+                    {
+                        $keyword = str_replace("  ", " ", trim($agent_name));
+                        if(!$keyword) continue;
+                        $this->objects[] = $base_attributes + array(
+                            'keyword_type'              => 'agent',
+                            'keyword'                   => $keyword,
+                            'resource_weight'           => $resource_weight + 1);
+                    }
                 }
             }
         }
+    }
+
+    function lookup_object_agents($ids)
+    {
+        if(!$ids) return;
+        $query = "
+            SELECT do.id, a.full_name, a.given_name, a.family_name
+            FROM data_objects do
+            JOIN agents_data_objects ado ON (do.id=ado.data_object_id)
+            JOIN agents a ON (ado.agent_id=a.id)
+            WHERE ado.data_object_id IN (". implode(",", $ids) .")
+            AND do.published=1";
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
+        {
+            $data_object_id = $row[0];
+            $full_name = SolrApi::text_filter($row[1]);
+            $given_name = SolrApi::text_filter($row[2]);
+            $family_name = SolrApi::text_filter($row[3]);
+            if($agent_name = trim($full_name ." ". $given_name ." ". $family_name))
+            {
+                $this->agents_for_objects[$data_object_id][] = $agent_name;
+            }
+        }
+    }
+
+    function lookup_object_users($ids)
+    {
+        if(!$ids) return;
+        $query = "
+            SELECT do.id, u.username, u.given_name, u.family_name
+            FROM data_objects do
+            JOIN users_data_objects udo ON (do.id=udo.data_object_id)
+            JOIN users u ON (udo.user_id=u.id)
+            WHERE udo.data_object_id IN (". implode(",", $ids) .")
+            AND do.published=1";
+        foreach($this->mysqli_slave->iterate_file($query) as $row)
+        {
+            $data_object_id = $row[0];
+            $username = SolrApi::text_filter($row[1]);
+            $given_name = SolrApi::text_filter($row[2]);
+            $family_name = SolrApi::text_filter($row[3]);
+            if($username) $this->agents_for_objects[$data_object_id][] = $username;
+            if($user_real_name = trim($given_name ." ". $family_name))
+            {
+                $this->agents_for_objects[$data_object_id][] = $user_real_name;
+            }
+        }
+    }
+
+    function get_resource_weight_and_data_types($data_type_id)
+    {
+        $data_types = array();
+        $data_types['DataObject'] = 1;
+        $resource_weight = 100;
+        if(in_array($data_type_id, DataType::image_type_ids()))
+        {
+            $data_types['Image'] = 1;
+            $resource_weight = 60;
+        }elseif(in_array($data_type_id, DataType::sound_type_ids()))
+        {
+            $data_types['Sound'] = 1;
+            $resource_weight = 70;
+        }elseif(in_array($data_type_id, DataType::text_type_ids()))
+        {
+            $data_types['Text'] = 1;
+            $resource_weight = 40;
+        }elseif(in_array($data_type_id, DataType::video_type_ids()))
+        {
+            $data_types['Video'] = 1;
+            $resource_weight = 50;
+        }else return null;
+        return array($resource_weight, $data_types);
     }
 
     function lookup_users(&$ids)
