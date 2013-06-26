@@ -206,9 +206,11 @@ class DataObject extends ActiveRecord
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
                 // TODO - hardcoded exception to make the Biopix images smaller
-                if($resource->title == "Biopix") $large_thumbnail_dimensions = "300x300";
-                else $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE;
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $large_thumbnail_dimensions);
+                // Intention is to set 'w'=>300, 'h'=>300. However this will not
+                //  create 
+                if($resource->title == "Biopix") $size_override = array('LARGE'=>array('w'=>580, 'h'=>360));
+                else $size_override = null;
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $size_override);
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }

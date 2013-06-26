@@ -84,17 +84,17 @@ if(!defined('CONTENT_TEMP_PREFIX'))         define('CONTENT_TEMP_PREFIX',       
 # where resource XML files will be downloaded to
 if(!defined('CONTENT_RESOURCE_LOCAL_PATH')) define('CONTENT_RESOURCE_LOCAL_PATH',   DOC_ROOT . 'applications/content_server/resources/');
 if(!defined('CONTENT_GNI_RESOURCE_PATH'))   define('CONTENT_GNI_RESOURCE_PATH',     DOC_ROOT . 'applications/content_server/gni_tcs_files/');
-# the default large/small size of content partner logos - larger versions will be scaled to this size using ImageMagick
-if(!defined('PARTNER_LOGO_LARGE'))          define('PARTNER_LOGO_LARGE',            '100x100');
-if(!defined('PARTNER_LOGO_SMALL'))          define('PARTNER_LOGO_SMALL',            '60x60');
+# the default large/small size of content partner logos - larger versions will be scaled to squares of this size using ImageMagick
+if(!defined('PARTNER_LOGO_ICON'))           define('PARTNER_LOGO_ICON',    serialize(array('MEDIUM'=>130, 'SMALL'=>88)));
 # the default sizes of downloaded images - larger versions will be scaled to this size using ImageMagick
-# large - used on species pages
-# medium - used on the homepage rotating images
-# small - used as thumbnails on species pages
-if(!defined('CONTENT_IMAGE_LARGE'))         define('CONTENT_IMAGE_LARGE',           '460x345');
-if(!defined('CONTENT_IMAGE_MEDIUM'))        define('CONTENT_IMAGE_MEDIUM',          '147x147');
-if(!defined('CONTENT_IMAGE_SMALL'))         define('CONTENT_IMAGE_SMALL',           '62x47');
-
+# scaled large - used on species pages
+# scaled medium - used on media pages
+# cropped medium - used on the homepage rotating images
+# cropped small - used as thumbnails on species pages
+if(!defined('CONTENT_IMAGE_SCALED'))        define('CONTENT_IMAGE_SCALED', serialize(array('LARGE' => array('w'=>580, 'h'=>360),
+                                                                                           'MEDIUM'=> array('w'=>260, 'h'=>190),
+                                                                                           'SMALL' => array('w'=>98,  'h'=>68)));
+if(!defined('CONTENT_IMAGE_CROPPED'))       define('CONTENT_IMAGE_CROPPED',serialize(array('MEDIUM'=> 130, 'SMALL' => 88);           
 // this may not be needed anymore
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 
