@@ -290,20 +290,17 @@ class ContentManager
 
     function create_content_thumbnails($file, $prefix, $override_sizes = null, $x_offset = 0, $y_offset = 0, $crop_width = null)
     {
-        $jpg_names = array($this->reduce_original($file, $prefix)); //create local full-res jpg, store name in $jpg_names[0];
+        $base_jpg = $local_fullres_jpg = $this->reduce_original($file, $prefix));
         $sizes = unserialize(CONTENT_IMAGE_SCALED);
         if (isset($override_sizes)) $sizes = array_merge($sizes, (array) $override_sizes);
         
         foreach($sizes as $name => $size) {
-            if (isset($jpg_names['LARGE']) {
-                $jpg_names[$name] = $this->create_smaller_version($jpg_names['LARGE'], $size['w'], $size['h'], $prefix);
-            } else {
-                $jpg_names[$name] = $this->create_smaller_version($jpg_names[0], $size['w'], $size['h'], $prefix);
-            }
-            symlink($jpg_names[$name], $prefix.'_SCALED_'.$name.".jpg"); //point e.g. fileid_SCALED_MEDIUM.jpg to the medium-sized image
+            if (isset($jpg_names['LARGE'])) $base_jpg = $jpg_names['LARGE']; //if poss, work from 'LARGE' size, not the original hi-res
+            $jpg_names[$name] = $this->create_smaller_version($base_jpg, $size['w'], $size['h'], $prefix);
+            symlink($jpg_names[$name], $prefix.'_SCALED_'.$name.".jpg"); //link e.g. fileid_SCALED_MEDIUM.jpg to the medium-sized image
         }
         
-        $source_image = $jpg_names[0];
+        $source_image = $local_fullres_jpg;
         if(!$crop_width && isset($jpg_names['LARGE'])) $source_image = $jpg_names['LARGE'];
         
         foreach(unserialize(CONTENT_IMAGE_CROPPED) as $name => $size) {
