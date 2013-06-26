@@ -206,8 +206,11 @@ class DataObject extends ActiveRecord
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
                 // TODO - hardcoded exception to make the Biopix images smaller
-                // Intention is to set 'w'=>300, 'h'=>300. However this will not
-                //  create 
+                // Intention is to set 'w'=>300, 'h'=>300. However this will create large 
+                // thumbnails with prefix "_300_300.jpg" rather than "_580_360.jpg", which will
+                // mess up html that is hard-coded to refer to "_580_360.jpg"
+                // The sensible workaround is for html to use the alternative suffix, "_SCALED_LARGE.jpg"
+                // Until this is done, we leave the override settings as w=580 and h=360.
                 if($resource->title == "Biopix") $size_override = array('LARGE'=>array('w'=>580, 'h'=>360));
                 else $size_override = null;
                 $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $size_override);
