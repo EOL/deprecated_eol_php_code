@@ -211,6 +211,7 @@ class DataObject extends ActiveRecord
                 // mess up html that is hard-coded to refer to "_580_360.jpg"
                 // The sensible workaround is for html to use the alternative suffix, "_SCALED_LARGE.jpg"
                 // Until this is done, we leave the override settings as w=580 and h=360.
+                // !Warning! We will also have to deal with identifying Biopix images when calling crop_image().
                 if($resource->title == "Biopix") $size_override = array('LARGE'=>array('w'=>580, 'h'=>360));
                 else $size_override = null;
                 $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $size_override);
