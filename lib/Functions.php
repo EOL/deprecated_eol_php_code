@@ -1529,6 +1529,8 @@ class Functions
         elseif ($extension == "tif")        $mimetype = "image/tiff";
         elseif ($extension == "mp3")        $mimetype = "audio/mpeg";
         elseif ($extension == "wav")        $mimetype = "audio/x-wav";
+        elseif ($extension == "ogg")        $mimetype = "audio/ogg";
+        elseif ($extension == "oga")        $mimetype = "audio/ogg";
         return $mimetype;
     }
     
