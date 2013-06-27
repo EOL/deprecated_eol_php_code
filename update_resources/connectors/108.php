@@ -360,16 +360,15 @@ function get_data_object($id, $description, $dc_rights, $title, $url, $subject, 
         $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
         $dataObjectParameters["mimeType"] = "text/html";
     }
-    /*
     else
     {
-        $dataObjectParameters["identifier"] = $id;
-        $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
-
-        $dataObjectParameters["mimeType"] = "image/jpeg";
-        $dataObjectParameters["mediaURL"] = $mediaurl;
+        //$dataObjectParameters["identifier"] = $id;
+        //$dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
+        
+        $dataObjectParameters["mimeType"] = Functions::get_mimetype($url);
+        //$dataObjectParameters["mediaURL"] = $mediaurl;
     }
-    */
+    
             /////////////////////////////////////////////////////////////
 
             foreach ($arr_agents as $g)
