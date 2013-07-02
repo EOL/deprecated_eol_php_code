@@ -3,7 +3,7 @@ namespace php_active_record;
 
 class ADWDataConnector
 {
-    const DUMP_URL = "/Users/pleary/Downloads/datasets/adw.txt";
+    const DUMP_URL = "/Users/pleary/Downloads/datasets/adw_new.txt";
 
     public function __construct($resource_id)
     {
@@ -32,7 +32,7 @@ class ADWDataConnector
             if($in_quote) $current_line .= ";$line";
             else $current_line = $line;
 
-            if(preg_match("/\"[^\t]+/", $line))
+            if(preg_match("/\"[^\t\"]+$/", $line))
             {
                 $in_quote = true;
                 continue;
@@ -43,7 +43,7 @@ class ADWDataConnector
             $column_count = count($line_data);
             if($column_count != 23)
             {
-                echo "Line $line_number :: There was a problem with this line. Column count $column_count should be 23\n";
+                echo "Line $line_number :: There was a problem with this line. Column count $column_count should be 23 (is $column_count)\n";
                 print_r($line_data);
                 return;
             }
@@ -94,8 +94,7 @@ class ADWDataConnector
 
     private function add_numeric_types($line_data, $taxon_id)
     {
-        $numeric_types = array('Depth - m', 'Depth - extreme low - m', 'Depth - extreme high - m', 'Mass - g',
-            'Mass - extreme low - g', 'Mass - extreme high - g', 'Length - mm', 'Length - extreme low - mm', 'Length - extreme high - mm');
+        $numeric_types = array('Depth - average - m', 'Depth - extreme low - m', 'Depth - extreme high - m', 'Mass - average - g', 'Mass - extreme high - g', 'Mass - extreme low - g', 'Length - average - mm', 'Length - extreme high - mm', 'Length - extreme low - mm');
         foreach($numeric_types as $label)
         {
             if($v = trim($line_data[$this->column_indices[$label]]))
