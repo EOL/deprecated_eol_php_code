@@ -20,7 +20,7 @@ class ContentManager
     // partner - this type means we are downloading a logo for a content partner
     // resource - this means we are downloading an XML or zipped file of the EOL schema for processing
 
-    function grab_file($file, $resource_id, $type, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
+    function grab_file($file, $resource_id, $type, $override_sizes = null, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $x_offset = 0, $y_offset = 0, $crop_width = null)
     {
         if($temp_file_path = self::download_temp_file_and_assign_extension($file, $this->unique_key, ($type == "resource"), $timeout))
         {
@@ -60,8 +60,8 @@ class ContentManager
             }
 
             // create thumbnails of website content and agent logos
-            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions, $x_offset, $y_offset, $crop_width);
-            elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix, $large_thumbnail_dimensions);
+            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $override_sizes, $x_offset, $y_offset, $crop_width);
+            elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
 
             if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
 
@@ -288,39 +288,53 @@ class ContentManager
         return $new_suffix;
     }
 
-    function create_content_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
+    function create_content_thumbnails($file, $prefix, $override_sizes = null, $x_offset = 0, $y_offset = 0, $crop_width = null)
     {
-        $this->reduce_original($file, $prefix);
-        $this->create_smaller_version($file, 580, 360, $prefix);
-        $this->create_smaller_version($prefix.'_580_360.jpg', 260, 190, $prefix);
-        $this->create_smaller_version($prefix.'_580_360.jpg', 98, 68, $prefix);
-        $source_image = $prefix.'_580_360.jpg';
-        if($crop_width) $source_image = $prefix.'_orig.jpg';
-        $this->create_upper_left_crop($source_image, 130, $prefix, $x_offset, $y_offset, $crop_width);
-        $this->create_upper_left_crop($source_image, 88, $prefix, $x_offset, $y_offset, $crop_width);
+        $base_jpg = $local_fullres_jpg = $this->reduce_original($file, $prefix));
+        $sizes = unserialize(CONTENT_IMAGE_SCALED);
+        if (isset($override_sizes)) $sizes = array_merge($sizes, (array) $override_sizes);
+        
+        foreach($sizes as $name => $size) {
+            if (isset($jpg_names['LARGE'])) $base_jpg = $jpg_names['LARGE']; //if poss, work from 'LARGE' size, not the original hi-res
+            $jpg_names[$name] = $this->create_smaller_version($base_jpg, $size['w'], $size['h'], $prefix);
+            symlink($jpg_names[$name], $prefix.'_SCALED_'.$name.".jpg"); //link e.g. fileid_SCALED_MEDIUM.jpg to the medium-sized image
+        }
+        
+        $source_image = $local_fullres_jpg;
+        if(!$crop_width && isset($jpg_names['LARGE'])) $source_image = $jpg_names['LARGE'];
+        
+        foreach(unserialize(CONTENT_IMAGE_CROPPED) as $name => $size) {
+            $filename = $this->create_upper_left_crop($source_image, $size, $prefix, $x_offset, $y_offset, $crop_width);
+            symlink($filename, $prefix.'_CROPPED_'.$name.".jpg"); //point e.g. fileid_CROPPED_MEDIUM.jpg to the medium-sized image            
+        };
     }
 
-    function create_agent_thumbnails($file, $prefix, $large_thumbnail_dimensions = CONTENT_IMAGE_LARGE)
+    function create_agent_thumbnails($file, $prefix)
     {
-        $this->create_constrained_square_crop($file, 130, $prefix);
-        $this->create_constrained_square_crop($file, 88, $prefix);
+        $sizes = unserialize(PARTNER_LOGO_ICON);
+        foreach($sizes as $name => $size) {
+            $filename = $this->create_constrained_square_crop($file, $size, $prefix);
+            symlink($filename, $prefix.'_'.$name.".jpg");
+        }
     }
 
     function reduce_original($path, $prefix)
     {
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80";
-        $cropped_image_path = $prefix."_orig.jpg";
-        shell_exec($command." ".$cropped_image_path);
-        self::create_checksum($cropped_image_path);
+        $new_image_path = $prefix."_orig.jpg";
+        shell_exec($command." ".$new_image_path);
+        self::create_checksum($new_image_path);
+        return($new_image_path);
     }
 
     function create_smaller_version($path, $new_width, $new_height, $prefix)
     {
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
                         -resize ".$new_width."x".$new_height."\">\"";
-        $cropped_image_path = $prefix."_".$new_width."_".$new_height.".jpg";
-        shell_exec($command." ".$cropped_image_path);
-        self::create_checksum($cropped_image_path);
+        $new_image_path = $prefix."_".$new_width."_".$new_height.".jpg";
+        shell_exec($command." ".$new_image_path);
+        self::create_checksum($new_image_path);
+        return($new_image_path);
     }
 
     function create_upper_left_crop($path, $square_dimension, $prefix, $x_offset = 0, $y_offset = 0, $crop_width = NULL)
@@ -359,9 +373,10 @@ class ContentManager
                         -resize ".$square_dimension."x".$square_dimension;
             }
         }
-        $cropped_image_path = $prefix."_".$square_dimension."_".$square_dimension.".jpg";
-        shell_exec($command." ".$cropped_image_path);
-        self::create_checksum($cropped_image_path);
+        $new_image_path = $prefix."_".$square_dimension."_".$square_dimension.".jpg";
+        shell_exec($command." ".$new_image_path);
+        self::create_checksum($new_image_path);
+        return($new_image_path);
     }
 
     function create_constrained_square_crop($path, $square_dimension, $prefix)
@@ -370,9 +385,10 @@ class ContentManager
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
                         -resize '".$square_dimension."x".$square_dimension."' -gravity center \
                         -extent '".$square_dimension."x".$square_dimension."' +repage";
-        $cropped_image_path = $prefix."_".$square_dimension."_".$square_dimension.".jpg";
-        shell_exec($command." ".$cropped_image_path);
-        self::create_checksum($cropped_image_path);
+        $new_image_path = $prefix."_".$square_dimension."_".$square_dimension.".jpg";
+        shell_exec($command." ".$new_image_path);
+        self::create_checksum($new_image_path);
+        return($new_image_path);
     }
 
     function new_partner_file_name()
@@ -451,7 +467,7 @@ class ContentManager
             $cache_path = self::cache_path($data_object->object_cache_url);
             $image_url = CONTENT_LOCAL_PATH . $cache_path ."_orig.jpg";
             if(!file_exists($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
-            return $this->grab_file($image_url, 0, "image", CONTENT_IMAGE_LARGE, DOWNLOAD_TIMEOUT_SECONDS, $x, $y, $w);
+            return $this->grab_file($image_url, 0, "image", null, DOWNLOAD_TIMEOUT_SECONDS, $x, $y, $w);
         }
         return false;
     }
