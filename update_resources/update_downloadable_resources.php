@@ -41,7 +41,7 @@ foreach($resources as $resource)
     if($resource->accesspoint_url)
     {
         echo "$resource->id $resource->accesspoint_url\n";
-        $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource", array('timeout' => 600));
+        $new_resource_path = $manager->grab_file($resource->accesspoint_url, "resource", array('id'=>$resource->id, 'timeout' => 600));
         if(!$new_resource_path)
         {
             $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label("Upload Failed")->id." WHERE id=$resource->id");
