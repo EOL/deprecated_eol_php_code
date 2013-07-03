@@ -322,7 +322,7 @@ class ContentManager
             if ($name=='large_image_dimensions') $image_path = $scaled_image; //use the _large_ version from now on: saves scaling a huge file every time
         };
         
-        if(isset($options['crop_width'])) $image_path = $base_jpg_name;
+        if(isset($options['crop_width'])) $image_path = $base_jpg_name; //if custom crop, use full-size in case a tiny area is cropped
         foreach ($cropped_sizes as $dimensions) {
             $this->create_upper_left_crop($image_path, $dimensions, $prefix, implode($dimensions, '_'));
         };
