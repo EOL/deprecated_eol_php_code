@@ -15,8 +15,8 @@ $i = 0;
 while($i < 1000)
 {
     $i++;
-    echo "$i - " . $content_manager->grab_file($big_image_url, 0, "image") . "\n";
-    // echo "$i - " . $content_manager->grab_file($small_image_url, 0, "image") . "\n";
+    echo "$i - " . $content_manager->grab_file($big_image_url, "image") . "\n";
+    // echo "$i - " . $content_manager->grab_file($small_image_url, "image") . "\n";
 }
 
 ?>

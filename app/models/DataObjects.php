@@ -208,7 +208,7 @@ class DataObject extends ActiveRecord
                 // TODO - hardcoded exception to make the Biopix images smaller
                 $thumbnail_options = array();
                 if($resource->title == "Biopix") $thumbnail_options = array('large_image_dimensions' => array(300, 300));
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $thumbnail_options);
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, "image", $thumbnail_options);
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
@@ -216,7 +216,7 @@ class DataObject extends ActiveRecord
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "video");
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, "video");
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
@@ -224,7 +224,7 @@ class DataObject extends ActiveRecord
         {
             if(preg_match("/^http:\/\//",$this->object_url))
             {
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "audio");
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, "audio");
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
@@ -237,7 +237,7 @@ class DataObject extends ActiveRecord
         {
             if(preg_match("/^http:\/\//",$this->thumbnail_url))
             {
-                $this->thumbnail_cache_url = $content_manager->grab_file($this->thumbnail_url, 0, "image");
+                $this->thumbnail_cache_url = $content_manager->grab_file($this->thumbnail_url, "image");
                 if(@!$this->thumbnail_cache_url) return false;
             }else return false;
         }

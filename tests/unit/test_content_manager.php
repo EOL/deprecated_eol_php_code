@@ -23,7 +23,7 @@ class test_content_manager extends SimpletestUnitBase
     
     function testGrabResource()
     {
-        $file = $this->content_manager->grab_file(WEB_ROOT . 'tests/fixtures/files/test_resource.xml', 101010101, "resource");
+        $file = $this->content_manager->grab_file(WEB_ROOT . 'tests/fixtures/files/test_resource.xml', "resource", array('id'=>101010101));
         $this->assertTrue($file == "101010101.xml", "File name should be same as resource id");
         $this->assertTrue(file_exists(CONTENT_RESOURCE_LOCAL_PATH."101010101.xml"), "File should exist");
         unlink(CONTENT_RESOURCE_LOCAL_PATH."101010101.xml");
@@ -31,7 +31,7 @@ class test_content_manager extends SimpletestUnitBase
     
     function testGrabPartnerImage()
     {
-        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "image");
+        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", "image");
         $this->assertPattern("/^[0-9]{15}$/", $file, "File should have 6 digits");
         
         if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
@@ -50,7 +50,7 @@ class test_content_manager extends SimpletestUnitBase
     
     function testGrabContentImage()
     {
-        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", 0, "image");
+        $file = $this->content_manager->grab_file("http://eolspecies.lifedesks.org/image/view/793", "image");
         $this->assertPattern("/^[0-9]{15}/", $file, 'Should be able to download images with no file extension');
         
         if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
@@ -69,7 +69,7 @@ class test_content_manager extends SimpletestUnitBase
 
     function testGrabContentVideo()
     {
-        $file = $this->content_manager->grab_file("http://www.crowcastle.net/preston/linux-av/legodrgn.avi", 0, "video");
+        $file = $this->content_manager->grab_file("http://www.crowcastle.net/preston/linux-av/legodrgn.avi", "video");
         $this->assertPattern("/^[0-9]{15}/", $file);        
         if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
         {
@@ -81,7 +81,7 @@ class test_content_manager extends SimpletestUnitBase
 
     function testGrabContentAudio()
     {
-        $file = $this->content_manager->grab_file("http://people.sc.fsu.edu/~jburkardt/data/wav/thermo.wav", 0, "audio");
+        $file = $this->content_manager->grab_file("http://people.sc.fsu.edu/~jburkardt/data/wav/thermo.wav", "audio");
         $this->assertPattern("/^[0-9]{15}/", $file);
         if(preg_match("/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{5})$/", $file, $arr))
         {
