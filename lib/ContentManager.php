@@ -310,21 +310,19 @@ class ContentManager
     function create_content_thumbnails($file, $prefix, $options = null)
     {
         $image_path = $base_jpg_name = $this->reduce_original($file, $prefix, $options);
-        $scaled_sizes = ContentManager::default_image_dimensions();
-        $cropped_sizes = ContentManager::default_square_dimensions();
-        if (!empty($options)) { // allow $options to override default sizes, e.g. if $options['large_image_dimensions'] exists
-            $scaled_sizes = array_merge($scaled_sizes, array_intersect_key((array) $options, $scaled_sizes));
-            $cropped_sizes = array_merge($scaled_sizes, array_intersect_key((array) $options, $scaled_sizes));
-        };
+        $default_scaled_sizes = ContentManager::default_image_dimensions();
+        $default_cropped_sizes = ContentManager::default_square_dimensions();
+        $scaled_sizes = array_merge($default_scaled_sizes, array_intersect_key((array) $options, $default_scaled_sizes));
+        $cropped_sizes = array_merge($default_cropped_sizes, array_intersect_key((array) $options, $default_cropped_sizes));
         
-        foreach ($scaled_sizes as $name => $dimensions) {
-            $scaled_image = $this->create_smaller_version($image_path, $dimensions, $prefix, implode($dimensions, '_'));
+        foreach ($default_scaled_sizes as $name => $defaultD) {
+            $scaled_image = $this->create_smaller_version($image_path, $scaled_sizes[$name], $prefix, implode($defaultD, '_'));
             if ($name=='large_image_dimensions') $image_path = $scaled_image; //use the _large_ version from now on: saves scaling a huge file every time
         };
         
         if(isset($options['crop_width'])) $image_path = $base_jpg_name; //if custom crop, use full-size in case a tiny area is cropped
-        foreach ($cropped_sizes as $dimensions) {
-            $this->create_upper_left_crop($image_path, $dimensions, $prefix, implode($dimensions, '_'));
+        foreach ($default_cropped_sizes as $name => $defaultD) {
+            $this->create_upper_left_crop($image_path, $cropped_sizes[$name], $prefix, implode($defaultD, '_'));
         };
     }
 
