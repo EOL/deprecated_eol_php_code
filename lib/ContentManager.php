@@ -60,7 +60,7 @@ class ContentManager
                     return false;
             };
                     
-            if (!$suffix) return; //require suffix for anything that has got this far 
+            if (!$suffix) return false; //require suffix for anything that has got this far 
             $new_file_path = $new_file_prefix . "." . $suffix;
 
             // copy temporary file into its new home
