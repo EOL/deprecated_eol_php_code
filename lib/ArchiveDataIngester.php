@@ -666,7 +666,7 @@ class ArchiveDataIngester
         // download the logo if there is one, and it hasn't ever been downloaded before
         if($agent->logo_url && !$agent->logo_cache_url)
         {
-            if($logo_cache_url = $this->content_manager->grab_file($agent->logo_url, "image"))
+            if($logo_cache_url = $this->content_manager->grab_file($agent->logo_url, "partner"))
             {
                 $agent->logo_cache_url = $logo_cache_url;
                 $agent->save();
