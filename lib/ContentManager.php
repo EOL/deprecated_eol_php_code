@@ -292,50 +292,40 @@ class ContentManager
         return $new_suffix;
     }
 
-    static function large_image_dimensions()
+    static function default_image_dimensions()
     {
-        static $dimensions = array(580, 360);
+        static $dimensions = array('large_image_dimensions'  => array(580, 360),
+                                   'medium_image_dimensions' => array(260, 190),
+                                   'small_image_dimensions'  => array(98, 68));
         return $dimensions;
     }
 
-    static function medium_image_dimensions()
+    static function default_square_dimensions()
     {
-        static $dimensions = array(260, 190);
+        static $dimensions = array('large_square_dimensions' => array(130, 130),
+                                   'small_square_dimensions' => array(88, 88));
         return $dimensions;
     }
 
-    static function small_image_dimensions()
+    function create_content_thumbnails($file, $prefix, $options = null)
     {
-        static $dimensions = array(98, 68);
-        return $dimensions;
-    }
-
-    static function large_square_dimensions()
-    {
-        static $dimensions = array(130, 130);
-        return $dimensions;
-    }
-
-    static function small_square_dimensions()
-    {
-        static $dimensions = array(88, 88);
-        return $dimensions;
-    }
-
-    function create_content_thumbnails($file, $prefix, $options = array())
-    {
-        $this->reduce_original($file, $prefix);
-        // we make an exception
-        if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
-        {
-            $large_image_dimensions = $options['large_image_dimensions'];
-        }else $large_image_dimensions = ContentManager::large_image_dimensions();
-        $image_path = $this->create_smaller_version($file, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
-        $this->create_smaller_version($image_path, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
-        $this->create_smaller_version($image_path, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
-        if(isset($options['crop_width'])) $image_path = $prefix . '_orig.jpg';
-        $this->create_upper_left_crop($image_path, ContentManager::large_square_dimensions(), $prefix, $options);
-        $this->create_upper_left_crop($image_path, ContentManager::small_square_dimensions(), $prefix, $options);
+        $image_path = $base_jpg_name = $this->reduce_original($file, $prefix, $options);
+        $scaled_sizes = ContentManager::default_image_dimensions();
+        $cropped_sizes = ContentManager::default_square_dimensions();
+        if (!empty($options)) { // allow $options to override default sizes, e.g. if $options['large_image_dimensions'] exists
+            $scaled_sizes = array_merge($scaled_sizes, array_intersect_key((array) $options, $scaled_sizes));
+            $cropped_sizes = array_merge($scaled_sizes, array_intersect_key((array) $options, $scaled_sizes));
+        };
+        
+        foreach ($scaled_sizes as $name => $dimensions) {
+            $scaled_image = $this->create_smaller_version($image_path, $dimensions, $prefix, implode($dimensions, '_'));
+            if ($name=='large_image_dimensions') $image_path = $scaled_image; //use the _large_ version from now on: saves scaling a huge file every time
+        };
+        
+        if(isset($options['crop_width'])) $image_path = $base_jpg_name;
+        foreach ($cropped_sizes as $dimensions) {
+            $this->create_upper_left_crop($image_path, $dimensions, $prefix, implode($dimensions, '_'));
+        };
     }
 
     function create_agent_thumbnails($file, $prefix)
@@ -344,9 +334,11 @@ class ContentManager
         $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
-    function reduce_original($path, $prefix)
+    function reduce_original($path, $prefix, $options=null)
     {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80";
+        $rotate = "-auto-orient";
+        if (isset($options['rotate'])) $rotate = "-rotate ".intval($options['rotate'])
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten ".$rotate." -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
@@ -354,8 +346,8 @@ class ContentManager
     }
 
     function create_smaller_version($path, $dimensions, $prefix, $suffix)
-    {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
+    {   //don't need to rotate, as this works on already-rotated version
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
         $new_image_path = $prefix ."_". $suffix .".jpg";
         shell_exec($command." ".$new_image_path);
