@@ -329,8 +329,9 @@ class ContentManager
 
     function create_agent_thumbnails($file, $prefix)
     {
-        $this->create_constrained_square_crop($file, ContentManager::large_square_dimensions(), $prefix);
-        $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
+        foreach (ContentManager::default_square_dimensions() as $dimensions) {        
+            $this->create_constrained_square_crop($file, $dimensions, $prefix);
+        };
     }
 
     function reduce_original($path, $prefix, $options=null)
@@ -383,16 +384,16 @@ class ContentManager
 
                 $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 -gravity NorthWest \
                         -crop ".$new_crop_width."x".$new_crop_width."+".$new_x_offset."+".$new_y_offset." +repage \
-                        -resize ".$dimensions[0]."x".$dimensions[0];
+                        -resize ".$dimensions[0]."x".$dimensions[1];
             }
         }else
         {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
-            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
-                            -resize ".$dimensions[0]."x".$dimensions[0]."^ \
-                            -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[0]."+0+0 +repage";
+            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
+                            -resize ".$dimensions[0]."x".$dimensions[1]."^ \
+                            -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[1]."+0+0 +repage";
         }
-        $new_image_path = $prefix ."_". $dimensions[0] ."_". $dimensions[0] .".jpg";
+        $new_image_path = $prefix ."_". $dimensions[0] ."_". $dimensions[1] .".jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
     }
@@ -401,9 +402,9 @@ class ContentManager
     {
         // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
-                        -resize '".$dimensions[0]."x".$dimensions[0]."' -gravity center \
-                        -extent '".$dimensions[0]."x".$dimensions[0]."' +repage";
-        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[0].".jpg";
+                        -resize '".$dimensions[0]."x".$dimensions[1]."' -gravity center \
+                        -extent '".$dimensions[0]."x".$dimensions[1]."' +repage";
+        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[1].".jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
         return $new_image_path;
