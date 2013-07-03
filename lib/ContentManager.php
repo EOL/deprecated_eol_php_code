@@ -309,11 +309,12 @@ class ContentManager
 
     function create_content_thumbnails($file, $prefix, $options = null)
     {
-        $image_path = $base_jpg_name = $this->reduce_original($file, $prefix, $options);
         $default_scaled_sizes = ContentManager::default_image_dimensions();
         $default_cropped_sizes = ContentManager::default_square_dimensions();
         $scaled_sizes = array_merge($default_scaled_sizes, array_intersect_key((array) $options, $default_scaled_sizes));
         $cropped_sizes = array_merge($default_cropped_sizes, array_intersect_key((array) $options, $default_cropped_sizes));
+
+        $image_path = $base_jpg_name = $this->reduce_original($file, $prefix, $options);
         
         foreach ($default_scaled_sizes as $name => $defaultD) {
             $scaled_image = $this->create_smaller_version($image_path, $scaled_sizes[$name], $prefix, implode($defaultD, '_'));
