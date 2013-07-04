@@ -22,7 +22,7 @@ class dwc_validator_controller extends ControllerBase
         }
         if($dwca_file)
         {
-            if($temp_dir = ContentManager::download_temp_file_and_assign_extension($dwca_file, null, false, DOWNLOAD_TIMEOUT_SECONDS, $suffix))
+            if($temp_dir = ContentManager::download_temp_file_and_assign_extension($dwca_file, array('suffix' => $suffix)))
             {
                 if(is_dir($temp_dir))
                 {

@@ -20,7 +20,7 @@ class validator_controller extends ControllerBase
             $xml_file = $xml_upload['tmp_name'];
             if(preg_match("/\.([^\.]+)$/", $xml_upload['name'], $arr)) $suffix = strtolower(trim($arr[1]));
         }
-        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file, null, false, DOWNLOAD_TIMEOUT_SECONDS, $suffix))
+        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file, array('suffix' => $suffix)))
         {
             $downloaded_file = true;
             if(is_dir($temp_dir))
