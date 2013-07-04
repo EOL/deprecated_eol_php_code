@@ -5,7 +5,6 @@ class RotifersAPI
 {
     function __construct($folder)
     {
-        
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -17,6 +16,7 @@ class RotifersAPI
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->EOL = 'http://eol.org/schema/eol_info_items.xml';
         $this->zip_path = "http://localhost/~eolit/rotifers.zip";
+        $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/rotifers.zip";
         $this->text_path = array();
         $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images";
         $this->image_path =                 "http://89.26.108.66/TestRWC/Rotifer_data/images";
@@ -44,12 +44,12 @@ class RotifersAPI
         foreach($taxa as $rec)
         {
             $sciname = $rec["strOrigComb"];
-            print "\n $sciname";
+            echo "\n $sciname";
             $link = $this->create_instances_from_taxon_object($rec, array(), $link);
         }
-        print "\n\n total rows: " . count($taxa);
-        print "\n\n link: " . count($link);
-        print "\n";
+        echo "\n\n total rows: " . count($taxa);
+        echo "\n\n link: " . count($link);
+        echo "\n";
         print_r($link);
         self::process_specimen($link, $func);
         self::process_distribution($link, $func);
@@ -92,7 +92,7 @@ class RotifersAPI
                 }
             }
         }
-        print "\n investigate: $investigate \n";
+        echo "\n investigate: $investigate \n";
     }
 
     private function process_specimen_images($link, $func)
@@ -145,7 +145,7 @@ class RotifersAPI
                 }
             }
         }
-        print "\n investigate: $investigate \n";
+        echo "\n investigate: $investigate \n";
     }
 
     private function get_image_path($filename, $image_type)
@@ -175,12 +175,12 @@ class RotifersAPI
                 $folder = "typescan";
                 break;
             case "Topomap":
-                print("\n\n investigate: $filename -- $image_type \n ");
+                echo("\n\n investigate: $filename -- $image_type \n ");
                 return false;
                 $folder = "map"; // ?
                 break;
             default:
-                print("\n\n investigate: no folder: [$filename] -- [$image_type] \n ");
+                echo("\n\n investigate: no folder: [$filename] -- [$image_type] \n ");
         }
         return $this->image_path . "/$folder/_full-size/$filename";
     }
@@ -246,7 +246,7 @@ class RotifersAPI
                 }
             }
         }
-        print "\n investigate: $investigate \n";
+        echo "\n investigate: $investigate \n";
         foreach($taxa as $taxon_id => $rec)
         {
             if(@$rec["distribution"])
@@ -316,7 +316,7 @@ class RotifersAPI
                 }
             }
         }
-        print "\n investigate: $investigate \n";
+        echo "\n investigate: $investigate \n";
     }
 
     function create_instances_from_taxon_object($rec, $reference_ids, $link)
