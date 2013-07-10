@@ -20,7 +20,7 @@ class validator_controller extends ControllerBase
             $xml_file = $xml_upload['tmp_name'];
             if(preg_match("/\.([^\.]+)$/", $xml_upload['name'], $arr)) $suffix = strtolower(trim($arr[1]));
         }
-        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file, null, false, DOWNLOAD_TIMEOUT_SECONDS, $suffix))
+        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($xml_file, array('suffix' => $suffix)))
         {
             $downloaded_file = true;
             if(is_dir($temp_dir))
@@ -36,7 +36,7 @@ class validator_controller extends ControllerBase
         {
             // determine the xsd, and whether this is an EOL resource file
             $xsd = SchemaValidator::get_schema_location($xml_file);
-            if(preg_match("/^http:\/\/services\.eol\.org\/schema\/content_0_[1-3]/", $xsd)) $is_eol_schema = true;
+            if(preg_match("/^http:\/\/services\.eol\.org\/schema\/content_[0-1]_[0-3]/", $xsd)) $is_eol_schema = true;
             else $is_eol_schema = false;
             
             $valid = SchemaValidator::validate($xml_file);
