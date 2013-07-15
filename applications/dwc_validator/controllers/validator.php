@@ -13,7 +13,7 @@ class dwc_validator_controller extends ControllerBase
         $stats = array();
         
         
-        $dwca_file = @$file_url;
+        $dwca_file = @trim($file_url);
         $suffix = null;
         if(@$dwca_upload['tmp_name'])
         {
