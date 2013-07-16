@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2011 PHPExcel
+ * Copyright (c) 2006 - 2013 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Reader
- * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2013 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.6, 2011-02-27
+ * @version    ##VERSION##, ##DATE##
  */
 
 
@@ -36,31 +36,14 @@ if (!defined('PHPEXCEL_ROOT')) {
 }
 
 /**
- *	PHPExcel_Reader_Gnumeric
+ * PHPExcel_Reader_Gnumeric
  *
- *	@category	PHPExcel
- *	@package	PHPExcel_Reader
- *	@copyright	Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @category	PHPExcel
+ * @package		PHPExcel_Reader
+ * @copyright	Copyright (c) 2006 - 2013 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
-class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
+class PHPExcel_Reader_Gnumeric extends PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 {
-	/**
-	 *	Read data only?
-	 *	Identifies whether the Reader should only read data values for cells, and ignore any formatting information;
-	 *		or whether it should read both data and formatting
-	 *
-	 *	@var	boolean
-	 */
-	private $_readDataOnly = false;
-
-	/**
-	 *	Restrict which sheets should be loaded?
-	 *	This property holds an array of worksheet names to be loaded. If null, then all worksheets will be loaded.
-	 *
-	 *	@var	array of string
-	 */
-	private $_loadSheetsOnly = null;
-
 	/**
 	 * Formats
 	 *
@@ -77,98 +60,6 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 
 	private $_referenceHelper = null;
 
-	/**
-	 * PHPExcel_Reader_IReadFilter instance
-	 *
-	 * @var PHPExcel_Reader_IReadFilter
-	 */
-	private $_readFilter = null;
-
-
-	/**
-	 *	Read data only?
-	 *		If this is true, then the Reader will only read data values for cells, it will not read any formatting information.
-	 *		If false (the default) it will read data and formatting.
-	 *
-	 *	@return	boolean
-	 */
-	public function getReadDataOnly() {
-		return $this->_readDataOnly;
-	}
-
-	/**
-	 *	Set read data only
-	 *		Set to true, to advise the Reader only to read data values for cells, and to ignore any formatting information.
-	 *		Set to false (the default) to advise the Reader to read both data and formatting for cells.
-	 *
-	 *	@param	boolean	$pValue
-	 *
-	 *	@return	PHPExcel_Reader_Gnumeric
-	 */
-	public function setReadDataOnly($pValue = false) {
-		$this->_readDataOnly = $pValue;
-		return $this;
-	}
-
-	/**
-	 *	Get which sheets to load
-	 *		Returns either an array of worksheet names (the list of worksheets that should be loaded), or a null
-	 *			indicating that all worksheets in the workbook should be loaded.
-	 *
-	 *	@return mixed
-	 */
-	public function getLoadSheetsOnly()
-	{
-		return $this->_loadSheetsOnly;
-	}
-
-	/**
-	 *	Set which sheets to load
-	 *
-	 *	@param mixed $value
-	 *		This should be either an array of worksheet names to be loaded, or a string containing a single worksheet name.
-	 *		If NULL, then it tells the Reader to read all worksheets in the workbook
-	 *
-	 *	@return PHPExcel_Reader_Gnumeric
-	 */
-	public function setLoadSheetsOnly($value = null)
-	{
-		$this->_loadSheetsOnly = is_array($value) ?
-			$value : array($value);
-		return $this;
-	}
-
-	/**
-	 *	Set all sheets to load
-	 *		Tells the Reader to load all worksheets from the workbook.
-	 *
-	 *	@return PHPExcel_Reader_Gnumeric
-	 */
-	public function setLoadAllSheets()
-	{
-		$this->_loadSheetsOnly = null;
-		return $this;
-	}
-
-	/**
-	 * Read filter
-	 *
-	 * @return PHPExcel_Reader_IReadFilter
-	 */
-	public function getReadFilter() {
-		return $this->_readFilter;
-	}
-
-	/**
-	 * Set read filter
-	 *
-	 * @param PHPExcel_Reader_IReadFilter $pValue
-	 * @return PHPExcel_Reader_Gnumeric
-	 */
-	public function setReadFilter(PHPExcel_Reader_IReadFilter $pValue) {
-		$this->_readFilter = $pValue;
-		return $this;
-	}
 
 	/**
 	 * Create a new PHPExcel_Reader_Gnumeric
@@ -178,22 +69,24 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 		$this->_referenceHelper = PHPExcel_ReferenceHelper::getInstance();
 	}
 
+
 	/**
 	 * Can the current PHPExcel_Reader_IReader read the file?
 	 *
-	 * @param 	string 		$pFileName
+	 * @param 	string 		$pFilename
 	 * @return 	boolean
+	 * @throws PHPExcel_Reader_Exception
 	 */
 	public function canRead($pFilename)
 	{
-		// Check if gzlib functions are available
-		if (!function_exists('gzread')) {
-			return false;
-		}
-
 		// Check if file exists
 		if (!file_exists($pFilename)) {
-			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+			throw new PHPExcel_Reader_Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+		}
+
+		// Check if gzlib functions are available
+		if (!function_exists('gzread')) {
+			throw new PHPExcel_Reader_Exception("gzlib library is not enabled");
 		}
 
 		// Read signature data (first 3 bytes)
@@ -208,21 +101,93 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 		return true;
 	}
 
+
 	/**
-	 * Loads PHPExcel from file
+	 * Reads names of the worksheets from a file, without parsing the whole file to a PHPExcel object
 	 *
 	 * @param 	string 		$pFilename
-	 * @return 	PHPExcel
-	 * @throws 	Exception
+	 * @throws 	PHPExcel_Reader_Exception
 	 */
-	public function load($pFilename)
+	public function listWorksheetNames($pFilename)
 	{
-		// Create new PHPExcel
-		$objPHPExcel = new PHPExcel();
+		// Check if file exists
+		if (!file_exists($pFilename)) {
+			throw new PHPExcel_Reader_Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+		}
 
-		// Load into this instance
-		return $this->loadIntoExisting($pFilename, $objPHPExcel);
+		$xml = new XMLReader();
+		$xml->open(
+			'compress.zlib://'.realpath($pFilename)
+		);
+		$xml->setParserProperty(2,true);
+
+		$worksheetNames = array();
+		while ($xml->read()) {
+			if ($xml->name == 'gnm:SheetName' && $xml->nodeType == XMLReader::ELEMENT) {
+			    $xml->read();	//	Move onto the value node
+				$worksheetNames[] = (string) $xml->value;
+			} elseif ($xml->name == 'gnm:Sheets') {
+				//	break out of the loop once we've got our sheet names rather than parse the entire file
+				break;
+			}
+		}
+
+		return $worksheetNames;
 	}
+
+
+	/**
+	 * Return worksheet info (Name, Last Column Letter, Last Column Index, Total Rows, Total Columns)
+	 *
+	 * @param   string     $pFilename
+	 * @throws   PHPExcel_Reader_Exception
+	 */
+	public function listWorksheetInfo($pFilename)
+	{
+		// Check if file exists
+		if (!file_exists($pFilename)) {
+			throw new PHPExcel_Reader_Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+		}
+
+		$xml = new XMLReader();
+		$xml->open(
+			'compress.zlib://'.realpath($pFilename)
+		);
+		$xml->setParserProperty(2,true);
+
+		$worksheetInfo = array();
+		while ($xml->read()) {
+			if ($xml->name == 'gnm:Sheet' && $xml->nodeType == XMLReader::ELEMENT) {
+				$tmpInfo = array(
+					'worksheetName' => '',
+					'lastColumnLetter' => 'A',
+					'lastColumnIndex' => 0,
+					'totalRows' => 0,
+					'totalColumns' => 0,
+				);
+
+				while ($xml->read()) {
+					if ($xml->name == 'gnm:Name' && $xml->nodeType == XMLReader::ELEMENT) {
+					    $xml->read();	//	Move onto the value node
+						$tmpInfo['worksheetName'] = (string) $xml->value;
+					} elseif ($xml->name == 'gnm:MaxCol' && $xml->nodeType == XMLReader::ELEMENT) {
+					    $xml->read();	//	Move onto the value node
+						$tmpInfo['lastColumnIndex'] = (int) $xml->value;
+						$tmpInfo['totalColumns'] = (int) $xml->value + 1;
+					} elseif ($xml->name == 'gnm:MaxRow' && $xml->nodeType == XMLReader::ELEMENT) {
+					    $xml->read();	//	Move onto the value node
+						$tmpInfo['totalRows'] = (int) $xml->value + 1;
+						break;
+					}
+				}
+				$tmpInfo['lastColumnLetter'] = PHPExcel_Cell::stringFromColumnIndex($tmpInfo['lastColumnIndex']);
+				$worksheetInfo[] = $tmpInfo;
+			}
+		}
+
+		return $worksheetInfo;
+	}
+
 
 	private function _gzfileGetContents($filename) {
 		$file = @gzopen($filename, 'rb');
@@ -236,33 +201,21 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 		return $data;
 	}
 
+
 	/**
-	 * Reads names of the worksheets from a file, without parsing the whole file to a PHPExcel object
+	 * Loads PHPExcel from file
 	 *
 	 * @param 	string 		$pFilename
-	 * @throws 	Exception
+	 * @return 	PHPExcel
+	 * @throws 	PHPExcel_Reader_Exception
 	 */
-	public function listWorksheetNames($pFilename)
+	public function load($pFilename)
 	{
-		// Check if file exists
-		if (!file_exists($pFilename)) {
-			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
-		}
+		// Create new PHPExcel
+		$objPHPExcel = new PHPExcel();
 
-		$gFileData = $this->_gzfileGetContents($pFilename);
-
-		$xml = simplexml_load_string($gFileData);
-		$namespacesMeta = $xml->getNamespaces(true);
-
-		$gnmXML = $xml->children($namespacesMeta['gnm']);
-
-		$worksheetNames = array();
-
-		foreach($gnmXML->Sheets->Sheet as $sheet) {
-			$worksheetNames[] = (string) $sheet->Name;
-		}
-
-		return $worksheetNames;
+		// Load into this instance
+		return $this->loadIntoExisting($pFilename, $objPHPExcel);
 	}
 
 
@@ -272,13 +225,13 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 	 * @param 	string 		$pFilename
 	 * @param	PHPExcel	$objPHPExcel
 	 * @return 	PHPExcel
-	 * @throws 	Exception
+	 * @throws 	PHPExcel_Reader_Exception
 	 */
 	public function loadIntoExisting($pFilename, PHPExcel $objPHPExcel)
 	{
 		// Check if file exists
 		if (!file_exists($pFilename)) {
-			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+			throw new PHPExcel_Reader_Exception("Could not open " . $pFilename . " for reading! File does not exist.");
 		}
 
 		$timezoneObj = new DateTimeZone('Europe/London');
@@ -414,7 +367,10 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 			// Create new Worksheet
 			$objPHPExcel->createSheet();
 			$objPHPExcel->setActiveSheetIndex($worksheetID);
-			$objPHPExcel->getActiveSheet()->setTitle($worksheetName);
+			//	Use false for $updateFormulaCellReferences to prevent adjustment of worksheet references in formula
+			//		cells... during the load, all formulae should be correct, and we're simply bringing the worksheet
+			//		name in line with the formula, not the reverse
+			$objPHPExcel->getActiveSheet()->setTitle($worksheetName,false);
 
 			if ((!$this->_readDataOnly) && (isset($sheet->PrintInformation))) {
 				if (isset($sheet->PrintInformation->Margins)) {
@@ -461,7 +417,7 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 				$column = PHPExcel_Cell::stringFromColumnIndex($column);
 
 				// Read cell?
-				if (!is_null($this->getReadFilter())) {
+				if ($this->getReadFilter() !== NULL) {
 					if (!$this->getReadFilter()->readCell($column, $row, $worksheetName)) {
 						continue;
 					}
@@ -536,16 +492,13 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 //
 			foreach($sheet->Styles->StyleRegion as $styleRegion) {
 				$styleAttributes = $styleRegion->attributes();
-//				var_dump($styleAttributes);
-//				echo '<br />';
-
 				if (($styleAttributes['startRow'] <= $maxRow) &&
 					($styleAttributes['startCol'] <= $maxCol)) {
 
-					$startColumn = PHPExcel_Cell::stringFromColumnIndex($styleAttributes['startCol']);
+					$startColumn = PHPExcel_Cell::stringFromColumnIndex((int) $styleAttributes['startCol']);
 					$startRow = $styleAttributes['startRow'] + 1;
 
-					$endColumn = ($styleAttributes['endCol'] > $maxCol) ? $maxCol : $styleAttributes['endCol'];
+					$endColumn = ($styleAttributes['endCol'] > $maxCol) ? $maxCol : (int) $styleAttributes['endCol'];
 					$endColumn = PHPExcel_Cell::stringFromColumnIndex($endColumn);
 					$endRow = ($styleAttributes['endRow'] > $maxRow) ? $maxRow : $styleAttributes['endRow'];
 					$endRow += 1;
@@ -808,7 +761,9 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 			//	Handle Merged Cells in this worksheet
 			if (isset($sheet->MergedRegions)) {
 				foreach($sheet->MergedRegions->Merge as $mergeCells) {
-					$objPHPExcel->getActiveSheet()->mergeCells($mergeCells);
+					if (strpos($mergeCells,':') !== FALSE) {
+						$objPHPExcel->getActiveSheet()->mergeCells($mergeCells);
+					}
 				}
 			}
 
@@ -838,7 +793,9 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 		return $objPHPExcel;
 	}
 
-	private static function _parseBorderAttributes($borderAttributes) {
+
+	private static function _parseBorderAttributes($borderAttributes)
+	{
 		$styleArray = array();
 
 		if (isset($borderAttributes["Color"])) {
@@ -893,6 +850,7 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 		return $styleArray;
 	}
 
+
 	private function _parseRichText($is = '') {
 		$value = new PHPExcel_RichText();
 
@@ -900,6 +858,7 @@ class PHPExcel_Reader_Gnumeric implements PHPExcel_Reader_IReader
 
 		return $value;
 	}
+
 
 	private static function _parseGnumericColour($gnmColour) {
 		list($gnmR,$gnmG,$gnmB) = explode(':',$gnmColour);
