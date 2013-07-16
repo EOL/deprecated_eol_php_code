@@ -525,7 +525,11 @@ class HarvestEvent extends ActiveRecord
             $taxon_concept_uri = "http://eol.org/pages/$taxon_concept_id";
             $data[] = "<$taxon_uri> dwc:taxonConceptID <$taxon_concept_uri>";
         }
-        $sparql_client->insert_data(array('data' => $data, 'graph_name' => $graph_name));
+        $chunks = array_chunk($data, 5000);
+        foreach($chunks as $chunk)
+        {
+            $sparql_client->insert_data(array('data' => $chunk, 'graph_name' => $graph_name));
+        }
     }
 
     function send_emails_about_outlier_harvests()

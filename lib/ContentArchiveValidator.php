@@ -122,7 +122,8 @@ class ContentArchiveValidator
             'http://rs.tdwg.org/dwc/terms/measurementorfact',
             'http://eol.org/schema/association',
             'http://rs.tdwg.org/dwc/terms/occurrence',
-            'http://rs.tdwg.org/dwc/terms/event'
+            'http://rs.tdwg.org/dwc/terms/event',
+            'http://purl.org/dc/terms/location'
         );
         foreach($this->content_archive_reader->tables as $row_type => $tables)
         {

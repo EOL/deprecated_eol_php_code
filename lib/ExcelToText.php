@@ -318,6 +318,7 @@ class ExcelToText
             elseif($worksheet_name == 'associations') $row_type = 'http://eol.org/schema/Association';
             elseif($worksheet_name == 'occurrences') $row_type = 'http://rs.tdwg.org/dwc/terms/Occurrence';
             elseif($worksheet_name == 'events') $row_type = 'http://rs.tdwg.org/dwc/terms/Event';
+            elseif($worksheet_name == 'locations') $row_type = 'http://purl.org/dc/terms/Location';
             elseif($worksheet_name == 'controlled terms') continue;
             else
             {

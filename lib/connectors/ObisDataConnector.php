@@ -20,7 +20,7 @@ class ObisDataConnector
         foreach(new FileIterator(self::DUMP_URL) as $line_number => $line)
         {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
-            if($line_number >= 10000) break;
+            // if($line_number >= 100) break;
             $line_data = ContentArchiveReader::line_to_array($line, ",", "\"");
             if($line_number == 0)
             {
@@ -38,9 +38,16 @@ class ObisDataConnector
         $t = new \eol_schema\Taxon();
         $t->taxonID = $line_data[$this->column_indices['tname_id']];
         $t->scientificName = trim($line_data[$this->column_indices['tname']] ." ". $line_data[$this->column_indices['tauthor']]);
+        // if(!preg_match("/Makaira nigricans/", $t->scientificName)) return;
         $this->archive_builder->write_object_to_file($t);
 
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = md5($t->taxonID. 'occurrence');
+        $o->taxonID = $t->taxonID;
+        $this->archive_builder->write_object_to_file($o);
+
         static $fields_to_ignore = array('id', 'tname', 'tauthor', 'tname_id', 'n', 'ndepth', 'ndate', 'nwoa', 'ntaxa');
+        static $fields_for_taxon = array('minlat', 'maxlat', 'minlon', 'maxlon', 'mindepth', 'maxdepth');
         foreach($line_data as $index => $value)
         {
             if(!$value) continue;
@@ -52,13 +59,13 @@ class ObisDataConnector
             $column_label = $this->column_labels[$index];
             if(in_array($column_label, $fields_to_ignore)) continue;
             $m = new \eol_schema\MeasurementOrFact();
-            $m->taxonID = $t->taxonID;
+            $m->occurrenceID = $o->occurrenceID;
+            if(in_array($column_label, $fields_for_taxon)) $m->taxonID = $t->taxonID;
             $m->measurementType = "http://iobis.org/". $column_label;
             $m->measurementValue = $value;
             $this->archive_builder->write_object_to_file($m);
         }
     }
-
 }
 
 ?>

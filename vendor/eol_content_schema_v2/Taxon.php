@@ -5,7 +5,9 @@ class Taxon extends DarwinCoreExtensionBase
 {
     const EXTENSION_URL = 'http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd';
     const ROW_TYPE = 'http://rs.tdwg.org/dwc/terms/Taxon';
-    
+    const PRIMARY_KEY = "http://rs.tdwg.org/dwc/terms/taxonID";
+    const GRAPH_NAME = "taxa";
+
     public static function validation_rules()
     {
         static $rules = array();
