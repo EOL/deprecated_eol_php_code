@@ -10,7 +10,7 @@ class ContentArchiveValidator
     private $archive_resource;
     private $skip_warnings;
     private $stats;
-    
+
     public function __construct($content_archive_reader, $resource = NULL)
     {
         if(get_class($content_archive_reader) != 'php_active_record\ContentArchiveReader') return null;
@@ -19,14 +19,14 @@ class ContentArchiveValidator
         $this->archive_resource = $resource;
         $this->skip_warnings = false;
     }
-    
+
     public function is_valid($skip_warnings = false)
     {
         $this->get_validation_errors($skip_warnings);
         if($this->structural_errors) return false;
         return true;
     }
-    
+
     public function structural_errors()
     {
         return $this->structural_errors;
@@ -35,23 +35,23 @@ class ContentArchiveValidator
     {
         return $this->stats;
     }
-    
+
     public function has_error_by_line($row_type, $file_location, $line_number)
     {
         if(isset($this->errors_by_line[$row_type][$file_location][$line_number])) return true;
         return false;
     }
-    
+
     public function display_errors()
     {
         return self::group_exceptions($this->errors_by_line);
     }
-    
+
     public function display_warnings()
     {
         return self::group_exceptions($this->warnings_by_line);
     }
-    
+
     public static function group_exceptions($exceptions_by_line)
     {
         $grouped_exceptions = array();
@@ -93,13 +93,13 @@ class ContentArchiveValidator
         }
         return $simplified_errors;
     }
-    
+
     public function get_validation_errors($skip_warnings = false)
     {
         $this->skip_warnings = $skip_warnings;
         if($this->validation_has_run) return;
         $this->validation_has_run = true;
-        
+
         $this->structural_errors = array();
         $this->errors_by_line = array();
         $this->warnings_by_line = array();
@@ -111,20 +111,24 @@ class ContentArchiveValidator
             $error->message = 'Cannot read meta.xml. There may be a structural problem with this archive.';
             $this->structural_errors[] = $error;
         }
-        
-        // looping through archive, one entire file at a time
-        $row_types_to_validate = array(
-            'http://eol.org/schema/media/document',
-            'http://rs.tdwg.org/dwc/terms/taxon',
-            'http://eol.org/schema/reference/reference',
-            'http://eol.org/schema/agent/agent',
-            'http://rs.gbif.org/terms/1.0/vernacularname',
-            'http://rs.tdwg.org/dwc/terms/measurementorfact',
-            'http://eol.org/schema/association',
-            'http://rs.tdwg.org/dwc/terms/occurrence',
-            'http://rs.tdwg.org/dwc/terms/event',
-            'http://purl.org/dc/terms/location'
+
+        $classes_to_validate = array(
+            '\eol_schema\MediaResource',
+            '\eol_schema\Taxon',
+            '\eol_schema\Reference',
+            '\eol_schema\Agent',
+            '\eol_schema\VernacularName',
+            '\eol_schema\MeasurementOrFact',
+            '\eol_schema\Association',
+            '\eol_schema\Occurrence',
+            '\eol_schema\Event'
         );
+        $row_types_to_validate = array();
+        foreach($classes_to_validate as $class_name)
+        {
+            if($class_name::validation_rules()) $row_types_to_validate[] = strtolower($class_name::ROW_TYPE);
+        }
+
         foreach($this->content_archive_reader->tables as $row_type => $tables)
         {
             // TODO: duplicate primary keys
@@ -135,16 +139,6 @@ class ContentArchiveValidator
             if($row_type == 'http://rs.tdwg.org/dwc/terms/taxon')
             {
                 $count_of_all_taxa = @$this->stats[$row_type]['Total'];
-                // if(isset($this->errors_by_line[$row_type]))
-                // {
-                //     $count_of_taxa_errors = count($this->errors_by_line[$row_type]);
-                //     if($count_of_taxa_errors >= $count_of_all_taxa)
-                //     {
-                //         $error = new \eol_schema\ContentArchiveError();
-                //         $error->message = 'There are no valid taxa in this archive.';
-                //         $this->structural_errors[] = $error;
-                //     }
-                // }
                 if(!$count_of_all_taxa)
                 {
                     $error = new \eol_schema\ContentArchiveError();
@@ -154,13 +148,13 @@ class ContentArchiveValidator
             }
         }
     }
-    
+
     public function validate_row($row, $parameters)
     {
         static $i = 0;
         $i++;
         if($i % 10000 == 0 && $GLOBALS['ENV_DEBUG']) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
-        
+
         $file_location = $parameters['archive_table_definition']->location;
         $new_exceptions = array();
         if($parameters['row_type'] == 'http://eol.org/schema/media/document')
@@ -212,7 +206,7 @@ class ContentArchiveValidator
             $new_exceptions = \eol_schema\Association::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://eol.org/schema/associationID', $parameters, $new_exceptions);
         }
-        
+
         if(!self::any_exceptions_of_type_error($new_exceptions))
         {
             if(!isset($this->stats[$parameters['row_type']])) $this->stats[$parameters['row_type']] = array();
@@ -243,7 +237,7 @@ class ContentArchiveValidator
             }
         }
     }
-    
+
     private function append_identifier_error($row, $identifier_uri, $parameters, &$errors)
     {
         if($id = @$row[$identifier_uri])
@@ -254,7 +248,7 @@ class ContentArchiveValidator
             }else $this->primary_keys_by_row_type[$parameters['row_type']][$id] = true;
         }
     }
-    
+
     private function add_stat($label, $row_type, $file_location, $value)
     {
         $index = "Total by $label";
@@ -269,7 +263,7 @@ class ContentArchiveValidator
         unset($this->stats);
         unset($this->warnings_by_line);
     }
-    
+
     /*
         Some basic rules
     */
@@ -278,7 +272,7 @@ class ContentArchiveValidator
         if($v === '' || $v === NULL) return false;
         return true;
     }
-    
+
     public static function is_utf8($v)
     {
         $v = trim($v);
@@ -286,7 +280,7 @@ class ContentArchiveValidator
         $return = Functions::is_utf8($v);
         return $return;
     }
-    
+
     public static function any_exceptions_of_type_error($exceptions)
     {
         foreach($exceptions as $exception)

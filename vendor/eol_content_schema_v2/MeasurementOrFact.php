@@ -15,17 +15,11 @@ class MeasurementOrFact extends DarwinCoreExtensionBase
         {
             // these rules apply to individual fields
             $rules[] = new ContentArchiveFieldValidationRule(array(
-                'field_uri'             => 'http://rs.tdwg.org/dwc/terms/occurrenceID',
-                'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
-                'failure_type'          => 'error',
-                'failure_message'       => 'MeasurementOrFacts must have occurrenceIDs'));
-            
-            $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://rs.tdwg.org/dwc/terms/measurementType',
                 'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
                 'failure_type'          => 'error',
                 'failure_message'       => 'MeasurementOrFacts must have measurementTypes'));
-            
+
             $rules[] = new ContentArchiveFieldValidationRule(array(
                 'field_uri'             => 'http://rs.tdwg.org/dwc/terms/measurementValue',
                 'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
