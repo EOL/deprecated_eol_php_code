@@ -183,20 +183,42 @@ class WikimediaPage
 
     public function taxon_parameters()
     {
+        static $wiki_to_EoL = array("regnum"=>"kingdom", "phylum"=>"phylum", "classis"=>"class", "ordo"=>"order", "familia"=>"family", "genus"=>"genus", "species"=>"scientificName");
+
         if(isset($this->taxon_parameters)) return $this->taxon_parameters;
         $taxonomy = $this->taxonomy();
         if(!$taxonomy) return array();
-        $taxon_rank = key($taxonomy);
-        $taxon_name = current($taxonomy);
 
-        $taxon_parameters = array();
-        if($taxon_rank!='regnum' && $v = @$taxonomy['regnum']) $taxon_parameters['kingdom'] = $v;
-        if($taxon_rank!='phylum' && $v = @$taxonomy['phylum']) $taxon_parameters['phylum'] = $v;
-        if($taxon_rank!='classis' && $v = @$taxonomy['classis']) $taxon_parameters['class'] = $v;
-        if($taxon_rank!='ordo' && $v = @$taxonomy['ordo']) $taxon_parameters['order'] = $v;
-        if($taxon_rank!='familia' && $v = @$taxonomy['familia']) $taxon_parameters['family'] = $v;
-        if($taxon_rank!='genus' && $v = @$taxonomy['genus']) $taxon_parameters['genus'] = $v;
-        $taxon_parameters['scientificName'] = $taxon_name;
+        foreach ($wiki_to_EoL as $wiki => $EoL) {
+            if (!empty($taxonomy[$wiki]))
+            {
+                $name = $taxonomy[$wiki];
+                if (!php_active_record\Functions::is_utf8($name) || preg_match("/\{|\}/u", $name))
+                {
+                    print "Invalid characters in taxonomy fields ($wiki = $name) for $this->title. Ignoring this level.\n";
+                } else {
+                    if (($wiki=="species") && !preg_match("/\s+/", $name)) //no space in spp name, could be just the epithet
+                    {
+                        if (empty($taxonomy['genus'])) 
+                        {
+                            echo "Single-word species ($name) but no genus in $this->title. Ignoring this part of the classification.\n";
+                            continue;
+                        } elseif (preg_match("/unidentified|unknown/i", $name)) {
+                            echo "Species in $this->title listed as unidentified. Ignoring this part of the classification.\n";
+                            continue;
+                        } elseif (mb_strtolower($name, "UTF-8") != $name) {
+                            echo "Single-word species ($name) has CaPs in $this->title. Ignoring this part of the classification.\n"; 
+                            continue;
+                        }
+                        $name = $taxonomy['genus']." ".$name;
+                    }
+                    $best = $taxon_parameters[$EoL] = $name;
+                }
+            }
+        }
+
+        if (!empty($best)) $taxon_parameters['scientificName'] = $best;
+
         //$taxon_parameters["identifier"] = str_replace(" ", "_", $this->title);
         //$taxon_parameters["source"] = "http://commons.wikimedia.org/wiki/".str_replace(" ", "_", $this->title);
 
