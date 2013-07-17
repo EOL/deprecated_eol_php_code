@@ -15,6 +15,10 @@ class WikimediaPage
             $this->title = (string) $this->simple_xml->query->pages->page['title'];
             $this->ns = (integer) $this->simple_xml->query->pages->page['ns'];
             $this->contributor = (string) $this->simple_xml->query->pages->page->revisions->rev['user'];
+            if (isset($this->simple_xml->query->pages->page['redirect'])) 
+            {
+                $this->redirect = (string) $this->simple_xml->query->pages->page['redirect']->attributes()->title;
+            }
         }else
         {
             $this->xml = $xml;
@@ -23,6 +27,10 @@ class WikimediaPage
             $this->title = (string) $this->simple_xml->title;
             $this->ns = (integer) $this->simple_xml->ns;
             $this->contributor = (string) $this->simple_xml->revision->contributor->username;
+            if (isset($this->simple_xml->redirect)) 
+            {
+                $this->redirect = (string) $this->simple_xml->redirect->attributes()->title;
+            }
         }
     }
 
