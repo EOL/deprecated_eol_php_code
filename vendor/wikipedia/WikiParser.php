@@ -353,6 +353,8 @@ class WikiParser
                     }
                 }
             }
+
+            //fill the last value in the array
             if ($matched) {
                 $value = trim(substr($wikitext, $section_start, $match_start-$section_start));
             } else {
@@ -361,7 +363,6 @@ class WikiParser
                 print " final '}}': first 300 chars are ".strtr(substr($wikitext,0,300),"\r\n","| ").")\n";
             }
         
-            //fill the last bit of the array    
             if (is_null(end($template_params))) { //we have set the array key, but not filled it
                 $template_params[key($template_params)]= $value;
             } else {
