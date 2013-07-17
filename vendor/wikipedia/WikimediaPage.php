@@ -169,11 +169,6 @@ class WikimediaPage
             $name = preg_replace("/<br ?\/>/", " ", $name);
             $name = trim(preg_replace("/\s+/", " ", WikiParser::strip_syntax(trim($name))));
             $name = ucfirst($name);
-            if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{/", $name))
-            {
-                $taxonomy = array();
-                break;
-            }
         }
 
         reset($taxonomy);
