@@ -126,7 +126,7 @@ class FishBaseAPI
         self::load_zip_contents();
         //taxon
         $fields = array("TaxonID", "dc_identifier", "dc_source", "dwc_Kingdom", "dwc_Phylum", "dwc_Class", "dwc_Order", "dwc_Family", "dwc_Genus", "dwc_ScientificName", "dcterms_created", "dcterms_modified", "int_id", "ProviderID");
-        $taxon = self::make_array($this->TAXON_PATH, $fields, "", array(0,10,11,13), "");
+        $taxon = self::make_array($this->TAXON_PATH, $fields, "", array(0,10,11,13));
         if($taxon === false) return false;
         //taxon_comnames
         $fields = array("commonName", "xml_lang", "int_id");
@@ -155,7 +155,7 @@ class FishBaseAPI
                      "taxon_synonyms"               => $taxon_synonyms);
     }
 
-    function make_array($filename, $fields, $index_key, $excluded_fields=array())
+    function make_array($filename, $fields, $index_key="", $excluded_fields=array(), $separator="\t")
     {
         $data = array();
         $included_fields = array();
@@ -164,19 +164,21 @@ class FishBaseAPI
             if($line)
             {
                 $line = trim($line);
-                $values = explode("\t", $line);
+                $values = explode($separator, $line);
                 $i = 0;
                 $temp = array();
+                $continue_save = false;
                 foreach($fields as $field)
                 {
                     if(!in_array($i, $excluded_fields))
                     {
-                        $temp[$field] = @$values[$i];
+                        $temp[$field] = trim(@$values[$i]);
                         $included_fields[] = $field;
+                        if($temp[$field] != "") $continue_save = true; // as long as there is a single field with value then the row will be saved
                     }
                     $i++;
                 }
-                $data[] = $temp;
+                if($continue_save) $data[] = $temp;
             }
         }
         $included_fields = array_unique($included_fields);
