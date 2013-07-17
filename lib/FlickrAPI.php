@@ -205,7 +205,7 @@ class FlickrAPI
         }
         
         // get the data objects and add them to the parameter arrays
-        $data_objects = self::get_data_objects($photo);
+        $data_objects = self::get_data_objects($photo, $user_id);
         if($data_objects)
         {
             foreach($taxon_parameters as &$p)
@@ -224,7 +224,7 @@ class FlickrAPI
         return $taxa;
     }
     
-    public static function get_data_objects($photo)
+    public static function get_data_objects($photo, $user_id)
     {
         $data_objects = array();
         
@@ -250,7 +250,8 @@ class FlickrAPI
         $agent_parameters["homepage"] = "http://www.flickr.com/photos/".$photo->owner->nsid;
         $agent_parameters["role"] = "photographer";
         
-        $data_object_parameters["rightsHolder"] = $agent_parameters["fullName"];
+        if($user_id == FLICKR_SMITHSONIAN_ID) $data_object_parameters["rightsHolder"] = "Smithsonian Wild";
+        else $data_object_parameters["rightsHolder"] = $agent_parameters["fullName"];
         
         $data_object_parameters["agents"] = array();
         $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);

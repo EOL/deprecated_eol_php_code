@@ -125,10 +125,9 @@ class IllinoisWildflowersAPI
             {
                 foreach($matchez[1] as $matchz)
                 {
-                    $desc = self::clean_str($matchz);
-                    $desc = str_ireplace('"', "'", $desc) . '<br>'; // added '<br>' to get the last text block
+                    $desc = self::clean_str($matchz) . '<br>'; // added '<br>' to get the last text block
                     self::get_images($desc, $type, $taxon_name);
-                    if(preg_match_all("/<font color='#33cc33'>(.*?)<br>/ims", $desc, $matches))
+                    if(preg_match_all("/<font color=\"#33cc33\">(.*?)<br>/ims", $desc, $matches))
                     {
                         $texts = $matches[1];
                         foreach($texts as $text)
@@ -159,13 +158,12 @@ class IllinoisWildflowersAPI
     function scrape_second_try($html, $taxon_name, $type)
     {
         $html = self::clean_str($html);
-        $html = str_ireplace('"', "'", $html);
         self::get_images($html, $type, $taxon_name);
-        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 51);'>", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 51); font-family: Times New Roman;'>", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 0); font-family: Times New Roman;'>", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style='font-weight: bold; color: rgb(51, 204, 0);'>", 'zzz xxxyyy', $html);
-        $html = str_ireplace("<span style='color: rgb(51, 204, 0); font-weight: bold;'>", 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 51);">', 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 51); font-family: Times New Roman;">', 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 0); font-family: Times New Roman;">', 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 0);">', 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="color: rgb(51, 204, 0); font-weight: bold;">', 'zzz xxxyyy', $html);
         if(preg_match_all("/xxxyyy(.*?)zzz/ims", $html, $matches))
         {
             echo "\n 2nd-try successful - $type - $taxon_name \n";
@@ -214,7 +212,7 @@ class IllinoisWildflowersAPI
         {
             foreach($matches[1] as $str)
             {
-                if(preg_match("/src='(.*?)'/ims", $str, $match)) 
+                if(preg_match("/src=\"(.*?)\"/ims", $str, $match)) 
                 {
                     $img = str_replace('..', '', $this->path . $type . $match[1]);
                     $GLOBALS['taxon'][$taxon_name]['images'][] = $img;
