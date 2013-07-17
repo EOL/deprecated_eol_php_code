@@ -2,6 +2,36 @@
 
 class SchemaDocument
 {
+    private $FILE;
+    
+    function __construct($filename, $fopen_flags="w+") {
+        $this->FILE = fopen($filename, $fopen_flags);
+        if ($this->FILE === FALSE) {
+            echo "Could not open file $filename\n";
+            flush();
+            return FALSE;
+        }
+        fwrite($this->FILE, self::xml_header());
+    }
+    
+    public function save_taxon_xml($t) {
+        if ($this->FILE === FALSE) {
+            echo "Could not write to file, as it is not open\n";
+            flush();
+            return FALSE;
+        }
+        fwrite($this->FILE, $t->__toXML());
+    }
+    
+    function __destruct() {
+        if ($this->FILE === FALSE) {
+            echo "Could not close file.\n";
+            flush();
+        } 
+        fwrite($this->FILE, self::xml_footer());
+        fclose($this->FILE);
+    }
+    
     public static function print_taxon_xml($taxa)
     {
         header('Content-type: text/xml');
