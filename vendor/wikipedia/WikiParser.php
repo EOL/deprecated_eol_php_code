@@ -29,7 +29,7 @@ class WikiParser
         }
         
         // [http://...]
-        while(preg_match("/(\[\s*(https?:\/\/[^ ]+)\])(.*)$/ims", $string, $arr))
+        while(preg_match("/(\[\s*(https?:\/\/[^ ]+?)\])(.*)$/ims", $string, $arr))
         {
             $match = $arr[1];
             if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[2]</a>", $string);
