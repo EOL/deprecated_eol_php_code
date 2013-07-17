@@ -209,19 +209,19 @@ class Functions
         return true;
     }
 
-    public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS, $agent=false, $encoding=false)
     {
         debug("Grabbing $remote_url: attempt 1: waiting $download_wait_time");
         
-        $file = @self::fake_user_agent_http_get($remote_url);
+        $file = @self::fake_user_agent_http_get($remote_url, $timeout, $agent, $encoding);
         usleep($download_wait_time);
         
         $attempts = 1;
-        while(!$file && $attempts < DOWNLOAD_ATTEMPTS)
+        while(!$file && $attempts < $download_attempts)
         {
             debug("Grabbing $remote_url: attempt ".($attempts+1));
             
-            $file = @self::fake_user_agent_http_get($remote_url);
+            $file = @self::fake_user_agent_http_get($remote_url, $timeout, $agent, $encoding);
             usleep($download_wait_time);
             $attempts++;
         }
@@ -340,7 +340,7 @@ class Functions
         return false;
     }
     
-    public static function fake_user_agent_http_get($url, $timeout = 50)
+    public static function fake_user_agent_http_get($url, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $non_default_agent=false, $encoding=false)
     {
         if(substr($url, 0, 1) == "/") $url = "file://" . $url;
         
@@ -355,9 +355,15 @@ class Functions
         $agent = $agents[0];
         
         $ch = curl_init();
+        if ($non_default_agent)  
+        {
+            curl_setopt($ch, CURLOPT_USERAGENT, $non_default_agent);
+        } else {
+            curl_setopt($ch, CURLOPT_USERAGENT, $agent);
+        };
+
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         curl_setopt($ch, CURLOPT_FAILONERROR, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
@@ -365,7 +371,8 @@ class Functions
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-        
+        if ($encoding) curl_setopt($ch, CURLOPT_ENCODING, $encoding);        
+
         // ignores and just trusts https
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
