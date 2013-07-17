@@ -13,6 +13,7 @@ class WikimediaPage
             $this->simple_xml = @simplexml_load_string($this->xml);
             $this->text = (string) $this->simple_xml->query->pages->page->revisions->rev;
             $this->title = (string) $this->simple_xml->query->pages->page['title'];
+            $this->ns = (integer) $this->simple_xml->query->pages->page['ns'];
             $this->contributor = (string) $this->simple_xml->query->pages->page->revisions->rev['user'];
         }else
         {
@@ -20,6 +21,7 @@ class WikimediaPage
             $this->simple_xml = @simplexml_load_string($this->xml);
             $this->text = (string) $this->simple_xml->revision->text;
             $this->title = (string) $this->simple_xml->title;
+            $this->ns = (integer) $this->simple_xml->ns;
             $this->contributor = (string) $this->simple_xml->revision->contributor->username;
         }
     }
@@ -29,6 +31,35 @@ class WikimediaPage
         $api_url = "http://commons.wikimedia.org/w/api.php?action=query&format=xml&prop=revisions&titles=".urlencode($title)."&rvprop=ids|timestamp|user|content&redirects";
         echo $api_url."\n";
         return new WikimediaPage(php_active_record\Functions::get_remote_file($api_url));
+    }
+
+    // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
+    public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
+    public static function fast_is_gallery($xml)  {return (substr($xml, strpos($xml, "<ns>")+4, 2) == '0<');}  //Fast versions.
+    public static function fast_is_media($xml)    {return (substr($xml, strpos($xml, "<ns>")+4, 2) == '6<');}  //These don't
+    public static function fast_is_template($xml) {return (substr($xml, strpos($xml, "<ns>")+4, 3) == '10<');} //require a
+    public static function fast_is_category($xml) {return (substr($xml, strpos($xml, "<ns>")+4, 3) == '14<');} //parsed page
+    public static function fast_is_gallery_category_or_template($xml) 
+    {
+        $test = substr($xml, strpos($xml, "<ns>")+4, 3);
+        return ($test == '0</' || $test == '14<' || $test == '10<');
+    }
+
+    //these are less dependent on the exact XML string, but require a page to have been parsed, so are slower
+    public function is_gallery() {
+        return ($this->ns == self::$NS['Gallery']);
+    }
+
+    public function is_media() {
+        return ($this->ns == self::$NS['Media']);
+    }
+
+    public function is_category() {
+        return ($this->ns == self::$NS['Category']);
+    }
+
+    public function is_template() {
+        return ($this->ns == self::$NS['Template']);
     }
 
     public static function expand_templates($text)

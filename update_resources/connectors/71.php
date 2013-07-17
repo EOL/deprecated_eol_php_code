@@ -5,6 +5,7 @@ define('DOWNLOAD_WAIT_TIME', '1000000');  // 2 second wait after every web reque
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
+define("WIKI_PREFIX", "http://commons.wikimedia.org/wiki/");
 require_vendor("wikipedia");
 
 
@@ -163,7 +164,7 @@ function get_scientific_pages($xml)
     if(preg_match("/\{\{Taxonavigation/", $xml, $arr))
     {
         $page = new \WikimediaPage($xml);
-        if(preg_match("/^template\:/i", $page->title)) return;
+        if($page->is_template()) return;
         $GLOBALS['scientific_pages'][$page->title] = 1;
         if($params = $page->taxon_parameters())
         {
