@@ -221,7 +221,8 @@ class WikiParser
         
         return array($text, $stream);
     }
-        public static function template_as_array($wikitext, $TemplateName = 'Information', $offset=0) 
+    
+    public static function template_as_array($wikitext, $TemplateName = 'Information', $offset=0) 
     { //parses the first $TemplateName found. Use $offset to parse other identically named templates later in the text
       //returns empty array if no template found, otherwise template name is the first parameter.
 
