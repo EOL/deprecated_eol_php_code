@@ -88,12 +88,19 @@ class WikimediaPage
         return $this->expanded_text;
     }
 
+    public function active_wikitext()
+    {   //the text we should search for when looking for templates, categories, etc.
+        if(isset($this->active_wikitext)) return $this->active_wikitext;
+        $this->active_wikitext = WikiParser::active_wikitext($this->text);
+        return $this->active_wikitext;
+    }
+
     public function information()
     {
         if(isset($this->information)) return $this->information;
 
         $information = array();
-        if(preg_match("/(\{\{Information.*?\}\})(.*)/ms", $this->text, $arr))
+        if(preg_match("/(\{\{Information.*?\}\})(.*)/ms", $this->active_wikitext(), $arr))
         {
             list($information_box, $junk) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
 
@@ -142,7 +149,7 @@ class WikimediaPage
             }
 
             // there are often some extra ranks under the Taxonnavigation box
-            if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->text, $arr))
+            if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->active_wikitext(), $arr))
             {
                 $entries = explode("\n", $arr[2]);
                 foreach($entries as $entry)
@@ -329,7 +336,7 @@ class WikimediaPage
 
         $licenses = array();
 
-        if(preg_match_all("/(\{\{.*?\}\})/", $this->text, $matches, PREG_SET_ORDER))
+        if(preg_match_all("/(\{\{.*?\}\})/", $this->active_wikitext(), $matches, PREG_SET_ORDER))
         {
             foreach($matches as $match)
             {
@@ -417,7 +424,7 @@ class WikimediaPage
     {
         $images = array();
 
-        $text = $this->text;
+        $text = $this->active_wikitext();
         $lines = explode("\n", $text);
         foreach($lines as $line)
         {
