@@ -21,7 +21,7 @@ class WikiParser
         }
         
         // [http://... The text to link to]
-        while(preg_match("/(\[\s*(https?:\/\/[^ ]+) (.*?)\])(.*)$/ms", $string, $arr))
+        while(preg_match("/(\[\s*(https?:\/\/[^ ]+) (.*?)\])(.*)$/ims", $string, $arr))
         {
             $match = $arr[1];
             if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[3]</a>", $string);
@@ -29,7 +29,7 @@ class WikiParser
         }
         
         // [http://...]
-        while(preg_match("/(\[\s*(https?:\/\/[^ ]+)\])(.*)$/ms", $string, $arr))
+        while(preg_match("/(\[\s*(https?:\/\/[^ ]+)\])(.*)$/ims", $string, $arr))
         {
             $match = $arr[1];
             if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[2]</a>", $string);
@@ -46,14 +46,14 @@ class WikiParser
         }
         
         // <ref... />
-        while(preg_match("/(<ref[^>]*\/>)(.*)/ms", $string, $arr))
+        while(preg_match("/(<ref[^>]*\/>)(.*)/ims", $string, $arr))
         {
             $match = $arr[1];
             $string = preg_replace("/".preg_quote($match, "/")."/", "", $string);
         }
         
         // <ref...> ... </ref>
-        while(preg_match("/(<ref[^>]*>.*?<\/ref>)(.*)/ms", $string, $arr))
+        while(preg_match("/(<ref[^>]*>.*?<\/ref>)(.*)/ims", $string, $arr))
         {
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("<ref", "</ref>", $match, $arr[2]);
@@ -74,6 +74,7 @@ class WikiParser
         
         if($format) $string = preg_replace("/'''(.*?)'''/", "<b>\\1</b>", $string);
         else $string = preg_replace("/'''(.*?)'''/", "\\1", $string);
+        $string = preg_replace("/'''/", "", $string); //kill off any remaining unmatched ''' to avoid misinterpretting ''''' as '' '' '
         
         if($format) $string = preg_replace("/''(.*?)''/", "<i>\\1</i>", $string);
         else $string = preg_replace("/''(.*?)''/", "\\1", $string);
@@ -183,18 +184,37 @@ class WikiParser
     
     public static function strip_tags($string)
     {
-        $string = preg_replace("/<(.*?)>(.*?)<\/\\1>/", "\\2", $string);
+        $string = preg_replace("/<(.*?)>(.*?)<\/\\1>/u", "\\2", $string);
         
         return $string;
     }
     
-    
+    public static function strip_comments($string)
+    {
+        $string = preg_replace("/<\!\-\-(.*?)\-\->/ui", "", $string);
+        return $string;
+    }
+
+    private static function replace_active_wikitext($string) 
+    {   //allows us to replace contents of <nowiki> with content that will not be parsed
+        static $search=array("[[", "]]", "{{", "}}", "''", "'''");
+        static $replace=array("&#91;&#91;", "&#93;&#93;", "&#123;&#123;", "&#125;&#125;", "&#39;&#39;", "&#39;&#39;&#39;");
+        return str_replace($search, $replace, $string[1]);
+    }
+
+    public static function active_wikitext($string)
+    {
+        $string = self::strip_comments($string);
+        $string = preg_replace_callback("/<nowiki>(.*?)<\/nowiki>/i", "self::replace_active_wikitext", $string);
+        return $string;
+    }
+
     public static function balance_tags($open_tag, $close_tag, $text, $stream, $strip_tags = false)
     {
         $open_tag = preg_quote($open_tag, "/");
         $close_tag = preg_quote($close_tag, "/");
-        $num_open = preg_match_all("/$open_tag/ms", $text, $arr);
-        $num_close = preg_match_all("/$close_tag/ms", $text, $arr);
+        $num_open = preg_match_all("/$open_tag/iums", $text, $arr);
+        $num_close = preg_match_all("/$close_tag/iums", $text, $arr);
         
         $balance = false;
         if($num_close < $num_open) $balance = true;
@@ -202,12 +222,12 @@ class WikiParser
         {
             //echo "$num_close :: $num_open<br>";
             $balance = false;
-            if(preg_match("/^(.*?$close_tag)(.*)$/ms", $stream, $arr))
+            if(preg_match("/^(.*?$close_tag)(.*)$/iums", $stream, $arr))
             {
                 list($text, $stream) = self::balance_tags($open_tag, $close_tag, $text.$arr[1], $arr[2]);
                 
-                $num_open = preg_match_all("/$open_tag/ms", $text, $arr);
-                $num_close = preg_match_all("/$close_tag/ms", $text, $arr);
+                $num_open = preg_match_all("/$open_tag/iums", $text, $arr);
+                $num_close = preg_match_all("/$close_tag/iums", $text, $arr);
                 if($num_close < $num_open) $balance = true;
             }
         }
