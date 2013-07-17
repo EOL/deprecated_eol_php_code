@@ -420,21 +420,27 @@ class WikimediaPage
         return $description;
     }
 
-    public function images()
+    public function media_on_page()
     {
-        $images = array();
+        $media = array();
 
         $text = $this->active_wikitext();
         $lines = explode("\n", $text);
         foreach($lines as $line)
         {
-            if(preg_match("/^\s*\[{0,2}\s*(image|file)\s*:(.*?)(\||$)/ims", $line, $arr))
+            # < > [ ] | { } not allowed in titles, so if we see this, it is end of filename (spots e.g. Image:xxx.jpg</gallery>)
+            # see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)#Forbidden_characters
+            if(preg_match("/^\s*\[{0,2}\s*(Image|File)\s*:\s*(\S)(.*?)\s*([|#<>{}[\]]|$)/iums", $line, $arr))
             {
-                $images[] = trim($arr[2]);
+                $first_letter = $arr[2];
+                $rest = $arr[3];
+                //In <title>, all pages have a capital first letter, and single spaces replace any combo of spaces + underscores
+                //Can't use ucfirst() as this string may be unicode.
+                $media[] = mb_strtoupper($first_letter,'utf-8').preg_replace("/[_ ]+/u", " ", $rest); 
             }
         }
 
-        return $images;
+        return $media;
     }
 
     public static function convert_diacritics($string)

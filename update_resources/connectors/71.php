@@ -171,7 +171,7 @@ function get_scientific_pages($xml)
             if(@$params['scientificName']) $GLOBALS['taxa'][$page->title] = $params;
         }
 
-        $images = $page->images();
+        $images = $page->media_on_page();
         foreach($images as $image)
         {
             $GLOBALS['scientific_page_images'][$page->title][] = "File:".$image;
