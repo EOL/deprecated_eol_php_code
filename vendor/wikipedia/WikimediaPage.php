@@ -228,57 +228,7 @@ class WikimediaPage
 
         $data_object_parameters = array();
         $licenses = $this->licenses();
-        foreach($licenses as $key => $val)
-        {
-            // PD-USGov-CIA-WF
-            if(preg_match("/^(pd|public domain.*|cc-pd|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/i", $val))
-            {
-                $data_object_parameters["license"] = "http://creativecommons.org/licenses/publicdomain/";
-                break;
-            }
-            // cc-zero
-            if(preg_match("/^cc-zero/i", $val))
-            {
-                $data_object_parameters["license"] = "http://creativecommons.org/publicdomain/zero/1.0/";
-                break;
-            }
-            // no known copyright restrictions
-            if(preg_match("/^(flickr-)?no known copyright restrictions/i", $val))
-            {
-                $data_object_parameters["license"] = "http://www.flickr.com/commons/usage/";
-                break;
-            }
-            // cc-by-sa-2.5,2.0,1.0-de
-            if(preg_match("/^cc-(by(-nc)?(-nd)?(-sa)?)(.*)$/i", $val, $arr))
-            {
-                $license = strtolower($arr[1]);
-                $rest = $arr[2];
-
-                if(preg_match("/^-?([0-9]\.[0-9])/", $rest, $arr)) $version = $arr[1];
-                else $version = "3.0";
-
-                $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
-                break;
-            }
-            // cc-sa-1.0
-            if(preg_match("/^(cc-sa)(.*)$/i", $val, $arr))
-            {
-                $license = "by-sa";
-                $rest = $arr[2];
-
-                if(preg_match("/^-?([0-9]\.[0-9])/", $rest, $arr)) $version = $arr[1];
-                else $version = "3.0";
-
-                $data_object_parameters["license"] = "http://creativecommons.org/licenses/$license/$version/";
-                break;
-            }
-            // can be relicensed as cc-by-sa-3.0
-            if(preg_match("/migration=relicense/i", $val))
-            {
-                $data_object_parameters["license"] = "http://creativecommons.org/licenses/by-sa/3.0/";
-                break;
-            }
-        }
+        $data_object_parameters["license"] = self::match_license(implode("\n",$licenses)); //search all at once: return best
         if(!isset($data_object_parameters["license"]))
         {
             echo "DEFAULT LICENSE: $this->title\n";
@@ -319,6 +269,77 @@ class WikimediaPage
         }
 
         return $data_object_parameters;
+    }
+
+    public static function match_license($val)
+    {
+        // PD-USGov-CIA-WF
+        if(preg_match("/^(pd|public domain.*|cc-pd|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/imu", $val))
+        {
+            return("http://creativecommons.org/licenses/publicdomain/");
+        }
+        // cc-zero
+        if(preg_match("/^cc-zero/imu", $val))
+        {
+            $data_object_parameters["license"] = "http://creativecommons.org/publicdomain/zero/1.0/";
+            break;
+        }
+        // no known copyright restrictions
+        if(preg_match("/^(flickr-)?no known copyright restrictions/i", $val))
+        {
+            return("http://www.flickr.com/commons/usage/");
+        }
+        // simple cc-by-2.5,2.0,1.0-de preferred
+        if(preg_match("/^cc-(by)(-\d.*)$/imu", $val, $arr))
+        {
+           $license = strtolower($arr[1]);
+           $rest = $arr[2];
+
+           if(preg_match("/^-?([0-9]\.[0-9])/u", $val, $arr)) $version = $arr[1];
+           else $version = "3.0";
+
+           return("http://creativecommons.org/licenses/$license/$version/");
+        }
+        // cc-by-sa-2.5,2.0,1.0-de, next most preferred
+        if(preg_match("/^cc-(by-sa)(-\d.*)$/imu", $val, $arr))
+        {
+            $license = strtolower($arr[1]);
+            $rest = $arr[2];
+
+            if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
+            else $version = "3.0";
+
+            return("http://creativecommons.org/licenses/$license/$version/");
+        }
+        // cc-sa-1.0
+        if(preg_match("/^(cc-sa)(.*)$/imu", $val, $arr))
+        {
+            $license = "by-sa";
+            $rest = $arr[2];
+
+            if(preg_match("/^-?([0-9]\.[0-9])/", $rest, $arr)) $version = $arr[1];
+            else $version = "3.0";
+
+            return("http://creativecommons.org/licenses/$license/$version/");
+        }
+        // can be relicensed as cc-by-sa-3.0
+        if(preg_match("/migration=relicense/iu", $val))
+        {
+            return("http://creativecommons.org/licenses/by-sa/3.0/");
+        }
+        
+        // catch all the rest of the cc-licenses, if we've got this far
+        if(preg_match("/^cc-(by(-nc)?(-nd)?(-sa)?)(.*)$/imu", $val, $arr))
+        {
+            $license = strtolower($arr[1]);
+            $rest = $arr[2];
+
+            if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
+            else $version = "3.0";
+
+            return("http://creativecommons.org/licenses/$license/$version/");
+        }
+        return(null);
     }
 
     public function agent_parameters()
