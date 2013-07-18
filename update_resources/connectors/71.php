@@ -37,7 +37,7 @@ $GLOBALS['data_objects'] = array();
 
 
 // first pass through all files to grab taxon information and determine scientific images
-iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_taxonav_includes');
+iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_scientific_pages');
 // second pass to grab image information for scientific images
 iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_media_pages');
 
