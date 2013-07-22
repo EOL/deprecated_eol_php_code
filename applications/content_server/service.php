@@ -49,7 +49,7 @@ switch($function)
 {
     case "partner_image":
         $manager = new ContentManager($server_ip);
-        $new_file_path = $manager->grab_file($file_path,0,"partner");
+        $new_file_path = $manager->grab_file($file_path, "partner");
         if($new_file_path)
         {
             if(preg_match("/^([0-9]+)\./", $new_file_path, $arr)) $new_file_path = $arr[1];
@@ -81,7 +81,7 @@ switch($function)
         wildcard_rm(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
         
         $manager = new ContentManager($server_ip);
-        $new_file_path = $manager->grab_file($file_path, $resource_id, "resource");
+        $new_file_path = $manager->grab_file($file_path, "resource", array('resource_id' => $resource_id);
         if($new_file_path)
         {
             if(is_dir($new_file_path))
@@ -180,14 +180,14 @@ switch($function)
         
     case "upload_content":
         $manager = new ContentManager($server_ip);
-        $new_file_path = $manager->grab_file($file_path,0,"image");
+        $new_file_path = $manager->grab_file($file_path, "image");
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
         
     case "admin_upload":
         $manager = new ContentManager($server_ip);
-        $new_file_path = $manager->grab_file($file_path,0,"upload");
+        $new_file_path = $manager->grab_file($file_path, "upload");
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;

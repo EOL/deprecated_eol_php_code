@@ -17,37 +17,49 @@ class ContentManager
     // Possible types for this function
     // image - this is for images
     // video - this is for videos - mpg, flv, mp4, etc...
+    // audio - this is for sounds - mp3, wav, etc...
+    // upload - what is this for?
     // partner - this type means we are downloading a logo for a content partner
     // resource - this means we are downloading an XML or zipped file of the EOL schema for processing
 
-    function grab_file($file, $resource_id, $type, $options = array())
+    function grab_file($file, $type, $options = array())
     {
         if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
         if($temp_file_path = self::download_temp_file_and_assign_extension($file, array_merge($options, array('unique_key' => $this->unique_key, 'is_resource' => ($type == "resource")))))
         {
             $suffix = null;
             if(preg_match("/\.(.*)$/", $temp_file_path, $arr)) $suffix = strtolower(trim($arr[1]));
-            if(!$suffix)
-            {
-                // this would be a DwC-A resource
-                if($type == "resource")
-                {
-                    $resource_archive_directory = $this->new_resource_file_name($resource_id);
-                    // first delete the archive directory that currently exists
-                    recursive_rmdir($resource_archive_directory);
-                    // move the temp, uncompressed directory to its new home with the resources
-                    rename($temp_file_path, $resource_archive_directory);
-                    return $resource_archive_directory;
-                }else return;
-            }
+            if(!$suffix && $type != 'resource') return false;
 
-            // Move into place in the /content or /resources folder
-            if($type == "image") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "video") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "audio") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "upload") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "partner") $new_file_prefix = $this->new_content_file_name();
-            elseif($type == "resource") $new_file_prefix = $this->new_resource_file_name($resource_id);
+            switch($type) {
+                case "resource":
+                    if(!isset($options['resource_id']) || !$options['resource_id']) {
+                        trigger_error("ContentManager: type is 'resource' but no resource id given", E_USER_NOTICE);
+                        return false;
+                    }
+                    if(!$suffix)
+                    {   // this would be a DwC-A resource
+                        $resource_archive_directory = $this->new_resource_file_name($options['resource_id']);
+                        // first delete the archive directory that currently exists
+                        recursive_rmdir($resource_archive_directory);
+                        // move the temp, uncompressed directory to its new home with the resources
+                        rename($temp_file_path, $resource_archive_directory);
+                        return $resource_archive_directory;
+                    }
+
+                    $new_file_prefix = $this->new_resource_file_name($options['resource_id']);
+                    break;
+                case "image":
+                case "video":
+                case "audio":
+                case "upload":
+                case "partner":
+                    $new_file_prefix = $this->new_content_file_name();
+                    break;
+                default:
+                    trigger_error("ContentManager: non-valid type (".$type.")", E_USER_NOTICE);
+                    return false;
+            }
             $new_file_path = $new_file_prefix . "." . $suffix;
 
             // copy temporary file into its new home
@@ -472,7 +484,7 @@ class ContentManager
             $cache_path = self::cache_path($data_object->object_cache_url);
             $image_url = CONTENT_LOCAL_PATH . $cache_path ."_orig.jpg";
             if(!file_exists($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
-            return $this->grab_file($image_url, 0, "image", array('x_offset' => $x, 'y_offset' => $y, 'crop_width' => $w));
+            return $this->grab_file($image_url, "image", array('x_offset' => $x, 'y_offset' => $y, 'crop_width' => $w));
         }
         return false;
     }

@@ -29,7 +29,7 @@ if($resource)
         {
             echo "\nDownloading $resource->title ($id)\n";
             $manager = new ContentManager();
-            $new_resource_path = $manager->grab_file($resource->accesspoint_url, $resource->id, "resource", array('timeout' => 600));
+            $new_resource_path = $manager->grab_file($resource->accesspoint_url, "resource", array('resource_id' => $resource->id, 'timeout' => 600));
             if(!$new_resource_path)
             {
                 $mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label("Upload Failed")->id ." WHERE id=$resource->id");
