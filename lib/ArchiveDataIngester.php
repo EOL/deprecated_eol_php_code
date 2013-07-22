@@ -61,7 +61,6 @@ class ArchiveDataIngester
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/MeasurementOrFact", array($this, 'insert_data'));
         $this->archive_reader->process_row_type("http://eol.org/schema/Association", array($this, 'insert_data'));
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Event", array($this, 'insert_data'));
-        $this->archive_reader->process_row_type("http://purl.org/dc/terms/Location", array($this, 'insert_data'));
 
         $this->mysqli->end_transaction();
 
@@ -584,8 +583,6 @@ class ArchiveDataIngester
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/reference/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
 
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
-        // we really only need to insert the references that relate to taxa or media
-        if(!isset($this->taxon_reference_ids[$reference_id]) && !isset($this->media_reference_ids[$reference_id])) return;
 
         $full_reference = @self::field_decode($row['http://eol.org/schema/reference/full_reference']);
         $title = @self::field_decode($row['http://purl.org/dc/terms/title']);
@@ -628,7 +625,6 @@ class ArchiveDataIngester
             $reference->add_ref_identifier(@$type->id ?: 0, $doi);
         }
 
-
         if(isset($this->taxon_reference_ids[$reference_id]))
         {
             foreach($this->taxon_reference_ids[$reference_id] as $hierarchy_entry_id => $val)
@@ -650,6 +646,7 @@ class ArchiveDataIngester
                 // TODO: find_or_create doesn't work here because of the dual primary key - same as above with entries
             }
         }
+        $this->insert_data($row, $parameters);
     }
 
     public function insert_agents($row, $parameters)
@@ -764,8 +761,8 @@ class ArchiveDataIngester
             'http://rs.tdwg.org/dwc/terms/Occurrence' => '\eol_schema\Occurrence',
             'http://rs.tdwg.org/dwc/terms/MeasurementOrFact' => '\eol_schema\MeasurementOrFact',
             'http://rs.tdwg.org/dwc/terms/Event' => '\eol_schema\Event',
-            'http://purl.org/dc/terms/Location' => '\eol_schema\Location',
-            'http://eol.org/schema/Association' => '\eol_schema\Association'
+            'http://eol.org/schema/Association' => '\eol_schema\Association',
+            'http://eol.org/schema/reference/Reference' => '\eol_schema\Reference'
         );
         if($row_class_name = @$row_type_class_names[$row_type])
         {
@@ -790,7 +787,7 @@ class ArchiveDataIngester
             }
 
             $turtle = $this->prepare_turtle($row, $row_class_name);
-            $this->sparql_client->insert_data(array(
+             $this->sparql_client->insert_data(array(
                 'data' => array($turtle),
                 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
 
@@ -830,6 +827,18 @@ class ArchiveDataIngester
                 {
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/occurrences/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://eol.org/schema/associationID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/associations/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://eol.org/schema/reference/referenceID")
+                {
+                    $reference_ids = self::get_foreign_keys_from_row($row, 'http://eol.org/schema/reference/referenceID');
+                    foreach($reference_ids as $reference_id)
+                    {
+                        $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                            SparqlClient::enclose_value($graph_name ."/references/". SparqlClient::to_underscore($reference_id)) ."\n";
+                    }
                 }else $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
             }
         }

@@ -38,16 +38,18 @@ class ObisDataConnector
         $t = new \eol_schema\Taxon();
         $t->taxonID = $line_data[$this->column_indices['tname_id']];
         $t->scientificName = trim($line_data[$this->column_indices['tname']] ." ". $line_data[$this->column_indices['tauthor']]);
-        // if(!preg_match("/Makaira nigricans/", $t->scientificName)) return;
+        // if(!preg_match("/(Makaira nigricans|Clupea harengus)/", $t->scientificName)) return;
         $this->archive_builder->write_object_to_file($t);
 
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = md5($t->taxonID. 'occurrence');
         $o->taxonID = $t->taxonID;
+        if($ntaxa = @$line_data[$this->column_indices['ntaxa']]) $o->individualCount = $ntaxa;
         $this->archive_builder->write_object_to_file($o);
 
         static $fields_to_ignore = array('id', 'tname', 'tauthor', 'tname_id', 'n', 'ndepth', 'ndate', 'nwoa', 'ntaxa');
-        static $fields_for_taxon = array('minlat', 'maxlat', 'minlon', 'maxlon', 'mindepth', 'maxdepth');
+        // static $fields_for_taxon = array('minlat', 'maxlat', 'minlon', 'maxlon', 'mindepth', 'maxdepth');
+        static $fields_for_occurrence = array('mindate', 'maxdate');
         foreach($line_data as $index => $value)
         {
             if(!$value) continue;
@@ -60,7 +62,7 @@ class ObisDataConnector
             if(in_array($column_label, $fields_to_ignore)) continue;
             $m = new \eol_schema\MeasurementOrFact();
             $m->occurrenceID = $o->occurrenceID;
-            if(in_array($column_label, $fields_for_taxon)) $m->taxonID = $t->taxonID;
+            if(!in_array($column_label, $fields_for_occurrence)) $m->measurementOfTaxon = 'true';
             $m->measurementType = "http://iobis.org/". $column_label;
             $m->measurementValue = $value;
             $this->archive_builder->write_object_to_file($m);

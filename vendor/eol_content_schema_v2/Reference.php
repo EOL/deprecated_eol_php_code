@@ -5,6 +5,8 @@ class Reference extends DarwinCoreExtensionBase
 {
     const EXTENSION_URL = "http://eol.org/schema/reference_extension.xml";
     const ROW_TYPE = "http://eol.org/schema/reference/Reference";
+    const PRIMARY_KEY = "http://purl.org/dc/terms/identifier";
+    const GRAPH_NAME = "references";
     
     public static function validation_rules()
     {

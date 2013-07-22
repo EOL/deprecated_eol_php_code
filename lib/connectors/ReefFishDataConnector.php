@@ -35,7 +35,8 @@ class ReefFishDataConnector
     public function process_line_data($line_data)
     {
         $taxon = $this->add_taxon($line_data);
-        $this->add_location_data($line_data, $taxon->taxonID);
+        $occurrence = $this->add_occurrence($line_data, $taxon);
+        $this->add_location_data($line_data, $occurrence);
     }
 
     private function add_taxon($line_data)
@@ -47,7 +48,16 @@ class ReefFishDataConnector
         return $t;
     }
 
-    private function add_location_data($line_data, $taxon_id)
+    private function add_occurrence($line_data, $taxon)
+    {
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = md5($taxon->taxonID . "occurrence");
+        $o->taxonID = $taxon->taxonID;
+        $this->archive_builder->write_object_to_file($o);
+        return $o;
+    }
+
+    private function add_location_data($line_data, $occurrence)
     {
         $location_types = array('Papua New Guinea', 'New Caledonia', 'Solomon Islands', 'Vanuatu', 'Chesterfield', 'Fiji');
         foreach($location_types as $label)
@@ -56,7 +66,8 @@ class ReefFishDataConnector
             {
                 $this_label = $label;
                 $m = new \eol_schema\MeasurementOrFact();
-                $m->taxonID = $taxon_id;
+                $m->occurrenceID = $occurrence->occurrenceID;
+                $m->measurementOfTaxon = 'true';
                 $m->measurementType = "http://reeffish.org/occursIn";
                 $m->measurementValue = "http://reeffish.org/". SparqlClient::to_underscore($this_label);
                 $this->archive_builder->write_object_to_file($m);

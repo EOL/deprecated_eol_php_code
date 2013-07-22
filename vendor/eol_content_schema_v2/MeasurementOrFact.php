@@ -5,7 +5,7 @@ class MeasurementOrFact extends DarwinCoreExtensionBase
 {
     const EXTENSION_URL = "https://dl.dropboxusercontent.com/u/1355101/ontology/measurement_extension.xml";
     const ROW_TYPE = "http://rs.tdwg.org/dwc/terms/MeasurementOrFact";
-    const PRIMARY_KEY = "http://rs.tdwg.org/dwc/terms/measurementOrFactID";
+    const PRIMARY_KEY = "http://rs.tdwg.org/dwc/terms/measurementID";
     const GRAPH_NAME = "measurements";
 
     public static function validation_rules()

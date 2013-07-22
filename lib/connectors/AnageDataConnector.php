@@ -36,9 +36,8 @@ class AnageDataConnector
     public function process_line_data($line_data)
     {
         $taxon = $this->add_taxon($line_data);
-        $event = $this->add_event($line_data, $taxon->taxonID);
-        $occurrence = $this->add_occurrence($line_data, $taxon->taxonID, $event);
-        $this->add_numeric_data($line_data, $taxon->taxonID, $event, $occurrence);
+        $occurrence = $this->add_occurrence($line_data, $taxon);
+        $this->add_numeric_data($line_data, $taxon, $occurrence);
     }
 
     private function add_taxon($line_data)
@@ -64,36 +63,34 @@ class AnageDataConnector
         return $t;
     }
 
-    private function add_event($line_data, $taxon_id)
+    private function add_occurrence($line_data, $taxon)
     {
-        $s = $line_data[$this->column_indices['Sample size']];
-        $q = $line_data[$this->column_indices['Data quality']];
-        if($s || $q)
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = md5($taxon->taxonID . "occurrence");
+        $o->taxonID = $taxon->taxonID;
+        if($establishment_means = $line_data[$this->column_indices['Specimen origin']]) $o->establishmentMeans = $establishment_means;
+        $this->archive_builder->write_object_to_file($o);
+
+        if($sample_size = $line_data[$this->column_indices['Sample size']])
         {
-            $e = new \eol_schema\Event();
-            $e->eventID = md5($taxon_id . "event");
-            if($s) $e->sampleSize = $s;
-            if($q) $e->dataQuality = $q;
-            $this->archive_builder->write_object_to_file($e);
-            return $e;
+            $m = new \eol_schema\MeasurementOrFact();
+            $m->occurrenceID = $o->occurrenceID;
+            $m->measurementType = "http://anage.org/sample_size";
+            $m->measurementValue = "http://anage.org/". SparqlClient::to_underscore($sample_size);
+            $this->archive_builder->write_object_to_file($m);
         }
+        if($data_quality = $line_data[$this->column_indices['Data quality']])
+        {
+            $m = new \eol_schema\MeasurementOrFact();
+            $m->occurrenceID = $o->occurrenceID;
+            $m->measurementType = "http://anage.org/data_quality";
+            $m->measurementValue = "http://anage.org/". SparqlClient::to_underscore($data_quality);
+            $this->archive_builder->write_object_to_file($m);
+        }
+        return $o;
     }
 
-    private function add_occurrence($line_data, $taxon_id, $event)
-    {
-        if($so = $line_data[$this->column_indices['Specimen origin']])
-        {
-            $o = new \eol_schema\Occurrence();
-            $o->occurrenceID = md5($taxon_id . "occurrence");
-            $o->taxonID = $taxon_id;
-            if($event) $o->eventID = $event->eventID;
-            $o->establishmentMeans = $so;
-            $this->archive_builder->write_object_to_file($o);
-            return $o;
-        }
-    }
-
-    private function add_numeric_data($line_data, $taxon_id, $event, $occurrence)
+    private function add_numeric_data($line_data, $taxon, $occurrence)
     {
         $numeric_types = array('Female maturity (days)', 'Male maturity (days)', 'Gestation/Incubation (days)',
             'Weaning (days)', 'Litter/Clutch size', 'Litters/Clutches per year', 'Inter-litter/Interbirth interval',
@@ -111,12 +108,11 @@ class AnageDataConnector
                     $unit_of_measure = "http://anage.org/". SparqlClient::to_underscore(str_replace("/", "_", $arr[2]));
                 }
                 $m = new \eol_schema\MeasurementOrFact();
-                $m->taxonID = $taxon_id;
+                $m->occurrenceID = $occurrence->occurrenceID;
+                $m->measurementOfTaxon = 'true';
                 $m->measurementType = "http://anage.org/". SparqlClient::to_underscore($this_label);
                 $m->measurementValue = $v;
                 $m->measurementUnit = $unit_of_measure;
-                if($occurrence) $m->occurrenceID = $occurrence->occurrenceID;
-                elseif($event) $m->eventID = $event->eventID;
                 $this->archive_builder->write_object_to_file($m);
             }
         }

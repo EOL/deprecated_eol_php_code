@@ -18,6 +18,7 @@ class BioInfoDataConnector
 
         $this->column_labels = array();
         $this->column_indices = array();
+        $this->taxon_occurrences = array();
         foreach(new FileIterator(self::TAXA_URL) as $line_number => $line)
         {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
@@ -28,7 +29,8 @@ class BioInfoDataConnector
                 foreach($this->column_labels as $k => $v) $this->column_indices[$v] = $k;
                 continue;
             }
-            $this->add_taxon($line_data);
+            $taxon = $this->add_taxon($line_data);
+            $this->taxon_occurrences[$taxon->taxonID] = $this->add_occurrence($line_data, $taxon);
         }
 
         $this->column_labels = array();
@@ -76,6 +78,15 @@ class BioInfoDataConnector
         return $t;
     }
 
+    private function add_occurrence($line_data, $taxon)
+    {
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = md5($taxon->taxonID . "occurrence");
+        $o->taxonID = $taxon->taxonID;
+        $this->archive_builder->write_object_to_file($o);
+        return $o;
+    }
+
     private function add_associations($line_data)
     {
         $source_taxon_id = trim($line_data[$this->column_indices['my active taxon id']]);
@@ -84,9 +95,11 @@ class BioInfoDataConnector
         if($source_taxon_id && $target_taxon_id && $relationship)
         {
             $m = new \eol_schema\Association();
-            $m->taxonID = $source_taxon_id;
+            if(!$this->taxon_occurrences[$source_taxon_id]) return;
+            if(!$this->taxon_occurrences[$target_taxon_id]) return;
+            $m->occurrenceID = $this->taxon_occurrences[$source_taxon_id]->occurrenceID;
             $m->associationType = "http://bioinfo.org/". SparqlClient::to_underscore($relationship);
-            $m->targetTaxonID = $target_taxon_id;
+            $m->targetOccurrenceID = $this->taxon_occurrences[$target_taxon_id]->occurrenceID;
             $this->archive_builder->write_object_to_file($m);
         }
     }

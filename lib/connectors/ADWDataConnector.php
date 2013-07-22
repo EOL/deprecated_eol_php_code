@@ -123,6 +123,7 @@ class ADWDataConnector
                     $unit_of_measure = "http://adw.org/". SparqlClient::to_underscore(str_replace("/", "_", $arr[2]));
                 }
                 $m = new \eol_schema\MeasurementOrFact();
+                $occurrence = $this->add_occurrence($taxon, 'numeric');
                 $m->occurrenceID = $occurrence->occurrenceID;
                 $m->measurementOfTaxon = 'true';
                 $m->measurementType = "http://adw.org/". SparqlClient::to_underscore(str_replace(" - ", " ", $this_label));
