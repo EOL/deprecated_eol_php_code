@@ -168,6 +168,8 @@ function lookup_data_objects($media)
     {
         $object_parameters['additionalInformation'] .= "<subtype>Map</subtype>";
     }
+
+    if($v = $media['http://ns.adobe.com/xap/1.0/Rating']) $object_parameters['additionalInformation'] .= "<rating>$v</rating>";
     
     
     if($taxon_id = $media['http://rs.tdwg.org/dwc/terms/taxonID'])
