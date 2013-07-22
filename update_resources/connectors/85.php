@@ -22,10 +22,13 @@ We've requested the partner to provide us with just a text dump of the result of
 continue providing us with the Access MDB.
 */
 
-$text_file = DOC_ROOT . "/update_resources/connectors/files/NorthAmericanMammals/data_from_sql_export.txt";
+$remote_file = "https://dl.dropboxusercontent.com/u/7597512/NorthAmericanMammals/data_from_sql_export.txt";
+// $text_file = DOC_ROOT . "/update_resources/connectors/files/NorthAmericanMammals/data_from_sql_export.txt";
+$text_file = Functions::save_remote_file_to_local($remote_file, "1000000", 600);
+
 require_library('connectors/FishBaseAPI');
 $fields = array("species_id", "genus_name", "sci_name", "family_name", "order_name", "avg_length", "avg_length_sp", "range_length", "range_length_sp", "avg_weight", "avg_weight_sp", "range_weight", "range_weight_sp", "conservation_status_notes", "conservation_status_notes_sp", "common_name", "common_name_sp", "other_names", "other_names_sp", "refs", "refs_sp", "links", "links_sp", "dimorphism", "dimorphism_sp", "legend", "legend_sp", "refs(2)", "refs_sp(2)", "adaptation", "adaptation_sp", "conservation_status_id", "conservation_status_title", "conservation_status_title_sp", "conservation_status_abbrev");
-$taxa = FishBaseAPI::make_array($text_file, $fields, "", array(), "");
+$taxa = FishBaseAPI::make_array($text_file, $fields, "", array());
 
 $resource_id = 85; //for North American Mammals
 $schema_taxa = array();
@@ -41,7 +44,7 @@ foreach($taxa as $row)
     $dwc_Family         = trim($row["family_name"]);
     $dwc_Genus          = trim($row["genus_name"]);
     $dwc_ScientificName = trim($row["sci_name"]);
-    $taxon_identifier   = "NAM_" . $row["species_id"];    
+    $taxon_identifier   = "NAM_" . $row["species_id"];
     if(@$used_taxa[$taxon_identifier]) $taxon_parameters = $used_taxa[$taxon_identifier];
     else
     {
@@ -51,7 +54,7 @@ foreach($taxa as $row)
         $taxon_parameters["order"]          = $dwc_Order;
         $taxon_parameters["family"]         = $dwc_Family;
         $taxon_parameters["genus"]          = $dwc_Genus;
-        $taxon_parameters["scientificName"] = $dwc_ScientificName;        
+        $taxon_parameters["scientificName"] = $dwc_ScientificName;
         $taxon_parameters["source"]         = "http://www.mnh.si.edu/mna/image_info.cfm?species_id=" . $row["species_id"];
         $taxon_parameters["commonNames"]    = array();
         $taxon_parameters["commonNames"][]  = new \SchemaCommonName(array("name" => trim($row["common_name"]), "language" => "en"));
@@ -208,13 +211,13 @@ function get_GeneralDescription($legend, $adaptation, $links, $reference, $langu
 {
     $dc_identifier = $taxon_identifier . "_GenDesc";
     $title = "Description";
-    if($language == "es") 
+    if($language == "es")
     {
         $dc_identifier .= "_es";
         $title = "Descripción";
     }
-    $description = $legend;                
-    if($adaptation != "") 
+    $description = $legend;
+    if($adaptation != "")
     {
         if    ($language == "en") $description .= "<br><br>Adaptation: $adaptation";
         elseif($language == "es") $description .= "<br><br>Adaptación: $adaptation";
@@ -250,12 +253,12 @@ function get_data_object($id, $dc_source, $description, $reference, $subject, $t
     $subjectParameters["label"] = $subject;
     $dataObjectParameters["subjects"][] = new \SchemaSubject($subjectParameters);
 
-    $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";    
-    $dataObjectParameters["mimeType"] = "text/html";        
+    $dataObjectParameters["dataType"] = "http://purl.org/dc/dcmitype/Text";
+    $dataObjectParameters["mimeType"] = "text/html";
     $dataObjectParameters["language"] = $language;
     $dataObjectParameters["license"] = "http://creativecommons.org/licenses/by/3.0/";
     //$dataObjectParameters["thumbnailURL"] = "";
-    //$dataObjectParameters["mediaURL"] = "";    
+    //$dataObjectParameters["mediaURL"] = "";
     $dataObjectParameters["source"] = $dc_source;
     $agent_name = "Smithsonian Institution - North American Mammals";
     if($agent_name != "")
@@ -267,30 +270,30 @@ function get_data_object($id, $dc_source, $description, $reference, $subject, $t
             $agentParameters = array();
             $agentParameters["role"]     = $agent["role"];
             $agentParameters["homepage"] = $agent["homepage"];
-            $agentParameters["logoURL"]  = "";        
+            $agentParameters["logoURL"]  = "";
             $agentParameters["fullName"] = $agent[0];
             $agents[] = new \SchemaAgent($agentParameters);
         }
-        $dataObjectParameters["agents"] = $agents;    
+        $dataObjectParameters["agents"] = $agents;
     }
 
-    $dataObjectParameters["audiences"] = array();    
+    $dataObjectParameters["audiences"] = array();
     $audienceParameters = array();
     $audienceParameters["label"] = "Expert users";
     $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
     $audienceParameters["label"] = "General public";
     $dataObjectParameters["audiences"][] = new \SchemaAudience($audienceParameters);
 
-    if($reference) 
+    if($reference)
     {
       $references = array();
-      $referenceParameters = array();    
+      $referenceParameters = array();
       $reference = utf8_encode($reference);
-      $referenceParameters["fullReference"] = $reference;    
-      $references[] = new \SchemaReference($referenceParameters);        
-      $dataObjectParameters["references"] = $references;         
+      $referenceParameters["fullReference"] = $reference;
+      $references[] = new \SchemaReference($referenceParameters);
+      $dataObjectParameters["references"] = $references;
     }
-  
+
     return $dataObjectParameters;
 }
 
