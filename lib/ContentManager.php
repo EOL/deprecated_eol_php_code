@@ -29,24 +29,25 @@ class ContentManager
         {
             $suffix = null;
             if(preg_match("/\.(.*)$/", $temp_file_path, $arr)) $suffix = strtolower(trim($arr[1]));
+            if(!$suffix && $type != 'resource') return false;
 
             switch($type) {
                 case "resource":
-                    if (!isset($options['id'])) {
+                    if(!isset($options['resource_id']) || !$options['resource_id']) {
                         trigger_error("ContentManager: type is 'resource' but no resource id given", E_USER_NOTICE);
                         return false;
                     }
                     if(!$suffix)
                     {   // this would be a DwC-A resource
-                        $resource_archive_directory = $this->new_resource_file_name($options['id']);
+                        $resource_archive_directory = $this->new_resource_file_name($options['resource_id']);
                         // first delete the archive directory that currently exists
                         recursive_rmdir($resource_archive_directory);
                         // move the temp, uncompressed directory to its new home with the resources
                         rename($temp_file_path, $resource_archive_directory);
                         return $resource_archive_directory;
-                    };
+                    }
 
-                    $new_file_prefix = $this->new_resource_file_name($options['id']);
+                    $new_file_prefix = $this->new_resource_file_name($options['resource_id']);
                     break;
                 case "image":
                 case "video":
@@ -58,9 +59,7 @@ class ContentManager
                 default:
                     trigger_error("ContentManager: non-valid type (".$type.")", E_USER_NOTICE);
                     return false;
-            };
-                    
-            if (!$suffix) return false; //require suffix for anything that has got this far 
+            }
             $new_file_path = $new_file_prefix . "." . $suffix;
 
             // copy temporary file into its new home

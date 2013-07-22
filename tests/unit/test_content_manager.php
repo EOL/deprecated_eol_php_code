@@ -23,7 +23,7 @@ class test_content_manager extends SimpletestUnitBase
     
     function testGrabResource()
     {
-        $file = $this->content_manager->grab_file(WEB_ROOT . 'tests/fixtures/files/test_resource.xml', "resource", array('id'=>101010101));
+        $file = $this->content_manager->grab_file(WEB_ROOT . 'tests/fixtures/files/test_resource.xml', "resource", array('resource_id' => 101010101));
         $this->assertTrue($file == "101010101.xml", "File name should be same as resource id");
         $this->assertTrue(file_exists(CONTENT_RESOURCE_LOCAL_PATH."101010101.xml"), "File should exist");
         unlink(CONTENT_RESOURCE_LOCAL_PATH."101010101.xml");
