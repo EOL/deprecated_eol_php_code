@@ -55,15 +55,10 @@ fclose($resource_file);
 @rename(CONTENT_RESOURCE_LOCAL_PATH . "263.xml", CONTENT_RESOURCE_LOCAL_PATH . "263_previous.xml");
 rename(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "263.xml");
 
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "263.xml") > 600)
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "263.xml") > 200000)
 {
     $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=263");
 }
-
-
-
-
-
 
 function lookup_taxa($taxon, $parameters)
 {
@@ -168,6 +163,8 @@ function lookup_data_objects($media)
     {
         $object_parameters['additionalInformation'] .= "<subtype>Map</subtype>";
     }
+
+    if($v = $media['http://ns.adobe.com/xap/1.0/Rating']) $object_parameters['additionalInformation'] .= "<rating>$v</rating>";
     
     
     if($taxon_id = $media['http://rs.tdwg.org/dwc/terms/taxonID'])
