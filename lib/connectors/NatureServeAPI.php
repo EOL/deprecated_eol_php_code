@@ -6,6 +6,7 @@ class NatureServeAPI
     // https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=ELEMENT_GLOBAL.2.104386
     const API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=";
     const SPECIES_LIST_URL = "https://tranxfer.natureserve.org/download/longterm/EOL/gname_uid_crosswalk.xml";
+    // const SPECIES_LIST_URL = "https://dl.dropboxusercontent.com/u/7597512/NatureServe/gname_uid_crosswalk.xml";
     const IMAGE_API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1/globalSpecies/images?uid=";
     
     public function __construct()
@@ -294,12 +295,11 @@ class NatureServeAPI
     {
         $this->write_image_description("U.S. States and Canadian Provinces", "conservation_map", 'map',
             (string) @$this->current_details_xml->distribution->conservationStatusMap,
-            array('description' => '<img src="http://content60.eol.org/content/2011/12/06/23/17639.png"/><p>NatureServe conservation status ranks for U.S. states and Canada provinces.  See <a href="http://www.natureserve.org/explorer/ranking.htm#natsub">NatureServe Conservation Status</a> for more information about the ranks.</p>'));
+            array('description' => '<img src="http://content60.eol.org/content/2011/12/06/23/17639.png"/><p>NatureServe conservation status ranks for U.S. states and Canada provinces.  See <a href="http://www.natureserve.org/explorer/ranking.htm#natsub">NatureServe Conservation Status</a> for more information about the ranks.</p>', 'rating' => 2));
             
         $this->write_image_description("Range Map", "range_map", 'map',
             (string) @$this->current_details_xml->distribution->rangeMap->rangeMapURI,
-            array('creator' => @trim((string) $this->current_details_xml->distribution->rangeMap->rangeMapCompilers),
-                  'description' => trim('New World Range Map. ' . @trim((string) $this->current_details_xml->distribution->rangeMap->rangeMapCompilers))));
+            array('creator' => @trim((string) $this->current_details_xml->distribution->rangeMap->rangeMapCompilers), 'rating' => 2, 'description' => trim('New World Range Map. ' . @trim((string) $this->current_details_xml->distribution->rangeMap->rangeMapCompilers))));
     }
     
     private function global_range()
@@ -315,7 +315,7 @@ class NatureServeAPI
             if($text)
             {
                 $this->write_text_description("", "global_range", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution",
-                    "<p><strong>Global Range</strong>: $text");
+                    "<p><strong>Global Range</strong>: $text", array("rating" => 2));
             }
         }
     }
@@ -342,7 +342,7 @@ class NatureServeAPI
             if($descriptions)
             {
                 $this->write_text_description("National Distribution", "national_distributions",
-                  "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", implode("", $descriptions));
+                  "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", implode("", $descriptions), array("rating" => 2));
             }
         }
     }
@@ -681,6 +681,7 @@ class NatureServeAPI
         $mr->CreateDate = @$options['created'];
         $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc/3.0/';
         $mr->Owner = 'NatureServe';
+        if(@$options['rating']) $mr->Rating = $options['rating'];
         $this->archive_builder->write_object_to_file($mr);
     }
     
@@ -702,6 +703,7 @@ class NatureServeAPI
         $mr->description = @$options['description'];
         $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc/3.0/';
         $mr->Owner = 'NatureServe';
+        if(@$options['rating']) $mr->Rating = $options['rating'];
         $this->archive_builder->write_object_to_file($mr);
     }
     

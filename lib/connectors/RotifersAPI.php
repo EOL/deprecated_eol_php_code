@@ -20,6 +20,7 @@ class RotifersAPI
         $this->text_path = array();
         $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images";
         $this->image_path =                 "http://89.26.108.66/TestRWC/Rotifer_data/images";
+        $this->debug_count = 0;
     }
 
     function get_all_taxa()
@@ -30,6 +31,7 @@ class RotifersAPI
         $parts = pathinfo($path);
         recursive_rmdir($parts["dirname"]);
         debug("\n temporary directory removed: " . $parts["dirname"]);
+        echo "\n total text scan: $this->debug_count \n";
     }
 
     private function process_text_files()
@@ -182,7 +184,16 @@ class RotifersAPI
             default:
                 echo("\n\n investigate: no folder: [$filename] -- [$image_type] \n ");
         }
-        return $this->image_path . "/$folder/_full-size/$filename";
+        $image_path = $this->image_path . "/$folder/_full-size/$filename";
+        
+        // remove text scan images
+        if(preg_match("/_text(.*?).jpg/ims", $filename, $arr) || preg_match("/_text(.*?)].jpg/ims", $filename, $arr))
+        {
+            echo "\n $image_path \n";
+            $this->debug_count++;
+            return false;
+        }
+        return $image_path;
     }
 
     private function get_images($description, $taxon_id, $media_id, $media_url, $reference_ids, $agent_ids)
