@@ -322,7 +322,7 @@ class ExcelToText
             elseif($worksheet_name == 'controlled terms') continue;
             else
             {
-                trigger_error("Unknown Worksheet Name: $worksheet_name", E_USER_WARNING);
+                // trigger_error("Unknown Worksheet Name: $worksheet_name", E_USER_WARNING);
                 continue;
             }
             $table_xml = '  <table encoding="UTF-8"';

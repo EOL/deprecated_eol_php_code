@@ -167,7 +167,7 @@ class ContentArchiveBuilder
         return $FILE;
     }
     
-    private static function escape_string($string)
+    public static function escape_string($string)
     {
         $string = str_replace("\n", "\\n", $string);
         $string = str_replace("\r", "\\r", $string);

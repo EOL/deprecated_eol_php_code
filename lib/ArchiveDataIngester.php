@@ -770,6 +770,9 @@ class ArchiveDataIngester
             $line_number = $parameters['archive_line_number'];
             self::debug_iterations("Inserting $row_type");
             $this->commit_iterations($row_type, 500);
+            # TODO: fix this with validation
+            if($row['http://eol.org/schema/measurementOfTaxon'] == 'yes') $row['http://eol.org/schema/measurementOfTaxon'] = 'true';
+            if($row['http://eol.org/schema/measurementOfTaxon'] == 'no') $row['http://eol.org/schema/measurementOfTaxon'] = 'false';
             if($this->archive_validator->has_error_by_line(strtolower($row_type), $file_location, $line_number)) return false;
 
             if($taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']))
@@ -787,7 +790,7 @@ class ArchiveDataIngester
             }
 
             $turtle = $this->prepare_turtle($row, $row_class_name);
-             $this->sparql_client->insert_data(array(
+            $this->sparql_client->insert_data(array(
                 'data' => array($turtle),
                 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
 
