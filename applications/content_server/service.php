@@ -81,7 +81,7 @@ switch($function)
         wildcard_rm(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
         
         $manager = new ContentManager($server_ip);
-        $new_file_path = $manager->grab_file($file_path, "resource", array('resource_id' => $resource_id);
+        $new_file_path = $manager->grab_file($file_path, "resource", array('resource_id' => $resource_id));
         if($new_file_path)
         {
             if(is_dir($new_file_path))
