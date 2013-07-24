@@ -65,7 +65,32 @@ class Taxon extends DarwinCoreExtensionBase
         'misapplied name',
         'not accepted',
         'ambiguous synonym',
-        'provisionally accepted name'
+        'provisionally accepted name',
+        'junior synonym',
+        'original name/combination',
+        'other, see comments',
+        'orthographic variant (misspelling)',
+        'database artifact',
+        'unavailable, database artifact',
+        'homonym (illegitimate)',
+        'pro parte',
+        'misapplied',
+        'superfluous renaming (illegitimate)',
+        'invalidly published, nomen nudum',
+        'invalidly published, other',
+        'rejected name',
+        'nomen oblitum',
+        'unavailable, literature misspelling',
+        'subsequent name/combination',
+        'junior homonym',
+        'homonym & junior synonym',
+        'unavailable, suppressed by ruling',
+        'unavailable, other',
+        'unjustified emendation',
+        'unavailable, incorrect orig. spelling',
+        'nomen dubium',
+        'unnecessary replacement',
+        'unavailable, nomen nudum'
         );
     public static function valid_taxon_status($v)
     {

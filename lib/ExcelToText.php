@@ -247,7 +247,7 @@ class ExcelToText
         
         $info = pathinfo($archive_temp_directory_path);
         $temporary_tarball_path = temp_filepath();
-        $final_tarball_path = $archive_temp_directory_path . $info['basename'] .".tar.gz";
+        $final_tarball_path = $archive_temp_directory_path .".tar.gz";
         shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
         @unlink($new_tarball_path);
         rename($temporary_tarball_path, $final_tarball_path);
