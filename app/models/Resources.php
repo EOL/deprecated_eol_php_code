@@ -109,16 +109,10 @@ class Resource extends ActiveRecord
     {
         return self::find_by_title('LigerCat');
     }
-    
-    public function is_inaturalist()
-    {
-        if($this->id == 430) return true;
-        return false;
-    }
 
-    public function is_eol_group_on_flickr()
+    public function is_eol_flickr_group()
     {
-        if($this->id == 15) return true;
+        if(self::flickr() && $this->id == self::flickr()->id) return true;
         return false;
     }
 
