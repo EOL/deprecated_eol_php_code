@@ -794,14 +794,14 @@ class ArchiveDataIngester
     private static function is_this_identifier_in_this_resource($object_identifier, $resource)
     {
         if(!$resource) return false;
-        static $last_harvest_event_id = null;
-        if(!$last_harvest_event_id) $last_harvest_event_id = $resource->most_recent_published_harvest_event_id();
-        if(!$last_harvest_event_id) return false;
+        static $last_harvest_event_id[$resource->id] = null;
+        if(!$last_harvest_event_id[$resource->id]) $last_harvest_event_id[$resource->id] = $resource->most_recent_published_harvest_event_id();
+        if(!$last_harvest_event_id[$resource->id]) return false;
         
         $result = $GLOBALS['db_connection']->query("SELECT * FROM data_objects_harvest_events dohe
             JOIN data_objects do ON (dohe.data_object_id=do.id)
-            WHERE dohe.harvest_event_id=$last_harvest_event_id
-            AND do.identifier='$object_identifier'");
+            WHERE dohe.harvest_event_id=" . $last_harvest_event_id[$resource->id] . 
+            " AND do.identifier='$object_identifier'");
         if($result && $row=$result->fetch_assoc()) return true;
         return false;
     }
