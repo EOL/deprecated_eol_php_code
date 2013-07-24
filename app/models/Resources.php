@@ -100,6 +100,11 @@ class Resource extends ActiveRecord
         return self::find_by_title('EOL Group on Flickr');
     }
     
+    public static function inaturalist_images()
+    {
+        return self::find_by_title('iNaturalist Images');
+    }
+    
     public static function ligercat()
     {
         return self::find_by_title('LigerCat');
@@ -110,7 +115,13 @@ class Resource extends ActiveRecord
         if($this->id == 430) return true;
         return false;
     }
-    
+
+    public function is_eol_group_on_flickr()
+    {
+        if($this->id == 15) return true;
+        return false;
+    }
+
     public function resource_file_path()
     {
         return CONTENT_RESOURCE_LOCAL_PATH . $this->id . ".xml";
