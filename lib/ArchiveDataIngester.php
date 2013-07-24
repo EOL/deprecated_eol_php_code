@@ -794,7 +794,8 @@ class ArchiveDataIngester
     private static function is_this_identifier_in_this_resource($object_identifier, $resource)
     {
         if(!$resource) return false;
-        static $last_harvest_event_id[$resource->id] = null;
+        static $last_harvest_event_id = array();
+        $last_harvest_event_id[$resource->id] = null;
         if(!$last_harvest_event_id[$resource->id]) $last_harvest_event_id[$resource->id] = $resource->most_recent_published_harvest_event_id();
         if(!$last_harvest_event_id[$resource->id]) return false;
         
