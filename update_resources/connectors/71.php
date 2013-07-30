@@ -5,6 +5,7 @@ define('DOWNLOAD_WAIT_TIME', '1000000');  // 2 second wait after every web reque
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
+define("WIKI_PREFIX", "http://commons.wikimedia.org/wiki/");
 require_vendor("wikipedia");
 
 
@@ -13,7 +14,8 @@ $resource = Resource::find(71);
 
 // cleaning up downloaded files
 $base_directory_path = DOC_ROOT ."update_resources/connectors/files/";
-shell_exec("rm -f ". $base_directory_path . "wikimedia/*");
+$part_file_base = $base_directory_path."wikimedia/part_";
+shell_exec("rm -f ". $part_file_prefix . "*");
 shell_exec("rm -f ". $base_directory_path . "wikimedia.xml");
 shell_exec("rm -f ". $base_directory_path . "wikimedia.xml.bz2");
 
@@ -24,18 +26,8 @@ shell_exec("curl ".$resource->accesspoint_url." -o ". $base_directory_path . "wi
 // unzip the download
 shell_exec("bunzip2 ". $base_directory_path . "wikimedia.xml.bz2");
 // split the huge file into 300M chunks
-shell_exec("split -b 300m ". $base_directory_path . "wikimedia.xml ". $base_directory_path . "wikimedia/part_");
-
-// determine the filename of the last chunk
-$last_line = exec("ls -l ". $base_directory_path . "wikimedia");
-if(preg_match("/part_([a-z]{2})$/", trim($last_line), $arr)) $final_part_suffix = $arr[1];
-else
-{
-    echo "\n\nCouldn't determine the last file to process\n$last_line\n\n";
-    exit;
-}
-
-
+$part_file_suffix_chars = 3; //allows for splitting the file into max 26^n parts, e.g. n=3, parts=300Mb, copes with xml files < 4.2Tb
+shell_exec("split -a ".$part_file_suffix_chars." -b 300m ". $base_directory_path . "wikimedia.xml ". $part_file_base);
 
 // preparing global variables
 $GLOBALS['scientific_pages'] = array();
@@ -45,9 +37,9 @@ $GLOBALS['data_objects'] = array();
 
 
 // first pass through all files to grab taxon information and determine scientific images
-iterate_files('php_active_record\get_scientific_pages');
+iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_scientific_pages');
 // second pass to grab image information for scientific images
-iterate_files('php_active_record\get_media_pages');
+iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_media_pages');
 
 echo "\n\n# total taxa: ".count($GLOBALS['taxa'])."\n";
 echo "# total images: ".count($GLOBALS['data_objects'])."\n";
@@ -79,40 +71,29 @@ echo "end";
 
 // FUNCTIONS
 
-function iterate_files($callback, $title = false)
+function iterate_files($part_file_base, $n_suffix_chars, $callback, $title = false)
 {
-    global $final_part_suffix;
-    list($major, $minor) = str_split($final_part_suffix);
-    $ord1 = ord("a");
-    $ord2 = ord("a");
-
-    $left_overs = "";
-    while($ord1 <= ord($major))
+    $left_overs="";
+    $suffix = str_repeat('a', $n_suffix_chars);
+    while ((strlen($suffix)==$n_suffix_chars) && process_file($part_file_base.$suffix, $left_overs, $callback, $title)) {
+       $suffix++; // auto-increment allows us to match the output of the 'split' command: aaa->aab, aaz->aba, etc
+    };
+    if (!preg_match('/\s*<\/mediawiki>\s*/smi', $left_overs)) 
     {
-        while($ord2 <= ord("z"))
-        {
-            $left_overs = process_file(chr($ord1).chr($ord2), $left_overs, $callback, $title);
-
-            if($ord1 == ord($major) && $ord2 == ord($minor))
-            {
-                break;
-            }
-            $ord2++;
-            // if($ord2 == ord("b")) break;
-        }
-
-        $ord1++;
-        $ord2 = ord("a");
-        // break;
+        echo "WARNING: THE LAST WIKI FILE APPEARS TO BE TRUNCATED. Part of the wiki download may be missing.\n";
+        flush();
     }
 }
 
-function process_file($part_suffix, $left_overs, $callback, $title = false)
+function process_file($filename, &$left_overs, $callback, $title = false)
 {
-    global $base_directory_path;
-    echo "Processing file $part_suffix with callback $callback ".memory_get_usage()."\n";
+    if (!file_exists($filename)) {
+        echo "Assuming no more part files to process (as ".basename($filename)." doesn't exist)\n";
+        return FALSE;
+    }
+    echo "Processing file ".basename($filename)." with callback $callback. Memory at start: ".(memory_get_usage()/1024/1024)." Mb\n";
     flush();
-    $FILE = fopen($base_directory_path . "wikimedia/part_".$part_suffix, "r");
+    $FILE = fopen($filename, "r");
 
     $current_page = $left_overs;
     static $page_number = 0;
@@ -132,10 +113,9 @@ function process_file($part_suffix, $left_overs, $callback, $title = false)
                 if($page_number % 100000 == 0)
                 {
                     echo "page: $page_number\n";
-                    echo "memory: ".memory_get_usage()."\n";
+                    echo "memory: ".(memory_get_usage()/1024/1024)." Mb\n";
                     flush();
                 }
-
                 if($title && !preg_match("/<title>". preg_quote($title, "/") ."<\/title>/ims", $current_page))
                 {
                     echo "<title>". preg_quote($title, "/") ."<\/title>\n";
@@ -148,14 +128,12 @@ function process_file($part_suffix, $left_overs, $callback, $title = false)
         }
     }
 
+    $left_overs = $current_page;
     echo "\n\n# taxa so far: ".count($GLOBALS['taxa'])."\n";
     echo "# images so far: ".count($GLOBALS['image_titles'])."\n";
     echo "# objects so far: ".count($GLOBALS['data_objects'])."\n";
-    return $current_page;
+    return TRUE;
 }
-
-
-
 
 
 function get_scientific_pages($xml)
@@ -163,14 +141,14 @@ function get_scientific_pages($xml)
     if(preg_match("/\{\{Taxonavigation/", $xml, $arr))
     {
         $page = new \WikimediaPage($xml);
-        if(preg_match("/^template\:/i", $page->title)) return;
+        if($page->is_template()) return;
         $GLOBALS['scientific_pages'][$page->title] = 1;
         if($params = $page->taxon_parameters())
         {
             if(@$params['scientificName']) $GLOBALS['taxa'][$page->title] = $params;
         }
 
-        $images = $page->images();
+        $images = $page->media_on_page();
         foreach($images as $image)
         {
             $GLOBALS['scientific_page_images'][$page->title][] = "File:".$image;
@@ -270,7 +248,7 @@ function lookup_image_urls($titles)
     $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiurlwidth=460&iiprop=url&titles=";
     $url .= urlencode(implode("|", array_keys($titles)));
 
-    $result = Functions::get_remote_file_fake_browser($url, 2000000);
+    $result = Functions::get_remote_file_fake_browser($url, 2000000, DOWNLOAD_TIMEOUT_SECONDS, 3, false, "gzip,deflate");
 
     $normalized = array();
     $json = json_decode($result);
