@@ -242,6 +242,155 @@ class WikiParser
         return array($text, $stream);
     }
     
+    public static function template_as_array($wikitext, $TemplateName = 'Information', $offset=0) 
+    { //parses the first $TemplateName found. Use $offset to parse other identically named templates later in the text
+      //returns empty array if no template found, otherwise template name is the first parameter.
+
+        /* Implementation: look for sections of a template separated by | characters. This is slightly complex, 
+            because | characters don't count when nested inside other templates (a common occurrence), or when
+            nested inside [[ ]] braces, or in <!-- html comments --> or in "Parser Extension Tags" (for 
+            a list of these, see e.g. http://commons.wikimedia.org/wiki/Special:Version#sv-parser-tags
+        
+            However, our job at parsing is made easier, because apart from {{ }}, the tags don't allow 
+            multiple nesting, so <nowiki> $string </nowiki> is a bracketed pair even if $string = <nowiki>.
+         */
+        static $singly_nested_tags = array(
+            "<!--" => "-->",
+            "[[" => "]]",
+            "{{{" => "}}}",
+            "<categorytree" => "</categorytree>", 
+            "<charinsert" => "</charinsert>" ,
+            "<gallery" => "</gallery>",
+            "<hiero" => "</hiero>",
+            "<imagemap" => "</imagemap>",
+            "<inputbox" => "</inputbox>",
+            "<math" => "</math>",
+            "<nowiki" => "</nowiki>",
+            "<poem" => "</poem>",
+            "<pre" => "</pre>",
+            "<score" => "</score>",
+            "<section" => "</section>",
+            "<source" => "</source>",
+            "<syntaxhighlight" => "</syntaxhighlight>",
+            "<templatedata" => "</templatedata>",
+            "<timeline" => "</timeline>",
+            "<references" => "</references>",
+            "<ref" => "</ref>" // make sure this comes after <references
+            );
+        static $parse_other = array("|", "=", "{{", "}}");
+        static $search_RE = null;
+        if (!isset($search_RE)) { //setup search-replace array (once only)
+            $match_strings = array_merge(array_keys($singly_nested_tags),$parse_other);
+            //these will be concatenated as alternations in a RegExp, so make sure they are escaped
+            array_walk($match_strings, function(&$val, $key) {$val = preg_quote($val, "/");});
+            $search_RE = implode("|", $match_strings);
+
+            
+            function add_initial_xml_close(&$val, $key) 
+            {
+                if ($val[0]=="<") //this is an xml tag, so also look for a closing "/>" on the initial tag, e.g. <ref />
+                {                 //RE is not perfect - e.g. won't spot <ref name=">" />. You need a proper parser for that.
+                    $val = "\G[^>]+(?<=\/)>|".preg_quote($val, "/");
+                } else {
+                    $val = preg_quote($val, "/");
+                };
+            }
+            array_walk($singly_nested_tags, 'add_initial_xml_close');
+        };
+
+        $template_params = array();
+        if(preg_match("/\{\{\s*$TemplateName\s*[\|\}].*$/us", $wikitext, $arr, 0, $offset))
+        {
+            $wikitext = $arr[0];
+            $nested_curly = 0;
+            $section_start = $curr_pos = 2; //skip the first {{
+            $first = TRUE;
+            while($matched = preg_match("/$search_RE/iu", $wikitext, $arr, PREG_OFFSET_CAPTURE, $curr_pos))
+            {
+                $match=$arr[0][0];
+                $match_start = $arr[0][1];
+                if ($match=="|")
+                {
+                    if ($nested_curly==0)
+                    {
+                        $value = trim(substr($wikitext, $section_start, $match_start-$section_start));
+                        if (is_null(end($template_params))) { //we have set the array key, but not filled it
+                            $template_params[key($template_params)] = $value; //fill the last one with the right value
+                        } else {
+                            $template_params[] = $value; //add this as the next numeric key
+                        }
+                        $section_start = $match_start+1;
+                        $first=FALSE;
+                    }
+                    $curr_pos = $match_start+1;
+
+
+
+                } elseif ($match=="=") {
+                    if ($nested_curly==0)
+                    {
+                        if ($first || is_null(end($template_params)))
+                        {
+                            //ignore this "="
+                        } else {
+                            //note that although some templates allow [Aa]ttribute = , parameter names are actually case sensitive
+                            $param_name = trim(substr($wikitext, $section_start, $match_start-$section_start));
+                            if(array_key_exists($param_name, $template_params)) unset($template_params[$param_name]);
+                            $template_params[$param_name]=null;
+                            $section_start = $match_start + 1;
+                        }
+                    }
+                    $curr_pos = $match_start+1;
+
+
+                } elseif ($match=="{{") {
+                    $nested_curly++;
+                    $curr_pos = $match_start+2;
+
+
+                    
+                } elseif ($match=="}}") {
+                    $nested_curly--;
+                    if ($nested_curly < 0) 
+                    {
+                        break;
+                    }
+                    $curr_pos = $match_start+2;
+                
+
+
+                } else {
+                    $curr_pos = $match_start+strlen($match);
+                    //Found a tag: multiple nesting not allowed, so just jump to the next matching close tag
+                    if (preg_match("/".$singly_nested_tags[strtolower($match)]."/uis", $wikitext, $arr, PREG_OFFSET_CAPTURE, $curr_pos)) 
+                    {
+                        $curr_pos = $arr[0][1]+strlen($arr[0][0]);
+                    } else {
+                        //tag not closed. Uh oh.
+                        print "Returning best-guess template parameters, even though tags aren't closed properly (couldn't find";
+                        print " close of '$match': first 300 chars are ".strtr(substr($wikitext,0,300),"\r\n","| ").")\n";
+                        break; //return the best so far
+                    }
+                }
+            }
+
+            //fill the last value in the array
+            if ($matched) {
+                $value = trim(substr($wikitext, $section_start, $match_start-$section_start));
+            } else {
+                $value = trim(substr($wikitext, $section_start));
+                print "Returning best-guess template parameters, even though template not closed properly (couldn't find ";
+                print " final '}}': first 300 chars are ".strtr(substr($wikitext,0,300),"\r\n","| ").")\n";
+            }
+        
+            if (is_null(end($template_params))) { //we have set the array key, but not filled it
+                $template_params[key($template_params)]= $value;
+            } else {
+                $template_params[]= $value; //add this as the next numeric key
+            }
+        }
+        return $template_params;
+    }
 }
 
 ?>
