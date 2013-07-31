@@ -1845,6 +1845,5 @@ class Functions
         $hms .= str_pad($seconds, 2, "0", STR_PAD_LEFT);
         return $hms;
     }
-
 }
 ?>

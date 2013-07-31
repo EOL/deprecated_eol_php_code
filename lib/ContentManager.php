@@ -336,13 +336,13 @@ class ContentManager
 
     function create_content_thumbnails($file, $prefix, $options = array())
     {
-        $this->reduce_original($file, $prefix);
+        $local_file = $this->reduce_original($file, $prefix, $options);
         // we make an exception
         if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
         {
             $large_image_dimensions = $options['large_image_dimensions'];
         }else $large_image_dimensions = ContentManager::large_image_dimensions();
-        $image_path = $this->create_smaller_version($file, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
+        $image_path = $this->create_smaller_version($local_file, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
         $this->create_smaller_version($image_path, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
         $this->create_smaller_version($image_path, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
         if(isset($options['crop_width'])) $image_path = $prefix . '_orig.jpg';
@@ -356,9 +356,11 @@ class ContentManager
         $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
-    function reduce_original($path, $prefix)
+    function reduce_original($path, $prefix, $options = array())
     {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80";
+        $rotate = "-auto-orient";
+        if(isset($options['rotate'])) $rotate = "-rotate ". intval($options['rotate']);
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
@@ -367,7 +369,8 @@ class ContentManager
 
     function create_smaller_version($path, $dimensions, $prefix, $suffix)
     {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
+        //don't need to rotate, as this works on already-rotated version
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
         $new_image_path = $prefix ."_". $suffix .".jpg";
         shell_exec($command." ".$new_image_path);
@@ -409,7 +412,7 @@ class ContentManager
         }else
         {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
-            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
+            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
                             -resize ".$dimensions[0]."x".$dimensions[0]."^ \
                             -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[0]."+0+0 +repage";
         }
@@ -466,7 +469,7 @@ class ContentManager
         }
     }
 
-    private static function cache_path($object_cache_url)
+    public static function cache_path($object_cache_url)
     {
         return substr($object_cache_url, 0, 4)."/".substr($object_cache_url, 4, 2)."/".substr($object_cache_url, 6, 2)."/".substr($object_cache_url, 8, 2)."/".substr($object_cache_url, 10, 5);
     }
