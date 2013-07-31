@@ -10,7 +10,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 195;
 $file = "http://www.marlin.ac.uk/downloads/EOL/EOL.xml";
-if(!$contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 999999))
+if(!$contents = Functions::get_remote_file($file, array('timeout' => 172800)))
 {
     echo "\n\n Content partner's server is down, connector will now terminate.\n";
 }elseif(stripos($contents, "The page you are looking for has been moved.") != "")

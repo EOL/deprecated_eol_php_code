@@ -145,13 +145,6 @@ function render_template($filename, $parameters = NULL, $return = false)
     return false;
 }
 
-
-function require_module($module)
-{
-    $module_path = DOC_ROOT . "classes/modules/$module/module.php";
-    require_once($module_path);
-}
-
 function require_vendor($module)
 {
     $module_path = DOC_ROOT . "vendor/$module/module.php";
@@ -163,7 +156,6 @@ function require_library($library)
     $library_path = DOC_ROOT . "lib/$library.php";
     require_once($library_path);
 }
-
 
 function print_pre($arr)
 {

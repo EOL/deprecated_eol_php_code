@@ -42,7 +42,7 @@ combine_remote_eol_resource_files($resource_id, $files);
 unlink($temp_family_path);
 unlink($temp_genera_path);
 
-$xml = Functions::get_remote_file($resource_path, DOWNLOAD_WAIT_TIME, 1200, 5);
+$xml = Functions::get_remote_file($resource_path, array('timeout' => 1200, 'download_attempts' => 5));
 $xml = fix_higher_level_names_entered_twice($xml); // this also fixes duplicate taxon and dataObject identifiers
 
 echo "\n\n has duplicate identifiers: " . check_for_duplicate_identifiers($xml) . "\n";
@@ -62,7 +62,7 @@ echo "\n\n Done processing.";
 
 function add_rank_element($source, $destination, $rank)
 {
-    $xml = Functions::get_remote_file($source, DOWNLOAD_WAIT_TIME, 1200, 5);
+    $xml = Functions::get_remote_file($source, array('timeout' => 1200, 'download_attempts' => 5));
     $xml = str_ireplace("</dwc:ScientificName>", "</dwc:ScientificName><rank>" . $rank . "</rank>", $xml);
     $OUT = fopen($destination, "w");
     fwrite($OUT, $xml);
@@ -167,7 +167,7 @@ function combine_remote_eol_resource_files($resource_id, $files)
     foreach($files as $filename)
     {
         echo "\n $filename ";
-        $contents = Functions::get_remote_file($filename, DOWNLOAD_WAIT_TIME, 1200, 5);
+        $contents = Functions::get_remote_file($filename, array('timeout' => 1200, 'download_attempts' => 5));
         if($contents != "")
         {
             $pos1 = stripos($contents, "<taxon>");

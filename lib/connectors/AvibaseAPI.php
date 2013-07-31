@@ -182,7 +182,7 @@ class AvibaseAPI
 
     function get_taxa_from_html($url)
     {
-        $html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5); //20mins download timeout, 5 retry attempts
+        $html = Functions::get_remote_file($url, array('timeout' => 1200, 'download_attempts' => 5)); //20mins download timeout, 5 retry attempts
         $parts = explode("<tr valign=bottom>", $html);
         // the first block doesn't contain name information so remove it
         array_shift($parts);

@@ -104,7 +104,7 @@ class ContentManager
         $temp_file_path = CONTENT_TEMP_PREFIX . $options['unique_key'] . ".file";
         if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || preg_match("/^\//", $file_path_or_uri))
         {
-            if($file_contents = Functions::get_remote_file($file_path_or_uri, DOWNLOAD_WAIT_TIME, $options['timeout']))
+            if($file_contents = Functions::get_remote_file($file_path_or_uri, array('timeout' => $options['timeout'])))
             {
                 // if this is a resource then update the old references to the schema
                 // there were a few temporary locations for the schema which were being used by early providers

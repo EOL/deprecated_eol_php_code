@@ -248,7 +248,7 @@ function lookup_image_urls($titles)
     $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiurlwidth=460&iiprop=url&titles=";
     $url .= urlencode(implode("|", array_keys($titles)));
 
-    $result = Functions::get_remote_file_fake_browser($url, 2000000, DOWNLOAD_TIMEOUT_SECONDS, 3, false, "gzip,deflate");
+    $result = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => 2000000, 'download_attempts' => 3, 'encoding' => 'gzip,deflate'));
 
     $normalized = array();
     $json = json_decode($result);

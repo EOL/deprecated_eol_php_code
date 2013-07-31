@@ -22,7 +22,7 @@ class ConservationBiologyTurtlesAPI
 
     private function prepare_taxa_urls()
     {
-        if($html = Functions::get_remote_file($this->turtles_site, 1000000, 240, 5))
+        if($html = Functions::get_remote_file($this->turtles_site, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             if(preg_match_all("/href=\"http:\/\/www.iucn\-tftsg\.org\/cbftt\/toc\-ind\/toc\/(.*?)<\/a>/ims", $html, $arr))
             {
@@ -128,7 +128,7 @@ class ConservationBiologyTurtlesAPI
     {
         $descriptions = array();
         debug("\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'] . "\n");
-        if($html = Functions::get_remote_file($rec['url'], 3000000, 240, 5))
+        if($html = Functions::get_remote_file($rec['url'], array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             $html = str_ireplace("www.iucn&ndash;tftsg.org", "www.iucn-tftsg.org", $html);
             $agent_ids = self::get_object_agents($html, $rec);

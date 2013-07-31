@@ -96,7 +96,7 @@ class YouTubeAPI
         $tries = 0;
         while($tries < 5)
         {
-            if($raw_json = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120, 5))
+            if($raw_json = Functions::get_remote_file($url, array('timeout' => 120, 'download_attempts' => 5)))
             {
                 if(is_numeric(stripos($raw_json, "too_many_recent_calls")))
                 {
@@ -371,7 +371,7 @@ class YouTubeAPI
         $usernames_of_people_to_ignore = array('PRI', 'pri');
         /* Getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
-        if($xml = Functions::get_hashed_response($url, 1000000, 240, 5))
+        if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             foreach($xml->entry as $entry)
             {
@@ -395,7 +395,7 @@ class YouTubeAPI
             while(true)
             {
                 $url = YOUTUBE_API . "/users/" . $username . "/uploads?" . "start-index=$start_index&max-results=$max_results";
-                if($xml = Functions::get_hashed_response($url, 3000000, 240, 5))
+                if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
                 {
                     if($xml->entry)
                     {

@@ -179,7 +179,7 @@ class BiopixAPI
     private function download_resource_data()
     {
         $biopix_data_path = DOC_ROOT . "/update_resources/connectors/files/biopix_tab.txt";
-        $biopix_tab_data = Functions::get_remote_file($this->data_dump_url, NULL, 300);
+        $biopix_tab_data = Functions::get_remote_file($this->data_dump_url, array('timeout' => 300));
         $OUT = fopen($biopix_data_path, "w+");
         fwrite($OUT, $biopix_tab_data);
         fclose($OUT);

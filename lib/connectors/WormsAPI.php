@@ -129,7 +129,7 @@ class WormsAPI
         $timestart = time_elapsed(); echo "\n start timer";
         $file = WORMS_TAXON_API . $id;
         echo "$file\n";
-        if($contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 600, 5))
+        if($contents = Functions::get_remote_file($file, array('timeout' => 600, 'download_attempts' => 5)))
         {
             if(simplexml_load_string($contents))
             {
@@ -197,7 +197,7 @@ class WormsAPI
         foreach($urls as $url)
         {
             echo "\n Processing: $url \n";
-            if($xml = Functions::get_hashed_response($url, DOWNLOAD_WAIT_TIME, 240, 5))
+            if($xml = Functions::get_hashed_response($url, array('timeout' => 240, 'download_attempts' => 5)))
             {
                 foreach($xml->taxdetail as $taxdetail)
                 {

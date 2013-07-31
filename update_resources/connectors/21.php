@@ -14,7 +14,7 @@ $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
 
 // $file = 'http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/amphib_dump.xml';
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
-if(!$new_resource_xml = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 1200, 5))
+if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 1200, 'download_attempts' => 5)))
 {
     echo("\n\n Content partner's server is down, connector will now terminate.\n");
 }else

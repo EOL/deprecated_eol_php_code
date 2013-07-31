@@ -505,7 +505,7 @@ class HymenopteraAPI
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, DOWNLOAD_WAIT_TIME, 999999, 5))
+        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 5)))
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];

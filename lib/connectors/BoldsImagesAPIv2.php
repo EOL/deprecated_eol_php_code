@@ -45,7 +45,7 @@ class BoldsImagesAPIv2
         $i = 0;
 
         // retrive all image_ids from the first/original BOLDS images resource
-        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, DOWNLOAD_WAIT_TIME, 2400, 5);
+        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, array('timeout' => 2400, 'download_attempts' => 5));
         $READ = fopen($this->old_bolds_image_ids_path, "r");
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
@@ -86,7 +86,7 @@ class BoldsImagesAPIv2
     function download_and_extract_remote_file($file = false)
     {
         if(!$file) $file = $this->data_dump_url; // used when this function is called elsewhere
-        $temp_path = Functions::save_remote_file_to_local($file, DOWNLOAD_WAIT_TIME, 999999, 5, "xml.gz");
+        $temp_path = Functions::save_remote_file_to_local($file, array('timeout' => 172800, 'download_attempts' => 5, 'file_extension' => 'xml.gz'));
         echo "\n [$temp_path] \n";
         shell_exec("gzip -d " . $temp_path);
         return str_ireplace(".xml.gz", ".xml", $temp_path);
@@ -448,7 +448,7 @@ class BoldsImagesAPIv2
     private function reconcile_with_old_master_list($hl_taxa)
     {
         $write = fopen($this->MASTER_LIST, "a");
-        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, DOWNLOAD_WAIT_TIME, 2400, 5);
+        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, array('timeout' => 2400, 'download_attempts' => 5));
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $split = explode("\t", trim($line));

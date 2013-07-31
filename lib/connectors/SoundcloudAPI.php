@@ -41,7 +41,7 @@ class SoundcloudAPI
             $page = 1;
             while($page == 1 || $count_of_tracks > 0)
             {
-                if($xml = Functions::get_hashed_response($audio_list_url, 5000000, 240, 5))
+                if($xml = Functions::get_hashed_response($audio_list_url, array('download_wait_time' => 5000000, 'timeout' => 240, 'download_attempts' => 5)))
                 {
                     $inaccessible_tries = 0;
                     $count_of_tracks = count($xml->track);
@@ -76,7 +76,7 @@ class SoundcloudAPI
         // return array("30860816", "5810611"); // Laura F. [5810611], Eli Agbayani [30860816] , (User: [70505] - Ben Fawkes) has 100+ audio files
         $user_ids = array();
         debug("\n Getting all members... " . $this->EOL_members);
-        if($xml = Functions::get_hashed_response($this->EOL_members, 1000000, 240, 5))
+        if($xml = Functions::get_hashed_response($this->EOL_members, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             debug("\n members: " . count($xml->user));
             foreach($xml->user as $user)

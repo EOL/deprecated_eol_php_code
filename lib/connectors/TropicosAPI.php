@@ -198,7 +198,7 @@ class TropicosAPI
         }
         */
 
-        if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5)) echo "\n lost connection \n";
+        if(!$name = Functions::get_remote_file(TROPICOS_API_SERVICE . $taxon_id . "?format=json&apikey=" . TROPICOS_API_KEY, array('timeout' => 4800, 'download_attempts' => 5))) echo "\n lost connection \n";
         $name = json_decode($name, true);
         $sciname = "" . @$name['ScientificNameWithAuthors'];
         echo "[$taxon_id] " . $sciname;
@@ -230,7 +230,7 @@ class TropicosAPI
     function get_taxonomy($taxon_id)
     {
         $taxonomy = array();
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/HigherTaxa?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/HigherTaxa?format=xml&apikey=" . TROPICOS_API_KEY, array('timeout' => 4800, 'download_attempts' => 5));
         foreach($xml->Name as $rec)
         {
             if($rec->Rank == "kingdom") $taxonomy['kingdom'] = $rec->ScientificNameWithAuthors;
@@ -246,7 +246,7 @@ class TropicosAPI
     function get_taxon_ref($taxon_id)
     {
         $refs = array();
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/References?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/References?format=xml&apikey=" . TROPICOS_API_KEY, array('timeout' => 4800, 'download_attempts' => 5));
         foreach($xml->NameReference as $rec)
         {
             if(!isset($rec->Reference->ReferenceId)) continue;
@@ -259,7 +259,7 @@ class TropicosAPI
 
     function get_images($taxon_id, $arr_objects)
     {
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY, array('timeout' => 4800, 'download_attempts' => 5));
         $with_image = 0;
         foreach($xml->Image as $rec)
         {
@@ -325,7 +325,7 @@ class TropicosAPI
 
     function get_chromosome_count($taxon_id, $arr_objects)
     {
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY, array('timeout' => 4800, 'download_attempts' => 5));
         $refs = array();
         $temp_reference = array();
         $with_content = false;
@@ -378,7 +378,7 @@ class TropicosAPI
 
     function get_distributions($taxon_id, $arr_objects, $sciname)
     {
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY, array('timeout' => 4800, 'download_attempts' => 5));
         $refs = array();
         $temp_reference = array();
         $temp_location = array();
@@ -426,7 +426,7 @@ class TropicosAPI
     {
         $arr_synonyms = array();
         $arr = array();
-        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Synonyms?format=xml&apikey=" . TROPICOS_API_KEY, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $xml = Functions::get_hashed_response(TROPICOS_API_SERVICE . $taxon_id . "/Synonyms?format=xml&apikey=" . TROPICOS_API_KEY, array('timeout' => 4800, 'download_attempts' => 5));
         foreach($xml->Synonym as $syn)
         {
             $synonym = trim($syn->SynonymName->ScientificNameWithAuthors);
@@ -472,7 +472,7 @@ class TropicosAPI
             $count++;
             $url = TROPICOS_API_SERVICE . "List?startid=$startid&PageSize=$pagesize&apikey=" . TROPICOS_API_KEY . "&format=json";
             echo "\n[$count] $url";
-            if($json_ids = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 4800, 5))
+            if($json_ids = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, array('timeout' => 4800, 'download_attempts' => 5)))
             {
                 $ids = json_decode($json_ids, true);
                 $str = "";

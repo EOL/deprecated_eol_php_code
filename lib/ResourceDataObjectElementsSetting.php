@@ -49,7 +49,7 @@ class ResourceDataObjectElementsSetting
             $filename = $path_parts['basename'];
             $this->TEMP_FILE_PATH = create_temp_dir() . "/";
             debug("temp file path: " . $this->TEMP_FILE_PATH);
-            if($file_contents = Functions::get_remote_file($this->xml_path, DOWNLOAD_WAIT_TIME, 999999))
+            if($file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800)))
             {
                 $temp_file_path = $this->TEMP_FILE_PATH . "/" . $filename;
                 $TMP = fopen($temp_file_path, "w");
@@ -65,7 +65,7 @@ class ResourceDataObjectElementsSetting
                 return false;
             }
         }
-        return Functions::get_remote_file($this->xml_path, DOWNLOAD_WAIT_TIME, 999999);
+        return Functions::get_remote_file($this->xml_path, array('timeout' => 172800));
     }
 
     public function remove_data_object_of_certain_element_value($field, $value, $xml_string)
