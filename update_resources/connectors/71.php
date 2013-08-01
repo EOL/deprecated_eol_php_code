@@ -62,7 +62,7 @@ echo "\n\n# media files: ".$n_media_files." (in ".count($GLOBALS['taxa'])." taxa
 
 check_remaining_gallery_files();
 
-unset($xml_output)
+unset($xml_output);
 process_resource_file($xml_file_base, "_tmp.xml", $resource->id);
 
 echo "End\n";
