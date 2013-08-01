@@ -3,9 +3,11 @@
 class SchemaDocument
 {
     private $FILE;
+    public  $filename;
     
     function __construct($filename, $fopen_flags="w+") {
-        $this->FILE = fopen($filename, $fopen_flags);
+        $this->filename = $filename;
+        $this->FILE = fopen($this->filename, $fopen_flags);
         if ($this->FILE === FALSE) {
             echo "Could not open file $filename\n";
             flush();
@@ -16,7 +18,7 @@ class SchemaDocument
     
     public function save_taxon_xml($t) {
         if ($this->FILE === FALSE) {
-            echo "Could not write to file, as it is not open\n";
+            echo "Could not write to file ".$this->filename." as it is not open\n";
             flush();
             return FALSE;
         }
@@ -25,7 +27,7 @@ class SchemaDocument
     
     function __destruct() {
         if ($this->FILE === FALSE) {
-            echo "Could not close file.\n";
+            echo "Could not close file".$this->filename.".\n";
             flush();
         } 
         fwrite($this->FILE, self::xml_footer());
