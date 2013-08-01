@@ -174,7 +174,7 @@ function get_taxonomic_pages($xml)
                         }
                     }
                 } else {
-                    if($params = $page->taxon_parameters()
+                    if($params = $page->taxon_parameters($GLOBALS['taxonav_includes'])
                     {
                         if(@$params['scientificName']) {
                             $GLOBALS['taxa'][$page->title] = $params;
