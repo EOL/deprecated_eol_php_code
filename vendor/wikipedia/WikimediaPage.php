@@ -339,6 +339,16 @@ class WikimediaPage
             if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
         }
 
+        if($this->point())
+        {
+            $this->data_object_parameters["point"] = new \SchemaPoint($this->point());
+        };
+
+        if($this->location())
+        {
+            $this->data_object_parameters["location"] = $this->location();
+        };
+
         //the following properties may be overridden later by data from the API.
         $licenses = $this->licenses_via_wikitext();
         $this->set_license(self::match_license(implode("\n",$licenses))); //search all licenses at once
@@ -541,6 +551,53 @@ class WikimediaPage
 
         $this->description = $description;
         return $description;
+    }
+
+    public function point()
+    {
+        if(isset($this->georef)) return $this->georef;
+
+        $this->georef = FALSE;
+        $this->location = FALSE;
+        if(count($location = WikiParser::template_as_array($this->active_wikitext(), "(?:[Oo]bject )?[Ll]ocation(?: dec)?")))
+        {
+            if (substr($location[0], -3) == "dec") 
+            {  // see http://commons.wikimedia.org/wiki/Template:Location_dec
+                if(isset($location[1]) && isset($location[2])) 
+                {
+                    $this->georef["latitude"] = $location[1];
+                    $this->georef["longitude"] = $location[2];
+                }
+                if(isset($location[3]))
+                {
+                    $this->location = $location[3]; 
+                }             
+            } else 
+            { // see http://commons.wikimedia.org/wiki/Template:Location
+                if(isset($location[8])) //lazy - assume 1-7 are also set if so
+                {
+
+                    $this->georef["latitude"] = $location[1]+((($location[2]*60)+($location[3]))/3600);
+                    if (stripos($location[4], "N")===FALSE) $this->georef["latitude"] *= -1;
+                    $this->georef["longitude"] = $location[5]+((($location[6]*60)+($location[7]))/3600);
+                    if (stripos($location[8], "W")===FALSE) $this->georef["longitude"] *= -1;                    
+                }
+                if(isset($location[9]))
+                {
+                    $this->location = $location[9];
+                }
+            }
+         }
+
+        return $this->georef;
+    }
+
+    public function location()
+    {
+        //Very crude: just bungs the 9th parameter giving GeoHack server metadata into "location": coded region, heading, scale, etc.
+        if(isset($this->location)) return $this->location;
+        $this->point();
+        return $this->location;
     }
 
     public function media_on_page()
