@@ -51,19 +51,21 @@ echo "\n\n# total categories: ".count($GLOBALS['taxonomic_categories'])."\n";
 
 
 // FINAL PASS: grab file information for scientific media pages and save to file
-$xml_output = new \SchemaDocument(CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_tmp.xml");
+$xml_file_base = CONTENT_RESOURCE_LOCAL_PATH . $resource->id;
+$xml_output = new \SchemaDocument($xml_file_base."_tmp.xml");
+
 iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_media_pages');
 $last_number = batch_process(); //process the pages remaining in the last batch
-echo "\n\n (last ".$last_number." media files processed)\n";
 
+echo "\n\n (last ".$last_number." media files processed)\n";
 echo "\n\n# media files: ".$n_media_files." (in ".count($GLOBALS['taxa'])." taxa)\n";
 
 check_remaining_gallery_files();
 
-process_resource_file($xml_output);
+unset($xml_output)
+process_resource_file($xml_file_base, "_tmp.xml", $resource->id);
+
 echo "End\n";
-
-
 
 
 // FUNCTIONS
@@ -352,18 +354,14 @@ function add_to_resource_file($taxon_data, $data_object_parameters)
     };
 }
 
-function process_resource_file($xml_output)
+function process_resource_file($name, $suffix, $resource_id)
 {
-    $filename = $xml_output->filename;
-    if (isset($xml_output)) unset($xml_output);
-
-    $basename = preg_replace("/_tmp\.xml$/", "", $filename);
-    if((filesize($filename) > 600) && ($basename != $filename))
+    if(filesize($name.$suffix) > 600)
     {
-        @rename($basename.".xml", $basename."_previous.xml"); //overwrite previous
-        @rename($filename, $basename.".xml");
+        @rename($name.".xml", $name."_previous.xml"); //overwrite previous
+        @rename($name.$suffix, $name.".xml");
 
-        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=$resource->id");
+        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=$resource_id");
     }
 }
 
