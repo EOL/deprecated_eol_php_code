@@ -202,29 +202,23 @@ class WikimediaPage
         array_walk($taxonomy, function(&$val, $param) {strip_tags(WikiParser::strip_syntax(trim($val)));});
 
         // there are often some extra ranks under the Taxonnavigation box - 
-        //  whizz to the end of the first template (assume that's the Taxonavigation one) and have a look
-        if (preg_match("/(\{\{.*?\}\})(.*)/ums", $this->active_wikitext(), $arr)) {
-            list($firstTemplate, $rest) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
-            if(preg_match("/^\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/uims", $rest, $arr))
+        if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->active_wikitext(), $arr))
+        {
+            $entries = explode("\n", $arr[2]);
+            foreach($entries as $entry)
             {
-                $entries = explode("\n", $arr[2]);
-                foreach($entries as $entry)
+                if(preg_match("/^\*?(genus|species):(.*)/ims", trim($entry), $arr))
                 {
-                    if(preg_match("/^\*?(genus|species):(.*)/uims", trim($entry), $arr))
-                    {
-                        $rank = strtolower($arr[1]);
-
-                        if (!isset($taxonomy[$rank])) {
-                            //usually the name is in italics, followed by the authority. If we spot this, just take the name.
-                            //avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
-                            $name = preg_replace("/^(.*)<\/i>.*/u", "$1", WikiParser::strip_syntax($arr[2], TRUE));
-                            $taxonomy[$rank] = preg_replace("/\s+/u", " ", trim(strip_tags($name)));
-                        }
+                    $rank = strtolower($arr[1]);
+                    if (!isset($taxonomy[$rank])) {
+                        //usually the name is in italics, followed by the authority. If we spot this, just take the name
+                        //avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
+                        $name = preg_replace("/^(.*)<\/i>.*/", "$1", WikiParser::strip_syntax($arr[2], TRUE));
+                        $taxonomy[$rank] = preg_replace("/\s+/u", " ", trim(strip_tags($name)));
                     }
-                }                
+                }
             }
         }
-
         $this->taxonomy = $taxonomy;
         return $taxonomy;
     }
