@@ -172,8 +172,12 @@ class WikimediaPage
                     if(preg_match("/^\*?(genus|species):(.*)/ims", trim($entry), $arr))
                     {
                         $rank = strtolower($arr[1]);
-                        $name = preg_replace("/\s+/", " ", WikiParser::strip_syntax(trim($arr[2])));
-                        $taxonomy[$rank] = $name;
+                        if (!isset($taxonomy[$rank])) {
+                            //usually the name is in italics, followed by the authority. If we spot this, just take the name
+                            //avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
+                            $name = preg_replace("/^(.*)<\/i>.*/", "$1", WikiParser::strip_syntax($arr[2], TRUE));
+                            $taxonomy[$rank] = preg_replace("/\s+/u", " ", trim(strip_tags($name)));
+                        }
                     }
                 }
             }
