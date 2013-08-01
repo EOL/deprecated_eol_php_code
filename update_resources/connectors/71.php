@@ -117,7 +117,6 @@ function process_file($filename, $callback, &$left_overs="", $title = false)
     return TRUE;
 }
 
-
 function get_taxonomic_pages($xml)
 {
     global $n_pages;
@@ -345,7 +344,7 @@ function check_remaining_gallery_files() {
         if (count($good_files)) {
             echo "\n\nMISSED THE FOLLOWING ".count($good_files)." FILES";
             echo " (if you have the scanned whole XML dump, these may be pages whose title has changed and have not been placed in a valid taxonomic category)\n";
-            foreach ($good_files as $title) {
+            foreach ($good_files as $title => $json) {
                 echo "* ".$title." in gallery <".$GLOBALS['gallery_files'][$title].">\n";
             }
         }
