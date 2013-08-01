@@ -302,10 +302,15 @@ class WikimediaPage
         }
     }
 
-    public static function match_license($val)
-    {
+    public static function match_license($val, $strict=FALSE)
+    {   //The licenses should be listed in order of preference
+        if ($strict) {
+            $flag="i";
+        } else {
+            $flag="";
+        };
         // PD-USGov-CIA-WF
-        if(preg_match("/^(PD|Public Domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/imu", $val))
+        if(preg_match("/^(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mu".$flag, $val))
         {
             return("http://creativecommons.org/licenses/publicdomain/");
         }
@@ -315,23 +320,23 @@ class WikimediaPage
             return("http://creativecommons.org/publicdomain/zero/1.0/");
         }
         // no known copyright restrictions
-        if(preg_match("/^(flickr-)?no known copyright restrictions/mui", $val))
+        if(preg_match("/^(flickr-)?no known copyright restrictions/mu".$flag, $val))
         {
             return("http://www.flickr.com/commons/usage/");
         }
         // simple cc-by-2.5,2.0,1.0-de preferred
-        if(preg_match("/^CC-(BY)(-\d.*)$/imu", $val, $arr))
+        if(preg_match("/^CC-(BY)(-\d.*)$/mu".$flag, $val, $arr))
         {
             $license = strtolower($arr[1]);
             $rest = $arr[2];
 
-            if(preg_match("/^-?([0-9]\.[0-9])/u", $val, $arr)) $version = $arr[1];
+            if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
             else $version = "3.0";
 
             return("http://creativecommons.org/licenses/$license/$version/");
         }
         // cc-by-sa-2.5,2.0,1.0-de, next most preferred
-        if(preg_match("/^CC-(BY-SA)(-\d.*)$/imu", $val, $arr))
+        if(preg_match("/^CC-(BY-SA)(-\d.*)$/mu".$flag, $val, $arr))
         {
             $license = strtolower($arr[1]);
             $rest = $arr[2];
@@ -342,7 +347,7 @@ class WikimediaPage
             return("http://creativecommons.org/licenses/$license/$version/");
         }
         // cc-sa-1.0
-        if(preg_match("/^(CC-SA)(.*)$/imu", $val, $arr))
+        if(preg_match("/^(CC-SA)(.*)$/mu".$flag, $val, $arr))
         {
             $license = "by-sa";
             $rest = $arr[2];
@@ -353,13 +358,13 @@ class WikimediaPage
             return("http://creativecommons.org/licenses/$license/$version/");
         }
         // can be relicensed as cc-by-sa-3.0
-        if(preg_match("/migration=relicense/iu", $val))
+        if($strict==FALSE && preg_match("/migration=relicense/mu".$flag, $val))
         {
             return("http://creativecommons.org/licenses/by-sa/3.0/");
         }
         
         // catch all the rest of the cc-licenses, if we've got this far
-        if(preg_match("/^CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/imu", $val, $arr))
+        if(preg_match("/^CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mu".$flag, $val, $arr))
         {
             $license = strtolower($arr[1]);
             $rest = $arr[2];

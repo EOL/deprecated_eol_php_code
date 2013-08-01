@@ -313,7 +313,7 @@ function batch_process($page=null)
                 }
             }
             
-            if ($license = \WikimediaPage::match_license($potential_license_categories, FALSE)) {
+            if ($license = \WikimediaPage::match_license($potential_license_categories, TRUE)) {
                 $page->set_license($license); //override with the more reliable license from categories
             }
         }
