@@ -121,7 +121,27 @@ class WikimediaPage
         return $this->information;
     }
 
-    public function taxonomy()
+    private function fill_includes_recursively(&$arr, $include_arrays, &$visited=array())
+    {
+        if (!empty($arr['include']))
+        {
+            $include = "Template:".ucfirst($arr['include']);
+            if (!isset($visited[$include])) //stops infinite recursive loops
+            {
+                $visited[$include] = 1;
+                if (isset($include_arrays[$include])) {
+                    self::fill_includes_recursively($include_arrays[$include], $include_arrays, $visited);
+                    $arr = array_merge($include_arrays[$include], $arr);
+                } else {
+                    print "Found a non-existent Taxonav include value: '$include' within ".implode(":",$arr)."\n";
+                }
+                unset($arr['include']);
+            }
+        }
+        return $arr;
+    }
+
+    public function taxonomy_via_API()
     {
         if(isset($this->taxonomy)) return $this->taxonomy;
         $taxonomy = array();
@@ -171,12 +191,55 @@ class WikimediaPage
         return $taxonomy;
     }
 
-    public function taxon_parameters()
+    public function taxonomy_via_wikitext($taxonav_include_arrays)
+    {
+        //Note that unlike taxonomy_via_API, this deliberately does not include the authority name in the scientificName
+        //This also means we don't have problems with non-ascii characters in authority names, etc.
+        if(isset($this->taxonomy)) return $this->taxonomy;
+        $Taxonavigation = $this->taxonav_as_array("[Tt]axonavigation");
+        $taxonomy = self::fill_includes_recursively($Taxonavigation, $taxonav_include_arrays);
+
+        array_walk($taxonomy, function(&$val, $param) {strip_tags(WikiParser::strip_syntax(trim($val)));});
+
+        // there are often some extra ranks under the Taxonnavigation box - 
+        //  whizz to the end of the first template (assume that's the Taxonavigation one) and have a look
+        if (preg_match("/(\{\{.*?\}\})(.*)/ums", $this->active_wikitext(), $arr)) {
+            list($firstTemplate, $rest) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
+            if(preg_match("/^\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/uims", $rest, $arr))
+            {
+                $entries = explode("\n", $arr[2]);
+                foreach($entries as $entry)
+                {
+                    if(preg_match("/^\*?(genus|species):(.*)/uims", trim($entry), $arr))
+                    {
+                        $rank = strtolower($arr[1]);
+
+                        if (!isset($taxonomy[$rank])) {
+                            //usually the name is in italics, followed by the authority. If we spot this, just take the name.
+                            //avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
+                            $name = preg_replace("/^(.*)<\/i>.*/u", "$1", WikiParser::strip_syntax($arr[2], TRUE));
+                            $taxonomy[$rank] = preg_replace("/\s+/u", " ", trim(strip_tags($name)));
+                        }
+                    }
+                }                
+            }
+        }
+
+        $this->taxonomy = $taxonomy;
+        return $taxonomy;
+    }
+
+    public function taxon_parameters($taxonav_include_arrays=null)
     {
         static $wiki_to_EoL = array("regnum"=>"kingdom", "phylum"=>"phylum", "classis"=>"class", "ordo"=>"order", "familia"=>"family", "genus"=>"genus", "species"=>"scientificName");
-
         if(isset($this->taxon_parameters)) return $this->taxon_parameters;
-        $taxonomy = $this->taxonomy();
+        if (empty($taxonav_include_arrays))
+        {
+            $taxonomy = $this->taxonomy_via_API();
+        } else {
+            $taxonomy = $this->taxonomy_via_wikitext($taxonav_include_arrays);
+        }
+
         if(!$taxonomy) return array();
 
         $taxon_parameters = array(); 
@@ -638,6 +701,42 @@ class WikimediaPage
     public function contains_template($template)
     {
         return (preg_match("/\{\{".$template."\s*[\|\}]/u", $this->active_wikitext()));
+    }
+
+    public function taxonav_as_array($template_name, $strip_syntax=true)
+    {   // A special format for Taxonavigations, where e.g. param[1] is "Cladus" and param[2] is "magnoliids"
+        // Place param[1] as the key, and param[2] as the value of the returned array, so that e.g. 
+        // Taxonavigation|Cladus|magnoliids|Ordo|Laurales becomes [0=>Taxonavigation, Cladus=>magnoliids, Ordo=>Laurales]
+        //
+        // Take care when ussing, as $template_name is allowed to be a RegExp.
+        $plain_array = WikiParser::template_as_array($this->active_wikitext(), $template_name);
+        $tnav_array  = array();
+
+        foreach($plain_array as $param => $value) {
+            $value = trim($value);
+            if (is_int($param)) //numerical array elements get reassigned.
+            {
+                if ($param % 2) //$param = 1,3,5
+                { 
+                    if ($value != "") {
+                        if (isset($plain_array[$param+1]))
+                        {
+                            if ($strip_syntax)
+                            {
+                                $tnav_array[lcfirst($value)]=WikiParser::strip_syntax($plain_array[$param+1]);
+                            } else {
+                                $tnav_array[lcfirst($value)]=$plain_array[$param+1];
+                            }
+                        } else {
+                           print "Note: there don't seem to be the right number of parameters in $template_name within http://commons.wikimedia.org/wiki/".$this->title."\n";
+                        }
+                    }
+                }
+            } else {
+                $tnav_array[$param] = $value;
+            }
+        }
+        return $tnav_array;
     }
 
     public static $max_titles_per_lookup = 50; //see see http://commons.wikimedia.org/w/api.php    

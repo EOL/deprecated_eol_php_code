@@ -31,13 +31,17 @@ shell_exec("split -a ".$part_file_suffix_chars." -b 300m ". $base_directory_path
 
 // preparing global variables
 $GLOBALS['taxa'] = array();
+$GLOBALS['taxonav_includes'] = array();
 $GLOBALS['taxonomic_categories'] = array();
 $GLOBALS['taxonomic_galleries']  = array();
 $GLOBALS['gallery_files'] = array();
 $n_media_files = $n_pages = 0;
 
 
-// first pass through all files to grab taxon information and determine scientific images
+// FIRST PASS: go through all files to grab TaxonavigationIncluded files, e.g. https://commons.wikimedia.org/wiki/Template:Aves
+iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_taxonav_includes');
+
+// INTERMEDIATE PASS: grab taxon information and determine scientific images
 iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_taxonomic_pages');
 
 $galleries_with_files = count(array_unique($GLOBALS['gallery_files']));
@@ -115,6 +119,36 @@ function process_file($filename, $callback, &$left_overs="", $title = false)
 
     $left_overs = $current_page;
     return TRUE;
+}
+
+function get_taxonav_includes($xml)
+{
+    static $pages=0;
+    if (\WikimediaPage::fast_is_template($xml))
+    {
+        if ($text_start = strpos($xml, "<text")) //make sure we don't include cases with {{Template in the comments field, etc.
+        {
+            if(preg_match("/\{\{Taxonavigation/", $xml, $arr, 0, $text_start)) //also catches TaxonavigationIncluded etc.
+            {
+                $page = new \WikimediaPage($xml);
+                if ($page->contains_template("TaxonavigationIncluded[\w\s]*")) {
+                    $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
+                    if (count($include_array)) 
+                    {
+                        $GLOBALS['taxonav_includes'][$page->title]=$include_array;
+                    } else {
+                        echo $page->title."is not a real TaxonavigationInclude* template\n";
+                    }
+                }
+                            }
+        }
+    }
+    $pages++;
+    if($pages % 100000 == 0)
+    {
+        echo "Page: $pages (preliminary pass). # TaxonavigationIncluded files so far: ".count($GLOBALS['taxonav_includes']).". Memory ".(memory_get_usage()/1024/1024)." Mb\n";
+        flush();
+    }
 }
 
 function get_taxonomic_pages($xml)
