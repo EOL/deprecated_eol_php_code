@@ -174,7 +174,7 @@ function get_taxonomic_pages($xml)
                         }
                     }
                 } else {
-                    if($params = $page->taxon_parameters($GLOBALS['taxonav_includes'])
+                    if($params = $page->taxon_parameters($GLOBALS['taxonav_includes'])) //pass in "taxonav_includes" to avoid lots of API calls
                     {
                         if(@$params['scientificName']) {
                             $GLOBALS['taxa'][$page->title] = $params;
@@ -333,7 +333,8 @@ function batch_process($page=null)
         }
 
         $taxon_data = $GLOBALS['taxa'][$best_taxonomy];
-        add_to_resource_file($taxon_data, $page->get_data_object_parameters());
+        $data_object_parameters = $page->get_data_object_parameters();
+        add_to_resource_file($taxon_data, $data_object_parameters);
     };
 
     $batch_size=count($batch);
