@@ -125,6 +125,7 @@ class MediaResource extends DarwinCoreExtensionBase
             strtolower($v) != 'http://creativecommons.org/publicdomain/zero/1.0/' &&
             strtolower($v) != 'http://www.flickr.com/commons/usage/' &&
             strtolower($v) != 'no known copyright restrictions' &&
+            strtolower($v) != 'public domain' &&
             strtolower($v) != 'not applicable')
         {
             return false;
