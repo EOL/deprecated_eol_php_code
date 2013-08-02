@@ -834,7 +834,7 @@ class WikimediaPage
         // Work on an array of pages, querying the Mediawiki API about them.
         // If the page is missing or invalid (e.g. has been deleted), then remove it from the array.
         
-        //see http://commons.wikimedia.org/w/api.php         
+        //see http://commons.wikimedia.org/w/api.php
         static $base_url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cmediatype&clprop=hidden&cllimit=500&redirects";
         //N.B. the maximum cllimit=500 parameter means that we might potentially miss a few categories
         //if, during a request for 50 pages, the average number of categories per page is >10.
