@@ -834,10 +834,15 @@ class WikimediaPage
         // Work on an array of pages, querying the Mediawiki API about them.
         // If the page is missing or invalid (e.g. has been deleted), then remove it from the array.
         
-        //see http://commons.wikimedia.org/w/api.php
+        //see http://commons.wikimedia.org/w/api.php         
         static $base_url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cmediatype&clprop=hidden&cllimit=500&redirects";
-        
-       
+        //N.B. the maximum cllimit=500 parameter means that we might potentially miss a few categories
+        //if, during a request for 50 pages, the average number of categories per page is >10.
+        //This is somewhat unlikely: the mean number of categories per page is typically about 7, and the median 5.
+        //Back-of-the envelope estimates show that if the number of categories per page is randomly allocated, we
+        //exceed a total of 500 categories approximately 5 times per million requests. We expect to make approx 
+        // 500,000/50 = 10000 requests in the commons dump as of July 2013, so cllimit=500 should cause few problems.
+
         $json_data = self::call_API($base_url, array_map(function($p) { return $p->title; }, $array_of_pages));
         foreach($array_of_pages as $index => &$page) {
             if (!isset($json_data[$page->title])) {
