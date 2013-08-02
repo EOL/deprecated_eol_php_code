@@ -451,7 +451,7 @@ function get_map_categories($base_directory_path)
         echo "Couldn't download new list of map categories. Using old version.\n";
         flush();
         $mapcats = file($base_directory_path."MapCategories.txt", FILE_IGNORE_NEW_LINES);
-        return(array_fill($mapcats, 1));
+        return(array_fill_keys($mapcats, 1));
     }
 }
 

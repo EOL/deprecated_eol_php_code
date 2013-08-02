@@ -844,7 +844,8 @@ class WikimediaPage
         //exceed a total of 500 categories approximately 5 times per million requests. We expect to make approx 
         // 500,000/50 = 10000 requests in the commons dump as of July 2013, so cllimit=500 should cause few problems.
 
-        $json_data = self::call_API($base_url, array_map(function($p) { return $p->title; }, $array_of_pages));
+        $titles = array_map(function($page) { return $page->title; }, $array_of_pages);
+        $json_data = self::call_API($base_url, $titles);
         foreach($array_of_pages as $index => &$page) {
             if (!isset($json_data[$page->title])) {
                 unset($array_of_pages[$index]);
@@ -860,21 +861,24 @@ class WikimediaPage
                         $page->set_mediaURL($obj->imageinfo[0]->url);
                     } else {
                         $page->set_mediaURL("");
-                        echo "That's odd. No URL returned in API query for ".$title." ($url)\n"; 
+                        echo "That's odd. No URL returned in API query for ".$page->title;
+                        echo " (among titles=".urlencode(implode("|", $titles)).")\n";
                     }
                     //mime
                     if (isset($obj->imageinfo[0]->mime))
                     {
                         $page->set_mimeType($obj->imageinfo[0]->mime);
                     } else {
-                        echo "That's odd. No mimeType returned in API query for ".$title." ($url)\n"; 
+                        echo "That's odd. No mimeType returned in API query for ".$page->title;
+                        echo " (among titles=".urlencode(implode("|", $titles)).")\n";
                     }
                     //mediatype
                     if (isset($obj->imageinfo[0]->mediatype))
                     {
                         $page->set_mediatype($obj->imageinfo[0]->mediatype);
                     } else {
-                        echo "That's odd. No mediatype returned in API query for ".$title." ($url)\n"; 
+                        echo "That's odd. No mediatype returned in API query for ".$page->title; 
+                        echo " (among titles=".urlencode(implode("|", $titles)).")\n";
                     }
                 }
                 
@@ -885,11 +889,12 @@ class WikimediaPage
                             $page->add_category(substr($cat->title, 9));
                         } else {
                             $page->add_category($cat->title);
-                            echo "That's odd. The category ".$cat->title." doesn't start with 'Category:'.\n";
+                            echo "That's odd. The category ".$cat->title." doesn't start with 'Category:' in API query for ".$page->title.".\n";
                         }
                     }
                 } else {
-                    echo "That's odd. No categories returned in API query for ".$title." ($url)\n";
+                    echo "That's odd. No categories returned in API query for ".$page->title;
+                    echo " (among titles=".urlencode(implode("|", $titles)).")\n";
                 }
             }
         }
