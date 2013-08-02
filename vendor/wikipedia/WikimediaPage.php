@@ -133,7 +133,8 @@ class WikimediaPage
                     self::fill_includes_recursively($include_arrays[$include], $include_arrays, $visited);
                     $arr = array_merge($include_arrays[$include], $arr);
                 } else {
-                    print "Found a non-existent Taxonav include value: '$include' within ".implode(":",$arr)."\n";
+                    echo "Found a non-existent Taxonav include value: '$include' within ".implode(":",$arr)."\n";
+                    flush();
                 }
                 unset($arr['include']);
             }
@@ -251,7 +252,7 @@ class WikimediaPage
                 $name = $taxonomy[$wiki];
                 if (!php_active_record\Functions::is_utf8($name) || preg_match("/\{|\}/u", $name))
                 {
-                    print "Invalid characters in taxonomy fields ($wiki = $name) for $this->title. Ignoring this level.\n";
+                    echo "Invalid characters in taxonomy fields ($wiki = $name) for $this->title. Ignoring this level.\n";
                 } else {
                     if (($wiki=="species") && !preg_match("/\s+/", $name)) //no space in spp name, could be just the epithet
                     {
@@ -731,7 +732,7 @@ class WikimediaPage
                                 $tnav_array[lcfirst($value)]=$plain_array[$param+1];
                             }
                         } else {
-                           print "Note: there don't seem to be the right number of parameters in $template_name within http://commons.wikimedia.org/wiki/".$this->title."\n";
+                           echo "Note: there don't seem to be the right number of parameters in $template_name within http://commons.wikimedia.org/wiki/".$this->title."\n";
                         }
                     }
                 }
