@@ -35,6 +35,7 @@ $GLOBALS['taxonav_includes'] = array();
 $GLOBALS['taxonomic_categories'] = array();
 $GLOBALS['taxonomic_galleries']  = array();
 $GLOBALS['gallery_files'] = array();
+$GLOBALS['map_categories'] = get_map_categories($base_directory_path);
 $n_media_files = $n_pages = 0;
 
 
@@ -142,7 +143,7 @@ function get_taxonav_includes($xml)
                         echo $page->title."is not a real TaxonavigationInclude* template\n";
                     }
                 }
-                            }
+            }
         }
     }
     $pages++;
@@ -293,6 +294,7 @@ function batch_process($page=null)
             }
         } else {
             $potential_license_categories = "";
+            $map=FALSE;        
             foreach($page->categories as $cat) 
             {
                 if (isset($GLOBALS['taxonomic_categories']["Category:$cat"])) {
@@ -310,9 +312,16 @@ function batch_process($page=null)
                         $best_taxonomy = $fullcat;
                         $best_taxonomy_score = $GLOBALS['taxonomic_categories'][$fullcat];
                     }
+                } elseif (isset($GLOBALS['map_categories'][$cat]))
+                {
+                    $map=TRUE;
                 } else {
                     $potential_license_categories .= $cat."\n";
                 }
+            }
+            
+            if ($map) {
+                $page->set_additionalInformation("<subtype>Map</subtype>");
             }
             
             if ($license = \WikimediaPage::match_license($potential_license_categories, TRUE)) {
@@ -382,6 +391,67 @@ function check_remaining_gallery_files() {
             }
         }
         flush();
+    }
+}
+
+function get_map_categories($base_directory_path)
+{
+    //Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
+    //but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
+    //(using an old version should be no problem, as we don't expect many changes to this category structure)
+
+    $base_category= "Distributional maps of organisms";
+    $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
+                    "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
+    
+    $mapcats = array($base_category => 1);
+    
+    if (count($mapcats) <= 1) {
+        $url = $sites["toolserver"].urlencode($base_category);
+        $tab_separated_string = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME*10, DOWNLOAD_TIMEOUT_SECONDS*10);
+
+        if (isset($tab_separated_string) && !preg_match("/^[^\r\n]*Database Error/i",$tab_separated_string))
+        {
+            foreach(preg_split("/(\r?\n)|(\n?\r)/", $tab_separated_string, null, PREG_SPLIT_NO_EMPTY) as $line)
+            {
+                $name = preg_replace("/_/u", " ", preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line)); //Category name is after first tab
+                $mapcats[$name] = 1;
+            }
+            echo "Got map categories from toolserver ($url)\n";
+            flush();
+        } else {
+            echo "Couldn't get map categories from toolserver ($url)\n";
+            flush();
+        }
+    }
+
+    if (count($mapcats) <= 1) {
+        $url = $sites["wmflabs"].urlencode($base_category);
+        @($json = json_decode(Functions::get_remote_file($url)));
+        
+        if (isset($json) && isset($json->pages))
+        {
+            foreach($json->pages as $mapcat) {
+                $name = preg_replace("/_/u", " ", preg_replace("/^Category:/u", "", $mapcat));
+                $mapcats[$name] = 1;
+            }
+            echo "Got map categories from wmflabs ($url)\n";
+            flush();
+        } else {
+            echo "Couldn't get map categories from wmflabs ($url)\n";
+            flush();
+        }
+    }
+
+    if (count($mapcats) > 1) {
+        @rename($base_directory_path."MapCategories.txt", $base_directory_path."MapCategories_previous.txt"); //overwrite previous
+        file_put_contents($base_directory_path."MapCategories.txt", implode("\n",array_keys($mapcats)));
+        return $mapcats;
+    } else {
+        echo "Couldn't download new list of map categories. Using old version.\n";
+        flush();
+        $mapcats = file($base_directory_path."MapCategories.txt", FILE_IGNORE_NEW_LINES);
+        return(array_fill($mapcats, 1));
     }
 }
 
