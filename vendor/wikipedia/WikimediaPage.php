@@ -712,7 +712,7 @@ class WikimediaPage
         // Place param[1] as the key, and param[2] as the value of the returned array, so that e.g. 
         // Taxonavigation|Cladus|magnoliids|Ordo|Laurales becomes [0=>Taxonavigation, Cladus=>magnoliids, Ordo=>Laurales]
         //
-        // Take care when ussing, as $template_name is allowed to be a RegExp.
+        // Take care when using, as $template_name is allowed to be a RegExp.
         $plain_array = WikiParser::template_as_array($this->active_wikitext(), $template_name);
         $tnav_array  = array();
 
@@ -750,7 +750,7 @@ class WikimediaPage
         $real_titles = array_combine($titles, $titles);
         $results = array();
         //be polite to Commons, see http://meta.wikimedia.org/wiki/User-Agent_policy
-        static $user_agent = false; //'EoLHarvestingCode/1.0 (https://github.com/EOL; XXX@eol.org) '; 
+        static $user_agent = false; // *** Should be something like 'EoLHarvestingCode/1.0 (https://github.com/EOL; XXX@eol.org) '; 
  
         if (count($titles) > self::$max_titles_per_lookup)
         {
@@ -775,9 +775,9 @@ class WikimediaPage
             }
         }
         if(isset($json->query->redirects))
-        {  //all redirected pages in galleries should have been caught in the XML dump
-           //here we should only have pages which have changed since the dump was produced
-           //Note that we do not yet catch pages that refer to redirected categories 
+        {  //All redirected pages in galleries should have been caught in the XML dump.
+           //Here we should only have pages which have changed since the dump was produced.
+           //Note that we do not yet catch pages that refer to redirected categories.
             foreach($json->query->redirects as $obj)
             {
                 $from = (string) $obj->from;
