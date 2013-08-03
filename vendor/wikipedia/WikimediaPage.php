@@ -744,8 +744,9 @@ class WikimediaPage
     }
 
     public static $max_titles_per_lookup = 50; //see see http://commons.wikimedia.org/w/api.php    
+    public static $max_categories_per_lookup = 500; //see see http://commons.wikimedia.org/w/api.php    
 
-    public static function call_API($url, $titles) {
+    public static function call_API(&$url, $titles) {
         //return an array with $title => json_result
         $real_titles = array_combine($titles, $titles);
         $results = array();
@@ -761,72 +762,88 @@ class WikimediaPage
         }
  
         $url .= "&titles=".urlencode(implode("|", $titles));
-        $result = php_active_record\Functions::get_remote_file_fake_browser($url, 5000000, DOWNLOAD_TIMEOUT_SECONDS, 3, $user_agent, "gzip,deflate");
+        $continue="&continue=";
+        while(!empty($continue)) {
+            $result = php_active_record\Functions::get_remote_file_fake_browser($url.$continue, 5000000, DOWNLOAD_TIMEOUT_SECONDS, 3, $user_agent, "gzip,deflate");
     
-        $json = json_decode($result);
-        if(isset($json->query->normalized))
-        {
-            foreach($json->query->normalized as $obj)
+            $json = json_decode($result, TRUE); //return as an associative array
+            $query = $json['query'];
+            if(isset($query['normalized']))
             {
-                $from = (string) $obj->from;
-                $to = (string) $obj->to;
-                echo "Possible error: page title '$from' should really be '$to'. This may cause problems later.\n";
-                $real_titles[$to] = $from;
+                foreach($query['normalized'] as $norm)
+                {
+                    $from = (string) $norm['from'];
+                    $to = (string) $norm['to'];
+                    echo "Possible error: page title '$from' should really be '$to'. This may cause problems later.\n";
+                    $real_titles[$to] = $from;
+                }
             }
-        }
-        if(isset($json->query->redirects))
-        {  //All redirected pages in galleries should have been caught in the XML dump.
-           //Here we should only have pages which have changed since the dump was produced.
-           //Note that we do not yet catch pages that refer to redirected categories.
-            foreach($json->query->redirects as $obj)
-            {
-                $from = (string) $obj->from;
-                $to = (string) $obj->to;
-                echo "Page $from has been redirected to $to, but doesn't seem to be redirected in the XML dump";
-                echo "(has it changed since the dump?). Using Wikitext from old version, but url, categories, etc. from new.\n";
-                $real_titles[$to] = $from;
+            if(isset($query['redirects']))
+            {  //All redirected pages in galleries should have been caught in the XML dump.
+               //Here we should only have pages which have changed since the dump was produced.
+               //Note that we do not yet catch pages that refer to redirected categories.
+                foreach($query['redirects'] as $redir)
+                {
+                    $from = (string) $redir['from'];
+                    $to = (string) $redir['to'];
+                    echo "Page $from has been redirected to $to, but doesn't seem to be redirected in the XML dump";
+                    echo "(has it changed since the dump?). Using Wikitext from old version, but url, categories, etc. from new.\n";
+                    $real_titles[$to] = $from;
+                }
             }
-        }
 
-        if(!isset($json->query->pages))
-        {
-            echo "\nERROR: couldn't get JSON API query from $url\n";         
-        } else {
-            foreach($json->query->pages as $obj)
+            if(!isset($query['pages']))
             {
-                if (empty($obj->title)) {
-                    if (isset($obj->pageid)) {
-                        echo "ERROR: empty title when querying API - pageId =".((string) $obj->pageid)."($url)\n";
-                    } else {
-                    /* odd "feature" of mediawiki API: when you get a redirect, not only does it return info on the 
-                       new page to which the redirect points, but also an empty page ( JSON = {"imagerepository":""} )
-                       corresponding to the original, old page. We can safely ignore these empty results */
+                echo "\nERROR: couldn't get JSON API query from $url\n";         
+            } else {
+                foreach($query['pages'] as $page)
+                {
+                    if (empty($page['title'])) {
+                        if (isset($page['pageid'])) {
+                            echo "ERROR: empty title when querying API - pageId =".((string) $page['pageid'])."($url)\n";
+                        } else {
+                        /* odd "feature" of mediawiki API: when you get a redirect, not only does it return info on the 
+                           new page to which the redirect points, but also an empty page ( JSON = {"imagerepository":""} )
+                           corresponding to the original, old page. We can safely ignore these empty results */
+                        }
+                        continue;
                     }
-                    continue;
-                }
+ 
+                    $title = (string) $page['title'];
+                                    
+                    if (!isset($real_titles[$title])) {
+                        echo "ERROR: couldn't find $title when querying API ($url)\n"; 
+                        continue;
+                    }
 
-                $title = (string) $obj->title;
-                                
-                if (!isset($real_titles[$title])) {
-                    echo "ERROR: couldn't find $title when querying API ($url)\n"; 
-                    continue;
-                }
+                   if(array_key_exists("missing",$page)) // see http://www.mediawiki.org/wiki/API:Query#Missing_and_invalid_titles
+                    {
+                        echo "The file $title is missing from Commons. Perhaps it has been deleted? Leaving it out.\n";
+                        continue;
+                    }
 
-                if(property_exists($obj, "missing")) // see http://www.mediawiki.org/wiki/API:Query#Missing_and_invalid_titles
-                {
-                    echo "The file $title is missing from Commons. Perhaps it has been deleted? Leaving it out.\n";
-                    continue;
-                }
-
-                if(property_exists($obj, "invalid")) // see http://www.mediawiki.org/wiki/API:Query#Missing_and_invalid_titles
-                {
-                    echo "The name $title is invalid. Leaving it out.\n";
-                    continue;
-                }
+                    if(array_key_exists("invalid",$page)) // see http://www.mediawiki.org/wiki/API:Query#Missing_and_invalid_titles
+                    {
+                        echo "The name $title is invalid. Leaving it out.\n";
+                        continue;
+                    }
                 
-                $results[$real_titles[$title]] = $obj;
+                    if (isset($results[$real_titles[$title]])) //we've already done one pass
+                    { 
+                        $results[$real_titles[$title]] = array_merge_recursive($results[$real_titles[$title]], $page);
+                    } else {
+                        $results[$real_titles[$title]] = $page;
+                    }
+                }
+            }
+            if (isset($json['continue']))
+            {
+                $continue="&".http_build_query($json['continue'], "", "&");
+            } else {
+                $continue="";
             }
         }
+        
         return $results;   
     }
 
@@ -836,65 +853,55 @@ class WikimediaPage
         // If the page is missing or invalid (e.g. has been deleted), then remove it from the array.
         
         //see http://commons.wikimedia.org/w/api.php
-        static $base_url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cmediatype&clprop=hidden&cllimit=500&redirects";
-        //N.B. the maximum cllimit=500 parameter means that we might potentially miss a few categories
-        //if, during a request for 50 pages, the average number of categories per page is >10.
-        //This is somewhat unlikely: the mean number of categories per page is typically about 7, and the median 5.
-        //Back-of-the envelope estimates show that if the number of categories per page is randomly allocated, we
-        //exceed a total of 500 categories approximately 5 times per million requests. We expect to make approx 
-        // 500,000/50 = 10000 requests in the commons dump as of July 2013, so cllimit=500 should cause few problems.
+        $url = 'http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cmediatype&clprop=hidden&cllimit='.self::$max_categories_per_lookup.'&redirects';
 
         $titles = array_map(function($page) { return $page->title; }, $array_of_pages);
-        $json_data = self::call_API($base_url, $titles);
+        $json_array = self::call_API($url, $titles);
         foreach($array_of_pages as $index => &$page) {
-            if (!isset($json_data[$page->title])) {
+            if (!isset($json_array[$page->title])) {
                 unset($array_of_pages[$index]);
             } else {
-                $obj = $json_data[$page->title];
+                $json_info = $json_array[$page->title];
                 $page->initialize_data_object();
 
                 //set URL, mimetype, mediatype
-                if (isset($obj->imageinfo) && isset($obj->imageinfo[0])) {
+                if (isset($json_info['imageinfo']) && isset($json_info['imageinfo'][0])) {
                     //URL
-                    if (isset($obj->imageinfo[0]->url))
+                    if (isset($json_info['imageinfo'][0]['url']))
                     {
-                        $page->set_mediaURL($obj->imageinfo[0]->url);
+                        $page->set_mediaURL($json_info['imageinfo'][0]['url']);
                     } else {
                         $page->set_mediaURL("");
-                        echo "That's odd. No URL returned in API query for ".$page->title;
-                        echo " (among titles=".urlencode(implode("|", $titles)).")\n";
+                        echo "That's odd. No URL returned in API query for ".$page->title." (in $url)\n";
                     }
                     //mime
-                    if (isset($obj->imageinfo[0]->mime))
+                    if (isset($json_info['imageinfo'][0]['mime']))
                     {
-                        $page->set_mimeType($obj->imageinfo[0]->mime);
+                        $page->set_mimeType($json_info['imageinfo'][0]['mime']);
                     } else {
-                        echo "That's odd. No mimeType returned in API query for ".$page->title;
-                        echo " (among titles=".urlencode(implode("|", $titles)).")\n";
+                        echo "That's odd. No mimeType returned in API query for ".$page->title." (in $url)\n";
                     }
                     //mediatype
-                    if (isset($obj->imageinfo[0]->mediatype))
+                    if (isset($json_info['imageinfo'][0]['mediatype']))
                     {
-                        $page->set_mediatype($obj->imageinfo[0]->mediatype);
+                        $page->set_mediatype($json_info['imageinfo'][0]['mediatype']);
                     } else {
-                        echo "That's odd. No mediatype returned in API query for ".$page->title; 
-                        echo " (among titles=".urlencode(implode("|", $titles)).")\n";
+                        echo "That's odd. No mediatype returned in API query for ".$page->title." (in $url)\n"; 
                     }
                 }
                 
                 //fill in categories - this will allow us to check taxonomy, license, & map-type later
-                if (isset($obj->categories)) {
-                    foreach($obj->categories as $cat) {
-                        if(strpos($cat->title, "Category:") === 0) {
-                            $page->add_category(substr($cat->title, 9));
+                if (isset($json_info['categories'])) {
+                    foreach($json_info['categories'] as $cat) {
+                        if(strpos($cat['title'], "Category:") === 0) {
+                            $page->add_category(substr($cat['title'], 9));
                         } else {
-                            $page->add_category($cat->title);
-                            echo "That's odd. The category ".$cat->title." doesn't start with 'Category:' in API query for ".$page->title.".\n";
+                            $page->add_category($cat['title']);
+                            echo "That's odd. The category ".$cat['title']." doesn't start with 'Category:' in API query for ".$page->title.".\n";
                         }
                     }
                 } else {
-                    echo "That's odd. No categories returned in API query for ".$page->title;
-                    echo " (among titles=".urlencode(implode("|", $titles)).")\n";
+                    echo "That's odd. No categories returned in API query for ".$page->title." (in $url)\n";
                 }
             }
         }
@@ -902,8 +909,8 @@ class WikimediaPage
 
     public static function check_page_titles($array_of_titles)
     {
-        static $base_url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&redirects";
-        return self::call_API($base_url, $array_of_titles);
+        $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&redirects";
+        return self::call_API($url, $array_of_titles);
     }
     
     public static function convert_diacritics($string)

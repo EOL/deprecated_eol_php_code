@@ -287,7 +287,7 @@ function batch_process($page=null)
         if (!isset($page->categories) || (count($page->categories)==0)) {
             echo "ERROR. This shouldn't happen.";
             if (!isset($page->categories)) 
-            {    
+            {
                 echo " Categories do not even exist for ".$page->title." (have you failed to connect to the Wikimedia API?)\n";
             } else {
                 echo " No categories at all for ".$page->title."\n";
@@ -394,7 +394,7 @@ function check_remaining_gallery_files() {
     }
 }
 
-function get_map_categories($base_directory_path)
+function get_map_categories($base_directory_path, $contact_sites=TRUE)
 {
     //Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
     //but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
@@ -406,7 +406,7 @@ function get_map_categories($base_directory_path)
     
     $mapcats = array($base_category => 1);
     
-    if (count($mapcats) <= 1) {
+    if (count($mapcats) <= 1 && $contact_sites) {
         $url = $sites["toolserver"].urlencode($base_category);
         $tab_separated_string = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME*10, DOWNLOAD_TIMEOUT_SECONDS*10);
 
@@ -425,7 +425,7 @@ function get_map_categories($base_directory_path)
         }
     }
 
-    if (count($mapcats) <= 1) {
+    if (count($mapcats) <= 1 && $contact_sites) {
         $url = $sites["wmflabs"].urlencode($base_category);
         @($json = json_decode(Functions::get_remote_file($url)));
         
@@ -448,7 +448,7 @@ function get_map_categories($base_directory_path)
         file_put_contents($base_directory_path."MapCategories.txt", implode("\n",array_keys($mapcats)));
         return $mapcats;
     } else {
-        echo "Couldn't download new list of map categories. Using old version.\n";
+        echo "Didn't download new list of map categories: using old version.\n";
         flush();
         $mapcats = file($base_directory_path."MapCategories.txt", FILE_IGNORE_NEW_LINES);
         return(array_fill_keys($mapcats, 1));
