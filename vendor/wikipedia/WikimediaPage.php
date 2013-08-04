@@ -314,7 +314,7 @@ class WikimediaPage
             return("http://creativecommons.org/licenses/publicdomain/");
         }
         // cc-zero
-        if(preg_match("/^CC-Zero/imu", $val))
+        if(preg_match("/^CC-Zero/mu".$flag, $val))
         {
             return("http://creativecommons.org/publicdomain/zero/1.0/");
         }
@@ -477,7 +477,7 @@ class WikimediaPage
     }
 
     public function set_additionalInformation($text)
-    {   // NB not all media pages will be associated with a gallery
+    {
         if (isset($this->data_object_parameters['additionalInformation'])) 
         {
             $this->data_object_parameters['additionalInformation'] .= $text;
@@ -486,13 +486,37 @@ class WikimediaPage
         }
     }
 
-    public function add_category($category)
+    public function get_categories($added_categories_only=FALSE)
     {
-        $this->categories[] = $category;
+        if (!property_exists($this,'categories_from_wikitext'))
+        {
+            $this->categories_from_wikitext = array();
+            if (preg_match_all('/\[\[\s*[Cc]ategory:\s*(.*?)\s*(?:\]\]|\|)/uS',$this->active_wikitext(), $matches))
+            {
+                $this->categories_from_wikitext = $matches[1];
+            }
+        }
+
+        if (!property_exists($this,'added_categories'))
+        {
+            $this->added_categories = array();
+        }
+
+        if ($added_categories_only)
+        {
+            return($this->added_categories);
+        } else {
+            return($this->categories_from_wikitext + $this->added_categories);
+        }
+    }
+
+    public function add_extra_category($category)
+    {
+        $this->added_categories[] = $category;
     }
 
     public function set_gallery($galleryname)
-    {   // NB not all media pages will be associated with a gallery
+    {
         $this->gallery = $galleryname;
     }
 
@@ -690,18 +714,6 @@ class WikimediaPage
         return $media;
     }
 
-    public function quick_categories() //parse the wikitext for categories - can be loose as we will recheck hits later
-    {
-        if(isset($this->categories)) return $this->categories;
-        
-        $this->categories = array();
-        if (preg_match_all('/\[\[\s*[Cc]ategory:\s*(.*?)\s*(?:\]\]|\|)/uS',$this->active_wikitext(), $matches))
-        {
-            $this->categories = $matches[1];
-        }
-        return $this->categories;
-    }
-
     public function contains_template($template)
     {
         return (preg_match("/\{\{".$template."\s*[\|\}]/u", $this->active_wikitext()));
@@ -894,9 +906,9 @@ class WikimediaPage
                 if (isset($json_info['categories'])) {
                     foreach($json_info['categories'] as $cat) {
                         if(strpos($cat['title'], "Category:") === 0) {
-                            $page->add_category(substr($cat['title'], 9));
+                            $page->add_extra_category(substr($cat['title'], 9));
                         } else {
-                            $page->add_category($cat['title']);
+                            $page->add_extra_category($cat['title']);
                             echo "That's odd. The category ".$cat['title']." doesn't start with 'Category:' in API query for ".$page->title.".\n";
                         }
                     }

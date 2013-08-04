@@ -223,7 +223,7 @@ function get_media_pages($xml)
             if (isset($page->redirect)) {
                 //we won't catch redirects to pages earlier in the XML dump. Let's just hope those
                 //have been picked up when scanning for categories. We'll check this later
-                echo "Page '".$page->title."' listed in gallery ".$GLOBALS['gallery_files'][$page->title]."has been redirected. Now looking for '".$page->redirect."' instead\n";
+                echo "Page '".$page->title."' listed in gallery ".$GLOBALS['gallery_files'][$page->title]." has been redirected. Now looking for '".$page->redirect."' instead.\n";
                 flush();
                 $GLOBALS['gallery_files'][$page->redirect] = $GLOBALS['gallery_files'][$page->title];
             } else {
@@ -234,7 +234,7 @@ function get_media_pages($xml)
         }
 
         //check if the page has an associated "taxonomic category"
-        foreach ($page->quick_categories() as $cat) { //done on every file in the dump: be careful not to trigger off a remote API call
+        foreach ($page->get_categories() as $cat) { //done on every file in the dump: be careful not to trigger off a remote API call
             $cat = "Category:$cat";
             if (isset($GLOBALS['taxonomic_categories'][$cat])) 
             {
@@ -283,19 +283,14 @@ function batch_process($page=null)
             $best_taxonomy = $gallery;
             $best_taxonomy_score = $GLOBALS['taxonomic_galleries'][$best_taxonomy];
         };
-    
-        if (!isset($page->categories) || (count($page->categories)==0)) {
-            echo "ERROR. This shouldn't happen.";
-            if (!isset($page->categories)) 
-            {
-                echo " Categories do not even exist for ".$page->title." (have you failed to connect to the Wikimedia API?)\n";
-            } else {
-                echo " No categories at all for ".$page->title."\n";
-            }
+
+        $categories_from_API = $page->get_categories(TRUE); //only look for categories gleaned from the API (more reliable)
+        if (count($categories_from_API)==0) {
+            echo "ERROR. This shouldn't happen. No categories for ".$page->title." (have you failed to connect to the Wikimedia API?)\n";
         } else {
             $potential_license_categories = "";
             $map=FALSE;        
-            foreach($page->categories as $cat) 
+            foreach($categories_from_API as $cat) 
             {
                 if (isset($GLOBALS['taxonomic_categories']["Category:$cat"])) {
                     $fullcat="Category:$cat";
@@ -329,15 +324,11 @@ function batch_process($page=null)
             }
         }
         if (!$page->has_license()) {
-            echo "No valid license category for ".$page->title;
-            if (isset($page->categories)) echo " (Categories: ".implode("|",$page->categories).")";
-            echo "\n";
+            echo "No valid license category for ".$page->title." (Categories: ".implode("|",$categories_from_API).")\n";
             flush();
         }
         if (empty($best_taxonomy)) {
-            echo "ERROR. This shouldn't happen. No valid taxonomy for ".$page->title;
-            if (isset($page->categories)) echo " (Categories: ".implode("|",$page->categories).")";
-            echo "\n";
+            echo "ERROR. This shouldn't happen. No valid taxonomy for ".$page->title." (Categories: ".implode("|",$categories_from_API).")\n";
             flush();
         }
 
