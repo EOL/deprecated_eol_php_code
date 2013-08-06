@@ -304,61 +304,53 @@ class ContentManager
         return $new_suffix;
     }
 
-    static function large_image_dimensions()
+    static function default_image_dimensions()
     {
-        static $dimensions = array(580, 360);
+        static $dimensions = array('large_image_dimensions'  => array(580, 360),
+                                   'medium_image_dimensions' => array(260, 190),
+                                   'small_image_dimensions'  => array(98, 68));
         return $dimensions;
     }
 
-    static function medium_image_dimensions()
+    static function default_square_dimensions()
     {
-        static $dimensions = array(260, 190);
+        static $dimensions = array('large_square_dimensions' => array(130, 130),
+                                   'small_square_dimensions' => array(88, 88));
         return $dimensions;
     }
 
-    static function small_image_dimensions()
+    function create_content_thumbnails($file, $prefix, $options = null)
     {
-        static $dimensions = array(98, 68);
-        return $dimensions;
-    }
+        $default_scaled_sizes = ContentManager::default_image_dimensions();
+        $default_cropped_sizes = ContentManager::default_square_dimensions();
+        $scaled_sizes = array_merge($default_scaled_sizes, array_intersect_key((array) $options, $default_scaled_sizes));
+        $cropped_sizes = array_merge($default_cropped_sizes, array_intersect_key((array) $options, $default_cropped_sizes));
 
-    static function large_square_dimensions()
-    {
-        static $dimensions = array(130, 130);
-        return $dimensions;
-    }
-
-    static function small_square_dimensions()
-    {
-        static $dimensions = array(88, 88);
-        return $dimensions;
-    }
-
-    function create_content_thumbnails($file, $prefix, $options = array())
-    {
-        $this->reduce_original($file, $prefix);
-        // we make an exception
-        if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
-        {
-            $large_image_dimensions = $options['large_image_dimensions'];
-        }else $large_image_dimensions = ContentManager::large_image_dimensions();
-        $image_path = $this->create_smaller_version($file, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
-        $this->create_smaller_version($image_path, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
-        $this->create_smaller_version($image_path, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
-        if(isset($options['crop_width'])) $image_path = $prefix . '_orig.jpg';
-        $this->create_upper_left_crop($image_path, ContentManager::large_square_dimensions(), $prefix, $options);
-        $this->create_upper_left_crop($image_path, ContentManager::small_square_dimensions(), $prefix, $options);
+        $image_path = $base_jpg_name = $this->reduce_original($file, $prefix, $options);
+        
+        foreach ($default_scaled_sizes as $name => $defaultD) {
+            $scaled_image = $this->create_smaller_version($image_path, $scaled_sizes[$name], $prefix, implode($defaultD, '_'));
+            if ($name=='large_image_dimensions') $image_path = $scaled_image; //use the _large_ version from now on: saves scaling a huge file every time
+        };
+        
+        if(isset($options['crop_width'])) $image_path = $base_jpg_name; //if custom crop, use full-size in case a tiny area is cropped
+        foreach ($default_cropped_sizes as $name => $defaultD) {
+            $this->create_upper_left_crop($image_path, $cropped_sizes[$name], $prefix, implode($defaultD, '_'));
+        };
     }
 
     function create_agent_thumbnails($file, $prefix)
     {
-        $this->create_constrained_square_crop($file, ContentManager::large_square_dimensions(), $prefix);
-        $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
+        foreach (ContentManager::default_square_dimensions() as $dimensions) {        
+            $this->create_constrained_square_crop($file, $dimensions, $prefix);
+        };
     }
 
-    function reduce_original($path, $prefix)
+    function reduce_original($path, $prefix, $options=null)
     {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80";
+        $rotate = "-auto-orient";
+        if (isset($options['rotate'])) $rotate = "-rotate ".intval($options['rotate'])
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten ".$rotate." -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
@@ -366,8 +358,8 @@ class ContentManager
     }
 
     function create_smaller_version($path, $dimensions, $prefix, $suffix)
-    {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
+    {   //don't need to rotate, as this works on already-rotated version
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
         $new_image_path = $prefix ."_". $suffix .".jpg";
         shell_exec($command." ".$new_image_path);
@@ -404,16 +396,16 @@ class ContentManager
 
                 $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 -gravity NorthWest \
                         -crop ".$new_crop_width."x".$new_crop_width."+".$new_x_offset."+".$new_y_offset." +repage \
-                        -resize ".$dimensions[0]."x".$dimensions[0];
+                        -resize ".$dimensions[0]."x".$dimensions[1];
             }
         }else
         {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
-            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
-                            -resize ".$dimensions[0]."x".$dimensions[0]."^ \
-                            -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[0]."+0+0 +repage";
+            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
+                            -resize ".$dimensions[0]."x".$dimensions[1]."^ \
+                            -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[1]."+0+0 +repage";
         }
-        $new_image_path = $prefix ."_". $dimensions[0] ."_". $dimensions[0] .".jpg";
+        $new_image_path = $prefix ."_". $dimensions[0] ."_". $dimensions[1] .".jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
     }
@@ -422,9 +414,9 @@ class ContentManager
     {
         // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
-                        -resize '".$dimensions[0]."x".$dimensions[0]."' -gravity center \
-                        -extent '".$dimensions[0]."x".$dimensions[0]."' +repage";
-        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[0].".jpg";
+                        -resize '".$dimensions[0]."x".$dimensions[1]."' -gravity center \
+                        -extent '".$dimensions[0]."x".$dimensions[1]."' +repage";
+        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[1].".jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
         return $new_image_path;
