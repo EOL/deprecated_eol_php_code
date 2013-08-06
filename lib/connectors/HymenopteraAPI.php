@@ -5,7 +5,6 @@ class HymenopteraAPI
 {
     function __construct($folder)
     {
-        $this->page_to_download_the_spreadsheet = "http://www.birds.cornell.edu/Hymenopterachecklist/downloadable-Hymenoptera-checklist";
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -20,7 +19,7 @@ class HymenopteraAPI
         // $this->zip_path = "http://localhost/~eolit/Hymenoptera_small.zip";
     }
 
-    function get_all_taxa($data_dump_url = FALSE)
+    function get_all_taxa()
     {
         if(self::process_text_files())
         {
