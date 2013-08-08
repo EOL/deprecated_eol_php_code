@@ -328,14 +328,14 @@ function batch_process($page=null)
             flush();
         }
         if (empty($best_taxonomy)) {
-            echo "ERROR. This shouldn't happen. No valid taxonomy for ".$page->title." (Categories: ".implode("|",$categories_from_API).")\n";
+            echo "That's odd: no valid taxonomy for ".$page->title.". Perhaps the categories via the API have changed since the XML dump (dump: ".implode("|",$page->categories_from_wikitext).", API: ".implode("|",$categories_from_API).")\n";
             flush();
+        } else {
+            $taxon_data = $GLOBALS['taxa'][$best_taxonomy];
+            $data_object_parameters = $page->get_data_object_parameters();
+            add_to_resource_file($taxon_data, $data_object_parameters);
         }
-
-        $taxon_data = $GLOBALS['taxa'][$best_taxonomy];
-        $data_object_parameters = $page->get_data_object_parameters();
-        add_to_resource_file($taxon_data, $data_object_parameters);
-    };
+    }
 
     $batch_size=count($batch);
     $batch=array();
