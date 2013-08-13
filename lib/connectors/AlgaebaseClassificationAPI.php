@@ -25,6 +25,7 @@ class AlgaebaseClassificationAPI
         $this->bibliographic_citation = "M.D. Guiry in Guiry, M.D. & Guiry, G.M. " . date("Y") . ". AlgaeBase. World-wide electronic publication, National University of Ireland, Galway. http://www.algaebase.org; searched on " . date("d M Y") . ".";
         $this->not_numeric_id = 0;
         $this->syn_count = 0;
+        $this->no_rank = 0;
     }
 
     function get_all_taxa()
@@ -42,6 +43,7 @@ class AlgaebaseClassificationAPI
         // some stats
         echo "\n count: " . $this->not_numeric_id;
         echo "\n synonyms count: " . $this->syn_count;
+        echo "\n no rank: " . $this->no_rank;
     }
 
     private function assign_name_and_id()
@@ -92,6 +94,8 @@ class AlgaebaseClassificationAPI
                     if($group == "species") $id = "species.id";
                     else                    $id = "genus.id";
                     if($rec[$id] == $id) continue;
+                    $sciname = self::remove_brackets($sciname);
+                    $parent = self::remove_brackets($parent);
                     $this->name_id[$taxon_id]["sciname"] = $sciname;
                     $this->name_id[$taxon_id]["parent"] = $parent;
                 }
@@ -102,6 +106,8 @@ class AlgaebaseClassificationAPI
 
     private function create_taxon($child, $parent, $rank)
     {
+        $child = self::remove_brackets($child);
+        $parent = self::remove_brackets($parent);
         $this->name_id[$child]["sciname"] = $child;
         $this->name_id[$child]["rank"] = $rank;
         $this->name_id[$child]["parent"] = $parent;
@@ -109,8 +115,10 @@ class AlgaebaseClassificationAPI
 
     private function add_higher_level_taxa_to_archive()
     {
+        $exclude = array("kingdom", "phylum", "class", "order", "family", "genus", "species", "subspecies");
         foreach($this->name_id as $taxon_id => $rec)
         {
+            if(in_array($rec["sciname"], $exclude)) continue;
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = (string) $taxon_id;
             $taxon->taxonRank                   = (string) @$rec["rank"];
@@ -119,8 +127,16 @@ class AlgaebaseClassificationAPI
             if(isset($this->taxon_ids[$taxon_id])) continue;
             if(!$taxon->parentNameUsageID && @$rec["rank"] != "kingdom") continue;
             if(is_numeric(stripos($rec["sciname"], "unassigned"))) continue;
-            $this->taxa[$taxon->taxonID] = $taxon;
-            $this->taxon_ids[$taxon->taxonID] = 1;
+            if(!@$rec["rank"]) 
+            {
+                $this->no_rank++;
+                echo "\n no rank: " . $rec["sciname"] . " [$taxon_id]";
+            }
+            else
+            {
+                $this->taxa[$taxon->taxonID] = $taxon;
+                $this->taxon_ids[$taxon->taxonID] = 1;
+            }
         }
     }
 
@@ -220,11 +236,11 @@ class AlgaebaseClassificationAPI
 
             if($rec["species.Accepted_name_serial"] != 0)
             {
-                $synonym_record = array("taxon_id" => $taxon_id,
-                                     "sciname" => $sciname,
-                                     "authorship" => $authorship,
-                                     "rank" => $rank,
-                                     "acceptedNameUsageID" => $rec["species.Accepted_name_serial"]);
+                $synonym_record = array("taxon_id"            => $taxon_id,
+                                        "sciname"             => $sciname,
+                                        "authorship"          => $authorship,
+                                        "rank"                => $rank,
+                                        "acceptedNameUsageID" => $rec["species.Accepted_name_serial"]);
                 self::create_synonym($synonym_record);
                 return;
             }
@@ -272,11 +288,11 @@ class AlgaebaseClassificationAPI
 
             if($rec["genus.Synonym_of_id"] != 0)
             {
-                $synonym_record = array("taxon_id" => $taxon_id,
-                                     "sciname" => $sciname,
-                                     "authorship" => $authorship,
-                                     "rank" => $rank,
-                                     "acceptedNameUsageID" => $rec["genus.Synonym_of_id"]);
+                $synonym_record = array("taxon_id"            => $taxon_id,
+                                        "sciname"             => $sciname,
+                                        "authorship"          => $authorship,
+                                        "rank"                => $rank,
+                                        "acceptedNameUsageID" => $rec["genus.Synonym_of_id"]);
                 self::create_synonym($synonym_record);
                 return;
             }
@@ -288,9 +304,15 @@ class AlgaebaseClassificationAPI
             print_r($rec);
         }
 
+        $sciname = self::remove_brackets($sciname);
+        $authorship = self::remove_brackets($authorship);
+
         if(!$sciname) return;
         if(is_numeric(stripos($sciname, "unassigned"))) return;
         if(!Functions::is_utf8($sciname) || !Functions::is_utf8($authorship)) return;
+        
+        echo "\n sciname: [$sciname]";
+        echo "\n authorship: [$authorship]\n";
         
         $taxon = new \eol_schema\Taxon();
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
@@ -301,7 +323,7 @@ class AlgaebaseClassificationAPI
         $taxon->taxonomicStatus             = (string) $taxonomic_status;
         $taxon->furtherInformationURL       = (string) $source_url;
         $taxon->parentNameUsageID           = $parentNameUsageID;
-        $taxon->taxonRemarks                = $taxon_remarks;
+        // $taxon->taxonRemarks                = $taxon_remarks;
         
         if(!$parentNameUsageID) 
         {
@@ -312,11 +334,21 @@ class AlgaebaseClassificationAPI
         {
             $this->taxa[$taxon->taxonID] = $taxon;
             $this->taxon_ids[$taxon->taxonID] = 1;
+            if(!$rank)
+            {
+                $this->no_rank++;
+                echo "\n no rank2: " . $sciname [$taxon_id];
+            }
         }
         else echo "\n already exists: [$taxon->taxonID]";
         return $taxon_id;
     }
 
+    private function remove_brackets($string)
+    {
+        return trim(preg_replace('/\s*\[[^)]*\]/', '', $string)); //remove brackets []
+    }
+    
     private function get_taxon_id($line, $rank)
     {
         if($rank == "species") $index = 0;
@@ -352,6 +384,8 @@ class AlgaebaseClassificationAPI
             echo "\n investigate 03";
             print_r($rec);
         }
+        $rec["sciname"] = self::remove_brackets($rec["sciname"]);
+        $rec["authorship"] = self::remove_brackets($rec["authorship"]);
         if(!Functions::is_utf8($rec["sciname"]) || !Functions::is_utf8($rec["authorship"])) return;
         $synonym->taxonID                       = (string) $rec["taxon_id"];
         $synonym->scientificName                = (string) $rec["sciname"];
