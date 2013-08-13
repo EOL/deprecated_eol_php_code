@@ -835,6 +835,10 @@ class ArchiveDataIngester
                 {
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/associations/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://eol.org/schema/parentMeasurementID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/measurements/". SparqlClient::to_underscore($value)) ."\n";
                 }elseif($key == "http://eol.org/schema/reference/referenceID")
                 {
                     $reference_ids = self::get_foreign_keys_from_row($row, 'http://eol.org/schema/reference/referenceID');

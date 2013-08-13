@@ -47,7 +47,7 @@ class ObisDataConnector
         if($ntaxa = @$line_data[$this->column_indices['ntaxa']]) $o->individualCount = $ntaxa;
         $this->archive_builder->write_object_to_file($o);
 
-        static $fields_to_ignore = array('id', 'tname', 'tauthor', 'tname_id', 'n', 'ndepth', 'ndate', 'nwoa', 'ntaxa');
+        static $fields_to_ignore = array('id', 'tname', 'tauthor', 'tname_id', 'n', 'ndepth', 'ndate', 'nwoa', 'ntaxa', 'mino2sat', 'maxo2sat', 'minaou', 'maxaou', 'minwoadepth', 'maxwoadepth');
         // static $fields_for_taxon = array('minlat', 'maxlat', 'minlon', 'maxlon', 'mindepth', 'maxdepth');
         static $fields_for_occurrence = array('mindate', 'maxdate');
         foreach($line_data as $index => $value)

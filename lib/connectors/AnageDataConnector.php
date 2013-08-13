@@ -50,6 +50,7 @@ class AnageDataConnector
         $t->phylum = $line_data[$this->column_indices['Phylum']];
         $t->kingdom = $line_data[$this->column_indices['Kingdom']];
         $t->taxonID = md5($t->scientificName . $t->family . $t->order . $t->class . $t->phylum . $t->kingdom);
+        $t->source = "http://genomics.senescence.info/species/entry.php?species=". str_replace(" ", "_", $t->scientificName);
         $this->archive_builder->write_object_to_file($t);
 
         if($v = $line_data[$this->column_indices['Common name']])
@@ -68,23 +69,23 @@ class AnageDataConnector
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = md5($taxon->taxonID . "occurrence");
         $o->taxonID = $taxon->taxonID;
-        if($establishment_means = $line_data[$this->column_indices['Specimen origin']]) $o->establishmentMeans = $establishment_means;
+        if($establishment_means = $line_data[$this->column_indices['Specimen origin']]) $o->establishmentMeans = "http://genomics.senescence.info/terms/". $establishment_means;
         $this->archive_builder->write_object_to_file($o);
 
         if($sample_size = $line_data[$this->column_indices['Sample size']])
         {
             $m = new \eol_schema\MeasurementOrFact();
             $m->occurrenceID = $o->occurrenceID;
-            $m->measurementType = "http://anage.org/sample_size";
-            $m->measurementValue = "http://anage.org/". SparqlClient::to_underscore($sample_size);
+            $m->measurementType = "http://genomics.senescence.info/terms/sample_size";
+            $m->measurementValue = "http://genomics.senescence.info/terms/". SparqlClient::to_underscore($sample_size);
             $this->archive_builder->write_object_to_file($m);
         }
         if($data_quality = $line_data[$this->column_indices['Data quality']])
         {
             $m = new \eol_schema\MeasurementOrFact();
             $m->occurrenceID = $o->occurrenceID;
-            $m->measurementType = "http://anage.org/data_quality";
-            $m->measurementValue = "http://anage.org/". SparqlClient::to_underscore($data_quality);
+            $m->measurementType = "http://genomics.senescence.info/terms/data_quality";
+            $m->measurementValue = "http://genomics.senescence.info/terms/". SparqlClient::to_underscore($data_quality);
             $this->archive_builder->write_object_to_file($m);
         }
         return $o;
@@ -105,14 +106,15 @@ class AnageDataConnector
                 if(preg_match("/^(.*) \((.+)\)$/", $label, $arr))
                 {
                     $this_label = $arr[1];
-                    $unit_of_measure = "http://anage.org/". SparqlClient::to_underscore(str_replace("/", "_", $arr[2]));
+                    $unit_of_measure = "http://genomics.senescence.info/terms/". SparqlClient::to_underscore(str_replace("/", "_", $arr[2]));
                 }
                 $m = new \eol_schema\MeasurementOrFact();
                 $m->occurrenceID = $occurrence->occurrenceID;
                 $m->measurementOfTaxon = 'true';
-                $m->measurementType = "http://anage.org/". SparqlClient::to_underscore($this_label);
+                $m->measurementType = "http://genomics.senescence.info/terms/". SparqlClient::to_underscore($this_label);
                 $m->measurementValue = $v;
                 $m->measurementUnit = $unit_of_measure;
+                $m->source = "http://genomics.senescence.info/species/entry.php?species=". str_replace(" ", "_", $taxon->scientificName);
                 $this->archive_builder->write_object_to_file($m);
             }
         }

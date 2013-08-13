@@ -62,7 +62,7 @@ class SparqlClient
         if(preg_match(self::BASIC_URI_REGEX, $value)) return "<$value>";
         if(preg_match(self::ENCLOSED_URI_REGEX, $value)) return $value;
         $value = \eol_schema\ContentArchiveBuilder::escape_string($value);
-        return "\"". $value ."\"";
+        return "\"". str_replace("\"","\\\"", $value) ."\"";
     }
 
     // # Puts URIs in <brackets>, dereferences namespaces, and quotes literals.

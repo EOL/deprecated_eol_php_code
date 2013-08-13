@@ -24,7 +24,7 @@ class MeasurementOrFact extends DarwinCoreExtensionBase
                 'field_uri'             => 'http://rs.tdwg.org/dwc/terms/measurementValue',
                 'validation_function'   => 'php_active_record\ContentArchiveValidator::exists',
                 'failure_type'          => 'error',
-                'failure_message'       => 'MeasurementOrFacts must have measurementTypes'));
+                'failure_message'       => 'MeasurementOrFacts must have measurementValues'));
         }
         return $rules;
     }
