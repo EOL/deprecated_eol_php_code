@@ -13,7 +13,6 @@ class AlgaebaseClassificationAPI
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
         $this->object_ids = array();
-        $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->text_path = array();
         $this->zip_path = "http://localhost/~eolit/AlgaebaseClassification.zip";
         $this->taxon_link["genus"] = "http://www.algaebase.org/search/genus/detail/?genus_id=";
@@ -21,7 +20,7 @@ class AlgaebaseClassificationAPI
         $this->csv_fields["genus"] = array("genus.genus", "genus.id", "genus.sStatus", "ta.taxon_authority", "ta.authority_year", "genus.Synonym_of_id", "empire", "kingdom", "subkingdom", "infrakingdom", "phylum", "subphylum", "class", "subclass", "order", "suborder", "family", "subfamily", "tribe");
         $this->csv_fields["species"] = array("species.id", "genus.Genus", "species.Species", "species.Subspecies", "species.Variety", "species.Forma", "taxon_authority.taxon_authority", "taxon_authority.authority_year", "species.Current_flag", "species.Record_status", "species.Accepted_name_serial", "species.genus_id", "species.key_Habitat", "species.Type_locality");
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
-        $this->EOL = 'http://eol.org/schema/eol_info_items.xml';
+        $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->bibliographic_citation = "M.D. Guiry in Guiry, M.D. & Guiry, G.M. " . date("Y") . ". AlgaeBase. World-wide electronic publication, National University of Ireland, Galway. http://www.algaebase.org; searched on " . date("d M Y") . ".";
         $this->not_numeric_id = 0;
         $this->syn_count = 0;
