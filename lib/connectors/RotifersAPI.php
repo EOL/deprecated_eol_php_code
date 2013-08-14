@@ -14,7 +14,7 @@ class RotifersAPI
         $this->taxon_ids = array();
         $this->media_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
-        $this->EOL = 'http://eol.org/schema/eol_info_items.xml';
+        $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->zip_path = "http://localhost/~eolit/rotifers.zip";
         $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/rotifers.zip";
         $this->text_path = array();

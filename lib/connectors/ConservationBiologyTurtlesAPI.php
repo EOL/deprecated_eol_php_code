@@ -18,6 +18,7 @@ class ConservationBiologyTurtlesAPI
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
+        $this->EOL = 'http://www.eol.org/voc/table_of_contents';
     }
 
     private function prepare_taxa_urls()
@@ -450,23 +451,6 @@ class ConservationBiologyTurtlesAPI
         $taxon->scientificName  = $scientificName;
         $taxon->kingdom         = 'Animalia';
         $taxon->genus           = substr($scientificName, 0, stripos($scientificName, " "));
-        // $taxon->scientificNameAuthorship     = '';
-        // $taxon->vernacularName               = '';
-        // $taxon->class                        = '';
-        // $taxon->order                        = '';
-        // $taxon->family                       = '';
-        // $taxon->specificEpithet              = '';
-        // $taxon->taxonomicStatus              = '';
-        // $taxon->furtherInformationURL        = '';
-        // $taxon->nomenclaturalCode            = '';
-        // $taxon->nomenclaturalStatus          = '';
-        // $taxon->acceptedNameUsage            = '';
-        // $taxon->acceptedNameUsageID          = '';
-        // $taxon->parentNameUsageID            = '';
-        // $original_identification             = '';
-        // $taxon->namePublishedIn              = '';
-        // $taxon->taxonRemarks                 = '';
-        // $taxon->infraspecificEpithet         = '';
         $this->taxa[$taxon_id] = $taxon;
     }
 
@@ -486,7 +470,7 @@ class ConservationBiologyTurtlesAPI
         $this->subject['STATUS']['title'] = "Status";
         $this->subject['STATUS']['category'] = $this->SPM . "#ConservationStatus";
         $this->subject['SUBSPECIES']['title'] = "Subspecies";
-        $this->subject['SUBSPECIES']['category'] = "http://eol.org/schema/eol_info_items.xml#Taxonomy";
+        $this->subject['SUBSPECIES']['category'] = $this->EOL . "#Taxonomy";
         $this->subject['SUMMARY']['title'] = "Summary";
         $this->subject['SUMMARY']['category'] = $this->SPM . "#TaxonBiology";
     }

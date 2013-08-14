@@ -19,7 +19,7 @@ class USDAfsfeisAPI
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
-        $this->EOL = 'http://eol.org/schema/eol_info_items.xml';
+        $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->temp_page_reference_nos = array();
         $this->class_name['Reptile'] = "Reptilia";
         $this->class_name['Amphibian'] = "Amphibia";
@@ -1770,11 +1770,11 @@ class USDAfsfeisAPI
     {
         self::generate_glossary_terms();
         $this->subject['TAXONOMY']['title'] = "Taxonomy";
-        $this->subject['TAXONOMY']['category'] = "http://eol.org/schema/eol_info_items.xml#Taxonomy";
+        $this->subject['TAXONOMY']['category'] = $this->EOL . "#Taxonomy";
         $this->subject['SYNONYMS']['title'] = "Synonyms";
-        $this->subject['SYNONYMS']['category'] = "http://eol.org/schema/eol_info_items.xml#Taxonomy";
+        $this->subject['SYNONYMS']['category'] = $this->EOL . "#Taxonomy";
         $this->subject['COMMON NAMES']['title'] = "Common Names";
-        $this->subject['COMMON NAMES']['category'] = "http://eol.org/schema/eol_info_items.xml#Taxonomy";
+        $this->subject['COMMON NAMES']['category'] = $this->EOL . "#Taxonomy";
         $this->subject['FEDERAL LEGAL STATUS']['title'] = "U.S. Federal Legal Status";
         $this->subject['FEDERAL LEGAL STATUS']['category'] = $this->SPM . "#ConservationStatus";
         $this->subject['OTHER STATUS']['title'] = "Conservation Status";
