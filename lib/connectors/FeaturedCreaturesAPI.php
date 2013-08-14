@@ -13,7 +13,7 @@ class FeaturedCreaturesAPI
         $this->resource_reference_ids = array();
         $this->do_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
-        $this->EOL = 'http://eol.org/schema/eol_info_items.xml';
+        $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->text_count = 0;
     }
 
@@ -55,7 +55,7 @@ class FeaturedCreaturesAPI
         $mr->language       = 'en';
         $mr->format         = "text/html";
         $mr->furtherInformationURL = (string) $rec['url'];
-        $mr->CVterm         = "http://www.eol.org/voc/table_of_contents#EducationResources";
+        $mr->CVterm         = $this->EOL . "#EducationResources";
         $mr->title          = (string) $title;
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description    = (string) $description;
