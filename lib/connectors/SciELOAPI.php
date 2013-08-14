@@ -15,6 +15,7 @@ class SciELOAPI
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
+        $this->EOL = 'http://www.eol.org/voc/table_of_contents';
     }
 
     private function parse_xml()
@@ -35,10 +36,10 @@ class SciELOAPI
         $this->create_instances_from_taxon_object($record, $reference_ids, $parent);
         self::get_vernacular_names($record);
         self::get_synonyms($record);
-        if($distribution = self::get_distribution_all($record)) self::get_texts($distribution, $record, '', '#Distribution', 'distribution', $ref_ids, $agent_ids);
-        if($lifeform = self::get_lifeform($record)) self::get_texts($lifeform, $record, '', '#Morphology', 'life_form', $ref_ids, $agent_ids);
-        if($habitat = self::get_habitat_all($record)) self::get_texts($habitat, $record, '', '#Habitat', 'habitat', $ref_ids, $agent_ids);
-        // if($voucher = self::get_voucher($record)) self::get_texts($voucher, $record->ID, 'Voucher', 'http://eol.org/schema/eol_info_items.xml#TypeInformation');
+        if($distribution = self::get_distribution_all($record)) self::get_texts($distribution, $record, '', $this->SPM . '#Distribution', 'distribution', $ref_ids, $agent_ids);
+        if($lifeform = self::get_lifeform($record)) self::get_texts($lifeform, $record, '', $this->SPM . '#Morphology', 'life_form', $ref_ids, $agent_ids);
+        if($habitat = self::get_habitat_all($record)) self::get_texts($habitat, $record, '', $this->SPM . '#Habitat', 'habitat', $ref_ids, $agent_ids);
+        // if($voucher = self::get_voucher($record)) self::get_texts($voucher, $record->ID, 'Voucher', $this->EOL . '#TypeInformation');
     }
 
     function get_all_taxa()
@@ -303,7 +304,7 @@ class SciELOAPI
         $mr->format = 'text/html';
         $mr->furtherInformationURL = $obj->URL;
         $mr->description = $description;
-        $mr->CVterm = $this->SPM . $subject;
+        $mr->CVterm = $subject;
         $mr->title = '';
         $mr->creator = '';
         $mr->CreateDate = '';

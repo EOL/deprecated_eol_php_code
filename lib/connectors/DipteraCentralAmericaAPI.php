@@ -12,8 +12,6 @@ class DipteraCentralAmericaAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->do_ids = array();
-        $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
-        $this->EOL = 'http://eol.org/schema/eol_info_items.xml';
     }
 
     function get_all_taxa()
