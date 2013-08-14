@@ -10,7 +10,7 @@ class WikiParser
         }
         $string = htmlspecialchars_decode(html_entity_decode($string));
         $string = htmlspecialchars_decode(html_entity_decode($string));
-        
+
         // [[ ... ]]
         while(preg_match("/(\[\[.*?\]\])(.*)$/ums", $string, $arr))
         {
@@ -19,7 +19,7 @@ class WikiParser
             $replacement = self::format_brackets($match, $format);
             $string = preg_replace("/".preg_quote($match, "/")."/", $replacement, $string);
         }
-        
+
         // [http://... The text to link to]
         while(preg_match("/(\[\s*(https?:\/\/[^ ]+) (.*?)\])(.*)$/uims", $string, $arr))
         {
@@ -27,7 +27,7 @@ class WikiParser
             if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[3]</a>", $string);
             else $string = preg_replace("/".preg_quote($match, "/")."/", $arr[3], $string);
         }
-        
+
         // [http://...]
         while(preg_match("/(\[\s*(https?:\/\/[^ ]+?)\])(.*)$/uims", $string, $arr))
         {
@@ -35,7 +35,7 @@ class WikiParser
             if($format) $string = preg_replace("/".preg_quote($match, "/")."/u", "<a href='$arr[2]'>$arr[2]</a>", $string);
             else $string = preg_replace("/".preg_quote($match, "/")."/u", "", $string);
         }
-        
+
         // {{ ... }}
         while(preg_match("/(\{\{.*?\}\})(.*)/ums", $string, $arr))
         {
@@ -44,14 +44,14 @@ class WikiParser
             $replacement = self::format_curly_brackets($match, $format, $pagename);
             $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
         }
-        
+
         // <ref... />
         while(preg_match("/(<ref[^>]*\/>)(.*)/iums", $string, $arr))
         {
             $match = $arr[1];
             $string = preg_replace("/".preg_quote($match, "/")."/u", "", $string);
         }
-        
+
         // <ref...> ... </ref>
         while(preg_match("/(<ref[^>]*>.*?<\/ref>)(.*)/iums", $string, $arr))
         {
@@ -60,7 +60,7 @@ class WikiParser
             $replacement = self::format_reference($match, $format);
             $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
         }
-        
+
         // <!-- ... -->
         while(preg_match("/(<\!--.*?-->)(.*)/ums", $string, $arr))
         {
@@ -69,28 +69,28 @@ class WikiParser
             $replacement = self::format_html_comment($match, $format);
             $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
         }
-        
-        
-        
+
+
+
         if($format) $string = preg_replace("/'''(.*?)'''/u", "<b>\\1</b>", $string);
         else $string = preg_replace("/'''(.*?)'''/u", "\\1", $string);
         $string = preg_replace("/'''/u", "", $string); //kill off any remaining unmatched ''' to avoid misinterpretting ''''' as '' '' '
-        
+
         if($format) $string = preg_replace("/''(.*?)''/u", "<i>\\1</i>", $string);
         else $string = preg_replace("/''(.*?)''/u", "\\1", $string);
-        
+
         if($format) $string = preg_replace("/====(.*?)====/u", "<h4>\\1</h4>", $string);
         else $string = preg_replace("/====(.*?)====/u", "\\1", $string);
-        
+
         if($format) $string = preg_replace("/===(.*?)===/u", "<h3>\\1</h3>", $string);
         else $string = preg_replace("/===(.*?)===/u", "\\1", $string);
-        
+
         if($format) $string = preg_replace("/==(.*?)==/u", "<h2>\\1</h2>", $string);
         else $string = preg_replace("/==(.*?)==/u", "\\1", $string);
-        
+
         return htmlspecialchars_decode(trim($string));
     }
-    
+
     // [[ ... ]]
     public static function format_brackets($string, $format = false)
     {
@@ -134,14 +134,14 @@ class WikiParser
         {
             $string = "<a href='".WIKI_PREFIX."$string'>$string</a>";
         }
-        
+
         return $string;
     }
-    
+
     public static function format_reference($string, $format = false)
     {
         $string = substr($string, 5, -6);
-        
+
         if($format)
         {
             $string = " ";
@@ -149,53 +149,53 @@ class WikiParser
         {
             $string = " ";
         }
-        
+
         return $string;
     }
-    
+
     // {{ ... }}
     public static function format_curly_brackets($string, $format = false, $pagename = false)
     {
         $string = trim(substr($string, 2, -2));
-        
+
         if(preg_match("/^\s*([a-z]{2})\s*\|\s*(.*)$/uims", $string, $arr))
         {
-            if($l = &$GLOBALS['iso_639_2_codes'][$arr[1]]) $language = $l;
+            if($l = &$GLOBALS['iso_639_2_codes'][strtolower($arr[1])]) $language = $l;
             else $language = "Unknown language ($arr[1])";
             if($format) $string = "<b>$language:</b> $arr[2] ";
             else $string = "language: ".$arr[2]." ";
         }
-        
+
         if($string == "pagename" && $pagename)
         {
             $string = $pagename;
         }
-        
+
         return $string;
     }
-    
+
     public static function format_html_comment($string, $format = false)
     {
         if(!$format) $string = "";
         else $string = "";
-        
+
         return $string;
     }
-    
+
     public static function strip_tags($string)
     {
         $string = preg_replace("/<(.*?)>(.*?)<\/\\1>/us", "\\2", $string);
-        
+
         return $string;
     }
-    
+
     public static function strip_comments($string)
     {
         $string = preg_replace("/<\!\-\-(.*?)\-\->/us", "", $string);
         return $string;
     }
 
-    private static function replace_active_wikitext($string) 
+    private static function replace_active_wikitext($string)
     {   //allows us to replace contents of <nowiki> with content that will not be parsed
         static $search=array("[[", "]]", "{{", "}}", "''", "'''");
         static $replace=array("&#91;&#91;", "&#93;&#93;", "&#123;&#123;", "&#125;&#125;", "&#39;&#39;", "&#39;&#39;&#39;");
@@ -215,7 +215,7 @@ class WikiParser
         $close_tag = preg_quote($close_tag, "/");
         $num_open = preg_match_all("/$open_tag/iums", $text, $arr);
         $num_close = preg_match_all("/$close_tag/iums", $text, $arr);
-        
+
         $balance = false;
         if($num_close < $num_open) $balance = true;
         while($balance)
@@ -225,40 +225,40 @@ class WikiParser
             if(preg_match("/^(.*?$close_tag)(.*)$/iums", $stream, $arr))
             {
                 list($text, $stream) = self::balance_tags($open_tag, $close_tag, $text.$arr[1], $arr[2]);
-                
+
                 $num_open = preg_match_all("/$open_tag/iums", $text, $arr);
                 $num_close = preg_match_all("/$close_tag/iums", $text, $arr);
                 if($num_close < $num_open) $balance = true;
             }
         }
-        
+
         if($strip_tags)
         {
             //echo "/^.*?". $open_tag ."(.*)". $close_tag ."/ims<br>";
             if(preg_match("/^.*?". $open_tag ."(.*)". $close_tag ."/ims", $text, $arr)) $text = $arr[1];
             //echo $text;
         }
-        
+
         return array($text, $stream);
     }
-    
-    public static function template_as_array($wikitext, $TemplateName = 'Information', $offset=0) 
+
+    public static function template_as_array($wikitext, $TemplateName = 'Information', $offset=0)
     { //parses the first $TemplateName found. Use $offset to parse other identically named templates later in the text
       //returns empty array if no template found, otherwise template name is the first parameter.
 
-        /* Implementation: look for sections of a template separated by | characters. This is slightly complex, 
+        /* Implementation: look for sections of a template separated by | characters. This is slightly complex,
             because | characters don't count when nested inside other templates (a common occurrence), or when
-            nested inside [[ ]] braces, or in <!-- html comments --> or in "Parser Extension Tags" (for 
+            nested inside [[ ]] braces, or in <!-- html comments --> or in "Parser Extension Tags" (for
             a list of these, see e.g. http://commons.wikimedia.org/wiki/Special:Version#sv-parser-tags
-        
-            However, our job at parsing is made easier, because apart from {{ }}, the tags don't allow 
+
+            However, our job at parsing is made easier, because apart from {{ }}, the tags don't allow
             multiple nesting, so <nowiki> $string </nowiki> is a bracketed pair even if $string = <nowiki>.
          */
         static $singly_nested_tags = array(
             "<!--" => "-->",
             "[[" => "]]",
             "{{{" => "}}}",
-            "<categorytree" => "</categorytree>", 
+            "<categorytree" => "</categorytree>",
             "<charinsert" => "</charinsert>" ,
             "<gallery" => "</gallery>",
             "<hiero" => "</hiero>",
@@ -285,8 +285,8 @@ class WikiParser
             array_walk($match_strings, function(&$val, $key) {$val = preg_quote($val, "/");});
             $search_RE = implode("|", $match_strings);
 
-            
-            function add_initial_xml_close(&$val, $key) 
+
+            function add_initial_xml_close(&$val, $key)
             {
                 if($val[0]=="<") //this is an xml tag, so also look for a closing "/>" on the initial tag, e.g. <ref />
                 {                 //RE is not perfect - e.g. won't spot <ref name=">" />. You need a proper parser for that.
@@ -349,21 +349,21 @@ class WikiParser
                     $curr_pos = $match_start+2;
 
 
-                    
+
                 } elseif ($match=="}}") {
                     $nested_curly--;
-                    if ($nested_curly < 0) 
+                    if ($nested_curly < 0)
                     {
                         break;
                     }
                     $curr_pos = $match_start+2;
-                
+
 
 
                 } else {
                     $curr_pos = $match_start+strlen($match);
                     //Found a tag: multiple nesting not allowed, so just jump to the next matching close tag
-                    if (preg_match("/".$singly_nested_tags[strtolower($match)]."/uis", $wikitext, $arr, PREG_OFFSET_CAPTURE, $curr_pos)) 
+                    if (preg_match("/".$singly_nested_tags[strtolower($match)]."/uis", $wikitext, $arr, PREG_OFFSET_CAPTURE, $curr_pos))
                     {
                         $curr_pos = $arr[0][1]+strlen($arr[0][0]);
                     } else {
@@ -383,7 +383,7 @@ class WikiParser
                 print "Returning best-guess template parameters, even though template not closed properly (couldn't find ";
                 print " final '}}': first 300 chars are ".strtr(substr($wikitext,0,300),"\r\n","| ").")\n";
             }
-        
+
             if (is_null(end($template_params))) { //we have set the array key, but not filled it
                 $template_params[key($template_params)]= $value;
             } else {

@@ -219,7 +219,7 @@ class WikimediaPage
         $Taxonavigation = $this->taxonav_as_array("[Tt]axonavigation");
         $taxonomy = self::fill_includes_recursively($Taxonavigation, $taxonav_include_arrays);
 
-        array_walk($taxonomy, function(&$val, $param) {strip_tags(WikiParser::strip_syntax(trim($val)));});
+        array_walk($taxonomy, function(&$val) { $val = strip_tags(WikiParser::strip_syntax(trim($val))); });
 
         // there are often some extra ranks under the Taxonnavigation box -
         if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->active_wikitext(), $arr))
@@ -232,8 +232,8 @@ class WikimediaPage
                     $rank = strtolower($arr[1]);
                     if(!isset($taxonomy[$rank]))
                     {
-                        //usually the name is in italics, followed by the authority. If we spot this, just take the name
-                        //avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
+                        // usually the name is in italics, followed by the authority. If we spot this, just take the name
+                        // avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
                         $name = preg_replace("/^(.*)<\/i>.*/", "$1", WikiParser::strip_syntax($arr[2], true));
                         $taxonomy[$rank] = preg_replace("/\s+/u", " ", trim(strip_tags($name)));
                     }
