@@ -288,15 +288,16 @@ class WikiParser
             
             function add_initial_xml_close(&$val, $key) 
             {
-                if ($val[0]=="<") //this is an xml tag, so also look for a closing "/>" on the initial tag, e.g. <ref />
+                if($val[0]=="<") //this is an xml tag, so also look for a closing "/>" on the initial tag, e.g. <ref />
                 {                 //RE is not perfect - e.g. won't spot <ref name=">" />. You need a proper parser for that.
                     $val = "\G[^>]+(?<=\/)>|".preg_quote($val, "/");
-                } else {
+                }else
+                {
                     $val = preg_quote($val, "/");
-                };
+                }
             }
             array_walk($singly_nested_tags, 'add_initial_xml_close');
-        };
+        }
 
         $template_params = array();
         if(preg_match("/\{\{\s*$TemplateName\s*[\|\}].*$/us", $wikitext, $arr, 0, $offset))
@@ -304,7 +305,7 @@ class WikiParser
             $wikitext = $arr[0];
             $nested_curly = 0;
             $section_start = $curr_pos = 2; //skip the first {{
-            $first = TRUE;
+            $first = true;
             while($matched = preg_match("/$search_RE/iu", $wikitext, $arr, PREG_OFFSET_CAPTURE, $curr_pos))
             {
                 $match=$arr[0][0];
@@ -320,7 +321,7 @@ class WikiParser
                             $template_params[] = $value; //add this as the next numeric key
                         }
                         $section_start = $match_start+1;
-                        $first=FALSE;
+                        $first = false;
                     }
                     $curr_pos = $match_start+1;
 

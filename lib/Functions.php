@@ -108,17 +108,15 @@ class Functions
         if(!isset($options['timeout'])) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
         if(!isset($options['download_attempts'])) $options['download_attempts'] = DOWNLOAD_ATTEMPTS;
         $remote_url = str_replace(" ", "%20", $remote_url);
-        $context = stream_context_create(array('http' => array('timeout' => $options['timeout'])));
 
         $attempts = 1;
         while($attempts <= $options['download_attempts'])
         {
             debug("Grabbing $remote_url: attempt " . $attempts);
-            $file = @self::fake_user_agent_http_get($remote_url, array('timeout' => $options['timeout']));
+            $file = @self::fake_user_agent_http_get($remote_url, $options);
             usleep($options['download_wait_time']);
             if($file)
             {
-                unset($context);
                 debug("received file");
                 return $file;
             }
@@ -135,6 +133,7 @@ class Functions
     {
         // default expire time is 30 days
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
+        if(!isset($options['timeout'])) $options['timeout'] = 120;
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
@@ -156,7 +155,7 @@ class Functions
             }
             @unlink($cache_path);
         }
-        $file_contents = Functions::get_remote_file($url, array('timeout' => 120));
+        $file_contents = Functions::get_remote_file($url, $options);
         $FILE = fopen($cache_path, 'w+');
         fwrite($FILE, $file_contents);
         fclose($FILE);
@@ -1442,6 +1441,7 @@ class Functions
         elseif ($extension == "wav")        $mimetype = "audio/x-wav";
         elseif ($extension == "ogg")        $mimetype = "audio/ogg";
         elseif ($extension == "oga")        $mimetype = "audio/ogg";
+        elseif ($extension == "svg")        $mimetype = "image/svg+xml";
         return $mimetype;
     }
     

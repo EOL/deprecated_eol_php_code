@@ -176,6 +176,11 @@ function time_elapsed($reset = false)
     return (string) round(microtime(true)-$a, 6);
 }
 
+function memory_get_usage_in_mb()
+{
+    return round(memory_get_usage() / 1024 / 1024, 2);
+}
+
 function get_last_function($index = 1)
 {
     $backtrace = debug_backtrace();

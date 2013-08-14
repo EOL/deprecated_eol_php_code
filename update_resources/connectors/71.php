@@ -56,7 +56,8 @@ $xml_file_base = CONTENT_RESOURCE_LOCAL_PATH . $resource->id;
 $xml_output = new \SchemaDocument($xml_file_base."_tmp.xml");
 
 iterate_files($part_file_base, $part_file_suffix_chars, 'php_active_record\get_media_pages');
-$last_number = batch_process(); //process the pages remaining in the last batch
+// process the pages remaining in the last batch
+$last_number = batch_process();
 
 echo "\n\n (last ".$last_number." media files processed)\n";
 echo "\n\n# media files: ".$n_media_files." (in ".count($GLOBALS['taxa'])." taxa)\n";
@@ -67,123 +68,126 @@ unset($xml_output);
 process_resource_file($xml_file_base, "_tmp.xml", $resource->id);
 
 echo "End\n";
+print_memory_and_time();
 
 
 // FUNCTIONS
 
 function iterate_files($part_file_base, $n_suffix_chars, $callback, $title = false)
 {
-    $left_overs="";
+    $left_overs = "";
     $suffix = str_repeat('a', $n_suffix_chars);
-    while ((strlen($suffix)==$n_suffix_chars) && process_file($part_file_base.$suffix, $callback, $left_overs, $title)) {
-       $suffix++; // auto-increment allows us to match the output of the 'split' command: aaa->aab, aaz->aba, etc
-    };
-    if (!preg_match('/\s*<\/mediawiki>\s*/smi', $left_overs)) 
+    while((strlen($suffix) == $n_suffix_chars) && process_file($part_file_base . $suffix, $callback, $left_overs, $title))
+    {
+        // auto-increment allows us to match the output of the 'split' command: aaa->aab, aaz->aba, etc
+        $suffix++;
+    }
+    if(!preg_match('/\s*<\/mediawiki>\s*/smi', $left_overs))
     {
         echo "WARNING: THE LAST WIKI FILE APPEARS TO BE TRUNCATED. Part of the wiki download may be missing.\n";
-        flush();
     }
 }
 
 function process_file($filename, $callback, &$left_overs="", $title = false)
 {
-    if (!file_exists($filename)) {
+    if(!file_exists($filename))
+    {
         echo "Assuming no more part files to process (as ".basename($filename)." doesn't exist)\n";
-        return FALSE;
+        return false;
     }
-    echo "Processing file ".basename($filename)." with callback $callback. Memory at start: ".(memory_get_usage()/1024/1024)." Mb\n";
-    flush();
-    $FILE = fopen($filename, "r");
+    echo "Processing file ".basename($filename)." with callback $callback\n";
+    print_memory_and_time();
 
     $current_page = $left_overs;
-    while(!feof($FILE))
+    foreach(new FileIterator($filename) as $line)
     {
-        if($line = fgets($FILE, 4096))
+        $current_page .= $line;
+        if(trim($line) == "<page>")
         {
-            $current_page .= $line;
-
-            if(trim($line) == "<page>")
+            $current_page = $line;
+        }
+        if(trim($line) == "</page>")
+        {
+            if($title && !preg_match("/<title>". preg_quote($title, "/") ."<\/title>/ims", $current_page))
             {
-                $current_page = $line;
+                echo "<title>". preg_quote($title, "/") ."<\/title>\n";
+                continue;
             }
-            if(trim($line) == "</page>")
-            {
-                if($title && !preg_match("/<title>". preg_quote($title, "/") ."<\/title>/ims", $current_page))
-                {
-                    echo "<title>". preg_quote($title, "/") ."<\/title>\n";
-                    continue;
-                }
-
-                call_user_func($callback, $current_page);
-                $current_page = "";
-            }
+            call_user_func($callback, $current_page);
+            $current_page = "";
         }
     }
-
     $left_overs = $current_page;
-    return TRUE;
+    return true;
 }
 
 function get_taxonav_includes($xml)
 {
-    static $pages=0;
-    if (\WikimediaPage::fast_is_template($xml))
+    if(\WikimediaPage::fast_is_template($xml))
     {
-        if ($text_start = strpos($xml, "<text")) //make sure we don't include cases with {{Template in the comments field, etc.
+        if($text_start = strpos($xml, "<text")) //make sure we don't include cases with {{Template in the comments field, etc.
         {
             if(preg_match("/\{\{Taxonavigation/", $xml, $arr, 0, $text_start)) //also catches TaxonavigationIncluded etc.
             {
                 $page = new \WikimediaPage($xml);
-                if ($page->contains_template("TaxonavigationIncluded[\w\s]*")) {
+                if($page->contains_template("TaxonavigationIncluded[\w\s]*"))
+                {
                     $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
-                    if (count($include_array)) 
+                    if(count($include_array))
                     {
-                        $GLOBALS['taxonav_includes'][$page->title]=$include_array;
-                    } else {
-                        echo $page->title."is not a real TaxonavigationInclude* template\n";
+                        $GLOBALS['taxonav_includes'][$page->title] = $include_array;
+                    }else
+                    {
+                        echo "$page->title is not a real TaxonavigationInclude* template\n";
                     }
                 }
             }
         }
     }
+    static $pages = 0;
     $pages++;
     if($pages % 100000 == 0)
     {
-        echo "Page: $pages (preliminary pass). # TaxonavigationIncluded files so far: ".count($GLOBALS['taxonav_includes']).". Memory ".(memory_get_usage()/1024/1024)." Mb\n";
-        flush();
+        echo "Page: $pages (preliminary pass). # TaxonavigationIncluded files so far: ". count($GLOBALS['taxonav_includes']) ."\n";
+        print_memory_and_time();
     }
 }
 
 function get_taxonomic_pages($xml)
 {
     global $n_pages;
-    if (\WikimediaPage::fast_is_gallery_category_or_template($xml))
+    if(\WikimediaPage::fast_is_gallery_category_or_template($xml))
     {
-        if ($text_start = strpos($xml, "<text")) //make sure we don't include cases with {{Taxonavigation in the comments field, etc.
+        if($text_start = strpos($xml, "<text")) //make sure we don't include cases with {{Taxonavigation in the comments field, etc.
         {
             if(preg_match("/\{\{Taxonavigation/", $xml, $arr, 0, $text_start))
             {
                 $page = new \WikimediaPage($xml);
-                if ($page->is_template()) {
-                    if ($page->contains_template("Taxonavigation"))
-                    {  //This is a template that itself contains the template "Taxonavigation", so we might be interested in it
-                        if (preg_match("/^Template:Taxonavigation\//", $page->title))
+                if($page->is_template())
+                {
+                    if($page->contains_template("Taxonavigation"))
+                    {
+                        //This is a template that itself contains the template "Taxonavigation", so we might be interested in it
+                        if(preg_match("/^Template:Taxonavigation\//", $page->title))
                         {
                             //we don't need to worry: it's something like Template::Taxonavigation/doc,
-                        } else {
-                            print "The template '".$page->title."' transcludes {{Taxonavigation}}: we might want to consider looking for taxonomic pages containing this template too.\n";
+                        }else
+                        {
+                            echo "The template '$page->title' transcludes {{Taxonavigation}}: we might want to consider looking for taxonomic pages containing this template too.\n";
                         }
                     }
-                } else {
+                }else
+                {
                     if($params = $page->taxon_parameters($GLOBALS['taxonav_includes'])) //pass in "taxonav_includes" to avoid lots of API calls
                     {
-                        if(@$params['scientificName']) {
+                        if(@$params['scientificName'])
+                        {
                             $GLOBALS['taxa'][$page->title] = $params;
-                            
-                            if($page->is_category()) 
+
+                            if($page->is_category())
                             {
                                 $GLOBALS['taxonomic_categories'][$page->title] = $page->taxonomy_score();
-                            } elseif ($page->is_gallery())
+                            }elseif($page->is_gallery())
                             {
                                 $GLOBALS['taxonomic_galleries'][$page->title] = $page->taxonomy_score();
                                 foreach($page->media_on_page() as $file)
@@ -200,8 +204,8 @@ function get_taxonomic_pages($xml)
     $n_pages++;
     if($n_pages % 100000 == 0)
     {
-        echo "Page: $n_pages (first pass). # taxa so far: ".count($GLOBALS['taxa']).". Memory: ".(memory_get_usage()/1024/1024)." Mb\n";
-        flush();
+        echo "Page: $n_pages (first pass). # taxa so far: ". count($GLOBALS['taxa']) ."\n";
+        print_memory_and_time();
     }
 }
 
@@ -210,135 +214,148 @@ function get_media_pages($xml)
     global $n_pages;
     global $n_media_files;
 
-    static $processed_files=0;
-    static $p=0;
+    static $processed_files = 0;
 
-    $wanted=FALSE;
-    if (\WikimediaPage::fast_is_media($xml)) {
+    $wanted = false;
+    if(\WikimediaPage::fast_is_media($xml))
+    {
         $page = new \WikimediaPage($xml);
-
-        //check if this page has been listed in a gallery
+        // check if this page has been listed in a gallery
         if(isset($GLOBALS['gallery_files'][$page->title]))
         {
-            if (isset($page->redirect)) {
-                //we won't catch redirects to pages earlier in the XML dump. Let's just hope those
-                //have been picked up when scanning for categories. We'll check this later
-                echo "Page '".$page->title."' listed in gallery ".$GLOBALS['gallery_files'][$page->title]." has been redirected. Now looking for '".$page->redirect."' instead.\n";
-                flush();
+            if(isset($page->redirect))
+            {
+                // we won't catch redirects to pages earlier in the XML dump. Let's just hope those
+                // have been picked up when scanning for categories. We'll check this later
+                echo "Page '$page->title' listed in gallery ". $GLOBALS['gallery_files'][$page->title] ." has been redirected. Now looking for '$page->redirect' instead.\n";
                 $GLOBALS['gallery_files'][$page->redirect] = $GLOBALS['gallery_files'][$page->title];
-            } else {
+            }else
+            {
                 $page->set_gallery($GLOBALS['gallery_files'][$page->title]);
-                $wanted=TRUE;
-            };
-            unset($GLOBALS['gallery_files'][$page->title]); //remove the links to the gallery files as we go
+                $wanted = true;
+            }
+            // remove the links to the gallery files as we go
+            unset($GLOBALS['gallery_files'][$page->title]);
         }
 
-        //check if the page has an associated "taxonomic category"
-        foreach ($page->get_categories() as $cat) { //done on every file in the dump: be careful not to trigger off a remote API call
+        // check if the page has an associated "taxonomic category"
+        // done on every file in the dump: be careful not to trigger off a remote API call
+        foreach($page->get_categories() as $cat)
+        {
             $cat = "Category:$cat";
-            if (isset($GLOBALS['taxonomic_categories'][$cat])) 
+            if(isset($GLOBALS['taxonomic_categories'][$cat]))
             {
-                $wanted=TRUE; //just flag this as wanted. We'll search for proper categories later
+                // just flag this as wanted. We'll search for proper categories later
+                $wanted = true;
                 break;
             }
         }
-            
-        if ($wanted) 
-        {
-            $processed_files += batch_process($page);
-        }
+
+        if($wanted) $processed_files += batch_process($page);
     }
+
+    static $p = 0;
     $p++;
     if($p % 100000 == 0)
     {
-        echo "Page: $p (final pass, ".round($p/$n_pages*100, 1)."% done). # media files so far: ".$n_media_files." (".$processed_files." completed via MediaWiki API query). Memory: ".(memory_get_usage()/1024/1024)." Mb\n";
-        flush();
+        echo "Page: $p (final pass, ". round($p/$n_pages*100, 1) ."% done). # media files so far: ".$n_media_files." (".$processed_files." completed via MediaWiki API query)\n";
+        print_memory_and_time();
     }
 }
 
-function batch_process($page=null)
-{   //if page is null, just process any remaining in the batch
+function batch_process($page = null)
+{
+    // if page is null, just process any remaining in the batch
     global $n_media_files;
-    static $batch=array();
+    static $batch = array();
     $batch_volume = \WikimediaPage::$max_titles_per_lookup;
-    
-    if ($page) {
+
+    if($page)
+    {
         $n_media_files++;
-        //we could potentially only check files with recently updated timestamps here?
-        //but we would also need to catch unchanged files whose taxonomic classification has changed
+        // we could potentially only check files with recently updated timestamps here?
+        // but we would also need to catch unchanged files whose taxonomic classification has changed
         $batch[] = $page;
-        if (count($batch) < $batch_volume) return 0; //wait until we have enough in a batch.
+        // wait until we have enough in a batch.
+        if(count($batch) < $batch_volume) return 0;
     }
 
-    //either there are enough pages in the batch to process, or $page==null, triggering us to process the remaining pages in the batch
+    // either there are enough pages in the batch to process, or $page==null, triggering us to process the remaining pages in the batch
     \WikimediaPage::process_pages_using_API($batch);
-    
-    foreach ($batch as $page) {
-        //page may have multiple taxonomies: e.g. from gallery "Mus musculus", category "Mus musculus", category "Mus", etc.
-        //pick the one with the highest "taxonomy score"
-        if (is_null($gallery = $page->get_gallery())) {
+
+    foreach($batch as $page)
+    {
+        // page may have multiple taxonomies: e.g. from gallery "Mus musculus", category "Mus musculus", category "Mus", etc.
+        // pick the one with the highest "taxonomy score"
+        if(is_null($gallery = $page->get_gallery()))
+        {
             $best_taxonomy = null;
             $best_taxonomy_score = -1;
-        } else {
+        }else
+        {
             $best_taxonomy = $gallery;
             $best_taxonomy_score = $GLOBALS['taxonomic_galleries'][$best_taxonomy];
-        };
+        }
 
-        $categories_from_API = $page->get_categories(TRUE); //only look for categories gleaned from the API (more reliable)
-        if (count($categories_from_API)==0) {
-            echo "ERROR. This shouldn't happen. No categories for ".$page->title." (have you failed to connect to the Wikimedia API?)\n";
-        } else {
+        // only look for categories gleaned from the API (more reliable)
+        $categories_from_API = $page->get_categories(true);
+        if(count($categories_from_API) == 0)
+        {
+            echo "ERROR. This shouldn't happen. No categories for $page->title (have you failed to connect to the Wikimedia API?)\n";
+        }else
+        {
             $potential_license_categories = "";
-            $map=FALSE;        
-            foreach($categories_from_API as $cat) 
+            $map = false;
+            foreach($categories_from_API as $cat)
             {
-                if (isset($GLOBALS['taxonomic_categories']["Category:$cat"])) {
-                    $fullcat="Category:$cat";
+                if(isset($GLOBALS['taxonomic_categories']["Category:$cat"]))
+                {
+                    $fullcat = "Category:$cat";
                     $diff = $best_taxonomy_score - $GLOBALS['taxonomic_categories'][$fullcat];
-                    if ($diff < 0) 
+                    if($diff < 0)
                     {
-                        if (($diff <-0.5) && isset($best_taxonomy))
+                        if(($diff < -0.5) && isset($best_taxonomy))
                         {
-                            echo "Got a substantially better taxonomy for ".$page->title.": $best_taxonomy (score $best_taxonomy_score)";
-                            echo " replaced with $fullcat (score ".$GLOBALS['taxonomic_categories'][$fullcat].")\n";
-                            flush();
-                        };
+                            echo "Got a substantially better taxonomy for $page->title : $best_taxonomy (score $best_taxonomy_score)";
+                            echo " replaced with $fullcat (score ". $GLOBALS['taxonomic_categories'][$fullcat] .")\n";
+                        }
 
                         $best_taxonomy = $fullcat;
                         $best_taxonomy_score = $GLOBALS['taxonomic_categories'][$fullcat];
                     }
-                } elseif (isset($GLOBALS['map_categories'][$cat]))
+                }elseif(isset($GLOBALS['map_categories'][$cat]))
                 {
-                    $map=TRUE;
-                } else {
+                    $map = true;
+                }else
+                {
                     $potential_license_categories .= $cat."\n";
                 }
             }
-            
-            if ($map) {
-                $page->set_additionalInformation("<subtype>Map</subtype>");
-            }
-            
-            if ($license = \WikimediaPage::match_license($potential_license_categories, TRUE)) {
-                $page->set_license($license); //override with the more reliable license from categories
+
+            if($map) $page->set_additionalInformation("<subtype>Map</subtype>");
+
+            if($license = \WikimediaPage::match_license($potential_license_categories, true))
+            {
+                $page->set_license($license);
             }
         }
-        if (!$page->has_license()) {
-            echo "No valid license category for ".$page->title." (Categories: ".implode("|",$categories_from_API).")\n";
-            flush();
+        if(!$page->has_license())
+        {
+            echo "No valid license category for $page->title (Categories: ".implode("|", $categories_from_API) .")\n";
         }
-        if (empty($best_taxonomy)) {
-            echo "That's odd: no valid taxonomy for ".$page->title.". Perhaps the categories via the API have changed since the XML dump (dump: ".implode("|",$page->categories_from_wikitext).", API: ".implode("|",$categories_from_API).")\n";
-            flush();
-        } else {
+        if(empty($best_taxonomy))
+        {
+            echo "That's odd: no valid taxonomy for $page->title . Perhaps the categories via the API have changed since the XML dump (dump: ". implode("|", $page->categories_from_wikitext) .", API: ". implode("|", $categories_from_API) .")\n";
+        }else
+        {
             $taxon_data = $GLOBALS['taxa'][$best_taxonomy];
             $data_object_parameters = $page->get_data_object_parameters();
             add_to_resource_file($taxon_data, $data_object_parameters);
         }
     }
 
-    $batch_size=count($batch);
-    $batch=array();
+    $batch_size = count($batch);
+    $batch = array();
     return $batch_size;
 }
 
@@ -346,119 +363,109 @@ function batch_process($page=null)
 function add_to_resource_file($taxon_data, $data_object_parameters)
 {
     global $xml_output;
- 
-    if(isset($data_object_parameters['mediaURL'])) {
-        $taxon_data['dataObjects'][] = new \SchemaDataObject($data_object_parameters);
 
+    if(isset($data_object_parameters['mediaURL']))
+    {
+        $taxon_data['dataObjects'][] = new \SchemaDataObject($data_object_parameters);
         $taxon = new \SchemaTaxon($taxon_data);
         $xml_output->save_taxon_xml($taxon);
-    };
+    }
 }
 
 function process_resource_file($name, $suffix, $resource_id)
 {
     if(filesize($name.$suffix) > 600)
     {
-        @rename($name.".xml", $name."_previous.xml"); //overwrite previous
+        // overwrite previous
+        @rename($name.".xml", $name."_previous.xml");
         @rename($name.$suffix, $name.".xml");
-
-        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=$resource_id");
+        $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=". ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id ." WHERE id=$resource_id");
     }
 }
 
-function check_remaining_gallery_files() {
-    if (count($GLOBALS['gallery_files'])) {
-        $good_files=array();
-        echo count($GLOBALS['gallery_files'])." gallery files remaining at end. Checking them out:";flush();
+function check_remaining_gallery_files()
+{
+    if(count($GLOBALS['gallery_files']))
+    {
+        $good_files = array();
+        echo count($GLOBALS['gallery_files']) ." gallery files remaining at end. Checking them out:";
         $titles = array_chunk(array_keys($GLOBALS['gallery_files']), \WikimediaPage::$max_titles_per_lookup, true);
-        foreach ($titles as $batch) {
+        foreach($titles as $batch)
+        {
             $good_files += \WikimediaPage::check_page_titles($batch);
         }
-        if (count($good_files)) {
-            echo "\n\nMISSED THE FOLLOWING ".count($good_files)." FILES";
+        if(count($good_files))
+        {
+            echo "\n\nMISSED THE FOLLOWING ". count($good_files) ." FILES";
             echo " (if you have the scanned whole XML dump, these may be pages whose title has changed and have not been placed in a valid taxonomic category)\n";
-            foreach ($good_files as $title => $json) {
-                echo "* ".$title." in gallery <".$GLOBALS['gallery_files'][$title].">\n";
+            foreach($good_files as $title => $json)
+            {
+                echo "* $title in gallery <". $GLOBALS['gallery_files'][$title] .">\n";
             }
         }
-        flush();
     }
 }
 
-function get_map_categories($base_directory_path, $contact_sites=TRUE)
+function get_map_categories($base_directory_path, $contact_sites=true)
 {
-    //Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
-    //but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
-    //(using an old version should be no problem, as we don't expect many changes to this category structure)
+    // Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
+    // but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
+    // (using an old version should be no problem, as we don't expect many changes to this category structure)
 
     $base_category= "Distributional maps of organisms";
     $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
                     "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
-    
+
     $mapcats = array($base_category => 1);
-    
-    if (count($mapcats) <= 1 && $contact_sites) {
+    if(count($mapcats) <= 1 && $contact_sites)
+    {
         $url = $sites["toolserver"].urlencode($base_category);
-        $tab_separated_string = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME*10, DOWNLOAD_TIMEOUT_SECONDS*10);
         $tab_separated_string = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => DOWNLOAD_WAIT_TIME*10, 'timeout' => DOWNLOAD_TIMEOUT_SECONDS*10));
-        if (isset($tab_separated_string) && !preg_match("/^[^\r\n]*Database Error/i",$tab_separated_string))
+        if(isset($tab_separated_string) && !preg_match("/^[^\r\n]*Database Error/i",$tab_separated_string))
         {
             foreach(preg_split("/(\r?\n)|(\n?\r)/", $tab_separated_string, null, PREG_SPLIT_NO_EMPTY) as $line)
             {
-                $name = preg_replace("/_/u", " ", preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line)); //Category name is after first tab
+                //  Category name is after first tab
+                $name = preg_replace("/_/u", " ", preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line));
                 $mapcats[$name] = 1;
             }
             echo "Got map categories from toolserver ($url)\n";
-            flush();
-        } else {
-            echo "Couldn't get map categories from toolserver ($url)\n";
-            flush();
-        }
+        }else echo "Couldn't get map categories from toolserver ($url)\n";
     }
 
-    if (count($mapcats) <= 1 && $contact_sites) {
+    if(count($mapcats) <= 1 && $contact_sites)
+    {
         $url = $sites["wmflabs"].urlencode($base_category);
         @($json = json_decode(Functions::get_remote_file($url)));
-        
-        if (isset($json) && isset($json->pages))
+        if(isset($json) && isset($json->pages))
         {
-            foreach($json->pages as $mapcat) {
+            foreach($json->pages as $mapcat)
+            {
                 $name = preg_replace("/_/u", " ", preg_replace("/^Category:/u", "", $mapcat));
                 $mapcats[$name] = 1;
             }
             echo "Got map categories from wmflabs ($url)\n";
-            flush();
-        } else {
-            echo "Couldn't get map categories from wmflabs ($url)\n";
-            flush();
-        }
+        }else echo "Couldn't get map categories from wmflabs ($url)\n";
     }
 
-    if (count($mapcats) > 1) {
-        @rename($base_directory_path."MapCategories.txt", $base_directory_path."MapCategories_previous.txt"); //overwrite previous
+    if(count($mapcats) > 1)
+    {
+        // overwrite previous
+        @rename($base_directory_path."MapCategories.txt", $base_directory_path."MapCategories_previous.txt");
         file_put_contents($base_directory_path."MapCategories.txt", implode("\n",array_keys($mapcats)));
         return $mapcats;
-    } else {
+    }else
+    {
         echo "Didn't download new list of map categories: using old version.\n";
-        flush();
         $mapcats = file($base_directory_path."MapCategories.txt", FILE_IGNORE_NEW_LINES);
         return(array_fill_keys($mapcats, 1));
     }
 }
 
-function print_page(&$page)
+function print_memory_and_time()
 {
-    echo "<b>".$page->title."</b><br>";
-    echo "<div style='background-color:#DDDDDD;'><pre>".htmlspecialchars($page->xml)."</pre></div>\n";
-    Functions::print_pre($page->licenses());
-    Functions::print_pre($page->taxonomy());
-    Functions::print_pre($page->taxon_parameters());
-    Functions::print_pre($page->data_object_parameters());
-    Functions::print_pre($page->information());
-    echo "Contributor: ". $page->contributor ."<br>";
-    echo "Author: ". $page->author() ."<br>";
-    echo "Description: ". $page->description() ."<br>";
-    echo "<hr>";
+    echo "Memory: ". memory_get_usage_in_mb() ." MB\n";
+    echo "Time: : ". round(time_elapsed(), 2) ." s\n\n\n";
 }
 
 ?>
