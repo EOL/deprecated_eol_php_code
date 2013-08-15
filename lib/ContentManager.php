@@ -324,7 +324,7 @@ class ContentManager
 
     function create_content_thumbnails($file, $prefix, $options = array())
     {
-        $this->reduce_original($file, $prefix);
+        $this->reduce_original($file, $prefix, @($options['rotation']));
         // we make an exception
         if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
         {
@@ -344,9 +344,15 @@ class ContentManager
         $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
-    function reduce_original($path, $prefix)
+    function reduce_original($path, $prefix, $rotation=null)
     {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80";
+        if (isset($rotation))
+        {
+            $rotate = "-rotate $rotation";
+        } else {
+            $rotate = "-auto-orient";
+        } 
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);

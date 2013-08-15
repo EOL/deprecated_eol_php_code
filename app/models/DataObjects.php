@@ -205,10 +205,19 @@ class DataObject extends ActiveRecord
         {
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
-                // TODO - hardcoded exception to make the Biopix images smaller
-                $thumbnail_options = array();
-                if($resource->title == "Biopix") $thumbnail_options = array('large_image_dimensions' => array(300, 300));
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $thumbnail_options);
+                // Hardcoded exception to make the Biopix images smaller
+                $image_options = array();
+                if($resource->title == "Biopix") $image_options['large_image_dimensions'] = array(300, 300);
+                if(isset($resource->flickr()))
+                {
+                    if (isset($this->additionalInformation)) //I'm not sure this is the correct way to access the 'additionalInformation' data object field
+                    {
+                        if (preg_match("/<rotation>(\d+)</rotation>/", $this->additionalInformation, $arr) {
+                            $image_options['rotation'] = $arr[1];
+                        }
+                    }
+                }
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, 0, "image", $image_options);
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
