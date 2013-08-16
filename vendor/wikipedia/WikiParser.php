@@ -197,8 +197,8 @@ class WikiParser
 
     private static function replace_active_wikitext($string)
     {   //allows us to replace contents of <nowiki> with content that will not be parsed
-        static $search=array("[[", "]]", "{{", "}}", "''", "'''");
-        static $replace=array("&#91;&#91;", "&#93;&#93;", "&#123;&#123;", "&#125;&#125;", "&#39;&#39;", "&#39;&#39;&#39;");
+        static $search = array("[[", "]]", "{{", "}}", "''", "'''");
+        static $replace = array("&#91;&#91;", "&#93;&#93;", "&#123;&#123;", "&#125;&#125;", "&#39;&#39;", "&#39;&#39;&#39;");
         return str_replace($search, $replace, $string[1]);
     }
 

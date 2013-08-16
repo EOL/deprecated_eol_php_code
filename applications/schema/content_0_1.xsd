@@ -320,6 +320,7 @@
     <xsd:simpleType name="mimeTypes">
         <xsd:restriction base="xsd:anyURI">
             <xsd:enumeration value="application/pdf"/>
+            <xsd:enumeration value="application/ogg"/>
             <xsd:enumeration value="audio/mpeg"/>
             <xsd:enumeration value="audio/x-ms-wma"/>
             <xsd:enumeration value="audio/x-pn-realaudio"/>

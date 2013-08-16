@@ -24,10 +24,10 @@ class WikimediaHarvester
         $this->taxonomic_galleries  = array();
         $this->gallery_files = array();
         $this->map_categories = $this->get_map_categories($this->base_directory_path);
-        $this->n_media_files = 0;
-        $this->n_pages = 0;
+        $this->number_of_media_files_found = 0;
+        $this->number_of_taxa_pages_found = 0;
         $this->processed_files = 0;
-        $this->batch = array();
+        $this->queue_of_pages_to_process = array();
 
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
         $this->resource_file = new \SchemaDocument($this->resource_file_path);
@@ -35,34 +35,39 @@ class WikimediaHarvester
 
     public function begin_wikipedia_harvest()
     {
-        // // delete the downloaded files
+        // delete the downloaded files
         $this->cleanup_dump();
         $this->download_dump();
 
         // FIRST PASS: go through all files to grab TaxonavigationIncluded files, e.g. https://commons.wikimedia.org/wiki/Template:Aves
         $this->iterate_files(array($this, 'get_taxonav_includes'));
-        $this->taxonav_includes = unserialize(file_get_contents(DOC_ROOT . 'vendor/wikipedia/taxonavs.txt'));
 
         // INTERMEDIATE PASS: grab taxon information and determine scientific images
         $this->iterate_files(array($this, 'get_taxonomic_pages'));
-
-        $galleries_with_files = count(array_unique($this->gallery_files));
-        echo "\n\n# total galleries:  ". count($this->taxonomic_galleries) .", with ". count($this->gallery_files) ." media files.";
-        echo " $galleries_with_files galleries (". @($galleries_with_files / count($this->taxonomic_galleries) * 100) ."%) actually have files\n";
-        echo "\n\n# total categories: ". count($this->taxonomic_categories) ."\n";
+        $this->debug_before_media();
 
         // FINAL PASS: grab file information for scientific media pages and save to file
         $this->iterate_files(array($this, 'get_media_pages'));
 
-        $last_number = $this->batch_process();
-
-        echo "\n\n (last $last_number media files processed)\n";
-        echo "\n\n# media files: $n_media_files (in ". count($this->taxa) ." taxa)\n";
-
+        echo "\n\n(processing last ". count($this->queue_of_pages_to_process) ." media)\n";
+        $this->process_page_queue();
+        echo "\n\n# media files: $this->number_of_media_files_found (in ". count($this->taxa) ." taxa)\n";
         $this->check_remaining_gallery_files();
+
+        @unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_previous.xml");
+        @rename(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_previous.xml");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml");
 
         echo "End\n";
         self::print_memory_and_time();
+    }
+
+    private function debug_before_media()
+    {
+        $galleries_with_files = count(array_unique($this->gallery_files));
+        echo "\n\n# total galleries:  ". count($this->taxonomic_galleries) .", with ". count($this->gallery_files) ." media files.";
+        echo " $galleries_with_files galleries (". @($galleries_with_files / count($this->taxonomic_galleries) * 100) ."%) actually have files\n";
+        echo "\n\n# total categories: ". count($this->taxonomic_categories) ."\n";
     }
 
     private function download_dump()
@@ -85,45 +90,49 @@ class WikimediaHarvester
 
     private function iterate_files($callback)
     {
-        $left_overs = "";
+        $this->page_iteration_left_overs = "";
         $suffix = str_repeat('a', $this->part_file_suffix_chars);
-        $suffix = 'ada';
-        while((strlen($suffix) == $this->part_file_suffix_chars) && $this->process_file($this->part_file_base . $suffix, $callback, $left_overs))
+        while((strlen($suffix) == $this->part_file_suffix_chars))
         {
+            $filename = $this->part_file_base . $suffix;
+            if(!file_exists($filename))
+            {
+                echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
+                break;
+            }
+            $this->process_file($filename, $callback, $this->page_iteration_left_overs);
             // auto-increment allows us to match the output of the 'split' command: aaa->aab, aaz->aba, etc
             $suffix++;
         }
-        if(!preg_match('/\s*<\/mediawiki>\s*/smi', $left_overs))
+        if(!preg_match('/\s*<\/mediawiki>\s*/smi', $this->page_iteration_left_overs))
         {
             echo "WARNING: THE LAST WIKI FILE APPEARS TO BE TRUNCATED. Part of the wiki download may be missing.\n";
         }
     }
 
-    private function process_file($filename, $callback, &$left_overs = "")
+    private function process_file($filename, $callback)
     {
-        if(!file_exists($filename))
-        {
-            echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
-            return false;
-        }
+        if(!file_exists($filename)) return false;
         echo "Processing file ". basename($filename) ." with callback ". $callback[1] ."\n";
         self::print_memory_and_time();
 
-        $current_page = $left_overs;
+        // the last file ended in the middle of a page. Use the remainder of the last file as a starting point
+        $current_page = $this->page_iteration_left_overs;
+        $this->page_iteration_left_overs = "";
         foreach(new FileIterator($filename) as $line)
         {
+            $line .= "\n";
             $current_page .= $line;
-            if(trim($line) == "<page>")
-            {
-                $current_page = $line;
-            }
-            if(trim($line) == "</page>")
+            // this is a new page so reset $current_page
+            if(trim($line) == "<page>") $current_page = $line;
+            elseif(trim($line) == "</page>")
             {
                 call_user_func($callback, $current_page);
                 $current_page = "";
             }
         }
-        $left_overs = $current_page;
+        // in the middle of a <page> tag. Save the current page to use as a starting pont for the next file
+        $this->page_iteration_left_overs = $current_page;
         return true;
     }
 
@@ -144,21 +153,17 @@ class WikimediaHarvester
                         if(count($include_array))
                         {
                             $this->taxonav_includes[$page->title] = $include_array;
-                        }else
-                        {
-                            echo "$page->title is not a real TaxonavigationInclude* template\n";
-                        }
+                        }else echo "$page->title is not a real TaxonavigationInclude* template\n";
                     }
                 }
             }
         }
-        static $pages = 0;
-        $pages++;
-        if($pages % 100000 == 0)
+        static $count = 0;
+        $count++;
+        if($count % 100000 == 0)
         {
-            echo "Page: $pages (preliminary pass). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes) ."\n";
+            echo "Page: $count (preliminary pass). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes) ."\n";
             self::print_memory_and_time();
-            echo serialize($this->taxonav_includes)."\n";
         }
     }
 
@@ -166,7 +171,8 @@ class WikimediaHarvester
     {
         if(\WikimediaPage::fast_is_gallery_category_or_template($xml))
         {
-            if($text_start = strpos($xml, "<text")) //make sure we don't include cases with {{Taxonavigation in the comments field, etc.
+            // make sure we don't include cases with {{Taxonavigation in the comments field, etc.
+            if($text_start = strpos($xml, "<text"))
             {
                 if(preg_match("/\{\{Taxonavigation/", $xml, $arr, 0, $text_start))
                 {
@@ -175,10 +181,10 @@ class WikimediaHarvester
                     {
                         if($page->contains_template("Taxonavigation"))
                         {
-                            //This is a template that itself contains the template "Taxonavigation", so we might be interested in it
+                            // This is a template that itself contains the template "Taxonavigation", so we might be interested in it
                             if(preg_match("/^Template:Taxonavigation\//", $page->title))
                             {
-                                //we don't need to worry: it's something like Template::Taxonavigation/doc,
+                                // we don't need to worry: it's something like Template::Taxonavigation/doc,
                             }else
                             {
                                 echo "The template '$page->title' transcludes {{Taxonavigation}}: we might want to consider looking for taxonomic pages containing this template too.\n";
@@ -186,7 +192,8 @@ class WikimediaHarvester
                         }
                     }else
                     {
-                        if($params = $page->taxon_parameters($this->taxonav_includes)) //pass in "taxonav_includes" to avoid lots of API calls
+                        // pass in "taxonav_includes" to avoid lots of API calls
+                        if($params = $page->taxon_parameters($this->taxonav_includes))
                         {
                             if(@$params['scientificName'])
                             {
@@ -194,10 +201,10 @@ class WikimediaHarvester
 
                                 if($page->is_category())
                                 {
-                                    $this->taxonomic_categories[$page->title] = $page->taxonomy_score();
+                                    $this->taxonomic_categories[$page->title] = $page->weighted_taxonomy_score();
                                 }elseif($page->is_gallery())
                                 {
-                                    $this->taxonomic_galleries[$page->title] = $page->taxonomy_score();
+                                    $this->taxonomic_galleries[$page->title] = $page->weighted_taxonomy_score();
                                     foreach($page->media_on_page() as $file)
                                     {
                                         $this->gallery_files["File:".$file] = $page->title;
@@ -209,10 +216,10 @@ class WikimediaHarvester
                 }
             }
         }
-        $this->n_pages++;
-        if($this->n_pages % 100000 == 0)
+        $this->number_of_taxa_pages_found++;
+        if($this->number_of_taxa_pages_found % 100000 == 0)
         {
-            echo "Page: $this->n_pages (first pass). # taxa so far: ". count($this->taxa) ."\n";
+            echo "Page: $this->number_of_taxa_pages_found (first pass). # taxa so far: ". count($this->taxa) ."\n";
             self::print_memory_and_time();
         }
     }
@@ -241,47 +248,50 @@ class WikimediaHarvester
                 unset($this->gallery_files[$page->title]);
             }
 
-            // check if the page has an associated "taxonomic category"
-            // done on every file in the dump: be careful not to trigger off a remote API call
-            foreach($page->get_categories() as $cat)
+            if(!$wanted)
             {
-                $cat = "Category:$cat";
-                if(isset($this->taxonomic_categories[$cat]))
+                // check if the page has an associated "taxonomic category"
+                // done on every file in the dump: be careful not to trigger off a remote API call
+                foreach($page->get_categories() as $cat)
                 {
-                    // just flag this as wanted. We'll search for proper categories later
-                    $wanted = true;
-                    break;
+                    if(isset($this->taxonomic_categories["Category:$cat"]))
+                    {
+                        // just flag this as wanted. We'll search for proper categories later
+                        $wanted = true;
+                        break;
+                    }
                 }
             }
-            if($wanted) $this->processed_files += $this->batch_process($page);
+            if($wanted) $this->queue_page_for_processing($page);
         }
 
-        static $p = 0;
-        $p++;
-        if($p % 100000 == 0)
+        static $count = 0;
+        $count++;
+        if($count % 100000 == 0)
         {
-            echo "Page: $p (final pass, ". round($p/$this->n_pages*100, 1) ."% done). # media files so far: $this->n_media_files ($this->processed_files completed via MediaWiki API query)\n";
+            echo "Page: $count (final pass, ". round($count/$this->number_of_taxa_pages_found*100, 1) ."% done). # media files so far: $this->number_of_media_files_found ($this->processed_files completed via MediaWiki API query)\n";
             self::print_memory_and_time();
         }
     }
 
-    private function batch_process($page = null)
+    private function queue_page_for_processing($page)
     {
-        // if page is null, just process any remaining in the batch
-        $batch_volume = \WikimediaPage::$max_titles_per_lookup;
-        if($page)
+        if(!$page) return;
+        $this->number_of_media_files_found++;
+        // we could potentially only check files with recently updated timestamps here?
+        // but we would also need to catch unchanged files whose taxonomic classification has changed
+        $this->queue_of_pages_to_process[] = $page;
+        // when the queue is large enough, process it
+        if(count($this->queue_of_pages_to_process) >= \WikimediaPage::$max_titles_per_lookup)
         {
-            $this->n_media_files++;
-            // we could potentially only check files with recently updated timestamps here?
-            // but we would also need to catch unchanged files whose taxonomic classification has changed
-            $this->batch[] = $page;
-            // wait until we have enough in a batch.
-            if(count($this->batch) < $batch_volume) return 0;
+            $this->process_page_queue();
         }
+    }
 
-        // either there are enough pages in the batch to process, or $page==null, triggering us to process the remaining pages in the batch
-        \WikimediaPage::process_pages_using_API($this->batch);
-        foreach($this->batch as $page)
+    private function process_page_queue()
+    {
+        \WikimediaPage::process_pages_using_API($this->queue_of_pages_to_process);
+        foreach($this->queue_of_pages_to_process as $page)
         {
             // page may have multiple taxonomies: e.g. from gallery "Mus musculus", category "Mus musculus", category "Mus", etc.
             // pick the one with the highest "taxonomy score"
@@ -302,40 +312,47 @@ class WikimediaHarvester
                 echo "ERROR. This shouldn't happen. No categories for $page->title (have you failed to connect to the Wikimedia API?)\n";
             }else
             {
-                $potential_license_categories = "";
+                $potential_license_categories = array();
                 $map = false;
                 foreach($categories_from_API as $cat)
                 {
-                    if(isset($this->taxonomic_categories["Category:$cat"]))
+                    $category_name = "Category:$cat";
+                    if($category_score = @$this->taxonomic_categories[$category_name])
                     {
-                        $fullcat = "Category:$cat";
-                        $diff = $best_taxonomy_score - $this->taxonomic_categories[$fullcat];
-                        if($diff < 0)
+                        if($category_score > $best_taxonomy_score)
                         {
-                            if(($diff < -0.5) && isset($best_taxonomy))
+                            $difference_in_scores = $best_taxonomy_score - $category_score;
+                            if(($difference_in_scores < -0.5) && isset($best_taxonomy))
                             {
                                 echo "Got a substantially better taxonomy for $page->title : $best_taxonomy (score $best_taxonomy_score)";
-                                echo " replaced with $fullcat (score ". $this->taxonomic_categories[$fullcat] .")\n";
+                                echo " replaced with $category_name (score $category_score)\n";
                             }
-                            $best_taxonomy = $fullcat;
-                            $best_taxonomy_score = $this->taxonomic_categories[$fullcat];
+                            $best_taxonomy = $category_name;
+                            $best_taxonomy_score = $category_score;
                         }
                     }elseif(isset($this->map_categories[$cat]))
                     {
                         $map = true;
-                    }else $potential_license_categories .= $cat."\n";
+                    }
+                    // neither a taxonomic category, nor a map category, so maybe its a license category
+                    else $potential_license_categories[] = $cat;
                 }
 
                 if($map) $page->set_additionalInformation("<subtype>Map</subtype>");
-                if($license = \WikimediaPage::match_license($potential_license_categories, true))
-                {
-                    $page->set_license($license);
-                }
+                if($potential_license_categories) $page->reassess_licenses_with_additions($potential_license_categories);
             }
             if(!$page->has_license())
             {
                 echo "No valid license category for $page->title (Categories: ".implode("|", $categories_from_API) .")\n";
+                // continue;
             }
+            if(!$page->has_valid_mime_type())
+            {
+                $params = $page->get_data_object_parameters();
+                echo "No valid mime_type category for $page->title (". @$params['mimeType'] .")\n";
+                continue;
+            }
+
             if(empty($best_taxonomy))
             {
                 echo "That's odd: no valid taxonomy for $page->title . Perhaps the categories via the API have changed since the XML dump (dump: ". implode("|", $page->categories_from_wikitext) .", API: ". implode("|", $categories_from_API) .")\n";
@@ -347,9 +364,8 @@ class WikimediaHarvester
             }
         }
 
-        $batch_size = count($batch);
-        $this->batch = array();
-        return $batch_size;
+        $this->processed_files += count($this->queue_of_pages_to_process);
+        $this->queue_of_pages_to_process = array();
     }
 
     private function check_remaining_gallery_files()

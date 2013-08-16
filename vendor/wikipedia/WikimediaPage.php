@@ -5,7 +5,6 @@ class WikimediaPage
     public  $xml;
     private $simple_xml;
     private $data_object_parameters;
-    private $taxon_level;
 
     // see http://www.mediawiki.org/wiki/Manual:MIME_type_detection
     private static $mediatypes = array(
@@ -22,7 +21,6 @@ class WikimediaPage
     {
         $this->xml = $xml;
         $this->simple_xml = @simplexml_load_string($this->xml);
-        $this->taxon_level = 0;
         if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
         {
             $this->text = (string) $this->simple_xml->query->pages->page->revisions->rev;
@@ -133,7 +131,7 @@ class WikimediaPage
         return $this->information;
     }
 
-    private function fill_includes_recursively(&$arr, $include_arrays, &$visited=array())
+    private function fill_includes_recursively(&$arr, &$include_arrays, &$visited=array())
     {
         if(!empty($arr['include']))
         {
@@ -211,7 +209,7 @@ class WikimediaPage
         return $taxonomy;
     }
 
-    public function taxonomy_via_wikitext($taxonav_include_arrays)
+    public function taxonomy_via_wikitext(&$taxonav_include_arrays)
     {
         // Note that unlike taxonomy_via_API, this deliberately does not include the authority name in the scientificName
         // This also means we don't have problems with non-ascii characters in authority names, etc.
@@ -244,9 +242,22 @@ class WikimediaPage
         return $taxonomy;
     }
 
-    public function taxon_parameters($taxonav_include_arrays=null)
+    public function taxonomy_coverage_score()
     {
-        static $wiki_to_EoL = array(
+        if(!isset($this->taxon_parameters)) $this->taxon_parameters();
+        $taxon_score = 0;
+        $rank_weight = 1;
+        foreach(self::wiki_ranks_to_eol_ranks() as $wiki_rank => $eol_rank)
+        {
+            $rank_weight *= 2;
+            if(isset($this->taxon_parameters[$eol_rank])) $taxon_score += $rank_weight;
+        }
+        return $taxon_score;
+    }
+
+    private static function wiki_ranks_to_eol_ranks()
+    {
+        static $ranks = array(
             "regnum"    => "kingdom",
             "phylum"    => "phylum",
             "classis"   => "class",
@@ -254,6 +265,11 @@ class WikimediaPage
             "familia"   => "family",
             "genus"     => "genus",
             "species"   => "scientificName");
+        return $ranks;
+    }
+
+    public function taxon_parameters(&$taxonav_include_arrays = null)
+    {
         if(isset($this->taxon_parameters)) return $this->taxon_parameters;
         if(empty($taxonav_include_arrays)) $taxonomy = $this->taxonomy_via_API();
         else $taxonomy = $this->taxonomy_via_wikitext($taxonav_include_arrays);
@@ -263,88 +279,116 @@ class WikimediaPage
         $taxon_parameters = array();
         //attempts to set $taxon_parameters['scientificName'] to the lowest level
 
-        $best_score = 1;
-        foreach($wiki_to_EoL as $wiki => $EoL)
+        $best_rank = null;
+        foreach(self::wiki_ranks_to_eol_ranks() as $wiki_rank => $eol_rank)
         {
             $best_score *= 2;
-            if(!empty($taxonomy[$wiki]))
+            if(empty($taxonomy[$wiki_rank])) continue;
+            $name = $taxonomy[$wiki_rank];
+            if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{|\}/u", $name))
             {
-                $name = $taxonomy[$wiki];
-                if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{|\}/u", $name))
+                echo "Invalid characters in taxonomy fields ($wiki_rank = $name) for $this->title . Ignoring this level.\n";
+                continue;
+            }
+            if(preg_match("/unidentified|unknown|incertae sedis| incertae/i", $name))
+            {
+                echo "Name in $this->title listed as unidentified ($name). Ignoring this part of the classification.\n";
+                continue;
+            }
+            // remove preceeding fossil: e.g. Fossil Pectinidae
+            if(preg_match("/^fossil (.*)$/i", $name, $arr)) $name = ucfirst(trim($arr[1]));
+            if($wiki_rank == 'genus' && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+            {
+                echo "Multi-word genus ($name) in $this->title getting shortened to ". $arr[1] ."\n";
+                if(empty($taxonomy['species']))
                 {
-                    echo "Invalid characters in taxonomy fields ($wiki = $name) for $this->title . Ignoring this level.\n";
-                }else
+                    echo "...and setting the species to $name\n";
+                    $taxonomy['species'] = $name;
+                }
+                $name = $arr[1];
+            }
+            // no space in spp name, could be just the epithet
+            if(($wiki_rank == "species") && !preg_match("/\s/", $name))
+            {
+                if(empty($taxonomy['genus']))
                 {
-                    // no space in spp name, could be just the epithet
-                    if(($wiki=="species") && !preg_match("/\s+/", $name))
-                    {
-                        if(empty($taxonomy['genus']))
-                        {
-                            echo "Single-word species ($name) but no genus in $this->title . Ignoring this part of the classification.\n";
-                            continue;
-                        }elseif(preg_match("/unidentified|unknown/i", $name))
-                        {
-                            echo "Species in $this->title listed as unidentified. Ignoring this part of the classification.\n";
-                            continue;
-                        }elseif(mb_strtolower($name, "UTF-8") != $name)
-                        {
-                            echo "Single-word species ($name) has CaPs in $this->title . Ignoring this part of the classification.\n";
-                            continue;
-                        }
-                        $name = $taxonomy['genus']." ".$name;
-                    }
-                    $best = $taxon_parameters[$EoL] = $name;
-                    $this->taxon_level += $best_score;
+                    echo "Single-word species ($name) but no genus in $this->title . Ignoring this part of the classification.\n";
+                    continue;
+                }elseif(mb_strtolower($name, "UTF-8") != $name)
+                {
+                    echo "Single-word species ($name) has CaPs in $this->title . Ignoring this part of the classification.\n";
+                    continue;
+                }
+                $name = $taxonomy['genus'] ." ". $name;
+            }
+            if($wiki_rank != 'species')
+            {
+                while(preg_match("/( \(.*?\))/", $name, $arr)) $name = str_replace($arr[1], '', $name);
+                if(preg_match("/[ \(\)]/", $name))
+                {
+                    echo "Non-species $wiki_rank ($name) has issues in $this->title.\n";
                 }
             }
+            if($wiki_rank == 'species' && empty($taxonomy['genus']) && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+            {
+                $taxonomy['genus'] = $arr[1];
+            }
+            $taxon_parameters[$eol_rank] = $name;
+            $best_rank = $eol_rank;
         }
 
-        if(!empty($best)) $taxon_parameters['scientificName'] = $best;
+        if($best_rank)
+        {
+            $best_name = $taxon_parameters[$best_rank];
+            unset($taxon_parameters[$best_rank]);
+            if(isset($taxonomy['authority']))
+            {
+                $best_name = trim($best_name ." ". $taxonomy['authority']);
+            }
+            $taxon_parameters['scientificName'] = $best_name;
+        }
         $taxon_parameters['dataObjects'] = array();
         $this->taxon_parameters = $taxon_parameters;
         return $taxon_parameters;
     }
 
-    public function taxonomy_score()
+    public function weighted_taxonomy_score()
     {
         // used when we have a choice between 2 taxonomies: pick the one with the highest score
         // TODO = improve algorithm, so that better-filled out taxonomies scaore higher, all else being equal
-
-        // shouldn't need this, unless called in the wrong order
-        if(!isset($this->taxon_parameters)) $this->taxon_parameters();
         // if equal score, categories are a bit more trustworthy
-        if($this->is_category()) return $this->taxon_level + 0.2;
-        elseif($this->is_gallery()) return $this->taxon_level + 0.1;
-        else return $this->taxon_level + 0.0;
+        if($this->is_category()) return $this->taxonomy_coverage_score() + 0.2;
+        elseif($this->is_gallery()) return $this->taxonomy_coverage_score() + 0.1;
+        else return $this->taxonomy_coverage_score() + 0.0;
     }
 
-    public static function match_license($val, $strict = false)
+    public static function match_license($val, $searching_wikitext = true)
     {
+        if($searching_wikitext) $regex_modifiers = "";
+        else $regex_modifiers = "i";
         // The licenses should be listed in order of preference
-        if($strict) $flag = "i";
-        else $flag = "";
         // PD-USGov-CIA-WF
-        if(preg_match("/(^|\n)(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mu".$flag, $val))
+        if(preg_match("/(^|\n)(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mu" . $regex_modifiers, $val))
         {
             return "http://creativecommons.org/licenses/publicdomain/";
         }
         // cc-zero
-        if(preg_match("/(^|\n)CC-Zero/mu".$flag, $val))
+        if(preg_match("/(^|\n)CC-Zero/mu" . $regex_modifiers, $val))
         {
             return "http://creativecommons.org/publicdomain/zero/1.0/";
         }
         // no known copyright restrictions
-        if(preg_match("/(^|\n)(flickr-)?no known copyright restrictions/mu".$flag, $val))
+        if(preg_match("/(^|\n)(flickr-)?no known copyright restrictions/mu" . $regex_modifiers, $val))
         {
             return "http://www.flickr.com/commons/usage/";
         }
         // {{gfdl|migration=relicense}} can be relicensed as cc-by-sa-3.0
-        if(preg_match("/migration=relicense/mu".$flag, $val))
+        if($searching_wikitext && preg_match("/migration=relicense/mu" . $regex_modifiers, $val))
         {
             return "http://creativecommons.org/licenses/by-sa/3.0/";
         }
         // simple cc-by-2.5,2.0,1.0-de preferred
-        if(preg_match("/(^|\n)CC-(BY)(-\d.*)$/mu".$flag, $val, $arr))
+        if(preg_match("/(^|\n)CC-(BY)(-\d.*)$/mu" . $regex_modifiers, $val, $arr))
         {
             $license = strtolower($arr[2]);
             $rest = $arr[3];
@@ -353,7 +397,7 @@ class WikimediaPage
             return "http://creativecommons.org/licenses/$license/$version/";
         }
         // cc-by-sa-2.5,2.0,1.0-de, next most preferred
-        if(preg_match("/(^|\n)CC-(BY-SA)(-\d.*)$/mu".$flag, $val, $arr))
+        if(preg_match("/(^|\n)CC-(BY-SA)(-\d.*)$/mu" . $regex_modifiers, $val, $arr))
         {
             $license = strtolower($arr[2]);
             $rest = $arr[3];
@@ -362,7 +406,7 @@ class WikimediaPage
             return "http://creativecommons.org/licenses/$license/$version/";
         }
         // cc-sa-1.0
-        if(preg_match("/(^|\n)(CC-SA)(.*)$/mu".$flag, $val, $arr))
+        if(preg_match("/(^|\n)(CC-SA)(.*)$/mu" . $regex_modifiers, $val, $arr))
         {
             $license = "by-sa";
             $rest = $arr[3];
@@ -371,7 +415,7 @@ class WikimediaPage
             return "http://creativecommons.org/licenses/$license/$version/";
         }
         // catch all the rest of the cc-licenses, if we've got this far
-        if(preg_match("/(^|\n)CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mu".$flag, $val, $arr))
+        if(preg_match("/(^|\n)CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mu" . $regex_modifiers, $val, $arr))
         {
             $license = strtolower($arr[2]);
             $rest = $arr[3];
@@ -427,6 +471,23 @@ class WikimediaPage
     {
         if(empty($this->data_object_parameters['license'])) return false;
         else return true;
+    }
+
+    public function has_valid_mime_type()
+    {
+        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'application/ogg', 'image/svg+xml', 'image/tiff');
+        if(empty($this->data_object_parameters['mimeType'])) return false;
+        if(!in_array($this->data_object_parameters['mimeType'], $valid_mime_types)) return false;
+        return true;
+    }
+
+    public function reassess_licenses_with_additions($potential_license_categories)
+    {
+        if(!$potential_license_categories) return;
+        if($license = \WikimediaPage::match_license(implode("\n", $potential_license_categories), false))
+        {
+            $this->set_license($license);
+        }
     }
 
     public function set_license($license)
@@ -664,7 +725,7 @@ class WikimediaPage
 
     public function location()
     {
-        //Very crude: just bungs the 9th parameter giving GeoHack server metadata into "location": coded region, heading, scale, etc.
+        // Very crude: just bungs the 9th parameter giving GeoHack server metadata into "location": coded region, heading, scale, etc.
         if(isset($this->location)) return $this->location;
         $this->point();
         return $this->location;
@@ -673,7 +734,6 @@ class WikimediaPage
     public function media_on_page()
     {
         $media = array();
-
         $text = $this->active_wikitext();
         $lines = explode("\n", $text);
         foreach($lines as $line)
@@ -684,12 +744,11 @@ class WikimediaPage
             {
                 $first_letter = $arr[2];
                 $rest = $arr[3];
-                //In <title>, all pages have a capital first letter, and single spaces replace any combo of spaces + underscores
-                //Can't use ucfirst() as this string may be unicode.
-                $media[] = mb_strtoupper($first_letter,'utf-8').preg_replace("/[_ ]+/u", " ", $rest);
+                // In <title>, all pages have a capital first letter, and single spaces replace any combo of spaces + underscores
+                // Can't use ucfirst() as this string may be unicode.
+                $media[] = mb_strtoupper($first_letter,'utf-8') . preg_replace("/[_ ]+/u", " ", $rest);
             }
         }
-
         return $media;
     }
 
@@ -698,7 +757,7 @@ class WikimediaPage
         return (preg_match("/\{\{".$template."\s*[\|\}]/u", $this->active_wikitext()));
     }
 
-    public function taxonav_as_array($template_name, $strip_syntax=true)
+    public function taxonav_as_array($template_name, $strip_syntax = true)
     {   // A special format for Taxonavigations, where e.g. param[1] is "Cladus" and param[2] is "magnoliids"
         // Place param[1] as the key, and param[2] as the value of the returned array, so that e.g.
         // Taxonavigation|Cladus|magnoliids|Ordo|Laurales becomes [0=>Taxonavigation, Cladus=>magnoliids, Ordo=>Laurales]
@@ -710,9 +769,11 @@ class WikimediaPage
         foreach($plain_array as $param => $value)
         {
             $value = trim($value);
-            if(is_int($param)) //numerical array elements get reassigned.
+            // numerical array elements get reassigned.
+            if(is_int($param))
             {
-                if($param % 2) //$param = 1,3,5
+                // $param = 1,3,5
+                if($param % 2)
                 {
                     if($value != "")
                     {
@@ -720,10 +781,10 @@ class WikimediaPage
                         {
                             if($strip_syntax)
                             {
-                                $tnav_array[lcfirst($value)]=WikiParser::strip_syntax($plain_array[$param+1]);
+                                $tnav_array[lcfirst($value)] = WikiParser::strip_syntax($plain_array[$param+1]);
                             }else
                             {
-                                $tnav_array[lcfirst($value)]=$plain_array[$param+1];
+                                $tnav_array[lcfirst($value)] = $plain_array[$param+1];
                             }
                         }else
                         {
@@ -871,59 +932,67 @@ class WikimediaPage
             }else
             {
                 $json_info = $json_array[$page->title];
-                $page->initialize_data_object();
+                $page->initialize_data_object_from_api_response($json_info);
+                $page->initialize_categories_from_api_response($json_info);
+            }
+        }
+    }
 
-                // set URL, mimetype, mediatype
-                if(isset($json_info['imageinfo']) && isset($json_info['imageinfo'][0]))
-                {
-                    // URL
-                    if(isset($json_info['imageinfo'][0]['url']))
-                    {
-                        $page->set_mediaURL($json_info['imageinfo'][0]['url']);
-                    }else
-                    {
-                        $page->set_mediaURL("");
-                        echo "That's odd. No URL returned in API query for $page->title (in $url)\n";
-                    }
-                    // mime
-                    if(isset($json_info['imageinfo'][0]['mime']))
-                    {
-                        // TOimage/svg+xml
-                        // application/ogg
-                        $page->set_mimeType($json_info['imageinfo'][0]['mime']);
-                    }else
-                    {
-                        echo "That's odd. No mimeType returned in API query for $page->title (in $url)\n";
-                    }
-                    // mediatype
-                    if(isset($json_info['imageinfo'][0]['mediatype']))
-                    {
-                        $page->set_mediatype($json_info['imageinfo'][0]['mediatype']);
-                    }else
-                    {
-                        echo "That's odd. No mediatype returned in API query for $page->title (in $url)\n";
-                    }
-                }
+    private function initialize_data_object_from_api_response($json_info)
+    {
+        $this->initialize_data_object();
+        // set URL, mimetype, mediatype
+        if(isset($json_info['imageinfo']) && isset($json_info['imageinfo'][0]))
+        {
+            // URL
+            if(isset($json_info['imageinfo'][0]['url']))
+            {
+                $this->set_mediaURL($json_info['imageinfo'][0]['url']);
+            }else
+            {
+                $this->set_mediaURL("");
+                echo "That's odd. No URL returned in API query for $this->title (in $url)\n";
+            }
+            // mime
+            if(isset($json_info['imageinfo'][0]['mime']))
+            {
+                // TOimage/svg+xml
+                // application/ogg
+                $this->set_mimeType($json_info['imageinfo'][0]['mime']);
+            }else
+            {
+                echo "That's odd. No mimeType returned in API query for $this->title (in $url)\n";
+            }
+            // mediatype
+            if(isset($json_info['imageinfo'][0]['mediatype']))
+            {
+                $this->set_mediatype($json_info['imageinfo'][0]['mediatype']);
+            }else
+            {
+                echo "That's odd. No mediatype returned in API query for $this->title (in $url)\n";
+            }
+        }
+    }
 
-                // fill in categories - this will allow us to check taxonomy, license, & map-type later
-                if(isset($json_info['categories']))
+    private function initialize_categories_from_api_response($json_info)
+    {
+        // fill in categories - this will allow us to check taxonomy, license, & map-type later
+        if(isset($json_info['categories']))
+        {
+            foreach($json_info['categories'] as $cat)
+            {
+                if(strpos($cat['title'], "Category:") === 0)
                 {
-                    foreach($json_info['categories'] as $cat)
-                    {
-                        if(strpos($cat['title'], "Category:") === 0)
-                        {
-                            $page->add_extra_category(substr($cat['title'], 9));
-                        }else
-                        {
-                            $page->add_extra_category($cat['title']);
-                            echo "That's odd. The category ". $cat['title'] ." doesn't start with 'Category:' in API query for $page->title .\n";
-                        }
-                    }
+                    $this->add_extra_category(substr($cat['title'], 9));
                 }else
                 {
-                    echo "That's odd. No categories returned in API query for $page->title (in $url)\n";
+                    $this->add_extra_category($cat['title']);
+                    echo "That's odd. The category ". $cat['title'] ." doesn't start with 'Category:' in API query for $this->title .\n";
                 }
             }
+        }else
+        {
+            echo "That's odd. No categories returned in API query for $this->title (in $url)\n";
         }
     }
 
