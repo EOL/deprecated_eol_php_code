@@ -12,7 +12,7 @@ class WikimediaPage
                                     'DRAWING' => 'http://purl.org/dc/dcmitype/StillImage',
                                     'AUDIO'   => 'http://purl.org/dc/dcmitype/Sound',
                                     'VIDEO'   => 'http://purl.org/dc/dcmitype/MovingImage',
-//                                  'MULTIMEDIA' => '',
+                                    // 'MULTIMEDIA' => '',
                                     'TEXT'    => 'http://purl.org/dc/dcmitype/Text');
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
@@ -362,68 +362,125 @@ class WikimediaPage
         else return $this->taxonomy_coverage_score() + 0.0;
     }
 
-    public static function match_license($val, $searching_wikitext = true)
+    private static function license_types()
     {
-        if($searching_wikitext) $regex_modifiers = "";
-        else $regex_modifiers = "i";
-        // The licenses should be listed in order of preference
-        // PD-USGov-CIA-WF
-        if(preg_match("/(^|\n)(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mu" . $regex_modifiers, $val))
+        static $license_types = array(
+            'public domain',
+            'http://creativecommons.org/publicdomain/zero/',
+            'http://www.flickr.com/commons/usage/',
+            'http://creativecommons.org/licenses/by/',
+            'http://creativecommons.org/licenses/by-nc/',
+            'http://creativecommons.org/licenses/by-sa/',
+            'http://creativecommons.org/licenses/by-nc-sa/');
+        return $license_types;
+    }
+
+    private static function sort_identified_licenses($a, $b)
+    {
+        $license_types = self::license_types();
+        $a_index = array_search($a['category'], $license_types);
+        $b_index = array_search($b['category'], $license_types);
+        if($a_index == $b_index)
         {
-            return "http://creativecommons.org/licenses/publicdomain/";
+            if($a['version'] == $b['version']) return 0;
+            // larger version first
+            return (floatval($a['version']) > floatval($b['version'])) ? -1 : 1;
         }
-        // cc-zero
-        if(preg_match("/(^|\n)CC-Zero/mu" . $regex_modifiers, $val))
+        // smaller index first
+        return ($a_index < $b_index) ? -1 : 1;
+    }
+
+    public function best_license($potential_licenses)
+    {
+        $identified_licenses = array();
+        foreach($potential_licenses as $potential_license)
         {
-            return "http://creativecommons.org/publicdomain/zero/1.0/";
+            // The licenses should be listed in order of preference
+            // PD-USGov-CIA-WF
+            if(preg_match("/^(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mui", $potential_license))
+            {
+                $identified_licenses[] = array(
+                    'license'   => 'public domain',
+                    'category'  => 'public domain',
+                    'version'   => null);
+            }
+            // cc-zero
+            if(preg_match("/^CC-Zero/mui", $potential_license))
+            {
+                $identified_licenses[] = array(
+                    'license'   => 'http://creativecommons.org/publicdomain/zero/1.0/',
+                    'category'  => 'http://creativecommons.org/publicdomain/zero/',
+                    'version'   => '1.0');
+            }
+            // no known copyright restrictions
+            if(preg_match("/^(flickr-)?no known copyright restrictions/mui", $potential_license))
+            {
+                $identified_licenses[] = array(
+                    'license'   => 'http://www.flickr.com/commons/usage/',
+                    'category'  => 'http://www.flickr.com/commons/usage/',
+                    'version'   => null);
+            }
+            // {{gfdl|migration=relicense}} can be relicensed as cc-by-sa-3.0
+            if($searching_wikitext && preg_match("/migration=relicense/mui", $potential_license))
+            {
+                $identified_licenses[] = array(
+                    'license'   => 'http://creativecommons.org/licenses/by-sa/3.0/',
+                    'category'  => 'http://creativecommons.org/licenses/by-sa/',
+                    'version'   => '3.0');
+            }
+            // simple cc-by-2.5,2.0,1.0-de preferred
+            if(preg_match("/^CC-(BY)(-\d.*)$/mui", $potential_license, $arr))
+            {
+                $license = strtolower($arr[1]);
+                $rest = $arr[2];
+                if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
+                else $version = "3.0";
+                $identified_licenses[] = array(
+                    'license'   => "http://creativecommons.org/licenses/$license/$version/",
+                    'category'  => "http://creativecommons.org/licenses/$license/",
+                    'version'   => $version);
+            }
+            // cc-by-sa-2.5,2.0,1.0-de, next most preferred
+            if(preg_match("/^CC-(BY-SA)(-\d.*)$/mui", $potential_license, $arr))
+            {
+                $license = strtolower($arr[1]);
+                $rest = $arr[2];
+                if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
+                else $version = "3.0";
+                $identified_licenses[] = array(
+                    'license'   => "http://creativecommons.org/licenses/$license/$version/",
+                    'category'  => "http://creativecommons.org/licenses/$license/",
+                    'version'   => $version);
+            }
+            // cc-sa-1.0
+            if(preg_match("/^(CC-SA)(.*)$/mui", $potential_license, $arr))
+            {
+                $license = "by-sa";
+                $rest = $arr[2];
+                if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
+                else $version = "3.0";
+                $identified_licenses[] = array(
+                    'license'   => "http://creativecommons.org/licenses/$license/$version/",
+                    'category'  => "http://creativecommons.org/licenses/$license/",
+                    'version'   => $version);
+            }
+            // catch all the rest of the cc-licenses, if we've got this far
+            if(preg_match("/^CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mui", $potential_license, $arr))
+            {
+                $license = strtolower($arr[1]);
+                $rest = $arr[2];
+                if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
+                else $version = "3.0";
+                if($license == 'by-nc-nd') continue;
+                $identified_licenses[] = array(
+                    'license'   => "http://creativecommons.org/licenses/$license/$version/",
+                    'category'  => "http://creativecommons.org/licenses/$license/",
+                    'version'   => $version);
+            }
         }
-        // no known copyright restrictions
-        if(preg_match("/(^|\n)(flickr-)?no known copyright restrictions/mu" . $regex_modifiers, $val))
-        {
-            return "http://www.flickr.com/commons/usage/";
-        }
-        // {{gfdl|migration=relicense}} can be relicensed as cc-by-sa-3.0
-        if($searching_wikitext && preg_match("/migration=relicense/mu" . $regex_modifiers, $val))
-        {
-            return "http://creativecommons.org/licenses/by-sa/3.0/";
-        }
-        // simple cc-by-2.5,2.0,1.0-de preferred
-        if(preg_match("/(^|\n)CC-(BY)(-\d.*)$/mu" . $regex_modifiers, $val, $arr))
-        {
-            $license = strtolower($arr[2]);
-            $rest = $arr[3];
-            if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
-            else $version = "3.0";
-            return "http://creativecommons.org/licenses/$license/$version/";
-        }
-        // cc-by-sa-2.5,2.0,1.0-de, next most preferred
-        if(preg_match("/(^|\n)CC-(BY-SA)(-\d.*)$/mu" . $regex_modifiers, $val, $arr))
-        {
-            $license = strtolower($arr[2]);
-            $rest = $arr[3];
-            if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
-            else $version = "3.0";
-            return "http://creativecommons.org/licenses/$license/$version/";
-        }
-        // cc-sa-1.0
-        if(preg_match("/(^|\n)(CC-SA)(.*)$/mu" . $regex_modifiers, $val, $arr))
-        {
-            $license = "by-sa";
-            $rest = $arr[3];
-            if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
-            else $version = "3.0";
-            return "http://creativecommons.org/licenses/$license/$version/";
-        }
-        // catch all the rest of the cc-licenses, if we've got this far
-        if(preg_match("/(^|\n)CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mu" . $regex_modifiers, $val, $arr))
-        {
-            $license = strtolower($arr[2]);
-            $rest = $arr[3];
-            if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
-            else $version = "3.0";
-            return "http://creativecommons.org/licenses/$license/$version/";
-        }
-        return null;
+        if(!$identified_licenses) return null;
+        usort($identified_licenses, array('\WikimediaPage', 'sort_identified_licenses'));
+        return $identified_licenses[0]['license'];
     }
 
     public function get_data_object_parameters()
@@ -462,8 +519,8 @@ class WikimediaPage
         }
 
         // the following properties may be overridden later by data from the API.
-        $licenses = $this->licenses_via_wikitext();
-        $this->set_license(self::match_license(implode("\n", $licenses)));
+        $this->licenses = $this->licenses_via_wikitext();
+        $this->set_license($this->best_license($this->licenses));
         $this->set_mimeType(php_active_record\Functions::get_mimetype($this->title));
     }
 
@@ -484,7 +541,8 @@ class WikimediaPage
     public function reassess_licenses_with_additions($potential_license_categories)
     {
         if(!$potential_license_categories) return;
-        if($license = \WikimediaPage::match_license(implode("\n", $potential_license_categories), false))
+        $this->licenses = array_merge($this->licenses, $potential_license_categories);
+        if($license = $this->best_license($this->licenses, false))
         {
             $this->set_license($license);
         }
@@ -600,15 +658,15 @@ class WikimediaPage
         return $agent_parameters;
     }
 
-    public function licenses_via_wikitext() //this just looks through the plain wikitext for things like {{GFDL}}
+    // this just looks through the plain wikitext for things like {{GFDL}}
+    public function licenses_via_wikitext()
     {
-        if(isset($this->licenses)) return $this->licenses;
+        if(isset($this->licenses_via_wikitext)) return $this->licenses_via_wikitext;
         $licenses = array();
         if(preg_match_all("/(\{\{.*?\}\})/u", $this->active_wikitext(), $matches, PREG_SET_ORDER))
         {
             foreach($matches as $match)
             {
-                // echo "potential license: $match[1]\n";
                 while(preg_match("/(\{|\|)(cc-.*?|pd|pd-.*?|gfdl|gfdl-.*?|noaa|usaid|nih|copyrighted free use|CopyrightedFreeUse|creative commons.*?|migration=.*?|flickr-no known copyright.*?|no known copyright.*?)(\}|\|)(.*)/umsi", $match[1], $arr))
                 {
                     $licenses[] = trim($arr[2]);
@@ -620,7 +678,7 @@ class WikimediaPage
         {
             $licenses[] = trim($arr[1]);
         }
-        $this->licenses = $licenses;
+        $this->licenses_via_wikitext = $licenses;
         return $licenses;
     }
 
@@ -637,13 +695,6 @@ class WikimediaPage
                 if($attr == "author" || $attr == "Author") $author = self::convert_diacritics(WikiParser::strip_syntax($val, true));
             }
         }
-
-        /* no longer considering the last editor to be the author. This was causing various bots to be deemed author */
-        // if((!$author || !Functions::is_utf8($author)) && $this->contributor && Functions::is_utf8($this->contributor))
-        // {
-        //     $this->contributor = self::convert_diacritics($this->contributor);
-        //     $author = "<a href='".WIKI_USER_PREFIX."$this->contributor'>$this->contributor</a>";
-        // }
 
         $this->author = $author;
         return $author;

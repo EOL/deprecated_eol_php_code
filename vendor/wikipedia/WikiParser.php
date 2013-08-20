@@ -163,7 +163,23 @@ class WikiParser
             if($l = &$GLOBALS['iso_639_2_codes'][strtolower($arr[1])]) $language = $l;
             else $language = "Unknown language ($arr[1])";
             if($format) $string = "<b>$language:</b> $arr[2] ";
-            else $string = "language: ".$arr[2]." ";
+            else $string = "$language: ".$arr[2]." ";
+        }
+
+        if(preg_match("/^\s*(Multilingual description|mld\n|mld\||Translation table.*?\n)(.*)$/uims", $string, $arr))
+        {
+            $string = trim($arr[2]);
+            if(preg_match_all("/(\|([a-z]{2})=)/uims", $string, $matches, PREG_SET_ORDER))
+            {
+                foreach($matches as $arr)
+                {
+                    if($l = &$GLOBALS['iso_639_2_codes'][strtolower($arr[2])]) $language = $l;
+                    else $language = "Unknown language ($arr[2])";
+                    if($format) $string = str_replace($arr[1], "<b>$language:</b> ", $string);
+                    else $string = str_replace($arr[1], "$language: ", $string);
+                }
+                $string = str_replace("  ", " ", $string);
+            }
         }
 
         if($string == "pagename" && $pagename)
