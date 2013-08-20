@@ -359,7 +359,7 @@ class ContentManager
     function reduce_original($path, $prefix, $options = array())
     {
         $rotate = "-auto-orient";
-        if(isset($options['rotate'])) $rotate = "-rotate ". intval($options['rotate']);
+        if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);

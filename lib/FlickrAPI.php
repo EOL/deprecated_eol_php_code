@@ -238,6 +238,7 @@ class FlickrAPI
         $data_object_parameters["license"] = @$GLOBALS["flickr_licenses"][$photo->license];
         $data_object_parameters["language"] = 'en';
         if(isset($photo->dates->taken)) $data_object_parameters["created"] = $photo->dates->taken;
+        if(isset($photo->rotation)) $data_object_parameters["additionalInformation"] = '<rotation>'.$photo->rotation.'</rotation>';
         
         foreach($photo->urls->url as $url)
         {
