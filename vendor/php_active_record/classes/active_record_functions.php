@@ -145,13 +145,6 @@ function render_template($filename, $parameters = NULL, $return = false)
     return false;
 }
 
-
-function require_module($module)
-{
-    $module_path = DOC_ROOT . "classes/modules/$module/module.php";
-    require_once($module_path);
-}
-
 function require_vendor($module)
 {
     $module_path = DOC_ROOT . "vendor/$module/module.php";
@@ -163,7 +156,6 @@ function require_library($library)
     $library_path = DOC_ROOT . "lib/$library.php";
     require_once($library_path);
 }
-
 
 function print_pre($arr)
 {
@@ -182,6 +174,11 @@ function time_elapsed($reset = false)
     static $a;
     if(!isset($a) || $reset) $a = microtime(true);
     return (string) round(microtime(true)-$a, 6);
+}
+
+function memory_get_usage_in_mb()
+{
+    return round(memory_get_usage() / 1024 / 1024, 2);
 }
 
 function get_last_function($index = 1)

@@ -63,7 +63,7 @@ class INBioAPI
         $filename = $path_parts['basename'];
         $temp_dir = create_temp_dir() . "/";
         debug($temp_dir);
-        if($file_contents = Functions::get_remote_file($dwca_file, DOWNLOAD_WAIT_TIME, 999999))
+        if($file_contents = Functions::get_remote_file($dwca_file, array('timeout' => 172800)))
         {
             $temp_file_path = $temp_dir . "" . $filename;
             debug("temp_dir: $temp_dir");

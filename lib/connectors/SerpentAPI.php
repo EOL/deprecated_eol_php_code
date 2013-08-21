@@ -73,7 +73,7 @@ class SerpentAPI
     function taxon_url_extractor($url, $searched1, $searched2, $with_page_url, $html = NULL)
     {
         $urls = array();
-        if(!$html) $html = Functions::get_remote_file_fake_browser($url, 1000000); // 1 second wait-time
+        if(!$html) $html = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => 1000000)); // 1 second wait-time
 
         //Species: Asterias rubens</title>
         if(preg_match("/<h1 class=\"pagetitle\">(.*?)<\/h1>/ims", $html, $matches))
@@ -115,7 +115,7 @@ class SerpentAPI
 
     function search_collections($species_page_url)//this will output the raw (but structured) array
     {
-        $html = Functions::get_remote_file_fake_browser($species_page_url, 1000000); // 1 second wait-time
+        $html = Functions::get_remote_file_fake_browser($species_page_url, array('download_wait_time' => 1000000)); // 1 second wait-time
         $html = utf8_decode($html);
         $response = self::scrape_species_page($html, $species_page_url);
         return $response;
@@ -298,7 +298,7 @@ class SerpentAPI
         $arr_total = array();
         foreach($arr as $url)
         {
-            $html = Functions::get_remote_file_fake_browser($url['url'], 1000000); // 1 second wait-time
+            $html = Functions::get_remote_file_fake_browser($url['url'], array('download_wait_time' => 1000000)); // 1 second wait-time
             $html = utf8_decode($html);
             $arr_scraped = self::scrape_page($html, $url['url'], $url['sciname']);
             if($arr_scraped)$arr_total = array_merge($arr_total, $arr_scraped);

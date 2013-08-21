@@ -221,7 +221,7 @@ class DiscoverLifeAPIv2
 
     private function divide_text_file($divisor)
     {
-        $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, array('timeout' => 4800, 'download_attempts' => 5));
         if(!$temp_filepath)
         {
             echo "\n\nExternal file not available. Program will terminate.\n";

@@ -60,11 +60,11 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
 {
     $file = "http://dl.dropbox.com/u/7597512/BHL_images/BHL_images_in_EOLGroup.txt";
     // $file = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BHL_images/BHL_images_in_EOLGroup_sample.txt";
-    $contents = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 600, 5);
+    $contents = Functions::get_remote_file($file, array('timeout' => 600, 'download_attempts' => 5));
     $do_ids = json_decode($contents,true);
     print "\n\n from text file: " . count($do_ids);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-    $xml_string = Functions::get_remote_file($resource_path, DOWNLOAD_WAIT_TIME, 240, 5);
+    $xml_string = Functions::get_remote_file($resource_path, array('timeout' => 240, 'download_attempts' => 5));
     $xml = simplexml_load_string($xml_string);
     $i = 0;
     $deleted_ids = array();

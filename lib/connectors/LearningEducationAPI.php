@@ -35,7 +35,7 @@ class LearningEducationAPI
     public static function all_podcast_scientific_names()
     {
         $podcast_taxa = array();
-        $details_page_html = Functions::get_remote_file(PODCAST_DETAILS_PAGE, DOWNLOAD_WAIT_TIME, 240);
+        $details_page_html = Functions::get_remote_file(PODCAST_DETAILS_PAGE, array('timeout' => 240));
         if(preg_match_all("/<a href=\".*?\"><h2>(.*?)<\/h2><\/a> *?<h3 style=\"font-style:italic;margin:0 0 3px 0;\">(.*?)<\/h3>/ims", $details_page_html, $matches, PREG_SET_ORDER))
         {
             foreach($matches as $match)
@@ -57,7 +57,7 @@ class LearningEducationAPI
     {
         $podcast_data_objects = array();
         
-        $xml = Functions::get_hashed_response(PODCAST_FEED, 1000000, 240, 5);
+        $xml = Functions::get_hashed_response(PODCAST_FEED, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5));
         foreach($xml->channel->item as $item)
         {
             $data_object_parameters = array();

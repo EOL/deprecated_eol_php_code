@@ -96,7 +96,7 @@ class DipteraCentralAmericaAPI
     private function parse_html()
     {
         $records = array();
-        if($html = Functions::get_remote_file($this->taxa_list_url, DOWNLOAD_WAIT_TIME, 1200, 5)) 
+        if($html = Functions::get_remote_file($this->taxa_list_url, array('timeout' => 1200, 'download_attempts' => 5)))
         {
             $html = str_ireplace(array(' width="150"', ' align="left"', ' width="300"'), "", $html);
             if(preg_match_all("/<p class=\"FamilyNames\">(.*?)<\/div>/ims", $html, $arr))
@@ -157,7 +157,7 @@ class DipteraCentralAmericaAPI
             // if($i != 4) continue; //debug --- to select which family to process, e.g. choosing "Phoridae" under "Lower Cyclorrhapha families:"
             if($url = @$info["url"]) 
             {
-                if($html = Functions::get_remote_file($url, 3000000, 240, 5))
+                if($html = Functions::get_remote_file($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
                 {
                     //manual adjustment
                     $html = str_ireplace("Microdon Megacephalus", "Microdon megacephalus", $html);
@@ -187,7 +187,7 @@ class DipteraCentralAmericaAPI
                                     $image_page_url = $path_parts["dirname"] . "/" . $image_page_url;
                                     echo("\n image_page_url: [$image_page_url] \n ");
                                     
-                                    if($popup_page = Functions::get_remote_file($image_page_url, 3000000, 240, 5))
+                                    if($popup_page = Functions::get_remote_file($image_page_url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
                                     {
                                         $records = self::scrape_image_info($popup_page, $records, $image_page_url, $taxon);
                                     }

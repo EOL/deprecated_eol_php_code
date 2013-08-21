@@ -238,6 +238,11 @@ class FlickrAPI
         $data_object_parameters["license"] = @$GLOBALS["flickr_licenses"][$photo->license];
         $data_object_parameters["language"] = 'en';
         if(isset($photo->dates->taken)) $data_object_parameters["created"] = $photo->dates->taken;
+        // only the original forms need rotation
+        if(isset($photo->rotation) && $photo->rotation && preg_match("/_o\./", $data_object_parameters["mediaURL"]))
+        {
+            $data_object_parameters["additionalInformation"] = '<rotation>'.$photo->rotation.'</rotation>';
+        }
         
         foreach($photo->urls->url as $url)
         {
@@ -315,7 +320,7 @@ class FlickrAPI
     public static function photos_get_sizes($photo_id, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getSizes", array("photo_id" => $photo_id, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
-        $response = Functions::get_remote_file($url, NULL, 30);
+        $response = Functions::get_remote_file($url, array('timeout' => 30));
         self::add_to_cache('photosGetSizes', $photo_id, $response);
         return json_decode($response);
     }
@@ -335,7 +340,7 @@ class FlickrAPI
     public static function photos_get_info($photo_id, $secret, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
-        $response = Functions::get_remote_file($url, NULL, 30);
+        $response = Functions::get_remote_file($url, array('timeout' => 30));
         self::add_to_cache('photosGetInfo', $photo_id, $response);
         return json_decode($response);
     }
@@ -349,7 +354,7 @@ class FlickrAPI
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
             $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
-        return json_decode(Functions::get_remote_file($url, NULL, 30));
+        return json_decode(Functions::get_remote_file($url, array('timeout' => 30)));
     }
     
     public static function auth_get_frob()

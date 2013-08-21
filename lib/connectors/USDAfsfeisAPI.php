@@ -98,7 +98,7 @@ class USDAfsfeisAPI
         foreach($this->main_groups as $kingdom => $group)
         {
             echo "\n Group: $group";
-            if($html = Functions::get_remote_file($this->fsfeis_domain . $group . "/index.html", 1000000, 240, 5))
+            if($html = Functions::get_remote_file($this->fsfeis_domain . $group . "/index.html", array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
             {
                 if(preg_match("/Choose one of the following(.*?)<\/ol>/ims", $html, $arr)) $html = trim($arr[1]);
                 else continue;
@@ -129,7 +129,7 @@ class USDAfsfeisAPI
                     ))) continue;
                     */
                     
-                    if($html = Functions::get_remote_file($filename, 5000000, 240, 5))
+                    if($html = Functions::get_remote_file($filename, array('download_wait_time' => 5000000, 'timeout' => 240, 'download_attempts' => 5)))
                     {
                         if(preg_match("/Common Name(.*?)<\/table>/ims", $html, $arr))
                         {
@@ -205,7 +205,7 @@ class USDAfsfeisAPI
         $agent_ids = array();
         $descriptions = array();
         echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'];
-        if($html = Functions::get_remote_file($rec['url'], 3000000, 240, 5)) 
+        if($html = Functions::get_remote_file($rec['url'], array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             $html = str_ireplace('href="all.html#', 'href="#', $html);
             $html = str_ireplace(array("<br />", "<br >", "<br/>"), "<br>", trim($html));
@@ -1729,7 +1729,7 @@ class USDAfsfeisAPI
     private function generate_glossary_terms()
     {
         $url = "http://www.fs.fed.us/database/feis/glossary2.html";
-        if($html = Functions::get_remote_file($url, 3000000, 240, 5))
+        if($html = Functions::get_remote_file($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             $html = (string) utf8_encode($html);
             if(preg_match_all("/<strong>(.*?)<\/strong>/ims", $html, $arr))

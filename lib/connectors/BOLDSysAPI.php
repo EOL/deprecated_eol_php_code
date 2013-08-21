@@ -322,7 +322,7 @@ class BOLDSysAPI
             $phylum_path = PHYLUM_SERVICE_URL . $phylum['name'];
             // $phylum_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
             echo "\n\nphylum service: " . $phylum_path . "\n";
-            if($xml = Functions::get_hashed_response($phylum_path, DOWNLOAD_WAIT_TIME, 9999, 5))
+            if($xml = Functions::get_hashed_response($phylum_path, array('timeout' => 9999, 'download_attempts' => 5)))
             {
                 echo "\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [" . sizeof($xml->record) . "]";
                 $i = 0;
@@ -473,13 +473,13 @@ class BOLDSysAPI
     // private function get_text_dna_sequence($url)
     // {
     //     echo "\n\n access get_text_dna_sequence(): $url \n"; 
-    //     $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
+    //     $str = Functions::get_remote_file($url, array('timeout' => 1200, 'download_attempts' => 5));
     //     if(preg_match("/\.\.\/temp\/(.*?)fasta\.fas/ims", $str, $matches)) $folder = $matches[1];
     //     $str = "";
     //     if($folder != "")
     //     {
     //         $url = self::BOLDS_DOMAIN_NEW . "/temp/" . $folder . "/fasta.fas";
-    //         $str = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5);
+    //         $str = Functions::get_remote_file($url, array('timeout' => 1200, 'download_attempts' => 5));
     //         echo "\n\n access: $url \n";
     //     }
     //     $count_sequence = substr_count($str, '>');
@@ -517,7 +517,7 @@ class BOLDSysAPI
 
     private function barcode_image_available($src)
     {
-        $str = Functions::get_remote_file($src, DOWNLOAD_WAIT_TIME, 2400, 5); // 40 mins. timeout
+        $str = Functions::get_remote_file($src, array('timeout' => 2400, 'download_attempts' => 5)); // 40 mins. timeout
         /*
         ERROR: Only species level taxids are accepted
         ERROR: Unable to retrieve sequence

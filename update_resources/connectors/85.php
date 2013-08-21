@@ -24,7 +24,7 @@ continue providing us with the Access MDB.
 
 $remote_file = "https://dl.dropboxusercontent.com/u/7597512/NorthAmericanMammals/data_from_sql_export.txt";
 // $text_file = DOC_ROOT . "/update_resources/connectors/files/NorthAmericanMammals/data_from_sql_export.txt";
-$text_file = Functions::save_remote_file_to_local($remote_file, "1000000", 600);
+$text_file = Functions::save_remote_file_to_local($remote_file, array('download_wait_time' => 1000000, 'timeout' => 600));
 
 require_library('connectors/FishBaseAPI');
 $fields = array("species_id", "genus_name", "sci_name", "family_name", "order_name", "avg_length", "avg_length_sp", "range_length", "range_length_sp", "avg_weight", "avg_weight_sp", "range_weight", "range_weight_sp", "conservation_status_notes", "conservation_status_notes_sp", "common_name", "common_name_sp", "other_names", "other_names_sp", "refs", "refs_sp", "links", "links_sp", "dimorphism", "dimorphism_sp", "legend", "legend_sp", "refs(2)", "refs_sp(2)", "adaptation", "adaptation_sp", "conservation_status_id", "conservation_status_title", "conservation_status_title_sp", "conservation_status_abbrev");

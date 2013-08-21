@@ -104,7 +104,7 @@ class ContentManager
         $temp_file_path = CONTENT_TEMP_PREFIX . $options['unique_key'] . ".file";
         if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || preg_match("/^\//", $file_path_or_uri))
         {
-            if($file_contents = Functions::get_remote_file($file_path_or_uri, DOWNLOAD_WAIT_TIME, $options['timeout']))
+            if($file_contents = Functions::get_remote_file($file_path_or_uri, array('timeout' => $options['timeout'])))
             {
                 // if this is a resource then update the old references to the schema
                 // there were a few temporary locations for the schema which were being used by early providers
@@ -148,7 +148,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(gz|gzip)$/", $new_temp_file_path, $arr))
                 {
-                    shell_exec("gunzip -f $new_temp_file_path");
+                    shell_exec(GUNZIP_BIN_PATH . " -f $new_temp_file_path");
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -160,7 +160,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec("tar -xf $new_temp_file_path -C $archive_directory");
+                    shell_exec(TAR_BIN_PATH . " -xf $new_temp_file_path -C $archive_directory");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -172,7 +172,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec("unzip -d $archive_directory $new_temp_file_path");
+                    shell_exec(UNZIP_BIN_PATH . " -d $archive_directory $new_temp_file_path");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -204,7 +204,7 @@ class ContentManager
     public static function determine_file_suffix($file_path, $suffix)
     {
         // use the Unix/Linux `file` command to determine file type
-        $stat = strtolower(shell_exec("file ".$file_path));
+        $stat = strtolower(shell_exec(FILE_BIN_PATH . " " . $file_path));
         $file_type = "";
         if(preg_match("/^[^ ]+: (.*)$/",$stat,$arr)) $file_type = trim($arr[1]);
         if(preg_match("/^\"(.*)/", $file_type, $arr)) $file_type = trim($arr[1]);
@@ -336,13 +336,13 @@ class ContentManager
 
     function create_content_thumbnails($file, $prefix, $options = array())
     {
-        $this->reduce_original($file, $prefix);
+        $local_file = $this->reduce_original($file, $prefix, $options);
         // we make an exception
         if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
         {
             $large_image_dimensions = $options['large_image_dimensions'];
         }else $large_image_dimensions = ContentManager::large_image_dimensions();
-        $image_path = $this->create_smaller_version($file, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
+        $image_path = $this->create_smaller_version($local_file, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
         $this->create_smaller_version($image_path, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
         $this->create_smaller_version($image_path, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
         if(isset($options['crop_width'])) $image_path = $prefix . '_orig.jpg';
@@ -356,9 +356,11 @@ class ContentManager
         $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
-    function reduce_original($path, $prefix)
+    function reduce_original($path, $prefix, $options = array())
     {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80";
+        $rotate = "-auto-orient";
+        if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
@@ -367,7 +369,8 @@ class ContentManager
 
     function create_smaller_version($path, $dimensions, $prefix, $suffix)
     {
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
+        //don't need to rotate, as this works on already-rotated version
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
         $new_image_path = $prefix ."_". $suffix .".jpg";
         shell_exec($command." ".$new_image_path);
@@ -409,7 +412,7 @@ class ContentManager
         }else
         {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
-            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -auto-orient -quality 80 \
+            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
                             -resize ".$dimensions[0]."x".$dimensions[0]."^ \
                             -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[0]."+0+0 +repage";
         }
@@ -466,7 +469,7 @@ class ContentManager
         }
     }
 
-    private static function cache_path($object_cache_url)
+    public static function cache_path($object_cache_url)
     {
         return substr($object_cache_url, 0, 4)."/".substr($object_cache_url, 4, 2)."/".substr($object_cache_url, 6, 2)."/".substr($object_cache_url, 8, 2)."/".substr($object_cache_url, 10, 5);
     }

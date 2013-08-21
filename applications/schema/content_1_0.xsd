@@ -67,7 +67,7 @@
             <xsd:element name="subject" type="subjectTypes" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element ref="dc:description" minOccurs="0"/>
             <xsd:element name="mediaURL" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="thumbnailURL" type="xsd:anyURI" minOccurs="0"/>
+            <xsd:element name="thumbnailURL" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="location" type="languageAwareElementType" minOccurs="0"/>
             <xsd:element ref="geo:Point" minOccurs="0"/>
             <xsd:element name="reference" type="referenceType" minOccurs="0" maxOccurs="unbounded"/>
@@ -139,13 +139,14 @@
     
     <xsd:simpleType name="licenseTypes">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="not applicable|no known copyright restrictions|http://www.flickr.com/commons/usage/|http://creativecommons.org/publicdomain/zero/1.0/|http://creativecommons.org/licenses/(publicdomain|by|by-nc|by-sa|by-nc-sa)(/[0-9]\.[0-9])?/"/>
+            <xsd:pattern value="not applicable|no known copyright restrictions|public domain|http://www.flickr.com/commons/usage/|http://creativecommons.org/publicdomain/zero/1.0/|http://creativecommons.org/licenses/(publicdomain|by|by-nc|by-sa|by-nc-sa)(/[0-9]\.[0-9])?/"/>
         </xsd:restriction>
     </xsd:simpleType>
  
     <xsd:simpleType name="mimeTypes">
         <xsd:restriction base="xsd:anyURI">
             <xsd:enumeration value="application/pdf"/>
+            <xsd:enumeration value="application/ogg"/>
             <xsd:enumeration value="audio/mpeg"/>
             <xsd:enumeration value="audio/x-ms-wma"/>
             <xsd:enumeration value="audio/x-pn-realaudio"/>

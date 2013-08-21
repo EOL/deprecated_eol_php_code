@@ -27,7 +27,7 @@ class MCZHarvardAPI
     {
         $labels = self::get_headers();
         if($data_dump_url) $this->data_dump_url = $data_dump_url;
-        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, DOWNLOAD_WAIT_TIME, 4800, 5))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('timeout' => 4800, 'download_attempts' => 5)))
         {
             $not80 = 0;
             $i = 0;

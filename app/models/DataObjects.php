@@ -178,7 +178,7 @@ class DataObject extends ActiveRecord
         {
             $fields_to_ignore = array("mysqli", "table_name", "id", "guid", "object_cache_url", "thumbnail_url", "thumbnail_cache_url",
                 "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id",
-                "visibility_id", "curated", "published", "description_linked", "available_at");
+                "visibility_id", "curated", "published", "description_linked", "available_at", "additional_information");
             if(in_array($field, $fields_to_ignore)) continue;
             
             if(@$this->$field == "0") $this->$field = 0;
@@ -205,10 +205,14 @@ class DataObject extends ActiveRecord
         {
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
-                // TODO - hardcoded exception to make the Biopix images smaller
-                $thumbnail_options = array();
-                if($resource->title == "Biopix") $thumbnail_options = array('large_image_dimensions' => array(300, 300));
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, "image", $thumbnail_options);
+                // Hardcoded exception to make the Biopix images smaller
+                $image_options = array();
+                if($resource->title == "Biopix") $image_options['large_image_dimensions'] = array(300, 300);
+                if(isset($this->additional_information) && isset($this->additional_information['rotation']))
+                {
+                    $image_options['rotation'] = $this->additional_information['rotation'];
+                }
+                $this->object_cache_url = $content_manager->grab_file($this->object_url, "image", $image_options);
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
@@ -241,7 +245,6 @@ class DataObject extends ActiveRecord
                 if(@!$this->thumbnail_cache_url) return false;
             }else return false;
         }
-        
         return true;
     }
     
