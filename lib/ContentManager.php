@@ -148,7 +148,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(gz|gzip)$/", $new_temp_file_path, $arr))
                 {
-                    shell_exec("gunzip -f $new_temp_file_path");
+                    shell_exec(GUNZIP_BIN_PATH . " -f $new_temp_file_path");
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -160,7 +160,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec("tar -xf $new_temp_file_path -C $archive_directory");
+                    shell_exec(TAR_BIN_PATH . " -xf $new_temp_file_path -C $archive_directory");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -172,7 +172,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec("unzip -d $archive_directory $new_temp_file_path");
+                    shell_exec(UNZIP_BIN_PATH . " -d $archive_directory $new_temp_file_path");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -204,7 +204,7 @@ class ContentManager
     public static function determine_file_suffix($file_path, $suffix)
     {
         // use the Unix/Linux `file` command to determine file type
-        $stat = strtolower(shell_exec("file ".$file_path));
+        $stat = strtolower(shell_exec(FILE_BIN_PATH . " " . $file_path));
         $file_type = "";
         if(preg_match("/^[^ ]+: (.*)$/",$stat,$arr)) $file_type = trim($arr[1]);
         if(preg_match("/^\"(.*)/", $file_type, $arr)) $file_type = trim($arr[1]);
