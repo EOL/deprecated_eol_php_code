@@ -29,7 +29,7 @@ class SouthAfricanVertebratesAPI
         debug("\n Processing... \n");
         $taxa = array();
         $i = 0;
-        $temp_filepath = Functions::save_remote_file_to_local($this->taxa_path, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $temp_filepath = Functions::save_remote_file_to_local($this->taxa_path, array('timeout' => 4800, 'download_attempts' => 5));
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $i++;
@@ -149,7 +149,7 @@ class SouthAfricanVertebratesAPI
 
     private function get_vernacular_names()
     {
-        $temp_filepath = Functions::save_remote_file_to_local($this->vernacular_path, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $temp_filepath = Functions::save_remote_file_to_local($this->vernacular_path, array('timeout' => 4800, 'download_attempts' => 5));
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             if($line)

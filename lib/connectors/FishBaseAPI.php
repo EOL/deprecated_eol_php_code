@@ -92,7 +92,7 @@ class FishBaseAPI
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->fishbase_data, DOWNLOAD_WAIT_TIME, 999999))
+        if($file_contents = Functions::get_remote_file($this->fishbase_data, array('timeout' => 172800)))
         {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
             $TMP = fopen($temp_file_path, "w");

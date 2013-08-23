@@ -58,7 +58,7 @@ class IllinoisWildflowersAPI
 
     function process_insects($url, $type)
     {
-        if(!$html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5)) // 20mins timeout, 5 attempts
+        if(!$html = Functions::get_remote_file($url, array('timeout' => 1200, 'download_attempts' => 5))) // 20mins timeout, 5 attempts
         {
             echo("\n\n Content partner's server is down, $url\n");
             return;
@@ -113,7 +113,7 @@ class IllinoisWildflowersAPI
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
 
             echo "\n $url -- $taxon_name";
-            if(!$html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 1200, 5)) 
+            if(!$html = Functions::get_remote_file($url, array('timeout' => 1200, 'download_attempts' => 5)))
             {
                 echo("\n\n Content partner's server is down, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['Description'] = 'no objects';

@@ -181,6 +181,7 @@ class SchemaParser
             $data_object->object_url = Functions::import_decode($d->mediaURL);
             $data_object->thumbnail_url = Functions::import_decode($d->thumbnailURL);
             $data_object->location = Functions::import_decode($d->location, 0, 0);
+            if(@$d->additionalInformation) $data_object->additional_information = (array) $d->additionalInformation;
             if($r = (string) @$d->additionalInformation->rating)
             {
                 if((is_numeric($r)) && $r > 0 && $r <= 5)

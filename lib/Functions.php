@@ -68,34 +68,6 @@ class Functions
         return $xml;
     }
     
-    // public static function display($text)
-    // {
-    //     if(DEBUG_TO_FILE) fwrite($GLOBALS['debug_file'], str_pad(self::time_elapsed(), 12, " ", STR_PAD_LEFT)." -> ". $text."\n");
-    //     else
-    //     {
-    //         echo "$text<br>\n";
-    //         flush();
-    //     }
-    // }
-    
-    // public static function mysql_debug($string)
-    // {
-    //     if(defined('MYSQL_DEBUG') && MYSQL_DEBUG)
-    //     {
-    //         self::display($string." :: [".self::get_last_function(4)."]");
-    //         //self::display("Stacktrace: ".self::stacktrace());
-    //     }
-    // }
-    
-    // public static function debug($string)
-    // {
-    //     if(defined('DEBUG') && DEBUG)
-    //     {
-    //         self::display($string." :: [".self::get_last_function(3)."]");
-    //         //self::display("Stacktrace: ".self::stacktrace());
-    //     }
-    // }
-    
     public static function log($string)
     {
         if(isset($GLOBALS['log_file']) && $GLOBALS['ENV_NAME'] != 'test')
@@ -130,25 +102,26 @@ class Functions
         return $count;
     }
     
-    public static function get_remote_file($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS)
+    public static function get_remote_file($remote_url, $options = array())
     {
+        if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;
+        if(!isset($options['timeout'])) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
+        if(!isset($options['download_attempts'])) $options['download_attempts'] = DOWNLOAD_ATTEMPTS;
         $remote_url = str_replace(" ", "%20", $remote_url);
-        $context = stream_context_create(array('http' => array('timeout' => $timeout)));
 
         $attempts = 1;
-        while($attempts <= $download_attempts)
+        while($attempts <= $options['download_attempts'])
         {
             debug("Grabbing $remote_url: attempt " . $attempts);
-            $file = @self::fake_user_agent_http_get($remote_url, $timeout);
-            usleep($download_wait_time);
+            $file = @self::fake_user_agent_http_get($remote_url, $options);
+            usleep($options['download_wait_time']);
             if($file)
             {
-                unset($context);
                 debug("received file");
                 return $file;
             }
 
-            debug("attempt $attempts failed, will try again after " . ($download_wait_time/1000000) . " seconds");
+            debug("attempt $attempts failed, will try again after " . ($options['download_wait_time']/1000000) . " seconds");
             $attempts++;
         }
 
@@ -160,6 +133,7 @@ class Functions
     {
         // default expire time is 30 days
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
+        if(!isset($options['timeout'])) $options['timeout'] = 120;
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
@@ -181,7 +155,7 @@ class Functions
             }
             @unlink($cache_path);
         }
-        $file_contents = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 120);
+        $file_contents = Functions::get_remote_file($url, $options);
         $FILE = fopen($cache_path, 'w+');
         fwrite($FILE, $file_contents);
         fclose($FILE);
@@ -209,20 +183,24 @@ class Functions
         return true;
     }
 
-    public static function get_remote_file_fake_browser($remote_url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    public static function get_remote_file_fake_browser($remote_url, $options = array())
     {
-        debug("Grabbing $remote_url: attempt 1: waiting $download_wait_time");
+        if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;
+        if(!isset($options['timeout'])) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
+        if(!isset($options['download_attempts'])) $options['download_attempts'] = DOWNLOAD_ATTEMPTS;
+
+        debug("Grabbing $remote_url: attempt 1: waiting ". $options['download_wait_time']);
         
-        $file = @self::fake_user_agent_http_get($remote_url);
-        usleep($download_wait_time);
+        $file = @self::fake_user_agent_http_get($remote_url, $options);
+        usleep($options['download_wait_time']);
         
         $attempts = 1;
-        while(!$file && $attempts < DOWNLOAD_ATTEMPTS)
+        while(!$file && $attempts < $options['download_attempts'])
         {
             debug("Grabbing $remote_url: attempt ".($attempts+1));
             
-            $file = @self::fake_user_agent_http_get($remote_url);
-            usleep($download_wait_time);
+            $file = @self::fake_user_agent_http_get($remote_url, $options);
+            usleep($options['download_wait_time']);
             $attempts++;
         }
         debug("received file");
@@ -230,31 +208,30 @@ class Functions
         return $file;
     }
     
-    public static function get_hashed_response($url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS)
+    public static function get_hashed_response($url, $options = array())
     {
-        $response = self::get_remote_file($url, $download_wait_time, $timeout, $download_attempts);
-        
+        $response = self::get_remote_file($url, $options);
         $hash = simplexml_load_string($response);
-        
         return $hash;
     }
     
-    public static function get_hashed_response_fake_browser($url, $download_wait_time = DOWNLOAD_WAIT_TIME)
+    public static function get_hashed_response_fake_browser($url, $options = array())
     {
-        $response = self::get_remote_file_fake_browser($url, $download_wait_time);
-        
+        $response = self::get_remote_file_fake_browser($url, $options);
         $hash = simplexml_load_string($response);
-        
         return $hash;
     }
 
-    public static function save_remote_file_to_local($url, $download_wait_time = DOWNLOAD_WAIT_TIME, $timeout = DOWNLOAD_TIMEOUT_SECONDS, $download_attempts = DOWNLOAD_ATTEMPTS, $file_extension = false)
+    public static function save_remote_file_to_local($url, $options = array())
     {
+        if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;
+        if(!isset($options['timeout'])) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
+        if(!isset($options['download_attempts'])) $options['download_attempts'] = DOWNLOAD_ATTEMPTS;
         $temp_path = temp_filepath();
-        if($file_extension) $temp_path .= "." . $file_extension;
+        if(isset($options['file_extension'])) $temp_path .= "." . $options['file_extension'];
         debug("\n\n Saving remote file: " . $url);
         debug("\n\n Temporary file: " . $temp_path);
-        if($file_contents = self::get_remote_file($url, $download_wait_time, $timeout, $download_attempts))
+        if($file_contents = self::get_remote_file($url, $options))
         {
             $file = fopen($temp_path, "w");
             fwrite($file, $file_contents);
@@ -290,28 +267,6 @@ class Functions
         return (self::remote_file_size($uri) !== null);
     }
     
-    // public static function temp_filepath($relative_from_root = false, $extension = 'file')
-    // {
-    //     if($relative_from_root) $prefix = "";
-    //     else $prefix = DOC_ROOT;
-    //     
-    //     $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
-    //     while(glob($filepath))
-    //     {
-    //         $filepath = $prefix ."temp/tmp_". self::random_digits(5) .".$extension";
-    //     }
-    //     
-    //     return $filepath;
-    // }
-    
-    // public function random_digits($number, $start = 0)
-    // {
-    //     $start = "1".str_repeat($start, $number);
-    //     $end = "1".str_repeat(9, $number);
-    //     $random = rand($start,$end);
-    //     return substr($random, 1);
-    // }
-    
     public static function curl_post_request($url, $parameters_array = array())
     {
         $ch = curl_init();
@@ -340,32 +295,27 @@ class Functions
         return false;
     }
     
-    public static function fake_user_agent_http_get($url, $timeout = 50)
+    public static function fake_user_agent_http_get($url, $options = array())
     {
+        if(!isset($options['timeout'])) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
         if(substr($url, 0, 1) == "/") $url = "file://" . $url;
-        
-        // $agents[] = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; WOW64; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; Media Center PC 5.0)";
-        // $agents[] = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
-        // $agents[] = "Opera/9.63 (Windows NT 6.0; U; ru) Presto/2.1.1";
-        // $agents[] = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.5) Gecko/2008120122 Firefox/3.0.5";
-        // $agents[] = "Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.8.1.18) Gecko/20081203 Firefox/2.0.0.18";
-        // $agents[] = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.16) Gecko/20080702 Firefox/2.0.0.16";
-        $agents[] = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_6; en-us) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1";
-        //$agent = $agents[rand(0,(count($agents)-1))];
-        $agent = $agents[0];
-        
+
+        $agent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_6; en-us) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1";
         $ch = curl_init();
+        if(isset($options['user_agent'])) curl_setopt($ch, CURLOPT_USERAGENT, $options['user_agent']);
+        else curl_setopt($ch, CURLOPT_USERAGENT, $agent);
+
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         curl_setopt($ch, CURLOPT_FAILONERROR, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $options['timeout']);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-        
+        if(isset($options['encoding'])) curl_setopt($ch, CURLOPT_ENCODING, $options['encoding']);
+
         // ignores and just trusts https
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
@@ -743,12 +693,6 @@ class Functions
         return $files;
     }
     
-    public static function require_module($module)
-    {
-        $module_path = DOC_ROOT . "classes/modules/$module/module.php";
-        require_once($module_path);
-    }
-    
     public static function require_classes_from_dir($dir, $recursive = false)
     {
         if($handle = opendir($dir))
@@ -819,41 +763,6 @@ class Functions
             $r .= ($ch1=='?') ? $ch2 : $ch1;
         }
         return $r;
-        
-        /*
-        $nameString = preg_replace("/[ÀÂÅÃÄÁẤẠ]/u", "A", $nameString);
-        $nameString = preg_replace("/[ÉÈÊË]/u", "E", $nameString);
-        $nameString = preg_replace("/[ÍÌÎÏ]/u", "I", $nameString);
-        $nameString = preg_replace("/[ÓÒÔØÕÖỚỔ]/u", "O", $nameString);
-        $nameString = preg_replace("/[ÚÙÛÜ]/u", "U", $nameString);
-        $nameString = preg_replace("/[Ý]/u", "Y", $nameString);
-        $nameString = preg_replace("/Æ/u", "AE", $nameString);
-        $nameString = preg_replace("/[ČÇ]/u", "C", $nameString);
-        $nameString = preg_replace("/[ŠŞ]/u", "S", $nameString);
-        $nameString = preg_replace("/[Đ]/u", "D", $nameString);
-        $nameString = preg_replace("/Ž/u", "Z", $nameString);
-        $nameString = preg_replace("/Ñ/u", "N", $nameString);
-        $nameString = preg_replace("/Œ/u", "OE", $nameString);
-        $nameString = preg_replace("/ß/u", "B", $nameString);
-        $nameString = preg_replace("/Ķ/u", "K", $nameString);
-        $nameString = preg_replace("/[áàâåãäăãắảạậầằ]/u", "a", $nameString);
-        $nameString = preg_replace("/[éèêëĕěếệểễềẻ]/u", "e", $nameString);
-        $nameString = preg_replace("/[íìîïǐĭīĩỉï]/u", "i", $nameString);
-        $nameString = preg_replace("/[óòôøõöŏỏỗộơọỡốơồờớổ]/u", "o", $nameString);
-        $nameString = preg_replace("/[úùûüůưừựủứụ]/u", "u", $nameString);
-        $nameString = preg_replace("/[žź]/u", "z", $nameString);
-        
-        $nameString = preg_replace("/[đ]/u", "d", $nameString);
-        $nameString = preg_replace("/æ/u", "ae", $nameString);
-        $nameString = preg_replace("/[čćç]/u", "c", $nameString);
-        $nameString = preg_replace("/[ñńň]/u", "n", $nameString);
-        $nameString = preg_replace("/œ/u", "oe", $nameString);
-        $nameString = preg_replace("/[śšş]/u", "s", $nameString);
-        $nameString = preg_replace("/ř/u", "r", $nameString);
-        $nameString = preg_replace("/ğ/u", "g", $nameString);
-        $nameString = preg_replace("/Ř/u", "R", $nameString);
-        return $nameString;
-        */
     }
     
     public static function clean_name($name)
@@ -1525,12 +1434,14 @@ class Functions
         elseif ($extension == "bmp")        $mimetype = "image/bmp";
         elseif ($extension == "gif")        $mimetype = "image/gif";
         elseif ($extension == "jpg")        $mimetype = "image/jpeg";
+        elseif ($extension == "jpeg")       $mimetype = "image/jpeg";
         elseif ($extension == "png")        $mimetype = "image/png";
         elseif ($extension == "tif")        $mimetype = "image/tiff";
         elseif ($extension == "mp3")        $mimetype = "audio/mpeg";
         elseif ($extension == "wav")        $mimetype = "audio/x-wav";
         elseif ($extension == "ogg")        $mimetype = "audio/ogg";
         elseif ($extension == "oga")        $mimetype = "audio/ogg";
+        elseif ($extension == "svg")        $mimetype = "image/svg+xml";
         return $mimetype;
     }
     
@@ -1934,6 +1845,5 @@ class Functions
         $hms .= str_pad($seconds, 2, "0", STR_PAD_LEFT);
         return $hms;
     }
-
 }
 ?>

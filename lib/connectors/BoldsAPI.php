@@ -235,7 +235,7 @@ class BoldsAPI
 
         $arr = array();
         $file = self::SPECIES_SERVICE_URL . $taxid;
-        $orig_str = Functions::get_remote_file($file, DOWNLOAD_WAIT_TIME, 1200, 5);
+        $orig_str = Functions::get_remote_file($file, array('timeout' => 1200, 'download_attempts' => 5));
         
         if(is_numeric(stripos($orig_str, "Taxonomy Browser - No Match")))
         {

@@ -43,7 +43,7 @@ class BioImagesAPI
 
     function get_all_taxa()
     {
-        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, DOWNLOAD_WAIT_TIME, 4800, 5))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('timeout' => 4800, 'download_attempts' => 5)))
         {
             $col = array();
             foreach(new FileIterator($temp_filepath, true) as $line_num => $line) // 'true' will auto delete temp_filepath
@@ -76,7 +76,7 @@ class BioImagesAPI
     {
         require_library('connectors/BoldsImagesAPIv2');
         $path = BoldsImagesAPIv2::download_and_extract_remote_file($this->original_resource);
-        if($xml = Functions::get_hashed_response($path, DOWNLOAD_WAIT_TIME, 999999, 5))
+        if($xml = Functions::get_hashed_response($path, array('timeout' => 172800, 'download_attempts' => 5)))
         {
             foreach($xml->taxon as $t)
             {

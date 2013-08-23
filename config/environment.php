@@ -20,6 +20,11 @@ if(!defined('PS_LITE_CMD')) define('PS_LITE_CMD', 'ps -eo uid,pid,ppid,stime,tty
 if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://localhost/eol_php_code/');  // URL prefix of this installation
 if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');              // path to mysql binary. THE SPACE AT THE END IS IMPORTANT
 if(!defined('CONVERT_BIN_PATH')) define('CONVERT_BIN_PATH', 'convert');        // path to imagemagick convert binary
+if(!defined('GUNZIP_BIN_PATH')) define('GUNZIP_BIN_PATH', 'gunzip');
+if(!defined('UNZIP_BIN_PATH')) define('UNZIP_BIN_PATH', 'unzip');
+if(!defined('TAR_BIN_PATH')) define('TAR_BIN_PATH', 'tar');
+if(!defined('FILE_BIN_PATH')) define('FILE_BIN_PATH', 'file');
+if(!defined('PARSE_SERVER_BIN_PATH')) define('PARSE_SERVER_BIN_PATH', 'parserver');
 
 if(!isset($GLOBALS['ENV_DEBUG'])) $GLOBALS['ENV_DEBUG'] = true;
 if(!isset($GLOBALS['ENV_MYSQL_DEBUG'])) $GLOBALS['ENV_MYSQL_DEBUG'] = true;
@@ -127,6 +132,11 @@ function set_and_load_proper_environment($argv = NULL)
     if(file_exists(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php'))
     {
         require_once(dirname(__FILE__) . '/environments/' . $GLOBALS['ENV_NAME'] . '.php');
+    }
+    /* Override with any settings from /config/environments/local.php */
+    if(file_exists(dirname(__FILE__) . '/environments/local.php'))
+    {
+        require_once(dirname(__FILE__) . '/environments/local.php');
     }
 }
 

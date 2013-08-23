@@ -349,7 +349,7 @@ class FeaturedCreaturesAPI
         $ref_ids = array();
         $agent_ids = array();
         echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['vernacular'] . " - " . $rec['url'] . "\n";
-        if($html = Functions::get_remote_file($rec['url'], 3000000, 240, 5)) 
+        if($html = Functions::get_remote_file($rec['url'], array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             $html = str_ireplace(array("\n", "\r", "\t", "\o", "    "), "", $html);
             // manual adjustment
@@ -386,7 +386,7 @@ class FeaturedCreaturesAPI
 
     private function parse_html()
     {
-        if($html = Functions::get_remote_file($this->taxa_list_url, DOWNLOAD_WAIT_TIME, 1200, 5)) 
+        if($html = Functions::get_remote_file($this->taxa_list_url, array('timeout' => 1200, 'download_attempts' => 5)))
         {
             // manual adjustment
             $html = str_ireplace('<a href="../aquatic/Culiseta_melanura.htm">, black-tailed mosquito </a>', ', black-tailed mosquito', $html);

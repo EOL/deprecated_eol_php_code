@@ -25,7 +25,7 @@ $excluded_MorphBank_IDs = prepare_excluded_ids();
 if($url_list_of_image_ids)
 {
     print "\n [url_list_of_image_ids: $url_list_of_image_ids] \n";
-    $response = Functions::get_remote_file($url_list_of_image_ids, 1000000, 600, 5);
+    $response = Functions::get_remote_file($url_list_of_image_ids, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5));
     $image_id_xml = simplexml_load_string($response);
     if($image_id_xml) 
     {

@@ -68,7 +68,7 @@ class DiscoverLife_KeysAPI
     private function process_keys_spreadsheet()
     {
         $taxa_objects = array();
-        $filename = Functions::save_remote_file_to_local(self::ID_KEYS_FILE, DOWNLOAD_WAIT_TIME, 4800, 5);
+        $filename = Functions::save_remote_file_to_local(self::ID_KEYS_FILE, array('timeout' => 4800, 'download_attempts' => 5));
         print "\n[$filename]\n";
         foreach(new FileIterator($filename, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
