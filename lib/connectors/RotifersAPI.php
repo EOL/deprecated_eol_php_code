@@ -23,6 +23,13 @@ class RotifersAPI
         $this->debug_count = 0;
     }
 
+    /*
+    text/html: 6486
+    image/jpeg: 4050
+    Total: 10536
+    http://rs.tdwg.org/dwc/terms/taxon: 3931
+    */
+    
     function get_all_taxa()
     {
         self::process_text_files();
@@ -66,7 +73,7 @@ class RotifersAPI
         $texts = $func->make_array($this->text_path["species_images"], $fields);
         $ref_ids = array();
         $agent_ids = array();
-        $investigate = -1;
+        $investigate = 0;
         /*
         [lngSpecies_ID] => "Aspelta curvidactyla B?rzi??, 1949"
         [lngImage_ID] => Aspelta curvidactyla_UhegiynGol.jpg
@@ -89,8 +96,11 @@ class RotifersAPI
                 if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id."_$taxon_id", $media_url, $ref_ids, $agent_ids);
                 else
                 {
-                    $investigate++;
-                    if($rec["lngSpecies_ID"] != "lngSpecies_ID") echo("\n investigate: species images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                    if($rec["lngSpecies_ID"] != "lngSpecies_ID") 
+                    {
+                        $investigate++;
+                        echo("\n investigate: species images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                    }
                 }
             }
         }
@@ -103,7 +113,7 @@ class RotifersAPI
         $texts = $func->make_array($this->text_path["specimen_images"], $fields);
         $ref_ids = array();
         $agent_ids = array();
-        $investigate = -1;
+        $investigate = 0;
         /*
         [lngSpecies_ID] => "Aspelta psitta Harring et Myers, 1928"
         [lngImage_ID] => "Aspelta psitta Harring & Myers, 1928 [Donner, 1972].jpg"
@@ -142,8 +152,11 @@ class RotifersAPI
                 if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
                 else
                 {
-                    $investigate++;
-                    if($rec["lngSpecies_ID"] != "lngSpecies_ID") echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                    if($rec["lngSpecies_ID"] != "lngSpecies_ID")
+                    {
+                        $investigate++;
+                        echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                    } 
                 }
             }
         }
@@ -227,7 +240,7 @@ class RotifersAPI
         $texts = $func->make_array($this->text_path["distribution"], $fields);
         $ref_ids = array();
         $agent_ids = array();
-        $investigate = -1;
+        $investigate = 0;
         $taxa = array();
         foreach($texts as $rec)
         {
@@ -252,8 +265,11 @@ class RotifersAPI
                 }
                 else
                 {
-                    $investigate++;
-                    if($rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID") echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec["lngSpeciesSenior_ID"] . "\n");
+                    if($rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID") 
+                    {
+                        $investigate++;
+                        echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec["lngSpeciesSenior_ID"] . "\n");
+                    }
                 }
             }
         }
@@ -280,7 +296,7 @@ class RotifersAPI
         $texts = $func->make_array($this->text_path["specimen"], $fields, "");
         $ref_ids = array();
         $agent_ids = array();
-        $investigate = -1;
+        $investigate = 0;
         foreach($texts as $rec)
         {
             $description = $rec["strTypeStat"];
@@ -322,8 +338,11 @@ class RotifersAPI
                 if($taxon_id = @$link[$rec["taxon"]]) self::get_texts($description, $taxon_id, '', '#TypeInformation', $rec["lngSpecimen_ID"], $ref_ids, $agent_ids);
                 else
                 {
-                    $investigate++;
-                    if($rec["taxon"] != "taxon") echo("\n investigate: specimen: {$taxon_id} --- taxon = " . $rec["taxon"] . "\n");
+                    if($rec["taxon"] != "taxon")
+                    {
+                        $investigate++;
+                        echo("\n investigate: specimen: {$taxon_id} --- taxon = " . $rec["taxon"] . "\n");
+                    } 
                 }
             }
         }
@@ -398,6 +417,10 @@ class RotifersAPI
     private function get_texts($description, $taxon_id, $title, $subject, $code, $reference_ids = null, $agent_ids = null)
     {
         $description = utf8_encode($description);
+        $description = str_ireplace("<br>", "xxxyyy", $description);
+        $description = strip_tags($description);
+        $description = str_ireplace("xxxyyy", "<br>", $description);
+        
         if(in_array($code, $this->media_ids)) return;
         if(!Functions::is_utf8($description)) return;
         $this->media_ids[] = $code;
