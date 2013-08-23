@@ -20,7 +20,8 @@ class InsectVisitorsAPI
         $this->urls[] = array("active" => 1, "type" => "flies", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Diptera", "family" => ""));
         $this->urls[] = array("active" => 1, "type" => "moths", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Lepidoptera", "family" => ""));
         $this->urls[] = array("active" => 1, "type" => "beetles", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Coleoptera", "family" => ""));
-        $this->urls[] = array("active" => 1, "type" => "bugs", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Hemiptera", "family" => ""));
+        /* not all under Hemiptera, so better not put Order here anymore but scrape the Order and Family from the actual page - DATA-1325 */
+        $this->urls[] = array("active" => 1, "type" => "bugs", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "", "family" => ""));
         $this->file_urls = array();
         $this->file_urls[] = array("active" => 1, "type" => "lt_bee", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Hymenoptera", "family" => ""));
         $this->file_urls[] = array("active" => 1, "type" => "st_bee", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Hymenoptera", "family" => ""));
@@ -259,7 +260,35 @@ class InsectVisitorsAPI
                 $desc = self::clean_str($desc);
                 $GLOBALS['taxon'][$taxon_name]['association'] = $desc;
             }
+            if(@$GLOBALS['taxon'][$taxon_name]['association'])
+            {
+                $family_order = self::get_order_and_family($GLOBALS['taxon'][$taxon_name]['association']);
+                $GLOBALS['taxon'][$taxon_name]['ancestry']['family'] = @$family_order[0];
+                $GLOBALS['taxon'][$taxon_name]['ancestry']['order'] = @$family_order[1];
+            }
         }
+    }
+    
+    private function get_order_and_family($desc)
+    {
+        // Adelphocoris lineolatus Goeze: Miridae, Hemiptera<BR> - http://www.illinoiswildflowers.info/flower_insects/insects/bugs/adelphocoris_lineolatus.htm
+        if(preg_match("/:(.*?)<BR>/ims", $desc, $match)) 
+        {
+            $string = $match[1];
+            $names = explode(",", $string);
+            if(count($names) == 2)
+            {
+                $names[0] = self::remove_parenthesis($names[0]);
+                $names[1] = self::remove_parenthesis($names[1]);
+                return $names;
+            }
+            else return array();
+        }
+    }
+    
+    private function remove_parenthesis($string)
+    {
+        return trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
     }
 
     function prepare_common_names()
@@ -350,7 +379,7 @@ class InsectVisitorsAPI
                             "order"        => @$taxon_record['ancestry']['order'],
                             "family"       => @$taxon_record['ancestry']['family'],
                             "genus"        => '',
-                            "sciname"      => $taxon_record['taxon_name'],
+                            "sciname"      => str_ireplace(array(" sp.", " spp.", " spp"), "", $taxon_record['taxon_name']),
                             "reference"    => array(), // formerly taxon_refs
                             "synonyms"     => array(),
                             "commonNames"  => $common_names,
