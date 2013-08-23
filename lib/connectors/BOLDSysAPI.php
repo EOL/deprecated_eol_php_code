@@ -424,11 +424,7 @@ class BOLDSysAPI
             $phylum_path = PHYLUM_SERVICE_URL . $phylum['name'];
             // $phylum_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
             echo "\n\nphylum service: " . $phylum_path . "\n";
-<<<<<<< HEAD
-            if($xml = Functions::get_hashed_response($phylum_path, DOWNLOAD_WAIT_TIME, 15000, 5)) //about 4 hours before it timesout
-=======
-            if($xml = Functions::get_hashed_response($phylum_path, array('timeout' => 9999, 'download_attempts' => 5)))
->>>>>>> upstream3/master
+            if($xml = Functions::get_hashed_response($phylum_path, array('timeout' => 15000, 'download_attempts' => 5))) //about 4 hours before it timesout
             {
                 echo "\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [" . sizeof($xml->record) . "]";
                 $i = 0;
