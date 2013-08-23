@@ -61,6 +61,7 @@ class SparqlClient
     {
         if(preg_match(self::BASIC_URI_REGEX, $value)) return "<$value>";
         if(preg_match(self::ENCLOSED_URI_REGEX, $value)) return $value;
+        if(preg_match(self::NAMESPACED_URI_REGEX, $value)) return $value;
         $value = \eol_schema\ContentArchiveBuilder::escape_string($value);
         return "\"". str_replace("\"","\\\"", $value) ."\"";
     }
