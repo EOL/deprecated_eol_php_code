@@ -83,7 +83,7 @@ class SINAMapsAPI
                                 $ref_ids = array();
                                 $agent_ids = array();
                                 $caption = $rec["as_of"];
-                                if($rec["link_back"]) $caption .= "<br><br>" . '<a href="' . $rec["link_back"] . '">Manually generated dot map</a> showing county records, with shaded area showing likely general distribution.';
+                                if($rec["link_back"]) $caption .= "<br><br>" . 'See also this <a href="' . $rec["link_back"] . '">manually generated dot map</a> showing county records, with shaded area showing likely general distribution.';
                                 self::get_images($rec["sciname"], $caption, $rec["taxon_id"], $parts["filename"], $rec["computer_gen_map"], $rec["source_url"], $ref_ids, $agent_ids);
                             }
                         }
@@ -176,12 +176,13 @@ class SINAMapsAPI
     private function get_as_of_date($caption)
     {
         $as_of = "";
-        if(preg_match("/produced in(.*?)from /ims", $caption, $arr))
-        {
-            $as_of = "Map was generated in Singing Insects of North America in " . trim($arr[1]) . ".";
-        }
+        // working but temporarily removed.
+        // if(preg_match("/produced in(.*?)from /ims", $caption, $arr))
+        // {
+        //     $as_of = "Map was generated in Singing Insects of North America in " . trim($arr[1]) . ".";
+        // }
         if($as_of) $as_of .= "<br>";
-        $as_of .= "Version of map displayed above was harvested from SINA on " . date("M-Y") . ".";
+        $as_of .= "Version of map displayed above was harvested from SINA on " . date("M-d-Y") . ".";
         return $as_of;
     }
     
@@ -261,7 +262,7 @@ class SINAMapsAPI
         $mr->audience       = 'Everyone';
         $mr->description    = (string) $description;
         $mr->subtype        = "Map";
-        $mr->accessURI      = $media_url;
+        $mr->accessURI      = (string) trim($media_url);
         $this->archive_builder->write_object_to_file($mr);
     }
 
