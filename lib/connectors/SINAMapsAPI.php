@@ -49,7 +49,7 @@ class SINAMapsAPI
                 foreach($arr[1] as $string)
                 {
                     $string = str_ireplace("a.htm", "m.htm", $string);
-                    // $string = "141m.htm"; //debug
+                    // $string = "071m.htm"; //debug
                     $url = $this->sina_domain . $string;
                     $urls = array();
                     $urls[] = $url;
@@ -70,20 +70,24 @@ class SINAMapsAPI
                                 echo "\n investigate blank taxon_id [$url]\n";
                                 continue;
                             }
-                            $rec["source_url"] = $this->sina_domain . $rec["taxon_id"] . "a.htm";
+                            $rec["source_url"] = $this->sina_domain . Functions::format_number_with_leading_zeros($rec["taxon_id"], 3) . "a.htm";
                             print_r($rec);
                             $this->create_instances_from_taxon_object($rec, array());
                             $ref_ids = array();
                             $agent_ids = array();
-                            self::get_images($rec["caption"], $rec["taxon_id"], $parts["filename"], $rec["map"], $rec["source_url"], $ref_ids, $agent_ids);
+                            if($rec["as_of"]) $rec["caption"] = $rec["as_of"] . "<br><br>" . $rec["caption"];
+                            self::get_images($rec["sciname"], $rec["caption"], $rec["taxon_id"], $parts["filename"], $rec["map"], $rec["source_url"], $ref_ids, $agent_ids);
                             if(@$rec["computer_gen_map"])
                             {
                                 $parts = pathinfo($rec["computer_gen_map"]);
                                 $ref_ids = array();
                                 $agent_ids = array();
-                                self::get_images("", $rec["taxon_id"], $parts["filename"], $rec["computer_gen_map"], $rec["source_url"], $ref_ids, $agent_ids);
+                                $caption = $rec["as_of"];
+                                if($rec["link_back"]) $caption .= "<br><br>" . 'See also this <a href="' . $rec["link_back"] . '">manually generated dot map</a> showing county records, with shaded area showing likely general distribution.';
+                                self::get_images($rec["sciname"], $caption, $rec["taxon_id"], $parts["filename"], $rec["computer_gen_map"], $rec["source_url"], $ref_ids, $agent_ids);
                             }
                         }
+                        // break; //debug
                     }
                     // break; //debug
                 }
@@ -140,6 +144,7 @@ class SINAMapsAPI
                 else echo "\n investigate no computer gen map [$url]\n";
                 $caption = str_ireplace('href="', 'href="' . $this->sina_domain, $caption);
                 $rec["caption"] = $caption;
+                $rec["as_of"] = self::get_as_of_date($caption);
             }
             else
             {
@@ -152,6 +157,7 @@ class SINAMapsAPI
                     {
                         $caption = strip_tags($arr[1]) . ".";
                         $rec["caption"] = $caption;
+                        $rec["as_of"] = self::get_as_of_date($caption);
                     }
                     echo "\n retry successfull\n";
                 }
@@ -163,7 +169,21 @@ class SINAMapsAPI
             }
         }
         else echo "\n investigate 03 [$url]";
+        $rec["link_back"] = $url;
         return $rec;
+    }
+
+    private function get_as_of_date($caption)
+    {
+        $as_of = "";
+        // working but temporarily removed.
+        // if(preg_match("/produced in(.*?)from /ims", $caption, $arr))
+        // {
+        //     $as_of = "Map was generated in Singing Insects of North America in " . trim($arr[1]) . ".";
+        // }
+        if($as_of) $as_of .= "<br>";
+        $as_of .= "Version of map displayed above was harvested from SINA on " . date("M-d-Y") . ".";
+        return $as_of;
     }
     
     private function get_map_image_retry($html)
@@ -215,7 +235,7 @@ class SINAMapsAPI
         return $reference_ids;
     }
 
-    private function get_images($description, $taxon_id, $media_id, $media_url, $source_url, $reference_ids, $agent_ids)
+    private function get_images($sciname, $description, $taxon_id, $media_id, $media_url, $source_url, $reference_ids, $agent_ids)
     {
         /* this has to be done because there are many maps written in html as jpg but are actually gif. in the site these maps are not showing, meaning typo in html.
         since there is only a handful of jpg maps,  i set all maps to gif */
@@ -237,12 +257,12 @@ class SINAMapsAPI
         $mr->CVterm         = "";
         $mr->Owner          = "";
         $mr->rights         = "";
-        $mr->title          = "";
+        $mr->title          = "Distribution of $sciname in North America north of Mexico";
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc/3.0/";
         $mr->audience       = 'Everyone';
         $mr->description    = (string) $description;
         $mr->subtype        = "Map";
-        $mr->accessURI      = $media_url;
+        $mr->accessURI      = (string) trim($media_url);
         $this->archive_builder->write_object_to_file($mr);
     }
 
