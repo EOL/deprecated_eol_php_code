@@ -3,12 +3,10 @@ namespace php_active_record;
 
 class ContentManager
 {
-    private $remote_server_ip;
     private $unique_key;
 
-    function __construct($server_ip = 0)
+    function __construct()
     {
-        $this->remote_server_ip = $server_ip;
         $this->unique_key = Functions::generate_guid();
     }
 

@@ -9,7 +9,7 @@ class SchemaConnection
     function __construct(&$resource)
     {
         $this->mysqli =& $GLOBALS['db_connection'];
-        $this->content_manager = new ContentManager(false);
+        $this->content_manager = new ContentManager();
         $this->resource =& $resource;
         $this->harvested_data_object_ids = array();
     }
@@ -192,7 +192,7 @@ class SchemaConnection
     {
         $wikipedia_resource = Resource::wikipedia();
         $last_wikipedia_harvest = new HarvestEvent($wikipedia_resource->most_recent_published_harvest_event_id());
-        $content_manager = new ContentManager(false);
+        $content_manager = new ContentManager();
         
         $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($t, $wikipedia_resource->hierarchy_id);
         if(@!$hierarchy_entry->id) return false;
