@@ -64,12 +64,18 @@ class BOLDSysAPI
         $species_with_barcode_img = array();
         $species_with_sequence = array();
         $taxon = 0;
+        $names = array();
+        $names2 = array();
         foreach($xml->taxon as $t)
         {
             $taxon++;
             $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
             $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
             $identifier = (string) $t_dc->identifier;
+            $sciname = (string) $t_dwc->ScientificName;
+            $names[$sciname] = 1;
+            $names2[$identifier] = 1;
+            
             foreach($t->dataObject as $do)
             {
                 $t_dc2      = $do->children("http://purl.org/dc/elements/1.1/");            
@@ -122,6 +128,9 @@ class BOLDSysAPI
                 // if(is_numeric($pos)) $species_with_barcodes[$identifier] = "";
             }
         }
+        print "\n names: " . count($names);
+        print "\n names2: " . count($names2);
+
         print "\n total: " . count($xml->taxon);
         print "\n total: " . $taxon;
         print "\n taxa with barcode image or public sequence data: " . count($with_data);
@@ -306,7 +315,6 @@ class BOLDSysAPI
                 $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $license, $rightsHolder, $subject, $agent);
             }
         }
-
 
         $arr_data[]=array(  "identifier"   => $taxon_id,
                             "source"       => SPECIES_URL . trim($taxon_id),
