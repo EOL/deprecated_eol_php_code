@@ -7,7 +7,7 @@ The service is per phylum level e.g.: http://v2.boldsystems.org/connect/REST/get
 This service will then list all the species under this phylum. The list of phylum names at the moment is hard-coded.
 The connector runs all the phylum taxa, assembles each of the taxon info and generates the final EOL XML.
 
-With the availability of the BOLDS big XML file (http://www.boldsystems.org/export/boldrecords.xml.gz), 
+With the availability of the BOLDS big XML file (http://www.boldsystems.org/export/boldrecords.xml.gz),
 the nucleotides sequence is no longer scraped from the site.
 */
 
@@ -23,7 +23,7 @@ class BOLDSysAPI
     private static $saved_sequences;
 
     public function __construct()
-    {           
+    {
         $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
         $this->WORK_LIST              = $this->TEMP_FILE_PATH . "sl_work_list.txt"; //sl - species-level taxa
         $this->WORK_IN_PROGRESS_LIST  = $this->TEMP_FILE_PATH . "sl_work_in_progress_list.txt";
@@ -32,6 +32,7 @@ class BOLDSysAPI
         $this->SAVED_SEQUENCES_FILE   = $this->TEMP_FILE_PATH . "taxa_sequences.txt";
         $this->phylum_without_sequence = array();
     }
+    
     /* Some stats as of Aug 22, 2013
     BOLDS' website says it has: "Species with Barcodes : 181,906" - http://boldsystems.org/index.php/TaxBrowser_Home
 
@@ -52,6 +53,7 @@ class BOLDSysAPI
            dataObjects = 449,425 (texts = 340,290, images = 109,135)
        After harvesting, the final numbers maybe a little less due to name reconciliation.
     */
+    
     function run_stats($xml_file)
     {
         $xml = simplexml_load_file($xml_file);
@@ -59,13 +61,11 @@ class BOLDSysAPI
         $with_data2 = array();
         $any_type_of_data = array();
         $non_public_records = array();
-        $species_with_barcodes_1 = array();
-        $species_with_barcodes = array();
         $species_with_barcode_img = array();
         $species_with_sequence = array();
         $taxon = 0;
-        $names = array();
-        $names2 = array();
+        $unique_names = array();
+        $unique_taxon_ids = array();
         foreach($xml->taxon as $t)
         {
             $taxon++;
@@ -73,13 +73,12 @@ class BOLDSysAPI
             $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
             $identifier = (string) $t_dc->identifier;
             $sciname = (string) $t_dwc->ScientificName;
-            $names[$sciname] = 1;
-            $names2[$identifier] = 1;
-            
+            $unique_names[$sciname] = 1;
+            $unique_taxon_ids[$identifier] = 1;
             foreach($t->dataObject as $do)
             {
-                $t_dc2      = $do->children("http://purl.org/dc/elements/1.1/");            
-                $t_dcterms  = $do->children("http://purl.org/dc/terms/");       
+                $t_dc2      = $do->children("http://purl.org/dc/elements/1.1/");
+                $t_dcterms  = $do->children("http://purl.org/dc/terms/");
                 $strings = array("sequence of the barcode region Cytochrome", "following is a representative barcode sequence");
                 foreach($strings as $string)
                 {
@@ -106,7 +105,7 @@ class BOLDSysAPI
                     $any_type_of_data[$identifier] = "";
                 }
                 
-                if(isset($with_data2[$identifier]) && !isset($with_data[$identifier])) print "\n investigate [$identifier]";
+                if(isset($with_data2[$identifier]) && !isset($with_data[$identifier])) echo "\n investigate [$identifier]";
                 
                 $strings = array("Statistics of barcoding coverage:", "BOLDS: Map of specimen collection locations for");
                 foreach($strings as $string)
@@ -118,32 +117,21 @@ class BOLDSysAPI
                 $string = "Public Records: 0";
                 $pos = stripos($t_dc2->description, $string);
                 if(is_numeric($pos)) $non_public_records[$identifier] = "";
-
-                // $string = "Species With Barcodes: 1";
-                // $pos = stripos($t_dc2->description, $string);
-                // if(is_numeric($pos)) $species_with_barcodes_1[$identifier] = "";
-                // 
-                // $string = "Species With Barcodes:";
-                // $pos = stripos($t_dc2->description, $string);
-                // if(is_numeric($pos)) $species_with_barcodes[$identifier] = "";
             }
         }
-        print "\n names: " . count($names);
-        print "\n names2: " . count($names2);
-
-        print "\n total: " . count($xml->taxon);
-        print "\n total: " . $taxon;
-        print "\n taxa with barcode image or public sequence data: " . count($with_data);
-        print "\n taxa with barcode image or public sequence data: " . count($with_data2);
-        print "\n species with barcode image: " . count($species_with_barcode_img);
-        print "\n species with public sequence data: " . count($species_with_sequence);
-        print "\n taxa with any type of data: " . count($any_type_of_data);
-        print "\n taxa with non_public_records: " . count($non_public_records);
-        // print "\n species with barcodes 1: " . count($species_with_barcodes_1);
-        // print "\n species with barcodes: " . count($species_with_barcodes);
-        print "\n";
+        echo "\n names: " . count($unique_names);
+        echo "\n names2: " . count($unique_taxon_ids);
+        echo "\n total: " . count($xml->taxon);
+        echo "\n total: " . $taxon;
+        echo "\n taxa with barcode image or public sequence data: " . count($with_data);
+        echo "\n taxa with barcode image or public sequence data: " . count($with_data2);
+        echo "\n species with barcode image: " . count($species_with_barcode_img);
+        echo "\n species with public sequence data: " . count($species_with_sequence);
+        echo "\n taxa with any type of data: " . count($any_type_of_data);
+        echo "\n taxa with non_public_records: " . count($non_public_records);
+        echo "\n";
     }
-    
+
     function initialize_text_files()
     {
         $f = fopen($this->WORK_LIST, "w"); fclose($f);
