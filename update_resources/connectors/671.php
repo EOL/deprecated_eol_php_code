@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* MycoBank Classification - uses their webservice to get their entire classification of > 400k valid taxa
+/* MycoBank Classification - uses their webservice to get their entire classification of > 400k current name and synonyms
 estimated execution time: 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
