@@ -5,10 +5,6 @@ class MCZHarvardAPI
 {
     function __construct($folder)
     {
-        // $this->data_dump_url = "http://digir.mcz.harvard.edu/forEOL/MCZimages.csv";
-        // $this->data_dump_url = "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small_2013.csv";
-        // $this->data_dump_url = "http://127.0.0.1/~eolit/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_2013.csv";
-
         $this->data_dump_url = "http://digir.mcz.harvard.edu/forEOL/MCZimages.tsv";
         // $this->data_dump_url = "http://127.0.0.1/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.tsv";
         // $this->data_dump_url = "http://127.0.0.1/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages.tsv";
@@ -39,6 +35,7 @@ class MCZHarvardAPI
                     if(count($record) != 80)
                     {
                        $not80++; // means invalid CSV row, needs attention by provider
+                       echo "\n investigate: invalid CSV row, needs attention by provider [" . count($record) . "]";
                        print_r($record);
                     }
                     else
@@ -46,7 +43,7 @@ class MCZHarvardAPI
                         if(@$record['SCIENTIFIC_NAME'])
                         {
                             $i++;
-                            debug("$i. " . $record['SCIENTIFIC_NAME'] . "\n");
+                            debug("$i. " . $record['SCIENTIFIC_NAME'] . " [" . count($record) . "]\n");
                             self::parse_record_element($record);
                         }
                     }

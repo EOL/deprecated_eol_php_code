@@ -49,7 +49,7 @@ class SINAMapsAPI
                 foreach($arr[1] as $string)
                 {
                     $string = str_ireplace("a.htm", "m.htm", $string);
-                    // $string = "071m.htm"; //debug
+                    // $string = "123m.htm"; //"071m.htm"; 318m.htm //debug
                     $url = $this->sina_domain . $string;
                     $urls = array();
                     $urls[] = $url;
@@ -142,6 +142,17 @@ class SINAMapsAPI
                 elseif(preg_match("/<a href=\"(.*?)\">  Computer-generated/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
                 elseif(preg_match("/<a href=\"(.*?)\">County-level distribution map/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
                 else echo "\n investigate no computer gen map [$url]\n";
+                
+                //further check for 'computer_gen_map' e.g. http://entnemdept.ufl.edu/walker/buzz/123m.htm or 318m.htm
+                if(is_numeric(stripos($rec["computer_gen_map"], "href=")))
+                {
+                    for($x = 0; $x <= 10; $x++)
+                    {
+                        if(preg_match("/<a href=\"(.*?)xxx/ims", $rec["computer_gen_map"]."xxx", $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
+                        else break;
+                    }
+                }
+                
                 $caption = str_ireplace('href="', 'href="' . $this->sina_domain, $caption);
                 $rec["caption"] = $caption;
                 $rec["as_of"] = self::get_as_of_date($caption);
