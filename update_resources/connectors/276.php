@@ -26,7 +26,7 @@ if($taxa = $func->get_all_taxa($dwca_file))
     fclose($OUT);
     Functions::set_resource_status_to_force_harvest($resource_id);
 }
-$elapsed_time_sec = time_elapsed() - $timestart;s
+$elapsed_time_sec = time_elapsed() - $timestart;
 echo "\nelapsed time = " . $elapsed_time_sec . " seconds";
 echo "\nelapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\nDone processing.";
