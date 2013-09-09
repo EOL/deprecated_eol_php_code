@@ -96,6 +96,12 @@ class test_archive_ingest_reharvest extends SimpletestUnitBase
         $this->assertEqual(count($entry->synonyms), 1);
         $this->assertEqual($entry->synonyms[0]->name->string, $vernacular->vernacularName);
         $this->assertEqual($entry->id, $original_entry_id);
+        
+        $this->vernacular_names = array();
+        $this->build_resource();
+        self::harvest($this->resource);
+        $entry = HierarchyEntry::find_by_identifier($this->taxa[0]->taxonID);
+        $this->assertEqual(count($entry->synonyms), 0);
     }
     
     function testReharvestDataObjectReferences()
