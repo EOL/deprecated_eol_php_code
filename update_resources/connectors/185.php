@@ -1,17 +1,14 @@
 <?php
 namespace php_active_record;
 /* Turbellarian Taxonomic Database
-estimated execution time:
+estimated execution time: 20 hours 
 */
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TurbellarianAPI');
 $timestart = time_elapsed();
 $resource_id = 185;
-
 $func = new TurbellarianAPI($resource_id);
 $func->get_all_taxa();
-
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
@@ -23,9 +20,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
 }
-
-// $func->check_taxon_tab(DOC_ROOT . "/taxon.tab", true); // just some stats...
-
+// $func->check_taxon_tab(DOC_ROOT . "/taxon.tab", false); // just some stats...
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
