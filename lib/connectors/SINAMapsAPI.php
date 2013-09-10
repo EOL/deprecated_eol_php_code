@@ -42,7 +42,7 @@ class SINAMapsAPI
     private function process_html($html_path)
     {
         // <i><A href="362a.htm">Gryllotalpa cultriger</a></i>
-        if($html = Functions::get_remote_file($html_path, DOWNLOAD_WAIT_TIME, 999999, 5))
+        if($html = Functions::get_remote_file($html_path, array('timeout' => 999999, 'download_attempts' => 5)))
         {
             if(preg_match_all("/<i><A href=\"(.*?)\"/ims", $html, $arr))
             {
@@ -71,7 +71,6 @@ class SINAMapsAPI
                                 continue;
                             }
                             $rec["source_url"] = $this->sina_domain . Functions::format_number_with_leading_zeros($rec["taxon_id"], 3) . "a.htm";
-                            print_r($rec);
                             $this->create_instances_from_taxon_object($rec, array());
                             $ref_ids = array();
                             $agent_ids = array();
@@ -100,7 +99,7 @@ class SINAMapsAPI
     private function get_map_data($url)
     {
         $rec = array();
-        if($html = Functions::get_remote_file($url, DOWNLOAD_WAIT_TIME, 999999, 5))
+        if($html = Functions::get_remote_file($url, array('timeout' => 999999, 'download_attempts' => 5)))
         {
             // manual adjustment
             if($url == "http://entnemdept.ufl.edu/walker/buzz/334m.htm") $html = str_ireplace('<div align="center">', '</div><div align="center">', $html);
@@ -144,7 +143,7 @@ class SINAMapsAPI
                 else echo "\n investigate no computer gen map [$url]\n";
                 
                 //further check for 'computer_gen_map' e.g. http://entnemdept.ufl.edu/walker/buzz/123m.htm or 318m.htm
-                if(is_numeric(stripos($rec["computer_gen_map"], "href=")))
+                if(is_numeric(stripos(@$rec["computer_gen_map"], "href=")))
                 {
                     for($x = 0; $x <= 10; $x++)
                     {
@@ -202,12 +201,10 @@ class SINAMapsAPI
         //<img src="302md.gif"
         if(preg_match_all("/<img src=\"(.*?)\"/ims", $html, $arr))
         {
-            print_r($arr[1]);
             $exclude = array("blank.gif", "specpage.gif", "nextimag.gif", "previmag.gif");
             $arr = $arr[1];
             $arr = array_diff($arr, $exclude);
             $arr = array_values($arr);
-            print_r($arr);
             if($arr[0] && count($arr) == 1) return $arr[0];
         }
         return false;
