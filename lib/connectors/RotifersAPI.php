@@ -15,19 +15,17 @@ class RotifersAPI
         $this->media_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
-        $this->zip_path = "http://localhost/~eolit/rotifers.zip";
+        // $this->zip_path = "http://localhost/~eolit/rotifers.zip";
         $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/rotifers.zip";
         $this->text_path = array();
         $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images";
         $this->image_path =                 "http://89.26.108.66/TestRWC/Rotifer_data/images";
-        $this->debug_count = 0;
     }
 
     /*
-    text/html: 6486
+    text/html: 6700
     image/jpeg: 4050
-    Total: 10536
-    http://rs.tdwg.org/dwc/terms/taxon: 3931
+    Total: 3930
     */
     
     function get_all_taxa()
@@ -38,7 +36,6 @@ class RotifersAPI
         $parts = pathinfo($path);
         recursive_rmdir($parts["dirname"]);
         debug("\n temporary directory removed: " . $parts["dirname"]);
-        echo "\n total text scan: $this->debug_count \n";
     }
 
     private function process_text_files()
@@ -50,16 +47,10 @@ class RotifersAPI
         $fields = array("lngSpecies_ID", "lngRank_ID", "bytValidity", "bytAvailability", "lngGenus_ID", "lngSubGenus_ID", "strSpecies", "lngInfraRank_ID", "strSubSpeciesInfra", "lngAuthor_ID", "intYear", "strParentheses", "strIUI", "strOrigSpell", "strOrigComb");
         $taxa = $func->make_array($this->text_path["species"], $fields, "", array());
         $link = array();
-        foreach($taxa as $rec)
-        {
-            $sciname = $rec["strOrigComb"];
-            echo "\n $sciname";
-            $link = $this->create_instances_from_taxon_object($rec, array(), $link);
-        }
+        foreach($taxa as $rec) $link = $this->create_instances_from_taxon_object($rec, array(), $link);
         echo "\n\n total rows: " . count($taxa);
         echo "\n\n link: " . count($link);
         echo "\n";
-        print_r($link);
         self::process_specimen($link, $func);
         self::process_distribution($link, $func);
         self::process_specimen_images($link, $func);
@@ -156,7 +147,7 @@ class RotifersAPI
                     {
                         $investigate++;
                         echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
-                    } 
+                    }
                 }
             }
         }
@@ -198,14 +189,8 @@ class RotifersAPI
                 echo("\n\n investigate: no folder: [$filename] -- [$image_type] \n ");
         }
         $image_path = $this->image_path . "/$folder/_full-size/$filename";
-        
         // remove text scan images
-        if(preg_match("/_text(.*?).jpg/ims", $filename, $arr) || preg_match("/_text(.*?)].jpg/ims", $filename, $arr))
-        {
-            echo "\n $image_path \n";
-            $this->debug_count++;
-            return false;
-        }
+        if(preg_match("/_text(.*?).jpg/ims", $filename, $arr) || preg_match("/_text(.*?)].jpg/ims", $filename, $arr)) return false;
         return $image_path;
     }
 
@@ -221,7 +206,6 @@ class RotifersAPI
         $mr->type           = "http://purl.org/dc/dcmitype/StillImage";
         $mr->language       = 'en';
         $mr->format         = Functions::get_mimetype($media_url);
-        // $mr->furtherInformationURL = "";
         $mr->CVterm         = "";
         $mr->Owner          = "";
         $mr->rights         = "";
@@ -229,7 +213,6 @@ class RotifersAPI
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc/3.0/";
         $mr->audience       = 'Everyone';
         $mr->description    = (string) $description;
-        // $mr->subtype        = "Map";
         $mr->accessURI      = $media_url;
         $this->archive_builder->write_object_to_file($mr);
     }
@@ -368,12 +351,13 @@ class RotifersAPI
         [strOrigSpell] => Pseudonotholca pacifica
         [strOrigComb] => Pseudonotholca pacifica
         */
-        
+        $rec = array_map('trim', $rec);
         $sciname = $rec["lngGenus_ID"];
         if($rec["strSpecies"]) $sciname .= " " . $rec["strSpecies"];
         if($rec["lngInfraRank_ID"]) $sciname .= " " . $rec["lngInfraRank_ID"];
         if($rec["strSubSpeciesInfra"]) $sciname .= " " . $rec["strSubSpeciesInfra"];
-        if(!$sciname) return $link;
+        $sciname = trim($sciname);
+        if(!$sciname || substr($sciname, 0, 1) == "-") return $link;
         $taxon_id = (string) $rec["lngSpecies_ID"];
         $rank = self::get_rank($rec["lngRank_ID"]);
         $genus = "";
@@ -387,7 +371,7 @@ class RotifersAPI
         if($rec["strParentheses"] == "y") $authorship = "($authorship)";
         $authorship = str_replace('"', "", $authorship);
         $link[Functions::canonical_form($sciname)] = $taxon_id;
-
+        echo "\n $sciname";
         $taxon = new \eol_schema\Taxon();
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonID                     = (string) $taxon_id; // take note, not TAXONID
@@ -420,13 +404,11 @@ class RotifersAPI
         $description = str_ireplace("<br>", "xxxyyy", $description);
         $description = strip_tags($description);
         $description = str_ireplace("xxxyyy", "<br>", $description);
-        
         if(in_array($code, $this->media_ids)) return;
         if(!Functions::is_utf8($description)) return;
         $this->media_ids[] = $code;
         if(in_array($subject, array("#TypeInformation"))) $subject = $this->EOL . $subject;
         else $subject = $this->SPM . $subject;
-
         $mr = new \eol_schema\MediaResource();
         if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
         if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
@@ -462,7 +444,7 @@ class RotifersAPI
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800)))
+        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 3)))
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
