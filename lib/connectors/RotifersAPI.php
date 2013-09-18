@@ -15,11 +15,14 @@ class RotifersAPI
         $this->media_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
-        // $this->zip_path = "http://localhost/~eolit/rotifers.zip";
+        $this->zip_path = "http://localhost/~eolit/cp/Rotifers/rotifers.zip";
         $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/rotifers.zip";
         $this->text_path = array();
         $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images";
         $this->image_path =                 "http://89.26.108.66/TestRWC/Rotifer_data/images";
+        $this->invalid_taxa = array(); // for stats
+        $this->taxa_references = array();
+        $this->image_references = array();
     }
 
     /*
@@ -34,6 +37,7 @@ class RotifersAPI
         // remove temp dir
         $path = $this->text_path["species"];
         $parts = pathinfo($path);
+        $parts["dirname"] = str_ireplace("/rotifers", "", $parts["dirname"]);
         recursive_rmdir($parts["dirname"]);
         debug("\n temporary directory removed: " . $parts["dirname"]);
     }
@@ -44,18 +48,74 @@ class RotifersAPI
         print_r($this->text_path);
         require_library('connectors/FishBaseAPI');
         $func = new FishBaseAPI();
+        self::process_taxon_references($func);
+        self::process_image_references($func);
         $fields = array("lngSpecies_ID", "lngRank_ID", "bytValidity", "bytAvailability", "lngGenus_ID", "lngSubGenus_ID", "strSpecies", "lngInfraRank_ID", "strSubSpeciesInfra", "lngAuthor_ID", "intYear", "strParentheses", "strIUI", "strOrigSpell", "strOrigComb");
         $taxa = $func->make_array($this->text_path["species"], $fields, "", array());
         $link = array();
-        foreach($taxa as $rec) $link = $this->create_instances_from_taxon_object($rec, array(), $link);
+        foreach($taxa as $rec) $link = $this->create_instances_from_taxon_object($rec, $link);
         echo "\n\n total rows: " . count($taxa);
         echo "\n\n link: " . count($link);
         echo "\n";
         self::process_specimen($link, $func);
         self::process_distribution($link, $func);
-        self::process_specimen_images($link, $func);
+        self::process_specimen_images_v2($link, $func);
         self::process_species_images($link, $func);
         $this->create_archive();
+    }
+
+    private function process_taxon_references($func)
+    {
+        $fields = array("lngSpecies_ID", "lngF1_Ref_ID", "lngF3_RefAuthor_ID", "intF4_Year", "txtF5_Title", "lngF7_Journal_ID", "strF10_Vol", "strF13_Pages");
+        $texts = $func->make_array($this->text_path["references"], $fields);
+        foreach($texts as $rec)
+        {
+            if($rec["lngF1_Ref_ID"] == "lngF1_Ref_ID") continue;
+            $ref = $rec["lngF3_RefAuthor_ID"] . ". ";
+            if($rec["intF4_Year"]) $ref .= $rec["intF4_Year"] . ". ";
+            if($rec["txtF5_Title"]) $ref .= $rec["txtF5_Title"] . ". ";
+            if($rec["lngF7_Journal_ID"]) $ref .= $rec["lngF7_Journal_ID"] . ". ";
+            if($rec["strF10_Vol"]) $ref .= $rec["strF10_Vol"] . ". ";
+            if($rec["strF13_Pages"]) $ref .= $rec["strF13_Pages"] . ". ";
+            $ref = str_replace("..", ".", $ref);
+            $r = new \eol_schema\Reference();
+            $r->full_reference = $ref;
+            $r->identifier = $rec["lngF1_Ref_ID"];
+            if(!in_array($r->identifier, $this->resource_reference_ids)) 
+            {
+               $this->resource_reference_ids[] = $r->identifier;
+               $this->archive_builder->write_object_to_file($r);
+            }
+            $taxon_id = Functions::canonical_form($rec["lngSpecies_ID"]);
+            $this->taxa_references[$taxon_id][] = $r->identifier;
+        }
+    }
+
+    private function process_image_references($func)
+    {
+        $fields = array("lngImage_ID", "lngSpecies_ID", "lngRef_ID", "strPages", "lngF3_RefAuthor_ID", "intF4_Year", "txtF5_Title", "lngF7_Journal_ID", "strF10_Vol");
+        $texts = $func->make_array($this->text_path["image_references"], $fields);
+        foreach($texts as $rec)
+        {
+            if($rec["lngRef_ID"] == "lngRef_ID") continue;
+            $ref = $rec["lngF3_RefAuthor_ID"] . ". ";
+            if($rec["intF4_Year"]) $ref .= $rec["intF4_Year"] . ". ";
+            if($rec["txtF5_Title"]) $ref .= $rec["txtF5_Title"] . ". ";
+            if($rec["lngF7_Journal_ID"]) $ref .= $rec["lngF7_Journal_ID"] . ". ";
+            if($rec["strF10_Vol"]) $ref .= $rec["strF10_Vol"] . ". ";
+            if($rec["strPages"]) $ref .= $rec["strPages"] . ". ";
+            $ref = str_replace("..", ".", $ref);
+            $r = new \eol_schema\Reference();
+            $r->full_reference = $ref;
+            $r->identifier = $rec["lngRef_ID"];
+            if(!in_array($r->identifier, $this->resource_reference_ids)) 
+            {
+               $this->resource_reference_ids[] = $r->identifier;
+               $this->archive_builder->write_object_to_file($r);
+            }
+            $image_id = str_replace(" ", "_", self::remove_quotes($rec["lngImage_ID"]));
+            $this->image_references[$image_id][] = $r->identifier;
+        }
     }
 
     private function process_species_images($link, $func)
@@ -65,12 +125,6 @@ class RotifersAPI
         $ref_ids = array();
         $agent_ids = array();
         $investigate = 0;
-        /*
-        [lngSpecies_ID] => "Aspelta curvidactyla B?rzi??, 1949"
-        [lngImage_ID] => Aspelta curvidactyla_UhegiynGol.jpg
-        Taxon name: [tblSpeciesImage IngSpecies_ID]
-        AccessURI: “somethingsomethingelseChristianwilltellusthedomain/”[tblSpeciesImage IngImage_ID]
-        */
         foreach($texts as $rec)
         {
             if($rec["lngImage_ID"] == "lngImage_ID" || $rec["blnPermission"] == "FALSE") continue;
@@ -83,14 +137,16 @@ class RotifersAPI
             if($rec["lngImage_ID"])
             {
                 $rec["lngSpecies_ID"] = self::remove_quotes($rec["lngSpecies_ID"]);
-                $rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"]));
-                if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id."_$taxon_id", $media_url, $ref_ids, $agent_ids);
-                else
+                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"])))
                 {
-                    if($rec["lngSpecies_ID"] != "lngSpecies_ID") 
+                    if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
+                    else
                     {
-                        $investigate++;
-                        echo("\n investigate: species images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                        if($rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
+                        {
+                            $investigate++;
+                            echo("\n investigate: species images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                        }
                     }
                 }
             }
@@ -98,55 +154,37 @@ class RotifersAPI
         echo "\n investigate: $investigate \n";
     }
 
-    private function process_specimen_images($link, $func)
+    private function process_specimen_images_v2($link, $func)
     {
         $fields = array("lngSpecies_ID", "lngImage_ID", "lngDocuTypeSpecimen", "lngPrep_ID", "lngSpecimen_ID", "lngImgType_ID", "blnPermission");
+        $fields = array("lngImage_ID", "strNotes1", "txtNotes2", "blnPermission", "lngImgType_ID", "lngSpecies_ID");
         $texts = $func->make_array($this->text_path["specimen_images"], $fields);
         $ref_ids = array();
         $agent_ids = array();
         $investigate = 0;
-        /*
-        [lngSpecies_ID] => "Aspelta psitta Harring et Myers, 1928"
-        [lngImage_ID] => "Aspelta psitta Harring & Myers, 1928 [Donner, 1972].jpg"
-        [lngDocuTypeSpecimen] => 
-        [lngPrep_ID] => 
-        [lngSpecimen_ID] => 
-        Taxon name: [tblSpecimenImage IngSpecimen_ID->tblSpecimen IngSpecies_ID]
-        AccessURI: “somethingsomethingChristianwilltellusthedomain/”[ tblSpecimenImage IngImage_ID]
-        Description: [tblSpecimenImage IngSpecimen_ID->[tblSpecimen IngDocuTypeSpecimen, IngPrep_ID]
-        */
         foreach($texts as $rec)
         {
-            if($rec["lngImage_ID"] == "lngImage_ID") continue;
+            if(!$rec["lngImgType_ID"]) continue;
+            if(!$rec["lngSpecies_ID"]) continue;
             if($rec["lngImage_ID"] == "lngImage_ID" || $rec["blnPermission"] == "FALSE") continue;
-            $description = "";
-            if($rec["lngDocuTypeSpecimen"]) 
-            {
-                $description .= $rec["lngDocuTypeSpecimen"];
-                if($rec["lngPrep_ID"]) $description .= ", " . $rec["lngPrep_ID"];
-            }
-            else
-            {
-                if($rec["lngPrep_ID"]) $description .= $rec["lngPrep_ID"];
-            }
+            $description = self::remove_quotes($rec["strNotes1"]);
             $rec["lngImage_ID"] = self::remove_quotes($rec["lngImage_ID"]);
             $media_url = self::get_image_path($rec["lngImage_ID"], $rec["lngImgType_ID"]);
             if(!$media_url) continue;
-            $rec["lngImage_ID"] = str_ireplace(" ", "_", $rec["lngImage_ID"]);
-            $media_id = $rec["lngImage_ID"];
-            if($rec["lngSpecimen_ID"]) $media_id .= "_" . $rec["lngSpecimen_ID"];
+            $media_id = str_ireplace(" ", "_", $rec["lngImage_ID"]);
             if($rec["lngImage_ID"])
             {
                 $rec["lngSpecies_ID"] = self::remove_quotes($rec["lngSpecies_ID"]);
-                $rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"]));
-                
-                if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
-                else
+                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"])))
                 {
-                    if($rec["lngSpecies_ID"] != "lngSpecies_ID")
+                    if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
+                    else
                     {
-                        $investigate++;
-                        echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                        if($rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
+                        {
+                            $investigate++;
+                            echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                        }
                     }
                 }
             }
@@ -183,7 +221,7 @@ class RotifersAPI
             case "Topomap":
                 echo("\n\n investigate: $filename -- $image_type \n ");
                 return false;
-                $folder = "map"; // ?
+                $folder = "map";
                 break;
             default:
                 echo("\n\n investigate: no folder: [$filename] -- [$image_type] \n ");
@@ -198,6 +236,7 @@ class RotifersAPI
     {
         if(in_array($media_id, $this->media_ids)) return;
         $this->media_ids[] = $media_id;
+        if($reference_ids = @$this->image_references[$media_id]) $reference_ids = array_unique($reference_ids);
         $mr = new \eol_schema\MediaResource();
         if($reference_ids)  $mr->referenceID = implode("; ", $reference_ids);
         if($agent_ids)      $mr->agentID = implode("; ", $agent_ids);
@@ -240,18 +279,20 @@ class RotifersAPI
             if($description)
             {
                 $rec["lngSpeciesSenior_ID"] = self::remove_quotes($rec["lngSpeciesSenior_ID"]);
-                $rec["lngSpeciesSenior_ID"] = trim(Functions::canonical_form($rec["lngSpeciesSenior_ID"]));
-                if($taxon_id = @$link[$rec["lngSpeciesSenior_ID"]]) 
+                if($rec["lngSpeciesSenior_ID"] = trim(Functions::canonical_form($rec["lngSpeciesSenior_ID"])))
                 {
-                    if($description != "- n.s. -") $taxa[$taxon_id]["distribution"][] = $description;
-                    $taxa[$taxon_id]["lngBiogeo_ID"] = $rec["lngBiogeo_ID"];
-                }
-                else
-                {
-                    if($rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID") 
+                    if($taxon_id = @$link[$rec["lngSpeciesSenior_ID"]]) 
                     {
-                        $investigate++;
-                        echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec["lngSpeciesSenior_ID"] . "\n");
+                        if($description != "- n.s. -") $taxa[$taxon_id]["distribution"][] = $description;
+                        $taxa[$taxon_id]["lngBiogeo_ID"] = $rec["lngBiogeo_ID"];
+                    }
+                    else
+                    {
+                        if($rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID" && !in_array($rec["lngSpeciesSenior_ID"], $this->invalid_taxa))
+                        {
+                            $investigate++;
+                            echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec["lngSpeciesSenior_ID"] . "\n");
+                        }
                     }
                 }
             }
@@ -317,40 +358,25 @@ class RotifersAPI
             $description = self::remove_quotes($description);
             if($description)
             {
-                $rec["taxon"] = trim(Functions::canonical_form($rec["taxon"]));
-                if($taxon_id = @$link[$rec["taxon"]]) self::get_texts($description, $taxon_id, '', '#TypeInformation', $rec["lngSpecimen_ID"], $ref_ids, $agent_ids);
-                else
+                if($rec["taxon"] = trim(Functions::canonical_form($rec["taxon"])))
                 {
-                    if($rec["taxon"] != "taxon")
+                    if($taxon_id = @$link[$rec["taxon"]]) self::get_texts($description, $taxon_id, '', '#TypeInformation', $rec["lngSpecimen_ID"], $ref_ids, $agent_ids);
+                    else
                     {
-                        $investigate++;
-                        echo("\n investigate: specimen: {$taxon_id} --- taxon = " . $rec["taxon"] . "\n");
-                    } 
+                        if($rec["taxon"] != "taxon" && !in_array($rec["taxon"], $this->invalid_taxa))
+                        {
+                            $investigate++;
+                            echo("\n investigate: specimen: {$taxon_id} --- taxon = " . $rec["taxon"] . "\n");
+                        }
+                    }
                 }
             }
         }
         echo "\n investigate: $investigate \n";
     }
 
-    function create_instances_from_taxon_object($rec, $reference_ids, $link)
+    function create_instances_from_taxon_object($rec, $link)
     {
-        /*
-        [lngSpecies_ID] => 4134
-        [lngRank_ID] => Sp
-        [bytValidity] => valid
-        [bytAvailability] => available
-        [lngGenus_ID] => Notholca
-        [lngSubGenus_ID] => 
-        [strSpecies] => pacifica
-        [lngInfraRank_ID] => 
-        [strSubSpeciesInfra] => 
-        [lngAuthor_ID] => Russell
-        [intYear] => 1962
-        [strParentheses] => y
-        [strIUI] => 
-        [strOrigSpell] => Pseudonotholca pacifica
-        [strOrigComb] => Pseudonotholca pacifica
-        */
         $rec = array_map('trim', $rec);
         $sciname = $rec["lngGenus_ID"];
         if($rec["strSpecies"]) $sciname .= " " . $rec["strSpecies"];
@@ -369,12 +395,20 @@ class RotifersAPI
         $authorship = "";
         $authorship = $rec["lngAuthor_ID"] . " " . $rec["intYear"];
         if($rec["strParentheses"] == "y") $authorship = "($authorship)";
-        $authorship = str_replace('"', "", $authorship);
-        $link[Functions::canonical_form($sciname)] = $taxon_id;
+        $authorship = self::remove_quotes($authorship);
         echo "\n $sciname";
+        if($rec["bytValidity"] == "valid") echo " - valid";
+        else
+        {
+            echo " - invalid";
+            $this->invalid_taxa[] = Functions::canonical_form($sciname); // for stats
+            return $link;
+        }
+        if($reference_ids = @$this->taxa_references[Functions::canonical_form($sciname)]) $reference_ids = array_unique($reference_ids);
+        $link[Functions::canonical_form($sciname)] = $taxon_id;
         $taxon = new \eol_schema\Taxon();
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
-        $taxon->taxonID                     = (string) $taxon_id; // take note, not TAXONID
+        $taxon->taxonID                     = (string) $taxon_id;
         $taxon->taxonRank                   = (string) $rank;
         $taxon->scientificName              = (string) $sciname;
         $taxon->scientificNameAuthorship    = (string) $authorship;
@@ -444,7 +478,7 @@ class RotifersAPI
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 3)))
+        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 2)))
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
@@ -460,9 +494,10 @@ class RotifersAPI
             $this->text_path["species"] = $this->TEMP_FILE_PATH . "/species.txt";
             $this->text_path["specimen"] = $this->TEMP_FILE_PATH . "/specimen.txt";
             $this->text_path["distribution"] = $this->TEMP_FILE_PATH . "/distribution.txt";
-            $this->text_path["specimen_images"] = $this->TEMP_FILE_PATH . "/specimen_images.txt";
+            $this->text_path["specimen_images"] = $this->TEMP_FILE_PATH . "/specimen_images_v2.txt";
             $this->text_path["species_images"] = $this->TEMP_FILE_PATH . "/species_images.txt";
             $this->text_path["references"] = $this->TEMP_FILE_PATH . "/references.txt";
+            $this->text_path["image_references"] = $this->TEMP_FILE_PATH . "/image_references.txt";
         }
         else
         {
@@ -503,6 +538,52 @@ class RotifersAPI
                 return "subspecies";
                 break;
         }
+    }
+
+    private function process_specimen_images($link, $func)
+    {
+        $fields = array("lngSpecies_ID", "lngImage_ID", "lngDocuTypeSpecimen", "lngPrep_ID", "lngSpecimen_ID", "lngImgType_ID", "blnPermission");
+        $texts = $func->make_array($this->text_path["specimen_images"], $fields);
+        $ref_ids = array();
+        $agent_ids = array();
+        $investigate = 0;
+        foreach($texts as $rec)
+        {
+            if($rec["lngImage_ID"] == "lngImage_ID") continue;
+            if($rec["lngImage_ID"] == "lngImage_ID" || $rec["blnPermission"] == "FALSE") continue;
+            $description = "";
+            if($rec["lngDocuTypeSpecimen"]) 
+            {
+                $description .= $rec["lngDocuTypeSpecimen"];
+                if($rec["lngPrep_ID"]) $description .= ", " . $rec["lngPrep_ID"];
+            }
+            else
+            {
+                if($rec["lngPrep_ID"]) $description .= $rec["lngPrep_ID"];
+            }
+            $rec["lngImage_ID"] = self::remove_quotes($rec["lngImage_ID"]);
+            $media_url = self::get_image_path($rec["lngImage_ID"], $rec["lngImgType_ID"]);
+            if(!$media_url) continue;
+            $rec["lngImage_ID"] = str_ireplace(" ", "_", $rec["lngImage_ID"]);
+            $media_id = $rec["lngImage_ID"];
+            if($rec["lngImage_ID"])
+            {
+                $rec["lngSpecies_ID"] = self::remove_quotes($rec["lngSpecies_ID"]);
+                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"])))
+                {
+                    if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
+                    else
+                    {
+                        if($rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
+                        {
+                            $investigate++;
+                            echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
+                        }
+                    }
+                }
+            }
+        }
+        echo "\n investigate: $investigate \n";
     }
 
 }

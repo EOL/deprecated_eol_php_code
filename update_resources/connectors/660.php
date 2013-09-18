@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* Rotifers
-estimated execution time: processing text files exported from MSAccess DB: 
+estimated execution time: processing text files exported from MSAccess DB: 2 minutes
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
