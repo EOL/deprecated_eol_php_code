@@ -19,7 +19,7 @@ class RotifersAPI
         $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/rotifers.zip";
         $this->text_path = array();
         $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images";
-        $this->image_path =                 "http://89.26.108.66/TestRWC/Rotifer_data/images";
+        $this->image_path = "http://89.26.108.66/Rotifer_data/images";
         $this->invalid_taxa = array(); // for stats
         $this->taxa_references = array();
         $this->image_references = array();
@@ -234,6 +234,7 @@ class RotifersAPI
 
     private function get_images($description, $taxon_id, $media_id, $media_url, $reference_ids, $agent_ids)
     {
+        $description = utf8_encode($description);
         if(in_array($media_id, $this->media_ids)) return;
         $this->media_ids[] = $media_id;
         if($reference_ids = @$this->image_references[$media_id]) $reference_ids = array_unique($reference_ids);
@@ -438,6 +439,7 @@ class RotifersAPI
         $description = str_ireplace("<br>", "xxxyyy", $description);
         $description = strip_tags($description);
         $description = str_ireplace("xxxyyy", "<br>", $description);
+        $description = utf8_encode($description);
         if(in_array($code, $this->media_ids)) return;
         if(!Functions::is_utf8($description)) return;
         $this->media_ids[] = $code;
