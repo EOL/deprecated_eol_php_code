@@ -79,7 +79,7 @@ function write_to_log($str)
 
 function debug($string)
 {
-    if($GLOBALS['ENV_NAME']=='test' || $GLOBALS['ENV_DEBUG'])
+    if(@$GLOBALS['ENV_NAME']=='test' || $GLOBALS['ENV_DEBUG'])
     {
         display($string . ' :: [' . get_last_function(3) . ']');
     }
@@ -87,7 +87,7 @@ function debug($string)
 
 function mysql_debug($string)
 {
-    if($GLOBALS['ENV_NAME']=='test' || ($GLOBALS['ENV_MYSQL_DEBUG'] && $GLOBALS['ENV_DEBUG']))
+    if(@$GLOBALS['ENV_NAME']=='test' || (@$GLOBALS['ENV_MYSQL_DEBUG'] && $GLOBALS['ENV_DEBUG']))
     {
         display($string . ' :: [' . get_last_function(4) . ']');
     }
