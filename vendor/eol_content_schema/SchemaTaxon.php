@@ -2,21 +2,20 @@
 
 class SchemaTaxon
 {
-    static $identifier;
-    static $source;
-    static $kingdom;
-    static $phylum;
-    static $class;
-    static $order;
-    static $family;
-    static $scientificName;
-    static $created;
-    static $modified;
-    
-    static $commonNames;
-    static $synonyms;
-    static $references;
-    static $dataObjects;
+    private $identifier;
+    private $source;
+    private $kingdom;
+    private $phylum;
+    private $class;
+    private $order;
+    private $family;
+    private $scientificName;
+    private $created;
+    private $modified;
+    private $commonNames;
+    private $synonyms;
+    private $references;
+    private $dataObjects;
     
     public function __construct($parameters)
     {
