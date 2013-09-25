@@ -241,6 +241,16 @@ class ArchiveDataIngester
             $hierarchy_entry->delete_refs();
             $this->entry_references_deleted[$hierarchy_entry->id] = true;
         }
+        if(!isset($this->entry_vernacular_names_deleted[$hierarchy_entry->id]))
+        {
+            $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$hierarchy_entry->id AND hierarchy_id=". $this->harvest_event->resource->hierarchy_id ." AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
+            $this->entry_vernacular_names_deleted[$hierarchy_entry->id] = true;
+        }
+        if(!isset($this->entry_synonyms_deleted[$hierarchy_entry->id]))
+        {
+            $hierarchy_entry->delete_synonyms();
+            $this->entry_synonyms_deleted[$hierarchy_entry->id] = true;
+        }
 
         if($name_published_in = @$row['http://rs.tdwg.org/dwc/terms/namePublishedIn'])
         {
@@ -261,12 +271,6 @@ class ArchiveDataIngester
 
         if(isset($this->synonyms[$taxon_id]))
         {
-            if(!isset($this->entry_synonyms_deleted[$hierarchy_entry->id]))
-            {
-                $hierarchy_entry->delete_synonyms();
-                $this->entry_synonyms_deleted[$hierarchy_entry->id] = true;
-            }
-
             foreach($this->synonyms[$taxon_id] as $synonym_row)
             {
                 self::uncompress_array($synonym_row);
@@ -368,11 +372,6 @@ class ArchiveDataIngester
         {
             $he_id = $taxon_info['hierarchy_entry_id'];
             $tc_id = $taxon_info['taxon_concept_id'];
-            if(!isset($this->entry_vernacular_names_deleted[$he_id]))
-            {
-                $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$he_id AND hierarchy_id=". $this->harvest_event->resource->hierarchy_id ." AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
-                $this->entry_vernacular_names_deleted[$he_id] = true;
-            }
             $common_name_relation = SynonymRelation::find_or_create_by_translated_label('common name');
 
             Synonym::find_or_create(array('name_id'               => $name->id,
