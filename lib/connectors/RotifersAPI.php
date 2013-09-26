@@ -15,22 +15,16 @@ class RotifersAPI
         $this->media_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
-        $this->zip_path = "http://localhost/~eolit/cp/Rotifers/rotifers.zip";
+        /* $this->zip_path = "http://localhost/~eolit/cp/Rotifers/rotifers.zip"; */
         $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/rotifers.zip";
         $this->text_path = array();
-        $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images";
+        /* $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images"; */
         $this->image_path = "http://89.26.108.66/Rotifer_data/images";
         $this->invalid_taxa = array(); // for stats
         $this->taxa_references = array();
         $this->image_references = array();
     }
 
-    /*
-    text/html: 6700
-    image/jpeg: 4050
-    Total: 3930
-    */
-    
     function get_all_taxa()
     {
         self::process_text_files();
@@ -71,19 +65,22 @@ class RotifersAPI
         foreach($texts as $rec)
         {
             if($rec["lngF1_Ref_ID"] == "lngF1_Ref_ID") continue;
-            $ref = $rec["lngF3_RefAuthor_ID"] . ". ";
-            if($rec["intF4_Year"]) $ref .= $rec["intF4_Year"] . ". ";
-            if($rec["txtF5_Title"]) $ref .= $rec["txtF5_Title"] . ". ";
-            if($rec["lngF7_Journal_ID"]) $ref .= $rec["lngF7_Journal_ID"] . ". ";
-            if($rec["strF10_Vol"]) $ref .= $rec["strF10_Vol"] . ". ";
-            if($rec["strF13_Pages"]) $ref .= $rec["strF13_Pages"] . ". ";
-            $ref = str_replace("..", ".", $ref);
+            $ref = "";
+            if(self::is_valid_string($rec["lngF3_RefAuthor_ID"]))   $ref .= $rec["lngF3_RefAuthor_ID"] . ". ";
+            if(self::is_valid_string($rec["intF4_Year"]))           $ref .= $rec["intF4_Year"] . ". ";
+            if(self::is_valid_string($rec["txtF5_Title"]))          $ref .= $rec["txtF5_Title"] . ". ";
+            if(self::is_valid_string($rec["lngF7_Journal_ID"]))     $ref .= $rec["lngF7_Journal_ID"] . ". ";
+            if(self::is_valid_string($rec["strF10_Vol"]))           $ref .= $rec["strF10_Vol"] . ". ";
+            if(self::is_valid_string($rec["strF13_Pages"]))         $ref .= $rec["strF13_Pages"] . ". ";
+            $ref = trim(self::remove_quotes($ref));
+            for($i = 1; $i <= 5; $i++) $ref = str_replace("..", ".", $ref);
+            if(!$ref) continue;
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref;
             $r->identifier = $rec["lngF1_Ref_ID"];
-            if(!in_array($r->identifier, $this->resource_reference_ids)) 
+            if(!isset($this->resource_reference_ids[$r->identifier]))
             {
-               $this->resource_reference_ids[] = $r->identifier;
+               $this->resource_reference_ids[$r->identifier] = $r->full_reference;
                $this->archive_builder->write_object_to_file($r);
             }
             $taxon_id = Functions::canonical_form($rec["lngSpecies_ID"]);
@@ -98,19 +95,22 @@ class RotifersAPI
         foreach($texts as $rec)
         {
             if($rec["lngRef_ID"] == "lngRef_ID") continue;
-            $ref = $rec["lngF3_RefAuthor_ID"] . ". ";
-            if($rec["intF4_Year"]) $ref .= $rec["intF4_Year"] . ". ";
-            if($rec["txtF5_Title"]) $ref .= $rec["txtF5_Title"] . ". ";
-            if($rec["lngF7_Journal_ID"]) $ref .= $rec["lngF7_Journal_ID"] . ". ";
-            if($rec["strF10_Vol"]) $ref .= $rec["strF10_Vol"] . ". ";
-            if($rec["strPages"]) $ref .= $rec["strPages"] . ". ";
-            $ref = str_replace("..", ".", $ref);
+            $ref = "";
+            if(self::is_valid_string($rec["lngF3_RefAuthor_ID"]))   $ref .= $rec["lngF3_RefAuthor_ID"] . ". ";
+            if(self::is_valid_string($rec["intF4_Year"]))           $ref .= $rec["intF4_Year"] . ". ";
+            if(self::is_valid_string($rec["txtF5_Title"]))          $ref .= $rec["txtF5_Title"] . ". ";
+            if(self::is_valid_string($rec["lngF7_Journal_ID"]))     $ref .= $rec["lngF7_Journal_ID"] . ". ";
+            if(self::is_valid_string($rec["strF10_Vol"]))           $ref .= $rec["strF10_Vol"] . ". ";
+            if(self::is_valid_string($rec["strPages"]))             $ref .= $rec["strPages"] . ". ";
+            $ref = trim(self::remove_quotes($ref));
+            for($i = 1; $i <= 5; $i++) $ref = str_replace("..", ".", $ref);
+            if(!$ref) continue;
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref;
             $r->identifier = $rec["lngRef_ID"];
-            if(!in_array($r->identifier, $this->resource_reference_ids)) 
+            if(!isset($this->resource_reference_ids[$r->identifier]))
             {
-               $this->resource_reference_ids[] = $r->identifier;
+               $this->resource_reference_ids[$r->identifier] = $r->full_reference;
                $this->archive_builder->write_object_to_file($r);
             }
             $image_id = str_replace(" ", "_", self::remove_quotes($rec["lngImage_ID"]));
@@ -234,10 +234,15 @@ class RotifersAPI
 
     private function get_images($description, $taxon_id, $media_id, $media_url, $reference_ids, $agent_ids)
     {
-        $description = utf8_encode($description);
+        $description = utf8_encode(self::remove_quotes($description));
         if(in_array($media_id, $this->media_ids)) return;
         $this->media_ids[] = $media_id;
-        if($reference_ids = @$this->image_references[$media_id]) $reference_ids = array_unique($reference_ids);
+        $bibliographicCitation = false;
+        if($reference_ids = @$this->image_references[$media_id])
+        {
+            $reference_ids = array_unique($reference_ids);
+            $bibliographicCitation = self::get_citation($reference_ids);
+        }
         $mr = new \eol_schema\MediaResource();
         if($reference_ids)  $mr->referenceID = implode("; ", $reference_ids);
         if($agent_ids)      $mr->agentID = implode("; ", $agent_ids);
@@ -254,7 +259,72 @@ class RotifersAPI
         $mr->audience       = 'Everyone';
         $mr->description    = (string) $description;
         $mr->accessURI      = $media_url;
+        if($bibliographicCitation) $mr->bibliographicCitation = $bibliographicCitation;
         $this->archive_builder->write_object_to_file($mr);
+    }
+
+    private function get_citation($reference_ids)
+    {
+        $citation = "";
+        foreach($reference_ids as $id)
+        {
+            if(@$this->resource_reference_ids[$id]) $citation .= trim($this->resource_reference_ids[$id]) . "<br><br>";
+        }
+        if($citation) return substr($citation, 0, strlen($citation) - 8); // to remove the last "<br><br>"
+        return false;
+    }
+
+    private function process_distribution_xml($link, $func)
+    {
+        $xml = Functions::get_hashed_response($this->text_path["distribution"], array('timeout' => 10800, 'download_attempts' => 2));
+        $ref_ids = array();
+        $agent_ids = array();
+        $investigate = 0;
+        $taxa = array();
+        foreach($xml->distribution as $rec)
+        {
+            $description = "";
+            if(self::is_valid_string($rec->lngBiogeo_ID))
+            {
+                $description .= $rec->lngBiogeo_ID;
+                if(self::is_valid_string($rec->txtComments)) $description .= ", " . $rec->txtComments;
+            }
+            else
+            {
+                if(self::is_valid_string($rec->txtComments)) $description .= $rec->txtComments;
+            }
+            if($description)
+            {
+                $rec->lngSpeciesSenior_ID = self::remove_quotes($rec->lngSpeciesSenior_ID);
+                if($rec->lngSpeciesSenior_ID = trim(Functions::canonical_form($rec->lngSpeciesSenior_ID)))
+                {
+                    if($taxon_id = @$link[$rec->lngSpeciesSenior_ID]) 
+                    {
+                        $taxa[$taxon_id]["distribution"][] = $description;
+                        $taxa[$taxon_id]["lngBiogeo_ID"] = $rec->lngBiogeo_ID;
+                    }
+                    else
+                    {
+                        if($rec->lngSpeciesSenior_ID != "lngSpeciesSenior_ID" && !in_array($rec->lngSpeciesSenior_ID, $this->invalid_taxa))
+                        {
+                            $investigate++;
+                            echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec->lngSpeciesSenior_ID . "\n");
+                        }
+                    }
+                }
+            }
+        }
+        echo "\n investigate: $investigate \n";
+        print_r($taxa); exit;
+        foreach($taxa as $taxon_id => $rec)
+        {
+            if(@$rec["distribution"])
+            {
+                $rec["distribution"] = array_unique($rec["distribution"]);
+                $description = implode("<br>", $rec["distribution"]);
+                self::get_texts($description, $taxon_id, '', '#Distribution', $taxon_id."_dist", $ref_ids, $agent_ids);
+            }
+        }
     }
 
     private function process_distribution($link, $func)
@@ -268,14 +338,14 @@ class RotifersAPI
         foreach($texts as $rec)
         {
             $description = "";
-            if($rec["lngBiogeo_ID"]) 
+            if(self::is_valid_string($rec["lngBiogeo_ID"]))
             {
                 $description .= $rec["lngBiogeo_ID"];
-                if($rec["txtComments"]) $description .= ", " . $rec["txtComments"];
+                // if(self::is_valid_string($rec["txtComments"])) $description .= ", " . $rec["txtComments"];
             }
             else
             {
-                if($rec["txtComments"]) $description .= $rec["txtComments"];
+                // if(self::is_valid_string($rec["txtComments"])) $description .= $rec["txtComments"];
             }
             if($description)
             {
@@ -284,7 +354,7 @@ class RotifersAPI
                 {
                     if($taxon_id = @$link[$rec["lngSpeciesSenior_ID"]]) 
                     {
-                        if($description != "- n.s. -") $taxa[$taxon_id]["distribution"][] = $description;
+                        $taxa[$taxon_id]["distribution"][] = $description;
                         $taxa[$taxon_id]["lngBiogeo_ID"] = $rec["lngBiogeo_ID"];
                     }
                     else
@@ -310,8 +380,17 @@ class RotifersAPI
         }
     }
 
+    private function is_valid_string($string)
+    {
+        $string = trim($string);
+        if(is_numeric(stripos($string, "n.s."))) return false;
+        if($string) return true;
+        return false;
+    }
+    
     private function remove_quotes($string)
     {
+        $string = str_replace(array("...", ".."), ".", $string);
         return str_ireplace('"', '', $string);
     }
 
@@ -327,10 +406,10 @@ class RotifersAPI
             $description = $rec["strTypeStat"];
             if($description) $description .= " for " . $rec["taxon"];
             else $description = "Non-type voucher specimen for " . $rec["taxon"];
-            if($rec["strCatNr"]) $description .= "<br>Catalog number: " . $rec["strCatNr"];
-            if($rec["strRepName"]) $description .= "<br>Collection: " . $rec["strRepName"];
+            if(self::is_valid_string($rec["strCatNr"])) $description .= "<br>Catalog number: " . $rec["strCatNr"];
+            if(self::is_valid_string($rec["strRepName"])) $description .= "<br>Collection: " . $rec["strRepName"];
             $prepared_by = "";
-            if($rec["lngPersPrep_ID"]) 
+            if(self::is_valid_string($rec["lngPersPrep_ID"])) 
             {
                 $prepared_by .= "<br>Prepared by: " . $rec["lngPersPrep_ID"];
                 /* commented later on per advise by partner
@@ -339,21 +418,21 @@ class RotifersAPI
                 */
             }
             $description .= self::remove_quotes($prepared_by);
-            if($rec["lngPrep_ID"]) $description .= "<br>Sex/stage/structure: " . $rec["lngPrep_ID"];
+            if(self::is_valid_string($rec["lngPrep_ID"])) $description .= "<br>Sex/stage/structure: " . $rec["lngPrep_ID"];
             $preparation = "";
-            if($rec["lngDocuTypeSpecimen"]) 
+            if(self::is_valid_string($rec["lngDocuTypeSpecimen"])) 
             {
                 $preparation .= "<br>Preparation: " . $rec["lngDocuTypeSpecimen"];
                 if($rec["lngPrepMeth_ID"]) $preparation .= "; " . $rec["lngPrepMeth_ID"];
             }
             $description .= $preparation;
-            if($rec["bytCountPrep"]) $description .= "<br>Specimen Count: " . $rec["bytCountPrep"];
+            if(self::is_valid_string($rec["bytCountPrep"])) $description .= "<br>Specimen Count: " . $rec["bytCountPrep"];
             $notes = "";
-            if($rec["lngEcolNote_ID"]) 
+            if(self::is_valid_string($rec["lngEcolNote_ID"]))
             {
                 $notes .= "<br>Notes: " . $rec["lngEcolNote_ID"];
-                if($rec["txtPrepNotes"]) $notes .= "; " . $rec["txtPrepNotes"];
-                if($rec["txtPersNotes"]) $notes .= "; " . $rec["txtPersNotes"];
+                if(self::is_valid_string($rec["txtPrepNotes"])) $notes .= "; " . $rec["txtPrepNotes"];
+                if(self::is_valid_string($rec["txtPersNotes"])) $notes .= "; " . $rec["txtPersNotes"];
             }
             $description .= $notes;
             $description = self::remove_quotes($description);
@@ -397,11 +476,8 @@ class RotifersAPI
         $authorship = $rec["lngAuthor_ID"] . " " . $rec["intYear"];
         if($rec["strParentheses"] == "y") $authorship = "($authorship)";
         $authorship = self::remove_quotes($authorship);
-        echo "\n $sciname";
-        if($rec["bytValidity"] == "valid") echo " - valid";
-        else
+        if($rec["bytValidity"] != "valid")
         {
-            echo " - invalid";
             $this->invalid_taxa[] = Functions::canonical_form($sciname); // for stats
             return $link;
         }
@@ -418,28 +494,12 @@ class RotifersAPI
         return $link;
     }
 
-    private function get_object_reference_ids($ref)
-    {
-        $reference_ids = array();
-        $r = new \eol_schema\Reference();
-        $r->full_reference = (string) $ref;
-        $r->identifier = md5($r->full_reference);
-        $reference_ids[] = $r->identifier;
-        if(!in_array($r->identifier, $this->resource_reference_ids)) 
-        {
-           $this->resource_reference_ids[] = $r->identifier;
-           $this->archive_builder->write_object_to_file($r);
-        }
-        return $reference_ids;
-    }
-
     private function get_texts($description, $taxon_id, $title, $subject, $code, $reference_ids = null, $agent_ids = null)
     {
-        $description = utf8_encode($description);
+        $description = utf8_encode(self::remove_quotes($description));
         $description = str_ireplace("<br>", "xxxyyy", $description);
         $description = strip_tags($description);
         $description = str_ireplace("xxxyyy", "<br>", $description);
-        $description = utf8_encode($description);
         if(in_array($code, $this->media_ids)) return;
         if(!Functions::is_utf8($description)) return;
         $this->media_ids[] = $code;
@@ -493,12 +553,12 @@ class RotifersAPI
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
                 if(!file_exists($this->TEMP_FILE_PATH . "/species.txt")) return;
             }
-            $this->text_path["species"] = $this->TEMP_FILE_PATH . "/species.txt";
-            $this->text_path["specimen"] = $this->TEMP_FILE_PATH . "/specimen.txt";
-            $this->text_path["distribution"] = $this->TEMP_FILE_PATH . "/distribution.txt";
-            $this->text_path["specimen_images"] = $this->TEMP_FILE_PATH . "/specimen_images_v2.txt";
-            $this->text_path["species_images"] = $this->TEMP_FILE_PATH . "/species_images.txt";
-            $this->text_path["references"] = $this->TEMP_FILE_PATH . "/references.txt";
+            $this->text_path["species"]          = $this->TEMP_FILE_PATH . "/species.txt";
+            $this->text_path["specimen"]         = $this->TEMP_FILE_PATH . "/specimen.txt";
+            $this->text_path["distribution"]     = $this->TEMP_FILE_PATH . "/distribution.txt";
+            $this->text_path["specimen_images"]  = $this->TEMP_FILE_PATH . "/specimen_images_v2.txt";
+            $this->text_path["species_images"]   = $this->TEMP_FILE_PATH . "/species_images.txt";
+            $this->text_path["references"]       = $this->TEMP_FILE_PATH . "/references.txt";
             $this->text_path["image_references"] = $this->TEMP_FILE_PATH . "/image_references.txt";
         }
         else
