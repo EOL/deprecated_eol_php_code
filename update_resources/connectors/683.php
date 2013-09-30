@@ -7,7 +7,7 @@ Connector scrapes the partner's website
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DipteraCentralAmericaAPI');
 $timestart = time_elapsed();
-$resource_id = "661";
+$resource_id = "683"; // formerly 661
 $func = new DipteraCentralAmericaAPI($resource_id);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)

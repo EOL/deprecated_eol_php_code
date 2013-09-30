@@ -10,6 +10,7 @@ require_library('connectors/RotifersAPI');
 $timestart = time_elapsed();
 $resource_id = 660;
 $func = new RotifersAPI($resource_id);
+// $func->some_stats(); exit;
 $func->get_all_taxa();
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)

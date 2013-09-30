@@ -118,6 +118,7 @@ class RotifersAPI
         }
     }
 
+
     private function process_species_images($link, $func)
     {
         $fields = array("lngSpecies_ID", "lngImage_ID", "lngImgType_ID", "blnPermission");
@@ -194,7 +195,9 @@ class RotifersAPI
 
     private function get_image_path($filename, $image_type)
     {
-        if(in_array($filename, array("Slide Preparation"))) return false;
+        $filename = trim($filename);
+        $image_type = trim($image_type);
+        if(in_array(trim($filename), array("Slide Preparation", "lngImage_ID"))) return false;
         switch($image_type)
         {
             case "Additional Scan":
@@ -225,6 +228,7 @@ class RotifersAPI
                 break;
             default:
                 echo("\n\n investigate: no folder: [$filename] -- [$image_type] \n ");
+                return false;
         }
         $image_path = $this->image_path . "/$folder/_full-size/$filename";
         // remove text scan images
@@ -341,11 +345,11 @@ class RotifersAPI
             if(self::is_valid_string($rec["lngBiogeo_ID"]))
             {
                 $description .= $rec["lngBiogeo_ID"];
-                // if(self::is_valid_string($rec["txtComments"])) $description .= ", " . $rec["txtComments"];
+                if(self::is_valid_string($rec["txtComments"])) $description .= ", " . $rec["txtComments"];
             }
             else
             {
-                // if(self::is_valid_string($rec["txtComments"])) $description .= $rec["txtComments"];
+                if(self::is_valid_string($rec["txtComments"])) $description .= $rec["txtComments"];
             }
             if($description)
             {
@@ -646,6 +650,19 @@ class RotifersAPI
             }
         }
         echo "\n investigate: $investigate \n";
+    }
+
+    function some_stats()
+    {
+        require_library('connectors/FishBaseAPI');
+        $func = new FishBaseAPI();
+        $fields = array("identifier", "full_reference");
+        $path = DOC_ROOT . "applications/content_server/resources/660/reference.tab";
+        $records = $func->make_array($path, $fields, "", array());
+        foreach($records as $rec)
+        {
+            print_r($rec);
+        }
     }
 
 }
