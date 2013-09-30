@@ -104,7 +104,7 @@ class InsectVisitorsAPI
     function process_gen_desc($url, $ancestry, $type)
     {
         debug("\n\n file: $url \n");
-        if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5))) // 1sec wait, 10mins timeout, 5 attempts
+        if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2))) // 1sec wait, 10mins timeout, 4 attempts
         {
             debug("\n\n Content partner's server is down1, $url.\n");
             return;
@@ -156,7 +156,7 @@ class InsectVisitorsAPI
 
     function process_birds($url, $ancestry, $type)
     {
-        if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
+        if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             debug("\n\n Content partner's server is down2, $url\n");
             return;
@@ -171,11 +171,9 @@ class InsectVisitorsAPI
                 /*/hummingbird.htm" NAME="hummingbird">Archilochus colubris</A><BR></B><FONT COLOR="#000000">(Ruby-Throated Hummingbird)</FONT></FONT></FONT>*/
                 if(preg_match("/>(.*?)<\/a>/ims", $match, $string_match)) $taxon_name = self::clean_str($string_match[1]);
                 if(preg_match("/\/(.*?)\"/ims", $match, $string_match)) $html = self::clean_str($string_match[1]);
-
                 $taxon_name = utf8_encode($taxon_name);
                 // if($taxon_name != "Vernonia × illinoensis") continue; //debug
-                
-                if(preg_match("/\((.*?)\)/ims", $match, $string_match)) 
+                if(preg_match("/\((.*?)\)/ims", $match, $string_match))
                 {
                     $common_name = self::clean_str($string_match[1]);
                     $GLOBALS['taxon'][$taxon_name]['comnames'][] = self::clean_str($common_name);
@@ -194,7 +192,7 @@ class InsectVisitorsAPI
 
     function process_insects($url, $ancestry)
     {
-        if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
+        if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             debug("\n\n Content partner's server is down3, $url\n");
             return;
@@ -209,7 +207,6 @@ class InsectVisitorsAPI
                 if(preg_match("/>(.*?)\(/ims", $match, $string_match)) $taxon_name = self::clean_str($string_match[1]);
                 $taxon_name = utf8_encode($taxon_name);
                 // if($taxon_name != "Vernonia × illinoensis") continue; //debug
-                
                 if(preg_match("/\/(.*?)\"/ims", $match, $string_match)) $html = self::clean_str($string_match[1]);
                 if(preg_match("/\((.*?)\)/ims", $match, $string_match))
                 {
@@ -234,19 +231,16 @@ class InsectVisitorsAPI
         {
             // if($taxon_name != "Hylaeus affinis") continue; //debug
             if(@$value['association'] != "" || @$value['gendesc'] != "") continue;
-
             $url = $this->path . '/insects/' . $value['html'];
             if($type == 'insects') $url = str_ireplace("/insects/", "/", $url);
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
-
             debug("\n $url -- $taxon_name");
-            if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
+            if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
             {
                 debug("\n\n Content partner's server is down4, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
                 continue;
-            } 
-
+            }
             if(preg_match("/<B>(.*?)<BLOCKQUOTE>/ims", $html, $match))
             {
                 $title = strip_tags(self::clean_str($match[1]), "<BR>");
@@ -296,7 +290,7 @@ class InsectVisitorsAPI
         $urls = array("http://www.illinoiswildflowers.info/flower_insects/files/family_names.htm", "http://www.illinoiswildflowers.info/flower_insects/files/common_names.htm");
         foreach($urls as $url)
         {
-            if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
+            if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
             {
                 debug("\n\n Content partner's server is down5, $url.\n");
                 return;
@@ -309,7 +303,7 @@ class InsectVisitorsAPI
                 {
                     $records = array();
                     $str = str_ireplace('"#000000">', '"#000000"><BR>', $str); //to get the first row in a block
-                    $str = str_ireplace('<BR>' , '&records[]=', $str);  
+                    $str = str_ireplace('<BR>' , '&records[]=', $str);
                     parse_str($str);
                     foreach($records as $key => $value) $records[$key] = trim(self::clean_str(strip_tags($value))); //do some cleaning
                     foreach($records as $rec)
@@ -331,7 +325,7 @@ class InsectVisitorsAPI
             }
             if($this->test_run) break; //debug - to get only 1 url, not 2 (family_names.htm, common_names.htm)
         }
-        
+
         //split those comma-separated common names
         foreach($GLOBALS['taxon'] as $taxon_name => $value)
         {
@@ -352,7 +346,7 @@ class InsectVisitorsAPI
             $GLOBALS['taxon'][$taxon_name]['comnames'] = array_values($GLOBALS['taxon'][$taxon_name]['comnames']); //reindex key
         }
     }
-    
+
     public static function get_visitors_taxa($taxon_record)
     {
         $response = self::parse_xml($taxon_record);//this will output the raw (but structured) array
@@ -380,7 +374,7 @@ class InsectVisitorsAPI
                             "family"       => @$taxon_record['ancestry']['family'],
                             "genus"        => '',
                             "sciname"      => str_ireplace(array(" sp.", " spp.", " spp"), "", $taxon_record['taxon_name']),
-                            "reference"    => array(), // formerly taxon_refs
+                            "reference"    => array(),
                             "synonyms"     => array(),
                             "commonNames"  => $common_names,
                             "data_objects" => $arr_objects
@@ -395,7 +389,8 @@ class InsectVisitorsAPI
                                                      "subject"  => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription",
                                                      "title"    => '',
                                                      "type"     => 'gendesc');
-        if(@$record['association'] && @$record['association'] != 'no object') $texts[] = array("desc"     => $record['association'],
+        if(@$record['association'] && @$record['association'] != 'no object')
+                                    $texts[] = array("desc"     => $record['association'],
                                                      "subject"  => "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations",
                                                      "title"    => @$record['association_title'],
                                                      "type"     => 'association');
@@ -431,27 +426,26 @@ class InsectVisitorsAPI
                               "mimeType"     => $mimeType,
                               "title"        => $title,
                               "source"       => $source,
-                              "description"  => $description,
+                              "description"  => utf8_encode($description),
                               "mediaURL"     => $mediaURL,
                               "agent"        => $agent,
                               "license"      => $license,
-                              "location"     => $location,
+                              "location"     => utf8_encode($location),
                               "rights"       => $rights,
                               "rightsHolder" => $rightsHolder,
                               "reference"    => $refs,
                               "subject"      => $subject,
-                              "language"     => "en"
-                            );
+                              "language"     => "en");
         return $arr_objects;
     }
 
     function get_references()
     {
-        $reference = "Hilty, J. Editor. " . date("Y") . ". Insect Visitors of Illinois Wildflowers. 
-        World Wide Web electronic publication. illinoiswildflowers.info, version (" . date("m/Y")  . ") 
+        $reference = "Hilty, J. Editor. " . date("Y") . ". Insect Visitors of Illinois Wildflowers.
+        World Wide Web electronic publication. illinoiswildflowers.info, version (" . date("m/Y")  . ")
         <br>See: 
-        <a href='http://www.illinoiswildflowers.info/flower_insects/files/abbreviations.htm'>Abbreviations for Insect Activities</a>, 
-        <a href='http://www.illinoiswildflowers.info/flower_insects/files/observers.htm'>Abbreviations for Scientific Observers</a>, 
+        <a href='http://www.illinoiswildflowers.info/flower_insects/files/abbreviations.htm'>Abbreviations for Insect Activities</a>,
+        <a href='http://www.illinoiswildflowers.info/flower_insects/files/observers.htm'>Abbreviations for Scientific Observers</a>,
         <a href='http://www.illinoiswildflowers.info/flower_insects/files/references.htm'>References for behavioral observations</a>";
         $refs = array();
         $refs[] = array("url" => '', "fullReference" => $reference);
@@ -461,7 +455,7 @@ class InsectVisitorsAPI
     function get_common_names($names)
     {
         $arr_names = array();
-        if($names) 
+        if($names)
         {
             foreach($names as $name) $arr_names[] = array("name" => $name, "language" => 'en');
         }
@@ -469,10 +463,8 @@ class InsectVisitorsAPI
     }
 
     function clean_str($str)
-    {    
-        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), " ", trim($str));
-        $str = str_ireplace(array("    ", "   ", "  "), " ", trim($str));
-        return $str;
+    {
+        return str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "    ", "   ", "  "), " ", trim($str));
     }
 
 }

@@ -46,7 +46,7 @@ class EcomareAPI
     {
         $taxa = array();
         debug("\n species list: $path_species_list \n");
-        if($xml = Functions::get_hashed_response($path_species_list, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
+        if($xml = Functions::get_hashed_response($path_species_list, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             $i = 0;
             foreach($xml->subject_item as $item)
@@ -104,7 +104,7 @@ class EcomareAPI
             $xml_file = self::ECOMARE_SOURCE_DIR . "/$dir/" . $id . ".xml";
 
             debug("\n Accessing: $xml_file \n");
-            if($xml = Functions::get_hashed_response($xml_file, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5))) //1sec wait_time, 10mins timeout, 5 attempts
+            if($xml = Functions::get_hashed_response($xml_file, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2))) //1sec wait_time, 10mins timeout, 4 attempts
             {
                 debug(" - OK ");
                 foreach($xml->content_item as $item)

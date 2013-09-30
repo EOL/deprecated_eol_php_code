@@ -1,22 +1,16 @@
 <?php
 namespace php_active_record;
-/* Catalogue of SINA Maps
-estimated execution time: 10 minutes
-
-as of 2013 09 10:
-    image/gif: 732
-    image/jpeg: 5
-    Total: 737
-    taxon: 378
+/* PESI
+estimated execution time:
+    4.5 hours - generation of taxa list text file
+    2 days - generation of 5 processed text files - save_data_to_text()
+    2 days - generation of 5 archive files - process_text_file()
 */
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/SINAMapsAPI');
-
+require_library('connectors/PesiAPI');
 $timestart = time_elapsed();
-$resource_id = 670;
-$func = new SINAMapsAPI($resource_id);
-
+$resource_id = "665";
+$func = new PesiAPI($resource_id);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
@@ -29,7 +23,6 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
 }
-
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

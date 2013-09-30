@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* Rotifers
-estimated execution time: processing text files exported from MSAccess DB: 
+estimated execution time: processing text files exported from MSAccess DB: 2 minutes
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -10,6 +10,7 @@ require_library('connectors/RotifersAPI');
 $timestart = time_elapsed();
 $resource_id = 660;
 $func = new RotifersAPI($resource_id);
+// $func->some_stats(); exit;
 $func->get_all_taxa();
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)

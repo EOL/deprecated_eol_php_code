@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [266]  */
-/*
+/* connector: [266]
 Taxa list comes from 3 spreadsheets and content is scraped.
 Note: Due to scraping, some characters are needed to be manually removed from the generated resource XML.
 
@@ -14,11 +13,15 @@ Leo Shapiro provides 3 spreadsheets
 - a master taxa list
 - synonymy (guide to what taxon in EOL to use)
 - new taxa to be added to EOL
-*/
 
+as of 2013 09 12 total taxa in site = 2170 (1312 animals + 858 plants)
+
+XML stats:
+taxa = 1898, 1899, 2065
+texts = 3524, 3526, 3843
+*/
 class USFishWildlifeAPI
 {
-    const API_URL               = "http://eol.org/api/search/";
     const TEXT_FILE_FOR_PARTNER = "/update_resources/connectors/files/USFWS/names_without_pages_in_eol.txt"; //report back to USFWL
     const TEMP_FILE_PATH        = "/update_resources/connectors/files/USFWS/";
     const TAXA_LIST_FILE        = "FWS complete18 May 2011 removed duplicate rows.xls";
@@ -60,24 +63,50 @@ class USFishWildlifeAPI
             else
             {
                 //filter names. Process only those who already have a page in EOL. Report back to USFWS names not found in EOL
-                $arr = $func->check_if_name_has_EOL_page($name);
-                $if_name_has_page_in_EOL = $arr[0];
-                if(!$if_name_has_page_in_EOL)
+                $name = str_replace(".", "", $name);
+                if(!self::name_in_eol($name, $func))
                 {
-                    print "\n $i - no EOL page ($name)";
-                    $no_eol_page++;
                     self::store_name_to_text_file($name);
-                    continue;
+                    $name_canonical = Functions::canonical_form($name); // try the canonical form
+                    if($name == $name_canonical)
+                    {
+                        $no_eol_page++;
+                        continue;
+                    }
+                    if(!self::name_in_eol($name_canonical, $func))
+                    {
+                        $name_without_parenthesis = self::remove_parenthesis($name); // try name without parenthesis
+                        if($name == $name_without_parenthesis)
+                        {
+                            $no_eol_page++;
+                            continue;
+                        }
+                        if(!self::name_in_eol($name_without_parenthesis, $func))
+                        {
+                            $no_eol_page++;
+                            continue;
+                        }
+                        else
+                        {
+                            echo "\n OK name without parenthesis in EOL: [$name_without_parenthesis]\n";
+                            $taxon['NAME'] = $name_without_parenthesis;
+                            self::store_name_to_text_file($name . " - name without parenthesis found in EOL: $name_without_parenthesis");
+                        }
+                    }
+                    else
+                    {
+                        echo "\n OK canonical name in EOL: [$name_canonical]\n";
+                        $taxon['NAME'] = $name_canonical;
+                        self::store_name_to_text_file($name . " - canonical form of the name found in EOL: $name_canonical");
+                    }
                 }
             }
-            print "\n $i -- ";
-            print $taxon['NAME'] . " -- ";
-
+            echo "\n $i -- ";
+            echo $taxon['NAME'] . " -- ";
             $arr = self::get_usfws_taxa($taxon, $used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
             if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
-            unset($page_taxa);
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
@@ -85,7 +114,25 @@ class USFishWildlifeAPI
         fwrite($OUT, $xml);
         fclose($OUT);
         $with_eol_page = $i - $no_eol_page;
-        print "\n\n total = $i \n With EOL page = $with_eol_page \n No EOL page = $no_eol_page \n\n";
+        echo "\n\n total = $i \n With EOL page = $with_eol_page \n No EOL page = $no_eol_page \n\n";
+    }
+
+    private function remove_parenthesis($string)
+    {
+        return trim(preg_replace('/\s*\([^)]*\)/', '', $string));
+    }
+    
+    private function name_in_eol($name, $func)
+    {
+        $arr = $func->check_if_name_has_EOL_page($name);
+        $if_name_has_page_in_EOL = $arr[0];
+        if(!$if_name_has_page_in_EOL)
+        {
+            echo "\n - no EOL page ($name)";
+            print_r($arr);
+            return false;
+        }
+        else return true;
     }
 
     private function prepare_animal_plant_list()
@@ -95,7 +142,11 @@ class USFishWildlifeAPI
         $urls[] = self::PLANT_LIST;
         foreach($urls as $index => $url)
         {
-            $html = Functions::get_remote_file($url);
+            if(!$html = Functions::get_remote_file($url, array('download_wait_time' => 5000000, 'timeout' => 20000, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
+            {
+                echo "\n investigate URL down: [$url]\n";
+                continue;
+            }
             $html = str_ireplace("displaytagEvenRow", "displaytagRow", $html);
             $html = str_ireplace("displaytagOddRow", "displaytagRow", $html);
             if(preg_match_all("/<tr class\=\"displaytagRow\">(.*?)<\/tr>/ims", $html, $matches))
@@ -132,8 +183,7 @@ class USFishWildlifeAPI
                                                             "family" => $family,
                                                             "listing status" => $column[5],
                                                             "critical habitat" => $column[6],
-                                                            "special rules" => $column[7]
-                                                           );
+                                                            "special rules" => $column[7]);
                         }
                     }
                 }
@@ -146,12 +196,14 @@ class USFishWildlifeAPI
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        $filename = DOC_ROOT . self::TEMP_FILE_PATH . self::TAXA_LIST_FILE;
-        $taxa = $parser->prepare_data($parser->convert_sheet_to_array($filename), "single", "NAME", "NAME", "USFWS SPECIES PROFILE URL", "DISPLAYED TEXT", "SOURCE LIST");
-        $filename = DOC_ROOT . self::TEMP_FILE_PATH . self::NAME_SYNONYMY;
-        $synonymy = $parser->prepare_data($parser->convert_sheet_to_array($filename), "single", "USFWS", "USFWS", "EOL NAME");
-        $filename = DOC_ROOT . self::TEMP_FILE_PATH . self::NAMES_TO_BE_ADDED;
-        $names_to_be_added = $parser->prepare_data($parser->convert_sheet_to_array($filename), "single", "FWS NAMES TO ADD TO EOL", "FWS NAMES TO ADD TO EOL");
+        $taxa = $parser->prepare_data($parser->convert_sheet_to_array(DOC_ROOT . self::TEMP_FILE_PATH . self::TAXA_LIST_FILE), "single", "NAME", "NAME", "USFWS SPECIES PROFILE URL", "DISPLAYED TEXT", "SOURCE LIST");
+        $parser = new XLSParser();
+        $synonymy = $parser->prepare_data($parser->convert_sheet_to_array(DOC_ROOT . self::TEMP_FILE_PATH . self::NAME_SYNONYMY), "single", "USFWS", "USFWS", "EOL NAME");
+        $parser = new XLSParser();
+        $names_to_be_added = $parser->prepare_data($parser->convert_sheet_to_array(DOC_ROOT . self::TEMP_FILE_PATH . self::NAMES_TO_BE_ADDED), "single", "FWS NAMES TO ADD TO EOL", "FWS NAMES TO ADD TO EOL");
+        echo "\n taxa: " . count($taxa);
+        echo "\n synonymy: " . count($synonymy);
+        echo "\n names_to_be_added: " . count($names_to_be_added);
         return array($taxa, $synonymy, $names_to_be_added);
     }
 
@@ -182,8 +234,8 @@ class USFishWildlifeAPI
     function prepare_object($taxon_rec)
     {
         $taxa_data = array();
-        print $taxon_rec["NAME"] . "\n";
-        print $taxon_rec["USFWS SPECIES PROFILE URL"] . "\n";
+        echo $taxon_rec["NAME"] . "\n";
+        echo $taxon_rec["USFWS SPECIES PROFILE URL"] . "\n";
         $url_info = parse_url($taxon_rec["USFWS SPECIES PROFILE URL"]);
         $taxon_id = str_ireplace("spcode=", "", $url_info["query"]);
         $taxon = $taxon_rec["NAME"];
@@ -227,7 +279,7 @@ class USFishWildlifeAPI
                 $title      = "";
                 $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
                 $agent      = array();
-                $mediaURL   = ""; 
+                $mediaURL   = "";
                 $location   = "";
                 $license    = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
                 $rightsHolder = "";
@@ -235,7 +287,6 @@ class USFishWildlifeAPI
                 $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
             }
         }
-
         if(sizeof($arr_objects))
         {
             $taxa_data[] = array("identifier"   => $taxon_id,
@@ -246,48 +297,31 @@ class USFishWildlifeAPI
                                  "order"        => "",
                                  "family"       => $family,
                                  "sciname"      => $taxon,
-                                 "data_objects" => $arr_objects
-                                );
+                                 "data_objects" => $arr_objects);
         }
         return $taxa_data;
     }
 
     private function get_species_info_from_site($taxon_id)
     {
-        /*
-        <table id="pop">
-        <caption>Current Listing Status Summary</caption>
-        <thead><tr>
-            <th>Status</th>
-            <th>Date Listed</th>
-            <th>Lead Region</th>
-            <th>Where Listed</th>
-        </tr></thead>
-        
-        <tbody>
-        <tr class="displaytagOddRow">
-            <td><script>displayListingStatus("Endangered")</script></td>
-            <td>11/16/2005</td>
-            <td><a href="http://www.nmfs.noaa.gov/pr/" target="regionWindow"/>National Marine Fisheries Service (Region 11)</td>
-            <td>North America (West Coast from Point Conception, CA, U.S.A., to Punta Abreojos, Baja California, Mexico)</td>
-        </tr></tbody>
-        </table>
-        */
-        sleep(5);
-        $html = Functions::get_remote_file(self::SPECIES_PROFILE_PAGE . $taxon_id);
-        if(preg_match("/Current Listing Status Summary<\/caption>(.*?)<\/table>/ims", $html, $matches)) 
+        if(!$html = Functions::get_remote_file(self::SPECIES_PROFILE_PAGE . $taxon_id, array('download_wait_time' => 5000000, 'timeout' => 20000, 'download_attempts' => 2)))
+        {
+            echo "\n investigate taxon page down: [$taxon_id]\n";
+            return;
+        }
+        if(preg_match("/Current Listing Status Summary<\/caption>(.*?)<\/table>/ims", $html, $matches))
         {
             $html = trim($matches[1]);
             $html = str_ireplace("displaytagOddRow", "displaytagRow", $html);
             $html = str_ireplace("displaytagEvenRow", "displaytagRow", $html);
-            if(preg_match_all("/<tr class\=\"displaytagRow\">(.*?)<\/tr>/ims", $html, $matches)) 
+            if(preg_match_all("/<tr class\=\"displaytagRow\">(.*?)<\/tr>/ims", $html, $matches))
             {
                 $rows = $matches[1];
                 $desc = "";
                 foreach($rows as $row)
                 {
-                    print "\n ============";
-                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $matches)) 
+                    echo "\n ============";
+                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $matches))
                     {
                         $column = $matches[1];
                         $status = $column[0];
@@ -298,13 +332,13 @@ class USFishWildlifeAPI
                         $desc .= "Status: " . $status . "<br>";
                         $desc .= "Date Listed: " . $date_listed . "<br>";
                         $desc .= "Lead Region: " . $lead_region . "<br>";
-                        $desc .= "Where Listed: " . $where_listed . "<br><br>";                        
+                        $desc .= "Where Listed: " . $where_listed . "<br><br>";
                     }
                 }
                 if($desc) return "<b>Current Listing Status Summary</b><br><br>" . $desc . "<br>";
             }
         }
-        else print "\n No Listing Status Summary - $taxon_id \n";
+        else echo "\n No Listing Status Summary - $taxon_id \n";
     }
 
     private function get_population_detail($taxon_id)
@@ -319,7 +353,7 @@ class USFishWildlifeAPI
                 if($rec["listing status"]) $desc .= "Listing status: " . $rec["listing status"] . "<br>";
                 $desc .= "<br>";
                 if($rec["family"]) $family = $rec["family"];
-                print "\n family: $family";
+                echo "\n family: $family";
             }
         }
         return array("population_detail" => $desc, "family" => $family);
@@ -328,17 +362,19 @@ class USFishWildlifeAPI
     private function get_historic_range($taxon_id)
     {
         $ranges = array();
-        foreach($GLOBALS['animal_plant_list'][$taxon_id] as $rec) $ranges[] = $rec["historic range"];
+        foreach(@$GLOBALS['animal_plant_list'][$taxon_id] as $rec) $ranges[] = $rec["historic range"];
         $ranges = array_filter($ranges);
         $ranges = array_unique($ranges);
         $historic_range = "";
-        foreach($ranges as $range) $historic_range .= $range . "<br>";      
+        foreach($ranges as $range) $historic_range .= $range . "<br>";
+        $historic_range = trim($historic_range);
+        if(strip_tags($historic_range) == "") return false;
         return $historic_range;
     }
 
     function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject)
     {
-        $description = str_ireplace(array('ñ', 'ó'), ' ', $description);
+        $description = utf8_encode($description);
         return array( "identifier"  => $identifier,
                       "dataType"    => $dataType,
                       "mimeType"    => $mimeType,
@@ -346,8 +382,7 @@ class USFishWildlifeAPI
                       "description" => $description,
                       "license"     => $license,
                       "subject"     => $subject,
-                      "language"    => "en"
-                    );
+                      "language"    => "en");
     }
 
     function initialize_text_file($filename)

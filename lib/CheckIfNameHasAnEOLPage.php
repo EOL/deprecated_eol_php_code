@@ -16,7 +16,7 @@ class CheckIfNameHasAnEOLPage
     function check_if_name_has_EOL_page($scientific_name)
     {
         $file = self::API_SEARCH . str_ireplace(" ","%20",$scientific_name); //. "?exact=1";
-        if($xml = Functions::get_hashed_response($file, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
+        if($xml = Functions::get_hashed_response($file, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             foreach($xml->entry as $species)
             {

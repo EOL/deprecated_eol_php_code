@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-// connector: [661]
+// connector: [683] formerly 661
 class DipteraCentralAmericaAPI
 {
     function __construct($folder)
@@ -40,7 +40,7 @@ class DipteraCentralAmericaAPI
         {
             if($conn["title"] == "Selected References") $string = $conn["desc"];
         }
-        if(preg_match_all("/<li>(.*?)<\/li>/ims", $string, $arr)) 
+        if(preg_match_all("/<li>(.*?)<\/li>/ims", $string, $arr))
         {
             $refs = $arr[1];
             foreach($refs as $ref)
@@ -51,7 +51,7 @@ class DipteraCentralAmericaAPI
                 $r->full_reference = $ref;
                 $r->identifier = md5($ref);
                 $reference_ids[] = $r->identifier;
-                if(!in_array($r->identifier, $this->resource_reference_ids)) 
+                if(!in_array($r->identifier, $this->resource_reference_ids))
                 {
                    $this->resource_reference_ids[] = $r->identifier;
                    $this->archive_builder->write_object_to_file($r);
@@ -96,7 +96,7 @@ class DipteraCentralAmericaAPI
     private function parse_html()
     {
         $records = array();
-        if($html = Functions::get_remote_file($this->taxa_list_url, array('timeout' => 1200, 'download_attempts' => 5)))
+        if($html = Functions::get_remote_file($this->taxa_list_url, array('timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             $html = str_ireplace(array(' width="150"', ' align="left"', ' width="300"'), "", $html);
             if(preg_match_all("/<p class=\"FamilyNames\">(.*?)<\/div>/ims", $html, $arr))
@@ -157,7 +157,7 @@ class DipteraCentralAmericaAPI
             // if($i != 4) continue; //debug --- to select which family to process, e.g. choosing "Phoridae" under "Lower Cyclorrhapha families:"
             if($url = @$info["url"]) 
             {
-                if($html = Functions::get_remote_file($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
+                if($html = Functions::get_remote_file($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
                 {
                     //manual adjustment
                     $html = str_ireplace("Microdon Megacephalus", "Microdon megacephalus", $html);
@@ -187,7 +187,7 @@ class DipteraCentralAmericaAPI
                                     $image_page_url = $path_parts["dirname"] . "/" . $image_page_url;
                                     echo("\n image_page_url: [$image_page_url] \n ");
                                     
-                                    if($popup_page = Functions::get_remote_file($image_page_url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
+                                    if($popup_page = Functions::get_remote_file($image_page_url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
                                     {
                                         $records = self::scrape_image_info($popup_page, $records, $image_page_url, $taxon);
                                     }
@@ -224,18 +224,15 @@ class DipteraCentralAmericaAPI
             <img src="tabanidae_image2.jpg" width="400" height="304" alt="Chlorotabanus mexicanus" />
                 <p class="PhotoLabels"><em>Chlorotabanus mexicanus</em> (Linnaeus 1758), Costa Rica: 29 km W Tortuguero</p>
         </div>
-        
         <div class="DipteraImage"><img src="ptychopteridae_image.jpg" width="400" height="293" alt="Ptychoptera townesi" />
         <span class="PhotoLabels"><em>Ptychoptera townesi</em> Alexander 1943, USA: California: 4mi SW Stirling City</span>
         </div>
         */
-        
         /*
         <div class="DipteraImage"><img src="pseudopomyzidae_image.jpg" width="400" height="278" alt="undet. Pseudopomyzidae" />
            <p class="PhotoLabels">undet. Pseudopomyzidae, Costa Rica: Albergue de Heliconia</p>
          </div>        
         */
-        
         /*
         <div class="DipteraImage">
             <img src="syrphidae_image1.jpg" width="400" height="366" alt="Microdon megacephalus" /><span class="PhotoLabels"><em>Microdon Megacephalus</em> 
@@ -243,15 +240,9 @@ class DipteraCentralAmericaAPI
             <p>&nbsp;</p>
           <img src="syrphidae_image2.jpg" width="400" height="314" alt="Ornidia obesa" /><span class="PhotoLabels"><em>Ornidia obesa</em> (Fabricius 1775), 
           Mexico: hills west of Fortin de las Flores </span></div>
-        
         */
         $records = array();
-        if(preg_match("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $match))
-        {
-            echo "\n pass here 01";
-            echo "\n\n[$match[1]]\n";
-            $records = self::scrape_image_info($match[1], $records, $url, $family);
-        }
+        if(preg_match("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $match)) $records = self::scrape_image_info($match[1], $records, $url, $family);
         return $records;
     }
 
@@ -260,38 +251,33 @@ class DipteraCentralAmericaAPI
         $match = str_ireplace("<p>&nbsp;</p>", "", $match);
         if(preg_match_all("/<img src=(.*?)<\/p>/ims", $match, $matches) || preg_match_all("/<img src=(.*?)<\/span>/ims", $match, $matches))
         {
-            echo "\n pass here 02";
             foreach($matches[1] as $line)
             {
                 $image = "";
                 $taxon = "";
                 $caption = "";
                 $rank = "";
-                if(preg_match("/\"(.*?)\"/ims", $line, $match)) 
+                if(preg_match("/\"(.*?)\"/ims", $line, $match))
                 {
                     $image = $match[1];
                     $path_parts = pathinfo($url);
                     $image = $path_parts["dirname"] . "/" . $image;
                 }
                 $line .= "xxx";
-                if(preg_match("/class=\"PhotoLabels\">(.*?)xxx/ims", $line, $match)) 
+                if(preg_match("/class=\"PhotoLabels\">(.*?)xxx/ims", $line, $match))
                 {
-                    echo "\n pass here 03";
                     $caption = trim(strip_tags($match[1], "<em><i>"));
                     $caption = str_ireplace(array("\n", "\r", "&nbsp;"), " ", $caption);
                     $taxon = explode(",", $caption);
                     $taxon = strip_tags($taxon[0]);
                     $taxon = trim(str_ireplace(array("undet."), "", $taxon));
                 }
-                echo "\n $taxon [$image][$caption]";
-                if($taxon == $family) 
+                if($taxon == $family)
                 {
                     $family = "";
                     $rank = "family";
                 }
                 $records[$taxon][] = array("url" => $url, "rank" => $rank, "family" => $family, "image" => $image, "caption" => $caption, "taxon_id" => self::get_taxon_id($taxon));
-                // <em>Bryodemina valida</em> (Wiedemann 1830), Mexico: Jalisco,
-                //     Santa Cruz del Astillero
             }
         }
         return $records;
@@ -306,7 +292,6 @@ class DipteraCentralAmericaAPI
         $taxon->scientificName          = (string) $sciname;
         $taxon->family                  = (string) @$rec['family'];
         $taxon->taxonRank               = (string) $rec['rank'];
-        // $taxon->vernacularName          = ""
         $taxon->furtherInformationURL   = (string) @$rec['url']; // e.g. some families are not hyperlinked
         $this->taxa[$rec["taxon_id"]] = $taxon;
     }
