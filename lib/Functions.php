@@ -107,6 +107,8 @@ class Functions
         if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;
         if(!isset($options['timeout'])) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
         if(!isset($options['download_attempts'])) $options['download_attempts'] = DOWNLOAD_ATTEMPTS;
+        if(!isset($options['delay_in_minutes'])) $options['delay_in_minutes'] = false; /* some servers need a few minutes to be revived */
+        
         $remote_url = str_replace(" ", "%20", $remote_url);
 
         $attempts = 1;
@@ -123,6 +125,18 @@ class Functions
 
             debug("attempt $attempts failed, will try again after " . ($options['download_wait_time']/1000000) . " seconds");
             $attempts++;
+            
+            if($attempts > $options['download_attempts'])
+            {
+                if($options['delay_in_minutes'])
+                {
+                    debug("Will delay for " . $options['delay_in_minutes'] . " minute(s), then will try again. Number of attempts will be reset.");
+                    sleep($options['delay_in_minutes'] . 60);
+                    $attempts = 1;
+                    $options['delay_in_minutes'] = false;
+                }
+            }
+            
         }
 
         debug("failed download file after " . ($attempts-1) . " attempts");

@@ -26,7 +26,6 @@ class TurbellarianAPI
         $this->dump_file = $this->TEMP_DIR . "turbellarian_dump.txt";
         $this->dump_file_hierarchy = $this->TEMP_DIR . "turbellarian_hierarchy_dump.txt";
         $this->dump_file_synonyms = $this->TEMP_DIR . "turbellarian_synonyms_dump.txt";
-        // sample url: http://turbellaria.umaine.edu/turb3.php?action=1&code=8162
     }
 
     function get_all_taxa()
@@ -35,15 +34,27 @@ class TurbellarianAPI
         $this->agent_ids = self::get_object_agents($this->agents);
         // /* normal operation
         $this->save_data_to_text();
-        $this->consolidate_hierarchy_and_taxa_list();
-        $this->access_dump_file();
+        $this->access_dump_file(false, "synonyms");
+        $this->access_dump_file(false, "objects");
         $this->process_taxa();
         // */
-        /* use this if the dump file has already been created
+        
+        /* use this if the dump file has already been created - works okay!
         $dump_file = DOC_ROOT . "tmp/turbellarian_dump/turbellarian_dump.txt";
-        $this->access_dump_file($dump_file);
+        $this->access_dump_file($dump_file, "synonyms");
+        $this->access_dump_file($dump_file, "objects");
         $this->process_taxa($dump_file);
         */
+        
+        /* manually adding Bilateria */
+        $rec = array();
+        $rec["sciname"] = "Bilateria";
+        $rec["taxon_id"] = "Bilateria";
+        $rec["authorship"] = "";
+        $rec["parent_id"] = "";
+        $rec["status"] = "";
+        $this->create_instances_from_taxon_object($rec);
+        
         $this->create_archive();
         /* remove temp dir */
         recursive_rmdir($this->TEMP_DIR);
@@ -53,9 +64,9 @@ class TurbellarianAPI
     private function save_data_to_text()
     {
         $urls = array();
-        $limit = 14543; //hard-coded number of taxon ID //debug orig:13998 | new:14543 |
+        $limit = 14543; //hard-coded number of taxon ID //debug orig: 14543
         for ($i = 2; $i <= $limit; $i++) $urls[] = $this->taxa_url . $i; // $i first value is 2
-        // foreach(array(11393,512, 5116,12276,13985,12823,2797,12032,2776,5426) as $i) $urls[] = $this->taxa_url . $i; //debug
+        /* foreach(array(321, 512, 2336, 2337, 2376, 2776, 2797, 5116, 5426, 10894, 10895, 10978, 11393, 12032, 12276, 12823, 12949, 13985) as $i) $urls[] = $this->taxa_url . $i; */ //debug
         $j = 0;
         $total = count($urls);
         foreach($urls as $url)
@@ -68,12 +79,13 @@ class TurbellarianAPI
                 else echo "\n investigate [a1]\n";
             }
         }
+        $this->consolidate_hierarchy_and_taxa_list();
     }
 
-    private function consolidate_hierarchy_and_taxa_list($dump_file = false, $dump_file_hierarchy = false)
+    private function consolidate_hierarchy_and_taxa_list()
     {
-        if(!$dump_file) $dump_file = $this->dump_file;
-        if(!$dump_file_hierarchy) $dump_file_hierarchy = $this->dump_file_hierarchy;
+        $dump_file = $this->dump_file;
+        $dump_file_hierarchy = $this->dump_file_hierarchy;
         echo "\n accessing dump file [$dump_file]...\n";
         echo "\n accessing dump file hierarchy [$dump_file_hierarchy]...\n";
         $id_name = array();
@@ -171,8 +183,9 @@ class TurbellarianAPI
         return array_keys($synonyms);
     }
 
-    private function access_dump_file($dump_file = false)
+    private function access_dump_file($dump_file = false, $type)
     {
+        if($type == "objects") $synonyms = self::save_synonym_ids_to_array(); // will not assign objects to taxa that are synonyms
         $i = 0;
         if(!$dump_file) $dump_file = $this->dump_file;
         echo "\n accessing dump file [$dump_file]...\n";
@@ -186,8 +199,12 @@ class TurbellarianAPI
                 {
                     foreach($records as $rec)
                     {
+                        if($type == "objects")
+                        {
+                            if(in_array($rec["taxon_id"], $synonyms)) continue;
+                        }
                         echo "\n" . $rec["sciname"] . " " . $rec["taxon_id"] . " ---> \n";
-                        self::process_record($rec);
+                        self::process_record($rec, $type);
                     }
                 }
             }
@@ -195,29 +212,24 @@ class TurbellarianAPI
         echo "\n [total recs from dump: $i] \n";
     }
 
-    private function process_record($rec)
+    private function process_record($rec, $type)
     {
-        /*
-        [sciname] => Calviria banyulensis
-        [authorship] => Martens & Curini-Galletti, 1993
-        [taxon_id] => 11397
-        [parent_id] => 11394
-        [links] => Array
-            (
-                [0] => /turb3.php?action=2&code=11397&smk=0"> images<img src="/icons/small/movie.png" alt="fig. avail."></a>
-                [1] => /turb3.php?action=11&code=11397&syn=0">literature</a>
-                [2] => /turb3.php?action=16&code=11397&valid=0">dist'n</a>
-            )
-        */
         if(!@$rec["links"]) return;
         foreach($rec["links"] as $link)
         {
             if(preg_match("/xxx(.*?)\">/ims", "xxx".$link, $arr)) $url = $this->domain . $arr[1];
-            if    (is_numeric(stripos($link, "diagnosis")))     self::process_diagnosis($rec, $url);
-            elseif(is_numeric(stripos($link, "fig. avail.")))   self::process_images($rec, $url);
-            elseif(is_numeric(stripos($link, "dist'n")))        self::process_distribution($rec, $url);
-            elseif(is_numeric(stripos($link, "synonyms")))      self::process_synonyms($rec, $url);
-            elseif(is_numeric(stripos($link, "notes")))         self::process_notes($rec, $url);
+            // debug - not commented in normal operation
+            if($type == "objects")
+            {
+                if    (is_numeric(stripos($link, "diagnosis")))     self::process_diagnosis($rec, $url);
+                elseif(is_numeric(stripos($link, "fig. avail.")))   self::process_images($rec, $url);
+                elseif(is_numeric(stripos($link, "dist'n")))        self::process_distribution($rec, $url);
+                elseif(is_numeric(stripos($link, "notes")))         self::process_notes($rec, $url);
+            }
+            elseif($type == "synonyms")
+            {
+                if(is_numeric(stripos($link, "synonyms"))) self::process_synonyms($rec, $url);
+            }
         }
     }
 
@@ -281,11 +293,10 @@ class TurbellarianAPI
                                 if(ctype_lower(substr($synonym,0,1)))
                                 {
                                     $synonym = trim(strip_tags($cols[1]));
-                                    $synonym = str_replace("  ", " ", $synonym);
-                                    
+                                    $synonym = trim(str_replace("  ", " ", $synonym));
                                     if(ctype_lower(substr($synonym,0,1))) // e.g. http://turbellaria.umaine.edu/turb3.php?action=6&code=5428
                                     {
-                                        $synonym = trim($cols[0]) . " " . $synonym;
+                                        $synonym = trim(trim($cols[0]) . " " . $synonym);
                                     }
                                 }
                             }
@@ -467,7 +478,11 @@ class TurbellarianAPI
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->audience       = 'Everyone';
         $mr->description    = (string) $description;
-        $this->archive_builder->write_object_to_file($mr);
+        if(!in_array($mr->identifier, $this->object_ids)) 
+        {
+           $this->object_ids[] = $mr->identifier;
+           $this->archive_builder->write_object_to_file($mr);
+        }
     }
 
     private function process_images($rec, $url)
@@ -475,17 +490,14 @@ class TurbellarianAPI
         if($html = self::get_html($url))
         {
             // <img src="thb/11395a_thb.gif" alt="fig Calviria solaris">
+            $source_urls = self::get_source_urls($html);
             if(preg_match_all("/src=\"thb\/(.*?)\"/ims", $html, $arr))
             {
                 // http://turbellaria.umaine.edu/gif/11397a.gif
+                $index = 0;
                 foreach($arr[1] as $image)
                 {
-                    /*
-                    from: http://turbellaria.umaine.edu/thb/12223a_thb.gif
-                    to  : http://turbellaria.umaine.edu/gif/12223a.gif
-                    from: http://turbellaria.umaine.edu/thb/12223b_thb.jpg
-                    to  : http://turbellaria.umaine.edu/img/12223b.jpg
-                    */
+                    // from: http://turbellaria.umaine.edu/thb/12223a_thb.gif to: http://turbellaria.umaine.edu/gif/12223a.gif
                     $info = self::get_folder_of_image($image);
                     $folder = $info["folder"];
                     $extension = $info["extension"];
@@ -529,14 +541,26 @@ class TurbellarianAPI
                     $mr->audience       = 'Everyone';
                     $mr->description    = "";
                     $mr->accessURI      = $mediaURL;
+                    if(@$source_urls[$index]) $mr->furtherInformationURL = @$source_urls[$index];
                     if(!in_array($mr->identifier, $this->object_ids)) 
                     {
                        $this->object_ids[] = $mr->identifier;
                        $this->archive_builder->write_object_to_file($mr);
                     }
+                    $index++;
                 }
             }
         }
+    }
+    
+    private function get_source_urls($html)
+    {
+        $urls = array();
+        if(preg_match_all("/href=\"\/turb3\.php\?action\=7(.*?)\"/ims", $html, $arr))
+        {
+            foreach($arr[1] as $path) $urls[] = $this->domain . "/turb3.php?action=7" . $path;
+        }
+        return $urls;
     }
 
     private function get_folder_of_image($image)
@@ -562,27 +586,15 @@ class TurbellarianAPI
 
     private function get_html($url)
     {
-        $trials = 0;
-        $html = false;
-        while($trials <= 5)
+        if($html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 3))) return $html;
+        else
         {
-            $trials++;
-            if($html = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2))) return $html;
-            else
+            if($html = self::curl_get_file_contents($url))
             {
-                if($html = self::curl_get_file_contents($url))
-                {
-                    echo "\n Got it using 'curl_get_file_contents()' \n";
-                    return $html;
-                }
-                else
-                {
-                    echo "\n\n investigate 01 [$url] will delay 5 minutes... then will try again [$trials]\n";
-                    sleep(300);
-                }
+                echo "\n Got it using 'curl_get_file_contents()' \n";
+                return $html;
             }
         }
-        if(!$html) echo "\n trials expired [$trials]\n";
         return false;
     }
 
@@ -817,7 +829,7 @@ class TurbellarianAPI
                     if($parts) $parts[count($parts)-1]["sciname"] = @$parts[count($parts)-2]["sciname"] . " " . $parts[count($parts)-1]["sciname"];
                 }
                 /* e.g. http://turbellaria.umaine.edu/turb3.php?action=1&code=2844
-                last 2 recs is lower case, just ignore all */
+                last 2 recs is lower case, just ignore all bec you'll get them in another call anyway */
                 if($second_to_the_last = @$parts[count($parts)-2])
                 {
                     if(ctype_lower(substr(@$second_to_the_last["sciname"], 0, 1))) return array();
@@ -830,7 +842,7 @@ class TurbellarianAPI
     function create_instances_from_taxon_object($rec)
     {
         $sciname = (string) trim(strip_tags($rec["sciname"]));
-        $exclude = array("9-spinosa", "`n.sp.'", "conoceraea", "scientificName", "truncata");
+        $exclude = array("9-spinosa", "`n.sp.'", "conoceraea", "scientificName");
         if(in_array($sciname, $exclude)) return;
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = (string) $rec["taxon_id"];
@@ -858,7 +870,7 @@ class TurbellarianAPI
         {
             if(in_array($syn["synonym"], $exclude)) continue;
             $synonym = new \eol_schema\Taxon();
-            if(!Functions::is_utf8($syn["synonym"]) || !Functions::is_utf8($syn["syn_author"])) return;
+            if(!Functions::is_utf8($syn["synonym"]) || !Functions::is_utf8($syn["syn_author"])) continue;
             $synonym->taxonID                       = (string) $syn["syn_id"];
             if(ctype_lower(substr($syn["synonym"], 0, 1))) // meaning taxon is 'species' part only
             {
@@ -872,7 +884,14 @@ class TurbellarianAPI
             $synonym->taxonRemarks                  = (string) $syn["syn_remark"];
             $synonym->furtherInformationURL         = (string) $syn["syn_url"];
             $synonym->parentNameUsageID             = (string) $rec["parent_id"];
-            if(!$synonym->scientificName) return;
+            if(!$synonym->scientificName) continue;
+            if($synonym->scientificName == $rec["sciname"]) 
+            {
+                echo "\n investigate synonym == valid name \n";
+                print_r($rec);
+                self::save_to_dump($synonym->taxonID, $this->dump_file_synonyms);
+                continue;
+            }
             if(!isset($this->taxon_ids[$synonym->taxonID]))
             {
                 $this->archive_builder->write_object_to_file($synonym);
@@ -884,10 +903,7 @@ class TurbellarianAPI
 
     function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
+        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
     }
 
@@ -895,7 +911,6 @@ class TurbellarianAPI
     {
         if(is_array($array)) $item = json_encode($array);
         else $item = $array;
-
         $WRITE = fopen($filename, "a");
         fwrite($WRITE, $item . "\n");
         fclose($WRITE);
@@ -918,7 +933,7 @@ class TurbellarianAPI
             $r->term_homepage = $agent["homepage"];
             $r->agentRole = $agent["role"];
             $agent_ids[] = $r->identifier;
-            if(!in_array($r->identifier, $this->resource_agent_ids)) 
+            if(!in_array($r->identifier, $this->resource_agent_ids))
             {
                $this->resource_agent_ids[] = $r->identifier;
                $this->archive_builder->write_object_to_file($r);
@@ -942,6 +957,7 @@ class TurbellarianAPI
     {
         $i = 0;
         echo "\n accessing [$file]...\n";
+        // list taxa that starts with small letter
         $names = array();
         foreach(new FileIterator($file) as $line_number => $line)
         {
@@ -951,8 +967,12 @@ class TurbellarianAPI
                 $line = trim($line);
                 $cols = explode("\t", $line);
                 $id      = (string) trim($cols[0]);
-                $sciname = (string) trim($cols[4]); //
-                if(ctype_lower(substr($sciname, 0, 1))) echo "\n small caps\n";
+                $sciname = (string) trim($cols[4]);
+                if(ctype_lower(substr($sciname, 0, 1)))
+                {
+                    echo "\n small caps\n";
+                    print_r($cols);
+                } 
                 if($synonyms_only_YN)
                 {
                     if(@$cols[6] != "synonym")
@@ -968,7 +988,6 @@ class TurbellarianAPI
                 }
             }
         }
-        print_r($id_name);
         echo "\n count of names: " . count($names) . "\n";
         echo "\n count of names: " . count($id_name) . "\n";
         echo "\n [total recs from taxon.tab: $i] \n";
@@ -981,12 +1000,14 @@ class TurbellarianAPI
                 $i++;
                 $line = trim($line);
                 $cols = explode("\t", $line);
-                $parent = (string) trim($cols[3]);
-                if(!@$id_name[$parent])
+                if($parent = (string) trim($cols[3]))
                 {
-                    $no_parent_info++;
-                    echo "\n no parent info -- parent_id=$parent \n";
-                    print_r($cols);
+                    if(!@$id_name[$parent])
+                    {
+                        $no_parent_info++;
+                        echo "\n no parent info -- parent_id=$parent \n";
+                        print_r($cols);
+                    }
                 }
             }
         }

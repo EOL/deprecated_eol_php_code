@@ -17,15 +17,15 @@ class MCZHarvardArchiveAPI
         $this->dwca_file = "http://digir.mcz.harvard.edu/ipt/archive.do?r=mcz_for_eol";
         $this->first40k = "https://dl.dropboxusercontent.com/u/7597512/MCZHarvard/First40k.txt";
         /* 
-        $this->dwca_file = "http://localhost/~eolit/temp_eol_development/dwca-mcz_for_eol.zip";
+        $this->dwca_file = "http://localhost/~eolit/cp/dwca-mcz_for_eol.zip";
         $this->first40k = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
         */
     }
 
     /*
-    images: 74609 | 75330
+    images: 74609 | 75330 | 82,083
     text: 21129
-    taxa: 11440
+    taxa: 11440 | 12,185
     */
 
     function get_all_taxa()
@@ -183,7 +183,7 @@ class MCZHarvardArchiveAPI
     private function get_first40k_images()
     {
         $first40k = array();
-        if($temp_filepath = Functions::save_remote_file_to_local($this->first40k, array('timeout' => 4800, 'download_attempts' => 5)))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->first40k, array('timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             require_library('connectors/BOLDSysAPI');
             $func = new BOLDSysAPI();
@@ -200,7 +200,7 @@ class MCZHarvardArchiveAPI
         $func = new BOLDSysAPI();
         $source = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_still40k.tsv";
         $destination = DOC_ROOT .                         "/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
-        if($temp_filepath = Functions::save_remote_file_to_local($source, array('timeout' => 4800, 'download_attempts' => 5)))
+        if($temp_filepath = Functions::save_remote_file_to_local($source, array('timeout' => 4800, 'download_attempts' => 2)))
         {
             $records = array();
             foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
