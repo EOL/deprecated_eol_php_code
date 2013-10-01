@@ -240,6 +240,11 @@ class ADUVirtualMuseumAPI
 
     private function create_agent($agent)
     {
+        //manual adjustment
+        $agent = str_ireplace("Dave and Catriona Kennedy", "Dave Kennedy; Catriona Kennedy", $agent);
+        $agent = str_ireplace("Dave Kennedy. Anne Kennedy", "Dave Kennedy; Anne Kennedy", $agent);
+        $agent = str_ireplace("Dave; Anne; Tina;", "Dave Kennedy; Anne Kennedy; Tina Kennedy;", $agent);
+
         $agent_ids = array();
         $agents = explode(";", $agent);
         foreach($agents as $agentz)
@@ -247,11 +252,14 @@ class ADUVirtualMuseumAPI
             $comma_separated = explode(",", $agentz);
             foreach($comma_separated as $agent)
             {
-                if($agent = trim($agent))
+                $info = self::parse_agent($agent);
+                $agent = $info["agent"];
+                $role = $info["role"];
+                if($agent)
                 {
                     $r = new \eol_schema\Agent();
                     $r->term_name = $agent;
-                    $r->agentRole = "recorder";
+                    $r->agentRole = $role;
                     $r->identifier = md5($r->term_name . "|" . $r->agentRole);
                     $r->term_homepage = "";
                     $agent_ids[] = $r->identifier;
@@ -263,7 +271,26 @@ class ADUVirtualMuseumAPI
                 }
             }
         }
-        return $agent_ids;
+        return array_unique($agent_ids);
+    }
+    
+    private function parse_agent($agent)
+    {
+        if(preg_match("/\(photo(.*?)\)/ims", $agent, $match))
+        {
+            $role = "photographer";
+            $agent = self::remove_parenthesis($agent);
+        }
+        elseif(preg_match("/photo(.*?)/ims", $agent, $match)) $role = "photographer";
+        else $role = "recorder";
+        // manual adjustment
+        $pos = stripos($agent, " by ");
+        if(is_numeric($pos)) $agent = trim(substr($agent, $pos+4, strlen($agent)));
+        if(is_numeric(stripos($agent, "guide"))) $agent = "";
+        $agent = trim(str_ireplace(array("took the photograph", "photographers", "photographer", "photography"), "", $agent));
+        if(in_array($agent, array("Camera trap located on stream bank"))) $agent = "";
+        if(is_numeric($agent)) $agent = "";
+        return array("agent" => trim($agent), "role" => $role);
     }
 
     private function create_vernacular($rec)
