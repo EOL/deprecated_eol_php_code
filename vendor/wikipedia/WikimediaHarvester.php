@@ -108,7 +108,10 @@ class WikimediaHarvester
             self::print_memory_and_time();
     
             // the last file ended in the middle of a page. Use the remainder of the last file as a starting point
-            $current_page = $this->page_iteration_left_overs;
+            if (isset($this->page_iteration_left_overs)) 
+                $current_page = $this->page_iteration_left_overs; 
+            else
+                $current_page = "";
             $this->page_iteration_left_overs = "";
             foreach(new FileIterator($filename) as $line)
             {
@@ -268,7 +271,7 @@ class WikimediaHarvester
                 // done on every file in the dump: be careful not to trigger off a remote API call
                 foreach($page->get_categories() as $cat)
                 {
-                    if(isset($this->taxonomic_categories["Category:$cat"]))
+                    if(isset($this->taxa["Category:$cat"]))
                     {
                         // just flag this as wanted. We'll search for proper categories later
                         $wanted = true;
@@ -283,12 +286,11 @@ class WikimediaHarvester
         $count++;
         if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
-            echo "Page: $count (penultimate pass";
+            echo "Page: $count (final pass";
             if ($this->total_pages_in_dump) echo round($count/$this->total_pages_in_dump*100, 1)."% done";
-            echo "). # taxa so far: ". count($this->taxa)." of which ";
-            $galleries = count(array_unique(call_user_func_array('array_merge', $this->gallery_files_to_check)));
-            echo ($galleries/count($this->taxa))."% ($galleries) are galleries rather than categories. ";
-            echo "The galleries found so far contain ". count($this->gallery_files_to_check) ." media files.\n";
+            echo "# media files checked so far: ".count($this->taxonomies_for_media_file).", of which ";
+            echo (array_sum($this->taxonomies_for_media_file)/count($this->taxonomies_for_media_file)-1)*100;
+            echo "% have multiple taxa.";
             self::print_memory_and_time();
         }
     }
@@ -313,22 +315,13 @@ class WikimediaHarvester
         foreach($this->queue_of_pages_to_process as $page)
         {
             // page may have multiple taxonomies: e.g. from gallery "Mus musculus", category "Mus musculus", category "Mus", etc.
-            // pick the one with the highest "taxonomy score"
-            if(is_null($gallery = $page->get_gallery()))
-            {
-                $best_taxonomy = null;
-                $best_taxonomy_score = -1;
-            }else
-            {
-                $best_taxonomy = $gallery;
-                $best_taxonomy_score = $this->taxonomic_galleries[$best_taxonomy];
-            }
-
+            $taxonomies = $page->get_galleries();
+            
             // only look for categories gleaned from the API (more reliable)
             $categories_from_API = $page->get_categories(true);
             if(count($categories_from_API) == 0)
             {
-                echo "ERROR. This shouldn't happen. No categories for $page->title (have you failed to connect to the Wikimedia API?)\n";
+                echo "ERROR. This shouldn't happen. No categories at all for $page->title (have you failed to connect to the Wikimedia API?)\n";
             }else
             {
                 $potential_license_categories = array();
@@ -372,7 +365,7 @@ class WikimediaHarvester
                 continue;
             }
 
-            if(empty($best_taxonomy))
+            if(empty($taxonomies))
             {
                 echo "That's odd: no valid taxonomy for $page->title . Perhaps the categories via the API have changed since the XML dump (dump: ". implode("|", $page->categories_from_wikitext) .", API: ". implode("|", $categories_from_API) .")\n";
             }else
