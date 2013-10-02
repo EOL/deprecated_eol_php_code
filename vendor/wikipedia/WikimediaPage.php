@@ -827,7 +827,7 @@ class WikimediaPage
 
         foreach($plain_array as $param => $value)
         {
-            $value = trim($value);
+            $value = WikiParser::mb_trim($value);
             // numerical array elements get reassigned.
             if(is_int($param))
             {
@@ -840,10 +840,10 @@ class WikimediaPage
                         {
                             if($strip_syntax)
                             {
-                                $tnav_array[lcfirst($value)] = WikiParser::strip_syntax($plain_array[$param+1]);
+                                $tnav_array[WikiParser::mb_ucfirst($value)] = WikiParser::strip_syntax($plain_array[$param+1]);
                             }else
                             {
-                                $tnav_array[lcfirst($value)] = $plain_array[$param+1];
+                                $tnav_array[WikiParser::mb_ucfirst($value)] = $plain_array[$param+1];
                             }
                         }else
                         {
@@ -882,7 +882,7 @@ class WikimediaPage
         $continue = "&continue=";
         while(!empty($continue))
         {
-            $result = php_active_record\Functions::lookup_with_cache($url.$contunue, array(
+            $result = php_active_record\Functions::lookup_with_cache($url.$continue, array(
                 'download_wait_time' => 5000000,
                 'download_attempts' => 3,
                 'user_agent' => 'gzip,deflate',
