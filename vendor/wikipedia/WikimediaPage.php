@@ -1064,4 +1064,195 @@ class WikimediaPage
     }
 }
 
+class TaxonomyParameters {
+    public static $wiki_to_standard = array( //listed as most precise to least precise
+            "Species"   => "species", //'species' is not past of the EoL output, but may be used to construct scientificName later
+            "Genus"     => "genus",
+            "Familia"   => "family",
+            "Ordo"      => "order",
+            "Classis"   => "class",
+            "Phylum"    => "phylum",
+            "Regnum"    => "kingdom");
+    private $taxon_params = array();
+    private $page_timestamp;
+    public  $authority;
+    public  $last_taxonomy_change;
+    
+    public function __construct($page_timestamp = null, $last_taxonomy_change = null) {
+        $this->page_timestamp = $page_timestamp;
+        $this->last_taxonomy_change = $last_taxonomy_change;
+    }
+    
+    public function get($standard_rank) {
+        return @$this->taxon_params[$standard_rank];
+    }
+
+
+    public function add_wiki_info($wiki_rank, $wikitext) {
+        $wiki_rank = WikiParser::mb_ucfirst(WikiParser::mb_trim($wiki_rank));
+        $text = strip_tags(WikiParser::strip_syntax($wikitext));
+
+        if ($wiki_rank == 'Authority') return $this->add_info('authority', $text);
+        if (empty(self::$wiki_to_standard[$wiki_rank])) return "";
+        return $this->add_info(self::$wiki_to_standard[$wiki_rank], $text);
+    }
+
+    public function add_info($rank, $text) {
+        $return_message = "";
+        $name = WikiParser::mb_trim($text);
+        if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{|\}/u", $name))
+        {
+            $return_message = "Invalid characters in taxonomy fields ($rank = $name): ignoring this level. ";
+            return $return_message;
+        }
+
+        $name = preg_replace("/\pZ+/u", " ", $name); //multiple spaces of any sort to single normal space
+        
+        if ($rank == 'authority')  {
+            $this->authority = $name;
+            return $return_message;
+        }
+
+        if(preg_match("/unidentified|unknown|incertae sedis| incertae/i", $name))
+        {
+            $return_message = "Name listed as unidentified ($rank = $name): ignoring this level. ";
+            return $return_message;
+        }
+
+        // remove preceeding fossil: e.g. Fossil Pectinidae
+        if(preg_match("/^fossil (.*)$/i", $name, $arr)) $name = WikiParser::mb_ucfirst(trim($arr[1]));
+
+        if ($name=='') return $return_message; //don't set anything if the string is empty
+
+        if($rank == 'genus')
+        {
+            if (preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+            {   //careful with e.g. Category:Rosa_laxa which has Genus = 'Rosa species'
+                $return_message =  "Multi-word genus ($name) getting shortened to ". $arr[1];
+                if(empty($this->taxon_params['species']))
+                {
+                    $return_message .=  " and species initially set to $name";
+                    $this->taxon_params['species'] = $name;
+                }
+                $return_message .=  ". ";
+                $name = $arr[1];
+            }
+            
+            if (!empty($this->taxon_params['species']) && !preg_match("/\s/", $this->taxon_params['species'])) 
+            {   //species was set with just the epithet
+                $this->taxon_params['species'] = $name . ' ' . $this->taxon_params['species'];
+            } 
+
+        }
+        
+        if($rank == 'species') {
+            if (preg_match("/ /", $name))  //multiple words in species (this is the norm)
+            {
+                if (empty($this->taxon_params['genus']) && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+                {
+                    $this->taxon_params['genus'] = $arr[1];
+                    if($GLOBALS['ENV_DEBUG']) 
+                        $return_message = "Genus ".$this->taxon_params['genus']." initially set from species name ('$name'). ";                    
+                }
+            } else                          //single word in 'species' - this could be an epithet
+            {
+                if (mb_strtolower($name, "UTF-8") != $name)
+                {
+                    $return_message = "Single-word species ('$name') has CaPs: ignoring this part of the classification. ";
+                    return $return_message;
+                }
+                
+                if (!empty($this->taxon_params['genus'])) {
+                    $name = $this->taxon_params['genus'] . ' ' . $name;
+                }
+            }
+        } else {
+            while(preg_match("/( \(.*?\))/", $name, $arr)) $name = str_replace($arr[1], '', $name);
+            if(preg_match("/[ \(\)]/", $name))
+            {   //We make an exception here for classes 'Gamma Proteobacteria', 'Alpha Proteobacteria' etc.
+                if (!preg_match("/^\w+ proteobacteria$/i", $name)) {
+                    $return_message .= "A classification level above that of species ($rank = '$name') has issues with brackets or spaces. ";
+                    return $return_message;
+                }
+            }
+        }
+
+        $this->taxon_params[$rank] = $name;
+        return $return_message;
+    }
+    
+    public function scientificName() {
+        if (!isset($this->scientificName)) {
+            $this->scientificName = "";
+            //scientificName should be the lowest (most precise) classification level
+            foreach(self::$wiki_to_standard as $rank) {
+                if (!empty($this->taxon_params[$rank])) {
+                    if(empty($this->authority))
+                    {
+                        $this->scientificName = $this->taxon_params[$rank];
+                        break;
+                    } else {
+                        //would be nice to mark up authority in some way here
+                        $this->scientificName = $this->taxon_params[$rank] . " " . $this->authority;
+                        break;
+                    }
+                }
+            }
+        }
+        return $this->scientificName;
+    }
+    
+    public function asEoLtaxonObject() {
+        //calculate what EoL needs from the levels that we know about
+        static $spp = array('species'=>null);
+        $array_to_return = array_diff_key($this->taxon_params, $spp); // "species" level detail in EoL is contained in scientificName
+        $array_to_return['scientificName'] = $this->scientificName();
+        $array_to_return['dataObjects'] = array();
+        
+        return $array_to_return;
+    }
+
+    //in all the following functions, we assume $this->taxon_params does not contain empty values
+    //as add_info() doesn't allow setting a taxonomic level witb an empty name
+
+    public function number_of_levels() {
+        return count($this->taxon_params);
+    }
+    
+    public function identical_taxonomy_to($compare_to) {
+        //note that some might have empty taxon params. We can ignore these
+        return ($this->taxon_params == $compare_to->taxon_params);
+    }
+    
+    public function page_younger_than($compare_to) {
+        return (strtotime($this->page_timestamp) > strtotime($compare_to->page_timestamp));
+    }    
+
+    public function is_less_precise_than($compare_to) {
+        foreach(self::$wiki_to_standard as $std_key) {
+            if (!empty($this->taxon_params[$std_key]) || (!empty($compare_to->taxon_params[$std_key]))) {
+                return (empty($this->taxon_params[$std_key]));
+            }
+        }
+        return false;
+    }
+
+    public function is_nested_in($compare_to) {
+        if (count(array_diff_assoc($this->taxon_params, $compare_to->taxon_params))==0) {
+            return true;
+        }
+        return false;
+    }
+
+    public function overlaps_without_conflict($compare_to) {
+        //true e.g. if one array contains
+        foreach(self::$wiki_to_standard as $std_key) {
+            if (empty($this->taxon_params[$std_key])) continue;
+            if (empty($compare_to->taxon_params[$std_key])) continue;
+            if ($this->taxon_params[$std_key] != $compare_to->taxon_params[$std_key]) return false;
+        }
+        return true;
+    }
+}
+
 ?>
