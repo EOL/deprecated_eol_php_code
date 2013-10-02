@@ -159,7 +159,7 @@ class WikimediaHarvester
         if(($count % 100000 == 0) || ($count == $this->total_pages_in_dump))
         {
             echo "Page: $count (preliminary pass";
-            if ($this->total_pages_in_dump) echo round($count/$this->total_pages_in_dump*100, 1)."% done";
+            if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes) . ".\n";
             self::print_memory_and_time();
         }
@@ -215,7 +215,7 @@ class WikimediaHarvester
         if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
             echo "Page: $count (penultimate pass";
-            if ($this->total_pages_in_dump) echo round($count/$this->total_pages_in_dump*100, 1)."% done";
+            if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # taxa so far: ". count($this->taxa)." of which ";
             $galleries = count(array_unique(call_user_func_array('array_merge', $this->gallery_files_to_check)));
             echo ($galleries/count($this->taxa))."% ($galleries) are galleries rather than categories. ";
@@ -282,7 +282,7 @@ class WikimediaHarvester
         if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
             echo "Page: $count (final pass";
-            if ($this->total_pages_in_dump) echo round($count/$this->total_pages_in_dump*100, 1)."% done";
+            if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "# media files checked so far: ".count($this->taxonomies_for_media_file).", of which ";
             echo (array_sum($this->taxonomies_for_media_file)/count($this->taxonomies_for_media_file)-1)*100;
             echo "% have multiple taxa.";
