@@ -254,11 +254,6 @@ class WikimediaHarvester
                     };
                 }else
                 {
-                    //if we want only to download recently changed wikimedia files, we could look at 
-                    //whether the last checked date is more recent that either strtodate($page->timestamp), 
-                    //or $this->taxa[$this->gallery_files_to_check[$page->title]]->last_taxonomy_change, 
-                    //but this doesn't account for changes in category taxonomies
-
                     $page->add_galleries($this->gallery_files_to_check[$page->title]);
                     $wanted = true;
                 }
@@ -298,9 +293,11 @@ class WikimediaHarvester
     private function queue_page_for_processing($page)
     {
         if(!$page) return;
-        $this->number_of_media_files_found++;
-        // we could potentially only check files with recently updated timestamps here?
-        // but we would also need to catch unchanged files whose taxonomic classification has changed
+        //if we want only to download recently changed wikimedia files, we could look at 
+        //whether the last run date of this script is more recent that either strtodate($page->timestamp), 
+        //or $this->taxa[$this->gallery_files_to_check[$page->title]]->last_taxonomy_change
+        // But since we are currently checking categories via the call returned from the API,
+        // we can't check the recent mod time of a categorised media file without an API call.
         $this->queue_of_pages_to_process[] = $page;
         // when the queue is large enough, process it
         if(count($this->queue_of_pages_to_process) >= \WikimediaPage::$max_titles_per_lookup)
@@ -328,7 +325,8 @@ class WikimediaHarvester
                 $map = false;
                 foreach($categories_from_API as $cat)
                 {
-                    if(isset($this->taxa["Category:$cat"]) {                    {
+                    if(isset($this->taxa["Category:$cat"])
+                    {                    {
                         $taxonomies[] = "Category:$cat";
                     }elseif(isset($this->map_categories[$cat]))
                     {
