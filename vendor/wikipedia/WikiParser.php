@@ -218,16 +218,6 @@ class WikiParser
         return $string;
     }
 
-    public static function strip_tags($string)
-    {
-        do {
-            $string = preg_replace("/<(\w*?)[^>]*>(.*?)<\/\\1>/us", "\\2", $string, -1, $count);
-        } while ($count); //allow for nested tags
-        $string = preg_replace("/<br(\s\/)?>/us", "", $string); // tags that don't need closing
-        
-        return $string;
-    }
-
     public static function strip_comments($string)
     {
         $string = preg_replace("/<\!\-\-(.*?)\-\->/us", "", $string);
