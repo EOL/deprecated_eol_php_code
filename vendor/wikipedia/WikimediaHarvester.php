@@ -218,7 +218,7 @@ class WikimediaHarvester
             if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # taxa so far: ". count($this->taxa)." of which ";
             $galleries = count(array_unique(call_user_func_array('array_merge', $this->gallery_files_to_check)));
-            echo ($galleries/count($this->taxa))."% ($galleries) are galleries rather than categories. ";
+            echo round($galleries/count($this->taxa)*100, 2)."% ($galleries) are galleries rather than categories. ";
             echo "The galleries found so far contain ". count($this->gallery_files_to_check) ." media files.\n";
             self::print_memory_and_time();
         }
