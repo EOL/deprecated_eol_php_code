@@ -325,8 +325,8 @@ class WikimediaHarvester
                 $map = false;
                 foreach($categories_from_API as $cat)
                 {
-                    if(isset($this->taxa["Category:$cat"])
-                    {                    {
+                    if(isset($this->taxa["Category:$cat"]))
+                    {
                         $taxonomies[] = "Category:$cat";
                     }elseif(isset($this->map_categories[$cat]))
                     {
