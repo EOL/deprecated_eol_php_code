@@ -198,19 +198,15 @@ class WikimediaHarvester
                         // pass in "taxonav_includes" to avoid lots of API calls
                         if($params = $page->taxon_parameters($this->taxonav_includes))
                         {
-                            if(@$params['scientificName'])
+                            if($params->scientificName())
                             {
                                 $this->taxa[$page->title] = $params;
 
-                                if($page->is_category())
+                                if($page->is_gallery())
                                 {
-                                    $this->taxonomic_categories[$page->title] = $page->weighted_taxonomy_score();
-                                }elseif($page->is_gallery())
-                                {
-                                    $this->taxonomic_galleries[$page->title] = $page->weighted_taxonomy_score();
                                     foreach($page->media_on_page() as $file)
                                     {
-                                        $this->gallery_files["File:".$file] = $page->title;
+                                        $this->gallery_files_to_check["File:".$file][] = $page->title;
                                     }
                                 }
                             }
@@ -240,21 +236,38 @@ class WikimediaHarvester
         {
             $page = new \WikimediaPage($xml);
             // check if this page has been listed in a gallery
-            if(isset($this->gallery_files[$page->title]))
+            if(isset($this->gallery_files_to_check[$page->title]))
             {
                 if(isset($page->redirect))
                 {
-                    // we won't catch redirects to pages earlier in the XML dump. Let's just hope those
-                    // have been picked up when scanning for categories. We'll check this later
-                    echo "Page '$page->title' listed in gallery ". $this->gallery_files[$page->title] ." has been redirected. Now looking for '$page->redirect' instead.\n";
-                    $this->gallery_files[$page->redirect] = $this->gallery_files[$page->title];
+                    // we won't catch redirects to pages earlier in the XML dump.
+                    $multiple_galleries = count($this->gallery_files_to_check[$page->title])>1;
+                    echo "Page '$page->title' listed in galler".($multiple_galleries?'ies':'y');
+                    echo ' '.implode(", ", $this->gallery_files_to_check[$page->title])." has been redirected. ";
+                    if (isset($this->taxonomies_for_media_file[$page->redirect])) {
+                        echo "We have already processed the redirected page ('$page->redirect'), so for this page only ";
+                        echo ($multiple_galleries?'these taxonomies have':'this taxonomy has')." been ignored.\n";
+                    } else {
+                        if (isset($this->gallery_files_to_check[$page->redirect])) {
+                            $this->gallery_files_to_check[$page->redirect] = array_merge($this->gallery_files_to_check[$page->redirect], $this->gallery_files_to_check[$page->title]);
+                            echo "Added these galler".($multiple_galleries?'ies':'y');
+                            echo " to the redirected page ('$page->redirect').\n";
+                        } else {
+                            $this->gallery_files_to_check[$page->redirect] = $this->gallery_files_to_check[$page->title];
+                            echo "Looking for the redirected page ('$page->redirect')  instead.\n";
+                        };
+                    };
                 }else
                 {
-                    $page->set_gallery($this->gallery_files[$page->title]);
+                    //if we want only to download recently changed wikimedia files, we could look at 
+                    //whether the last checked date is more recent that either strtodate($page->timestamp), 
+                    //or $this->taxa[$this->gallery_files_to_check[$page->title]]->last_taxonomy_change, 
+                    //but this doesn't account for changes in category taxonomies
+
+                    $page->add_galleries($this->gallery_files_to_check[$page->title]);
                     $wanted = true;
                 }
-                // remove the links to the gallery files as we go
-                unset($this->gallery_files[$page->title]);
+                unset($this->gallery_files_to_check[$page->title]);
             }
 
             if(!$wanted)
@@ -372,7 +385,12 @@ class WikimediaHarvester
                 echo "That's odd: no valid taxonomy for $page->title . Perhaps the categories via the API have changed since the XML dump (dump: ". implode("|", $page->categories_from_wikitext) .", API: ". implode("|", $categories_from_API) .")\n";
             }else
             {
-                $taxon_data = $this->taxa[$best_taxonomy];
+                $mesg = self::remove_duplicate_taxonomies($taxonomies);
+                if (!empty($mesg)) echo $mesg."in wikimedia page <$page->title>\n";
+                if ($GLOBALS['ENV_DEBUG'] && (count($taxonomies) > 1))
+                    echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
+                $this->taxonomies_for_media_file[$page->title] = count($taxonomies);
+
                 $data_object_parameters = $page->get_data_object_parameters();
                 $this->add_to_resource_file($taxon_data, $data_object_parameters);
             }
@@ -382,13 +400,12 @@ class WikimediaHarvester
         $this->queue_of_pages_to_process = array();
     }
 
-    private function check_remaining_gallery_files()
+    private function check_for_unaccounted_galleries()
     {
-        if(count($this->gallery_files))
         {
             $good_files = array();
-            echo count($this->gallery_files) ." gallery files remaining at end. Checking them out:";
-            $titles = array_chunk(array_keys($this->gallery_files), \WikimediaPage::$max_titles_per_lookup, true);
+            echo count($this->gallery_files_to_check) ." gallery files remaining at end. Checking them out:";
+            $titles = array_chunk(array_keys($this->gallery_files_to_check), \WikimediaPage::$max_titles_per_lookup, true);
             foreach($titles as $batch)
             {
                 $good_files += \WikimediaPage::check_page_titles($batch);
@@ -396,10 +413,15 @@ class WikimediaHarvester
             if(count($good_files))
             {
                 echo "\n\nMISSED THE FOLLOWING ". count($good_files) ." FILES";
-                echo " (if you have the scanned whole XML dump, these may be pages whose title has changed and have not been placed in a valid taxonomic category)\n";
+                echo " (if you have the scanned whole XML dump, these may be redirected pages, listed in a gallery under";
+                echo " the deprecated name, and which additionally have not been placed in a valid taxonomic category.";
+                echo "  To harvest these files and remove this error message, you should probably edit the gallery file";
+                echo " on wikimedia commons so that it uses the current, rather than deprecated, filename.)\n";
+                
                 foreach($good_files as $title => $json)
                 {
-                    echo "* $title in gallery <". $this->gallery_files[$title] .">\n";
+                    echo "* $title in galler".(count($this->gallery_files_to_check[$title])>1?'ies':'y');
+                    echo " <".implode(", ", $this->gallery_files_to_check[$title]).">\n";
                 }
             }
         }
