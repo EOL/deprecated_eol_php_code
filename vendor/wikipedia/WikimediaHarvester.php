@@ -58,14 +58,6 @@ class WikimediaHarvester
         self::print_memory_and_time();
     }
 
-    private function debug_before_media()
-    {
-        $galleries_with_files = count(array_unique($this->gallery_files));
-        echo "\n\n# total galleries:  ". count($this->taxonomic_galleries) .", with ". count($this->gallery_files) ." media files.";
-        echo " $galleries_with_files galleries (". @($galleries_with_files / count($this->taxonomic_galleries) * 100) ."%) actually have files\n";
-        echo "\n\n# total categories: ". count($this->taxonomic_categories) ."\n";
-    }
-
     private function download_dump()
     {
         // download latest Wikimedia Commons export
