@@ -353,7 +353,7 @@ class WikimediaHarvester
 
             if(empty($taxonomies))
             {
-                echo "That's odd: no valid taxonomy for $page->title . Perhaps the categories via the API have changed since the XML dump (dump: ". implode("|", $page->categories_from_wikitext) .", API: ". implode("|", $categories_from_API) .")\n";
+                echo "That's odd: no valid taxonomies for $page->title . Perhaps the categories via the API have changed since the XML dump (dump: ". implode("|", $page->categories_from_wikitext) .", API: ". implode("|", $categories_from_API) .")\n";
             }else
             {
                 $mesg = self::remove_duplicate_taxonomies($taxonomies);
@@ -363,8 +363,10 @@ class WikimediaHarvester
                 $this->taxonomies_for_media_file[$page->title] = count($taxonomies);
 
                 $data_object_parameters = $page->get_data_object_parameters();
-                $this->add_to_resource_file($taxon_data, $data_object_parameters);
-            }
+                foreach($taxonomies as $taxonomy) {
+                    $this->add_to_resource_file($this->taxa[$taxonomy]->asEoLtaxonObject(), $data_object_parameters);
+                }
+           }
         }
 
         $this->processed_files += count($this->queue_of_pages_to_process);
