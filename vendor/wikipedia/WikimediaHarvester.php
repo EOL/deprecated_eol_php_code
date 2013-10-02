@@ -373,6 +373,52 @@ class WikimediaHarvester
         $this->queue_of_pages_to_process = array();
     }
 
+    function remove_duplicate_taxonomies(&$names) {
+        $return_message="";
+        foreach(array_keys($names) as $focal_key) {
+            foreach(array_keys($names) as $compare_key) {
+                if ($focal_key != $compare_key) {
+                    $focal_taxon = $names[$focal_key];
+                    $compare_taxon = $names[$compare_key];                    
+                    if ($this->taxa[$focal_taxon]->identical_taxonomy_to($this->taxa[$compare_taxon])) {
+                        //if identical, pick the one with an "authority"
+                        if (empty($this->taxa[$focal_taxon]->authority) xor empty($this->taxa[$focal_taxon]->authority)) {
+                            //one has an authority, the other doesn't
+                            if (empty($this->taxa[$focal_taxon]->authority)) {
+                                if($GLOBALS['ENV_DEBUG'])
+                                    $return_message .= "deleting ".$focal_taxon." which an identical taxonomy to ".$compare_taxon." but no authority field, ";
+                                unset($names[$focal_key]);
+                            break;
+                            }
+                        } elseif(!$this->taxa[$focal_taxon]->page_younger_than($this->taxa[$compare_taxon])) {
+                            //both or neither have authorities, so pick the most recently changed page
+                            if($GLOBALS['ENV_DEBUG'])
+                                $return_message .= "deleting ".$focal_taxon." which is identical to, but isn't any younger than ".$compare_taxon.", ";
+                            unset($names[$focal_key]);
+                            break;
+                        }
+                    } elseif ($this->taxa[$focal_taxon]->is_nested_in($this->taxa[$compare_taxon])) {
+                        //remove any that are simply parents (e.g. remove 'Homo' if we also have 'Homo sapiens')
+                        if($GLOBALS['ENV_DEBUG']) 
+                            $return_message .= "deleting ".$focal_taxon." which is a subset of ".$compare_taxon.", ";
+                        unset($names[$focal_key]);
+                        break;
+                    } elseif ($this->taxa[$focal_taxon]->overlaps_without_conflict($this->taxa[$compare_taxon])) {
+                        //the taxonomies are compatible, but have some complementary information
+                        if (($this->taxa[$compare_taxon]->number_of_levels() > 2) && 
+                            ($this->taxa[$focal_taxon]->is_less_precise_than($this->taxa[$compare_taxon]))) {
+                            if($GLOBALS['ENV_DEBUG'])
+                                $return_message .= "deleting ".$focal_taxon." which (while it contains some additional information) is less precise a classification than ".$compare_taxon.", ";
+                            unset($names[$focal_key]);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return $return_message;    
+    }
+
     private function check_for_unaccounted_galleries()
     {
         {
