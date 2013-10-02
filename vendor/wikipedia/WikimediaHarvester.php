@@ -22,7 +22,7 @@ class WikimediaHarvester
         $this->taxonav_includes = array();
         $this->gallery_files_to_check = array(); //key=media-filename, value = array of gallery names (usually just one)
         $this->taxonomies_for_media_file = array();    //key=media-filename, value = count of taxonomies for this file
-        $this->map_categories = $this->get_map_categories($this->base_directory_path);
+        $this->map_categories = self::get_map_categories($this->base_directory_path);
         $this->total_pages_in_dump = 0;
         $this->queue_of_pages_to_process = array();
 
@@ -369,7 +369,6 @@ class WikimediaHarvester
            }
         }
 
-        $this->processed_files += count($this->queue_of_pages_to_process);
         $this->queue_of_pages_to_process = array();
     }
 
@@ -446,7 +445,7 @@ class WikimediaHarvester
         }
     }
 
-    private function get_map_categories($base_directory_path, $contact_sites=true)
+    private static function get_map_categories($base_directory_path, $contact_sites=true)
     {
         // Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
         // but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
@@ -515,7 +514,7 @@ class WikimediaHarvester
     public static function print_memory_and_time()
     {
         echo "Memory: ". memory_get_usage_in_mb() ." MB\n";
-        echo "Time: : ". round(time_elapsed(), 2) ." s\n\n\n";
+        echo "Time  : ". round(time_elapsed(), 2) ." s\n\n\n";
     }
 }
 
