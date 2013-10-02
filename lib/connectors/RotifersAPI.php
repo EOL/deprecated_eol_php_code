@@ -23,6 +23,7 @@ class RotifersAPI
         $this->invalid_taxa = array(); // for stats
         $this->taxa_references = array();
         $this->image_references = array();
+        $this->taxon_url = "http://www.rotifera.hausdernatur.at/Species/Index/";
     }
 
     function get_all_taxa()
@@ -143,7 +144,7 @@ class RotifersAPI
                     if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
                     else
                     {
-                        if($rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
+                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
                         {
                             $investigate++;
                             echo("\n investigate: species images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
@@ -181,7 +182,7 @@ class RotifersAPI
                     if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
                     else
                     {
-                        if($rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
+                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
                         {
                             $investigate++;
                             echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
@@ -263,6 +264,7 @@ class RotifersAPI
         $mr->audience       = 'Everyone';
         $mr->description    = (string) $description;
         $mr->accessURI      = $media_url;
+        $mr->furtherInformationURL = $this->taxon_url . $taxon_id;
         if($bibliographicCitation) $mr->bibliographicCitation = $bibliographicCitation;
         $this->archive_builder->write_object_to_file($mr);
     }
@@ -309,7 +311,7 @@ class RotifersAPI
                     }
                     else
                     {
-                        if($rec->lngSpeciesSenior_ID != "lngSpeciesSenior_ID" && !in_array($rec->lngSpeciesSenior_ID, $this->invalid_taxa))
+                        if($taxon_id && $rec->lngSpeciesSenior_ID != "lngSpeciesSenior_ID" && !in_array($rec->lngSpeciesSenior_ID, $this->invalid_taxa))
                         {
                             $investigate++;
                             echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec->lngSpeciesSenior_ID . "\n");
@@ -363,7 +365,7 @@ class RotifersAPI
                     }
                     else
                     {
-                        if($rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID" && !in_array($rec["lngSpeciesSenior_ID"], $this->invalid_taxa))
+                        if($taxon_id && $rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID" && !in_array($rec["lngSpeciesSenior_ID"], $this->invalid_taxa))
                         {
                             $investigate++;
                             echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec["lngSpeciesSenior_ID"] . "\n");
@@ -447,10 +449,10 @@ class RotifersAPI
                     if($taxon_id = @$link[$rec["taxon"]]) self::get_texts($description, $taxon_id, '', '#TypeInformation', $rec["lngSpecimen_ID"], $ref_ids, $agent_ids);
                     else
                     {
-                        if($rec["taxon"] != "taxon" && !in_array($rec["taxon"], $this->invalid_taxa))
+                        if($taxon_id && $rec["taxon"] != "taxon" && !in_array($rec["taxon"], $this->invalid_taxa))
                         {
                             $investigate++;
-                            echo("\n investigate: specimen: {$taxon_id} --- taxon = " . $rec["taxon"] . "\n");
+                            echo("\n investigate: specimen: [$taxon_id] --- taxon = " . $rec["taxon"] . "\n");
                         }
                     }
                 }
@@ -494,6 +496,7 @@ class RotifersAPI
         $taxon->scientificName              = (string) $sciname;
         $taxon->scientificNameAuthorship    = (string) $authorship;
         $taxon->genus                       = (string) $genus;
+        $taxon->furtherInformationURL       = $this->taxon_url . $taxon_id;
         $this->taxa[$taxon->taxonID] = $taxon;
         return $link;
     }
@@ -517,7 +520,7 @@ class RotifersAPI
         $mr->type = "http://purl.org/dc/dcmitype/Text";
         $mr->language = "en";
         $mr->format = "text/html";
-        $mr->furtherInformationURL = "";
+        $mr->furtherInformationURL = $this->taxon_url . $taxon_id;
         $mr->description = (string) $description;
         $mr->CVterm = $subject;
         $mr->title = $title;
@@ -640,7 +643,7 @@ class RotifersAPI
                     if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
                     else
                     {
-                        if($rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
+                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
                         {
                             $investigate++;
                             echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
