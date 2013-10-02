@@ -2,6 +2,26 @@
 
 class WikiParser
 {
+    
+    public static function mb_trim($string) 
+    {   // Several wikitext examples have control characters or odd unicode spaces
+        // This url may be helpful: http://www.php.net/manual/en/regexp.reference.unicode.php
+        return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u','',$string);
+    }
+
+    public static function mb_ucfirst($string) {
+        $firstletter = mb_strtoupper(mb_substr($string, 0, 1), 'utf-8');
+        return $firstletter.mb_substr($string, 1);
+    }
+
+    public static function make_valid_pagetitle($string) {
+        // In <title>, all pages have a capital first letter, and single spaces replace any combo of
+        // underscores and true (unicode) spaces.
+        $string = preg_replace("/[_\pZ\pC]+/u", " ", $string); //
+        $string = trim($string);
+        return self::mb_ucfirst($string);
+    }
+    
     public static function strip_syntax($string, $format = false, $pagename = false)
     {
         if($format == false)
