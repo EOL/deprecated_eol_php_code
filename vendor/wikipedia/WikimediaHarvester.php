@@ -47,8 +47,8 @@ class WikimediaHarvester
 
         echo "\n\n(processing last ". count($this->queue_of_pages_to_process) ." media)\n";
         $this->process_page_queue();
-        echo "\n\n# media files: $this->number_of_media_files_found (in ". count($this->taxa) ." taxa)\n";
-        $this->check_remaining_gallery_files();
+        echo "\n\n# media files: ".count($this->taxonomies_for_media_file)." (in ". count($this->taxa) ." taxa)\n";
+        $this->check_for_unaccounted_galleries();
 
         @unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_previous.xml");
         @rename(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml", CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_previous.xml");
