@@ -328,20 +328,8 @@ class WikimediaHarvester
                 $map = false;
                 foreach($categories_from_API as $cat)
                 {
-                    $category_name = "Category:$cat";
-                    if($category_score = @$this->taxonomic_categories[$category_name])
-                    {
-                        if($category_score > $best_taxonomy_score)
-                        {
-                            $difference_in_scores = $best_taxonomy_score - $category_score;
-                            if(($difference_in_scores < -0.5) && isset($best_taxonomy))
-                            {
-                                echo "Got a substantially better taxonomy for $page->title : $best_taxonomy (score $best_taxonomy_score)";
-                                echo " replaced with $category_name (score $category_score)\n";
-                            }
-                            $best_taxonomy = $category_name;
-                            $best_taxonomy_score = $category_score;
-                        }
+                    if(isset($this->taxa["Category:$cat"]) {                    {
+                        $taxonomies[] = "Category:$cat";
                     }elseif(isset($this->map_categories[$cat]))
                     {
                         $map = true;
