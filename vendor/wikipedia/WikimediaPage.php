@@ -5,6 +5,7 @@ class WikimediaPage
     public  $xml;
     private $simple_xml;
     private $data_object_parameters;
+    private $galleries = array();
 
     // see http://www.mediawiki.org/wiki/Manual:MIME_type_detection
     private static $mediatypes = array(
@@ -139,24 +140,25 @@ class WikimediaPage
         return $this->information;
     }
 
-    private function fill_includes_recursively(&$arr, &$include_arrays, &$visited=array())
+    private function fill_includes_recursively(&$arr, $include_arrays, &$visited=array())
     {
-        if(!empty($arr['include']))
+        if(!empty($arr['taxo']['Include']))
         {
-            $include = "Template:".ucfirst($arr['include']);
+            $include = "Template:".(WikiParser::make_valid_pagetitle($arr['taxo']['Include']));
             if(!isset($visited[$include])) // stops infinite recursive loops
             {
-                $visited[$include] = 1;
+                $visited[$include] = true;
                 if(isset($include_arrays[$include]))
                 {
-                    self::fill_includes_recursively($include_arrays[$include], $include_arrays, $visited);
-                    $arr = array_merge($include_arrays[$include], $arr);
+                    $this->fill_includes_recursively($include_arrays[$include], $include_arrays, $visited);
+                    $arr['taxo'] = array_merge($include_arrays[$include]['taxo'], $arr['taxo']);
+                    $arr['last_mod'] = max($include_arrays[$include]['last_mod'], $arr['last_mod']);
                 }else
                 {
-                    echo "Found a non-existent Taxonav include value: '$include' within ".implode(":",$arr)."\n";
+                    echo "Found non-existent Taxonav include value: '$include' within ".implode(":",$arr['taxo'])." in page $this->title\n";
                     flush();
                 }
-                unset($arr['include']);
+                unset($arr['taxo']['Include']);
             }
         }
         return $arr;
@@ -164,214 +166,99 @@ class WikimediaPage
 
     public function taxonomy_via_API()
     {
-        if(isset($this->taxonomy)) return $this->taxonomy;
-        $taxonomy = array();
+        $taxonomy = new TaxonomyParameters($this->timestamp, null); //can't use actual parsed text to detect last changed time
+        $mesg="";
         if(preg_match("/^<div style=\"float:left; margin:2px auto; border-top:1px solid #ccc; border-bottom:1px solid #aaa; font-size:97%\">(.*?)<\/div>\n/ms", $this->expanded_text(), $arr))
         {
             $taxonomy_box = $arr[1];
             $authority = "";
             if(preg_match("/^<div.*?>(.*)/", $taxonomy_box, $arr)) $taxonomy_box = $arr[1];
             if(preg_match("/^'''.*?''':&nbsp;(.*)/", $taxonomy_box, $arr)) $taxonomy_box = $arr[1];
-            $parts = preg_split("/<\/b> ?&#160;• ?/", trim($taxonomy_box));
+            $parts = preg_split("/<\/b> ?&#160;• ?/", WikiParser::mb_trim($taxonomy_box));
             while($part = array_pop($parts))
             {
                 if(preg_match("/^(<b>)?([a-z]+)(<b>)?:&#160;(.*)$/ims", $part, $arr))
                 {
-                    $attribute = strtolower(trim($arr[2]));
-                    $value = strip_tags(WikiParser::strip_syntax(trim($arr[4])));
-                    $value = str_replace(" (genus)", "", $value); //this is never used, as far as I can tell
-                    $taxonomy[$attribute] = strip_tags(WikiParser::strip_syntax($value));
-                }
-            }
-
-            // there are often some extra ranks under the Taxonnavigation box
-            if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->active_wikitext(), $arr))
-            {
-                $entries = explode("\n", $arr[2]);
-                foreach($entries as $entry)
-                {
-                    if(preg_match("/^\*?(genus|species):(.*)/ims", trim($entry), $arr))
-                    {
-                        $rank = strtolower($arr[1]);
-                        if(!isset($taxonomy[$rank]))
-                        {
-                            // usually the name is in italics, followed by the authority. If we spot this, just take the name
-                            // avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
-                            $name = preg_replace("/^(.*)<\/i>.*/", "$1", WikiParser::strip_syntax($arr[2], true));
-                            $taxonomy[$rank] = preg_replace("/\s+/u", " ", trim(strip_tags($name)));
-                        }
-                    }
+                    $taxonomy->add_wiki_info($arr[2], $arr[4]);
                 }
             }
         }
-        foreach($taxonomy as &$name)
-        {
-            $name = str_ireplace("/ type species/u", " ", $name);
-            $name = preg_replace("/<br ?\/>/u", " ", $name);
-            $name = trim(preg_replace("/\s+/u", " ", WikiParser::strip_syntax(trim($name))));
-            $name = ucfirst($name);
-        }
 
-        reset($taxonomy);
-        $this->taxonomy = $taxonomy;
+        $mesg .= $this->fill_taxon_info_from_outside_Taxonavigation($taxonomy);
+        
+        if (!empty($mesg)) echo "<http://commons.wikimedia.org/wiki/".$this->title."> ".$mesg."\n";
         return $taxonomy;
     }
 
-    public function taxonomy_via_wikitext(&$taxonav_include_arrays)
+    private function taxonomy_via_wikitext(&$taxonav_include_arrays)
     {
-        // Note that unlike taxonomy_via_API, this deliberately does not include the authority name in the scientificName
-        // This also means we don't have problems with non-ascii characters in authority names, etc.
-        if(isset($this->taxonomy)) return $this->taxonomy;
-        $Taxonavigation = $this->taxonav_as_array("[Tt]axonavigation");
-        $taxonomy = self::fill_includes_recursively($Taxonavigation, $taxonav_include_arrays);
+        $Taxonav = array('taxo'=>$this->taxonav_as_array("[Tt]axonavigation"), 'last_mod'=>strtotime($this->timestamp));
+        $Taxonav = $this->fill_includes_recursively($Taxonav, $taxonav_include_arrays);       
+        $taxonomy = new TaxonomyParameters($this->timestamp, $Taxonav['last_mod']);
 
-        array_walk($taxonomy, function(&$val) { $val = strip_tags(WikiParser::strip_syntax(trim($val))); });
+        $mesg="";
 
+        foreach($Taxonav['taxo'] as $wiki_rank => $name) {
+            $mesg .= $taxonomy->add_wiki_info($wiki_rank, $name);
+        }
+        
+        $mesg .= $this->fill_taxon_info_from_outside_Taxonavigation($taxonomy);
+        
+        if (!empty($mesg)) echo "<".$this->title."> ".$mesg."\n";
+        return $taxonomy;
+
+    }
+    
+    private function fill_taxon_info_from_outside_Taxonavigation(&$taxonomy)
+    {
+        $mesg = "";
         // there are often some extra ranks under the Taxonnavigation box -
-        if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/ims", $this->active_wikitext(), $arr))
+        if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/muis", $this->active_wikitext(), $arr))
         {
             $entries = explode("\n", $arr[2]);
-            foreach($entries as $entry)
+            foreach(array('genus','species') as $rank) //make sure species is checked last (to use linked authority)
             {
-                if(preg_match("/^\*?(genus|species):(.*)/ims", trim($entry), $arr))
+                foreach($entries as $entry)
                 {
-                    $rank = strtolower($arr[1]);
-                    if(!isset($taxonomy[$rank]))
+                    if(is_null($taxonomy->get($rank)) && preg_match("/^\*?$rank:(.*)/muis", WikiParser::mb_trim($entry), $arr))
                     {
-                        // usually the name is in italics, followed by the authority. If we spot this, just take the name
-                        // avoids adding the authority to the Genus name, e.g. http://commons.wikimedia.org/wiki/Byblis_filifolia
-                        $name = preg_replace("/^(.*)<\/i>.*/", "$1", WikiParser::strip_syntax($arr[2], true));
-                        $taxonomy[$rank] = preg_replace("/\s+/u", " ", trim(strip_tags($name)));
+                        // usually the name is in italics, followed by the authority
+                        // e.g. http://commons.wikimedia.org/wiki/Shorea_roxburghii
+                        // mark the difference by placing a newline between the two 
+                        $fullname = preg_replace("/<\/i>/", "$0\n", WikiParser::strip_syntax($arr[1], true), 1);
+                        $fullname = explode("\n", $fullname);
+                        $mesg .= $taxonomy->add_info($rank,  strip_tags($fullname[0]));
+                        $mesg .= "Info gleaned from outside Taxonavigation box: $rank set to '".$taxonomy->get($rank)."'";
+                        if (isset($fullname[1])) 
+                        {   //if we end up using this species or genus data, we should use associated authority
+                            $taxonomy->add_info('authority', strip_tags($fullname[1]));
+                            if (empty($taxonomy->authority)) $mesg .= " & authority set to"; else $mesg .= " & authority replaced by";
+                            $mesg .=" '".$taxonomy->authority."'";
+                        }
+                        $mesg .= ". ";
                     }
                 }
             }
         }
-        $this->taxonomy = $taxonomy;
-        return $taxonomy;
+        return $mesg;
     }
 
-    public function taxonomy_coverage_score()
+    public function taxonomy(&$taxonav_include_arrays = null)
     {
-        if(!isset($this->taxon_parameters)) $this->taxon_parameters();
-        $taxon_score = 0;
-        $rank_weight = 1;
-        foreach(self::wiki_ranks_to_eol_ranks() as $wiki_rank => $eol_rank)
-        {
-            $rank_weight *= 2;
-            if(isset($this->taxon_parameters[$eol_rank])) $taxon_score += $rank_weight;
+        if(!isset($this->taxonomy)) {
+            if(empty($taxonav_include_arrays))
+            {
+                $this->taxonomy = $this->taxonomy_via_API();
+            } else {
+                $this->taxonomy = $this->taxonomy_via_wikitext($taxonav_include_arrays);
+            }
         }
-        return $taxon_score;
-    }
-
-    private static function wiki_ranks_to_eol_ranks()
-    {
-        static $ranks = array(
-            "regnum"    => "kingdom",
-            "phylum"    => "phylum",
-            "classis"   => "class",
-            "ordo"      => "order",
-            "familia"   => "family",
-            "genus"     => "genus",
-            "species"   => "scientificName");
-        return $ranks;
-    }
-
-    public function taxon_parameters(&$taxonav_include_arrays = null)
-    {
-        if(isset($this->taxon_parameters)) return $this->taxon_parameters;
-        if(empty($taxonav_include_arrays)) $taxonomy = $this->taxonomy_via_API();
-        else $taxonomy = $this->taxonomy_via_wikitext($taxonav_include_arrays);
-
-        if(!$taxonomy) return array();
-
-        $taxon_parameters = array();
-        //attempts to set $taxon_parameters['scientificName'] to the lowest level
-
-        $best_rank = null;
-        foreach(self::wiki_ranks_to_eol_ranks() as $wiki_rank => $eol_rank)
-        {
-            $best_score *= 2;
-            if(empty($taxonomy[$wiki_rank])) continue;
-            $name = $taxonomy[$wiki_rank];
-            if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{|\}/u", $name))
-            {
-                echo "Invalid characters in taxonomy fields ($wiki_rank = $name) for $this->title . Ignoring this level.\n";
-                continue;
-            }
-            if(preg_match("/unidentified|unknown|incertae sedis| incertae/i", $name))
-            {
-                echo "Name in $this->title listed as unidentified ($name). Ignoring this part of the classification.\n";
-                continue;
-            }
-            // remove preceeding fossil: e.g. Fossil Pectinidae
-            if(preg_match("/^fossil (.*)$/i", $name, $arr)) $name = ucfirst(trim($arr[1]));
-            if($wiki_rank == 'genus' && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
-            {
-                echo "Multi-word genus ($name) in $this->title getting shortened to ". $arr[1] ."\n";
-                if(empty($taxonomy['species']))
-                {
-                    echo "...and setting the species to $name\n";
-                    $taxonomy['species'] = $name;
-                }
-                $name = $arr[1];
-            }
-            // no space in spp name, could be just the epithet
-            if(($wiki_rank == "species") && !preg_match("/\s/", $name))
-            {
-                if(empty($taxonomy['genus']))
-                {
-                    echo "Single-word species ($name) but no genus in $this->title . Ignoring this part of the classification.\n";
-                    continue;
-                }elseif(mb_strtolower($name, "UTF-8") != $name)
-                {
-                    echo "Single-word species ($name) has CaPs in $this->title . Ignoring this part of the classification.\n";
-                    continue;
-                }
-                $name = $taxonomy['genus'] ." ". $name;
-            }
-            if($wiki_rank != 'species')
-            {
-                while(preg_match("/( \(.*?\))/", $name, $arr)) $name = str_replace($arr[1], '', $name);
-                if(preg_match("/[ \(\)]/", $name))
-                {
-                    echo "Non-species $wiki_rank ($name) has issues in $this->title.\n";
-                }
-            }
-            if($wiki_rank == 'species' && empty($taxonomy['genus']) && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
-            {
-                $taxonomy['genus'] = $arr[1];
-            }
-            $taxon_parameters[$eol_rank] = $name;
-            $best_rank = $eol_rank;
-        }
-
-        if($best_rank)
-        {
-            $best_name = $taxon_parameters[$best_rank];
-            unset($taxon_parameters[$best_rank]);
-            if(isset($taxonomy['authority']))
-            {
-                $best_name = trim($best_name ." ". $taxonomy['authority']);
-            }
-            $taxon_parameters['scientificName'] = $best_name;
-        }
-        $taxon_parameters['dataObjects'] = array();
-        $this->taxon_parameters = $taxon_parameters;
-        return $taxon_parameters;
-    }
-
-    public function weighted_taxonomy_score()
-    {
-        // used when we have a choice between 2 taxonomies: pick the one with the highest score
-        // TODO = improve algorithm, so that better-filled out taxonomies scaore higher, all else being equal
-        // if equal score, categories are a bit more trustworthy
-        if($this->is_category()) return $this->taxonomy_coverage_score() + 0.2;
-        elseif($this->is_gallery()) return $this->taxonomy_coverage_score() + 0.1;
-        else return $this->taxonomy_coverage_score() + 0.0;
+        return $this->taxonomy;
     }
 
     private static function license_types()
     {
+        // The licenses should be listed in order of preference
         static $license_types = array(
             'public domain',
             'http://creativecommons.org/publicdomain/zero/',
@@ -398,12 +285,15 @@ class WikimediaPage
         return ($a_index < $b_index) ? -1 : 1;
     }
 
-    public function best_license($potential_licenses)
-    {
+    public function best_license($potential_licenses, $is_wikitext=true)
+    {   //can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
+        //usually these are of the same format, apart from e.g. {{XXX-no known copyright restrictions}}
+        
+        //Currently we miss files categorised under the FAL (http://en.wikipedia.org/wiki/Free_Art_License)
+        //These could probably be included somehow
         $identified_licenses = array();
         foreach($potential_licenses as $potential_license)
         {
-            // The licenses should be listed in order of preference
             // PD-USGov-CIA-WF
             if(preg_match("/^(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mui", $potential_license))
             {
@@ -420,45 +310,23 @@ class WikimediaPage
                     'category'  => 'http://creativecommons.org/publicdomain/zero/',
                     'version'   => '1.0');
             }
-            // no known copyright restrictions
-            if(preg_match("/^(flickr-)?no known copyright restrictions/mui", $potential_license))
+            // no known copyright restrictions 
+            // (listed under http://commons.wikimedia.org/wiki/Category:No_known_restrictions_license_tags)
+            if((($is_wikitext) && preg_match("/^(flickr-)?no known copyright restrictions/mui", $potential_license)) ||
+               ((!$is_wikitext) && preg_match("/^Files from Flickr's 'The Commons'/mui", $potential_license)))
             {
                 $identified_licenses[] = array(
                     'license'   => 'http://www.flickr.com/commons/usage/',
                     'category'  => 'http://www.flickr.com/commons/usage/',
                     'version'   => null);
             }
-            // {{gfdl|migration=relicense}} can be relicensed as cc-by-sa-3.0
-            if($searching_wikitext && preg_match("/migration=relicense/mui", $potential_license))
+            // {{gfdl|migration=relicense}} can be relicensed as cc-by-sa-3.0 (when categories, CC-BY-SA-3.0 is automatically set) 
+            if($is_wikitext && preg_match("/migration=relicense/mui", $potential_license))
             {
                 $identified_licenses[] = array(
                     'license'   => 'http://creativecommons.org/licenses/by-sa/3.0/',
                     'category'  => 'http://creativecommons.org/licenses/by-sa/',
                     'version'   => '3.0');
-            }
-            // simple cc-by-2.5,2.0,1.0-de preferred
-            if(preg_match("/^CC-(BY)(-\d.*)$/mui", $potential_license, $arr))
-            {
-                $license = strtolower($arr[1]);
-                $rest = $arr[2];
-                if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
-                else $version = "3.0";
-                $identified_licenses[] = array(
-                    'license'   => "http://creativecommons.org/licenses/$license/$version/",
-                    'category'  => "http://creativecommons.org/licenses/$license/",
-                    'version'   => $version);
-            }
-            // cc-by-sa-2.5,2.0,1.0-de, next most preferred
-            if(preg_match("/^CC-(BY-SA)(-\d.*)$/mui", $potential_license, $arr))
-            {
-                $license = strtolower($arr[1]);
-                $rest = $arr[2];
-                if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
-                else $version = "3.0";
-                $identified_licenses[] = array(
-                    'license'   => "http://creativecommons.org/licenses/$license/$version/",
-                    'category'  => "http://creativecommons.org/licenses/$license/",
-                    'version'   => $version);
             }
             // cc-sa-1.0
             if(preg_match("/^(CC-SA)(.*)$/mui", $potential_license, $arr))
@@ -472,7 +340,7 @@ class WikimediaPage
                     'category'  => "http://creativecommons.org/licenses/$license/",
                     'version'   => $version);
             }
-            // catch all the rest of the cc-licenses, if we've got this far
+            // catch all the cc-licenses
             if(preg_match("/^CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mui", $potential_license, $arr))
             {
                 $license = strtolower($arr[1]);
@@ -526,7 +394,7 @@ class WikimediaPage
             $this->data_object_parameters["location"] = $this->location();
         }
 
-        // the following properties may be overridden later by data from the API.
+        // the following properties may be overridden later by category data from the API.
         $this->licenses = $this->licenses_via_wikitext();
         $this->set_license($this->best_license($this->licenses));
         $this->set_mimeType(php_active_record\Functions::get_mimetype($this->title));
@@ -540,7 +408,7 @@ class WikimediaPage
 
     public function has_valid_mime_type()
     {
-        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'application/ogg', 'image/svg+xml', 'image/tiff');
+        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'application/ogg', 'image/svg+xml', 'image/tiff', 'image/x-xcf');
         if(empty($this->data_object_parameters['mimeType'])) return false;
         if(!in_array($this->data_object_parameters['mimeType'], $valid_mime_types)) return false;
         return true;
@@ -629,14 +497,14 @@ class WikimediaPage
         $this->added_categories[] = $category;
     }
 
-    public function set_gallery($galleryname)
+    public function add_galleries($array_of_galleries)
     {
-        $this->gallery = $galleryname;
+        $this->galleries = array_merge($this->galleries, $array_of_galleries);
     }
 
-    public function get_gallery()
+    public function get_galleries()
     {   // NB not all media pages will be associated with a gallery
-        if(isset($this->gallery)) return $this->gallery;
+        if(isset($this->galleries)) return $this->galleries;
         else return null;
     }
 
@@ -677,14 +545,14 @@ class WikimediaPage
             {
                 while(preg_match("/(\{|\|)(cc-.*?|pd|pd-.*?|gfdl|gfdl-.*?|noaa|usaid|nih|copyrighted free use|CopyrightedFreeUse|creative commons.*?|migration=.*?|flickr-no known copyright.*?|no known copyright.*?)(\}|\|)(.*)/umsi", $match[1], $arr))
                 {
-                    $licenses[] = trim($arr[2]);
+                    $licenses[] = WikiParser::mb_trim($arr[2]);
                     $match[1] = $arr[3].$arr[4];
                 }
             }
         }
         if(!$licenses && preg_match("/permission\s*=\s*(cc-.*?|gpl.*?|public domain.*?|creative commons .*?)(\}|\|)/umsi", $this->text, $arr))
         {
-            $licenses[] = trim($arr[1]);
+            $licenses[] = WikiParser::mb_trim($arr[1]);
         }
         $this->licenses_via_wikitext = $licenses;
         return $licenses;
@@ -797,15 +665,13 @@ class WikimediaPage
         $lines = explode("\n", $text);
         foreach($lines as $line)
         {
-            # < > [ ] | { } not allowed in titles, so if we see this, it is end of filename (spots e.g. Image:xxx.jpg</gallery>)
-            # see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)#Forbidden_characters
-            if(preg_match("/^\s*\[{0,2}\s*(Image|File)\s*:\s*(\S)(.*?)\s*([|#<>{}[\]]|$)/iums", $line, $arr))
+            /* < > [ ] | { } not allowed in titles, so if we see this, it is end of filename (spots e.g. Image:xxx.jpg</gallery>)
+             see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)#Forbidden_characters
+             This is a horribly long regexp because "spaces" in the string may be "unicode spaces" or control characters
+             - matched by [\pZ\pC]. */
+            if(preg_match("/^[\pZ\pC]*\[{0,2}[\pZ\pC]*(Image|File)[\pZ\pC]*:(.*?)([|#<>{}[\]]|$)/iums", $line, $arr))
             {
-                $first_letter = $arr[2];
-                $rest = $arr[3];
-                // In <title>, all pages have a capital first letter, and single spaces replace any combo of spaces + underscores
-                // Can't use ucfirst() as this string may be unicode.
-                $media[] = mb_strtoupper($first_letter,'utf-8') . preg_replace("/[_ ]+/u", " ", $rest);
+                $media[] = WikiParser::make_valid_pagetitle($arr[2]);
             }
         }
         return $media;
@@ -853,7 +719,7 @@ class WikimediaPage
                 }
             }else
             {
-                $tnav_array[$param] = $value;
+                $tnav_array[WikiParser::mb_ucfirst($param)] = $value;
             }
         }
         return $tnav_array;
@@ -1260,7 +1126,8 @@ class TaxonomyParameters {
             if ($this->taxon_params[$std_key] != $compare_to->taxon_params[$std_key]) return false;
         }
         return true;
-    }
+    }    
+    
 }
 
 ?>
