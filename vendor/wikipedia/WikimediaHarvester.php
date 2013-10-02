@@ -20,13 +20,10 @@ class WikimediaHarvester
         $this->part_file_suffix_chars = 3;
         $this->taxa = array();
         $this->taxonav_includes = array();
-        $this->taxonomic_categories = array();
-        $this->taxonomic_galleries  = array();
-        $this->gallery_files = array();
+        $this->gallery_files_to_check = array(); //key=media-filename, value = array of gallery names (usually just one)
+        $this->taxonomies_for_media_file = array();    //key=media-filename, value = count of taxonomies for this file
         $this->map_categories = $this->get_map_categories($this->base_directory_path);
-        $this->number_of_media_files_found = 0;
-        $this->number_of_taxa_pages_found = 0;
-        $this->processed_files = 0;
+        $this->total_pages_in_dump = 0;
         $this->queue_of_pages_to_process = array();
 
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
@@ -44,7 +41,6 @@ class WikimediaHarvester
 
         // INTERMEDIATE PASS: grab taxon information and determine scientific images
         $this->iterate_files(array($this, 'get_taxonomic_pages'));
-        $this->debug_before_media();
 
         // FINAL PASS: grab file information for scientific media pages and save to file
         $this->iterate_files(array($this, 'get_media_pages'));
@@ -90,6 +86,7 @@ class WikimediaHarvester
 
     private function iterate_files($callback)
     {
+        $total_pages_processed = 0;
         $this->page_iteration_left_overs = "";
         $suffix = str_repeat('a', $this->part_file_suffix_chars);
         while((strlen($suffix) == $this->part_file_suffix_chars))
@@ -100,7 +97,7 @@ class WikimediaHarvester
                 echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
                 break;
             }
-            $this->process_file($filename, $callback, $this->page_iteration_left_overs);
+            $total_pages_processed += $this->process_file($filename, $callback, $this->page_iteration_left_overs);
             // auto-increment allows us to match the output of the 'split' command: aaa->aab, aaz->aba, etc
             $suffix++;
         }
@@ -108,32 +105,36 @@ class WikimediaHarvester
         {
             echo "WARNING: THE LAST WIKI FILE APPEARS TO BE TRUNCATED. Part of the wiki download may be missing.\n";
         }
+        if ($this->total_pages_in_dump==0) $this->total_pages_in_dump = $total_pages_processed;
     }
 
     private function process_file($filename, $callback)
     {
-        if(!file_exists($filename)) return false;
-        echo "Processing file ". basename($filename) ." with callback ". $callback[1] ."\n";
-        self::print_memory_and_time();
-
-        // the last file ended in the middle of a page. Use the remainder of the last file as a starting point
-        $current_page = $this->page_iteration_left_overs;
-        $this->page_iteration_left_overs = "";
-        foreach(new FileIterator($filename) as $line)
-        {
-            $line .= "\n";
-            $current_page .= $line;
-            // this is a new page so reset $current_page
-            if(trim($line) == "<page>") $current_page = $line;
-            elseif(trim($line) == "</page>")
+        $pages_processed=0;
+        if(file_exists($filename)) {
+            echo "Processing file ". basename($filename) ." with callback ". $callback[1] ."\n";
+            self::print_memory_and_time();
+    
+            // the last file ended in the middle of a page. Use the remainder of the last file as a starting point
+            $current_page = $this->page_iteration_left_overs;
+            $this->page_iteration_left_overs = "";
+            foreach(new FileIterator($filename) as $line)
             {
-                call_user_func($callback, $current_page);
-                $current_page = "";
+                $line .= "\n";
+                $current_page .= $line;
+                // this is a new page so reset $current_page
+                if(trim($line) == "<page>") $current_page = $line;
+                elseif(trim($line) == "</page>")
+                {
+                    call_user_func($callback, $current_page);
+                    $pages_processed++;
+                    $current_page = "";
+                }
             }
+            // in the middle of a <page> tag. Save the current page to use as a starting pont for the next file
+            $this->page_iteration_left_overs = $current_page;
         }
-        // in the middle of a <page> tag. Save the current page to use as a starting pont for the next file
-        $this->page_iteration_left_overs = $current_page;
-        return true;
+        return $pages_processed;
     }
 
     private function get_taxonav_includes($xml)
@@ -160,9 +161,11 @@ class WikimediaHarvester
         }
         static $count = 0;
         $count++;
-        if($count % 100000 == 0)
+        if(($count % 100000 == 0) || ($count == $this->total_pages_in_dump))
         {
-            echo "Page: $count (preliminary pass). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes) ."\n";
+            echo "Page: $count (preliminary pass";
+            if ($this->total_pages_in_dump) echo round($count/$this->total_pages_in_dump*100, 1)."% done";
+            echo "). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes) . ".\n";
             self::print_memory_and_time();
         }
     }
@@ -216,10 +219,16 @@ class WikimediaHarvester
                 }
             }
         }
-        $this->number_of_taxa_pages_found++;
-        if($this->number_of_taxa_pages_found % 100000 == 0)
+        static $count = 0;
+        $count++;
+        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
-            echo "Page: $this->number_of_taxa_pages_found (first pass). # taxa so far: ". count($this->taxa) ."\n";
+            echo "Page: $count (penultimate pass";
+            if ($this->total_pages_in_dump) echo round($count/$this->total_pages_in_dump*100, 1)."% done";
+            echo "). # taxa so far: ". count($this->taxa)." of which ";
+            $galleries = count(array_unique(call_user_func_array('array_merge', $this->gallery_files_to_check)));
+            echo ($galleries/count($this->taxa))."% ($galleries) are galleries rather than categories. ";
+            echo "The galleries found so far contain ". count($this->gallery_files_to_check) ." media files.\n";
             self::print_memory_and_time();
         }
     }
@@ -267,9 +276,14 @@ class WikimediaHarvester
 
         static $count = 0;
         $count++;
-        if($count % 100000 == 0)
+        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
-            echo "Page: $count (final pass, ". round($count/$this->number_of_taxa_pages_found*100, 1) ."% done). # media files so far: $this->number_of_media_files_found ($this->processed_files completed via MediaWiki API query)\n";
+            echo "Page: $count (penultimate pass";
+            if ($this->total_pages_in_dump) echo round($count/$this->total_pages_in_dump*100, 1)."% done";
+            echo "). # taxa so far: ". count($this->taxa)." of which ";
+            $galleries = count(array_unique(call_user_func_array('array_merge', $this->gallery_files_to_check)));
+            echo ($galleries/count($this->taxa))."% ($galleries) are galleries rather than categories. ";
+            echo "The galleries found so far contain ". count($this->gallery_files_to_check) ." media files.\n";
             self::print_memory_and_time();
         }
     }
