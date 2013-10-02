@@ -89,7 +89,7 @@ class WikimediaHarvester
                 echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
                 break;
             }
-            $total_pages_processed += $this->process_file($filename, $callback, $this->page_iteration_left_overs);
+            $total_pages_processed += $this->process_file($filename, $callback);
             // auto-increment allows us to match the output of the 'split' command: aaa->aab, aaz->aba, etc
             $suffix++;
         }
@@ -104,7 +104,7 @@ class WikimediaHarvester
     {
         $pages_processed=0;
         if(file_exists($filename)) {
-            echo "Processing file ". basename($filename) ." with callback ". $callback[1] ."\n";
+            echo "Processing file '". basename($filename) ."' with callback ". $callback[1] ."\n";
             self::print_memory_and_time();
     
             // the last file ended in the middle of a page. Use the remainder of the last file as a starting point
