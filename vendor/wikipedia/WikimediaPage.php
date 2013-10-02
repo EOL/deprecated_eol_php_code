@@ -21,25 +21,33 @@ class WikimediaPage
     {
         $this->xml = $xml;
         $this->simple_xml = @simplexml_load_string($this->xml);
-        if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
-        {
-            $this->text = (string) $this->simple_xml->query->pages->page->revisions->rev;
-            $this->title = (string) $this->simple_xml->query->pages->page['title'];
-            $this->ns = (integer) $this->simple_xml->query->pages->page['ns'];
-            $this->contributor = (string) $this->simple_xml->query->pages->page->revisions->rev['user'];
-            if(isset($this->simple_xml->query->pages->page['redirect']))
+        if (!is_object($this->simple_xml)) {
+            echo "ERROR, bad xml:\n";
+            echo $xml."\n";
+            $this->text = $this->title = $this->ns = $this->contributor = $this->timestamp = "";
+        } else {
+            if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
             {
-                $this->redirect = (string) $this->simple_xml->query->pages->page['redirect']->attributes()->title;
-            }
-        }else
-        {
-            $this->text = (string) $this->simple_xml->revision->text;
-            $this->title = (string) $this->simple_xml->title;
-            $this->ns = (integer) $this->simple_xml->ns;
-            $this->contributor = (string) $this->simple_xml->revision->contributor->username;
-            if(isset($this->simple_xml->redirect))
+                $this->text = (string) $this->simple_xml->query->pages->page->revisions->rev;
+                $this->title = (string) $this->simple_xml->query->pages->page['title'];
+                $this->ns = (integer) $this->simple_xml->query->pages->page['ns'];
+                $this->contributor = (string) $this->simple_xml->query->pages->page->revisions->rev['user'];
+                $this->timestamp = (string) $this->simple_xml->query->pages->page->revisions->rev['timestamp'];
+                if(isset($this->simple_xml->query->pages->page['redirect']))
+                {
+                    $this->redirect = (string) $this->simple_xml->query->pages->page['redirect']->attributes()->title;
+                }
+            }else
             {
-                $this->redirect = (string) $this->simple_xml->redirect->attributes()->title;
+                $this->text = (string) $this->simple_xml->revision->text;
+                $this->title = (string) $this->simple_xml->title;
+                $this->ns = (integer) $this->simple_xml->ns;
+                $this->contributor = (string) $this->simple_xml->revision->contributor->username;
+                $this->timestamp = (string) $this->simple_xml->revision->timestamp;
+                if(isset($this->simple_xml->redirect))
+                {
+                    $this->redirect = (string) $this->simple_xml->redirect->attributes()->title;
+                }
             }
         }
     }
