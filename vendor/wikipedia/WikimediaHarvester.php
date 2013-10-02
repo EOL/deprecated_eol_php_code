@@ -145,7 +145,7 @@ class WikimediaHarvester
                         $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
                         if(count($include_array))
                         {
-                            $this->taxonav_includes[$page->title] = $include_array;
+                            $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod'=>strtotime($page->timestamp));
                         }else echo "$page->title is not a real TaxonavigationInclude* template\n";
                     }
                 }
@@ -188,7 +188,7 @@ class WikimediaHarvester
                     }else
                     {
                         // pass in "taxonav_includes" to avoid lots of API calls
-                        if($params = $page->taxon_parameters($this->taxonav_includes))
+                        if($params = $page->taxonomy($this->taxonav_includes))
                         {
                             if($params->scientificName())
                             {
