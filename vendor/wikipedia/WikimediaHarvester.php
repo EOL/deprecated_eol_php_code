@@ -366,7 +366,7 @@ class WikimediaHarvester
                 foreach($taxonomies as $taxonomy) {
                     $this->add_to_resource_file($this->taxa[$taxonomy]->asEoLtaxonObject(), $data_object_parameters);
                 }
-           }
+            }
         }
 
         $this->queue_of_pages_to_process = array();
@@ -451,43 +451,10 @@ class WikimediaHarvester
         // but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
         // (using an old version should be no problem, as we don't expect many changes to this category structure)
 
-        $base_category= "Distributional maps of organisms";
-        $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
-                        "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
-
-        $mapcats = array($base_category => 1);
-        if(count($mapcats) <= 1 && $contact_sites)
-        {
-            $url = $sites["toolserver"].urlencode($base_category);
-            $tab_separated_string = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => DOWNLOAD_WAIT_TIME*10, 'timeout' => DOWNLOAD_TIMEOUT_SECONDS*10));
-            if(isset($tab_separated_string) && !preg_match("/^[^\r\n]*Database Error/i",$tab_separated_string))
-            {
-                foreach(preg_split("/(\r?\n)|(\n?\r)/", $tab_separated_string, null, PREG_SPLIT_NO_EMPTY) as $line)
-                {
-                    //  Category name is after first tab
-                    $name = preg_replace("/_/u", " ", preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line));
-                    $mapcats[$name] = 1;
-                }
-                echo "Got map categories from toolserver ($url)\n";
-            }else echo "Couldn't get map categories from toolserver ($url)\n";
-        }
-
-        if(count($mapcats) <= 1 && $contact_sites)
-        {
-            $url = $sites["wmflabs"].urlencode($base_category);
-            $json = @json_decode(Functions::get_remote_file($url));
-            if(isset($json) && isset($json->pages))
-            {
-                foreach($json->pages as $mapcat)
-                {
-                    $name = preg_replace("/_/u", " ", preg_replace("/^Category:/u", "", $mapcat));
-                    $mapcats[$name] = 1;
-                }
-                echo "Got map categories from wmflabs ($url)\n";
-            }else echo "Couldn't get map categories from wmflabs ($url)\n";
-        }
-
-        if(count($mapcats) > 1)
+        $mapcats = array();
+        echo "Looking for map categories...\n";
+        if ($contact_sites) $mapcats = self::get_all_child_categories("Distributional maps of organisms");
+        if(count($mapcats) > 1) // will always have the base category present
         {
             // overwrite previous
             @rename($base_directory_path."MapCategories.txt", $base_directory_path."MapCategories_previous.txt");
@@ -500,7 +467,47 @@ class WikimediaHarvester
             return(array_fill_keys($mapcats, 1));
         }
     }
+    
+    private static function get_all_child_categories($base_category, $depth=null)
+    {
+        $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
+                        "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
 
+        $cats = array($base_category => 1);
+        if(count($cats) <= 1)
+        {
+            $url = $sites["toolserver"].urlencode($base_category);
+            $tab_separated_string = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => DOWNLOAD_WAIT_TIME*10, 'timeout' => DOWNLOAD_TIMEOUT_SECONDS*10));
+            if(isset($tab_separated_string) && !preg_match("/^[^\r\n]*Database Error/i",$tab_separated_string))
+            {
+                foreach(preg_split("/(\r?\n)|(\n?\r)/", $tab_separated_string, null, PREG_SPLIT_NO_EMPTY) as $line)
+                {
+                    //  Category name is after first tab
+                    $name = preg_replace("/_/u", " ", preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line));
+                    $cats[$name] = 1;
+                }
+                echo "Got ".count($cats)." categories from toolserver ($url)\n";
+            }else echo "Couldn't get categories from toolserver ($url)\n";
+        }
+
+        if(count($cats) <= 1)
+        {
+            $url = $sites["wmflabs"].urlencode($base_category);
+            $json = @json_decode(Functions::get_remote_file($url));
+            if(isset($json) && isset($json->pages))
+            {
+                foreach($json->pages as $cat)
+                {
+                    $name = preg_replace("/_/u", " ", preg_replace("/^Category:/u", "", $cat));
+                    $cats[$name] = 1;
+                }
+                echo "Got ".count($cats)." categories from wmflabs ($url)\n";
+            }else echo "Couldn't get categories from wmflabs ($url)\n";
+        }
+        
+        return $cats;
+    }
+    
     private function add_to_resource_file($taxon_data, $data_object_parameters)
     {
         if(isset($data_object_parameters['mediaURL']))
