@@ -231,8 +231,8 @@ class WikimediaPage
                         $mesg .= "Info gleaned from outside Taxonavigation box: $rank set to '".$taxonomy->get($rank)."'";
                         if (isset($fullname[1])) 
                         {   //if we end up using this species or genus data, we should use associated authority
-                            $taxonomy->add_info('authority', strip_tags($fullname[1]));
                             if (empty($taxonomy->authority)) $mesg .= " & authority set to"; else $mesg .= " & authority replaced by";
+                            $taxonomy->add_info('authority', strip_tags($fullname[1]));
                             $mesg .=" '".$taxonomy->authority."'";
                         }
                         $mesg .= ". ";

@@ -218,7 +218,7 @@ class WikimediaHarvester
             if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # taxa so far: ". count($this->taxa)." of which ";
             $galleries = count(array_unique(call_user_func_array('array_merge', $this->gallery_files_to_check)));
-            echo round($galleries/count($this->taxa)*100, 2)."% ($galleries) are galleries rather than categories. ";
+            echo round($galleries/count($this->taxa)*100, 1)."% ($galleries) are galleries rather than categories. ";
             echo "The galleries found so far contain ". count($this->gallery_files_to_check) ." media files.\n";
             self::print_memory_and_time();
         }
@@ -283,9 +283,9 @@ class WikimediaHarvester
         {
             echo "Page: $count (final pass";
             if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
-            echo "# media files checked so far: ".count($this->taxonomies_for_media_file).", of which ";
-            echo (array_sum($this->taxonomies_for_media_file)/count($this->taxonomies_for_media_file)-1)*100;
-            echo "% have multiple taxa.";
+            echo "). # media files checked so far: ".count($this->taxonomies_for_media_file).", of which ";
+            $multiple = count($this->taxonomies_for_media_file)- array_count_values($this->taxonomies_for_media_file)[1];
+            echo ($multiple/count($this->taxonomies_for_media_file)*100)."% ($multiple) have multiple taxa.";
             self::print_memory_and_time();
         }
     }
