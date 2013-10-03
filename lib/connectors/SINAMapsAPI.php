@@ -13,7 +13,6 @@ class SINAMapsAPI
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
         $this->media_ids = array();
-        
         $this->sina_domain = "http://entnemdept.ufl.edu/walker/buzz/";
         $this->html_species_list["cricket"] = $this->sina_domain . "cricklist.htm";
         $this->html_species_list["katydid"] = $this->sina_domain . "katylist.htm";
@@ -32,7 +31,7 @@ class SINAMapsAPI
     {
         foreach($this->html_species_list as $key => $html_path)
         {
-            echo "\n $key path: [$html_path]";
+            echo "\n $key path: [$html_path]\n";
             self::process_html($html_path);
             sleep(2);
         }
@@ -42,14 +41,14 @@ class SINAMapsAPI
     private function process_html($html_path)
     {
         // <i><A href="362a.htm">Gryllotalpa cultriger</a></i>
-        if($html = Functions::get_remote_file($html_path, array('timeout' => 999999, 'download_attempts' => 5)))
+        if($html = Functions::get_remote_file($html_path, array('timeout' => 999999, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             if(preg_match_all("/<i><A href=\"(.*?)\"/ims", $html, $arr))
             {
                 foreach($arr[1] as $string)
                 {
                     $string = str_ireplace("a.htm", "m.htm", $string);
-                    // $string = "123m.htm"; //"071m.htm"; 318m.htm //debug
+                    // $string = "302m.htm"; //123m.htm 071m.htm 318m.htm //debug
                     $url = $this->sina_domain . $string;
                     $urls = array();
                     $urls[] = $url;
@@ -63,7 +62,7 @@ class SINAMapsAPI
                     {
                         if($rec = self::get_map_data($url))
                         {
-                            $parts = pathinfo($rec["map"]);
+                            $parts = pathinfo(@$rec["map"]);
                             $rec["taxon_id"] = intval($parts["filename"]);
                             if(!$rec["taxon_id"])
                             {
@@ -74,8 +73,8 @@ class SINAMapsAPI
                             $this->create_instances_from_taxon_object($rec, array());
                             $ref_ids = array();
                             $agent_ids = array();
-                            if($rec["as_of"]) $rec["caption"] = $rec["as_of"] . "<br><br>" . $rec["caption"];
-                            self::get_images($rec["sciname"], $rec["caption"], $rec["taxon_id"], $parts["filename"], $rec["map"], $rec["source_url"], $ref_ids, $agent_ids);
+                            if(@$rec["as_of"]) $rec["caption"] = $rec["as_of"] . "<br><br>" . @$rec["caption"];
+                            if(@$rec["map"]) self::get_images($rec["sciname"], @$rec["caption"], $rec["taxon_id"], $parts["filename"], $rec["map"], $rec["source_url"], $ref_ids, $agent_ids);
                             if(@$rec["computer_gen_map"])
                             {
                                 $parts = pathinfo($rec["computer_gen_map"]);
@@ -99,7 +98,7 @@ class SINAMapsAPI
     private function get_map_data($url)
     {
         $rec = array();
-        if($html = Functions::get_remote_file($url, array('timeout' => 999999, 'download_attempts' => 5)))
+        if($html = Functions::get_remote_file($url, array('timeout' => 999999, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             // manual adjustment
             if($url == "http://entnemdept.ufl.edu/walker/buzz/334m.htm") $html = str_ireplace('<div align="center">', '</div><div align="center">', $html);
@@ -111,8 +110,8 @@ class SINAMapsAPI
             if(preg_match_all("/<div align=\"center\">(.*?)<\/div>/ims", $html, $arr))
             {
                 $temp = $arr[1];
-                if($temp[1]) $caption = $temp[1];
-                elseif($temp[0]) $caption = $temp[0]; //http://entnemdept.ufl.edu/walker/buzz/302m.htm
+                if(@$temp[1]) $caption = $temp[1];
+                elseif(@$temp[0]) $caption = $temp[0]; //http://entnemdept.ufl.edu/walker/buzz/302m.htm
                 if(preg_match("/<img src=\"(.*?)\"/ims", $caption, $arr)) 
                 {
                     $map_image = $arr[1];
@@ -120,7 +119,6 @@ class SINAMapsAPI
                 }
                 else
                 {
-                    echo "\n investigate no map image [$url]\n";
                     if($map_image = self::get_map_image_retry($html))
                     {
                         $rec["map"] = $this->sina_domain . $map_image;
@@ -128,6 +126,7 @@ class SINAMapsAPI
                     }
                     else
                     {
+                        echo "\n investigate no map image [$url]\n";
                         echo "\n investigate retry still no map 1 [$url]\n";
                         return array();
                     }
@@ -140,7 +139,7 @@ class SINAMapsAPI
                 elseif(preg_match("/<a href=\"(.*?)\"> Computer-generated/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
                 elseif(preg_match("/<a href=\"(.*?)\">  Computer-generated/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
                 elseif(preg_match("/<a href=\"(.*?)\">County-level distribution map/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
-                else echo "\n investigate no computer gen map [$url]\n";
+                // else echo "\n investigate no computer gen map [$url]\n"; acceptable case
                 
                 //further check for 'computer_gen_map' e.g. http://entnemdept.ufl.edu/walker/buzz/123m.htm or 318m.htm
                 if(is_numeric(stripos(@$rec["computer_gen_map"], "href=")))
@@ -221,8 +220,6 @@ class SINAMapsAPI
         $taxon->taxonRank                   = (string) "species";
         $taxon->scientificName              = (string) $rec["sciname"];
         $taxon->vernacularName              = (string) $rec["vernacular"];
-        // $taxon->scientificNameAuthorship    = (string) $authorship;
-        // $taxon->family                      = (string) $rec["FAMILY"];
         $taxon->genus                       = (string) $genus;
         $taxon->furtherInformationURL       = $rec["source_url"];
         $this->taxa[$taxon->taxonID] = $taxon;
