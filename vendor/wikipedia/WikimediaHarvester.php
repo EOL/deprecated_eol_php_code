@@ -10,11 +10,11 @@ class WikimediaHarvester
     private $resource_file;
     private $resource;
 
-    function __construct()
+    function __construct($resource, $files_subdir)
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->resource = Resource::find(71);
-        $this->base_directory_path = DOC_ROOT . "update_resources/connectors/files/";
+        $this->resource = $resource;
+        $this->base_directory_path = DOC_ROOT . $files_subdir;
         $this->part_files = array('base' => $this->base_directory_path, 'subdir'=>'wikimedia', 'prefix'=>'part_');
         // allows for splitting the file into max 26^n parts, e.g. n=3, parts=300Mb, copes with xml files < 4.2Tb
         $this->part_file_suffix_chars = 3;
