@@ -20,8 +20,8 @@ class WikimediaHarvester
         $this->part_file_suffix_chars = 3;
         $this->taxa = array();
         $this->taxonav_includes = array();
-        $this->gallery_files_to_check = array(); //key=media-filename, value = array of gallery names (usually just one)
-        $this->taxonomies_for_media_file = array();    //key=media-filename, value = count of taxonomies for this file
+        $this->gallery_files_to_check = array();    //key=media-filename, value = array of gallery names (usually just one)
+        $this->taxonomies_for_media_file = array(); //key=media-filename, value = count of taxonomies for this file
         $this->map_categories = self::get_map_categories($this->base_directory_path);
         $this->total_pages_in_dump = 0;
         $this->queue_of_pages_to_process = array();
@@ -61,15 +61,15 @@ class WikimediaHarvester
     private function download_dump()
     {
         // download latest Wikimedia Commons export
-        echo "Downloading ".$this->resource->accesspoint_url."\n";
+        echo "Downloading ".$this->resource->accesspoint_url." ...\n";
         shell_exec("curl ".escapeshellarg($this->resource->accesspoint_url)." -o ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         // unzip the download
-        echo "Unpacking downloaded file\n";
+        echo "... unpacking downloaded file ...\n";
         shell_exec("bunzip2 ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         // split the huge file into 300M chunks
-        echo "Splitting file into parts ...\n";
+        echo "... splitting file into parts ...\n";
         shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". escapeshellarg($this->base_directory_path . "wikimedia.xml")." ". escapeshellarg(implode(DIRECTORY_SEPARATOR, $this->part_files)));
-        echo "... done\n";
+        echo "... done.\n";
     }
 
     private function cleanup_dump()
