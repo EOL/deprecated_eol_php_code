@@ -15,7 +15,7 @@ class WikimediaHarvester
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->resource = Resource::find(71);
         $this->base_directory_path = DOC_ROOT . "update_resources/connectors/files/";
-        $this->part_file_base = $this->base_directory_path . "wikimedia/part_";
+        $this->part_files = array('base' => $this->base_directory_path, 'subdir'=>'wikimedia', 'prefix'=>'part_');
         // allows for splitting the file into max 26^n parts, e.g. n=3, parts=300Mb, copes with xml files < 4.2Tb
         $this->part_file_suffix_chars = 3;
         $this->taxa = array();
@@ -61,19 +61,25 @@ class WikimediaHarvester
     private function download_dump()
     {
         // download latest Wikimedia Commons export
-        shell_exec("curl ".$this->resource->accesspoint_url." -o ". $this->base_directory_path . "wikimedia.xml.bz2");
+        echo "Downloading ".$this->resource->accesspoint_url."\n";
+        shell_exec("curl ".escapeshellarg($this->resource->accesspoint_url)." -o ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         // unzip the download
-        shell_exec("bunzip2 ". $this->base_directory_path . "wikimedia.xml.bz2");
+        echo "Unpacking downloaded file\n";
+        shell_exec("bunzip2 ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         // split the huge file into 300M chunks
-        shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". $this->base_directory_path . "wikimedia.xml ". $this->part_file_base);
+        echo "Splitting file into parts ...\n";
+        shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". escapeshellarg($this->base_directory_path . "wikimedia.xml")." ". escapeshellarg(implode(DIRECTORY_SEPARATOR, $this->part_files)));
+        echo "... done\n";
     }
 
     private function cleanup_dump()
     {
         // cleaning up downloaded files
-        shell_exec("rm -f ". $this->base_directory_path . "wikimedia/*");
-        shell_exec("rm -f ". $this->base_directory_path . "wikimedia.xml");
-        shell_exec("rm -f ". $this->base_directory_path . "wikimedia.xml.bz2");
+        echo "Removing old wikimedia dump files ...\n";
+        shell_exec("rm -f ". escapeshellarg(implode(DIRECTORY_SEPARATOR, $this->part_files))."*");
+        shell_exec("rm -f ". escapeshellarg($this->base_directory_path . "wikimedia.xml"));
+        shell_exec("rm -f ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
+        echo "... done.\n";
     }
 
     private function iterate_files($callback)
@@ -83,10 +89,10 @@ class WikimediaHarvester
         $suffix = str_repeat('a', $this->part_file_suffix_chars);
         while((strlen($suffix) == $this->part_file_suffix_chars))
         {
-            $filename = $this->part_file_base . $suffix;
+            $filename = implode(DIRECTORY_SEPARATOR, $this->part_files) . $suffix;
             if(!file_exists($filename))
             {
-                echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n\n\n";
+                echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
                 break;
             }
             $total_pages_processed += $this->process_file($filename, $callback);
@@ -98,6 +104,7 @@ class WikimediaHarvester
             echo "WARNING: THE LAST WIKI FILE APPEARS TO BE TRUNCATED. Part of the wiki download may be missing.\n";
         }
         if ($this->total_pages_in_dump==0) $this->total_pages_in_dump = $total_pages_processed;
+        echo "\n---------------------(done processing $total_pages_processed pages)---------------------\n\n\n";
     }
 
     private function process_file($filename, $callback)
