@@ -39,10 +39,10 @@ class WikimediaHarvester
         // FIRST PASS: go through all files to grab TaxonavigationIncluded files, e.g. https://commons.wikimedia.org/wiki/Template:Aves
         $this->iterate_files(array($this, 'get_taxonav_includes'));
 
-        // INTERMEDIATE PASS: grab taxon information and determine scientific images
+        // INTERMEDIATE PASS: grab taxon information for galleries + categories (& list media files in galleries)
         $this->iterate_files(array($this, 'get_taxonomic_pages'));
 
-        // FINAL PASS: grab file information for scientific media pages and save to file
+        // FINAL PASS: check files for categories, grab file information for scientific media pages and save to file
         $this->iterate_files(array($this, 'get_media_pages'));
 
         echo "\n\n(processing last ". count($this->queue_of_pages_to_process) ." media)\n";
