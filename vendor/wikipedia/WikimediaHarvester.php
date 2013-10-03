@@ -86,7 +86,7 @@ class WikimediaHarvester
             $filename = $this->part_file_base . $suffix;
             if(!file_exists($filename))
             {
-                echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
+                echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n\n\n";
                 break;
             }
             $total_pages_processed += $this->process_file($filename, $callback);
@@ -521,7 +521,7 @@ class WikimediaHarvester
     public static function print_memory_and_time()
     {
         echo "Memory: ". memory_get_usage_in_mb() ." MB\n";
-        echo "Time  : ". round(time_elapsed(), 2) ." s\n\n\n";
+        echo "Time  : ". round(time_elapsed(), 2) ." s\n\n";
     }
 }
 
