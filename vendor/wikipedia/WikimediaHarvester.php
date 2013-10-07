@@ -269,7 +269,7 @@ class WikimediaHarvester
         {
             $page = new \WikimediaPage($xml);
             // check if this page has been listed in a gallery
-            if(isset($this->galleries_to_check[$page->title]))
+            if(isset($this->galleries_for_file[$page->title]))
             {
                 if(isset($page->redirect))
                 {
