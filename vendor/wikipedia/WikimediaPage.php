@@ -22,9 +22,12 @@ class WikimediaPage
     {
         $this->xml = $xml;
         $this->simple_xml = @simplexml_load_string($this->xml);
-        if (!is_object($this->simple_xml)) {
-            echo "ERROR, bad xml:\n";
-            echo $xml."\n";
+        if (!is_object($this->simple_xml)) { //Oddly, wikimedia dumps occasionally have random newlines within tags.
+            echo "ERROR, malformed xml";           //Hence simplexml_load_string() sometimes fails (this is rare, though).
+            if (preg_match("/<title>([^<]+)/u", $this->xml, $arr))
+                echo " for page titled <".$arr[1].">\n";
+            else
+                echo ":\n".$this->xml."\n";
             $this->text = $this->title = $this->ns = $this->contributor = $this->timestamp = "";
         } else {
             if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
@@ -82,7 +85,13 @@ class WikimediaPage
         $test = substr($xml, strpos($xml, "<ns>")+4, 3);
         return ($test == '0</' || $test == '14<' || $test == '10<');
     }
-
+    
+    public static function fast_is_gallery_category_or_media($xml)
+    {
+        $test = substr($xml, strpos($xml, "<ns>")+4, 3);
+        return ($test == '6</' || $test == '14<' || $test == '0</');
+    }
+    
     //these are less dependent on the exact XML string, but require a page to have been parsed, so are slower
     public function is_gallery()
     {
@@ -228,14 +237,16 @@ class WikimediaPage
                         $fullname = preg_replace("/<\/i>/", "$0\n", WikiParser::strip_syntax($arr[1], true), 1);
                         $fullname = explode("\n", $fullname);
                         $mesg .= $taxonomy->add_info($rank,  strip_tags($fullname[0]));
-                        $mesg .= "Info gleaned from outside Taxonavigation box: $rank set to '".$taxonomy->get($rank)."'";
-                        if (isset($fullname[1])) 
-                        {   //if we end up using this species or genus data, we should use associated authority
-                            if (empty($taxonomy->authority)) $mesg .= " & authority set to"; else $mesg .= " & authority replaced by";
-                            $taxonomy->add_info('authority', strip_tags($fullname[1]));
-                            $mesg .=" '".$taxonomy->authority."'";
+                        if (is_null($taxonomy->get($rank))) {
+                            $mesg .= "Info gleaned from outside Taxonavigation box: $rank set to '".$taxonomy->get($rank)."'";
+                            if (isset($fullname[1])) 
+                            {   //if we end up using this species or genus data, we should use associated authority
+                                if (empty($taxonomy->authority)) $mesg .= " & authority set to"; else $mesg .= " & authority replaced by";
+                                $taxonomy->add_info('authority', strip_tags($fullname[1]));
+                                $mesg .=" '".$taxonomy->authority."'";
+                            }
+                            $mesg .= ". ";
                         }
-                        $mesg .= ". ";
                     }
                 }
             }
