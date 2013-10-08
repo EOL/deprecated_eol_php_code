@@ -25,6 +25,9 @@ class WikimediaHarvester
         $this->taxonomies_for_file = array(); //key=media-filename, value = count of taxonomies for this file (just for info)
         $this->taxonomy_pagenames = array();  //key=media-filename, value = array of redirects (used as temp name store)
         $this->map_categories = self::get_map_categories($this->base_directory_path);
+        // TODO - add list of "unwanted" categories, so that if an image falls into one of these (or a child thereof), 
+        //  it is not harvested. E.g. a suggested "unwanted" category might be
+        //  Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
         $this->total_pages_in_dump = 0;
         $this->queue_of_pages_to_process = array();
 
@@ -139,7 +142,7 @@ class WikimediaHarvester
                     $current_page = "";
                 }
             }
-            // in the middle of a <page> tag. Save the current page to use as a starting pont for the next file
+            // in the middle of a <page> tag. Save the current page to use as a starting point for the next file
             $this->page_iteration_left_overs = $current_page;
         }
         return $pages_processed;
@@ -152,7 +155,7 @@ class WikimediaHarvester
             // make sure we don't include cases with {{Taxonavigation in the comments field, etc.
             if($text_start = strpos($xml, "<text"))
             {
-                if(preg_match("/\{\{Taxonavigation/", $xml, $arr, 0, $text_start))
+                if(strpos($xml, "{{Taxonavigation", $text_start) !== false)
                 {
                     $page = new \WikimediaPage($xml);
                     if($page->is_template())
@@ -179,12 +182,15 @@ class WikimediaHarvester
                         }
                     }else
                     {
-                        $this->taxonomy_pagenames[$page->title] = array();
-                        if($page->is_gallery())
+                        if($page->contains_template("Taxonavigation"))
                         {
-                            foreach($page->media_on_page() as $file)
+                            $this->taxonomy_pagenames[$page->title] = array();
+                            if($page->is_gallery())
                             {
-                               $this->galleries_for_file["File:".$file][] = $page->title;
+                                foreach($page->media_on_page() as $file)
+                                {
+                                   $this->galleries_for_file["File:".$file][] = $page->title;
+                                }
                             }
                         }
                     }
@@ -255,7 +261,7 @@ class WikimediaHarvester
             echo "Page: $count (second pass";
             if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # parsed taxa so far: ". $this->number_of_separate_taxa ." (". count($this->taxa);
-            echo " if duplicates are included), out of a potential total of ".count($this->taxonomy_pagenames).".\n";
+            echo " including duplicated redirects), out of a potential total of ".count($this->taxonomy_pagenames).".\n";
             self::print_memory_and_time();
         }
         
@@ -420,7 +426,7 @@ class WikimediaHarvester
                     $compare_taxon = $names[$compare_key];                    
                     if ($this->taxa[$focal_taxon]->identical_taxonomy_to($this->taxa[$compare_taxon])) {
                         //if identical, pick the one with an "authority"
-                        if (empty($this->taxa[$focal_taxon]->authority) xor empty($this->taxa[$focal_taxon]->authority)) {
+                        if (empty($this->taxa[$focal_taxon]->authority) xor empty($this->taxa[$compare_taxon]->authority)) {
                             //one has an authority, the other doesn't
                             if (empty($this->taxa[$focal_taxon]->authority)) {
                                 if($GLOBALS['ENV_DEBUG'])
