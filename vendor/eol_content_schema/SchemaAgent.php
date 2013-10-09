@@ -2,10 +2,10 @@
 
 class SchemaAgent
 {
-    static $fullName;
-    static $homepage;
-    static $logoURL;
-    static $role;
+    private $fullName;
+    private $homepage;
+    private $logoURL;
+    private $role;
     
     public function __construct($parameters)
     {
