@@ -15,19 +15,20 @@ class WikimediaHarvester
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->resource = $resource;
         $this->base_directory_path = DOC_ROOT . $files_subdir;
-        $this->part_files = array('base' => $this->base_directory_path, 'subdir'=>'wikimedia', 'prefix'=>'part_');
+        $this->part_files = array('base' => $this->base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
+        $this->part_path = implode(DIRECTORY_SEPARATOR, $this->part_files);
         // allows for splitting the file into max 26^n parts, e.g. n=3, parts=300Mb, copes with xml files < 4.2Tb
         $this->part_file_suffix_chars = 3;
         $this->number_of_separate_taxa = 0;
         $this->taxa = array();
         $this->taxonav_includes = array();
-        $this->galleries_for_file = array();  //key=media-filename, value = array of gallery names (usually just one name)
-        $this->taxonomies_for_file = array(); //key=media-filename, value = count of taxonomies for this file (just for info)
-        $this->taxonomy_pagenames = array();  //key=media-filename, value = array of redirects (used as temp name store)
+        $this->galleries_for_file = array();  // key=media-filename, value = array of gallery names (usually just one name)
+        $this->taxonomies_for_file = array(); // key=media-filename, value = count of taxonomies for this file (just for info)
+        $this->taxonomy_pagenames = array();  // key=media-filename, value = array of redirects (used as temp name store)
         $this->map_categories = self::get_map_categories($this->base_directory_path);
-        // TODO - add list of "unwanted" categories, so that if an image falls into one of these (or a child thereof), 
-        //  it is not harvested. E.g. a suggested "unwanted" category might be
-        //  Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
+        // TODO - add list of "unwanted" categories, so that if an image falls into one of these (or a child thereof),
+        // it is not harvested. E.g. a suggested "unwanted" category might be
+        // Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
         $this->total_pages_in_dump = 0;
         $this->queue_of_pages_to_process = array();
 
@@ -77,7 +78,7 @@ class WikimediaHarvester
         shell_exec("bunzip2 ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         // split the huge file into 300M chunks
         echo "... splitting file into parts ...\n";
-        shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". escapeshellarg($this->base_directory_path . "wikimedia.xml")." ". escapeshellarg(implode(DIRECTORY_SEPARATOR, $this->part_files)));
+        shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". escapeshellarg($this->base_directory_path . "wikimedia.xml")." ". escapeshellarg($this->part_path));
         echo "... done.\n";
     }
 
@@ -85,7 +86,7 @@ class WikimediaHarvester
     {
         // cleaning up downloaded files
         echo "Removing old wikimedia dump files ...\n";
-        shell_exec("rm -f ". escapeshellarg(implode(DIRECTORY_SEPARATOR, $this->part_files))."*");
+        shell_exec("rm -f ". escapeshellarg($this->part_path)."*");
         shell_exec("rm -f ". escapeshellarg($this->base_directory_path . "wikimedia.xml"));
         shell_exec("rm -f ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         echo "... done.\n";
@@ -98,7 +99,7 @@ class WikimediaHarvester
         $suffix = str_repeat('a', $this->part_file_suffix_chars);
         while((strlen($suffix) == $this->part_file_suffix_chars))
         {
-            $filename = implode(DIRECTORY_SEPARATOR, $this->part_files) . $suffix;
+            $filename = $this->part_path . $suffix;
             if(!file_exists($filename))
             {
                 echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
@@ -112,22 +113,21 @@ class WikimediaHarvester
         {
             echo "WARNING: THE LAST WIKI FILE APPEARS TO BE TRUNCATED. Part of the wiki download may be missing.\n";
         }
-        if ($this->total_pages_in_dump==0) $this->total_pages_in_dump = $total_pages_processed;
+        if($this->total_pages_in_dump==0) $this->total_pages_in_dump = $total_pages_processed;
         echo "\n---------------------(done processing $total_pages_processed pages)---------------------\n\n\n";
     }
 
     private function process_file($filename, $callback)
     {
         $pages_processed=0;
-        if(file_exists($filename)) {
+        if(file_exists($filename))
+        {
             echo "Processing file '". basename($filename) ."' with callback ". $callback[1] ."\n";
             self::print_memory_and_time();
-    
+
             // the last file ended in the middle of a page. Use the remainder of the last file as a starting point
-            if (isset($this->page_iteration_left_overs)) 
-                $current_page = $this->page_iteration_left_overs; 
-            else
-                $current_page = "";
+            if(isset($this->page_iteration_left_overs)) $current_page = $this->page_iteration_left_overs;
+            else $current_page = "";
             $this->page_iteration_left_overs = "";
             foreach(new FileIterator($filename) as $line)
             {
@@ -160,16 +160,15 @@ class WikimediaHarvester
                     $page = new \WikimediaPage($xml);
                     if($page->is_template())
                     {
-                        //should check here for template redirects
+                        // should check here for template redirects
                         if($page->contains_template("TaxonavigationIncluded[\w\s]*"))
                         {
                             $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
                             if(count($include_array))
                             {
                                 $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod'=>strtotime($page->timestamp));
-                            } else echo "$page->title is not a real TaxonavigationInclude* template\n";
-
-                        } elseif($page->contains_template("Taxonavigation"))
+                            }else echo "$page->title is not a real TaxonavigationInclude* template\n";
+                        }elseif($page->contains_template("Taxonavigation"))
                         {
                             // This is a template that itself contains the template "Taxonavigation", so we might be interested in it
                             if(preg_match("/^Template:Taxonavigation\//", $page->title))
@@ -189,7 +188,7 @@ class WikimediaHarvester
                             {
                                 foreach($page->media_on_page() as $file)
                                 {
-                                   $this->galleries_for_file["File:".$file][] = $page->title;
+                                    $this->galleries_for_file["File:".$file][] = $page->title;
                                 }
                             }
                         }
@@ -202,7 +201,7 @@ class WikimediaHarvester
         if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
             echo "Page: $count (first pass";
-            if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
+            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes);
             echo ". # potential taxa so far: ". count($this->taxonomy_pagenames).", of which ";
             $galleries = count(array_unique(call_user_func_array('array_merge', $this->galleries_for_file)));
@@ -214,43 +213,50 @@ class WikimediaHarvester
 
     private function check_taxonomy_and_redirects($xml)
     {
-        //Phew, we don't need to worry about multiple redirects: http://en.wikipedia.org/wiki/Wikipedia:Double_redirects
-        if(\WikimediaPage::fast_is_gallery_category_or_media($xml)) {
+        // Phew, we don't need to worry about multiple redirects: http://en.wikipedia.org/wiki/Wikipedia:Double_redirects
+        if(\WikimediaPage::fast_is_gallery_category_or_media($xml))
+        {
             $page = new \WikimediaPage($xml);
-            if (isset($page->redirect)) {
-                if(isset($this->galleries_for_file[$page->title])) //must be a media file
+            if(isset($page->redirect))
+            {
+                // must be a media file
+                if(isset($this->galleries_for_file[$page->title]))
                 {
-                    //need to use the filename to which the redirect is pointing, not the old name.
-                    if (isset($this->galleries_for_file[$page->redirect])) 
+                    // need to use the filename to which the redirect is pointing, not the old name.
+                    if(isset($this->galleries_for_file[$page->redirect]))
                     {
                         $this->galleries_for_file[$page->redirect] = array_merge($this->galleries_for_file[$page->redirect], $this->galleries_for_file[$page->title]);
-                    } else {
+                    }else
+                    {
                         $this->galleries_for_file[$page->redirect] = $this->galleries_for_file[$page->title];
-                    }                    
+                    }
                     unset($this->galleries_for_file[$page->title]);
-                } elseif (isset($this->taxonomy_pagenames[$page->redirect])) //a category or gallery going by another name.
+                // a category or gallery going by another name.
+                }elseif(isset($this->taxonomy_pagenames[$page->redirect]))
                 {
-                   if (isset($this->taxa[$page->redirect])) 
-                   {   //we've already parsed the taxonomic page, so simply duplicate the info
+                   if(isset($this->taxa[$page->redirect]))
+                   {
+                       // we've already parsed the taxonomic page, so simply duplicate the info
                        $this->taxa[$page->title] = &$this->taxa[$page->redirect];
-                   } else {
-                       //not parsed it yet: set it up so that when we encounter the other name, we know to duplicate it
+                   }else
+                   {
+                       // not parsed it yet: set it up so that when we encounter the other name, we know to duplicate it
                        $this->taxonomy_pagenames[$page->redirect][] = $page->title;
                    }
                 }
-            } elseif (isset($this->taxonomy_pagenames[$page->title])) {
-                //parse the taxo page: we can pass in "taxonav_includes" to avoid lots of API calls
+            }elseif(isset($this->taxonomy_pagenames[$page->title]))
+            {
+                // parse the taxo page: we can pass in "taxonav_includes" to avoid lots of API calls
                 if(($params = $page->taxonomy($this->taxonav_includes)) && $params->scientificName())
                 {
                     $this->taxa[$page->title] = $params;
                     $this->number_of_separate_taxa++;
-                    foreach($this->taxonomy_pagenames[$page->title] as $redirect_title) {
-                        if (isset($this->taxa[$redirect_title])) echo("ERROR: taxonomy already set for <$page->title>!\n");
+                    foreach($this->taxonomy_pagenames[$page->title] as $redirect_title)
+                    {
+                        if(isset($this->taxa[$redirect_title])) echo("ERROR: taxonomy already set for <$page->title>!\n");
                         $this->taxa[$redirect_title] = &$this->taxa[$page->title];
                     }
-                } else {
-                    echo "Couldn't get sensible taxonomy from <$page->title>.\n";
-                }
+                }else echo "Couldn't get sensible taxonomy from <$page->title>.\n";
             }
         }
 
@@ -259,15 +265,14 @@ class WikimediaHarvester
         if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
             echo "Page: $count (second pass";
-            if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
+            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # parsed taxa so far: ". $this->number_of_separate_taxa ." (". count($this->taxa);
             echo " including duplicated redirects), out of a potential total of ".count($this->taxonomy_pagenames).".\n";
             self::print_memory_and_time();
         }
-        
+
     }
-    
-    
+
     private function get_media_pages($xml)
     {
         $wanted = false;
@@ -279,7 +284,7 @@ class WikimediaHarvester
             {
                 if(isset($page->redirect))
                 {
-                    //This shouldn't happen!
+                    // This shouldn't happen!
                     $multiple_galleries = count($this->galleries_for_file[$page->title])>1;
                     echo "ERROR: page '$page->title' listed in galler".($multiple_galleries?'ies':'y');
                     echo ' '.implode(", ", $this->galleries_for_file[$page->title])." still has redirect problems.\n";
@@ -288,10 +293,11 @@ class WikimediaHarvester
                     // take care: some galleries may not have validated as proper taxa in check_redirects_and_taxonomy()
                     // make sure we filter these out, otherwise we'll end up trying to access non-existing taxonomies
                     $taxonomies = array_filter($this->galleries_for_file[$page->title], array($this, 'is_taxa_array_object'));
-                    if (count($taxonomies)) {
+                    if(count($taxonomies))
+                    {
                         $page->add_galleries($taxonomies);
                         $wanted = true;
-                    };
+                    }
                 }
                 unset($this->galleries_for_file[$page->title]);
             }
@@ -318,13 +324,13 @@ class WikimediaHarvester
         if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
         {
             echo "Page: $count (final pass";
-            if ($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
+            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
             echo "). # media files checked so far: ".count($this->taxonomies_for_file);
-            if (count($this->taxonomies_for_file))
+            if(count($this->taxonomies_for_file))
             {
-               $multiple = count(array_filter($this->taxonomies_for_file, function ($a) { return $a > 1; }));
-               echo ", of which ".($multiple/count($this->taxonomies_for_file)*100)."% ($multiple) have multiple taxa";
-            };
+                $multiple = count(array_filter($this->taxonomies_for_file, function ($a) { return $a > 1; }));
+                echo ", of which ".($multiple/count($this->taxonomies_for_file)*100)."% ($multiple) have multiple taxa";
+            }
             echo ".\n";
             self::print_memory_and_time();
         }
@@ -333,9 +339,9 @@ class WikimediaHarvester
     private function queue_page_for_processing($page)
     {
         if(!$page) return;
-        //if we want only to download recently changed wikimedia files, we could look at 
-        //whether the last run date of this script is more recent that either strtodate($page->timestamp), 
-        //or $this->taxa[$this->galleries_for_file[$page->title]]->last_taxonomy_change
+        // if we want only to download recently changed wikimedia files, we could look at
+        // whether the last run date of this script is more recent that either strtodate($page->timestamp),
+        // or $this->taxa[$this->galleries_for_file[$page->title]]->last_taxonomy_change
         // But since we are currently checking categories via the call returned from the API,
         // we can't check the recent mod time of a categorised media file without an API call.
         $this->queue_of_pages_to_process[] = $page;
@@ -353,7 +359,6 @@ class WikimediaHarvester
         {
             // page may have multiple taxonomies: e.g. from gallery "Mus musculus", categories "Mus musculus", "Mus", etc.
             $taxonomies = $page->get_galleries();
-            
             // only look for categories gleaned from the API (more reliable)
             $categories_from_API = $page->get_categories(true);
             if(count($categories_from_API) == 0)
@@ -365,17 +370,11 @@ class WikimediaHarvester
                 $map = false;
                 foreach($categories_from_API as $cat)
                 {
-                    if($this->is_taxa_array_object("Category:$cat"))
-                    {
-                        $taxonomies[] = "Category:$cat";
-                    }elseif(isset($this->map_categories[$cat]))
-                    {
-                        $map = true;
-                    }
+                    if($this->is_taxa_array_object("Category:$cat")) $taxonomies[] = "Category:$cat";
+                    elseif(isset($this->map_categories[$cat])) $map = true;
                     // neither a taxonomic category, nor a map category, so maybe its a license category
                     else $potential_license_categories[] = $cat;
                 }
-
                 if($map) $page->set_additionalInformation("<subtype>Map</subtype>");
                 if($potential_license_categories) $page->reassess_licenses_with_additions($potential_license_categories);
             }
@@ -390,7 +389,6 @@ class WikimediaHarvester
                 echo "No valid mime_type category for $page->title (". @$params['mimeType'] .")\n";
                 continue;
             }
-
             if(empty($taxonomies))
             {
                 echo "No valid taxonomies for <$page->title>.";
@@ -402,57 +400,62 @@ class WikimediaHarvester
             }else
             {
                 $mesg = self::remove_duplicate_taxonomies($taxonomies);
-                if (!empty($mesg)) echo $mesg."in wikimedia page <$page->title>\n";
-                if ($GLOBALS['ENV_DEBUG'] && (count($taxonomies) > 1))
-                    echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
+                if(!empty($mesg)) echo $mesg."in wikimedia page <$page->title>\n";
+                if($GLOBALS['ENV_DEBUG'] && (count($taxonomies) > 1)) echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
                 $this->taxonomies_for_file[$page->title] = count($taxonomies);
-
                 $data_object_parameters = $page->get_data_object_parameters();
-                foreach($taxonomies as $taxonomy) {
+                foreach($taxonomies as $taxonomy)
+                {
                     $this->add_to_resource_file($this->taxa[$taxonomy]->asEoLtaxonObject(), $data_object_parameters);
                 }
             }
         }
-
         $this->queue_of_pages_to_process = array();
     }
 
-    function remove_duplicate_taxonomies(&$names) {
-        $return_message="";
-        foreach(array_keys($names) as $focal_key) {
-            foreach(array_keys($names) as $compare_key) {
-                if ($focal_key != $compare_key) {
+    function remove_duplicate_taxonomies(&$names)
+    {
+        $return_message = "";
+        foreach(array_keys($names) as $focal_key)
+        {
+            foreach(array_keys($names) as $compare_key)
+            {
+                if($focal_key != $compare_key)
+                {
                     $focal_taxon = $names[$focal_key];
-                    $compare_taxon = $names[$compare_key];                    
-                    if ($this->taxa[$focal_taxon]->identical_taxonomy_to($this->taxa[$compare_taxon])) {
-                        //if identical, pick the one with an "authority"
-                        if (empty($this->taxa[$focal_taxon]->authority) xor empty($this->taxa[$compare_taxon]->authority)) {
-                            //one has an authority, the other doesn't
-                            if (empty($this->taxa[$focal_taxon]->authority)) {
-                                if($GLOBALS['ENV_DEBUG'])
-                                    $return_message .= "deleting ".$focal_taxon." which is an identical taxonomy to ".$compare_taxon." but has no authority field, ";
+                    $compare_taxon = $names[$compare_key];
+                    if($this->taxa[$focal_taxon]->identical_taxonomy_to($this->taxa[$compare_taxon]))
+                    {
+                        // if identical, pick the one with an "authority"
+                        if(empty($this->taxa[$focal_taxon]->authority) xor empty($this->taxa[$compare_taxon]->authority))
+                        {
+                            // one has an authority, the other doesn't
+                            if(empty($this->taxa[$focal_taxon]->authority))
+                            {
+                                if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is an identical taxonomy to ".$compare_taxon." but has no authority field, ";
                                 unset($names[$focal_key]);
-                            break;
+                                break;
                             }
-                        } elseif(!$this->taxa[$focal_taxon]->page_younger_than($this->taxa[$compare_taxon])) {
-                            //both or neither have authorities, so pick the most recently changed page
-                            if($GLOBALS['ENV_DEBUG'])
-                                $return_message .= "deleting ".$focal_taxon." which is identical to, but isn't any younger than ".$compare_taxon.", ";
+                        }elseif(!$this->taxa[$focal_taxon]->page_younger_than($this->taxa[$compare_taxon]))
+                        {
+                            // both or neither have authorities, so pick the most recently changed page
+                            if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is identical to, but isn't any younger than ".$compare_taxon.", ";
                             unset($names[$focal_key]);
                             break;
                         }
-                    } elseif ($this->taxa[$focal_taxon]->is_nested_in($this->taxa[$compare_taxon])) {
-                        //remove any that are simply parents (e.g. remove 'Homo' if we also have 'Homo sapiens')
-                        if($GLOBALS['ENV_DEBUG']) 
-                            $return_message .= "deleting ".$focal_taxon." which is a subset of ".$compare_taxon.", ";
+                    }elseif($this->taxa[$focal_taxon]->is_nested_in($this->taxa[$compare_taxon]))
+                    {
+                        // remove any that are simply parents (e.g. remove 'Homo' if we also have 'Homo sapiens')
+                        if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is a subset of ".$compare_taxon.", ";
                         unset($names[$focal_key]);
                         break;
-                    } elseif ($this->taxa[$focal_taxon]->overlaps_without_conflict($this->taxa[$compare_taxon])) {
-                        //the taxonomies are compatible, but have some complementary information
-                        if (($this->taxa[$compare_taxon]->number_of_levels() > 2) && 
-                            ($this->taxa[$focal_taxon]->is_less_precise_than($this->taxa[$compare_taxon]))) {
-                            if($GLOBALS['ENV_DEBUG'])
-                                $return_message .= "deleting ".$focal_taxon." which (while it contains some additional information) is less precise a classification than ".$compare_taxon.", ";
+                    }elseif($this->taxa[$focal_taxon]->overlaps_without_conflict($this->taxa[$compare_taxon]))
+                    {
+                        // the taxonomies are compatible, but have some complementary information
+                        if(($this->taxa[$compare_taxon]->number_of_levels() > 2) &&
+                            ($this->taxa[$focal_taxon]->is_less_precise_than($this->taxa[$compare_taxon])))
+                        {
+                            if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which (while it contains some additional information) is less precise a classification than ".$compare_taxon.", ";
                             unset($names[$focal_key]);
                             break;
                         }
@@ -460,28 +463,25 @@ class WikimediaHarvester
                 }
             }
         }
-        return $return_message;    
+        return $return_message;
     }
 
     private function check_for_unaccounted_galleries()
     {
+        $good_files = array();
+        echo "\n".count($this->galleries_for_file) ." gallery files remaining at end. Checking them out now...\n";
+        $titles = array_chunk(array_keys($this->galleries_for_file), \WikimediaPage::$max_titles_per_lookup, true);
+        foreach($titles as $batch)
         {
-            $good_files = array();
-            echo "\n".count($this->galleries_for_file) ." gallery files remaining at end. Checking them out now...\n";
-            $titles = array_chunk(array_keys($this->galleries_for_file), \WikimediaPage::$max_titles_per_lookup, true);
-            foreach($titles as $batch)
+            $good_files += \WikimediaPage::check_page_titles($batch);
+        }
+        if(count($good_files))
+        {
+            echo "\nMISSED THE FOLLOWING ". count($good_files) ." FILES";
+            foreach($good_files as $title => $json)
             {
-                $good_files += \WikimediaPage::check_page_titles($batch);
-            }
-            if(count($good_files))
-            {
-                echo "\nMISSED THE FOLLOWING ". count($good_files) ." FILES";
-                 
-                foreach($good_files as $title => $json)
-                {
-                    echo "* $title in galler".(count($this->galleries_for_file[$title])>1?'ies':'y');
-                    echo " <".implode(", ", $this->galleries_for_file[$title]).">\n";
-                }
+                echo "* $title in galler".(count($this->galleries_for_file[$title])>1?'ies':'y');
+                echo " <".implode(", ", $this->galleries_for_file[$title]).">\n";
             }
         }
     }
@@ -491,10 +491,9 @@ class WikimediaHarvester
         // Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
         // but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
         // (using an old version should be no problem, as we don't expect many changes to this category structure)
-
         $mapcats = array();
         echo "Looking for map categories...\n";
-        if ($contact_sites) $mapcats = self::get_all_child_categories("Distributional maps of organisms");
+        if($contact_sites) $mapcats = self::get_all_child_categories("Distributional maps of organisms");
         if(count($mapcats) > 1) // will always have the base category present
         {
             // overwrite previous
@@ -508,12 +507,11 @@ class WikimediaHarvester
             return(array_fill_keys($mapcats, 1));
         }
     }
-    
+
     private static function get_all_child_categories($base_category, $depth=null)
     {
         $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
                         "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
-
         $cats = array($base_category => 1);
         if(count($cats) <= 1)
         {
@@ -523,7 +521,7 @@ class WikimediaHarvester
             {
                 foreach(preg_split("/(\r?\n)|(\n?\r)/", $tab_separated_string, null, PREG_SPLIT_NO_EMPTY) as $line)
                 {
-                    //  Category name is after first tab
+                    // Category name is after first tab
                     $name = preg_replace("/_/u", " ", preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line));
                     $cats[$name] = 1;
                 }
@@ -545,10 +543,10 @@ class WikimediaHarvester
                 echo "Got ".count($cats)." categories from wmflabs ($url)\n";
             }else echo "Couldn't get categories from wmflabs ($url)\n";
         }
-        
+
         return $cats;
     }
-    
+
     private function add_to_resource_file($taxon_data, $data_object_parameters)
     {
         if(isset($data_object_parameters['mediaURL']))
@@ -564,7 +562,7 @@ class WikimediaHarvester
         echo "Memory: ". memory_get_usage_in_mb() ." MB\n";
         echo "Time  : ". round(time_elapsed(), 2) ." s\n\n";
     }
-    
+
     private function is_taxa_array_object($name)
     {
         return is_object(@$this->taxa[$name]);

@@ -22,14 +22,16 @@ class WikimediaPage
     {
         $this->xml = $xml;
         $this->simple_xml = @simplexml_load_string($this->xml);
-        if (!is_object($this->simple_xml)) { //Oddly, wikimedia dumps occasionally have random newlines within tags.
-            echo "ERROR, malformed xml";           //Hence simplexml_load_string() sometimes fails (this is rare, though).
-            if (preg_match("/<title>([^<]+)/u", $this->xml, $arr))
-                echo " for page titled <".$arr[1].">\n";
-            else
-                echo ":\n".$this->xml."\n";
+        // Oddly, wikimedia dumps occasionally have random newlines within tags.
+        if(!is_object($this->simple_xml))
+        {
+            // Hence simplexml_load_string() sometimes fails (this is rare, though).
+            echo "ERROR, malformed xml";
+            if(preg_match("/<title>([^<]+)/u", $this->xml, $arr)) echo " for page titled <".$arr[1].">\n";
+            else echo ":\n".$this->xml."\n";
             $this->text = $this->title = $this->ns = $this->contributor = $this->timestamp = "";
-        } else {
+        }else
+        {
             if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
             {
                 $this->text = (string) $this->simple_xml->query->pages->page->revisions->rev;
@@ -85,14 +87,14 @@ class WikimediaPage
         $test = substr($xml, strpos($xml, "<ns>")+4, 3);
         return ($test == '0</' || $test == '14<' || $test == '10<');
     }
-    
+
     public static function fast_is_gallery_category_or_media($xml)
     {
         $test = substr($xml, strpos($xml, "<ns>")+4, 3);
         return ($test == '6</' || $test == '14<' || $test == '0</');
     }
-    
-    //these are less dependent on the exact XML string, but require a page to have been parsed, so are slower
+
+    // these are less dependent on the exact XML string, but require a page to have been parsed, so are slower
     public function is_gallery()
     {
         return ($this->ns == self::$NS['Gallery']);
@@ -175,7 +177,8 @@ class WikimediaPage
 
     public function taxonomy_via_API()
     {
-        $taxonomy = new TaxonomyParameters($this->timestamp, null); //can't use actual parsed text to detect last changed time
+        // can't use actual parsed text to detect last changed time
+        $taxonomy = new TaxonomyParameters($this->timestamp, null);
         $mesg="";
         if(preg_match("/^<div style=\"float:left; margin:2px auto; border-top:1px solid #ccc; border-bottom:1px solid #aaa; font-size:97%\">(.*?)<\/div>\n/ms", $this->expanded_text(), $arr))
         {
@@ -194,30 +197,26 @@ class WikimediaPage
         }
 
         $mesg .= $this->fill_taxon_info_from_outside_Taxonavigation($taxonomy);
-        
-        if (!empty($mesg)) echo "<http://commons.wikimedia.org/wiki/".$this->title."> ".$mesg."\n";
+
+        if(!empty($mesg)) echo "<http://commons.wikimedia.org/wiki/".$this->title."> ".$mesg."\n";
         return $taxonomy;
     }
 
     private function taxonomy_via_wikitext(&$taxonav_include_arrays)
     {
         $Taxonav = array('taxo'=>$this->taxonav_as_array("[Tt]axonavigation"), 'last_mod'=>strtotime($this->timestamp));
-        $Taxonav = $this->fill_includes_recursively($Taxonav, $taxonav_include_arrays);       
+        $Taxonav = $this->fill_includes_recursively($Taxonav, $taxonav_include_arrays);
         $taxonomy = new TaxonomyParameters($this->timestamp, $Taxonav['last_mod']);
-
-        $mesg="";
-
-        foreach($Taxonav['taxo'] as $wiki_rank => $name) {
+        $mesg = "";
+        foreach($Taxonav['taxo'] as $wiki_rank => $name)
+        {
             $mesg .= $taxonomy->add_wiki_info($wiki_rank, $name);
         }
-        
         $mesg .= $this->fill_taxon_info_from_outside_Taxonavigation($taxonomy);
-        
-        if (!empty($mesg)) echo "<".$this->title."> ".$mesg."\n";
+        if(!empty($mesg)) echo "<".$this->title."> ".$mesg."\n";
         return $taxonomy;
-
     }
-    
+
     private function fill_taxon_info_from_outside_Taxonavigation(&$taxonomy)
     {
         $mesg = "";
@@ -225,7 +224,8 @@ class WikimediaPage
         if(preg_match("/\}\}\s*\n(\s*----\s*\n)?((\*?(genus|species):.*?\n)*)/muis", $this->active_wikitext(), $arr))
         {
             $entries = explode("\n", $arr[2]);
-            foreach(array('genus','species') as $rank) //make sure species is checked last (to use linked authority)
+            // make sure species is checked last (to use linked authority)
+            foreach(array('genus','species') as $rank)
             {
                 foreach($entries as $entry)
                 {
@@ -233,15 +233,17 @@ class WikimediaPage
                     {
                         // usually the name is in italics, followed by the authority
                         // e.g. http://commons.wikimedia.org/wiki/Shorea_roxburghii
-                        // mark the difference by placing a newline between the two 
+                        // mark the difference by placing a newline between the two
                         $fullname = preg_replace("/<\/i>/", "$0\n", WikiParser::strip_syntax($arr[1], true), 1);
                         $fullname = explode("\n", $fullname);
                         $mesg .= $taxonomy->add_info($rank,  strip_tags($fullname[0]));
-                        if (is_null($taxonomy->get($rank))) {
+                        if(is_null($taxonomy->get($rank)))
+                        {
                             $mesg .= "Info gleaned from outside Taxonavigation box: $rank set to '".$taxonomy->get($rank)."'";
-                            if (isset($fullname[1])) 
-                            {   //if we end up using this species or genus data, we should use associated authority
-                                if (empty($taxonomy->authority)) $mesg .= " & authority set to"; else $mesg .= " & authority replaced by";
+                            if(isset($fullname[1]))
+                            {
+                                // if we end up using this species or genus data, we should use associated authority
+                                if(empty($taxonomy->authority)) $mesg .= " & authority set to"; else $mesg .= " & authority replaced by";
                                 $taxonomy->add_info('authority', strip_tags($fullname[1]));
                                 $mesg .=" '".$taxonomy->authority."'";
                             }
@@ -256,13 +258,10 @@ class WikimediaPage
 
     public function taxonomy(&$taxonav_include_arrays = null)
     {
-        if(!isset($this->taxonomy)) {
-            if(empty($taxonav_include_arrays))
-            {
-                $this->taxonomy = $this->taxonomy_via_API();
-            } else {
-                $this->taxonomy = $this->taxonomy_via_wikitext($taxonav_include_arrays);
-            }
+        if(!isset($this->taxonomy))
+        {
+            if(empty($taxonav_include_arrays)) $this->taxonomy = $this->taxonomy_via_API();
+            else $this->taxonomy = $this->taxonomy_via_wikitext($taxonav_include_arrays);
         }
         return $this->taxonomy;
     }
@@ -297,11 +296,11 @@ class WikimediaPage
     }
 
     public function best_license($potential_licenses, $is_wikitext=true)
-    {   //can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
-        //usually these are of the same format, apart from e.g. {{XXX-no known copyright restrictions}}
-        
-        //Currently we miss files categorised under the FAL (http://en.wikipedia.org/wiki/Free_Art_License)
-        //These could probably be included somehow
+    {
+        // can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
+        // usually these are of the same format, apart from e.g. {{XXX-no known copyright restrictions}}
+        // Currently we miss files categorised under the FAL (http://en.wikipedia.org/wiki/Free_Art_License)
+        // These could probably be included somehow
         $identified_licenses = array();
         foreach($potential_licenses as $potential_license)
         {
@@ -321,7 +320,7 @@ class WikimediaPage
                     'category'  => 'http://creativecommons.org/publicdomain/zero/',
                     'version'   => '1.0');
             }
-            // no known copyright restrictions 
+            // no known copyright restrictions
             // (listed under http://commons.wikimedia.org/wiki/Category:No_known_restrictions_license_tags)
             if((($is_wikitext) && preg_match("/^(flickr-)?no known copyright restrictions/mui", $potential_license)) ||
                ((!$is_wikitext) && preg_match("/^Files from Flickr's 'The Commons'/mui", $potential_license)))
@@ -331,7 +330,7 @@ class WikimediaPage
                     'category'  => 'http://www.flickr.com/commons/usage/',
                     'version'   => null);
             }
-            // {{gfdl|migration=relicense}} can be relicensed as cc-by-sa-3.0 (when categories, CC-BY-SA-3.0 is automatically set) 
+            // {{gfdl|migration=relicense}} can be relicensed as cc-by-sa-3.0 (when categories, CC-BY-SA-3.0 is automatically set)
             if($is_wikitext && preg_match("/migration=relicense/mui", $potential_license))
             {
                 $identified_licenses[] = array(
@@ -514,7 +513,8 @@ class WikimediaPage
     }
 
     public function get_galleries()
-    {   // NB not all media pages will be associated with a gallery
+    {
+        // NB not all media pages will be associated with a gallery
         if(isset($this->galleries)) return $this->galleries;
         else return null;
     }
@@ -631,7 +631,8 @@ class WikimediaPage
         if(count($location = WikiParser::template_as_array($this->active_wikitext(), "(?:[Oo]bject )?[Ll]ocation(?: dec)?")))
         {
             if(substr($location[0], -3) == "dec")
-            {  // see http://commons.wikimedia.org/wiki/Template:Location_dec
+            {
+                // see http://commons.wikimedia.org/wiki/Template:Location_dec
                 if(isset($location[1]) && isset($location[2]))
                 {
                     $this->georef["latitude"] = $location[1];
@@ -642,13 +643,14 @@ class WikimediaPage
                     $this->location = $location[3];
                 }
             }else
-            { // see http://commons.wikimedia.org/wiki/Template:Location
-                if(isset($location[8])) //lazy - assume 1-7 are also set if so
+            {
+                // see http://commons.wikimedia.org/wiki/Template:Location
+                // lazy - assume 1-7 are also set if so
+                if(isset($location[8]))
                 {
-
-                    $this->georef["latitude"] = $location[1]+((($location[2]*60)+($location[3]))/3600);
+                    $this->georef["latitude"] = $location[1] + ((($location[2] * 60) + ($location[3])) / 3600);
                     if(stripos($location[4], "N") === false) $this->georef["latitude"] *= -1;
-                    $this->georef["longitude"] = $location[5]+((($location[6]*60)+($location[7]))/3600);
+                    $this->georef["longitude"] = $location[5] + ((($location[6] * 60) + ($location[7])) / 3600);
                     if(stripos($location[8], "W") === false) $this->georef["longitude"] *= -1;
                 }
                 if(isset($location[9]))
@@ -690,14 +692,14 @@ class WikimediaPage
 
     public function contains_template($template)
     {
-        return (preg_match("/\{\{".$template."\s*[\|\}]/u", $this->active_wikitext()));
+        return preg_match("/\{\{".$template."\s*[\|\}]/u", $this->active_wikitext());
     }
 
     public function taxonav_as_array($template_name, $strip_syntax = true)
-    {   // A special format for Taxonavigations, where e.g. param[1] is "Cladus" and param[2] is "magnoliids"
+    {
+        // A special format for Taxonavigations, where e.g. param[1] is "Cladus" and param[2] is "magnoliids"
         // Place param[1] as the key, and param[2] as the value of the returned array, so that e.g.
         // Taxonavigation|Cladus|magnoliids|Ordo|Laurales becomes [0=>Taxonavigation, Cladus=>magnoliids, Ordo=>Laurales]
-        //
         // Take care when using, as $template_name is allowed to be a RegExp.
         $plain_array = WikiParser::template_as_array($this->active_wikitext(), $template_name);
         $tnav_array  = array();
@@ -736,13 +738,15 @@ class WikimediaPage
         return $tnav_array;
     }
 
-    public static $max_titles_per_lookup = 50; //see see http://commons.wikimedia.org/w/api.php
-    public static $max_categories_per_lookup = 500; //see see http://commons.wikimedia.org/w/api.php
+    // see see http://commons.wikimedia.org/w/api.php
+    public static $max_titles_per_lookup = 50;
+    // see see http://commons.wikimedia.org/w/api.php
+    public static $max_categories_per_lookup = 500;
 
     public static function call_API(&$url, $titles)
     {
         if(!$titles) return array();
-        //return an array with $title => json_result
+        // return an array with $title => json_result
         $real_titles = array_combine($titles, $titles);
         $results = array();
         // be polite to Commons, see http://meta.wikimedia.org/wiki/User-Agent_policy
@@ -766,7 +770,8 @@ class WikimediaPage
                 'validation_regex' => 'query',
                 'expire_seconds' => 518400));
 
-            $json = json_decode($result, true); //return as an associative array
+            // return as an associative array
+            $json = json_decode($result, true);
             $query = $json['query'];
             if(isset($query['normalized']))
             {
@@ -949,9 +954,12 @@ class WikimediaPage
     }
 }
 
-class TaxonomyParameters {
-    public static $wiki_to_standard = array( //listed as most precise to least precise
-            "Species"   => "species", //'species' is not past of the EoL output, but may be used to construct scientificName later
+class TaxonomyParameters
+{
+    // listed as most precise to least precise
+    // 'species' is not past of the EoL output, but may be used to construct scientificName later
+    public static $wiki_to_standard = array(
+            "Species"   => "species",
             "Genus"     => "genus",
             "Familia"   => "family",
             "Ordo"      => "order",
@@ -962,27 +970,31 @@ class TaxonomyParameters {
     private $page_timestamp;
     public  $authority;
     public  $last_taxonomy_change;
-    
-    public function __construct($page_timestamp = null, $last_taxonomy_change = null) {
+
+    public function __construct($page_timestamp = null, $last_taxonomy_change = null)
+    {
         $this->page_timestamp = $page_timestamp;
         $this->last_taxonomy_change = $last_taxonomy_change;
     }
-    
-    public function get($standard_rank) {
+
+    public function get($standard_rank)
+    {
         return @$this->taxon_params[$standard_rank];
     }
 
 
-    public function add_wiki_info($wiki_rank, $wikitext) {
+    public function add_wiki_info($wiki_rank, $wikitext)
+    {
         $wiki_rank = WikiParser::mb_ucfirst(WikiParser::mb_trim($wiki_rank));
         $text = strip_tags(WikiParser::strip_syntax($wikitext));
 
-        if ($wiki_rank == 'Authority') return $this->add_info('authority', $text);
-        if (empty(self::$wiki_to_standard[$wiki_rank])) return "";
+        if($wiki_rank == 'Authority') return $this->add_info('authority', $text);
+        if(empty(self::$wiki_to_standard[$wiki_rank])) return "";
         return $this->add_info(self::$wiki_to_standard[$wiki_rank], $text);
     }
 
-    public function add_info($rank, $text) {
+    public function add_info($rank, $text)
+    {
         $return_message = "";
         $name = WikiParser::mb_trim($text);
         if(!php_active_record\Functions::is_utf8($name) || preg_match("/\{|\}/u", $name))
@@ -990,30 +1002,28 @@ class TaxonomyParameters {
             $return_message = "Invalid characters in taxonomy fields ($rank = $name): ignoring this level. ";
             return $return_message;
         }
-
-        $name = preg_replace("/\pZ+/u", " ", $name); //multiple spaces of any sort to single normal space
-        
-        if ($rank == 'authority')  {
+        // multiple spaces of any sort to single normal space
+        $name = preg_replace("/\pZ+/u", " ", $name);
+        if($rank == 'authority')
+        {
             $this->authority = $name;
             return $return_message;
         }
-
         if(preg_match("/unidentified|unknown|incertae sedis| incertae/i", $name))
         {
             $return_message = "Name listed as unidentified ($rank = $name): ignoring this level. ";
             return $return_message;
         }
-
         // remove preceeding fossil: e.g. Fossil Pectinidae
         if(preg_match("/^fossil (.*)$/i", $name, $arr)) $name = WikiParser::mb_ucfirst(trim($arr[1]));
-
-        if ($name=='') return $return_message; //don't set anything if the string is empty
-
+        // don't set anything if the string is empty
+        if($name == '') return $return_message;
         if($rank == 'genus')
         {
-            if (preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
-            {   //careful with e.g. Category:Rosa_laxa which has Genus = 'Rosa species'
-                $return_message =  "Multi-word genus ($name) getting shortened to ". $arr[1];
+            if(preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+            {
+                // careful with e.g. Category:Rosa_laxa which has Genus = 'Rosa species'
+                $return_message = "Multi-word genus ($name) getting shortened to ". $arr[1];
                 if(empty($this->taxon_params['species']))
                 {
                     $return_message .=  " and species initially set to $name";
@@ -1022,62 +1032,70 @@ class TaxonomyParameters {
                 $return_message .=  ". ";
                 $name = $arr[1];
             }
-            
-            if (!empty($this->taxon_params['species']) && !preg_match("/\s/", $this->taxon_params['species'])) 
-            {   //species was set with just the epithet
-                $this->taxon_params['species'] = $name . ' ' . $this->taxon_params['species'];
-            } 
-
-        }
-        
-        if($rank == 'species') {
-            if (preg_match("/ /", $name))  //multiple words in species (this is the norm)
+            // species was set with just the epithet
+            if(!empty($this->taxon_params['species']) && !preg_match("/\s/", $this->taxon_params['species']))
             {
-                if (empty($this->taxon_params['genus']) && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+                $this->taxon_params['species'] = $name . ' ' . $this->taxon_params['species'];
+            }
+        }
+        if($rank == 'species')
+        {
+            // multiple words in species (this is the norm)
+            if(preg_match("/ /", $name))
+            {
+                if(empty($this->taxon_params['genus']) && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
                 {
                     $this->taxon_params['genus'] = $arr[1];
-                    if($GLOBALS['ENV_DEBUG']) 
-                        $return_message = "Genus ".$this->taxon_params['genus']." initially set from species name ('$name'). ";                    
+                    if($GLOBALS['ENV_DEBUG']) $return_message = "Genus ".$this->taxon_params['genus']." initially set from species name ('$name'). ";
                 }
-            } else                          //single word in 'species' - this could be an epithet
+            }
+            // single word in 'species' - this could be an epithet
+            else
             {
-                if (mb_strtolower($name, "UTF-8") != $name)
+                if(mb_strtolower($name, "UTF-8") != $name)
                 {
                     $return_message = "Single-word species ('$name') has CaPs: ignoring this part of the classification. ";
                     return $return_message;
                 }
-                
-                if (!empty($this->taxon_params['genus'])) {
+                if(!empty($this->taxon_params['genus']))
+                {
                     $name = $this->taxon_params['genus'] . ' ' . $name;
                 }
             }
-        } else {
+        }else
+        {
             while(preg_match("/( \(.*?\))/", $name, $arr)) $name = str_replace($arr[1], '', $name);
             if(preg_match("/[ \(\)]/", $name))
-            {   //We make an exception here for classes 'Gamma Proteobacteria', 'Alpha Proteobacteria' etc.
-                if (!preg_match("/^\w+ proteobacteria$/i", $name)) {
+            {
+                // We make an exception here for classes 'Gamma Proteobacteria', 'Alpha Proteobacteria' etc.
+                if(!preg_match("/^\w+ proteobacteria$/i", $name))
+                {
                     $return_message .= "A classification level above that of species ($rank = '$name') has issues with brackets or spaces. ";
                     return $return_message;
                 }
             }
         }
-
         $this->taxon_params[$rank] = $name;
         return $return_message;
     }
-    
-    public function scientificName() {
-        if (!isset($this->scientificName)) {
+
+    public function scientificName()
+    {
+        if(!isset($this->scientificName))
+        {
             $this->scientificName = "";
-            //scientificName should be the lowest (most precise) classification level
-            foreach(self::$wiki_to_standard as $rank) {
-                if (!empty($this->taxon_params[$rank])) {
+            // scientificName should be the lowest (most precise) classification level
+            foreach(self::$wiki_to_standard as $rank)
+            {
+                if(!empty($this->taxon_params[$rank]))
+                {
                     if(empty($this->authority))
                     {
                         $this->scientificName = $this->taxon_params[$rank];
                         break;
-                    } else {
-                        //would be nice to mark up authority in some way here
+                    }else
+                    {
+                        // would be nice to mark up authority in some way here
                         $this->scientificName = $this->taxon_params[$rank] . " " . $this->authority;
                         break;
                     }
@@ -1086,59 +1104,65 @@ class TaxonomyParameters {
         }
         return $this->scientificName;
     }
-    
-    public function asEoLtaxonObject() {
-        //calculate what EoL needs from the levels that we know about
+
+    public function asEoLtaxonObject()
+    {
+        // calculate what EoL needs from the levels that we know about
         static $spp = array('species'=>null);
         $array_to_return = array_diff_key($this->taxon_params, $spp); // "species" level detail in EoL is contained in scientificName
         $array_to_return['scientificName'] = $this->scientificName();
         $array_to_return['dataObjects'] = array();
-        
         return $array_to_return;
     }
 
-    //in all the following functions, we assume $this->taxon_params does not contain empty values
-    //as add_info() doesn't allow setting a taxonomic level witb an empty name
+    // in all the following functions, we assume $this->taxon_params does not contain empty values
+    // as add_info() doesn't allow setting a taxonomic level witb an empty name
 
-    public function number_of_levels() {
+    public function number_of_levels()
+    {
         return count($this->taxon_params);
     }
-    
-    public function identical_taxonomy_to($compare_to) {
-        //note that some might have empty taxon params. We can ignore these
+
+    public function identical_taxonomy_to($compare_to)
+    {
+        // note that some might have empty taxon params. We can ignore these
         return ($this->taxon_params == $compare_to->taxon_params);
     }
-    
-    public function page_younger_than($compare_to) {
-        return (strtotime($this->page_timestamp) > strtotime($compare_to->page_timestamp));
-    }    
 
-    public function is_less_precise_than($compare_to) {
-        foreach(self::$wiki_to_standard as $std_key) {
-            if (!empty($this->taxon_params[$std_key]) || (!empty($compare_to->taxon_params[$std_key]))) {
-                return (empty($this->taxon_params[$std_key]));
+    public function page_younger_than($compare_to)
+    {
+        return (strtotime($this->page_timestamp) > strtotime($compare_to->page_timestamp));
+    }
+
+    public function is_less_precise_than($compare_to)
+    {
+        foreach(self::$wiki_to_standard as $std_key)
+        {
+            if(!empty($this->taxon_params[$std_key]) || (!empty($compare_to->taxon_params[$std_key])))
+            {
+                return empty($this->taxon_params[$std_key]);
             }
         }
         return false;
     }
 
-    public function is_nested_in($compare_to) {
-        if (count(array_diff_assoc($this->taxon_params, $compare_to->taxon_params))==0) {
-            return true;
-        }
+    public function is_nested_in($compare_to)
+    {
+        if(count(array_diff_assoc($this->taxon_params, $compare_to->taxon_params))==0) return true;
         return false;
     }
 
-    public function overlaps_without_conflict($compare_to) {
-        //true e.g. if one array contains
-        foreach(self::$wiki_to_standard as $std_key) {
-            if (empty($this->taxon_params[$std_key])) continue;
-            if (empty($compare_to->taxon_params[$std_key])) continue;
-            if ($this->taxon_params[$std_key] != $compare_to->taxon_params[$std_key]) return false;
+    public function overlaps_without_conflict($compare_to)
+    {
+        // true e.g. if one array contains
+        foreach(self::$wiki_to_standard as $std_key)
+        {
+            if(empty($this->taxon_params[$std_key])) continue;
+            if(empty($compare_to->taxon_params[$std_key])) continue;
+            if($this->taxon_params[$std_key] != $compare_to->taxon_params[$std_key]) return false;
         }
         return true;
-    }    
-    
+    }
 }
 
 ?>
