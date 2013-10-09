@@ -17,23 +17,23 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("[[", "]]", $match, $arr[2]);
             $replacement = self::format_brackets($match, $format);
-            $string = preg_replace("/".preg_quote($match, "/")."/", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
         // [http://... The text to link to]
         while(preg_match("/(\[\s*(https?:\/\/[^ ]+) (.*?)\])(.*)$/uims", $string, $arr))
         {
             $match = $arr[1];
-            if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[3]</a>", $string);
-            else $string = preg_replace("/".preg_quote($match, "/")."/", $arr[3], $string);
+            if($format) $string = str_replace($match, "<a href='$arr[2]'>$arr[3]</a>", $string);
+            else $string = str_replace($match, $arr[3], $string);
         }
 
         // [http://...]
         while(preg_match("/(\[\s*(https?:\/\/[^ ]+?)\])(.*)$/uims", $string, $arr))
         {
             $match = $arr[1];
-            if($format) $string = preg_replace("/".preg_quote($match, "/")."/u", "<a href='$arr[2]'>$arr[2]</a>", $string);
-            else $string = preg_replace("/".preg_quote($match, "/")."/u", "", $string);
+            if($format) $string = str_replace($match, "<a href='$arr[2]'>$arr[2]</a>", $string);
+            else $string = str_replace($match, "", $string);
         }
 
         // {{ ... }}
@@ -42,14 +42,14 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("{{", "}}", $match, $arr[2]);
             $replacement = self::format_curly_brackets($match, $format, $pagename);
-            $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
         // <ref... />
         while(preg_match("/(<ref[^>]*\/>)(.*)/iums", $string, $arr))
         {
             $match = $arr[1];
-            $string = preg_replace("/".preg_quote($match, "/")."/u", "", $string);
+            $string = str_replace($match, "", $string);
         }
 
         // <ref...> ... </ref>
@@ -58,7 +58,7 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("<ref", "</ref>", $match, $arr[2]);
             $replacement = self::format_reference($match, $format);
-            $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
         // <!-- ... -->
@@ -67,14 +67,14 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("<!--", "-->", $match, $arr[2]);
             $replacement = self::format_html_comment($match, $format);
-            $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
 
 
         if($format) $string = preg_replace("/'''(.*?)'''/u", "<b>\\1</b>", $string);
         else $string = preg_replace("/'''(.*?)'''/u", "\\1", $string);
-        $string = preg_replace("/'''/u", "", $string); //kill off any remaining unmatched ''' to avoid misinterpretting ''''' as '' '' '
+        $string = str_replace("'''", "", $string); //kill off any remaining unmatched ''' to avoid misinterpretting ''''' as '' '' '
 
         if($format) $string = preg_replace("/''(.*?)''/u", "<i>\\1</i>", $string);
         else $string = preg_replace("/''(.*?)''/u", "\\1", $string);
@@ -200,8 +200,11 @@ class WikiParser
 
     public static function strip_tags($string)
     {
-        $string = preg_replace("/<(.*?)>(.*?)<\/\\1>/us", "\\2", $string);
-
+        do {
+            $string = preg_replace("/<(\w*?)[^>]*>(.*?)<\/\\1>/us", "\\2", $string, -1, $count);
+        } while ($count); //allow for nested tags
+        $string = preg_replace("/<br(\s\/)?>/us", "", $string); // tags that don't need closing
+        
         return $string;
     }
 
