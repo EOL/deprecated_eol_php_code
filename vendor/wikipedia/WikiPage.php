@@ -119,7 +119,7 @@ class WikiPage
                     $attribute = trim($arr[1]);
                     $value = trim($arr[2]);
                     
-                    $value = WikiParser::strip_tags(WikiParser::strip_syntax($value));
+                    $value = strip_tags(WikiParser::strip_syntax($value));
                     if(preg_match("/^(.*?)</ims", $value, $arr)) $value = $arr[1];
                     while(preg_match("/^(.*)\(or .*?\)\s*$/ims", $value, $arr)) $value = $arr[1];
                     
