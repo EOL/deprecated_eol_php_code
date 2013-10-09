@@ -430,7 +430,7 @@ class WikimediaHarvester
                             //one has an authority, the other doesn't
                             if (empty($this->taxa[$focal_taxon]->authority)) {
                                 if($GLOBALS['ENV_DEBUG'])
-                                    $return_message .= "deleting ".$focal_taxon." which an identical taxonomy to ".$compare_taxon." but no authority field, ";
+                                    $return_message .= "deleting ".$focal_taxon." which is an identical taxonomy to ".$compare_taxon." but has no authority field, ";
                                 unset($names[$focal_key]);
                             break;
                             }
