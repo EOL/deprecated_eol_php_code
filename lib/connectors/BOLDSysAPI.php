@@ -7,7 +7,7 @@ The service is per phylum level e.g.: http://v2.boldsystems.org/connect/REST/get
 This service will then list all the species under this phylum. The list of phylum names at the moment is hard-coded.
 The connector runs all the phylum taxa, assembles each of the taxon info and generates the final EOL XML.
 
-With the availability of the BOLDS big XML file (http://www.boldsystems.org/export/boldrecords.xml.gz), 
+With the availability of the BOLDS big XML file (http://www.boldsystems.org/export/boldrecords.xml.gz),
 the nucleotides sequence is no longer scraped from the site.
 */
 
@@ -23,7 +23,7 @@ class BOLDSysAPI
     private static $saved_sequences;
 
     public function __construct()
-    {           
+    {
         $this->TEMP_FILE_PATH         = DOC_ROOT . "/update_resources/connectors/files/BOLD/";
         $this->WORK_LIST              = $this->TEMP_FILE_PATH . "sl_work_list.txt"; //sl - species-level taxa
         $this->WORK_IN_PROGRESS_LIST  = $this->TEMP_FILE_PATH . "sl_work_in_progress_list.txt";
@@ -31,6 +31,105 @@ class BOLDSysAPI
         $this->LOG_FILE               = $this->TEMP_FILE_PATH . "cannot_access_phylum.txt";
         $this->SAVED_SEQUENCES_FILE   = $this->TEMP_FILE_PATH . "taxa_sequences.txt";
         $this->phylum_without_sequence = array();
+    }
+    
+    /* Some stats as of Aug 22, 2013
+    BOLDS' website says it has: "Species with Barcodes : 181,906" - http://boldsystems.org/index.php/TaxBrowser_Home
+
+       From today's (Aug22) generated EOL XML I'm getting these numbers:
+       species with any type of data (either barcode image, public sequence, map image, barcoding stats): 241,347 (close to Gary's claim of 306k species with records)
+       species with barcode image: 98,943 (expected as not all species with barcodes will have a barcode image)
+       species with public sequence data: 47,253 (only for Animals and Fungi, excluding Plants and Protists as instructed by Sujeevan)
+       species with non_public_records: 137,692 (maybe to relate this, add it with 47k, you'll get 184k - close to the 181k from BOLDS website)
+
+       Anyway these are the two sources of information for species-level taxa that EOL uses as provided by BOLDS:
+       1. webservice (e.g. http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Acanthocephala)
+       2. the BOLDS' big XML dump file (http://www.boldsystems.org/export/boldrecords.xml.gz)
+
+       From Gary's source/claim of 306k species with records, we can say we are close with 241,347.
+       ------------------------------------------------------------
+       Anyway, the latest EOL XML that will be harvested has these numbers:
+           taxa = 241,347
+           dataObjects = 449,425 (texts = 340,290, images = 109,135)
+       After harvesting, the final numbers maybe a little less due to name reconciliation.
+    */
+    
+    function run_stats($xml_file)
+    {
+        $xml = simplexml_load_file($xml_file);
+        $with_data = array();
+        $with_data2 = array();
+        $any_type_of_data = array();
+        $non_public_records = array();
+        $species_with_barcode_img = array();
+        $species_with_sequence = array();
+        $taxon = 0;
+        $unique_names = array();
+        $unique_taxon_ids = array();
+        foreach($xml->taxon as $t)
+        {
+            $taxon++;
+            $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+            $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
+            $identifier = (string) $t_dc->identifier;
+            $sciname = (string) $t_dwc->ScientificName;
+            $unique_names[$sciname] = 1;
+            $unique_taxon_ids[$identifier] = 1;
+            foreach($t->dataObject as $do)
+            {
+                $t_dc2      = $do->children("http://purl.org/dc/elements/1.1/");
+                $t_dcterms  = $do->children("http://purl.org/dc/terms/");
+                $strings = array("sequence of the barcode region Cytochrome", "following is a representative barcode sequence");
+                foreach($strings as $string)
+                {
+                    $pos = stripos($t_dc2->description, $string);
+                    if(is_numeric($pos))
+                    {
+                        $with_data[$identifier] = "";
+                        $any_type_of_data[$identifier] = "";
+                    }
+                }
+                $string = "sequence of the barcode region Cytochrome";
+                $pos = stripos($t_dc2->description, $string);
+                if(is_numeric($pos)) $species_with_sequence[$identifier] = "";
+
+                $string = "following is a representative barcode sequence";
+                $pos = stripos($t_dc2->description, $string);
+                if(is_numeric($pos)) $species_with_barcode_img[$identifier] = "";
+                
+                $string = "Barcode data:";
+                $pos = stripos($t_dc2->title, $string);
+                if(is_numeric($pos))
+                {
+                    $with_data2[$identifier] = "";
+                    $any_type_of_data[$identifier] = "";
+                }
+                
+                if(isset($with_data2[$identifier]) && !isset($with_data[$identifier])) echo "\n investigate [$identifier]";
+                
+                $strings = array("Statistics of barcoding coverage:", "BOLDS: Map of specimen collection locations for");
+                foreach($strings as $string)
+                {
+                    $pos = stripos($t_dc2->title, $string);
+                    if(is_numeric($pos)) $any_type_of_data[$identifier] = "";
+                }
+                
+                $string = "Public Records: 0";
+                $pos = stripos($t_dc2->description, $string);
+                if(is_numeric($pos)) $non_public_records[$identifier] = "";
+            }
+        }
+        echo "\n names: " . count($unique_names);
+        echo "\n names2: " . count($unique_taxon_ids);
+        echo "\n total: " . count($xml->taxon);
+        echo "\n total: " . $taxon;
+        echo "\n taxa with barcode image or public sequence data: " . count($with_data);
+        echo "\n taxa with barcode image or public sequence data: " . count($with_data2);
+        echo "\n species with barcode image: " . count($species_with_barcode_img);
+        echo "\n species with public sequence data: " . count($species_with_sequence);
+        echo "\n taxa with any type of data: " . count($any_type_of_data);
+        echo "\n taxa with non_public_records: " . count($non_public_records);
+        echo "\n";
     }
 
     function initialize_text_files()
@@ -205,7 +304,6 @@ class BOLDSysAPI
             }
         }
 
-
         $arr_data[]=array(  "identifier"   => $taxon_id,
                             "source"       => SPECIES_URL . trim($taxon_id),
                             "kingdom"      => "",
@@ -296,9 +394,9 @@ class BOLDSysAPI
 
         /* //debug
         $arr_phylum = array();
-        $arr_phylum[] = array( "name" => "Chordata", "id" => 18);
-        // $arr_phylum[] = array( "name" => "Annelida", "id" => 11);
-        $arr_phylum[] = array( "name" => "Arthropoda", "id" => xx); // the big one that makes the difference
+        // $arr_phylum[] = array( "name" => "Chordata", "id" => 18);
+        $arr_phylum[] = array( "name" => "Annelida", "id" => 2);
+        // $arr_phylum[] = array( "name" => "Arthropoda", "id" => 20); // the big one that makes the difference
         */
 
         self::count_taxa_per_phylum($arr_phylum);
@@ -322,7 +420,7 @@ class BOLDSysAPI
             $phylum_path = PHYLUM_SERVICE_URL . $phylum['name'];
             // $phylum_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
             echo "\n\nphylum service: " . $phylum_path . "\n";
-            if($xml = Functions::get_hashed_response($phylum_path, array('timeout' => 9999, 'download_attempts' => 5)))
+            if($xml = Functions::get_hashed_response($phylum_path, array('timeout' => 15000, 'download_attempts' => 5))) //about 4 hours before it timesout
             {
                 echo "\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [" . sizeof($xml->record) . "]";
                 $i = 0;
@@ -466,7 +564,10 @@ class BOLDSysAPI
             echo "\n loading saved sequences... \n";
             self::$saved_sequences = self::get_array_from_json_file($this->SAVED_SEQUENCES_FILE);
         }
-        print_r(@self::$saved_sequences[$taxon_id]);
+        if(@self::$saved_sequences[$taxon_id])
+        {
+            if(@self::$saved_sequences[$taxon_id]["s"]) echo "\n has sequence: " . @self::$saved_sequences[$taxon_id]["c"];
+        }
         return array("count_sequence" => @self::$saved_sequences[$taxon_id]["c"], "best_sequence" => @self::$saved_sequences[$taxon_id]["s"]);
     }
 

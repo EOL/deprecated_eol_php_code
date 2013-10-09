@@ -85,14 +85,14 @@ class INBioAPI
             //     shell_exec("gunzip -f $temp_file_path");
             //     $archive_path = str_ireplace(".gz", "", $temp_file_path);
             // }
-            elseif(preg_match("/^(.*)\.(zip)$/", $dwca_file, $arr))
+            elseif(preg_match("/^(.*)\.(zip)$/", $dwca_file, $arr) || preg_match("/mcz_for_eol(.*?)/ims", $dwca_file, $arr))
             {
                 shell_exec("unzip -ad $temp_dir $temp_file_path");
                 $archive_path = str_ireplace(".zip", "", $temp_file_path);
             } 
             else
             {
-                debug("-- archive not gzip or zip.");
+                debug("-- archive not gzip or zip. [$dwca_file]");
                 return;
             }
             debug("archive path: [" . $archive_path . "]");

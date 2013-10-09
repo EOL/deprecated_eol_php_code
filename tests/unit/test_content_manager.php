@@ -83,7 +83,7 @@ class test_content_manager extends SimpletestUnitBase
         $this->assertTrue($sizes[1] == 233);
         self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
 
-        $file = $this->content_manager->grab_file('http://content62.eol.org/content/2013/06/25/16/25942_orig.jpg', 'image', array('rotate' => 90));
+        $file = $this->content_manager->grab_file('http://content62.eol.org/content/2013/06/25/16/25942_orig.jpg', 'image', array('rotation' => 90));
         $cache_path = ContentManager::cache_path($file);
         $sizes = getimagesize(CONTENT_LOCAL_PATH . $cache_path .'_580_360.jpg');
         // now it will max out the height

@@ -2,6 +2,26 @@
 
 class WikiParser
 {
+    
+    public static function mb_trim($string) 
+    {   // Several wikitext examples have control characters or odd unicode spaces
+        // This url may be helpful: http://www.php.net/manual/en/regexp.reference.unicode.php
+        return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u','',$string);
+    }
+
+    public static function mb_ucfirst($string) {
+        $firstletter = mb_strtoupper(mb_substr($string, 0, 1), 'utf-8');
+        return $firstletter.mb_substr($string, 1);
+    }
+
+    public static function make_valid_pagetitle($string) {
+        // In <title>, all pages have a capital first letter, and single spaces replace any combo of
+        // underscores and true (unicode) spaces.
+        $string = preg_replace("/[_\pZ\pC]+/u", " ", $string); //
+        $string = trim($string);
+        return self::mb_ucfirst($string);
+    }
+    
     public static function strip_syntax($string, $format = false, $pagename = false)
     {
         if($format == false)
@@ -17,23 +37,23 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("[[", "]]", $match, $arr[2]);
             $replacement = self::format_brackets($match, $format);
-            $string = preg_replace("/".preg_quote($match, "/")."/", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
         // [http://... The text to link to]
         while(preg_match("/(\[\s*(https?:\/\/[^ ]+) (.*?)\])(.*)$/uims", $string, $arr))
         {
             $match = $arr[1];
-            if($format) $string = preg_replace("/".preg_quote($match, "/")."/", "<a href='$arr[2]'>$arr[3]</a>", $string);
-            else $string = preg_replace("/".preg_quote($match, "/")."/", $arr[3], $string);
+            if($format) $string = str_replace($match, "<a href='$arr[2]'>$arr[3]</a>", $string);
+            else $string = str_replace($match, $arr[3], $string);
         }
 
         // [http://...]
         while(preg_match("/(\[\s*(https?:\/\/[^ ]+?)\])(.*)$/uims", $string, $arr))
         {
             $match = $arr[1];
-            if($format) $string = preg_replace("/".preg_quote($match, "/")."/u", "<a href='$arr[2]'>$arr[2]</a>", $string);
-            else $string = preg_replace("/".preg_quote($match, "/")."/u", "", $string);
+            if($format) $string = str_replace($match, "<a href='$arr[2]'>$arr[2]</a>", $string);
+            else $string = str_replace($match, "", $string);
         }
 
         // {{ ... }}
@@ -42,14 +62,14 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("{{", "}}", $match, $arr[2]);
             $replacement = self::format_curly_brackets($match, $format, $pagename);
-            $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
         // <ref... />
         while(preg_match("/(<ref[^>]*\/>)(.*)/iums", $string, $arr))
         {
             $match = $arr[1];
-            $string = preg_replace("/".preg_quote($match, "/")."/u", "", $string);
+            $string = str_replace($match, "", $string);
         }
 
         // <ref...> ... </ref>
@@ -58,7 +78,7 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("<ref", "</ref>", $match, $arr[2]);
             $replacement = self::format_reference($match, $format);
-            $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
         // <!-- ... -->
@@ -67,14 +87,14 @@ class WikiParser
             $match = $arr[1];
             list($match, $junk) = self::balance_tags("<!--", "-->", $match, $arr[2]);
             $replacement = self::format_html_comment($match, $format);
-            $string = preg_replace("/".preg_quote($match, "/")."/u", $replacement, $string);
+            $string = str_replace($match, $replacement, $string);
         }
 
 
 
         if($format) $string = preg_replace("/'''(.*?)'''/u", "<b>\\1</b>", $string);
         else $string = preg_replace("/'''(.*?)'''/u", "\\1", $string);
-        $string = preg_replace("/'''/u", "", $string); //kill off any remaining unmatched ''' to avoid misinterpretting ''''' as '' '' '
+        $string = str_replace("'''", "", $string); //kill off any remaining unmatched ''' to avoid misinterpretting ''''' as '' '' '
 
         if($format) $string = preg_replace("/''(.*?)''/u", "<i>\\1</i>", $string);
         else $string = preg_replace("/''(.*?)''/u", "\\1", $string);
@@ -194,13 +214,6 @@ class WikiParser
     {
         if(!$format) $string = "";
         else $string = "";
-
-        return $string;
-    }
-
-    public static function strip_tags($string)
-    {
-        $string = preg_replace("/<(.*?)>(.*?)<\/\\1>/us", "\\2", $string);
 
         return $string;
     }

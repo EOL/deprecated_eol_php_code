@@ -3,12 +3,10 @@ namespace php_active_record;
 
 class ContentManager
 {
-    private $remote_server_ip;
     private $unique_key;
 
-    function __construct($server_ip = 0)
+    function __construct()
     {
-        $this->remote_server_ip = $server_ip;
         $this->unique_key = Functions::generate_guid();
     }
 
@@ -148,7 +146,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(gz|gzip)$/", $new_temp_file_path, $arr))
                 {
-                    shell_exec("gunzip -f $new_temp_file_path");
+                    shell_exec(GUNZIP_BIN_PATH . " -f $new_temp_file_path");
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -160,7 +158,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec("tar -xf $new_temp_file_path -C $archive_directory");
+                    shell_exec(TAR_BIN_PATH . " -xf $new_temp_file_path -C $archive_directory");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -172,7 +170,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec("unzip -d $archive_directory $new_temp_file_path");
+                    shell_exec(UNZIP_BIN_PATH . " -d $archive_directory $new_temp_file_path");
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -204,7 +202,7 @@ class ContentManager
     public static function determine_file_suffix($file_path, $suffix)
     {
         // use the Unix/Linux `file` command to determine file type
-        $stat = strtolower(shell_exec("file ".$file_path));
+        $stat = strtolower(shell_exec(FILE_BIN_PATH . " " . $file_path));
         $file_type = "";
         if(preg_match("/^[^ ]+: (.*)$/",$stat,$arr)) $file_type = trim($arr[1]);
         if(preg_match("/^\"(.*)/", $file_type, $arr)) $file_type = trim($arr[1]);
@@ -359,7 +357,7 @@ class ContentManager
     function reduce_original($path, $prefix, $options = array())
     {
         $rotate = "-auto-orient";
-        if(isset($options['rotate'])) $rotate = "-rotate ". intval($options['rotate']);
+        if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);

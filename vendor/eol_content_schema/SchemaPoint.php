@@ -2,9 +2,9 @@
 
 class SchemaPoint
 {
-    static $latitude;
-    static $longitude;
-    static $altitude;
+    private $latitude;
+    private $longitude;
+    private $altitude;
     
     public function __construct($parameters)
     {

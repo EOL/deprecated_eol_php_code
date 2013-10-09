@@ -1,34 +1,29 @@
 <?php
 namespace php_active_record;
-
-/* connector for Turbellarian
-Estimated execution time: 10.57 hrs.
-This connector gets data from website. Ancestry information is still pending, to be provided by partner.
-
-as of       records
-2010 10 01  17492
-2010 11 18  9780
-2011 01 05  9491
-2011 04 15  9508
+/* Turbellarian Taxonomic Database
+estimated execution time: 20 hours 
 */
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$timestart = time_elapsed();
 require_library('connectors/TurbellarianAPI');
-
-$taxa = TurbellarianAPI::get_all_taxa();
-$xml = \SchemaDocument::get_taxon_xml($taxa);
+$timestart = time_elapsed();
 $resource_id = 185;
-$resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-$OUT = fopen($resource_path, "w+");
-fwrite($OUT, $xml);
-fclose($OUT);
-
-Functions::set_resource_status_to_force_harvest($resource_id);
-
+$func = new TurbellarianAPI($resource_id);
+$func->get_all_taxa();
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
+{
+    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
+    {
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+    }
+    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+    Functions::set_resource_status_to_force_harvest($resource_id);
+}
+// $func->check_taxon_tab(DOC_ROOT . "/taxon.tab", false); // just some stats...
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " min   \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
-echo "\n\n Done processing.";
+echo "\n\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+echo "\nDone processing.\n";
 ?>

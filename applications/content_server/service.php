@@ -48,7 +48,7 @@ echo "<response>\n";
 switch($function)
 {
     case "partner_image":
-        $manager = new ContentManager($server_ip);
+        $manager = new ContentManager();
         $new_file_path = $manager->grab_file($file_path, "partner");
         if($new_file_path)
         {
@@ -80,7 +80,7 @@ switch($function)
         //      resources/ID.*
         wildcard_rm(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
         
-        $manager = new ContentManager($server_ip);
+        $manager = new ContentManager();
         $new_file_path = $manager->grab_file($file_path, "resource", array('resource_id' => $resource_id));
         if($new_file_path)
         {
@@ -179,21 +179,21 @@ switch($function)
         break;
         
     case "upload_content":
-        $manager = new ContentManager($server_ip);
+        $manager = new ContentManager();
         $new_file_path = $manager->grab_file($file_path, "image");
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
         
     case "admin_upload":
-        $manager = new ContentManager($server_ip);
+        $manager = new ContentManager();
         $new_file_path = $manager->grab_file($file_path, "upload");
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
         
     case "crop_image":
-        $manager = new ContentManager($server_ip);
+        $manager = new ContentManager();
         $new_file_path = $manager->crop_image($data_object_id, $x, $y, $w);
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";

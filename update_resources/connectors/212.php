@@ -2,7 +2,8 @@
 namespace php_active_record;
 /* connector for BOLD Systems -- species-level taxa
 estimated execution time 1.5 | 7.2 hours
-Partner provides XML service and a big XML file
+Partner provides XML service and a big XML file.
+No need to run multiple connectors anymore since we got the big XML file.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -23,7 +24,7 @@ echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done save_dna_sequence_from_big_xml() \n\n";
 // */
 
-$bolds->initialize_text_files(); // not commented on regular operation
+$bolds->initialize_text_files(); // not commented on regular operation. If running multiple connectors, the first connector will pass here and succeeding ones won't.
 $bolds->start_process($resource_id, false);
 
 Functions::set_resource_status_to_force_harvest($resource_id);
@@ -31,4 +32,11 @@ $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing. \n";
+
+/* Stats yearly for Nathan W. and Gary B.
+$xml = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/212 copy.xml";
+$xml = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/212.xml";
+$bolds->run_stats($xml);
+*/
+
 ?>
