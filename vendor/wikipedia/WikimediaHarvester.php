@@ -24,15 +24,16 @@ class WikimediaHarvester
         $this->galleries_for_file = array();  //key=media-filename, value = array of gallery names (usually just one name)
         $this->taxonomies_for_file = array(); //key=media-filename, value = count of taxonomies for this file (just for info)
         $this->taxonomy_pagenames = array();  //key=media-filename, value = array of redirects (used as temp name store)
-        $this->map_categories = self::get_map_categories($this->base_directory_path);
-        // TODO - add list of "unwanted" categories, so that if an image falls into one of these (or a child thereof), 
-        //  it is not harvested. E.g. a suggested "unwanted" category might be
-        //  Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
         $this->total_pages_in_dump = 0;
         $this->queue_of_pages_to_process = array();
 
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
         $this->resource_file = new \SchemaDocument($this->resource_file_path);
+
+        $this->map_categories = $this->update_subcategories(array("Distributional maps of organisms"=>-1), "MapCategories");
+        $this->unwanted_categories = $this->update_subcategories(array("Uploaded_with_Open_Access_Media_Importer_and_needing_category_review"=>0), "UnwantedCategories");
+        //If we have lots of unwanted categories we can retrieve them from a file, something like this:
+        //$this->unwanted_categories = $this->update_subcategories("Unwanted.txt", "UnwantedCategories");
     }
 
     public function begin_wikipedia_harvest()
@@ -371,9 +372,11 @@ class WikimediaHarvester
                     }elseif(isset($this->map_categories[$cat]))
                     {
                         $map = true;
-                    }
+                    }elseif(isset($this->unwanted_categories[$cat]))
+                    {
+                        continue;
                     // neither a taxonomic category, nor a map category, so maybe its a license category
-                    else $potential_license_categories[] = $cat;
+                    }else $potential_license_categories[] = $cat;
                 }
 
                 if($map) $page->set_additionalInformation("<subtype>Map</subtype>");
@@ -486,64 +489,124 @@ class WikimediaHarvester
         }
     }
 
-    private static function get_map_categories($base_directory_path, $contact_sites=true)
+    private function update_subcategories($categories, $file_prefix, $contact_sites=true)
     {
-        // Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
-        // but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
-        // (using an old version should be no problem, as we don't expect many changes to this category structure)
+        /* Try to get latest list of categories. It's hard to use the MediaWiki API to recursively descend categories
+         but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
+         (using an old version should be no problem, as we don't expect many changes to this category structure)
 
-        $mapcats = array();
-        echo "Looking for map categories...\n";
-        if ($contact_sites) $mapcats = self::get_all_child_categories("Distributional maps of organisms");
-        if(count($mapcats) > 1) // will always have the base category present
+        you can either pass in assoc array of unwanted category names (category_name => recursiondepth), 
+        or filename to parse (each line of which is a category name plus optional recursiondepth separated by tab)
+
+        */
+        $allcats = array();
+
+        if (is_string($categories)) {
+            $filename = $categories;
+            $categories = array();            
+            if(!file_exists($filename))
+            {
+                echo "Couldn't open list of unwanted categories in file '$filename'\n";
+                return $categories;
+            }
+            foreach(file($filename, FILE_IGNORE_NEW_LINES) as $line)
+            {
+                if(preg_match("/^([^\t]+)\t(.+)$/u",$line, $arr))
+                {
+                    $categories[$arr[1]]=$arr[2];
+                } else {
+                    $categories[$line] = 0; //by default, don't get any children
+                }
+            };
+        }
+        
+        if ($contact_sites)
         {
-            // overwrite previous
-            @rename($base_directory_path."MapCategories.txt", $base_directory_path."MapCategories_previous.txt");
-            file_put_contents($base_directory_path."MapCategories.txt", implode("\n",array_keys($mapcats)));
-            return $mapcats;
+            foreach($categories as $parent_category => $depth)
+            {
+                if ((trim($parent_category))!=="") {
+                    if (intval($depth)==0) //don't descend into child categories
+                    {
+                        $cats = array(\WikiParser::make_valid_pagetitle($parent_category)=>1);
+                    } else {
+                        echo "Looking for descendants of <Category:$parent_category> to save in '$file_prefix.txt'...\n";
+                        $cats = self::download_subcategories($parent_category, $depth);
+                    }
+                    if(count($cats)) 
+                    {
+                        $allcats += $cats;
+                    } else {
+                        $allcats = array();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(count($allcats))
+        {   // overwrite previous
+            @rename($this->base_directory_path."/".$file_prefix.".txt", $this->base_directory_path."/".$file_prefix."_previous.txt");
+            file_put_contents($this->base_directory_path."/".$file_prefix.".txt", implode("\n",array_keys($allcats)));
+            return $allcats;
         }else
         {
-            echo "Didn't download new list of map categories: using old version.\n";
-            $mapcats = file($base_directory_path."MapCategories.txt", FILE_IGNORE_NEW_LINES);
-            return(array_fill_keys($mapcats, 1));
+            echo ($contact_sites?"Didn't ":"Couldn't")."download category list: using old version at $file_prefix.txt.\n";
+            $catnames = file($this->base_directory_path."/".$file_prefix.".txt", FILE_IGNORE_NEW_LINES);
+            return(array_fill_keys($catnames, 1));
         }
     }
     
-    private static function get_all_child_categories($base_category, $depth=null)
+    
+    private static function download_subcategories($base_category, $depth=-1)
     {
-        $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
-                        "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
+        //negative depths mean all children. If nothing returned, we couldn't connect to any category service
+        $sites = array( 'toolserver' => array("http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php",
+                                              "?wikifam=commons.wikimedia.org",
+                                              "&basedeep=", ($depth<0)?"100":intval($depth),
+                                              "&mode=cl&go=Scan&format=csv&userlang=en&basecat="),
+                        'wmflabs' =>    array("http://tools.wmflabs.org/catscan2/quick_intersection.php",
+                                              "?lang=commons&project=wikimedia&ns=14", 
+                                              "&depth=", ($depth<0)?"-1":intval($depth), 
+                                              "&max=30000&start=0&format=json&sparse=1&cats="));
 
-        $cats = array($base_category => 1);
-        if(count($cats) <= 1)
+        $cats = array();
+        if(count($cats)==0)
         {
-            $url = $sites["toolserver"].urlencode($base_category);
+            $url = implode($sites["toolserver"]).urlencode($base_category);
             $tab_separated_string = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => DOWNLOAD_WAIT_TIME*10, 'timeout' => DOWNLOAD_TIMEOUT_SECONDS*10));
             if(isset($tab_separated_string) && !preg_match("/^[^\r\n]*Database Error/i",$tab_separated_string))
             {
                 foreach(preg_split("/(\r?\n)|(\n?\r)/", $tab_separated_string, null, PREG_SPLIT_NO_EMPTY) as $line)
                 {
                     //  Category name is after first tab
-                    $name = preg_replace("/_/u", " ", preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line));
+                    $name = \WikiParser::make_valid_pagetitle(preg_replace("/^[^\t]*\t([^\t]*).*$/u", "$1", $line));
                     $cats[$name] = 1;
                 }
-                echo "Got ".count($cats)." categories from toolserver ($url)\n";
-            }else echo "Couldn't get categories from toolserver ($url)\n";
+            }
+            if (count($cats)) {
+                echo "Got ".count($cats)." categories from toolserver ($url)\n"; //should at least get $base_category back
+            } else {
+                echo "Couldn't get categories from toolserver ($url)\n";
+            };
         }
 
-        if(count($cats) <= 1)
+        if(count($cats) == 0)
         {
-            $url = $sites["wmflabs"].urlencode($base_category);
+            $url = implode($sites["wmflabs"]).urlencode($base_category);
             $json = @json_decode(Functions::get_remote_file($url));
             if(isset($json) && isset($json->pages))
             {
+                $cats[\WikiParser::make_valid_pagetitle($base_category)] = 1;
                 foreach($json->pages as $cat)
                 {
-                    $name = preg_replace("/_/u", " ", preg_replace("/^Category:/u", "", $cat));
+                    $name = \WikiParser::make_valid_pagetitle(preg_replace("/^Category:/u", "", $cat));
                     $cats[$name] = 1;
                 }
                 echo "Got ".count($cats)." categories from wmflabs ($url)\n";
-            }else echo "Couldn't get categories from wmflabs ($url)\n";
+            } else {
+                echo "Couldn't get categories from wmflabs ($url)\n";
+                return array();
+            }
         }
         
         return $cats;
