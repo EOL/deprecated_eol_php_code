@@ -30,10 +30,16 @@ class WikimediaHarvester
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
         $this->resource_file = new \SchemaDocument($this->resource_file_path);
 
+        //The following commands get useful lists of categories, potentially recursing into child categories too.
+        //Watch out if any recursion depths are set to -1, as there is the potential for infinite recursion.
         $this->map_categories = $this->update_subcategories(array("Distributional maps of organisms"=>-1), "MapCategories");
-        $this->unwanted_categories = $this->update_subcategories(array("Uploaded_with_Open_Access_Media_Importer_and_needing_category_review"=>0), "UnwantedCategories");
-        //If we have lots of unwanted categories we can retrieve them from a file, something like this:
+        $this->unwanted_categories = $this->update_subcategories(
+          array("Uploaded_with_Open_Access_Media_Importer_and_needing_category_review" //often irrelevantly taxo specific
+                 =>0), //Don't get children, this probably isn't a diffusing category. See https://commons.wikimedia.org/wiki/User_talk:Open_Access_Media_Importer_Bot#Naming_of_child_categories_of_Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
+          "UnwantedCategories");
+        //Note that If we have lots of unwanted categories we use a file, something like this:
         //$this->unwanted_categories = $this->update_subcategories("Unwanted.txt", "UnwantedCategories");
+        //where "Unwanted.txt" contains lines giving the category name then a tab, then the recursion depth.
     }
 
     public function begin_wikipedia_harvest()
