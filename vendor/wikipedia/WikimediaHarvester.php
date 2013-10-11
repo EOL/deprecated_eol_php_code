@@ -400,7 +400,7 @@ class WikimediaHarvester
             }else
             {
                 $mesg = self::remove_duplicate_taxonomies($taxonomies);
-                if(!empty($mesg)) echo $mesg."in wikimedia page <$page->title>\n";
+                if(!empty($mesg)) echo \WikiParser::mb_ucfirst($mesg)."in wikimedia page <$page->title>\n";
                 if($GLOBALS['ENV_DEBUG'] && (count($taxonomies) > 1)) echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
                 $this->taxonomies_for_file[$page->title] = count($taxonomies);
                 $data_object_parameters = $page->get_data_object_parameters();
