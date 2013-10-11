@@ -7,14 +7,16 @@ class WikimediaPage
     private $data_object_parameters;
     private $galleries = array();
 
-    // see http://www.mediawiki.org/wiki/Manual:MIME_type_detection
-    private static $mediatypes = array(
-                                    'BITMAP'  => 'http://purl.org/dc/dcmitype/StillImage',
-                                    'DRAWING' => 'http://purl.org/dc/dcmitype/StillImage',
-                                    'AUDIO'   => 'http://purl.org/dc/dcmitype/Sound',
-                                    'VIDEO'   => 'http://purl.org/dc/dcmitype/MovingImage',
-                                    // 'MULTIMEDIA' => '',
-                                    'TEXT'    => 'http://purl.org/dc/dcmitype/Text');
+    // For wikimedia types see http://www.mediawiki.org/wiki/Manual:MIME_type_detection
+    // For creator_roles see http://dublincore.org/usage/meetings/2004/03/Relator-codes.html
+    private static $mediatypes = 
+        array('BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'creator_role'=>'Photographer'),
+              'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'creator_role'=>'Illustrator'),
+              'AUDIO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/Sound',      'creator_role'=>'Recording engineer'),
+              'VIDEO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/MovingImage','creator_role'=>'Recording engineer'),
+              // 'MULTIMEDIA' => '',
+              'TEXT'    => array('dcmitype'=>'http://purl.org/dc/dcmitype/Text',       'creator_role'=>'Author'));
+          
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
 
@@ -389,12 +391,6 @@ class WikimediaPage
             $this->data_object_parameters["description"] = "";
         }else $this->data_object_parameters["description"] = $this->description();
 
-        $this->data_object_parameters["agents"] = array();
-        if($a = $this->agent_parameters())
-        {
-            if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
-        }
-
         if($this->point())
         {
             $this->data_object_parameters["point"] = new \SchemaPoint($this->point());
@@ -409,6 +405,16 @@ class WikimediaPage
         $this->licenses = $this->licenses_via_wikitext();
         $this->set_license($this->best_license($this->licenses));
         $this->set_mimeType(php_active_record\Functions::get_mimetype($this->title));
+    }
+
+    public function finalize_data_object()
+    {
+        //stuff here that is dependent on already filled-in params (e.g. media_type)
+        $this->data_object_parameters["agents"] = array();
+        if($a = $this->agent_parameters())
+        {
+            if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
+        }
     }
 
     public function has_license()
@@ -467,7 +473,8 @@ class WikimediaPage
     {
         if(isset(self::$mediatypes[$mediatype]))
         {
-            $dataType = self::$mediatypes[$mediatype];
+            $this->mediatype = $mediatype;
+            $dataType = self::$mediatypes[$mediatype]['dcmitype'];
             if(isset($this->data_object_parameters['dataType']) && ($this->data_object_parameters['dataType'] != $dataType))
             {
                 echo "Overriding dataType for $this->title : current = ". $this->data_object_parameters['dataType'] .", new = $dataType\n";
@@ -475,10 +482,17 @@ class WikimediaPage
             $this->data_object_parameters['dataType'] = $dataType;
         }else
         {
+            $this->mediatype = "";
             echo "Non-compatible mediatype: $mediatype for $this->title\n";
             $this->data_object_parameters['dataType'] = "";
         }
     }
+    
+    public function get_mediatype()
+    {
+        return $this->mediatype;
+    }
+
 
     public function set_additionalInformation($text)
     {
@@ -538,7 +552,12 @@ class WikimediaPage
         {
             $agent_parameters["fullName"] = htmlspecialchars($author);
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
-            $agent_parameters["role"] = 'photographer';
+            if(isset(self::$mediatypes[$mediatype]))
+            {
+                $agent_parameters['role'] = self::$mediatypes[$mediatype]['creator_role'];
+            } else {
+                $agent_parameters['role'] = 'Creator';
+            }
         }
 
         $this->agent_parameters = $agent_parameters;
@@ -908,6 +927,7 @@ class WikimediaPage
                 echo "That's odd. No mediatype returned in API query for $this->title (in $url)\n";
             }
         }
+        $this->finalize_data_object();
     }
 
     private function initialize_categories_from_api_response($json_info)
