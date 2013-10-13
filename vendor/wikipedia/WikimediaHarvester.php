@@ -38,6 +38,8 @@ class WikimediaHarvester
 
     public function begin_wikipedia_harvest()
     {
+        //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
+        mb_internal_encoding("UTF-8");
         // delete the downloaded files
         $this->cleanup_dump();
         $this->download_dump();
@@ -469,7 +471,7 @@ class WikimediaHarvester
     private function check_for_unaccounted_galleries()
     {
         $good_files = array();
-        echo "\n".count($this->galleries_for_file) ." gallery files remaining at end. Checking them out now...\n";
+        echo "\n".count($this->galleries_for_file) ." gallery files remain at the end. Most of these are probably misspellings in the gallery text. Checking these out now...\n";
         $titles = array_chunk(array_keys($this->galleries_for_file), \WikimediaPage::$max_titles_per_lookup, true);
         foreach($titles as $batch)
         {
@@ -480,7 +482,7 @@ class WikimediaHarvester
             echo "\nMISSED THE FOLLOWING ". count($good_files) ." FILES";
             foreach($good_files as $title => $json)
             {
-                echo "* $title in galler".(count($this->galleries_for_file[$title])>1?'ies':'y');
+                echo "* <$title> in galler".(count($this->galleries_for_file[$title])>1?'ies':'y');
                 echo " <".implode(", ", $this->galleries_for_file[$title]).">\n";
             }
         }
