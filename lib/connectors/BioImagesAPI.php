@@ -31,19 +31,22 @@ class BioImagesAPI
 
     private function parse_record_element($row, $col)
     {
-        $sciname = $row[$col['Taxon']];
-        $taxon_id = $row[$col['NWB taxon id']];
-        echo "\n" . " - " . $sciname . " - " . $taxon_id;
-        $reference_ids = array(); // no taxon references yet
-        $ref_ids = array(); // no data_object references yet
-        $agent_ids = self::get_object_agents($row, $col);
-        $this->create_instances_from_taxon_object($row, $col, $reference_ids);
-        self::get_images($row, $col, $ref_ids, $agent_ids);
+        $sciname = @$row[$col['Taxon']];
+        $taxon_id = @$row[$col['NWB taxon id']];
+        if($sciname && $taxon_id)
+        {
+            echo "\n" . " - " . $sciname . " - " . $taxon_id;
+            $reference_ids = array(); // no taxon references yet
+            $ref_ids = array(); // no data_object references yet
+            $agent_ids = self::get_object_agents($row, $col);
+            $this->create_instances_from_taxon_object($row, $col, $reference_ids);
+            self::get_images($row, $col, $ref_ids, $agent_ids);
+        }
     }
 
     function get_all_taxa()
     {
-        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('timeout' => 4800, 'download_attempts' => 5)))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
         {
             $col = array();
             foreach(new FileIterator($temp_filepath, true) as $line_num => $line) // 'true' will auto delete temp_filepath
@@ -60,8 +63,11 @@ class BioImagesAPI
                 }
                 else
                 {
-                    echo "\n" . $row[$col['Taxon']];
-                    self::parse_record_element($row, $col);
+                    if(@$row[$col['Taxon']])
+                    {
+                        echo "\n" . $row[$col['Taxon']];
+                        self::parse_record_element($row, $col);
+                    }
                 }
             }
             //get text objects from the original resource (168.xml in Nov 2010)
@@ -76,10 +82,14 @@ class BioImagesAPI
     {
         require_library('connectors/BoldsImagesAPIv2');
         $path = BoldsImagesAPIv2::download_and_extract_remote_file($this->original_resource);
-        if($xml = Functions::get_hashed_response($path, array('timeout' => 172800, 'download_attempts' => 5)))
+        if($xml = Functions::get_hashed_response($path, array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
         {
+            $total = count($xml->taxon);
+            $i = 0;
             foreach($xml->taxon as $t)
             {
+                $i++;
+                echo "\n $i of $total";
                 $do_count = sizeof($t->dataObject);
                 if($do_count > 0)
                 {
@@ -92,8 +102,6 @@ class BioImagesAPI
                     $taxon = new \eol_schema\Taxon();
                     $taxon->taxonID                     = $taxonID;
                     $taxon->scientificName              = $t_dwc->ScientificName;
-                    $taxon->scientificNameAuthorship    = '';
-                    $taxon->vernacularName              = '';
                     $taxon->kingdom                     = $t_dwc->Kingdom;
                     $taxon->phylum                      = $t_dwc->Phylum;
                     $taxon->class                       = $t_dwc->Class;
@@ -273,21 +281,13 @@ class BioImagesAPI
         $scientificName = (string)utf8_encode($row[$col['Taxon']]);
         if(!$scientificName) return; //blank
         $taxon->scientificName              = $scientificName;
-        $taxon->scientificNameAuthorship    = '';
-        $taxon->vernacularName              = '';
         $taxon->kingdom                     = (string)$row[$col['Kingdom']];
         $taxon->phylum                      = (string)$row[$col['Phylum']];
         $taxon->class                       = (string)$row[$col['Class']];
         $taxon->order                       = (string)$row[$col['Order']];
         $taxon->family                      = (string)$row[$col['Family']];
-        $taxon->specificEpithet             = '';
-        $taxon->taxonomicStatus             = '';
         $taxon->furtherInformationURL       = $row[$col['BioImages taxon page']];
-        $taxon->nomenclaturalCode           = '';
-        $taxon->nomenclaturalStatus         = '';
         $taxon->acceptedNameUsage           = ''; //'Accepted name'
-        $taxon->acceptedNameUsageID         = '';
-        $taxon->parentNameUsageID           = '';
         $original_identification            = (string)$row[$col['Original ident']];
         $taxon->namePublishedIn             = $original_identification;
         $taxonRemarks = '';
