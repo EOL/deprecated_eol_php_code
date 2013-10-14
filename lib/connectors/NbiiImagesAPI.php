@@ -86,19 +86,23 @@ class NbiiImagesAPI
         $exclude = array("Animals_Birds_00787.jpg", "Animals_Crustaceans_00008.jpg", "Management_ParksProtectedAreas_OtherProtections_00026.jpg");
         if(in_array($rec->Filename, $exclude)) return;
         $mediaURL = trim($this->eol_defined_image_path . $rec->Filename);
-        $description = $rec->description;
+        $description = "";
+        if($rec->navigationalCategoryHierarchy) $description .= "<br>Category hierarchy: " . str_replace("|" , " | ", $rec->navigationalCategoryHierarchy);
+        if($rec->description) $description .= "<br>Description: " . $rec->description;
         if($rec->captureDevice) $description .= "<br>Capture device: " . $rec->captureDevice;
         if($rec->captureDetails) $description .= "<br>Capture details: " . $rec->captureDetails;
         $locality = "";
         if($rec->Geo_latitude) $locality .= "Latitude: " . $rec->Geo_latitude;
         if($rec->Geo_longitude) $locality .= "; Longitude: " . $rec->Geo_longitude;
         if($locality) $description .= "<br><br>Locality: " . $locality;
+        if($life_stage = self::get_lifestage($rec)) $description .= "<br><br>Life stage: " . $life_stage;
+        // if($related_media = self::get_related_media($rec)) $description .= "<br><br>Related media: " . $related_media;
         $location_created = "";
-        if($rec->Geo_description)    $location_created .= "<br>Locality: " . $rec->Geo_description;
-        if($rec->Geo_subprovince)    $location_created .= "<br>Sub-province: " . $rec->Geo_subprovince;
-        if($rec->Geo_stateProvince)  $location_created .= "<br>State Province: " . $rec->Geo_stateProvince;
-        if($rec->Geo_country)        $location_created .= "<br>Country: " . $rec->Geo_country;
-        if($rec->Geo_continentOcean) $location_created .= "<br>Continent Ocean: " . $rec->Geo_continentOcean;
+        if($rec->Geo_description)    $location_created .= "Locality: " . $rec->Geo_description . ". ";
+        if($rec->Geo_subprovince)    $location_created .= "Sub-province: " . $rec->Geo_subprovince . ". ";
+        if($rec->Geo_stateProvince)  $location_created .= "State Province: " . $rec->Geo_stateProvince . ". ";
+        if($rec->Geo_country)        $location_created .= "Country: " . $rec->Geo_country . ". ";
+        if($rec->Geo_continentOcean) $location_created .= "Continent Ocean: " . $rec->Geo_continentOcean . ". ";
         $mr = new \eol_schema\MediaResource();
         if($reference_ids)  $mr->referenceID = implode("; ", $reference_ids);
         if($agent_ids)      $mr->agentID = implode("; ", $agent_ids);
@@ -264,13 +268,129 @@ class NbiiImagesAPI
         $taxon = new \eol_schema\Taxon();
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonID                     = (string) $taxon_id;
-        $taxon->taxonRank                   = (string) "species";
+        $taxon->taxonRank                   = "species";
         $taxon->scientificName              = (string) $sciname;
         $taxon->genus                       = (string) $genus;
         $this->taxa[$taxon->taxonID] = $taxon;
+        self::get_vernaculars($taxon_id, $rec);
         return $taxon_id;
     }
+    
+    private function get_lifestage($rec)
+    {
+        $life_stage = "";
+        if(!$rec->LifeStages->stage) return;
+        foreach($rec->LifeStages->stage as $l)
+        {
+            if($life_stage) $life_stage .= ", " . $l->description;
+            else $life_stage = $l->description;
+        }
+        if(in_array($life_stage, array("Animals", "Plants"))) return "";
+        if($life_stage) return $life_stage;
+    }
+    
+    private function get_related_media($rec)
+    {
+        /* <Attribute>
+            <AttributeType>related media</AttributeType>
+            <url1>http://life.nbii.gov/dml/mediadetail.do?id=6308</url1>
+            <url2>http://images.nbii.gov/mosesso/nbii_jjmo_t00055.jpg</url2> */
+        $urls = array();
+        $records = array();
+        $more_info = "";
+        foreach($rec->Attributes->Attribute as $a)
+        {
+            if($a->AttributeType == "related media")
+            {
+                $info = "";
+                if(!in_array($a->url1, $urls))
+                {
+                    if($a->url1) $info .= self::parse_related_media_url($a->url1, $info);
+                    $urls[] = $a->url1;
+                }
+                if(!in_array($a->url2, $urls))
+                {
+                    if($a->url2) $info .= self::parse_related_media_url($a->url2, $info);
+                    $urls[] = $a->url2;
+                }
+                if($info) $more_info .= "<br>$info";
+            }
+        }
+        return $more_info;
+    }
+    
+    private function parse_related_media_url($url, $info)
+    {
+        $path = pathinfo($url);
+        return $info . "<a href='" . $url . "'>" . $path["dirname"] . "</a><br>";
+    }
+    
+    private function get_vernaculars($taxon_id, $rec)
+    {
+        foreach($rec->Attributes->Attribute as $a)
+        {
+            if($a->AttributeType == "common name")
+            {
+                if($records = self::parse_common_name($a->description))
+                {
+                    foreach($records as $info)
+                    {
+                        $vernacular = new \eol_schema\VernacularName();
+                        $vernacular->taxonID = $taxon_id;
+                        $vernacular->vernacularName = $info["vernacular"];
+                        $vernacular->language = $info["lang_code"];
+                        $vernacular_id = md5("$vernacular->taxonID|$vernacular->vernacularName|$vernacular->language");
+                        if(!$vernacular->vernacularName) continue;
+                        if(!isset($this->vernacular_name_ids[$vernacular_id]))
+                        {
+                            $this->archive_builder->write_object_to_file($vernacular);
+                            $this->vernacular_name_ids[$vernacular_id] = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    private function parse_common_name($string)
+    {
+        // Eastern Bluebird [English]
+        $records = array();
+        $strings = explode(";", $string);
+        foreach($strings as $string)
+        {
+            $parts = explode("[", $string);
+            if($vernacular = trim($parts[0]))
+            {
+                $lang_code = self::get_language_code(trim(@$parts[1]));
+                $records[] = array("vernacular" => $vernacular, "lang_code" => $lang_code);
+            }
+        }
+        return $records;
+    }
+    
+    private function get_language_code($lang)
+    {
+        $lang = trim(str_replace("]", "", $lang));
+        switch ($lang) {
+            case "English":
+                return "en";
+                break;
+            case "Eng":
+                return "en";
+                break;
+            case "Spanish":
+                return "es";
+                break;
+            case "French":
+                return "fr";
+                break;
+            default:
+                if($lang) echo "\n investigate: language code not yet initialized [$lang]\n";
+                return "en";
+        }
+    }
+    
     function create_archive()
     {
         foreach($this->taxa as $t)
