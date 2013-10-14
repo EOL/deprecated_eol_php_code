@@ -14,13 +14,13 @@ class ADUVirtualMuseumAPI
         $this->taxon_ids = array();
         $this->media_ids = array();
         $this->domain = "http://vmus.adu.org.za/";
-        $this->Records_per_page = 20;
+        $this->Records_per_page = 50; //20;
     }
 
     function get_all_taxa()
     {
         $databases = self::get_main_groups();
-        // $databases = array("vimma", "echinomap", "spidermap"); // debug
+        // $databases = array("echinomap", "spidermap"); // debug
         $total = count($databases);
         $i = 0;
         foreach($databases as $database) 
@@ -42,7 +42,7 @@ class ADUVirtualMuseumAPI
         $loops = ceil($details["numRows"] / $this->Records_per_page);
         echo "\n loops: $loops \n";
         
-        $start = 20;
+        $start = $this->Records_per_page;
         for($i = 2; $i <= $loops; $i++)
         {
             echo "\n $i of $loops [$database] [$remark] \n";
@@ -51,7 +51,7 @@ class ADUVirtualMuseumAPI
             {
                 self::process_html($html);
             }
-            $start += 20;
+            $start += $this->Records_per_page;
             // if($i >= 3) break; // debug
         }
     }
@@ -244,6 +244,21 @@ class ADUVirtualMuseumAPI
         $agent = str_ireplace("Dave and Catriona Kennedy", "Dave Kennedy; Catriona Kennedy", $agent);
         $agent = str_ireplace("Dave Kennedy. Anne Kennedy", "Dave Kennedy; Anne Kennedy", $agent);
         $agent = str_ireplace("Dave; Anne; Tina;", "Dave Kennedy; Anne Kennedy; Tina Kennedy;", $agent);
+        $agent = str_ireplace("Dave Kennedy and Anne Kennedy", "Dave Kennedy; Anne Kennedy", $agent);
+        $agent = str_ireplace("Tina Kennedy and Samantha Kennedy", "Tina Kennedy; Samantha Kennedy", $agent);
+        $agent = str_ireplace("MacKenzie, Pat and Rodney", "Pat MacKenzie; Rodney MacKenzie", $agent);
+        $agent = str_ireplace("Barry and Sue Schultz", "Barry Schultz; Sue Schultz", $agent);
+        $agent = str_ireplace("Mark and Tom Darling", "Mark Darling; Tom Darling", $agent);
+        $agent = str_ireplace("Tom and Des Darling", "Tom Darling; Des Darling", $agent);
+        $agent = str_ireplace("Neal and Elaine Goodes Australia", "Neal Goodes; Elaine Goodes", $agent);
+        $agent = str_ireplace("Zaloumis, Alex", "Alex Zaloumis", $agent);
+        $agent = str_ireplace("Gerrans, Colin", "Colin Gerrans", $agent);
+        $agent = str_ireplace("M. Dobson.", "M. Dobson", $agent);
+        $agent = str_ireplace("le Roux E.R. & Wagenaar W.", "le Roux E.R.; Wagenaar W.", $agent);
+        $agent = str_ireplace("le Roux E.R. and Goemas W.", "le Roux E.R.; Goemas W.", $agent);
+        $agent = str_ireplace("le Roux E.R. & Lottering A.D.J.", "le Roux E.R.; Lottering A.D.J.", $agent);
+        $agent = str_ireplace("Rautenbach I.L. & Haacke W.D.", "Rautenbach I.L.; Haacke W.D.", $agent);
+        $agent = str_ireplace("Theron J. & du Plessis J.", "Theron J.; du Plessis J.", $agent);
 
         $agent_ids = array();
         $agents = explode(";", $agent);
@@ -282,14 +297,19 @@ class ADUVirtualMuseumAPI
             $agent = self::remove_parenthesis($agent);
         }
         elseif(preg_match("/photo(.*?)/ims", $agent, $match)) $role = "photographer";
+        elseif(preg_match("/picture(.*?)/ims", $agent, $match)) $role = "photographer";
+        elseif(preg_match("/who took the pics(.*?)/ims", $agent, $match)) $role = "photographer";
         else $role = "recorder";
         // manual adjustment
         $pos = stripos($agent, " by ");
         if(is_numeric($pos)) $agent = trim(substr($agent, $pos+4, strlen($agent)));
         if(is_numeric(stripos($agent, "guide"))) $agent = "";
-        $agent = trim(str_ireplace(array("took the photograph", "photographers", "photographer", "photography"), "", $agent));
-        if(in_array($agent, array("Camera trap located on stream bank"))) $agent = "";
+        $agent = trim(str_ireplace(array("who took the pics", "submitted on behalf of", "Pictures and info courtesy of", "on behalf of", "Photographs courtesy", "Photographs:", "photos:", "took the photograph", "photographers", "photographer", "photography", "photos", "Photographs", "My self and the owner of the compound"), "", $agent));
+        if(in_array($agent, array("Camera trap located on stream bank", "Photographs", "GM"))) $agent = "";
         if(is_numeric($agent)) $agent = "";
+        if($agent == "Dave") $agent = "Dave Kennedy";
+        if($agent == "Anne") $agent = "Anne Kennedy";
+        if($agent == "Tina") $agent = "Tina Kennedy";
         return array("agent" => trim($agent), "role" => $role);
     }
 
