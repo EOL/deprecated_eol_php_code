@@ -2,8 +2,8 @@
 
 class SchemaCommonName
 {
-    static $name;
-    static $language;
+    public $name;
+    public $language;
     
     public function __construct($parameters)
     {

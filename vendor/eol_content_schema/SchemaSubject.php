@@ -2,7 +2,7 @@
 
 class SchemaSubject
 {
-    static $label;
+    public $label;
     
     public function __construct($parameters)
     {
