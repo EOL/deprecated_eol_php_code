@@ -2,28 +2,28 @@
 
 class SchemaDataObject
 {
-    static $identifier;
-    static $dataType;
-    static $mimeType;
-    static $created;
-    static $modified;
-    static $title;
-    static $language;
-    static $license;
-    static $rights;
-    static $rightsHolder;
-    static $bibliographicCitation;
-    static $source;
-    static $description;
-    static $mediaURL;
-    static $thumbnailURL;
-    static $location;
-    static $agents;
-    static $audiences;
-    static $subjects;
-    static $references;
-    static $point;
-    static $oldDBToc;
+    public $identifier;
+    public $dataType;
+    public $mimeType;
+    public $created;
+    public $modified;
+    public $title;
+    public $language;
+    public $license;
+    public $rights;
+    public $rightsHolder;
+    public $bibliographicCitation;
+    public $source;
+    public $description;
+    public $mediaURL;
+    public $thumbnailURL;
+    public $location;
+    public $agents;
+    public $audiences;
+    public $subjects;
+    public $references;
+    public $point;
+    public $oldDBToc;
     
     public function __construct($parameters)
     {

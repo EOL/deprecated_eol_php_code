@@ -154,6 +154,7 @@ class TurbellarianAPI
                     {
                         if(!in_array($rec["taxon_id"], $synonyms))
                         {
+                            if(in_array(@$rec["parent_id"], $synonyms)) $rec["parent_id"] = "";
                             echo "\n" . $rec["sciname"] . " " . $rec["taxon_id"] . " --> \n";
                             $this->create_instances_from_taxon_object($rec);
                         }
@@ -290,11 +291,11 @@ class TurbellarianAPI
                             if(preg_match("/>(.*?)</ims", $cols[1], $match3))
                             {
                                 $synonym = trim($match3[1]);
-                                if(ctype_lower(substr($synonym,0,1)))
+                                if(self::starts_with_small_letter($synonym))
                                 {
                                     $synonym = trim(strip_tags($cols[1]));
                                     $synonym = trim(str_replace("  ", " ", $synonym));
-                                    if(ctype_lower(substr($synonym,0,1))) // e.g. http://turbellaria.umaine.edu/turb3.php?action=6&code=5428
+                                    if(self::starts_with_small_letter($synonym)) // e.g. http://turbellaria.umaine.edu/turb3.php?action=6&code=5428
                                     {
                                         $synonym = trim(trim($cols[0]) . " " . $synonym);
                                     }
@@ -320,7 +321,7 @@ class TurbellarianAPI
 
     private function process_diagnosis($rec, $url)
     {
-        if($html = self::get_html($url))
+        if($html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1)))
         {
             if(preg_match_all("/<pre>(.*?)<\/pre>/ims", $html, $arr) || preg_match_all("/<hr>(.*?)<hr>/ims", $html, $arr) || preg_match_all("/<hr>(.*?)xxx/ims", $html."xxx", $arr)) //ditox
             {
@@ -586,7 +587,7 @@ class TurbellarianAPI
 
     private function get_html($url)
     {
-        if($html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 3))) return $html;
+        if($html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 2))) return $html;
         else
         {
             if($html = self::curl_get_file_contents($url))
@@ -615,7 +616,7 @@ class TurbellarianAPI
         if(!$hierarchy) return array();
         $records = array();
         $last_hierarchy = $hierarchy[count($hierarchy)-1];
-        if(ctype_lower(substr($last_hierarchy["sciname"],0,1))) return; //http://turbellaria.umaine.edu/turb3.php?action=1&code=2312, 2789, 2912, 3398
+        if(self::starts_with_small_letter($last_hierarchy["sciname"])) return; //http://turbellaria.umaine.edu/turb3.php?action=1&code=2312, 2789, 2912, 3398
         if(count($hierarchy) == 1) // if 1 then process 'table of subtaxa', otherwise not
         {
             echo "\n will process 'table of subtaxa' \n";
@@ -688,7 +689,7 @@ class TurbellarianAPI
             }
             else $taxon = strip_tags($cols[0]);
             echo "\n taxon: [$taxon]\n";
-            if(ctype_lower(substr($taxon, 0, 1)) || is_numeric(substr($taxon, 0, 1))) // meaning taxon is 'species' part only
+            if(self::starts_with_small_letter($taxon)) // meaning taxon is 'species' part only
             {
                 echo " - append (last hierarchy) with species \n";
                 $genus_name = trim($last_hierarchy["sciname"]);
@@ -823,7 +824,7 @@ class TurbellarianAPI
                     $i++;
                 }
                 $last_rec = $parts[count($parts)-1];
-                if(ctype_lower(substr($last_rec["sciname"], 0, 1))) // if last entry of hierarchy is lower case then append 2nd to the last with the last
+                if(self::starts_with_small_letter($last_rec["sciname"])) // if last entry of hierarchy is lower case then append 2nd to the last with the last
                 {
                     echo "\n append 2nd to the last with the last \n";
                     if($parts) $parts[count($parts)-1]["sciname"] = @$parts[count($parts)-2]["sciname"] . " " . $parts[count($parts)-1]["sciname"];
@@ -832,18 +833,23 @@ class TurbellarianAPI
                 last 2 recs is lower case, just ignore all bec you'll get them in another call anyway */
                 if($second_to_the_last = @$parts[count($parts)-2])
                 {
-                    if(ctype_lower(substr(@$second_to_the_last["sciname"], 0, 1))) return array();
+                    if(self::starts_with_small_letter(@$second_to_the_last["sciname"])) return array();
                 }
             }
             return $parts;
         }
     }
 
-    function create_instances_from_taxon_object($rec)
+    private function create_instances_from_taxon_object($rec)
     {
         $sciname = (string) trim(strip_tags($rec["sciname"]));
-        $exclude = array("9-spinosa", "`n.sp.'", "conoceraea", "scientificName");
-        if(in_array($sciname, $exclude)) return;
+
+        if(self::starts_with_small_letter($sciname))
+        {
+            echo "\n investigate: [$sciname] is small caps \n";
+            return;
+        }
+        
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = (string) $rec["taxon_id"];
         $taxon->scientificName              = $sciname;
@@ -851,7 +857,7 @@ class TurbellarianAPI
         $taxon->furtherInformationURL       = (string) $this->taxa_url . $rec["taxon_id"];
         $taxon->parentNameUsageID           = (string) $rec["parent_id"];
         $taxon->taxonRemarks                = (string) @$rec["status"];
-        if(!$rec["parent_id"])
+        if(!$rec["parent_id"] && $sciname != "Bilateria")
         {
             echo "\n investigate [$sciname] no parent_id \n";
             print_r($rec);
@@ -872,7 +878,7 @@ class TurbellarianAPI
             $synonym = new \eol_schema\Taxon();
             if(!Functions::is_utf8($syn["synonym"]) || !Functions::is_utf8($syn["syn_author"])) continue;
             $synonym->taxonID                       = (string) $syn["syn_id"];
-            if(ctype_lower(substr($syn["synonym"], 0, 1))) // meaning taxon is 'species' part only
+            if(self::starts_with_small_letter($syn["synonym"])) // meaning taxon is 'species' part only
             {
                 $parts = explode(" ", $rec["sciname"]);
                 $syn["synonym"] = $parts[0] . " " . $syn["synonym"];
@@ -883,11 +889,15 @@ class TurbellarianAPI
             $synonym->taxonomicStatus               = "synonym";
             $synonym->taxonRemarks                  = (string) $syn["syn_remark"];
             $synonym->furtherInformationURL         = (string) $syn["syn_url"];
+            
+            // special case e.g. http://turbellaria.umaine.edu/turb3.php?action=6&code=1412
+            if(@$rec["parent_id"] == 10408) $rec["parent_id"] =  "";
+            
             $synonym->parentNameUsageID             = (string) $rec["parent_id"];
             if(!$synonym->scientificName) continue;
             if($synonym->scientificName == $rec["sciname"]) 
             {
-                echo "\n investigate synonym == valid name \n";
+                echo "\n alert: synonym == valid name \n";
                 print_r($rec);
                 self::save_to_dump($synonym->taxonID, $this->dump_file_synonyms);
                 continue;
@@ -964,13 +974,14 @@ class TurbellarianAPI
             if($line)
             {
                 $i++;
+                if($i == 1) continue;
                 $line = trim($line);
                 $cols = explode("\t", $line);
                 $id      = (string) trim($cols[0]);
                 $sciname = (string) trim($cols[4]);
-                if(ctype_lower(substr($sciname, 0, 1)))
+                if(self::starts_with_small_letter($sciname))
                 {
-                    echo "\n small caps\n";
+                    echo "\n small caps [$sciname]\n";
                     print_r($cols);
                 } 
                 if($synonyms_only_YN)
@@ -993,11 +1004,13 @@ class TurbellarianAPI
         echo "\n [total recs from taxon.tab: $i] \n";
         // list taxa with parent that has no info
         $no_parent_info = 0;
+        $i = 0;
         foreach(new FileIterator($file) as $line_number => $line)
         {
             if($line)
             {
                 $i++;
+                if($i == 1) continue;
                 $line = trim($line);
                 $cols = explode("\t", $line);
                 if($parent = (string) trim($cols[3]))
@@ -1012,6 +1025,20 @@ class TurbellarianAPI
             }
         }
         echo "\n taxa with parent that has no info: " . $no_parent_info . "\n";
+    }
+
+    private function starts_with_small_letter($orig_string)
+    {
+        $orig_string = trim($orig_string);
+        $string = $orig_string;
+        $first_char = substr($string, 0, 1);
+        if($first_char == "(") $first_char = substr($string, 1, 1);
+        if(!ctype_alpha($first_char)) return true;
+        if(ctype_lower($first_char))
+        {
+            if($orig_string != "incertae sedis") return true;
+        }
+        return false;
     }
 
 }
