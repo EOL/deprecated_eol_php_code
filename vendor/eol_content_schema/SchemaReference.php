@@ -2,8 +2,8 @@
 
 class SchemaReference
 {
-    static $fullReference;
-    static $referenceIdentifiers;
+    public $fullReference;
+    public $referenceIdentifiers;
 
     public function __construct($parameters)
     {

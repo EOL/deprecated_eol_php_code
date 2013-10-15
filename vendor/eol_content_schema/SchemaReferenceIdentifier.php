@@ -2,8 +2,8 @@
 
 class SchemaReferenceIdentifier
 {
-    static $label;
-    static $value;
+    public $label;
+    public $value;
     
     public function __construct($parameters)
     {
