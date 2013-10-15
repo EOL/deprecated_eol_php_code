@@ -11,7 +11,7 @@ class WikiParser
 
     public static function mb_ucfirst($string)
     {
-        $firstletter = mb_strtoupper(mb_substr($string, 0, 1), 'utf-8');
+        $firstletter = mb_strtoupper(mb_substr($string, 0, 1));
         return $firstletter.mb_substr($string, 1);
     }
 

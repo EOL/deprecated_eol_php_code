@@ -684,7 +684,7 @@ class WikimediaPage
              - matched by [\pZ\pC]. */
             if(preg_match("/^[\pZ\pC]*\[{0,2}[\pZ\pC]*(Image|File)[\pZ\pC]*:(.*?)([|#<>{}[\]]|$)/iums", $line, $arr))
             {
-                $media[] = WikiParser::make_valid_pagetitle($arr[2]);
+                $media[] = WikiParser::make_valid_pagetitle(rawurldecode($arr[2]));
             }
         }
         return $media;
@@ -823,21 +823,21 @@ class WikimediaPage
 
                     if(!isset($real_titles[$title]))
                     {
-                        echo "ERROR: couldn't find $title when querying API ($url)\n";
+                        echo "ERROR: couldn't find <$title> when querying API ($url)\n";
                         continue;
                     }
 
                     // see http://www.mediawiki.org/wiki/API:Query#Missing_and_invalid_titles
                     if(array_key_exists("missing",$page))
                     {
-                        echo "The file $title is missing from Commons. Perhaps it has been deleted? Leaving it out.\n";
+                        echo "The file <$title> is missing from Commons. Perhaps it has been deleted? Leaving it out.\n";
                         continue;
                     }
 
                     // see http://www.mediawiki.org/wiki/API:Query#Missing_and_invalid_titles
                     if(array_key_exists("invalid",$page))
                     {
-                        echo "The name $title is invalid. Leaving it out.\n";
+                        echo "The name <$title> is invalid. Leaving it out.\n";
                         continue;
                     }
 
