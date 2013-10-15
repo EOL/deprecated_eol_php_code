@@ -684,7 +684,7 @@ class WikimediaPage
              - matched by [\pZ\pC]. */
             if(preg_match("/^[\pZ\pC]*\[{0,2}[\pZ\pC]*(Image|File)[\pZ\pC]*:(.*?)([|#<>{}[\]]|$)/iums", $line, $arr))
             {
-                $media[] = WikiParser::make_valid_pagetitle(urldecode($arr[2]));
+                $media[] = WikiParser::make_valid_pagetitle(rawurldecode($arr[2]));
             }
         }
         return $media;
