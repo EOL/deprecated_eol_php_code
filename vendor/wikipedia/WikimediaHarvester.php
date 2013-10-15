@@ -41,8 +41,8 @@ class WikimediaHarvester
         //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
         mb_internal_encoding("UTF-8");
         // delete the downloaded files
-        $this->cleanup_dump();
-        $this->download_dump();
+        // $this->cleanup_dump();
+        // $this->download_dump();
 
         // FIRST PASS: parse TaxonavigationIncluded* pages (e.g. https://commons.wikimedia.org/wiki/Template:Aves)
         // simultaneously locate galleries and categories with potential taxonomic information (i.e. a Taxonavigation template)
@@ -77,7 +77,7 @@ class WikimediaHarvester
         shell_exec("curl ".escapeshellarg($this->resource->accesspoint_url)." -o ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         // unzip the download
         echo "... unpacking downloaded file ...\n";
-        shell_exec("bunzip2 ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
+        shell_exec("bunzip2 --force ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
         // split the huge file into 300M chunks
         echo "... splitting file into parts ...\n";
         shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". escapeshellarg($this->base_directory_path . "wikimedia.xml")." ". escapeshellarg($this->part_path));
@@ -115,13 +115,13 @@ class WikimediaHarvester
         {
             echo "WARNING: THE LAST WIKI FILE APPEARS TO BE TRUNCATED. Part of the wiki download may be missing.\n";
         }
-        if($this->total_pages_in_dump==0) $this->total_pages_in_dump = $total_pages_processed;
+        if($this->total_pages_in_dump == 0) $this->total_pages_in_dump = $total_pages_processed;
         echo "\n---------------------(done processing $total_pages_processed pages)---------------------\n\n\n";
     }
 
     private function process_file($filename, $callback)
     {
-        $pages_processed=0;
+        $pages_processed = 0;
         if(file_exists($filename))
         {
             echo "Processing file '". basename($filename) ."' with callback ". $callback[1] ."\n";
@@ -152,190 +152,139 @@ class WikimediaHarvester
 
     private function locate_taxonomic_pages($xml)
     {
-        if(\WikimediaPage::fast_is_gallery_category_or_template($xml))
+        $this->debug_locate_taxonomic_pages();
+        // make sure we don't include cases with {{Taxonavigation in the comments field, etc.
+        if(!\WikimediaPage::fast_is_gallery_category_or_template($xml)) return false;
+        if(!($text_start = strpos($xml, "<text"))) return false;
+        if(strpos($xml, "{{Taxonavigation", $text_start) === false) return false;
+        $page = new \WikimediaPage($xml);
+        if($page->is_template())
         {
-            // make sure we don't include cases with {{Taxonavigation in the comments field, etc.
-            if($text_start = strpos($xml, "<text"))
+            // should check here for template redirects
+            if($page->contains_template("TaxonavigationIncluded[\w\s]*"))
             {
-                if(strpos($xml, "{{Taxonavigation", $text_start) !== false)
+                $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
+                if(count($include_array))
                 {
-                    $page = new \WikimediaPage($xml);
-                    if($page->is_template())
-                    {
-                        // should check here for template redirects
-                        if($page->contains_template("TaxonavigationIncluded[\w\s]*"))
-                        {
-                            $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
-                            if(count($include_array))
-                            {
-                                $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod'=>strtotime($page->timestamp));
-                            }else echo "$page->title is not a real TaxonavigationInclude* template\n";
-                        }elseif($page->contains_template("Taxonavigation"))
-                        {
-                            // This is a template that itself contains the template "Taxonavigation", so we might be interested in it
-                            if(preg_match("/^Template:Taxonavigation\//", $page->title))
-                            {
-                                // we don't need to worry: it's something like Template::Taxonavigation/doc,
-                            }else
-                            {
-                                echo "The template '$page->title' transcludes {{Taxonavigation}}: we might want to consider looking for taxonomic pages containing this template too.\n";
-                            }
-                        }
-                    }else
-                    {
-                        if($page->contains_template("Taxonavigation"))
-                        {
-                            $this->taxonomy_pagenames[$page->title] = array();
-                            if($page->is_gallery())
-                            {
-                                foreach($page->media_on_page() as $file)
-                                {
-                                    $this->galleries_for_file["File:".$file][] = $page->title;
-                                }
-                            }
-                        }
-                    }
+                    $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod' => strtotime($page->timestamp));
+                }else echo "$page->title is not a real TaxonavigationInclude* template\n";
+            }elseif($page->contains_template("Taxonavigation"))
+            {
+                // This is a template that itself contains the template "Taxonavigation", so we might be interested in it
+                if(preg_match("/^Template:Taxonavigation\//", $page->title))
+                {
+                    // we don't need to worry: it's something like Template::Taxonavigation/doc,
+                }else
+                {
+                    echo "The template '$page->title' transcludes {{Taxonavigation}}: we might want to consider looking for taxonomic pages containing this template too.\n";
                 }
             }
-        }
-        static $count = 0;
-        $count++;
-        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
+        }else
         {
-            echo "Page: $count (first pass";
-            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
-            echo "). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes);
-            echo ". # potential taxa so far: ". count($this->taxonomy_pagenames).", of which ";
-            $galleries = count(array_unique(call_user_func_array('array_merge', $this->galleries_for_file)));
-            echo round($galleries/count($this->taxonomy_pagenames)*100, 1)."% ($galleries) are galleries rather than categories. ";
-            echo "The galleries found so far contain ". count($this->galleries_for_file) ." media files.\n";
-            self::print_memory_and_time();
+            if(!$page->contains_template("Taxonavigation")) return false;
+            $this->taxonomy_pagenames[$page->title] = array();
+            if(!$page->is_gallery()) return false;
+            foreach($page->media_on_page() as $file)
+            {
+                $this->galleries_for_file["File:".$file][] = $page->title;
+            }
         }
     }
 
+
     private function check_taxonomy_and_redirects($xml)
     {
+        $this->debug_check_taxonomy_and_redirects();
         // Phew, we don't need to worry about multiple redirects: http://en.wikipedia.org/wiki/Wikipedia:Double_redirects
-        if(\WikimediaPage::fast_is_gallery_category_or_media($xml))
+        if(!\WikimediaPage::fast_is_gallery_category_or_media($xml)) return false;
+        $page = new \WikimediaPage($xml);
+        if(isset($page->redirect))
         {
-            $page = new \WikimediaPage($xml);
-            if(isset($page->redirect))
+            // must be a media file
+            if(isset($this->galleries_for_file[$page->title]))
             {
-                // must be a media file
-                if(isset($this->galleries_for_file[$page->title]))
+                // need to use the filename to which the redirect is pointing, not the old name.
+                if(isset($this->galleries_for_file[$page->redirect]))
                 {
-                    // need to use the filename to which the redirect is pointing, not the old name.
-                    if(isset($this->galleries_for_file[$page->redirect]))
-                    {
-                        $this->galleries_for_file[$page->redirect] = array_merge($this->galleries_for_file[$page->redirect], $this->galleries_for_file[$page->title]);
-                    }else
-                    {
-                        $this->galleries_for_file[$page->redirect] = $this->galleries_for_file[$page->title];
-                    }
-                    unset($this->galleries_for_file[$page->title]);
-                // a category or gallery going by another name.
-                }elseif(isset($this->taxonomy_pagenames[$page->redirect]))
+                    $this->galleries_for_file[$page->redirect] = array_merge($this->galleries_for_file[$page->redirect], $this->galleries_for_file[$page->title]);
+                }else
                 {
-                   if(isset($this->taxa[$page->redirect]))
-                   {
-                       // we've already parsed the taxonomic page, so simply duplicate the info
-                       $this->taxa[$page->title] = &$this->taxa[$page->redirect];
-                   }else
-                   {
-                       // not parsed it yet: set it up so that when we encounter the other name, we know to duplicate it
-                       $this->taxonomy_pagenames[$page->redirect][] = $page->title;
-                   }
+                    $this->galleries_for_file[$page->redirect] = $this->galleries_for_file[$page->title];
                 }
-            }elseif(isset($this->taxonomy_pagenames[$page->title]))
+                unset($this->galleries_for_file[$page->title]);
+            // a category or gallery going by another name.
+            }elseif(isset($this->taxonomy_pagenames[$page->redirect]))
             {
-                // parse the taxo page: we can pass in "taxonav_includes" to avoid lots of API calls
-                if(($params = $page->taxonomy($this->taxonav_includes)) && $params->scientificName())
-                {
-                    $this->taxa[$page->title] = $params;
-                    $this->number_of_separate_taxa++;
-                    foreach($this->taxonomy_pagenames[$page->title] as $redirect_title)
-                    {
-                        if(isset($this->taxa[$redirect_title])) echo("ERROR: taxonomy already set for <$page->title>!\n");
-                        $this->taxa[$redirect_title] = &$this->taxa[$page->title];
-                    }
-                }else echo "Couldn't get sensible taxonomy from <$page->title>.\n";
+               if(isset($this->taxa[$page->redirect]))
+               {
+                   // we've already parsed the taxonomic page, so simply duplicate the info
+                   $this->taxa[$page->title] = &$this->taxa[$page->redirect];
+               }else
+               {
+                   // not parsed it yet: set it up so that when we encounter the other name, we know to duplicate it
+                   $this->taxonomy_pagenames[$page->redirect][] = $page->title;
+               }
             }
-        }
-
-        static $count = 0;
-        $count++;
-        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
+        }elseif(isset($this->taxonomy_pagenames[$page->title]))
         {
-            echo "Page: $count (second pass";
-            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
-            echo "). # parsed taxa so far: ". $this->number_of_separate_taxa ." (". count($this->taxa);
-            echo " including duplicated redirects), out of a potential total of ".count($this->taxonomy_pagenames).".\n";
-            self::print_memory_and_time();
+            // parse the taxo page: we can pass in "taxonav_includes" to avoid lots of API calls
+            if(($params = $page->taxonomy($this->taxonav_includes)) && $params->scientificName())
+            {
+                $this->taxa[$page->title] = $params;
+                $this->number_of_separate_taxa++;
+                foreach($this->taxonomy_pagenames[$page->title] as $redirect_title)
+                {
+                    if(isset($this->taxa[$redirect_title])) echo("ERROR: taxonomy already set for <$page->title>!\n");
+                    $this->taxa[$redirect_title] = &$this->taxa[$page->title];
+                }
+            }else echo "Couldn't get sensible taxonomy from <$page->title>.\n";
         }
-
     }
 
     private function get_media_pages($xml)
     {
+        $this->debug_get_media_pages();
+        if(!\WikimediaPage::fast_is_media($xml)) return false;
         $wanted = false;
-        if(\WikimediaPage::fast_is_media($xml))
+        $page = new \WikimediaPage($xml);
+        // check if this page has been listed in a gallery
+        if(isset($this->galleries_for_file[$page->title]))
         {
-            $page = new \WikimediaPage($xml);
-            // check if this page has been listed in a gallery
-            if(isset($this->galleries_for_file[$page->title]))
+            if(isset($page->redirect))
             {
-                if(isset($page->redirect))
-                {
-                    // This shouldn't happen!
-                    $multiple_galleries = count($this->galleries_for_file[$page->title])>1;
-                    echo "ERROR: page '$page->title' listed in galler".($multiple_galleries?'ies':'y');
-                    echo ' '.implode(", ", $this->galleries_for_file[$page->title])." still has redirect problems.\n";
-                }else
-                {
-                    // take care: some galleries may not have validated as proper taxa in check_redirects_and_taxonomy()
-                    // make sure we filter these out, otherwise we'll end up trying to access non-existing taxonomies
-                    $taxonomies = array_filter($this->galleries_for_file[$page->title], array($this, 'is_taxa_array_object'));
-                    if(count($taxonomies))
-                    {
-                        $page->add_galleries($taxonomies);
-                        $wanted = true;
-                    }
-                }
-                unset($this->galleries_for_file[$page->title]);
-            }
-
-            if(!$wanted)
+                // This shouldn't happen!
+                $multiple_galleries = count($this->galleries_for_file[$page->title]) > 1;
+                echo "ERROR: page '$page->title' listed in galler".($multiple_galleries?'ies':'y');
+                echo ' '. implode(", ", $this->galleries_for_file[$page->title]) ." still has redirect problems.\n";
+            }else
             {
-                // check if the page has an associated "taxonomic category"
-                // done on every file in the dump: be careful not to trigger off a remote API call
-                foreach($page->get_categories() as $cat)
+                // take care: some galleries may not have validated as proper taxa in check_redirects_and_taxonomy()
+                // make sure we filter these out, otherwise we'll end up trying to access non-existing taxonomies
+                $taxonomies = array_filter($this->galleries_for_file[$page->title], array($this, 'is_taxa_array_object'));
+                if(count($taxonomies))
                 {
-                    if(isset($this->taxa["Category:$cat"]))
-                    {
-                        // just flag this as wanted. We'll search for proper categories later
-                        $wanted = true;
-                        break;
-                    }
+                    $page->add_galleries($taxonomies);
+                    $wanted = true;
                 }
             }
-            if($wanted) $this->queue_page_for_processing($page);
+            unset($this->galleries_for_file[$page->title]);
         }
 
-        static $count = 0;
-        $count++;
-        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
+        if(!$wanted)
         {
-            echo "Page: $count (final pass";
-            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
-            echo "). # media files checked so far: ".count($this->taxonomies_for_file);
-            if(count($this->taxonomies_for_file))
+            // check if the page has an associated "taxonomic category"
+            // done on every file in the dump: be careful not to trigger off a remote API call
+            foreach($page->get_categories() as $cat)
             {
-                $multiple = count(array_filter($this->taxonomies_for_file, function ($a) { return $a > 1; }));
-                echo ", of which ".($multiple/count($this->taxonomies_for_file)*100)."% ($multiple) have multiple taxa";
+                if(isset($this->taxa["Category:$cat"]))
+                {
+                    // just flag this as wanted. We'll search for proper categories later
+                    $wanted = true;
+                    break;
+                }
             }
-            echo ".\n";
-            self::print_memory_and_time();
         }
+        if($wanted) $this->queue_page_for_processing($page);
     }
 
     private function queue_page_for_processing($page)
@@ -488,7 +437,7 @@ class WikimediaHarvester
         }
     }
 
-    private static function get_map_categories($base_directory_path, $contact_sites=true)
+    private static function get_map_categories($base_directory_path, $contact_sites = true)
     {
         // Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
         // but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
@@ -510,7 +459,7 @@ class WikimediaHarvester
         }
     }
 
-    private static function get_all_child_categories($base_category, $depth=null)
+    private static function get_all_child_categories($base_category, $depth = null)
     {
         $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
                         "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
@@ -556,6 +505,56 @@ class WikimediaHarvester
             $taxon_data['dataObjects'][] = new \SchemaDataObject($data_object_parameters);
             $taxon = new \SchemaTaxon($taxon_data);
             $this->resource_file->save_taxon_xml($taxon);
+        }
+    }
+
+    private function debug_locate_taxonomic_pages()
+    {
+        static $count = 0;
+        $count++;
+        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
+        {
+            echo "Page: $count (first pass";
+            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
+            echo "). # TaxonavigationIncluded files so far: ". count($this->taxonav_includes);
+            echo ". # potential taxa so far: ". count($this->taxonomy_pagenames).", of which ";
+            $galleries = count(array_unique(call_user_func_array('array_merge', $this->galleries_for_file)));
+            echo round($galleries/count($this->taxonomy_pagenames)*100, 1)."% ($galleries) are galleries rather than categories. ";
+            echo "The galleries found so far contain ". count($this->galleries_for_file) ." media files.\n";
+            self::print_memory_and_time();
+        }
+    }
+
+    private function debug_check_taxonomy_and_redirects()
+    {
+        static $count = 0;
+        $count++;
+        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
+        {
+            echo "Page: $count (second pass";
+            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
+            echo "). # parsed taxa so far: ". $this->number_of_separate_taxa ." (". count($this->taxa);
+            echo " including duplicated redirects), out of a potential total of ".count($this->taxonomy_pagenames).".\n";
+            self::print_memory_and_time();
+        }
+    }
+
+    private function debug_get_media_pages()
+    {
+        static $count = 0;
+        $count++;
+        if(($count % 100000 == 0) || $count == $this->total_pages_in_dump)
+        {
+            echo "Page: $count (final pass";
+            if($this->total_pages_in_dump) echo ": ".round($count/$this->total_pages_in_dump*100, 1)."% done";
+            echo "). # media files checked so far: ".count($this->taxonomies_for_file);
+            if(count($this->taxonomies_for_file))
+            {
+                $multiple = count(array_filter($this->taxonomies_for_file, function ($a) { return $a > 1; }));
+                echo ", of which ".($multiple/count($this->taxonomies_for_file)*100)."% ($multiple) have multiple taxa";
+            }
+            echo ".\n";
+            self::print_memory_and_time();
         }
     }
 

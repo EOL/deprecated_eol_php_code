@@ -151,7 +151,7 @@ class WikimediaPage
         return $this->information;
     }
 
-    private function fill_includes_recursively(&$arr, $include_arrays, &$visited=array())
+    private function fill_includes_recursively(&$arr, $include_arrays, &$visited = array())
     {
         if(!empty($arr['taxo']['Include']))
         {
@@ -179,7 +179,7 @@ class WikimediaPage
     {
         // can't use actual parsed text to detect last changed time
         $taxonomy = new TaxonomyParameters($this->timestamp, null);
-        $mesg="";
+        $mesg = "";
         if(preg_match("/^<div style=\"float:left; margin:2px auto; border-top:1px solid #ccc; border-bottom:1px solid #aaa; font-size:97%\">(.*?)<\/div>\n/ms", $this->expanded_text(), $arr))
         {
             $taxonomy_box = $arr[1];
@@ -204,7 +204,7 @@ class WikimediaPage
 
     private function taxonomy_via_wikitext(&$taxonav_include_arrays)
     {
-        $Taxonav = array('taxo'=>$this->taxonav_as_array("[Tt]axonavigation"), 'last_mod'=>strtotime($this->timestamp));
+        $Taxonav = array('taxo' => $this->taxonav_as_array("[Tt]axonavigation"), 'last_mod' => strtotime($this->timestamp));
         $Taxonav = $this->fill_includes_recursively($Taxonav, $taxonav_include_arrays);
         $taxonomy = new TaxonomyParameters($this->timestamp, $Taxonav['last_mod']);
         $mesg = "";
@@ -295,7 +295,7 @@ class WikimediaPage
         return ($a_index < $b_index) ? -1 : 1;
     }
 
-    public function best_license($potential_licenses, $is_wikitext=true)
+    public function best_license($potential_licenses, $is_wikitext = true)
     {
         // can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
         // usually these are of the same format, apart from e.g. {{XXX-no known copyright restrictions}}
@@ -1108,7 +1108,7 @@ class TaxonomyParameters
     public function asEoLtaxonObject()
     {
         // calculate what EoL needs from the levels that we know about
-        static $spp = array('species'=>null);
+        static $spp = array('species' => null);
         $array_to_return = array_diff_key($this->taxon_params, $spp); // "species" level detail in EoL is contained in scientificName
         $array_to_return['scientificName'] = $this->scientificName();
         $array_to_return['dataObjects'] = array();
@@ -1148,7 +1148,7 @@ class TaxonomyParameters
 
     public function is_nested_in($compare_to)
     {
-        if(count(array_diff_assoc($this->taxon_params, $compare_to->taxon_params))==0) return true;
+        if(count(array_diff_assoc($this->taxon_params, $compare_to->taxon_params)) == 0) return true;
         return false;
     }
 

@@ -263,7 +263,7 @@ class WikiParser
         return array($text, $stream);
     }
 
-    public static function template_as_array($wikitext, $TemplateName = 'Information', $offset=0)
+    public static function template_as_array($wikitext, $TemplateName = 'Information', $offset = 0)
     {
         // parses the first $TemplateName found. Use $offset to parse other identically named templates later in the text
         // returns empty array if no template found, otherwise template name is the first parameter.
@@ -328,11 +328,11 @@ class WikiParser
             $first = true;
             while($matched = preg_match("/$search_RE/iu", $wikitext, $arr, PREG_OFFSET_CAPTURE, $curr_pos))
             {
-                $match=$arr[0][0];
+                $match = $arr[0][0];
                 $match_start = $arr[0][1];
-                if($match=="|")
+                if($match == "|")
                 {
-                    if($nested_curly==0)
+                    if($nested_curly == 0)
                     {
                         $value = trim(substr($wikitext, $section_start, $match_start-$section_start));
                         // we have set the array key, but not filled it
@@ -340,13 +340,13 @@ class WikiParser
                         if(is_null(end($template_params))) $template_params[key($template_params)] = $value;
                         // add this as the next numeric key
                         else $template_params[] = $value;
-                        $section_start = $match_start+1;
+                        $section_start = $match_start + 1;
                         $first = false;
                     }
-                    $curr_pos = $match_start+1;
-                }elseif($match=="=")
+                    $curr_pos = $match_start + 1;
+                }elseif($match == "=")
                 {
-                    if($nested_curly==0)
+                    if($nested_curly == 0)
                     {
                         if($first || is_null(end($template_params)))
                         {
@@ -356,20 +356,20 @@ class WikiParser
                             // note that although some templates allow [Aa]ttribute = , parameter names are actually case sensitive
                             $param_name = trim(substr($wikitext, $section_start, $match_start-$section_start));
                             if(array_key_exists($param_name, $template_params)) unset($template_params[$param_name]);
-                            $template_params[$param_name]=null;
+                            $template_params[$param_name] = null;
                             $section_start = $match_start + 1;
                         }
                     }
-                    $curr_pos = $match_start+1;
-                }elseif($match=="{{")
+                    $curr_pos = $match_start + 1;
+                }elseif($match == "{{")
                 {
                     $nested_curly++;
-                    $curr_pos = $match_start+2;
-                }elseif($match=="}}")
+                    $curr_pos = $match_start + 2;
+                }elseif($match == "}}")
                 {
                     $nested_curly--;
                     if($nested_curly < 0) break;
-                    $curr_pos = $match_start+2;
+                    $curr_pos = $match_start + 2;
                 }else
                 {
                     $curr_pos = $match_start + strlen($match);
@@ -400,7 +400,7 @@ class WikiParser
             // we have set the array key, but not filled it
             if(is_null(end($template_params))) $template_params[key($template_params)] = $value;
             // add this as the next numeric key
-            else $template_params[]= $value;
+            else $template_params[] = $value;
         }
         return $template_params;
     }
