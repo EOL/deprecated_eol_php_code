@@ -76,6 +76,11 @@ class Resource extends ActiveRecord
         return CONTENT_RESOURCE_LOCAL_PATH.$this->id."_delete.xml";
     }
     
+    public function virtuoso_graph_name()
+    {
+        return  "http://eol.org/resources/". $this->id;
+    }
+
     public function is_translation_resource()
     {
         // if($this->id == 6) return true;
@@ -321,6 +326,7 @@ class Resource extends ActiveRecord
                         
                         // Compare this hierarchy to all others and store the results in the hierarchy_entry_relationships table
                         $harvest_event->compare_new_hierarchy_entries();
+                        $harvest_event->create_taxon_relations_graph();
                     }
                 }
                 
@@ -351,6 +357,8 @@ class Resource extends ActiveRecord
         {
             $this->mysqli->begin_transaction();
             $this->insert_hierarchy();
+            $sparql_client = SparqlClient::connection();
+            $sparql_client->delete_graph($this->virtuoso_graph_name());
             $this->start_harvest();
             
             debug("Parsing resource: $this->id");
