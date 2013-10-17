@@ -3,9 +3,10 @@ namespace php_active_record;
 /* NBII images
 estimated execution time: 
     Numbers:
-    6,243 images
-    30.4 GB in size
+    6,243 images; 30.4 GB in size
+    3,258 images
     983 taxa
+    1956 vernaculars
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NbiiImagesAPI');

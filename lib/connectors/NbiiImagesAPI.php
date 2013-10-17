@@ -24,6 +24,9 @@ class NbiiImagesAPI
         $this->debug_archives = array();
         $this->debug_exists = 0;
         $this->debug_copied = 0;
+        // for stats
+        $this->copyrighted = 0;
+        $this->resourceids = array();
     }
 
     function get_all_taxa($xml_file_path = FALSE)
@@ -47,6 +50,7 @@ class NbiiImagesAPI
         /* self::unzip_then_move_images_to_temp_folder(); // debug 1of2 -- utility */
         echo "\n\n copied: " . $this->debug_copied;
         echo "\n\n exists: " . $this->debug_exists;
+        echo "\n\n copyrighted: " . $this->copyrighted;
     }
 
     private function process_text_files($file)
@@ -91,6 +95,7 @@ class NbiiImagesAPI
         if($rec->description) $description .= "<br>Description: " . $rec->description;
         if($rec->captureDevice) $description .= "<br>Capture device: " . $rec->captureDevice;
         if($rec->captureDetails) $description .= "<br>Capture details: " . $rec->captureDetails;
+        if($rec->dateOriginal) $description .= "<br>Original date: " . $rec->dateOriginal;
         $locality = "";
         if($rec->Geo_latitude) $locality .= "Latitude: " . $rec->Geo_latitude;
         if($rec->Geo_longitude) $locality .= "; Longitude: " . $rec->Geo_longitude;
@@ -122,6 +127,14 @@ class NbiiImagesAPI
         $mr->description    = (string) $description;
         $mr->LocationCreated = (string) $location_created;
         $mr->accessURI      = $mediaURL;
+        
+        // for stats
+        if(strpos($rec->originalFileName, "(c)") !== false) $this->copyrighted++;
+        
+        $resourceid = (string) $rec->resourceid;
+        if(!in_array($resourceid, $this->resourceids)) $this->resourceids[] = $resourceid;
+        else return;
+        
         if(!in_array($mr->identifier, $this->object_ids))
         {
            $this->object_ids[] = $mr->identifier;
