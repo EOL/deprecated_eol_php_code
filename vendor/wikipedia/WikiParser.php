@@ -4,8 +4,10 @@ class WikiParser
 {
     public static function mb_trim($string)
     {
-        // Several wikitext examples have control characters or odd unicode spaces
+        // Several wikitext examples have control characters or odd unicode spaces at the end or beginning
         // This url may be helpful: http://www.php.net/manual/en/regexp.reference.unicode.php
+        // Notably, often category names are pasted with an extraneous Left-to-Right mark (U+200E)
+        //  at the end, which we match here with \pC and then trim.
         return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u','',$string);
     }
 
@@ -17,10 +19,11 @@ class WikiParser
 
     public static function make_valid_pagetitle($string)
     {
-        // In <title>, all pages have a capital first letter, and single spaces replace any combo of
-        // underscores and true (unicode) spaces.
-        $string = preg_replace("/[_\pZ\pC]+/u", " ", $string);
-        $string = trim($string);
+        // In <title>, all pages have a capital first letter, and single spaces replace any combo of underscores,
+        // whitespace (tabs etc), and true (unicode) spaces. We should retain unicode control characters, as in
+        // File:ആഫ്രിക്ക<U+0D7B>_ഒച്ച്<U+200C>_(Achatina_fulica)_കേരളത്തി<U+0D7D>_(2012).JPG
+        $string = preg_replace("/[_\s\pZ]+/u", " ", $string);
+        $string = self::mb_trim($string);
         return self::mb_ucfirst($string);
     }
 
