@@ -131,9 +131,8 @@ class WikimediaHarvester
             if(isset($this->page_iteration_left_overs)) $current_page = $this->page_iteration_left_overs;
             else $current_page = "";
             $this->page_iteration_left_overs = "";
-            foreach(new FileIterator($filename) as $line)
+            foreach(new FileIterator($filename, false, false) as $line)
             {
-                $line .= "\n";
                 $current_page .= $line;
                 // this is a new page so reset $current_page
                 if(trim($line) == "<page>") $current_page = $line;
