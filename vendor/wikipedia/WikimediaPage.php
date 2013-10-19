@@ -772,7 +772,7 @@ class WikimediaPage
             $result = php_active_record\Functions::lookup_with_cache($url.$continue, array(
                 'download_wait_time' => 5000000,
                 'download_attempts' => 3,
-                'user_agent' => 'gzip,deflate',
+                'encoding' => 'gzip,deflate',
                 'validation_regex' => 'query',
                 'expire_seconds' => 518400));
 
