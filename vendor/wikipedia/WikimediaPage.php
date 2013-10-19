@@ -755,9 +755,15 @@ class WikimediaPage
         // return an array with $title => json_result
         $real_titles = array_combine($titles, $titles);
         $results = array();
-        // be polite to Commons, see http://meta.wikimedia.org/wiki/User-Agent_policy
-        // *** Should be something like 'EoLHarvestingCode/1.0 (https://github.com/EOL; XXX@eol.org) ';
-        static $user_agent = false;
+        //use curl_version and phpversion to give a polite user-agent to Commons, see http://meta.wikimedia.org/wiki/User-Agent_policy
+        $curl_info = curl_version();
+        $curl_options = array(
+            'user_agent' => 'EoLWikimediaHarvestingBot/1.0 (http://EoL.org; https://github.com/EOL; XXX@eol.org) PHP_'.phpversion().'-libcurl/'.$curl_info['version'],
+            'download_wait_time' => 5000000,
+            'download_attempts' => 3,
+            'encoding' => 'gzip,deflate',
+            'validation_regex' => 'query',
+            'expire_seconds' => 518400);
 
         if(count($titles) > self::$max_titles_per_lookup)
         {
@@ -769,12 +775,7 @@ class WikimediaPage
         $continue = "&continue=";
         while(!empty($continue))
         {
-            $result = php_active_record\Functions::lookup_with_cache($url.$continue, array(
-                'download_wait_time' => 5000000,
-                'download_attempts' => 3,
-                'encoding' => 'gzip,deflate',
-                'validation_regex' => 'query',
-                'expire_seconds' => 518400));
+            $result = php_active_record\Functions::lookup_with_cache($url.$continue, $curl_options);
 
             // return as an associative array
             $json = json_decode($result, true);
