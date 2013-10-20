@@ -61,6 +61,7 @@ class ArchiveDataIngester
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/MeasurementOrFact", array($this, 'insert_data'));
         $this->archive_reader->process_row_type("http://eol.org/schema/Association", array($this, 'insert_data'));
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Event", array($this, 'insert_data'));
+        $this->sparql_client->insert_remaining_bulk_data();
 
         $this->mysqli->end_transaction();
 
@@ -790,7 +791,7 @@ class ArchiveDataIngester
             }
 
             $turtle = $this->prepare_turtle($row, $row_class_name);
-            $this->sparql_client->insert_data(array(
+            $this->sparql_client->insert_data_in_bulk(array(
                 'data' => array($turtle),
                 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
 

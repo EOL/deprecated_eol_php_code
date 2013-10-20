@@ -13,6 +13,12 @@ class SparqlClient
         $this->username     = $options['username'];
         $this->password     = $options['password'];
         $this->upload_uri   = $options['upload_uri'];
+        $this->data_waiting_for_insert = array();
+    }
+
+    function __destruct()
+    {
+        $this->insert_remaining_bulk_data();
     }
 
     public static function namespaces()
@@ -100,6 +106,27 @@ class SparqlClient
             $query = "PREFIX $namespace: <$uri>\n" . $query;
         }
         return $query;
+    }
+
+    public function insert_data_in_bulk($options = array())
+    {
+        if(!isset($this->data_waiting_for_insert[$options['graph_name']])) $this->data_waiting_for_insert[$options['graph_name']] = array();
+        $this->data_waiting_for_insert[$options['graph_name']] = array_merge($this->data_waiting_for_insert[$options['graph_name']], $options['data']);
+        if(count($this->data_waiting_for_insert[$options['graph_name']]) >= 5000)
+        {
+            $this->insert_data(array('graph_name' => $options['graph_name'], 'data' => $this->data_waiting_for_insert[$options['graph_name']]));
+            $this->data_waiting_for_insert[$options['graph_name']] = array();
+        }
+    }
+
+    public function insert_remaining_bulk_data()
+    {
+        print_r($this->data_waiting_for_insert);
+        foreach($this->data_waiting_for_insert as $graph_name => $data)
+        {
+            $this->insert_data(array('graph_name' => $graph_name, 'data' => $data));
+        }
+        $this->data_waiting_for_insert = array();
     }
 
     # Virtuoso data is getting posted to upload_uri
