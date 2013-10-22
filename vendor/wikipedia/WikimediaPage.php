@@ -538,6 +538,7 @@ class WikimediaPage
         {
             $agent_parameters["fullName"] = htmlspecialchars($author);
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+            //TODO - set role = "Creator" as default, and "Recorder" for $mediatype = AUDIO, "Photographer" for  $mediatype = BITMAP
             $agent_parameters["role"] = 'photographer';
         }
 
@@ -742,8 +743,8 @@ class WikimediaPage
     public static $API_URL = 'http://commons.wikimedia.org/w/api.php';
     public static $max_titles_per_lookup = 50;
     public static $max_categories_per_lookup = 500;
-    // The API seems to have a maximum length for a url, which isn't documented. The following value has been found by trial and error.
-    public static $max_http_chars = 8188; 
+    // Maximum URL length ~ 8100 chars (https://www.mediawiki.org/wiki/API:FAQ#do_really_long_API_urls_not_work)
+    public static $max_http_chars = 8100; 
     // For allowed length of titles string, allow an extra 300 chars for ?action=query&..blah.blah.<TITLES>.continue=blah,blah
     // declare this as a function because static variables can't be initialized using e.g. strlen()
     public static function max_encoded_characters_in_titles() {return self::$max_http_chars - strlen(self::$API_URL) - 300;}

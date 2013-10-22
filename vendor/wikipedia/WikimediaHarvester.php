@@ -26,7 +26,7 @@ class WikimediaHarvester
         $this->taxonomies_for_file = array(); // key=media-filename, value = count of taxonomies for this file (just for info)
         $this->taxonomy_pagenames = array();  // key=media-filename, value = array of redirects (used as temp name store)
         $this->map_categories = self::get_map_categories($this->base_directory_path);
-        // TODO - add list of "unwanted" categories, so that if an image falls into one of these (or a child thereof),
+        // TODO - add blacklist of "unwanted" categories, so that if an image falls into one of these (or a child thereof),
         // it is not harvested. E.g. a suggested "unwanted" category might be
         // Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
         $this->total_pages_in_dump = 0;
