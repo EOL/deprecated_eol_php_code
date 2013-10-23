@@ -759,7 +759,7 @@ class WikimediaPage
         //use curl_version and phpversion to give a polite user-agent to Commons, see http://meta.wikimedia.org/wiki/User-Agent_policy
         $curl_info = curl_version();
         $curl_options = array(
-            'user_agent' => 'EoLWikimediaHarvestingBot/1.0 (http://EoL.org; https://github.com/EOL; XXX@eol.org) PHP_'.phpversion().'-libcurl/'.$curl_info['version'],
+            'user_agent' => 'EoLWikimediaHarvestingBot/1.0 (http://EoL.org; https://github.com/EOL; tech@eol.org) PHP_'.phpversion().'-libcurl/'.$curl_info['version'],
             'download_wait_time' => 5000000,
             'download_attempts' => 3,
             'encoding' => 'gzip,deflate',
