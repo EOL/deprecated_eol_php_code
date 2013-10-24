@@ -3,13 +3,13 @@ namespace php_active_record;
 /* Rotifers
 estimated execution time: processing text files exported from MSAccess DB: 2 minutes
 
-as of 2013 10 16:
+latest nos.:
 http://eol.org/schema/reference/reference:Total: 1462
     http://purl.org/dc/dcmitype/Text: 6101
     http://purl.org/dc/dcmitype/StillImage: 2524, 2521
     http://www.eol.org/voc/table_of_contents#TypeInformation: 4005
     http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 2096
-http://rs.tdwg.org/dwc/terms/taxon:Total: 2101, 2755
+http://rs.tdwg.org/dwc/terms/taxon:Total: 2101, 2755, 2724
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

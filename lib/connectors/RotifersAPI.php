@@ -635,7 +635,9 @@ class RotifersAPI
         $species_level_parent_id = self::get_parent(array($rec["tblGenus.lngGenus_ID"], $rec["lngFamily_ID"], $rec["lngOrder_ID"], $rec["lngSuperOrder_ID"], $rec["lngSubClass_ID"], $rec["lngClass_ID"], self::CLASS_PARENT_ID));
         if($rec["lngInfraRank_ID"] != "" || $rec["strSubSpeciesInfra"] != "") // meaning taxon is subspecies
         {
-            $parent_id = self::add_species_for_subspecies_taxon($rec, $species_level_parent_id);
+            /* $parent_id = self::add_species_for_subspecies_taxon($rec, $species_level_parent_id); 
+            this adds the binomial for the subspecies, if binomial doesn't exist - not needed anymore */
+            $parent_id = $species_level_parent_id;
         }
         else // meaning taxon is species
         {

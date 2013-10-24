@@ -3,11 +3,11 @@ namespace php_active_record;
 /* Catalogue of SINA Maps
 estimated execution time: 10 minutes
 
-as of 2013 09 10:
+latest nos.:
     image/gif: 732
-    image/jpeg: 5
-    Total: 737
-    taxon: 378
+    image/jpeg: 6
+    Total: 738
+    taxon: 379
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
