@@ -20,12 +20,15 @@ class MCZHarvardArchiveAPI
         $this->dwca_file = "http://localhost/~eolit/cp/dwca-mcz_for_eol.zip";
         $this->first40k = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
         */
+        
+        $this->not_utf8 = 0; // for stats
+        $this->occurrence_ids = array();
     }
 
     /*
-    images: 74609 | 75330 | 82,083
+    images: 74609 | 75330 | 82,083 | 90,371
     text: 21129
-    taxa: 11440 | 12,185
+    taxa: 11440 | 12,185 | 13,464
     */
 
     function get_all_taxa()
@@ -46,7 +49,7 @@ class MCZHarvardArchiveAPI
 
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         self::get_images($harvester->process_row_type('http://eol.org/schema/media/Document'));
-        // self::get_texts($harvester->process_row_type('http://rs.gbif.org/terms/1.0/TypesAndSpecimen'));
+        self::get_texts_v2($harvester->process_row_type('http://rs.gbif.org/terms/1.0/TypesAndSpecimen'));
 
         $this->create_archive();
 
@@ -169,6 +172,56 @@ class MCZHarvardArchiveAPI
             }
         }
         echo "\n Not utf8: [$not_utf8] \n";
+    }
+
+    private function get_texts_v2($records) // structured data
+    {
+        $i = 0;
+        foreach($records as $rec)
+        {
+            $taxon_id = (string) $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            if($rec["http://rs.tdwg.org/dwc/terms/typeStatus"])         self::add_string_types($taxon_id, "Type status", $rec["http://rs.tdwg.org/dwc/terms/typeStatus"]);
+            if($rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"])   self::add_string_types($taxon_id, "Type designated by", $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/scientificName"])     self::add_string_types($taxon_id, "Taxon", $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/occurrenceID"])       self::add_string_types($taxon_id, "Occurrence ID", $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/institutionCode"])    self::add_string_types($taxon_id, "Institution code", $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/collectionCode"])     self::add_string_types($taxon_id, "Collection code", $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])      self::add_string_types($taxon_id, "Catalog number", $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/locality"])           self::add_string_types($taxon_id, "Locality", $rec["http://rs.tdwg.org/dwc/terms/locality"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])  self::add_string_types($taxon_id, "Event date", $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"]);
+            $i++;
+            if($i >= 10) break; //debug
+        }
+        echo "\n Not utf8: [$this->not_utf8] \n";
+    }
+
+    private function add_string_types($taxon_id, $label, $value)
+    {
+        $value = utf8_encode($value);
+        if(!Functions::is_utf8($value))
+        {
+            $this->not_utf8++;
+            return;
+        }
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->measurementOfTaxon = 'true';
+        $occurrence = $this->add_occurrence($taxon_id, $label, $value);
+        $m->occurrenceID = $occurrence->occurrenceID;
+        $m->measurementType = "http://mcz.harvard.edu/". SparqlClient::to_underscore($label);
+        $m->measurementValue = "http://mcz.harvard.edu/". SparqlClient::to_underscore($value);
+        $this->archive_builder->write_object_to_file($m);
+    }
+
+    private function add_occurrence($taxon_id, $label, $value)
+    {
+        $occurrence_id = md5($taxon_id . 'occurrence' . $label . $value);
+        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = $o;
+        return $o;
     }
 
     private function create_archive()
