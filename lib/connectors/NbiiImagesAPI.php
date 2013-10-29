@@ -95,7 +95,10 @@ class NbiiImagesAPI
         if($rec->description) $description .= "<br>Description: " . $rec->description;
         if($rec->captureDevice) $description .= "<br>Capture device: " . $rec->captureDevice;
         if($rec->captureDetails) $description .= "<br>Capture details: " . $rec->captureDetails;
-        if($rec->dateOriginal) $description .= "<br>Original date: " . $rec->dateOriginal;
+        if($rec->dateOriginal) 
+        {
+            if(stripos($rec->dateOriginal, "null") === false) $description .= "<br>Original date: " . $rec->dateOriginal;
+        }
         $locality = "";
         if($rec->Geo_latitude) $locality .= "Latitude: " . $rec->Geo_latitude;
         if($rec->Geo_longitude) $locality .= "; Longitude: " . $rec->Geo_longitude;
@@ -120,16 +123,17 @@ class NbiiImagesAPI
         $mr->title          = (string) $rec->title;
         $mr->CreateDate     = (string) $rec->dateOriginal;
         $mr->CVterm         = "";
-        $mr->Owner          = (string) $rec->creditLine;
-        $mr->rights         = "";
-        $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        // $mr->rights         = "";
+        $info = self::process_credit_line((string) $rec->creditLine);
+        $mr->Owner          = $info["creditLine"];
+        $mr->UsageTerms     = $info["license"];
         $mr->audience       = 'Everyone';
         $mr->description    = (string) $description;
         $mr->LocationCreated = (string) $location_created;
         $mr->accessURI      = $mediaURL;
         
         // for stats
-        if(strpos($rec->originalFileName, "(c)") !== false) $this->copyrighted++;
+        if(stripos($rec->originalFileName, "(c)") !== false) $this->copyrighted++;
         
         $resourceid = (string) $rec->resourceid;
         if(!in_array($resourceid, $this->resourceids)) $this->resourceids[] = $resourceid;
@@ -145,6 +149,22 @@ class NbiiImagesAPI
         }
     }
 
+    private function process_credit_line($creditLine)
+    {
+        // "filter the objects with "Public Domain" somewhere in that field, strip out the (c) and assign PD in the license field"
+        if(stripos($creditLine, "Public Domain") === false)
+        {
+            $info["license"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+            $info["creditLine"] = $creditLine;
+        }
+        else
+        {
+            $info["license"] = "http://creativecommons.org/licenses/publicdomain/";
+            $info["creditLine"] = str_ireplace(array("©", "(c)", "copyright"), "", $creditLine);
+        }
+        return $info;
+    }
+    
     function save_before_site_goes_dark($xml_file_path = FALSE)
     {
         if(!$xml_file_path)
