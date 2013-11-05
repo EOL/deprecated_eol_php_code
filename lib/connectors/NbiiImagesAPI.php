@@ -305,7 +305,7 @@ class NbiiImagesAPI
         $taxon->scientificName              = (string) $sciname;
         $taxon->genus                       = (string) $genus;
         $this->taxa[$taxon->taxonID] = $taxon;
-        self::get_vernaculars($taxon_id, $rec);
+        /* self::get_vernaculars($taxon_id, $rec);  -- working but now excluded for the meantime */
         return $taxon_id;
     }
     

@@ -134,10 +134,10 @@ class RotifersAPI
             $senior = functions::canonical_form($t["lngSenior_ID"]);
             if(!isset($this->id_names_list[$senior]))
             {
-                if(is_numeric($senior) || $senior == "") return; // no need to investigate
-                echo "\n investigate lngSenior_ID doesn't exist 2 [$senior] \n";
+                if(is_numeric($senior) || $senior == "") continue; // no need to investigate
+                echo "\n investigate lngSenior_ID doesn't exist 2 [$senior] \n"; // when checked acceptable cases (n=6)
                 print_r($t);
-                return;
+                continue;
             }
             $authorship = self::get_authorship($t);
             $rank = self::get_rank($t["lngRank_ID"]);
