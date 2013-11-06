@@ -29,7 +29,7 @@ class EnvironmentsDataConnector
         foreach(new FileIterator(self::DUMP_URL) as $line_number => $line)
         {
             if($line_number % 50000 == 0) echo "line $line_number\n";
-            if($line_number >= 5000) break;
+            // if($line_number >= 5000) break;
             $line_data = explode("\t", $line);
             $taxon_concept_id = str_replace('EOL:', '', $line_data[0]);
             $subject = str_replace(' ', '_', strtolower(trim($line_data[1])));

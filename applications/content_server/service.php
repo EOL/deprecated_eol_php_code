@@ -14,6 +14,7 @@ $amount = @$_GET["amount"];
 $currecny = @$_GET["currecny"];
 $type = @$_GET["type"];
 $data_object_id = @$_GET["data_object_id"];
+$data_search_file_id = @$_GET["data_search_file_id"];
 $x = @$_GET["x"];
 $y = @$_GET["y"];
 $w = @$_GET["w"];
@@ -56,7 +57,7 @@ switch($function)
             echo "  <file_prefix>$new_file_path</file_prefix>\n";
         }else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
-        
+
     case "upload_resource":
         if(!$resource_id)
         {
@@ -79,7 +80,7 @@ switch($function)
         //      resources/ID
         //      resources/ID.*
         wildcard_rm(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
-        
+
         $manager = new ContentManager();
         $new_file_path = $manager->grab_file($file_path, "resource", array('resource_id' => $resource_id));
         if($new_file_path)
@@ -93,7 +94,7 @@ switch($function)
                     $new_file_path = $resource_id . ".xml";
                 }
             }
-            
+
             if(is_dir($new_file_path))
             {
                 validate_archive($new_file_path, $resource);
@@ -152,7 +153,7 @@ switch($function)
                         {
                             echo "  <error type='fatal'>". htmlspecialchars(implode('<br/>', $archive_converter->errors()))."</error>\n";
                             break;
-                        }                        
+                        }
                         echo "  <error type='fatal'>Unable to determine the template of Excel file</error>\n";
                         break;
                     }
@@ -177,21 +178,38 @@ switch($function)
             echo "  <error type='fatal'>Upload failed</error>\n";
         }
         break;
-        
+
     case "upload_content":
         $manager = new ContentManager();
         $new_file_path = $manager->grab_file($file_path, "image");
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
-        
+
     case "admin_upload":
         $manager = new ContentManager();
         $new_file_path = $manager->grab_file($file_path, "upload");
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
-        
+
+    case "upload_dataset":
+        if(!$data_search_file_id)
+        {
+            echo "  <error type='fatal'>No data_search_file_id included</error>\n";
+            break;
+        }
+        if(!$file_path)
+        {
+            echo "  <error type='fatal'>No file_path included</error>\n";
+            break;
+        }
+        $manager = new ContentManager();
+        if($data_search_file_id) $new_file_path = $manager->grab_file($file_path, "dataset", array('data_search_file_id' => $data_search_file_id));
+        if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
+        else echo "  <error type='fatal'>Upload failed</error>\n";
+        break;
+
     case "crop_image":
         $manager = new ContentManager();
         $new_file_path = $manager->crop_image($data_object_id, $x, $y, $w);
@@ -208,7 +226,7 @@ function validate_archive($archive_directory_path, $resource)
     $validator = new ContentArchiveValidator($archive, $resource);
     if($validator->is_valid()) echo "  <status>Validated</status>\n";
     else echo "  <status>Validation failed</status>\n";
-    
+
     $errors = array_merge($validator->structural_errors(), $validator->display_errors());
     $errors_as_string = null;
     foreach($errors as $error)
@@ -216,7 +234,6 @@ function validate_archive($archive_directory_path, $resource)
         $errors_as_string[] = $error->__toString();
     }
     if($errors_as_string) echo "  <error type='validation'>".htmlspecialchars(implode("<br>", $errors_as_string))."</error>\n";
-    // if($warnings_as_string) echo "  <warning type='validation'>".htmlspecialchars(implode("<br>", $warnings_as_string))."</error>\n";
 }
 
 ?>
