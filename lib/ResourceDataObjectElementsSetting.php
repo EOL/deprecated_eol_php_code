@@ -73,34 +73,32 @@ class ResourceDataObjectElementsSetting
         /* e.g.
             remove_data_object_of_certain_element_value("mimeType", "audio/x-wav", $xml);
             remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
+            remove_data_object_of_certain_element_value("subject", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $xml);
+            valid elements to handle are those without namespace e.g. :
+            [dataType], [mimeType], [license], [subject]
         */
         $xml = simplexml_load_string($xml_string);
         debug("remove_data_object_of_certain_element_value " . count($xml->taxon) . "-- please wait...");
+        $t = -1;
         foreach($xml->taxon as $taxon)
         {
+            $t++;
+            $obj = -1;
             foreach($taxon->dataObject as $dataObject)
             {
+                $obj++;
                 $do = self::get_dataObject_namespace($field, $dataObject);
                 $use_field = self::get_field_name($field);
                 if(@$do->$use_field == $value) 
                 {
                     debug("this <dataObject> will not be ingested -- $use_field = $value");
-                    @$dataObject->mediaURL = "";
-                    @$dataObject->agent = "";
-                    $do_dc = $dataObject->children("http://purl.org/dc/terms/");
-                    @$do_dc->description = "";
-                    @$do_dc->source = "";
-                    @$do_dc->identifier = "";
-                    @$do_dc->title = ""; 
-                    @$do_dc->language = "";
-                    @$do_dc->rights = "";
-                    $do_dcterms = $dataObject->children("http://purl.org/dc/terms/");
-                    @$do_dcterms->rightsHolder = "";
+                    $xml->taxon[$t]->dataObject[$obj] = NULL;
                 }
             }
         }
         debug("remove_data_object_of_certain_element_value -- done.");
-        return $xml->asXML();
+        $xml = str_replace("<dataObject></dataObject>", "", $xml->asXML());
+        return $xml;
     }
 
     public function replace_data_object_element_value($field, $old_value, $new_value, $xml_string, $compare = true)
