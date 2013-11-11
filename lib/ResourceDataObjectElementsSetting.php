@@ -47,16 +47,16 @@ class ResourceDataObjectElementsSetting
         {
             $path_parts = pathinfo($this->xml_path);
             $filename = $path_parts['basename'];
-            $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-            debug("temp file path: " . $this->TEMP_FILE_PATH);
+            $temp_dir = create_temp_dir() . "/";
+            debug("temp file path: " . $temp_dir);
             if($file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800)))
             {
-                $temp_file_path = $this->TEMP_FILE_PATH . "/" . $filename;
+                $temp_file_path = $temp_dir . "/" . $filename;
                 $TMP = fopen($temp_file_path, "w");
                 fwrite($TMP, $file_contents);
                 fclose($TMP);
                 shell_exec("gunzip -f $temp_file_path");
-                $this->xml_path = $this->TEMP_FILE_PATH . str_ireplace(".gz", "", $filename);
+                $this->xml_path = $temp_dir . str_ireplace(".gz", "", $filename);
                 debug("xml path: " . $this->xml_path);
             }
             else
@@ -65,7 +65,11 @@ class ResourceDataObjectElementsSetting
                 return false;
             }
         }
-        return Functions::get_remote_file($this->xml_path, array('timeout' => 172800));
+        echo "\n $temp_dir \n";
+        $file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800));
+        recursive_rmdir($temp_dir); // remove temp dir
+        echo ("\n temporary directory removed: [$temp_dir]\n");
+        return $file_contents;
     }
 
     public function remove_data_object_of_certain_element_value($field, $value, $xml_string)
