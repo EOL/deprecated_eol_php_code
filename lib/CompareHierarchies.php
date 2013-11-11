@@ -25,13 +25,14 @@ class CompareHierarchies
         }
 
         $hierarchy_lookup_ids2 = array();
-        $result = $mysqli->query("SELECT h.id, count(*) as count FROM hierarchies h LEFT JOIN hierarchy_entries he ON (h.id=he.hierarchy_id and he.published=1) GROUP BY h.id ORDER BY count(*) DESC");
+        $result = $mysqli->query("SELECT h.id, count(*) as count FROM hierarchies h LEFT JOIN hierarchy_entries he ON (h.id=he.hierarchy_id and he.published=1) GROUP BY h.id");
         while($result && $row=$result->fetch_assoc())
         {
             if($row['id'] == 129) continue;
             $hierarchy_lookup_ids2[$row['id']] = $row['count'];
         }
         $hierarchy_lookup_ids2[800] = 1;
+        asort($hierarchy_lookup_ids2);
 
         // if the function is passed a hierarchy_id then make the first loop just that hierarchy
         // otherwise make the first loop the same as the inner loop - compare everything with everything else

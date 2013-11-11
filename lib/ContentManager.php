@@ -54,10 +54,14 @@ class ContentManager
                 case "partner":
                     $new_file_prefix = $this->new_content_file_name();
                     break;
+                case "dataset":
+                    $new_file_prefix = $this->new_dataset_file_name($options);
+                    break;
                 default:
                     trigger_error("ContentManager: non-valid type (".$type.")", E_USER_NOTICE);
                     return false;
             }
+            if(!$new_file_prefix) return false;
             $new_file_path = $new_file_prefix . "." . $suffix;
 
             // copy temporary file into its new home
@@ -73,12 +77,24 @@ class ContentManager
             // create thumbnails of website content and agent logos
             if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $options);
             elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
+            elseif($type=="dataset")
+            {
+                $new_file_path = $this->zip_file($new_file_path);
+                $this->delete_old_datasets();
+            }
 
             if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
 
             // Take the substring of the new file path to return via the webservice
-            if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") && preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr)) $new_file_path = str_replace("/", "", $arr[1]);
-            elseif($type=="resource" && preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
+            if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") &&
+              preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr))
+            {
+                $new_file_path = str_replace("/", "", $arr[1]);
+            }
+            elseif($type=="resource" &&
+              preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
+            elseif($type=="dataset" &&
+              preg_match("/^".preg_quote(CONTENT_DATASET_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
         }
 
         if(file_exists($temp_file_path)) unlink($temp_file_path);
@@ -253,6 +269,8 @@ class ContentManager
         elseif(preg_match("/ Excel(,|$)/i", $file_type))                                $new_suffix = "xls";
         elseif($suffix == "xml" && preg_match("/^utf-8 unicode /i", $file_type))        $new_suffix = "xml";
         elseif($suffix == "xml" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "xml";
+        elseif($suffix == "csv" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "csv";
+        elseif($suffix == "csv" && preg_match("/english text/i", $file_type))          $new_suffix = "csv";
         elseif($suffix == "xml" && preg_match("/^ASCII English text/i", $file_type))    $new_suffix = "xml";
         // some XML files like BibAlex's resource doesnt have an extension and just has a utf-8 descriptor
         elseif(preg_match("/^utf-8 unicode /i", $file_type))                            $new_suffix = "xml";
@@ -453,8 +471,20 @@ class ContentManager
         {
             $file = random_digits(5);
         }
-
         return CONTENT_LOCAL_PATH."$year/$month/$day/$hour/$file";
+    }
+
+    function new_dataset_file_name($options)
+    {
+        if(!$options['data_search_file_id']) return false;
+        $file_path = CONTENT_DATASET_PATH . "eol_download_" . $options['data_search_file_id'];
+        if(file_exists($temp_file_path)) unlink($temp_file_path);
+        return $file_path;
+    }
+
+    private static function random_md5()
+    {
+        return md5(microtime(true) . mt_rand(10000,90000));
     }
 
     private static function create_checksum($file_path)
@@ -489,6 +519,36 @@ class ContentManager
         }
         return false;
     }
+
+    private function zip_file($file_path)
+    {
+        $zip = new \ZipArchive();
+        $zip_path = $file_path .".zip";
+        if($zip->open($zip_path, \ZipArchive::OVERWRITE) === true)
+        {
+            $zip->addFile($file_path, basename($file_path));
+            $zip->close();
+            if(file_exists($zip_path))
+            {
+                unlink($file_path);
+                return $zip_path;
+            }
+        }
+        return $file_path;
+    }
+
+    private function delete_old_datasets()
+    {
+        $ls = scandir(CONTENT_DATASET_PATH);
+        foreach($ls as $file)
+        {
+            if(strpos($file, '.') === 0) continue;
+            $filepath = CONTENT_DATASET_PATH . "/" . $file;
+            $days_since_modification = (time() - filemtime($filepath)) / 60 / 60 / 24;
+            if($days_since_modification >= 14) unlink($filepath);
+        }
+    }
+
 }
 
 ?>

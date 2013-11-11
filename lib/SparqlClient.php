@@ -68,6 +68,7 @@ class SparqlClient
         if(preg_match(self::BASIC_URI_REGEX, $value)) return "<$value>";
         if(preg_match(self::ENCLOSED_URI_REGEX, $value)) return $value;
         if(preg_match(self::NAMESPACED_URI_REGEX, $value)) return $value;
+        $value = str_replace("\\", "\\\\", $value);
         $value = \eol_schema\ContentArchiveBuilder::escape_string($value);
         return "\"". str_replace("\"","\\\"", $value) ."\"";
     }
@@ -121,7 +122,6 @@ class SparqlClient
 
     public function insert_remaining_bulk_data()
     {
-        print_r($this->data_waiting_for_insert);
         foreach($this->data_waiting_for_insert as $graph_name => $data)
         {
             $this->insert_data(array('graph_name' => $graph_name, 'data' => $data));
