@@ -73,7 +73,9 @@ class SINAMapsAPI
                             $this->create_instances_from_taxon_object($rec, array());
                             $ref_ids = array();
                             $agent_ids = array();
-                            if(@$rec["as_of"]) $rec["caption"] = $rec["as_of"] . "<br><br>" . @$rec["caption"];
+                            
+                            $rec["caption"] = "Version of manually-generated dot map displayed above, showing U.S. and Canadian records, was harvested from SINA on " . date("M-d-Y") . ".<br><br>" . @$rec["caption"];
+                            
                             if(@$rec["map"]) self::get_images($rec["sciname"], @$rec["caption"], $rec["taxon_id"], $parts["filename"], $rec["map"], $rec["source_url"], $ref_ids, $agent_ids);
                             if(@$rec["computer_gen_map"])
                             {
@@ -267,7 +269,9 @@ class SINAMapsAPI
         $mr->title          = "Distribution of $sciname in North America north of Mexico";
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc/3.0/";
         $mr->audience       = 'Everyone';
-        $mr->description    = (string) $description;
+        
+        $description = str_ireplace("available on this site", "available on the Singing Insects of North America site", $description);
+        $mr->description    = $description;
         $mr->subtype        = "Map";
         $mr->accessURI      = (string) trim($media_url);
         $this->archive_builder->write_object_to_file($mr);
