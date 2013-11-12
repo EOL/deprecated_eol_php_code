@@ -3,7 +3,7 @@ namespace php_active_record;
 // connector: [adu]
 class ADUVirtualMuseumAPI
 {
-    function __construct($folder)
+    function __construct($folder, $database = null)
     {
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -15,11 +15,29 @@ class ADUVirtualMuseumAPI
         $this->media_ids = array();
         $this->domain = "http://vmus.adu.org.za/";
         $this->Records_per_page = 50; //20;
+        
+        $this->database = $database;
+        /*
+        [0] => birdpix
+        [1] => bop
+        [2] => echinomap
+        [3] => safap
+        [4] => sabca
+        [5] => vimma
+        [6] => odonata
+        [7] => phown
+        [8] => sarca
+        [9] => scorpionmap
+        [10] => spidermap
+        [11] => vith
+        */
     }
 
     function get_all_taxa()
     {
-        $databases = self::get_main_groups();
+        if($this->database) $databases = array($this->database);
+        else                $databases = self::get_main_groups();
+        print_r($databases); //exit;
         // $databases = array("echinomap", "spidermap"); // debug
         $total = count($databases);
         $i = 0;
