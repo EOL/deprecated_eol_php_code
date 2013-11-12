@@ -767,13 +767,13 @@ class ArchiveDataIngester
         );
         if($row_class_name = @$row_type_class_names[$row_type])
         {
-            $file_location = $parameters['archive_table_definition']->location;
-            $line_number = $parameters['archive_line_number'];
+            $file_location = @$parameters['archive_table_definition']->location;
+            $line_number = @$parameters['archive_line_number'];
             self::debug_iterations("Inserting $row_type");
             $this->commit_iterations($row_type, 500);
             # TODO: fix this with validation
-            if($row['http://eol.org/schema/measurementOfTaxon'] == 'yes') $row['http://eol.org/schema/measurementOfTaxon'] = 'true';
-            if($row['http://eol.org/schema/measurementOfTaxon'] == 'no') $row['http://eol.org/schema/measurementOfTaxon'] = 'false';
+            if(@$row['http://eol.org/schema/measurementOfTaxon'] == 'yes') $row['http://eol.org/schema/measurementOfTaxon'] = 'true';
+            if(@$row['http://eol.org/schema/measurementOfTaxon'] == 'no') $row['http://eol.org/schema/measurementOfTaxon'] = 'false';
             if($this->archive_validator->has_error_by_line(strtolower($row_type), $file_location, $line_number)) return false;
 
             if($taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']))
