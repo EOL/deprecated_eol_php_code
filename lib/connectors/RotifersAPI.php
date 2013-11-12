@@ -64,8 +64,7 @@ class RotifersAPI
         
         // manual addition
         $names = array();
-        $names[] = array("taxon" => "Rotifera", "id" => "Rotifera", "rank" => "phylum", "parent_id" => "Animalia");
-        $names[] = array("taxon" => "Animalia", "id" => "Animalia", "rank" => "kingdom", "parent_id" => "");
+        $names[] = array("taxon" => "Rotifera", "id" => "Rotifera", "rank" => "phylum", "parent_id" => "");
         self::add_higher_taxa($names);
         
         // synonyms
@@ -219,6 +218,9 @@ class RotifersAPI
             
             $records = $func->make_array($this->text_path[$level], $fields, "", array());
             array_shift($records);
+            
+            if($level == "genus") // print_r($records);
+            
             foreach($records as $rec)
             {
                 if(!self::is_valid_string($rec[$taxon_field])) continue;
@@ -239,6 +241,11 @@ class RotifersAPI
                 $lngSenior_ID = "";
                 if(self::is_valid_string(@$rec["lngSenior_ID"])) $lngSenior_ID = trim($rec["lngSenior_ID"]);
 
+                if(in_array($level, array("family", "genus"))) // bec only family and genus have the bytValidity field
+                {
+                    if($bytValidity != "valid") continue;
+                }
+                
                 $taxon_id = $id_code.$rec[$id_field];
                 $temp = array("id" => $taxon_id, "taxon" => $rec[$taxon_field], "authorship" => $authorship, "level" => $id_code,
                         "txtNotes" => $txtNotes,
@@ -702,10 +709,23 @@ class RotifersAPI
         $family_parent_id     = self::get_parent(array(                      $rec["lngOrder_ID"], $rec["lngSuperOrder_ID"], $rec["lngSubClass_ID"], $rec["lngClass_ID"], $class_parent_id));
         $genus_parent_id      = self::get_parent(array($rec["lngFamily_ID"], $rec["lngOrder_ID"], $rec["lngSuperOrder_ID"], $rec["lngSubClass_ID"], $rec["lngClass_ID"], $class_parent_id));
         $names = array();
-        if(self::is_valid_string($rec["strClass"]))      $names[] = array("taxon" => $rec["strClass"],      "id" => $rec["lngClass_ID"],          "rank" => "class",      "parent_id" => $class_parent_id,      "authorship" => $this->higher_level_taxa[$rec["lngClass_ID"]]["authorship"]);
-        if(self::is_valid_string($rec["strSubClass"]))   $names[] = array("taxon" => $rec["strSubClass"],   "id" => $rec["lngSubClass_ID"],       "rank" => "subclass",   "parent_id" => $subclass_parent_id,   "authorship" => $this->higher_level_taxa[$rec["lngSubClass_ID"]]["authorship"]);
-        if(self::is_valid_string($rec["strSuperOrder"])) $names[] = array("taxon" => $rec["strSuperOrder"], "id" => $rec["lngSuperOrder_ID"],     "rank" => "superorder", "parent_id" => $superorder_parent_id, "authorship" => $this->higher_level_taxa[$rec["lngSuperOrder_ID"]]["authorship"]);
-        if(self::is_valid_string($rec["strOrder"]))      $names[] = array("taxon" => $rec["strOrder"],      "id" => $rec["lngOrder_ID"],          "rank" => "order",      "parent_id" => $order_parent_id,      "authorship" => $this->higher_level_taxa[$rec["lngOrder_ID"]]["authorship"]);
+
+        if(isset($this->higher_level_taxa[$rec["lngClass_ID"]]))
+        {
+            if(self::is_valid_string($rec["strClass"]))      $names[] = array("taxon" => $rec["strClass"],      "id" => $rec["lngClass_ID"],          "rank" => "class",      "parent_id" => $class_parent_id,      "authorship" => $this->higher_level_taxa[$rec["lngClass_ID"]]["authorship"]);
+        }
+        if(isset($this->higher_level_taxa[$rec["lngSubClass_ID"]]))
+        {
+            if(self::is_valid_string($rec["strSubClass"]))   $names[] = array("taxon" => $rec["strSubClass"],   "id" => $rec["lngSubClass_ID"],       "rank" => "subclass",   "parent_id" => $subclass_parent_id,   "authorship" => $this->higher_level_taxa[$rec["lngSubClass_ID"]]["authorship"]);
+        }
+        if(isset($this->higher_level_taxa[$rec["lngSuperOrder_ID"]]))
+        {
+            if(self::is_valid_string($rec["strSuperOrder"])) $names[] = array("taxon" => $rec["strSuperOrder"], "id" => $rec["lngSuperOrder_ID"],     "rank" => "superorder", "parent_id" => $superorder_parent_id, "authorship" => $this->higher_level_taxa[$rec["lngSuperOrder_ID"]]["authorship"]);
+        }
+        if(isset($this->higher_level_taxa[$rec["lngOrder_ID"]]))
+        {
+            if(self::is_valid_string($rec["strOrder"]))      $names[] = array("taxon" => $rec["strOrder"],      "id" => $rec["lngOrder_ID"],          "rank" => "order",      "parent_id" => $order_parent_id,      "authorship" => $this->higher_level_taxa[$rec["lngOrder_ID"]]["authorship"]);
+        }
         if(isset($this->higher_level_taxa[$rec["lngFamily_ID"]]))
         {
             if(self::is_valid_string($rec["strFamily"]))     $names[] = array("taxon" => $rec["strFamily"],     "id" => $rec["lngFamily_ID"],         "rank" => "family",     "parent_id" => $family_parent_id,     "authorship" => $this->higher_level_taxa[$rec["lngFamily_ID"]]["authorship"]);
