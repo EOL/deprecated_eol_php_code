@@ -73,7 +73,9 @@ class SINAMapsAPI
                             $this->create_instances_from_taxon_object($rec, array());
                             $ref_ids = array();
                             $agent_ids = array();
-                            if(@$rec["as_of"]) $rec["caption"] = $rec["as_of"] . "<br><br>" . @$rec["caption"];
+                            
+                            $rec["caption"] = "Version of manually-generated dot map displayed above, showing U.S. and Canadian records, was harvested from SINA on " . date("M-d-Y") . ".<br><br>" . @$rec["caption"];
+                            
                             if(@$rec["map"]) self::get_images($rec["sciname"], @$rec["caption"], $rec["taxon_id"], $parts["filename"], $rec["map"], $rec["source_url"], $ref_ids, $agent_ids);
                             if(@$rec["computer_gen_map"])
                             {
@@ -81,7 +83,7 @@ class SINAMapsAPI
                                 $ref_ids = array();
                                 $agent_ids = array();
                                 $caption = $rec["as_of"];
-                                if($rec["link_back"]) $caption .= "<br><br>" . 'See also this <a href="' . $rec["link_back"] . '">manually generated dot map</a> showing county records, with shaded area showing likely general distribution.';
+                                if($rec["link_back"]) $caption .= "<br><br>" . 'See also this <a href="' . $rec["link_back"] . '">manually generated dot map</a> showing U.S. and Canadian records, with shaded area showing likely general distribution.';
                                 self::get_images($rec["sciname"], $caption, $rec["taxon_id"], $parts["filename"], $rec["computer_gen_map"], $rec["source_url"], $ref_ids, $agent_ids);
                             }
                         }
@@ -135,8 +137,8 @@ class SINAMapsAPI
                 $caption = str_ireplace(array("\n", chr(13), chr(10), "\t"), "", $caption);
                 if(substr($caption, 0, 4) == "<br>") $caption = trim(substr($caption, 4, strlen($caption)));
                 $caption = str_ireplace(array("<br>  "), "<br>", $caption);
+                $caption = str_ireplace('"> Computer-generated', '">Computer-generated', $caption);
                 if    (preg_match("/<a href=\"(.*?)\">Computer-generated/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
-                elseif(preg_match("/<a href=\"(.*?)\"> Computer-generated/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
                 elseif(preg_match("/<a href=\"(.*?)\">  Computer-generated/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
                 elseif(preg_match("/<a href=\"(.*?)\">County-level distribution map/ims", $caption, $arr)) $rec["computer_gen_map"] = $this->sina_domain . $arr[1];
                 // else echo "\n investigate no computer gen map [$url]\n"; acceptable case
@@ -152,7 +154,9 @@ class SINAMapsAPI
                 }
                 
                 $caption = str_ireplace('href="', 'href="' . $this->sina_domain, $caption);
+                $caption = str_ireplace('Computer-generated distribution map', '<br>See also this computer-generated U.S. distribution map', $caption);
                 $rec["caption"] = $caption;
+                echo "\n caption: [$caption]\n";
                 $rec["as_of"] = self::get_as_of_date($caption);
             }
             else
@@ -191,7 +195,7 @@ class SINAMapsAPI
         //     $as_of = "Map was generated in Singing Insects of North America in " . trim($arr[1]) . ".";
         // }
         if($as_of) $as_of .= "<br>";
-        $as_of .= "Version of map displayed above was harvested from SINA on " . date("M-d-Y") . ".";
+        $as_of .= "Version of computer-generated U.S. distribution map displayed above was harvested from SINA on " . date("M-d-Y") . ".";
         return $as_of;
     }
     
@@ -244,7 +248,7 @@ class SINAMapsAPI
     {
         /* this has to be done because there are many maps written in html as jpg but are actually gif. in the site these maps are not showing, meaning typo in html.
         since there is only a handful of jpg maps,  i set all maps to gif */
-        $jpeg_maps = array("343dm.jpg", "341dm.jpg", "484ddm.jpg", "535dm2.jpg", "172ms.jpg");
+        $jpeg_maps = array("343dm.jpg", "341dm.jpg", "484ddm.jpg", "535dm2.jpg", "172ms.jpg", "202md.jpg");
         $parts = pathinfo($media_url);
         if(!in_array($parts["basename"], $jpeg_maps)) $media_url = str_ireplace(".jpg", ".gif", $media_url);
         
@@ -265,7 +269,9 @@ class SINAMapsAPI
         $mr->title          = "Distribution of $sciname in North America north of Mexico";
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc/3.0/";
         $mr->audience       = 'Everyone';
-        $mr->description    = (string) $description;
+        
+        $description = str_ireplace("available on this site", "available on the Singing Insects of North America site", $description);
+        $mr->description    = $description;
         $mr->subtype        = "Map";
         $mr->accessURI      = (string) trim($media_url);
         $this->archive_builder->write_object_to_file($mr);
