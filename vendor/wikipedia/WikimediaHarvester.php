@@ -26,7 +26,7 @@ class WikimediaHarvester
         $this->taxonomies_for_file = array(); // key=media-filename, value = count of taxonomies for this file (just for info)
         $this->taxonomy_pagenames = array();  // key=media-filename, value = array of redirects (used as temp name store)
         $this->map_categories = self::get_map_categories($this->base_directory_path);
-        // TODO - add list of "unwanted" categories, so that if an image falls into one of these (or a child thereof),
+        // TODO - add blacklist of "unwanted" categories, so that if an image falls into one of these (or a child thereof),
         // it is not harvested. E.g. a suggested "unwanted" category might be
         // Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
         $this->total_pages_in_dump = 0;
@@ -41,8 +41,8 @@ class WikimediaHarvester
         //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
         mb_internal_encoding("UTF-8");
         // delete the downloaded files
-        // $this->cleanup_dump();
-        // $this->download_dump();
+        $this->cleanup_dump();
+        $this->download_dump();
 
         // FIRST PASS: parse TaxonavigationIncluded* pages (e.g. https://commons.wikimedia.org/wiki/Template:Aves)
         // simultaneously locate galleries and categories with potential taxonomic information (i.e. a Taxonavigation template)
@@ -131,9 +131,8 @@ class WikimediaHarvester
             if(isset($this->page_iteration_left_overs)) $current_page = $this->page_iteration_left_overs;
             else $current_page = "";
             $this->page_iteration_left_overs = "";
-            foreach(new FileIterator($filename) as $line)
+            foreach(new FileIterator($filename, false, false) as $line)
             {
-                $line .= "\n";
                 $current_page .= $line;
                 // this is a new page so reset $current_page
                 if(trim($line) == "<page>") $current_page = $line;
@@ -290,17 +289,25 @@ class WikimediaHarvester
     private function queue_page_for_processing($page)
     {
         if(!$page) return;
-        // if we want only to download recently changed wikimedia files, we could look at
-        // whether the last run date of this script is more recent that either strtodate($page->timestamp),
-        // or $this->taxa[$this->galleries_for_file[$page->title]]->last_taxonomy_change
-        // But since we are currently checking categories via the call returned from the API,
-        // we can't check the recent mod time of a categorised media file without an API call.
-        $this->queue_of_pages_to_process[] = $page;
-        // when the queue is large enough, process it
-        if(count($this->queue_of_pages_to_process) >= \WikimediaPage::$max_titles_per_lookup)
+        /* NB: if we want only to download recently changed wikimedia files, we could look at
+           whether the last run date of this script is more recent that either strtodate($page->timestamp),
+           or $this->taxa[$this->galleries_for_file[$page->title]]->last_taxonomy_change
+           But since we are currently checking categories via the call returned from the API,
+           we can't check the recent mod time of a categorised media file without an API call. */
+           
+        // We must process the queue either when number of pages is the maximum allowed by the API, or when the titles
+        // make the total URL string too long (the latter only happens very rarely, when the av title length > ~160 chars)
+        static $title_length=0;
+        $title_length += strlen(urlencode($page->title."|"));
+        // process the queue first if it is already hit the limits
+        if((count($this->queue_of_pages_to_process) >= \WikimediaPage::$max_titles_per_lookup) ||
+           ($title_length > \WikimediaPage::max_encoded_characters_in_titles()))
         {
             $this->process_page_queue();
+            $title_length = strlen(urlencode($page->title."|"));
         }
+        // now just add to the end of the queue
+        $this->queue_of_pages_to_process[] = $page;
     }
 
     private function process_page_queue()

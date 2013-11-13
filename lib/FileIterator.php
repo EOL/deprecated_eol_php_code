@@ -8,11 +8,13 @@ class FileIterator implements \Iterator
     protected $current_line;
     protected $line_number = -1; // bit of a hack. So the first iteration sets it to 0
     protected $remove_file_on_destruct;
+    protected $trim_newlines;
     
-    public function __construct($file_path, $remove_file_on_destruct = false)
+    public function __construct($file_path, $remove_file_on_destruct = false, $trim_newlines = true)
     {
         $this->file_path = $file_path;
         $this->remove_file_on_destruct = $remove_file_on_destruct;
+        $this->trim_newlines = $trim_newlines;
         // file must exist and be readable
         if(is_readable($file_path))
         {
@@ -69,11 +71,13 @@ class FileIterator implements \Iterator
     {
         if(isset($this->FILE) && !feof($this->FILE))
         {
-            $line = fgets($this->FILE);
-            $this->current_line = rtrim($line, "\r\n");
-            unset($line);
-            // // possibly faster but doesn't recognize both \n and \r
-            // $this->current_line = stream_get_line($this->FILE, 65535, "\n");
+            if ($this->trim_newlines) {
+                // // possibly faster but doesn't recognize both \n and \r
+                // $this->current_line = stream_get_line($this->FILE, 65535, "\n");
+                $this->current_line = rtrim(fgets($this->FILE), "\r\n");
+            } else {
+                $this->current_line = fgets($this->FILE);
+            }
             
             $this->line_number += 1;
             return $this->current_line;

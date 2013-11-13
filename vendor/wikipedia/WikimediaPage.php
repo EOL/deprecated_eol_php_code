@@ -60,7 +60,7 @@ class WikimediaPage
 
     public static function from_api($title)
     {
-        $api_url = "http://commons.wikimedia.org/w/api.php?action=query&format=xml&prop=revisions&titles=". urlencode($title) ."&rvprop=ids|timestamp|user|content&redirects";
+        $api_url = self::$API_URL.'?action=query&format=xml&prop=revisions&titles='. urlencode($title) .'&rvprop=ids|timestamp|user|content&redirects';
         echo $api_url."\n";
         return new WikimediaPage(php_active_record\Functions::get_remote_file($api_url));
     }
@@ -114,7 +114,7 @@ class WikimediaPage
 
     public static function expand_templates($text)
     {
-        $url = "http://commons.wikimedia.org/w/api.php?action=expandtemplates&format=xml&text=". urlencode($text);
+        $url = self::$API_URL.'?action=expandtemplates&format=xml&text='. urlencode($text);
         $response = \php_active_record\Functions::lookup_with_cache($url, array('validation_regex' => '<text', 'expire_seconds' => 518400));
         $hash = simplexml_load_string($response);
         if(@$hash->expandtemplates) return (string) $hash->expandtemplates[0];
@@ -123,7 +123,7 @@ class WikimediaPage
     public function expanded_text()
     {
         if(isset($this->expanded_text)) return $this->expanded_text;
-        $url = "http://commons.wikimedia.org/w/api.php?action=parse&format=xml&prop=text&redirects&page=". urlencode($this->title);
+        $url = self::$API_URL.'?action=parse&format=xml&prop=text&redirects&page='. urlencode($this->title);
         $response = \php_active_record\Functions::lookup_with_cache($url, array('validation_regex' => '<text', 'expire_seconds' => 518400));
         $hash = simplexml_load_string($response);
         if(@$hash->parse->text) $this->expanded_text = (string) $hash->parse->text[0];
@@ -538,6 +538,7 @@ class WikimediaPage
         {
             $agent_parameters["fullName"] = htmlspecialchars($author);
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+            //TODO - set role = "Creator" as default, and "Recorder" for $mediatype = AUDIO, "Photographer" for  $mediatype = BITMAP
             $agent_parameters["role"] = 'photographer';
         }
 
@@ -738,10 +739,16 @@ class WikimediaPage
         return $tnav_array;
     }
 
-    // see see http://commons.wikimedia.org/w/api.php
+    // For details see http://commons.wikimedia.org/w/api.php
+    public static $API_URL = 'http://commons.wikimedia.org/w/api.php';
     public static $max_titles_per_lookup = 50;
-    // see see http://commons.wikimedia.org/w/api.php
     public static $max_categories_per_lookup = 500;
+    // Maximum URL length ~ 8100 chars (https://www.mediawiki.org/wiki/API:FAQ#do_really_long_API_urls_not_work)
+    public static $max_http_chars = 8100; 
+    // For allowed length of titles string, allow an extra 300 chars for ?action=query&..blah.blah.<TITLES>.continue=blah,blah
+    // declare this as a function because static variables can't be initialized using e.g. strlen()
+    public static function max_encoded_characters_in_titles() {return self::$max_http_chars - strlen(self::$API_URL) - 300;}
+
 
     public static function call_API(&$url, $titles)
     {
@@ -749,9 +756,15 @@ class WikimediaPage
         // return an array with $title => json_result
         $real_titles = array_combine($titles, $titles);
         $results = array();
-        // be polite to Commons, see http://meta.wikimedia.org/wiki/User-Agent_policy
-        // *** Should be something like 'EoLHarvestingCode/1.0 (https://github.com/EOL; XXX@eol.org) ';
-        static $user_agent = false;
+        //use curl_version and phpversion to give a polite user-agent to Commons, see http://meta.wikimedia.org/wiki/User-Agent_policy
+        $curl_info = curl_version();
+        $curl_options = array(
+            'user_agent' => 'EoLWikimediaHarvestingBot/1.0 (http://EoL.org; https://github.com/EOL; tech@eol.org) PHP_'.phpversion().'-libcurl/'.$curl_info['version'],
+            'download_wait_time' => 5000000,
+            'download_attempts' => 3,
+            'encoding' => 'gzip,deflate',
+            'validation_regex' => 'query',
+            'expire_seconds' => 518400);
 
         if(count($titles) > self::$max_titles_per_lookup)
         {
@@ -763,12 +776,7 @@ class WikimediaPage
         $continue = "&continue=";
         while(!empty($continue))
         {
-            $result = php_active_record\Functions::lookup_with_cache($url.$continue, array(
-                'download_wait_time' => 5000000,
-                'download_attempts' => 3,
-                'user_agent' => 'gzip,deflate',
-                'validation_regex' => 'query',
-                'expire_seconds' => 518400));
+            $result = php_active_record\Functions::lookup_with_cache($url.$continue, $curl_options);
 
             // return as an associative array
             $json = json_decode($result, true);
@@ -785,9 +793,8 @@ class WikimediaPage
             }
             if(isset($query['redirects']))
             {
-                // All redirected pages in galleries should have been caught in the XML dump.
+                // All redirected pages should have been caught in the XML dump.
                 // Here we should only have pages which have changed since the dump was produced.
-                // Note that we do not yet catch pages that refer to redirected categories.
                 foreach($query['redirects'] as $redir)
                 {
                     $from = (string) $redir['from'];
@@ -860,9 +867,8 @@ class WikimediaPage
     {
         // Work on an array of pages, querying the Mediawiki API about them.
         // If the page is missing or invalid (e.g. has been deleted), then remove it from the array.
-        // see http://commons.wikimedia.org/w/api.php
-        $url = 'http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cmediatype&clprop=hidden&cllimit='. self::$max_categories_per_lookup .'&redirects';
-
+        $url = self::$API_URL.'?action=query&format=json&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cmediatype&cllimit='. self::$max_categories_per_lookup .'&redirects';
+        
         $titles = array_map(function($page) { return $page->title; }, $array_of_pages);
         $json_array = self::call_API($url, $titles);
         foreach($array_of_pages as $index => &$page)
@@ -939,7 +945,7 @@ class WikimediaPage
 
     public static function check_page_titles($array_of_titles)
     {
-        $url = "http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&redirects";
+        $url = self::$API_URL.'?action=query&format=json&prop=imageinfo&iiprop=url&redirects';
         return self::call_API($url, $array_of_titles);
     }
 
