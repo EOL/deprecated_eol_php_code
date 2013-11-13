@@ -2,8 +2,8 @@
 
 class SchemaSynonym
 {
-    static $synonym;
-    static $relationship;
+    public $synonym;
+    public $relationship;
     
     public function __construct($parameters)
     {

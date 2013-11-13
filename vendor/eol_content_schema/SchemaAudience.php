@@ -2,7 +2,7 @@
 
 class SchemaAudience
 {
-    static $label;
+    public $label;
     
     public function __construct($parameters)
     {

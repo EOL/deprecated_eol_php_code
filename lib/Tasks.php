@@ -281,7 +281,7 @@ class Tasks
         $mysqli->end_transaction();
     }
     
-    function nested_set_depth_first_assign($id, $parent_id, $depth, $current_value)
+    public static function nested_set_depth_first_assign($id, $parent_id, $depth, $current_value)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
         

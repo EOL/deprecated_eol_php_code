@@ -73,6 +73,7 @@ php_active_record\require_library('ArchiveDataIngester');
 php_active_record\require_library('ContentArchiveValidator');
 php_active_record\require_library('RelateHierarchies');
 php_active_record\require_library('FlattenHierarchies');
+php_active_record\require_library('SparqlClient');
 php_active_record\require_vendor('eol_content_schema');
 php_active_record\require_vendor('solr');
 php_active_record\require_vendor('darwincore');
@@ -117,10 +118,14 @@ $GLOBALS['no_cache']['taxon_concepts']      = true;
    if a CLI request and there is an argument ENV_NAME=$ENV that gets second priority
    if a constant ENVIRONMENT exists that gets third priority
 */
-function set_and_load_proper_environment($argv = NULL)
+function set_and_load_proper_environment(&$argv = NULL)
 {
     if(isset($_REQUEST['ENV_NAME'])) $GLOBALS['ENV_NAME'] = $_REQUEST['ENV_NAME'];
-    elseif(isset($argv) && $match = in_array_regex('ENV_NAME=(.+)', $argv)) $GLOBALS['ENV_NAME'] = $match[1];
+    elseif(isset($argv) && $results = in_array_regex('ENV_NAME=(.+)', $argv))
+    {
+        $GLOBALS['ENV_NAME'] = $results['matches'][1];
+        unset($argv[$results['key']]);
+    }
     elseif(defined('ENVIRONMENT')) $GLOBALS['ENV_NAME'] = ENVIRONMENT;
     if(!isset($GLOBALS['ENV_NAME']))
     {
@@ -144,9 +149,12 @@ function set_and_load_proper_environment($argv = NULL)
 function in_array_regex($needle, $haystack)
 {
     if(!is_array($haystack)) return false;
-    foreach($haystack as $element)
+    foreach($haystack as $key => $value)
     {
-        if(preg_match('/^'. str_replace('/', '\/', $needle) .'$/', $element, $arr)) return $arr;
+        if(preg_match('/^'. str_replace('/', '\/', $needle) .'$/', $value, $arr))
+        {
+            return array('key' => $key, 'value' => $value, 'matches' => $arr);
+        }
     }
     return false;
 }

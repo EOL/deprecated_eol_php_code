@@ -5,13 +5,14 @@ class ArchiveDataIngester
 {
     private $resource;
     private static $valid_taxonomic_statuses = array("valid", "accepted", "accepted name", "provisionally accepted name", "current");
-    
+
     public function __construct($harvest_event)
     {
         $this->harvest_event = $harvest_event;
         $this->mysqli =& $GLOBALS['db_connection'];
+        $this->sparql_client = SparqlClient::connection();
     }
-    
+
     public function parse($validate = true, &$archive_reader = null, &$archive_validator = null)
     {
         if(!is_dir($this->harvest_event->resource->archive_path())) return false;
@@ -20,20 +21,22 @@ class ArchiveDataIngester
         if($archive_validator) $this->archive_validator = $archive_validator;
         else $this->archive_validator = new ContentArchiveValidator($this->archive_reader, $this->harvest_event->resource);
         $this->content_manager = new ContentManager();
-        
+
         // set valid to true if we don't need validation
         $valid = $validate ? $this->archive_validator->is_valid() : true;
         if($valid !== true) return array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
         // even if we don't want to validate - we need the errors to determine which rows to ignore
         if(!$validate) $this->archive_validator->get_validation_errors(true);
         $this->archive_validator->delete_validation_cache();
-        
+
         $this->taxon_reference_ids = array();
         $this->media_reference_ids = array();
         $this->media_agent_ids = array();
-        
+
         $this->media_ids_inserted = array();
-        
+        $this->occurrence_ids_inserted = array();
+        $this->event_ids_inserted = array();
+
         /* During harvesting we need to delete all the old records associated with HierarchyEntries
            and DataObjects so we can add the new ones, and also properly represent the case where a
            provider deletes a common name or reference from an object or taxon
@@ -42,10 +45,10 @@ class ArchiveDataIngester
         $this->entry_references_deleted = array();
         $this->entry_vernacular_names_deleted = array();
         $this->entry_synonyms_deleted = array();
-        
+
         $this->dataset_metadata = array();
         $this->collect_dataset_attribution();
-        
+
         $this->mysqli->begin_transaction();
         $this->start_reading_taxa();
         $this->mysqli->commit();
@@ -54,13 +57,18 @@ class ArchiveDataIngester
         $this->archive_reader->process_row_type("http://eol.org/schema/reference/Reference", array($this, 'insert_references'));
         $this->archive_reader->process_row_type("http://eol.org/schema/agent/Agent", array($this, 'insert_agents'));
         $this->archive_reader->process_row_type("http://rs.gbif.org/terms/1.0/Reference", array($this, 'insert_gbif_references'));
-        
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Occurrence", array($this, 'insert_data'));
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/MeasurementOrFact", array($this, 'insert_data'));
+        $this->archive_reader->process_row_type("http://eol.org/schema/Association", array($this, 'insert_data'));
+        $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Event", array($this, 'insert_data'));
+        $this->sparql_client->insert_remaining_bulk_data();
+
         $this->mysqli->end_transaction();
-        
+
         // returning true so we know that the parsing/ingesting succeeded
         return true;
     }
-    
+
     public function start_reading_taxa()
     {
         $this->children = array();
@@ -68,7 +76,7 @@ class ArchiveDataIngester
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Taxon", array($this, 'read_taxon'));
         $this->begin_adding_taxa();
     }
-    
+
     private function begin_adding_taxa()
     {
         $this->taxon_ids_inserted = array();
@@ -84,11 +92,11 @@ class ArchiveDataIngester
             }
         }else echo "THERE ARE NO ROOT TAXA\nAborting import\n";
     }
-    
+
     public function read_taxon($row, $parameters)
     {
         self::debug_iterations("Loading taxon", 5000);
-        
+
         $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
         if(!$taxon_id) $taxon_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         else unset($row['http://purl.org/dc/terms/identifier']);
@@ -111,7 +119,7 @@ class ArchiveDataIngester
         unset($row['http://rs.tdwg.org/dwc/terms/taxonConceptID']);
         $row['archive_line_number'] = $parameters['archive_line_number'];
         $row['archive_file_location'] = $parameters['archive_table_definition']->location;
-        
+
         self::compress_array($row);
         if($taxon_id && $is_valid)
         {
@@ -125,7 +133,7 @@ class ArchiveDataIngester
             $this->synonyms[$accepted_taxon_id][] = $row;
         }
     }
-    
+
     function add_hierarchy_entry(&$row, $parent_hierarchy_entry_id, $ancestry, $branch_kingdom)
     {
         self::debug_iterations("Inserting taxon");
@@ -159,17 +167,17 @@ class ArchiveDataIngester
             if($authorship && stripos($scientific_name, $authorship) === false) $scientific_name = trim($scientific_name ." ". $authorship);
         }
         if(!$scientific_name) return false;
-        
+
         // this taxon_id has already been inserted meaning this tree has a loop in it - so stop
         $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
         if(!$taxon_id) $taxon_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         if(!$taxon_id) return false;
         if(isset($this->taxon_ids_inserted[$taxon_id])) return false;
-        
+
         $scientific_name = ucfirst($scientific_name);
         $name = Name::find_or_create_by_string($scientific_name);
         if(@!$name->id) return false;
-        
+
         $phylum = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/phylum']);
         $class = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/class']);
         $order = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/order']);
@@ -182,14 +190,14 @@ class ArchiveDataIngester
         if(isset($row['http://rs.tdwg.org/dwc/terms/taxonRemarks'])) $taxon_remarks = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRemarks']);
         else $taxon_remarks = NULL;
         if(!$taxon_remarks && strtolower($taxonomic_status) == 'provisionally accepted name') $taxon_remarks = "provisionally accepted name";
-        
+
         if(strtolower($rank_label) == 'kingdom') $kingdom = null;
         if(strtolower($rank_label) == 'phylum') $phylum = null;
         if(strtolower($rank_label) == 'class') $class = null;
         if(strtolower($rank_label) == 'order') $order = null;
         if(strtolower($rank_label) == 'family') $family = null;
         if(strtolower($rank_label) == 'genus') $genus = null;
-        
+
         // these are the taxa using the adjacency list format
         if(!$parent_hierarchy_entry_id && ($kingdom || $phylum || $class || $order || $family || $genus))
         {
@@ -228,7 +236,7 @@ class ArchiveDataIngester
             $this->taxon_ids_inserted[$taxon_id] = array('hierarchy_entry_id' => $hierarchy_entry->id, 'taxon_concept_id' => $hierarchy_entry->taxon_concept_id, 'source_url' => $source_url);
             self::compress_array($this->taxon_ids_inserted[$taxon_id]);
         }
-        
+
         if(!isset($this->entry_references_deleted[$hierarchy_entry->id]))
         {
             $hierarchy_entry->delete_refs();
@@ -244,7 +252,7 @@ class ArchiveDataIngester
             $hierarchy_entry->delete_synonyms();
             $this->entry_synonyms_deleted[$hierarchy_entry->id] = true;
         }
-        
+
         if($name_published_in = @$row['http://rs.tdwg.org/dwc/terms/namePublishedIn'])
         {
             $individual_references = explode("||", $name_published_in);
@@ -258,10 +266,10 @@ class ArchiveDataIngester
                 }
             }
         }
-        
+
         // keep track of reference foreign keys
         self::append_foreign_keys_from_row($row, 'http://eol.org/schema/reference/referenceID', $this->taxon_reference_ids, $hierarchy_entry->id);
-        
+
         if(isset($this->synonyms[$taxon_id]))
         {
             foreach($this->synonyms[$taxon_id] as $synonym_row)
@@ -274,24 +282,24 @@ class ArchiveDataIngester
                     $synonym_scientific_name = trim($synonym_scientific_name ." ". $synonym_authorship);
                 }
                 if(!$synonym_scientific_name) continue;
-                
+
                 $synonym_taxon_id = @self::field_decode($synonym_row['http://rs.tdwg.org/dwc/terms/taxonID']);
                 if(!$synonym_taxon_id) $taxon_id = @self::field_decode($synonym_row['http://purl.org/dc/terms/identifier']);
                 if(!$synonym_taxon_id) continue;
-                
+
                 $synonym_name = Name::find_or_create_by_string(ucfirst($synonym_scientific_name));
                 if(@!$synonym_name->id) continue;
-                
+
                 $taxonomic_status = @self::field_decode($synonym_row['http://rs.tdwg.org/dwc/terms/taxonomicStatus']) ?: 'synonym';
                 if(isset($synonym_row['http://rs.tdwg.org/dwc/terms/taxonRemarks'])) $taxon_remarks = @self::field_decode($synonym_row['http://rs.tdwg.org/dwc/terms/taxonRemarks']);
                 else $taxon_remarks = NULL;
-                
+
                 $synonym_relation = SynonymRelation::find_or_create_by_translated_label($taxonomic_status);
                 $hierarchy_entry->add_synonym($synonym_name->id, @$synonym_relation->id ?: 0, 0, 0, 0, 0, $taxon_remarks);
             }
             unset($this->synonyms[$taxon_id]);
         }
-        
+
         if($dataset_id && isset($this->dataset_metadata[$dataset_id]) && $metadata = $this->dataset_metadata[$dataset_id])
         {
             $hierarchy_entry->delete_agents();
@@ -301,19 +309,22 @@ class ArchiveDataIngester
                             "agent_role" => AgentRole::find_or_create_by_translated_label('Source'));
             $agent = Agent::find_or_create($params);
             $hierarchy_entry->add_agent($agent->id, @$a['agent_role']->id ?: 0, 0);
-            
+
             $reference = Reference::find_or_create(array("full_reference" => $metadata['citation']));
-            
+
             $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs (hierarchy_entry_id, ref_id) VALUES ($hierarchy_entry->id, $reference->id)");
             $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
         }
-        
+
+        $parameters = array('archive_table_definition' => (object) array('row_type' => 'http://rs.tdwg.org/dwc/terms/Taxon'));
+        $this->insert_data($row, $parameters);
+
         if(isset($this->children[$taxon_id]))
         {
             // set the ancestry for its children
             if($ancestry) $this_ancestry = $ancestry ."|". $name->id;
             else $this_ancestry = $name->id;
-            
+
             foreach($this->children[$taxon_id] as &$row)
             {
                 self::uncompress_array($row);
@@ -324,13 +335,13 @@ class ArchiveDataIngester
         unset($hierarchy_entry);
         unset($row);
     }
-    
+
     public function insert_vernacular_names($row, $parameters)
     {
         self::debug_iterations("Inserting VernacularName");
         $this->commit_iterations("VernacularName", 500);
         if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
-        
+
         $taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $taxon_info = array();
         if($taxon_ids)
@@ -345,7 +356,7 @@ class ArchiveDataIngester
             }
         }
         if(!$taxon_info) return false;
-        
+
         $vernacularName = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/vernacularName']);
         $source = @self::field_decode($row['http://purl.org/dc/terms/source']);
         $languageString = @self::field_decode($row['http://purl.org/dc/terms/language']);
@@ -353,17 +364,17 @@ class ArchiveDataIngester
         $countryCode = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/countryCode']);
         $isPreferredName = @self::field_decode($row['http://rs.gbif.org/terms/1.0/isPreferredName']);
         $taxonRemarks = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRemarks']);
-        
+
         $name = Name::find_or_create_by_string($vernacularName);
         $language = Language::find_or_create_for_parser($languageString);
         if(!$name) return false;
-        
+
         foreach($taxon_info as $info)
         {
             $he_id = $taxon_info['hierarchy_entry_id'];
             $tc_id = $taxon_info['taxon_concept_id'];
             $common_name_relation = SynonymRelation::find_or_create_by_translated_label('common name');
-            
+
             Synonym::find_or_create(array('name_id'               => $name->id,
                                           'synonym_relation_id'   => $common_name_relation->id,
                                           'language_id'           => @$language->id ?: 0,
@@ -375,13 +386,13 @@ class ArchiveDataIngester
                                           'taxonRemarks'          => $taxonRemarks));
         }
     }
-    
+
     public function insert_data_object($row, $parameters)
     {
         self::debug_iterations("Inserting DataObject");
         $this->commit_iterations("DataObject", 20);
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/media/document', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
-        
+
         $object_taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
         $object_taxon_info = array();
         if($object_taxon_ids)
@@ -395,15 +406,15 @@ class ArchiveDataIngester
                 }
             }
         }
-        
+
         if(!$object_taxon_info) return false;
-        
+
         if($this->harvest_event->resource->is_eol_flickr_group() && self::is_this_flickr_image_in_inaturalist($row)) return false;
-        
+
         $data_object = new DataObject();
         $data_object->identifier = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         if(isset($this->media_ids_inserted[$data_object->identifier])) return false;
-        
+
         $data_object->data_type = DataType::find_or_create_by_schema_value(@self::field_decode($row['http://purl.org/dc/terms/type']));
         if($dt = DataType::find_or_create_by_schema_value(@self::field_decode($row['http://rs.tdwg.org/audubon_core/subtype'])))
         {
@@ -415,7 +426,7 @@ class ArchiveDataIngester
         $data_object->available_at = @self::field_decode($row['http://purl.org/dc/terms/available']);
         $data_object->object_title = @self::field_decode($row['http://purl.org/dc/terms/title']);
         $data_object->language = Language::find_or_create_for_parser(@self::field_decode($row['http://purl.org/dc/terms/language']));
-        
+
         // check multiple fields for a value of license
         if(isset($row['http://purl.org/dc/terms/license']))
         {
@@ -429,7 +440,7 @@ class ArchiveDataIngester
         }
         if(!$license_string || !\eol_schema\MediaResource::valid_license($license_string)) return false;
         $data_object->license = License::find_or_create_for_parser($license_string);
-        
+
         $data_object->rights_statement = @self::field_decode($row['http://purl.org/dc/terms/rights']);
         $data_object->rights_holder = @self::field_decode($row['http://ns.adobe.com/xap/1.0/rights/Owner']);
         $data_object->bibliographic_citation = @self::field_decode($row['http://purl.org/dc/terms/bibliographicCitation']);
@@ -438,7 +449,7 @@ class ArchiveDataIngester
         $data_object->description = @self::field_decode($row['http://purl.org/dc/terms/description']);
         // Turn newlines into paragraphs
         $data_object->description = str_replace("\n","</p><p>", $data_object->description);
-        
+
         $data_object->object_url = @self::field_decode($row['http://rs.tdwg.org/ac/terms/accessURI']);
         $data_object->thumbnail_url = @self::field_decode($row['http://eol.org/schema/media/thumbnailURL']);
         $data_object->location = @self::field_decode($row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated']);
@@ -446,20 +457,20 @@ class ArchiveDataIngester
         $data_object->latitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#lat']);
         $data_object->longitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#long']);
         $data_object->altitude = @self::field_decode($row['http://www.w3.org/2003/01/geo/wgs84_pos#alt']);
-        
+
         $rating = @self::field_decode($row['http://ns.adobe.com/xap/1.0/Rating']);
         // ratings may be 0 to 5
         // TODO: technically 0 means untrusted, and then anywhere from 1-5 is OK.
         // 0.5 for example isn't really valid acording to the schema
         if((is_numeric($rating)) && $rating > 0 && $rating <= 5) $data_object->data_rating = $rating;
-        
+
         //TODO - update this
         if($data_object->mime_type && $data_object->mime_type->equals(MimeType::flash()) && $data_object->is_video())
         {
             $data_object->data_type = DataType::youtube();
             $data_object->data_type_id = DataType::youtube()->id;
         }
-        
+
         // //take the first available source_url of one of this object's taxa
         if(!@$data_object->source_url && @$taxon_parameters["source_url"])
         {
@@ -472,22 +483,22 @@ class ArchiveDataIngester
                 }
             }
         }
-        
+
         /* Checking requirements */
         // if text: must have description
         if($data_object->data_type->equals(DataType::text()) && !$data_object->description) return false;
         // if image, movie or sound: must have object_url
         if(($data_object->data_type->equals(DataType::video()) || $data_object->data_type->equals(DataType::sound()) || $data_object->data_type->equals(DataType::image())) && !$data_object->object_url) return false;
-        
-        
-        
+
+
+
         /* ADDING THE DATA OBJECT */
         list($data_object, $status) = DataObject::find_and_compare($this->harvest_event->resource, $data_object, $this->content_manager);
         if(@!$data_object->id) return false;
         $this->media_ids_inserted[$data_object->identifier] = $data_object->id;
-        
+
         $this->harvest_event->add_data_object($data_object, $status);
-        
+
         $data_object->delete_hierarchy_entries();
         $vetted_id = Vetted::unknown()->id;
         $visibility_id = Visibility::preview()->id;
@@ -498,24 +509,24 @@ class ArchiveDataIngester
             $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries (hierarchy_entry_id, data_object_id, vetted_id, visibility_id) VALUES ($he_id, $data_object->id, $vetted_id, $visibility_id)");
             $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts (taxon_concept_id, data_object_id) VALUES ($tc_id, $data_object->id)");
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
+
+
+
         // a few things to add after the DataObject is inserted
-        
+
         // keep track of reference foreign keys
         self::append_foreign_keys_from_row($row, 'http://eol.org/schema/reference/referenceID', $this->media_reference_ids, $data_object->id, $data_object->guid);
         // keep track of agent foreign keys
         self::append_foreign_keys_from_row($row, 'http://eol.org/schema/agent/agentID', $this->media_agent_ids, $data_object->id);
-        
+
         $data_object->delete_info_items();
         $data_object->delete_table_of_contents();
         if($s = @self::field_decode($row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']))
@@ -524,22 +535,22 @@ class ArchiveDataIngester
             $data_object->add_info_item($ii->id);
             unset($ii);
         }
-        
+
         if($a = @self::field_decode($row['http://purl.org/dc/terms/audience']))
         {
             $a = Audience::find_or_create_by_translated_label(trim((string) $a));
             $data_object->add_audience($a->id);
             unset($a);
         }
-        
-        
-        
-        
+
+
+
+
         $data_object_parameters["agents"] = array();
         self::append_agents($row, $data_object_parameters, 'http://purl.org/dc/terms/creator', 'Creator');
         self::append_agents($row, $data_object_parameters, 'http://purl.org/dc/terms/publisher', 'Publisher');
         self::append_agents($row, $data_object_parameters, 'http://purl.org/dc/terms/contributor', 'Contributor');
-        
+
         $data_object->delete_agents();
         $i = 0;
         foreach($data_object_parameters['agents'] as &$a)
@@ -553,29 +564,27 @@ class ArchiveDataIngester
                     $agent->save();
                 }
             }
-            
+
             $data_object->add_agent($agent->id, @$a['agent_role']->id ?: 0, $i);
             unset($a);
             $i++;
         }
-        
+
         if(!isset($this->object_references_deleted[$data_object->id]))
         {
             $data_object->delete_refs();
             $this->object_references_deleted[$data_object->id] = true;
         }
     }
-    
+
     public function insert_references($row, $parameters)
     {
         self::debug_iterations("Inserting reference");
         $this->commit_iterations("Reference", 500);
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/reference/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
-        
+
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
-        // we really only need to insert the references that relate to taxa or media
-        if(!isset($this->taxon_reference_ids[$reference_id]) && !isset($this->media_reference_ids[$reference_id])) return;
-        
+
         $full_reference = @self::field_decode($row['http://eol.org/schema/reference/full_reference']);
         $title = @self::field_decode($row['http://purl.org/dc/terms/title']);
         $pages = @self::field_decode($row['http://purl.org/ontology/bibo/pages']);
@@ -590,7 +599,7 @@ class ArchiveDataIngester
         $language = Language::find_or_create_for_parser(@self::field_decode($row['http://purl.org/dc/terms/language']));
         $uri = @self::field_decode($row['http://purl.org/ontology/bibo/uri']);
         $doi = @self::field_decode($row['http://purl.org/ontology/bibo/doi']);
-        
+
         $params = array("provider_mangaed_id"       => $reference_id,
                         "full_reference"            => $full_reference,
                         "title"                     => $title,
@@ -616,8 +625,7 @@ class ArchiveDataIngester
             $type = RefIdentifierType::find_or_create_by_label('doi');
             $reference->add_ref_identifier(@$type->id ?: 0, $doi);
         }
-        
-        
+
         if(isset($this->taxon_reference_ids[$reference_id]))
         {
             foreach($this->taxon_reference_ids[$reference_id] as $hierarchy_entry_id => $val)
@@ -639,17 +647,18 @@ class ArchiveDataIngester
                 // TODO: find_or_create doesn't work here because of the dual primary key - same as above with entries
             }
         }
+        $this->insert_data($row, $parameters);
     }
-    
+
     public function insert_agents($row, $parameters)
     {
         self::debug_iterations("Inserting agent");
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/agent/agent', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
-        
+
         $agent_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         // we really only need to insert the agents that relate to media
         if(!isset($this->media_agent_ids[$agent_id])) return;
-        
+
         $params = array("full_name"     => @self::field_decode($row['http://xmlns.com/foaf/spec/#term_name']),
                         "given_name"    => @self::field_decode($row['http://xmlns.com/foaf/spec/#term_firstName']),
                         "family_name"   => @self::field_decode($row['http://xmlns.com/foaf/spec/#term_familyName']),
@@ -672,7 +681,7 @@ class ArchiveDataIngester
                 $agent->save();
             }
         }
-        
+
         $agent_role = AgentRole::find_or_create_by_translated_label(@self::field_decode($row['http://eol.org/schema/agent/agentRole']));
         $agent_role_id = @$agent_role->id ?: 0;
         foreach($this->media_agent_ids[$agent_id] as $data_object_id => $val)
@@ -682,19 +691,19 @@ class ArchiveDataIngester
             $this->mysqli->insert("INSERT IGNORE INTO agents_data_objects VALUES ($data_object_id, $agent->id, $agent_role_id, 0)");
         }
     }
-    
+
     public function insert_gbif_references($row, $parameters)
     {
         self::debug_iterations("Inserting GBIF reference");
         $this->commit_iterations("GBIFReference", 500);
         if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
-        
+
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
         $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
         // we really only need to insert the references that relate to taxa
         if(!isset($this->taxon_ids_inserted[$taxon_id])) return;
-        
-        
+
+
         $full_reference = @self::field_decode($row['http://purl.org/dc/terms/bibliographicCitation']);
         $title = @self::field_decode($row['http://purl.org/dc/terms/title']);
         $author = @self::field_decode($row['http://purl.org/dc/terms/creator']);
@@ -706,7 +715,7 @@ class ArchiveDataIngester
         $language = Language::find_or_create_for_parser(@self::field_decode($row['http://purl.org/dc/terms/language']));
         $type = @self::field_decode($row['http://purl.org/dc/terms/type']);
         if($type != 'taxon') return;
-        
+
         $reference_parts = array();
         if($author) $reference_parts[] = $author;
         if($date) $reference_parts[] = $date;
@@ -723,7 +732,7 @@ class ArchiveDataIngester
         $description = null;
         $source = null;
         $type = null;
-        
+
         if($taxon_info = @$this->taxon_ids_inserted[$taxon_id])
         {
             self::uncompress_array($taxon_info);
@@ -734,7 +743,7 @@ class ArchiveDataIngester
                             "publication_created_at"    => @$created ?: '0000-00-00 00:00:00',
                             "language_id"               => @$language->id ?: 0);
             $reference = Reference::find_or_create($params);
-            
+
             $he_id = $taxon_info['hierarchy_entry_id'];
             $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs (hierarchy_entry_id, ref_id) VALUES ($he_id, $reference->id)");
             $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
@@ -744,7 +753,106 @@ class ArchiveDataIngester
             //     'ref_id'                => $reference->id));
         }
     }
-    
+
+    public function insert_data($row, $parameters)
+    {
+        $row_type = $parameters['archive_table_definition']->row_type;
+        static $row_type_class_names = array(
+            'http://rs.tdwg.org/dwc/terms/Taxon' => '\eol_schema\Taxon',
+            'http://rs.tdwg.org/dwc/terms/Occurrence' => '\eol_schema\Occurrence',
+            'http://rs.tdwg.org/dwc/terms/MeasurementOrFact' => '\eol_schema\MeasurementOrFact',
+            'http://rs.tdwg.org/dwc/terms/Event' => '\eol_schema\Event',
+            'http://eol.org/schema/Association' => '\eol_schema\Association',
+            'http://eol.org/schema/reference/Reference' => '\eol_schema\Reference'
+        );
+        if($row_class_name = @$row_type_class_names[$row_type])
+        {
+            $file_location = @$parameters['archive_table_definition']->location;
+            $line_number = @$parameters['archive_line_number'];
+            self::debug_iterations("Inserting $row_type");
+            $this->commit_iterations($row_type, 500);
+            # TODO: fix this with validation
+            if(@$row['http://eol.org/schema/measurementOfTaxon'] == 'yes') $row['http://eol.org/schema/measurementOfTaxon'] = 'true';
+            if(@$row['http://eol.org/schema/measurementOfTaxon'] == 'no') $row['http://eol.org/schema/measurementOfTaxon'] = 'false';
+            if($this->archive_validator->has_error_by_line(strtolower($row_type), $file_location, $line_number)) return false;
+
+            if($taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']))
+            {
+                if(!isset($this->taxon_ids_inserted[$taxon_id])) return;
+            }
+            if($row_type != 'http://rs.tdwg.org/dwc/terms/Occurrence' &&
+               $occurrence_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/occurrenceID']))
+            {
+                if(!isset($this->occurrence_ids_inserted[$occurrence_id])) return;
+            }
+            if($target_occurrence_id = @self::field_decode($row['http://eol.org/schema/targetOccurrenceID']))
+            {
+                if(!isset($this->occurrence_ids_inserted[$target_occurrence_id])) return;
+            }
+
+            $turtle = $this->prepare_turtle($row, $row_class_name);
+            $this->sparql_client->insert_data_in_bulk(array(
+                'data' => array($turtle),
+                'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
+
+            if($row_type == 'http://rs.tdwg.org/dwc/terms/Occurrence' &&
+               $occurrence_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/occurrenceID']))
+            {
+                $this->occurrence_ids_inserted[$occurrence_id] = true;
+            }
+        }
+    }
+
+    private function prepare_turtle($row, $row_class_name)
+    {
+        $row_type = $row_class_name::ROW_TYPE;
+        $primary_key = @self::field_decode($row[$row_class_name::PRIMARY_KEY]);
+        $graph_name = $this->harvest_event->resource->virtuoso_graph_name();
+        // # TODO: taxon id of the partner will not be globally unique
+        // # may this is a reason we will need to do represent the data in a custom way
+        if($primary_key) $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". SparqlClient::to_underscore($primary_key);
+        else $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". md5(serialize($row));
+        $turtle = "<$node_uri> a <$row_type>";
+        foreach($row as $key => $value)
+        {
+            $value = @self::field_decode($value);
+            if($value && preg_match("/^http:\/\//", $key, $arr))
+            {
+                if($key == $row_class_name::PRIMARY_KEY) continue;
+                if($key == "http://rs.tdwg.org/dwc/terms/taxonID" || $key == "http://eol.org/schema/targetTaxonID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/taxa/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://rs.tdwg.org/dwc/terms/eventID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/events/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://rs.tdwg.org/dwc/terms/occurrenceID" || $key == "http://eol.org/schema/targetOccurrenceID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/occurrences/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://eol.org/schema/associationID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/associations/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://eol.org/schema/parentMeasurementID")
+                {
+                    $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/measurements/". SparqlClient::to_underscore($value)) ."\n";
+                }elseif($key == "http://eol.org/schema/reference/referenceID")
+                {
+                    $reference_ids = self::get_foreign_keys_from_row($row, 'http://eol.org/schema/reference/referenceID');
+                    foreach($reference_ids as $reference_id)
+                    {
+                        $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                            SparqlClient::enclose_value($graph_name ."/references/". SparqlClient::to_underscore($reference_id)) ."\n";
+                    }
+                }else $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+            }
+        }
+        return $turtle;
+    }
+
     private function commit_iterations($namespace, $iteration_size = 500)
     {
         static $iteration_counts = array();
@@ -767,17 +875,17 @@ class ArchiveDataIngester
         }
         return false;
     }
-    
+
     public static function flickr_identifiers_in_inaturalist()
     {
         static $inat_resource = null;
         if(!$inat_resource) $inat_resource = Resource::inaturalist_images();
         if(!$inat_resource) return false;
-        
+
         static $last_harvest_event_id = null;
         if(!$last_harvest_event_id) $last_harvest_event_id = $inat_resource->most_recent_published_harvest_event_id();
         if(!$last_harvest_event_id) return false;
-        
+
         $query = "SELECT do.object_url FROM data_objects_harvest_events dohe
             JOIN data_objects do ON (dohe.data_object_id=do.id)
             WHERE dohe.harvest_event_id=$last_harvest_event_id";
@@ -788,7 +896,7 @@ class ArchiveDataIngester
         }
         return $identifiers;
     }
-    
+
     private static function debug_iterations($message_prefix, $iteration_size = 500)
     {
         static $iteration_counts = array();
@@ -799,7 +907,7 @@ class ArchiveDataIngester
         }
         $iteration_counts[$message_prefix]++;
     }
-    
+
     // this method will compare the taxonomic status of a taxon with a list of known valid statuses
     private static function check_taxon_validity(&$row)
     {
@@ -814,7 +922,7 @@ class ArchiveDataIngester
             if($is_valid === null) $is_valid = false;
             else $is_valid = true;  // $is_valid could be 0 here
         }
-        
+
         // if the taxon has an acceptedNameUsageID then it isn't valid
         $accepted_taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']);
         if($is_valid && $accepted_taxon_id && $accepted_taxon_id != '')
@@ -823,7 +931,7 @@ class ArchiveDataIngester
         }
         return $is_valid;
     }
-    
+
     private static function append_foreign_keys_from_row(&$row, $uri, &$ids_array, &$index_key, $index_value = 1)
     {
         $ids = self::get_foreign_keys_from_row($row, $uri);
@@ -832,7 +940,7 @@ class ArchiveDataIngester
             $ids_array[$id][$index_key] = $index_value;
         }
     }
-    
+
     private static function get_foreign_keys_from_row(&$row, $uri)
     {
         $foreign_keys = array();
@@ -848,8 +956,7 @@ class ArchiveDataIngester
         }
         return $foreign_keys;
     }
-    
-    
+
     private static function append_agents(&$row, &$data_object_parameters, $uri, $agent_role)
     {
         if($field_value = @self::field_decode($row[$uri]))
@@ -865,7 +972,7 @@ class ArchiveDataIngester
             }
         }
     }
-    
+
     private function collect_dataset_attribution()
     {
         $this->dataset_metadata = array();
@@ -878,21 +985,21 @@ class ArchiveDataIngester
                 $title = trim($xml->dataset->title);
                 if(preg_match("/^(.*) in the Catalogue of Life/", $title, $arr)) $title = trim($arr[1]);
                 $title = str_replace("  ", " ", $title);
-                
+
                 $editors = trim($xml->additionalMetadata->metadata->sourceDatabase->authorsAndEditors);
                 if(preg_match("/^(.*)\. For a full list/", $editors, $arr)) $editors = trim($arr[1]);
                 if(preg_match("/^(.*); for detailed information/", $editors, $arr)) $editors = trim($arr[1]);
                 $editors = str_replace("  ", " ", $editors);
-                
+
                 $abbreviatedName = trim($xml->additionalMetadata->metadata->sourceDatabase->abbreviatedName);
-                
+
                 $this->dataset_metadata[$abbreviatedName]['title'] = $title;
                 $this->dataset_metadata[$abbreviatedName]['editors'] = $editors;
                 $this->dataset_metadata[$abbreviatedName]['abbreviatedName'] = $abbreviatedName;
                 $this->dataset_metadata[$abbreviatedName]['datasetID'] = $dataset_id;
                 $this->dataset_metadata[$dataset_id] =& $this->dataset_metadata[$abbreviatedName];
             }
-            
+
             // now go grab the citation information from the COL website
             $url = "http://www.catalogueoflife.org/col/info/cite";
             $html = Functions::get_remote_file($url);
@@ -901,9 +1008,9 @@ class ArchiveDataIngester
             {
                 $dataset_name = $match[1];
                 if(preg_match("/^(.*) via ITIS/", $dataset_name, $arr)) $dataset_name = trim($arr[1]);
-                
+
                 $citation = $match[2];
-                
+
                 if(isset($this->dataset_metadata[$dataset_name]))
                 {
                     $this->dataset_metadata[$dataset_name]['citation'] = $citation;
@@ -919,17 +1026,17 @@ class ArchiveDataIngester
             }
         }
     }
-    
+
     private static function field_decode($string)
     {
         return trim($string);
     }
-    
+
     private static function compress_array(&$array)
     {
         $array = gzcompress(serialize($array), 3);
     }
-    
+
     private static function uncompress_array(&$array)
     {
         $array = unserialize(gzuncompress($array));

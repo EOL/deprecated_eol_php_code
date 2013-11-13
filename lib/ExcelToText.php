@@ -314,10 +314,15 @@ class ExcelToText
             elseif($worksheet_name == 'common names') $row_type = 'http://rs.gbif.org/terms/1.0/VernacularName';
             elseif($worksheet_name == 'references') $row_type = 'http://eol.org/schema/reference/Reference';
             elseif($worksheet_name == 'agents') $row_type = 'http://eol.org/schema/agent/Agent';
+            elseif($worksheet_name == 'measurements or facts') $row_type = 'http://rs.tdwg.org/dwc/terms/MeasurementOrFact';
+            elseif($worksheet_name == 'associations') $row_type = 'http://eol.org/schema/Association';
+            elseif($worksheet_name == 'occurrences') $row_type = 'http://rs.tdwg.org/dwc/terms/Occurrence';
+            elseif($worksheet_name == 'events') $row_type = 'http://rs.tdwg.org/dwc/terms/Event';
+            elseif($worksheet_name == 'locations') $row_type = 'http://purl.org/dc/terms/Location';
             elseif($worksheet_name == 'controlled terms') continue;
             else
             {
-                trigger_error("Unknown Worksheet Name: $worksheet_name", E_USER_WARNING);
+                // trigger_error("Unknown Worksheet Name: $worksheet_name", E_USER_WARNING);
                 continue;
             }
             $table_xml = '  <table encoding="UTF-8"';

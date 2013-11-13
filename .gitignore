@@ -2,6 +2,8 @@ applications/content_server/content/*
 !applications/content_server/content/.gitignore
 applications/content_server/content_partners/*
 !applications/content_server/content_partners/.gitignore
+applications/content_server/datasets/*
+!applications/content_server/datasets/.gitignore
 applications/content_server/gni_tcs_files/eol_names.xml
 applications/content_server/resources/*
 !applications/content_server/resources/.gitignore
