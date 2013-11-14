@@ -584,6 +584,7 @@ class ArchiveDataIngester
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/reference/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
 
         $reference_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
+        $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
 
         $full_reference = @self::field_decode($row['http://eol.org/schema/reference/full_reference']);
         $title = @self::field_decode($row['http://purl.org/dc/terms/title']);
@@ -646,6 +647,16 @@ class ArchiveDataIngester
                 $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
                 // TODO: find_or_create doesn't work here because of the dual primary key - same as above with entries
             }
+        }
+        if($taxon_id && $taxon_info = @$this->taxon_ids_inserted[$taxon_id])
+        {
+            self::uncompress_array($taxon_info);
+            print_r($taxon_info);
+            print_r($taxon_id);
+            $he_id = $taxon_info['hierarchy_entry_id'];
+            $this->mysqli->insert("INSERT IGNORE INTO hierarchy_entries_refs (hierarchy_entry_id, ref_id) VALUES ($he_id, $reference->id)");
+            $this->mysqli->query("UPDATE refs SET published=1, visibility_id=".Visibility::visible()->id." WHERE id=$reference->id");
+            // TODO: find_or_create doesn't work here because of the dual primary key - same as above with entries
         }
         $this->insert_data($row, $parameters);
     }

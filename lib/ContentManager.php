@@ -230,6 +230,7 @@ class ContentManager
         elseif(preg_match("/tiff image data/i", $file_type))                            $new_suffix = "tif";
         elseif(preg_match("/PNG image/i", $file_type))                                  $new_suffix = "png";
         elseif(preg_match("/GIF image/i", $file_type))                                  $new_suffix = "gif";
+        elseif(preg_match("/SVG Scalable/i", $file_type))                               $new_suffix = "svg";
 
         // videos
         elseif(preg_match("/^macromedia flash/i", $file_type))                          $new_suffix = "flv";
@@ -239,7 +240,9 @@ class ContentManager
         elseif(preg_match("/^microsoft asf/i", $file_type))                             $new_suffix = "wmv";
         elseif(preg_match("/^mpeg sequence/i", $file_type))                             $new_suffix = "mpg";
         elseif(preg_match("/^flc animation/i", $file_type))                             $new_suffix = "flc";
-        elseif($suffix == "wmv" && preg_match("/^microsoft asf/i", $file_type))           $new_suffix = "wmv";
+        elseif(preg_match("/^ogg data, theora video/i", $file_type))                    $new_suffix = "ogg";
+        elseif(preg_match("/^ogg data, skeleton/i", $file_type))                        $new_suffix = "ogg";
+        elseif($suffix == "wmv" && preg_match("/^microsoft asf/i", $file_type))         $new_suffix = "wmv";
 
         // audio
         elseif(preg_match("/^riff \(little-endian\) data, wave audio/i", $file_type))   $new_suffix = "wav";
