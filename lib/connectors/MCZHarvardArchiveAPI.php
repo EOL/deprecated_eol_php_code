@@ -16,10 +16,10 @@ class MCZHarvardArchiveAPI
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->dwca_file = "http://digir.mcz.harvard.edu/ipt/archive.do?r=mcz_for_eol";
         $this->first40k = "https://dl.dropboxusercontent.com/u/7597512/MCZHarvard/First40k.txt";
-        // /* 
+        /* 
         $this->dwca_file = "http://localhost/~eolit/cp/MCZ/dwca-mcz_for_eol.zip";
         $this->first40k = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
-        // */
+        */
         $this->not_utf8 = 0; // for stats
         $this->occurrence_ids = array();
     }
