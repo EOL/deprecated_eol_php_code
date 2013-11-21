@@ -164,7 +164,8 @@ class BioImagesAPI
                         // $mr->audience       = 'Everyone';
                         // $mr->accessURI      = $source;
 
-                        $description = trim((string)self::clean_str(utf8_encode($t_dc2->description)));
+                        $description = (string) $t_dc2->description;
+                        $description = trim(self::clean_str(utf8_encode($description)));
                         if(!$description) continue;
                         else
                         {
@@ -176,6 +177,8 @@ class BioImagesAPI
             }
         }
         else echo "\n Down: " . $this->original_resource;
+        unlink($path);
+        echo "\n temporary XML file removed: [$path]\n";
     }
 
     private function clean_str($str)
@@ -266,6 +269,11 @@ class BioImagesAPI
         $description .= $row[$col['Annotation']] != "" ? "Annotation: " . $row[$col['Annotation']] . ". " : "";
         $description .= $row[$col['Orientation']] != "" ? "Orientation: " . $row[$col['Orientation']] . ". " : "";
         $description .= $row[$col['Kit']] != "" ? "Photographic equipment used: " . $row[$col['Kit']] . ". " : "";
+        
+        $description = str_replace("....", ".", $description);
+        $description = str_replace("...", ".", $description);
+        $description = str_replace("..", ".", $description);
+        
         $mr->description = utf8_encode($description);
         $this->archive_builder->write_object_to_file($mr);
     }

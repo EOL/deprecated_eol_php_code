@@ -4,12 +4,12 @@ namespace php_active_record;
 estimated execution time: 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+// utility_append_text(); exit;
 require_library('connectors/MycoBankAPI');
 $timestart = time_elapsed();
 $resource_id = 671;
 $func = new MycoBankAPI($resource_id);
 $func->get_all_taxa();
-// $func->utility_append_text(); exit;
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
@@ -27,4 +27,19 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+
+function utility_append_text()
+{
+    // $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump_additional26.txt";
+    $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/names_no_entry_from_partner_additional11.txt";
+    $READ = fopen($filename, "r");
+    $contents = fread($READ, filesize($filename));
+    fclose($READ);
+
+    // $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump.txt";
+    $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/names_no_entry_from_partner.txt";
+    $WRITE = fopen($filename, "a");
+    fwrite($WRITE, $contents);
+    fclose($WRITE);
+}
 ?>

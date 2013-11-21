@@ -17,10 +17,9 @@ class MCZHarvardArchiveAPI
         $this->dwca_file = "http://digir.mcz.harvard.edu/ipt/archive.do?r=mcz_for_eol";
         $this->first40k = "https://dl.dropboxusercontent.com/u/7597512/MCZHarvard/First40k.txt";
         /* 
-        $this->dwca_file = "http://localhost/~eolit/cp/dwca-mcz_for_eol.zip";
+        $this->dwca_file = "http://localhost/~eolit/cp/MCZ/dwca-mcz_for_eol.zip";
         $this->first40k = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
         */
-        
         $this->not_utf8 = 0; // for stats
         $this->occurrence_ids = array();
     }
@@ -179,42 +178,64 @@ class MCZHarvardArchiveAPI
         $i = 0;
         foreach($records as $rec)
         {
-            $taxon_id = (string) $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if($rec["http://rs.tdwg.org/dwc/terms/typeStatus"])         self::add_string_types($taxon_id, "Type status", $rec["http://rs.tdwg.org/dwc/terms/typeStatus"]);
-            if($rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"])   self::add_string_types($taxon_id, "Type designated by", $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/scientificName"])     self::add_string_types($taxon_id, "Taxon", $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/occurrenceID"])       self::add_string_types($taxon_id, "Occurrence ID", $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/institutionCode"])    self::add_string_types($taxon_id, "Institution code", $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/collectionCode"])     self::add_string_types($taxon_id, "Collection code", $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])      self::add_string_types($taxon_id, "Catalog number", $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/locality"])           self::add_string_types($taxon_id, "Locality", $rec["http://rs.tdwg.org/dwc/terms/locality"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])  self::add_string_types($taxon_id, "Event date", $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/typeStatus"])         self::add_string_types($rec, "Type status", $rec["http://rs.tdwg.org/dwc/terms/typeStatus"]);
+            if($rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"])   self::add_string_types($rec, "Type designated by", $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/scientificName"])     self::add_string_types($rec, "Taxon", $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/occurrenceID"])       self::add_string_types($rec, "Occurrence ID", $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/institutionCode"])    self::add_string_types($rec, "Institution code", $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/collectionCode"])     self::add_string_types($rec, "Collection code", $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])      self::add_string_types($rec, "Catalog number", $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/locality"])           self::add_string_types($rec, "Locality", $rec["http://rs.tdwg.org/dwc/terms/locality"]);
+            if($rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])  self::add_string_types($rec, "Event date", $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"]);
             $i++;
             if($i >= 10) break; //debug
         }
         echo "\n Not utf8: [$this->not_utf8] \n";
     }
 
-    private function add_string_types($taxon_id, $label, $value)
+    private function add_string_types($rec, $label, $value)
     {
+        $taxon_id = (string) $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+        $catnum = (string) $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"];
+        print "\n taxon_id: $taxon_id";
+        
+        // no source link from TypeSpecimen information
+        // $furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
+        
         $value = utf8_encode($value);
         if(!Functions::is_utf8($value))
         {
             $this->not_utf8++;
             return;
         }
+        
         $m = new \eol_schema\MeasurementOrFact();
-        $m->measurementOfTaxon = 'true';
-        $occurrence = $this->add_occurrence($taxon_id, $label, $value);
+        $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
-        $m->measurementType = "http://mcz.harvard.edu/". SparqlClient::to_underscore($label);
-        $m->measurementValue = "http://mcz.harvard.edu/". SparqlClient::to_underscore($value);
+        if($label == "Catalog number") $m->measurementOfTaxon = 'true';
+
+        // $m->measurementType = 'http://eol.org/schema/terms/Habitat'; // ex. from environments
+        if    ($lable == "Occurrence ID")    $m->measurementType = "http://rs.tdwg.org/dwc/terms/occurrenceID";
+        elseif($label == "Institution code") $m->measurementType = "http://rs.tdwg.org/dwc/terms/institutionCode";
+        elseif($label == "Collection code")  $m->measurementType = "http://rs.tdwg.org/dwc/terms/collectionCode";
+        elseif($label == "Catalog number")   $m->measurementType = "http://rs.tdwg.org/dwc/terms/catalogNumber";
+        elseif($label == "Locality")         $m->measurementType = "http://rs.tdwg.org/dwc/terms/locality";
+        elseif($label == "Event date")       $m->measurementType = "http://rs.tdwg.org/dwc/terms/eventDate";
+        else $m->measurementType = "http://mcz.harvard.edu/". SparqlClient::to_underscore($label);
+        
+        $m->measurementValue = (string) $value;
+        $m->measurementMethod = '';
+        $m->contributor = 'Museum of Comparative Zoology, Harvard';
+        // $m->source = $furtherInformationURL;
+        // $m->measurementRemarks = "source text: \"$source_text\""; ex. from environments
+        $m->measurementRemarks = "";
         $this->archive_builder->write_object_to_file($m);
     }
 
-    private function add_occurrence($taxon_id, $label, $value)
+    private function add_occurrence($taxon_id, $catnum)
     {
-        $occurrence_id = md5($taxon_id . 'occurrence' . $label . $value);
+        $occurrence_id = md5($taxon_id . 'occurrence' . $catnum);
+        // $occurrence_id = md5($taxon->taxonID . 'occurrence'); from environments
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
