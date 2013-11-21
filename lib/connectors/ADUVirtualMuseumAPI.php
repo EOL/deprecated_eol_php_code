@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-// connector: [adu]
+// connector: [716 among others]
 class ADUVirtualMuseumAPI
 {
     function __construct($folder, $database = null)
@@ -247,7 +247,7 @@ class ADUVirtualMuseumAPI
         $mr->format                 = Functions::get_mimetype($media_url);
         $mr->CVterm                 = "";
         $mr->rights                 = "";
-        $mr->Owner                  = "© Animal Demography Unit " . date("Y") . ". Department of Biological Sciences - University of Cape Town";
+        $mr->Owner                  = "Animal Demography Unit " . date("Y") . ". Department of Biological Sciences - University of Cape Town";
         $mr->title                  = "";
         $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description            = (string) $description;

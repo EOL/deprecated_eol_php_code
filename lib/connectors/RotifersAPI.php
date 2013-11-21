@@ -167,9 +167,14 @@ class RotifersAPI
 
     private function get_authorship($rec)
     {
-        $authorship = trim($rec["lngAuthor_ID"] . " " . $rec["intYear"]);
-        if($rec["strParentheses"] == "y") $authorship = "($authorship)";
+        $authorship = trim($rec["lngAuthor_ID"] . ", " . $rec["intYear"]);
+        if(strtolower(trim($rec["strParentheses"])) == "y")
+        {
+            $authorship = "($authorship)";
+            echo "\n with parenthesis \n";
+        }
         $authorship = self::remove_quotes($authorship);
+        $authorship = str_replace(" et ", " & ", $authorship);
         return $authorship;
     }
     
@@ -184,7 +189,7 @@ class RotifersAPI
         $synonym->acceptedNameUsageID           = $rec["acceptedNameUsageID"];
         $synonym->taxonomicStatus               = $rec["taxonomicStatus"];
         $synonym->taxonRemarks                  = $rec["taxonRemarks"];
-        if(!isset($this->taxon_ids[$synonym->taxonID]))
+        if(!isset($this->taxon_ids[$synonym->taxonID]) && $synonym->scientificName)
         {
             $this->archive_builder->write_object_to_file($synonym);
             $this->taxon_ids[$synonym->taxonID] = 1;
@@ -219,13 +224,15 @@ class RotifersAPI
             $records = $func->make_array($this->text_path[$level], $fields, "", array());
             array_shift($records);
             
-            if($level == "genus") // print_r($records);
-            
             foreach($records as $rec)
             {
                 if(!self::is_valid_string($rec[$taxon_field])) continue;
                 $authorship = "";
-                if(self::is_valid_string($rec["lngAuthor_ID"])) $authorship = trim($rec["lngAuthor_ID"] . " " . $rec["intYear"]);
+                if(self::is_valid_string($rec["lngAuthor_ID"]))
+                {
+                    $authorship = trim($rec["lngAuthor_ID"] . ", " . $rec["intYear"]);
+                    $authorship = self::remove_quotes($authorship);
+                }
                 $txtNotes = "";
                 if(self::is_valid_string(@$rec["txtNotes"])) $txtNotes = trim($rec["txtNotes"]);
                 $txtDiagnosis = "";
@@ -681,7 +688,7 @@ class RotifersAPI
         $taxon->taxonomicStatus             = $rec["bytValidity"];
         $remarks = self::get_taxon_remarks($rec);
         $taxon->taxonRemarks                = $remarks;
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
+        if(!isset($this->taxon_ids[$taxon->taxonID]) && $taxon->scientificName)
         {
             $this->taxa[$taxon->taxonID] = $taxon;
             $this->taxon_ids[$taxon->taxonID] = 1;
@@ -773,7 +780,7 @@ class RotifersAPI
             $taxon->taxonRank           = (string) $name["rank"];
             $taxon->parentNameUsageID   = (string) $name["parent_id"];
             $taxon->scientificNameAuthorship = (string) @$name["authorship"];
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
+            if(!isset($this->taxon_ids[$taxon->taxonID]) && $taxon->scientificName)
             {
                 $this->taxa[$taxon->taxonID] = $taxon;
                 $this->taxon_ids[$taxon->taxonID] = 1;
