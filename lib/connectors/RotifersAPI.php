@@ -168,11 +168,7 @@ class RotifersAPI
     private function get_authorship($rec)
     {
         $authorship = trim($rec["lngAuthor_ID"] . ", " . $rec["intYear"]);
-        if(strtolower(trim($rec["strParentheses"])) == "y")
-        {
-            $authorship = "($authorship)";
-            echo "\n with parenthesis \n";
-        }
+        if(strtolower(trim($rec["strParentheses"])) == "y") $authorship = "($authorship)";
         $authorship = self::remove_quotes($authorship);
         $authorship = str_replace(" et ", " & ", $authorship);
         return $authorship;
