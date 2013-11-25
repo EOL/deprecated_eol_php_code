@@ -41,6 +41,7 @@ Or just simply:
 define("DEVELOPER_KEY", "AI39si4JyuxT-aemiIm9JxeiFbr4F3hphhrhR1n3qPkvbCrrLRohUbBSA7ngDqku8mUGEAhYZpKDTfq2tu_mDPImDAggk8At5Q");
 define("YOUTUBE_EOL_USER", "EncyclopediaOfLife");
 define("YOUTUBE_API", "http://gdata.youtube.com/feeds/api");
+define("TAXON_FINDER_SERVICE", "http://www.ubio.org/webservices/service.php?function=taxonFinder&freeText=");
 
 class YouTubeAPI
 {
@@ -65,6 +66,7 @@ class YouTubeAPI
                 debug(" [user $user_index of $total_users] [video $video_index of $number_of_user_videos]");
                 if($record = self::build_data($video_id, $username))
                 {
+                    $record["username"] = $username; // not used at the moment
                     $arr = self::get_youtube_taxa($record, $used_collection_ids);
                     $page_taxa              = $arr[0];
                     $used_collection_ids    = $arr[1];
@@ -188,6 +190,19 @@ class YouTubeAPI
             }
             foreach($matches[0] as $str) $description = str_ireplace($str, "", trim($description));
         }
+        
+        if(!$arr_sciname) // probably no machine tags, let us check names inside the title
+        {
+            if($scinames = self::get_sciname(array($rec["media_title"], $rec["description"])))
+            {
+                foreach($scinames as $sciname)
+                {
+                    $arr_sciname = self::initialize($sciname, $arr_sciname);
+                    $arr_sciname[$sciname]['binomial'] = $sciname; // this may not always be a binomial but it's ok as it will end up as dwc:ScientificName
+                }
+            }
+        }
+        
         $license = 'http://creativecommons.org/licenses/by/3.0/';
         foreach($arr_sciname as $sciname => $temp)
         {
@@ -229,6 +244,26 @@ class YouTubeAPI
                              );
         }
         return $arr_data;
+    }
+
+    private function get_sciname($strings_to_search)
+    {
+        $scinames = array();
+        foreach($strings_to_search as $string)
+        {
+            $url = TAXON_FINDER_SERVICE . $string;
+            if($response = Functions::get_hashed_response($url, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 2))) //1hr timeout
+            {
+                foreach($response->allNames->entity as $entity)
+                {
+                    $sciname = (string) $entity->nameString;
+                    $taxon_id = (string) $entity->namebankID;
+                    $scinames[] = $sciname;
+                }
+            }
+            if($scinames) break; // if you get names in title, no need to search on description anymore
+        }
+        return $scinames;
     }
 
     private static function initialize($sciname, $arr_sciname=NULL)
@@ -371,7 +406,7 @@ class YouTubeAPI
         $usernames_of_people_to_ignore = array('PRI', 'pri');
         /* Getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
         $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
-        if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
+        if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
         {
             foreach($xml->entry as $entry)
             {
