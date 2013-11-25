@@ -157,6 +157,8 @@ class YouTubeAPI
         $arr_data = array();
         $description = Functions::import_decode($rec['description']);
         $description = str_ireplace("<br />", "", $description);
+        $description = str_ireplace("taxonomy:binomial-", "taxonomy:binomial=", $description);
+        $description = str_ireplace("taxonomy:Subfamily", "taxonomy:subfamily", $description);
         $license = "";
         $arr_sciname = array();
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) //gets everything between brackets []
@@ -169,13 +171,13 @@ class YouTubeAPI
             if(!$multiple_taxa_YN) $arr_sciname = self::initialize($sciname);
             foreach($matches[1] as $tag)
             {
-                $tag=trim($tag);
+                $tag = trim($tag);
                 if($multiple_taxa_YN)
                 {
-                    if(is_numeric(stripos($tag,$smallest_rank)))
+                    if(is_numeric(stripos($tag, $smallest_rank)))
                     {
                         if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
-                        $arr_sciname = self::initialize($sciname,$arr_sciname);
+                        $arr_sciname = self::initialize($sciname, $arr_sciname);
                     }
                 }
                 if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))       $arr_sciname[$sciname]['binomial']  = ucfirst(trim($arr[1]));
@@ -252,13 +254,16 @@ class YouTubeAPI
         foreach($strings_to_search as $string)
         {
             $url = TAXON_FINDER_SERVICE . $string;
-            if($response = Functions::get_hashed_response($url, array('timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 5))) //1hr timeout
+            if($response = Functions::get_hashed_response($url, array('download_wait_time' => 3000000, 'timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 5))) //1hr timeout
             {
-                foreach($response->allNames->entity as $entity)
+                if(isset($response->allNames->entity))
                 {
-                    $sciname = (string) $entity->nameString;
-                    $taxon_id = (string) $entity->namebankID;
-                    $scinames[] = $sciname;
+                    foreach($response->allNames->entity as $entity)
+                    {
+                        $sciname = (string) $entity->nameString;
+                        $taxon_id = (string) $entity->namebankID;
+                        $scinames[] = $sciname;
+                    }
                 }
             }
             if($scinames) break; // if you get names in title, no need to search on description anymore
@@ -299,8 +304,8 @@ class YouTubeAPI
 
     private function get_smallest_rank($match)
     {
-        $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "family" => 4, "order" => 5, "class" => 6, "phylum" => 7, "kingdom" => 8);
-        $smallest_rank_id = 9;
+        $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "subfamily" => 4, "family" => 5, "order" => 6, "class" => 7, "phylum" => 8, "division" => 9, "kingdom" => 10);
+        $smallest_rank_id = 11;
         $smallest_rank = "";
         foreach($match as $tag)
         {
