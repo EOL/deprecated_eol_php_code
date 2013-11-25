@@ -45,7 +45,7 @@ define("TAXON_FINDER_SERVICE", "http://www.ubio.org/webservices/service.php?func
 
 class YouTubeAPI
 {
-    public static function get_all_taxa()
+    public function get_all_taxa()
     {
         $all_taxa = array();
         $used_collection_ids = array();
@@ -77,7 +77,7 @@ class YouTubeAPI
         return $all_taxa;
     }
 
-    public static function get_youtube_taxa($record, $used_collection_ids)
+    public function get_youtube_taxa($record, $used_collection_ids)
     {
         //this will output the raw (but structured) array
         $response = self::parse_xml($record);
@@ -92,13 +92,13 @@ class YouTubeAPI
         return array($page_taxa, $used_collection_ids);
     }
 
-    public static function build_data($video_id, $username)
+    public function build_data($video_id, $username)
     {
         $url = YOUTUBE_API  . '/videos/' . $video_id . '?v=2&alt=json';
         $tries = 0;
         while($tries < 5)
         {
-            if($raw_json = Functions::get_remote_file($url, array('timeout' => 120, 'download_attempts' => 5)))
+            if($raw_json = Functions::get_remote_file($url, array('timeout' => 120, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
             {
                 if(is_numeric(stripos($raw_json, "too_many_recent_calls")))
                 {
@@ -152,7 +152,7 @@ class YouTubeAPI
                      "video_id"      => $video_id );
     }
 
-    private static function parse_xml($rec)
+    private function parse_xml($rec)
     {
         $arr_data = array();
         $description = Functions::import_decode($rec['description']);
@@ -252,7 +252,7 @@ class YouTubeAPI
         foreach($strings_to_search as $string)
         {
             $url = TAXON_FINDER_SERVICE . $string;
-            if($response = Functions::get_hashed_response($url, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 2))) //1hr timeout
+            if($response = Functions::get_hashed_response($url, array('timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 5))) //1hr timeout
             {
                 foreach($response->allNames->entity as $entity)
                 {
@@ -266,7 +266,7 @@ class YouTubeAPI
         return $scinames;
     }
 
-    private static function initialize($sciname, $arr_sciname=NULL)
+    private function initialize($sciname, $arr_sciname=NULL)
     {
         $arr_sciname[$sciname]['binomial']    = "";
         $arr_sciname[$sciname]['trinomial']   = "";
@@ -282,7 +282,7 @@ class YouTubeAPI
         return $arr_sciname;
     }
 
-    private static function is_multiple_taxa_video($arr)
+    private function is_multiple_taxa_video($arr)
     {
         $taxa=array();
         foreach($arr as $tag)
@@ -297,7 +297,7 @@ class YouTubeAPI
         return 0;
     }
 
-    private static function get_smallest_rank($match)
+    private function get_smallest_rank($match)
     {
         $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "family" => 4, "order" => 5, "class" => 6, "phylum" => 7, "kingdom" => 8);
         $smallest_rank_id = 9;
@@ -326,7 +326,7 @@ class YouTubeAPI
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
 
-    private static function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
+    private function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
     {
         $arr_objects[] = array( "identifier"   => $identifier,
                                 "dataType"     => $dataType,
@@ -342,7 +342,7 @@ class YouTubeAPI
         return $arr_objects;
     }
 
-    private static function get_taxa_for_photo($rec)
+    private function get_taxa_for_photo($rec)
     {
         $taxon = array();
         $taxon["source"] = $rec["source"];
@@ -368,7 +368,7 @@ class YouTubeAPI
         return $taxon_object;
     }
 
-    private static function get_data_object($rec)
+    private function get_data_object($rec)
     {
         $data_object_parameters = array();
         $data_object_parameters["identifier"]   = trim(@$rec["identifier"]);
@@ -398,28 +398,39 @@ class YouTubeAPI
         return $data_object_parameters;
     }
 
-    private static function get_subscriber_usernames()
+    private function get_subscriber_usernames()
     {
         $usernames_of_subscribers = array();
         $usernames_of_subscribers['EncyclopediaOfLife'] = 1;
         /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
         $usernames_of_people_to_ignore = array('PRI', 'pri');
         /* Getting all the subscriptions of the YouTube user 'EncyclopediaOfLife' */
-        $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2';
-        if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
+        $start_index = 1;
+        $max_results = 20;
+        while(true)
         {
-            foreach($xml->entry as $entry)
+            debug("\n Getting subscriptions...");
+            $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2' . "&start-index=$start_index&max-results=$max_results";
+            if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
             {
-                $yt = $entry->children("http://gdata.youtube.com/schemas/2007");
-                $username = trim($yt->username);
-                if(!in_array($username, $usernames_of_people_to_ignore)) $usernames_of_subscribers[$username] = 1;
+                if($xml->entry)
+                {
+                    foreach($xml->entry as $entry)
+                    {
+                        $yt = $entry->children("http://gdata.youtube.com/schemas/2007");
+                        $username = trim($yt->username);
+                        if(!in_array($username, $usernames_of_people_to_ignore)) $usernames_of_subscribers[$username] = 1;
+                    }
+                }
+                else break;
+                $start_index += $max_results;
             }
+            else break;
         }
-        else debug("\n Service not available: $url");
         return array_keys($usernames_of_subscribers);
     }
 
-    public static function get_upload_videos_from_usernames($usernames)
+    public function get_upload_videos_from_usernames($usernames)
     {
         $max_results = 50;
         $user_video_ids = array();
@@ -430,7 +441,7 @@ class YouTubeAPI
             while(true)
             {
                 $url = YOUTUBE_API . "/users/" . $username . "/uploads?" . "start-index=$start_index&max-results=$max_results";
-                if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
+                if($xml = Functions::get_hashed_response($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
                 {
                     if($xml->entry)
                     {
@@ -439,9 +450,9 @@ class YouTubeAPI
                             $user_video_pathinfo = pathinfo($entry->id);
                             $user_video_ids[$username][] = $user_video_pathinfo['basename'];
                         }
-                    }else break; //no more videos, go to next user
+                    }else break;
                     $start_index += $max_results;
-                }else break; //five (5) un-successful tries already, go to next user, hopefully it doesn't go here
+                }else break;
             }
         }
         return $user_video_ids;
