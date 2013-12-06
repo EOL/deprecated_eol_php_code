@@ -1,0 +1,23 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    biodiversity19 (2.1.0)
+      parallel
+      parallel (~> 0.6)
+      rake (~> 10.0)
+      treetop
+      treetop (~> 1.4)
+      unicode_utils (~> 1.4)
+    parallel (0.9.0)
+    polyglot (0.3.3)
+    rake (10.1.0)
+    treetop (1.4.15)
+      polyglot
+      polyglot (>= 0.3.1)
+    unicode_utils (1.4.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  biodiversity19 (~> 2.1.0)

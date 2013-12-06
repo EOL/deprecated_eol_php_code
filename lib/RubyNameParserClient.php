@@ -21,7 +21,7 @@ class RubyNameParserClient
         $reconnect_attempts = 0;
         while(!self::is_parserver_running() && $reconnect_attempts < $maximum_attempts)
         {
-            shell_exec(PARSE_SERVER_BIN_PATH . ' --output=canonical_with_rank > /dev/null 2>/dev/null &');
+            shell_exec(PARSE_SERVER_BIN_PATH . ' -r --output=canonical > /dev/null 2>/dev/null &');
             sleep(10);
             $reconnect_attempts++;
         }
@@ -37,7 +37,7 @@ class RubyNameParserClient
         foreach($processlist as $line)
         {
             if(preg_match("/:[0-9]{2}:[0-9]{2} parserver$/", trim($line))) return true;
-            if(preg_match("/parserver --output=canonical_with_rank/", trim($line))) return true;
+            if(preg_match("/parserver -r --output=canonical/", trim($line))) return true;
         }
         return false;
     }
