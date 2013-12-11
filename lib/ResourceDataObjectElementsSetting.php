@@ -64,11 +64,11 @@ class ResourceDataObjectElementsSetting
                 debug("Connector terminated. Remote files are not ready.");
                 return false;
             }
+            echo "\n $temp_dir \n";
+            $file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800));
+            recursive_rmdir($temp_dir); // remove temp dir
+            echo ("\n temporary directory removed: [$temp_dir]\n");
         }
-        echo "\n $temp_dir \n";
-        $file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800));
-        recursive_rmdir($temp_dir); // remove temp dir
-        echo ("\n temporary directory removed: [$temp_dir]\n");
         return $file_contents;
     }
 

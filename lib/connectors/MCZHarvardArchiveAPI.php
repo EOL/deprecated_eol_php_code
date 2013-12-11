@@ -188,7 +188,7 @@ class MCZHarvardArchiveAPI
             if($rec["http://rs.tdwg.org/dwc/terms/locality"])           self::add_string_types($rec, "Locality", $rec["http://rs.tdwg.org/dwc/terms/locality"]);
             if($rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])  self::add_string_types($rec, "Event date", $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"]);
             $i++;
-            if($i >= 10) break; //debug
+            if($i >= 10) break; //debug - just first 10 records during preview phase
         }
         echo "\n Not utf8: [$this->not_utf8] \n";
     }
@@ -215,7 +215,7 @@ class MCZHarvardArchiveAPI
         if($label == "Catalog number") $m->measurementOfTaxon = 'true';
 
         // $m->measurementType = 'http://eol.org/schema/terms/Habitat'; // ex. from environments
-        if    ($lable == "Occurrence ID")    $m->measurementType = "http://rs.tdwg.org/dwc/terms/occurrenceID";
+        if    ($label == "Occurrence ID")    $m->measurementType = "http://rs.tdwg.org/dwc/terms/occurrenceID";
         elseif($label == "Institution code") $m->measurementType = "http://rs.tdwg.org/dwc/terms/institutionCode";
         elseif($label == "Collection code")  $m->measurementType = "http://rs.tdwg.org/dwc/terms/collectionCode";
         elseif($label == "Catalog number")   $m->measurementType = "http://rs.tdwg.org/dwc/terms/catalogNumber";
