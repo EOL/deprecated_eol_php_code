@@ -4,9 +4,6 @@ namespace php_active_record;
 class WikimediaHarvester
 {
     private $mysqli;
-    private $taxa_pages;
-    private $pageids_to_update;
-    private $pageids_to_ignore;
     private $resource_file;
     private $resource;
 
