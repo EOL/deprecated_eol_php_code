@@ -423,9 +423,8 @@ class WikimediaPage
         else return true;
     }
 
-    public function has_valid_mime_type()
+    public function has_valid_mime_type($valid_mime_types)
     {
-        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/tiff', 'image/x-xcf', 'application/ogg');
         if(empty($this->data_object_parameters['mimeType'])) return false;
         if(!in_array($this->data_object_parameters['mimeType'], $valid_mime_types)) return false;
         return true;
