@@ -163,7 +163,7 @@ class WikimediaHarvester
                 $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
                 if(count($include_array))
                 {
-                    $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod' => strtotime($page->timestamp));
+                    $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod' => @strtotime($page->timestamp));
                 }else echo "$page->title is not a real TaxonavigationInclude* template\n";
             }elseif($page->contains_template("Taxonavigation"))
             {
