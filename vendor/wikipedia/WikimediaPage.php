@@ -352,7 +352,7 @@ class WikimediaPage
                     'version'   => $version);
             }
             // catch all the cc-licenses
-            if(preg_match("/^CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mui", $potential_license, $arr))
+            if(preg_match("/^CC-(BY(?:-NC)?(?:-ND)?(?:-SA)?)(.*)$/mui", $potential_license, $arr))
             {
                 $license = strtolower($arr[1]);
                 $rest = $arr[2];
@@ -508,6 +508,7 @@ class WikimediaPage
         if(preg_match("/<a href='(.*?)'>/u", $author, $arr)) $homepage = $arr[1];
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/ui", $homepage) || preg_match("/;/u", $homepage)) $homepage = "";
         $author = strip_tags($author);
+        $author = preg_replace('/\(talk\)$/ui', '', $author);
         $author = str_replace("©", "", $author);
         $author = str_replace("\xc2\xA9", "", $author); // should be the same as above
         $author = str_replace("\xA9", "", $author); // should be the same as above
@@ -1025,6 +1026,10 @@ class TaxonomyParameters
         }
         if($rank == 'species')
         {
+            /* TODO - caution here with virus species names, which can contain multiple words and capitals, something like 
+                  if ($this->taxon_params['domain'] != "Viruses") ...
+               only we don't currently store the domain name
+            */
             // multiple words in species (this is the norm)
             if(preg_match("/ /", $name))
             {
