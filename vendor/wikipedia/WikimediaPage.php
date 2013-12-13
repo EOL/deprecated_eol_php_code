@@ -9,12 +9,13 @@ class WikimediaPage
 
     // see http://www.mediawiki.org/wiki/Manual:MIME_type_detection
     private static $mediatypes = array(
-                                    'BITMAP'  => 'http://purl.org/dc/dcmitype/StillImage',
-                                    'DRAWING' => 'http://purl.org/dc/dcmitype/StillImage',
-                                    'AUDIO'   => 'http://purl.org/dc/dcmitype/Sound',
-                                    'VIDEO'   => 'http://purl.org/dc/dcmitype/MovingImage',
-                                    // 'MULTIMEDIA' => '',
-                                    'TEXT'    => 'http://purl.org/dc/dcmitype/Text');
+        'BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'creator_type'=>'Photographer'),
+        'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'creator_type'=>'Illustrator'),
+        'AUDIO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/Sound',      'creator_type'=>'Recorder'),
+        'VIDEO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/MovingImage','creator_type'=>'Creator'),
+        // 'MULTIMEDIA' => '',
+        'TEXT'    => array('dcmitype'=>'http://purl.org/dc/dcmitype/Text',       'creator_type'=>'Author'));
+
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
 
@@ -204,7 +205,7 @@ class WikimediaPage
 
     private function taxonomy_via_wikitext(&$taxonav_include_arrays)
     {
-        $Taxonav = array('taxo' => $this->taxonav_as_array("[Tt]axonavigation"), 'last_mod' => strtotime($this->timestamp));
+        $Taxonav = array('taxo' => $this->taxonav_as_array("[Tt]axonavigation"), 'last_mod' => @strtotime($this->timestamp));
         $Taxonav = $this->fill_includes_recursively($Taxonav, $taxonav_include_arrays);
         $taxonomy = new TaxonomyParameters($this->timestamp, $Taxonav['last_mod']);
         $mesg = "";
@@ -374,7 +375,7 @@ class WikimediaPage
         return $this->data_object_parameters;
     }
 
-    public function initialize_data_object()
+    public function initialize_data_object($url, $mimetype, $dcmi, $creator)
     {
         $this->data_object_parameters["title"] = $this->title;
         $this->data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
@@ -388,12 +389,6 @@ class WikimediaPage
             $this->data_object_parameters["description"] = "";
         }else $this->data_object_parameters["description"] = $this->description();
 
-        $this->data_object_parameters["agents"] = array();
-        if($a = $this->agent_parameters())
-        {
-            if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
-        }
-
         if($this->point())
         {
             $this->data_object_parameters["point"] = new \SchemaPoint($this->point());
@@ -404,10 +399,22 @@ class WikimediaPage
             $this->data_object_parameters["location"] = $this->location();
         }
 
+        $this->data_object_parameters['mediaURL'] =$url;
+        
+        $this->data_object_parameters['dataType'] = $dcmi;
+                
+        $this->set_mimeType(php_active_record\Functions::get_mimetype($this->title));
+        if (!empty($mimetype)) $this->set_mimeType($mimetype);
+        
+        $this->data_object_parameters["agents"] = array();
+        if($a = $this->agent_parameters($creator))
+        {
+            if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
+        }
+
         // the following properties may be overridden later by category data from the API.
         $this->licenses = $this->licenses_via_wikitext();
         $this->set_license($this->best_license($this->licenses));
-        $this->set_mimeType(php_active_record\Functions::get_mimetype($this->title));
     }
 
     public function has_license()
@@ -418,7 +425,7 @@ class WikimediaPage
 
     public function has_valid_mime_type()
     {
-        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'application/ogg', 'image/svg+xml', 'image/tiff', 'image/x-xcf');
+        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/tiff', 'image/x-xcf', 'application/ogg');
         if(empty($this->data_object_parameters['mimeType'])) return false;
         if(!in_array($this->data_object_parameters['mimeType'], $valid_mime_types)) return false;
         return true;
@@ -443,15 +450,6 @@ class WikimediaPage
         $this->data_object_parameters['license'] = $license;
     }
 
-    public function set_mediaURL($mediaURL)
-    {
-        if(isset($this->data_object_parameters['mediaURL']) && ($this->data_object_parameters['mediaURL'] != $mediaURL))
-        {
-            echo "Overriding mediaURL for $this->title : current = ". $this->data_object_parameters['mediaURL'] .", new = $mediaURL\n";
-        }
-        $this->data_object_parameters['mediaURL'] = $mediaURL;
-    }
-
 
     public function set_mimeType($mimeType)
     {
@@ -460,23 +458,6 @@ class WikimediaPage
             echo "Overriding mimeType for $this->title : current = ". $this->data_object_parameters['mimeType'] .", new = $mimeType\n";
         }
         $this->data_object_parameters['mimeType'] = $mimeType;
-    }
-
-    public function set_mediatype($mediatype)
-    {
-        if(isset(self::$mediatypes[$mediatype]))
-        {
-            $dataType = self::$mediatypes[$mediatype];
-            if(isset($this->data_object_parameters['dataType']) && ($this->data_object_parameters['dataType'] != $dataType))
-            {
-                echo "Overriding dataType for $this->title : current = ". $this->data_object_parameters['dataType'] .", new = $dataType\n";
-            }
-            $this->data_object_parameters['dataType'] = $dataType;
-        }else
-        {
-            echo "Non-compatible mediatype: $mediatype for $this->title\n";
-            $this->data_object_parameters['dataType'] = "";
-        }
     }
 
     public function set_additionalInformation($text)
@@ -519,7 +500,7 @@ class WikimediaPage
         else return null;
     }
 
-    public function agent_parameters()
+    public function agent_parameters($creator_type="")
     {
         if(isset($this->agent_parameters)) return $this->agent_parameters;
         $author = $this->author();
@@ -538,8 +519,12 @@ class WikimediaPage
         {
             $agent_parameters["fullName"] = htmlspecialchars($author);
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
-            //TODO - set role = "Creator" as default, and "Recorder" for $mediatype = AUDIO, "Photographer" for  $mediatype = BITMAP
-            $agent_parameters["role"] = 'photographer';
+            if ($creator_type) 
+            {
+                $agent_parameters["role"] = $creator_type;
+            } else {
+                $agent_parameters["role"] = 'Creator';
+            }                
         }
 
         $this->agent_parameters = $agent_parameters;
@@ -879,49 +864,45 @@ class WikimediaPage
             }else
             {
                 $json_info = $json_array[$page->title];
-                $page->initialize_data_object_from_api_response($json_info);
-                $page->initialize_categories_from_api_response($json_info);
+                $page->initialize_data_object_from_api_response($json_info, $url);
+                $page->initialize_categories_from_api_response($json_info, $url);
             }
         }
     }
 
-    private function initialize_data_object_from_api_response($json_info)
+    private function initialize_data_object_from_api_response($json_info, $reference_url)
     {
-        $this->initialize_data_object();
         // set URL, mimetype, mediatype
-        if(isset($json_info['imageinfo']) && isset($json_info['imageinfo'][0]))
+        $url = @$json_info['imageinfo'][0]['url'];
+        $mimetype = @$json_info['imageinfo'][0]['mime'];
+        $mediatype = @$json_info['imageinfo'][0]['mediatype'];
+        $dcmi="";
+        $creator="";
+        
+        if (empty($url))
         {
-            // URL
-            if(isset($json_info['imageinfo'][0]['url']))
-            {
-                $this->set_mediaURL($json_info['imageinfo'][0]['url']);
-            }else
-            {
-                $this->set_mediaURL("");
-                echo "That's odd. No URL returned in API query for $this->title (in $url)\n";
-            }
-            // mime
-            if(isset($json_info['imageinfo'][0]['mime']))
-            {
-                // TOimage/svg+xml
-                // application/ogg
-                $this->set_mimeType($json_info['imageinfo'][0]['mime']);
-            }else
-            {
-                echo "That's odd. No mimeType returned in API query for $this->title (in $url)\n";
-            }
-            // mediatype
-            if(isset($json_info['imageinfo'][0]['mediatype']))
-            {
-                $this->set_mediatype($json_info['imageinfo'][0]['mediatype']);
-            }else
-            {
-                echo "That's odd. No mediatype returned in API query for $this->title (in $url)\n";
-            }
+            $url="";
+            echo "That's odd. No URL returned in API query for $this->title (from $reference_url)\n";
+        };
+        if (empty($mimetype))
+        {
+            echo "That's odd. No mimetype returned in API query for $this->title (from $reference_url)\n";
+        };
+        if (empty($mediatype))
+        {
+            echo "That's odd. No mediatype returned in API query for $this->title (from $reference_url)\n";
+        } elseif (!isset(self::$mediatypes[$mediatype]))
+        {
+            echo "Non-compatible mediatype: $mediatype for $this->title (from $reference_url)\n";
+        } else {
+            $dcmi = self::$mediatypes[$mediatype]['dcmitype'];
+            $creator = self::$mediatypes[$mediatype]['creator_type'];
         }
+        
+        $this->initialize_data_object($url, $mimetype, $dcmi, $creator);
     }
 
-    private function initialize_categories_from_api_response($json_info)
+    private function initialize_categories_from_api_response($json_info, $reference_url)
     {
         // fill in categories - this will allow us to check taxonomy, license, & map-type later
         if(isset($json_info['categories']))
@@ -934,12 +915,12 @@ class WikimediaPage
                 }else
                 {
                     $this->add_extra_category($cat['title']);
-                    echo "That's odd. The category ". $cat['title'] ." doesn't start with 'Category:' in API query for $this->title .\n";
+                    echo "That's odd. The category ". $cat['title'] ." doesn't start with 'Category:' in API query for $this->title (from $reference_url).\n";
                 }
             }
         }else
         {
-            echo "That's odd. No categories returned in API query for $this->title (in $url)\n";
+            echo "That's odd. No categories returned in API query for $this->title (from $reference_url)\n";
         }
     }
 
@@ -963,7 +944,7 @@ class WikimediaPage
 class TaxonomyParameters
 {
     // listed as most precise to least precise
-    // 'species' is not past of the EoL output, but may be used to construct scientificName later
+    // 'species' is not part of the EoL output, but may be used to construct scientificName later
     public static $wiki_to_standard = array(
             "Species"   => "species",
             "Genus"     => "genus",
@@ -1137,7 +1118,8 @@ class TaxonomyParameters
 
     public function page_younger_than($compare_to)
     {
-        return (strtotime($this->page_timestamp) > strtotime($compare_to->page_timestamp));
+        //kill off warnings about unset timezones (wiki timestamps are always stamped with GMT (Zulu=Z) time)
+        return (@strtotime($this->page_timestamp) > @strtotime($compare_to->page_timestamp));
     }
 
     public function is_less_precise_than($compare_to)
