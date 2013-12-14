@@ -507,12 +507,13 @@ class WikimediaPage
         $homepage = "";
         if(preg_match("/<a href='(.*?)'>/u", $author, $arr)) $homepage = $arr[1];
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/ui", $homepage) || preg_match("/;/u", $homepage)) $homepage = "";
+        $author = preg_replace('/<br[\s\/]*>/ui', ' ', $author);
         $author = strip_tags($author);
-        $author = preg_replace('/\(talk\)$/ui', '', $author);
+        $author = preg_replace('/\(talk\)/ui', '', $author);
         $author = str_replace("©", "", $author);
         $author = str_replace("\xc2\xA9", "", $author); // should be the same as above
         $author = str_replace("\xA9", "", $author); // should be the same as above
-
+        $author = WikiParser::mb_trim($author);
         $agent_parameters = array();
         if($author)
         {
