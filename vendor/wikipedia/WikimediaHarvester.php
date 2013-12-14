@@ -10,7 +10,7 @@ class WikimediaHarvester
     function __construct($resource, $files_subdir)
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->validMIMEtypes = array('image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/tiff', 'image/x-xcf', 'application/ogg', 'audio/ogg', 'video/webm', 'video/ogg', 'video/webm');
+        $this->validMIMEtypes = array('image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/tiff', 'image/x-xcf', 'application/ogg', 'audio/ogg', 'audio/webm', 'video/ogg', 'video/webm');
         $this->resource = $resource;
         $this->base_directory_path = DOC_ROOT . $files_subdir;
         $this->part_files = array('base' => $this->base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
