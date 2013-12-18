@@ -469,7 +469,7 @@ class WikimediaHarvester
         $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
                         "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
         $cats = array($base_category => 1);
-        if(count($cats) <= 1)
+/*        if(count($cats) <= 1)
         {
             $url = $sites["toolserver"].urlencode($base_category);
             $tab_separated_string = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => DOWNLOAD_WAIT_TIME*10, 'timeout' => DOWNLOAD_TIMEOUT_SECONDS*10));
@@ -484,7 +484,7 @@ class WikimediaHarvester
                 echo "Got ".count($cats)." categories from toolserver ($url)\n";
             }else echo "Couldn't get categories from toolserver ($url)\n";
         }
-
+*/
         if(count($cats) <= 1)
         {
             $url = $sites["wmflabs"].urlencode($base_category);
