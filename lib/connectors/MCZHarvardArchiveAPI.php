@@ -20,8 +20,9 @@ class MCZHarvardArchiveAPI
         $this->dwca_file = "http://localhost/~eolit/cp/MCZ/dwca-mcz_for_eol.zip";
         $this->first40k = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
         */
-        $this->not_utf8 = 0; // for stats
         $this->occurrence_ids = array();
+        $this->types = array(); // for stats
+        $this->page_by_guid = "http://mczbase.mcz.harvard.edu/guid/";
     }
 
     /*
@@ -50,6 +51,7 @@ class MCZHarvardArchiveAPI
         self::get_images($harvester->process_row_type('http://eol.org/schema/media/Document'));
         self::get_texts_v2($harvester->process_row_type('http://rs.gbif.org/terms/1.0/TypesAndSpecimen'));
 
+        print_r($this->types);
         $this->create_archive();
 
         // remove temp dir
@@ -70,14 +72,9 @@ class MCZHarvardArchiveAPI
             $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
             $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
             $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
-            // EOL might not recognize these two:
             $taxon->subgenus        = (string) $rec["http://rs.tdwg.org/dwc/terms/subgenus"];
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
-            // if(!isset($this->taxon_ids[$taxon->taxonID]))
-            // {
-                $this->taxa[$taxon->taxonID] = $taxon;
-            //     $this->taxon_ids[$taxon->taxonID] = 1;
-            // }
+            $this->taxa[$taxon->taxonID] = $taxon;
         }
     }
 
@@ -178,64 +175,68 @@ class MCZHarvardArchiveAPI
         $i = 0;
         foreach($records as $rec)
         {
-            if($rec["http://rs.tdwg.org/dwc/terms/typeStatus"])         self::add_string_types($rec, "Type status", $rec["http://rs.tdwg.org/dwc/terms/typeStatus"]);
-            if($rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"])   self::add_string_types($rec, "Type designated by", $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/scientificName"])     self::add_string_types($rec, "Taxon", $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/occurrenceID"])       self::add_string_types($rec, "Occurrence ID", $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/institutionCode"])    self::add_string_types($rec, "Institution code", $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/collectionCode"])     self::add_string_types($rec, "Collection code", $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])      self::add_string_types($rec, "Catalog number", $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/locality"])           self::add_string_types($rec, "Locality", $rec["http://rs.tdwg.org/dwc/terms/locality"]);
-            if($rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])  self::add_string_types($rec, "Event date", $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"]);
-            $i++;
-            if($i >= 10) break; //debug - just first 10 records during preview phase
+            $this->types[$rec["http://rs.tdwg.org/dwc/terms/typeStatus"]] = 1;
+            $measurementRemarks = "";
+            if($val = $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"])
+            {
+                if($val != "no citation available") $measurementRemarks .= "Type designated by: " . $val . "<br>";
+            }
+            if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) $measurementRemarks .= "Type for " . $val . "<br>";
+            if($val = self::format_type_status($rec["http://rs.tdwg.org/dwc/terms/typeStatus"]))
+            {
+                self::add_string_types($rec, "Type information", $val, $measurementRemarks);
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"])        self::add_string_types($rec, "Occurrence ID", $val);
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"])     self::add_string_types($rec, "Institution code", $val);
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"])      self::add_string_types($rec, "Collection code", $val);
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])       self::add_string_types($rec, "Catalog number", $val);
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/locality"])            self::add_string_types($rec, "Locality", $val);
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])   self::add_string_types($rec, "Event date", $val);
+            }
+            // if($i >= 110) break; //debug - just first 10 records during preview phase
         }
-        echo "\n Not utf8: [$this->not_utf8] \n";
     }
 
-    private function add_string_types($rec, $label, $value)
+    private function add_string_types($rec, $label, $value, $measurementRemarks = null)
     {
         $taxon_id = (string) $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
         $catnum = (string) $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"];
-        print "\n taxon_id: $taxon_id";
-        
-        // no source link from TypeSpecimen information
-        // $furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
-        
-        $value = utf8_encode($value);
-        if(!Functions::is_utf8($value))
-        {
-            $this->not_utf8++;
-            return;
-        }
-        
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
-        if($label == "Catalog number") $m->measurementOfTaxon = 'true';
-
-        // $m->measurementType = 'http://eol.org/schema/terms/Habitat'; // ex. from environments
+        if($label == "Type information") $m->measurementOfTaxon = 'true';
         if    ($label == "Occurrence ID")    $m->measurementType = "http://rs.tdwg.org/dwc/terms/occurrenceID";
         elseif($label == "Institution code") $m->measurementType = "http://rs.tdwg.org/dwc/terms/institutionCode";
         elseif($label == "Collection code")  $m->measurementType = "http://rs.tdwg.org/dwc/terms/collectionCode";
         elseif($label == "Catalog number")   $m->measurementType = "http://rs.tdwg.org/dwc/terms/catalogNumber";
         elseif($label == "Locality")         $m->measurementType = "http://rs.tdwg.org/dwc/terms/locality";
         elseif($label == "Event date")       $m->measurementType = "http://rs.tdwg.org/dwc/terms/eventDate";
-        else $m->measurementType = "http://mcz.harvard.edu/". SparqlClient::to_underscore($label);
-        
+        elseif($label == "Type information") $m->measurementType = "http://eol.org/schema/terms/TypeInformation"; //"http://rs.tdwg.org/ontology/voc/TaxonName#Type";
+        else                                 $m->measurementType = "http://mcz.harvard.edu/". SparqlClient::to_underscore($label);
         $m->measurementValue = (string) $value;
         $m->measurementMethod = '';
-        $m->contributor = 'Museum of Comparative Zoology, Harvard';
-        // $m->source = $furtherInformationURL;
-        // $m->measurementRemarks = "source text: \"$source_text\""; ex. from environments
-        $m->measurementRemarks = "";
+        if($measurementRemarks) // so that measurementRemarks (and source, contributor) appears only once in the [measurement_or_fact.tab]
+        {
+            $m->measurementRemarks = $measurementRemarks;
+            $m->source = $this->page_by_guid . $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"];
+            $m->contributor = 'Museum of Comparative Zoology, Harvard'; // if this doesn't work then use the 'contributor' implementation above that are commented
+        }
         $this->archive_builder->write_object_to_file($m);
+    }
+
+    private function format_type_status($type_status)
+    {
+        // manual adjustments
+        $type_status = str_ireplace(array("?", " (ms)", " (Paleontology)"), "", $type_status);
+        $type_status = str_ireplace("Paralectotpye", "Paralectotype", $type_status);
+        if(in_array($type_status, array("Figured", "Voucher", "Additional Material", "Erroneous Citation"))) return false;
+        
+        // if(in_array($type_status, array("Paratopotype", "Genotype", "Hypotype", "Plastotype", "Alloectotype", "Genoholotype"))) return $type_status; // not yet included in katja's list
+        return $type_status = "http://rs.tdwg.org/ontology/voc/TaxonName#" . ucfirst(strtolower($type_status));
     }
 
     private function add_occurrence($taxon_id, $catnum)
     {
-        $occurrence_id = md5($taxon_id . 'occurrence' . $catnum);
-        // $occurrence_id = md5($taxon->taxonID . 'occurrence'); from environments
+        $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
@@ -247,10 +248,7 @@ class MCZHarvardArchiveAPI
 
     private function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
+        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
     }
 
