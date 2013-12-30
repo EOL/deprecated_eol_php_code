@@ -181,7 +181,7 @@ class MCZHarvardArchiveAPI
             {
                 if($val != "no citation available") $measurementRemarks .= "Type designated by: " . $val . "<br>";
             }
-            if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) $measurementRemarks .= "Type for " . $val . "<br>";
+            // if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) $measurementRemarks .= "Type for " . $val . "<br>"; --- will follow Tropicos' ["Scientific name => Genus species"]
             if($val = self::format_type_status($rec["http://rs.tdwg.org/dwc/terms/typeStatus"]))
             {
                 self::add_string_types($rec, "Type information", $val, $measurementRemarks);
@@ -191,6 +191,7 @@ class MCZHarvardArchiveAPI
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])       self::add_string_types($rec, "Catalog number", $val);
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/locality"])            self::add_string_types($rec, "Locality", $val);
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])   self::add_string_types($rec, "Event date", $val);
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"])      self::add_string_types($rec, "Scientific name", $val);
             }
             // if($i >= 110) break; //debug - just first 10 records during preview phase
         }
@@ -210,6 +211,7 @@ class MCZHarvardArchiveAPI
         elseif($label == "Catalog number")   $m->measurementType = "http://rs.tdwg.org/dwc/terms/catalogNumber";
         elseif($label == "Locality")         $m->measurementType = "http://rs.tdwg.org/dwc/terms/locality";
         elseif($label == "Event date")       $m->measurementType = "http://rs.tdwg.org/dwc/terms/eventDate";
+        elseif($label == "Scientific name")  $m->measurementType = "http://rs.tdwg.org/dwc/terms/scientificName";
         elseif($label == "Type information") $m->measurementType = "http://eol.org/schema/terms/TypeInformation"; //"http://rs.tdwg.org/ontology/voc/TaxonName#Type";
         else                                 $m->measurementType = "http://mcz.harvard.edu/". SparqlClient::to_underscore($label);
         $m->measurementValue = (string) $value;
