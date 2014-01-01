@@ -39,8 +39,8 @@ class WikimediaHarvester
         //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
         mb_internal_encoding("UTF-8");
         // delete the downloaded files
-        //$this->cleanup_dump();
-        //$this->download_dump();
+        $this->cleanup_dump();
+        $this->download_dump();
 
         // FIRST PASS: parse TaxonavigationIncluded* pages (e.g. https://commons.wikimedia.org/wiki/Template:Aves)
         // simultaneously locate galleries and categories with potential taxonomic information (i.e. a Taxonavigation template)

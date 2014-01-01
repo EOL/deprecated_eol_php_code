@@ -402,7 +402,7 @@ class WikimediaPage
             $this->data_object_parameters["location"] = $this->location();
         }
 
-        $this->data_object_parameters['mediaURL'] =$url;
+        $this->data_object_parameters['mediaURL'] = $url;
         
         $this->data_object_parameters['dataType'] = $dcmi;
                 
@@ -893,7 +893,7 @@ class WikimediaPage
         
         if (empty($url))
         {
-            $url="";
+            $url = "";
             echo "That's odd. No URL returned in API query for $this->title (from $reference_url)\n";
         };
         if (empty($mimetype))
