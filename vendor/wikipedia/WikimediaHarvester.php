@@ -39,8 +39,8 @@ class WikimediaHarvester
         //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
         mb_internal_encoding("UTF-8");
         // delete the downloaded files
-        $this->cleanup_dump();
-        $this->download_dump();
+        //$this->cleanup_dump();
+        //$this->download_dump();
 
         // FIRST PASS: parse TaxonavigationIncluded* pages (e.g. https://commons.wikimedia.org/wiki/Template:Aves)
         // simultaneously locate galleries and categories with potential taxonomic information (i.e. a Taxonavigation template)
@@ -331,7 +331,10 @@ class WikimediaHarvester
                     // neither a taxonomic category, nor a map category, so maybe its a license category
                     else $potential_license_categories[] = $cat;
                 }
-                if($map) $page->set_additionalInformation("<subtype>Map</subtype>");
+                if($map) {
+                    $page->set_additionalInformation("<subtype>Map</subtype>");
+                    $page->reset_role_to_default();
+                }
                 if($potential_license_categories) $page->reassess_licenses_with_additions($potential_license_categories);
             }
             if(!$page->has_license())

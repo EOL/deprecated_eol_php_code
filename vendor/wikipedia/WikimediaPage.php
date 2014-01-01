@@ -7,14 +7,17 @@ class WikimediaPage
     private $data_object_parameters;
     private $galleries = array();
 
-    // see http://www.mediawiki.org/wiki/Manual:MIME_type_detection
+    /* see  http://www.mediawiki.org/wiki/Manual:MIME_type_detection
+            http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+            http://dublincore.org/usage/meetings/2004/03/Relator-codes.html */
+    private static $default_role = 'Creator';
     private static $mediatypes = array(
-        'BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'creator_type'=>'Photographer'),
-        'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'creator_type'=>'Illustrator'),
-        'AUDIO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/Sound',      'creator_type'=>'Recorder'),
-        'VIDEO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/MovingImage','creator_type'=>'Creator'),
+        'BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'Photographer'),
+        'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'Illustrator'),
+        'AUDIO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/Sound',      'role'=>'Recorder'),
+        'VIDEO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/MovingImage','role'=>'Creator'),
         // 'MULTIMEDIA' => '',
-        'TEXT'    => array('dcmitype'=>'http://purl.org/dc/dcmitype/Text',       'creator_type'=>'Author'));
+        'TEXT'    => array('dcmitype'=>'http://purl.org/dc/dcmitype/Text',       'role'=>'Author'));
 
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
@@ -375,7 +378,7 @@ class WikimediaPage
         return $this->data_object_parameters;
     }
 
-    public function initialize_data_object($url, $mimetype, $dcmi, $creator)
+    public function initialize_data_object($url, $mimetype, $dcmi, $role)
     {
         $this->data_object_parameters["title"] = $this->title;
         $this->data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
@@ -407,7 +410,7 @@ class WikimediaPage
         if (!empty($mimetype)) $this->set_mimeType($mimetype);
         
         $this->data_object_parameters["agents"] = array();
-        if($a = $this->agent_parameters($creator))
+        if ($a = $this->agent_parameters($role))
         {
             if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
         }
@@ -415,6 +418,15 @@ class WikimediaPage
         // the following properties may be overridden later by category data from the API.
         $this->licenses = $this->licenses_via_wikitext();
         $this->set_license($this->best_license($this->licenses));
+    }
+
+    public function reset_role_to_default()
+    {
+        //use this for edge cases where the normal "role" title for this media type is inappropriate 
+        if (count($this->data_object_parameters["agents"]))
+        {
+            $this->data_object_parameters["agents"][0]->role = self::$default_role;
+        }
     }
 
     public function has_license()
@@ -499,7 +511,7 @@ class WikimediaPage
         else return null;
     }
 
-    public function agent_parameters($creator_type="")
+    public function agent_parameters($role="")
     {
         if(isset($this->agent_parameters)) return $this->agent_parameters;
         $author = $this->author();
@@ -519,12 +531,12 @@ class WikimediaPage
         {
             $agent_parameters["fullName"] = htmlspecialchars($author);
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
-            if ($creator_type) 
+            if ($role)
             {
-                $agent_parameters["role"] = $creator_type;
+                $agent_parameters["role"] = $role;
             } else {
-                $agent_parameters["role"] = 'Creator';
-            }                
+                $agent_parameters["role"] = self::$default_role;
+            }
         }
 
         $this->agent_parameters = $agent_parameters;
@@ -877,7 +889,7 @@ class WikimediaPage
         $mimetype = @$json_info['imageinfo'][0]['mime'];
         $mediatype = @$json_info['imageinfo'][0]['mediatype'];
         $dcmi="";
-        $creator="";
+        $role="";
         
         if (empty($url))
         {
@@ -896,10 +908,10 @@ class WikimediaPage
             echo "Non-compatible mediatype: $mediatype for $this->title (from $reference_url)\n";
         } else {
             $dcmi = self::$mediatypes[$mediatype]['dcmitype'];
-            $creator = self::$mediatypes[$mediatype]['creator_type'];
+            $role = self::$mediatypes[$mediatype]['role'];
         }
         
-        $this->initialize_data_object($url, $mimetype, $dcmi, $creator);
+        $this->initialize_data_object($url, $mimetype, $dcmi, $role);
     }
 
     private function initialize_categories_from_api_response($json_info, $reference_url)
