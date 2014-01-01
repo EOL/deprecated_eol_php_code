@@ -337,7 +337,7 @@ class WikimediaHarvester
             if(!$page->has_license())
             {
                 echo "No valid license category for $page->title (Categories: ".implode("|", $categories_from_API) .")\n";
-                // continue;
+                // continue; //FixMe: why is this commented out?
             }
             if(!$page->has_valid_mime_type($this->validMIMEtypes))
             {
@@ -356,8 +356,11 @@ class WikimediaHarvester
             }else
             {
                 $mesg = self::remove_duplicate_taxonomies($taxonomies);
-                if(!empty($mesg)) echo \WikiParser::mb_ucfirst($mesg)."in wikimedia page <$page->title>\n";
-                if($GLOBALS['ENV_DEBUG'] && (count($taxonomies) > 1)) echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
+                if($GLOBALS['ENV_DEBUG'])
+                {
+                    if (!empty($mesg)) echo \WikiParser::mb_ucfirst($mesg)."in wikimedia page <$page->title>\n";
+                    if (count($taxonomies) > 1) echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
+                }
                 $this->taxonomies_for_file[$page->title] = count($taxonomies);
                 $data_object_parameters = $page->get_data_object_parameters();
                 foreach($taxonomies as $taxonomy)
@@ -388,21 +391,21 @@ class WikimediaHarvester
                             // one has an authority, the other doesn't
                             if(empty($this->taxa[$focal_taxon]->authority))
                             {
-                                if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is an identical taxonomy to ".$compare_taxon." but has no authority field, ";
+                                $return_message .= "deleting ".$focal_taxon." which is an identical taxonomy to ".$compare_taxon." but has no authority field, ";
                                 unset($names[$focal_key]);
                                 break;
                             }
                         }elseif(!$this->taxa[$focal_taxon]->page_younger_than($this->taxa[$compare_taxon]))
                         {
                             // both or neither have authorities, so pick the most recently changed page
-                            if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is identical to, but isn't any younger than ".$compare_taxon.", ";
+                            $return_message .= "deleting ".$focal_taxon." which is identical to, but isn't any younger than ".$compare_taxon.", ";
                             unset($names[$focal_key]);
                             break;
                         }
                     }elseif($this->taxa[$focal_taxon]->is_nested_in($this->taxa[$compare_taxon]))
                     {
                         // remove any that are simply parents (e.g. remove 'Homo' if we also have 'Homo sapiens')
-                        if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is a subset of ".$compare_taxon.", ";
+                        $return_message .= "deleting ".$focal_taxon." which is a subset of ".$compare_taxon.", ";
                         unset($names[$focal_key]);
                         break;
                     }elseif($this->taxa[$focal_taxon]->overlaps_without_conflict($this->taxa[$compare_taxon]))
@@ -411,7 +414,7 @@ class WikimediaHarvester
                         if(($this->taxa[$compare_taxon]->number_of_levels() > 2) &&
                             ($this->taxa[$focal_taxon]->is_less_precise_than($this->taxa[$compare_taxon])))
                         {
-                            if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which (while it contains some additional information) is less precise a classification than ".$compare_taxon.", ";
+                            $return_message .= "deleting ".$focal_taxon." which (while it contains some additional information) is less precise a classification than ".$compare_taxon.", ";
                             unset($names[$focal_key]);
                             break;
                         }
