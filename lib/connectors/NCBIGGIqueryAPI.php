@@ -10,7 +10,7 @@ class NCBIGGIqueryAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
 
         // $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
@@ -49,11 +49,13 @@ class NCBIGGIqueryAPI
     private function create_instances_from_taxon_object($families)
     {
         $i = 0;
+        $total = count($families);
         foreach($families as $family)
         {
             if($family == "Family Unassigned") continue;
             $record = self::query_family($family);
-            $i++; 
+            $i++;
+            echo "\n $i of $total - [$family]";
             // if($i >= 10) return; //debug
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $family;
