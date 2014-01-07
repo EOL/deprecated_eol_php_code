@@ -3,7 +3,7 @@ namespace php_active_record;
 /*
 WORMS archive
 Now partner provides/hosts a DWC-A file. Connector also converts Distribution text into structured data.
-estimated execution time:
+estimated execution time: 2.78 hours
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WormsArchiveAPI');
