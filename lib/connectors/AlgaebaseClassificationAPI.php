@@ -224,7 +224,7 @@ class AlgaebaseClassificationAPI
             $authorship = utf8_encode($authorship);
             if($rec["species.Current_flag"] == "U") $taxonomic_status = "uncertain";
             $rank = self::get_rank($rec["species.Record_status"]);
-            $source_url = $this->taxon_link["species"] . $taxon_id;
+            $source_url = $this->taxon_link["species"] . $rec["species.id"];
             $parentNameUsageID = "g_" . $rec["species.genus_id"];
 
             $desc = $rec["species.key_Habitat"];
@@ -427,7 +427,7 @@ class AlgaebaseClassificationAPI
         $mr->type = 'http://purl.org/dc/dcmitype/Text';
         $mr->language = 'en';
         $mr->format = 'text/html';
-        $mr->furtherInformationURL = $this->taxon_link["species"] . $taxon_id;
+        $mr->furtherInformationURL = $this->taxon_link["species"] . str_replace("s_", "", $taxon_id);
         $mr->description = $description;
         $mr->CVterm = $subject;
         $mr->title = $title;
@@ -455,7 +455,7 @@ class AlgaebaseClassificationAPI
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
         $m->measurementOfTaxon = 'true';
-        $m->source = $this->taxon_link["species"] . $taxon_id;
+        $m->source = $this->taxon_link["species"] . str_replace("s_", "", $taxon_id);
         $m->contributor = 'AlgaeBase';
         $m->measurementType = $mtype;
         $m->measurementValue = $value;

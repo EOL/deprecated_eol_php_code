@@ -136,37 +136,42 @@ class RotifersTypeSpecimenAPI
             if($locality) $locality .= ". " . $val;
             else $locality = $val;
         }
+        $locality = trim(str_replace('"', '', $locality));
+        if(in_array($locality, array("-"))) $locality = "";
 
-        $verbatim_elevation = $rec["sngElevation"];
+        $verbatim_elevation = trim(str_ireplace(" m", "", $rec["sngElevation"]));
+        if(in_array($verbatim_elevation, array("0", 0))) $verbatim_elevation = "";
+        
         $latitude = $rec["sngLatitudeWGS84"];
         $longitude = $rec["sngLongitudeWGS84"];
         
-        $remarks = "";
+        $field_notes = "";
         if($val = $rec["lngMacrohabitat_ID"])
         {
-            if($remarks) $remarks .= ". " . $val;
-            else $remarks = $val;
+            if($field_notes) $field_notes .= ". " . $val;
+            else $field_notes = $val;
         }
         if($val = $rec["lngPermanency_ID"])
         {
-            if($remarks) $remarks .= ". " . $val;
-            else $remarks = $val;
+            if($field_notes) $field_notes .= ". " . $val;
+            else $field_notes = $val;
         }
         if($val = $rec["strDepth"])
         {
-            if($remarks) $remarks .= ". water depth = " . $val;
-            else $remarks = "water depth = " . $val;
+            if($field_notes) $field_notes .= ". water depth = " . $val;
+            else $field_notes = "water depth = " . $val;
         }
         if($val = $rec["lngGeology_ID"])
         {
-            if($remarks) $remarks .= ". Geology = " . $val;
-            else $remarks = "Geology = " . $val;
+            if($field_notes) $field_notes .= ". Geology = " . $val;
+            else $field_notes = "Geology = " . $val;
         }
-        $field_notes = str_replace('"', '', $remarks);
+        $field_notes = trim(str_replace('"', '', $field_notes));
+        if(in_array($field_notes, array("-"))) $field_notes = "";
 
         if($val = $locality)
         {
-                                            self::add_string_types($rec, "Locality", $val, "http://rs.tdwg.org/dwc/terms/locality", $remarks);
+                                            self::add_string_types($rec, "Locality", $val, "http://rs.tdwg.org/dwc/terms/locality");
             if($val = $latitude)            self::add_string_types($rec, "Latitude", $val, "http://rs.tdwg.org/dwc/terms/decimalLatitude");
             if($val = $longitude)           self::add_string_types($rec, "Longitude", $val, "http://rs.tdwg.org/dwc/terms/decimalLongitude");
             if($val = $verbatim_elevation)  self::add_string_types($rec, "Verbatim elevation", $val, "http://rs.tdwg.org/dwc/terms/verbatimElevation");
@@ -174,7 +179,6 @@ class RotifersTypeSpecimenAPI
             if($val = $sciname)             self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
         }
     }
-
 
     private function process_specimen($rec)
     {
@@ -193,7 +197,7 @@ class RotifersTypeSpecimenAPI
         
         $sciname = $rec["sciname"];
         $institution_code = $rec["lngRepository_ID"];
-        $catalog_no = $rec["strCatNr"];
+        $catalog_no = (string) $rec["strCatNr"];
         $preparations = $rec["lngPrepMeth_ID"];
         $preparations = str_replace('"', '', $preparations);
         
@@ -217,6 +221,8 @@ class RotifersTypeSpecimenAPI
             if($remarks) $remarks .= ". " . $val;
             else $remarks = $val;
         }
+        $remarks = trim(str_replace('"', '', $remarks));
+        if(in_array($remarks, array("-"))) $remarks = "";
 
         $recorded_by = "";
         if($val = $rec["lngPersPrep_ID"])
