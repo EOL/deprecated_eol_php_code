@@ -542,12 +542,13 @@ class WikimediaPage
         //remove copyright sign & potential date (plus comma)
         $author = preg_replace("/©( *)(\d\d\d\d *,?)?(by)?/", "", $author);
 
-        $author = WikiParser::mb_trim($author);
+        //replace e.g. &eacute with é
+        $author = WikiParser::mb_trim(html_entity_decode($author));
 
         $agent_parameters = array();
         if($author)
         {
-            $agent_parameters["fullName"] = htmlspecialchars($author);
+            $agent_parameters["fullName"] = $author;
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
             if(php_active_record\Functions::is_ascii($email)) $agent_parameters["email"] = $email;
             if ($role)
@@ -596,7 +597,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "author" || $attr == "Author") $author = self::convert_diacritics(WikiParser::strip_syntax($val, true));
+                if($attr == "author" || $attr == "Author") $author = WikiParser::strip_syntax($val, true);
             }
         }
 
@@ -612,7 +613,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "permission" || $attr == "Permission") $rights = self::convert_diacritics(WikiParser::strip_syntax($val, true));
+                if($attr == "permission" || $attr == "Permission") $rights = WikiParser::strip_syntax($val, true);
             }
         }
         $this->rights = $rights;
@@ -959,16 +960,6 @@ class WikimediaPage
     {
         $url = self::$API_URL.'?action=query&format=json&prop=imageinfo&iiprop=url&redirects';
         return self::call_API($url, $array_of_titles);
-    }
-
-    public static function convert_diacritics($string)
-    {
-        $string = str_replace('ä', '&amp;auml;', $string);
-        $string = str_replace('å', '&amp;aring;', $string);
-        $string = str_replace('é', '&amp;eacute;', $string);
-        $string = str_replace('ï', '&amp;iuml;', $string);
-        $string = str_replace('ö', '&amp;ouml;', $string);
-        return $string;
     }
 }
 
