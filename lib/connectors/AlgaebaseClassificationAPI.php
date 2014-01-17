@@ -232,7 +232,7 @@ class AlgaebaseClassificationAPI
             {
                 $this->debug[$desc] = "";
                 $habitat = self::format_habitat($desc);
-                self::add_string_types($taxon_id, "Habitat", $habitat, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat");
+                self::add_string_types($taxon_id, "Habitat", $habitat, "http://rs.tdwg.org/dwc/terms/habitat");
                 // self::get_texts($desc, $taxon_id, '', $this->SPM . '#Habitat', '_habitat', array(), array()); --- conveted to structured data
             } 
             $desc = $rec["species.Type_locality"];
