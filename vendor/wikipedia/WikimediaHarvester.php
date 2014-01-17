@@ -340,7 +340,9 @@ class WikimediaHarvester
             if(!$page->has_license())
             {
                 echo "No valid license category for $page->title (Categories: ".implode("|", $categories_from_API) .")\n";
-                // continue; //FixMe: why is this commented out?
+                //NB: as of 2013, about 4000 images don't have valid categories found: ignore these.
+                // See discussion at http://eol.org/forums/4/topics/62
+                continue;
             }
             if(!$page->has_valid_mime_type($this->validMIMEtypes))
             {
@@ -475,6 +477,7 @@ class WikimediaHarvester
         $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
                         "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
         $cats = array($base_category => 1);
+        // Using toolserver.org seems to only return max ~x500 categories, so its use has been commented out below
 /*        if(count($cats) <= 1)
         {
             $url = $sites["toolserver"].urlencode($base_category);
