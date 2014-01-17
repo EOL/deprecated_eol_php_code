@@ -301,10 +301,13 @@ class WikimediaPage
 
     public function best_license($potential_licenses, $is_wikitext = true)
     {
-        // can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
+        // Can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
         // usually these are of the same format, apart from e.g. {{XXX-no known copyright restrictions}}
         // Currently we miss files categorised under the FAL (http://en.wikipedia.org/wiki/Free_Art_License)
-        // These could probably be included somehow
+        // which may in future be compatible with CC-BY (see http://wiki.creativecommons.org/Version_4#Compatibility)
+        // Also for images like https://commons.wikimedia.org/wiki/File:Aequorea1.jpeg which only require
+        // attribution only, we could consider redistributing as CC-BY, but some legal opinion is probably needed 
+        // (see https://commons.wikimedia.org/wiki/Template_talk:Attribution#Compatibility_with_CC-BY)
         $identified_licenses = array();
         foreach($potential_licenses as $potential_license)
         {
@@ -516,21 +519,37 @@ class WikimediaPage
         if(isset($this->agent_parameters)) return $this->agent_parameters;
         $author = $this->author();
 
+        //some complicated regexps for sanitizing author information
         $homepage = "";
-        if(preg_match("/<a href='(.*?)'>/u", $author, $arr)) $homepage = $arr[1];
+        $email = "";
+        if(preg_match("/<a href='mailto:(.+?)'>/u", $author, $arr)) $email = $arr[1];
+        if(preg_match("/<a href='(http.+?)'>/u", $author, $arr)) $homepage = $arr[1];
+        //only allow wiki users, disallow arbitrary URLs (presumably to avoid linking to malicious sites)
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/ui", $homepage) || preg_match("/;/u", $homepage)) $homepage = "";
+
+        // breaks should at least produce a space in the text - do this before stripping the html
         $author = preg_replace('/<br[\s\/]*>/ui', ' ', $author);
         $author = strip_tags($author);
-        $author = preg_replace('/\(talk\)/ui', '', $author);
-        $author = str_replace("©", "", $author);
-        $author = str_replace("\xc2\xA9", "", $author); // should be the same as above
-        $author = str_replace("\xA9", "", $author); // should be the same as above
+
+        //some unneeded text which is commonly found in Author attributions
+        $author = preg_replace("/\(talk\)/ui", "", $author);
+        $author = preg_replace("/^(photo(graph)? +)?(taken +)?by( +and)?/ui", "", $author);
+
+        //swap copyright text for ©
+        $author = preg_replace("/^\bcopyright\b/ui", "©", $author);
+        $author = preg_replace("/\(c\)/ui", "©", $author);
+
+        //remove copyright sign & potential date (plus comma)
+        $author = preg_replace("/©( *)(\d\d\d\d *,?)?(by)?/", "", $author);
+
         $author = WikiParser::mb_trim($author);
+
         $agent_parameters = array();
         if($author)
         {
             $agent_parameters["fullName"] = htmlspecialchars($author);
             if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+            if(php_active_record\Functions::is_ascii($email)) $agent_parameters["email"] = $email;
             if ($role)
             {
                 $agent_parameters["role"] = $role;
