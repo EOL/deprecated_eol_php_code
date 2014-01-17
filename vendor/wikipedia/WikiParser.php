@@ -46,7 +46,7 @@ class WikiParser
         }
 
         // [http://... The text to link to]
-        while(preg_match("/(\[\s*(https?:\/\/[^ ]+) (.*?)\])(.*)$/uims", $string, $arr))
+        while(preg_match("/(\[\s*((?:https?:\/\/|mailto:)[^ ]+)\s(.*?)\])(.*)$/uims", $string, $arr))
         {
             $match = $arr[1];
             if($format) $string = str_replace($match, "<a href='$arr[2]'>$arr[3]</a>", $string);
@@ -54,7 +54,7 @@ class WikiParser
         }
 
         // [http://...]
-        while(preg_match("/(\[\s*(https?:\/\/[^ ]+?)\])(.*)$/uims", $string, $arr))
+        while(preg_match("/(\[\s*((?:https?:\/\/|mailto:)[^ ]+?)\])(.*)$/uims", $string, $arr))
         {
             $match = $arr[1];
             if($format) $string = str_replace($match, "<a href='$arr[2]'>$arr[2]</a>", $string);
