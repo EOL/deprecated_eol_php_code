@@ -364,7 +364,7 @@ class WikimediaPage
                 $rest = $arr[2];
                 if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
                 else $version = "3.0";
-                if($license == 'by-nc-nd') continue;
+                if($license === 'by-nc-nd') continue;
                 $identified_licenses[] = array(
                     'license'   => "http://creativecommons.org/licenses/$license/$version/",
                     'category'  => "http://creativecommons.org/licenses/$license/",
@@ -527,13 +527,14 @@ class WikimediaPage
         //only allow wiki users, disallow arbitrary URLs (presumably to avoid linking to malicious sites)
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/ui", $homepage) || preg_match("/;/u", $homepage)) $homepage = "";
 
-        // breaks should at least produce a space in the text - do this before stripping the html
-        $author = preg_replace('/<br[\s\/]*>/ui', ' ', $author);
+        // before stripping html & removing newlines, put spaces between word or . & tags (e.g. <br> and <a href=..)
+        $author = preg_replace('/([\w\.])</u', '$1 <', $author);
         $author = strip_tags($author);
+        $author = preg_replace('/\s+/u', ' ', $author);
 
         //some unneeded text which is commonly found in Author attributions
         $author = preg_replace("/\(talk\)/ui", "", $author);
-        $author = preg_replace("/^(photo(graph)? +)?(taken +)?by( +and)?/ui", "", $author);
+        $author = preg_replace("/^(photo(graph)? |image |picture )?(taken )?by( and)?/ui", "", $author);
 
         //swap copyright text for ©
         $author = preg_replace("/^\bcopyright\b/ui", "©", $author);
@@ -597,7 +598,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "author" || $attr == "Author") $author = WikiParser::strip_syntax($val, true);
+                if($attr === "author" || $attr === "Author") $author = WikiParser::strip_syntax($val, true);
             }
         }
 
@@ -613,7 +614,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "permission" || $attr == "Permission") $rights = WikiParser::strip_syntax($val, true);
+                if($attr === "permission" || $attr === "Permission") $rights = WikiParser::strip_syntax($val, true);
             }
         }
         $this->rights = $rights;
@@ -629,7 +630,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "description" || $attr == "Description")
+                if($attr === "description" || $attr === "Description")
                 {
                     $description = WikiParser::strip_syntax($val, true);
                 }
@@ -648,7 +649,7 @@ class WikimediaPage
         $this->location = false;
         if(count($location = WikiParser::template_as_array($this->active_wikitext(), "(?:[Oo]bject )?[Ll]ocation(?: dec)?")))
         {
-            if(substr($location[0], -3) == "dec")
+            if(substr($location[0], -3) === "dec")
             {
                 // see http://commons.wikimedia.org/wiki/Template:Location_dec
                 if(isset($location[1]) && isset($location[2]))
@@ -786,7 +787,7 @@ class WikimediaPage
         if(count($titles) > self::$max_titles_per_lookup)
         {
             echo "ERROR: only allowed a maximum of ". self::$max_titles_per_lookup ." titles in a single API query.\n";
-            return;
+            return $results;
         }elseif(count($titles) == 0) return;
 
         $url .= "&titles=". urlencode(implode("|", $titles));
@@ -961,6 +962,7 @@ class WikimediaPage
         $url = self::$API_URL.'?action=query&format=json&prop=imageinfo&iiprop=url&redirects';
         return self::call_API($url, $array_of_titles);
     }
+
 }
 
 class TaxonomyParameters
@@ -997,7 +999,7 @@ class TaxonomyParameters
         $wiki_rank = WikiParser::mb_ucfirst(WikiParser::mb_trim($wiki_rank));
         $text = strip_tags(WikiParser::strip_syntax($wikitext));
 
-        if($wiki_rank == 'Authority') return $this->add_info('authority', $text);
+        if($wiki_rank === 'Authority') return $this->add_info('authority', $text);
         if(empty(self::$wiki_to_standard[$wiki_rank])) return "";
         return $this->add_info(self::$wiki_to_standard[$wiki_rank], $text);
     }
@@ -1013,7 +1015,7 @@ class TaxonomyParameters
         }
         // multiple spaces of any sort to single normal space
         $name = preg_replace("/\pZ+/u", " ", $name);
-        if($rank == 'authority')
+        if($rank === 'authority')
         {
             $this->authority = $name;
             return $return_message;
@@ -1026,8 +1028,8 @@ class TaxonomyParameters
         // remove preceeding fossil: e.g. Fossil Pectinidae
         if(preg_match("/^fossil (.*)$/i", $name, $arr)) $name = WikiParser::mb_ucfirst(trim($arr[1]));
         // don't set anything if the string is empty
-        if($name == '') return $return_message;
-        if($rank == 'genus')
+        if($name === '') return $return_message;
+        if($rank === 'genus')
         {
             if(preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
             {
@@ -1047,7 +1049,7 @@ class TaxonomyParameters
                 $this->taxon_params['species'] = $name . ' ' . $this->taxon_params['species'];
             }
         }
-        if($rank == 'species')
+        if($rank === 'species')
         {
             /* TODO - caution here with virus species names, which can contain multiple words and capitals, something like 
                   if ($this->taxon_params['domain'] != "Viruses") ...
