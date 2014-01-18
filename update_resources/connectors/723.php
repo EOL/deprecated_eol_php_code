@@ -1,17 +1,17 @@
 <?php
 namespace php_active_record;
 /*
-WORMS archive
-Now partner provides/hosts a DWC-A file. Connector also converts Distribution text into structured data.
+NCBI GGI queries (DATA-1369)
+Partner provides a service to query their data using family names
 estimated execution time:
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/WormsArchiveAPI');
+require_library('connectors/NCBIGGIqueryAPI');
 $timestart = time_elapsed();
-$resource_id = 26;
-$func = new WormsArchiveAPI($resource_id);
+$resource_id = 723;
+$func = new NCBIGGIqueryAPI($resource_id);
 $func->get_all_taxa();
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000) // orig 1000
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1) // orig 1000
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {

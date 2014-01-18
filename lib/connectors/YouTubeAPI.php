@@ -253,6 +253,7 @@ class YouTubeAPI
         $scinames = array();
         foreach($strings_to_search as $string)
         {
+            if(!$string = trim($string)) continue;
             $url = TAXON_FINDER_SERVICE . $string;
             if($response = Functions::get_hashed_response($url, array('download_wait_time' => 3000000, 'timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 5))) //1hr timeout
             {
