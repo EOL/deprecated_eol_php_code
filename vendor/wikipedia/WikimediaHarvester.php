@@ -133,8 +133,8 @@ class WikimediaHarvester
             {
                 $current_page .= $line;
                 // this is a new page so reset $current_page
-                if(trim($line) == "<page>") $current_page = $line;
-                elseif(trim($line) == "</page>")
+                if(trim($line) === "<page>") $current_page = $line;
+                elseif(trim($line) === "</page>")
                 {
                     call_user_func($callback, $current_page);
                     $pages_processed++;
@@ -433,7 +433,10 @@ class WikimediaHarvester
     private function check_for_unaccounted_galleries()
     {
         $good_files = array();
-        echo "\n".count($this->galleries_for_file) ." gallery files remain at the end. Most of these are probably misspellings in the gallery text. Checking these out now...\n";
+        echo "\n".count($this->galleries_for_file) ." gallery files remain at the end (often misspellings in the gallery text). These are:\n";
+        foreach ($this->galleries_for_file as $title => $galleries) 
+            echo "  <$title> in galler".(count($this->galleries_for_file[$title])>1?'ies':'y')." <".implode(", ", $galleries).">\n";
+        echo "Checking these out now...\n";
         $titles = array_chunk(array_keys($this->galleries_for_file), \WikimediaPage::$max_titles_per_lookup, true);
         foreach($titles as $batch)
         {
@@ -441,12 +444,9 @@ class WikimediaHarvester
         }
         if(count($good_files))
         {
-            echo "\nMISSED THE FOLLOWING ". count($good_files) ." FILES";
+            echo "\nTHE FOLLOWING ". count($good_files) ." FILES COULD BE HARVESTED, BUT HAVE BEEN OVERLOOKED";
             foreach($good_files as $title => $json)
-            {
-                echo "* <$title> in galler".(count($this->galleries_for_file[$title])>1?'ies':'y');
-                echo " <".implode(", ", $this->galleries_for_file[$title]).">\n";
-            }
+                echo "* <$title>\n";
         }
     }
 
