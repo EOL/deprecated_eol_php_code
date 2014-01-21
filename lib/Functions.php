@@ -1422,17 +1422,20 @@ class Functions
         elseif ($extension == "mov")        $mimetype = "video/quicktime";
         elseif (in_array($extension, $mpg)) $mimetype = "video/mpeg";
         elseif ($extension == "flv")        $mimetype = "video/x-flv";
+        elseif ($extension == "ogv")        $mimetype = "video/ogg";
+        elseif ($extension == "webm")       $mimetype = "video/webm";        
         elseif ($extension == "bmp")        $mimetype = "image/bmp";
         elseif ($extension == "gif")        $mimetype = "image/gif";
         elseif ($extension == "jpg")        $mimetype = "image/jpeg";
         elseif ($extension == "jpeg")       $mimetype = "image/jpeg";
         elseif ($extension == "png")        $mimetype = "image/png";
         elseif ($extension == "tif")        $mimetype = "image/tiff";
+        elseif ($extension == "svg")        $mimetype = "image/svg+xml";
         elseif ($extension == "mp3")        $mimetype = "audio/mpeg";
         elseif ($extension == "wav")        $mimetype = "audio/x-wav";
         elseif ($extension == "ogg")        $mimetype = "audio/ogg";
         elseif ($extension == "oga")        $mimetype = "audio/ogg";
-        elseif ($extension == "svg")        $mimetype = "image/svg+xml";
+        elseif ($extension == "ogx")        $mimetype = "application/ogg";
         return $mimetype;
     }
     
