@@ -34,7 +34,6 @@ class WikiParser
             $string = str_replace("&nbsp;", " ", $string);
         }
         $string = htmlspecialchars_decode(html_entity_decode($string));
-        $string = htmlspecialchars_decode(html_entity_decode($string));
 
         // [[ ... ]]
         while(preg_match("/(\[\[.*?\]\])(.*)$/ums", $string, $arr))
@@ -126,6 +125,9 @@ class WikiParser
         {
             if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]'>$arr[2]</a>";
             else $string = $arr[2];
+        }elseif(preg_match("/^\s*category:/uims", $string, $arr))
+        {
+           $string = "";
         }elseif(preg_match("/^\s*(:category:)(.*)\|(.*?)$/uims", $string, $arr))
         {
             if($format) $string = "<a href='".WIKI_PREFIX."$arr[1]$arr[2]'>$arr[3]</a>";
@@ -205,7 +207,7 @@ class WikiParser
             }
         }
 
-        if($string == "pagename" && $pagename)
+        if($string === "pagename" && $pagename)
         {
             $string = $pagename;
         }
@@ -230,8 +232,8 @@ class WikiParser
     private static function replace_active_wikitext($string)
     {
         // allows us to replace contents of <nowiki> with content that will not be parsed
-        static $search = array("[[", "]]", "{{", "}}", "''", "'''");
-        static $replace = array("&#91;&#91;", "&#93;&#93;", "&#123;&#123;", "&#125;&#125;", "&#39;&#39;", "&#39;&#39;&#39;");
+        static $search = array("[[", "]]", "{{", "}}", "''", "'''", "|");
+        static $replace = array("&#91;&#91;", "&#93;&#93;", "&#123;&#123;", "&#125;&#125;", "&#39;&#39;", "&#39;&#39;&#39;", "&#124;");
         return str_replace($search, $replace, $string[1]);
     }
 
@@ -275,6 +277,10 @@ class WikiParser
         // because | characters don't count when nested inside other templates (a common occurrence), or when
         // nested inside [[ ]] braces, or in <!-- html comments --> or in "Parser Extension Tags" (for
         // a list of these, see e.g. http://commons.wikimedia.org/wiki/Special:Version#sv-parser-tags .
+        
+        //How about inside [ | ], as in http://commons.wikimedia.org/wiki/File:Hornwort structures.jpg ?
+        
+        
         // However, our job at parsing is made easier, because apart from {{ }}, the tags don't allow
         // multiple nesting, so <nowiki> $string </nowiki> is a bracketed pair even if $string = <nowiki>.
 
@@ -315,7 +321,7 @@ class WikiParser
             {
                 // this is an xml tag, so also look for a closing "/>" on the initial tag, e.g. <ref />
                 // RE is not perfect - e.g. won't spot <ref name=">" />. You need a proper parser for that.
-                if($val[0]=="<") $val = "\G[^>]+(?<=\/)>|".preg_quote($val, "/");
+                if($val[0]==="<") $val = "\G[^>]+(?<=\/)>|".preg_quote($val, "/");
                 else $val = preg_quote($val, "/");
             }
             array_walk($singly_nested_tags, 'add_initial_xml_close');
@@ -333,7 +339,7 @@ class WikiParser
             {
                 $match = $arr[0][0];
                 $match_start = $arr[0][1];
-                if($match == "|")
+                if($match === "|")
                 {
                     if($nested_curly == 0)
                     {
@@ -347,7 +353,7 @@ class WikiParser
                         $first = false;
                     }
                     $curr_pos = $match_start + 1;
-                }elseif($match == "=")
+                }elseif($match === "=")
                 {
                     if($nested_curly == 0)
                     {
@@ -368,7 +374,7 @@ class WikiParser
                 {
                     $nested_curly++;
                     $curr_pos = $match_start + 2;
-                }elseif($match == "}}")
+                }elseif($match === "}}")
                 {
                     $nested_curly--;
                     if($nested_curly < 0) break;
