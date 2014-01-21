@@ -527,14 +527,29 @@ class WikimediaPage
         //only allow wiki users, disallow arbitrary URLs (presumably to avoid linking to malicious sites)
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/ui", $homepage) || preg_match("/;/u", $homepage)) $homepage = "";
 
-        // before stripping html & removing newlines, put spaces between word or . & tags (e.g. <br> and <a href=..)
-        $author = preg_replace('/([\w\.])</u', '$1 <', $author);
+        $author = preg_replace("/<br\W*>/iu", "\n", $author);
+        //insert a space between a word char or appropriate punctuation "." "," ")" and a following html tag
+        $author = preg_replace("/(?<=[\w\.\),])<(?!\s*\/)/u", " <", $author);
+        
         $author = strip_tags($author);
-        $author = preg_replace('/\s+/u', ' ', $author);
+        //replace bullet points (* ) or indents (:) with simple newlines
+        $author = preg_replace("/^\s*(:+|\*+ )/mu", "\n", $author);
+        //trim newlines at start & end
+        $author = preg_replace("/^\n+/u", "", $author);
+        $author = preg_replace("/\n+$/u", "", $author);
+        
+        //Newlines to sentences. 1) Colons at end-of-line are not new sentences, UNLESS followed by a line with a colon
+        //see e.g. http://commons.wikimedia.org/wiki/File:Schistosoma_bladder_histopathology.jpeg
+        $author = preg_replace("/:\n+([^\n]+)(?=:)/u", ". $1", $author);
+        // 2) Make sentence from newline (unless the line ends in punctuation already)
+        $author = preg_replace("/(?<![\.,:;])\s*\n+/u", ". ", $author);
+        //contract multiple spaces
+        $author = preg_replace("/\s+/u", " ", $author);
 
-        //some unneeded text which is commonly found in Author attributions
+        //some unneeded text which is commonly found in Author attributions, 
+        //e.g. File:Black_Ruby_Barb_700.jpg, File:Aspidistra_elatior_Amomokawo_BotGardBln1205.jpg, File:Lumbar_plant_acerleaf_sick.jpg
         $author = preg_replace("/\(talk\)/ui", "", $author);
-        $author = preg_replace("/^(photo(graph)? |image |picture )?(taken )?by( and)?/ui", "", $author);
+        $author = preg_replace("/^(photo(graph)? |image |picture )?(taken )?by(:| and)?/ui", "", $author);
 
         //swap copyright text for ©
         $author = preg_replace("/^\bcopyright\b/ui", "©", $author);
@@ -543,15 +558,15 @@ class WikimediaPage
         //remove copyright sign & potential date (plus comma)
         $author = preg_replace("/©( *)(\d\d\d\d *,?)?(by)?/", "", $author);
 
-        //replace e.g. &eacute with é
+        //replace e.g. &eacute with unicode é
         $author = WikiParser::mb_trim(html_entity_decode($author));
 
         $agent_parameters = array();
         if($author)
         {
             $agent_parameters["fullName"] = $author;
-            if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
-            if(php_active_record\Functions::is_ascii($email)) $agent_parameters["email"] = $email;
+            if(strlen($homepage) && php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+            if(strlen($email) && php_active_record\Functions::is_ascii($email)) $agent_parameters["email"] = $email;
             if ($role)
             {
                 $agent_parameters["role"] = $role;
