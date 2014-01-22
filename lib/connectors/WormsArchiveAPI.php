@@ -88,12 +88,13 @@ class WormsArchiveAPI
             $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon->parentNameUsageID);
             // */
             
-            $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
-            $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
-            $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
-            $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
-            $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
-            $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
+            // $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
+            // $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
+            // $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
+            // $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
+            // $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
+            // $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
+
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];

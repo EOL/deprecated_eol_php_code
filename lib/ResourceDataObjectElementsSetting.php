@@ -14,7 +14,7 @@ class ResourceDataObjectElementsSetting
     {
         $xml_string = self::load_xml_string();
         if($xml_string === false) return false;
-        $xml = simplexml_load_string($xml_string);
+        if(!$xml = simplexml_load_string($xml_string)) return false;
         debug("set_data_object_rating_on_xml_document " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
         {
@@ -42,6 +42,7 @@ class ResourceDataObjectElementsSetting
 
     function load_xml_string()
     {
+        $file_contents = "";
         debug("Please wait, downloading resource document...");
         if(preg_match("/^(.*)\.(gz|gzip)$/", $this->xml_path, $arr))
         {
