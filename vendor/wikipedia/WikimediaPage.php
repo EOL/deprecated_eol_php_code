@@ -7,14 +7,18 @@ class WikimediaPage
     private $data_object_parameters;
     private $galleries = array();
 
-    // see http://www.mediawiki.org/wiki/Manual:MIME_type_detection
+    /* see  http://www.mediawiki.org/wiki/Manual:MIME_type_detection
+            http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+            http://dublincore.org/usage/meetings/2004/03/Relator-codes.html */
+    private static $default_role = 'Creator';
     private static $mediatypes = array(
-                                    'BITMAP'  => 'http://purl.org/dc/dcmitype/StillImage',
-                                    'DRAWING' => 'http://purl.org/dc/dcmitype/StillImage',
-                                    'AUDIO'   => 'http://purl.org/dc/dcmitype/Sound',
-                                    'VIDEO'   => 'http://purl.org/dc/dcmitype/MovingImage',
-                                    // 'MULTIMEDIA' => '',
-                                    'TEXT'    => 'http://purl.org/dc/dcmitype/Text');
+        'BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'Photographer'),
+        'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'Illustrator'),
+        'AUDIO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/Sound',      'role'=>'Recorder'),
+        'VIDEO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/MovingImage','role'=>'Creator'),
+        // 'MULTIMEDIA' => '',
+        'TEXT'    => array('dcmitype'=>'http://purl.org/dc/dcmitype/Text',       'role'=>'Author'));
+
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
 
@@ -204,7 +208,7 @@ class WikimediaPage
 
     private function taxonomy_via_wikitext(&$taxonav_include_arrays)
     {
-        $Taxonav = array('taxo' => $this->taxonav_as_array("[Tt]axonavigation"), 'last_mod' => strtotime($this->timestamp));
+        $Taxonav = array('taxo' => $this->taxonav_as_array("[Tt]axonavigation"), 'last_mod' => @strtotime($this->timestamp));
         $Taxonav = $this->fill_includes_recursively($Taxonav, $taxonav_include_arrays);
         $taxonomy = new TaxonomyParameters($this->timestamp, $Taxonav['last_mod']);
         $mesg = "";
@@ -297,10 +301,13 @@ class WikimediaPage
 
     public function best_license($potential_licenses, $is_wikitext = true)
     {
-        // can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
+        // Can be used to identify either licenses in templates {{cc-by-1.0}} or categories [[CC-BY-1.0]]
         // usually these are of the same format, apart from e.g. {{XXX-no known copyright restrictions}}
         // Currently we miss files categorised under the FAL (http://en.wikipedia.org/wiki/Free_Art_License)
-        // These could probably be included somehow
+        // which may in future be compatible with CC-BY (see http://wiki.creativecommons.org/Version_4#Compatibility)
+        // Also for images like https://commons.wikimedia.org/wiki/File:Aequorea1.jpeg which only require
+        // attribution only, we could consider redistributing as CC-BY, but some legal opinion is probably needed
+        // (see https://commons.wikimedia.org/wiki/Template_talk:Attribution#Compatibility_with_CC-BY)
         $identified_licenses = array();
         foreach($potential_licenses as $potential_license)
         {
@@ -351,13 +358,13 @@ class WikimediaPage
                     'version'   => $version);
             }
             // catch all the cc-licenses
-            if(preg_match("/^CC-(BY(-NC)?(-ND)?(-SA)?)(.*)$/mui", $potential_license, $arr))
+            if(preg_match("/^CC-(BY(?:-NC)?(?:-ND)?(?:-SA)?)(.*)$/mui", $potential_license, $arr))
             {
                 $license = strtolower($arr[1]);
                 $rest = $arr[2];
                 if(preg_match("/^-?([0-9]\.[0-9])/u", $rest, $arr)) $version = $arr[1];
                 else $version = "3.0";
-                if($license == 'by-nc-nd') continue;
+                if($license === 'by-nc-nd') continue;
                 $identified_licenses[] = array(
                     'license'   => "http://creativecommons.org/licenses/$license/$version/",
                     'category'  => "http://creativecommons.org/licenses/$license/",
@@ -374,7 +381,7 @@ class WikimediaPage
         return $this->data_object_parameters;
     }
 
-    public function initialize_data_object()
+    public function initialize_data_object($url, $mimetype, $dcmi, $role)
     {
         $this->data_object_parameters["title"] = $this->title;
         $this->data_object_parameters["identifier"] = str_replace(" ", "_", $this->title);
@@ -388,12 +395,6 @@ class WikimediaPage
             $this->data_object_parameters["description"] = "";
         }else $this->data_object_parameters["description"] = $this->description();
 
-        $this->data_object_parameters["agents"] = array();
-        if($a = $this->agent_parameters())
-        {
-            if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
-        }
-
         if($this->point())
         {
             $this->data_object_parameters["point"] = new \SchemaPoint($this->point());
@@ -404,10 +405,31 @@ class WikimediaPage
             $this->data_object_parameters["location"] = $this->location();
         }
 
+        $this->data_object_parameters['mediaURL'] = $url;
+
+        $this->data_object_parameters['dataType'] = $dcmi;
+
+        $this->set_mimeType(php_active_record\Functions::get_mimetype($this->title));
+        if (!empty($mimetype)) $this->set_mimeType($mimetype);
+
+        $this->data_object_parameters["agents"] = array();
+        if ($a = $this->agent_parameters($role))
+        {
+            if(php_active_record\Functions::is_utf8($a['fullName'])) $this->data_object_parameters["agents"][] = new SchemaAgent($a);
+        }
+
         // the following properties may be overridden later by category data from the API.
         $this->licenses = $this->licenses_via_wikitext();
         $this->set_license($this->best_license($this->licenses));
-        $this->set_mimeType(php_active_record\Functions::get_mimetype($this->title));
+    }
+
+    public function reset_role_to_default()
+    {
+        //use this for edge cases where the normal "role" title for this media type is inappropriate
+        if (count($this->data_object_parameters["agents"]))
+        {
+            $this->data_object_parameters["agents"][0]->role = self::$default_role;
+        }
     }
 
     public function has_license()
@@ -416,9 +438,8 @@ class WikimediaPage
         else return true;
     }
 
-    public function has_valid_mime_type()
+    public function has_valid_mime_type($valid_mime_types)
     {
-        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'application/ogg', 'image/svg+xml', 'image/tiff');
         if(empty($this->data_object_parameters['mimeType'])) return false;
         if(!in_array($this->data_object_parameters['mimeType'], $valid_mime_types)) return false;
         return true;
@@ -443,15 +464,6 @@ class WikimediaPage
         $this->data_object_parameters['license'] = $license;
     }
 
-    public function set_mediaURL($mediaURL)
-    {
-        if(isset($this->data_object_parameters['mediaURL']) && ($this->data_object_parameters['mediaURL'] != $mediaURL))
-        {
-            echo "Overriding mediaURL for $this->title : current = ". $this->data_object_parameters['mediaURL'] .", new = $mediaURL\n";
-        }
-        $this->data_object_parameters['mediaURL'] = $mediaURL;
-    }
-
 
     public function set_mimeType($mimeType)
     {
@@ -460,23 +472,6 @@ class WikimediaPage
             echo "Overriding mimeType for $this->title : current = ". $this->data_object_parameters['mimeType'] .", new = $mimeType\n";
         }
         $this->data_object_parameters['mimeType'] = $mimeType;
-    }
-
-    public function set_mediatype($mediatype)
-    {
-        if(isset(self::$mediatypes[$mediatype]))
-        {
-            $dataType = self::$mediatypes[$mediatype];
-            if(isset($this->data_object_parameters['dataType']) && ($this->data_object_parameters['dataType'] != $dataType))
-            {
-                echo "Overriding dataType for $this->title : current = ". $this->data_object_parameters['dataType'] .", new = $dataType\n";
-            }
-            $this->data_object_parameters['dataType'] = $dataType;
-        }else
-        {
-            echo "Non-compatible mediatype: $mediatype for $this->title\n";
-            $this->data_object_parameters['dataType'] = "";
-        }
     }
 
     public function set_additionalInformation($text)
@@ -519,27 +514,65 @@ class WikimediaPage
         else return null;
     }
 
-    public function agent_parameters()
+    public function agent_parameters($role="")
     {
         if(isset($this->agent_parameters)) return $this->agent_parameters;
         $author = $this->author();
 
+        //some complicated regexps for sanitizing author information
         $homepage = "";
-        if(preg_match("/<a href='(.*?)'>/u", $author, $arr)) $homepage = $arr[1];
+        $email = "";
+        if(preg_match("/<a href='mailto:(.+?)'>/u", $author, $arr)) $email = $arr[1];
+        if(preg_match("/<a href='(http.+?)'>/u", $author, $arr)) $homepage = $arr[1];
+        //only allow wiki users, disallow arbitrary URLs (presumably to avoid linking to malicious sites)
         if(!preg_match("/\/wiki\/(user|:[a-z]{2})/ui", $homepage) || preg_match("/;/u", $homepage)) $homepage = "";
-        $author = preg_replace("/<a href='(.*?)'>/u", "", $author);
-        $author = str_replace("</a>", "", $author);
-        $author = str_replace("©", "", $author);
-        $author = str_replace("\xc2\xA9", "", $author); // should be the same as above
-        $author = str_replace("\xA9", "", $author); // should be the same as above
+
+        $author = preg_replace("/<br\W*>/iu", "\n", $author);
+        //insert a space between a word char or appropriate punctuation "." "," ")" and a following html tag
+        $author = preg_replace("/(?<=[\w\.\),])<(?!\s*\/)/u", " <", $author);
+
+        $author = strip_tags($author);
+        //replace bullet points (* ) or indents (:) with simple newlines
+        $author = preg_replace("/^\s*(:+|\*+ )/mu", "\n", $author);
+        //trim newlines at start & end
+        $author = preg_replace("/^\n+/u", "", $author);
+        $author = preg_replace("/\n+$/u", "", $author);
+
+        //Newlines to sentences. 1) Colons at end-of-line are not new sentences, UNLESS followed by a line with a colon
+        //see e.g. http://commons.wikimedia.org/wiki/File:Schistosoma_bladder_histopathology.jpeg
+        $author = preg_replace("/:\n+([^\n]+)(?=:)/u", ". $1", $author);
+        // 2) Make sentence from newline (unless the line ends in punctuation already)
+        $author = preg_replace("/(?<![\.,:;])\s*\n+/u", ". ", $author);
+        //contract multiple spaces
+        $author = preg_replace("/\s+/u", " ", $author);
+
+        //some unneeded text which is commonly found in Author attributions,
+        //e.g. File:Black_Ruby_Barb_700.jpg, File:Aspidistra_elatior_Amomokawo_BotGardBln1205.jpg, File:Lumbar_plant_acerleaf_sick.jpg
+        $author = preg_replace("/\(talk\)/ui", "", $author);
+        $author = preg_replace("/^(photo(graph)? |image |picture )?(taken )?by(:| and)?/ui", "", $author);
+
+        //swap copyright text for ©
+        $author = preg_replace("/^\bcopyright\b/ui", "©", $author);
+        $author = preg_replace("/\(c\)/ui", "©", $author);
+
+        //remove copyright sign & potential date (plus comma)
+        $author = preg_replace("/©( *)(\d\d\d\d *,?)?(by)?/", "", $author);
+
+        //replace e.g. &eacute with unicode é
+        $author = WikiParser::mb_trim(html_entity_decode($author));
 
         $agent_parameters = array();
         if($author)
         {
-            $agent_parameters["fullName"] = htmlspecialchars($author);
-            if(php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
-            //TODO - set role = "Creator" as default, and "Recorder" for $mediatype = AUDIO, "Photographer" for  $mediatype = BITMAP
-            $agent_parameters["role"] = 'photographer';
+            $agent_parameters["fullName"] = $author;
+            if(strlen($homepage) && php_active_record\Functions::is_ascii($homepage) && !preg_match("/[\[\]\(\)'\",;\^]/u", $homepage)) $agent_parameters["homepage"] = str_replace(" ", "_", $homepage);
+            if(strlen($email) && php_active_record\Functions::is_ascii($email)) $agent_parameters["email"] = $email;
+            if ($role)
+            {
+                $agent_parameters["role"] = $role;
+            } else {
+                $agent_parameters["role"] = self::$default_role;
+            }
         }
 
         $this->agent_parameters = $agent_parameters;
@@ -580,7 +613,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "author" || $attr == "Author") $author = self::convert_diacritics(WikiParser::strip_syntax($val, true));
+                if($attr === "author" || $attr === "Author") $author = WikiParser::strip_syntax($val, true);
             }
         }
 
@@ -596,7 +629,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "permission" || $attr == "Permission") $rights = self::convert_diacritics(WikiParser::strip_syntax($val, true));
+                if($attr === "permission" || $attr === "Permission") $rights = WikiParser::strip_syntax($val, true);
             }
         }
         $this->rights = $rights;
@@ -612,7 +645,7 @@ class WikimediaPage
         {
             foreach($info as $attr => $val)
             {
-                if($attr == "description" || $attr == "Description")
+                if($attr === "description" || $attr === "Description")
                 {
                     $description = WikiParser::strip_syntax($val, true);
                 }
@@ -631,7 +664,7 @@ class WikimediaPage
         $this->location = false;
         if(count($location = WikiParser::template_as_array($this->active_wikitext(), "(?:[Oo]bject )?[Ll]ocation(?: dec)?")))
         {
-            if(substr($location[0], -3) == "dec")
+            if(substr($location[0], -3) === "dec")
             {
                 // see http://commons.wikimedia.org/wiki/Template:Location_dec
                 if(isset($location[1]) && isset($location[2]) && is_numeric($location[1]) && is_numeric($location[2]))
@@ -744,7 +777,7 @@ class WikimediaPage
     public static $max_titles_per_lookup = 50;
     public static $max_categories_per_lookup = 500;
     // Maximum URL length ~ 8100 chars (https://www.mediawiki.org/wiki/API:FAQ#do_really_long_API_urls_not_work)
-    public static $max_http_chars = 8100; 
+    public static $max_http_chars = 8100;
     // For allowed length of titles string, allow an extra 300 chars for ?action=query&..blah.blah.<TITLES>.continue=blah,blah
     // declare this as a function because static variables can't be initialized using e.g. strlen()
     public static function max_encoded_characters_in_titles() {return self::$max_http_chars - strlen(self::$API_URL) - 300;}
@@ -769,7 +802,7 @@ class WikimediaPage
         if(count($titles) > self::$max_titles_per_lookup)
         {
             echo "ERROR: only allowed a maximum of ". self::$max_titles_per_lookup ." titles in a single API query.\n";
-            return;
+            return $results;
         }elseif(count($titles) == 0) return;
 
         $url .= "&titles=". urlencode(implode("|", $titles));
@@ -868,7 +901,7 @@ class WikimediaPage
         // Work on an array of pages, querying the Mediawiki API about them.
         // If the page is missing or invalid (e.g. has been deleted), then remove it from the array.
         $url = self::$API_URL.'?action=query&format=json&prop=imageinfo%7Ccategories&iiprop=url%7Cmime%7Cmediatype&cllimit='. self::$max_categories_per_lookup .'&redirects';
-        
+
         $titles = array_map(function($page) { return $page->title; }, $array_of_pages);
         $json_array = self::call_API($url, $titles);
         foreach($array_of_pages as $index => &$page)
@@ -879,49 +912,45 @@ class WikimediaPage
             }else
             {
                 $json_info = $json_array[$page->title];
-                $page->initialize_data_object_from_api_response($json_info);
-                $page->initialize_categories_from_api_response($json_info);
+                $page->initialize_data_object_from_api_response($json_info, $url);
+                $page->initialize_categories_from_api_response($json_info, $url);
             }
         }
     }
 
-    private function initialize_data_object_from_api_response($json_info)
+    private function initialize_data_object_from_api_response($json_info, $reference_url)
     {
-        $this->initialize_data_object();
         // set URL, mimetype, mediatype
-        if(isset($json_info['imageinfo']) && isset($json_info['imageinfo'][0]))
+        $url = @$json_info['imageinfo'][0]['url'];
+        $mimetype = @$json_info['imageinfo'][0]['mime'];
+        $mediatype = @$json_info['imageinfo'][0]['mediatype'];
+        $dcmi="";
+        $role="";
+
+        if (empty($url))
         {
-            // URL
-            if(isset($json_info['imageinfo'][0]['url']))
-            {
-                $this->set_mediaURL($json_info['imageinfo'][0]['url']);
-            }else
-            {
-                $this->set_mediaURL("");
-                echo "That's odd. No URL returned in API query for $this->title (in $url)\n";
-            }
-            // mime
-            if(isset($json_info['imageinfo'][0]['mime']))
-            {
-                // TOimage/svg+xml
-                // application/ogg
-                $this->set_mimeType($json_info['imageinfo'][0]['mime']);
-            }else
-            {
-                echo "That's odd. No mimeType returned in API query for $this->title (in $url)\n";
-            }
-            // mediatype
-            if(isset($json_info['imageinfo'][0]['mediatype']))
-            {
-                $this->set_mediatype($json_info['imageinfo'][0]['mediatype']);
-            }else
-            {
-                echo "That's odd. No mediatype returned in API query for $this->title (in $url)\n";
-            }
+            $url = "";
+            echo "That's odd. No URL returned in API query for $this->title (from $reference_url)\n";
+        };
+        if (empty($mimetype))
+        {
+            echo "That's odd. No mimetype returned in API query for $this->title (from $reference_url)\n";
+        };
+        if (empty($mediatype))
+        {
+            echo "That's odd. No mediatype returned in API query for $this->title (from $reference_url)\n";
+        } elseif (!isset(self::$mediatypes[$mediatype]))
+        {
+            echo "Non-compatible mediatype: $mediatype for $this->title (from $reference_url)\n";
+        } else {
+            $dcmi = self::$mediatypes[$mediatype]['dcmitype'];
+            $role = self::$mediatypes[$mediatype]['role'];
         }
+
+        $this->initialize_data_object($url, $mimetype, $dcmi, $role);
     }
 
-    private function initialize_categories_from_api_response($json_info)
+    private function initialize_categories_from_api_response($json_info, $reference_url)
     {
         // fill in categories - this will allow us to check taxonomy, license, & map-type later
         if(isset($json_info['categories']))
@@ -934,12 +963,12 @@ class WikimediaPage
                 }else
                 {
                     $this->add_extra_category($cat['title']);
-                    echo "That's odd. The category ". $cat['title'] ." doesn't start with 'Category:' in API query for $this->title .\n";
+                    echo "That's odd. The category ". $cat['title'] ." doesn't start with 'Category:' in API query for $this->title (from $reference_url).\n";
                 }
             }
         }else
         {
-            echo "That's odd. No categories returned in API query for $this->title (in $url)\n";
+            echo "That's odd. No categories returned in API query for $this->title (from $reference_url)\n";
         }
     }
 
@@ -949,21 +978,12 @@ class WikimediaPage
         return self::call_API($url, $array_of_titles);
     }
 
-    public static function convert_diacritics($string)
-    {
-        $string = str_replace('ä', '&amp;auml;', $string);
-        $string = str_replace('å', '&amp;aring;', $string);
-        $string = str_replace('é', '&amp;eacute;', $string);
-        $string = str_replace('ï', '&amp;iuml;', $string);
-        $string = str_replace('ö', '&amp;ouml;', $string);
-        return $string;
-    }
 }
 
 class TaxonomyParameters
 {
     // listed as most precise to least precise
-    // 'species' is not past of the EoL output, but may be used to construct scientificName later
+    // 'species' is not part of the EoL output, but may be used to construct scientificName later
     public static $wiki_to_standard = array(
             "Species"   => "species",
             "Genus"     => "genus",
@@ -994,7 +1014,7 @@ class TaxonomyParameters
         $wiki_rank = WikiParser::mb_ucfirst(WikiParser::mb_trim($wiki_rank));
         $text = strip_tags(WikiParser::strip_syntax($wikitext));
 
-        if($wiki_rank == 'Authority') return $this->add_info('authority', $text);
+        if($wiki_rank === 'Authority') return $this->add_info('authority', $text);
         if(empty(self::$wiki_to_standard[$wiki_rank])) return "";
         return $this->add_info(self::$wiki_to_standard[$wiki_rank], $text);
     }
@@ -1010,7 +1030,7 @@ class TaxonomyParameters
         }
         // multiple spaces of any sort to single normal space
         $name = preg_replace("/\pZ+/u", " ", $name);
-        if($rank == 'authority')
+        if($rank === 'authority')
         {
             $this->authority = $name;
             return $return_message;
@@ -1023,8 +1043,8 @@ class TaxonomyParameters
         // remove preceeding fossil: e.g. Fossil Pectinidae
         if(preg_match("/^fossil (.*)$/i", $name, $arr)) $name = WikiParser::mb_ucfirst(trim($arr[1]));
         // don't set anything if the string is empty
-        if($name == '') return $return_message;
-        if($rank == 'genus')
+        if($name === '') return $return_message;
+        if($rank === 'genus')
         {
             if(preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
             {
@@ -1044,8 +1064,12 @@ class TaxonomyParameters
                 $this->taxon_params['species'] = $name . ' ' . $this->taxon_params['species'];
             }
         }
-        if($rank == 'species')
+        if($rank === 'species')
         {
+            /* TODO - caution here with virus species names, which can contain multiple words and capitals, something like
+                  if ($this->taxon_params['domain'] != "Viruses") ...
+               only we don't currently store the domain name
+            */
             // multiple words in species (this is the norm)
             if(preg_match("/ /", $name))
             {
@@ -1137,7 +1161,8 @@ class TaxonomyParameters
 
     public function page_younger_than($compare_to)
     {
-        return (strtotime($this->page_timestamp) > strtotime($compare_to->page_timestamp));
+        //kill off warnings about unset timezones (wiki timestamps are always stamped with GMT (Zulu=Z) time)
+        return (@strtotime($this->page_timestamp) > @strtotime($compare_to->page_timestamp));
     }
 
     public function is_less_precise_than($compare_to)

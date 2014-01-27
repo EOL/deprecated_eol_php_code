@@ -4,15 +4,13 @@ namespace php_active_record;
 class WikimediaHarvester
 {
     private $mysqli;
-    private $taxa_pages;
-    private $pageids_to_update;
-    private $pageids_to_ignore;
     private $resource_file;
     private $resource;
 
     function __construct($resource, $files_subdir)
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
+        $this->validMIMEtypes = array('image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/tiff', 'application/ogg', 'audio/ogg', 'audio/webm', 'video/ogg', 'video/webm');
         $this->resource = $resource;
         $this->base_directory_path = DOC_ROOT . $files_subdir;
         $this->part_files = array('base' => $this->base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
@@ -135,8 +133,8 @@ class WikimediaHarvester
             {
                 $current_page .= $line;
                 // this is a new page so reset $current_page
-                if(trim($line) == "<page>") $current_page = $line;
-                elseif(trim($line) == "</page>")
+                if(trim($line) === "<page>") $current_page = $line;
+                elseif(trim($line) === "</page>")
                 {
                     call_user_func($callback, $current_page);
                     $pages_processed++;
@@ -165,7 +163,7 @@ class WikimediaHarvester
                 $include_array = $page->taxonav_as_array("[Tt]axonavigationIncluded[\w\s]*");
                 if(count($include_array))
                 {
-                    $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod' => strtotime($page->timestamp));
+                    $this->taxonav_includes[$page->title] = array('taxo' => $include_array, 'last_mod' => @strtotime($page->timestamp));
                 }else echo "$page->title is not a real TaxonavigationInclude* template\n";
             }elseif($page->contains_template("Taxonavigation"))
             {
@@ -333,15 +331,20 @@ class WikimediaHarvester
                     // neither a taxonomic category, nor a map category, so maybe its a license category
                     else $potential_license_categories[] = $cat;
                 }
-                if($map) $page->set_additionalInformation("<subtype>Map</subtype>");
+                if($map) {
+                    $page->set_additionalInformation("<subtype>Map</subtype>");
+                    $page->reset_role_to_default();
+                }
                 if($potential_license_categories) $page->reassess_licenses_with_additions($potential_license_categories);
             }
             if(!$page->has_license())
             {
                 echo "No valid license category for $page->title (Categories: ".implode("|", $categories_from_API) .")\n";
-                // continue;
+                //NB: as of 2013, about 4000 images don't have valid categories found: ignore these.
+                // See discussion at http://eol.org/forums/4/topics/62
+                continue;
             }
-            if(!$page->has_valid_mime_type())
+            if(!$page->has_valid_mime_type($this->validMIMEtypes))
             {
                 $params = $page->get_data_object_parameters();
                 echo "No valid mime_type category for $page->title (". @$params['mimeType'] .")\n";
@@ -358,8 +361,11 @@ class WikimediaHarvester
             }else
             {
                 $mesg = self::remove_duplicate_taxonomies($taxonomies);
-                if(!empty($mesg)) echo \WikiParser::mb_ucfirst($mesg)."in wikimedia page <$page->title>\n";
-                if($GLOBALS['ENV_DEBUG'] && (count($taxonomies) > 1)) echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
+                if($GLOBALS['ENV_DEBUG'])
+                {
+                    if (!empty($mesg)) echo \WikiParser::mb_ucfirst($mesg)."in wikimedia page <$page->title>\n";
+                    if (count($taxonomies) > 1) echo "Multiple taxonomies in <$page->title>: '".implode("', '", $taxonomies)."'.\n";
+                }
                 $this->taxonomies_for_file[$page->title] = count($taxonomies);
                 $data_object_parameters = $page->get_data_object_parameters();
                 foreach($taxonomies as $taxonomy)
@@ -390,21 +396,21 @@ class WikimediaHarvester
                             // one has an authority, the other doesn't
                             if(empty($this->taxa[$focal_taxon]->authority))
                             {
-                                if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is an identical taxonomy to ".$compare_taxon." but has no authority field, ";
+                                $return_message .= "deleting ".$focal_taxon." which is an identical taxonomy to ".$compare_taxon." but has no authority field, ";
                                 unset($names[$focal_key]);
                                 break;
                             }
                         }elseif(!$this->taxa[$focal_taxon]->page_younger_than($this->taxa[$compare_taxon]))
                         {
                             // both or neither have authorities, so pick the most recently changed page
-                            if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is identical to, but isn't any younger than ".$compare_taxon.", ";
+                            $return_message .= "deleting ".$focal_taxon." which is identical to, but isn't any younger than ".$compare_taxon.", ";
                             unset($names[$focal_key]);
                             break;
                         }
                     }elseif($this->taxa[$focal_taxon]->is_nested_in($this->taxa[$compare_taxon]))
                     {
                         // remove any that are simply parents (e.g. remove 'Homo' if we also have 'Homo sapiens')
-                        if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which is a subset of ".$compare_taxon.", ";
+                        $return_message .= "deleting ".$focal_taxon." which is a subset of ".$compare_taxon.", ";
                         unset($names[$focal_key]);
                         break;
                     }elseif($this->taxa[$focal_taxon]->overlaps_without_conflict($this->taxa[$compare_taxon]))
@@ -413,7 +419,7 @@ class WikimediaHarvester
                         if(($this->taxa[$compare_taxon]->number_of_levels() > 2) &&
                             ($this->taxa[$focal_taxon]->is_less_precise_than($this->taxa[$compare_taxon])))
                         {
-                            if($GLOBALS['ENV_DEBUG']) $return_message .= "deleting ".$focal_taxon." which (while it contains some additional information) is less precise a classification than ".$compare_taxon.", ";
+                            $return_message .= "deleting ".$focal_taxon." which (while it contains some additional information) is less precise a classification than ".$compare_taxon.", ";
                             unset($names[$focal_key]);
                             break;
                         }
@@ -427,7 +433,10 @@ class WikimediaHarvester
     private function check_for_unaccounted_galleries()
     {
         $good_files = array();
-        echo "\n".count($this->galleries_for_file) ." gallery files remain at the end. Most of these are probably misspellings in the gallery text. Checking these out now...\n";
+        echo "\n".count($this->galleries_for_file) ." gallery files remain at the end (often misspellings in the gallery text). These are:\n";
+        foreach ($this->galleries_for_file as $title => $galleries) 
+            echo "  <$title> in galler".(count($this->galleries_for_file[$title])>1?'ies':'y')." <".implode(", ", $galleries).">\n";
+        echo "Checking these out now...\n";
         $titles = array_chunk(array_keys($this->galleries_for_file), \WikimediaPage::$max_titles_per_lookup, true);
         foreach($titles as $batch)
         {
@@ -435,12 +444,9 @@ class WikimediaHarvester
         }
         if(count($good_files))
         {
-            echo "\nMISSED THE FOLLOWING ". count($good_files) ." FILES";
+            echo "\nTHE FOLLOWING ". count($good_files) ." FILES COULD BE HARVESTED, BUT HAVE BEEN OVERLOOKED";
             foreach($good_files as $title => $json)
-            {
-                echo "* <$title> in galler".(count($this->galleries_for_file[$title])>1?'ies':'y');
-                echo " <".implode(", ", $this->galleries_for_file[$title]).">\n";
-            }
+                echo "* <$title>\n";
         }
     }
 
@@ -471,7 +477,8 @@ class WikimediaHarvester
         $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
                         "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
         $cats = array($base_category => 1);
-        if(count($cats) <= 1)
+        // Using toolserver.org seems to only return max ~x500 categories, so its use has been commented out below
+/*        if(count($cats) <= 1)
         {
             $url = $sites["toolserver"].urlencode($base_category);
             $tab_separated_string = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => DOWNLOAD_WAIT_TIME*10, 'timeout' => DOWNLOAD_TIMEOUT_SECONDS*10));
@@ -486,7 +493,7 @@ class WikimediaHarvester
                 echo "Got ".count($cats)." categories from toolserver ($url)\n";
             }else echo "Couldn't get categories from toolserver ($url)\n";
         }
-
+*/
         if(count($cats) <= 1)
         {
             $url = $sites["wmflabs"].urlencode($base_category);
