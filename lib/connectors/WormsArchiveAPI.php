@@ -13,9 +13,10 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        $this->dwca_file = "http://localhost/~eolit/cp/WORMS/WoRMS2EoL.zip";
-        $this->dwca_file = "http://localhost/~eolit/cp/WORMS/Archive.zip";
-        $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";
+        // $this->dwca_file = "http://localhost/~eolit/cp/WORMS/WoRMS2EoL.zip";                    //local
+        // $this->dwca_file = "http://localhost/~eolit/cp/WORMS/Archive.zip";                      //local subset copy
+        // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";   //dropbox copy
+        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";             //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
     }
@@ -87,12 +88,13 @@ class WormsArchiveAPI
             $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon->parentNameUsageID);
             // */
             
-            $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
-            $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
-            $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
-            $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
-            $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
-            $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
+            // $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
+            // $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
+            // $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
+            // $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
+            // $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
+            // $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
+
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
@@ -116,9 +118,8 @@ class WormsArchiveAPI
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
             
-            if (strpos($identifier, "WoRMS:distribution:") !== false) 
+            if (strpos($identifier, "WoRMS:distribution:") !== false)
             {
-                print "\n is distribution: [$identifier]";
                 self::process_distribution($rec);
                 continue;
             }
@@ -172,9 +173,6 @@ class WormsArchiveAPI
             }
 
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $mr->referenceID = $referenceID;
-            
-            if((string) $rec["http://rs.tdwg.org/ac/terms/derivedFrom"]) print "\n derivedFrom: " . $rec["http://rs.tdwg.org/ac/terms/derivedFrom"];
-            if((string) $rec["http://purl.org/dc/terms/spatial"]) print "\n spatial: " . $rec["http://purl.org/dc/terms/spatial"];
             
             $mr->accessURI      = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"];
             $mr->thumbnailURL   = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
@@ -245,9 +243,6 @@ class WormsArchiveAPI
         $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
         $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon_id);
         $catnum = (string) $rec["http://purl.org/dc/terms/identifier"];
-        
-        print "\n [$label]:[$value]";
-        
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
@@ -263,7 +258,6 @@ class WormsArchiveAPI
                 $m->referenceID = $referenceID;
             }
         }
-
         $m->measurementType = $measurementType;
         $m->measurementValue = (string) $value;
         $m->measurementMethod = '';
@@ -284,10 +278,8 @@ class WormsArchiveAPI
 
     private function add_occurrence($taxon_id, $catnum)
     {
-        $occurrence_id = md5($taxon_id . 'o' . $catnum);
         $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
-        // $occurrence_id = md5($taxon->taxonID . 'occurrence'); from environments
-
+        // $occurrence_id = md5($taxon_id . 'occurrence'); from environments
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
@@ -315,11 +307,7 @@ class WormsArchiveAPI
         //     $v->source          = $rec["http://purl.org/dc/terms/source"];
         //     $v->language        = $rec["http://purl.org/dc/terms/language"];
         //     $v->isPreferredName = $rec["http://rs.gbif.org/terms/1.0/isPreferredName"];
-        //     // if(!isset($this->vernacular_name_ids[$vernacular_id]))
-        //     // {
-        //         $this->archive_builder->write_object_to_file($v);
-        //     //     $this->vernacular_name_ids[$vernacular_id] = 1;
-        //     // }
+        //     $this->archive_builder->write_object_to_file($v);
         // }
     }
 
@@ -341,11 +329,7 @@ class WormsArchiveAPI
         //     $r->organization        = (string) $rec["http://eol.org/schema/agent/organization"];
         //     $r->term_accountName    = (string) $rec["http://xmlns.com/foaf/spec/#term_accountName"];
         //     $r->term_openid         = (string) $rec["http://xmlns.com/foaf/spec/#term_openid"];
-        //     // if(!in_array($r->identifier, $this->resource_agent_ids))
-        //     // {
-        //        // $this->resource_agent_ids[] = $r->identifier;
-        //        $this->archive_builder->write_object_to_file($r);
-        //     // }
+        //     $this->archive_builder->write_object_to_file($r);
         // }
     }
     

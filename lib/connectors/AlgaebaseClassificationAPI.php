@@ -14,7 +14,8 @@ class AlgaebaseClassificationAPI
         $this->taxon_ids = array();
         $this->object_ids = array();
         $this->text_path = array();
-        $this->zip_path = "http://localhost/~eolit/AlgaebaseClassification.zip";
+        $this->zip_path = "http://localhost/~eolit/cp/AlgaeBase/AlgaebaseClassification.zip";
+        $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/AlgaeBase/AlgaebaseClassification.zip";
         $this->taxon_link["genus"] = "http://www.algaebase.org/search/genus/detail/?genus_id=";
         $this->taxon_link["species"] = "http://www.algaebase.org/search/species/detail/?species_id=";
         $this->csv_fields["genus"] = array("genus.genus", "genus.id", "genus.sStatus", "ta.taxon_authority", "ta.authority_year", "genus.Synonym_of_id", "empire", "kingdom", "subkingdom", "infrakingdom", "phylum", "subphylum", "class", "subclass", "order", "suborder", "family", "subfamily", "tribe");
@@ -25,6 +26,7 @@ class AlgaebaseClassificationAPI
         $this->not_numeric_id = 0;
         $this->syn_count = 0;
         $this->no_rank = 0;
+        $this->debug = array(); // stats
     }
 
     function get_all_taxa()
@@ -35,14 +37,14 @@ class AlgaebaseClassificationAPI
         self::process_genera_files();
         self::add_higher_level_taxa_to_archive();
         $this->create_archive();
-        
         // remove temp dir
         recursive_rmdir($this->TEMP_FILE_PATH);
         echo ("\n temporary directory removed: " . $this->TEMP_FILE_PATH);
         // some stats
-        echo "\n count: " . $this->not_numeric_id;
+        echo "\n count not numeric: " . $this->not_numeric_id;
         echo "\n synonyms count: " . $this->syn_count;
-        echo "\n no rank: " . $this->no_rank;
+        echo "\n wrong data: " . $this->no_rank;
+        print_r($this->debug);
     }
 
     private function assign_name_and_id()
@@ -71,13 +73,13 @@ class AlgaebaseClassificationAPI
                         if($rec["species.Variety"]) $sciname .= " " . $rec["species.Variety"];
                         if($rec["species.Forma"]) $sciname .= " " . $rec["species.Forma"];
                         $sciname = trim($sciname);
-                        $taxon_id = $rec["species.id"];
-                        $parent = $rec["species.genus_id"];
+                        $taxon_id = "s_" . $rec["species.id"];
+                        $parent = "g_" . $rec["species.genus_id"];
                     }
                     else
                     {
                         $sciname = trim($rec["genus.genus"]);
-                        $taxon_id = $rec["genus.id"];
+                        $taxon_id = "g_" . $rec["genus.id"];
                         $parent = "";
                         if(@$rec["family"]) $parent = @$rec["family"];
                         elseif(@$rec["order"]) $parent = @$rec["order"];
@@ -118,6 +120,7 @@ class AlgaebaseClassificationAPI
         foreach($this->name_id as $taxon_id => $rec)
         {
             if(in_array($rec["sciname"], $exclude)) continue;
+            if(!Functions::is_utf8($rec["sciname"])) continue;
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = (string) $taxon_id;
             $taxon->taxonRank                   = (string) @$rec["rank"];
@@ -129,7 +132,7 @@ class AlgaebaseClassificationAPI
             if(!@$rec["rank"]) 
             {
                 $this->no_rank++;
-                echo "\n no rank: " . $rec["sciname"] . " [$taxon_id]";
+                // echo "\n wrong data: " . $rec["sciname"] . " [$taxon_id]";
             }
             else
             {
@@ -165,10 +168,11 @@ class AlgaebaseClassificationAPI
                     $id = "genus.id";
                     $check_count = 19;
                 }
-                if($rec[$id] == $id) continue;
+                if($rec[$id] == $id) continue; //ignore first row
                 if(!is_numeric($rec[$id]))
                 {
                     $this->not_numeric_id++;
+                    // echo "\n investigate taxon_id not numeric - data not suitable: [$rec[$id]]";
                     continue;
                 }
                 if(count($rec) != $check_count)
@@ -186,10 +190,7 @@ class AlgaebaseClassificationAPI
     private function process_genera_files()
     {
         $genus_taxa = array("eukaryota", "prokaryota");
-        foreach($genus_taxa as $group)
-        {
-            self::process_files($group);
-        }
+        foreach($genus_taxa as $group) self::process_files($group);
     }
 
     function create_instances_from_taxon_object($rec, $rank, $line)
@@ -209,23 +210,31 @@ class AlgaebaseClassificationAPI
             if($rec["species.Variety"]) $sciname .= " " . $rec["species.Variety"];
             if($rec["species.Forma"]) $sciname .= " " . $rec["species.Forma"];
             $sciname = trim($sciname);
-            $taxon_id = $rec["species.id"];
-            if(!is_numeric($taxon_id))
+            $taxon_id = "s_" . $rec["species.id"];
+
+            if(!is_numeric($rec["species.id"])) // stats
             {
-                $taxon_id = self::get_taxon_id($line, $rank);
-                $rec["taxon_id"] = $taxon_id;
+                echo "\n investigate species ID not numeric " . $rec["species.id"];
+                return;
             }
+
             $authorship = $rec["taxon_authority.taxon_authority"];
             if($rec["taxon_authority.authority_year"]) $authorship .= " " . $rec["taxon_authority.authority_year"];
             $sciname = utf8_encode($sciname);
             $authorship = utf8_encode($authorship);
             if($rec["species.Current_flag"] == "U") $taxonomic_status = "uncertain";
             $rank = self::get_rank($rec["species.Record_status"]);
-            $source_url = $this->taxon_link["species"] . $taxon_id;
-            $parentNameUsageID = $rec["species.genus_id"];
+            $source_url = $this->taxon_link["species"] . $rec["species.id"];
+            $parentNameUsageID = "g_" . $rec["species.genus_id"];
 
             $desc = $rec["species.key_Habitat"];
-            if($desc && !in_array(trim($desc), array("none", "None"))) self::get_texts($desc, $taxon_id, '', $this->SPM . '#Habitat', '_habitat', array(), array());
+            if($desc && !in_array(trim($desc), array("none", "None")))
+            {
+                $this->debug[$desc] = "";
+                $habitat = self::format_habitat($desc);
+                self::add_string_types($taxon_id, "Habitat", $habitat, "http://rs.tdwg.org/dwc/terms/habitat");
+                // self::get_texts($desc, $taxon_id, '', $this->SPM . '#Habitat', '_habitat', array(), array()); --- conveted to structured data
+            } 
             $desc = $rec["species.Type_locality"];
             if($desc && !in_array(trim($desc), array("[None given]")))
             {
@@ -239,7 +248,7 @@ class AlgaebaseClassificationAPI
                                         "sciname"             => $sciname,
                                         "authorship"          => $authorship,
                                         "rank"                => $rank,
-                                        "acceptedNameUsageID" => $rec["species.Accepted_name_serial"]);
+                                        "acceptedNameUsageID" => "s_" . $rec["species.Accepted_name_serial"]);
                 self::create_synonym($synonym_record);
                 return;
             }
@@ -247,12 +256,14 @@ class AlgaebaseClassificationAPI
         if($rank == "genus")
         {
             $sciname = trim($rec["genus.genus"]);
-            $taxon_id = $rec["genus.id"];
-            if(!is_numeric($taxon_id)) 
+            $taxon_id = "g_" . $rec["genus.id"];
+            
+            if(!is_numeric($rec["genus.id"])) // stats
             {
-                $taxon_id = self::get_taxon_id($line, $rank);
-                $rec["taxon_id"] = $taxon_id;
+                echo "\n investigate genus ID not numeric ". $rec["genus.id"];
+                return;
             }
+            
             $authorship = $rec["ta.taxon_authority"];
             if($rec["ta.authority_year"]) $authorship .= " " . $rec["ta.authority_year"];
 
@@ -291,16 +302,10 @@ class AlgaebaseClassificationAPI
                                         "sciname"             => $sciname,
                                         "authorship"          => $authorship,
                                         "rank"                => $rank,
-                                        "acceptedNameUsageID" => $rec["genus.Synonym_of_id"]);
+                                        "acceptedNameUsageID" => "g_" . $rec["genus.Synonym_of_id"]);
                 self::create_synonym($synonym_record);
                 return;
             }
-        }
-
-        if(!is_numeric($taxon_id)) 
-        {
-            echo "\n investigate 04";
-            print_r($rec);
         }
 
         $sciname = self::remove_brackets($sciname);
@@ -309,10 +314,8 @@ class AlgaebaseClassificationAPI
         if(!$sciname) return;
         if(is_numeric(stripos($sciname, "unassigned"))) return;
         if(!Functions::is_utf8($sciname) || !Functions::is_utf8($authorship)) return;
-        
-        echo "\n sciname: [$sciname]";
-        echo "\n authorship: [$authorship]\n";
-        
+
+        // debug("\n sciname: [$sciname] [$authorship]");
         $taxon = new \eol_schema\Taxon();
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonID                     = (string) $taxon_id;
@@ -322,7 +325,7 @@ class AlgaebaseClassificationAPI
         $taxon->taxonomicStatus             = (string) $taxonomic_status;
         $taxon->furtherInformationURL       = (string) $source_url;
         $taxon->parentNameUsageID           = $parentNameUsageID;
-        // $taxon->taxonRemarks                = $taxon_remarks;
+        // $taxon->taxonRemarks                = $taxon_remarks; // no decision yet
         
         if(!$parentNameUsageID) 
         {
@@ -336,13 +339,30 @@ class AlgaebaseClassificationAPI
             if(!$rank)
             {
                 $this->no_rank++;
-                echo "\n no rank2: " . $sciname [$taxon_id];
+                echo "\n no rank2: [$sciname] [$taxon_id]";
             }
         }
-        else echo "\n already exists: [$taxon->taxonID]";
-        return $taxon_id;
+        // else echo "\n already exists: [$taxon->taxonID] [$sciname] [$taxon_id]";
     }
 
+    private function format_habitat($desc)
+    {
+        $desc = trim(strtolower($desc));
+        if    ($desc == "freshwater")               return "http://purl.obolibrary.org/obo/ENVO_00002037";
+        elseif($desc == "marine/freshwater")        return "http://eol.org/schema/terms/freshwaterAndMarine";
+        elseif($desc == "brackish")                 return "http://purl.obolibrary.org/obo/ENVO_00000570";
+        elseif($desc == "ubiquitous")               return "http://eol.org/schema/terms/ubiquitous";
+        elseif($desc == "marine")                   return "http://purl.obolibrary.org/obo/ENVO_00000569";
+        elseif($desc == "terrestrial")              return "http://purl.obolibrary.org/obo/ENVO_00002009";
+        elseif($desc == "marine/terrestrial")       return "http://eol.org/schema/terms/terrestrialAndMarine";
+        elseif($desc == "freshwater/terrestrial")   return "http://eol.org/schema/terms/terrestrialAndFreshwater";
+        else
+        {
+            echo "\n investigate undefined habitat [$desc]\n";
+            return $desc;
+        }
+    }
+    
     private function remove_brackets($string)
     {
         return trim(preg_replace('/\s*\[[^)]*\]/', '', $string)); //remove brackets []
@@ -352,9 +372,7 @@ class AlgaebaseClassificationAPI
     {
         if($rank == "species") $index = 0;
         else $index = 1;
-        echo "\n line: [$line] \n";
         $line = explode(',', $line);
-        print_r($line);
         return $line[$index];
     }
 
@@ -377,12 +395,8 @@ class AlgaebaseClassificationAPI
     
     private function create_synonym($rec)
     {
+        if(!Functions::is_utf8($rec["sciname"])) return;
         $synonym = new \eol_schema\Taxon();
-        if(!is_numeric($rec["taxon_id"])) 
-        {
-            echo "\n investigate 03";
-            print_r($rec);
-        }
         $rec["sciname"] = self::remove_brackets($rec["sciname"]);
         $rec["authorship"] = self::remove_brackets($rec["authorship"]);
         if(!Functions::is_utf8($rec["sciname"]) || !Functions::is_utf8($rec["authorship"])) return;
@@ -413,7 +427,7 @@ class AlgaebaseClassificationAPI
         $mr->type = 'http://purl.org/dc/dcmitype/Text';
         $mr->language = 'en';
         $mr->format = 'text/html';
-        $mr->furtherInformationURL = $this->taxon_link["species"] . $taxon_id;
+        $mr->furtherInformationURL = $this->taxon_link["species"] . str_replace("s_", "", $taxon_id);
         $mr->description = $description;
         $mr->CVterm = $subject;
         $mr->title = $title;
@@ -428,39 +442,43 @@ class AlgaebaseClassificationAPI
         $this->archive_builder->write_object_to_file($mr);
     }
 
-    // private function get_agent_ids($agent)
-    // {
-    //     $agent_ids = array();
-    //     $agent = (string) trim($agent);
-    //     if(!$agent) return;
-    // 
-    //     $r = new \eol_schema\Agent();
-    //     $r->term_name = $agent;
-    //     $r->identifier = md5("$agent|author");
-    //     $r->agentRole = "author";
-    //     $r->term_homepage = "http://www.iucn-tftsg.org/";
-    //     $agent_ids[] = $r->identifier;
-    //     if(!in_array($r->identifier, $this->resource_agent_ids)) 
-    //     {
-    //        $this->resource_agent_ids[] = $r->identifier;
-    //        $this->archive_builder->write_object_to_file($r);
-    //     }
-    //     return $agent_ids;
-    // }
-    
     function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
+        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
+    }
+
+    private function add_string_types($taxon_id, $label, $value, $mtype)
+    {
+        $catnum = "h";
+        $m = new \eol_schema\MeasurementOrFact();
+        $occurrence = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence->occurrenceID;
+        $m->measurementOfTaxon = 'true';
+        $m->source = $this->taxon_link["species"] . str_replace("s_", "", $taxon_id);
+        $m->contributor = 'AlgaeBase';
+        $m->measurementType = $mtype;
+        $m->measurementValue = $value;
+        $m->measurementMethod = '';
+        $this->archive_builder->write_object_to_file($m);
+    }
+
+    private function add_occurrence($taxon_id, $catnum)
+    {
+        $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
+        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = $o;
+        return $o;
     }
 
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, DOWNLOAD_WAIT_TIME, 999999, 5))
+        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 2)))
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];

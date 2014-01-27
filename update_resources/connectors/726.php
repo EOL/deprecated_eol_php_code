@@ -1,17 +1,19 @@
 <?php
 namespace php_active_record;
 /*
-WORMS archive
-Now partner provides/hosts a DWC-A file. Connector also converts Distribution text into structured data.
-estimated execution time: 2.78 hours
+execution time: 1 minute
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/WormsArchiveAPI');
+require_library('connectors/RotifersTypeSpecimenAPI');
+
 $timestart = time_elapsed();
-$resource_id = 26;
-$func = new WormsArchiveAPI($resource_id);
+$resource_id = 726;
+$func = new RotifersTypeSpecimenAPI($resource_id);
+
 $func->get_all_taxa();
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000) // orig 1000
+
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {
@@ -22,8 +24,10 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
 }
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
+echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
