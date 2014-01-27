@@ -208,7 +208,7 @@ class ContentArchiveReader
                     $parameters['archive_table_definition'] =& $table_definition;
                     foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                     {
-                        $parameters['archive_line_number'] = $line_number + 1;
+                        $parameters['archive_line_number'] = $line_number;
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
                         $fields = $this->parse_table_row($table_definition, $line, $parameters);
                         if($fields == "this is the break message") break;
@@ -223,7 +223,7 @@ class ContentArchiveReader
                     $lines = explode($table_definition->lines_terminated_by, $file_contents);
                     foreach($lines as $line_number => $line)
                     {
-                        $parameters['archive_line_number'] = $line_number + 1;
+                        $parameters['archive_line_number'] = $line_number;
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
                         $fields = $this->parse_table_row($table_definition, $line, $parameters);
                         if($fields == "this is the break message") break;

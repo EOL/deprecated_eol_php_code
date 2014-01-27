@@ -113,7 +113,7 @@ class SparqlClient
     {
         if(!isset($this->data_waiting_for_insert[$options['graph_name']])) $this->data_waiting_for_insert[$options['graph_name']] = array();
         $this->data_waiting_for_insert[$options['graph_name']] = array_merge($this->data_waiting_for_insert[$options['graph_name']], $options['data']);
-        if(count($this->data_waiting_for_insert[$options['graph_name']]) >= 5000)
+        if(count($this->data_waiting_for_insert[$options['graph_name']]) >= 2000)
         {
             $this->insert_data(array('graph_name' => $options['graph_name'], 'data' => $this->data_waiting_for_insert[$options['graph_name']]));
             $this->data_waiting_for_insert[$options['graph_name']] = array();
@@ -156,7 +156,12 @@ class SparqlClient
                 curl_close($ch);
                 return $result;
             }
-            echo 'Curl error: ' . curl_error($ch);
+            echo "\n\n=========================================\n";
+            echo 'Curl error: ' . curl_error($ch) . "\n\n";
+            echo "$query\n\n";
+            print_r($options);
+            print_r(serialize($options['data']));
+            echo "===========================================\n\n";
             return false;
         }
     }
@@ -177,23 +182,28 @@ class SparqlClient
         }
     }
 
-    public function update($query)
+    public function update($query, $options = array())
     {
-        return $this->query($query);
+        return $this->query($query, $options);
     }
 
     public function delete_graph($graph_name)
     {
         if(!$graph_name) return;
-        $this->update("CLEAR GRAPH <$graph_name>");
+        $this->update("CLEAR GRAPH <$graph_name>", array('log_enable' => true));
         $this->update("DROP SILENT GRAPH <$graph_name>");
     }
 
-    public function query($query)
+
+    public function query($query, $options = array())
     {
         $query = self::append_namespaces_to_query($query);
+        if(isset($options['log_enable']))
+        {
+            $query = "DEFINE sql:log-enable 3 ". $query;
+        }
         $query_url = $this->endpoint_uri . "?format=application/json&query=" . urlencode($query);
-        $decoded_response = json_decode(file_get_contents($query_url));
+        $decoded_response = json_decode(Functions::get_remote_file($query_url, array('timeout' => 900))); // 15 minutes
         return $decoded_response->results->bindings;
     }
 }

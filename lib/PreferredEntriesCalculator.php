@@ -49,9 +49,9 @@ class PreferredEntriesCalculator
     {
         $query = "SELECT tc.id taxon_concept_id, he.id hierarchy_entry_id, he.visibility_id, he.vetted_id, v.view_order vetted_view_order, h.id hierarchy_id, h.browsable, h.label
             FROM taxon_concepts tc
-            JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id)
-            JOIN hierarchies h ON (he.hierarchy_id=h.id)
-            JOIN vetted v ON (he.vetted_id=v.id)
+            STRAIGHT_JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id)
+            STRAIGHT_JOIN hierarchies h ON (he.hierarchy_id=h.id)
+            STRAIGHT_JOIN vetted v ON (he.vetted_id=v.id)
             WHERE tc.id BETWEEN $start AND ". ($start+$limit) ." AND he.published=1";
         static $j = 0;
         $all_entries = array();

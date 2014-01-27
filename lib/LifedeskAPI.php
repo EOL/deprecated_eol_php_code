@@ -193,8 +193,8 @@ class LifeDeskAPI
             foreach($ahe as $k => $v)
             {
                 $return .= "          <NameSource>\n";
-                $return .= "            <Simple>".htmlspecialchars($v->agent->display_name)."</Simple>\n";
-                $return .= "            <Role>".htmlspecialchars($v->agent_role->translation->label)."</Role>\n";
+                $return .= "            <Simple>".htmlspecialchars($v->agent->full_name)."</Simple>\n";
+                if($v->agent_role) $return .= "            <Role>".htmlspecialchars($v->agent_role->translation->label)."</Role>\n";
                 $return .= "          </NameSource>\n";
             }
             $return .= "        </NameSources>\n";

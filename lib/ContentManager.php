@@ -268,12 +268,14 @@ class ContentManager
         // other - xml, html, pdf
         elseif(preg_match("/^xml( |$)/i", $file_type) || preg_match("/xml$/i", $file_type)) $new_suffix = "xml";
         elseif(preg_match("/^pdf( |$)/i", $file_type))                                  $new_suffix = "pdf";
+        elseif($suffix == "csv" && preg_match("/^html /i", $file_type))                 $new_suffix = "csv";
         elseif(preg_match("/^html( |$)/i", $file_type))                                 $new_suffix = "html";
         elseif(preg_match("/ Excel(,|$)/i", $file_type))                                $new_suffix = "xls";
         elseif($suffix == "xml" && preg_match("/^utf-8 unicode /i", $file_type))        $new_suffix = "xml";
         elseif($suffix == "xml" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "xml";
         elseif($suffix == "csv" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "csv";
-        elseif($suffix == "csv" && preg_match("/english text/i", $file_type))          $new_suffix = "csv";
+        elseif($suffix == "csv" && preg_match("/english text/i", $file_type))           $new_suffix = "csv";
+        elseif($suffix == "csv" && preg_match("/^utf-8 unicode /i", $file_type))        $new_suffix = "csv";
         elseif($suffix == "xml" && preg_match("/^ASCII English text/i", $file_type))    $new_suffix = "xml";
         // some XML files like BibAlex's resource doesnt have an extension and just has a utf-8 descriptor
         elseif(preg_match("/^utf-8 unicode /i", $file_type))                            $new_suffix = "xml";
@@ -379,7 +381,7 @@ class ContentManager
     {
         $rotate = "-auto-orient";
         if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quality 80";
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quiet -quality 80";
         $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
@@ -389,7 +391,7 @@ class ContentManager
     function create_smaller_version($path, $dimensions, $prefix, $suffix)
     {
         //don't need to rotate, as this works on already-rotated version
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quality 80 \
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quiet -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
         $new_image_path = $prefix ."_". $suffix .".jpg";
         shell_exec($command." ".$new_image_path);
@@ -424,14 +426,14 @@ class ContentManager
                 $new_x_offset = floatval($options['x_offset']) * $offset_factor;
                 $new_y_offset = floatval($options['y_offset']) * $offset_factor;
 
-                $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 -gravity NorthWest \
+                $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80 -gravity NorthWest \
                         -crop ".$new_crop_width."x".$new_crop_width."+".$new_x_offset."+".$new_y_offset." +repage \
                         -resize ".$dimensions[0]."x".$dimensions[0];
             }
         }else
         {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
-            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quality 80 \
+            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80 \
                             -resize ".$dimensions[0]."x".$dimensions[0]."^ \
                             -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[0]."+0+0 +repage";
         }
@@ -443,7 +445,7 @@ class ContentManager
     function create_constrained_square_crop($path, $dimensions, $prefix)
     {
         // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quality 80 \
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quiet -quality 80 \
                         -resize '".$dimensions[0]."x".$dimensions[0]."' -gravity center \
                         -extent '".$dimensions[0]."x".$dimensions[0]."' +repage";
         $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[0].".jpg";
@@ -481,7 +483,6 @@ class ContentManager
     {
         if(!$options['data_search_file_id']) return false;
         $file_path = CONTENT_DATASET_PATH . "eol_download_" . $options['data_search_file_id'];
-        if(file_exists($temp_file_path)) unlink($temp_file_path);
         return $file_path;
     }
 

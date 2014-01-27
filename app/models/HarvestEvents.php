@@ -532,9 +532,47 @@ class HarvestEvent extends ActiveRecord
         }
     }
 
+    function create_taxa_graph()
+    {
+        $sparql_client = SparqlClient::connection();
+        $graph_name = $this->resource->virtuoso_graph_name() ."/eol_taxa";
+        $sparql_client->delete_graph($graph_name);
+
+        $query = "SELECT he.id, n.string, he.parent_id, he.taxon_concept_id
+          FROM hierarchy_entries he
+          JOIN names n ON (he.name_id=n.id)
+          WHERE he.hierarchy_id = ". $this->resource->hierarchy_id ."
+          AND he.visibility_id = ". Visibility::visible()->id ."
+          AND he.published = 1";
+        $data = array();
+        $count_added = 0;
+        foreach($GLOBALS['db_connection']->iterate_file($query) as $row)
+        {
+            $he_id = $row[0];
+            $name = $row[1];
+            $parent_he_id = $row[2];
+            $taxon_concept_id = $row[3];
+            $taxon_uri = $this->resource->virtuoso_graph_name() ."/eol_taxa/$he_id";
+            $parent_taxon_uri = $parent_he_id ? $this->resource->virtuoso_graph_name() ."/eol_taxa/$parent_he_id" : NULL;
+            $taxon_concept_uri = "http://eol.org/pages/$taxon_concept_id";
+            $data[] = "<$taxon_uri> a dwc:Taxon";
+            if($name) $data[] = "<$taxon_uri> dwc:scientificName ". SparqlClient::enclose_value($name);
+            if($parent_taxon_uri) $data[] = "<$taxon_uri> dwc:parentNameUsageID <$parent_taxon_uri>";
+            $data[] = "<$taxon_uri> dwc:taxonConceptID <$taxon_concept_uri>";
+            if(count($data) >= 5000)
+            {
+                echo "added: $count_added\n";
+                $sparql_client->insert_data(array('data' => $data, 'graph_name' => $graph_name));
+                $count_added += count($data);
+                $data = array();
+            }
+        }
+        $sparql_client->insert_data(array('data' => $data, 'graph_name' => $graph_name));
+    }
+
     function send_emails_about_outlier_harvests()
     {
-        if(defined('SPG_EMAIL_ADDRESS') && defined('PLEARY_EMAIL_ADDRESS'))
+        if(defined('SPG_EMAIL_ADDRESS') && defined('PLEARY_EMAIL_ADDRESS') && defined('ELI_EMAIL_ADDRESS'))
         {
             if(abs($this->percent_different_data_objects()) > 10 ||
                 abs($this->percent_different_hierarchy_entries()) > 10)
@@ -563,7 +601,7 @@ class HarvestEvent extends ActiveRecord
                 $headers = 'From: no-reply@eol.org' . "\r\n" .
                     'Reply-To: no-reply@eol.org' . "\r\n" .
                     'X-Mailer: PHP/' . phpversion();
-                $to      = implode(", ", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS));
+                $to      = implode(", ", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS, ELI_EMAIL_ADDRESS));
                 mail($to, $subject, $message, $headers);
             }
         }

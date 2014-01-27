@@ -418,7 +418,7 @@ class WikimediaPage
 
     public function has_valid_mime_type()
     {
-        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'application/ogg', 'image/svg+xml', 'image/tiff', 'image/x-xcf');
+        static $valid_mime_types = array('image/png', 'image/jpeg', 'image/gif', 'application/ogg', 'image/svg+xml', 'image/tiff');
         if(empty($this->data_object_parameters['mimeType'])) return false;
         if(!in_array($this->data_object_parameters['mimeType'], $valid_mime_types)) return false;
         return true;
@@ -634,7 +634,7 @@ class WikimediaPage
             if(substr($location[0], -3) == "dec")
             {
                 // see http://commons.wikimedia.org/wiki/Template:Location_dec
-                if(isset($location[1]) && isset($location[2]))
+                if(isset($location[1]) && isset($location[2]) && is_numeric($location[1]) && is_numeric($location[2]))
                 {
                     $this->georef["latitude"] = $location[1];
                     $this->georef["longitude"] = $location[2];

@@ -32,7 +32,7 @@ class CompareHierarchies
             $hierarchy_lookup_ids2[$row['id']] = $row['count'];
         }
         $hierarchy_lookup_ids2[800] = 1;
-        asort($hierarchy_lookup_ids2);
+        arsort($hierarchy_lookup_ids2);
 
         // if the function is passed a hierarchy_id then make the first loop just that hierarchy
         // otherwise make the first loop the same as the inner loop - compare everything with everything else

@@ -90,7 +90,8 @@ class Taxon extends DarwinCoreExtensionBase
         'unavailable, incorrect orig. spelling',
         'nomen dubium',
         'unnecessary replacement',
-        'unavailable, nomen nudum'
+        'unavailable, nomen nudum',
+        'heterotypicSynonym'
         );
     public static function valid_taxon_status($v)
     {

@@ -42,7 +42,7 @@ class FlattenHierarchies
         
         $result = $this->mysqli->query("SELECT DISTINCT c.id child_id, p.id parent_id, p.taxon_concept_id
             FROM hierarchy_entries c
-            JOIN hierarchy_entries p ON (c.parent_id=p.id)
+            LEFT JOIN hierarchy_entries p ON (c.parent_id=p.id)
             WHERE c.taxon_concept_id = $taxon_concept_id
             AND c.published=1
             AND c.visibility_id IN ($this->visibile_id, $this->preview_id)
@@ -51,21 +51,26 @@ class FlattenHierarchies
         {
             $ancestor_entry_ids = array();
             $ancestor_concept_ids = array();
-            $result2 = $this->mysqli->query("SELECT ancestor_id FROM hierarchy_entries_flattened WHERE hierarchy_entry_id = ". $row['parent_id']);
-            while($result2 && $row2=$result2->fetch_assoc())
+            if($row['parent_id'])
             {
-                $ancestor_entry_ids[] = $row2['ancestor_id'];
+                $result2 = $this->mysqli->query("SELECT ancestor_id FROM hierarchy_entries_flattened WHERE hierarchy_entry_id = ". $row['parent_id']);
+                while($result2 && $row2=$result2->fetch_assoc())
+                {
+                    $ancestor_entry_ids[] = $row2['ancestor_id'];
+                }
+                $ancestor_entry_ids[] = $row['parent_id'];
             }
-            $ancestor_entry_ids[] = $row['parent_id'];
-            
-            $result2 = $this->mysqli->query("SELECT ancestor_id FROM taxon_concepts_flattened WHERE taxon_concept_id = ". $row['taxon_concept_id']);
-            while($result2 && $row2=$result2->fetch_assoc())
+            if($row['taxon_concept_id'])
             {
-                $ancestor_concept_ids[] = $row2['ancestor_id'];
+                $result2 = $this->mysqli->query("SELECT ancestor_id FROM taxon_concepts_flattened WHERE taxon_concept_id = ". $row['taxon_concept_id']);
+                while($result2 && $row2=$result2->fetch_assoc())
+                {
+                    $ancestor_concept_ids[] = $row2['ancestor_id'];
+                }
+                $ancestor_concept_ids[] = $row['taxon_concept_id'];
             }
-            $ancestor_concept_ids[] = $row['taxon_concept_id'];
-            
-            $this->flatten_hierarchies_recursive($row['parent_id'], $ancestor_entry_ids, $ancestor_concept_ids, $row['child_id']);
+            if($row['parent_id']) $this->flatten_hierarchies_recursive($row['parent_id'], $ancestor_entry_ids, $ancestor_concept_ids, $row['child_id']);
+            else $this->flatten_hierarchies_recursive($row['child_id'], array($row['child_id']), array($taxon_concept_id));
         }
         
         $this->load_data_from_temporary_files();
