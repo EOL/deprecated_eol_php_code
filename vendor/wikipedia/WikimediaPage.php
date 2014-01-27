@@ -22,6 +22,8 @@ class WikimediaPage
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
 
+    private static $GALLERIES_UNRELATED_TO_TAXON = array('Related species');
+
     function __construct($xml)
     {
         $this->xml = $xml;
@@ -47,7 +49,7 @@ class WikimediaPage
                 {
                     $this->redirect = (string) $this->simple_xml->query->pages->page['redirect']->attributes()->title;
                 }
-            }else
+            }elseif($this->simple_xml)
             {
                 $this->text = (string) $this->simple_xml->revision->text;
                 $this->title = (string) $this->simple_xml->title;
@@ -709,6 +711,7 @@ class WikimediaPage
     {
         $media = array();
         $text = $this->active_wikitext();
+        $text = $this->remove_unrelated_species_text($text);
         $lines = explode("\n", $text);
         foreach($lines as $line)
         {
@@ -722,6 +725,17 @@ class WikimediaPage
             }
         }
         return $media;
+    }
+
+    public function remove_unrelated_species_text($text)
+    {
+        // This will remove galleries of images for 'related' but not the same taxon.
+        // See #DATA-749, http://commons.wikimedia.org/wiki/Boletus
+        if(preg_match("/(==(". implode("|", self::$GALLERIES_UNRELATED_TO_TAXON) .")==\s*<gallery>.*?<\/gallery>)/iums", $text, $arr))
+        {
+            $text = str_replace($arr[1], '', $text);
+        }
+        return $text;
     }
 
     public function contains_template($template)
