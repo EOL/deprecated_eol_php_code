@@ -102,7 +102,7 @@ class ContentManager
         return null;
     }
 
-    function download_temp_file_and_assign_extension($file_path_or_uri, $options = array())
+    public static function download_temp_file_and_assign_extension($file_path_or_uri, $options = array())
     {
         if(!isset($options['is_resource'])) $options['is_resource'] = false;
         if(@!$options['unique_key']) $options['unique_key'] = Functions::generate_guid();

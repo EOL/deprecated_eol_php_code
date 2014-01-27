@@ -37,6 +37,7 @@ class RubyNameParserClient
         foreach($processlist as $line)
         {
             if(preg_match("/:[0-9]{2}:[0-9]{2} parserver$/", trim($line))) return true;
+            if(preg_match("/bin\/parserver$/", trim($line))) return true;
             if(preg_match("/parserver -r --output=canonical/", trim($line))) return true;
         }
         return false;

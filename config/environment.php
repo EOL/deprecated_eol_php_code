@@ -84,13 +84,15 @@ php_active_record\require_vendor('eol_content_schema_v2');
 
 
 /* For content downloading */
-# where harvested media will be downloaded to (mnust be web accessible)
+# where harvested media will be downloaded to (must be web accessible)
 if(!defined('CONTENT_LOCAL_PATH'))          define('CONTENT_LOCAL_PATH',            DOC_ROOT . 'applications/content_server/content/');
-# where harvested media will eb temporarily stored before being moved the above directory
+# where harvested media will be temporarily stored before being moved the above directory
 if(!defined('CONTENT_TEMP_PREFIX'))         define('CONTENT_TEMP_PREFIX',           DOC_ROOT . 'applications/content_server/tmp/');
 # where resource XML files will be downloaded to
 if(!defined('CONTENT_RESOURCE_LOCAL_PATH')) define('CONTENT_RESOURCE_LOCAL_PATH',   DOC_ROOT . 'applications/content_server/resources/');
 if(!defined('CONTENT_GNI_RESOURCE_PATH'))   define('CONTENT_GNI_RESOURCE_PATH',     DOC_ROOT . 'applications/content_server/gni_tcs_files/');
+# where datasets prepared by app servers will reside (must be web accessible)
+if(!defined('CONTENT_DATASET_PATH'))        define('CONTENT_DATASET_PATH',          DOC_ROOT . 'applications/content_server/datasets/');
 
 // this may not be needed anymore
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
