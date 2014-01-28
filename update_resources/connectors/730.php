@@ -1,15 +1,15 @@
 <?php
 namespace php_active_record;
 /*
-NCBI GGI queries (DATA-1369)
-Partner provides a service to query their data using family names
+Need structured data connector for GGBN Queries for GGI  (DATA-1372)
+Partner provides a data portal to grab their data using family names
 estimated execution time:
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');
 $timestart = time_elapsed();
-$resource_id = 723;
-$func = new NCBIGGIqueryAPI($resource_id, "ncbi_sequence_info");
+$resource_id = 730;
+$func = new NCBIGGIqueryAPI($resource_id, "ggbn_dna_specimen_info");
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1) // orig 1000
 {
