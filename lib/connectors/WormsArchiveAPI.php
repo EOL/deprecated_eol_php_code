@@ -83,18 +83,12 @@ class WormsArchiveAPI
             $taxon->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon->taxonID);
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
             
-            // /* debug commented during preview phase
-            $taxon->parentNameUsageID  = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
-            $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon->parentNameUsageID);
-            // */
+            if($taxon->scientificName != "Biota")
+            {
+                $taxon->parentNameUsageID  = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
+                $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon->parentNameUsageID);
+            }
             
-            // $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
-            // $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
-            // $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
-            // $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
-            // $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
-            // $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
-
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
@@ -139,7 +133,10 @@ class WormsArchiveAPI
             $mr->subtype        = (string) $rec["http://rs.tdwg.org/audubon_core/subtype"];
             $mr->Rating         = (string) $rec["http://ns.adobe.com/xap/1.0/Rating"];
             $mr->audience       = (string) $rec["http://purl.org/dc/terms/audience"];
-            $mr->language       = (string) $rec["http://purl.org/dc/terms/language"];
+            
+            if($val = trim((string) $rec["http://purl.org/dc/terms/language"])) $mr->language = $val;
+            else                                                                $mr->language = "en";
+            
             $mr->format         = (string) $rec["http://purl.org/dc/terms/format"];
             $mr->title          = (string) $rec["http://purl.org/dc/terms/title"];
             $mr->CVterm         = (string) $rec["http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm"];
