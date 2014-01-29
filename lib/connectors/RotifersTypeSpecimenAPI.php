@@ -19,6 +19,7 @@ class RotifersTypeSpecimenAPI
         $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/type_specimen.zip";
         $this->text_path = array();
         $this->identified_by = array();
+        $this->habitats = array();
     }
 
     function get_all_taxa()
@@ -29,18 +30,26 @@ class RotifersTypeSpecimenAPI
         require_library('connectors/FishBaseAPI');
         $func = new FishBaseAPI();
 
-        $fields = array("lngSpeciesSenior_ID", "lngSpecies_ID", "lngRepository_ID", "strCatNr", "lngPrepMeth_ID", "lngPersPrep_ID", "lngPersID2_ID", "lngPersID3_ID", "bytCountPrep", "lngDocuTypeSpecimen", "lngPrep_ID", "txtPrepNotes", "lngPersIdent_ID", "lngSpecimen_ID");
+        $fields = array("lngSpeciesSenior_ID", "lngSpecies_ID", "lngRepository_ID", "strCatNr", "lngPrepMeth_ID", "lngPersPrep_ID", "lngPersID2_ID", "lngPersID3_ID", "bytCountPrep", "lngDocuTypeSpecimen", "lngPrep_ID", "txtPrepNotes", "lngSpecimen_ID", "strTypeStat", "lngLoc_ID", "strLocName", "txtLocDescr", "sngElevation", "sngLatitudeWGS84", "sngLongitudeWGS84", "lngMacrohabitat_ID", "lngPermanency_ID", "strDepth", "lngGeology_ID", "lngSpecLocal_ID");
         $records_specimen = $func->make_array($this->text_path["sd_specimen"], $fields, "", array());
         array_shift($records_specimen);
+        $fields = array("lngPersIdent_ID", "lngSpecimen_ID");
+        $records_specimen_identifier = $func->make_array($this->text_path["sd_specimen_identifier"], $fields, "", array());
+        array_shift($records_specimen_identifier);
+        $fields = array("lngSpeciesSenior_ID", "lngMacroMicro_ID");
+        $records_habitat = $func->make_array($this->text_path["sd_macro_locality"], $fields, "", array());
+        array_shift($records_habitat);
 
+        /*
         $fields = array("lngLoc_ID", "strLocName", "txtLocDescr", "sngElevation", "sngLatitudeWGS84", "sngLongitudeWGS84", "lngMacrohabitat_ID", "lngPermanency_ID", "strDepth", "lngGeology_ID", "lngSpecLocal_ID", "lngSpecimen_ID", "lngSpeciesSenior_ID", "lngSpecies_ID");
         $records_locality = $func->make_array($this->text_path["sd_locality"], $fields, "", array());
         array_shift($records_locality);
+        */
 
-        $this->assemble_identified_by($records_specimen);
+        $this->assemble_identified_by($records_specimen_identifier);
         $this->create_instances_from_taxon_object($records_specimen, "specimen");
-        $this->create_instances_from_taxon_object($records_locality, "locality");
-
+        // $this->create_instances_from_taxon_object($records_locality, "locality");
+        $this->create_instances_from_taxon_object($records_habitat, "habitat");
         $this->create_archive();
 
         // remove temp dir
@@ -56,10 +65,10 @@ class RotifersTypeSpecimenAPI
         foreach($records_specimen as $rec)
         {
             $id = $rec["lngSpecimen_ID"];
-            if($rec["lngPersIdent_ID"])
+            if($identifier = $rec["lngPersIdent_ID"])
             {
-                if(isset($this->identified_by[$id])) $this->identified_by[$id] .= ", " . $rec["lngPersIdent_ID"];
-                else $this->identified_by[$id] = $rec["lngPersIdent_ID"];
+                if(isset($this->identified_by[$id])) $this->identified_by[$id] .= ", " . $identifier;
+                else $this->identified_by[$id] = $identifier;
             }
         }
     }
@@ -72,46 +81,70 @@ class RotifersTypeSpecimenAPI
         $i = 0;
         foreach($records as $rec)
         {
-            // $i++; if($i >= 50) return; // debug - used on preview mode
-            
-            $sciname = trim(str_replace('"', '', $rec["lngSpecies_ID"]));
+            if($type == "habitat") $sciname = $rec["lngSpeciesSenior_ID"];
+            else                   $sciname = $rec["lngSpecies_ID"];
+            $sciname = trim(str_replace('"', '', $sciname));
             
             // manual adjustment
             if(!$sciname) continue; // blank
-            if(stripos($sciname, "Philadelphia") !== false) continue;
-            if(stripos($sciname, "Good slide") !== false) continue;
-            if(stripos($sciname, "Natural has") !== false) continue;
-            if(in_array($sciname, array("-n.s.-", "0435", "0228", "MRAC", "NUM", "CDJ", "USNM", "ANSP", "0267", "0141", "Jersabek, C D", "Myers, F J", "Segers, H"))) continue;
+            if(in_array(substr($sciname,0,1), array("0","1","2","3","4","5","6","7","8","9"))) continue;
             
-            $taxon_id = str_replace(" ", "_", $sciname);
+            $taxon_id = md5(str_replace(" ", "_", $sciname));
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                       = $taxon_id;
             $taxon->scientificName                = $sciname;
             $this->taxa[$taxon->taxonID] = $taxon;
             $rec["taxon_id"] = $taxon_id;
             $rec["sciname"] = $sciname;
+            
             if($type == "locality")
             {
-                if(!isset($processed_locality[$rec["lngLoc_ID"]]))
-                {
-                    $rec["catnum"] = $rec["lngLoc_ID"];
-                    self::process_locality($rec);
-                    $processed_locality[$rec["lngLoc_ID"]] = 1;
-                }
+                // if(!isset($processed_locality[$rec["lngLoc_ID"]]))
+                // {
+                //     $rec["catnum"] = $rec["lngLoc_ID"];
+                //     self::process_locality($rec);
+                //     $processed_locality[$rec["lngLoc_ID"]] = 1;
+                // }
             }
             elseif($type == "specimen")
             {
-                if(!isset($processed_specimen[$rec["lngSpecimen_ID"]]))
+                if($lngSpecimen_ID = $rec["lngSpecimen_ID"])
                 {
-                    $rec["catnum"] = $rec["lngSpecimen_ID"];
-                    self::process_specimen($rec);
-                    $processed_specimen[$rec["lngSpecimen_ID"]] = 1;
+                    if(!isset($processed_specimen[$lngSpecimen_ID]))
+                    {
+                        $rec["catnum"] = $lngSpecimen_ID;
+                        self::process_specimen($rec);
+                        $processed_specimen[$lngSpecimen_ID] = 1;
+                    }
+                }
+            }
+            elseif($type == "habitat")
+            {
+                $habitats = explode("/", $rec["lngMacroMicro_ID"]);
+                foreach($habitats as $habitat)
+                {
+                    $habitat = trim($habitat);
+                    if($habitat != "-" && $habitat)
+                    {
+                        $rec["catnum"] = md5($sciname . "|" . $habitat);
+                        $rec["habitat"] = $habitat;
+                        self::process_habitat($rec);
+                    }
                 }
             }
         }
     }
 
-    private function process_locality($rec)
+    private function process_habitat($rec)
+    {
+        $habitat = trim(str_replace('"', '', $rec["habitat"]));
+        $habitat = utf8_encode($habitat);
+        $this->habitats[$habitat] = 1;
+        if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat");
+        if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+    }
+
+    private function process_locality($rec, $sciname)
     {
         /*
         ick, for these you need to get to tblLocality via tblSpecimenLocality, using IngSpecimen_ID and IngLoc_ID
@@ -122,21 +155,23 @@ class RotifersTypeSpecimenAPI
         (Locality) sngLongitudeWGS84-> Decimal Longitude
         (Locality) IngMacrohabitat_ID, IngPermanency_ID, "water depth="strDepth, "Geology="IngGeology->concatenated into Field Notes, skip those last two if blank?
         */
-        // "lngLoc_ID", "", "", "", "", "", "", "", "", "", "lngSpecLocal_ID", "lngSpecimen_ID", "lngSpeciesSenior_ID", "lngSpecies_ID");
         
-        $sciname = $rec["sciname"];
         $locality = "";
         if($val = $rec["strLocName"])
         {
             if($locality) $locality .= ". " . $val;
             else $locality = $val;
         }
+        /* this is now removed in locality e.g. "From Meksuwan et al. (2011) [Ref.18509]"
         if($val = $rec["txtLocDescr"])
         {
             if($locality) $locality .= ". " . $val;
             else $locality = $val;
         }
+        */
         $locality = trim(str_replace('"', '', $locality));
+        $locality = utf8_encode($locality);
+        $locality = str_ireplace("??", "", $locality);
         if(in_array($locality, array("-"))) $locality = "";
 
         $verbatim_elevation = trim(str_ireplace(" m", "", $rec["sngElevation"]));
@@ -169,15 +204,11 @@ class RotifersTypeSpecimenAPI
         $field_notes = trim(str_replace('"', '', $field_notes));
         if(in_array($field_notes, array("-"))) $field_notes = "";
 
-        if($val = $locality)
-        {
-                                            self::add_string_types($rec, "Locality", $val, "http://rs.tdwg.org/dwc/terms/locality");
-            if($val = $latitude)            self::add_string_types($rec, "Latitude", $val, "http://rs.tdwg.org/dwc/terms/decimalLatitude");
-            if($val = $longitude)           self::add_string_types($rec, "Longitude", $val, "http://rs.tdwg.org/dwc/terms/decimalLongitude");
-            if($val = $verbatim_elevation)  self::add_string_types($rec, "Verbatim elevation", $val, "http://rs.tdwg.org/dwc/terms/verbatimElevation");
-            if($val = $field_notes)         self::add_string_types($rec, "Field notes", $val, "http://rs.tdwg.org/dwc/terms/fieldNotes");
-            if($val = $sciname)             self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-        }
+        if($val = $locality)            self::add_string_types($rec, "Locality", $val, "http://rs.tdwg.org/dwc/terms/locality");
+        if($val = $latitude)            self::add_string_types($rec, "Latitude", $val, "http://rs.tdwg.org/dwc/terms/decimalLatitude");
+        if($val = $longitude)           self::add_string_types($rec, "Longitude", $val, "http://rs.tdwg.org/dwc/terms/decimalLongitude");
+        if($val = $verbatim_elevation)  self::add_string_types($rec, "Verbatim elevation", $val, "http://rs.tdwg.org/dwc/terms/verbatimElevation");
+        if($val = $field_notes)         self::add_string_types($rec, "Field notes", $val, "http://rs.tdwg.org/dwc/terms/fieldNotes");
     }
 
     private function process_specimen($rec)
@@ -198,31 +229,48 @@ class RotifersTypeSpecimenAPI
         $sciname = $rec["sciname"];
         $institution_code = $rec["lngRepository_ID"];
         $catalog_no = (string) $rec["strCatNr"];
-        $preparations = $rec["lngPrepMeth_ID"];
+        
+        // $preparations = $rec["lngPrepMeth_ID"]; -- replaced by $rec["lngPrep_ID"] ("Microscope slide" replaced by "female")
+        $preparations = $rec["lngPrep_ID"];
         $preparations = str_replace('"', '', $preparations);
         
         $count_of_individuals = $rec["bytCountPrep"];
-        $identified_by = $this->identified_by[$rec["lngSpecimen_ID"]];
+        $identified_by = @$this->identified_by[$rec["lngSpecimen_ID"]];
         $identified_by = str_replace('"', '', $identified_by);
-        
+
         $remarks = "";
         if($val = $rec["lngDocuTypeSpecimen"])
         {
             if($remarks) $remarks .= ". " . $val;
             else $remarks = $val;
         }
-        if($val = $rec["lngPrep_ID"])
+        /* this is now removed in MeasurementRemarks
+        if($val = $rec["lngPrep_ID"]) // e.g. "female"
         {
             if($remarks) $remarks .= ". " . $val;
             else $remarks = $val;
         }
+        */
         if($val = $rec["txtPrepNotes"])
         {
             if($remarks) $remarks .= ". " . $val;
             else $remarks = $val;
         }
         $remarks = trim(str_replace('"', '', $remarks));
+        $remarks = utf8_encode($remarks);
+        $remarks = str_ireplace("??", "", $remarks);
         if(in_array($remarks, array("-"))) $remarks = "";
+
+        // if($sciname == "Collotheca orchidacea Meksuwan, Pholpunthin et Segers, 2013") //debug
+        // {
+        //     echo "\n\n lngDocuTypeSpecimen: " . $rec["lngDocuTypeSpecimen"];
+        //     echo "\n lngPrep_ID: " . $rec["lngPrep_ID"];
+        //     echo "\n txtPrepNotes:" . $rec["txtPrepNotes"];
+        //     echo "\n lngPrepMeth_ID:" . $rec["lngPrepMeth_ID"];
+        //     echo "\n";
+        //     echo "\n preparations: [$preparations]";
+        //     echo "\n remarks: [$remarks]\n";
+        // }
 
         $recorded_by = "";
         if($val = $rec["lngPersPrep_ID"])
@@ -242,32 +290,36 @@ class RotifersTypeSpecimenAPI
         }
         $recorded_by = str_replace('"', '', $recorded_by);
         
-        if($val = $preparations)
+        $type = self::format_type_data($rec["strTypeStat"], $rec);
+        
+        if($val = $type)
         {
-                                                self::add_string_types($rec, "Preparations", $val, "http://rs.tdwg.org/dwc/terms/preparations", $remarks);
+                                                self::add_string_types($rec, "Type information", $val, "http://eol.org/schema/terms/TypeInformation", $remarks);
+            if($val = $preparations)            self::add_string_types($rec, "Preparations", $val, "http://rs.tdwg.org/dwc/terms/preparations");
             if($val = $institution_code)        self::add_string_types($rec, "Institution code", $val, "http://rs.tdwg.org/dwc/terms/institutionCode");
             if($val = $catalog_no)              self::add_string_types($rec, "Catalog number", $val, "http://rs.tdwg.org/dwc/terms/catalogNumber");
             if($val = $count_of_individuals)    self::add_string_types($rec, "Count of individuals", $val, "http://rs.tdwg.org/dwc/terms/individualCount");
             if($val = $identified_by)           self::add_string_types($rec, "Identified by", $val, "http://rs.tdwg.org/dwc/terms/identifiedBy");
             if($val = $recorded_by)             self::add_string_types($rec, "Recorded by", $val, "http://rs.tdwg.org/dwc/terms/recordedBy");
             if($val = $sciname)                 self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+            self::process_locality($rec, $sciname);
         }
     }
 
     private function add_string_types($rec, $label, $value, $mtype, $measurementRemarks = null)
     {
         $taxon_id = $rec["taxon_id"];
-        $catnum = $rec["catnum"]; // two diff sources for locality and specimen datasets
+        $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
 
-        if(in_array($label, array("Preparations", "Locality")))
+        if(in_array($label, array("Type information")))
         {
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = $measurementRemarks;
             $m->source = $this->page_by_guid . $rec["lngSpecimen_ID"];
-            $m->contributor = 'Rotifer World Catalog'; // if this doesn't work then use the 'contributor' implementation above that are commented
+            $m->contributor = 'Rotifer World Catalog';
         }
         
         if($label == "Verbatim elevation") $m->measurementUnit = "http://purl.obolibrary.org/obo/UO_0000008";
@@ -277,6 +329,40 @@ class RotifersTypeSpecimenAPI
         $this->archive_builder->write_object_to_file($m);
     }
 
+    private function format_type_data($type, $rec)
+    {
+        $type = str_ireplace("?", "", $type);
+        $type = trim(strtolower($type));
+        if    ($type == "allotype")  return "http://rs.tdwg.org/ontology/voc/TaxonName#Allotype";
+        elseif($type == "holotype")  return "http://rs.tdwg.org/ontology/voc/TaxonName#Holotype";
+        elseif($type == "iconotype") return "http://rs.tdwg.org/ontology/voc/TaxonName#Iconotype";
+        elseif($type == "lectotype") return "http://rs.tdwg.org/ontology/voc/TaxonName#Lectotype";
+        elseif($type == "neotype")   return "http://rs.tdwg.org/ontology/voc/TaxonName#Neotype";
+        elseif(in_array($type, array("paralectotype", "paralectotypes"))) return "http://rs.tdwg.org/ontology/voc/TaxonName#Paralectotype";
+        elseif(in_array($type, array("paratype", "paratypes")))           return "http://rs.tdwg.org/ontology/voc/TaxonName#Paratype";
+        elseif(in_array($type, array("syntype", "syntypes")))             return "http://rs.tdwg.org/ontology/voc/TaxonName#Syntype";
+        elseif(in_array($type, array("type", "type material")))           return "http://rs.tdwg.org/ontology/voc/TaxonName#Type";
+        elseif($type == "topotypic material")                             return "http://rs.tdwg.org/ontology/voc/TaxonName#Topotype";
+        else
+        {
+            if(in_array($type, array("holotype + allotype", "syntypes + allotype")))
+            {
+                echo "\n special process of type [$type]\n";
+                $types = explode(" + ", $type);
+                foreach($types as $type)
+                {
+                    echo "\n [$type]";
+                    $rec["strTypeStat"] = $type;
+                    self::process_specimen($rec);
+                }
+                return false;
+            }
+            
+            if(!in_array($type, array("check!", "check this !!"))) echo "\n investigate undefined type [$type]\n";
+            return false;
+        }
+    }
+    
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
@@ -306,13 +392,14 @@ class RotifersTypeSpecimenAPI
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("tar -xzf $temp_file_path -C $this->TEMP_FILE_PATH");
-            if(!file_exists($this->TEMP_FILE_PATH . "/species.txt")) 
+            if(!file_exists($this->TEMP_FILE_PATH . "/sd_specimen.txt")) 
             {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
                 if(!file_exists($this->TEMP_FILE_PATH . "/sd_specimen.txt")) return;
             }
             $this->text_path["sd_specimen"] = $this->TEMP_FILE_PATH . "/sd_specimen.txt";
-            $this->text_path["sd_locality"] = $this->TEMP_FILE_PATH . "/sd_locality.txt";
+            $this->text_path["sd_specimen_identifier"] = $this->TEMP_FILE_PATH . "/sd_specimen_identifier.txt";
+            $this->text_path["sd_macro_locality"] = $this->TEMP_FILE_PATH . "/sd_macro_locality.txt";
         }
         else
         {
