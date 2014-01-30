@@ -6,7 +6,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
 define("WIKI_PREFIX", "http://commons.wikimedia.org/wiki/");
-require_vendor("wikipedia");
+require_package("wikipedia");
 
 
 $w = new WikimediaHarvester(Resource::find(71), "update_resources/connectors/files/");

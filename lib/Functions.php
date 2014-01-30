@@ -1442,9 +1442,9 @@ class Functions
     public static function language_to_iso_code()
     {
         $iso_639_2_codes = array();
-        if(file_exists(DOC_ROOT . 'vendor/wikipedia/iso_639_2.txt'))
+        if(file_exists(DOC_ROOT . 'packages/wikipedia/iso_639_2.txt'))
         {
-            $lines = file(DOC_ROOT . 'vendor/wikipedia/iso_639_2.txt');
+            $lines = file(DOC_ROOT . 'packages/wikipedia/iso_639_2.txt');
             foreach($lines as $line)
             {
                 $line = rtrim($line, "\n");

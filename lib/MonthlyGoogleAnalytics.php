@@ -381,7 +381,7 @@ class MonthlyGoogleAnalytics
         if($start_date < "2011-09-01") self::$profile_name = V1_PROFILE_NAME;
         else                           self::$profile_name = V2_PROFILE_NAME;
         $final = array();
-        require_once(DOC_ROOT . 'vendor/Google_Analytics_API_PHP/analytics_api.php');
+        require_once(DOC_ROOT . 'packages/Google_Analytics_API_PHP/analytics_api.php');
         $login = GOOGLE_ANALYTICS_API_USERNAME;
         $password = GOOGLE_ANALYTICS_API_PASSWORD;
         $id = '';

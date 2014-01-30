@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-require_once DOC_ROOT . '/vendor/vimeo-vimeo-php-lib-a32ff71/vimeo.php';
+require_once DOC_ROOT . '/packages/vimeo-vimeo-php-lib-a32ff71/vimeo.php';
 
 /* connector: 214 
 Connector makes use of the Advanced Vimeo API to generate the EOL XML.

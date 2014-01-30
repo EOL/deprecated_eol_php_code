@@ -77,10 +77,10 @@ php_active_record\require_library('ContentArchiveValidator');
 php_active_record\require_library('RelateHierarchies');
 php_active_record\require_library('FlattenHierarchies');
 php_active_record\require_library('SparqlClient');
-php_active_record\require_vendor('eol_content_schema');
-php_active_record\require_vendor('solr');
-php_active_record\require_vendor('darwincore');
-php_active_record\require_vendor('eol_content_schema_v2');
+php_active_record\require_package('eol_content_schema');
+php_active_record\require_package('solr');
+php_active_record\require_package('darwincore');
+php_active_record\require_package('eol_content_schema_v2');
 
 
 /* For content downloading */

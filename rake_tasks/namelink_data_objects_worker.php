@@ -2,7 +2,7 @@
 namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-require_vendor('namelink');
+require_package('namelink');
 $GLOBALS['ENV_DEBUG'] = false;
 ob_implicit_flush();
 @ob_end_flush();

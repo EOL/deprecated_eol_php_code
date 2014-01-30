@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 require_library('connectors/VimeoAPI');
-require_once DOC_ROOT . '/vendor/vimeo-vimeo-php-lib-a32ff71/vimeo.php';
+require_once DOC_ROOT . '/packages/vimeo-vimeo-php-lib-a32ff71/vimeo.php';
 class test_connector_vimeo_api extends SimpletestUnitBase
 {
     function testVimeoAPI()

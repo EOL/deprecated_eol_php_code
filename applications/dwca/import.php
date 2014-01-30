@@ -1,7 +1,7 @@
 <?php
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_vendor('darwincore');
+require_package('darwincore');
 
 
 

@@ -6,7 +6,7 @@ class test_archive_validator extends SimpletestUnitBase
     function setUp()
     {
         parent::setUp();
-        recursive_rmdir_contents(DOC_ROOT . "vendor/eol_content_schema_v2/extension_cache/");
+        recursive_rmdir_contents(DOC_ROOT . "packages/eol_content_schema_v2/extension_cache/");
         $this->archive_directory = DOC_ROOT . "tmp/test_archive_validator/";
         // delete the contents of the created archive
         if(!file_exists($this->archive_directory)) mkdir($this->archive_directory);

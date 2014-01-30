@@ -10,7 +10,7 @@ class XLSParser
     
     public function convert_sheet_to_array($spreadsheet, $sheet = NULL, $startRow = NULL)
     {
-        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
+        require_once DOC_ROOT . '/packages/PHPExcel/Classes/PHPExcel.php';
         
         if(!isset($this->open_spreadsheets)) $this->open_spreadsheets = array();
         $ext = strtolower(end(explode('.', $spreadsheet)));

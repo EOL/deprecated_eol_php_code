@@ -2,8 +2,8 @@
 
 define('USING_SPM', true);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// require_vendor('rdfapi-php');
-require_vendor('rdf');
+// require_package('rdfapi-php');
+require_package('rdf');
 
 
 

@@ -1,8 +1,8 @@
 <?php
 namespace php_active_record;
 
-require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
-require_once(DOC_ROOT . 'vendor/simpletest/web_tester.php');
+require_once(DOC_ROOT . 'packages/simpletest/autorun.php');
+require_once(DOC_ROOT . 'packages/simpletest/web_tester.php');
 
 class SimpletestWebBase extends \WebTestCase
 {
