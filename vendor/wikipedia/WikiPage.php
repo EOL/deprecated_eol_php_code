@@ -4,19 +4,38 @@ class WikiPage
 {
     public $xml;
     private $simple_xml;
+    public static $API_URL = 'http://en.wikipedia.org/w/api.php';
     
     function __construct($xml)
     {
         $this->xml = $xml;
         $this->simple_xml = simplexml_load_string($this->xml);
-        $this->text = (string) $this->simple_xml->revision->text;
-        $this->title = (string) $this->simple_xml->title;
-        $this->pageid = (string) $this->simple_xml->id;
-        $this->contributor = (string) $this->simple_xml->revision->contributor->username;
-        $this->revision = (string) $this->simple_xml->revision->id;
-        $this->timestamp = (string) $this->simple_xml->revision->timestamp;
+        // this is from the API, not the dump
+        if(preg_match("/^<\?xml version=\"1\.0\"\?><api><query>/", $xml))
+        {
+            $this->text = (string) $this->simple_xml->query->pages->page->revisions->rev;
+            $this->title = (string) $this->simple_xml->query->pages->page['title'];
+            $this->pageid = (string) $this->simple_xml->query->pages->page['pageid'];
+            $this->contributor = (string) $this->simple_xml->query->pages->page->revisions->rev['user'];
+            $this->revision = (string) $this->simple_xml->query->pages->page->revisions->rev['revid'];
+            $this->timestamp = (string) $this->simple_xml->query->pages->page->revisions->rev['timestamp'];
+        }elseif($this->simple_xml)
+        {
+            $this->text = (string) $this->simple_xml->revision->text;
+            $this->title = (string) $this->simple_xml->title;
+            $this->pageid = (string) $this->simple_xml->id;
+            $this->contributor = (string) $this->simple_xml->revision->contributor->username;
+            $this->revision = (string) $this->simple_xml->revision->id;
+            $this->timestamp = (string) $this->simple_xml->revision->timestamp;
+        }
     }
-    
+
+    public static function from_api($title)
+    {
+        $api_url = self::$API_URL.'?action=query&format=xml&prop=revisions&titles='. urlencode($title) .'&rvprop=ids|timestamp|user|content&redirects';
+        return new WikiPage(php_active_record\Functions::get_remote_file($api_url));
+    }
+
     public function is_scientific()
     {
         if(preg_match("/\n *\| *(regnum|phylum|classis|superordo|ordo|familia|genus|species|binomial|subspecies|variety|trinomial) *=/i", $this->xml)) return true;
@@ -103,7 +122,7 @@ class WikiPage
         if(isset($this->taxonomy)) return $this->taxonomy;
         
         $taxonomy = array();
-        if(preg_match("/(\{\{Taxobox.*?\}\})(.*)/msi", $this->text, $arr))
+        if(preg_match("/(\{\{\s*Taxobox.*?\}\})(.*)/msi", $this->text, $arr))
         {
             // this is a work around to make sure entire taxobox contents are retrieved
             list($taxobox, $junk) = WikiParser::balance_tags("{{", "}}", $arr[1], $arr[2], true);
@@ -243,7 +262,7 @@ class WikiPage
         if($taxon_rank!='familia' && $v = @$taxonomy['familia']) $taxon_parameters['family'] = $v;
         if($taxon_rank!='genus' && $v = @$taxonomy['genus']) $taxon_parameters['genus'] = $v;
         $taxon_parameters['scientificName'] = $taxon_name;
-        $taxon_parameters["source"] = "http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $this->title) ."&oldid=". $this->revision;
+        $taxon_parameters["source"] = "http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $this->title);
         $taxon_parameters['commonNames'] = $this->common_names($taxon_name);
         
         if($taxon_rank == 'familia' || @$taxon_parameters['family'] || @$taxon_parameters['species'] || @$taxon_parameters['genus'])
