@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 
-require_once(DOC_ROOT . "packages/text_statistics/TextStatistics.php");
+require_once(DOC_ROOT . "vendor/text_statistics/TextStatistics.php");
 
 class PageRichnessCalculator
 {

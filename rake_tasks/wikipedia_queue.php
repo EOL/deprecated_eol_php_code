@@ -2,7 +2,7 @@
 namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../config/environment.php");
-require_package('wikipedia');
+require_vendor('wikipedia');
 
 $result = $GLOBALS["db_connection"]->query("SELECT * FROM wikipedia_queue WHERE harvested_at IS NULL");
 while($result && $row=$result->fetch_assoc())

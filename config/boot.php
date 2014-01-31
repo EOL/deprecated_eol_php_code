@@ -1,7 +1,7 @@
 <?php
 
 /* Spyc is our YAML parser */
-require_once dirname(__FILE__) . '/../packages/spyc/spyc.php';
+require_once dirname(__FILE__) . '/../vendor/spyc/spyc.php';
 
 if(strtolower(substr(php_uname(), 0, 3)) == 'win') define('SYSTEM_OS', 'Windows');
 else define('SYSTEM_OS', 'Unix');
@@ -24,14 +24,14 @@ if(!defined('MYSQL_BIN_PATH')) define('MYSQL_BIN_PATH', 'mysql ');
 
 
 
-require_all_classes_recursively(DOC_ROOT . 'packages/php_active_record/classes/');
+require_all_classes_recursively(DOC_ROOT . 'vendor/php_active_record/classes/');
 
 if(defined('USING_SPM') && USING_SPM)
 {
-    require_once(DOC_ROOT . "packages/rdfapi-php/api/RdfAPI.php");
+    require_once(DOC_ROOT . "vendor/rdfapi-php/api/RdfAPI.php");
     require_once(DOC_ROOT . "lib/Functions.php");
-    require_once(DOC_ROOT . "packages/rdf/RDFDocument.php");
-    require_once(DOC_ROOT . "packages/rdf/RDFDocumentElement.php");
+    require_once(DOC_ROOT . "vendor/rdf/RDFDocument.php");
+    require_once(DOC_ROOT . "vendor/rdf/RDFDocumentElement.php");
 }else require_all_classes_recursively(DOC_ROOT . 'app/models/');
 
 set_exception_handler(array('php_active_record\ActiveRecordError', 'handleException'));

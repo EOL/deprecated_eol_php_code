@@ -36,7 +36,7 @@ class FlickrAPI
             $taxa = array();
             $total_pages = 20;
             $per_page = 100;
-            require_package('eol_content_schema_v2');
+            require_vendor('eol_content_schema_v2');
             $archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/temp/flickr_dwc/"));
             for($i=1 ; $i<=$total_pages ; $i++)
             {

@@ -1,9 +1,10 @@
 <?php
 namespace php_active_record;
 
-require_once(DOC_ROOT . 'packages/simpletest/autorun.php');
+require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
+require_once(DOC_ROOT . 'vendor/simpletest/web_tester.php');
 
-class SimpletestUnitBase extends \UnitTestCase
+class SimpletestWebBase extends \WebTestCase
 {
     function setUp()
     {
@@ -11,7 +12,7 @@ class SimpletestUnitBase extends \UnitTestCase
         static $last_called_class = "";
         if($last_called_class != $called_class_name)
         {
-            echo "UnitTest => $called_class_name\n";
+            echo "WebTest => $called_class_name\n";
             $last_called_class = $called_class_name;
         }
         

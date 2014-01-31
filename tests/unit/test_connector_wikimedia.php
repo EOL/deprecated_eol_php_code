@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-require_package('wikipedia');
+require_vendor('wikipedia');
 
 class test_connector_wikimedia extends SimpletestUnitBase
 {

@@ -97,9 +97,9 @@ update_resources/connectors/readmeli.txt
 update_resources/connectors/run.bat
 update_resources/connectors/set.php
 update_resources/connectors/XML_check.php
-packages/eol_content_schema_v2/extension_cache/*
-!packages/eol_content_schema_v2/extension_cache/.gitignore
-packages/google_api/config.php
+vendor/eol_content_schema_v2/extension_cache/*
+!vendor/eol_content_schema_v2/extension_cache/.gitignore
+vendor/google_api/config.php
 
 .DS_Store
 

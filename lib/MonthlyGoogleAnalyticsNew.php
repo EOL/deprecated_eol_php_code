@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-require_once DOC_ROOT . 'packages/google_api_php_client/src/Google_Client.php';
-require_once DOC_ROOT . 'packages/google_api_php_client/src/contrib/Google_AnalyticsService.php';
+require_once DOC_ROOT . 'vendor/google_api_php_client/src/Google_Client.php';
+require_once DOC_ROOT . 'vendor/google_api_php_client/src/contrib/Google_AnalyticsService.php';
 define("PAGE_METRICS_TEXT_PATH", DOC_ROOT . "applications/taxon_page_metrics/text_files/");
 
 class MonthlyGoogleAnalyticsNew

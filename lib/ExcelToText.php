@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-require_once DOC_ROOT . '/packages/PHPExcel/Classes/PHPExcel.php';
+require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
 
 class ExcelToText
 {

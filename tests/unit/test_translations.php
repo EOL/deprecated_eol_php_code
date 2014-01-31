@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 
-require_package('eol_content_schema');
+require_vendor('eol_content_schema');
 
 class test_translations extends SimpletestUnitBase
 {    

@@ -145,9 +145,9 @@ function render_template($filename, $parameters = NULL, $return = false)
     return false;
 }
 
-function require_package($module)
+function require_vendor($module)
 {
-    $module_path = DOC_ROOT . "packages/$module/module.php";
+    $module_path = DOC_ROOT . "vendor/$module/module.php";
     require_once($module_path);
 }
 

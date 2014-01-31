@@ -2,7 +2,7 @@
 namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_package('google_api');
+require_vendor('google_api');
 
 $spreadsheet_tables_api = new \google_api\GoogleSpreadsheetsAPI($GLOBALS['GOOGLE_USERNAME'], $GLOBALS['GOOGLE_PASSWORD'], @$_SESSION['GOOGLE_AUTH_TOKEN'], 'Hotlist Spreadsheet Reader');
 

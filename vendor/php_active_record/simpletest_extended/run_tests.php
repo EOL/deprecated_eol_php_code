@@ -7,9 +7,9 @@ require_once(__DIR__ . '/../../../config/environment.php');
 // and fail if there is an issue. SimpleTest would trap the error otherwise
 $GLOBALS['db_connection']->query('select 1');
 
-require_once(DOC_ROOT . 'packages/simpletest/autorun.php');
-require_once(DOC_ROOT . 'packages/php_active_record/simpletest_extended/simpletest_unit_base.php');
-require_once(DOC_ROOT . 'packages/php_active_record/simpletest_extended/simpletest_web_base.php');
+require_once(DOC_ROOT . 'vendor/simpletest/autorun.php');
+require_once(DOC_ROOT . 'vendor/php_active_record/simpletest_extended/simpletest_unit_base.php');
+require_once(DOC_ROOT . 'vendor/php_active_record/simpletest_extended/simpletest_web_base.php');
 
 $test_name = @$_GET["test"];
 if(!$test_name && @$argv[2]) $test_name = $argv[2];
