@@ -21,8 +21,17 @@ class WikimediaPage
 
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
-
     private static $GALLERIES_UNRELATED_TO_TAXON = array('Related species');
+
+    // For details see http://commons.wikimedia.org/w/api.php
+    public static $API_URL = 'http://commons.wikimedia.org/w/api.php';
+    public static $max_titles_per_lookup = 50;
+    public static $max_categories_per_lookup = 500;
+    // Maximum URL length ~ 8100 chars (https://www.mediawiki.org/wiki/API:FAQ#do_really_long_API_urls_not_work)
+    public static $max_http_chars = 8100;
+    // For allowed length of titles string, allow an extra 300 chars for ?action=query&..blah.blah.<TITLES>.continue=blah,blah
+    // declare this as a function because static variables can't be initialized using e.g. strlen()
+    public static function max_encoded_characters_in_titles() {return self::$max_http_chars - strlen(self::$API_URL) - 300;}
 
     function __construct($xml)
     {
@@ -785,17 +794,6 @@ class WikimediaPage
         }
         return $tnav_array;
     }
-
-    // For details see http://commons.wikimedia.org/w/api.php
-    public static $API_URL = 'http://commons.wikimedia.org/w/api.php';
-    public static $max_titles_per_lookup = 50;
-    public static $max_categories_per_lookup = 500;
-    // Maximum URL length ~ 8100 chars (https://www.mediawiki.org/wiki/API:FAQ#do_really_long_API_urls_not_work)
-    public static $max_http_chars = 8100;
-    // For allowed length of titles string, allow an extra 300 chars for ?action=query&..blah.blah.<TITLES>.continue=blah,blah
-    // declare this as a function because static variables can't be initialized using e.g. strlen()
-    public static function max_encoded_characters_in_titles() {return self::$max_http_chars - strlen(self::$API_URL) - 300;}
-
 
     public static function call_API(&$url, $titles)
     {
