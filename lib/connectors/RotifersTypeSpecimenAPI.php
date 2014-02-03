@@ -314,11 +314,11 @@ class RotifersTypeSpecimenAPI
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
 
-        if(in_array($label, array("Type information")))
+        if(in_array($label, array("Type information", "Habitat")))
         {
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = $measurementRemarks;
-            $m->source = $this->page_by_guid . $rec["lngSpecimen_ID"];
+            if($label == "Type information") $m->source = $this->page_by_guid . $rec["lngSpecimen_ID"];
             $m->contributor = 'Rotifer World Catalog';
         }
         
@@ -347,11 +347,9 @@ class RotifersTypeSpecimenAPI
         {
             if(in_array($type, array("holotype + allotype", "syntypes + allotype")))
             {
-                echo "\n special process of type [$type]\n";
                 $types = explode(" + ", $type);
                 foreach($types as $type)
                 {
-                    echo "\n [$type]";
                     $rec["strTypeStat"] = $type;
                     self::process_specimen($rec);
                 }

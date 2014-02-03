@@ -70,6 +70,7 @@ class USDAfsfeisAPI
         // sub-sub-sub-topics ==================================================================================
         $this->sub_sub_subtopics["Movements and home range"] = array("Daily activity", "Seasonal movements and migration", "Dispersal", "Home range");
         $this->sub_sub_subtopics["Life span and survival"] = array("Predators", "Diseases and parasites", "Malnutrition and weather", "Fawn survival", "Hunting", "Calf survival");
+        $this->download_options = array('download_wait_time' => 1500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
 
     private function find_spm_given_subject($subject)
@@ -98,7 +99,7 @@ class USDAfsfeisAPI
         foreach($this->main_groups as $kingdom => $group)
         {
             echo "\n Group: $group";
-            if($html = Functions::get_remote_file($this->fsfeis_domain . $group . "/index.html", array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
+            if($html = Functions::lookup_with_cache($this->fsfeis_domain . $group . "/index.html", $this->download_options))
             {
                 if(preg_match("/Choose one of the following(.*?)<\/ol>/ims", $html, $arr)) $html = trim($arr[1]);
                 else continue;
@@ -129,7 +130,7 @@ class USDAfsfeisAPI
                     ))) continue;
                     */
                     
-                    if($html = Functions::get_remote_file($filename, array('download_wait_time' => 5000000, 'timeout' => 240, 'download_attempts' => 5)))
+                    if($html = Functions::lookup_with_cache($filename, $this->download_options))
                     {
                         if(preg_match("/Common Name(.*?)<\/table>/ims", $html, $arr))
                         {
@@ -205,7 +206,7 @@ class USDAfsfeisAPI
         $agent_ids = array();
         $descriptions = array();
         echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'];
-        if($html = Functions::get_remote_file($rec['url'], array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
+        if($html = Functions::lookup_with_cache($rec['url'], $this->download_options))
         {
             $html = str_ireplace('href="all.html#', 'href="#', $html);
             $html = str_ireplace(array("<br />", "<br >", "<br/>"), "<br>", trim($html));
@@ -1729,7 +1730,7 @@ class USDAfsfeisAPI
     private function generate_glossary_terms()
     {
         $url = "http://www.fs.fed.us/database/feis/glossary2.html";
-        if($html = Functions::get_remote_file($url, array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
+        if($html = Functions::lookup_with_cache($url, $this->download_options))
         {
             $html = (string) utf8_encode($html);
             if(preg_match_all("/<strong>(.*?)<\/strong>/ims", $html, $arr))
