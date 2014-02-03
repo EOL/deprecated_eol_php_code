@@ -2,6 +2,7 @@
 namespace php_active_record;
 /* connector: [723] NCBI GGI queries (DATA-1369)
               [730] GGBN Queries for GGI  (DATA-1372)
+              [731] GBIF records (DATA-1370)
 */
 class NCBIGGIqueryAPI
 {
@@ -12,31 +13,66 @@ class NCBIGGIqueryAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
-        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1);
 
-        // $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
+        // local
+        $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
+        $this->families_list_xlsx = "http://localhost/~eolit/cp/NCBIGGI/FALO_Version%202.0.a.1%20minus%20unassigned.xlsx";
+        
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
+        $this->families_list_xlsx = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO_Version%202.0.a.1%20minus%20unassigned.xlsx";
 
-        // $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
+        // NCBI service
+        $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
         $this->family_service_ncbi = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
         /* to be used if u want to get all Id's, that is u will loop to get all Id's so server won't be overwhelmed: &retmax=10&retstart=0 */
         
         // GGBN data portal:
         $this->family_service_ggbn = "http://www.dnabank-network.org/Query.php?family=";
+        
+        //GBIF services
+        $this->gbif_taxon_info = "http://api.gbif.org/v0.9/species/match?name="; //http://api.gbif.org/v0.9/species/match?name=felidae&kingdom=Animalia
+        $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?nubKey=";
+        
+        // stats
+        $this->TEMP_DIR = create_temp_dir() . "/";
+        $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
     }
 
     function get_all_taxa()
     {
-        $families = self::get_families();
+        /* $families = self::get_families(); */ // use to read a plain text file
+        $families = self::get_families_xlsx();
         self::create_instances_from_taxon_object($families);
         $this->create_archive();
+        
+        // remove temp dir
+        recursive_rmdir($this->TEMP_DIR);
+        debug("\n temporary directory removed: " . $this->TEMP_DIR);
+    }
+
+    private function get_families_xlsx()
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        $families = array();
+        if($path = Functions::save_remote_file_to_local($this->families_list_xlsx, array("timeout" => 1200, "file_extension" => "xlsx")))
+        {
+            $arr = $parser->convert_sheet_to_array($path);
+            foreach($arr["FAMILY"] as $family)
+            {
+                $family = trim(str_ireplace("Family ", "", $family));
+                if($family) $families[$family] = 1;
+            }
+            unlink($path);
+        }
+        return array_keys($families);
     }
 
     private function get_families()
     {
         $families = array();
         if(!$temp_path_filename = Functions::save_remote_file_to_local($this->families_list)) return;
-        echo "\n[$temp_path_filename]\n";
         foreach(new FileIterator($temp_path_filename) as $line_number => $line)
         {
             if($line)
@@ -55,24 +91,88 @@ class NCBIGGIqueryAPI
     {
         $i = 0;
         $total = count($families);
+        if($this->query == "gbif_info")
+        {
+            $names_no_entry_from_partner = self::get_names_no_entry_from_partner(); //debug
+            $names_no_entry_from_partner = array();
+        }
         foreach($families as $family)
         {
             $i++;
-            // if($i >= 1) return; //debug
-            // $family = "Cystobacteraceae"; //debug 11 pages
+            // if($i < 4000) continue; //debug
             if($family == "Family Unassigned") continue;
             if($this->query == "ncbi_sequence_info")         self::query_family_NCBI_info($family);
             elseif($this->query == "ggbn_dna_specimen_info") self::query_family_GGBN_info($family);
+            elseif($this->query == "gbif_info")              self::query_family_GBIF_info($family, $names_no_entry_from_partner);
             echo "\n $i of $total - [$family]";
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $family;
             $taxon->scientificName  = $family;
             $taxon->taxonRank       = "family";
-            $taxon->taxonRemarks    = "";
-            $taxon->rightsHolder    = "";
-            $taxon->furtherInformationURL = "";
             $this->taxa[$taxon->taxonID] = $taxon;
         }
+    }
+
+    private function query_family_GBIF_info($family, $names_no_entry_from_partner)
+    {
+        $rec["taxon_id"] = $family;
+        $rec["source"] = $this->gbif_taxon_info . $family;
+        if(in_array($family, $names_no_entry_from_partner))
+        {
+            $rec["object_id"] = "_rec_in_gbif";
+            self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInGBIF", $family);
+            return;
+        }
+        
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family, $this->download_options))
+        {
+            $json = json_decode($json);
+            if(!isset($json->usageKey)) return;
+            if($count = Functions::lookup_with_cache($this->gbif_record_count . $json->usageKey, $this->download_options))
+            {
+                $rec["source"] = $this->gbif_record_count . $json->usageKey;
+                if($count > 0)
+                {
+                    $rec["object_id"] = "_no_of_rec_in_gbif";
+                    self::add_string_types($rec, "Number records in GBIF", $count, "http://eol.org/schema/terms/NumberRecordsInGBIF", $family);
+                    $rec["object_id"] = "_rec_in_gbif";
+                    self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/RecordInGBIF", $family);
+                    return;
+                }
+            }
+            else
+            {
+                echo "\n no result for 1: [$family][$json->usageKey]\n";
+                self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
+            }
+        }
+        else
+        {
+            echo "\n no result for 2: [$family][$json->usageKey]\n";
+            self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
+        }
+
+        $rec["object_id"] = "_rec_in_gbif";
+        self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInGBIF", $family);
+    }
+
+    private function get_names_no_entry_from_partner()
+    {
+        $names = array();
+        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/gbif/names_no_entry_from_partner.txt";
+        foreach(new FileIterator($dump_file) as $line_number => $line)
+        {
+            if($line) $names[$line] = "";
+        }
+        return array_keys($names);
+    }
+
+    private function save_to_dump($data, $filename)
+    {
+        $WRITE = fopen($filename, "a");
+        if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
+        else                         fwrite($WRITE, $data . "\n");
+        fclose($WRITE);
     }
 
     private function query_family_GGBN_info($family)
@@ -80,8 +180,7 @@ class NCBIGGIqueryAPI
         /*<tr class='head'><td colspan='7' align='center'></td></tr>
         <tr><td colspan='7'><hr /></td></tr>
         <table border='0' id='TableWrapper2'>
-        <tr>
-            <td></td>
+        <tr><td></td>
             <td class='head2' width='130'><a href='query.php?hitlist=true&sort=SU'><img src='images/upg.jpg' border='0'/></a> Species <a href='query.php?hitlist=true&sort=SD'><img src='images/down.jpg' border='0'/></a></td>
             <td class='head2'><a href='query.php?hitlist=true&sort=CU'><img src='images/up.jpg' border='0'/></a> Country <a href='query.php?hitlist=true&sort=CD'><img src='images/down.jpg' border='0'/></a></td>
             <td class='head2'><a href='query.php?hitlist=true&sort=DU'><img src='images/up.jpg' border='0'/></a> DNA No. <a href='query.php?hitlist=true&sort=DD'><img src='images/down.jpg' border='0'/></a></td>
@@ -109,7 +208,7 @@ class NCBIGGIqueryAPI
             if(preg_match("/<b>(.*?) entries found/ims", $html, $arr) || preg_match("/<b>(.*?) entry found/ims", $html, $arr))
             {
                 $rec["object_id"] = "NumberDNAInGGBN";
-                self::add_string_types($rec, "NumberDNAInGGBN", $arr[1], false, $family); //no measurementType yet
+                self::add_string_types($rec, "Number of DNA records in GGBN", $arr[1], "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family); //no measurementType yet
             }
             $pages = self::get_number_of_pages($html);
             for ($i = 1; $i <= $pages; $i++)
@@ -174,21 +273,17 @@ class NCBIGGIqueryAPI
         $occurrence = $this->add_occurrence($taxon_id, $object_id);
         $m->occurrenceID        = $occurrence->occurrenceID;
         $m->measurementOfTaxon  = 'true';
-        $m->source              = $rec["source"];
+        $m->source              = @$rec["source"];
         if($val = $measurementType) $m->measurementType = $val;
         else                        $m->measurementType = "http://ggbn.org/". SparqlClient::to_underscore($label);
-        $m->measurementValue    = (string) $value;
-        // $m->measurementMethod   = '';
-        // $m->measurementRemarks  = '';
-        // $m->contributor = "";
-        // $m->referenceID = "";
+        $m->measurementValue = (string) $value;
+        // $m->measurementMethod = ''; $m->measurementRemarks = ''; $m->contributor = ""; $m->referenceID = "";
         $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $object_id)
     {
-        $occurrence_id = md5($taxon_id . 'o' . $object_id);
-        $occurrence_id = $taxon_id . 'O' . $object_id; // suggested by Katja to use -- ['O' . $object_id]
+        $occurrence_id = $taxon_id . 'O' . $object_id;
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
