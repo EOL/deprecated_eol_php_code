@@ -1,35 +1,32 @@
 <?php
 namespace php_active_record;
-/* connector for Tropicos
+/* Tropicos Archive resource
 estimated execution time:
-Note: Tropicos web service goes down 7-8am Eastern
 */
 
-// date_default_timezone_set('US/Eastern');
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+require_library('connectors/TropicosArchiveAPI');
+
 $timestart = time_elapsed();
-require_library('connectors/TropicosAPI');
 $resource_id = 218;
+$func = new TropicosArchiveAPI($resource_id);
 
-$folder = DOC_ROOT . "update_resources/connectors/files/Tropicos";
-if(!file_exists($folder)) mkdir($folder , 0777);
-
-$tropicos = new TropicosAPI();
-$tropicos->initialize_text_files();
-//Functions::kill_running_connectors($resource_id);
-$tropicos->start_process($resource_id, false);
+$func->get_all_taxa();
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
+{
+    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
+    {
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+    }
+    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+    Functions::set_resource_status_to_force_harvest($resource_id);
+}
 
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec seconds             \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
+echo "\n\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo date('Y-m-d h:i:s a', time()) . "\n";
-echo "\n\n Done processing.";
-
-/*
-problem chars
-\xe2\x80\x93
-\xe2\x80\x93
-*/
+echo "\nDone processing.\n";
 ?>
