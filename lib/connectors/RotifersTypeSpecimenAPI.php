@@ -14,7 +14,8 @@ class RotifersTypeSpecimenAPI
         $this->taxon_ids = array();
         $this->object_ids = array();
         $this->occurrence_ids = array();
-        $this->page_by_guid = "http://rotifera.hausdernatur.at/Specimen/Index/";
+        $this->specimen_page_by_guid = "http://rotifera.hausdernatur.at/Specimen/Index/";
+        $this->species_page_by_guid  = "http://rotifera.hausdernatur.at/Species/Index/";
         $this->zip_path = "http://localhost/~eolit/cp/Rotifers/type_specimen.zip";
         $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/type_specimen.zip";
         $this->text_path = array();
@@ -36,7 +37,7 @@ class RotifersTypeSpecimenAPI
         $fields = array("lngPersIdent_ID", "lngSpecimen_ID");
         $records_specimen_identifier = $func->make_array($this->text_path["sd_specimen_identifier"], $fields, "", array());
         array_shift($records_specimen_identifier);
-        $fields = array("lngSpeciesSenior_ID", "lngMacroMicro_ID");
+        $fields = array("lngSpeciesSenior_ID", "lngMacroMicro_ID", "lngSpecies_ID");
         $records_habitat = $func->make_array($this->text_path["sd_macro_locality"], $fields, "", array());
         array_shift($records_habitat);
 
@@ -140,8 +141,82 @@ class RotifersTypeSpecimenAPI
         $habitat = trim(str_replace('"', '', $rec["habitat"]));
         $habitat = utf8_encode($habitat);
         $this->habitats[$habitat] = 1;
-        if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat");
+        $value_uri = self::format_habitat_value($habitat);
+        if(!$value_uri)
+        {
+            if($habitat != "Open water (tychoplanktonic)") echo "\n investigate [$habitat] no URI\n";
+        }
+        if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat", null, $value_uri);
         if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+    }
+    
+    private function format_habitat_value($habitat)
+    {
+        switch($habitat)
+        {
+            case "Lake, freshwater (mesotrophic)": return "http://eol.org/schema/terms/mesotrophicFreshwaterLake";
+            case "Macrophytes (Ceratophyllum, Myriophyllum)": return "http://eol.org/schema/terms/macrophytes";
+            case "Periphyton, and POM (littoral stones, gravel)": return "http://eol.org/schema/terms/periphyton";
+            //http://eol.org/schema/terms/particulateOrganicMatter
+            case "Macrophytes": return "http://eol.org/schema/terms/macrophytes";
+            case "Stream, freshwater": return "http://eol.org/schema/terms/freshwaterStream";
+            case "Stream bottom: POM (sand, gravel)": return "http://purl.obolibrary.org/obo/ENVO_00000383";
+            case "Riparian wetland": return "http://eol.org/schema/terms/riparianWetland";
+            case "Sedges (Carex sp.), 'open water' between plants": return "http://eol.org/schema/terms/betweenSedgesInOpenWater";
+            case "River, freshwater (lowland)": return "http://eol.org/schema/terms/lowlandFreshwaterRiver";
+            case "Stream bottom: POM (gravel, stones)": return "http://purl.obolibrary.org/obo/ENVO_00000383";
+            case "Periphyton (littoral vegetation, roots of terrestrial vegetation)": return "http://eol.org/schema/terms/periphyton";
+            //http://eol.org/schema/terms/littoralVegetation
+            case "Periphyton (littoral vegetation)": return "http://eol.org/schema/terms/periphyton";
+            //http://eol.org/schema/terms/littoralVegetation
+            case "Lake, freshwater (tropical)": return "http://eol.org/schema/terms/tropicalFreshwaterLake";
+            case "Pond, freshwater": return "http://eol.org/schema/terms/freshwaterPond";
+            case "Open water (tychoplanktonic)": return false; // DO NOT USE
+            case "Lake, freshwater": return "http://eol.org/schema/terms/freshwaterLake";
+            case "Open water": return "http://eol.org/schema/terms/openWater";
+            case "Tap water": return "http://eol.org/schema/terms/tapWater";
+            case "Pond, peat bog": return "http://purl.obolibrary.org/obo/ENVO_00000044";
+            case "Moss (Sphagnum, peat moss)": return "http://eol.org/schema/terms/moss";
+            case "Pond, freshwater (eutrophic)": return "http://eol.org/schema/terms/eutrophicFreshwaterPond";
+            case "Lake, freshwater (alpine glacier margin, ultraoligotrophic)": return "http://eol.org/schema/terms/ultraoligotrophicAlpineFreshwaterLake";
+            case "Sand (littoral, glacial flour)": return "http://eol.org/schema/terms/littoralGlacialSand";
+            case "Lagoon, mixosaline": return "http://eol.org/schema/terms/mixosalineLagoon";
+            case "Algae, planktonic (parasitic in colonies of Uroglena)": return "http://eol.org/schema/terms/planktonicAlgae";
+            case "Swimming pool": return "http://eol.org/schema/terms/swimmingPool";
+            case "Biofilm on tiles": return "http://eol.org/schema/terms/tileSurface";
+            case "Lake, freshwater (eutrophic)": return "http://eol.org/schema/terms/eutrophicFreshwaterLake";
+            case "Pond, freshwater (artificial)": return "http://eol.org/schema/terms/artificialFreshwaterPond";
+            case "Lake, freshwater (oligotrophic)": return "http://eol.org/schema/terms/oligotrophicFreshwaterLake";
+            case "Lake, freshwater (dystrophic, montane)": return "http://eol.org/schema/terms/dystrophicMontaneFreshwaterLake";
+            case "Lake, freshwater (subalpine)": return "http://eol.org/schema/terms/subalpineFreshwaterLake";
+            case "Pond, freshwater (mesotrophic)": return "http://eol.org/schema/terms/mesotrophicFreshwaterPond";
+            case "Acidic mining lake, freshwater": return "http://eol.org/schema/terms/acidicFreshwaterMiningLake";
+            case "Periphyton": return "http://eol.org/schema/terms/periphyton";
+            case "Open water (hypolimnion)": return "http://purl.obolibrary.org/obo/ENVO_00002130";
+            case "Aquarium, freshwater": return "http://eol.org/schema/terms/freshwaterAquarium";
+            case "Glass surface": return "http://eol.org/schema/terms/glassSurface";
+            case "Lake, freshwater (alpine, ultraoligotrophic)": return "http://eol.org/schema/terms/ultraoligotrophicAlpineFreshwaterLake";
+            case "Macrophytes (Utricularia, Nymphaea)": return "http://eol.org/schema/terms/macrophytes";
+            case "Bottom sediments": return "http://purl.obolibrary.org/obo/ENVO_00002007";
+            case "Bog, peat bog": return "http://purl.obolibrary.org/obo/ENVO_00000044";
+            case "Littoral microhabitats": return "http://eol.org/schema/terms/littoralZone";
+            case "Macrophytes (Utricularia)": return "http://eol.org/schema/terms/macrophytes";
+            case "Pond, freshwater (alpine pastureland)": return "http://eol.org/schema/terms/alpinePasturelandFreshwaterPond";
+            case "Pond, freshwater (alpine)": return "http://eol.org/schema/terms/alpineFreshwaterPond";
+            case "Bog pond": return "http://eol.org/schema/terms/bogPond";
+            case "Pond, peat bog (alpine)": return "http://purl.obolibrary.org/obo/ENVO_00000044";
+            case "Pond, freshwater (fishpond)": return "http://eol.org/schema/terms/freshwaterFishPond";
+            case "Pond, freshwater (pasture land)": return "http://eol.org/schema/terms/pasturelandFreshwaterPond";
+            case "Lake, freshwater (ultraoligotrophic)": return "http://eol.org/schema/terms/ultraoligotrophicFreshwaterLake";
+            case "Impoundment, freshwater (subalpine)": return "http://eol.org/schema/terms/subalpineFreshwaterImpoundment";
+            case "Impoundment, freshwater (alpine)": return "http://eol.org/schema/terms/alpineFreshwaterImpoundment";
+            case "Stream, freshwater (alpine)": return "http://eol.org/schema/terms/alpineFreshwaterStream";
+            case "Stream bottom: POM (sand, gravel, mud)": return "http://purl.obolibrary.org/obo/ENVO_00000383";
+            case "Stream, freshwater (glacial)": return "http://eol.org/schema/terms/glacialFreshwaterStream";
+            case "Stream bottom": return "http://purl.obolibrary.org/obo/ENVO_00000383";
+            case "Tributary": return "http://purl.obolibrary.org/obo/ENVO_00000495";
+            default: return false;
+        }
     }
 
     private function process_locality($rec, $sciname)
@@ -306,7 +381,7 @@ class RotifersTypeSpecimenAPI
         }
     }
 
-    private function add_string_types($rec, $label, $value, $mtype, $measurementRemarks = null)
+    private function add_string_types($rec, $label, $value, $mtype, $measurementRemarks = null, $value_uri = false)
     {
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
@@ -318,13 +393,17 @@ class RotifersTypeSpecimenAPI
         {
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = $measurementRemarks;
-            if($label == "Type information") $m->source = $this->page_by_guid . $rec["lngSpecimen_ID"];
+            if($label == "Type information") $m->source = $this->specimen_page_by_guid . $rec["lngSpecimen_ID"];
+            elseif($label == "Habitat") $m->source = $this->species_page_by_guid . $rec["lngSpecies_ID"];
             $m->contributor = 'Rotifer World Catalog';
         }
         
         if($label == "Verbatim elevation") $m->measurementUnit = "http://purl.obolibrary.org/obo/UO_0000008";
         $m->measurementType = $mtype;
-        $m->measurementValue = $value;
+        
+        if($value_uri)  $m->measurementValue = $value_uri;
+        else            $m->measurementValue = $value;
+        
         $m->measurementMethod = '';
         $this->archive_builder->write_object_to_file($m);
     }
@@ -382,7 +461,7 @@ class RotifersTypeSpecimenAPI
     private function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 2)))
+        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 1)))
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
