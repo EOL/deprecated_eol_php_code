@@ -143,34 +143,11 @@ class EolStatsDataConnector
             AND tcm.richness_score >= .4";
         $count_of_rich_species = $this->mysqli->select_value($query);
 
-        $number_of_images = $this->mysqli->select_value("SELECT image_total FROM taxon_concept_metrics WHERE taxon_concept_id=$taxon_concept_id");
-        $query = "
-            SELECT DISTINCT tcm.taxon_concept_id, text_total, video_total, sound_total, flash_total, youtube_total, map_total, tcm.richness_score
-            FROM hierarchy_entries he
-            JOIN hierarchy_entries_flattened hef on (he.id=hef.ancestor_id)
-            JOIN hierarchy_entries he_children on (hef.hierarchy_entry_id=he_children.id)
-            JOIN taxon_concepts tc on (he_children.taxon_concept_id=tc.id)
-            JOIN hierarchies h on (he_children.hierarchy_id=h.id)
-            JOIN taxon_concept_metrics tcm ON (he_children.taxon_concept_id=tcm.taxon_concept_id)
-            WHERE he.taxon_concept_id=$taxon_concept_id
-            AND he.published=1
-            AND tc.published=1
-            AND tc.supercedure_id=0
-            AND he.visibility_id=". Visibility::visible()->id;
-        $text = 0;
-        $media = 0;
-        $this_richness = 0;
-        foreach($this->mysqli->iterate($query) as $row)
-        {
-            $text += $row['text_total'];
-            $media += $row['video_total'];
-            $media += $row['sound_total'];
-            $media += $row['flash_total'];
-            $media += $row['youtube_total'];
-            $this_richness = $row['richness_score'];
-        }
-        return array('NumberRichSpeciesPagesInEOL' => $count_of_rich_species, 'NumberImagesInEOL' => $number_of_images,
-            'NumberArticlesInEOL' => $text, 'NumberMediaInEOL' => $media,
+        $this_richness = $this->mysqli->select_value("SELECT richness_score FROM taxon_concept_metrics WHERE taxon_concept_id=$taxon_concept_id");
+        $media_counts = TaxonConcept::media_counts($taxon_concept_id);
+        $all_media_count = @$media_counts['image'] + @$media_counts['video'] + @$media_counts['sound'];
+        return array('NumberRichSpeciesPagesInEOL' => $count_of_rich_species, 'NumberImagesInEOL' => @$media_counts['image'],
+            'NumberArticlesInEOL' => @$media_counts['text'], 'NumberMediaInEOL' => $all_media_count,
             'RichPageOnEOL' => (($this_richness >= .4) ? 'http://eol.org/schema/terms/yes' : 'http://eol.org/schema/terms/no'));
     }
 

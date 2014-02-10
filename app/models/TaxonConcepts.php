@@ -151,7 +151,26 @@ class TaxonConcept extends ActiveRecord
         return $taxon_concept_id;
     }
     
-    
+    public static function media_counts($taxon_concept_id)
+    {
+        $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
+        $response = $solr->raw_query("published:1 AND ancestor_id:$taxon_concept_id AND visible_ancestor_id:$taxon_concept_id AND (trusted_ancestor_id:$taxon_concept_id OR unreviewed_ancestor_id:$taxon_concept_id) NOT data_subtype_id:".DataType::map()->id." NOT is_translation:true&facet.field=data_type_id&facet=on&rows=0");
+        $facet_response = $response->facet_counts->facet_fields->data_type_id;
+        $facets = array();
+        foreach($facet_response as $index => $facet_value)
+        {
+            if($index % 2 == 1) continue;
+            $data_type_id = $facet_value;
+            if(in_array($data_type_id, DataType::image_type_ids())) $key = 'image';
+            elseif(in_array($data_type_id, DataType::text_type_ids())) $key = 'text';
+            elseif(in_array($data_type_id, DataType::video_type_ids())) $key = 'video';
+            elseif(in_array($data_type_id, DataType::sound_type_ids())) $key = 'sound';
+            else $key = $data_type_id;
+            if(!isset($facets[$key])) $facets[$key] = 0;
+            $facets[$key] += $facet_response[$index + 1];
+        }
+        return $facets;
+    }
     
     function rank()
     {
