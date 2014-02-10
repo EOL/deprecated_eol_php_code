@@ -140,14 +140,17 @@ class RotifersTypeSpecimenAPI
     {
         $habitat = trim(str_replace('"', '', $rec["habitat"]));
         $habitat = utf8_encode($habitat);
-        $this->habitats[$habitat] = 1;
         $value_uri = self::format_habitat_value($habitat);
         if(!$value_uri)
         {
             if($habitat != "Open water (tychoplanktonic)") echo "\n investigate [$habitat] no URI\n";
         }
-        if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat", null, $value_uri);
-        if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+        if(!isset($this->habitats[$rec["taxon_id"]][$value_uri]))
+        {
+            $this->habitats[$rec["taxon_id"]][$value_uri] = 1;
+            if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat", null, $value_uri);
+            if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+        }
     }
     
     private function format_habitat_value($habitat)
