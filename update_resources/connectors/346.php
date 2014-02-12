@@ -32,6 +32,9 @@ $xml = remove_blank_taxon_entry($xml);
 require_library('connectors/INBioAPI');
 $xml = INBioAPI::assign_eol_subjects($xml);
 
+//fix DATA-1420
+$xml = $nmnh->remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml); 
+
 $nmnh->save_resource_document($xml);
 Functions::set_resource_status_to_force_harvest($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
