@@ -1023,8 +1023,7 @@ class EOLStats
             SELECT COUNT(DISTINCT(?s)) as ?count
             WHERE {
                 ?s a dwc:MeasurementOrFact .
-                ?s <http://eol.org/schema/measurementOfTaxon> ?of_taxon .
-                FILTER ( ?of_taxon = 'true' )
+                ?s <http://eol.org/schema/measurementOfTaxon> <http://eol.org/schema/terms/true>
             }");
         return $results[0]->count->value;
     }
@@ -1045,9 +1044,8 @@ class EOLStats
             SELECT COUNT(DISTINCT(?uri)) as ?count
             WHERE {
                 ?s a dwc:MeasurementOrFact .
-                ?s <http://eol.org/schema/measurementOfTaxon> ?of_taxon .
+                ?s <http://eol.org/schema/measurementOfTaxon> <http://eol.org/schema/terms/true> .
                 ?s dwc:measurementType ?uri
-                FILTER ( ?of_taxon = 'true' )
             }");
         return $results[0]->count->value;
     }
@@ -1070,11 +1068,10 @@ class EOLStats
             WHERE {
                 {
                     ?s a dwc:MeasurementOrFact .
-                    ?s <http://eol.org/schema/measurementOfTaxon> ?of_taxon .
+                    ?s <http://eol.org/schema/measurementOfTaxon> <http://eol.org/schema/terms/true> .
                     ?s dwc:occurrenceID ?o .
                     ?o dwc:taxonID ?t .
                     ?t dwc:taxonConceptID ?tc .
-                    FILTER ( ?of_taxon = 'true' )
                 } UNION {
                     ?a a <http://eol.org/schema/Association> .
                     ?a dwc:occurrenceID ?o .
