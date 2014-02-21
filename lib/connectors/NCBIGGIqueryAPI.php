@@ -3,6 +3,18 @@ namespace php_active_record;
 /* connector: [723] NCBI GGI queries (DATA-1369)
               [730] GGBN Queries for GGI  (DATA-1372)
               [731] GBIF records (DATA-1370)
+              [743] Create a resource for more Database Coverage data (BHL and BOLD info) (DATA-1417)
+
+
+#==== 5 AM, every 4th day of the month -- [Number of sequences in GenBank (DATA-1369)]
+00 05 4 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/723.php > /dev/null
+
+#==== 5 AM, every 5th day of the month -- [Number of DNA and specimen records in GGBN (DATA-1372)]
+00 05 5 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/730.php > /dev/null
+
+#==== 5 AM, every 6th day of the month -- [Number of records in GBIF (DATA-1370)]
+00 05 6 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/731.php > /dev/null
+
 */
 class NCBIGGIqueryAPI
 {
@@ -33,6 +45,10 @@ class NCBIGGIqueryAPI
         //GBIF services
         $this->gbif_taxon_info = "http://api.gbif.org/v0.9/species/match?name="; //http://api.gbif.org/v0.9/species/match?name=felidae&kingdom=Animalia
         $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?nubKey=";
+        
+        // BHL services
+        $this->bhl_taxon_in_csv = "http://www.biodiversitylibrary.org/namelistdownload/?type=c&name=";
+        $this->bhl_taxon_in_xml = "http://www.biodiversitylibrary.org/api2/httpquery.ashx?op=NameGetDetail&apikey=deabdd14-65fb-4cde-8c36-93dc2a5de1d8&name=";
         
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
@@ -91,19 +107,22 @@ class NCBIGGIqueryAPI
     {
         $i = 0;
         $total = count($families);
-        if($this->query == "gbif_info")
+        if(in_array($this->query, array("gbif_info", "bhl_info")))
         {
-            $names_no_entry_from_partner = self::get_names_no_entry_from_partner(); //debug
+            // $names_no_entry_from_partner = self::get_names_no_entry_from_partner(); //debug
             $names_no_entry_from_partner = array();
         }
         foreach($families as $family)
         {
             $i++;
-            // if($i < 4000) continue; //debug
+            // if($i > 1000) break; //debug
             if($family == "Family Unassigned") continue;
-            if($this->query == "ncbi_sequence_info")         self::query_family_NCBI_info($family);
+            
+            if    ($this->query == "ncbi_sequence_info")     self::query_family_NCBI_info($family);
             elseif($this->query == "ggbn_dna_specimen_info") self::query_family_GGBN_info($family);
             elseif($this->query == "gbif_info")              self::query_family_GBIF_info($family, $names_no_entry_from_partner);
+            elseif($this->query == "bhl_info")               self::query_family_BHL_info($family, $names_no_entry_from_partner);
+            
             echo "\n $i of $total - [$family]";
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $family;
@@ -111,6 +130,111 @@ class NCBIGGIqueryAPI
             $taxon->taxonRank       = "family";
             $this->taxa[$taxon->taxonID] = $taxon;
         }
+    }
+
+    private function query_family_BHL_info($family, $names_no_entry_from_partner)
+    {
+        $rec["taxon_id"] = $family;
+
+        if(in_array($family, $names_no_entry_from_partner))
+        {
+            $rec["object_id"] = "_page_in_bhl";
+            self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/ReferenceInBHL", $family);
+            return;
+        }
+        
+        $rec["source"] = $this->bhl_taxon_in_xml . $family;
+        
+        if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
+        {
+            if($count = self::get_page_count_from_BHL_xml($contents))
+            {
+                if($count > 0)
+                {
+                    $rec["object_id"] = "_no_of_page_in_bhl";
+                    self::add_string_types($rec, "Number pages in BHL", $count, "http://eol.org/schema/terms/NumberReferencesInBHL", $family);
+                    $rec["object_id"] = "_page_in_bhl";
+                    self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/ReferenceInBHL", $family);
+                    return;
+                }
+            }
+            else
+            {
+                $rec["source"] = $this->bhl_taxon_in_csv . $family;
+                if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
+                {
+                    if($count = self::get_page_count_from_BHL_csv($contents))
+                    {
+                        if($count > 0)
+                        {
+                            $rec["object_id"] = "_no_of_page_in_bhl";
+                            self::add_string_types($rec, "Number pages in BHL", $count, "http://eol.org/schema/terms/NumberReferencesInBHL", $family);
+                            $rec["object_id"] = "_page_in_bhl";
+                            self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/ReferenceInBHL", $family);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        echo "\n no result for 1: [$family][" . $rec["source"] . "]\n";
+                        self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
+                    }
+                }
+            }
+        }
+        else
+        {
+            echo "\n no result for 2: [$family][" . $rec["source"] . "]\n";
+            self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
+        }
+
+        $rec["object_id"] = "_page_in_bhl";
+        self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/ReferenceInBHL", $family);
+    }
+
+    private function get_page_count_from_BHL_xml($contents)
+    {
+        if(preg_match_all("/<PageID>(.*?)<\/PageID>/ims", $contents, $arr)) return count(array_unique($arr[1]));
+        return false;
+    }
+
+    private function get_page_count_from_BHL_csv($contents)
+    {
+        $temp_path = temp_filepath();
+        if($contents)
+        {
+            $file = fopen($temp_path, "w");
+            fwrite($file, $contents);
+            fclose($file);
+        }
+        $page_ids = array();
+        $i = 0;
+        $file = fopen($temp_path, "r");
+        while(!feof($file))
+        {
+            $i++;
+            if($i == 1)
+            {
+                $fields = fgetcsv($file);
+            }
+            else
+            {
+                $rec = array();
+                $temp = fgetcsv($file);
+                $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t)
+                {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+                $parts = pathinfo($rec["Url"]);
+                $page_ids[$parts["filename"]] = 1;
+            }
+        }
+        fclose($file);
+        unlink($temp_path);
+        return count(array_keys($page_ids));
     }
 
     private function query_family_GBIF_info($family, $names_no_entry_from_partner)
