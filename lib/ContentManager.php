@@ -75,26 +75,36 @@ class ContentManager
             }
 
             // create thumbnails of website content and agent logos
-            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $options);
-            elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
-            elseif($type=="dataset")
-            {
-                $new_file_path = $this->zip_file($new_file_path);
-                $this->delete_old_datasets();
+            switch($type) {
+                case "image":
+                    $this->create_content_thumbnails($new_file_path, $new_file_prefix, $options);
+                    break;
+                case "partner":
+                    $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
+                    break;
             }
-
-            if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
 
             // Take the substring of the new file path to return via the webservice
-            if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") &&
-              preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr))
-            {
-                $new_file_path = str_replace("/", "", $arr[1]);
-            }
-            elseif($type=="resource" &&
-              preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
-            elseif($type=="dataset" &&
-              preg_match("/^".preg_quote(CONTENT_DATASET_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
+            switch($type) {
+                case "image":
+                case "video":
+                case "audio":
+                case "upload":
+                case "partner":
+                    self::create_checksum($new_file_path);
+                    if (preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr))
+                        $new_file_path = str_replace("/", "", $arr[1]);
+                    break;
+                case "resource":
+                    if (preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))
+                        $new_file_path = $arr[1];
+                    break;
+                case "dataset":
+                    $new_file_path = $this->zip_file($new_file_path);
+                    $this->delete_old_datasets();
+                    if (preg_match("/^".preg_quote(CONTENT_DATASET_PATH, "/")."(.*)$/", $new_file_path, $arr))
+                        $new_file_path = $arr[1];
+            }              
         }
 
         if(file_exists($temp_file_path)) unlink($temp_file_path);
