@@ -77,7 +77,7 @@ class ContentManager
             // create thumbnails of website content and agent logos
             switch($type) {
                 case "image":
-                    $this->create_content_thumbnails($new_file_path, $new_file_prefix, $options);
+                    $this->create_image_thumbnails($new_file_path, $new_file_prefix, $options);
                     break;
                 case "partner":
                     $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
@@ -365,7 +365,7 @@ class ContentManager
         return $dimensions;
     }
 
-    function create_content_thumbnails($file, $prefix, $options = array())
+    function create_image_thumbnails($file, $prefix, $options = array())
     {
         $local_file = $this->reduce_original($file, $prefix, $options);
         // we make an exception
