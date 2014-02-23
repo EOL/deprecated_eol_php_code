@@ -372,19 +372,19 @@ class ContentManager
         if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
         {
             $large_image_dimensions = $options['large_image_dimensions'];
-        }else $large_image_dimensions = ContentManager::large_image_dimensions();
-        $image_path = $this->create_smaller_version($local_file, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
-        $this->create_smaller_version($image_path, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
-        $this->create_smaller_version($image_path, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
+        }else $large_image_dimensions = self::large_image_dimensions();
+        $image_path = $this->create_smaller_version($local_file, $large_image_dimensions, $prefix, implode(self::large_image_dimensions(), '_'));
+        $this->create_smaller_version($image_path, self::medium_image_dimensions(), $prefix, implode(self::medium_image_dimensions(), '_'));
+        $this->create_smaller_version($image_path, self::small_image_dimensions(), $prefix, implode(self::small_image_dimensions(), '_'));
         if(isset($options['crop_width'])) $image_path = $prefix . '_orig.jpg';
-        $this->create_upper_left_crop($image_path, ContentManager::large_square_dimensions(), $prefix, $options);
-        $this->create_upper_left_crop($image_path, ContentManager::small_square_dimensions(), $prefix, $options);
+        $this->create_upper_left_crop($image_path, self::large_square_dimensions(), $prefix, $options);
+        $this->create_upper_left_crop($image_path, self::small_square_dimensions(), $prefix, $options);
     }
 
     function create_agent_thumbnails($file, $prefix)
     {
-        $this->create_constrained_square_crop($file, ContentManager::large_square_dimensions(), $prefix);
-        $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
+        $this->create_constrained_square_crop($file, self::large_square_dimensions(), $prefix);
+        $this->create_constrained_square_crop($file, self::small_square_dimensions(), $prefix);
     }
 
     function reduce_original($path, $prefix, $options = array())
