@@ -172,7 +172,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(gz|gzip)$/", $new_temp_file_path, $arr))
                 {
-                    shell_exec(GUNZIP_BIN_PATH . " -f $new_temp_file_path");
+                    shell_exec(GUNZIP_BIN_PATH . " -f ".escapeshellarg($new_temp_file_path));
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -184,7 +184,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec(TAR_BIN_PATH . " -xf $new_temp_file_path -C $archive_directory");
+                    shell_exec(TAR_BIN_PATH . " -xf ".escapeshellarg($new_temp_file_path)." -C ".escapeshellarg($archive_directory));
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -196,7 +196,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec(UNZIP_BIN_PATH . " -d $archive_directory $new_temp_file_path");
+                    shell_exec(UNZIP_BIN_PATH . " -d ".escapeshellarg($archive_directory)." ".escapeshellarg($new_temp_file_path));
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -228,7 +228,7 @@ class ContentManager
     public static function determine_file_suffix($file_path, $suffix)
     {
         // use the Unix/Linux `file` command to determine file type
-        $stat = strtolower(shell_exec(FILE_BIN_PATH . " " . $file_path));
+        $stat = strtolower(shell_exec(FILE_BIN_PATH . " " . escapeshellarg($file_path)));
         $file_type = "";
         if(preg_match("/^[^ ]+: (.*)$/",$stat,$arr)) $file_type = trim($arr[1]);
         if(preg_match("/^\"(.*)/", $file_type, $arr)) $file_type = trim($arr[1]);
@@ -391,9 +391,9 @@ class ContentManager
     {
         $rotate = "-auto-orient";
         if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quiet -quality 80";
+        $command = CONVERT_BIN_PATH." ".escapeshellarg($path)." -strip -background white -flatten $rotate -quiet -quality 80";
         $new_image_path = $prefix."_orig.jpg";
-        shell_exec($command." ".$new_image_path);
+        shell_exec($command." ".escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
         return $new_image_path;
     }
@@ -401,10 +401,10 @@ class ContentManager
     function create_smaller_version($path, $dimensions, $prefix, $suffix)
     {
         //don't need to rotate, as this works on already-rotated version
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quiet -quality 80 \
+        $command = CONVERT_BIN_PATH." ".escapeshellarg($path)." -strip -background white -flatten -quiet -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
         $new_image_path = $prefix ."_". $suffix .".jpg";
-        shell_exec($command." ".$new_image_path);
+        shell_exec($command." ".escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
         return $new_image_path;
     }
@@ -436,30 +436,30 @@ class ContentManager
                 $new_x_offset = floatval($options['x_offset']) * $offset_factor;
                 $new_y_offset = floatval($options['y_offset']) * $offset_factor;
 
-                $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80 -gravity NorthWest \
+                $command = CONVERT_BIN_PATH." ".escapeshellarg($path)." -strip -background white -flatten -quiet -quality 80 -gravity NorthWest \
                         -crop ".$new_crop_width."x".$new_crop_width."+".$new_x_offset."+".$new_y_offset." +repage \
                         -resize ".$dimensions[0]."x".$dimensions[0];
             }
         }else
         {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
-            $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80 \
+            $command = CONVERT_BIN_PATH. " ".escapeshellarg($path)." -strip -background white -flatten -quiet -quality 80 \
                             -resize ".$dimensions[0]."x".$dimensions[0]."^ \
                             -gravity NorthWest -crop ".$dimensions[0]."x".$dimensions[0]."+0+0 +repage";
         }
         $new_image_path = $prefix ."_". $dimensions[0] ."_". $dimensions[0] .".jpg";
-        shell_exec($command." ".$new_image_path);
+        shell_exec($command." ".escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
     }
 
     function create_constrained_square_crop($path, $dimensions, $prefix)
     {
         // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quiet -quality 80 \
+        $command = CONVERT_BIN_PATH." ".escapeshellarg($path)." -strip -background white -flatten -auto-orient -quiet -quality 80 \
                         -resize '".$dimensions[0]."x".$dimensions[0]."' -gravity center \
                         -extent '".$dimensions[0]."x".$dimensions[0]."' +repage";
         $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[0].".jpg";
-        shell_exec($command." ".$new_image_path);
+        shell_exec($command." ".escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
         return $new_image_path;
     }
