@@ -79,6 +79,14 @@ class ContentManager
                 case "image":
                     $this->create_image_thumbnails($new_file_path, $new_file_prefix, $options);
                     break;
+                case "audio":
+                    /* Some audio, video, etc files may have thumbnails created from the harvesting site (code in DataObjects.php).
+                       This could be a picture, a spectrogram, or whatever. Here we create a default thumbnail set for audio files. 
+                       Those that already have a thumbnail will thus have 2 potential sets of thumbnails. The "default" ones created
+                        here are guaranteed to have the same prefix as the audio (.wav, .mp3 etc) file, but are .png files */
+                    $this->create_audio_thumbnails($new_file_path, $new_file_prefix, $options);
+                    break;
+
                 case "partner":
                     $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
                     break;
@@ -335,6 +343,7 @@ class ContentManager
         return $new_suffix;
     }
 
+    //max dimensions for the various sizes of thumbnail images, expressed as (width, height)
     static function large_image_dimensions()
     {
         static $dimensions = array(580, 360);
@@ -379,6 +388,24 @@ class ContentManager
         if(isset($options['crop_width'])) $image_path = $prefix . '_orig.jpg';
         $this->create_upper_left_crop($image_path, self::large_square_dimensions(), $prefix, $options);
         $this->create_upper_left_crop($image_path, self::small_square_dimensions(), $prefix, $options);
+    }
+
+    function create_audio_thumbnails($audiofile, $prefix, $options = array())
+    {
+        
+        //Create "XXX_orig.png" spectrogram, whose width varies with length of sound file (with maximum length constraint)
+        $truncate_after_seconds = 60;
+        $pixels_per_second = 50;
+        $dimensions = array($pixels_per_second, self::large_image_dimensions()[1]);
+        $this->create_spectrogram($audiofile, $dimensions, $prefix, $truncate_after_seconds, true, "orig", false);
+
+        //Fixed width spectrogram thumbnails, omit axes for smaller sizes 
+        $truncate_after_seconds = 30;
+        $this->create_spectrogram($audiofile, self::large_image_dimensions(), $prefix, $truncate_after_seconds, true);
+        $this->create_spectrogram($audiofile, self::medium_image_dimensions(), $prefix, $truncate_after_seconds, true);
+        $this->create_spectrogram($audiofile, self::small_image_dimensions(), $prefix, $truncate_after_seconds, false);
+        $this->create_spectrogram($audiofile, self::large_square_dimensions(), $prefix, $truncate_after_seconds, false);
+        $this->create_spectrogram($audiofile, self::small_square_dimensions(), $prefix, $truncate_after_seconds, false);
     }
 
     function create_agent_thumbnails($file, $prefix)
@@ -463,6 +490,57 @@ class ContentManager
         self::create_checksum($new_image_path);
         return $new_image_path;
     }
+
+    function create_spectrogram($audiofile, $dimensions, $prefix, $max_seconds, $show_axes, $suffix=null, $fixed_width=true)
+    {
+        if (defined('SOX_BIN_PATH')) {
+            if (is_null($suffix))
+                $suffix = implode($dimensions, '_');
+            $spectrogram_path = $prefix."_".$suffix.".png";
+
+            // by trial and error, axis labels etc in SoX spectrograms seem to take 144 px in the X direction and 78 in the Y
+            $axis_decoration_px = array(144, 78);
+            $x = $dimensions[0];
+            $y = $dimensions[1];
+            //limit max dB, force white background, simple colour scheme, etc. see http://sox.sourceforge.net/sox.html
+            $sox_options = "--null remix - trim 0 $max_seconds norm spectrogram -z 50 -p 1 -l  -c ''";
+            if ($show_axes) {
+                $y -= $axis_decoration_px[1];
+                if ($fixed_width)
+                    $x -= $axis_decoration_px[0];
+            } else {
+                $sox_options .= " -r";
+            }
+            
+            if ($fixed_width)
+            {
+                //SoX only accepts x > 100px: if less, make a larger image and post-process to resize it down. 
+                if ($x < 100)
+                {
+                    $x = 100;
+                    $post_processing = CONVERT_BIN_PATH." ".escapeshellarg($spectrogram_path)." -resize ".$dimensions[0]."x".$dimensions[1]."! ".escapeshellarg($spectrogram_path);
+                }
+                $sox_options .= " -x $x -y $y";
+            } else {
+                //if not fixed_width, first element of $dimensions gives pixels per second
+                $sox_options .= " -X $x -y $y";
+            }
+
+            $command = SOX_BIN_PATH." -V0 ".escapeshellarg($audiofile)." $sox_options";
+            shell_exec($command." -o ".escapeshellarg($spectrogram_path));
+            //if sox does not exist, or cannot create the spectrograph, the spectrogram file should not exist
+            if (file_exists($spectrogram_path)) {
+                if (isset($post_processing))
+                    shell_exec($post_processing);
+                self::create_checksum($spectrogram_path);
+                return $spectrogram_path;
+            } else {
+                trigger_error("ContentManager: SoX could not produce thumbnail spectrogram for audio file $audiofile", E_USER_NOTICE);
+            }
+        }
+        return null;
+    }    
+
 
     function new_resource_file_name($resource_id)
     {
