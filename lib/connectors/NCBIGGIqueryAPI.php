@@ -47,6 +47,7 @@ class NCBIGGIqueryAPI
         $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?nubKey=";
         
         // BHL services
+        $this->bhl_taxon_page = "http://www.biodiversitylibrary.org/name/";
         $this->bhl_taxon_in_csv = "http://www.biodiversitylibrary.org/namelistdownload/?type=c&name=";
         $this->bhl_taxon_in_xml = "http://www.biodiversitylibrary.org/api2/httpquery.ashx?op=NameGetDetail&apikey=deabdd14-65fb-4cde-8c36-93dc2a5de1d8&name=";
         
@@ -143,9 +144,9 @@ class NCBIGGIqueryAPI
             return;
         }
         
-        $rec["source"] = $this->bhl_taxon_in_xml . $family;
-        
-        if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
+        $rec["source"] = $this->bhl_taxon_page . $family;
+
+        if($contents = Functions::lookup_with_cache($this->bhl_taxon_in_xml . $family, $this->download_options))
         {
             if($count = self::get_page_count_from_BHL_xml($contents))
             {
@@ -160,8 +161,7 @@ class NCBIGGIqueryAPI
             }
             else
             {
-                $rec["source"] = $this->bhl_taxon_in_csv . $family;
-                if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
+                if($contents = Functions::lookup_with_cache($this->bhl_taxon_in_csv . $family, $this->download_options))
                 {
                     if($count = self::get_page_count_from_BHL_csv($contents))
                     {
