@@ -156,13 +156,16 @@ class WikimediaPage
     public function information()
     {
         if(isset($this->information)) return $this->information;
-        foreach(array("[Ii]nformation", "[Ss]pecimen") as $template_name)
+        foreach(array("[Ii]nformation", "[Ss]pecimen", "[Ff]lickr") as $template_name)
         {
             $this->information = WikiParser::template_as_array($this->active_wikitext(), $template_name);
             if(!empty($this->information)) break;
         }
         // remove the template name
         array_shift($this->information);
+        // For template {{Flickr}} put "photographer" as "author": see http://commons.wikimedia.org/wiki/Template:Flickr
+        if (!(array_key_exists('author', $this->information) || array_key_exists('Author', $this->information)) && array_key_exists('photographer', $this->information))
+            $this->information['author'] = $this->information['photographer'];
         return $this->information;
     }
 
@@ -544,7 +547,7 @@ class WikimediaPage
 
         $author = strip_tags($author);
         //replace bullet points (* ) or indents (:) with simple newlines
-        $author = preg_replace("/^\s*(:+|\*+ )/mu", "\n", $author);
+        $author = preg_replace("/^\s*(:+|\*+)/mu", "\n", $author);
         //trim newlines at start & end
         $author = preg_replace("/^\n+/u", "", $author);
         $author = preg_replace("/\n+$/u", "", $author);
