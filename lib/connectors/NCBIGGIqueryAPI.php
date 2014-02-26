@@ -51,6 +51,9 @@ class NCBIGGIqueryAPI
         $this->bhl_taxon_in_csv = "http://www.biodiversitylibrary.org/namelistdownload/?type=c&name=";
         $this->bhl_taxon_in_xml = "http://www.biodiversitylibrary.org/api2/httpquery.ashx?op=NameGetDetail&apikey=deabdd14-65fb-4cde-8c36-93dc2a5de1d8&name=";
         
+        // BOLDS portal
+        $this->bolds_taxon_page = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?searchTax=&taxon=";
+        
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
@@ -108,7 +111,7 @@ class NCBIGGIqueryAPI
     {
         $i = 0;
         $total = count($families);
-        if(in_array($this->query, array("gbif_info", "bhl_info")))
+        if(in_array($this->query, array("gbif_info", "bhl_info", "bolds_info")))
         {
             // $names_no_entry_from_partner = self::get_names_no_entry_from_partner(); //debug
             $names_no_entry_from_partner = array();
@@ -116,13 +119,29 @@ class NCBIGGIqueryAPI
         foreach($families as $family)
         {
             $i++;
-            // if($i > 1000) break; //debug
+            
+            /* breakdown when caching
+            $cont = false;
+            if($i >= 1 && $i < 1000)     $cont = true;
+            if($i >= 1000 && $i < 2000)  $cont = true;
+            if($i >= 2000 && $i < 3000)  $cont = true;
+            if($i >= 3000 && $i < 4000)  $cont = true;
+            if($i >= 4000 && $i < 5000)  $cont = true;
+            if($i >= 5000 && $i < 6000)  $cont = true;
+            if($i >= 6000 && $i < 7000)  $cont = true;
+            if($i >= 7000 && $i < 8000)  $cont = true;
+            if($i >= 8000 && $i < 9000)  $cont = true;
+            if($i >= 9000 && $i < 10000) $cont = true;
+            if(!$cont) continue;
+            */
+            
             if($family == "Family Unassigned") continue;
             
             if    ($this->query == "ncbi_sequence_info")     self::query_family_NCBI_info($family);
             elseif($this->query == "ggbn_dna_specimen_info") self::query_family_GGBN_info($family);
             elseif($this->query == "gbif_info")              self::query_family_GBIF_info($family, $names_no_entry_from_partner);
             elseif($this->query == "bhl_info")               self::query_family_BHL_info($family, $names_no_entry_from_partner);
+            elseif($this->query == "bolds_info")             self::query_family_BOLDS_info($family, $names_no_entry_from_partner);
             
             echo "\n $i of $total - [$family]";
             $taxon = new \eol_schema\Taxon();
@@ -133,6 +152,58 @@ class NCBIGGIqueryAPI
         }
     }
 
+    private function query_family_BOLDS_info($family, $names_no_entry_from_partner)
+    {
+        $rec["taxon_id"] = $family;
+        if(in_array($family, $names_no_entry_from_partner))
+        {
+            $rec["object_id"] = "_rec_in_bolds";
+            self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInBOLD", $family);
+            return;
+        }
+        $rec["source"] = $this->bolds_taxon_page . $family;
+        if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
+        {
+            if($info = self::get_page_count_from_BOLDS_page($contents))
+            {
+                if(@$info["specimens"] > 0)
+                {
+                    $rec["object_id"] = "_no_of_rec_in_bolds";
+                    self::add_string_types($rec, "Number records in BOLDS", $info["specimens"], "http://eol.org/schema/terms/NumberRecordsInBOLD", $family);
+                    $rec["object_id"] = "_rec_in_bolds";
+                    self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/RecordInBOLD", $family);
+                }
+                if(@$info["public records"] > 0)
+                {
+                    $rec["object_id"] = "_no_of_public_rec_in_bolds";
+                    self::add_string_types($rec, "Number public records in BOLDS", $info["public records"], "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
+                }
+                return;
+            }
+            else
+            {
+                echo "\n no result for 2: [$family][" . $rec["source"] . "]\n";
+                self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
+            }
+        }
+        else
+        {
+            echo "\n no result for 2: [$family][" . $rec["source"] . "]\n";
+            self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
+        }
+        
+        $rec["object_id"] = "_rec_in_bolds";
+        self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInBOLD", $family);
+    }
+    
+    private function get_page_count_from_BOLDS_page($contents)
+    {
+        $info = array();
+        if(preg_match("/Specimens with Sequences:<\/td>(.*?)<\/td>/ims", $contents, $arr))  $info["specimens"] = trim(strip_tags($arr[1]));
+        if(preg_match("/Public Records:<\/td>(.*?)<\/td>/ims", $contents, $arr))            $info["public records"] = trim(strip_tags($arr[1]));
+        return $info;
+    }
+    
     private function query_family_BHL_info($family, $names_no_entry_from_partner)
     {
         $rec["taxon_id"] = $family;
@@ -140,7 +211,7 @@ class NCBIGGIqueryAPI
         if(in_array($family, $names_no_entry_from_partner))
         {
             $rec["object_id"] = "_page_in_bhl";
-            self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/ReferenceInBHL", $family);
+            self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/ReferenceInBHL", $family);
             return;
         }
         

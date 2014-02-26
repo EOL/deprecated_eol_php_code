@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for National Museum of Natural History Image Collection
-estimated execution time: 32 mins.
+estimated execution time: 6.9 hours
 Connector reads the XML provided by partner and 
 - sets the image rating.
 - If needed ingests TypeInformation text dataObjects
