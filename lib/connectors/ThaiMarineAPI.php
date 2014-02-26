@@ -30,10 +30,6 @@ class ThaiMarineAPI
         self::process_links($this->pagination_links);
         self::process_site_thumbnails_gallery($this->site_thumbnails_gallery);
         $this->create_archive();
-        // echo "\n count site_links: " . count($this->site_links);
-        // echo "\n count site_links_info: " . count($this->site_links_info);
-        // echo "\n count site_thumbnails: " . count($this->site_thumbnails);
-        // echo "\n count site_thumbnails_gallery: " . count($this->site_thumbnails_gallery);
     }
 
     private function process_links($links)
@@ -80,7 +76,7 @@ class ThaiMarineAPI
     private function create_agent()
     {
         $r = new \eol_schema\Agent();
-        $r->term_name = "Nick Chapman";
+        $r->term_name = "Our Dive Team";
         $r->agentRole = "photographer";
         $r->identifier = md5($r->term_name . "|" . $r->agentRole);
         $r->term_homepage = "http://chaloklum-diving.com/";
@@ -120,9 +116,6 @@ class ThaiMarineAPI
                     echo "\n sn:[$sciname][$key][$desc]\n";
                     exit;
                 }*/
-                // echo "\n" . $recs["title"];
-                // echo "\n sn:[$sciname][$key][$desc]\n";
-                // echo "\n\n";
                 
                 if(!$sciname) continue;
                 $image = str_ireplace("thumbs/thumbs_", "", $image);
@@ -205,10 +198,7 @@ class ThaiMarineAPI
         elseif(in_array($string, array("Scythozoa; other Jellyfish", "Pelagidae; Sea nettles", "Ellisellidae fam; Wire Coral", "Pennatulacea; Sea Pens", "Gorgonacea; Sea Fans/Whip Corals", "Ellisellidae; Sea Fans.", "Echinigorgia; Sea Fans", "Nephtheidae; more Soft corals", "Alcyoniidae; some Soft Corals", "Heteractis Anemone, unknown species", "Anthopleura species, perhaps", "Dardanus lagapodes; Hermit Crab", "Dardanus megistos; Hermit Crab", "Oceanapia sagittaria; Porifera."))) //get the sciname on the left side
         {
             $temp = explode(";", $string);
-            if(count($temp) == 1)
-            {
-                $temp = explode(",", $string);
-            }
+            if(count($temp) == 1) $temp = explode(",", $string);
             if($val = @$temp[0]) return Functions::canonical_form($val);
             else return "";
         }
@@ -216,10 +206,7 @@ class ThaiMarineAPI
         {
             $string = trim(str_ireplace(" family", "", $string));
             $temp = explode(";", $string);
-            if(count($temp) == 1)
-            {
-                $temp = explode(",", $string);
-            }
+            if(count($temp) == 1) $temp = explode(",", $string);
             if($val = @$temp[1]) return Functions::canonical_form($val);
             else return Functions::canonical_form($temp[0]);
         }
@@ -315,32 +302,6 @@ class ThaiMarineAPI
     {
         return trim(preg_replace('/\s*\([^)]*\)/', '', $string));
     }
-
-    // private function process_site_thumbnails($records)
-    // {
-    //     foreach($records as $key => $recs)
-    //     {
-    //         /*<a href="http://chaloklum-diving.com/marine-life-koh-phangan/fish-reptiles-squirts-chordata/sharks-rays-chondrichthyes/rays-rajiformes/blue-spotted-fantail-ray-taeniura-lymna/">
-    //         <img class="Thumb" alt="Blue spotted Fantail Ray; Taeniura lymna" src="http://chaloklum-diving.com/wp-content/blogs.dir/5/files/blue-spotted-fantail-ray-taeniura-lymna/thumbs/thumbs_blue-spotted-fantail-ray.jpg"/></a>
-    //         </div>
-    //         <div class="ngg-description">
-    //         <p>The ray most often spotted by divers and snorkellers is much more active at night.</p>*/
-    //         foreach($recs as $rec)
-    //         {
-    //             if(preg_match("/href=\"(.*?)\"/ims", $rec, $arr)) $source = $arr[1];
-    //             if(preg_match("/src=\"(.*?)\"/ims", $rec, $arr)) $image = $arr[1];
-    //             if(preg_match("/<p>(.*?)<\/p>/ims", $rec, $arr)) $desc = $arr[1];
-    //             if(preg_match("/alt=\"(.*?)\"/ims", $rec, $arr)) $alt = $arr[1];
-    //             $sciname = self::get_sciname($alt);
-    //             //manual adjustment
-    //             if(in_array($sciname, array("Other", "Mixed", ""))) continue;
-    //             // echo "\n $source";
-    //             // echo "\n $image";
-    //             // echo "\n sn:[$sciname] [$key][$desc]\n";
-    //             // echo "\n\n";
-    //         }
-    //     }
-    // }
 
 }
 ?>

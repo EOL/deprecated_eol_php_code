@@ -1,19 +1,101 @@
 <?php
 namespace php_active_record;
-
+/* connector: [211] */
 class IUCNRedlistAPI
 {
     // http://www.assembla.com/wiki/show/sis/Red_List_API
     const API_PREFIX = "http://api.iucnredlist.org/details/";    // http://api.iucnredlist.org/details/22823/0
     const SPECIES_LIST_API = "http://api.iucnredlist.org/index/all.json";
+
+    function __construct()
+    {
+        $this->export_basename = "export-47427";
+        // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
+        $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
+    }
     
-    public static function get_taxon_xml($resource_file = null)
+    public function get_taxon_xml($resource_file = null, $type = null)
     {
         $GLOBALS['language_to_iso_code'] = Functions::language_to_iso_code();
-        $taxa = self::get_all_taxa($resource_file);
+        if($type == "IUCN using .csv export") $taxa = self::get_all_taxa_v2($resource_file);
+        else $taxa = self::get_all_taxa($resource_file);
         return $taxa;
     }
     
+    private function get_all_taxa_v2($resource_file = null) // this is using the IUCN CSV export
+    {
+        $basename = $this->export_basename;
+        $text_path = self::load_zip_contents($this->species_list_export, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1), array($basename), ".csv");
+        print_r($text_path);
+        $taxon_ids = self::csv_to_array($text_path[$basename]);
+        $all_taxa = array();
+        $i = 0;
+        foreach($taxon_ids as $taxon_id)
+        {
+            $i++;
+            echo "\n $i. [$taxon_id]";
+            $taxon = self::get_taxa_for_species(null, $taxon_id);
+            if(!$taxon) continue;
+            $taxon_xml = $taxon->__toXML();
+            $taxon_xml = preg_replace("/\xE3\xBC/", "ü", $taxon_xml);
+            $taxon_xml = preg_replace("/\xE3\xA9/", "é", $taxon_xml);
+            $taxon_xml = preg_replace("/\xE3\x80/", "À", $taxon_xml);
+            if($resource_file) fwrite($resource_file, $taxon_xml);
+            else $all_taxa[] = $taxon;
+        }
+        // remove temp dir
+        $path = $text_path[$basename];
+        $parts = pathinfo($path);
+        $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
+        recursive_rmdir($parts["dirname"]);
+        debug("\n temporary directory removed: " . $parts["dirname"]);
+        return $all_taxa;
+    }
+
+    private function csv_to_array($csv_file)
+    {
+        $taxon_ids = array();
+        $i = 0;
+        $file = fopen($csv_file, "r");
+        while(!feof($file))
+        {
+            $temp = fgetcsv($file);
+            $i++;
+            if($i > 1)
+            {
+                if(!$temp) continue;
+                if(count($temp) != 23) continue;
+                $taxon_ids[$temp[0]] = 1;
+            }
+        }
+        fclose($file);
+        return array_keys($taxon_ids);
+    }
+
+    private function load_zip_contents($zip_path, $download_options, $files, $extension)
+    {
+        $text_path = array();
+        $temp_path = create_temp_dir();
+        if($file_contents = Functions::get_remote_file($zip_path, $download_options))
+        {
+            $parts = pathinfo($zip_path);
+            $temp_file_path = $temp_path . "/" . $parts["basename"];
+            $TMP = fopen($temp_file_path, "w");
+            fwrite($TMP, $file_contents);
+            fclose($TMP);
+            $output = shell_exec("tar -xzf $temp_file_path -C $temp_path");
+            if(file_exists($temp_path . "/" . $files[0] . $extension))
+            {
+                foreach($files as $file)
+                {
+                    $text_path[$file] = $temp_path . "/" . $file . $extension;
+                }
+            }
+        }
+        else debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+        return $text_path;
+    }
+
     public static function get_all_taxa($resource_file = null)
     {
         $GLOBALS['birdlife_names'] = self::parse_birdlife_checklist();
@@ -55,10 +137,13 @@ class IUCNRedlistAPI
         return $all_taxa;
     }
     
-    public static function get_taxa_for_species($species_json)
+    public static function get_taxa_for_species($species_json, $species_id = NULL)
     {
-        $species_id = $species_json->species_id;
-        $details_html = Functions::lookup_with_cache(self::API_PREFIX . $species_id, array('validation_regex' => 'x_section'));
+        if($species_json) $species_id = $species_json->species_id;
+        $details_html = Functions::lookup_with_cache(self::API_PREFIX . $species_id, array('validation_regex' => 'x_section', 'download_attempts' => 1));
+        if(!$details_html) return array();
+        $details_html = utf8_encode($details_html);
+        if(!Functions::is_utf8($details_html)) return array();
         
         // this is a hack to get the document to load as UTF8. Nothing else seemed to work when using DOMDocument
         // http://www.php.net/manual/en/domdocument.loadhtml.php#95251
@@ -124,7 +209,8 @@ class IUCNRedlistAPI
             foreach($language_names as $language_name)
             {
                 $common_name = @ucfirst(strtolower(trim($language_name->nodeValue)));
-                $taxon_parameters['commonNames'][] = new \SchemaCommonName(array('name' => $common_name, 'language' => $language));
+                $common_name = utf8_encode($common_name);
+                if(Functions::is_utf8($common_name)) $taxon_parameters['commonNames'][] = new \SchemaCommonName(array('name' => $common_name, 'language' => $language));
             }
         }
         

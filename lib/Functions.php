@@ -135,7 +135,7 @@ class Functions
         {
             $file_contents = file_get_contents($cache_path);
             $cache_is_valid = true;
-            if($options['validation_regex'] && !preg_match("/". $options['validation_regex'] ."/ims", $file_contents))
+            if(@$options['validation_regex'] && !preg_match("/". $options['validation_regex'] ."/ims", $file_contents))
             {
                 $cache_is_valid = false;
             }
@@ -1839,5 +1839,53 @@ class Functions
         $hms .= str_pad($seconds, 2, "0", STR_PAD_LEFT);
         return $hms;
     }
+
+    public function get_google_spreadsheet($options)
+    {
+        if(!isset($options["spreadsheet_title"]))
+        {
+            debug("[spreadsheet_title] is a required paramemter \n");
+            return false;
+        }
+        require_vendor('google_api');
+        if(!isset($options["number_of_columns_to_return"])) $options["number_of_columns_to_return"] = "all";
+        if(!isset($options["google_username"])) $options["google_username"] = $GLOBALS['GOOGLE_USERNAME'];
+        if(!isset($options["google_password"])) $options["google_password"] = $GLOBALS['GOOGLE_PASSWORD'];
+        /* This will return an array of $sheet[col][row] values */
+        $spreadsheet_tables_api = new \google_api\GoogleSpreadsheetsAPI($options["google_username"], $options["google_password"], @$_SESSION['GOOGLE_AUTH_TOKEN'], '');
+        $response = $spreadsheet_tables_api->get_spreadsheets();
+        foreach($response->entry as $entry)
+        {
+            if($entry->title == $options["spreadsheet_title"]) // e.g "BOLD image mappings", "SPG Hotlist Official Version"
+            {
+                $URL_for_spreadsheet = $entry->content['src'];
+                $spreadsheet_repsonse = $spreadsheet_tables_api->get_response($URL_for_spreadsheet);
+                $sheet_url = $spreadsheet_repsonse->entry->link[0]['href'];
+                $worksheet_repsonse = $spreadsheet_tables_api->get_response($sheet_url);
+                $cols = array();
+                foreach($worksheet_repsonse->entry as $entry) $cols[substr($entry->title,0,1)][substr($entry->title,1,strlen($entry->title)-1)] = $entry->content;
+                $letters = array_keys($cols);
+                $max_count = 0;
+                foreach($letters as $letter) // to get the max_count of rows
+                {
+                    if(count($cols[$letter]) > $max_count) $max_count = count($cols[$letter]);
+                }
+                $sheet = array(); // to be returned
+                $col_count = 0;
+                foreach($letters as $letter)
+                {
+                    $col_count++;
+                    for($i=1; $i<=$max_count; $i++) $sheet[$col_count][$i] = @$cols[$letter][$i];
+                    if($options["number_of_columns_to_return"] != "all")
+                    {
+                        if($col_count >= $options["number_of_columns_to_return"]) return $sheet;
+                    }
+                }
+                return $sheet;
+            }
+        }
+        return false;
+    }
+
 }
 ?>

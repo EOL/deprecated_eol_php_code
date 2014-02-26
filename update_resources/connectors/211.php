@@ -15,7 +15,10 @@ $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", "w+");
 fwrite($resource_file, \SchemaDocument::xml_header());
 
 // query IUCN and write results to file
-IUCNRedlistAPI::get_taxon_xml($resource_file);
+// IUCNRedlistAPI::get_taxon_xml($resource_file); //using partnet-hosted json dump file
+
+$func = new IUCNRedlistAPI();
+$func->get_taxon_xml($resource_file, "IUCN using .csv export");
 
 // write the resource footer
 fwrite($resource_file, \SchemaDocument::xml_footer());

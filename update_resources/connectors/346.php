@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for National Museum of Natural History Image Collection
-estimated execution time: 32 mins.
+estimated execution time: 6.9 hours
 Connector reads the XML provided by partner and 
 - sets the image rating.
 - If needed ingests TypeInformation text dataObjects
@@ -31,6 +31,9 @@ $xml = remove_blank_taxon_entry($xml);
 
 require_library('connectors/INBioAPI');
 $xml = INBioAPI::assign_eol_subjects($xml);
+
+//fix DATA-1420
+$xml = $nmnh->remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml); 
 
 $nmnh->save_resource_document($xml);
 Functions::set_resource_status_to_force_harvest($resource_id);

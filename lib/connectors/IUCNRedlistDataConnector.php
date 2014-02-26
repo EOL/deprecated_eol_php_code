@@ -1,0 +1,396 @@
+<?php
+namespace php_active_record;
+/* connector: [737] */
+class IUCNRedlistDataConnector
+{
+    function __construct($folder)
+    {
+        $this->taxa = array();
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $this->occurrence_ids = array();
+        $this->debug = array();
+
+        // $this->export_basename = "export-22326";
+        $this->export_basename = "export-47427";
+        // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
+        $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
+
+        $this->categories = array("CR" => "Critically Endangered (CR)",
+                                  "EN" => "Endangered (EN)",
+                                  "VU" => "Vulnerable (VU)",
+                                  "LC" => "Least Concern (LC)",
+                                  "NT" => "Near Threatened (NT)",
+                                  "DD" => "Data Deficient (DD)",
+                                  "EX" => "Extinct (EX)",
+                                  "EW" => "Extinct in the Wild (EW)",
+                                  "LR/lc" => "Lower Risk/least concern (LR/lc)",
+                                  "LR/nt" => "Lower Risk/near threatened (LR/nt)",
+                                  "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
+        $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
+
+        // stats
+        $this->TEMP_DIR = create_temp_dir() . "/";
+        $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
+    }
+
+    function generate_IUCN_data()
+    {
+        $basename = $this->export_basename;
+        $text_path = self::load_zip_contents($this->species_list_export, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1), array($basename), ".csv");
+        print_r($text_path);
+        
+        self::csv_to_array($text_path[$basename]);
+        $this->archive_builder->finalize(TRUE);
+        
+        // remove temp dir
+        $path = $text_path[$basename];
+        $parts = pathinfo($path);
+        $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
+        recursive_rmdir($parts["dirname"]);
+        debug("\n temporary directory removed: " . $parts["dirname"]);
+        
+        print_r($this->debug);
+    }
+
+    private function csv_to_array($csv_file)
+    {
+        require_library('connectors/IUCNRedlistAPI');
+        $func = new IUCNRedlistAPI();
+        
+        // $names_no_entry_from_partner = self::get_names_no_entry_from_partner(); //debug
+        $names_no_entry_from_partner = array();
+        
+        $i = 0;
+        $file = fopen($csv_file, "r");
+        while(!feof($file))
+        {
+            $temp = fgetcsv($file);
+            
+            $i++;
+            echo "\n $i - ";
+            if($i == 1)
+            {
+                $fields = $temp;
+                print_r($fields);
+                if(count($fields) != 23)
+                {
+                    $this->debug["not23"][$fields[0]] = 1;
+                    continue;
+                }
+            }
+            else
+            {
+                // if($i >= 1 && $i <= 10000)
+                // if($i > 10000 && $i <= 20000)
+                // if($i > 20000 && $i <= 30000)
+                // if($i > 30000 && $i <= 40000)
+                // if($i > 40000 && $i <= 50000)
+                // if($i > 50000 && $i <= 60000)
+                // if($i > 60000 && $i <= 80000)
+                
+                if(true)
+                {
+                    $rec = array();
+                    $k = 0;
+                    // 2 checks if valid record
+                    if(!$temp) continue;
+                    if(count($temp) != 23)
+                    {
+                        $this->debug["not23"][$temp[0]] = 1;
+                        continue;
+                    }
+                    
+                    foreach($temp as $t)
+                    {
+                        $rec[$fields[$k]] = $t;
+                        $k++;
+                    }
+
+                    if(in_array($rec["Species ID"], $names_no_entry_from_partner))
+                    {
+                        // self::process_profile_using_csv($rec);
+                        continue;
+                    }
+                    
+                    // $rec["Species ID"] = 187809; //debug
+                    
+                    if($taxon = $func->get_taxa_for_species(null, $rec["Species ID"]))
+                    {
+                        $this->create_instances_from_taxon_object($taxon);
+                        $this->process_profile_using_xml($taxon);
+                    }
+                    else
+                    {
+                        echo "\n no result for: " . $rec["Species ID"] . "\n";
+                        self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file);
+                        // self::process_profile_using_csv($rec);
+                    }
+                }// end debug
+            }
+        } // end while{}
+        fclose($file);
+    }
+
+    private function get_names_no_entry_from_partner()
+    {
+        $names = array();
+        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/IUCN/names_no_entry_from_partner.txt";
+        foreach(new FileIterator($dump_file) as $line_number => $line)
+        {
+            if($line) $names[$line] = "";
+        }
+        return array_keys($names);
+    }
+
+    private function process_profile_using_csv($rec)
+    {
+        if(count($rec) == 23)
+        {
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID                 = $rec["Species ID"];
+            $taxon->scientificName          = trim($rec["Genus"] . " " . $rec["Species"] . " " . $rec["Authority"]);
+            $taxon->kingdom                 = ucfirst(strtolower($rec["Kingdom"]));
+            $taxon->phylum                  = ucfirst(strtolower($rec["Phylum"]));
+            $taxon->class                   = ucfirst(strtolower($rec["Class"]));
+            $taxon->order                   = ucfirst(strtolower($rec["Order"]));
+            $taxon->family                  = ucfirst(strtolower($rec["Family"]));
+            $taxon->furtherInformationURL   = $this->iucn_taxon_page . $rec["Species ID"];
+            // these 2 to imitate EOL XML
+            $taxon->identifier = $taxon->taxonID;
+            $taxon->source = $taxon->furtherInformationURL;
+            $this->create_instances_from_taxon_object($taxon);
+            
+            $details = array();
+            $details["RedListCategory"] = $this->categories[$rec["Red List status"]];
+            $details["texts"] = array("red_list_criteria" => $rec["Red List criteria"],
+                                      "category_version"  => $rec["Red List criteria version"],
+                                      "modified_year"     => $rec["Year assessed"]);
+            $details["pop_trend"] = $rec["Population trend"];
+            $this->process_profile_using_xml($taxon, $details);
+            // [Petitioned] => N
+        }
+        else $this->debug["not23"][$rec["Species ID"]] = 1;
+    }
+    
+    private function save_to_dump($data, $filename)
+    {
+        $WRITE = fopen($filename, "a");
+        if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
+        else                         fwrite($WRITE, $data . "\n");
+        fclose($WRITE);
+    }
+
+    private function create_instances_from_taxon_object($rec)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID                 = $rec->identifier;
+        $taxon->scientificName          = $rec->scientificName;
+        $taxon->kingdom                 = $rec->kingdom;
+        $taxon->phylum                  = $rec->phylum;
+        $taxon->class                   = $rec->class;
+        $taxon->order                   = $rec->order;
+        $taxon->family                  = $rec->family;
+        $taxon->furtherInformationURL   = $rec->source;
+        echo " - " . $taxon->scientificName . " [$taxon->taxonID]";
+        $this->archive_builder->write_object_to_file($taxon);
+    }
+
+    private function process_profile_using_xml($record, $details = false)
+    {
+        if(!$details) $details = self::get_details($record);
+        $rec = array();
+        $rec["taxon_id"] = $record->identifier;
+        $rec["source"] = $record->source;
+        
+        if($val = @$details["RedListCategory"])
+        {
+            $val = self::format_category($val);
+            $remarks = self::get_remarks_for_old_designation($val);
+            $rec["catnum"] = "_rlc";
+            self::add_string_types("true", $rec, "Red List Category", $val, "http://eol.org/schema/terms/RedListCategory", $remarks);
+        }
+
+        if($texts = @$details["texts"])
+        {
+            $text["red_list_criteria"]["uri"] = "http://eol.org/schema/terms/RedListCriteria";
+            $text["category_version"]["uri"] = "http://eol.org/schema/terms/Version";
+            $text["modified_year"]["uri"] = "http://rs.tdwg.org/dwc/terms/measurementDeterminedDate"; //"http://eol.org/schema/terms/DateMeasured";
+            $text["assessors"]["uri"] = "http://eol.org/schema/terms/Assessor";
+            $text["reviewers"]["uri"] = "http://eol.org/schema/terms/Reviewer";
+            $text["contributors"]["uri"] = "http://purl.org/dc/terms/contributor"; // similar to $m->contributor
+            foreach($texts as $key => $value)
+            {
+                if(!$value) continue;
+                $rec["catnum"] = "_rlc"; // these fields will appear under "Data about this record".
+                self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"]);
+            }
+        }
+        
+        if($habitats = @$details["habitats"])
+        {
+            foreach($habitats as $h)
+            {
+                $this->debug["habitat"][$h] = 1;
+                
+                if($value_uri = self::format_habitat_value(strtolower($h)))
+                {
+                    $rec["catnum"] = "_" . $h;
+                    self::add_string_types("true", $rec, $h, $value_uri, "http://rs.tdwg.org/dwc/terms/habitat");
+                }
+                else $this->debug["habitat"]["undefined"][$h] = 1;
+            }
+        }
+        
+        if($pop_trend = @$details["pop_trend"])
+        {
+            $rec["catnum"] = "_pop_trend";
+            self::add_string_types("true", $rec, "Population trend", $pop_trend, null);
+        }
+    }
+    
+    private function get_remarks_for_old_designation($category)
+    {
+        switch($category)
+        {
+            case "http://eol.org/schema/terms/leastConcern":          return 'Older designation "Lower Risk/least concern (LR/lc)" indicates this species has not been reevaluated since 2000';
+            case "http://eol.org/schema/terms/nearThreatened":        return 'Older designation "Lower Risk/near threatened (LR/nt)" indicates this species has not been reevaluated since 2000';
+            case "http://eol.org/schema/terms/conservationDependent": return 'Older designation "Lower Risk/conservation dependent (LR/cd)" indicates this species has not been reevaluated since 2000. When last evaluated, had post 2001 criteria been applied, this species would have been classed as Near Threatened';
+            default: return "";
+        }
+    }
+    
+    private function format_habitat_value($habitat)
+    {
+        switch($habitat)
+        {
+            case "marine":      return "http://purl.obolibrary.org/obo/ENVO_00000569";
+            case "terrestrial": return "http://purl.obolibrary.org/obo/ENVO_00002009";
+            case "freshwater":  return "http://purl.obolibrary.org/obo/ENVO_00002037";
+            default:            return false;
+        }
+    }
+    
+    private function format_category($cat)
+    {
+        /*
+        http://eol.org/schema/terms/notEvaluated
+        */
+        switch($cat)
+        {
+            case "Critically Endangered (CR)":  return "http://eol.org/schema/terms/criticallyEndangered";
+            case "Endangered (EN)":             return "http://eol.org/schema/terms/endangered";
+            case "Vulnerable (VU)":             return "http://eol.org/schema/terms/vulnerable";
+            case "Least Concern (LC)":          return "http://eol.org/schema/terms/leastConcern";
+            case "Near Threatened (NT)":        return "http://eol.org/schema/terms/nearThreatened";
+            case "Data Deficient (DD)":         return "http://eol.org/schema/terms/dataDeficient";
+            case "Extinct (EX)":                return "http://eol.org/schema/terms/extinct";
+            case "Extinct in the Wild (EW)":    return "http://eol.org/schema/terms/extinctInTheWild";
+            case "Lower Risk/least concern (LR/lc)":            return "http://eol.org/schema/terms/leastConcern";
+            case "Lower Risk/near threatened (LR/nt)":          return "http://eol.org/schema/terms/nearThreatened";
+            case "Lower Risk/conservation dependent (LR/cd)":   return "http://eol.org/schema/terms/conservationDependent";
+            default: $this->debug["category undefined"][$cat] = 1;
+        }
+        return false;
+    }
+    
+    private function get_details($taxon)
+    {
+        $rec = array();
+        foreach($taxon->dataObjects as $o)
+        {
+            if($o->title == "IUCNConservationStatus")       $rec["RedListCategory"] = $o->description;
+            elseif($o->title == "IUCN Red List Assessment") $rec["texts"]           = self::parse_assessment_info($o->description);
+            elseif($o->title == "Habitat and Ecology")      $rec["habitats"]        = self::parse_habitat_info($o->description);
+            elseif($o->title == "Population")               $rec["pop_trend"]       = self::parse_population_trend($o->description);
+        }
+        $this->debug[@$rec["RedListCategory"]] = 1;
+        return $rec;
+    }
+
+    private function parse_population_trend($html)
+    {
+        if(preg_match("/<div id=\"population_trend\">(.*?)<\/div>/ims", $html, $arr)) return $arr[1];
+    }
+
+    private function parse_habitat_info($html)
+    {
+        if(preg_match_all("/<li class=\"system\">(.*?)<\/li>/ims", $html, $arr)) return $arr[1];
+    }
+    
+    private function parse_assessment_info($html)
+    {
+        $rec = array();
+        /* not used here
+        if(preg_match("/<div id=\"red_list_category_code\">(.*?)<\/div>/ims", $html, $arr))  $rec["red_list_category_code"] = trim($arr[1]);
+        if(preg_match("/<div id=\"red_list_category_title\">(.*?)<\/div>/ims", $html, $arr)) $rec["red_list_category_title"] = trim($arr[1]);
+        */
+        if(preg_match("/<div id=\"red_list_criteria\">(.*?)<\/div>/ims", $html, $arr))       $rec["red_list_criteria"] = trim($arr[1]);
+        if(preg_match("/<div id=\"category_version\">(.*?)<\/div>/ims", $html, $arr))        $rec["category_version"] = trim($arr[1]);
+        if(preg_match("/<div id=\"modified_year\">(.*?)<\/div>/ims", $html, $arr))           $rec["modified_year"] = trim($arr[1]);
+        if(preg_match("/<div id=\"assessors\">(.*?)<\/div>/ims", $html, $arr))               $rec["assessors"] = trim($arr[1]);
+        if(preg_match("/<div id=\"reviewers\">(.*?)<\/div>/ims", $html, $arr))               $rec["reviewers"] = trim($arr[1]);
+        if(preg_match("/<div id=\"contributors\">(.*?)<\/div>/ims", $html, $arr))            $rec["contributors"] = trim($arr[1]);
+        return $rec;
+    }
+    
+    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $measurementRemarks = null)
+    {
+        echo "\n [$label]:[$value]\n";
+        $taxon_id = $rec["taxon_id"];
+        $catnum = $rec["catnum"];
+        $m = new \eol_schema\MeasurementOrFact();
+        $occurrence = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence->occurrenceID;
+        if($mtype)  $m->measurementType = $mtype;
+        else        $m->measurementType = "http://iucn.org/". SparqlClient::to_underscore($label);
+        $m->measurementValue = $value;
+        if($val = $measurementOfTaxon) $m->measurementOfTaxon = $val;
+        if($measurementOfTaxon)
+        {
+            $m->source = $rec["source"];
+            $m->measurementRemarks = $measurementRemarks;
+            // $m->contributor = '';
+            // $m->measurementMethod = '';
+        }
+        $this->archive_builder->write_object_to_file($m);
+    }
+
+    private function add_occurrence($taxon_id, $catnum)
+    {
+        $occurrence_id = $taxon_id . 'O' . $catnum;
+        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = $o;
+        return $o;
+    }
+
+    private function load_zip_contents($zip_path, $download_options, $files, $extension)
+    {
+        $text_path = array();
+        $temp_path = create_temp_dir();
+        if($file_contents = Functions::get_remote_file($zip_path, $download_options))
+        {
+            $parts = pathinfo($zip_path);
+            $temp_file_path = $temp_path . "/" . $parts["basename"];
+            $TMP = fopen($temp_file_path, "w");
+            fwrite($TMP, $file_contents);
+            fclose($TMP);
+            $output = shell_exec("tar -xzf $temp_file_path -C $temp_path");
+            if(file_exists($temp_path . "/" . $files[0] . $extension))
+            {
+                foreach($files as $file)
+                {
+                    $text_path[$file] = $temp_path . "/" . $file . $extension;
+                }
+            }
+        }
+        else debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+        return $text_path;
+    }
+
+}
+?>

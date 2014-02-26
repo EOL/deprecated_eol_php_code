@@ -1,17 +1,17 @@
 <?php
 namespace php_active_record;
 /*
-NCBI GGI queries (DATA-1369)
-Partner provides a service to query their data using family names
+Need structured data connector for BHL number of records per family for GGI  (DATA-1417)
+Partner provides services for us to get the total number of records per family
 estimated execution time:
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');
 $timestart = time_elapsed();
-$resource_id = 723;
-$func = new NCBIGGIqueryAPI($resource_id, "ncbi_sequence_info");
+$resource_id = 743;
+$func = new NCBIGGIqueryAPI($resource_id, "bhl_info");
 $func->get_all_taxa();
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1) // orig 1000
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {
