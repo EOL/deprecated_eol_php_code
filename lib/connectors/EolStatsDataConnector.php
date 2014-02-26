@@ -143,12 +143,11 @@ class EolStatsDataConnector
             AND tcm.richness_score >= .4";
         $count_of_rich_species = $this->mysqli->select_value($query);
 
-        $this_richness = $this->mysqli->select_value("SELECT richness_score FROM taxon_concept_metrics WHERE taxon_concept_id=$taxon_concept_id");
         $media_counts = TaxonConcept::media_counts($taxon_concept_id);
         $all_media_count = @$media_counts['image'] + @$media_counts['video'] + @$media_counts['sound'];
         return array('NumberRichSpeciesPagesInEOL' => $count_of_rich_species, 'NumberImagesInEOL' => @$media_counts['image'],
             'NumberArticlesInEOL' => @$media_counts['text'], 'NumberMediaInEOL' => $all_media_count,
-            'RichPageOnEOL' => (($this_richness >= .4) ? 'http://eol.org/schema/terms/yes' : 'http://eol.org/schema/terms/no'));
+            'RichPageOnEOL' => (($count_of_rich_species >= 0) ? 'http://eol.org/schema/terms/yes' : 'http://eol.org/schema/terms/no'));
     }
 
     private function lookup_family($name, $synonyms, $ancestors)

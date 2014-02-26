@@ -95,7 +95,7 @@ class Taxon extends DarwinCoreExtensionBase
         );
     public static function valid_taxon_status($v)
     {
-        if($v && !in_array($v, self::$taxon_statuses))
+        if($v && !in_array(strtolower($v), self::$taxon_statuses))
         {
             return false;
         }

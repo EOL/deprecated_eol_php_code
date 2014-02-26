@@ -1071,7 +1071,7 @@ class EOLStats
                     ?s <http://eol.org/schema/measurementOfTaxon> <http://eol.org/schema/terms/true> .
                     ?s dwc:occurrenceID ?o .
                     ?o dwc:taxonID ?t .
-                    ?t dwc:taxonConceptID ?tc .
+                    ?t dwc:taxonConceptID ?tc
                 } UNION {
                     ?a a <http://eol.org/schema/Association> .
                     ?a dwc:occurrenceID ?o .

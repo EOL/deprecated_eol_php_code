@@ -12,12 +12,12 @@ class WikimediaPage
             http://dublincore.org/usage/meetings/2004/03/Relator-codes.html */
     private static $default_role = 'Creator';
     private static $mediatypes = array(
-        'BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'Photographer'),
-        'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'Illustrator'),
-        'AUDIO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/Sound',      'role'=>'Recorder'),
-        'VIDEO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/MovingImage','role'=>'Creator'),
+        'BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'photographer'),
+        'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'illustrator'),
+        'AUDIO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/Sound',      'role'=>'recorder'),
+        'VIDEO'   => array('dcmitype'=>'http://purl.org/dc/dcmitype/MovingImage','role'=>'creator'),
         // 'MULTIMEDIA' => '',
-        'TEXT'    => array('dcmitype'=>'http://purl.org/dc/dcmitype/Text',       'role'=>'Author'));
+        'TEXT'    => array('dcmitype'=>'http://purl.org/dc/dcmitype/Text',       'role'=>'author'));
 
     // see http://commons.wikimedia.org/wiki/Help:Namespaces for relevant numbers
     public static $NS = array('Gallery' => 0, 'Media' => 6, 'Template' => 10, 'Category' => 14);
