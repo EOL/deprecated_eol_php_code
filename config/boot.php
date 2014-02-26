@@ -104,7 +104,7 @@ function environment_defined($environment_name)
 {
     if(!file_exists(DOC_ROOT . 'config/database.yml'))
     {
-        // trigger_error('Booting failure: /config/database.yml does\'t exit', E_USER_ERROR);
+        // trigger_error('Booting failure: /config/database.yml doesn\'t exist', E_USER_ERROR);
         return false;
     }
     $environments = Spyc::YAMLLoad(DOC_ROOT . 'config/database.yml');
@@ -115,7 +115,7 @@ function environment_defined($environment_name)
         return true;
     }
     
-    // trigger_error('Booting failure: environment `'. $environment .'` doesn\'t exit', E_USER_ERROR);
+    // trigger_error('Booting failure: environment `'. $environment .'` doesn\'t exist', E_USER_ERROR);
     return false;
 }
 
@@ -123,7 +123,7 @@ function load_mysql_environment($environment = NULL)
 {
     if(!file_exists(DOC_ROOT . 'config/database.yml'))
     {
-        trigger_error('Booting failure: /config/database.yml does\'t exit', E_USER_ERROR);
+        trigger_error('Booting failure: /config/database.yml doesn\'t exist', E_USER_ERROR);
         return false;
     }
     $environments = Spyc::YAMLLoad(DOC_ROOT . 'config/database.yml');
@@ -131,7 +131,7 @@ function load_mysql_environment($environment = NULL)
     $possible_environments = array_keys($environments);
     if(!in_array($environment, $possible_environments))
     {
-        trigger_error('Booting failure: environment `'. $environment .'` doesn\'t exit', E_USER_ERROR);
+        trigger_error('Booting failure: environment `'. $environment .'` doesn\'t exist', E_USER_ERROR);
         return false;
     }
     
