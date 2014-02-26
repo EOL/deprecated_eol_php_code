@@ -212,7 +212,7 @@ class WikipediaHarvester
     
     function get_scientific_pages($xml)
     {
-        if(preg_match("/\{\{Taxobox/ims", $xml, $arr))
+        if(preg_match("/\{\{\s*Taxobox/ims", $xml, $arr))
         {
             $count = count($this->taxa_pages);
             if($count && $count%1000==0) echo "taxon: $count\n";

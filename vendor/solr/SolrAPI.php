@@ -83,7 +83,8 @@ class SolrAPI
     public function raw_query($query)
     {
         debug("Solr query: $query\n");
-        return json_decode(file_get_contents($this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json"));
+        $url = $this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json";
+        return json_decode(file_get_contents($url));
     }
 
     public function query($query)

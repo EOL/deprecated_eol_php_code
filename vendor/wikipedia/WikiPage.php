@@ -265,7 +265,7 @@ class WikiPage
         $taxon_parameters["source"] = "http://en.wikipedia.org/w/index.php?title=". str_replace(" ", "_", $this->title);
         $taxon_parameters['commonNames'] = $this->common_names($taxon_name);
         
-        if($taxon_rank == 'familia' || @$taxon_parameters['family'] || @$taxon_parameters['species'] || @$taxon_parameters['genus'])
+        if($taxon_rank == 'familia' || $taxon_rank == 'genus' || @$taxon_parameters['family'] || @$taxon_parameters['species'] || @$taxon_parameters['genus'])
         {
             $taxon_parameters['dataObjects'] = array();
             $this->taxon_parameters = $taxon_parameters;

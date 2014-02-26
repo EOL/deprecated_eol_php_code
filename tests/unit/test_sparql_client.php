@@ -82,13 +82,15 @@ class test_sparql_client extends SimpletestUnitBase
         $this->assertEqual(SparqlClient::append_namespaces_to_query("anything"), "PREFIX anage: <http://anage.org/schema/terms/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX obis: <http://iobis.org/schema/terms/>
-PREFIX eol: <http://eol.org/schema/terms/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dc: <http://purl.org/dc/terms/>
 PREFIX dwct: <http://rs.tdwg.org/dwc/dwctype/>
 PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>
+PREFIX eolreference: <http://eol.org/schema/reference/>
+PREFIX eolterms: <http://eol.org/schema/terms/>
+PREFIX eol: <http://eol.org/schema/>
 anything");
     }
 

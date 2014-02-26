@@ -27,16 +27,18 @@ class SparqlClient
         if(!$namespaces)
         {
             $namespaces = array(
-                'dwc'   => 'http://rs.tdwg.org/dwc/terms/',
-                'dwct'  => 'http://rs.tdwg.org/dwc/dwctype/',
-                'dc'    => 'http://purl.org/dc/terms/',
-                'rdf'   => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-                'rdfs'  => 'http://www.w3.org/2000/01/rdf-schema#',
-                'foaf'  => 'http://xmlns.com/foaf/0.1/',
-                'eol'   => 'http://eol.org/schema/terms/',
-                'obis'  => 'http://iobis.org/schema/terms/',
-                'owl'   => 'http://www.w3.org/2002/07/owl#',
-                'anage' => 'http://anage.org/schema/terms/' );
+                'eol'           => 'http://eol.org/schema/',
+                'eolterms'      => 'http://eol.org/schema/terms/',
+                'eolreference'  => 'http://eol.org/schema/reference/',
+                'dwc'           => 'http://rs.tdwg.org/dwc/terms/',
+                'dwct'          => 'http://rs.tdwg.org/dwc/dwctype/',
+                'dc'            => 'http://purl.org/dc/terms/',
+                'rdf'           => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+                'rdfs'          => 'http://www.w3.org/2000/01/rdf-schema#',
+                'foaf'          => 'http://xmlns.com/foaf/0.1/',
+                'obis'          => 'http://iobis.org/schema/terms/',
+                'owl'           => 'http://www.w3.org/2002/07/owl#',
+                'anage'         => 'http://anage.org/schema/terms/');
         }
         return $namespaces;
     }
@@ -194,7 +196,6 @@ class SparqlClient
         $this->update("DROP SILENT GRAPH <$graph_name>");
     }
 
-
     public function query($query, $options = array())
     {
         $query = self::append_namespaces_to_query($query);
@@ -206,6 +207,14 @@ class SparqlClient
         $decoded_response = json_decode(Functions::get_remote_file($query_url, array('timeout' => 900))); // 15 minutes
         return $decoded_response->results->bindings;
     }
+
+    public function post_query($query, $options = array())
+    {
+        $query = self::append_namespaces_to_query($query);
+        $decoded_response = json_decode(Functions::curl_post_request($this->endpoint_uri, array('format' => 'application/json', 'query' => $query)));
+        return $decoded_response->results->bindings;
+    }
+    
 }
 
 ?>
