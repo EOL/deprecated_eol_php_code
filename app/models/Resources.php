@@ -244,19 +244,14 @@ class Resource extends ActiveRecord
     {
         if($last_id = $this->most_recent_published_harvest_event_id())
         {
-            $this->mysqli->update("UPDATE harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=0 WHERE do.published=1 AND he.id=$last_id");
+            $this->mysqli->update_where("data_objects", "id", "SELECT do.id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$last_id AND do.published=1", "published=0");
         }
     }
     
     public function unpublish_hierarchy_entries()
     {
-        $this->mysqli->update("UPDATE hierarchy_entries he SET he.published=0, he.visibility_id=".Visibility::invisible()->id." WHERE he.published=1 AND he.hierarchy_id=$this->hierarchy_id");
-        $this->mysqli->update("UPDATE hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.published=0 WHERE s.published=0 AND he.hierarchy_id=$this->hierarchy_id");
-    }
-    
-    public function unpublish_taxon_concepts()
-    {
-        $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=0 WHERE he.hierarchy_id=$this->hierarchy_id");
+        $this->mysqli->update_where("hierarchy_entries", "id", "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$this->hierarchy_id AND published=1", "published=0, visibility_id=".Visibility::invisible()->id);
+        $this->mysqli->update_where("synonyms", "id", "SELECT s.id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) WHERE he.hierarchy_id=$this->hierarchy_id AND s.published=1", "published=0");
     }
     
     public function force_publish()
@@ -305,8 +300,6 @@ class Resource extends ActiveRecord
                 if($this->hierarchy_id)
                 {
                     // unpublish all concepts associated with this resource
-                    $this->unpublish_taxon_concepts();
-                    $this->mysqli->commit();
                     $this->unpublish_hierarchy_entries();
                     $this->mysqli->commit();
                     
@@ -315,7 +308,7 @@ class Resource extends ActiveRecord
                     $this->mysqli->commit();
                     
                     // make sure all concepts are published
-                    Hierarchy::publish_wrongly_unpublished_concepts();
+                    Hierarchy::fix_published_flags_for_taxon_concepts();
                     $this->mysqli->commit();
                     
                     if(!$fast_for_testing)

@@ -62,12 +62,12 @@ class Hierarchy extends ActiveRecord
         return Hierarchy::find_by_label('Wikipedia');
     }
     
-    public static function publish_wrongly_unpublished_concepts()
+    public static function fix_published_flags_for_taxon_concepts()
     {
-        // publishe all the concepts that are unpublished but have published entries
+        // publish all the concepts that are unpublished but have published entries
         $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) WHERE he.published=1 AND he.visibility_id=".Visibility::visible()->id." AND tc.published=0", "published=1");
         
-        // unpublish concepts with no entries
+        // unpublish concepts with no published entries
         $GLOBALS['db_connection']->update_where("taxon_concepts", "id", "SELECT tc.id FROM taxon_concepts tc LEFT JOIN hierarchy_entries he ON (tc.id=he.taxon_concept_id AND he.published=1) WHERE tc.published=1 AND he.id IS NULL", "published=0");
         
         // unpublish concepts that have been superceded

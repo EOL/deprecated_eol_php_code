@@ -46,7 +46,7 @@ if(!$fast_for_testing)
     shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". $GLOBALS['ENV_NAME']);
     
     // setting appropriate TaxonConcept publish flag
-    Hierarchy::publish_wrongly_unpublished_concepts();
+    Hierarchy::fix_published_flags_for_taxon_concepts();
     Hierarchy::fix_improperly_trusted_concepts();
     
     // update collection items which reference superceded concepts
