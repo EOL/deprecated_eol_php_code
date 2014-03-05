@@ -15,6 +15,13 @@ namespace php_active_record;
 #==== 5 AM, every 6th day of the month -- [Number of records in GBIF (DATA-1370)]
 00 05 6 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/731.php > /dev/null
 
+#==== 5 AM, every 7th day of the month -- [Number of pages in BHL (DATA-1417)]
+00 05 7 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/743.php > /dev/null
+
+#==== 5 AM, every 8th day of the month -- [Number of specimens with sequence in BOLDS (DATA-1417)]
+00 05 8 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/747.php > /dev/null
+
+
 */
 class NCBIGGIqueryAPI
 {
@@ -29,14 +36,14 @@ class NCBIGGIqueryAPI
 
         // local
         $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
-        $this->families_list_xlsx = "http://localhost/~eolit/cp/NCBIGGI/FALO_Version%202.0.a.1%20minus%20unassigned.xlsx";
+        $this->families_list_xlsx = "http://localhost/~eolit/cp/NCBIGGI/FALO_Version 2.0.a.1 minus unassigned.xlsx";
         
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
-        $this->families_list_xlsx = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO_Version%202.0.a.1%20minus%20unassigned.xlsx";
+        $this->families_list_xlsx = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO_Version 2.0.a.1 minus unassigned.xlsx";
 
         // NCBI service
         $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
-        $this->family_service_ncbi = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
+        // $this->family_service_ncbi = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
         /* to be used if u want to get all Id's, that is u will loop to get all Id's so server won't be overwhelmed: &retmax=10&retstart=0 */
         
         // GGBN data portal:
