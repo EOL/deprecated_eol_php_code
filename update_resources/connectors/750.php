@@ -1,13 +1,14 @@
 <?php
 namespace php_active_record;
-/* execution time: 5 seconds */
+/* execution time: 9 seconds */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FEISDataConnector');
 $timestart = time_elapsed();
+
 $resource_id = 750;
 $func = new FEISDataConnector($resource_id);
-$func->generate_IUCN_data();
+$func->generate_FEIS_data();
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
