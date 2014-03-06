@@ -36,10 +36,10 @@ class NCBIGGIqueryAPI
 
         // local
         $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
-        $this->families_list_xlsx = "http://localhost/~eolit/cp/NCBIGGI/FALO_Version 2.0.a.1 minus unassigned.xlsx";
+        $this->families_list_xlsx = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx";
         
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
-        $this->families_list_xlsx = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO_Version 2.0.a.1 minus unassigned.xlsx";
+        $this->families_list_xlsx = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx";
 
         // NCBI service
         $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
@@ -68,14 +68,45 @@ class NCBIGGIqueryAPI
 
     function get_all_taxa()
     {
-        /* $families = self::get_families(); */ // use to read a plain text file
-        $families = self::get_families_xlsx();
-        self::create_instances_from_taxon_object($families);
-        $this->create_archive();
-        
+        $families = self::get_families_from_google_spreadsheet();
+        if(!$families) $families = self::get_families_xlsx();
+        if(!$families) $families = self::get_families(); // use to read a plain text file
+        if($families)
+        {
+            self::create_instances_from_taxon_object($families);
+            $this->create_archive();
+        }
         // remove temp dir
         recursive_rmdir($this->TEMP_DIR);
         debug("\n temporary directory removed: " . $this->TEMP_DIR);
+    }
+
+    private function get_families_from_google_spreadsheet()
+    {
+        $google_spreadsheets[] = array("title" => "FALO",                                            "column_number_to_return" => 16);
+        $google_spreadsheets[] = array("title" => "falo_version 2.0.a.11_03-01-14 minus unassigned", "column_number_to_return" => 16);
+        $google_spreadsheets[] = array("title" => "FALO_Version 2.0.a.1 minus unassigned",           "column_number_to_return" => 14);
+        
+        $sheet = array();
+        foreach($google_spreadsheets as $doc)
+        {
+            echo "\n processing spreadsheet: " . $doc["title"] . "\n";
+            if($sheet = Functions::get_google_spreadsheet(array("spreadsheet_title" => $doc["title"], "column_number_to_return" => $doc["column_number_to_return"], "timeout" => 500)))
+            {
+                echo "\n successful process: " . $doc["title"] . "\n";
+                break;
+            }
+            else echo "\n un-successful process: " . $doc["title"] . "\n";
+        }
+        if(!$sheet) return array();
+        $families = array();
+        foreach($sheet as $family)
+        {
+            $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+            if(is_numeric($family)) continue;
+            if($family) $families[$family] = 1;
+        }
+        return array_keys($families);
     }
 
     private function get_families_xlsx()
@@ -88,7 +119,8 @@ class NCBIGGIqueryAPI
             $arr = $parser->convert_sheet_to_array($path);
             foreach($arr["FAMILY"] as $family)
             {
-                $family = trim(str_ireplace("Family ", "", $family));
+                $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+                if(is_numeric($family)) continue;
                 if($family) $families[$family] = 1;
             }
             unlink($path);
