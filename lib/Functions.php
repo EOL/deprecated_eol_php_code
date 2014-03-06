@@ -1842,6 +1842,7 @@ class Functions
 
     public function get_google_spreadsheet($options)
     {
+        /* This will return an array of $sheet[col][row] values */
         if(!isset($options["spreadsheet_title"]))
         {
             debug("[spreadsheet_title] is a required paramemter \n");
@@ -1851,21 +1852,20 @@ class Functions
         if(!isset($options["number_of_columns_to_return"])) $options["number_of_columns_to_return"] = "all"; // use this to return the no. of columns from left to right
         if(!isset($options["column_number_to_return"]))     $options["column_number_to_return"] = false; // use this to return a single column
         if(!isset($options["timeout"]))                     $options["timeout"] = 100;
-        
         if(!isset($options["google_username"])) $options["google_username"] = $GLOBALS['GOOGLE_USERNAME'];
         if(!isset($options["google_password"])) $options["google_password"] = $GLOBALS['GOOGLE_PASSWORD'];
-        /* This will return an array of $sheet[col][row] values */
-        $spreadsheet_tables_api = new \google_api\GoogleSpreadsheetsAPI($options["google_username"], $options["google_password"], @$_SESSION['GOOGLE_AUTH_TOKEN'], '', array("timeout" => $options["timeout"]));
-        $response = $spreadsheet_tables_api->get_spreadsheets(array("timeout" => $options["timeout"]));
-        
+
+        $params = array("timeout" => $options["timeout"]); // parameters for the google_api
+        $spreadsheet_tables_api = new \google_api\GoogleSpreadsheetsAPI($options["google_username"], $options["google_password"], @$_SESSION['GOOGLE_AUTH_TOKEN'], '', $params);
+        $response = $spreadsheet_tables_api->get_spreadsheets($params);
         foreach($response->entry as $entry)
         {
             if($entry->title == $options["spreadsheet_title"]) // e.g "BOLD image mappings", "SPG Hotlist Official Version"
             {
                 $URL_for_spreadsheet = $entry->content['src'];
-                $spreadsheet_repsonse = $spreadsheet_tables_api->get_response($URL_for_spreadsheet, array("timeout" => $options["timeout"]));
+                $spreadsheet_repsonse = $spreadsheet_tables_api->get_response($URL_for_spreadsheet, $params);
                 $sheet_url = $spreadsheet_repsonse->entry->link[0]['href'];
-                $worksheet_repsonse = $spreadsheet_tables_api->get_response($sheet_url, array("timeout" => $options["timeout"]));
+                $worksheet_repsonse = $spreadsheet_tables_api->get_response($sheet_url, $params);
                 $cols = array();
                 foreach($worksheet_repsonse->entry as $entry) $cols[substr($entry->title,0,1)][substr($entry->title,1,strlen($entry->title)-1)] = $entry->content;
                 $letters = array_keys($cols);
