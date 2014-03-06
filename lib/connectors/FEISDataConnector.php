@@ -100,19 +100,21 @@ class FEISDataConnector
     {
         switch($rec["Scientific Name"])
         {
-            case "Vaccinium alaskensis":                $rec["Scientific Name"] = "Vaccinium ovalifolium";
-            case "Vaccinium alaskaense":                $rec["Scientific Name"] = "Vaccinium ovalifolium";
-            case "Taxus candensis":                     $rec["Scientific Name"] = "Taxus canadensis";
-            case "Symphiotrichum leave":                $rec["Scientific Name"] = "Symphyotrichum laeve";
-            case "Sporobolus flexuous":                 $rec["Scientific Name"] = "Sporobolus flexuosus";
-            case "Schoenoplectus actus":                $rec["Scientific Name"] = "Schoenoplectus acutus";
-            case "Populus deltoides var. mislizeni":    $rec["Scientific Name"] = "Populus deltoides subsp. wislizeni";
-            case "Pinus leiophylla var. chihuahuan":    $rec["Scientific Name"] = "Pinus leiophylla var. chihuahuana";
-            case "Cladonia rangeferia":                 $rec["Scientific Name"] = "Cladonia rangiferina";
-            case "Cladonia rangiferia":                 $rec["Scientific Name"] = "Cladonia rangiferina";
-            case "Baccharis piluaris":                  $rec["Scientific Name"] = "Baccharis pilularis";
-            case "Achnatherum thurberiana":             $rec["Scientific Name"] = "Achnatherum thurberianum";
+            case "Vaccinium alaskensis":                $rec["Scientific Name"] = "Vaccinium ovalifolium"; break;
+            case "Vaccinium alaskaense":                $rec["Scientific Name"] = "Vaccinium ovalifolium"; break;
+            case "Taxus candensis":                     $rec["Scientific Name"] = "Taxus canadensis"; break;
+            case "Symphiotrichum leave":                $rec["Scientific Name"] = "Symphyotrichum laeve"; break;
+            case "Sporobolus flexuous":                 $rec["Scientific Name"] = "Sporobolus flexuosus"; break;
+            case "Schoenoplectus actus":                $rec["Scientific Name"] = "Schoenoplectus acutus"; break;
+            case "Populus deltoides var. mislizeni":    $rec["Scientific Name"] = "Populus deltoides subsp. wislizeni"; break;
+            case "Pinus leiophylla var. chihuahuan":    $rec["Scientific Name"] = "Pinus leiophylla var. chihuahuana"; break;
+            case "Cladonia rangeferia":                 $rec["Scientific Name"] = "Cladonia rangiferina"; break;
+            case "Cladonia rangiferia":                 $rec["Scientific Name"] = "Cladonia rangiferina"; break;
+            case "Baccharis piluaris":                  $rec["Scientific Name"] = "Baccharis pilularis"; break;
+            case "Achnatherum thurberiana":             $rec["Scientific Name"] = "Achnatherum thurberianum"; break;
             case "Cushenbury milkvetch":                $rec["Scientific Name"] = "Astragalus albens";
+                                                        $rec["Common Name"] = "Cushenbury milkvetch"; 
+                                                        break;
             /*
             case "Botrychium matricariaefolium":        $rec["Scientific Name"] = "Botrychium matricariifolium"; 
             Leo decided to leave it as is and just use "Botrychium matricariaefolium"
