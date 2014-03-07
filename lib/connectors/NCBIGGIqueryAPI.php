@@ -91,7 +91,7 @@ class NCBIGGIqueryAPI
         foreach($google_spreadsheets as $doc)
         {
             echo "\n processing spreadsheet: " . $doc["title"] . "\n";
-            if($sheet = Functions::get_google_spreadsheet(array("spreadsheet_title" => $doc["title"], "column_number_to_return" => $doc["column_number_to_return"], "timeout" => 500)))
+            if($sheet = Functions::get_google_spreadsheet(array("spreadsheet_title" => $doc["title"], "column_number_to_return" => $doc["column_number_to_return"], "timeout" => 999999)))
             {
                 echo "\n successful process: " . $doc["title"] . "\n";
                 break;
