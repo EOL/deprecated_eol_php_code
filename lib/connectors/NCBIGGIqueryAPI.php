@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector: [723] NCBI GGI queries (DATA-1369)
               [730] GGBN Queries for GGI  (DATA-1372)
               [731] GBIF records (DATA-1370)
-              [743] Create a resource for more Database Coverage data (BHL and BOLD info) (DATA-1417)
+              [743, 747] Create a resource for more Database Coverage data (BHL and BOLD info) (DATA-1417)
 
 
 #==== 5 AM, every 4th day of the month -- [Number of sequences in GenBank (DATA-1369)]
@@ -68,7 +68,8 @@ class NCBIGGIqueryAPI
 
     function get_all_taxa()
     {
-        $families = self::get_families_from_google_spreadsheet();
+        $families = array();
+        /* $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets */
         if(!$families) $families = self::get_families_xlsx();
         if(!$families) $families = self::get_families(); // use to read a plain text file
         if($families)
@@ -86,7 +87,6 @@ class NCBIGGIqueryAPI
         $google_spreadsheets[] = array("title" => "FALO",                                            "column_number_to_return" => 16);
         $google_spreadsheets[] = array("title" => "falo_version 2.0.a.11_03-01-14 minus unassigned", "column_number_to_return" => 16);
         $google_spreadsheets[] = array("title" => "FALO_Version 2.0.a.1 minus unassigned",           "column_number_to_return" => 14);
-        
         $sheet = array();
         foreach($google_spreadsheets as $doc)
         {
