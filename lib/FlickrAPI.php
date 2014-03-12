@@ -231,7 +231,7 @@ class FlickrAPI
         $data_object_parameters = array();
         $data_object_parameters["identifier"] = $photo->id;
         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/StillImage";
-        $data_object_parameters["mimeType"] = "image/jpeg";
+        $data_object_parameters["mimeType"] = Functions::get_mimetype($photo->originalformat, true);
         $data_object_parameters["title"] = $photo->title->_content;
         $data_object_parameters["description"] = $photo->description->_content;
         $data_object_parameters["mediaURL"] = self::photo_url($photo->id, $photo->secret, $photo->server, $photo->farm);
