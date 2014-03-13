@@ -36,11 +36,8 @@ class NCBIGGIqueryAPI
 
         // local
         $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
-        $this->families_list_xlsx = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx";
-        
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
-        $this->families_list_xlsx = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx";
-
+        
         // NCBI service
         $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
         // $this->family_service_ncbi = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
@@ -114,16 +111,26 @@ class NCBIGGIqueryAPI
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        if($path = Functions::save_remote_file_to_local($this->families_list_xlsx, array("timeout" => 1200, "file_extension" => "xlsx")))
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/kqhru8pyc9ujktb/FALO.xlsx?dl=1&token_hash=AAEzlUqBxtGt8_iPX-1soVQ7m61K10w9LyxQIABeMg4LeQ"; // from Cyndy's Dropbox
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/9x3q0f7burh465k/FALO.xlsx?dl=1&token_hash=AAH94jgsY0_nI3F0MgaieWyU-2NpGpZFUCpQXER-dqZieg"; // from Eli's Dropbox
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // again from Eli's Dropbox
+        // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
+        foreach($dropbox_xlsx as $doc)
         {
-            $arr = $parser->convert_sheet_to_array($path);
-            foreach($arr["FAMILY"] as $family)
+            echo "\n processing [$doc]...\n";
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 1200, "file_extension" => "xlsx")))
             {
-                $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
-                if(is_numeric($family)) continue;
-                if($family) $families[$family] = 1;
+                $arr = $parser->convert_sheet_to_array($path);
+                foreach($arr["FAMILY"] as $family)
+                {
+                    $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+                    if(is_numeric($family)) continue;
+                    if($family) $families[$family] = 1;
+                }
+                unlink($path);
+                break;
             }
-            unlink($path);
+            else echo "\n [$doc] unavailable! \n";
         }
         return array_keys($families);
     }
