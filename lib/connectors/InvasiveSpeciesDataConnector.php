@@ -45,6 +45,7 @@ class InvasiveSpeciesDataConnector
             {
                 $info = array();
                 $info["taxon_id"] = $taxon["taxon_id"];
+                $info["schema_taxon_id"] = $taxon["schema_taxon_id"];
                 $info["taxon"]["sciname"] = (string) $taxon["sciname"];
                 $info["source"] = $taxon["source"];
                 $info["citation"] = "CABI International Invasive Species Compendium, " . date("Y") . ". " . $taxon["sciname"] . ". Available from: " . $taxon["source"] . " [Accessed " . date("M-d-Y") . "].";
@@ -86,7 +87,11 @@ class InvasiveSpeciesDataConnector
                             if(preg_match("/\((.*?)\)/ims", $sciname, $arr3)) $rec["vernacular"] = $arr3[1];
                             $rec["sciname"] = trim(preg_replace('/\s*\([^)]*\)/', '', $sciname)); //remove parenthesis
                         }
-                        if($rec) $taxa[] = $rec;
+                        if($rec)
+                        {
+                            $rec["schema_taxon_id"] = "cabi_" . $rec["taxon_id"];
+                            $taxa[] = $rec;
+                        }
                     }
                     if(count($taxa) >= $total_count) break;
                 }
@@ -200,6 +205,7 @@ class InvasiveSpeciesDataConnector
                 if($info)
                 {
                     $info["taxon_id"] = $taxon_id;
+                    $info["schema_taxon_id"] = $taxon["schema_taxon_id"];
                     $info["taxon"] = $taxon;
                     $info["source"] = $url;
                     $info["citation"] = "Global Invasive Species Database, " . date("Y") . ". " . $taxon["sciname"] . ". Available from: http://www.issg.org/database/species/ecology.asp?si=" . $taxon_id . "&fr=1&sts=sss [Accessed " . date("M-d-Y") . "].";
@@ -222,7 +228,11 @@ class InvasiveSpeciesDataConnector
                     $id = null; $sciname = null;
                     if(preg_match("/(.*?)\&/ims", $temp, $arr2))             $id = $arr2[1];
                     if(preg_match("/<i>(.*?)xxx/ims", $temp . "xxx", $arr2)) $sciname = $arr2[1];
-                    if($id && $sciname) $taxa[$id]["sciname"] = $sciname;
+                    if($id && $sciname)
+                    {
+                        $taxa[$id]["schema_taxon_id"] = "gisd_" . $id;
+                        $taxa[$id]["sciname"] = $sciname;
+                    }
                 }
             }
         }
@@ -232,7 +242,7 @@ class InvasiveSpeciesDataConnector
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                 = $rec["taxon_id"];
+        $taxon->taxonID                 = $rec["schema_taxon_id"];
         $taxon->scientificName = $rec["taxon"]["sciname"];
         $taxon->furtherInformationURL   = $rec["source"];
         echo "\n" . $taxon->scientificName . " [$taxon->taxonID]";
@@ -265,7 +275,7 @@ class InvasiveSpeciesDataConnector
     
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array())
     {
-        $taxon_id = $rec["taxon_id"];
+        $taxon_id = $rec["schema_taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
@@ -286,6 +296,7 @@ class InvasiveSpeciesDataConnector
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . '_' . $catnum;
+        $occurrence_id = md5($taxon_id . '_' . $catnum);
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
