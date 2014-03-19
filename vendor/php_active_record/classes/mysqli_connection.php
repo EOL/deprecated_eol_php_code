@@ -284,10 +284,9 @@ class MysqliConnection
         unlink($outfile);
     }
 
-    function update_where($table, $field, $select, $set)
+    function update_where($table, $field, $select, $set, $udelay = 500000, $batch_size = 10000)
     {
         $outfile = $this->select_into_outfile($select);
-        $udelay = 500000;
         $ids = array();
         $this->begin_transaction();
         $FILE = fopen($outfile, "r");
@@ -296,7 +295,7 @@ class MysqliConnection
             if($line = fgets($FILE, 4096))
             {
                 $ids[] = trim($line);
-                if(count($ids)>=10000)
+                if(count($ids) >= $batch_size)
                 {
                     $update_query = "UPDATE $table SET $set WHERE $field IN (".implode(",", $ids).")";
                     $this->update($update_query);

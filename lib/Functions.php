@@ -362,6 +362,7 @@ class Functions
         self::author_parts();
         self::junk_parts();
         
+        $string = str_replace('&times;', '×', $string);
         if(preg_match("/^X (.*)$/i",$string,$arr)) $string = $arr[1];
         $string = str_ireplace(" tipo veneto","",$string);
         $string = str_replace("×"," ",$string);
@@ -414,6 +415,7 @@ class Functions
     public static function ranked_canonical_form($string)
     {
         require_library('RubyNameParserClient');
+        $string = str_replace('&times;', '×', $string);
         if(!isset($GLOBALS['NAME_PARSER_CLIENT'])) $GLOBALS['NAME_PARSER_CLIENT'] = new RubyNameParserClient();
         return $GLOBALS['NAME_PARSER_CLIENT']->lookup_string($string);
     }
@@ -772,6 +774,7 @@ class Functions
         $name = str_replace("&"," & ",$name);
         $name = str_replace("?"," ? ",$name);
         $name = str_replace("*"," * ",$name);
+        $name = str_replace("&times;"," × ",$name);
         $name = str_replace("×"," × ",$name);
         $name = str_replace(" and "," & ",$name);
         $name = str_replace(" et "," & ",$name);
