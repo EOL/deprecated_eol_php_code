@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector: [723] NCBI GGI queries (DATA-1369)
               [730] GGBN Queries for GGI  (DATA-1372)
               [731] GBIF records (DATA-1370)
-              [743] Create a resource for more Database Coverage data (BHL and BOLD info) (DATA-1417)
+              [743, 747] Create a resource for more Database Coverage data (BHL and BOLD info) (DATA-1417)
 
 
 #==== 5 AM, every 4th day of the month -- [Number of sequences in GenBank (DATA-1369)]
@@ -14,6 +14,13 @@ namespace php_active_record;
 
 #==== 5 AM, every 6th day of the month -- [Number of records in GBIF (DATA-1370)]
 00 05 6 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/731.php > /dev/null
+
+#==== 5 AM, every 7th day of the month -- [Number of pages in BHL (DATA-1417)]
+00 05 7 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/743.php > /dev/null
+
+#==== 5 AM, every 8th day of the month -- [Number of specimens with sequence in BOLDS (DATA-1417)]
+00 05 8 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/747.php > /dev/null
+
 
 */
 class NCBIGGIqueryAPI
@@ -29,14 +36,11 @@ class NCBIGGIqueryAPI
 
         // local
         $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
-        $this->families_list_xlsx = "http://localhost/~eolit/cp/NCBIGGI/FALO_Version%202.0.a.1%20minus%20unassigned.xlsx";
-        
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
-        $this->families_list_xlsx = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO_Version%202.0.a.1%20minus%20unassigned.xlsx";
-
+        
         // NCBI service
         $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
-        $this->family_service_ncbi = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
+        // $this->family_service_ncbi = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
         /* to be used if u want to get all Id's, that is u will loop to get all Id's so server won't be overwhelmed: &retmax=10&retstart=0 */
         
         // GGBN data portal:
@@ -61,14 +65,45 @@ class NCBIGGIqueryAPI
 
     function get_all_taxa()
     {
-        /* $families = self::get_families(); */ // use to read a plain text file
-        $families = self::get_families_xlsx();
-        self::create_instances_from_taxon_object($families);
-        $this->create_archive();
-        
+        $families = array();
+        /* $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets */
+        if(!$families) $families = self::get_families_xlsx();
+        if(!$families) $families = self::get_families(); // use to read a plain text file
+        if($families)
+        {
+            self::create_instances_from_taxon_object($families);
+            $this->create_archive();
+        }
         // remove temp dir
         recursive_rmdir($this->TEMP_DIR);
         debug("\n temporary directory removed: " . $this->TEMP_DIR);
+    }
+
+    private function get_families_from_google_spreadsheet()
+    {
+        $google_spreadsheets[] = array("title" => "FALO",                                            "column_number_to_return" => 16);
+        $google_spreadsheets[] = array("title" => "falo_version 2.0.a.11_03-01-14 minus unassigned", "column_number_to_return" => 16);
+        $google_spreadsheets[] = array("title" => "FALO_Version 2.0.a.1 minus unassigned",           "column_number_to_return" => 14);
+        $sheet = array();
+        foreach($google_spreadsheets as $doc)
+        {
+            echo "\n processing spreadsheet: " . $doc["title"] . "\n";
+            if($sheet = Functions::get_google_spreadsheet(array("spreadsheet_title" => $doc["title"], "column_number_to_return" => $doc["column_number_to_return"], "timeout" => 999999)))
+            {
+                echo "\n successful process: " . $doc["title"] . "\n";
+                break;
+            }
+            else echo "\n un-successful process: " . $doc["title"] . "\n";
+        }
+        if(!$sheet) return array();
+        $families = array();
+        foreach($sheet as $family)
+        {
+            $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+            if(is_numeric($family)) continue;
+            if($family) $families[$family] = 1;
+        }
+        return array_keys($families);
     }
 
     private function get_families_xlsx()
@@ -76,15 +111,26 @@ class NCBIGGIqueryAPI
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        if($path = Functions::save_remote_file_to_local($this->families_list_xlsx, array("timeout" => 1200, "file_extension" => "xlsx")))
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/kqhru8pyc9ujktb/FALO.xlsx?dl=1&token_hash=AAEzlUqBxtGt8_iPX-1soVQ7m61K10w9LyxQIABeMg4LeQ"; // from Cyndy's Dropbox
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/9x3q0f7burh465k/FALO.xlsx?dl=1&token_hash=AAH94jgsY0_nI3F0MgaieWyU-2NpGpZFUCpQXER-dqZieg"; // from Eli's Dropbox
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // again from Eli's Dropbox
+        // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
+        foreach($dropbox_xlsx as $doc)
         {
-            $arr = $parser->convert_sheet_to_array($path);
-            foreach($arr["FAMILY"] as $family)
+            echo "\n processing [$doc]...\n";
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 1200, "file_extension" => "xlsx")))
             {
-                $family = trim(str_ireplace("Family ", "", $family));
-                if($family) $families[$family] = 1;
+                $arr = $parser->convert_sheet_to_array($path);
+                foreach($arr["FAMILY"] as $family)
+                {
+                    $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+                    if(is_numeric($family)) continue;
+                    if($family) $families[$family] = 1;
+                }
+                unlink($path);
+                break;
             }
-            unlink($path);
+            else echo "\n [$doc] unavailable! \n";
         }
         return array_keys($families);
     }
