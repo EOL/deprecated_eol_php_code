@@ -35,7 +35,7 @@ class ConabioAPI
         {
             $i++;
             print "\n $i of $total \n";
-            if($contents = Functions::lookup_with_cache($filename, array("download_wait_time" => 1000000, "timeout" => 1800, "delay_in_minutes" => 2, "expire_seconds" => 0)))
+            if($contents = Functions::lookup_with_cache($filename, array("download_wait_time" => 1000000, "timeout" => 1800, "delay_in_minutes" => 2))) // "expire_seconds" => 0
             {
                 // manual adjustments
                 if($resource_id == 106) $contents = str_ireplace(array("*"), "", $contents); // tamborine mt.
