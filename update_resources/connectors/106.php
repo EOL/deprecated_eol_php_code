@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-/*connector for CONABIO
-estimated execution time: 11 minutes for 500 taxa
+/*connector for The Biodiversity of Tamborine Mountain
+estimated execution time: 
 Partner provides a list of URL's for its individual species XML.
 The connector loops to this list and compiles each XML to 1 final XML for EOL ingestion.
 */
@@ -9,7 +9,7 @@ The connector loops to this list and compiles each XML to 1 final XML for EOL in
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/ConabioAPI');
-$resource_id = 100;
+$resource_id = 106;
 ConabioAPI::combine_all_xmls($resource_id);
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 1000)
