@@ -68,13 +68,7 @@ if($file_url || $file_upload)
         <hr/>
         <h3>Errors</h3>
         <blockquote><pre><?php
-            if($structural_errors)
-            {
-                foreach($structural_errors as $error)
-                {
-                    print_exception($error);
-                }
-            }
+            display_exceptions($structural_errors);
             display_exceptions($errors);
         ?></pre></blockquote>
         <?php
@@ -92,9 +86,12 @@ if($file_url || $file_upload)
 
 function display_exceptions($exceptions)
 {
-    foreach($exceptions as $exception)
+    if($exceptions)
     {
-        print_exception($exception);
+        foreach($exceptions as $exception)
+        {
+            print_exception($exception);
+        }
     }
 }
 
