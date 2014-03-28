@@ -187,6 +187,8 @@ class ArchiveDataIngester
         $taxonomic_status = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
         $source_url = @self::field_decode($row['http://rs.tdwg.org/ac/terms/furtherInformationURL']);
         if(!$source_url) $source_url = @self::field_decode($row['http://purl.org/dc/terms/source']);
+        if(!$source_url) $source_url = @self::field_decode($row['http://purl.org/dc/terms/references']);
+        if(!$source_url) $source_url = @self::field_decode($row['http://purl.org/dc/terms/isReferencedBy']);
         if(isset($row['http://rs.tdwg.org/dwc/terms/taxonRemarks'])) $taxon_remarks = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRemarks']);
         else $taxon_remarks = NULL;
         if(!$taxon_remarks && strtolower($taxonomic_status) == 'provisionally accepted name') $taxon_remarks = "provisionally accepted name";
@@ -728,7 +730,6 @@ class ArchiveDataIngester
         $title = @self::field_decode($row['http://purl.org/dc/terms/title']);
         $author = @self::field_decode($row['http://purl.org/dc/terms/creator']);
         $date = @self::field_decode($row['http://purl.org/dc/terms/date']);
-        // $primary_title = @self::field_decode($row['http://purl.org/dc/terms/source']);
         $description = @self::field_decode($row['http://purl.org/dc/terms/description']);
         // $subject = @self::field_decode($row['http://purl.org/dc/terms/subject']);
         $source = @self::field_decode($row['http://purl.org/dc/terms/source']);

@@ -264,6 +264,72 @@ class ContentArchiveValidator
         unset($this->warnings_by_line);
     }
 
+    public static function validate_url($url, $suffix = null)
+    {
+        if(!$suffix && preg_match("/\.([a-z]{2,4})$/", $url, $arr)) $suffix = $arr[1];
+        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, array('suffix' => $suffix)))
+        {
+            if(is_dir($temp_dir))
+            {
+                if(file_exists($temp_dir . "/meta.xml"))
+                {
+                    $archive = new ContentArchiveReader(null, $temp_dir);
+                    $validator = new ContentArchiveValidator($archive);
+                    $validator->get_validation_errors();
+                    return array( 'errors' => $validator->display_errors(),
+                                  'structural_errors' => $validator->structural_errors(),
+                                  'warnings' => $validator->display_warnings(),
+                                  'stats' => $validator->stats() );
+                }else
+                {
+                    $error = new \eol_schema\ContentArchiveError();
+                    $error->message = "Unable to locate a meta.xml file. Make sure the archive does not contain a directory - just the archive files.";
+                    return array( 'structural_errors' => array( $error ));
+                }
+                recursive_rmdir($temp_dir);
+            }else
+            {
+                $path_parts = pathinfo($temp_dir);
+                $extension = @$path_parts['extension'];
+                $archive_tmp_dir = @$path_parts['dirname'] ."/". @$path_parts['filename'];
+                recursive_rmdir($archive_tmp_dir);
+                mkdir($archive_tmp_dir);
+                if($extension == 'xlsx' || $extension == 'xls')
+                {
+                    require_library('ExcelToText');
+                    $archive_converter = new ExcelToText($temp_dir, $archive_tmp_dir);
+                    if($archive_converter->errors()) return array( 'errors' => $archive_converter->errors());
+                    if($archive_converter->is_new_schema_spreadsheet())
+                    {
+                        $archive_converter->convert_to_new_schema_archive();
+                        if($archive_converter->errors()) return array( 'errors' => $archive_converter->errors());
+                        $archive = new ContentArchiveReader(null, $archive_tmp_dir);
+                        $validator = new ContentArchiveValidator($archive);
+                        $validator->get_validation_errors();
+                        return array( 'errors' => $validator->display_errors(),
+                                      'structural_errors' => $validator->structural_errors(),
+                                      'warnings' => $validator->display_warnings(),
+                                      'stats' => $validator->stats() );
+                    }
+                    $error = new \eol_schema\ContentArchiveError();
+                    $error->message = "Unable to determine the template of Excel file";
+                    return array( 'structural_errors' => array( $error ));
+                }else
+                {
+                    $error = new \eol_schema\ContentArchiveError();
+                    $error->message = "The uploaded file was not in a format we recognize";
+                    return array( 'structural_errors' => array( $error ));
+                }
+                wildcard_rm($archive_tmp_dir);
+            }
+        }else
+        {
+            $error = new \eol_schema\ContentArchiveError();
+            $error->message = "There was a problem with the uploaded file";
+            return array( 'structural_errors' => array( $error ));
+        }
+    }
+
     /*
         Some basic rules
     */
