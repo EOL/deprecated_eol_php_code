@@ -1,17 +1,18 @@
 <?php
 namespace php_active_record;
-/* connector: [751] 
+/* connector: [751] [760]
 DATA-1426 Scrape invasive species data from GISD & CABI ISC
 */
 
 class InvasiveSpeciesDataConnector
 {
-    function __construct($folder)
+    function __construct($folder, $partner)
     {
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
+        $this->taxon_ids = array();
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); // 'expire_seconds' => 0
         // Global Invasive Species Database (GISD)
         $this->GISD_portal_by_letter    = "http://www.issg.org/database/species/search.asp?sts=sss&st=sss&fr=1&x=25&y=12&rn=&hci=-1&ei=-1&lang=EN&sn=";
@@ -22,12 +23,13 @@ class InvasiveSpeciesDataConnector
         $this->CABI_taxon_distribution = "http://www.cabi.org/isc/DatasheetDetailsReports.aspx?&iSectionId=DD*0&sSystem=Product&iPageID=481&iCompendiumId=5&iDatasheetID=";
         $this->CABI_references = array();
         $this->CABI_ref_page = "http://www.cabi.org/isc/references.aspx?PAN=";
+        $this->partner = $partner;
     }
 
     function generate_invasiveness_data()
     {
-        self::process_GISD();
-        self::process_CABI();
+        if    ($this->partner == "GISD")     self::process_GISD();
+        elseif($this->partner == "CABI ISC") self::process_CABI();
         $this->archive_builder->finalize(TRUE);
     }
 
@@ -90,6 +92,12 @@ class InvasiveSpeciesDataConnector
                         if($rec)
                         {
                             $rec["schema_taxon_id"] = "cabi_" . $rec["taxon_id"];
+                            
+                            // manual adjustments
+                            $rec["sciname"] = trim(str_ireplace(array("[ISC]", "race 2", "race 1", "of oysters", "small colony type", "/maurini of mussels", ")"), "", $rec["sciname"]));
+                            if(ctype_lower(substr($rec["sciname"],0,1))) continue;
+                            if(self::term_exists_then_exclude_from_list($rec["sciname"], array("honey", "virus", "fever", "Railways", "infections", " group", "Soil", "Hedges", "Digestion", "Clothing", "production", "Forestry", "Habitat", "plants", "complex", "viral", "disease", "large"))) continue;
+                            
                             $taxa[] = $rec;
                         }
                     }
@@ -103,6 +111,15 @@ class InvasiveSpeciesDataConnector
         return $taxa;
     }
 
+    private function term_exists_then_exclude_from_list($string, $terms)
+    {
+        foreach($terms as $term)
+        {
+            if(is_numeric(stripos($string, $term))) return true;
+        }
+        return false;
+    }
+    
     private function process_CABI_distribution($rec)
     {
         if($html = Functions::lookup_with_cache($this->CABI_taxon_distribution . $rec["taxon_id"], $this->download_options))
@@ -246,7 +263,11 @@ class InvasiveSpeciesDataConnector
         $taxon->scientificName = $rec["taxon"]["sciname"];
         $taxon->furtherInformationURL   = $rec["source"];
         echo "\n" . $taxon->scientificName . " [$taxon->taxonID]";
-        $this->archive_builder->write_object_to_file($taxon);
+        if(!isset($this->taxon_ids[$taxon->taxonID]))
+        {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = 1;
+        }
     }
 
     private function process_GISD_distribution($rec)
@@ -295,7 +316,6 @@ class InvasiveSpeciesDataConnector
 
     private function add_occurrence($taxon_id, $catnum)
     {
-        $occurrence_id = $taxon_id . '_' . $catnum;
         $occurrence_id = md5($taxon_id . '_' . $catnum);
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
