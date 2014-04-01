@@ -51,8 +51,7 @@ class InvasiveSpeciesDataConnector
                 $info["taxon"]["sciname"] = (string) $taxon["sciname"];
                 $info["source"] = $taxon["source"];
                 $info["citation"] = "CABI International Invasive Species Compendium, " . date("Y") . ". " . $taxon["sciname"] . ". Available from: " . $taxon["source"] . " [Accessed " . date("M-d-Y") . "].";
-                $this->create_instances_from_taxon_object($info);
-                $this->process_CABI_distribution($info);
+                if($this->process_CABI_distribution($info)) $this->create_instances_from_taxon_object($info); // only include names with Nativity or Invasiveness info
             }
         }
     }
@@ -122,6 +121,7 @@ class InvasiveSpeciesDataConnector
     
     private function process_CABI_distribution($rec)
     {
+        $has_data = false;
         if($html = Functions::lookup_with_cache($this->CABI_taxon_distribution . $rec["taxon_id"], $this->download_options))
         {
             if(preg_match_all("/Helvetica;padding\: 5px\'>(.*?)<\/tr>/ims", $html, $arr))
@@ -135,13 +135,22 @@ class InvasiveSpeciesDataConnector
                         if(substr($country,0,1) != "-")
                         {
                             $reference_ids = self::parse_references(trim(@$row[6]));
-                            if(@$row[3]) self::process_origin_invasive_objects("origin"  , $row[3], $country, $rec, $reference_ids);
-                            if(@$row[5]) self::process_origin_invasive_objects("invasive", $row[5], $country, $rec, $reference_ids);
+                            if(@$row[3])
+                            {
+                                $has_data = true;
+                                self::process_origin_invasive_objects("origin"  , $row[3], $country, $rec, $reference_ids);
+                            }
+                            if(@$row[5]) 
+                            {
+                                $has_data = true;
+                                self::process_origin_invasive_objects("invasive", $row[5], $country, $rec, $reference_ids);
+                            }
                         }
                     }
                 }
             }
         }
+        return $has_data;
     }
 
     private function parse_references($ref)
@@ -186,13 +195,19 @@ class InvasiveSpeciesDataConnector
             case "Native":          $uri = "http://eol.org/schema/terms/NativeRange"; break;
             case "Not invasive":    $uri = "http://eol.org/schema/terms/NonInvasiveRange"; break;
         }
-        if(strpos($value, "introduced") === true) $uri = "http://eol.org/schema/terms/IntroducedRange";
+        if(strpos($value, "introduced") === false) {}
+        else $uri = "http://eol.org/schema/terms/IntroducedRange";
         if($uri)
         {
             $rec["catnum"] = $type . "_" . str_replace(" ", "_", $country);
             self::add_string_types("true", $rec, "", $country, $uri, $reference_ids);
             if($val = $rec["taxon"]["sciname"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
             if($val = $rec["citation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+        }
+        else
+        {
+            echo "\n investigate no data\n";
+            print_r($rec);
         }
     }
     
