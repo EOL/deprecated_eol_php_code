@@ -81,15 +81,15 @@ class AlgaebaseClassificationAPI
                         $sciname = trim($rec["genus.genus"]);
                         $taxon_id = "g_" . $rec["genus.id"];
                         $parent = "";
-                        if(@$rec["family"]) $parent = @$rec["family"];
-                        elseif(@$rec["order"]) $parent = @$rec["order"];
-                        elseif(@$rec["class"]) $parent = @$rec["class"];
-                        elseif(@$rec["phylum"]) $parent = @$rec["phylum"];
+                        if    (@$rec["family"] && @$rec["family"] != "Fungi Family") $parent = @$rec["family"];
+                        elseif(@$rec["order"]  && @$rec["order"]  != "Fungi Order") $parent = @$rec["order"];
+                        elseif(@$rec["class"]  && @$rec["class"]  != "Fungi Class") $parent = @$rec["class"];
+                        elseif(@$rec["phylum"] && @$rec["phylum"] != "Fungi Phylum") $parent = @$rec["phylum"];
                         elseif(@$rec["kingdom"]) $parent = @$rec["kingdom"];
-                        if(!isset($this->name_id[@$rec["family"]]) && @$rec["family"]) self::create_taxon(@$rec["family"], @$rec["order"], "family");
-                        if(!isset($this->name_id[@$rec["order"]]) && @$rec["order"]) self::create_taxon(@$rec["order"], @$rec["class"], "order");
-                        if(!isset($this->name_id[@$rec["class"]]) && @$rec["class"]) self::create_taxon(@$rec["class"], @$rec["phylum"], "class");
-                        if(!isset($this->name_id[@$rec["phylum"]]) && @$rec["phylum"]) self::create_taxon(@$rec["phylum"], @$rec["kingdom"], "phylum");
+                        if(!isset($this->name_id[@$rec["family"]])  && @$rec["family"] && @$rec["family"] != "Fungi Family") self::create_taxon(@$rec["family"], @$rec["order"], "family");
+                        if(!isset($this->name_id[@$rec["order"]])   && @$rec["order"]  && @$rec["order"]  != "Fungi Order") self::create_taxon(@$rec["order"], @$rec["class"], "order");
+                        if(!isset($this->name_id[@$rec["class"]])   && @$rec["class"]  && @$rec["class"]  != "Fungi Class") self::create_taxon(@$rec["class"], @$rec["phylum"], "class");
+                        if(!isset($this->name_id[@$rec["phylum"]])  && @$rec["phylum"] && @$rec["phylum"] != "Fungi Phylum") self::create_taxon(@$rec["phylum"], @$rec["kingdom"], "phylum");
                         if(!isset($this->name_id[@$rec["kingdom"]]) && @$rec["kingdom"]) self::create_taxon(@$rec["kingdom"], "", "kingdom");
                     }
                     if($group == "species") $id = "species.id";

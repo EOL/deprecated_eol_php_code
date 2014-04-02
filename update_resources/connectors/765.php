@@ -1,15 +1,17 @@
 <?php
 namespace php_active_record;
-/* execution time:  */
+/* CoralReefFish.com - with image and text objects
+estimated execution time:
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/InvasiveSpeciesDataConnector');
+require_library('connectors/CoralReefFishAPI');
+
 $timestart = time_elapsed();
-$resource_id = 751;
+$resource_id = 765;
+$func = new CoralReefFishAPI($resource_id);
 
-$func = new InvasiveSpeciesDataConnector($resource_id, "GISD");
-$func->generate_invasiveness_data();
-
+$func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
@@ -24,8 +26,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
-echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing.\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+echo "\nDone processing.\n";
 ?>

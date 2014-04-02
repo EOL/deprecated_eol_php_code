@@ -5,9 +5,9 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/InvasiveSpeciesDataConnector');
 $timestart = time_elapsed();
-$resource_id = 751;
+$resource_id = 760;
 
-$func = new InvasiveSpeciesDataConnector($resource_id, "GISD");
+$func = new InvasiveSpeciesDataConnector($resource_id, "CABI ISC");
 $func->generate_invasiveness_data();
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)

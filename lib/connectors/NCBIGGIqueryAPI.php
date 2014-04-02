@@ -118,7 +118,7 @@ class NCBIGGIqueryAPI
         foreach($dropbox_xlsx as $doc)
         {
             echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 1200, "file_extension" => "xlsx")))
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
             {
                 $arr = $parser->convert_sheet_to_array($path);
                 foreach($arr["FAMILY"] as $family)
@@ -138,7 +138,7 @@ class NCBIGGIqueryAPI
     private function get_families()
     {
         $families = array();
-        if(!$temp_path_filename = Functions::save_remote_file_to_local($this->families_list)) return;
+        if(!$temp_path_filename = Functions::save_remote_file_to_local($this->families_list, $this->download_options)) return;
         foreach(new FileIterator($temp_path_filename) as $line_number => $line)
         {
             if($line)
