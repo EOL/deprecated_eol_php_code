@@ -64,7 +64,7 @@ class CoralReefFishAPI
                     "Early juvenile markings: New recruits (10-15 mm SL) of <i>S. partitus</i> have<p>Later juveniles (over 20 mm SL) are characterized by", 
                     "Juvenile analogues: New recruits of <i>S. partitus</i> are separated", "Microspathodon chrysurus new recruit, 10.9 mm SL", "10.6 mm SL<p>(San Blas, Panama, SB84-523)", 
                     "11.1 mm SL<p>(San Blas, Panama, SB83-137)", "Diagnosis: Damselfishes (ML)", "Stegastes planifrons new recruit, 10.9 mm SL 10.9 mm SL", 
-                    "Early juvenile markings: New recruits (10-15 mm SL) of <i>S. adustus</i> have<p>Later juveniles (over 20 mm SL) are characterized by", 
+                    "Early juvenile markings: New recruits (10-15 mm SL) of <i>S. adustus</i> have<p>Later juveniles (over 20 mm SL) are characterized by"
                 ))) continue;
                 if(!$description) continue;
                 $obj = array();
@@ -268,6 +268,7 @@ class CoralReefFishAPI
                         if($url == "http://www.coralreeffish.com/gobiidae.html" && substr($t,0,6) == "Group ") continue;
                         if(!$t) continue;
                         // echo "\n-----------------------------------------------------------\n" . $t;
+                        if(in_array($t, array("Species of <i>Serranus</i> are listed in order of increasing pectoral-fin ray counts", "Serranus tortugarum early transitional larva", "Microdesmus luscus larva", "Microdesmus carri larva"))) continue;
                         if    (is_numeric(stripos($t, "Diagnosis:")))   $texts["Diagnosis"][] = $t;
                         elseif(is_numeric(stripos($t, "Analogues:")))   $texts["Analogues"][] = $t;
                         elseif(is_numeric(stripos($t, "Description:"))) $texts["Description"][] = $t;
