@@ -117,6 +117,16 @@ class ObisDataConnector
             elseif($metadata['type'] == 'chemistry') $occurrence = $chemistry_occurrence;
             else continue;
             $value = @trim($line_data[$this->column_indices[$field_name]]);
+            
+            if(in_array($field_name, array("mindepth", "maxdepth")))
+            {
+                if($value > 11000)
+                {
+                    echo "\n $field_name = $value \n";
+                    continue;
+                }
+            }
+            
             if($value || $value === "0")
             {
                 $m = new \eol_schema\MeasurementOrFact();
