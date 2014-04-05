@@ -259,7 +259,7 @@ class InvasiveSpeciesDataConnector
                 {
                     $id = null; $sciname = null;
                     if(preg_match("/(.*?)\&/ims", $temp, $arr2))             $id = $arr2[1];
-                    if(preg_match("/<i>(.*?)xxx/ims", $temp . "xxx", $arr2)) $sciname = $arr2[1];
+                    if(preg_match("/<i>(.*?)<\/i>/ims", $temp . "</i>", $arr2)) $sciname = $arr2[1];
                     if($id && $sciname)
                     {
                         $taxa[$id]["schema_taxon_id"] = "gisd_" . $id;
