@@ -3,16 +3,23 @@ namespace php_active_record;
 
 class ObisDataConnector
 {
-    const TAXA_FILE_PATH = "/Users/pleary/Downloads/datasets/OBIS_nov_2011/tnames_OBIS.csv";
-    const DATA_FILE_PATH = "/Users/pleary/Downloads/datasets/OBIS_nov_2011/ranges_OBIS.csv";
+    // const TAXA_FILE_PATH = "/Users/pleary/Downloads/datasets/OBIS_nov_2011/tnames_OBIS.csv";
+    // const DATA_FILE_PATH = "/Users/pleary/Downloads/datasets/OBIS_nov_2011/ranges_OBIS.csv";
 
     public function __construct($resource_id)
     {
         $this->resource_id = $resource_id;
+        $this->obis_csv_zip_file = "http://localhost/~eolit/cp/OBIS/OBIS_ranges.zip";
+        $this->worms_taxon_tab_zip_file = "http://localhost/~eolit/cp/OBIS/worms_taxon.tab.zip";
+        $this->text_path = array();
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->excluded_ranks = array("kingdom", "subkingdom", "phylum", "order", "class", "subclass", "suborder", "subphylum", "infraorder", "superorder", "superclass");
     }
 
     public function build_archive()
     {
+        $this->access_raw_data();
+        
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/$this->resource_id/";
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
@@ -21,17 +28,22 @@ class ObisDataConnector
         $this->read_taxon_names();
         $this->read_data();
         $this->archive_builder->finalize(true);
+
+        // remove temp dir
+        self::remove_temp_dir($this->text_path["obis"]["tnames_OBIS"], "tnames_OBIS");
+        self::remove_temp_dir($this->text_path["worms"]["worms_taxon"], "worms_taxon");
     }
 
 
     public function read_taxon_names()
     {
-        foreach(new FileIterator(self::TAXA_FILE_PATH) as $line_number => $line)
+        foreach(new FileIterator($this->text_path["obis"]["tnames_OBIS"]) as $line_number => $line)
         {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
             $line_data = ContentArchiveReader::line_to_array($line, ",", "\"");
             $taxon_id = trim($line_data[0]);
             if(!$taxon_id) continue;
+            if(!self::taxon_is_valid_based_on_worms(trim($line_data[1]))) continue;
             $taxon_name = trim($line_data[1] ." ". $line_data[2]);
             if($taxon_name) $this->taxon_names[$taxon_id] = $taxon_name;
             else echo "No name on line: $line_number\n";
@@ -42,7 +54,7 @@ class ObisDataConnector
     {
         $this->column_labels = array();
         $this->column_indices = array();
-        foreach(new FileIterator(self::DATA_FILE_PATH) as $line_number => $line)
+        foreach(new FileIterator($this->text_path["obis"]["ranges_OBIS"]) as $line_number => $line)
         {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
             $line_data = ContentArchiveReader::line_to_array($line, ",", "\"");
@@ -224,6 +236,60 @@ class ObisDataConnector
                 'unit_uri'      => 'http://purl.obolibrary.org/obo/UO_0000027')
        );
     }
+
+    private function access_raw_data()
+    {
+        require_library('connectors/IUCNRedlistDataConnector');
+        $func = new IUCNRedlistDataConnector();
+        $basenames = array("tnames_OBIS", "ranges_OBIS"); // csv files: taxa file, data file respectively
+        $this->text_path["obis"] = $func->load_zip_contents($this->obis_csv_zip_file, $this->download_options, $basenames, ".csv");
+        $this->text_path["worms"] = $func->load_zip_contents($this->worms_taxon_tab_zip_file, $this->download_options, array("worms_taxon"), ".tab");
+        print_r($this->text_path);
+        $this->worms_taxa = self::get_worms_taxa();
+    }
+
+    private function get_worms_taxa()
+    {
+        require_library('connectors/FishBaseAPI');
+        $func = new FishBaseAPI();
+        $fields = array();
+        $excluded_fields = array("taxonID", "furtherInformationURL", "referenceID", "namePublishedIn", "taxonomicStatus", "taxonRemarks", "rightsHolder", "parentNameUsageID");
+        $taxa = $func->make_array($this->text_path["worms"]["worms_taxon"], $fields, "", $excluded_fields);
+        array_shift($taxa);
+        foreach($taxa as $taxon) $final[Functions::canonical_form($taxon["scientificName"])] = $taxon["taxonRank"];
+        unset($taxa);
+        return $final;
+    }
+
+    private function taxon_is_valid_based_on_worms($canonical)
+    {
+        $canonical = trim(preg_replace('/\s*\([^)]*\)/', '', $canonical)); //remove parenthesis
+        if(!isset($this->worms_taxa[$canonical]))
+        {
+            /* DATA-1435 - we will no longer exclude taxa in OBIS that are not in the WORMS resource.
+            print "\n not found in WORMS [$canonical] will exclude";
+            return false;
+            */
+        }
+        else
+        {
+            if(in_array($this->worms_taxa[$canonical], $this->excluded_ranks))
+            {
+                print "\n rank not included [$canonical] - " . $this->worms_taxa[$canonical] . " will be excluded.";
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function remove_temp_dir($path, $basename)
+    {
+        $parts = pathinfo($path);
+        $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
+        recursive_rmdir($parts["dirname"]);
+        debug("\n temporary directory removed: " . $parts["dirname"]);
+    }
+
 }
 
 ?>
