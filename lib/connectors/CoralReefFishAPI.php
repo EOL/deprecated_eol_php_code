@@ -268,7 +268,7 @@ class CoralReefFishAPI
                         if($url == "http://www.coralreeffish.com/gobiidae.html" && substr($t,0,6) == "Group ") continue;
                         if(!$t) continue;
                         // echo "\n-----------------------------------------------------------\n" . $t;
-                        if(in_array($t, array("Species of <i>Serranus</i> are listed in order of increasing pectoral-fin ray counts", "Serranus tortugarum early transitional larva", "Microdesmus luscus larva", "Microdesmus carri larva"))) continue;
+                        if(in_array($t, array("Species of <i>Serranus</i> are listed in order of increasing pectoral-fin ray counts", "Serranus tortugarum early transitional larva", "Microdesmus luscus larva", "Microdesmus carri larva", "Cerdale floridana larva", "Cerdale floridana larva", "Cerdale floridana larvae", "Cerdale floridana larva"))) continue;
                         if    (is_numeric(stripos($t, "Diagnosis:")))   $texts["Diagnosis"][] = $t;
                         elseif(is_numeric(stripos($t, "Analogues:")))   $texts["Analogues"][] = $t;
                         elseif(is_numeric(stripos($t, "Description:"))) $texts["Description"][] = $t;
