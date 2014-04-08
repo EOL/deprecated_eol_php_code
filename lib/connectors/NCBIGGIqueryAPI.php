@@ -65,12 +65,13 @@ class NCBIGGIqueryAPI
 
     function get_all_taxa()
     {
-        $families = array();
-        /* $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets */
-        if(!$families) $families = self::get_families_xlsx();
-        if(!$families) $families = self::get_families(); // use to read a plain text file
-        // $families = self::get_families_with_missing_data_xlsx(); - utility
-        if($families)
+        /* 
+        $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets
+        $families = self::get_families(); use to read a plain text file
+        $families = self::get_families_with_missing_data_xlsx(); - utility
+        */
+
+        if($families = self::get_families_xlsx())
         {
             self::create_instances_from_taxon_object($families);
             $this->create_archive();
