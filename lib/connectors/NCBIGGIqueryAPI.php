@@ -420,12 +420,15 @@ class NCBIGGIqueryAPI
             if(!isset($json->alternatives)) return false;
             foreach($json->alternatives as $rec)
             {
-                if($rec->canonicalName == $family) $options[$rec->rank] = $rec->usageKey;
-                $usagekeys[] = $rec->usageKey;
+                if($rec->canonicalName == $family)
+                {
+                    $options[$rec->rank][] = $rec->usageKey;
+                    $usagekeys[] = $rec->usageKey;
+                }
             }
             if($options)
             {
-                if(isset($options["FAMILY"])) return $options["FAMILY"];
+                if(isset($options["FAMILY"])) return min($options["FAMILY"]);
                 else return min($usagekeys);
             }
         }
