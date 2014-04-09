@@ -14,6 +14,7 @@ class CoralReefFishAPI
         $this->EOL = 'http://eol.org/schema/eol_info_items.xml';
         $this->domain = "http://www.coralreeffish.com/";
         $this->family_list_page = $this->domain . "larvae.html";
+        $this->gobiidae_page = $this->domain . "gobiidae.html";
         $this->download_options = array("download_wait_time" => 2000000, "timeout" => 1800, "delay_in_minutes" => 2); // "expire_seconds" => 0
         $this->records = array();
     }
@@ -28,6 +29,7 @@ class CoralReefFishAPI
             self::process_family($name, $url);
         }
         self::process_records();
+        self::process_gobiidae_structured_data();
         $this->create_archive();
     }
 
@@ -200,6 +202,127 @@ class CoralReefFishAPI
             case "Notes":       return $this->EOL . "#Notes";
             default: echo "\n investigate undefined subject for [$type]\n";
         }
+    }
+
+    private function process_gobiidae_structured_data()
+    {
+        $records = self::parse_gobiidae_structured_data();
+        foreach($records as $sciname => $record)
+        {
+            // start taxon entry
+            $r = array();
+            $r["sciname"] = $sciname;
+            $r["taxon_id"] = str_replace(" ", "_", $sciname);
+            $r["source"] = $this->gobiidae_page;
+            self::create_instances_from_taxon_object($r);
+            // start structured data
+            $rec = array();
+            $rec["taxon_id"] = $r["taxon_id"];
+            $rec["source"] = $this->gobiidae_page;
+            // - lifestage
+            $rec["catnum"] = "lifestage";
+            self::add_string_types("true", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
+            // - pelvic fins
+            if($info = self::format_pelvic_fin_form($record["Pelvic fins"]))
+            {
+                $rec["catnum"] = $info["basename"];
+                $pelvic_fin_form = $info["uri"];
+                self::add_string_types("true", $rec, "Pelvic fins", $pelvic_fin_form, "http://eol.org/schema/terms/PelvicFinForm");
+            }
+            // - anal-fin elements
+            if($val = $record["anal-fin elements"])
+            {
+                $arr = explode("-", $val);
+                if(count($arr) == 1)
+                {
+                    $rec["catnum"] = "AnalFinElements";
+                    self::add_string_types("true", $rec, "anal-fin elements", $val, "http://eol.org/schema/terms/NumberOfAnalFinElements");
+                }
+                else
+                {
+                    $rec["catnum"] = "AnalFinElements_min";
+                    $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001113";
+                    self::add_string_types("true", $rec, "anal-fin elements", $arr[0], "http://eol.org/schema/terms/NumberOfAnalFinElements");
+                    $rec["catnum"] = "AnalFinElements_max";
+                    $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001114";
+                    self::add_string_types("true", $rec, "anal-fin elements", $arr[1], "http://eol.org/schema/terms/NumberOfAnalFinElements");
+                }
+            }
+            // - 1st dorsal spines
+            if($val = $record["1st dorsal spines"])
+            {
+                $rec["catnum"] = "NumberOfSpinesFirstDorsalFin";
+                self::add_string_types("true", $rec, "1st dorsal spines", $val, "http://eol.org/schema/terms/NumberOfSpinesFirstDorsalFin");
+            }
+        }
+    }
+
+    private function format_pelvic_fin_form($form)
+    {
+        if(!$form) return false;
+        $uri = "";
+        if($form == "divided")                              $uri = "http://eol.org/schema/terms/dividedPelvicFin";
+        elseif($form == "partial")                          $uri = "http://eol.org/schema/terms/partiallyDivided";
+        elseif(in_array($form, array("fused", "fused*")))   $uri = "http://eol.org/schema/terms/fusedPelvicFin";
+        else echo "\n investigate pelvic fin form [$form] \n";
+        if($uri)
+        {
+            $info = pathinfo($uri);
+            return array("uri" => $uri, "basename" => $info["filename"]);
+        }
+        return false;
+    }
+
+    private function parse_gobiidae_structured_data()
+    {
+        $records = array();
+        $fields = array("Pelvic fins", "anal-fin elements", "1st dorsal spines", "anal fewer than dorsal", "equal", "anal more than dorsal");
+        if($html = Functions::lookup_with_cache($this->gobiidae_page, $this->download_options))
+        {
+            $html = str_ireplace('<TD CLASS="leftbodytext" WIDTH="32%">', '<TD WIDTH="32%">', $html);
+            if(preg_match("/NAME=\"gobies\" BORDERCOLOR=\"#999999\">(.*?)<\/table>/ims", $html, $arr))
+            {
+                if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1], $arr3))
+                {
+                    array_shift($arr3[1]);
+                    foreach($arr3[1] as $block)
+                    {
+                        $sciname = "";
+                        if(preg_match("/<i>(.*?)<\/i>/ims", $block, $arr2)) $sciname = trim($arr2[1]);
+                        elseif(preg_match("/WIDTH=\"32%\">(.*?)<\/td>/ims", $block, $arr2)) $sciname = trim(strip_tags($arr2[1]));
+                        $sciname = self::clean_str($sciname);
+                        $sciname = trim(str_ireplace(array("family","1","2"), "", $sciname));
+                        if(preg_match_all("/<TD CLASS=\"leftbodytext\"(.*?)<\/td>/ims", $block, $arr2))
+                        {
+                            if(count($arr2[1]) != 6)
+                            {
+                                echo "\n investigate";
+                                continue;
+                            }
+                            $i = 0;
+                            $values = array();
+                            echo "\n [$sciname] ";
+                            foreach($arr2[1] as $temp)
+                            {
+                                if(preg_match("/>(.*?)<\/td>/ims", $temp . "</td>", $arr3)) $values[$fields[$i]] = self::clean_str($arr3[1]);
+                                $i++;
+                            }
+                        }
+                        if($sciname && $values) $records[$sciname] = $values;
+                    }
+                }
+            }
+            else echo "\n not found \n";
+        }
+        return $records;
+    }
+
+    private function clean_str($str)
+    {
+        $str = trim($str);
+        $str = str_ireplace(array(chr(13), chr(10)), "", $str);
+        $str = Functions::remove_whitespace($str);
+        return $str;
     }
     
     private function process_family($name, $url)
@@ -413,24 +536,31 @@ class CoralReefFishAPI
         $this->archive_builder->finalize(TRUE);
     }
 
-    /*
-    private function add_string_types($taxon_id, $label, $value, $mtype)
+    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype)
     {
-        $catnum = "h";
+        $taxon_id = $rec["taxon_id"];
+        $catnum = $rec["catnum"];
+        
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
-        $m->measurementOfTaxon = 'true';
-        $m->source = $this->taxon_link["species"] . str_replace("s_", "", $taxon_id);
-        $m->contributor = 'AlgaeBase';
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        $m->source = $rec["source"];
+        // $m->contributor = 'coralreeffish.com';
         $m->measurementType = $mtype;
         $m->measurementValue = $value;
-        $m->measurementMethod = '';
+        
+        if($val = @$rec["statistical_method"])
+        {
+            $m->statisticalMethod = $val;
+        }
+        // $m->measurementMethod = '';
+        
         $this->archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $catnum)
     {
-        $occurrence_id = $taxon_id . 'O' . $catnum;
+        $occurrence_id = $taxon_id . '_' . $catnum;
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
@@ -439,7 +569,6 @@ class CoralReefFishAPI
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
     }
-    */
-    
+
 }
 ?>
