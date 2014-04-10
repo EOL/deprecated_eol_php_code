@@ -48,7 +48,7 @@ class NCBIGGIqueryAPI
         
         //GBIF services
         $this->gbif_taxon_info = "http://api.gbif.org/v0.9/species/match?name="; //http://api.gbif.org/v0.9/species/match?name=felidae&kingdom=Animalia
-        $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?nubKey=";
+        $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?taxonKey=";
         
         // BHL services
         $this->bhl_taxon_page = "http://www.biodiversitylibrary.org/name/";
